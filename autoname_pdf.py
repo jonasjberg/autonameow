@@ -70,4 +70,4 @@ def open_pdf(pdf_filename):
 #         print '[+] ' + metaItem + ':' + docInfo[metaItem]
 
 
-printMeta('Eclipse-IDE-Pocket-Guide_Burnette_OReilly-2005.pdf')
+# printMeta('Eclipse-IDE-Pocket-Guide_Burnette_OReilly-2005.pdf')
