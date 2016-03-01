@@ -20,7 +20,10 @@ Naming convention
 
 The naming convention is a configurable pattern of fields that is used for
 constructing new file names.
-Different naming patterns are used for different file types.
+
+File type determines which naming pattern is used.
+Different naming patterns apply to different file types, should be
+user configurable.
 
 In the examples below, ' _ ' is a customizable field separator.
 
@@ -28,14 +31,14 @@ In the examples below, ' _ ' is a customizable field separator.
 
 The terms used in the examples are defined as follows.
 
-+----------+------------------------------+--------------+
-| **Term** | **Description**              | **Example**  |
-+==========+==============================+==============+
-| ` _ `    | Represents a field separator | `_`,` `,`-`  |
-| `[date]` | ISO-8601 style date          | `2016-02-29` |
-| `[time]` | ISO-8601 style time          | `13-24-34`   |
-| `[ext]`  | file extension               | `jpg`,`txt`  |
-+----------+------------------------------+--------------+
++----------+-----------------------------+--------------+
+| **Term** | **Field description**       | **Example**  |
++==========+=============================+==============+
+| ` _ `    | (top-level) field separator | `_`,` `,`-`  |
+| `[date]` | ISO-8601 style date         | `2016-02-29` |
+| `[time]` | ISO-8601 style time         | `13-24-34`   |
+| `[ext]`  | file extension              | `jpg`,`txt`  |
++----------+-----------------------------+--------------+
 
 
 
