@@ -1,14 +1,19 @@
 import sys
-from autonameow.io import disk
+
+from io.disk import determine_file_type, check_arg
 
 
 def main():
+    print "in main"
+
     for a in sys.argv[1:]:
-        if disk.check_arg(a):
-            t = disk.determine_file_type(a)
-            print t
+        # For every argument ..
+        if check_arg(a):
+            t = determine_file_type(a)
+            print "type:", t
         else:
             continue
-        print(a)
 
-# f = open()
+
+if __name__ == "__main__":
+    main()
