@@ -2,25 +2,28 @@ import magic
 import os
 
 
-def determine_file_type(f):
-    # m = magic.Magic(mimetype=True)
-    # file_type = m.from_file(f)
-    #
-    # return file_type
+FTYPES = {
+    'JPEG' : 'jpg',
+    'GIF' : 'gif',
+    'PNG' : 'png',
+}
 
+
+def determine_file_type(f):
     ms = magic.open(magic.MAGIC_NONE)
     ms.load()
     type = ms.file(f)
     print type
 
-    ff = file(f, "r")
-    bffr = ff.read(4096)
-    ff.close()
-
-    type = ms.buffer(bffr)
-    print type
+    # ff = file(f, "r")
+    # bffr = ff.read(4096)
+    # ff.close()
+    #
+    # type = ms.buffer(bffr)
+    # print type
 
     ms.close()
+    return type.split()[0]
 
 
 def check_arg(arg):
@@ -32,3 +35,4 @@ def check_arg(arg):
     else:
         print "File is either missing or not readable"
         return False
+

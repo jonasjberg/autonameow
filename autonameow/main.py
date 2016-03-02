@@ -6,13 +6,20 @@ from io.disk import determine_file_type, check_arg
 def main():
     print "in main"
 
-    for a in sys.argv[1:]:
+    for arg in sys.argv[1:]:
         # For every argument ..
-        if check_arg(a):
-            t = determine_file_type(a)
-            print "type:", t
+        if check_arg(arg):
+            t = determine_file_type(arg)
+            print "file type: ", t
+
+            analyze_file(arg, t)
         else:
             continue
+
+
+def analyze_file(path, type):
+    if type == "JPEG":
+        run_image_routine()
 
 
 if __name__ == "__main__":
