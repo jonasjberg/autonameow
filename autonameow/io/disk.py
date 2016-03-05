@@ -13,7 +13,7 @@ def determine_file_type(f):
     ms = magic.open(magic.MAGIC_NONE)
     ms.load()
     type = ms.file(f)
-    print type
+    # print type
 
     # ff = file(f, "r")
     # bffr = ff.read(4096)

@@ -9,3 +9,11 @@
 #       * date-/timestamp
 #       * incrementer (file ends with a number)
 
+
+from dateutil.parser import parse as parseTime
+
+
+def extract_date_from_string(str):
+    bla=parseTime(str)
+    print bla
+
