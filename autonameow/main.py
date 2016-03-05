@@ -24,3 +24,4 @@ def analyze_file(path, type):
 
 if __name__ == "__main__":
     main()
+
