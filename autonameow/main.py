@@ -1,5 +1,7 @@
 import sys
+import os
 
+from analyze.common import extract_date_from_string
 from io.disk import determine_file_type, check_arg
 
 
@@ -20,6 +22,8 @@ def main():
 
 
 def analyze_file(path, type):
+    filenamedate = extract_date_from_string(os.path.basename(path))
+    print "Date in filename: ", filenamedate
     if type == "JPEG":
         print "will run image routine"
         # run_image_routine()
