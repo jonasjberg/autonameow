@@ -1,5 +1,6 @@
 import magic
 import os
+from datetime import datetime as dt
 
 
 FTYPES = {
@@ -36,3 +37,19 @@ def check_arg(arg):
         print "File is either missing or not readable"
         return False
 
+
+
+def print_ltstat_info(path):
+    stat_info = os.lstat(path)
+    atime = dt.utcfromtimestamp(stat_info.st_atime)
+    mtime = dt.utcfromtimestamp(stat_info.st_mtime)
+    ctime = dt.utcfromtimestamp(stat_info.st_ctime)
+    print 'ltstat info:'
+    print '  File mode bits:       %s' % oct(stat_info.st_mode)
+    print '  Inode number:         %d' % stat_info.st_ino
+    print '  Owner UID:            %d' % stat_info.st_uid
+    print '  Group GID:            %d' % stat_info.st_gid
+    print '  File size:    (bytes) %d' % stat_info.st_size
+    print '  Last read:    (atime) %s' % atime.isoformat(' ')
+    print '  Last write:   (mtime) %s' % mtime.isoformat(' ')
+    print '  Inode change: (ctime) %s' % ctime.isoformat(' ')

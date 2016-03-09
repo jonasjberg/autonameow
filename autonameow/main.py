@@ -1,8 +1,8 @@
 import sys
 import os
 
-from analyze.common import extract_date_from_string, print_ltstat_info
-from io.disk import determine_file_type, check_arg
+import analyze.common
+import io.disk
 
 
 def main():
@@ -10,13 +10,13 @@ def main():
 
     # Loop over arguments ..
     for arg in sys.argv[1:]:
-        if check_arg(arg):
+        if io.disk.check_arg(arg):
             print '------------------------------------------------------------'
             # Determine mime type and run analysis based on result.
-            type = determine_file_type(arg)
+            type = io.disk.determine_file_type(arg)
             print "determined file type: ", type
             print '------------------------------------------------------------'
-            print_ltstat_info(arg)
+            io.disk.print_ltstat_info(arg)
 
             print '------------------------------------------------------------'
             analyze_file(arg, type)
@@ -27,7 +27,7 @@ def main():
 
 
 def analyze_file(path, type):
-    filenamedate = extract_date_from_string(os.path.basename(path))
+    filenamedate = analyze.common.extract_date_from_string(os.path.basename(path))
     print "Date in filename: ", filenamedate
     if type == "JPEG":
         print "will run image routine"
