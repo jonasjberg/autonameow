@@ -39,17 +39,14 @@ def open_pdf(pdf_filename):
     # for x in xmpdata.dc_date:
     #     print(x)
 
-
     print "title: " + title
     print "author: " + author
     print "    last name: " + author_lastname
-
 
     if title:
         print "i haz title"
     else:
         print "unknown title"
-
 
 # def extract_data_with_pypdf2(pdfReader):
 
