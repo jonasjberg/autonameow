@@ -53,3 +53,37 @@ def print_ltstat_info(path):
     print '  Last read:    (atime) %s' % atime.isoformat(' ')
     print '  Last write:   (mtime) %s' % mtime.isoformat(' ')
     print '  Inode change: (ctime) %s' % ctime.isoformat(' ')
+
+
+def get_file_extension(path):
+    base, ext = os.path.splitext(path)
+
+    if ext.lower() in ('.z', '.gz', '.bz2'):
+        print "BU"
+        path = base
+
+    base, ext = os.path.splitext(path)
+    ext = ext.lower()
+
+    return ext
+
+def get_file_name_noext(path):
+    file_basename = os.path.basename(path)
+    file_basename_noext = os.path.splitext(path)[0]
+    return None
+
+
+if __name__ == "__main__":
+    test_paths = (
+        "/home/user/document.txt",
+        "~/document.txt",
+        "/tmp/archive.tar.gz",
+        "/test 1.0/file-1",
+        "/1.2.3a/document.md",
+        "/1.2.3a/document",
+    )
+
+    for tp in test_paths:
+        print "PATH: ", tp
+        print "EXT : ", get_file_extension(tp)
+        print ""
