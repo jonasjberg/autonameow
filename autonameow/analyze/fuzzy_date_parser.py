@@ -41,6 +41,8 @@
 
 
 import datetime
+import re
+
 import dateutil.parser
 
 def try_parse_date(date):
@@ -54,6 +56,10 @@ def try_parse_date(date):
     elif isinstance(date, dict):
        kwargs = date                               # accept named-args dicts
        date = kwargs.pop('date')                   # with a 'date' str
+
+    else:
+        date = re.sub("\s", "-", date)
+        date = re.sub("[^0-9a-zA-Z_-]", "", date)
 
     try:
        try:
