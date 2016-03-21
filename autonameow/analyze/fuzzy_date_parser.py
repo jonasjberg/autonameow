@@ -58,7 +58,7 @@ def try_parse_date(date):
        date = kwargs.pop('date')                   # with a 'date' str
 
     else:
-        date = re.sub("\s", "-", date)
+        # date = re.sub("\s", "-", date)
         date = re.sub("[^0-9a-zA-Z_-]", "", date)
 
     try:
@@ -70,6 +70,7 @@ def try_parse_date(date):
             print 'Fuzzy %r -> %s' % (date, parsedate)
     except Exception, err:
        print 'Try as I may, I cannot parse %r (%s)' % (date, err)
+
 
 if __name__ == "__main__":
     tests = (

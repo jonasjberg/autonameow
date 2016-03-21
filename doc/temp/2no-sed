@@ -1,0 +1,105 @@
+af area mode                     single area
+af point                         center
+af points in focus               (none)
+aperture                         3.0
+auxiliary lens
+bits per sample                  8
+camera model name                e775
+color components                 3
+color mode
+color space                      srgb
+components configura             y cb cr -
+components configura             y, cb, cr, -
+compressed bits per              3
+compressed bits per               3
+create date                      0000:00:00 00:00:00
+data dump                        (binary data 122 bytes, use -b option to extract)
+date and time                    0000:00:00 00:00:00
+date and time (digit             0000:00:00 00:00:00
+date and time (origi             0000:00:00 00:00:00
+date/time original               0000:00:00 00:00:00
+digital zoom                     0.0139
+directory                        /home/spock/downloads
+encoding process                 baseline dct, huffman coding
+exif byte order                  little-endian (intel, ii)
+exif image height                1200
+exif image width                 1600
+exiftool version num             10.00
+exif version                     0210
+exif version                     exif version 2.1
+exposure bias                    0,00 ev
+exposure compensatio             0
+exposure program                 normal program
+exposure program                 program ae
+exposure time                    1/41
+exposure time                    1/41 sec.
+file access date/tim             2016:03:21 17:44:58+01:00
+file inode change da             2016:03:21 17:44:58+01:00
+file modification da             2016:03:21 17:44:58+01:00
+file name                        dscn9659.jpg
+file permissions                 rw-rw-r--
+file size                        108 kb
+file source                      digital camera
+file source                      dsc
+file type extension              jpg
+file type                        jpeg
+flash                            flash did not fire
+flash                            no flash
+flashpix version                 0100
+flashpixversion                  flashpix version 1.0
+flash setting
+f number                         3.0
+f-number                         f/3,0
+focal length                     7,1 mm
+focal length                     7.1 mm
+focus mode
+image adjustment                 .'
+image description
+image height                     600
+image size                       800x600
+image width                      800
+interoperability ind             r98
+interoperability ind             r98 - dcf basic file (srgb)
+interoperability ver             0100
+iso                              100
+iso selection                    .'
+iso speed ratings                100
+jfif version                     1.02
+light source                     unknown
+light value                      8.5
+make                             nikon
+maker note                       674 bytes undefined data
+maker note version               1.00
+manual focus distanc             0.0606
+manufacturer                     nikon
+max aperture value               3.4
+maximum aperture val             3,50 ev (f/3,4)
+megapixels                       0.480
+metering mode                    multi-segment
+metering mode                    pattern
+mime type                        image/jpeg
+model                            e775
+modify date                      0000:00:00 00:00:00
+ocad revision                    14797
+orientation                      horizontal (normal)
+orientation                      top-left
+pixel x dimension                1600
+pixel y dimension                1200
+quality
+resolution unit                  inch
+resolution unit                  inches
+scene mode                       Ë.
+scene type                       directly photographed
+sharpness
+shutter speed                    1/41
+software                         e775v1.4u
+user comment
+warning                          [minor] possibly incorrect maker notes offsets (fix by -288?)
+white balance
+x resolution                     300
+x-resolution                     300
+y cb cr positioning              co-sited
+ycbcr positioning                co-sited
+y cb cr sub sampling             ycbcr4:2:2 (2 1)
+y resolution                     300
+y-resolution                     300
