@@ -28,13 +28,13 @@ def determine_file_type(f):
 
 
 def check_arg(arg):
-    print "checking arg:" + arg
+    # print "checking arg:" + arg
 
     if os.path.isfile(arg) and os.access(arg, os.R_OK):
-        print "File exists and is readable"
+        # print "File exists and is readable"
         return True
     else:
-        print "File is either missing or not readable"
+        # print "File is either missing or not readable"
         return False
 
 
@@ -55,3 +55,43 @@ def print_ltstat_info(path):
     print '  Inode change: (ctime) %s' % ctime.isoformat(' ')
 
 
+def get_file_extension(path, make_lowercase=True):
+    base, ext = os.path.splitext(path)
+
+    if ext.lower() in ['.z', '.gz', '.bz2']:
+        ext = os.path.splitext(base)[1] + ext
+
+    if make_lowercase:
+        ext = ext.lower()
+
+    if ext and ext.strip():
+        return ext
+    else:
+        return None
+
+
+def get_file_name_noext(path):
+    base = os.path.basename(path)
+    name_noext = os.path.splitext(base)[0]
+
+    if name_noext and name_noext.strip():
+        return name_noext
+    else:
+        return None
+
+
+if __name__ == "__main__":
+    test_paths = (
+        "/home/user/document.txt",
+        "~/document.txt",
+        "/tmp/archive.tar.gz",
+        "/test 1.0/file-1",
+        "/1.2.3a/document.md",
+        "/1.2.3a/document",
+    )
+
+    for tp in test_paths:
+        print "PATH: ", tp
+        print "NAME: ", get_file_name_noext(tp)
+        print "EXT : ", get_file_extension(tp)
+        print ""

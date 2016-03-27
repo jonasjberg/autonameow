@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../adhdo/.idea/adhdo.iml" filepath="$PROJECT_DIR$/../adhdo/.idea/adhdo.iml" />
+      <module fileurl="file://$USER_HOME$/programming/sourcecode/pc/python/novoid/appendfilename/.idea/appendfilename.iml" filepath="$USER_HOME$/programming/sourcecode/pc/python/novoid/appendfilename/.idea/appendfilename.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/autoname.iml" filepath="$PROJECT_DIR$/.idea/autoname.iml" />
+      <module fileurl="file://$USER_HOME$/programming/sourcecode/pc/python/tvnamer.git/.idea/tvnamer.git.iml" filepath="$USER_HOME$/programming/sourcecode/pc/python/tvnamer.git/.idea/tvnamer.git.iml" />
     </modules>
   </component>
 </project>

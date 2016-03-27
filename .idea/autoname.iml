@@ -6,6 +6,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="adhdo" />
+    <orderEntry type="module" module-name="tvnamer.git" />
+    <orderEntry type="module" module-name="appendfilename" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Nosetests" />

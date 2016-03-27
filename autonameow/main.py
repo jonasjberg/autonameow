@@ -2,7 +2,8 @@ import sys
 import os
 
 import analyze.common
-import io.disk
+import util.disk
+import analyze.fuzzy_date_parser
 
 
 def main():
@@ -10,15 +11,15 @@ def main():
 
     # Loop over arguments ..
     for arg in sys.argv[1:]:
-        if io.disk.check_arg(arg):
+        if util.disk.check_arg(arg):
             print '------------------------------------------------------------'
             # Determine mime type and run analysis based on result.
-            type = io.disk.determine_file_type(arg)
-            print "determined file type: ", type
-            print '------------------------------------------------------------'
-            io.disk.print_ltstat_info(arg)
+            type = util.disk.determine_file_type(arg)
+            # print "determined file type: ", type
+            # print '------------------------------------------------------------'
+            # io.disk.print_ltstat_info(arg)
 
-            print '------------------------------------------------------------'
+            # print '------------------------------------------------------------'
             analyze_file(arg, type)
 
         else:
@@ -27,8 +28,12 @@ def main():
 
 
 def analyze_file(path, type):
-    filenamedate = analyze.common.extract_date_from_string(os.path.basename(path))
-    print "Date in filename: ", filenamedate
+    # filenamedate = analyze.common.extract_date_from_string(os.path.basename(path))
+    # print "Date in filename: ", filenamedate
+
+    file_name_noext = util.disk.get_file_name_noext(path)
+    analyze.fuzzy_date_parser.try_parse_date(file_name_noext)
+
     if type == "JPEG":
         print "will run image routine"
         # run_image_routine()

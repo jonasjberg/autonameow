@@ -1,3 +1,7 @@
+import datetime
+from __builtin__ import str
+
+
 # Analysis relevant to all files, regardless of file mime type.
 # Examines:
 #   * file names
@@ -10,11 +14,4 @@
 #       * incrementer (file ends with a number)
 
 
-# from dateutil.parser import parse as parseTime
-
-
-def extract_date_from_string(str):
-    return None
-    # bla=parseTime(str)
-    # print bla
 
