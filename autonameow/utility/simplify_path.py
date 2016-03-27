@@ -22,6 +22,7 @@ def enumerate_paths(path):
 def simplify_path():
     test = enumerate_paths(sys.argv[1])
 
+
     for entry in test:
         print str(entry)
 
