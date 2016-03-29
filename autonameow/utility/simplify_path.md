@@ -203,7 +203,7 @@ w-oscillation-cancellation.tar.bz2
 ```
 
 
-### Identify new directories from common parts.
+### Identify common parts.
 
 ```
 1590B-perfboard-2.brd
@@ -212,28 +212,20 @@ w-oscillation-cancellation.tar.bz2
 1590B-perfboard-2_SCHEMATIC.png
 1590B-perfboard-2.sch.png
 1590B-perfboard-2.tar.bz2
-
 1590B-perfboard-3.brd
 1590B-perfboard-3_PCB.png
 1590B-perfboard-3.sch
 1590B-perfboard-3_SCHEMATIC.png
 1590B-perfboard-3.sch.png
 1590B-perfboard-3.tar.bz2
-
 1590B-perfboard.brd
 1590B-perfboard_PCB.png
 1590B-perfboard.sch
 1590B-perfboard_SCHEMATIC.png
 1590B-perfboard.sch.png
 1590B-perfboard.tar.bz2
-
 5-rattar-1590B.brd
 5-rattar-1590B_PCB.png
-5-rattar-1590B.sch
-5-rattar-1590B_SCHEMATIC.png
-5-rattar-1590B.sch.png
-5-rattar-1590B.tar.bz2
-
 5-rattar-1590B-pottar-under-kort.brd
 5-rattar-1590B-pottar-under-kort-ETS.brd
 5-rattar-1590B-pottar-under-kort-ETS_PCB.png
@@ -256,25 +248,25 @@ w-oscillation-cancellation.tar.bz2
 5-rattar-1590B-pottar-under-kort_SCHEMATIC.png
 5-rattar-1590B-pottar-under-kort.sch.png
 5-rattar-1590B-pottar-under-kort.tar.bz2
-
+5-rattar-1590B.sch
+5-rattar-1590B_SCHEMATIC.png
+5-rattar-1590B.sch.png
+5-rattar-1590B.tar.bz2
 ETS.brd
 ETS_PCB.png
 ETS.sch
 ETS_SCHEMATIC.png
 ETS.sch.png
 ETS.tar.bz2
-
 FAKTISKT-BYGGE_PCB.png
 FAKTISKT-BYGGE.sch.png
 FAKTISKT-BYGGE.tar.bz2
-
 w-mods.brd
 w-mods_PCB.png
 w-mods.sch
 w-mods_SCHEMATIC.png
 w-mods.sch.png
 w-mods.tar.bz2
-
 w-oscillation-cancellation.brd
 w-oscillation-cancellation_PCB.png
 w-oscillation-cancellation.sch
@@ -282,88 +274,4 @@ w-oscillation-cancellation_SCHEMATIC.png
 w-oscillation-cancellation.sch.png
 w-oscillation-cancellation.tar.bz2
 ```
-
-
-### Identify new directories from common parts ..
-
-```
-1590B/
-      perfboard-2.brd
-      perfboard-2_PCB.png
-      perfboard-2.sch
-      perfboard-2_SCHEMATIC.png
-      perfboard-2.sch.png
-      perfboard-2.tar.bz2
-
-      perfboard-3.brd
-      perfboard-3_PCB.png
-      perfboard-3.sch
-      perfboard-3_SCHEMATIC.png
-      perfboard-3.sch.png
-      perfboard-3.tar.bz2
-
-      perfboard.brd
-      perfboard_PCB.png
-      perfboard.sch
-      perfboard_SCHEMATIC.png
-      perfboard.sch.png
-      perfboard.tar.bz2
-
-5-rattar/
-         1590B.brd
-         1590B_PCB.png
-         1590B.sch
-         1590B_SCHEMATIC.png
-         1590B.sch.png
-         1590B.tar.bz2
-
-         1590B-pottar-under-kort.brd
-         1590B-pottar-under-kort-ETS.brd
-         1590B-pottar-under-kort-ETS_PCB.png
-         1590B-pottar-under-kort-ETS.sch
-         1590B-pottar-under-kort-ETS_SCHEMATIC.png
-         1590B-pottar-under-kort-ETS.sch.png
-         1590B-pottar-under-kort-ETS.tar.bz2
-         1590B-pottar-under-kort_PCB.png
-         1590B-pottar-under-kort-relay-bypass-2.brd
-         1590B-pottar-under-kort-relay-bypass-2_PCB.png
-         1590B-pottar-under-kort-relay-bypass-2.sch
-         1590B-pottar-under-kort-relay-bypass-2.tar.bz2
-         1590B-pottar-under-kort-relay-bypass.brd
-         1590B-pottar-under-kort-relay-bypass_PCB.png
-         1590B-pottar-under-kort-relay-bypass.sch
-         1590B-pottar-under-kort-relay-bypass_SCHEMATIC.png
-         1590B-pottar-under-kort-relay-bypass.sch.png
-         1590B-pottar-under-kort-relay-bypass.tar.bz2
-         1590B-pottar-under-kort.sch
-         1590B-pottar-under-kort_SCHEMATIC.png
-         1590B-pottar-under-kort.sch.png
-         1590B-pottar-under-kort.tar.bz2
-
-ETS.brd
-ETS_PCB.png
-ETS.sch
-ETS_SCHEMATIC.png
-ETS.sch.png
-ETS.tar.bz2
-
-FAKTISKT-BYGGE_PCB.png
-FAKTISKT-BYGGE.sch.png
-FAKTISKT-BYGGE.tar.bz2
-
-w-mods.brd
-w-mods_PCB.png
-w-mods.sch
-w-mods_SCHEMATIC.png
-w-mods.sch.png
-w-mods.tar.bz2
-
-w-oscillation-cancellation.brd
-w-oscillation-cancellation_PCB.png
-w-oscillation-cancellation.sch
-w-oscillation-cancellation_SCHEMATIC.png
-w-oscillation-cancellation.sch.png
-w-oscillation-cancellation.tar.bz2
-```
-
 
