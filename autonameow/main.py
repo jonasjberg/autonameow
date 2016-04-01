@@ -11,7 +11,7 @@ def main():
 
     # Loop over arguments ..
     for arg in sys.argv[1:]:
-        if util.disk.check_arg(arg):
+        if util.disk.is_readable_file(arg):
             print '------------------------------------------------------------'
             # Determine mime type and run analysis based on result.
             type = util.disk.determine_file_type(arg)

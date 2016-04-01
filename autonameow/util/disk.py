@@ -27,7 +27,7 @@ def determine_file_type(f):
     return type.split()[0]
 
 
-def check_arg(arg):
+def is_readable_file(arg):
     # print "checking arg:" + arg
 
     if os.path.isfile(arg) and os.access(arg, os.R_OK):
