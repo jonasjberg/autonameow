@@ -9,6 +9,7 @@
     <orderEntry type="module" module-name="adhdo" />
     <orderEntry type="module" module-name="tvnamer.git" />
     <orderEntry type="module" module-name="appendfilename" />
+    <orderEntry type="module" module-name="pdf-toc-extractor" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Nosetests" />
