@@ -1,4 +1,5 @@
 import datetime
+import magic
 from __builtin__ import str
 
 
@@ -15,3 +16,9 @@ from __builtin__ import str
 
 
 
+def determine_file_type(f):
+    ms = magic.open(magic.MAGIC_NONE)
+    ms.load()
+    type = ms.file(f)
+    ms.close()
+    return type.split()[0]

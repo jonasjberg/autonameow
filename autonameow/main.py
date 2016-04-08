@@ -29,7 +29,7 @@ def analyze_file(path):
 
 
     # Determine mime type and run analysis based on result.
-    type = util.disk.determine_file_type(path)
+    type = analyze.common.determine_file_type(path)
     # print "determined file type: ", type
     # print '------------------------------------------------------------'
 

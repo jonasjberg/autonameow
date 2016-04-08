@@ -1,14 +1,5 @@
-import magic
 import os
 from datetime import datetime as dt
-
-
-def determine_file_type(f):
-    ms = magic.open(magic.MAGIC_NONE)
-    ms.load()
-    type = ms.file(f)
-    ms.close()
-    return type.split()[0]
 
 
 def is_readable_file(arg):
