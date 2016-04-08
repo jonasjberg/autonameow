@@ -46,6 +46,9 @@ def simplify_path(path):
     file_list = os.listdir(path)
     set_of_parts = set()
 
+    path_list = []
+    entry_count_min = 0
+
     # This splits up a file name into a list.
     # http://stackoverflow.com/a/1059601
     # These are then added to the set of parts, which handles duplicates.
@@ -55,10 +58,20 @@ def simplify_path(path):
         for part in parts:
             set_of_parts.add(part)
 
+        path_list.append(parts)
+
+        if len(parts) < entry_count_min:
+            entry_count_min = len(parts)
+
     # print "Set of file name parts:"
     # print set_of_parts
 
-    print long_substr(file_list)
+    # print long_substr(file_list)
+    for entry in path_list:
+        print entry
+
+    print 'Entry count (low): {}'.format(entry_count_min)
+
 
 
 
