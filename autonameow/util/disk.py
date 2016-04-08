@@ -3,26 +3,10 @@ import os
 from datetime import datetime as dt
 
 
-FTYPES = {
-    'JPEG' : 'jpg',
-    'GIF' : 'gif',
-    'PNG' : 'png',
-}
-
-
 def determine_file_type(f):
     ms = magic.open(magic.MAGIC_NONE)
     ms.load()
     type = ms.file(f)
-    # print type
-
-    # ff = file(f, "r")
-    # bffr = ff.read(4096)
-    # ff.close()
-    #
-    # type = ms.buffer(bffr)
-    # print type
-
     ms.close()
     return type.split()[0]
 
