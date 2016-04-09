@@ -15,6 +15,8 @@
     <orderEntry type="module" module-name="logdotmd" />
     <orderEntry type="module" module-name="date2name" />
     <orderEntry type="module" module-name="image-utils" />
+    <orderEntry type="module" module-name="beets.git" />
+    <orderEntry type="module" module-name="tvnamer.git" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Nosetests" />
