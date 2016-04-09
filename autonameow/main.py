@@ -30,6 +30,10 @@ def analyze_file(path):
 
     # Determine mime type and run analysis based on result.
     type = analyze.common.determine_file_type(path)
+
+
+    analyzer = analyze.common.AnalyzerBase(path)
+    analyzer.run()
     # print "determined file type: ", type
     # print '------------------------------------------------------------'
 

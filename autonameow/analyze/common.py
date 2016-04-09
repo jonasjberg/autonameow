@@ -14,11 +14,24 @@ from __builtin__ import str
 #       * date-/timestamp
 #       * incrementer (file ends with a number)
 
+class AnalyzerBase(object):
+
+    def __init__(self, path):
+        self.path = path
+
+    def run(self):
+        self.type = self.determine_file_type()
+        if type == "JPEG":
+            print "will run image routine"
+            # run_image_routine()
+        elif type == "PDF":
+            print "will run pdf routine"
+        else:
+            print "not sure what to do with file type"
 
 
-def determine_file_type(f):
-    ms = magic.open(magic.MAGIC_NONE)
-    ms.load()
-    type = ms.file(f)
-    ms.close()
-    return type.split()[0]
+
+
+
+
+
