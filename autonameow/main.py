@@ -1,19 +1,29 @@
 import sys
 import os
 
-import analyze.common
+import analyze.analyzer
 import util.disk
 import analyze.fuzzy_date_parser
+from analyze.file_object import FileObject
+from analyze.analyzer import AnalyzerBase
 
 
 def main():
     # Main program entry point
+
 
     # Loop over arguments ..
     for arg in sys.argv[1:]:
         if util.disk.is_readable_file(arg):
             # print '------------------------------------------------------------'
             # io.disk.print_ltstat_info(arg)
+
+            # Create a new FileObject representing the current arg.
+            f = FileObject(arg)
+
+            # Create a basic analyzer, common to all file types.
+            a = AnalyzerBase(f)
+
             analyze_file(arg)
         else:
             # Basic sanity check failed, skip to next argument
@@ -29,10 +39,10 @@ def analyze_file(path):
 
 
     # Determine mime type and run analysis based on result.
-    type = analyze.common.determine_file_type(path)
+    type = analyze.analyzer.determine_file_type(path)
 
 
-    analyzer = analyze.common.AnalyzerBase(path)
+    analyzer = analyze.analyzer.AnalyzerBase(path)
     analyzer.run()
     # print "determined file type: ", type
     # print '------------------------------------------------------------'

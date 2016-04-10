@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/autoname.iml" filepath="$PROJECT_DIR$/.idea/autoname.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../sourcecode/pc/python/beets.git/.idea/beets.git.iml" filepath="$PROJECT_DIR$/../../sourcecode/pc/python/beets.git/.idea/beets.git.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../sourcecode/pc/python/journal.git/.idea/journal.git.iml" filepath="$PROJECT_DIR$/../../sourcecode/pc/python/journal.git/.idea/journal.git.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../sourcecode/pc/python/tvnamer.git/.idea/tvnamer.git.iml" filepath="$PROJECT_DIR$/../../sourcecode/pc/python/tvnamer.git/.idea/tvnamer.git.iml" />
     </modules>
   </component>

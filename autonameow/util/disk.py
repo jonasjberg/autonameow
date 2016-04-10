@@ -15,11 +15,14 @@ def is_readable_file(arg):
 
 
 def determine_file_type(path):
-    ms = magic.open(magic.MAGIC_NONE)
-    ms.load()
-    type = ms.file(path)
-    ms.close()
-    return type.split()[0]
+    try:
+        ms = magic.open(magic.MAGIC_NONE)
+        ms.load()
+        type = ms.file(path)
+        ms.close()
+        return type.split()[0]
+    except:
+        pass
 
 
 

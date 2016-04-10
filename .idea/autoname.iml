@@ -17,6 +17,7 @@
     <orderEntry type="module" module-name="image-utils" />
     <orderEntry type="module" module-name="beets.git" />
     <orderEntry type="module" module-name="tvnamer.git" />
+    <orderEntry type="module" module-name="journal.git" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Nosetests" />
