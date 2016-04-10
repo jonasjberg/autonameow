@@ -16,11 +16,37 @@ from __builtin__ import str
 
 class AnalyzerBase(object):
 
-    def __init__(self, FileObject):
-        self.FileObject = FileObject
+    def __init__(self, fileObject):
+        self.fileObject = fileObject
 
     def run(self):
-        self.type = self.determine_file_type()
+        if self.fileObject.type == "JPEG":
+            print "File is a JPEG image"
+            # run_image_routine()
+        elif type == "PDF":
+            print "File is a PDF document"
+        else:
+            print "Unknown file type"
+
+
+
+    def analyze_file(fileObject):
+        # filenamedate = analyze.common.extract_date_from_string(os.path.basename(path))
+        # print "Date in filename: ", filenamedate
+
+        file_name_noext = util.disk.get_file_name_noext(path)
+        analyze.fuzzy_date_parser.try_parse_date(file_name_noext)
+
+
+        # Determine mime type and run analysis based on result.
+        type = analyze.analyzer.determine_file_type(path)
+
+
+        analyzer = analyze.analyzer.AnalyzerBase(path)
+        analyzer.run()
+        # print "determined file type: ", type
+        # print '------------------------------------------------------------'
+
         if type == "JPEG":
             print "will run image routine"
             # run_image_routine()
@@ -28,6 +54,7 @@ class AnalyzerBase(object):
             print "will run pdf routine"
         else:
             print "not sure what to do with file type"
+
 
 
 

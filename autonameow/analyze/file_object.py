@@ -9,10 +9,10 @@ class FileObject(object):
         #self.description = description
         
 
-
         if path is not None:
             # Remains untouched, for use when renaming file
             self.originalfilename = os.path.basename(path)
+            print 'fileObject original file name: {}'.format(self.originalfilename)
 
 
         # Set of words derived from file content, can be used in a last ditch effort
@@ -21,12 +21,14 @@ class FileObject(object):
         #    contents = {}
         #self.contents = contents
 
-
         # Get full absolute path
         self.path = os.path.abspath(path)
 
         # Figure out basic file type
-        type = self.read_magic_header_bytes()
+        self.type = self.read_magic_header_bytes()
+
+        if not self.type:
+            self.type = None
         # if type == "JPEG":
         #     print "will run image routine"
         #     # run_image_routine()

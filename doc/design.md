@@ -39,15 +39,25 @@ Breakdown of what needs to happen to automatically rename a file:
 2. Evaluate the results.
 
     * Sort
-        * How?
+        * Prioritize items by weights and/or fixed rules.
+        * For example, the EXIF-tag `Date/Time Original` would be selected
+          before `Modify Date`.
 
     * Filter
-        * How?
+        * Remove obviously incorrect entries.
+        * Remove unplausible entries.
+        * Remove entries matching some kind of ruleset or blacklist.
 
 3. Construct a new file name from the data.
 
+    * Fill fields in file name template with most probable values.
+
 4. Rename the file.
 
+    * (Ask user to proceed)
+        * Make sure file still exists, is readable, etc..
+        * Make sure destination won't be clobbered, is writable, etc..
+        * Rename file to the generated file name.
 
 
 Example
@@ -230,7 +240,7 @@ Definition of terms
 
 Photos
 ------
-Photo images (schematics, etc excluded?) should match the pattern:
+Photo images *(schematics, etc excluded?)* should match the pattern:
 
     [date] _ [time] _ [description/name] . [ext]
                           (optional)       (jpg)
