@@ -16,8 +16,8 @@ from __builtin__ import str
 
 class AnalyzerBase(object):
 
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, FileObject):
+        self.FileObject = FileObject
 
     def run(self):
         self.type = self.determine_file_type()
