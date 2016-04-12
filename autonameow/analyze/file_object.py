@@ -29,15 +29,13 @@ class FileObject(object):
 
         if not self.type:
             self.type = None
-        # if type == "JPEG":
-        #     print "will run image routine"
-        #     # run_image_routine()
-        # elif type == "PDF":
-        #     print "will run pdf routine"
-        # else:
-        #     print "not sure what to do with file type"
 
 
+    def get_path(self):
+        return self.path
+
+    def get_type(self):
+        return self.type
 
 
     def read_magic_header_bytes(self):
@@ -45,4 +43,5 @@ class FileObject(object):
         ms.load()
         type = ms.file(self.path)
         ms.close()
+        # return type
         return type.split()[0]

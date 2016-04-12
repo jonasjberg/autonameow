@@ -18,6 +18,7 @@
     <orderEntry type="module" module-name="beets.git" />
     <orderEntry type="module" module-name="tvnamer.git" />
     <orderEntry type="module" module-name="journal.git" />
+    <orderEntry type="module" module-name="logdotmd" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Nosetests" />

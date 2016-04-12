@@ -15,6 +15,7 @@ import util.disk
 import analyze.fuzzy_date_parser
 from analyze.file_object import FileObject
 from analyze.analyzer import AnalyzerBase
+from analyze.image import ImageAnalyzer
 
 
 def main():
@@ -32,6 +33,22 @@ def main():
 
             # Create a basic analyzer, common to all file types.
             a = AnalyzerBase(f)
+            a.run()
+
+            print('f.get_type(): ' + f.get_type())
+
+            if f.get_type() == "JPEG":
+                i = ImageAnalyzer(f)
+                i.run()
+            elif type == "PDF":
+                print "File is a PDF document"
+                #p = pdfAnalyzer(f)
+                #p.run()
+            else:
+                print "Unknown file type"
+
+
+
 
         else:
             # Basic sanity check failed, skip to next argument
