@@ -17,7 +17,7 @@ OPT_TODAY = frozenset(['t', 'today'])
 OPT_YESTERDAY = frozenset(['y', 'yesterday'])
 
 
-class Parse(object):
+class DateParse(object):
 
     @staticmethod
     def day(date_string):
@@ -28,9 +28,9 @@ class Parse(object):
         elif date_string in OPT_YESTERDAY:
             return datetime.date(today.year, today.month, today.day) - datetime.timedelta(days=1)
         elif re.search(r'(\d{1,3}|a) days? ago', date_string):
-            return Parse.n_day(date_string)
+            return DateParse.n_day(date_string)
         else:
-            return Parse.date(date_string)
+            return DateParse.date(date_string)
 
     @staticmethod
     def n_day(date_string):
@@ -49,7 +49,9 @@ class Parse(object):
 
     @staticmethod
     def date(date_string):
-        date_string = date_string.replace('/',' ').replace('-',' ').replace(',',' ').replace('.',' ')
+        SEPARATOR_CHARS = ['/', '-', ',', '.', ':']
+        for char in SEPARATOR_CHARS:
+            date_string = date_string.replace(char,' ')
 
         date_formats_with_year = ['%m %d %Y', '%Y %m %d', '%B %d %Y', '%b %d %Y',
                                   '%m %d %y', '%y %m %d', '%B %d %y', '%B %d %y',]
