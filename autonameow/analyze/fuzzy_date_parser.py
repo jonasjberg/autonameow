@@ -49,7 +49,7 @@ class DateParse(object):
 
     @staticmethod
     def date(date_string):
-        SEPARATOR_CHARS = ['/', '-', ',', '.', ':']
+        SEPARATOR_CHARS = ['/', '-', ',', '.', ':', '_']
         for char in SEPARATOR_CHARS:
             date_string = date_string.replace(char,' ')
 
@@ -75,6 +75,32 @@ class DateParse(object):
                 pass
 
         return None
+
+
+    @staticmethod
+    def time(time_string):
+        SEPARATOR_CHARS = ['-', '.', ':']
+        for char in SEPARATOR_CHARS:
+            time_string = time_string.replace(char,' ')
+
+        # Match time, for instance: 19:29:07
+        match = re.match('([0123]\d)[:.-]?([012345]\d)[:.-]?([012345]\d)?', time_string)
+        # groups = match.groups()
+        # if groups:
+        #     print(groups)
+        # return None
+
+        time_formats = ['%H %M %S']
+
+        for format in time_formats:
+            try:
+                result = time.strptime(time_string, format)
+                return datetime.time(result.tm_hour, result.tm_min, result.tm_sec)
+            except ValueError:
+                pass
+
+        return None
+
 
 
 

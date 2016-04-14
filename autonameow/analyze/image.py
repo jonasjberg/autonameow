@@ -1,3 +1,4 @@
+from __future__ import print_function
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 
@@ -14,12 +15,45 @@ class ImageAnalyzer(AnalyzerBase):
 
     def run(self):
         self.get_EXIF_datetime()
+        print(self.exif_data)
+
+    def exif_date_format(self, date_string):
+        date, time = date_string.split()
+        return date.replace(':','') + '-' + time.replace(':','') + '-'
 
 
     def get_EXIF_datetime(self):
+        # Use "brute force"-type date parser everywhere?
+        # Probably not necessary. Could possible handle some edges cases.
+        # Performance could become a problem at scale ..
+        # TODO: Investigate date parser types, etc..
         parser = DateParse()
 
-        print(str(self.exif_data))
+        # origdate = self.exif_data['DateTimeOriginal']
+
+        DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTime', 'DateTimeDigitized',
+                           'DateTimeModified', 'CreateDate']
+        for dateTag in DATE_TAG_FIELDS:
+            try:
+                date, time = self.exif_data[dateTag].split()
+                clean_date = parser.date(date)
+                clean_time = parser.time(time)
+            except KeyError:
+                pass
+
+            if clean_date and clean_time:
+                print("[%17.17s]   date: \"%-10.10s\"  time: \"%-8.8s\"" % (dateTag, clean_date, clean_time))
+
+
+
+        #dateTimeOriginal = parser.date(origdate)
+
+        # TODO: implement function parser.time()
+        # dateTimeOriginal = parser.time(origtime)
+
+        #print('dateTimeOriginal: {}'.format(dateTimeOriginal))
+
+        # print(str(self.exif_data))
 
         # # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
@@ -29,8 +63,8 @@ class ImageAnalyzer(AnalyzerBase):
         #         self.exif_data['DateTimeDigitized'] = None
 
 
-        for d in self.exif_data.values():
-            print(d)
+        #for d in self.exif_data.values():
+        #    print(d)
 
 
         # dateTimeOriginal = "NA"
@@ -41,34 +75,34 @@ class ImageAnalyzer(AnalyzerBase):
         # cameraMake = "NA"
         #
         # # Collect basic image data if available
-        # if tagValue == 'DateTimeOriginal':
+        # if tagString == 'DateTimeOriginal':
         #     dateTimeOriginal = exifData.get(tag)
         #
-        # if tagValue == 'DateTimeDigitized':
+        # if tagString == 'DateTimeDigitized':
         #     dateTimeDigitized = exifData.get(tag)
         #
-        # if tagValue == 'CreateDate':
+        # if tagString == 'CreateDate':
         #     createDate = exifData.get(tag)
         #
-        # if 'DateTime' in tagValue:
+        # if 'DateTime' in tagString:
         #     dateTime = exifData.get(tag)
         #
-        # if tagValue == 'Make':
+        # if tagString == 'Make':
         #     cameraMake = exifData.get(tag)
         #
-        # if tagValue == 'Model':
+        # if tagString == 'Model':
         #     cameraModel = exifData.get(tag)
         #
         #     # # check the tag for GPS
-        #     # if tagValue == "GPSInfo":
+        #     # if tagString == "GPSInfo":
         #     #
         #     #     # Create dictionary to hold the GPS data
         #     #     gpsDictionary = {}
         #     #
         #     #     # Loop through the GPS information
-        #     #     for curTag in theValue:
+        #     #     for curTag in value:
         #     #         gpsTag = GPSTAGS.get(curTag, curTag)
-        #     #         gpsDictionary[gpsTag] = theValue[curTag]
+        #     #         gpsDictionary[gpsTag] = value[curTag]
         #
         #     # return gpsDictionary, basicEXIFData
         #
@@ -84,30 +118,25 @@ class ImageAnalyzer(AnalyzerBase):
 
     def get_EXIF_data(self):
         filename = self.fileObject.get_path()
+        
+        # Create empty dictionary to store exif "key:value"-pairs in.
+        result = {}
+
         try:
-            imgFile = Image.open(filename)
-            exifData = imgFile._getexif()
+            img = Image.open(filename)
+            exifData = img._getexif()
         except Exception:
-            print "EXIF data extraction error"
-            return None, None
+            print("EXIF data extraction error")
 
         if exifData:
-            exif_data = dict()
-            for tag, theValue in exifData.items():
-                # obtain the tag
-                tagValue = TAGS.get(tag, tag)
+            for tag, value in exifData.items():
+                # Obtain a human-readable version of the tag.
+                tagString = TAGS.get(tag, tag)
 
-                # print("{} : {} : {}").format(tag, tagValue, theValue)
+                if value is not None:
+                    result[tagString] = value
 
-                data = exifData.get(tag)
-                if data is not None:
-                    exif_data[tagValue] = data
-
-            return exif_data
-
-        else:
-            return None, None
-
+        return result
 
 
 
