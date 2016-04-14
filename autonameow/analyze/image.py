@@ -136,5 +136,4 @@ class ImageAnalyzer(AnalyzerBase):
             pp.pprint(result)
 
 
-
         return result
