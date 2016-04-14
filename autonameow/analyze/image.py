@@ -38,6 +38,23 @@ class ImageAnalyzer(AnalyzerBase):
             if clean_date and clean_time:
                 results[field] = (clean_date, clean_time)
 
+        try:
+            GPS_date = self.exif_data["GPSDateStamp"]
+            GPS_time = self.exif_data["GPSTimeStamp"]
+
+            GPS_time_str = ''
+            for toup in GPS_time:
+                GPS_time_str += str(toup[0]))
+            #GPS_time_detoupled = str(GPS_time[0][0]) + str(GPS_time[1][0]) + str(GPS_time[2][0])
+            #print(GPS_time_detoupled)
+            #clean_GPS_date = parser.date(GPS_date)
+            #clean_GPS_time = parser.time(GPS_time)
+        except KeyError:
+            pass
+
+        if clean_date and clean_time:
+            results[field] = (clean_date, clean_time)
+
 
         #pp = pprint.PrettyPrinter(indent=4)
         #pp.pprint(results)
@@ -124,15 +141,18 @@ class ImageAnalyzer(AnalyzerBase):
                         tagStringGPS = GPSTAGS.get(tagGPS, tagGPS)
 
                         if valueGPS is not None:
-                            resultGPS[tagStringGPS] = valueGPS
+                            # resultGPS[tagStringGPS] = valueGPS
+                            result[tagStringGPS] = valueGPS
 
-                    # DEBUG: print extracted GPS information.
-                    pp = pprint.PrettyPrinter(indent=4)
-                    pp.pprint(resultGPS)
+                    # # DEBUG: print extracted GPS information.
+                    # pp = pprint.PrettyPrinter(indent=4)
+                    # pp.pprint(resultGPS)
 
                 else:
                     if value is not None:
                         result[tagString] = value
+
+            pp = pprint.PrettyPrinter(indent=4)
             pp.pprint(result)
 
 
