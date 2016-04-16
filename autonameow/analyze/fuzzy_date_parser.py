@@ -1,3 +1,119 @@
+#!/usr/bin/env python
+
+
+
+import datetime
+import re
+
+import dateutil.parser
+
+
+# -*- coding: utf-8 -*-
+
+import time, datetime
+import re
+
+OPT_TODAY = frozenset(['t', 'today'])
+OPT_YESTERDAY = frozenset(['y', 'yesterday'])
+
+
+class DateParse(object):
+
+    @staticmethod
+    def day(date_string):
+        today = datetime.date.today()
+        date_string = date_string.strip().lower()
+        if date_string in OPT_TODAY:
+            return datetime.date(today.year, today.month, today.day)
+        elif date_string in OPT_YESTERDAY:
+            return datetime.date(today.year, today.month, today.day) - datetime.timedelta(days=1)
+        elif re.search(r'(\d{1,3}|a) days? ago', date_string):
+            return DateParse.n_day(date_string)
+        else:
+            return DateParse.date(date_string)
+
+    @staticmethod
+    def n_day(date_string):
+        """
+        date_string string in format "(number|a) day(s) ago"
+        """
+        today = datetime.date.today()
+        match = re.match(r'(\d{1,3}|a) days? ago', date_string)
+        groups = match.groups()
+        if groups:
+            decrement = groups[0]
+            if decrement == 'a':
+                decrement = 1
+            return today - datetime.timedelta(days=int(decrement))
+        return None
+
+    @staticmethod
+    def date(date_string):
+        if date_string is None:
+            return None
+
+        SEPARATOR_CHARS = ['/', '-', ',', '.', ':', '_']
+        for char in SEPARATOR_CHARS:
+            date_string = date_string.replace(char,' ')
+
+        date_formats_with_year = ['%m %d %Y', '%Y %m %d', '%B %d %Y', '%b %d %Y',
+                                  '%m %d %y', '%y %m %d', '%B %d %y', '%B %d %y',]
+
+        date_formats_without_year = ['%m %d', '%d %B', '%B %d',
+                                              '%d %b', '%b %d']
+
+        for format in date_formats_with_year:
+            try:
+                result = time.strptime(date_string, format)
+                return datetime.date(result.tm_year, result.tm_mon, result.tm_mday)
+            except ValueError:
+                pass
+
+        for format in date_formats_without_year:
+            try:
+                result = time.strptime(date_string, format)
+                year = datetime.date.today().year
+                return datetime.date(year, result.tm_mon, result.tm_mday)
+            except ValueError:
+                pass
+
+        return None
+
+
+    @staticmethod
+    def time(time_string):
+        if time_string is None:
+            return None
+
+        SEPARATOR_CHARS = ['-', '.', ':']
+        for char in SEPARATOR_CHARS:
+            time_string = time_string.replace(char,' ')
+
+        # Match time, for instance: 19:29:07
+        match = re.match('([0123]\d)[:.-]?([012345]\d)[:.-]?([012345]\d)?', time_string)
+        # groups = match.groups()
+        # if groups:
+        #     print(groups)
+        # return None
+
+        time_formats = ['%H %M %S']
+
+        for format in time_formats:
+            try:
+                result = time.strptime(time_string, format)
+                return datetime.time(result.tm_hour, result.tm_min, result.tm_sec)
+            except ValueError:
+                pass
+
+        return None
+
+
+
+
+
+
+
+
 # From 'Python Cookbook' pages 127 to 129
 # 3.7 Fuzzy Parsing of Dates
 # Credit: Andrea Cavalcanti
@@ -38,12 +154,6 @@
 # For more on date-parsing algorithms, see dateutil documentation at https://
 # moin.conectiva.com.br/DateUtil?action=highlight&value=DateUtil; for date han-
 # dling, see the datetime documentation in the Library Reference.
-
-
-import datetime
-import re
-
-import dateutil.parser
 
 def try_parse_date(date):
     # dateutil.parser needs a string argument: let's make one from our

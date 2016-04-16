@@ -4,20 +4,60 @@
 
 Basic program functionality
 ===========================
+Find suitable file names from a set of rules.
+
+A set of rules dictates what is a "suitable file name" -- **target file name**.
+
+The target file name is defined as a number of ordered fields.
+
+#### Example target: `[timestamp] [title] [author]`
+
+The program is to fill out these fields by reading in a bunch of data
+from/about the file, which is then analyzed and ranked by probability, as
+defined by some set of rules.
+
+
+High-level logic
+----------------
+Breakdown of what needs to happen to automatically rename a file:
 
 1. Read data from file:
-    * File name (possibly path as well?)
-    * Contents
-    * Metadata
+
+    * File **name**
+        * `seemingly giant cat in dollhouse.jpg`
+
+    * File **contents**
+        * Plain text extracted from contents.
+        * Extraction technique would be specfic to file type;
+          `OCR` for images, etc.
+
+    * File **metadata**
+        * Plain text extracted from metadata.
+        * Metadata type and extraction technique would be specfic to file type;
+          "media" often have `EXIF` data, pdf documents, etc.
 
 2. Evaluate the results.
+
     * Sort
+        * Prioritize items by weights and/or fixed rules.
+        * For example, the EXIF-tag `Date/Time Original` would be selected
+          before `Modify Date`.
+
     * Filter
+        * Remove obviously incorrect entries.
+        * Remove unplausible entries.
+        * Remove entries matching some kind of ruleset or blacklist.
 
 3. Construct a new file name from the data.
 
+    * Fill fields in file name template with most probable values.
+
 4. Rename the file.
 
+    * (Ask user to proceed)
+        * Make sure file still exists, is readable, etc..
+        * Make sure destination won't be clobbered, is writable, etc..
+        * Rename file to the generated file name.
 
 
 Example
@@ -26,26 +66,26 @@ Example
 ### Read data from file
 Reading from file `~/Downloads/DSCN9659.jpg`
 
-* **File name**  
+* **File name**
   `DSCN9659.jpg` (basename?)
 
-* **Contents**  
+* **Contents**
   Might be able to extract information from an image? Image similarity search?
   TODO: Investigate .. Just skip reading image file contents for now.
 
-* **Metadata**  
+* **Metadata**
   Extract image exif information by some means.
   Probably won't need to use more than one program/library to do it.
   Below two examples should be checked for duplicate data.
 
 
 ```
-> $ exif ~/Downloads/DSCN9659.jpg                                 
+> $ exif ~/Downloads/DSCN9659.jpg
 EXIF tags in '/home/spock/temp/smf/img/DSCN9659.jpg' ('Intel' byte order):
 --------------------+----------------------------------------------------------
 Tag                 |Value
 --------------------+----------------------------------------------------------
-Image Description   |          
+Image Description   |
 Manufacturer        |NIKON
 Model               |E775
 Orientation         |Top-left
@@ -71,7 +111,7 @@ Light Source        |Unknown
 Flash               |Flash did not fire
 Focal Length        |7,1 mm
 Maker Note          |674 bytes undefined data
-User Comment        |                                                          
+User Comment        |
 FlashPixVersion     |FlashPix Version 1.0
 Color Space         |sRGB
 Pixel X Dimension   |1600
@@ -84,7 +124,7 @@ Interoperability Ver|0100
 ```
 
 ```
-> $ exiftool ~/Downloads/DSCN9659.jpg                                          
+> $ exiftool ~/Downloads/DSCN9659.jpg
 ExifTool Version Number         : 10.00
 File Name                       : DSCN9659.jpg
 Directory                       : /home/spock/Downloads
@@ -99,7 +139,7 @@ MIME Type                       : image/jpeg
 JFIF Version                    : 1.02
 Ocad Revision                   : 14797
 Exif Byte Order                 : Little-endian (Intel, II)
-Image Description               : 
+Image Description               :
 Make                            : NIKON
 Camera Model Name               : E775
 Orientation                     : Horizontal (normal)
@@ -126,15 +166,15 @@ Flash                           : No Flash
 Focal Length                    : 7.1 mm
 Warning                         : [minor] Possibly incorrect maker notes offsets (fix by -288?)
 Maker Note Version              : 1.00
-Color Mode                      : 
-Quality                         : 
-White Balance                   : 
-Sharpness                       : 
-Focus Mode                      : 
-Flash Setting                   : 
+Color Mode                      :
+Quality                         :
+White Balance                   :
+Sharpness                       :
+Focus Mode                      :
+Flash Setting                   :
 ISO Selection                   : .'
 Image Adjustment                : .'
-Auxiliary Lens                  : 
+Auxiliary Lens                  :
 Manual Focus Distance           : 0.0606
 Digital Zoom                    : 0.0139
 AF Area Mode                    : Single Area
@@ -142,7 +182,7 @@ AF Point                        : Center
 AF Points In Focus              : (none)
 Scene Mode                      : .
 Data Dump                       : (Binary data 122 bytes, use -b option to extract)
-User Comment                    : 
+User Comment                    :
 Flashpix Version                : 0100
 Color Space                     : sRGB
 Exif Image Width                : 1600
@@ -165,7 +205,7 @@ Focal Length                    : 7.1 mm
 Light Value                     : 8.5
 ```
 
-                                      
+
 
 
 Naming convention
@@ -200,7 +240,7 @@ Definition of terms
 
 Photos
 ------
-Photo images (schematics, etc excluded?) should match the pattern:
+Photo images *(schematics, etc excluded?)* should match the pattern:
 
     [date] _ [time] _ [description/name] . [ext]
                           (optional)       (jpg)

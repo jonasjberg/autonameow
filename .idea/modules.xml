@@ -2,11 +2,15 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../adhdo/.idea/adhdo.iml" filepath="$PROJECT_DIR$/../adhdo/.idea/adhdo.iml" />
-      <module fileurl="file://$USER_HOME$/programming/sourcecode/pc/python/novoid/appendfilename/.idea/appendfilename.iml" filepath="$USER_HOME$/programming/sourcecode/pc/python/novoid/appendfilename/.idea/appendfilename.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/autoname.iml" filepath="$PROJECT_DIR$/.idea/autoname.iml" />
-      <module fileurl="file://$USER_HOME$/programming/projects/pdf-toc-extractor/.idea/pdf-toc-extractor.iml" filepath="$USER_HOME$/programming/projects/pdf-toc-extractor/.idea/pdf-toc-extractor.iml" />
-      <module fileurl="file://$USER_HOME$/programming/sourcecode/pc/python/tvnamer.git/.idea/tvnamer.git.iml" filepath="$USER_HOME$/programming/sourcecode/pc/python/tvnamer.git/.idea/tvnamer.git.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../sourcecode/pc/python/beets.git/.idea/beets.git.iml" filepath="$PROJECT_DIR$/../../sourcecode/pc/python/beets.git/.idea/beets.git.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../sourcecode/pc/python/novoid/date2name/.idea/date2name.iml" filepath="$PROJECT_DIR$/../../sourcecode/pc/python/novoid/date2name/.idea/date2name.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../sourcecode/pc/python/guessit/.idea/guessit.iml" filepath="$PROJECT_DIR$/../../sourcecode/pc/python/guessit/.idea/guessit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../sourcecode/pc/python/journal.git/.idea/journal.git.iml" filepath="$PROJECT_DIR$/../../sourcecode/pc/python/journal.git/.idea/journal.git.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../logdotmd/.idea/logdotmd.iml" filepath="$PROJECT_DIR$/../logdotmd/.idea/logdotmd.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../sourcecode/pc/python/photoscripts.git/.idea/photoscripts.git.iml" filepath="$PROJECT_DIR$/../../sourcecode/pc/python/photoscripts.git/.idea/photoscripts.git.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../sourcecode/pc/python/pyrenamer-0.6.0/.idea/pyrenamer-0.6.0.iml" filepath="$PROJECT_DIR$/../../sourcecode/pc/python/pyrenamer-0.6.0/.idea/pyrenamer-0.6.0.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../sourcecode/pc/python/tvnamer.git/.idea/tvnamer.git.iml" filepath="$PROJECT_DIR$/../../sourcecode/pc/python/tvnamer.git/.idea/tvnamer.git.iml" />
     </modules>
   </component>
 </project>

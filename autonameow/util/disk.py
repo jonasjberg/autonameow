@@ -3,30 +3,6 @@ import os
 from datetime import datetime as dt
 
 
-FTYPES = {
-    'JPEG' : 'jpg',
-    'GIF' : 'gif',
-    'PNG' : 'png',
-}
-
-
-def determine_file_type(f):
-    ms = magic.open(magic.MAGIC_NONE)
-    ms.load()
-    type = ms.file(f)
-    # print type
-
-    # ff = file(f, "r")
-    # bffr = ff.read(4096)
-    # ff.close()
-    #
-    # type = ms.buffer(bffr)
-    # print type
-
-    ms.close()
-    return type.split()[0]
-
-
 def is_readable_file(arg):
     # print "checking arg:" + arg
 
@@ -36,6 +12,17 @@ def is_readable_file(arg):
     else:
         # print "File is either missing or not readable"
         return False
+
+
+def determine_file_type(path):
+    try:
+        ms = magic.open(magic.MAGIC_NONE)
+        ms.load()
+        type = ms.file(path)
+        ms.close()
+        return type.split()[0]
+    except:
+        pass
 
 
 
