@@ -60,8 +60,10 @@ def main():
 
                 analyzer.run()
 
-                if analyzer.hasResults():
-                    file.assembleNewName(analyzer.getResults())
+                # TODO: Implement below dummy code or something similar to it.
+                # if analyzer.hasResults():
+                #     results = analyzer.getResults()
+                #     file.assembleNewName(results)
 
 
             else:
