@@ -49,6 +49,9 @@ class DateParse(object):
 
     @staticmethod
     def date(date_string):
+        if date_string is None:
+            return None
+
         SEPARATOR_CHARS = ['/', '-', ',', '.', ':', '_']
         for char in SEPARATOR_CHARS:
             date_string = date_string.replace(char,' ')
@@ -79,6 +82,9 @@ class DateParse(object):
 
     @staticmethod
     def time(time_string):
+        if time_string is None:
+            return None
+
         SEPARATOR_CHARS = ['-', '.', ':']
         for char in SEPARATOR_CHARS:
             time_string = time_string.replace(char,' ')

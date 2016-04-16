@@ -21,6 +21,8 @@
     <orderEntry type="module" module-name="logdotmd" />
     <orderEntry type="module" module-name="photoscripts.git" />
     <orderEntry type="module" module-name="date2name" />
+    <orderEntry type="module" module-name="guessit" />
+    <orderEntry type="module" module-name="pyrenamer-0.6.0" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Nosetests" />

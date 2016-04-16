@@ -60,6 +60,10 @@ def main():
 
                 analyzer.run()
 
+                if analyzer.hasResults():
+                    file.assembleNewName(analyzer.getResults())
+
+
             else:
                 # Unable to read file. Skip ..
                 logging.error('Unable to read file \"%s\"' % str(file))

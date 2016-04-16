@@ -29,7 +29,8 @@ class AnalyzerBase(object):
         #         access-date/time.
         pass
 
-
+    def hasResults(self):
+        return True
 
 
 
