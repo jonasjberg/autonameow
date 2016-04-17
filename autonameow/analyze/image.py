@@ -1,25 +1,28 @@
 from __future__ import print_function
+
+import pprint
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 
-from analyze.analyzer import AnalyzerBase
-from analyze.fuzzy_date_parser import DateParse
-
-import pprint
+from analyze.common import AnalyzerBase
+from util.fuzzy_date_parser import DateParse
 
 
 class ImageAnalyzer(AnalyzerBase):
     def __init__(self, fileObject):
         self.fileObject = fileObject
-        self.exif_data = self.get_EXIF_data()
+        self.exif_data = None
 
     def run(self):
-        exif_date_info = self.get_EXIF_datetime()
+        if self.exif_data is None:
+            self.exif_data = self.get_EXIF_data()
+
+        exif_date_info = self.get_datetime()
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(exif_date_info)
         # print(self.exif_data)
 
-    def get_EXIF_datetime(self):
+    def get_datetime(self):
         # Use "brute force"-type date parser everywhere?
         # Probably not necessary. Could possible handle some edges cases.
         # Performance could become a problem at scale ..
@@ -76,41 +79,6 @@ class ImageAnalyzer(AnalyzerBase):
         # print(FORMAT % ("EXIF FIELD", "Date", "Time"))
         # print(FORMAT % (field, clean_date, clean_time))
 
-                # for d in self.exif_data.values():
-                #    print(d)
-
-                # dateTimeOriginal = "NA"
-                # dateTimeDigitized = "NA"
-                # createDate = "NA"
-                # dateTime = "NA"
-                # cameraModel = "NA"
-                # cameraMake = "NA"
-                #
-                # # Collect basic image data if available
-                # if tagString == 'DateTimeOriginal':
-                #     dateTimeOriginal = exifData.get(tag)
-                #
-                #     # # check the tag for GPS
-                #     # if tagString == "GPSInfo":
-                #     #
-                #     #     # Create dictionary to hold the GPS data
-                #     #     gpsDictionary = {}
-                #     #
-                #     #     # Loop through the GPS information
-                #     #     for curTag in value:
-                #     #         gpsTag = GPSTAGS.get(curTag, curTag)
-                #     #         gpsDictionary[gpsTag] = value[curTag]
-                #
-                #     # return gpsDictionary, basicEXIFData
-                #
-                # # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
-                # # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
-                # if cameraMake == 'OnePlus' and cameraModel == 'ONE E1003':
-                #     if dateTimeDigitized == '2002:12:08 12:00:00':
-                #         dateTimeDigitized = None
-                #
-                # dateEXIFdata = [dateTimeOriginal, dateTimeDigitized, createDate, dateTime]
-                # deviceEXIFdata = [cameraMake, cameraModel]
 
     def get_EXIF_data(self):
         # Create empty dictionary to store exif "key:value"-pairs in.

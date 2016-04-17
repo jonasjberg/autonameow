@@ -7,18 +7,14 @@
 # jomeganas@gmail.com
 # ____________________________________________________________________________
 
-import sys
-import os
 import argparse
 import logging
 
-import analyze.analyzer
 import util.disk
-import analyze.fuzzy_date_parser
-from analyze.file_object import FileObject
-from analyze.analyzer import AnalyzerBase
+from analyze.common import AnalyzerBase
 from analyze.image import ImageAnalyzer
 from analyze.pdf import PdfAnalyzer
+from file_object import FileObject
 
 
 def handle_logging():

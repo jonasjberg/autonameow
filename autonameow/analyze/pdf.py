@@ -1,4 +1,12 @@
-from analyze.analyzer import AnalyzerBase
+import pprint
+
+from analyze.common import AnalyzerBase
+
+import pyPdf
+from pyPdf import PdfFileReader
+
+import PyPDF2
+
 
 
 class PdfAnalyzer(AnalyzerBase):
@@ -8,8 +16,46 @@ class PdfAnalyzer(AnalyzerBase):
 
 
     def run(self):
-        # TODO: Run analysis specific to PDF documents.
-        pass
+        if self.pdf_metadata is None:
+            self.pdf_metadata = self.extract_pdf_metadata()
+
+
+        self.printMeta()
+
+
+    def extract_pdf_metadata(self):
+        # Create empty dictionary to store PDF metadata "key:value"-pairs in.
+        result = {}
+
+        # Extract PDF metadata using PyPdf, nicked from Violent Python.
+        try:
+            filename = self.fileObject.get_path()
+            pdfFile = PdfFileReader(file(filename, 'rb'))
+            pdfMetadata = pdfFile.getDocumentInfo()
+
+        except Exception:
+            print("PDF metadata extraction error")
+
+        if pdfMetadata:
+            # TODO: Clean results possibly?
+            return pdfMetadata
+        else:
+            return None
+
+
+    def printMeta(self):
+        FORMAT='%-20.20s : %-s'
+        print('')
+        print(FORMAT % ("Metadata field", "Value"))
+        # pp = pprint.PrettyPrinter(indent=4)
+        # pp.pprint(pdfMetadata)
+        for entry in pdfMetadata:
+
+            # print([{}]  []) + entry + ':' + pdfMetadata[entry]
+            value = pdfMetadata[entry]
+            key = entry.lstrip('\/')
+            print(FORMAT % (key, value))
+
 
 # import warnings,sys,os,string
 # from pyPdf import PdfFileWriter, PdfFileReader

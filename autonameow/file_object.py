@@ -5,22 +5,15 @@ import os
 class FileObject(object):
     def __init__(self, path):
         self.newName = None
-        #self.date = date
-        #self.time = time
-        #self.description = description
+        self.timestamp = None
+        self.description = None
         
 
         if path is not None:
             # Remains untouched, for use when renaming file
             self.originalfilename = os.path.basename(path)
-            print 'fileObject original file name: {}'.format(self.originalfilename)
+            print('fileObject original file name: {}'.format(self.originalfilename))
 
-
-        # Set of words derived from file content, can be used in a last ditch effort
-        # to generate suggestions to field values.
-        #if contents is None:
-        #    contents = {}
-        #self.contents = contents
 
         # Get full absolute path
         self.path = os.path.abspath(path)

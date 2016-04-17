@@ -16,6 +16,11 @@ class AnalyzerBase(object):
     def __init__(self, fileObject):
         self.fileObject = fileObject
 
+        # TODO: Implement this in some way that makes sense. Do research first.
+        self.fields = { "title" : None,
+                        "Author" : None,
+                        "datetime" : None }
+
     def run(self):
         # TODO: Run common analysis:
         # * Find information in original file name.
@@ -27,6 +32,9 @@ class AnalyzerBase(object):
 
         #       * Find information in creation-, modification- and
         #         access-date/time.
+        pass
+
+    def get_datetime(self):
         pass
 
     def hasResults(self):
