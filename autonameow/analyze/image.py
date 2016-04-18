@@ -14,15 +14,34 @@ class ImageAnalyzer(AnalyzerBase):
         self.exif_data = None
 
     def run(self):
+        """
+        Run the analysis.
+        """
         if self.exif_data is None:
             self.exif_data = self.get_EXIF_data()
 
-        exif_date_info = self.get_datetime()
+        exif_date_info = self.get_EXIF_datetime()
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(exif_date_info)
         # print(self.exif_data)
 
     def get_datetime(self):
+        datetime = None
+        datetime = self.get_EXIF_datetime()
+
+        if datetime is None:
+            datetime = AnalyzerBase.get_datetime(self)
+
+        return datetime
+
+    def get_EXIF_datetime(self):
+        """
+        Extracts date and time information from the EXIF data.
+        The EXIF data could be corrupted or contain non-standard entries.
+        Extraction should be fault-tolerant and able to handle non-standard
+        entry formats.
+        :return: Touple of datetime objects representing date and time.
+        """
         # Use "brute force"-type date parser everywhere?
         # Probably not necessary. Could possible handle some edges cases.
         # Performance could become a problem at scale ..
@@ -81,6 +100,12 @@ class ImageAnalyzer(AnalyzerBase):
 
 
     def get_EXIF_data(self):
+        """
+        Extracts EXIF information from a image using PIL.
+        The EXIF data is stored in a dict using human-readable keys.
+        :return: Dict of EXIF data.
+        """
+
         # Create empty dictionary to store exif "key:value"-pairs in.
         result = {}
 
@@ -121,5 +146,5 @@ class ImageAnalyzer(AnalyzerBase):
             # pp = pprint.PrettyPrinter(indent=4)
             # pp.pprint(result)
 
-
+        # Return result, should be empty if errors occured.
         return result

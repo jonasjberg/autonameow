@@ -12,20 +12,26 @@ from __builtin__ import str
 
 
 class AnalyzerBase(object):
-
     def __init__(self, fileObject):
         self.fileObject = fileObject
 
         # TODO: Implement this in some way that makes sense. Do research first.
-        self.fields = { "title" : None,
-                        "Author" : None,
-                        "datetime" : None }
+        self.fields = {"title": None,
+                       "Author": None,
+                       "datetime": None}
 
     def run(self):
         # TODO: Run common analysis:
         # * Find information in original file name.
+        pass
 
-        # TODO: Check file name
+    def get_datetime(self):
+        # TODO: Get datetime from information common to all file types;
+        #       file name, files in the same directory, name of directory, etc..
+        pass
+
+    def get_datetime_from_name(self):
+        # TODO: Get datetime from file name.
         #       Basically a bunch of regexes matching preset patterns:
         #       * Date-/timestamp
         #       * incrementer (file ends with a number)
@@ -33,14 +39,4 @@ class AnalyzerBase(object):
         #       * Find information in creation-, modification- and
         #         access-date/time.
         pass
-
-    def get_datetime(self):
-        pass
-
-    def hasResults(self):
-        return True
-
-
-
-
 
