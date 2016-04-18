@@ -5,7 +5,7 @@ import os
 class FileObject(object):
     def __init__(self, path):
         self.newName = None
-        self.timestamp = None
+        self.timestamps = []
         self.description = None
         
 
@@ -24,10 +24,6 @@ class FileObject(object):
         if not self.type:
             self.type = None
 
-    def update_field(self, field):
-        if field is not None:
-            pass
-
     def get_path(self):
         return self.path
 
@@ -41,11 +37,6 @@ class FileObject(object):
         ms.close()
         # return type
         return type.split()[0]
-
-
-    class NameKey(object):
-        def __init__(self):
-            self.known = False
 
     def assembleNewName(self):
         pass

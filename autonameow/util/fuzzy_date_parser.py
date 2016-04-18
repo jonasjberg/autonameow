@@ -56,6 +56,14 @@ class DateParse(object):
         for char in SEPARATOR_CHARS:
             date_string = date_string.replace(char,' ')
 
+        # If the string is all numbers without separators, add in spaces at
+        # set locations.
+        if date_string.isdigit() and len(date_string) == 8:
+            d = date_string
+            d = d[:4] + ' ' + d[4:6] + ' ' + d[6:8]
+            date_string = d
+
+
         date_formats_with_year = ['%m %d %Y', '%Y %m %d', '%B %d %Y', '%b %d %Y',
                                   '%m %d %y', '%y %m %d', '%B %d %y', '%B %d %y',]
 
@@ -88,6 +96,13 @@ class DateParse(object):
         SEPARATOR_CHARS = ['-', '.', ':']
         for char in SEPARATOR_CHARS:
             time_string = time_string.replace(char,' ')
+
+        # If the string is all numbers without separators, add in spaces at
+        # set locations.
+        if time_string.isdigit() and len(time_string) == 6:
+            s = time_string
+            s = s[:2] + ' ' + s[2:4] + ' ' + s[4:6]
+            time_string = s
 
         # Match time, for instance: 19:29:07
         match = re.match('([0123]\d)[:.-]?([012345]\d)[:.-]?([012345]\d)?', time_string)

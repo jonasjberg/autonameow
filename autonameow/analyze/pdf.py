@@ -48,7 +48,7 @@ class PdfAnalyzer(AnalyzerBase):
 
             f = f.lstrip('D:')
             clean_date = parser.date(f[:8])
-            clean_time = parser.time(f[8:])
+            clean_time = parser.time(f[8:14])
 
             if clean_date and clean_time:
                 results[field] = (clean_date, clean_time)
