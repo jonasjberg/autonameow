@@ -11,6 +11,7 @@ import argparse
 import logging
 
 import util.disk
+from analyze.analysis import Analysis
 from analyze.common import AnalyzerBase
 from analyze.image import ImageAnalyzer
 from analyze.pdf import PdfAnalyzer
@@ -18,16 +19,49 @@ from file_object import FileObject
 
 
 def handle_logging():
-    if args.verbose:
-        FORMAT = "%(levelname)-8s %(asctime)-15s %(message)s"
-        logging.basicConfig(level=logging.DEBUG, format=FORMAT)
-    elif args.quiet:
-        FORMAT = "%(levelname)-8s %(message)s"
-        logging.basicConfig(level=logging.ERROR, format=FORMAT)
-    else:
-        FORMAT = "%(levelname)-8s %(message)s"
-        logging.basicConfig(level=logging.INFO, format=FORMAT)
+    # def setup_custom_logger(name):
+    #     if args.debug:
+    #         format = "%(asctime)s %(levelname)-6s %(funcName)s(%(lineno)d) -- %(message)s"
+    #         dateformat = '%Y-%m-%d %H:%M:%S'
+    #         level = logging.DEBUG
+    #     elif args.verbose:
+    #         format = "%(asctime)s %(levelname)-6s -- %(message)s"
+    #         dateformat = '%Y-%m-%d %H:%M:%S'
+    #         level = logging.INFO
+    #     elif args.quiet:
+    #         format = "%(levelname)s -- %(message)s"
+    #         dateformat = None
+    #         level = logging.CRITICAL
+    #     else:
+    #         format = "%(levelname)s -- %(message)s"
+    #         dateformat = None
+    #         level = logging.WARNING
+    #
+    #     formatter = logging.Formatter(fmt=format, datefmt=dateformat)
+    #
+    #     handler = logging.StreamHandler()
+    #     handler.setFormatter(formatter)
+    #
+    #     logger = logging.getLogger(name)
+    #     logger.setLevel(logging.DEBUG)
+    #     logger.addHandler(handler)
+    #     return logger
+    #
+    # logger = setup_custom_logger('root')
+    # logger.debug('main message')
 
+    if args.debug:
+        FORMAT = "%(asctime)s %(levelname)-6s %(funcName)s(%(lineno)d) -- %(message)s"
+        logging.basicConfig(level=logging.DEBUG, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
+    elif args.verbose:
+        FORMAT = "%(asctime)s %(levelname)-6s -- %(message)s"
+        logging.basicConfig(level=logging.INFO, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
+    elif args.quiet:
+        FORMAT = "%(levelname)s -- %(message)s"
+        logging.basicConfig(level=logging.CRITICAL, format=FORMAT)
+    else:
+        FORMAT = "%(levelname)s -- %(message)s"
+        logging.basicConfig(level=logging.WARNING, format=FORMAT)
 
 def main():
     # Main program entry point
@@ -35,24 +69,13 @@ def main():
 
     # Iterate over command line arguments ..
     if args.input_files:
-        for file in args.input_files:
-            if util.disk.is_readable_file(file):
-                logging.info('Processing file \"%s\"' % str(file))
+        for arg in args.input_files:
+            if util.disk.is_readable_file(arg):
+                logging.info('Processing file \"%s\"' % str(arg))
 
                 # Create a new FileObject representing the current arg.
-                file = FileObject(file)
-
-                # Select analyzer based on detected file type.
-                if file.get_type() == "JPEG":
-                    logging.debug('File is of type [JPEG]')
-                    analyzer = ImageAnalyzer(file)
-                elif file.get_type() == "PDF":
-                    logging.debug('File is of type [PDF]')
-                    analyzer = PdfAnalyzer(file)
-                else:
-                    # Create a basic analyzer, common to all file types.
-                    logging.debug('File is of type [unknown]')
-                    analyzer = AnalyzerBase(file)
+                file = FileObject(arg)
+                analysis = Analysis(file)
 
                 analyzer.run()
 
@@ -80,6 +103,12 @@ parser = argparse.ArgumentParser(
     description='Automatic renaming of files from analysis of several sources of information.')
 
 output_control_group = parser.add_mutually_exclusive_group()
+
+output_control_group.add_argument("-z", "--debug",
+                                  dest='debug',
+                                  action="store_true",
+                                  help='debug mode')
+
 output_control_group.add_argument("-v", "--verbose",
                                   dest='verbose',
                                   action="store_true",

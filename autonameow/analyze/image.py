@@ -20,10 +20,10 @@ class ImageAnalyzer(AnalyzerBase):
         if self.exif_data is None:
             self.exif_data = self.get_EXIF_data()
 
-        exif_date_info = self.get_EXIF_datetime()
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(exif_date_info)
-        # print(self.exif_data)
+        exif_datetime = self.get_EXIF_datetime()
+        self.fileObject.timestamps.append(exif_datetime)
+        # pp = pprint.PrettyPrinter(indent=4)
+        # pp.pprint(exif_datetime)
 
     def get_datetime(self):
         datetime = None
