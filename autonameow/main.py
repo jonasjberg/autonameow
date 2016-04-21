@@ -33,7 +33,6 @@ class Autonameow(object):
 
     def main(self):
         # Main program entry point
-        # self.handle_logging()
         pass
 
     def init_argparser(self):
