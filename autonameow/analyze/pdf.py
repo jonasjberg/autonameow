@@ -21,9 +21,17 @@ class PdfAnalyzer(AnalyzerBase):
         self.pdf_metadata = None
 
     def run(self):
+        """
+        Run this analyzer.
+        This method is common to all analyzers.
+        :return:
+        """
         if self.pdf_metadata is None:
             self.pdf_metadata = self.extract_pdf_metadata()
 
+        metadata_datetime = self.get_metadata_datetime()
+        if metadata_datetime:
+            self.fileObject.add_datetime(metadata_datetime)
             # print('--------------------------------------------------------------')
             # self.printMeta()
             # print('--------------------------------------------------------------')
@@ -32,9 +40,9 @@ class PdfAnalyzer(AnalyzerBase):
             # pp = pprint.PrettyPrinter(indent=4)
             # pp.pprint(datetime)
 
-    def get_datetime(self):
+    def get_metadata_datetime(self):
         """
-        Extract date and time information from pdf EXIF data.
+        Extract date and time information from pdf metadata.
         :return: dict of datetime-objects
         """
         parser = DateParse()

@@ -4,6 +4,7 @@ import logging
 import pprint
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
+from datetime import datetime
 
 from analyze.common import AnalyzerBase
 from util.fuzzy_date_parser import DateParse
@@ -22,17 +23,18 @@ class ImageAnalyzer(AnalyzerBase):
             self.exif_data = self.get_EXIF_data()
 
         exif_datetime = self.get_EXIF_datetime()
-        self.fileObject.timestamps.append(exif_datetime)
+        if exif_datetime:
+            self.fileObject.add_datetime(exif_datetime)
         # pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(exif_datetime)
 
-    def get_datetime(self):
-        datetime = self.get_EXIF_datetime()
-
-        if datetime is None:
-            logging.warning('Unable to extract datetime.')
-        else:
-            return datetime
+    # def get_datetime(self):
+    #     datetime = self.get_EXIF_datetime()
+    #
+    #     if datetime is None:
+    #         logging.warning('Unable to extract datetime.')
+    #     else:
+    #         return datetime
 
     def get_EXIF_datetime(self):
         """
@@ -62,7 +64,7 @@ class ImageAnalyzer(AnalyzerBase):
             clean_time = parser.time(time)
 
             if clean_date and clean_time:
-                results[field] = (clean_date, clean_time)
+                results[field] = datetime.combine(clean_date, clean_time)
 
         GPS_date = GPS_time = None
         try:
@@ -80,7 +82,7 @@ class ImageAnalyzer(AnalyzerBase):
             #clean_GPS_time = parser.time(GPS_time)
 
         if clean_date and clean_time:
-            results['GPSDateTime'] = (clean_date, clean_time)
+            results['GPSDateTime'] = datetime.combine(clean_date, clean_time)
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/

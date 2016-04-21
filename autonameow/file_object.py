@@ -6,7 +6,7 @@ import os
 class FileObject(object):
     def __init__(self, path):
         self.newName = None
-        self.timestamps = []
+        self.datetime_list = []
         self.description = None
         
         if path is not None:
@@ -45,6 +45,30 @@ class FileObject(object):
         return type.split()[0]
 
     def assembleNewName(self):
+        # TODO: Construct a new file name.
+        #       Maybe a separate class should handle it?
         pass
+
+    def add_datetime(self, dt):
+        """
+        Add date/time-information dict to the list of all date/time-objects
+        found for this FileObject.
+        :param dt: date/time-information dict ('KEY' 'datetime') to add
+        :return:
+        """
+        if dt is None:
+            logging.warning('Got null argument')
+            return
+
+        if not dt in self.datetime_list:
+            logging.debug('Adding datetime-object [%s] to list' % str(type(dt)))
+            self.datetime_list.append(dt)
+
+    def get_datetime_list(self):
+        """
+        Get the list of datetime-objects found for this FileObject.
+        :return: date/time-information as a list of dicts
+        """
+        return self.datetime_list
 
 
