@@ -34,6 +34,20 @@ class Analysis(object):
     def get_datetime(self):
         return self.analyzer.get_datetime()
 
+    def print_datetime(self):
+        datetime = self.get_datetime()
+
+        FORMAT = '%-20.20s : %-s'
+        print('')
+        print(FORMAT % ("Datetime", "Value"))
+        for entry in datetime:
+            value = datetime[entry]
+            # print('type(value): ' + str(type(value)))
+            valuestr = value.isoformat()
+            print(FORMAT % (entry, valuestr))
+
     def run(self):
         self.analyzer.run()
+
+        self.print_datetime()
 

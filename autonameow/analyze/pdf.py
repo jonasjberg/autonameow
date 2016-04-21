@@ -1,6 +1,10 @@
 import logging
 import pprint
 
+from datetime import datetime
+
+import re
+
 from analyze.common import AnalyzerBase
 
 import pyPdf
@@ -20,39 +24,55 @@ class PdfAnalyzer(AnalyzerBase):
         if self.pdf_metadata is None:
             self.pdf_metadata = self.extract_pdf_metadata()
 
-        # self.printMeta()
-        # print('--------------------------------------------------------------')
+            # print('--------------------------------------------------------------')
+            # self.printMeta()
+            # print('--------------------------------------------------------------')
 
-        datetime = self.get_datetime()
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(datetime)
+            # datetime = self.get_datetime()
+            # pp = pprint.PrettyPrinter(indent=4)
+            # pp.pprint(datetime)
 
-    # TODO: FIX THIS. Returns nothing as-is.
     def get_datetime(self):
+        """
+        Extract date and time information from pdf EXIF data.
+        :return: dict of datetime-objects
+        """
         parser = DateParse()
 
         DATE_TAG_FIELDS = ['ModDate', 'CreationDate']
 
         results = {}
         for field in DATE_TAG_FIELDS:
-            date = time = None
+            date = time = k = None
+            if field in self.pdf_metadata:
+                try:
+                    k = self.pdf_metadata[field]
+                    # date, time = self.pdf_metadata[field].split()
+                except KeyError:
+                    logging.error('KeyError for key [{}]'.format(field))
+                    pass
+
+            if k is None:
+                logging.warning(
+                    'Got Null result from metadata field [%s]' % field)
+                continue
+
+            # Expected date format:     D:20121225235237+05'30'
+            pdf_metadata_date_pattern = re.compile('.*D:(\d{14,14}).*')
+            re_search = pdf_metadata_date_pattern.search(k)
+            if re_search is None:
+                logging.warning(
+                    'Found no date/time-pattern in metadata field [%s]' % field)
+                continue
+
             try:
-                f = self.pdf_metadata[field]
-                # date, time = self.pdf_metadata[field].split()
-            except KeyError:
-                logging.error('KeyError for key [{}]'.format(field))
-                pass
+                dt = datetime.strptime(re_search.group(1), "%Y%m%d%H%M%S")
+            except ValueError:
+                logging.warning('Unable to parse datetime from '
+                                'metadata field [%s]' % field)
+                continue
 
-            f = f.lstrip('D:')
-            clean_date = parser.date(f[:8])
-            clean_time = parser.time(f[8:14])
-
-            if clean_date and clean_time:
-                results[field] = (clean_date, clean_time)
-            elif clean_date:
-                results[field] = (clean_date, None)
-            elif clean_time:
-                results[field] = (None, clean_time)
+            results[field] = dt
 
         return results
 

@@ -112,8 +112,8 @@ class Autonameow(object):
             exit(0)
 
         # Iterate over command line arguments ..
-        if self.args.input_files:
-            for arg in self.args.input_files:
+        if args.input_files:
+            for arg in args.input_files:
                 if util.disk.is_readable_file(arg):
                     logging.info('Processing file \"%s\"' % str(arg))
 
@@ -124,7 +124,7 @@ class Autonameow(object):
                     analysis = Analysis(f)
                     analysis.run()
 
-                    if self.args.add_datetime:
+                    if args.add_datetime:
                         if analysis.get_datetime() is not None:
                             logging.info('Found datetime information:')
 
