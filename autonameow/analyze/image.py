@@ -85,9 +85,10 @@ class ImageAnalyzer(AnalyzerBase):
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
         try:
-            if self.exif_data['Make'] == 'OnePlus' and self.exif_data['Model'] == 'ONE E1003':
+            if self.exif_data['Make'] == 'OnePlus' and \
+               self.exif_data['Model'] == 'ONE E1003':
                 if results['DateTimeDigitized'] == '2002:12:08 12:00:00':
-                    print("Removing erroneous EXIF date \"2002:12:08 12:00:00\"")
+                    logging.debug("Removing erroneous EXIF date \"2002:12:08 12:00:00\"")
                     self.exif_data['DateTimeDigitized'] = None
         except KeyError:
             pass
