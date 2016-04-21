@@ -83,6 +83,14 @@ def main():
                 analysis = Analysis(f)
                 analysis.run()
 
+                if args.add_datetime:
+                    if analysis.get_datetime() is not None:
+                        logging.info('Found datetime information:')
+
+                        print(str(analysis.get_datetime()))
+                        # for k, v in analysis.get_datetime():
+                        #     logging.info('%20.20s : %-60.60s' % str(k), str(v))
+
                 # TODO: Implement below dummy code or something similar to it.
                 # if analyzer.hasResults():
                 #     results = analyzer.getResults()
@@ -120,7 +128,7 @@ def create_cli_argument_parser():
                                       help='quiet mode')
 
     action_control_group = parser.add_mutually_exclusive_group()
-    output_control_group.add_argument("-d", "--add-datetime",
+    action_control_group.add_argument("--add-datetime",
                                       dest='add_datetime',
                                       action="store_true",
                                       help='add datetime only')

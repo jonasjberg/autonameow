@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import logging
 import pprint
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
@@ -26,13 +27,12 @@ class ImageAnalyzer(AnalyzerBase):
         # pp.pprint(exif_datetime)
 
     def get_datetime(self):
-        datetime = None
         datetime = self.get_EXIF_datetime()
 
         if datetime is None:
-            datetime = AnalyzerBase.get_datetime(self)
-
-        return datetime
+            logging.warning('Unable to extract datetime.')
+        else:
+            return datetime
 
     def get_EXIF_datetime(self):
         """
@@ -55,7 +55,7 @@ class ImageAnalyzer(AnalyzerBase):
             date = time = None
             try:
                 date, time = self.exif_data[field].split()
-            except KeyError:
+            except KeyError, TypeError:
                 pass
 
             clean_date = parser.date(date)
@@ -109,16 +109,18 @@ class ImageAnalyzer(AnalyzerBase):
         # Create empty dictionary to store exif "key:value"-pairs in.
         result = {}
 
+        exif_data = None
+
         # Extract EXIF data using PIL.ExifTags.
         try:
             filename = self.fileObject.get_path()
             image = Image.open(filename)
-            exifData = image._getexif()
+            exif_data = image._getexif()
         except Exception:
             print("EXIF data extraction error")
 
-        if exifData:
-            for tag, value in exifData.items():
+        if exif_data:
+            for tag, value in exif_data.items():
                 # Obtain a human-readable version of the tag.
                 tagString = TAGS.get(tag, tag)
 
