@@ -31,38 +31,6 @@ class Autonameow(object):
         """
         self.args = self.parse_args()
 
-        # def handle_logging(self):
-        # def setup_custom_logger(name):
-        #     if args.debug:
-        #         format = "%(asctime)s %(levelname)-6s %(funcName)s(%(lineno)d) -- %(message)s"
-        #         dateformat = '%Y-%m-%d %H:%M:%S'
-        #         level = logging.DEBUG
-        #     elif args.verbose:
-        #         format = "%(asctime)s %(levelname)-6s -- %(message)s"
-        #         dateformat = '%Y-%m-%d %H:%M:%S'
-        #         level = logging.INFO
-        #     elif args.quiet:
-        #         format = "%(levelname)s -- %(message)s"
-        #         dateformat = None
-        #         level = logging.CRITICAL
-        #     else:
-        #         format = "%(levelname)s -- %(message)s"
-        #         dateformat = None
-        #         level = logging.WARNING
-        #
-        #     formatter = logging.Formatter(fmt=format, datefmt=dateformat)
-        #
-        #     handler = logging.StreamHandler()
-        #     handler.setFormatter(formatter)
-        #
-        #     logger = logging.getLogger(name)
-        #     logger.setLevel(logging.DEBUG)
-        #     logger.addHandler(handler)
-        #     return logger
-        #
-        # logger = setup_custom_logger('root')
-        # logger.debug('main message')
-
     def main(self):
         # Main program entry point
         # self.handle_logging()
@@ -74,8 +42,10 @@ class Autonameow(object):
         :return: the argument parser
         """
         parser = argparse.ArgumentParser(
+            prog='autonameow',
             description='Automatic renaming of files from analysis of '
-                        'several sources of information.')
+                        'several sources of information.',
+            epilog='Example usage: TODO ..')
 
         output_control_group = parser.add_mutually_exclusive_group()
         output_control_group.add_argument("-z", "--debug",
@@ -115,11 +85,13 @@ class Autonameow(object):
     def parse_args(self):
         """
         Parse command line arguments.
+        Check combination legality, print debug info.
+        Apply selected options.
         """
         parser = self.init_argparser()
         args = parser.parse_args()
 
-        # Handle options affecting logging output format.
+        # Setup logging output format.
         if args.debug:
             FORMAT = "%(asctime)s %(levelname)-6s %(funcName)s(%(lineno)d) -- %(message)s"
             logging.basicConfig(level=logging.DEBUG, format=FORMAT,

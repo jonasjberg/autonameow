@@ -21,5 +21,4 @@ if __package__ is None and not hasattr(sys, "frozen"):
     sys.path.insert(0, os.path.dirname(os.path.dirname(path)))
 
 if __name__ == '__main__':
-    autonameow = Autonameow()
-    autonameow.main()
+    autonameow = Autonameow().main()
