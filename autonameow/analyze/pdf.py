@@ -77,6 +77,10 @@ class PdfAnalyzer(AnalyzerBase):
         return results
 
     def extract_pdf_metadata(self):
+        """
+        Extract metadata from a PDF document using "pyPdf".
+        :return: dict of PDF metadata
+        """
         # Create empty dictionary to store PDF metadata "key:value"-pairs in.
         result = {}
 
