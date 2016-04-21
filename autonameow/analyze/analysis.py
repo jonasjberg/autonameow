@@ -18,14 +18,14 @@ class Analysis(object):
         # Select analyzer based on detected file type.
         if file.get_type() == "JPEG":
             logging.debug('File is of type [JPEG]')
-            analyzer = ImageAnalyzer(file)
+            self.analyzer = ImageAnalyzer(file)
         elif file.get_type() == "PDF":
             logging.debug('File is of type [PDF]')
-            analyzer = PdfAnalyzer(file)
+            self.analyzer = PdfAnalyzer(file)
         else:
             # Create a basic analyzer, common to all file types.
             logging.debug('File is of type [unknown]')
-            analyzer = AnalyzerBase(file)
+            self.analyzer = AnalyzerBase(file)
 
     def get_datetime(self):
         return self.analyzer.get_datetime()

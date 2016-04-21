@@ -52,16 +52,19 @@ def handle_logging():
 
     if args.debug:
         FORMAT = "%(asctime)s %(levelname)-6s %(funcName)s(%(lineno)d) -- %(message)s"
-        logging.basicConfig(level=logging.DEBUG, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
+        logging.basicConfig(level=logging.DEBUG, format=FORMAT,
+                            datefmt='%Y-%m-%d %H:%M:%S')
     elif args.verbose:
         FORMAT = "%(asctime)s %(levelname)-6s -- %(message)s"
-        logging.basicConfig(level=logging.INFO, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
+        logging.basicConfig(level=logging.INFO, format=FORMAT,
+                            datefmt='%Y-%m-%d %H:%M:%S')
     elif args.quiet:
         FORMAT = "%(levelname)s -- %(message)s"
         logging.basicConfig(level=logging.CRITICAL, format=FORMAT)
     else:
         FORMAT = "%(levelname)s -- %(message)s"
         logging.basicConfig(level=logging.WARNING, format=FORMAT)
+
 
 def main():
     # Main program entry point
@@ -74,10 +77,11 @@ def main():
                 logging.info('Processing file \"%s\"' % str(arg))
 
                 # Create a new FileObject representing the current arg.
-                file = FileObject(arg)
-                analysis = Analysis(file)
+                f = FileObject(arg)
 
-                analyzer.run()
+                # Begin analysing the file.
+                analysis = Analysis(f)
+                analysis.run()
 
                 # TODO: Implement below dummy code or something similar to it.
                 # if analyzer.hasResults():
@@ -95,43 +99,47 @@ def main():
         exit(1)
 
 
+def create_cli_argument_parser():
+    parser = argparse.ArgumentParser(
+        description='Automatic renaming of files from analysis of several sources of information.')
+
+    output_control_group = parser.add_mutually_exclusive_group()
+    output_control_group.add_argument("-z", "--debug",
+                                      dest='debug',
+                                      action="store_true",
+                                      help='debug mode')
+
+    output_control_group.add_argument("-v", "--verbose",
+                                      dest='verbose',
+                                      action="store_true",
+                                      help='verbose mode')
+
+    output_control_group.add_argument("-q", "--quiet",
+                                      dest='quiet',
+                                      action="store_true",
+                                      help='quiet mode')
+
+    action_control_group = parser.add_mutually_exclusive_group()
+    output_control_group.add_argument("-d", "--add-datetime",
+                                      dest='add_datetime',
+                                      action="store_true",
+                                      help='add datetime only')
+
+    parser.add_argument(dest='input_files',
+                        metavar='filename',
+                        nargs='*',
+                        help='input file(s)')
+
+    parser.add_argument('-d', '--dry-run',
+                        dest='dry_run',
+                        action='store',
+                        help='simulate what would happen but do not actually write any changes to disk')
+
+    return parser
 
 
-
-
-parser = argparse.ArgumentParser(
-    description='Automatic renaming of files from analysis of several sources of information.')
-
-output_control_group = parser.add_mutually_exclusive_group()
-
-output_control_group.add_argument("-z", "--debug",
-                                  dest='debug',
-                                  action="store_true",
-                                  help='debug mode')
-
-output_control_group.add_argument("-v", "--verbose",
-                                  dest='verbose',
-                                  action="store_true",
-                                  help='verbose mode')
-
-output_control_group.add_argument("-q", "--quiet",
-                                  dest='quiet',
-                                  action="store_true",
-                                  help='quiet mode')
-
-parser.add_argument(dest='input_files',
-                    metavar='filename',
-                    nargs='*',
-                    help='input file(s)')
-
-parser.add_argument('-d', '--dry-run',
-                    dest='dry_run',
-                    action='store',
-                    help='simulate what would happen but do not actually write any changes to disk')
-
+parser = create_cli_argument_parser()
 args = parser.parse_args()
-
 
 if __name__ == '__main__':
     main()
-
