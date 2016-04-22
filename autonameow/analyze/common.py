@@ -23,9 +23,15 @@ class AnalyzerBase(object):
                        "datetime": None}
 
     def run(self):
-        # TODO: Run common analysis:
-        # * Find information in original file name.
-        pass
+        """
+        Run the analysis.
+        """
+
+        fs_timestamps = self.get_datetime_from_filesystem()
+        if fs_timestamps:
+            self.fileObject.add_datetime(fs_timestamps)
+
+            # TODO: Find information in original file name.
 
     def get_datetime(self):
         # TODO: Get datetime from information common to all file types;
@@ -33,9 +39,16 @@ class AnalyzerBase(object):
         pass
 
     def get_datetime_from_filesystem(self):
+        """
+        Extracts date and time information "from the file system", I.E.
+        access-, modification- and creation-timestamps.
+        NOTE: This is all very platform-specific.
+        :return: Touple of datetime objects representing date and time.
+        """
         filename = self.fileObject.get_path()
         results = {}
 
+        logging.debug('Fetching file system timestamps ..')
         try:
             mtime = os.path.getmtime(filename)
             ctime = os.path.getctime(filename)
@@ -53,7 +66,6 @@ class AnalyzerBase(object):
 
         return results
 
-
     def get_datetime_from_name(self):
         # TODO: Get datetime from file name.
         #       Basically a bunch of regexes matching preset patterns:
@@ -63,4 +75,3 @@ class AnalyzerBase(object):
         #       * Find information in creation-, modification- and
         #         access-date/time.
         pass
-

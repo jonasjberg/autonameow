@@ -43,7 +43,7 @@ class ImageAnalyzer(AnalyzerBase):
         The EXIF data could be corrupted or contain non-standard entries.
         Extraction should be fault-tolerant and able to handle non-standard
         entry formats.
-        :return: Touple of datetime objects representing date and time.
+        :return: Date/time as a dict of datetime-objects, keyed by EXIF-fields.
         """
         if self.exif_data is None:
             logging.warning('File has no EXIF data')
