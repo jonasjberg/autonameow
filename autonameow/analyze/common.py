@@ -1,5 +1,7 @@
-import datetime
+import logging
+from datetime import datetime
 import magic
+import os
 from PIL.Image import Image
 from __builtin__ import str
 
@@ -29,6 +31,28 @@ class AnalyzerBase(object):
         # TODO: Get datetime from information common to all file types;
         #       file name, files in the same directory, name of directory, etc..
         pass
+
+    def get_datetime_from_filesystem(self):
+        filename = self.fileObject.get_path()
+        results = {}
+
+        try:
+            mtime = os.path.getmtime(filename)
+            ctime = os.path.getctime(filename)
+            atime = os.path.getatime(filename)
+        except:
+            logging.warn('Exception OSError')
+            OSError
+
+        if mtime:
+            results['mtime'] = datetime.fromtimestamp(mtime)
+        if ctime:
+            results['ctime'] = datetime.fromtimestamp(ctime)
+        if atime:
+            results['atime'] = datetime.fromtimestamp(atime)
+
+        return results
+
 
     def get_datetime_from_name(self):
         # TODO: Get datetime from file name.

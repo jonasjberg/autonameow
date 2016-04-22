@@ -63,7 +63,7 @@ class ImageAnalyzer(AnalyzerBase):
             try:
                 date, time = self.exif_data[field].split()
             except KeyError, TypeError:
-                logging.error('KeyError for key [{}]'.format(field))
+                logging.warn('KeyError for key [{}]'.format(field))
                 pass
 
             clean_date = parser.date(date)
@@ -80,7 +80,7 @@ class ImageAnalyzer(AnalyzerBase):
             GPS_date = self.exif_data['GPSDateStamp']
             GPS_time = self.exif_data['GPSTimeStamp']
         except KeyError:
-            logging.error('KeyError for key GPS{Date,Time}Stamp]')
+            logging.warn('KeyError for key GPS{Date,Time}Stamp]')
             pass
 
         if GPS_time:
