@@ -43,12 +43,11 @@ class Analysis(object):
             for entry in l:
                 value = l[entry]
                 # print('type(value): ' + str(type(value)))
-                #valuestr = value.isoformat()
+                # valuestr = value.isoformat()
                 valuestr = value.strftime("%Y-%m-%d %H:%M:%S")
                 print(FORMAT % (entry, valuestr))
 
     def run(self):
         self.analyzer.run()
 
-        #self.print_all_datetime_info()
-
+        # self.print_all_datetime_info()
