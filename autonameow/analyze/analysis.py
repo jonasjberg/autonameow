@@ -50,5 +50,5 @@ class Analysis(object):
     def run(self):
         self.analyzer.run()
 
-        self.print_all_datetime_info()
+        #self.print_all_datetime_info()
 

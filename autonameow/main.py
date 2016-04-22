@@ -126,9 +126,9 @@ class Autonameow(object):
 
                     if args.add_datetime:
                         if analysis.get_datetime() is not None:
-                            logging.info('Found datetime information:')
-
-                            print(str(analysis.get_datetime()))
+                            print('File: \"%s\"' % f.get_path())
+                            analysis.print_all_datetime_info()
+                            print('')
                             # for k, v in analysis.get_datetime():
                             #     logging.info('%20.20s : %-60.60s' % str(k), str(v))
 
