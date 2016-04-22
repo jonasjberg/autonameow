@@ -20,6 +20,7 @@ class ImageAnalyzer(AnalyzerBase):
         Run the analysis.
         """
         if self.exif_data is None:
+            logging.debug('Fetching EXIF data ..')
             self.exif_data = self.get_EXIF_data()
 
         exif_datetime = self.get_EXIF_datetime()
@@ -44,6 +45,9 @@ class ImageAnalyzer(AnalyzerBase):
         entry formats.
         :return: Touple of datetime objects representing date and time.
         """
+        if self.exif_data is None:
+            logging.warning('File has no EXIF data')
+            return
         # Use "brute force"-type date parser everywhere?
         # Probably not necessary. Could possible handle some edges cases.
         # Performance could become a problem at scale ..
@@ -53,24 +57,30 @@ class ImageAnalyzer(AnalyzerBase):
         DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTimeDigitized',
                            'DateTimeModified', 'CreateDate']
         results = {}
+        logging.debug('Extracting date/time-information from EXIF-tags')
         for field in DATE_TAG_FIELDS:
             date = time = None
             try:
                 date, time = self.exif_data[field].split()
             except KeyError, TypeError:
+                logging.error('KeyError for key [{}]'.format(field))
                 pass
 
             clean_date = parser.date(date)
             clean_time = parser.time(time)
 
             if clean_date and clean_time:
-                results[field] = datetime.combine(clean_date, clean_time)
+                dt = datetime.combine(clean_date, clean_time)
+                logging.debug('Adding field [%s] with value [%s] to results' % (str(field), str(dt.isoformat())))
+                results[field] = dt
 
+        logging.debug('Searching for GPS date/time-information in EXIF-tags')
         GPS_date = GPS_time = None
         try:
             GPS_date = self.exif_data['GPSDateStamp']
             GPS_time = self.exif_data['GPSTimeStamp']
         except KeyError:
+            logging.error('KeyError for key GPS{Date,Time}Stamp]')
             pass
 
         if GPS_time:
@@ -78,11 +88,19 @@ class ImageAnalyzer(AnalyzerBase):
             for toup in GPS_time:
                 GPS_time_str += str(toup[0])
             #GPS_time_detoupled = str(GPS_time[0][0]) + str(GPS_time[1][0]) + str(GPS_time[2][0])
-            #clean_GPS_date = parser.date(GPS_date)
-            #clean_GPS_time = parser.time(GPS_time)
+            #clean_GPS_time = parser.time(GPS_time_detoupled)
+            clean_GPS_time = parser.time(GPS_time_str)
 
-        if clean_date and clean_time:
-            results['GPSDateTime'] = datetime.combine(clean_date, clean_time)
+        clean_GPS_date = parser.date(GPS_date)
+
+        if clean_GPS_date and clean_GPS_time:
+            dt = datetime.combine(clean_GPS_date, clean_GPS_time)
+            logging.debug('Adding field [%s] with value [%s] to results' % ('GPSDateTime', str(dt.isoformat())))
+            results['GPSDateTime'] = dt
+        elif clean_GPS_date:
+            dt = datetime.combine(clean_GPS_date, None)
+            logging.debug('Adding field [%s] with value [%s] to results' % ('GPSDateTime', str(dt.isoformat())))
+            results['GPSDateTime'] = dt
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
@@ -97,30 +115,24 @@ class ImageAnalyzer(AnalyzerBase):
 
         return results
 
-        # FORMAT='%-20.20s | %-10.10s | %-8.8s'
-        # print(FORMAT % ("EXIF FIELD", "Date", "Time"))
-        # print(FORMAT % (field, clean_date, clean_time))
-
-
     def get_EXIF_data(self):
         """
         Extracts EXIF information from a image using PIL.
         The EXIF data is stored in a dict using human-readable keys.
         :return: Dict of EXIF data.
         """
-
         # Create empty dictionary to store exif "key:value"-pairs in.
         result = {}
 
-        exif_data = None
-
         # Extract EXIF data using PIL.ExifTags.
+        exif_data = None
         try:
             filename = self.fileObject.get_path()
             image = Image.open(filename)
             exif_data = image._getexif()
         except Exception:
-            print("EXIF data extraction error")
+            logging.warning('Unable to extract EXIF data from \"{}\"' % str(filename))
+            return None
 
         if exif_data:
             for tag, value in exif_data.items():
@@ -129,6 +141,7 @@ class ImageAnalyzer(AnalyzerBase):
 
                 # Check if tag contains GPS data.
                 if tagString == "GPSInfo":
+                    logging.debug('Found GPS information')
                     resultGPS = {}
 
                     # Loop through the GPS information
