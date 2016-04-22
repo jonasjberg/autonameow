@@ -58,11 +58,11 @@ class AnalyzerBase(object):
             OSError
 
         if mtime:
-            results['mtime'] = datetime.fromtimestamp(mtime)
+            results['Modified'] = datetime.fromtimestamp(mtime)
         if ctime:
-            results['ctime'] = datetime.fromtimestamp(ctime)
+            results['Created'] = datetime.fromtimestamp(ctime)
         if atime:
-            results['atime'] = datetime.fromtimestamp(atime)
+            results['Accessed'] = datetime.fromtimestamp(atime)
 
         return results
 

@@ -19,6 +19,11 @@ class ImageAnalyzer(AnalyzerBase):
         """
         Run the analysis.
         """
+
+        fs_timestamps = self.get_datetime_from_filesystem()
+        if fs_timestamps:
+            self.fileObject.add_datetime(fs_timestamps)
+
         if self.exif_data is None:
             logging.debug('Fetching EXIF data ..')
             self.exif_data = self.get_EXIF_data()
@@ -104,13 +109,14 @@ class ImageAnalyzer(AnalyzerBase):
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
+        bad_exif_date = datetime.strptime("2002-12-08_12:00:00", "%Y-%m-%d_%H:%M:%S")
         try:
-            if self.exif_data['Make'] == 'OnePlus' and \
-               self.exif_data['Model'] == 'ONE E1003':
-                if results['DateTimeDigitized'] == '2002:12:08 12:00:00':
-                    logging.debug("Removing erroneous EXIF date \"2002:12:08 12:00:00\"")
-                    self.exif_data['DateTimeDigitized'] = None
+            if self.exif_data['Make'] == 'OnePlus' and self.exif_data['Model'] == 'ONE E1003':
+                if results['DateTimeDigitized'] == bad_exif_date:
+                    logging.debug("Removing erroneous date \"%s\"" % str(bad_exif_date))
+                    del results['DateTimeDigitized']
         except KeyError:
+            logging.warn('KeyError for key [DateTimeDigitized]')
             pass
 
         return results

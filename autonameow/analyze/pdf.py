@@ -26,6 +26,11 @@ class PdfAnalyzer(AnalyzerBase):
         This method is common to all analyzers.
         :return:
         """
+
+        fs_timestamps = self.get_datetime_from_filesystem()
+        if fs_timestamps:
+            self.fileObject.add_datetime(fs_timestamps)
+
         if self.pdf_metadata is None:
             self.pdf_metadata = self.extract_pdf_metadata()
 

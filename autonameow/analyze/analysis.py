@@ -34,21 +34,21 @@ class Analysis(object):
     def get_datetime(self):
         return self.fileObject.get_datetime_list()
 
-    def print_datetime(self):
+    def print_all_datetime_info(self):
         datetime = self.get_datetime()
 
         FORMAT = '%-20.20s : %-s'
-        print('')
+        print(FORMAT % ("Datetime", "Value"))
         for l in datetime:
-            print(FORMAT % ("Datetime", "Value"))
             for entry in l:
                 value = l[entry]
                 # print('type(value): ' + str(type(value)))
-                valuestr = value.isoformat()
+                #valuestr = value.isoformat()
+                valuestr = value.strftime("%Y-%m-%d %H:%M:%S")
                 print(FORMAT % (entry, valuestr))
 
     def run(self):
         self.analyzer.run()
 
-        self.print_datetime()
+        self.print_all_datetime_info()
 
