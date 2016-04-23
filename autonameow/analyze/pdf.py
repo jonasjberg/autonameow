@@ -55,9 +55,8 @@ class PdfAnalyzer(AnalyzerBase):
         pdf_text = self.extract_pdf_content()
         if pdf_text:
             logging.debug('PDF content:')
-            logging.debug(pdf_text)
-            # for line in pdf_text:
-            #     logging.debug(line)
+            #logging.debug(pdf_text)
+            print(pdf_text)
 
     def get_metadata_datetime(self):
         """
@@ -165,28 +164,34 @@ class PdfAnalyzer(AnalyzerBase):
             logging.error('Unable to read PDF file content.')
             return False
 
-        # Use only the first and second page of content.
-        if pdff.getNumPages() > 1:
-            pdf_text = pdff.pages[0].extractText() + pdff.pages[1].extractText()
-        elif pdff.getNumPages() == 1:
-            pdf_text = pdff.pages[0].extractText()
-        else:
-            logging.error('Unable to determine number of pages of PDF.')
-            return False
+        logging.debug('Number of pages: %d', pdff.getNumPages())
+
+        # # Use only the first and second page of content.
+        # if pdff.getNumPages() == 1:
+        #     pdf_text = pdff.pages[0].extractText()
+        # elif pdff.getNumPages() > 1:
+        #     pdf_text = pdff.pages[0].extractText() + pdff.pages[1].extractText()
+        # else:
+        #     logging.error('Unable to determine number of pages of PDF.')
+        #     return False
+
+        pdf_text = pdff.pages[0].extractText()
 
         if len(pdf_text) == 0:
             logging.warning('Textual content of PDF is empty.')
             return False
 
         if pdf_text:
+            pdf_text = pdf_text.encode('utf-8', 'ignore')
             #lines = pdf_text.split()
             #pdf_text = '\n'.join([line for line in lines if line.strip()])
-            text = "\n".join([ll.rstrip()
-                              for ll in pdf_text.splitlines()
-                              if ll.strip()])
+            # text = "\n".join([ll.rstrip()
+            #                   for ll in pdf_text.splitlines()
+            #                   if ll.strip()])
+            #text = [ll.rstrip() for ll in pdf_text.splitlines() if ll.strip()]
 
-            logging.debug('Extracted [%s] lines of textual content' % len(text))
-            return text
+            logging.debug('Extracted [%s] lines of textual content' % len(pdf_text))
+            return pdf_text
         else:
             logging.warn('Unable to extract PDF content')
             return False
