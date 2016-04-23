@@ -11,6 +11,7 @@ import logging
 import pprint
 
 from datetime import datetime
+from unidecode import unidecode
 
 import re
 
@@ -116,17 +117,17 @@ class PdfAnalyzer(AnalyzerBase):
         try:
             filename = self.fileObject.get_path()
             pdff = PyPDF2.PdfFileReader(file(filename, 'rb'))
-            pdfmetadata = pdff.getDocumentInfo()
-            self.title = pdfmetadata.title
-            self.author = pdfmetadata.author
+            pdfMetadata = pdff.getDocumentInfo()
+            self.title = pdfMetadata.title
+            self.author = pdfMetadata.author
 
         except Exception:
             logging.error("PDF metadata extraction error")
 
-        if pdfmetadata:
+        if pdfMetadata:
             # Remove leading '/' from all entries and save to new dict 'result'.
-            for entry in pdfmetadata:
-                value = pdfmetadata[entry]
+            for entry in pdfMetadata:
+                value = pdfMetadata[entry]
                 key = entry.lstrip('\/')
                 result[key] = value
 
@@ -185,24 +186,30 @@ class PdfAnalyzer(AnalyzerBase):
             return False
 
         else:
-            # Collect rest of the page content.
+            # Collect more until a preset limit is reached.
             for i in range(1, number_of_pages):
                 # Extract text from page and add to content.
                 logging.debug('Extracting page #%s' % i)
                 content += pdff.getPage(i).extractText() + '\n'
 
+                # Cancel extraction at some arbitrary limit value.
+                if len(content) > 8000:
+                    logging.debug('Extraction hit content size limit.')
+                    break
+
         # Fix encoding and replace Swedish characters.
-        content = content.encode('utf-8', 'ignore')
-        content = content.replace('\xc3\xb6', 'o').replace('\xc3\xa4',
-                                                           'a').replace(
-            '\xc3\xa5', 'a')
+        #content = content.encode('utf-8', 'ignore')
+        #content = content.replace('\xc3\xb6', 'o').replace('\xc3\xa4', 'a').replace( '\xc3\xa5', 'a')
 
         # Collapse whitespace.
         # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
-        content = " ".join(content.replace("\xa0", " ").strip().split())
+        #content = " ".join(content.replace("\xa0", " ").strip().split())
+
+        content = unidecode(content)
 
         if content:
-            logging.debug('Extracted [%s] lines of content' % len(content))
+            # TODO: Determine what gets extracted **REALLY** ..
+            logging.debug('Extracted [%s] words (??) of content' % len(content))
             return content
         else:
             logging.warn('Unable to extract PDF contents.')
