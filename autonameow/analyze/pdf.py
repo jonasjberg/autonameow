@@ -41,15 +41,9 @@ class PdfAnalyzer(AnalyzerBase):
         metadata_datetime = self.get_metadata_datetime()
         if metadata_datetime:
             self.fileObject.add_datetime(metadata_datetime)
-            # print('--------------------------------------------------------------')
-            # self.printMeta()
-            # print('--------------------------------------------------------------')
 
-            # datetime = self.get_datetime()
-            # pp = pprint.PrettyPrinter(indent=4)
-            # pp.pprint(datetime)
-
-        self.title = self.pdf_metadata
+        print(self.get_title())
+        print(self.get_author())
 
     def get_metadata_datetime(self):
         """
@@ -109,8 +103,8 @@ class PdfAnalyzer(AnalyzerBase):
             pdfFile = PdfFileReader(file(filename, 'rb'))
             pdfMetadata = pdfFile.getDocumentInfo()
             print('METADATA TYPE: %s' % str(type(pdfMetadata)))
-            title = pdfMetadata.title.upper()
-            author = pdfMetadata.author.upper()
+            self.title = pdfMetadata.title
+            self.author = pdfMetadata.author
 
         except Exception:
             logging.error("PDF metadata extraction error")
@@ -146,14 +140,50 @@ class PdfAnalyzer(AnalyzerBase):
     def extract_pdf_content(self):
         """
         Extract the plain text contents of a PDF document as strings.
-        :return:
+        :return: False or PDF content as strings
         """
 
-        # Extract PDF content using PyPdf.
+        # Extract PDF content using PyPDF2.
         try:
             filename = self.fileObject.get_path()
-            pdfFile = PdfFileReader(file(filename, 'rb'))
-            pdfContents = pdfFile.read()
-
+            pdff = PyPDF2.PdfFileReader(open(filename, 'rb'))
         except Exception:
-            logging.error("PDF metadata extraction error")
+            logging.error('Unable to read PDF file content.')
+            return False
+
+        # Use only the first and second page of content.
+        if pdff.getNumPages() > 1:
+            pdf_text = pdff.pages[0].extractText() + pdff.pages[1].extractText()
+        elif pdff.getNumPages() == 1:
+            pdf_text = pdff.pages[0].extractText()
+        else:
+            logging.error('Unable to determine number of pages of PDF.')
+            return False
+
+        if len(pdf_text) == 0:
+            logging.warning('Textual content of PDF is empty.')
+            return False
+
+        if pdf_text:
+            logging.debug('Extracted [%s] lines of textual content' % len(pdf_text))
+
+    def get_author(self):
+        """
+        Return the author of the document.
+        :return:
+        """
+        # TODO: Handle multiple authors.
+        if self.author:
+            return str(self.author)
+        else:
+            return None
+
+    def get_title(self):
+        """
+        Return the title of the document.
+        :return:
+        """
+        if self.title:
+            return str(self.title)
+        else:
+            return None
