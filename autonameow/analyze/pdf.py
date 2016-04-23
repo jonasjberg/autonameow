@@ -55,8 +55,10 @@ class PdfAnalyzer(AnalyzerBase):
         pdf_text = self.extract_pdf_content()
         if pdf_text:
             logging.debug('PDF content:')
-            #logging.debug(pdf_text)
+            # logging.debug(pdf_text)
             print(pdf_text)
+            # for line in pdf_text:
+            #    print(line)
 
     def get_metadata_datetime(self):
         """
@@ -114,18 +116,17 @@ class PdfAnalyzer(AnalyzerBase):
         try:
             filename = self.fileObject.get_path()
             pdff = PyPDF2.PdfFileReader(file(filename, 'rb'))
-            pdfMetadata = pdff.getDocumentInfo()
-            print('METADATA TYPE: %s' % str(type(pdfMetadata)))
-            self.title = pdfMetadata.title
-            self.author = pdfMetadata.author
+            pdfmetadata = pdff.getDocumentInfo()
+            self.title = pdfmetadata.title
+            self.author = pdfmetadata.author
 
         except Exception:
             logging.error("PDF metadata extraction error")
 
-        if pdfMetadata:
+        if pdfmetadata:
             # Remove leading '/' from all entries and save to new dict 'result'.
-            for entry in pdfMetadata:
-                value = pdfMetadata[entry]
+            for entry in pdfmetadata:
+                value = pdfmetadata[entry]
                 key = entry.lstrip('\/')
                 result[key] = value
 
@@ -164,7 +165,8 @@ class PdfAnalyzer(AnalyzerBase):
             logging.error('Unable to read PDF file content.')
             return False
 
-        logging.debug('Number of pages: %d', pdff.getNumPages())
+        number_of_pages = pdff.getNumPages()
+        logging.debug('Number of pages: %d', number_of_pages)
 
         # # Use only the first and second page of content.
         # if pdff.getNumPages() == 1:
@@ -175,25 +177,35 @@ class PdfAnalyzer(AnalyzerBase):
         #     logging.error('Unable to determine number of pages of PDF.')
         #     return False
 
-        pdf_text = pdff.pages[0].extractText()
-
-        if len(pdf_text) == 0:
-            logging.warning('Textual content of PDF is empty.')
+        # Start by extracting a limited range of pages.
+        logging.debug('Extracting page #0')
+        content = pdff.pages[0].extractText()
+        if len(content) == 0:
+            logging.warning('Textual content of page #0 is empty.')
             return False
 
-        if pdf_text:
-            pdf_text = pdf_text.encode('utf-8', 'ignore')
-            #lines = pdf_text.split()
-            #pdf_text = '\n'.join([line for line in lines if line.strip()])
-            # text = "\n".join([ll.rstrip()
-            #                   for ll in pdf_text.splitlines()
-            #                   if ll.strip()])
-            #text = [ll.rstrip() for ll in pdf_text.splitlines() if ll.strip()]
-
-            logging.debug('Extracted [%s] lines of textual content' % len(pdf_text))
-            return pdf_text
         else:
-            logging.warn('Unable to extract PDF content')
+            # Collect rest of the page content.
+            for i in range(1, number_of_pages):
+                # Extract text from page and add to content.
+                logging.debug('Extracting page #%s' % i)
+                content += pdff.getPage(i).extractText() + '\n'
+
+        # Fix encoding and replace Swedish characters.
+        content = content.encode('utf-8', 'ignore')
+        content = content.replace('\xc3\xb6', 'o').replace('\xc3\xa4',
+                                                           'a').replace(
+            '\xc3\xa5', 'a')
+
+        # Collapse whitespace.
+        # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
+        content = " ".join(content.replace("\xa0", " ").strip().split())
+
+        if content:
+            logging.debug('Extracted [%s] lines of content' % len(content))
+            return content
+        else:
+            logging.warn('Unable to extract PDF contents.')
             return False
 
     def get_author(self):
