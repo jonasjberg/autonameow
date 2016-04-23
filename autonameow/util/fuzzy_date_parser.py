@@ -105,7 +105,7 @@ class DateParse(object):
         #     print(groups)
         # return None
 
-        time_formats = ['%H %M %S']
+        time_formats = ['%H %M %S', '%H %M xx', '%H xx xx']
 
         for format in time_formats:
             try:
