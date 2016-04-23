@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+# coding=utf-8
+
+# autonameow
+# ~~~~~~~~~~
+# written by Jonas Sjöberg
+# jomeganas@gmail.com
+# ____________________________________________________________________________
+
 import logging
 import pprint
 
@@ -8,8 +17,6 @@ import re
 from analyze.common import AnalyzerBase
 
 import pyPdf
-from pyPdf import PdfFileReader
-
 import PyPDF2
 
 from util.fuzzy_date_parser import DateParse
@@ -44,6 +51,13 @@ class PdfAnalyzer(AnalyzerBase):
 
         print(self.get_title())
         print(self.get_author())
+
+        pdf_text = self.extract_pdf_content()
+        if pdf_text:
+            logging.debug('PDF content:')
+            logging.debug(pdf_text)
+            # for line in pdf_text:
+            #     logging.debug(line)
 
     def get_metadata_datetime(self):
         """
@@ -100,8 +114,8 @@ class PdfAnalyzer(AnalyzerBase):
         # Extract PDF metadata using PyPdf, nicked from Violent Python.
         try:
             filename = self.fileObject.get_path()
-            pdfFile = PdfFileReader(file(filename, 'rb'))
-            pdfMetadata = pdfFile.getDocumentInfo()
+            pdff = PyPDF2.PdfFileReader(file(filename, 'rb'))
+            pdfMetadata = pdff.getDocumentInfo()
             print('METADATA TYPE: %s' % str(type(pdfMetadata)))
             self.title = pdfMetadata.title
             self.author = pdfMetadata.author
@@ -165,7 +179,17 @@ class PdfAnalyzer(AnalyzerBase):
             return False
 
         if pdf_text:
-            logging.debug('Extracted [%s] lines of textual content' % len(pdf_text))
+            #lines = pdf_text.split()
+            #pdf_text = '\n'.join([line for line in lines if line.strip()])
+            text = "\n".join([ll.rstrip()
+                              for ll in pdf_text.splitlines()
+                              if ll.strip()])
+
+            logging.debug('Extracted [%s] lines of textual content' % len(text))
+            return text
+        else:
+            logging.warn('Unable to extract PDF content')
+            return False
 
     def get_author(self):
         """

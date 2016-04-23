@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+
+# autonameow
+# ~~~~~~~~~~
+# written by Jonas Sjöberg
+# jomeganas@gmail.com
+# ____________________________________________________________________________
+
 from __future__ import print_function
 
 import logging
