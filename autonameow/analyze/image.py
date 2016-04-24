@@ -15,7 +15,7 @@ from PIL.ExifTags import TAGS, GPSTAGS
 from datetime import datetime
 
 from analyze.common import AnalyzerBase
-from util import parse
+from util.fuzzy_date_parser2 import Parser
 
 
 class ImageAnalyzer(AnalyzerBase):
@@ -65,6 +65,7 @@ class ImageAnalyzer(AnalyzerBase):
         # Probably not necessary. Could possible handle some edges cases.
         # Performance could become a problem at scale ..
         # TODO: Investigate date parser types, etc..
+        parse = Parser()
 
         DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTimeDigitized',
                            'DateTimeModified', 'CreateDate']
