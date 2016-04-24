@@ -71,14 +71,17 @@ class ImageAnalyzer(AnalyzerBase):
         results = {}
         logging.debug('Extracting date/time-information from EXIF-tags')
         for field in DATE_TAG_FIELDS:
-            date = time = None
+            # date = time = None
             try:
-                date, time = self.exif_data[field].split()
+                # date, time = self.exif_data[field].split()
+                dtstr = self.exif_data[field]
             except KeyError, TypeError:
                 logging.warn('KeyError for key [{}]'.format(field))
                 pass
 
-            dt = parse.datetime(date)
+            # dt = parse.datetime(date, time)
+            print('dtstr TYPE: %s' % type(dtstr))
+            dt = parse.datetime(' '.join(dtstr))
             if dt:
                 logging.debug('Adding field [%s] with value [%s] to results' % (str(field), str(dt.isoformat())))
                 results[field] = dt
