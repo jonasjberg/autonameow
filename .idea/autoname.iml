@@ -23,6 +23,8 @@
     <orderEntry type="module" module-name="date2name" />
     <orderEntry type="module" module-name="guessit" />
     <orderEntry type="module" module-name="pyrenamer-0.6.0" />
+    <orderEntry type="module" module-name="guess-filename.py" />
+    <orderEntry type="module" module-name="jrnl.git" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Nosetests" />
