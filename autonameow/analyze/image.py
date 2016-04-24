@@ -15,7 +15,7 @@ from PIL.ExifTags import TAGS, GPSTAGS
 from datetime import datetime
 
 from analyze.common import AnalyzerBase
-from util.fuzzy_date_parser import DateParse
+from util import parse
 
 
 class ImageAnalyzer(AnalyzerBase):
@@ -65,7 +65,6 @@ class ImageAnalyzer(AnalyzerBase):
         # Probably not necessary. Could possible handle some edges cases.
         # Performance could become a problem at scale ..
         # TODO: Investigate date parser types, etc..
-        parser = DateParse()
 
         DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTimeDigitized',
                            'DateTimeModified', 'CreateDate']
@@ -79,11 +78,8 @@ class ImageAnalyzer(AnalyzerBase):
                 logging.warn('KeyError for key [{}]'.format(field))
                 pass
 
-            clean_date = parser.date(date)
-            clean_time = parser.time(time)
-
-            if clean_date and clean_time:
-                dt = datetime.combine(clean_date, clean_time)
+            dt = parse.datetime(date)
+            if dt:
                 logging.debug('Adding field [%s] with value [%s] to results' % (str(field), str(dt.isoformat())))
                 results[field] = dt
 
@@ -102,18 +98,11 @@ class ImageAnalyzer(AnalyzerBase):
                 GPS_time_str += str(toup[0])
             #GPS_time_detoupled = str(GPS_time[0][0]) + str(GPS_time[1][0]) + str(GPS_time[2][0])
             #clean_GPS_time = parser.time(GPS_time_detoupled)
-            clean_GPS_time = parser.time(GPS_time_str)
 
-        clean_GPS_date = parser.date(GPS_date)
-
-        if clean_GPS_date and clean_GPS_time:
-            dt = datetime.combine(clean_GPS_date, clean_GPS_time)
-            logging.debug('Adding field [%s] with value [%s] to results' % ('GPSDateTime', str(dt.isoformat())))
-            results['GPSDateTime'] = dt
-        elif clean_GPS_date:
-            dt = datetime.combine(clean_GPS_date, None)
-            logging.debug('Adding field [%s] with value [%s] to results' % ('GPSDateTime', str(dt.isoformat())))
-            results['GPSDateTime'] = dt
+        GPS_dt = parse.datetime(GPS_date, GPS_time_str)
+        if GPS_dt:
+            logging.debug('Adding field [%s] with value [%s] to results' % ('GPSDateTime', str(GPS_dt.isoformat())))
+            results['GPSDateTime'] = GPS_dt
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
