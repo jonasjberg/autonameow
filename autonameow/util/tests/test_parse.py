@@ -1,20 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import unittest
+import nose
+from datetime import datetime
 
-from util import fuzzy_date_parser2
+from util.fuzzy_date_parser2 import Parser
 
 VALUES = [
-    (u'January 3, 2003', u'2003-01-03 00:00:00'),
-    [u'Thursday, November 18', u'2016-11-18 00:00:00'],
-    (u'7/24/04', u'2004-07-24 00:00:00'),
-    (u'24-7-2004', u'2004-07-24 00:00:00'),
-    (u'20040724_114321', u'2004-07-24 11:43:21'),
-    (u'2004-07-24 11:43:21', u'2004-07-24 11:43:21'),
-    (u'2004.07.24 11.43.21', u'2004-07-24 11:43:21'),
-    (u'20040724114321', u'2004-07-24 11:43:21'),
-    (u'2004.07.24T114321', u'2004-07-24 11:43:21')
+    (u'January 3, 2003', '2003-01-03 00:00:00'),
+    [u'Thursday, November 18', '2016-11-18 00:00:00'],
+    (u'7/24/04', '2004-07-24 00:00:00'),
+    (u'24-7-2004', '2004-07-24 00:00:00'),
+    (u'20040724_114321', '2004-07-24 11:43:21'),
+    (u'2004-07-24 11:43:21', '2004-07-24 11:43:21'),
+    (u'2004.07.24 11.43.21', '2004-07-24 11:43:21'),
+    (u'20040724114321', '2004-07-24 11:43:21'),
+    (u'2004.07.24T114321', '2004-07-24 11:43:21')
 ]
 # {'date': "5-10-1955", "dayfirst": True},  # a dict including the kwarg
 # "5-10-1955",  # dayfirst, no kwarg
@@ -22,20 +23,15 @@ VALUES = [
 # "11AM on the 11th day of 11th month, in the year of our Lord 1945",
 
 
-class ParseTestCase(unittest.TestCase):
+def test_date_parsing():
 
-    def setUp(self):
-        self.parse = fuzzy_date_parser2.Parser()
+    parser = Parser()
 
-    def tearDown(self):
-        self.parse = None
+    def string_to_datetime(str):
+        return datetime.strptime(str, "%Y-%m-%d %H:%M:%S")
 
-    def test_date_parsing(self):
-        for date_string, output_date in VALUES:
-            print('date_string: \"%s\"' % date_string)
-            d = self.parse.datetime(str(date_string))
-            self.assertEqual(d, output_date, 'incorrect time/date')
-
-
-if __name__ == '__main__':
-    unittest.main()
+    for input_string, expected_date_string in VALUES:
+        # print('input_string: \"%s\"' % input_string)
+        result = parser.datetime(input_string)
+        #expected_date = string_to_datetime(expected_date_string)
+        #assert result == expected_date
