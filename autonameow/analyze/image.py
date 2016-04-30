@@ -82,7 +82,9 @@ class ImageAnalyzer(AnalyzerBase):
 
             # dt = parse.datetime(date, time)
             print('dtstr TYPE: %s' % type(dtstr))
-            dt = parse.datetime(' '.join(dtstr))
+            print('dtstr content: %s' % str(dtstr))
+            #dt = parse.datetime(' '.join(dtstr))
+            dt = parse.datetime(dtstr, False)
             if dt:
                 logging.debug('Adding field [%s] with value [%s] to results' % (str(field), str(dt.isoformat())))
                 results[field] = dt

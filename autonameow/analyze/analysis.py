@@ -25,20 +25,6 @@ class Analysis(object):
     def __init__(self, fileObject):
         self.fileObject = fileObject
 
-        # Select analyzer based on detected file type.
-        if self.fileObject.get_type() == "JPEG":
-            logging.debug('File is of type [JPEG]')
-            self.analyzer = ImageAnalyzer(self.fileObject)
-
-        elif self.fileObject.get_type() == "PDF":
-            logging.debug('File is of type [PDF]')
-            self.analyzer = PdfAnalyzer(self.fileObject)
-
-        else:
-            # Create a basic analyzer, common to all file types.
-            logging.debug('File is of type [unknown]')
-            self.analyzer = AnalyzerBase(self.fileObject)
-
     def get_datetime(self):
         return self.fileObject.get_datetime_list()
 
@@ -56,6 +42,21 @@ class Analysis(object):
                 print(FORMAT % (entry, valuestr))
 
     def run(self):
+        # Select analyzer based on detected file type.
+        if self.fileObject.get_type() == "JPEG":
+            logging.debug('File is of type [JPEG]')
+            self.analyzer = ImageAnalyzer(self.fileObject)
+
+        elif self.fileObject.get_type() == "PDF":
+            logging.debug('File is of type [PDF]')
+            self.analyzer = PdfAnalyzer(self.fileObject)
+
+        else:
+            # Create a basic analyzer, common to all file types.
+            logging.debug('File is of type [unknown]')
+            self.analyzer = AnalyzerBase(self.fileObject)
+
+        # Run analyzer.
         self.analyzer.run()
 
         # self.print_all_datetime_info()

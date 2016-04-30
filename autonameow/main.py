@@ -9,14 +9,10 @@
 
 import argparse
 import logging
-
 import sys
 
 import util.disk
 from analyze.analysis import Analysis
-from analyze.common import AnalyzerBase
-from analyze.image import ImageAnalyzer
-from analyze.pdf import PdfAnalyzer
 from file_object import FileObject
 
 

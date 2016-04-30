@@ -26,8 +26,10 @@
     <orderEntry type="module" module-name="guess-filename.py" />
     <orderEntry type="module" module-name="jrnl.git" />
   </component>
+  <component name="PackageRequirementsSettings">
+    <option name="requirementsPath" value="" />
+  </component>
   <component name="TestRunnerService">
-    <option name="projectConfiguration" value="Nosetests" />
-    <option name="PROJECT_TEST_RUNNER" value="Nosetests" />
+    <option name="PROJECT_TEST_RUNNER" value="Unittests" />
   </component>
 </module>

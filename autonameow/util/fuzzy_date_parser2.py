@@ -29,16 +29,18 @@ class Parser(object):
         elif isinstance(date_str, datetime):
             return date_str
 
-        # dateutil.parser needs a string argument: let's make one from our
-        # `date' argument, according to a few reasonable conventions...:
-        kwargs = {}  # assume no named-args
-        if isinstance(date_str, (tuple, list)):
-            date_str = ' '.join([str(x) for x in date_str])  # join up sequences
-        elif isinstance(date_str, int):
-            date_str = str(date_str)  # stringify integers
-        elif isinstance(date_str, dict):
-            kwargs = date_str  # accept named-args dicts
-            date_str = kwargs.pop('date_str')  # with a 'date' str
+        # # dateutil.parser needs a string argument: let's make one from our
+        # # `date' argument, according to a few reasonable conventions...:
+        # kwargs = {}  # assume no named-args
+        # if isinstance(date_str, (tuple, list)):
+        #     date_str = ' '.join([str(x) for x in date_str])  # join up sequences
+        # elif isinstance(date_str, int):
+        #     date_str = str(date_str)  # stringify integers
+        # elif isinstance(date_str, dict):
+        #     kwargs = date_str  # accept named-args dicts
+        #     date_str = kwargs.pop('date_str')  # with a 'date' str
+
+
 
         default_date = DEFAULT_FUTURE if inclusive else DEFAULT_PAST
         date = None
@@ -97,6 +99,7 @@ class Parser(object):
             '2004.07.24 11.43.21',
             '20040724114321',
             '2004.07.24T114321',
+            '2010:01:31 16:12:51',
             # {'date': "5-10-1955", "dayfirst": True},  # a dict including the kwarg
             # "5-10-1955",  # dayfirst, no kwarg
             # 19950317,  # not a string
