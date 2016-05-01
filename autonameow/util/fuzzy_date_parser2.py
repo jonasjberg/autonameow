@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import logging
 from datetime import datetime
 from dateutil.parser import parse as dateparse
 
@@ -22,11 +22,16 @@ class Parser(object):
     def __init__(self):
         pass
 
-    def datetime(date_str, inclusive=False, default_hour=None, default_minute=None):
+    def regex_method(date_str, self):
+        pass
+
+    def datetime(self, date_str, inclusive=False, default_hour=None, default_minute=None):
         """Parses a string containing a fuzzy date and returns a datetime.datetime object"""
         if not date_str:
+            logging.debug('Got NULL date string')
             return None
         elif isinstance(date_str, datetime):
+            logging.debug('Got datetime object, returning as-is.')
             return date_str
 
         # # dateutil.parser needs a string argument: let's make one from our
@@ -61,8 +66,8 @@ class Parser(object):
                 else:
                     date, flag = CALENDAR.parse(date_str)
 
-        if not flag:  # Oops, unparsable.
-            try:  # Try and parse this as a single year
+        if not flag:    # Oops, unparsable.
+            try:        # Try and parse this as a single year
                 year = int(date_str)
                 return datetime(year, 1, 1)
             except ValueError:
@@ -81,9 +86,9 @@ class Parser(object):
         # Ugly heuristic: if the date is more than 4 weeks in the future, we got the year wrong.
         # Rather then this, we would like to see parsedatetime patched so we can tell it to prefer
         # past dates
-        dt = datetime.now() - date
-        if dt.days < -28 and not year_present:
-            date = date.replace(date.year - 1)
+        # dt = datetime.now() - date
+        # if dt.days < -28 and not year_present:
+        #     date = date.replace(date.year - 1)
         return date
 
 

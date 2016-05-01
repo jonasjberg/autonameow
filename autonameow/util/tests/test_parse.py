@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import nose
 from datetime import datetime
 
 from util.fuzzy_date_parser2 import Parser
@@ -30,8 +29,13 @@ def test_date_parsing():
     def string_to_datetime(str):
         return datetime.strptime(str, "%Y-%m-%d %H:%M:%S")
 
+    # for input_string, expected_date_string in VALUES:
+    #     # print('input_string: \"%s\"' % input_string)
+    #     result = parser.datetime(input_string)
+    #     expected_date = string_to_datetime(expected_date_string)
+    #     assert result is expected_date
+
     for input_string, expected_date_string in VALUES:
         # print('input_string: \"%s\"' % input_string)
-        result = parser.datetime(input_string)
-        #expected_date = string_to_datetime(expected_date_string)
-        #assert result == expected_date
+        result = parser.datetime(input_string).strftime("%Y-%m-%d %H:%M:%S")
+        assert result is expected_date_string
