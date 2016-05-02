@@ -15,7 +15,7 @@ from PIL.ExifTags import TAGS, GPSTAGS
 from datetime import datetime
 
 from analyze.common import AnalyzerBase
-from util.fuzzy_date_parser2 import Parser
+from util.fuzzy_date_parser import DateParse
 
 
 class ImageAnalyzer(AnalyzerBase):
@@ -65,7 +65,7 @@ class ImageAnalyzer(AnalyzerBase):
         # Probably not necessary. Could possible handle some edges cases.
         # Performance could become a problem at scale ..
         # TODO: Investigate date parser types, etc..
-        parse = Parser()
+        parser = DateParse()
 
         DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTimeDigitized',
                            'DateTimeModified', 'CreateDate']
@@ -80,11 +80,11 @@ class ImageAnalyzer(AnalyzerBase):
                 logging.warn('KeyError for key [{}]'.format(field))
                 pass
 
-            # dt = parse.datetime(date, time)
+            # dt = parser.datetime(date, time)
             print('dtstr TYPE: %s' % type(dtstr))
             print('dtstr content: %s' % str(dtstr))
-            #dt = parse.datetime(' '.join(dtstr))
-            dt = parse.datetime(dtstr, False)
+            #dt = parser.datetime(' '.join(dtstr))
+            dt = parser.datetime(dtstr, False)
             if dt:
                 logging.debug('Adding field [%s] with value [%s] to results' % (str(field), str(dt.isoformat())))
                 results[field] = dt
@@ -105,7 +105,7 @@ class ImageAnalyzer(AnalyzerBase):
             #GPS_time_detoupled = str(GPS_time[0][0]) + str(GPS_time[1][0]) + str(GPS_time[2][0])
             #clean_GPS_time = parser.time(GPS_time_detoupled)
 
-        GPS_dt = parse.datetime(GPS_date, GPS_time_str)
+        GPS_dt = parser.datetime(GPS_date, GPS_time_str)
         if GPS_dt:
             logging.debug('Adding field [%s] with value [%s] to results' % ('GPSDateTime', str(GPS_dt.isoformat())))
             results['GPSDateTime'] = GPS_dt

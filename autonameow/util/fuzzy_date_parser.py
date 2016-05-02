@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #import dateutil.parser
+import logging
 import time, datetime
 import re
 
@@ -116,6 +117,17 @@ class DateParse(object):
                 pass
 
         return None
+
+    def datetime(self, str):
+        if str is None:
+            logging.warn('Got NULL string')
+            return None
+
+        if type(str) is datetime:
+            logging.debug('Returning datetime-object as-is.')
+            return str
+
+        
 
 
 # From 'Python Cookbook' pages 127 to 129
