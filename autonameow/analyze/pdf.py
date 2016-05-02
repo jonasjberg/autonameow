@@ -8,19 +8,13 @@
 # ____________________________________________________________________________
 
 import logging
-import pprint
-
+import re
 from datetime import datetime
+
+import PyPDF2
 from unidecode import unidecode
 
-import re
-
 from analyze.common import AnalyzerBase
-
-import pyPdf
-import PyPDF2
-
-from util.fuzzy_date_parser import DateParse
 
 
 class PdfAnalyzer(AnalyzerBase):
@@ -66,7 +60,6 @@ class PdfAnalyzer(AnalyzerBase):
         Extract date and time information from pdf metadata.
         :return: dict of datetime-objects
         """
-        parser = DateParse()
 
         DATE_TAG_FIELDS = ['ModDate', 'CreationDate']
 
@@ -82,42 +75,61 @@ class PdfAnalyzer(AnalyzerBase):
                     pass
 
             if k is None:
-                logging.warning( 'Got Null result from metadata field [%s]'
-                                 % field)
+                logging.warning('Got Null result from metadata field [%s]'
+                                % field)
                 continue
 
             k = k.strip()
-
             found_match = False
-            while not found_match:
-                # Expected date format:             D:20121225235237+05'30'
-                #
-                # Regex search matches two groups:  D: 20121225235237 +05'30'
-                #                                      ^            ^ ^     ^
-                #                                      '------------' '-----'
-                #                                            #1         #2
-                # Which are extracted separately.
-                date_pattern_with_tz = re.compile('.*D:(\d{14,14})(\+\d{2,2}\'\d{2,2}\').*')
-                re_search = date_pattern_with_tz.search(k)
-                if re_search:
-                    datetime_str = re_search.group(1)
-                    timezone_str = re_search.group(2)
-                    logging.debug('datetime_str: %s' % datetime_str)
-                    logging.debug('timezone_str: %s' % timezone_str)
+            dt = None
+            # Expected date format:             D:20121225235237+05'30'
+            #
+            # Regex search matches two groups:  D: 20121225235237 +05'30'
+            #                                      ^            ^ ^     ^
+            #                                      '------------' '-----'
+            #                                            #1         #2
+            # Which are extracted separately.
+            date_pattern_with_tz = re.compile(
+                '.*D:(\d{14,14})(\+\d{2,2}\'\d{2,2}\').*')
+            re_match_tz = date_pattern_with_tz.search(k)
+            if re_match_tz:
+                datetime_str = re_match_tz.group(1)
+                timezone_str = re_match_tz.group(2)
+                timezone_str = timezone_str.replace("'", "")
+                logging.debug('datetime_str: %s' % datetime_str)
+                logging.debug('timezone_str: %s' % timezone_str)
 
+                try:
+                    dt = datetime.strptime(datetime_str + timezone_str,
+                                           "%Y%m%d%H%M%S%z")
+                    found_match = True
+                except ValueError:
+                    logging.warning('Unable to parse aware datetime from '
+                                    '[%s]' % field)
 
-                # date_pattern_no_tz = re.compile('.*D:(\d{14,14})Z.*')
-                # re_search = date_pattern_no_tz.search(k)
-                #
-                # try:
-                #     dt = datetime.strptime(re_search.group(1), "%Y%m%d%H%M%S")
-                # except ValueError:
-                #     logging.warning('Unable to parse datetime from '
-                #                     'metadata field [%s]' % field)
-                #     continue
+                if not found_match:
+                    try:
+                        dt = datetime.strptime(datetime_str, "%Y%m%d%H%M%S")
+                        found_match = True
+                    except ValueError:
+                        logging.warning('Unable to parse naive datetime '
+                                        'from [%s]' % field)
 
-            logging.debug('Added to results: results[%s] = [%s]' % (field, dt))
-            results[field] = dt
+            # Try matching another pattern.
+            date_pattern_no_tz = re.compile('.*D:(\d{14,14})Z.*')
+            re_match = date_pattern_no_tz.search(k)
+            if re_match:
+                try:
+                    dt = datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
+                    found_match = True
+                except ValueError:
+                    logging.warning('Unable to parse datetime from '
+                                    'metadata field [%s]' % field)
+                    continue
+
+            if found_match:
+                logging.debug('ADDED: results[%s] = [%s]' % (field, dt))
+                results[field] = dt
 
         return results
 
@@ -199,12 +211,12 @@ class PdfAnalyzer(AnalyzerBase):
                     break
 
         # Fix encoding and replace Swedish characters.
-        #content = content.encode('utf-8', 'ignore')
-        #content = content.replace('\xc3\xb6', 'o').replace('\xc3\xa4', 'a').replace( '\xc3\xa5', 'a')
+        # content = content.encode('utf-8', 'ignore')
+        # content = content.replace('\xc3\xb6', 'o').replace('\xc3\xa4', 'a').replace( '\xc3\xa5', 'a')
 
         # Collapse whitespace.
         # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
-        #content = " ".join(content.replace("\xa0", " ").strip().split())
+        # content = " ".join(content.replace("\xa0", " ").strip().split())
 
         content = unidecode(content)
 

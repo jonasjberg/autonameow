@@ -61,7 +61,7 @@ class FileObject(object):
             return
 
         if not dt in self.datetime_list:
-            logging.debug('Adding datetime-object [%s] to list' % str(type(dt)))
+            #logging.debug('Adding datetime-object [%s] to list' % str(type(dt)))
             self.datetime_list.append(dt)
 
     def get_datetime_list(self):
