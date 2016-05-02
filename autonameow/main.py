@@ -122,8 +122,9 @@ class Autonameow(object):
 
                     if args.add_datetime:
                         print('File: \"%s\"' % f.path)
-                        analysis.print_all_datetime_info()
-                        analysis.print_oldest_datetime()
+                        #analysis.print_all_datetime_info()
+                        #analysis.print_oldest_datetime()
+                        analysis.prefix_date_to_filename()
                         print('')
 
                 else:

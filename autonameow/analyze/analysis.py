@@ -11,6 +11,7 @@ import logging
 from analyze.common import AnalyzerBase
 from analyze.image import ImageAnalyzer
 from analyze.pdf import PdfAnalyzer
+from util import disk
 
 
 class Analysis(object):
@@ -53,6 +54,14 @@ class Analysis(object):
         # print(FORMAT % ('oldest', valuestr))
         print(FORMAT % ('oldest', str(datetime)))
 
+    def prefix_date_to_filename(self):
+        datetime = self.fileObject.get_oldest_datetime()
+        fn = self.fileObject.originalfilename
+        ext = disk.get_file_extension(self.fileObject.path)
+        fn_noext = fn.replace(ext, '')
+
+        print('%s %s%s' % (datetime.strftime('%Y-%m-%d_%H%M%S'), fn_noext, ext))
+
     def run(self):
         # Select analyzer based on detected file type.
         if self.fileObject.type == "JPEG":
@@ -71,12 +80,11 @@ class Analysis(object):
         # Run analyzer.
         self.analyzer.run()
 
-        str_year = self.fileObject.get_oldest_datetime().strftime('%Y')
-        str_title = self.analyzer.title
-        str_author = 'author'  # self.analyzer.author
-        str_publisher = 'publisher'
-        new_filename = str_title + ' ' + str_author + ' ' + str_publisher + ' ' + str_year
-
-        print('New Filename: \"%s\"' % new_filename)
+        #str_year = self.fileObject.get_oldest_datetime().strftime('%Y')
+        #str_title = self.analyzer.title
+        #str_author = 'author'  # self.analyzer.author
+        #str_publisher = 'publisher'
+        #new_filename = str_title + ' ' + str_author + ' ' + str_publisher + ' ' + str_year
+        #print('New Filename: \"%s\"' % new_filename)
 
         # self.print_all_datetime_info()
