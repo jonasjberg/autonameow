@@ -86,21 +86,35 @@ class PdfAnalyzer(AnalyzerBase):
                                  % field)
                 continue
 
-            print(k)
-            # Expected date format:     D:20121225235237+05'30'
-            pdf_metadata_date_pattern = re.compile('.*D:(\d{14,14})\+(\d{2,2})\'(\d{2,2})\'.*')
-            re_search = pdf_metadata_date_pattern.search(k.strip())
-            if re_search is None:
-                logging.warning(
-                    'Found no date/time-pattern in metadata field [%s]' % field)
-                continue
+            k = k.strip()
 
-            try:
-                dt = datetime.strptime(re_search.group(1), "%Y%m%d%H%M%S")
-            except ValueError:
-                logging.warning('Unable to parse datetime from '
-                                'metadata field [%s]' % field)
-                continue
+            found_match = False
+            while not found_match:
+                # Expected date format:             D:20121225235237+05'30'
+                #
+                # Regex search matches two groups:  D: 20121225235237 +05'30'
+                #                                      ^            ^ ^     ^
+                #                                      '------------' '-----'
+                #                                            #1         #2
+                # Which are extracted separately.
+                date_pattern_with_tz = re.compile('.*D:(\d{14,14})(\+\d{2,2}\'\d{2,2}\').*')
+                re_search = date_pattern_with_tz.search(k)
+                if re_search:
+                    datetime_str = re_search.group(1)
+                    timezone_str = re_search.group(2)
+                    logging.debug('datetime_str: %s' % datetime_str)
+                    logging.debug('timezone_str: %s' % timezone_str)
+
+
+                # date_pattern_no_tz = re.compile('.*D:(\d{14,14})Z.*')
+                # re_search = date_pattern_no_tz.search(k)
+                #
+                # try:
+                #     dt = datetime.strptime(re_search.group(1), "%Y%m%d%H%M%S")
+                # except ValueError:
+                #     logging.warning('Unable to parse datetime from '
+                #                     'metadata field [%s]' % field)
+                #     continue
 
             logging.debug('Added to results: results[%s] = [%s]' % (field, dt))
             results[field] = dt
