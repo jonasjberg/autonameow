@@ -8,16 +8,16 @@ class FileObject(object):
         self.newName = None
         self.datetime_list = []
         self.description = None
-        
+
         if path is not None:
             # Remains untouched, for use when renaming file
             self.originalfilename = os.path.basename(path)
-            logging.debug('fileObject original file name: {}'.format(self.originalfilename))
+            logging.debug('fileObject original file name: {}'.format(
+                self.originalfilename))
 
             # Get full absolute path
             self.path = os.path.abspath(path)
             logging.debug('fileObject path: {}'.format(self.path))
-
 
         # Figure out basic file type
         self.type = self.read_magic_header_bytes()
@@ -61,7 +61,7 @@ class FileObject(object):
             return
 
         if not dt in self.datetime_list:
-            #logging.debug('Adding datetime-object [%s] to list' % str(type(dt)))
+            # logging.debug('Adding datetime-object [%s] to list' % str(type(dt)))
             self.datetime_list.append(dt)
 
     def get_datetime_list(self):
@@ -70,5 +70,3 @@ class FileObject(object):
         :return: date/time-information as a list of dicts
         """
         return self.datetime_list
-
-

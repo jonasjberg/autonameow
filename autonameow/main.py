@@ -62,7 +62,7 @@ class Autonameow(object):
         action_control_group.add_argument("--add-datetime",
                                           dest='add_datetime',
                                           action="store_true",
-                                          help='add datetime only')
+                                          help='only add datetime to file name')
 
         parser.add_argument(dest='input_files',
                             metavar='filename',
@@ -125,14 +125,8 @@ class Autonameow(object):
                             print('File: \"%s\"' % f.get_path())
                             analysis.print_all_datetime_info()
                             print('')
-                            # for k, v in analysis.get_datetime():
-                            #     logging.info('%20.20s : %-60.60s' % str(k), str(v))
 
                             # TODO: Implement below dummy code or something similar to it.
-                            # if analyzer.hasResults():
-                            #     results = analyzer.getResults()
-                            #     file.assembleNewName(results)
-
 
                 else:
                     # Unable to read file. Skip ..
