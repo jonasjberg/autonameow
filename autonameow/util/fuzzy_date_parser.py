@@ -118,7 +118,8 @@ class DateParse(object):
 
         return None
 
-    def datetime(self, str):
+    @staticmethod
+    def datetime(str):
         if str is None:
             logging.warn('Got NULL string')
             return None
@@ -127,7 +128,31 @@ class DateParse(object):
             logging.debug('Returning datetime-object as-is.')
             return str
 
-        
+        SEPARATOR_CHARS = ['/', '-', ',', '.', ':', '_']
+        for char in SEPARATOR_CHARS:
+            str = str.replace(char, ' ')
+
+        digits = ""
+        for c in str:
+            if c.isdigit():
+                digits += c
+            return digits
+
+        datetime_formats = ['%Y %m %d', '%m %d %Y', '%B %d %Y',
+                            '%b %d %Y', '%m %d %y', '%y %m %d',
+                            '%B %d %y', '%B %d %y', ]
+
+        date_formats_without_year = ['%m %d', '%d %B', '%B %d',
+                                     '%d %b', '%b %d']
+
+        for format in date_formats_with_year:
+            try:
+                result = time.strptime(date_string, format)
+                return datetime.date(result.tm_year, result.tm_mon,
+                                     result.tm_mday)
+            except ValueError:
+                pass
+
 
 
 # From 'Python Cookbook' pages 127 to 129

@@ -57,7 +57,7 @@ class PdfAnalyzer(AnalyzerBase):
         if pdf_text:
             logging.debug('PDF content:')
             # logging.debug(pdf_text)
-            print(pdf_text)
+            # print(pdf_text)
             # for line in pdf_text:
             #    print(line)
 
@@ -82,13 +82,14 @@ class PdfAnalyzer(AnalyzerBase):
                     pass
 
             if k is None:
-                logging.warning(
-                    'Got Null result from metadata field [%s]' % field)
+                logging.warning( 'Got Null result from metadata field [%s]'
+                                 % field)
                 continue
 
+            print(k)
             # Expected date format:     D:20121225235237+05'30'
-            pdf_metadata_date_pattern = re.compile('.*D:(\d{14,14}).*')
-            re_search = pdf_metadata_date_pattern.search(k)
+            pdf_metadata_date_pattern = re.compile('.*D:(\d{14,14})\+(\d{2,2})\'(\d{2,2})\'.*')
+            re_search = pdf_metadata_date_pattern.search(k.strip())
             if re_search is None:
                 logging.warning(
                     'Found no date/time-pattern in metadata field [%s]' % field)
@@ -101,9 +102,14 @@ class PdfAnalyzer(AnalyzerBase):
                                 'metadata field [%s]' % field)
                 continue
 
+            logging.debug('Added to results: results[%s] = [%s]' % (field, dt))
             results[field] = dt
 
         return results
+
+    def extract_xmp_metadata(self):
+        # TODO: ..
+        pass
 
     def extract_pdf_metadata(self):
         """
@@ -117,40 +123,21 @@ class PdfAnalyzer(AnalyzerBase):
         try:
             filename = self.fileObject.get_path()
             pdff = PyPDF2.PdfFileReader(file(filename, 'rb'))
-            pdfMetadata = pdff.getDocumentInfo()
-            self.title = pdfMetadata.title
-            self.author = pdfMetadata.author
+            pdf_metadata = pdff.getDocumentInfo()
+            self.title = pdf_metadata.title
+            self.author = pdf_metadata.author
 
         except Exception:
             logging.error("PDF metadata extraction error")
 
-        if pdfMetadata:
+        if pdf_metadata:
             # Remove leading '/' from all entries and save to new dict 'result'.
-            for entry in pdfMetadata:
-                value = pdfMetadata[entry]
+            for entry in pdf_metadata:
+                value = pdf_metadata[entry]
                 key = entry.lstrip('\/')
                 result[key] = value
 
         return result
-
-    # import warnings,sys,os,string
-    # from pyPdf import PdfFileWriter, PdfFileReader
-    # # warnings.filterwarnings("ignore")
-    #
-    #
-    #
-    # for root, dir, files in os.walk(str(sys.argv[1])):
-    #     for fp in files:
-    #         if ".pdf" in fp:
-    #             fn = root+"/"+fp
-    #             try:
-    #                 pdfFile = PdfFileReader(file(fn,"rb"))
-    #                 title = pdfFile.getDocumentInfo().title.upper()
-    #                 author = pdfFile.getDocumentInfo().author.upper()
-    #                 pages = pdfFile.getNumPages()
-    #
-    #                 if (pages > 5) and ("DR EVIL" in author):
-    #                     resultStr = "Matched:"+str(fp)+"-"+str(pages)
 
     def extract_pdf_content(self):
         """
