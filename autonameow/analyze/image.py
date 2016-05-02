@@ -63,14 +63,9 @@ class ImageAnalyzer(AnalyzerBase):
         if self.exif_data is None:
             logging.warning('File has no EXIF data')
             return
-        # Use "brute force"-type date parser everywhere?
-        # Probably not necessary. Could possible handle some edges cases.
-        # Performance could become a problem at scale ..
-        # TODO: Investigate date parser types, etc..
-        parser = DateParse()
 
         DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTimeDigitized',
-                           'DateTimeModified', 'CreateDate']
+                           'DateTimeModified', 'CreateDate', 'ModifyDate']
         results = {}
         logging.debug('Extracting date/time-information from EXIF-tags')
         for field in DATE_TAG_FIELDS:
@@ -79,7 +74,7 @@ class ImageAnalyzer(AnalyzerBase):
                 dtstr = self.exif_data[field]
             except KeyError:
                 #logging.warn('KeyError for key [{}]'.format(field))
-                pass
+                continue
 
             if not dtstr:
                 continue
