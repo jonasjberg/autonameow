@@ -145,15 +145,15 @@ class PdfAnalyzer(AnalyzerBase):
         """
         # Create empty dictionary to store PDF metadata "key:value"-pairs in.
         result = {}
+        pdf_metadata = None
 
         # Extract PDF metadata using PyPdf, nicked from Violent Python.
         try:
-            filename = self.fileObject.get_path()
+            filename = self.fileObject.path
             pdff = PyPDF2.PdfFileReader(file(filename, 'rb'))
             pdf_metadata = pdff.getDocumentInfo()
             self.title = pdf_metadata.title
             self.author = pdf_metadata.author
-
         except Exception:
             logging.error("PDF metadata extraction error")
 
@@ -174,7 +174,7 @@ class PdfAnalyzer(AnalyzerBase):
 
         # Extract PDF content using PyPDF2.
         try:
-            filename = self.fileObject.get_path()
+            filename = self.fileObject.path
             pdff = PyPDF2.PdfFileReader(open(filename, 'rb'))
         except Exception:
             logging.error('Unable to read PDF file content.')

@@ -25,12 +25,12 @@ class Analysis(object):
     def __init__(self, fileObject):
         self.fileObject = fileObject
 
-    def get_datetime(self):
-        return self.fileObject.get_datetime_list()
-
     def print_all_datetime_info(self):
-        datetime = self.get_datetime()
+        datetime = self.fileObject.get_datetime_list()
 
+        fn = self.fileObject.path
+        print('All date/time information for file:')
+        print('\"%s\"' % str(fn))
         FORMAT = '%-20.20s : %-s'
         print(FORMAT % ("Datetime", "Value"))
         for l in datetime:
@@ -41,13 +41,25 @@ class Analysis(object):
                 valuestr = value.strftime("%Y-%m-%d %H:%M:%S")
                 print(FORMAT % (entry, valuestr))
 
+    def print_oldest_datetime(self):
+        datetime = self.fileObject.get_oldest_datetime()
+        # print('type(datetime): %s' % type(datetime))
+        fn = self.fileObject.path
+        print('Oldest date/time information for file:')
+        print('\"%s\"' % str(fn))
+        FORMAT = '%-20.20s : %-s'
+        print(FORMAT % ("Datetime", "Value"))
+        # valuestr = datetime.strftime("%Y-%m-%d %H:%M:%S")
+        # print(FORMAT % ('oldest', valuestr))
+        print(FORMAT % ('oldest', str(datetime)))
+
     def run(self):
         # Select analyzer based on detected file type.
-        if self.fileObject.get_type() == "JPEG":
+        if self.fileObject.type == "JPEG":
             logging.debug('File is of type [JPEG]')
             self.analyzer = ImageAnalyzer(self.fileObject)
 
-        elif self.fileObject.get_type() == "PDF":
+        elif self.fileObject.type == "PDF":
             logging.debug('File is of type [PDF]')
             self.analyzer = PdfAnalyzer(self.fileObject)
 
@@ -58,5 +70,13 @@ class Analysis(object):
 
         # Run analyzer.
         self.analyzer.run()
+
+        str_year = self.fileObject.get_oldest_datetime().strftime('%Y')
+        str_title = self.analyzer.title
+        str_author = 'author'  # self.analyzer.author
+        str_publisher = 'publisher'
+        new_filename = str_title + ' ' + str_author + ' ' + str_publisher + ' ' + str_year
+
+        print('New Filename: \"%s\"' % new_filename)
 
         # self.print_all_datetime_info()

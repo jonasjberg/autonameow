@@ -96,7 +96,7 @@ class ImageAnalyzer(AnalyzerBase):
                     logging.warning(
                         'Unable to parse datetime from [%s]' % field)
 
-            if dt:
+            if dt and dt not in results:
                 logging.debug('ADDED: results[%s] = [%s]' % (field, dt))
                 results[field] = dt
 
@@ -122,8 +122,9 @@ class ImageAnalyzer(AnalyzerBase):
             except ValueError:
                 logging.warning('Unable to parse GPS datetime from [%s]' % gps_datetime_str)
             else:
-                logging.debug('ADDED: results[%s] = [%s]' % ('GPSDateTime', dt))
-                results['GPSDateTime'] = dt
+                if dt not in results:
+                    logging.debug('ADDED: results[%s] = [%s]' % ('GPSDateTime', dt))
+                    results['GPSDateTime'] = dt
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
@@ -154,7 +155,7 @@ class ImageAnalyzer(AnalyzerBase):
         # Extract EXIF data using PIL.ExifTags.
         exif_data = None
         try:
-            filename = self.fileObject.get_path()
+            filename = self.fileObject.path
             image = Image.open(filename)
             exif_data = image._getexif()
         except Exception:

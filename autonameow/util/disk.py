@@ -25,7 +25,6 @@ def determine_file_type(path):
         pass
 
 
-
 def print_ltstat_info(path):
     stat_info = os.lstat(path)
     atime = dt.utcfromtimestamp(stat_info.st_atime)
@@ -43,6 +42,12 @@ def print_ltstat_info(path):
 
 
 def get_file_extension(path, make_lowercase=True):
+    """
+    Get file extension.
+    :param path: path to the file
+    :param make_lowercase: make the extension lowercase, defaults to True
+    :return: the file extension
+    """
     base, ext = os.path.splitext(path)
 
     if ext.lower() in ['.z', '.gz', '.bz2']:
@@ -58,6 +63,11 @@ def get_file_extension(path, make_lowercase=True):
 
 
 def get_file_name_noext(path):
+    """
+    Get the file name without extension.
+    :param path: path to the file
+    :return: file name without file extension
+    """
     base = os.path.basename(path)
     name_noext = os.path.splitext(base)[0]
 

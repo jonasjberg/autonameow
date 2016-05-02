@@ -45,7 +45,7 @@ class AnalyzerBase(object):
         NOTE: This is all very platform-specific.
         :return: Touple of datetime objects representing date and time.
         """
-        filename = self.fileObject.get_path()
+        filename = self.fileObject.path
         results = {}
 
         logging.debug('Fetching file system timestamps ..')

@@ -1,6 +1,9 @@
 import logging
 import magic
 import os
+from operator import itemgetter
+
+import datetime
 
 
 class FileObject(object):
@@ -24,12 +27,6 @@ class FileObject(object):
 
         if not self.type:
             self.type = None
-
-    def get_path(self):
-        return self.path
-
-    def get_type(self):
-        return self.type
 
     def read_magic_header_bytes(self):
         """
@@ -70,3 +67,17 @@ class FileObject(object):
         :return: date/time-information as a list of dicts
         """
         return self.datetime_list
+
+    def get_oldest_datetime(self):
+        """
+        Get the oldest datetime-object in datetime_list.
+        :return:
+        """
+        oldest_yet = datetime.datetime.max
+        for l in self.datetime_list:
+            for entry in l:
+                value = l[entry]
+                if value < oldest_yet:
+                    oldest_yet = value
+
+        return oldest_yet

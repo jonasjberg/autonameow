@@ -121,12 +121,10 @@ class Autonameow(object):
                     analysis.run()
 
                     if args.add_datetime:
-                        if analysis.get_datetime() is not None:
-                            print('File: \"%s\"' % f.get_path())
-                            analysis.print_all_datetime_info()
-                            print('')
-
-                            # TODO: Implement below dummy code or something similar to it.
+                        print('File: \"%s\"' % f.path)
+                        analysis.print_all_datetime_info()
+                        analysis.print_oldest_datetime()
+                        print('')
 
                 else:
                     # Unable to read file. Skip ..
