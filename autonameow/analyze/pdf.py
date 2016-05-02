@@ -44,12 +44,13 @@ class PdfAnalyzer(AnalyzerBase):
         if metadata_datetime:
             self.fileObject.add_datetime(metadata_datetime)
 
-        print(self.get_title())
-        print(self.get_author())
+        print('Title  : %s' % self.title)
+        print('Author : %s' % self.author)
 
         pdf_text = self.extract_pdf_content()
         if pdf_text:
-            logging.debug('PDF content:')
+            pass
+            # logging.debug('PDF content:')
             # logging.debug(pdf_text)
             # print(pdf_text)
             # for line in pdf_text:
@@ -90,7 +91,7 @@ class PdfAnalyzer(AnalyzerBase):
             #                                            #1         #2
             # Which are extracted separately.
             date_pattern_with_tz = re.compile(
-                '.*D:(\d{14,14})(\+\d{2,2}\'\d{2,2}\').*')
+                '.*D:(\d{14})(\+\d{2}\'\d{2}\').*')
             re_match_tz = date_pattern_with_tz.search(k)
             if re_match_tz:
                 datetime_str = re_match_tz.group(1)
@@ -228,23 +229,3 @@ class PdfAnalyzer(AnalyzerBase):
             logging.warn('Unable to extract PDF contents.')
             return False
 
-    def get_author(self):
-        """
-        Return the author of the document.
-        :return:
-        """
-        # TODO: Handle multiple authors.
-        if self.author:
-            return str(self.author)
-        else:
-            return None
-
-    def get_title(self):
-        """
-        Return the title of the document.
-        :return:
-        """
-        if self.title:
-            return str(self.title)
-        else:
-            return None

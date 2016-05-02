@@ -14,6 +14,8 @@ from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 from datetime import datetime
 
+import re
+
 from analyze.common import AnalyzerBase
 from util.fuzzy_date_parser import DateParse
 
@@ -39,8 +41,8 @@ class ImageAnalyzer(AnalyzerBase):
         exif_datetime = self.get_EXIF_datetime()
         if exif_datetime:
             self.fileObject.add_datetime(exif_datetime)
-        # pp = pprint.PrettyPrinter(indent=4)
-        # pp.pprint(exif_datetime)
+            # pp = pprint.PrettyPrinter(indent=4)
+            # pp.pprint(exif_datetime)
 
     # def get_datetime(self):
     #     datetime = self.get_EXIF_datetime()
@@ -72,54 +74,75 @@ class ImageAnalyzer(AnalyzerBase):
         results = {}
         logging.debug('Extracting date/time-information from EXIF-tags')
         for field in DATE_TAG_FIELDS:
-            # date = time = None
+            dt = dtstr = None
             try:
-                # date, time = self.exif_data[field].split()
                 dtstr = self.exif_data[field]
-            except KeyError, TypeError:
-                logging.warn('KeyError for key [{}]'.format(field))
+            except KeyError:
+                #logging.warn('KeyError for key [{}]'.format(field))
                 pass
 
-            # dt = parser.datetime(date, time)
-            print('dtstr TYPE: %s' % type(dtstr))
-            print('dtstr content: %s' % str(dtstr))
-            #dt = parser.datetime(' '.join(dtstr))
-            dt = parser.datetime(dtstr, False)
+            if not dtstr:
+                continue
+
+            # Expected date format:         2016:04:07 18:47:30
+            date_pattern = re.compile(
+                '.*(\d{4}:[01]\d:[0123]\d\ [012]\d:[012345]\d:[012345]\d).*')
+            try:
+                re_match = date_pattern.search(dtstr)
+            except TypeError:
+                logging.warn('TypeError for [%s]' % dtstr)
+            else:
+                datetime_str = re_match.group(1)
+                logging.debug('datetime_str: %s' % datetime_str)
+
+                try:
+                    dt = datetime.strptime(datetime_str, "%Y:%m:%d %H:%M:%S")
+                except ValueError:
+                    logging.warning(
+                        'Unable to parse datetime from [%s]' % field)
+
             if dt:
-                logging.debug('Adding field [%s] with value [%s] to results' % (str(field), str(dt.isoformat())))
+                logging.debug('ADDED: results[%s] = [%s]' % (field, dt))
                 results[field] = dt
 
         logging.debug('Searching for GPS date/time-information in EXIF-tags')
-        GPS_date = GPS_time = None
+        gps_date = gps_time = None
         try:
-            GPS_date = self.exif_data['GPSDateStamp']
-            GPS_time = self.exif_data['GPSTimeStamp']
+            gps_date = self.exif_data['GPSDateStamp']
+            gps_time = self.exif_data['GPSTimeStamp']
         except KeyError:
-            logging.warn('KeyError for key GPS{Date,Time}Stamp]')
+            #logging.warn('KeyError for key GPS{Date,Time}Stamp]')
             pass
+        else:
+            gps_time_str = ''
+            for toup in gps_time:
+                gps_time_str += str(toup[0])
 
-        if GPS_time:
-            GPS_time_str = ''
-            for toup in GPS_time:
-                GPS_time_str += str(toup[0])
-            #GPS_time_detoupled = str(GPS_time[0][0]) + str(GPS_time[1][0]) + str(GPS_time[2][0])
-            #clean_GPS_time = parser.time(GPS_time_detoupled)
+            logging.debug('gps_time_str: \"%s\"' % gps_time_str)
+            logging.debug('gps_date: \"%s\"' % gps_date)
+            gps_datetime_str = gps_date + gps_time_str
 
-        GPS_dt = parser.datetime(GPS_date, GPS_time_str)
-        if GPS_dt:
-            logging.debug('Adding field [%s] with value [%s] to results' % ('GPSDateTime', str(GPS_dt.isoformat())))
-            results['GPSDateTime'] = GPS_dt
+            try:
+                dt = datetime.strptime(gps_datetime_str, "%Y:%m:%d%H%M%S")
+            except ValueError:
+                logging.warning('Unable to parse GPS datetime from [%s]' % gps_datetime_str)
+            else:
+                logging.debug('ADDED: results[%s] = [%s]' % ('GPSDateTime', dt))
+                results['GPSDateTime'] = dt
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
-        bad_exif_date = datetime.strptime("2002-12-08_12:00:00", "%Y-%m-%d_%H:%M:%S")
+        bad_exif_date = datetime.strptime('2002-12-08_12:00:00',
+                                          '%Y-%m-%d_%H:%M:%S')
         try:
-            if self.exif_data['Make'] == 'OnePlus' and self.exif_data['Model'] == 'ONE E1003':
+            if self.exif_data['Make'] == 'OnePlus' and \
+               self.exif_data['Model'] == 'ONE E1003':
                 if results['DateTimeDigitized'] == bad_exif_date:
-                    logging.debug("Removing erroneous date \"%s\"" % str(bad_exif_date))
+                    logging.debug("Removing erroneous date \"%s\"" %
+                                  str(bad_exif_date))
                     del results['DateTimeDigitized']
         except KeyError:
-            logging.warn('KeyError for key [DateTimeDigitized]')
+            #logging.warn('KeyError for key [DateTimeDigitized]')
             pass
 
         return results
@@ -140,7 +163,8 @@ class ImageAnalyzer(AnalyzerBase):
             image = Image.open(filename)
             exif_data = image._getexif()
         except Exception:
-            logging.warning('Unable to extract EXIF data from \"{}\"' % str(filename))
+            logging.warning(
+                'Unable to extract EXIF data from \"{}\"' % str(filename))
             return None
 
         if exif_data:
@@ -162,16 +186,16 @@ class ImageAnalyzer(AnalyzerBase):
                             # resultGPS[tagStringGPS] = valueGPS
                             result[tagStringGPS] = valueGPS
 
-                    # # DEBUG: print extracted GPS information.
-                    # pp = pprint.PrettyPrinter(indent=4)
-                    # pp.pprint(resultGPS)
+                            # # DEBUG: print extracted GPS information.
+                            # pp = pprint.PrettyPrinter(indent=4)
+                            # pp.pprint(resultGPS)
 
                 else:
                     if value is not None:
                         result[tagString] = value
 
-            # pp = pprint.PrettyPrinter(indent=4)
-            # pp.pprint(result)
+                        # pp = pprint.PrettyPrinter(indent=4)
+                        # pp.pprint(result)
 
         # Return result, should be empty if errors occured.
         return result
