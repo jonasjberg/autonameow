@@ -13,7 +13,6 @@ import sys
 
 import util.disk
 from analyze.analysis import Analysis
-from file_object import FileObject
 
 
 class Autonameow(object):
@@ -113,11 +112,8 @@ class Autonameow(object):
                 if util.disk.is_readable_file(arg):
                     logging.info('Processing file \"%s\"' % str(arg))
 
-                    # Create a new FileObject representing the current arg.
-                    f = FileObject(arg)
-
                     # Begin analysing the file.
-                    analysis = Analysis(f)
+                    analysis = Analysis(arg)
                     analysis.run()
 
                     if args.add_datetime:

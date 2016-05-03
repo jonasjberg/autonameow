@@ -92,3 +92,18 @@ if __name__ == "__main__":
         print "NAME: ", get_file_name_noext(tp)
         print "EXT : ", get_file_extension(tp)
         print ""
+
+
+def read_magic_header(path):
+    """
+    Determine file type by reading "magic" header bytes.
+    Similar to the 'file' command in *NIX environments.
+    :return:
+    """
+    ms = magic.open(magic.MAGIC_NONE)
+    ms.load()
+    type = ms.file(path)
+    ms.close()
+    # return type
+    return type.split()[0]
+

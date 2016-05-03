@@ -21,8 +21,8 @@ from util.fuzzy_date_parser import DateParse
 
 
 class ImageAnalyzer(AnalyzerBase):
-    def __init__(self, fileObject):
-        self.fileObject = fileObject
+    def __init__(self, file_path):
+        self.file_path = file_path
         self.exif_data = None
 
     def run(self):
