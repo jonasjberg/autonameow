@@ -26,31 +26,19 @@ class Analysis(object):
     best_datetime = None
     best_name = None
 
-    def __init__(self, file_path):
-        self.file_path = file_path
+    def __init__(self, file_object):
+        self.file_object = file_object
         self.datetime_list = []
 
-        if file_path is None:
-            logging.critical('Got NULL file path')
-            return
-
-        # Remains untouched, for use when renaming file
-        self.original_file_path = os.path.basename(file_path)
-        logging.debug('Original file path: \"%s\"' % self.original_file_path)
-
-        # Get full absolute path
-        self.file_path = os.path.abspath(self.file_path)
-        logging.debug('Absolute path: \"%s\"' % self.file_path)
-
-        # Figure out basic file type
-        self.file_type = disk.read_magic_header(file_path)
-
+        if self.file_object is None:
+            logging.critical('Got NULL file!')
+            pass
 
     def print_all_datetime_info(self):
         datetime = self.get_datetime_list()
 
         print('All date/time information for file:')
-        print('\"%s\"' % str(self.file_path))
+        print('\"%s\"' % str(self.file_object.path))
         FORMAT = '%-20.20s : %-s'
         print(FORMAT % ("Datetime", "Value"))
         for l in datetime:
@@ -65,7 +53,7 @@ class Analysis(object):
         datetime = self.get_oldest_datetime()
         # print('type(datetime): %s' % type(datetime))
         print('Oldest date/time information for file:')
-        print('\"%s\"' % str(self.file_path))
+        print('\"%s\"' % str(self.file_object.path))
         FORMAT = '%-20.20s : %-s'
         print(FORMAT % ("Datetime", "Value"))
         # valuestr = datetime.strftime("%Y-%m-%d %H:%M:%S")
@@ -74,25 +62,25 @@ class Analysis(object):
 
     def prefix_date_to_filename(self):
         datetime = self.get_oldest_datetime()
-        ext = disk.get_file_extension(self.file_path)
-        fn_noext = self.file_path.replace(ext, '')
+        ext = disk.get_file_extension(self.file_object.path)
+        fn_noext = self.file_object.path.replace(ext, '')
 
         print('%s %s%s' % (datetime.strftime('%Y-%m-%d_%H%M%S'), fn_noext, ext))
 
     def run(self):
         # Select analyzer based on detected file type.
-        if self.file_type == "JPEG":
+        if self.file_object.type == "JPEG":
             logging.debug('File is of type [JPEG]')
-            self.analyzer = ImageAnalyzer(self.file_path)
+            self.analyzer = ImageAnalyzer(self.file_object)
 
-        elif self.file_type == "PDF":
+        elif self.file_object.type == "PDF":
             logging.debug('File is of type [PDF]')
-            self.analyzer = PdfAnalyzer(self.file_path)
+            self.analyzer = PdfAnalyzer(self.file_object)
 
         else:
             # Create a basic analyzer, common to all file types.
             logging.debug('File is of type [unknown]')
-            self.analyzer = AnalyzerBase(self.file_path)
+            self.analyzer = AnalyzerBase(self.file_object)
 
         # Run analyzer.
         self.analyzer.run()

@@ -23,12 +23,10 @@ class FileObject(object):
             logging.debug('fileObject path: {}'.format(self.path))
 
         # Figure out basic file type
-        self.type = self.read_magic_header_bytes()
+        self.file_type = self.get_type_from_magic()
 
-        if not self.type:
-            self.type = None
 
-    def read_magic_header_bytes(self):
+    def get_type_from_magic(self):
         """
         Determine file type by reading "magic" header bytes.
         Similar to the 'find' command in *NIX environments.
