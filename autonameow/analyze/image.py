@@ -21,23 +21,21 @@ from util.fuzzy_date_parser import DateParse
 
 
 class ImageAnalyzer(AnalyzerBase):
-    def __init__(self, file_path):
-        self.file_path = file_path
+    def __init__(self, file_object):
+        self.file_object = file_object
         self.exif_data = None
 
     def run(self):
         """
         Run the analysis.
         """
-        super(ImageAnalyzer, self).run()
-
         if self.exif_data is None:
             logging.debug('Fetching EXIF data ..')
             self.exif_data = self.get_EXIF_data()
 
         exif_datetime = self.get_EXIF_datetime()
         if exif_datetime:
-            self.fileObject.add_datetime(exif_datetime)
+            self.file_object.add_datetime(exif_datetime)
             # pp = pprint.PrettyPrinter(indent=4)
             # pp.pprint(exif_datetime)
 
@@ -152,7 +150,7 @@ class ImageAnalyzer(AnalyzerBase):
         # Extract EXIF data using PIL.ExifTags.
         exif_data = None
         try:
-            filename = self.fileObject.path
+            filename = self.file_object.path
             image = Image.open(filename)
             exif_data = image._getexif()
         except Exception:

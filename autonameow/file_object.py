@@ -1,9 +1,7 @@
+import datetime
 import logging
 import magic
 import os
-from operator import itemgetter
-
-import datetime
 
 
 class FileObject(object):
@@ -23,7 +21,7 @@ class FileObject(object):
             logging.debug('fileObject path: {}'.format(self.path))
 
         # Figure out basic file type
-        self.file_type = self.get_type_from_magic()
+        self.type = self.get_type_from_magic()
 
 
     def get_type_from_magic(self):
@@ -79,3 +77,4 @@ class FileObject(object):
                     oldest_yet = value
 
         return oldest_yet
+

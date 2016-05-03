@@ -14,8 +14,8 @@ from __builtin__ import str
 
 
 class AnalyzerBase(object):
-    def __init__(self, fileObject):
-        self.fileObject = fileObject
+    def __init__(self, file_object):
+        self.file_object = file_object
 
     def run(self):
         """
@@ -24,7 +24,7 @@ class AnalyzerBase(object):
 
         fs_timestamps = self.get_datetime_from_filesystem()
         if fs_timestamps:
-            self.fileObject.add_datetime(fs_timestamps)
+            self.file_object.add_datetime(fs_timestamps)
 
             # TODO: Find information in original file name.
 
@@ -40,7 +40,7 @@ class AnalyzerBase(object):
         NOTE: This is all very platform-specific.
         :return: Touple of datetime objects representing date and time.
         """
-        filename = self.fileObject.path
+        filename = self.file_object.path
         results = {}
 
         logging.debug('Fetching file system timestamps ..')

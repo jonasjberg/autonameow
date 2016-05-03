@@ -18,8 +18,8 @@ from analyze.common import AnalyzerBase
 
 
 class PdfAnalyzer(AnalyzerBase):
-    def __init__(self, fileObject):
-        self.fileObject = fileObject
+    def __init__(self, file_object):
+        self.file_object = file_object
         self.pdf_metadata = None
 
         self.author = None
@@ -33,16 +33,12 @@ class PdfAnalyzer(AnalyzerBase):
         :return:
         """
 
-        fs_timestamps = self.get_datetime_from_filesystem()
-        if fs_timestamps:
-            self.fileObject.add_datetime(fs_timestamps)
-
         if self.pdf_metadata is None:
             self.pdf_metadata = self.extract_pdf_metadata()
 
         metadata_datetime = self.get_metadata_datetime()
         if metadata_datetime:
-            self.fileObject.add_datetime(metadata_datetime)
+            self.file_object.add_datetime(metadata_datetime)
 
         print('Title  : %s' % self.title)
         print('Author : %s' % self.author)
@@ -149,7 +145,7 @@ class PdfAnalyzer(AnalyzerBase):
 
         # Extract PDF metadata using PyPdf, nicked from Violent Python.
         try:
-            filename = self.fileObject.path
+            filename = self.file_object.path
             pdff = PyPDF2.PdfFileReader(file(filename, 'rb'))
             pdf_metadata = pdff.getDocumentInfo()
             self.title = pdf_metadata.title
@@ -174,7 +170,7 @@ class PdfAnalyzer(AnalyzerBase):
 
         # Extract PDF content using PyPDF2.
         try:
-            filename = self.fileObject.path
+            filename = self.file_object.path
             pdff = PyPDF2.PdfFileReader(open(filename, 'rb'))
         except Exception:
             logging.error('Unable to read PDF file content.')
