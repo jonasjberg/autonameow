@@ -29,10 +29,7 @@ class ImageAnalyzer(AnalyzerBase):
         """
         Run the analysis.
         """
-
-        fs_timestamps = self.get_datetime_from_filesystem()
-        if fs_timestamps:
-            self.fileObject.add_datetime(fs_timestamps)
+        super(ImageAnalyzer, self).run()
 
         if self.exif_data is None:
             logging.debug('Fetching EXIF data ..')

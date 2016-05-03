@@ -17,11 +17,6 @@ class AnalyzerBase(object):
     def __init__(self, fileObject):
         self.fileObject = fileObject
 
-        # TODO: Implement this in some way that makes sense. Do research first.
-        self.fields = {"title": None,
-                       "Author": None,
-                       "datetime": None}
-
     def run(self):
         """
         Run the analysis.

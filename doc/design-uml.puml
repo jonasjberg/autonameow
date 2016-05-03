@@ -19,14 +19,19 @@ package autonameow.analyze {
         --
         +toString():String
     }
+
+    class ImageAnalyzer {
+        fileObject:FileObject
+    }
+
+    class PdfAnalyzer {
+        fileObject:FileObject
+    }
+
+    class VideoAnalyzer {
+        fileObject:FileObject
+    }
 }
-
-
-
-' ____________________________________________________________________________
-' ____ PACKAGE HIERARCHY _____________________________________________________
-se.hig.oodp.lab.model +-- se.hig.oodp.lab.model.figure
-se.hig.oodp.lab.model +-- se.hig.oodp.lab.model.simplefigure
 
 
 ' ____________________________________________________________________________
@@ -42,9 +47,9 @@ Figure       "1" *-- "many" Vertex2D : contains
 SimpleFigure "1" *-- "1"    Vertex2D : contains
 
 ' INHERITANCE
-SimpleFigure <|-- Point
-SimpleFigure <|-- Circle
-SimpleFigure <|-- Ellipse
+AnalyzerBase <|-- ImageAnalyzer
+AnalyzerBase <|-- PdfAnalyzer
+AnalyzerBase <|-- VideoAnalyzer
 
 ' IMPLEMENT INTERFACES
 Movable <.. Figure
