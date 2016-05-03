@@ -26,7 +26,10 @@ class AnalyzerBase(object):
         if fs_timestamps:
             self.file_object.add_datetime(fs_timestamps)
 
-            # TODO: Find information in original file name.
+        fn_timestamps = self.get_datetime_from_name()
+        if fn_timestamps:
+            self.file_object.add_datetime(fn_timestamps)
+
 
     def get_datetime(self):
         # TODO: Get datetime from information common to all file types;
@@ -48,16 +51,12 @@ class AnalyzerBase(object):
             mtime = os.path.getmtime(filename)
             ctime = os.path.getctime(filename)
             atime = os.path.getatime(filename)
-        except:
-            logging.warn('Exception OSError')
-            OSError
+        except OSError:
+            logging.critical('Exception OSError')
 
-        if mtime:
-            results['Modified'] = datetime.fromtimestamp(mtime)
-        if ctime:
-            results['Created'] = datetime.fromtimestamp(ctime)
-        if atime:
-            results['Accessed'] = datetime.fromtimestamp(atime)
+        results['Modified'] = datetime.fromtimestamp(mtime) if mtime else None
+        results['Created'] = datetime.fromtimestamp(ctime) if ctime else None
+        results['Accessed'] = datetime.fromtimestamp(atime) if atime else None
 
         return results
 
@@ -69,4 +68,5 @@ class AnalyzerBase(object):
 
         #       * Find information in creation-, modification- and
         #         access-date/time.
+
         pass

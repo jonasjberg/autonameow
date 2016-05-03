@@ -33,21 +33,21 @@ class ImageAnalyzer(AnalyzerBase):
             logging.debug('Fetching EXIF data ..')
             self.exif_data = self.get_EXIF_data()
 
-        exif_datetime = self.get_EXIF_datetime()
+        exif_datetime = self.get_exif_datetime()
         if exif_datetime:
             self.file_object.add_datetime(exif_datetime)
             # pp = pprint.PrettyPrinter(indent=4)
             # pp.pprint(exif_datetime)
 
     # def get_datetime(self):
-    #     datetime = self.get_EXIF_datetime()
+    #     datetime = self.get_exif_datetime()
     #
     #     if datetime is None:
     #         logging.warning('Unable to extract datetime.')
     #     else:
     #         return datetime
 
-    def get_EXIF_datetime(self):
+    def get_exif_datetime(self):
         """
         Extracts date and time information from the EXIF data.
         The EXIF data could be corrupted or contain non-standard entries.
@@ -161,29 +161,29 @@ class ImageAnalyzer(AnalyzerBase):
         if exif_data:
             for tag, value in exif_data.items():
                 # Obtain a human-readable version of the tag.
-                tagString = TAGS.get(tag, tag)
+                tag_string = TAGS.get(tag, tag)
 
                 # Check if tag contains GPS data.
-                if tagString == "GPSInfo":
+                if tag_string == "GPSInfo":
                     logging.debug('Found GPS information')
-                    resultGPS = {}
+                    result_gps = {}
 
                     # Loop through the GPS information
-                    for tagGPS, valueGPS in value.items():
+                    for tag_gps, value_gps in value.items():
                         # Obtain a human-readable version of the GPS tag.
-                        tagStringGPS = GPSTAGS.get(tagGPS, tagGPS)
+                        tag_string_gps = GPSTAGS.get(tag_gps, tag_gps)
 
-                        if valueGPS is not None:
-                            # resultGPS[tagStringGPS] = valueGPS
-                            result[tagStringGPS] = valueGPS
+                        if value_gps is not None:
+                            # result_gps[tag_string_gps] = value_gps
+                            result[tag_string_gps] = value_gps
 
                             # # DEBUG: print extracted GPS information.
                             # pp = pprint.PrettyPrinter(indent=4)
-                            # pp.pprint(resultGPS)
+                            # pp.pprint(result_gps)
 
                 else:
                     if value is not None:
-                        result[tagString] = value
+                        result[tag_string] = value
 
                         # pp = pprint.PrettyPrinter(indent=4)
                         # pp.pprint(result)

@@ -23,7 +23,6 @@ class FileObject(object):
         # Figure out basic file type
         self.type = self.get_type_from_magic()
 
-
     def get_type_from_magic(self):
         """
         Determine file type by reading "magic" header bytes.
@@ -37,7 +36,7 @@ class FileObject(object):
         # return type
         return type.split()[0]
 
-    def assembleNewName(self):
+    def assemble_new_name(self):
         # TODO: Construct a new file name.
         #       Maybe a separate class should handle it?
         pass
@@ -77,4 +76,3 @@ class FileObject(object):
                     oldest_yet = value
 
         return oldest_yet
-
