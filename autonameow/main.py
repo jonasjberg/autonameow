@@ -89,7 +89,7 @@ class Autonameow(object):
 
         # Setup logging output format.
         if args.debug:
-            FORMAT = "%(asctime)s %(levelname)-6s %(funcName)s(%(lineno)d) -- %(message)s"
+            FORMAT = "%(asctime)s %(levelname)-6s %(funcName)-25.25s (%(lineno)3d) -- %(message)-130.130s"
             logging.basicConfig(level=logging.DEBUG, format=FORMAT,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         elif args.verbose:

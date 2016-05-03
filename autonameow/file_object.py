@@ -10,15 +10,22 @@ class FileObject(object):
         self.datetime_list = []
         self.description = None
 
-        if path is not None:
-            # Remains untouched, for use when renaming file
-            self.originalfilename = os.path.basename(path)
-            logging.debug('fileObject original file name: {}'.format(
-                self.originalfilename))
+        if path is None:
+            logging.critical('Got NULL path!')
+            pass
 
-            # Get full absolute path
-            self.path = os.path.abspath(path)
-            logging.debug('fileObject path: {}'.format(self.path))
+        # Remains untouched, for use when renaming file
+        self.originalfilename = os.path.basename(path)
+        logging.debug('fileObject original file name: {}'.format(
+            self.originalfilename))
+
+        # Get full absolute path
+        self.path = os.path.abspath(path)
+        logging.debug('fileObject path: {}'.format(self.path))
+
+        # Extract parts of the file name.
+        self.basename = os.path.basename(self.path)
+        self.basename_no_ext = os.path.splitext(self.basename)[0]
 
         # Figure out basic file type
         self.type = self.get_type_from_magic()
@@ -51,9 +58,12 @@ class FileObject(object):
         if dt is None:
             logging.warning('Got null argument')
             return
+        elif type(dt) is not dict:
+            logging.warning('Got non-dict argument')
+            pass
 
         if not dt in self.datetime_list:
-            # logging.debug('Adding datetime-object [%s] to list' % str(type(dt)))
+            logging.debug('Adding datetime [%s] to list' % str(type(dt)))
             self.datetime_list.append(dt)
 
     def get_datetime_list(self):
@@ -71,8 +81,45 @@ class FileObject(object):
         oldest_yet = datetime.datetime.max
         for l in self.datetime_list:
             for entry in l:
-                value = l[entry]
-                if value < oldest_yet:
-                    oldest_yet = value
+                try:
+                    value = l[entry]
+                    if value < oldest_yet:
+                        oldest_yet = value
+                except Exception:
+                    pass
 
         return oldest_yet
+
+    def get_file_extension(self, make_lowercase=True):
+        """
+        Get file extension.
+        :param make_lowercase: make the extension lowercase, defaults to True
+        :return: the file extension
+        """
+        base, ext = os.path.splitext(self.path)
+
+        if ext.lower() in ['.z', '.gz', '.bz2']:
+            ext = os.path.splitext(base)[1] + ext
+
+        ext = ext.lstrip('.')
+
+        if make_lowercase:
+            ext = ext.lower()
+
+        if ext and ext.strip():
+            return ext
+        else:
+            return None
+
+    def get_file_name_noext(self):
+        """
+        Get the file name without extension.
+        :return: file name without file extension
+        """
+        base = os.path.basename(self.path)
+        name_noext = os.path.splitext(base)[0]
+
+        if name_noext and name_noext.strip():
+            return name_noext
+        else:
+            return None

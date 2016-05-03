@@ -58,11 +58,15 @@ class Analysis(object):
         print(FORMAT % ('oldest', str(datetime)))
 
     def prefix_date_to_filename(self):
-        datetime = self.file_object.get_oldest_datetime()
-        ext = disk.get_file_extension(self.file_object.path)
-        fn_noext = self.file_object.path.replace(ext, '')
+        fo = self.file_object
 
-        print('%s %s%s' % (datetime.strftime('%Y-%m-%d_%H%M%S'), fn_noext, ext))
+        datetime = fo.get_oldest_datetime()
+
+        ext = fo.get_file_extension(fo.path)
+        fn_noext = fo.get_file_name_noext()
+        fn_noext = fn_noext.replace(ext, '')
+
+        print('%s %s.%s' % (datetime.strftime('%Y-%m-%d_%H%M%S'), fn_noext, ext))
 
     def run(self):
         # Create a basic analyzer, common to all file types.

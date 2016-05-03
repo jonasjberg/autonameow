@@ -1,13 +1,13 @@
+import datetime
 import logging
 import os
-from datetime import datetime
+import time
 
 
 # Analysis relevant to all files, regardless of file mime type.
 # Examines:
 #   * file names
 #   * file system metadata (modified, created, ..)
-
 
 
 class AnalyzerBase(object):
@@ -26,7 +26,6 @@ class AnalyzerBase(object):
         fn_timestamps = self.get_datetime_from_name()
         if fn_timestamps:
             self.file_object.add_datetime(fn_timestamps)
-
 
     def get_datetime(self):
         # TODO: Get datetime from information common to all file types;
@@ -51,10 +50,11 @@ class AnalyzerBase(object):
         except OSError:
             logging.critical('Exception OSError')
 
-        results['Modified'] = datetime.fromtimestamp(mtime) if mtime else None
-        results['Created'] = datetime.fromtimestamp(ctime) if ctime else None
-        results['Accessed'] = datetime.fromtimestamp(atime) if atime else None
+        results['Modified'] = datetime.datetime.fromtimestamp(mtime) if mtime else None
+        results['Created'] = datetime.datetime.fromtimestamp(ctime) if ctime else None
+        results['Accessed'] = datetime.datetime.fromtimestamp(atime) if atime else None
 
+        logging.debug('Fetched timestamps: %s' % results)
         return results
 
     def get_datetime_from_name(self):
@@ -62,8 +62,23 @@ class AnalyzerBase(object):
         #       Basically a bunch of regexes matching preset patterns:
         #       * Date-/timestamp
         #       * incrementer (file ends with a number)
+        name = self.file_object.basename_no_ext
 
-        #       * Find information in creation-, modification- and
-        #         access-date/time.
+        to_remove = ['IMG_', 'TODO']
+        for s in to_remove:
+            name = name.replace(s, '')
 
-        pass
+        # SEPARATOR_CHARS = ['/', '-', ',', '.', ':', '_']
+        # for char in SEPARATOR_CHARS:
+        #     name = name.replace(char, ' ')
+
+        common_formats = ['%Y-%m-%d %H:%M:%S', '%Y:%m:%d %H:%M:%S',
+                          '%Y-%m-%d_%H%M%S', '%Y-%m-%d']
+        for fmt in common_formats:
+            try:
+                result = time.strptime(name, fmt)
+                return result
+                # return datetime.date(result.tm_year, result.tm_mon,
+                #                      result.tm_mday)
+            except ValueError:
+                pass
