@@ -9,15 +9,12 @@
 from __future__ import print_function
 
 import logging
-import pprint
+import re
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 from datetime import datetime
 
-import re
-
 from analyze.common import AnalyzerBase
-from util.fuzzy_date_parser import DateParse
 
 
 class ImageAnalyzer(AnalyzerBase):

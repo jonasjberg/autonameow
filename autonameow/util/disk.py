@@ -3,28 +3,6 @@ import os
 from datetime import datetime as dt
 
 
-def is_readable_file(arg):
-    # print "checking arg:" + arg
-
-    if os.path.isfile(arg) and os.access(arg, os.R_OK):
-        # print "File exists and is readable"
-        return True
-    else:
-        # print "File is either missing or not readable"
-        return False
-
-
-def determine_file_type(path):
-    try:
-        ms = magic.open(magic.MAGIC_NONE)
-        ms.load()
-        type = ms.file(path)
-        ms.close()
-        return type.split()[0]
-    except:
-        pass
-
-
 def print_ltstat_info(path):
     stat_info = os.lstat(path)
     atime = dt.utcfromtimestamp(stat_info.st_atime)
@@ -52,6 +30,8 @@ def get_file_extension(path, make_lowercase=True):
 
     if ext.lower() in ['.z', '.gz', '.bz2']:
         ext = os.path.splitext(base)[1] + ext
+
+    ext = ext.lstrip('.')
 
     if make_lowercase:
         ext = ext.lower()
@@ -92,18 +72,4 @@ if __name__ == "__main__":
         print "NAME: ", get_file_name_noext(tp)
         print "EXT : ", get_file_extension(tp)
         print ""
-
-
-def read_magic_header(path):
-    """
-    Determine file type by reading "magic" header bytes.
-    Similar to the 'file' command in *NIX environments.
-    :return:
-    """
-    ms = magic.open(magic.MAGIC_NONE)
-    ms.load()
-    type = ms.file(path)
-    ms.close()
-    # return type
-    return type.split()[0]
 

@@ -1,9 +1,6 @@
 import logging
-from datetime import datetime
-import magic
 import os
-from PIL.Image import Image
-from __builtin__ import str
+from datetime import datetime
 
 
 # Analysis relevant to all files, regardless of file mime type.

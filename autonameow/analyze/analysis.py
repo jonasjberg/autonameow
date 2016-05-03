@@ -7,9 +7,6 @@
 # ____________________________________________________________________________
 
 import logging
-import os
-
-import datetime
 
 from analyze.common import AnalyzerBase
 from analyze.image import ImageAnalyzer

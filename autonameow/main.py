@@ -9,6 +9,7 @@
 
 import argparse
 import logging
+import os
 import sys
 
 import util.disk
@@ -110,7 +111,8 @@ class Autonameow(object):
         # Iterate over command line arguments ..
         if args.input_files:
             for arg in args.input_files:
-                if util.disk.is_readable_file(arg):
+                if os.path.isfile(arg) and os.access(arg, os.R_OK):
+                    # print "File exists and is readable"
                     logging.info('Processing file \"%s\"' % str(arg))
 
                     f = FileObject(arg)
@@ -128,6 +130,7 @@ class Autonameow(object):
 
                 else:
                     # Unable to read file. Skip ..
+                    # File is either missing or not readable. Skip ..
                     logging.error('Unable to read file \"%s\"' % str(file))
                     continue
 
