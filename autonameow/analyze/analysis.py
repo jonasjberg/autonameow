@@ -91,6 +91,7 @@ class Analysis(object):
 
         else:
             logging.debug('File is of type [unknown]')
+            return
 
         # Run analyzer.
         self.analyzer.run()
