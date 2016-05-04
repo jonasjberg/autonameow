@@ -68,13 +68,15 @@ class AnalyzerBase(object):
 
         # SEPARATOR_CHARS = ['/', '-', ',', '.', ':', '_']
         # for char in SEPARATOR_CHARS:
-        #     name = name.replace(char, ' ')
+        #     name = name.replace(char, '-')
+
 
 
         # Datetime format      Chars    Example
         # -----------------    -----    -------------------
         # %Y-%m-%d %H:%M:%S    19       1992-12-24 12:13:14
         # %Y:%m:%d %H:%M:%S    19       1992:12:24 12:13:14
+        # %Y:%m:%d %H:%M:%S    19       1992:12:24 12.13.14
         # %Y-%m-%d_%H-%M-%S    19       1992-12-24_12-13-14
         # %Y-%m-%d_%H%M%S      17       1992-12-24_121314
         # %Y%m%d_%H%M%S        15       19921224_121314
@@ -94,6 +96,8 @@ class AnalyzerBase(object):
             chars, fmt = chars_fmt
             name_strip = name[:chars]
             try:
+                print('name_strip : %s' % name_strip)
+                print('format     : %s' % fmt)
                 dt = datetime.strptime(name_strip, fmt)
                 # return datetime.date(result.tm_year, result.tm_mon,
                 #                      result.tm_mday)
@@ -102,7 +106,19 @@ class AnalyzerBase(object):
                 pass
             else:
                 logging.debug('Extracted datetime from filename: [%s]' % dt)
-                return dt
+                if dt not in results:
+                    results['FilenameDateTime'] = dt
+                break
 
         logging.debug('Giving up after %3.3d tries ..' % tries)
-        return None
+
+        # Try another approach, start by replacing characters.
+        digits = ''
+        for c in str:
+            if c.isdigit():
+                digits += c
+            return digits
+
+
+
+        return results

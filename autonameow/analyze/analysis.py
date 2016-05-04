@@ -41,14 +41,13 @@ class Analysis(object):
         print('dt_list type : %s' % type(dt_list))
 
         for dt_dict in dt_list:
-            print('dt_dict type     : %s' % type(dt_dict))
-            print('dt_dict contents : %s' % str(dt_dict))
-            for entry in dt_dict:
-                value = dt_dict[entry]
-                # print('type(value): ' + str(type(value)))
-                valuestr = value.isoformat()
-                # valuestr = value.strftime("%Y-%m-%d %H:%M:%S")
-                print(FORMAT % (entry, valuestr))
+            # print('[dt_dict] %-15.15s   : %-80.80s' % (type(dt_dict), str(dt_dict)))
+            for dt_key, dt_value in dt_dict.iteritems():
+                print('[dt_key] %-15.15s   : %-80.80s' % (type(dt_key), str(dt_key)))
+                print('[dt_value] %-15.15s : %-80.80s' % (type(dt_value), str(dt_value)))
+                # valuestr = v.isoformat()
+                # valuestr = v.strftime("%Y-%m-%d %H:%M:%S")
+                # print(FORMAT % (k, valuestr))
 
     def print_oldest_datetime(self):
         oldest_dt = self.file_object.get_oldest_datetime()

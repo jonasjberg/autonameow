@@ -93,6 +93,7 @@ class ImageAnalyzer(AnalyzerBase):
             #logging.warn('KeyError for key GPS{Date,Time}Stamp]')
             pass
         else:
+            dt = None
             gps_time_str = ''
             for toup in gps_time:
                 gps_time_str += str(toup[0])
@@ -106,10 +107,9 @@ class ImageAnalyzer(AnalyzerBase):
             except ValueError:
                 logging.warning('Unable to parse GPS datetime from [%s]'
                                 % gps_datetime_str)
-            else:
-                if dt not in results:
-                    logging.debug('ADDED: results[%s] = [%s]' % ('GPSDateTime', dt))
-                    results['GPSDateTime'] = dt
+            if dt and dt not in results:
+                logging.debug('ADDED: results[%s] = [%s]' % ('GPSDateTime', dt))
+                results['GPSDateTime'] = dt
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
@@ -164,8 +164,8 @@ class ImageAnalyzer(AnalyzerBase):
                         tag_string_gps = GPSTAGS.get(tag_gps, tag_gps)
 
                         if value_gps is not None:
-                            print('[tag_string_gps] %-15.15s : %-80.80s' % (type(tag_string_gps), str(tag_string_gps)))
-                            print('[value_gps]      %-15.15s : %-80.80s' % (type(value_gps), str(value_gps)))
+                            # print('[tag_string_gps] %-15.15s : %-80.80s' % (type(tag_string_gps), str(tag_string_gps)))
+                            # print('[value_gps]      %-15.15s : %-80.80s' % (type(value_gps), str(value_gps)))
                             result_gps[tag_string_gps] = value_gps
 
                             # # DEBUG: print extracted GPS information.
@@ -174,8 +174,8 @@ class ImageAnalyzer(AnalyzerBase):
 
                 else:
                     if value is not None:
-                        print('[tag_string] %-15.15s : %-80.80s' % (type(tag_string), str(tag_string)))
-                        print('[value]      %-15.15s : %-80.80s' % (type(value), str(value)))
+                        # print('[tag_string] %-15.15s : %-80.80s' % (type(tag_string), str(tag_string)))
+                        # print('[value]      %-15.15s : %-80.80s' % (type(value), str(value)))
                         result[tag_string] = value
 
                         # pp = pprint.PrettyPrinter(indent=4)
