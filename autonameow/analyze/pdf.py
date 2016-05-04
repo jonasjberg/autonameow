@@ -189,23 +189,24 @@ class PdfAnalyzer(AnalyzerBase):
         #     return False
 
         # Start by extracting a limited range of pages.
+        # Maybe relevant info is more likely to be on the front page, or at
+        # least in the first few pages?
         logging.debug('Extracting page #0')
         content = pdff.pages[0].extractText()
         if len(content) == 0:
-            logging.warning('Textual content of page #0 is empty.')
-            return False
+            logging.debug('Textual content of page #0 is empty.')
+            pass
 
-        else:
-            # Collect more until a preset limit is reached.
-            for i in range(1, number_of_pages):
-                # Extract text from page and add to content.
-                logging.debug('Extracting page #%s' % i)
-                content += pdff.getPage(i).extractText() + '\n'
+        # Collect more until a preset limit is reached.
+        for i in range(1, number_of_pages):
+            # Extract text from page and add to content.
+            logging.debug('Extracting page #%s' % i)
+            content += pdff.getPage(i).extractText() + '\n'
 
-                # Cancel extraction at some arbitrary limit value.
-                if len(content) > 8000:
-                    logging.debug('Extraction hit content size limit.')
-                    break
+            # Cancel extraction at some arbitrary limit value.
+            if len(content) > 8000:
+                logging.debug('Extraction hit content size limit.')
+                break
 
         # Fix encoding and replace Swedish characters.
         # content = content.encode('utf-8', 'ignore')
