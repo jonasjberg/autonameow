@@ -59,7 +59,17 @@ class AnalyzerBase(object):
 
     def get_datetime_from_name(self):
         name = self.file_object.basename_no_ext
-        results = {}
+
+        # (premature) optimization ..
+        if len(name) < 4:
+            logging.debug('Unable to continue, file name is too short.')
+            return None
+
+        digits_in_name = sum(c.isdigit() for c in name)
+        if digits_in_name < 4:
+            logging.debug('Unable to continue, file name contains '
+                          'insufficient number of digits.')
+            return None
 
         # TODO: Add more patterns to remove before trying to extract time/date.
         to_remove = ['IMG_', 'TODO']
@@ -71,6 +81,8 @@ class AnalyzerBase(object):
         for char in SEPARATOR_CHARS:
             name = name.replace(char, ' ')
 
+        results = {}
+
         # Date/time format     Chars    Example
         # -----------------    -----    -------------------
         # %Y %m %d %H %M %S    19       1992 12 24 12 13 14
@@ -81,6 +93,7 @@ class AnalyzerBase(object):
         # %Y%m%d               8        19921224
         # %Y%m                 7        1992 12
         # %Y%m                 6        199212
+        # %Y                   4        1992
         common_formats = [[19, '%Y %m %d %H %M %S'],
                           [17, '%Y %m %d %H%M%S'],
                           [15, '%Y%m%d %H%M%S'],
@@ -88,28 +101,34 @@ class AnalyzerBase(object):
                           [10, '%Y %m %d'],
                           [8, '%Y%m%d'],
                           [7, '%Y %m'],
-                          [6, '%Y%m']]
-        tries = 0
+                          [6, '%Y%m'],
+                          [4, '%Y']]
+        tries = match = 0
         for chars, fmt in common_formats:
+            if len(name) < chars:
+                continue
             name_strip = name[:chars]
+
+            tries += 1
             try:
-                logging.debug('Trying to match [%-17.17s] to [%s] ..' % (fmt, name_strip))
+                logging.debug('Trying to match [%-17.17s] to [%s] ..'
+                              % (fmt, name_strip))
                 dt = datetime.strptime(name_strip, fmt)
-                # return datetime.date(result.tm_year, result.tm_mon,
-                #                      result.tm_mday)
             except ValueError:
-                tries += 1
                 pass
             else:
                 logging.debug('Extracted datetime from filename: [%s]' % dt)
                 if dt not in results:
-                    results['FilenameDateTime'] = dt
-                break
-
-        logging.debug('Gave up after %d tries ..' % tries)
+                    new_key = 'FilenameDateTime{0:02d}'.format(match)
+                    results[new_key] = dt
+                    match += 1
 
         if results:
+            logging.debug('Found %d matches after %d tries.'
+                          % (len(results), tries))
             return results
+        else:
+            logging.debug('Gave up first approach after %d tries ..' % tries)
 
         # Try another approach, start by extracting all digits.
         digits = ''
@@ -135,20 +154,21 @@ class AnalyzerBase(object):
                           [8, '%Y%m%d'],
                           [6, '%Y%m'],
                           [4, '%Y']]
-        tries = 0
+        tries = match = 0
         for chars, fmt in common_formats2:
             digits_strip = digits[:chars]
+            tries += 1
             try:
                 logging.debug('Trying to match [%-12.12s] to [%s] ..' % (fmt, digits_strip))
                 dt = datetime.strptime(digits_strip, fmt)
             except ValueError:
-                tries += 1
                 pass
             else:
-                logging.debug('Extracted datetime from filename: [%s]' % dt)
                 if dt not in results:
-                    results['FilenameDateTime'] = dt
-                break
+                    logging.debug('Extracted datetime from filename: [%s]' % dt)
+                    new_key = 'FilenameDateTime{0:02d}'.format(match)
+                    results[new_key] = dt
+                    match += 1
 
         logging.debug('Gave up after %d tries ..' % tries)
 

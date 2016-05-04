@@ -224,7 +224,12 @@ class PdfAnalyzer(AnalyzerBase):
             return content
         else:
             logging.warn('Unable to extract PDF contents.')
-            return False
+            return None
 
-    def extract_datetime_from_text(self):
-        pass
+    def extract_datetime_from_text(self, text):
+        if text is None:
+            logging.warning('Got NULL argument')
+            return None
+
+        results = {}
+
