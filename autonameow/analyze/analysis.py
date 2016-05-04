@@ -51,10 +51,10 @@ class Analysis(object):
                 # print('[dt_value] %-15.15s : %-80.80s' % (type(dt_value), str(dt_value)))
                 # valuestr = v.isoformat()
 
-                # For now, lets get the first filename datetime only.
-                if dt_key.startswith('FilenameDateTime_'):
-                    if dt_key != 'FilenameDateTime_00':
-                        continue
+                # # For now, lets get the first filename datetime only.
+                # if dt_key.startswith('FilenameDateTime_'):
+                #     if dt_key != 'FilenameDateTime_00':
+                #         continue
 
                 try:
                     valuestr = dt_value.strftime("%Y-%m-%d %H:%M:%S")

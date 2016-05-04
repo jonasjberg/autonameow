@@ -72,32 +72,47 @@ class AnalyzerBase(object):
                           'insufficient number of digits.')
             return None
 
-        # TODO: Add more patterns to remove before trying to extract time/date.
-        for s in ['IMG_', 'TODO..']:
-            name = name.replace(s, '')
-
-        # Strip all letters from the left, until the first non-letter.
+        # Strip all letters from the left.
         name = name.lstrip(string.letters)
+
+        # Create empty dictionary to hold results.
+        results = {}
+
+        # Very special case that is almost guaranteed to be correct.
+        # This is my current personal favorite naming scheme.
+        # TODO: Allow customizing personal preferences, using a configuration
+        #       file or similar..
+        try:
+            logging.debug('Trying very special case ..')
+            dt = datetime.strptime(name[:17], '%Y-%m-%d_%H%M%S')
+        except ValueError:
+            logging.debug('Very special case failed.')
+            pass
+        else:
+            if self.year_is_probable(dt):
+                logging.debug(
+                    'Extracted (special case) datetime from filename: '
+                    '[%s]' % dt)
+                new_key = 'FilenameDateTime_{0:02d}'.format(0)
+                results[new_key] = dt
+                return results
 
         # Replace common separator characters.
         for char in ['/', '-', ',', '.', ':', '_']:
             name = name.replace(char, ' ')
 
-        # Replace unknown "wildcard" parts, like '2016-02-xx', '2016-xx-xx', ..
-        WILDCARDS = [[' xx ', ' 01 '],
-                    [' xx', ' 01'],
-                    ['xx', '01']]
+        # Replace "wildcard" parts, like '2016-02-xx', '2016-xx-xx', ..
+        WILDCARDS = [[' xx ', ' 01 '], [' XX ', ' 01 '], [' xx', ' 01'],
+                     [' XX', ' 01'], ['xx ', '01 '], ['XX ', '01 '],
+                     ['xx', '01'], ['XX', '01']]
         for u_old, u_new in WILDCARDS:
             name = name.replace(u_old, u_new)
 
-        # Strip whitespace
+        # Strip whitespace from both ends.
         name = name.strip()
 
-        # Create empty dictionary to hold results.
-        results = {}
-
         #               Chars   Date/time format        Example
-        #                  --   -----------------       -------------------
+        #                  --   -------------------     -------------------
         common_formats = [[19, '%Y %m %d %H %M %S'],    # 1992 12 24 12 13 14
                           [17, '%Y %m %d %H%M%S'],      # 1992 12 24 121314
                           [15, '%Y%m%d %H%M%S'],        # 19921224 121314
@@ -109,12 +124,16 @@ class AnalyzerBase(object):
                           [4, '%Y'],                    # 1992
                           [10, '%m %d %Y'],             # 12 24 1992
                           [8, '%m %d %y'],              # 12 24 92
+                          [8, '%d %m %y'],              # 24 12 92
                           [8, '%y %m %d'],              # 92 12 24
                           [11, '%b %d %Y'],             # Dec 24 1992
+                          [11, '%d %b %Y'],             # 24 Dec 1992
                           [9, '%b %d %y'],              # Dec 24 92
+                          [9, '%d %b %y'],              # 24 Dec 92
                           [20, '%B %d %y'],             # December 24 92
                           [20, '%B %d %Y']]             # December 24 1992
         tries = match = 0
+        probable_lower_limit = datetime.strptime('1900', '%Y')
         for chars, fmt in common_formats:
             if len(name) < chars:
                 continue
@@ -128,8 +147,11 @@ class AnalyzerBase(object):
             except ValueError:
                 pass
             else:
-                logging.debug('Extracted datetime from filename: [%s]' % dt)
+                if not self.year_is_probable(dt):
+                    continue
+
                 if dt not in results:
+                    logging.debug('Extracted datetime from filename: [%s]' % dt)
                     new_key = 'FilenameDateTime_{0:02d}'.format(match)
                     results[new_key] = dt
                     match += 1
@@ -152,26 +174,34 @@ class AnalyzerBase(object):
             logging.debug('Second approach failed, not enough digits.')
             return results
 
-        # Date/time format     Chars    Example
-        # -----------------    -----    --------------
-        # %Y%m%d%H%M%S         14       19921224121314
-        # %Y%m%d%H%M           12       199212241213
-        # %Y%m%d%H             10       1992122412
-        # %Y%m%d               8        19921224
-        # %Y%m                 6        199212
-        # %Y                   4        1992
-        common_formats2 = [[14, '%Y%m%d%H%M%S'],
-                          [12, '%Y%m%d%H%M'],
-                          [10, '%Y%m%d%H'],
-                          [8, '%Y%m%d'],
-                          [6, '%Y%m'],
-                          [4, '%Y']]
+        # Remove numbers until first four digits represent a "probable" year,
+        # defined as to be greater than 1900 and not in the future.
+        today_year = datetime.today().strftime('%Y')
+        year_maybe = int(digits[:4])
+        while year_maybe < 1900 or year_maybe > int(today_year):
+            logging.debug('\"{}\" is not a probable year. '
+                          'Removing a digit.'.format(year_maybe))
+            digits = digits[1:]
+            year_maybe = int(digits[:4])
+            if len(digits) < 4:
+                logging.debug('Second approach failed. No leading year.')
+                return None
+
+        #                Chars   Date/time format   Example
+        #                   --   ----------------   --------------
+        common_formats2 = [[14, '%Y%m%d%H%M%S'],    # 19921224121314
+                           [12, '%Y%m%d%H%M'],      # 199212241213
+                           [10, '%Y%m%d%H'],        # 1992122412
+                           [8, '%Y%m%d'],           # 19921224
+                           [6, '%Y%m'],             # 199212
+                           [4, '%Y']]               # 1992
         tries = match = 0
         for chars, fmt in common_formats2:
             digits_strip = digits[:chars]
             tries += 1
             try:
-                logging.debug('Trying to match [%-12.12s] to [%s] ..' % (fmt, digits_strip))
+                logging.debug('Trying to match [%-12.12s] to [%s] ..' % (
+                fmt, digits_strip))
                 dt = datetime.strptime(digits_strip, fmt)
             except ValueError:
                 pass
@@ -185,3 +215,25 @@ class AnalyzerBase(object):
         logging.debug('Gave up after %d tries ..' % tries)
 
         return results
+
+    def year_is_probable(self, date):
+        """
+        Check if year is "probable", where probable is greater than 1900 and
+        not in the future, I.E. greater than the year of todays date.
+        :param date: date to check
+        :return: True if the year is probable, otherwise False
+        """
+        if type(date) is not datetime:
+            date = datetime.strptime(date, '%Y')
+
+        probable_lower_limit = datetime.strptime('1900', '%Y')
+        probable_upper_limit = datetime.today()
+
+        if date.year > probable_upper_limit.year:
+            logging.debug('Skipping future date [{}]'.format(date))
+            return False
+        elif date.year < probable_lower_limit.year:
+            logging.debug('Skipping non-probable date [{}]'.format(date))
+            return False
+        else:
+            return True
