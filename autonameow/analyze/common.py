@@ -66,38 +66,34 @@ class AnalyzerBase(object):
         for s in to_remove:
             name = name.replace(s, '')
 
-        # SEPARATOR_CHARS = ['/', '-', ',', '.', ':', '_']
-        # for char in SEPARATOR_CHARS:
-        #     name = name.replace(char, '-')
+        # Replace common separator characters.
+        SEPARATOR_CHARS = ['/', '-', ',', '.', ':', '_']
+        for char in SEPARATOR_CHARS:
+            name = name.replace(char, ' ')
 
-
-
-        # Datetime format      Chars    Example
+        # Date/time format     Chars    Example
         # -----------------    -----    -------------------
-        # %Y-%m-%d %H:%M:%S    19       1992-12-24 12:13:14
-        # %Y:%m:%d %H:%M:%S    19       1992:12:24 12:13:14
-        # %Y:%m:%d %H:%M:%S    19       1992:12:24 12.13.14
-        # %Y-%m-%d_%H-%M-%S    19       1992-12-24_12-13-14
-        # %Y-%m-%d_%H%M%S      17       1992-12-24_121314
-        # %Y%m%d_%H%M%S        15       19921224_121314
+        # %Y %m %d %H %M %S    19       1992 12 24 12 13 14
+        # %Y %m %d %H%M%S      17       1992 12 24 121314
+        # %Y%m%d %H%M%S        15       19921224 121314
         # %Y%m%d%H%M%S         14       19921224121314
-        # %Y-%m-%d             10       1992-12-24
+        # %Y %m %d             10       1992 12 24
         # %Y%m%d               8        19921224
-        common_formats = [[19, '%Y-%m-%d %H:%M:%S'],
-                          [19, '%Y:%m:%d %H:%M:%S'],
-                          [19, '%Y-%m-%d_%H-%M-%S'],
-                          [17, '%Y-%m-%d_%H%M%S'],
-                          [15, '%Y%m%d_%H%M%S'],
+        # %Y%m                 7        1992 12
+        # %Y%m                 6        199212
+        common_formats = [[19, '%Y %m %d %H %M %S'],
+                          [17, '%Y %m %d %H%M%S'],
+                          [15, '%Y%m%d %H%M%S'],
                           [14, '%Y%m%d%H%M%S'],
-                          [10, '%Y-%m-%d'],
-                          [8, '%Y%m%d']]
+                          [10, '%Y %m %d'],
+                          [8, '%Y%m%d'],
+                          [7, '%Y %m'],
+                          [6, '%Y%m']]
         tries = 0
-        for chars_fmt in common_formats:
-            chars, fmt = chars_fmt
+        for chars, fmt in common_formats:
             name_strip = name[:chars]
             try:
-                print('name_strip : %s' % name_strip)
-                print('format     : %s' % fmt)
+                logging.debug('Trying to match [%-17.17s] to [%s] ..' % (fmt, name_strip))
                 dt = datetime.strptime(name_strip, fmt)
                 # return datetime.date(result.tm_year, result.tm_mon,
                 #                      result.tm_mday)
@@ -110,15 +106,50 @@ class AnalyzerBase(object):
                     results['FilenameDateTime'] = dt
                 break
 
-        logging.debug('Giving up after %3.3d tries ..' % tries)
+        logging.debug('Gave up after %d tries ..' % tries)
 
-        # Try another approach, start by replacing characters.
+        if results:
+            return results
+
+        # Try another approach, start by extracting all digits.
         digits = ''
-        for c in str:
+        for c in name:
             if c.isdigit():
                 digits += c
-            return digits
 
+        if len(digits) < 4:
+            logging.debug('Second approach failed, not enough digits.')
+            return results
 
+        # Date/time format     Chars    Example
+        # -----------------    -----    --------------
+        # %Y%m%d%H%M%S         14       19921224121314
+        # %Y%m%d%H%M           12       199212241213
+        # %Y%m%d%H             10       1992122412
+        # %Y%m%d               8        19921224
+        # %Y%m                 6        199212
+        # %Y                   4        1992
+        common_formats2 = [[14, '%Y%m%d%H%M%S'],
+                          [12, '%Y%m%d%H%M'],
+                          [10, '%Y%m%d%H'],
+                          [8, '%Y%m%d'],
+                          [6, '%Y%m'],
+                          [4, '%Y']]
+        tries = 0
+        for chars, fmt in common_formats2:
+            digits_strip = digits[:chars]
+            try:
+                logging.debug('Trying to match [%-12.12s] to [%s] ..' % (fmt, digits_strip))
+                dt = datetime.strptime(digits_strip, fmt)
+            except ValueError:
+                tries += 1
+                pass
+            else:
+                logging.debug('Extracted datetime from filename: [%s]' % dt)
+                if dt not in results:
+                    results['FilenameDateTime'] = dt
+                break
+
+        logging.debug('Gave up after %d tries ..' % tries)
 
         return results

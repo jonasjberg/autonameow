@@ -38,16 +38,20 @@ class Analysis(object):
         print('\"%s\"' % str(self.file_object.path))
         FORMAT = '%-20.20s : %-s'
         print(FORMAT % ("Datetime", "Value"))
-        print('dt_list type : %s' % type(dt_list))
+        # print('dt_list type : %s' % type(dt_list))
 
         for dt_dict in dt_list:
             # print('[dt_dict] %-15.15s   : %-80.80s' % (type(dt_dict), str(dt_dict)))
+            if type(dt_dict) is not dict:
+                logging.error('datetime list contains unexpected type %s' % type(dt_dict))
+                continue
+
             for dt_key, dt_value in dt_dict.iteritems():
-                print('[dt_key] %-15.15s   : %-80.80s' % (type(dt_key), str(dt_key)))
-                print('[dt_value] %-15.15s : %-80.80s' % (type(dt_value), str(dt_value)))
+                # print('[dt_key] %-15.15s   : %-80.80s' % (type(dt_key), str(dt_key)))
+                # print('[dt_value] %-15.15s : %-80.80s' % (type(dt_value), str(dt_value)))
                 # valuestr = v.isoformat()
-                # valuestr = v.strftime("%Y-%m-%d %H:%M:%S")
-                # print(FORMAT % (k, valuestr))
+                valuestr = dt_value.strftime("%Y-%m-%d %H:%M:%S")
+                print(FORMAT % (dt_key, valuestr))
 
     def print_oldest_datetime(self):
         oldest_dt = self.file_object.get_oldest_datetime()
