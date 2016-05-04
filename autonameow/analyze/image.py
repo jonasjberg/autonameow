@@ -49,7 +49,8 @@ class ImageAnalyzer(AnalyzerBase):
             return
 
         DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTimeDigitized',
-                           'DateTimeModified', 'CreateDate', 'ModifyDate']
+                           'DateTimeModified', 'CreateDate', 'ModifyDate',
+                           'DateTime']
         results = {}
         logging.debug('Extracting date/time-information from EXIF-tags')
         for field in DATE_TAG_FIELDS:
@@ -85,7 +86,6 @@ class ImageAnalyzer(AnalyzerBase):
                 results[field] = dt
 
         logging.debug('Searching for GPS date/time-information in EXIF-tags')
-        gps_date = gps_time = None
         try:
             gps_date = self.exif_data['GPSDateStamp']
             gps_time = self.exif_data['GPSTimeStamp']
@@ -104,7 +104,8 @@ class ImageAnalyzer(AnalyzerBase):
             try:
                 dt = datetime.strptime(gps_datetime_str, '%Y:%m:%d%H%M%S')
             except ValueError:
-                logging.warning('Unable to parse GPS datetime from [%s]' % gps_datetime_str)
+                logging.warning('Unable to parse GPS datetime from [%s]'
+                                % gps_datetime_str)
             else:
                 if dt not in results:
                     logging.debug('ADDED: results[%s] = [%s]' % ('GPSDateTime', dt))
@@ -143,8 +144,8 @@ class ImageAnalyzer(AnalyzerBase):
             image = Image.open(filename)
             exif_data = image._getexif()
         except Exception:
-            logging.warning(
-                'Unable to extract EXIF data from \"{}\"' % str(filename))
+            logging.warning('Unable to extract EXIF data from \"{}\"'
+                            % str(filename))
             return None
 
         if exif_data:
@@ -153,7 +154,7 @@ class ImageAnalyzer(AnalyzerBase):
                 tag_string = TAGS.get(tag, tag)
 
                 # Check if tag contains GPS data.
-                if tag_string == "GPSInfo":
+                if tag_string == 'GPSInfo':
                     logging.debug('Found GPS information')
                     result_gps = {}
 
@@ -163,8 +164,9 @@ class ImageAnalyzer(AnalyzerBase):
                         tag_string_gps = GPSTAGS.get(tag_gps, tag_gps)
 
                         if value_gps is not None:
-                            # result_gps[tag_string_gps] = value_gps
-                            result[tag_string_gps] = value_gps
+                            print('[tag_string_gps] %-15.15s : %-80.80s' % (type(tag_string_gps), str(tag_string_gps)))
+                            print('[value_gps]      %-15.15s : %-80.80s' % (type(value_gps), str(value_gps)))
+                            result_gps[tag_string_gps] = value_gps
 
                             # # DEBUG: print extracted GPS information.
                             # pp = pprint.PrettyPrinter(indent=4)
@@ -172,6 +174,8 @@ class ImageAnalyzer(AnalyzerBase):
 
                 else:
                     if value is not None:
+                        print('[tag_string] %-15.15s : %-80.80s' % (type(tag_string), str(tag_string)))
+                        print('[value]      %-15.15s : %-80.80s' % (type(value), str(value)))
                         result[tag_string] = value
 
                         # pp = pprint.PrettyPrinter(indent=4)

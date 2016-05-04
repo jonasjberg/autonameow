@@ -1,7 +1,7 @@
 import datetime
 import logging
 import os
-import time
+from datetime import datetime
 
 
 # Analysis relevant to all files, regardless of file mime type.
@@ -50,16 +50,18 @@ class AnalyzerBase(object):
         except OSError:
             logging.critical('Exception OSError')
 
-        results['Modified'] = datetime.datetime.fromtimestamp(mtime) if mtime else None
-        results['Created'] = datetime.datetime.fromtimestamp(ctime) if ctime else None
-        results['Accessed'] = datetime.datetime.fromtimestamp(atime) if atime else None
+        results['Modified'] = datetime.fromtimestamp(mtime) if mtime else None
+        results['Created'] = datetime.fromtimestamp(ctime) if ctime else None
+        results['Accessed'] = datetime.fromtimestamp(atime) if atime else None
 
         logging.debug('Fetched timestamps: %s' % results)
         return results
 
     def get_datetime_from_name(self):
         name = self.file_object.basename_no_ext
+        results = {}
 
+        # TODO: Add more patterns to remove before trying to extract time/date.
         to_remove = ['IMG_', 'TODO']
         for s in to_remove:
             name = name.replace(s, '')
@@ -69,36 +71,38 @@ class AnalyzerBase(object):
         #     name = name.replace(char, ' ')
 
 
-        #
-        # %Y-%m-%d %H:%M:%S     1992-12-24 12:13:14
-        # %Y:%m:%d %H:%M:%S     1992:12:24 12:13:14
-        # %Y-%m-%d_%H-%M-%S     1992-12-24_12-13-14
-        # %Y-%m-%d_%H%M%S       1992-12-24_121314
-        # %Y%m%d_%H%M%S         19921224_121314
-        # %Y%m%d%H%M%S          19921224121314
-        # %Y-%m-%d              1992-12-24
-
+        # Datetime format      Chars    Example
+        # -----------------    -----    -------------------
+        # %Y-%m-%d %H:%M:%S    19       1992-12-24 12:13:14
+        # %Y:%m:%d %H:%M:%S    19       1992:12:24 12:13:14
+        # %Y-%m-%d_%H-%M-%S    19       1992-12-24_12-13-14
+        # %Y-%m-%d_%H%M%S      17       1992-12-24_121314
+        # %Y%m%d_%H%M%S        15       19921224_121314
+        # %Y%m%d%H%M%S         14       19921224121314
+        # %Y-%m-%d             10       1992-12-24
+        # %Y%m%d               8        19921224
         common_formats = [[19, '%Y-%m-%d %H:%M:%S'],
                           [19, '%Y:%m:%d %H:%M:%S'],
                           [19, '%Y-%m-%d_%H-%M-%S'],
                           [17, '%Y-%m-%d_%H%M%S'],
                           [15, '%Y%m%d_%H%M%S'],
                           [14, '%Y%m%d%H%M%S'],
-                          [10, '%Y-%m-%d']]
+                          [10, '%Y-%m-%d'],
+                          [8, '%Y%m%d']]
         tries = 0
         for chars_fmt in common_formats:
             chars, fmt = chars_fmt
             name_strip = name[:chars]
             try:
-                result = time.strptime(name_strip, fmt)
+                dt = datetime.strptime(name_strip, fmt)
                 # return datetime.date(result.tm_year, result.tm_mon,
                 #                      result.tm_mday)
             except ValueError:
                 tries += 1
                 pass
             else:
-                logging.debug('Extracted datetime from filename: [%s]' % result)
-                return result
+                logging.debug('Extracted datetime from filename: [%s]' % dt)
+                return dt
 
-        logging.debug('Giving up after %d tries ..' % tries)
+        logging.debug('Giving up after %3.3d tries ..' % tries)
         return None
