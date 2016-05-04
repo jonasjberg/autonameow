@@ -131,6 +131,7 @@ class AnalyzerBase(object):
             logging.debug('Gave up first approach after %d tries ..' % tries)
 
         # Try another approach, start by extracting all digits.
+        logging.debug('Trying second approach.')
         digits = ''
         for c in name:
             if c.isdigit():
