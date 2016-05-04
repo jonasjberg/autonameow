@@ -32,10 +32,10 @@ class Analysis(object):
             pass
 
     def print_all_datetime_info(self):
-        dt_list = self.file_object.get_datetime_list()
+        dt_list = self.file_object.datetime_list
 
         print('All date/time information for file:')
-        print('\"%s\"' % str(self.file_object.path))
+        # print('\"%s\"' % str(self.file_object.path))
         FORMAT = '%-20.20s : %-s'
         print(FORMAT % ("Datetime", "Value"))
         # print('dt_list type : %s' % type(dt_list))
@@ -50,19 +50,26 @@ class Analysis(object):
                 # print('[dt_key] %-15.15s   : %-80.80s' % (type(dt_key), str(dt_key)))
                 # print('[dt_value] %-15.15s : %-80.80s' % (type(dt_value), str(dt_value)))
                 # valuestr = v.isoformat()
-                valuestr = dt_value.strftime("%Y-%m-%d %H:%M:%S")
-                print(FORMAT % (dt_key, valuestr))
+
+                # For now, lets get the first filename datetime only.
+                if dt_key.startswith('FilenameDateTime_'):
+                    if dt_key != 'FilenameDateTime_00':
+                        continue
+
+                try:
+                    valuestr = dt_value.strftime("%Y-%m-%d %H:%M:%S")
+                except ValueError as e:
+                    logging.error('Got ValueError: {}'.format(e))
+                else:
+                    print(FORMAT % (dt_key, valuestr))
+
 
     def print_oldest_datetime(self):
         oldest_dt = self.file_object.get_oldest_datetime()
-        # print('type(oldest_dt): %s' % type(oldest_dt))
         print('Oldest date/time information for file:')
         print('\"%s\"' % str(self.file_object.path))
-        FORMAT = '%-20.20s : %-s'
-        print(FORMAT % ("Datetime", "Value"))
-        # valuestr = oldest_dt.strftime("%Y-%m-%d %H:%M:%S")
-        # print(FORMAT % ('oldest', valuestr))
-        print(FORMAT % ('oldest', str(oldest_dt)))
+        print('{:<20} : {:<}'.format('Datetime', 'Value'))
+        print('{:<20} : {:<}'.format('oldest', oldest_dt))
 
     def prefix_date_to_filename(self):
         fo = self.file_object

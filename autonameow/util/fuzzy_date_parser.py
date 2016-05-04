@@ -138,9 +138,20 @@ class DateParse(object):
                 digits += c
             return digits
 
-        datetime_formats = ['%Y %m %d', '%m %d %Y', '%B %d %Y',
-                            '%b %d %Y', '%m %d %y', '%y %m %d',
-                            '%B %d %y', '%B %d %y', ]
+        datetime_formats = ['%Y %m %d',
+                            '%m %d %Y',
+                            '%B %d %Y',
+
+                            '%b %d %Y',
+                            '%m %d %y',
+                            '%y %m %d',
+
+                            '%B %d %y',
+                            '%B %d %y',
+
+
+
+                            ]
 
         date_formats_without_year = ['%m %d', '%d %B', '%B %d',
                                      '%d %b', '%b %d']

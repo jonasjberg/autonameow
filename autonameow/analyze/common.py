@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import string
 from datetime import datetime
 
 
@@ -62,47 +63,57 @@ class AnalyzerBase(object):
 
         # (premature) optimization ..
         if len(name) < 4:
-            logging.debug('Unable to continue, file name is too short.')
+            logging.debug('Unable to continue, name is too short.')
             return None
 
         digits_in_name = sum(c.isdigit() for c in name)
         if digits_in_name < 4:
-            logging.debug('Unable to continue, file name contains '
+            logging.debug('Unable to continue, name contains '
                           'insufficient number of digits.')
             return None
 
         # TODO: Add more patterns to remove before trying to extract time/date.
-        to_remove = ['IMG_', 'TODO']
-        for s in to_remove:
+        for s in ['IMG_', 'TODO..']:
             name = name.replace(s, '')
 
+        # Strip all letters from the left, until the first non-letter.
+        name = name.lstrip(string.letters)
+
         # Replace common separator characters.
-        SEPARATOR_CHARS = ['/', '-', ',', '.', ':', '_']
-        for char in SEPARATOR_CHARS:
+        for char in ['/', '-', ',', '.', ':', '_']:
             name = name.replace(char, ' ')
 
+        # Replace unknown "wildcard" parts, like '2016-02-xx', '2016-xx-xx', ..
+        WILDCARDS = [[' xx ', ' 01 '],
+                    [' xx', ' 01'],
+                    ['xx', '01']]
+        for u_old, u_new in WILDCARDS:
+            name = name.replace(u_old, u_new)
+
+        # Strip whitespace
+        name = name.strip()
+
+        # Create empty dictionary to hold results.
         results = {}
 
-        # Date/time format     Chars    Example
-        # -----------------    -----    -------------------
-        # %Y %m %d %H %M %S    19       1992 12 24 12 13 14
-        # %Y %m %d %H%M%S      17       1992 12 24 121314
-        # %Y%m%d %H%M%S        15       19921224 121314
-        # %Y%m%d%H%M%S         14       19921224121314
-        # %Y %m %d             10       1992 12 24
-        # %Y%m%d               8        19921224
-        # %Y%m                 7        1992 12
-        # %Y%m                 6        199212
-        # %Y                   4        1992
-        common_formats = [[19, '%Y %m %d %H %M %S'],
-                          [17, '%Y %m %d %H%M%S'],
-                          [15, '%Y%m%d %H%M%S'],
-                          [14, '%Y%m%d%H%M%S'],
-                          [10, '%Y %m %d'],
-                          [8, '%Y%m%d'],
-                          [7, '%Y %m'],
-                          [6, '%Y%m'],
-                          [4, '%Y']]
+        #               Chars   Date/time format        Example
+        #                  --   -----------------       -------------------
+        common_formats = [[19, '%Y %m %d %H %M %S'],    # 1992 12 24 12 13 14
+                          [17, '%Y %m %d %H%M%S'],      # 1992 12 24 121314
+                          [15, '%Y%m%d %H%M%S'],        # 19921224 121314
+                          [14, '%Y%m%d%H%M%S'],         # 19921224121314
+                          [10, '%Y %m %d'],             # 1992 12 24
+                          [8, '%Y%m%d'],                # 19921224
+                          [7, '%Y %m'],                 # 1992 12
+                          [6, '%Y%m'],                  # 199212
+                          [4, '%Y'],                    # 1992
+                          [10, '%m %d %Y'],             # 12 24 1992
+                          [8, '%m %d %y'],              # 12 24 92
+                          [8, '%y %m %d'],              # 92 12 24
+                          [11, '%b %d %Y'],             # Dec 24 1992
+                          [9, '%b %d %y'],              # Dec 24 92
+                          [20, '%B %d %y'],             # December 24 92
+                          [20, '%B %d %Y']]             # December 24 1992
         tries = match = 0
         for chars, fmt in common_formats:
             if len(name) < chars:
@@ -119,7 +130,7 @@ class AnalyzerBase(object):
             else:
                 logging.debug('Extracted datetime from filename: [%s]' % dt)
                 if dt not in results:
-                    new_key = 'FilenameDateTime{0:02d}'.format(match)
+                    new_key = 'FilenameDateTime_{0:02d}'.format(match)
                     results[new_key] = dt
                     match += 1
 
@@ -167,7 +178,7 @@ class AnalyzerBase(object):
             else:
                 if dt not in results:
                     logging.debug('Extracted datetime from filename: [%s]' % dt)
-                    new_key = 'FilenameDateTime{0:02d}'.format(match)
+                    new_key = 'FilenameDateTime_{0:02d}'.format(match)
                     results[new_key] = dt
                     match += 1
 

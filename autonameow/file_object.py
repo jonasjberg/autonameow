@@ -80,12 +80,15 @@ class FileObject(object):
         :return:
         """
         oldest_yet = datetime.datetime.max
-        for l in self.datetime_list:
-            for entry in l:
+        for dt_dict in self.datetime_list:
+            for dt_key, dt_value in dt_dict.iteritems():
                 try:
-                    value = l[entry]
-                    if value < oldest_yet:
-                        oldest_yet = value
+                    # For now, lets get the first filename datetime only.
+                    if dt_key.startswith('FilenameDateTime_'):
+                        if dt_key != 'FilenameDateTime_00':
+                            continue
+                    if dt_value < oldest_yet:
+                        oldest_yet = dt_value
                 except Exception:
                     pass
 
