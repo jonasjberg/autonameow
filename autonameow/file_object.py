@@ -26,6 +26,7 @@ class FileObject(object):
         # Extract parts of the file name.
         self.basename = os.path.basename(self.path)
         self.basename_no_ext = os.path.splitext(self.basename)[0]
+        self.extension = self.get_file_extension()
 
         # Figure out basic file type
         self.type = self.get_type_from_magic()
@@ -111,15 +112,15 @@ class FileObject(object):
         else:
             return None
 
-    def get_file_name_noext(self):
-        """
-        Get the file name without extension.
-        :return: file name without file extension
-        """
-        base = os.path.basename(self.path)
-        name_noext = os.path.splitext(base)[0]
-
-        if name_noext and name_noext.strip():
-            return name_noext
-        else:
-            return None
+    # def get_file_name_noext(self):
+    #     """
+    #     Get the file name without extension.
+    #     :return: file name without file extension
+    #     """
+    #     base = os.path.basename(self.path)
+    #     name_noext = os.path.splitext(base)[0]
+    #
+    #     if name_noext and name_noext.strip():
+    #         return name_noext
+    #     else:
+    #         return None

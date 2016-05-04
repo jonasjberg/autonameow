@@ -15,7 +15,7 @@ class VideoAnalyzer(AnalyzerBase):
         Run the analysis.
         """
         # if self.exif_data is None:
-        #     self.exif_data = self.get_EXIF_data()
+        #     self.exif_data = self.get_exif_data()
         # exif_datetime = self.get_exif_datetime()
 
         # pp = pprint.PrettyPrinter(indent=4)

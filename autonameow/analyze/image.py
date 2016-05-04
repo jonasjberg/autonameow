@@ -28,21 +28,13 @@ class ImageAnalyzer(AnalyzerBase):
         """
         if self.exif_data is None:
             logging.debug('Fetching EXIF data ..')
-            self.exif_data = self.get_EXIF_data()
+            self.exif_data = self.get_exif_data()
 
         exif_datetime = self.get_exif_datetime()
         if exif_datetime:
             self.file_object.add_datetime(exif_datetime)
             # pp = pprint.PrettyPrinter(indent=4)
             # pp.pprint(exif_datetime)
-
-    # def get_datetime(self):
-    #     datetime = self.get_exif_datetime()
-    #
-    #     if datetime is None:
-    #         logging.warning('Unable to extract datetime.')
-    #     else:
-    #         return datetime
 
     def get_exif_datetime(self):
         """
@@ -61,7 +53,7 @@ class ImageAnalyzer(AnalyzerBase):
         results = {}
         logging.debug('Extracting date/time-information from EXIF-tags')
         for field in DATE_TAG_FIELDS:
-            dt = dtstr = None
+            dt = None
             try:
                 dtstr = self.exif_data[field]
             except KeyError:
@@ -83,10 +75,10 @@ class ImageAnalyzer(AnalyzerBase):
                 logging.debug('datetime_str: %s' % datetime_str)
 
                 try:
-                    dt = datetime.strptime(datetime_str, "%Y:%m:%d %H:%M:%S")
+                    dt = datetime.strptime(datetime_str, '%Y:%m:%d %H:%M:%S')
                 except ValueError:
-                    logging.warning(
-                        'Unable to parse datetime from [%s]' % field)
+                    logging.warning('Unable to parse datetime from [%s]'
+                                    % field)
 
             if dt and dt not in results:
                 logging.debug('ADDED: results[%s] = [%s]' % (field, dt))
@@ -110,7 +102,7 @@ class ImageAnalyzer(AnalyzerBase):
             gps_datetime_str = gps_date + gps_time_str
 
             try:
-                dt = datetime.strptime(gps_datetime_str, "%Y:%m:%d%H%M%S")
+                dt = datetime.strptime(gps_datetime_str, '%Y:%m:%d%H%M%S')
             except ValueError:
                 logging.warning('Unable to parse GPS datetime from [%s]' % gps_datetime_str)
             else:
@@ -126,7 +118,7 @@ class ImageAnalyzer(AnalyzerBase):
             if self.exif_data['Make'] == 'OnePlus' and \
                self.exif_data['Model'] == 'ONE E1003':
                 if results['DateTimeDigitized'] == bad_exif_date:
-                    logging.debug("Removing erroneous date \"%s\"" %
+                    logging.debug('Removing erroneous date \"%s\"' %
                                   str(bad_exif_date))
                     del results['DateTimeDigitized']
         except KeyError:
@@ -135,7 +127,7 @@ class ImageAnalyzer(AnalyzerBase):
 
         return results
 
-    def get_EXIF_data(self):
+    def get_exif_data(self):
         """
         Extracts EXIF information from a image using PIL.
         The EXIF data is stored in a dict using human-readable keys.

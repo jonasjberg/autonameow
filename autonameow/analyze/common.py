@@ -78,13 +78,19 @@ class AnalyzerBase(object):
         # %Y%m%d%H%M%S          19921224121314
         # %Y-%m-%d              1992-12-24
 
-        common_formats = ['%Y-%m-%d %H:%M:%S', '%Y:%m:%d %H:%M:%S',
-                          '%Y-%m-%d_%H-%M-%S', '%Y-%m-%d_%H%M%S',
-                          '%Y%m%d_%H%M%S', '%Y%m%d%H%M%S', '%Y-%m-%d']
+        common_formats = [[19, '%Y-%m-%d %H:%M:%S'],
+                          [19, '%Y:%m:%d %H:%M:%S'],
+                          [19, '%Y-%m-%d_%H-%M-%S'],
+                          [17, '%Y-%m-%d_%H%M%S'],
+                          [15, '%Y%m%d_%H%M%S'],
+                          [14, '%Y%m%d%H%M%S'],
+                          [10, '%Y-%m-%d']]
         tries = 0
-        for fmt in common_formats:
+        for chars_fmt in common_formats:
+            chars, fmt = chars_fmt
+            name_strip = name[:chars]
             try:
-                result = time.strptime(name, fmt)
+                result = time.strptime(name_strip, fmt)
                 # return datetime.date(result.tm_year, result.tm_mon,
                 #                      result.tm_mday)
             except ValueError:

@@ -32,38 +32,42 @@ class Analysis(object):
             pass
 
     def print_all_datetime_info(self):
-        datetime = self.file_object.get_datetime_list()
+        dt_list = self.file_object.get_datetime_list()
 
         print('All date/time information for file:')
         print('\"%s\"' % str(self.file_object.path))
         FORMAT = '%-20.20s : %-s'
         print(FORMAT % ("Datetime", "Value"))
-        for l in datetime:
-            for entry in l:
-                value = l[entry]
+        print('dt_list type : %s' % type(dt_list))
+
+        for dt_dict in dt_list:
+            print('dt_dict type     : %s' % type(dt_dict))
+            print('dt_dict contents : %s' % str(dt_dict))
+            for entry in dt_dict:
+                value = dt_dict[entry]
                 # print('type(value): ' + str(type(value)))
-                # valuestr = value.isoformat()
-                valuestr = value.strftime("%Y-%m-%d %H:%M:%S")
+                valuestr = value.isoformat()
+                # valuestr = value.strftime("%Y-%m-%d %H:%M:%S")
                 print(FORMAT % (entry, valuestr))
 
     def print_oldest_datetime(self):
-        datetime = self.file_object.get_oldest_datetime()
-        # print('type(datetime): %s' % type(datetime))
+        oldest_dt = self.file_object.get_oldest_datetime()
+        # print('type(oldest_dt): %s' % type(oldest_dt))
         print('Oldest date/time information for file:')
         print('\"%s\"' % str(self.file_object.path))
         FORMAT = '%-20.20s : %-s'
         print(FORMAT % ("Datetime", "Value"))
-        # valuestr = datetime.strftime("%Y-%m-%d %H:%M:%S")
+        # valuestr = oldest_dt.strftime("%Y-%m-%d %H:%M:%S")
         # print(FORMAT % ('oldest', valuestr))
-        print(FORMAT % ('oldest', str(datetime)))
+        print(FORMAT % ('oldest', str(oldest_dt)))
 
     def prefix_date_to_filename(self):
         fo = self.file_object
 
         datetime = fo.get_oldest_datetime()
 
-        ext = fo.get_file_extension(fo.path)
-        fn_noext = fo.get_file_name_noext()
+        ext = fo.extension
+        fn_noext = fo.basename_no_ext
         fn_noext = fn_noext.replace(ext, '')
 
         print('%s %s.%s' % (datetime.strftime('%Y-%m-%d_%H%M%S'), fn_noext, ext))
