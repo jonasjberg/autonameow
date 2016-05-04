@@ -115,6 +115,7 @@ class Autonameow(object):
                     # print "File exists and is readable"
                     logging.info('Processing file \"%s\"' % str(arg))
 
+                    # Create a file object representing the current arg.
                     f = FileObject(arg)
 
                     # Begin analysing the file.

@@ -58,10 +58,6 @@ class AnalyzerBase(object):
         return results
 
     def get_datetime_from_name(self):
-        # TODO: Get datetime from file name.
-        #       Basically a bunch of regexes matching preset patterns:
-        #       * Date-/timestamp
-        #       * incrementer (file ends with a number)
         name = self.file_object.basename_no_ext
 
         to_remove = ['IMG_', 'TODO']
@@ -72,13 +68,31 @@ class AnalyzerBase(object):
         # for char in SEPARATOR_CHARS:
         #     name = name.replace(char, ' ')
 
+
+        #
+        # %Y-%m-%d %H:%M:%S     1992-12-24 12:13:14
+        # %Y:%m:%d %H:%M:%S     1992:12:24 12:13:14
+        # %Y-%m-%d_%H-%M-%S     1992-12-24_12-13-14
+        # %Y-%m-%d_%H%M%S       1992-12-24_121314
+        # %Y%m%d_%H%M%S         19921224_121314
+        # %Y%m%d%H%M%S          19921224121314
+        # %Y-%m-%d              1992-12-24
+
         common_formats = ['%Y-%m-%d %H:%M:%S', '%Y:%m:%d %H:%M:%S',
-                          '%Y-%m-%d_%H%M%S', '%Y-%m-%d']
+                          '%Y-%m-%d_%H-%M-%S', '%Y-%m-%d_%H%M%S',
+                          '%Y%m%d_%H%M%S', '%Y%m%d%H%M%S', '%Y-%m-%d']
+        tries = 0
         for fmt in common_formats:
             try:
                 result = time.strptime(name, fmt)
-                return result
                 # return datetime.date(result.tm_year, result.tm_mon,
                 #                      result.tm_mday)
             except ValueError:
+                tries += 1
                 pass
+            else:
+                logging.debug('Extracted datetime from filename: [%s]' % result)
+                return result
+
+        logging.debug('Giving up after %d tries ..' % tries)
+        return None
