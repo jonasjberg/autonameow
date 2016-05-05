@@ -97,7 +97,7 @@ class AnalyzerBase(object):
             logging.debug('Very special case failed.')
             pass
         else:
-            if self.year_is_probable(dt):
+            if self.date_is_probable(dt):
                 logging.debug(
                     'Extracted (special case) datetime from filename: '
                     '[%s]' % dt)
@@ -140,13 +140,14 @@ class AnalyzerBase(object):
                           [9, '%d %b %y'],              # 24 Dec 92
                           [20, '%B %d %y'],             # December 24 92
                           [20, '%B %d %Y']]             # December 24 1992
-        tries = matches = matches_total = 0
+        tries = matches = matches_total = tries_total = 0
         for chars, fmt in common_formats:
             if len(name) < chars:
                 continue
 
             name_strip = name[:chars]
             tries += 1
+            tries_total += 1
             try:
                 logging.debug('Trying to match [%-17.17s] to [%s] ..'
                               % (fmt, name_strip))
@@ -154,14 +155,12 @@ class AnalyzerBase(object):
             except ValueError:
                 pass
             else:
-                if not self.year_is_probable(dt):
-                    continue
-
-                if dt not in results:
+                if self.date_is_probable(dt) and dt not in results:
                     logging.debug('Extracted datetime from filename: [%s]' % dt)
                     new_key = 'FilenameDateTime_{0:02d}'.format(matches)
                     results[new_key] = dt
                     matches += 1
+                    matches_total += 1
 
         if results:
             logging.debug('Found %d matches after %d tries.'
@@ -185,7 +184,7 @@ class AnalyzerBase(object):
         digits = digits_only
         # Remove one number at a time from the front until first four digits
         # represent a probable year.
-        while not self.year_is_probable(int(digits[:4])):
+        while not self.date_is_probable(int(digits[:4])):
             logging.debug('\"{}\" is not a probable year. '
                           'Removing a digit.'.format(digits[:4]))
             digits = digits[1:]
@@ -202,11 +201,12 @@ class AnalyzerBase(object):
                                [8, '%Y%m%d'],           # 19921224
                                [6, '%Y%m'],             # 199212
                                [4, '%Y']]               # 1992
-            tries = matches = 0
+            tries = 0
             logging.debug('Assuming format with year first.')
             for chars, fmt in common_formats2:
                 digits_strip = digits[:chars]
                 tries += 1
+                tries_total += 1
                 try:
                     logging.debug('Trying to match [%-12.12s] to [%s] ..'
                                   % (fmt, digits_strip))
@@ -214,13 +214,13 @@ class AnalyzerBase(object):
                 except ValueError:
                     pass
                 else:
-                    if self.year_is_probable(dt):
-                        if dt not in results:
-                            logging.debug('Extracted datetime from filename: '
-                                          '[%s]' % dt)
-                            new_key = 'FilenameDateTime_{0:02d}'.format(matches)
-                            results[new_key] = dt
-                            matches += 1
+                    if self.date_is_probable(dt) and dt not in results:
+                        logging.debug('Extracted datetime from filename: '
+                                      '[%s]' % dt)
+                        new_key = 'FilenameDateTime_{0:02d}'.format(matches)
+                        results[new_key] = dt
+                        matches += 1
+                        matches_total += 1
 
             logging.debug('Gave up after %d tries ..' % tries)
 
@@ -239,10 +239,11 @@ class AnalyzerBase(object):
                                    [6, '%Y%m'],             # 199212
                                    [4, '%Y'],               # 1992
                                    [2, '%y']]               # 92
-                tries = matches = 0
+                tries = 0
                 for chars, fmt in common_formats3:
                     digits_strip = digits[:chars]
                     tries += 1
+                    tries_total += 1
                     try:
                         logging.debug('Trying to match [%-12.12s] to [%s] ..'
                                       % (fmt, digits_strip))
@@ -250,30 +251,31 @@ class AnalyzerBase(object):
                     except ValueError:
                         pass
                     else:
-                        if self.year_is_probable(dt):
-                            if dt not in results:
-                                logging.debug('Extracted datetime from filename: '
-                                              '[%s]' % dt)
-                                new_key = 'FilenameDateTime_{0:02d}'.format(matches)
-                                results[new_key] = dt
-                                matches += 1
+                        if self.date_is_probable(dt) and dt not in results:
+                            logging.debug('Extracted datetime from filename: '
+                                          '[%s]' % dt)
+                            new_key = 'FilenameDateTime_{0:02d}'.format(matches)
+                            results[new_key] = dt
+                            matches += 1
+                            matches_total += 1
 
                 logging.debug('Gave up after %d tries ..' % tries)
                 logging.debug('Removing leading number ..')
                 logging.debug('Removing leading number ({} --> {})'.format(digits, digits[:1]))
                 digits = digits[1:]
 
-
+        logging.info('Found [{:^3}] matches from [{:^4}] tries.'.format(matches_total, tries_total))
         return results
 
-    def year_is_probable(self, date):
+    def date_is_probable(self, date):
         """
-        Check if year is "probable", where probable is greater than 1900 and
+        Check if date is "probable", meaning greater than 1900 and
         not in the future, I.E. greater than the year of todays date.
+        That is, simply:    1900 < date < today
         :param date: date to check
-        :return: True if the year is probable, otherwise False
+        :return: True if the date is probable, otherwise False
         """
-        logging.debug('year_is_probable got {} : {}'.format(type(date), date))
+        logging.debug('date_is_probable got {} : {}'.format(type(date), date))
         if type(date) is not datetime:
             probable_lower_limit = int(1900)
             probable_upper_limit = int(datetime.today().strftime('%Y'))
