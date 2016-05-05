@@ -24,13 +24,40 @@ class Autonameow(object):
 
     def __init__(self):
         """
-        Handle the command line arguments.
+        Main program entry point
         """
+        # Handle the command line arguments.
         self.args = self.parse_args()
 
-    def main(self):
-        # Main program entry point
-        pass
+        # Iterate over command line arguments ..
+        if not self.args.input_files:
+            logging.critical("No input files specified. Exiting.")
+            exit(1)
+        else:
+            for arg in self.args.input_files:
+                if os.path.isfile(arg) and os.access(arg, os.R_OK):
+                    # print "File exists and is readable"
+                    logging.info('Processing file \"%s\"' % str(arg))
+
+                    # Create a file object representing the current arg.
+                    f = FileObject(arg)
+
+                    # Begin analysing the file.
+                    analysis = Analysis(f)
+                    analysis.run()
+
+                    if self.args.add_datetime:
+                        print('File: \"%s\"' % f.path)
+                        analysis.print_all_datetime_info()
+                        # analysis.print_oldest_datetime()
+                        # analysis.prefix_date_to_filename()
+                        print('')
+
+                else:
+                    # Unable to read file. Skip ..
+                    # File is either missing or not readable. Skip ..
+                    logging.error('Unable to read file \"%s\"' % str(file))
+                    continue
 
     def init_argparser(self):
         """
@@ -123,36 +150,6 @@ class Autonameow(object):
         if len(sys.argv) < 2:
             parser.print_help()
             exit(0)
-
-        # Iterate over command line arguments ..
-        if not args.input_files:
-            logging.critical("No input files specified. Exiting.")
-            exit(1)
-        else:
-            for arg in args.input_files:
-                if os.path.isfile(arg) and os.access(arg, os.R_OK):
-                    # print "File exists and is readable"
-                    logging.info('Processing file \"%s\"' % str(arg))
-
-                    # Create a file object representing the current arg.
-                    f = FileObject(arg)
-
-                    # Begin analysing the file.
-                    analysis = Analysis(f)
-                    analysis.run()
-
-                    if args.add_datetime:
-                        print('File: \"%s\"' % f.path)
-                        analysis.print_all_datetime_info()
-                        # analysis.print_oldest_datetime()
-                        # analysis.prefix_date_to_filename()
-                        print('')
-
-                else:
-                    # Unable to read file. Skip ..
-                    # File is either missing or not readable. Skip ..
-                    logging.error('Unable to read file \"%s\"' % str(file))
-                    continue
 
         return args
 

@@ -64,8 +64,8 @@ class FileObject(object):
             logging.warning('Got non-dict argument')
             pass
 
-        if not dt in self.datetime_list:
-            logging.debug('Adding datetime [%s] to list' % str(type(dt)))
+        if dt not in self.datetime_list:
+            # logging.debug('Adding datetime [%s] to list' % str(type(dt)))
             self.datetime_list.append(dt)
 
     def get_datetime_list(self):

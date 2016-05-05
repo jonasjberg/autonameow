@@ -73,7 +73,7 @@ class ImageAnalyzer(AnalyzerBase):
                 logging.warn('TypeError for [%s]' % dtstr)
             else:
                 datetime_str = re_match.group(1)
-                logging.debug('datetime_str: %s' % datetime_str)
+                # logging.debug('datetime_str: %s' % datetime_str)
 
                 try:
                     dt = datetime.strptime(datetime_str, '%Y:%m:%d %H:%M:%S')

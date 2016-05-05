@@ -155,6 +155,7 @@ def bruteforce_str(text, prefix):
 
     # Strip all letters from the left.
     text = text.lstrip(string.letters)
+    text = text.lstrip('_-[](){}')
 
     # Create empty dictionary to hold results.
     results = {}
@@ -162,7 +163,7 @@ def bruteforce_str(text, prefix):
     # ----------------------------------------------------------------
     # PART #0   -- the very special case
     # Very special case that is almost guaranteed to be correct.
-    # This is my current personal favorite naming scheme.
+    # That is my personal favorite naming scheme: 1992-12-24_121314
     # TODO: Allow customizing personal preferences, using a configuration
     #       file or similar..
     try:
