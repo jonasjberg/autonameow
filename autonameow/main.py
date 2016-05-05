@@ -43,27 +43,31 @@ class Autonameow(object):
                         'several sources of information.',
             epilog='Example usage: TODO ..')
 
-        output_control_group = parser.add_mutually_exclusive_group()
-        output_control_group.add_argument("-z", "--debug",
-                                          dest='debug',
-                                          action="store_true",
-                                          help='debug mode')
+        optgrp_output = parser.add_mutually_exclusive_group()
+        optgrp_output.add_argument("-z", "--debug",
+                                   const=0, default=0, type=int,
+                                   nargs="?",
+                                   dest='debug',
+                                   help='debug verbosity: 0 = some, 1 = more, '
+                                        '2 = detailed, 3 = everything. '
+                                        'No number means some. '
+                                        'Default is no debug verbosity.')
 
-        output_control_group.add_argument("-v", "--verbose",
-                                          dest='verbose',
-                                          action="store_true",
-                                          help='verbose mode')
+        optgrp_output.add_argument("-v", "--verbose",
+                                   dest='verbose',
+                                   action="store_true",
+                                   help='verbose mode')
 
-        output_control_group.add_argument("-q", "--quiet",
-                                          dest='quiet',
-                                          action="store_true",
-                                          help='quiet mode')
+        optgrp_output.add_argument("-q", "--quiet",
+                                   dest='quiet',
+                                   action="store_true",
+                                   help='quiet mode')
 
-        action_control_group = parser.add_mutually_exclusive_group()
-        action_control_group.add_argument("--add-datetime",
-                                          dest='add_datetime',
-                                          action="store_true",
-                                          help='only add datetime to file name')
+        optgrp_action = parser.add_mutually_exclusive_group()
+        optgrp_action.add_argument("--add-datetime",
+                                   dest='add_datetime',
+                                   action="store_true",
+                                   help='only add datetime to file name')
 
         parser.add_argument(dest='input_files',
                             metavar='filename',
@@ -88,10 +92,22 @@ class Autonameow(object):
         args = parser.parse_args()
 
         # Setup logging output format.
-        if args.debug:
+        if args.debug == 0:
             FORMAT = "%(asctime)s %(levelname)7.7s %(funcName)-25.25s (%(lineno)3d) -- %(message)-130.130s"
             logging.basicConfig(level=logging.DEBUG, format=FORMAT,
                                 datefmt='%Y-%m-%d %H:%M:%S')
+        elif args.debug == 1:
+            # TODO: Fix debug logging verbosity.
+            pass
+
+        elif args.debug == 2:
+            # TODO: Fix debug logging verbosity.
+            pass
+
+        elif args.debug == 3:
+            # TODO: Fix debug logging verbosity.
+            pass
+
         elif args.verbose:
             FORMAT = "%(asctime)s %(levelname)-6s -- %(message)s"
             logging.basicConfig(level=logging.INFO, format=FORMAT,
@@ -109,7 +125,10 @@ class Autonameow(object):
             exit(0)
 
         # Iterate over command line arguments ..
-        if args.input_files:
+        if not args.input_files:
+            logging.critical("No input files specified. Exiting.")
+            exit(1)
+        else:
             for arg in args.input_files:
                 if os.path.isfile(arg) and os.access(arg, os.R_OK):
                     # print "File exists and is readable"
@@ -125,8 +144,8 @@ class Autonameow(object):
                     if args.add_datetime:
                         print('File: \"%s\"' % f.path)
                         analysis.print_all_datetime_info()
-                        #analysis.print_oldest_datetime()
-                        #analysis.prefix_date_to_filename()
+                        # analysis.print_oldest_datetime()
+                        # analysis.prefix_date_to_filename()
                         print('')
 
                 else:
@@ -134,10 +153,6 @@ class Autonameow(object):
                     # File is either missing or not readable. Skip ..
                     logging.error('Unable to read file \"%s\"' % str(file))
                     continue
-
-        else:
-            logging.critical("No input files specified. Exiting.")
-            exit(1)
 
         return args
 
