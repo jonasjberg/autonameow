@@ -42,6 +42,7 @@ class FileObject(object):
         type = ms.file(self.path)
         ms.close()
         # return type
+        # logging.debug('Found magic file type: [{}]'.format(type.split()[0]))
         return type.split()[0]
 
     def assemble_new_name(self):

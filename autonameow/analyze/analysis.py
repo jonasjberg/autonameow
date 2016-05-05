@@ -96,6 +96,10 @@ class Analysis(object):
             logging.debug('File is of type [PDF]')
             self.analyzer = PdfAnalyzer(self.file_object)
 
+        elif self.file_object.type == "UTF-8" or self.file_object.type == "ASCII":
+            logging.debug('File is a of type [TEXT]')
+            self.analyzer = TextAnalyzer(self.fileobject)
+
         else:
             logging.debug('File is of type [unknown]')
             return

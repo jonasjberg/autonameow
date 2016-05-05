@@ -177,39 +177,38 @@ def bruteforce_str(text, prefix):
 
     # Replace common separator characters.
     for char in ['/', '-', ',', '.', ':', '_']:
-        text = text.replace(char, ' ')
+        text = text.replace(char, '')
 
     # Replace "wildcard" parts, like '2016-02-xx', '2016-xx-xx', ..
-    WILDCARDS = [[' xx ', ' 01 '], [' XX ', ' 01 '], [' xx', ' 01'],
-                 [' XX', ' 01'], ['xx ', '01 '], ['XX ', '01 '],
-                 ['xx', '01'], ['XX', '01']]
+    WILDCARDS = [['xx', '01'],
+                 ['XX', '01'],
+                 ['0x', '01'],
+                 ['0X', '01'],
+                 ['20xx', '2000'],
+                 ['19XX', '1901']]
     for u_old, u_new in WILDCARDS:
         text = text.replace(u_old, u_new)
 
     # Strip whitespace from both ends.
     text = text.strip()
+    text = text.replace(' ', '')
 
     #               Chars   Date/time format        Example
     #                  --   -------------------     -------------------
-    common_formats = [[19, '%Y %m %d %H %M %S'],    # 1992 12 24 12 13 14
-                      [17, '%Y %m %d %H%M%S'],      # 1992 12 24 121314
-                      [15, '%Y%m%d %H%M%S'],        # 19921224 121314
-                      [14, '%Y%m%d%H%M%S'],         # 19921224121314
-                      [10, '%Y %m %d'],             # 1992 12 24
+    common_formats = [[14, '%Y%m%d%H%M%S'],         # 19921224121314
                       [8, '%Y%m%d'],                # 19921224
-                      [7, '%Y %m'],                 # 1992 12
                       [6, '%Y%m'],                  # 199212
                       [4, '%Y'],                    # 1992
-                      [10, '%m %d %Y'],             # 12 24 1992
-                      [8, '%m %d %y'],              # 12 24 92
-                      [8, '%d %m %y'],              # 24 12 92
-                      [8, '%y %m %d'],              # 92 12 24
-                      [11, '%b %d %Y'],             # Dec 24 1992
-                      [11, '%d %b %Y'],             # 24 Dec 1992
-                      [9, '%b %d %y'],              # Dec 24 92
-                      [9, '%d %b %y'],              # 24 Dec 92
-                      [20, '%B %d %y'],             # December 24 92
-                      [20, '%B %d %Y']]             # December 24 1992
+                      [10, '%m%d%Y'],               # 12241992
+                      [8, '%m%d%y'],                # 122492
+                      [8, '%d%m%y'],                # 241292
+                      [8, '%y%m%d'],                # 921224
+                      [11, '%b%d%Y'],               # Dec241992
+                      [11, '%d%b%Y'],               # 24Dec1992
+                      [9, '%b%d%y'],                # Dec2492
+                      [9, '%d%b%y'],                # 24Dec92
+                      [20, '%B%d%y'],               # December2492
+                      [20, '%B%d%Y']]               # December241992
     tries = matches = matches_total = tries_total = 0
     for chars, fmt in common_formats:
         if len(text) < chars:
