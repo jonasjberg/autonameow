@@ -65,7 +65,7 @@ def regex_search_str(text, prefix):
     dt_fmt_1 = '%Y%m%d%H%M%S'
     for dt_str in dt_pattern_1.findall(text):
     # for dt_str in re.findall(dt_pattern_1, text):
-        logging.info('dt_str : {}'.format(dt_str))
+        # logging.debug('dt_str : {}'.format(dt_str))
         for remove in [':', '-', ',', '.', '_']:
             dt_str.replace(remove, '')
         try:
@@ -88,7 +88,7 @@ def regex_search_str(text, prefix):
     dt_pattern_2 = re.compile('(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
     for dt_str in re.findall(dt_pattern_2, text):
-        logging.info('DT STR IS \"{}\"'.format(dt_str))
+        #logging.debug('DT STR IS \"{}\"'.format(dt_str))
         try:
             logging.debug('Trying to match [%-12.12s] to [%s] ..'
                           % (dt_fmt_2, dt_str))
@@ -242,11 +242,10 @@ def bruteforce_str(text, prefix):
                 matches_total += 1
 
     if results:
-        logging.debug('Found %d matches after %d tries.'
-                      % (len(results), tries))
+        logging.info('First matcher found [{:^3}] matches after [{:^4}] tries.'.format(len(results), tries))
         return results
     else:
-        logging.debug('Gave up first approach after %d tries ..' % tries)
+        logging.debug('Gave up first approach after [{:^4}] tries.'.format(tries))
 
     # ----------------------------------------------------------------
     # PART #2   -- pattern matching on just the digits
@@ -345,8 +344,8 @@ def bruteforce_str(text, prefix):
 
             logging.debug('Gave up after %d tries ..' % tries)
             logging.debug('Removing leading number ..')
-            logging.debug('Removing leading number ({} --> {})'.format(digits, digits[:1]))
+            logging.debug('Removing leading number ({} --> {})'.format(digits, digits[1:]))
             digits = digits[1:]
 
-    logging.info('Found [{:^3}] matches from [{:^4}] tries.'.format(matches_total, tries_total))
+    logging.info('Second matcher found [{:^3}] matches after [{:^4}] tries.'.format(matches_total, tries_total))
     return results
