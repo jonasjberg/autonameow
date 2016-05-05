@@ -59,6 +59,14 @@ class AnalyzerBase(object):
         return results
 
     def get_datetime_from_name(self):
+        """
+        Extracts date/time-information from file name.
+        Does a brute force extraction, trying a lot of different combinations.
+        The result is a list of dicts, with keys named "FilenameDateTime_000",
+        "FilenameDateTime_001", etc, after the order in which they were found.
+        Some bad date/time-information is bound to be picked up.
+        :return: a list of dictionaries containing datetime-objects.
+        """
         name = self.file_object.basename_no_ext
 
         # (premature) optimization ..
