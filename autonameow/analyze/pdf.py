@@ -15,6 +15,7 @@ import PyPDF2
 from unidecode import unidecode
 
 from analyze.common import AnalyzerBase
+from util import dateandtime
 
 
 class PdfAnalyzer(AnalyzerBase):
@@ -45,12 +46,14 @@ class PdfAnalyzer(AnalyzerBase):
 
         pdf_text = self.extract_pdf_content()
         if pdf_text:
-            pass
-            # logging.debug('PDF content:')
-            # logging.debug(pdf_text)
-            # print(pdf_text)
-            # for line in pdf_text:
-            #    print(line)
+            text_timestamps = self.get_datetime_from_text(pdf_text)
+            if text_timestamps:
+                self.file_object.add_datetime(text_timestamps)
+                # logging.debug('PDF content:')
+                # logging.debug(pdf_text)
+                # print(pdf_text)
+                # for line in pdf_text:
+                #    print(line)
 
     def get_metadata_datetime(self):
         """
@@ -204,32 +207,66 @@ class PdfAnalyzer(AnalyzerBase):
             content += pdff.getPage(i).extractText() + '\n'
 
             # Cancel extraction at some arbitrary limit value.
-            if len(content) > 8000:
+            if len(content) > 50000:
                 logging.debug('Extraction hit content size limit.')
                 break
 
         # Fix encoding and replace Swedish characters.
         # content = content.encode('utf-8', 'ignore')
-        # content = content.replace('\xc3\xb6', 'o').replace('\xc3\xa4', 'a').replace( '\xc3\xa5', 'a')
-
-        # Collapse whitespace.
-        # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
-        # content = " ".join(content.replace("\xa0", " ").strip().split())
+        # content = content.replace('\xc3\xb6', 'o').replace('\xc3\xa4', 'a').replace('\xc3\xa5', 'a')
 
         content = unidecode(content)
+        # Collapse whitespace.
+        # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
+        content = " ".join(content.replace("\xa0", " ").strip().split())
 
         if content:
             # TODO: Determine what gets extracted **REALLY** ..
             logging.debug('Extracted [%s] words (??) of content' % len(content))
+            print(content)
             return content
         else:
             logging.warn('Unable to extract PDF contents.')
             return None
 
-    def extract_datetime_from_text(self, text):
+    def get_datetime_from_text(self, text):
         if text is None:
             logging.warning('Got NULL argument')
             return None
 
-        results = {}
+        result_list = []
 
+        text_split = text.split('\n')
+        match = 0
+        for t in text_split:
+            dt = dateandtime.bruteforce_str(t, 'pdf_contents_{}'.format(match))
+            if dt is not None:
+                logging.info('Added result from contents: {0}'.format(dt))
+                result_list.append(dt)
+            match += 1
+
+        # dt = dateandtime.bruteforce_str(text, 'pdf_contents_{}'.format(match))
+        # if dt is not None:
+        #     logging.info('Added result from contents: {0}'.format(dt))
+        #     result_list.append(dt)
+        # match += 1
+
+        regex_match = 0
+        dt_regex = dateandtime.regex_search_str(text, 'pdf_contents_regex_{}'.format(regex_match))
+        if dt_regex is not None:
+            logging.info('Added result from contents regex search: {0}'.format(dt_regex))
+            result_list.append(dt_regex)
+            regex_match += 1
+
+        results = {}
+        index = 0
+        for result in result_list:
+            # print('result {} : {}'.format(type(result), result))
+            for new_key, new_value in result.iteritems():
+                if new_value not in results.values():
+                    # print('{} is not in {}'.format(new_value, 'results.value()'))
+                    k = '{0}_{1:03d}'.format('pdf_content', index)
+                    results[k] = new_value
+                    index += 1
+
+        return results
