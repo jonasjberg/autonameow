@@ -45,11 +45,6 @@ class FileObject(object):
         # logging.debug('Found magic file type: [{}]'.format(type.split()[0]))
         return type.split()[0]
 
-    def assemble_new_name(self):
-        # TODO: Construct a new file name.
-        #       Maybe a separate class should handle it?
-        pass
-
     def add_datetime(self, dt):
         """
         Add date/time-information dict to the list of all date/time-objects
