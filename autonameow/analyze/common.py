@@ -132,13 +132,12 @@ class AnalyzerBase(object):
                           [9, '%d %b %y'],              # 24 Dec 92
                           [20, '%B %d %y'],             # December 24 92
                           [20, '%B %d %Y']]             # December 24 1992
-        tries = match = 0
-        probable_lower_limit = datetime.strptime('1900', '%Y')
+        tries = matches = matches_total = 0
         for chars, fmt in common_formats:
             if len(name) < chars:
                 continue
-            name_strip = name[:chars]
 
+            name_strip = name[:chars]
             tries += 1
             try:
                 logging.debug('Trying to match [%-17.17s] to [%s] ..'
@@ -152,9 +151,9 @@ class AnalyzerBase(object):
 
                 if dt not in results:
                     logging.debug('Extracted datetime from filename: [%s]' % dt)
-                    new_key = 'FilenameDateTime_{0:02d}'.format(match)
+                    new_key = 'FilenameDateTime_{0:02d}'.format(matches)
                     results[new_key] = dt
-                    match += 1
+                    matches += 1
 
         if results:
             logging.debug('Found %d matches after %d tries.'
@@ -165,54 +164,97 @@ class AnalyzerBase(object):
 
         # Try another approach, start by extracting all digits.
         logging.debug('Trying second approach.')
-        digits = ''
+        digits_only = ''
         for c in name:
             if c.isdigit():
-                digits += c
+                digits_only += c
 
-        if len(digits) < 4:
+        if len(digits_only) < 4:
             logging.debug('Second approach failed, not enough digits.')
             return results
 
-        # Remove numbers until first four digits represent a "probable" year,
-        # defined as to be greater than 1900 and not in the future.
-        today_year = datetime.today().strftime('%Y')
-        year_maybe = int(digits[:4])
-        while year_maybe < 1900 or year_maybe > int(today_year):
+        year_first = True
+        digits = digits_only
+        # Remove one number at a time from the front until first four digits
+        # represent a probable year.
+        while not self.year_is_probable(int(digits[:4])):
             logging.debug('\"{}\" is not a probable year. '
-                          'Removing a digit.'.format(year_maybe))
+                          'Removing a digit.'.format(digits[:4]))
             digits = digits[1:]
-            year_maybe = int(digits[:4])
             if len(digits) < 4:
                 logging.debug('Second approach failed. No leading year.')
-                return None
+                year_first = False
 
-        #                Chars   Date/time format   Example
-        #                   --   ----------------   --------------
-        common_formats2 = [[14, '%Y%m%d%H%M%S'],    # 19921224121314
-                           [12, '%Y%m%d%H%M'],      # 199212241213
-                           [10, '%Y%m%d%H'],        # 1992122412
-                           [8, '%Y%m%d'],           # 19921224
-                           [6, '%Y%m'],             # 199212
-                           [4, '%Y']]               # 1992
-        tries = match = 0
-        for chars, fmt in common_formats2:
-            digits_strip = digits[:chars]
-            tries += 1
-            try:
-                logging.debug('Trying to match [%-12.12s] to [%s] ..' % (
-                fmt, digits_strip))
-                dt = datetime.strptime(digits_strip, fmt)
-            except ValueError:
-                pass
-            else:
-                if dt not in results:
-                    logging.debug('Extracted datetime from filename: [%s]' % dt)
-                    new_key = 'FilenameDateTime_{0:02d}'.format(match)
-                    results[new_key] = dt
-                    match += 1
+        if year_first:
+            #                Chars   Date/time format   Example
+            #                   --   ----------------   --------------
+            common_formats2 = [[14, '%Y%m%d%H%M%S'],    # 19921224121314
+                               [12, '%Y%m%d%H%M'],      # 199212241213
+                               [10, '%Y%m%d%H'],        # 1992122412
+                               [8, '%Y%m%d'],           # 19921224
+                               [6, '%Y%m'],             # 199212
+                               [4, '%Y']]               # 1992
+            tries = matches = 0
+            logging.debug('Assuming format with year first.')
+            for chars, fmt in common_formats2:
+                digits_strip = digits[:chars]
+                tries += 1
+                try:
+                    logging.debug('Trying to match [%-12.12s] to [%s] ..'
+                                  % (fmt, digits_strip))
+                    dt = datetime.strptime(digits_strip, fmt)
+                except ValueError:
+                    pass
+                else:
+                    if self.year_is_probable(dt):
+                        if dt not in results:
+                            logging.debug('Extracted datetime from filename: '
+                                          '[%s]' % dt)
+                            new_key = 'FilenameDateTime_{0:02d}'.format(matches)
+                            results[new_key] = dt
+                            matches += 1
 
-        logging.debug('Gave up after %d tries ..' % tries)
+            logging.debug('Gave up after %d tries ..' % tries)
+
+        else:
+            digits = digits_only
+            while len(str(digits)) > 2:
+                logging.debug('Assuming format other than year first.')
+                #                Chars   Date/time format   Example
+                #                   --   ----------------   --------------
+                common_formats3 = [[8, '%d%m%Y'],           # 24121992
+                                   [6, '%d%m%y'],           # 241292
+                                   [8, '%m%d%Y'],           # 12241992
+                                   [6, '%m%d%y'],           # 122492
+                                   [6, '%d%m%y'],           # 241292
+                                   [6, '%y%m%d'],           # 921224
+                                   [6, '%Y%m'],             # 199212
+                                   [4, '%Y'],               # 1992
+                                   [2, '%y']]               # 92
+                tries = matches = 0
+                for chars, fmt in common_formats3:
+                    digits_strip = digits[:chars]
+                    tries += 1
+                    try:
+                        logging.debug('Trying to match [%-12.12s] to [%s] ..'
+                                      % (fmt, digits_strip))
+                        dt = datetime.strptime(digits_strip, fmt)
+                    except ValueError:
+                        pass
+                    else:
+                        if self.year_is_probable(dt):
+                            if dt not in results:
+                                logging.debug('Extracted datetime from filename: '
+                                              '[%s]' % dt)
+                                new_key = 'FilenameDateTime_{0:02d}'.format(matches)
+                                results[new_key] = dt
+                                matches += 1
+
+                logging.debug('Gave up after %d tries ..' % tries)
+                logging.debug('Removing leading number ..')
+                logging.debug('Removing leading number ({} --> {})'.format(digits, digits[:1]))
+                digits = digits[1:]
+
 
         return results
 
@@ -223,17 +265,41 @@ class AnalyzerBase(object):
         :param date: date to check
         :return: True if the year is probable, otherwise False
         """
+        logging.debug('year_is_probable got {} : {}'.format(type(date), date))
         if type(date) is not datetime:
-            date = datetime.strptime(date, '%Y')
+            probable_lower_limit = int(1900)
+            probable_upper_limit = int(datetime.today().strftime('%Y'))
 
-        probable_lower_limit = datetime.strptime('1900', '%Y')
-        probable_upper_limit = datetime.today()
+            date = int(date)
+            # Check if number of digits is less than three,
+            # I.E. we got something like '86' (1986) or maybe '08' (2008).
+            if len(str(date)) < 3:
+                # Test if adding 2000 would still be within the limit.
+                if date + 2000 <= probable_upper_limit:
+                    date += 2000
+                # Otherwise just assume this will fix it ..
+                else:
+                    date += 1900
 
-        if date.year > probable_upper_limit.year:
-            logging.debug('Skipping future date [{}]'.format(date))
-            return False
-        elif date.year < probable_lower_limit.year:
-            logging.debug('Skipping non-probable date [{}]'.format(date))
-            return False
+            if date > probable_upper_limit:
+                logging.debug('Skipping future date [{}]'.format(date))
+                return False
+            elif date < probable_lower_limit:
+                logging.debug('Skipping non-probable (<{}) date [{}]'.format(
+                    probable_lower_limit, date))
+                return False
+            else:
+                return True
+
         else:
-            return True
+            probable_lower_limit = datetime.strptime('1900', '%Y')
+            probable_upper_limit = datetime.today()
+            if date.year > probable_upper_limit.year:
+                logging.debug('Skipping future date [{}]'.format(date))
+                return False
+            elif date.year < probable_lower_limit.year:
+                logging.debug('Skipping non-probable (<{}) date [{}]'.format(
+                    probable_lower_limit, date))
+                return False
+            else:
+                return True
