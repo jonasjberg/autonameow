@@ -223,7 +223,6 @@ class PdfAnalyzer(AnalyzerBase):
         if content:
             # TODO: Determine what gets extracted **REALLY** ..
             logging.debug('Extracted [%s] words (??) of content' % len(content))
-            print(content)
             return content
         else:
             logging.warn('Unable to extract PDF contents.')
@@ -238,18 +237,20 @@ class PdfAnalyzer(AnalyzerBase):
 
         text_split = text.split('\n')
         match = 0
+        # for t in text_split:
+        #     dt = dateandtime.bruteforce_str(t, 'pdf_contents_{}'.format(match))
+        #     if dt is not None:
+        #         logging.info('Added result from contents: {0}'.format(dt))
+        #         result_list.append(dt)
+        #         match += 1
+
+        text_split = text.split()
         for t in text_split:
             dt = dateandtime.bruteforce_str(t, 'pdf_contents_{}'.format(match))
             if dt is not None:
                 logging.info('Added result from contents: {0}'.format(dt))
                 result_list.append(dt)
-            match += 1
-
-        # dt = dateandtime.bruteforce_str(text, 'pdf_contents_{}'.format(match))
-        # if dt is not None:
-        #     logging.info('Added result from contents: {0}'.format(dt))
-        #     result_list.append(dt)
-        # match += 1
+                match += 1
 
         regex_match = 0
         dt_regex = dateandtime.regex_search_str(text, 'pdf_contents_regex_{}'.format(regex_match))

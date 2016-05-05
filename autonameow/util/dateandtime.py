@@ -61,10 +61,13 @@ def regex_search_str(text, prefix):
     matches = 0
 
     # Expected date format:         2016:04:07 18:47:30
+    DELIM = '[:-,._ ]?'
     dt_pattern_1 = re.compile(
-        '(\d{4}:[01]\d:[0123]\d\ [012]\d:[012345]\d:[012345]\d)')
-    dt_fmt_1 = '%Y:%m:%d %H:%M:%S'
+        '(\d{4}DELIM[01]\dDELIM[0123]\dDELIM[012]\dDELIM[012345]\dDELIM[012345]\d)')
+    dt_fmt_1 = '%Y%m%d%H%M%S'
     for dt_str in re.findall(dt_pattern_1, text):
+        for remove in [':', '-', ',', '.', '_']:
+            dt_str.replace(remove, '')
         try:
             logging.debug('Trying to match [%-12.12s] to [%s] ..'
                           % (dt_fmt_1, dt_str))
@@ -79,6 +82,9 @@ def regex_search_str(text, prefix):
                 results[new_key] = dt
                 matches += 1
 
+        return results
+
+    # Expected date format:         2016:04:07
     dt_pattern_2 = re.compile('(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
     for dt_str in re.findall(dt_pattern_2, text):
