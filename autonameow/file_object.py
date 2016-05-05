@@ -39,11 +39,11 @@ class FileObject(object):
         """
         ms = magic.open(magic.MAGIC_NONE)
         ms.load()
-        type = ms.file(self.path)
+        magic_type = ms.file(self.path)
         ms.close()
         # return type
         # logging.debug('Found magic file type: [{}]'.format(type.split()[0]))
-        return type.split()[0]
+        return magic_type.split()[0]
 
     def add_datetime(self, dt):
         """

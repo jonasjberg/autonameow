@@ -174,9 +174,7 @@ def bruteforce_str(text, prefix):
         pass
     else:
         if date_is_probable(dt):
-            logging.debug(
-                'Extracted (special case) datetime from text: '
-                '[%s]' % dt)
+            logging.info('Extracted (special case) datetime from {}: [{}]'.format(prefix, dt))
             new_key = '{0}_{1:02d}'.format(prefix, 0)
             results[new_key] = dt
             return results

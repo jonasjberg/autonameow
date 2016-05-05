@@ -60,7 +60,7 @@ class AnalyzerBase(object):
         return results
 
     def get_datetime_from_name(self):
-        dt = dateandtime.bruteforce_str(self.file_object.basename_no_ext, 'Filename_dt')
+        dt = dateandtime.bruteforce_str(self.file_object.basename_no_ext, 'Filename')
         if dt is not None:
             return dt
         else:
