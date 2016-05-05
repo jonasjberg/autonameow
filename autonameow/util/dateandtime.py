@@ -95,26 +95,46 @@ def regex_search_str(text, prefix):
 
     matches = 0
     for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
-        m_date = m_date.strip('T:\-._ /')
-        m_time = m_time.strip('T:\-._ /')
-        logging.debug('m_date {} : {}'.format(type(m_date), m_date))
-        logging.debug('m_time {} : {}'.format(type(m_time), m_time))
+        # Extract digits, skip if entries contain no digits.
+        m_date = misc.extract_digits(m_date)
+        m_time = misc.extract_digits(m_time)
+        m_time_ms = misc.extract_digits(m_time_ms)
 
+        if m_date is None or m_time is None:
+            continue
 
-        # try:
-        #     # logging.debug('Trying to match [{:20}] to [{:20}] ..'.format(dt_fmt_1, dt_str))
-        #     dt = datetime.strptime(, dt_fmt_1)
-        # except ValueError:
-        #     pass
-        # else:
-        #     if date_is_probable(dt) and dt not in results:
-        #         logging.debug('Extracted datetime from text: '
-        #                       '[%s]' % dt)
-        #         new_key = '{0}_{1:02d}'.format(prefix, matches)
-        #         results[new_key] = dt
-        #         matches += 1
-        #
-        # return results
+        # Check if m_date is actually m_date *AND* m_date.
+        if len(m_date) > 8 and m_date.endswith(m_time):
+            # logging.debug('m_date contains m_date *AND* m_time')
+            m_date = m_date.replace(m_time, '')
+
+        if len(m_time) < 6:
+            # logging.debug('len(m_time) < 6 .. m_time_ms is \"{}\"'.format(m_time_ms))
+            pass
+
+        # Skip matches with unexpected number of digits.
+        if len(m_date) != 8 or len(m_time) != 6:
+            continue
+
+        logging.debug('m_date {:10} : {}'.format(type(m_date), m_date))
+        logging.debug('m_time {:10} : {}'.format(type(m_time), m_time))
+        logging.debug('m_time_ms {:10} : {}'.format(type(m_time_ms), m_time_ms))
+        logging.debug('---')
+
+        dt_fmt_1 = '%Y%m%d_%H%M%S'
+        dt_str = (m_date + '_' + m_time).strip()
+        try:
+            logging.debug('Trying to match [{:13}] to [{}] ..'.format(dt_fmt_1, dt_str))
+            dt = datetime.strptime(dt_str, dt_fmt_1)
+        except ValueError:
+            pass
+        else:
+            if date_is_probable(dt):
+                logging.debug('Extracted datetime from text: '
+                              '[%s]' % dt)
+                new_key = '{0}_{1:02d}'.format(prefix, matches)
+                results[new_key] = dt
+                matches += 1
 
     # Expected date format:         2016:04:07
     dt_pattern_2 = re.compile('(\d{4}-[01]\d-[0123]\d)')
@@ -128,7 +148,7 @@ def regex_search_str(text, prefix):
         except ValueError:
             pass
         else:
-            if date_is_probable(dt) and dt not in results:
+            if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
                               '[%s]' % dt)
                 new_key = '{0}_{1:02d}'.format(prefix, matches)
@@ -146,13 +166,16 @@ def regex_search_str(text, prefix):
         except ValueError:
             pass
         else:
-            if date_is_probable(dt) and dt not in results:
+            if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
                               '[%s]' % dt)
                 new_key = '{0}_{1:02d}'.format(prefix, matches)
                 results[new_key] = dt
                 matches += 1
 
+
+    logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
+    logging.info('Regex matcher returning dict with [{:^3}] results.'.format(len(results)))
     return results
 
 def bruteforce_str(text, prefix):
@@ -286,7 +309,7 @@ def bruteforce_str(text, prefix):
         except ValueError:
             pass
         else:
-            if date_is_probable(dt) and dt not in results:
+            if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: [%s]' % dt)
                 new_key = '{0}_{1:02d}'.format(prefix, matches)
                 results[new_key] = dt
@@ -346,7 +369,7 @@ def bruteforce_str(text, prefix):
             except ValueError:
                 pass
             else:
-                if date_is_probable(dt) and dt not in results:
+                if date_is_probable(dt):
                     logging.debug('Extracted datetime from text: '
                                   '[%s]' % dt)
                     new_key = '{0}_{1:02d}'.format(prefix, matches)
@@ -383,7 +406,7 @@ def bruteforce_str(text, prefix):
                 except ValueError:
                     pass
                 else:
-                    if date_is_probable(dt) and dt not in results:
+                    if date_is_probable(dt):
                         logging.debug('Extracted datetime from text: '
                                       '[%s]' % dt)
                         new_key = '{0}_{1:02d}'.format(prefix, matches)

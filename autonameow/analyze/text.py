@@ -62,17 +62,25 @@ class TextAnalyzer(AnalyzerBase):
             return None
 
         # Create empty dictionary to hold all results.
-        result_list = []
+        results = {}
+        result_index = 0
 
         regex_match = 0
-        dt_regex = dateandtime.regex_search_str(text, 'text_contents_regex_{}'.format(regex_match))
+        dt_regex_list = dateandtime.regex_search_str(text, 'text_contents_regex_{}'.format(regex_match))
         # dt_regex = None
-        if dt_regex is not None:
-            logging.debug('Added result from contents regex search: {0}'.format(dt_regex))
-            result_list.append(dt_regex)
-            regex_match += 1
+        if dt_regex_list is not None:
+            for new_key, new_value in dt_regex_list.iteritems():
+                # TODO: Add to results even though it will result in duplicate
+                #       entries? Should duplicate entry count indicate quality?
+                # if new_value not in results.values():
+                if True:
+                    print('{} is not in {}'.format(new_value, 'results.value()'))
+                    k = '{0}_{1:03d}'.format('text_content', result_index)
+                    results[k] = new_value
+                    result_index += 1
 
         match = 0
+        result_list = []
         for line in text:
             text_split = line.split('\n')
             # for t in text_split:
@@ -90,16 +98,14 @@ class TextAnalyzer(AnalyzerBase):
             #         result_list.append(dt)
             #         match += 1
 
-            results = {}
-            index = 0
             for result in result_list:
                 # print('result {} : {}'.format(type(result), result))
                 for new_key, new_value in result.iteritems():
                     if new_value not in results.values():
                         # print('{} is not in {}'.format(new_value, 'results.value()'))
-                        k = '{0}_{1:03d}'.format('text_content', index)
+                        k = '{0}_{1:03d}'.format('text_content', result_index)
                         results[k] = new_value
-                        index += 1
+                        result_index += 1
 
         return results
 
