@@ -7,6 +7,8 @@ from datetime import datetime
 
 import re
 
+from util import misc
+
 
 def date_is_probable(date):
     """
@@ -55,34 +57,64 @@ def date_is_probable(date):
         else:
             return True
 
+def search_standard_formats(text, prefix):
+    """
+    Matches against standard formats.
+    :param text: the text to extract information from
+    :param prefix: prefix this to the resulting dictionary keys
+    :return: a list of dictionaries containing datetime-objects.
+    """
+    pass
 
 def regex_search_str(text, prefix):
+    """
+    Extracts date/time-information from a text string using regex searches.
+
+    This is meant to be more "directed" than the bruteforce method.
+    Return values (should) work the same as "bruteforce_str".
+
+    :param text: the text to extract information from
+    :param prefix: prefix this to the resulting dictionary keys
+    :return: a list of dictionaries containing datetime-objects.
+    """
+
+    # Create empty dictionary to hold all results.
     results = {}
+
+    if type(text) is list:
+        logging.warn('Converting list to string ..')
+        text = ' '.join(text)
+
+    DATE_SEP = "[:\-._ \/]?"
+    TIME_SEP = "[T:\-. _]?"
+    DATE_REGEX = '[12]\d{3}' + DATE_SEP + '[01]\d' + DATE_SEP + '[0123]\d'
+    TIME_REGEX = TIME_SEP + '[012]\d' + TIME_SEP + '[012345]\d(.[012345]\d)?'
+    DATETIME_REGEX = '(' + DATE_REGEX + '(' + TIME_REGEX + ')?)'
+
+    dt_pattern_1 = re.compile(DATETIME_REGEX)
+
     matches = 0
+    for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
+        m_date = m_date.strip('T:\-._ /')
+        m_time = m_time.strip('T:\-._ /')
+        logging.debug('m_date {} : {}'.format(type(m_date), m_date))
+        logging.debug('m_time {} : {}'.format(type(m_time), m_time))
 
-    # Expected date format:         2016:04:07 18:47:30
-    dt_pattern_1 = re.compile('(\d{4}[: -][01]\d[: -][0123]\d[: -][012]\d[: -][012345]\d[: -][012345]\d)')
-    dt_fmt_1 = '%Y%m%d%H%M%S'
-    for dt_str in dt_pattern_1.findall(text):
-    # for dt_str in re.findall(dt_pattern_1, text):
-        # logging.debug('dt_str : {}'.format(dt_str))
-        for remove in [':', '-', ',', '.', '_']:
-            dt_str.replace(remove, '')
-        try:
-            logging.debug('Trying to match [%-12.12s] to [%s] ..'
-                          % (dt_fmt_1, dt_str))
-            dt = datetime.strptime(dt_str, dt_fmt_1)
-        except ValueError:
-            pass
-        else:
-            if date_is_probable(dt) and dt not in results:
-                logging.debug('Extracted datetime from text: '
-                              '[%s]' % dt)
-                new_key = '{0}_{1:02d}'.format(prefix, matches)
-                results[new_key] = dt
-                matches += 1
 
-        return results
+        # try:
+        #     # logging.debug('Trying to match [{:20}] to [{:20}] ..'.format(dt_fmt_1, dt_str))
+        #     dt = datetime.strptime(, dt_fmt_1)
+        # except ValueError:
+        #     pass
+        # else:
+        #     if date_is_probable(dt) and dt not in results:
+        #         logging.debug('Extracted datetime from text: '
+        #                       '[%s]' % dt)
+        #         new_key = '{0}_{1:02d}'.format(prefix, matches)
+        #         results[new_key] = dt
+        #         matches += 1
+        #
+        # return results
 
     # Expected date format:         2016:04:07
     dt_pattern_2 = re.compile('(\d{4}-[01]\d-[0123]\d)')
@@ -107,7 +139,6 @@ def regex_search_str(text, prefix):
     dt_pattern_3 = re.compile('\( ?[Cc] ?\) ?([12]\d{3})')
     dt_fmt_3 = '%Y'
     for dt_str in re.findall(dt_pattern_3, text):
-        logging.info('DT STR IS \"{}\"'.format(dt_str))
         try:
             logging.debug('Trying to match [%-12.12s] to [%s] ..'
                           % (dt_fmt_3, dt_str))
@@ -127,6 +158,7 @@ def regex_search_str(text, prefix):
 def bruteforce_str(text, prefix):
     """
     Extracts date/time-information from a text string.
+
     Does a brute force extraction, trying a lot of different combinations.
     The result is a list of dicts, with keys named "prefix_000",
     "prefix_001", etc, after the order in which they were found.
@@ -134,8 +166,9 @@ def bruteforce_str(text, prefix):
     The method is split up into sections, with each section being increasingly
     liberal in what gets picked up, so the results produced by the last sections
     are likely to be less accurate compared to those produced by the first part.
-    :text: the text to extract information from
-    :prefix: prefix this to the resulting dictionary keys
+
+    :param text: the text to extract information from
+    :param prefix: prefix this to the resulting dictionary keys
     :return: a list of dictionaries containing datetime-objects.
     """
     if text is None:
@@ -147,9 +180,9 @@ def bruteforce_str(text, prefix):
         logging.debug('Unable to continue, text is too short.')
         return None
 
-    digits_in_text = sum(c.isdigit() for c in text)
-    if digits_in_text < 4:
-        logging.debug('Unable to continue, text contains '
+    number_digits_in_text = sum(c.isdigit() for c in text)
+    if number_digits_in_text < 4:
+        logging.debug('Unable to continue -- text contains '
                       'insufficient number of digits.')
         return None
 
@@ -157,8 +190,27 @@ def bruteforce_str(text, prefix):
     text = text.lstrip(string.letters)
     text = text.lstrip('_-[](){}')
 
-    # Create empty dictionary to hold results.
+    # Create empty dictionary to hold all results.
     results = {}
+
+    # ----------------------------------------------------------------
+    # PART #-1   -- "unix" timestamp
+    # If the text is all digits after above modifications, then check
+    # if text represent seconds since 1970-01-01 00:00:00 UTC.
+    #
+    if text.isdigit():
+        # print('text {} is all digits'.format(text))
+        text = float(text)
+        try:
+            logging.debug('Try matching seconds since 1970-01-01 00:00:00 UTC.')
+            dt = datetime.fromtimestamp(text)
+        except ValueError:
+            logging.debug('Failed matching seconds since epoch.')
+        if date_is_probable(dt):
+            logging.info('Extracted (seconds since epoch) datetime from {}: [{}]'.format(prefix, dt))
+            new_key = '{0}_{1:02d}'.format(prefix, 0)
+            results[new_key] = dt
+            return results
 
     # ----------------------------------------------------------------
     # PART #0   -- the very special case
@@ -170,7 +222,7 @@ def bruteforce_str(text, prefix):
         logging.debug('Trying very special case ..')
         dt = datetime.strptime(text[:17], '%Y-%m-%d_%H%M%S')
     except ValueError:
-        logging.debug('Very special case failed.')
+        logging.debug('Failed matching very special case.')
         pass
     else:
         if date_is_probable(dt):
@@ -254,13 +306,10 @@ def bruteforce_str(text, prefix):
 
     # Try another approach, start by extracting all digits.
     logging.debug('Trying second approach.')
-    digits_only = ''
-    for c in text:
-        if c.isdigit():
-            digits_only += c
+    digits_only = misc.extract_digits(text)
 
     if len(digits_only) < 4:
-        logging.debug('Second approach failed, not enough digits.')
+        logging.debug('Failed second approach -- not enough digits.')
         return results
 
     year_first = True
@@ -272,7 +321,7 @@ def bruteforce_str(text, prefix):
                       'Removing a digit.'.format(digits[:4]))
         digits = digits[1:]
         if len(digits) < 4:
-            logging.debug('Second approach failed. No leading year.')
+            logging.debug('Failed second approach -- no leading year.')
             year_first = False
 
     if year_first:
@@ -349,3 +398,40 @@ def bruteforce_str(text, prefix):
 
     logging.info('Second matcher found [{:^3}] matches after [{:^4}] tries.'.format(matches_total, tries_total))
     return results
+
+
+def search_gmail(text, prefix):
+    """
+    Searches gmail content for date/time-information.
+    :param text: the text to extract information from
+    :param prefix: prefix this to the resulting dictionary keys
+    :return: a list of dictionaries containing datetime-objects.
+    """
+
+    # TODO: Implement this.
+    # # Expected date format:         Fri, Jan 8, 2016 at 3:50 PM
+    # dt_pattern_1 = re.compile('([\w]{2,5}?[, ]?[\w]{2,5}[01]\d[: -][0123]\d[: -][012]\d[: -][012345]\d[: -][012345]\d)')
+    # dt_fmt_1 = '%Y%m%d%H%M%S'
+    # for dt_str in dt_pattern_1.findall(text):
+    #     # for dt_str in re.findall(dt_pattern_1, text):
+    #     # logging.debug('dt_str : {}'.format(dt_str))
+    #     for remove in [':', '-', ',', '.', '_']:
+    #         dt_str.replace(remove, '')
+    #     try:
+    #         logging.debug('Trying to match [%-12.12s] to [%s] ..'
+    #                       % (dt_fmt_1, dt_str))
+    #         dt = datetime.strptime(dt_str, dt_fmt_1)
+    #     except ValueError:
+    #         pass
+    #     else:
+    #         if date_is_probable(dt) and dt not in results:
+    #             logging.debug('Extracted datetime from text: '
+    #                           '[%s]' % dt)
+    #             new_key = '{0}_{1:02d}'.format(prefix, matches)
+    #             results[new_key] = dt
+    #             matches += 1
+    #
+    #     return results
+    #
+    pass
+
