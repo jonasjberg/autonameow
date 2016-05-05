@@ -131,6 +131,9 @@ def bruteforce_str(text, prefix):
     The result is a list of dicts, with keys named "prefix_000",
     "prefix_001", etc, after the order in which they were found.
     Some bad date/time-information is bound to be picked up.
+    The method is split up into sections, with each section being increasingly
+    liberal in what gets picked up, so the results produced by the last sections
+    are likely to be less accurate compared to those produced by the first part.
     :text: the text to extract information from
     :prefix: prefix this to the resulting dictionary keys
     :return: a list of dictionaries containing datetime-objects.
@@ -156,6 +159,8 @@ def bruteforce_str(text, prefix):
     # Create empty dictionary to hold results.
     results = {}
 
+    # ----------------------------------------------------------------
+    # PART #0   -- the very special case
     # Very special case that is almost guaranteed to be correct.
     # This is my current personal favorite naming scheme.
     # TODO: Allow customizing personal preferences, using a configuration
@@ -174,6 +179,12 @@ def bruteforce_str(text, prefix):
             new_key = '{0}_{1:02d}'.format(prefix, 0)
             results[new_key] = dt
             return results
+
+    # ----------------------------------------------------------------
+    # PART #1   -- pattern matching
+    # This part does basic pattern matching on a slightly modified version
+    # of the text. A bunch of preset patterns are tried, all of which does
+    # the matching from the beginning of the text.
 
     # Replace common separator characters.
     for char in ['/', '-', ',', '.', ':', '_']:
@@ -238,6 +249,11 @@ def bruteforce_str(text, prefix):
     else:
         logging.debug('Gave up first approach after %d tries ..' % tries)
 
+    # ----------------------------------------------------------------
+    # PART #2   -- pattern matching on just the digits
+    # This part works about the same as the previous one, except it
+    # discards everything except digits in the text.
+
     # Try another approach, start by extracting all digits.
     logging.debug('Trying second approach.')
     digits_only = ''
@@ -293,7 +309,7 @@ def bruteforce_str(text, prefix):
 
         logging.debug('Gave up after %d tries ..' % tries)
 
-    else:
+    if True:
         digits = digits_only
         while len(str(digits)) > 2:
             logging.debug('Assuming format other than year first.')
