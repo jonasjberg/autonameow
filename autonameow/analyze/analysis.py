@@ -11,6 +11,7 @@ import logging
 from analyze.common import AnalyzerBase
 from analyze.image import ImageAnalyzer
 from analyze.pdf import PdfAnalyzer
+from analyze.text import TextAnalyzer
 from util import disk
 
 
@@ -98,7 +99,7 @@ class Analysis(object):
 
         elif self.file_object.type == "UTF-8" or self.file_object.type == "ASCII":
             logging.debug('File is a of type [TEXT]')
-            self.analyzer = TextAnalyzer(self.fileobject)
+            self.analyzer = TextAnalyzer(self.file_object)
 
         else:
             logging.debug('File is of type [unknown]')

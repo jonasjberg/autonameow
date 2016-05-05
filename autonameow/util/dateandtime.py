@@ -61,11 +61,11 @@ def regex_search_str(text, prefix):
     matches = 0
 
     # Expected date format:         2016:04:07 18:47:30
-    DELIM = '[:-,._ ]?'
-    dt_pattern_1 = re.compile(
-        '(\d{4}DELIM[01]\dDELIM[0123]\dDELIM[012]\dDELIM[012345]\dDELIM[012345]\d)')
+    dt_pattern_1 = re.compile('(\d{4}[: -][01]\d[: -][0123]\d[: -][012]\d[: -][012345]\d[: -][012345]\d)')
     dt_fmt_1 = '%Y%m%d%H%M%S'
-    for dt_str in re.findall(dt_pattern_1, text):
+    for dt_str in dt_pattern_1.findall(text):
+    # for dt_str in re.findall(dt_pattern_1, text):
+        logging.info('dt_str : {}'.format(dt_str))
         for remove in [':', '-', ',', '.', '_']:
             dt_str.replace(remove, '')
         try:
@@ -171,7 +171,7 @@ def bruteforce_str(text, prefix):
             logging.debug(
                 'Extracted (special case) datetime from text: '
                 '[%s]' % dt)
-            new_key = '{}_{0:02d}'.format(prefix, 0)
+            new_key = '{0}_{1:02d}'.format(prefix, 0)
             results[new_key] = dt
             return results
 
