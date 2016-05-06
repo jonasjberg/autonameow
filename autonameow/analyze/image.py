@@ -33,8 +33,6 @@ class ImageAnalyzer(AnalyzerBase):
         exif_datetime = self.get_exif_datetime()
         if exif_datetime:
             self.file_object.add_datetime(exif_datetime)
-            # pp = pprint.PrettyPrinter(indent=4)
-            # pp.pprint(exif_datetime)
 
     def get_exif_datetime(self):
         """
@@ -170,18 +168,11 @@ class ImageAnalyzer(AnalyzerBase):
                             # print('[value_gps]      %-15.15s : %-80.80s' % (type(value_gps), str(value_gps)))
                             result_gps[tag_string_gps] = value_gps
 
-                            # # DEBUG: print extracted GPS information.
-                            # pp = pprint.PrettyPrinter(indent=4)
-                            # pp.pprint(result_gps)
-
                 else:
                     if value is not None:
                         # print('[tag_string] %-15.15s : %-80.80s' % (type(tag_string), str(tag_string)))
                         # print('[value]      %-15.15s : %-80.80s' % (type(value), str(value)))
                         result[tag_string] = value
-
-                        # pp = pprint.PrettyPrinter(indent=4)
-                        # pp.pprint(result)
 
         # Return result, should be empty if errors occured.
         return result
