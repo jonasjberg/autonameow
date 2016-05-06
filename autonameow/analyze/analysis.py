@@ -49,27 +49,27 @@ class Analysis(object):
                 logging.error('datetime list contains unexpected type %s' % type(dt_dict))
                 continue
 
+            # Create a new dict with values being lists of the "sources"
+            # for each datetime-object keyed by datetime-objects.
             for dt_key, dt_value in dt_dict.iteritems():
-                # logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
-                # valuestr = v.isoformat()
-
-                # # For now, lets get the first filename datetime only.
-                # if dt_key.startswith('FilenameDateTime_'):
-                #     if dt_key != 'FilenameDateTime_00':
-                #         continue
-
                 if dt_value not in flipped:
                     flipped[dt_value] = [dt_key]
                 else:
                     flipped[dt_value].append(dt_key)
 
-        # Sort by length of the lists stored as dict values.
-        flipped_sorted = sorted(flipped.items(), key=lambda k: len(k[1]), reverse=True)
+        # Sort by length of the lists of datetime-object stored as values
+        # in the dict.
+        flipped_sorted = sorted(flipped.items(),
+                                key=lambda k: len(k[1]),
+                                reverse=True)
 
         def print_report_columns(c1, c2, c3):
-            print('{0:30}  {1:>20}  {2:>8s}'.format(c1, c2, c3))
+            """
+            Prints a line with three columns.
+            """
+            print('{0:20}  {1:>8s}  {2:>30}'.format(c1, c2, c3))
 
-        print_report_columns('Date-/timestamp', 'Source', '#')
+        print_report_columns('Date-/timestamp', '#', 'Source')
 
         for l in flipped_sorted:
             try:
@@ -78,15 +78,16 @@ class Analysis(object):
                 pass
 
             count = len(l[1])
-            c1 = '{:30}'.format(dt)
-            c2 = '{:>20}'.format(l[1][0])
-            c3 = '{:03d}'.format(count)
+            c1 = '{:20}'.format(dt)
+            c2 = '{:03d}'.format(count)
+            c3 = '{:>30}'.format(l[1][0])
             print_report_columns(c1, c2, c3)
 
             if count > 1:
                 for v in l[1][1:]:
-                    c2 = '{:>20}'.format(v)
-                    print_report_columns(' ', c2, ' ')
+                    c2 = '{:>30}'.format(v)
+                    print_report_columns(' ', ' ', c3)
+                print_report_columns(' ', ' ', ' ')
 
         # for key, value in flipped.iteritems():
         #     # Dict keys are now datetime objects.
