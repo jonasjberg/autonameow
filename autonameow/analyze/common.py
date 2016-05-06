@@ -4,7 +4,6 @@ import os
 import string
 from datetime import datetime
 
-
 # Analysis relevant to all files, regardless of file mime type.
 # Examines:
 #   * file names
@@ -44,19 +43,22 @@ class AnalyzerBase(object):
         filename = self.file_object.path
         results = {}
 
+        mtime = ctime = atime = None
         logging.debug('Fetching file system timestamps ..')
         try:
             mtime = os.path.getmtime(filename)
             ctime = os.path.getctime(filename)
             atime = os.path.getatime(filename)
-        except OSError:
-            logging.critical('Exception OSError')
+        except OSError as e:
+            logging.critical('Failed extracting date/time-information '
+                             'from file system, which shouldnt happen.')
+            logging.critical('OSError: {}'.format(e))
+        else:
+            results['Fs_Modified'] = datetime.fromtimestamp(mtime)
+            results['Fs_Created'] = datetime.fromtimestamp(ctime)
+            results['Fs_Accessed'] = datetime.fromtimestamp(atime)
 
-        results['Modified'] = datetime.fromtimestamp(mtime) if mtime else None
-        results['Created'] = datetime.fromtimestamp(ctime) if ctime else None
-        results['Accessed'] = datetime.fromtimestamp(atime) if atime else None
-
-        logging.debug('Fetched timestamps: %s' % results)
+        logging.info('Got [{:^3}] timestamps from filesystem.'.format(len(results)))
         return results
 
     def get_datetime_from_name(self):
@@ -86,5 +88,3 @@ class AnalyzerBase(object):
                 results[r_key] = r_value
 
         return results
-
-
