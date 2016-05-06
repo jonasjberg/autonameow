@@ -248,14 +248,14 @@ class PdfAnalyzer(AnalyzerBase):
         for t in text_split:
             dt = dateandtime.bruteforce_str(t, 'pdf_contents_{}'.format(match))
             if dt is not None:
-                logging.info('Added result from contents: {0}'.format(dt))
+                # logging.info('Added result from contents: {0}'.format(dt))
                 result_list.append(dt)
                 match += 1
 
         regex_match = 0
         dt_regex = dateandtime.regex_search_str(text, 'pdf_contents_regex_{}'.format(regex_match))
         if dt_regex is not None:
-            logging.info('Added result from contents regex search: {0}'.format(dt_regex))
+            # logging.info('Added result from contents regex search: {0}'.format(dt_regex))
             result_list.append(dt_regex)
             regex_match += 1
 

@@ -57,8 +57,15 @@ class FileObject(object):
             return
         elif type(dt) is not dict:
             logging.warning('Got non-dict argument')
-            pass
+            return
 
+        # Arbitrary maximum amount of date/time entries to hold.
+        LIST_MAX_LEN = 100
+        if len(self.datetime_list) >= LIST_MAX_LEN:
+            logging.info('Date/time list hit limit ({})'.format(LIST_MAX_LEN))
+            return
+
+        # TODO: Should duplicate entries be allowed?
         # if dt not in self.datetime_list:
         if True:
             # logging.debug('Adding datetime [%s] to list' % str(type(dt)))

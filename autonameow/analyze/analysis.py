@@ -37,19 +37,17 @@ class Analysis(object):
 
         print('All date/time information for file:')
         # print('\"%s\"' % str(self.file_object.path))
-        FORMAT = '%-20.20s : %-s'
-        print(FORMAT % ("Datetime", "Value"))
-        # print('dt_list type : %s' % type(dt_list))
 
+        datetime_report = {}
         for dt_dict in dt_list:
             # print('[dt_dict] %-15.15s   : %-80.80s' % (type(dt_dict), str(dt_dict)))
             if type(dt_dict) is not dict:
                 logging.error('datetime list contains unexpected type %s' % type(dt_dict))
                 continue
 
+            flipped = {}
             for dt_key, dt_value in dt_dict.iteritems():
-                # print('[dt_key] %-15.15s   : %-80.80s' % (type(dt_key), str(dt_key)))
-                # print('[dt_value] %-15.15s : %-80.80s' % (type(dt_value), str(dt_value)))
+                # logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
                 # valuestr = v.isoformat()
 
                 # # For now, lets get the first filename datetime only.
@@ -57,12 +55,33 @@ class Analysis(object):
                 #     if dt_key != 'FilenameDateTime_00':
                 #         continue
 
-                try:
-                    valuestr = dt_value.strftime("%Y-%m-%d %H:%M:%S")
-                except ValueError as e:
-                    logging.error('Got ValueError: {}'.format(e))
+                if dt_value not in flipped:
+                    flipped[dt_value] = [dt_key]
                 else:
-                    print(FORMAT % (dt_key, valuestr))
+                    flipped[dt_value].append(dt_key)
+
+        def print_report_columns(c1, c2, c3):
+            print('{0:>8s}  {1:22}  {2:>80}'.format(c1, c2, c3))
+
+        print_report_columns('#', 'Date-/timestamp', 'Source')
+        for key, value in flipped.iteritems():
+            # Dict keys are now datetime objects.
+            try:
+                keystr = key.strftime("%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                continue
+
+            count = len(value)
+            c1 = '{:03d}'.format(count)
+            c2 = '{:19}'.format(keystr)
+            c3 = '{:80}'.format(value[0])
+            print_report_columns(c1, c2, c3)
+
+            if count > 1:
+                for v in value[1:]:
+                    c3 = '{:80}'.format(v)
+                    print_report_columns(' ', ' ', c3)
+
 
 
     def print_oldest_datetime(self):

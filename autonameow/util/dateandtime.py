@@ -7,6 +7,8 @@ from datetime import datetime
 
 import re
 
+import dateutil
+
 from util import misc
 
 
@@ -223,17 +225,18 @@ def bruteforce_str(text, prefix):
     #
     if text.isdigit():
         # print('text {} is all digits'.format(text))
-        text = float(text)
+        text_float = float(text)
         try:
             logging.debug('Try matching seconds since 1970-01-01 00:00:00 UTC.')
-            dt = datetime.fromtimestamp(text)
+            dt = datetime.fromtimestamp(text_float)
         except ValueError:
             logging.debug('Failed matching seconds since epoch.')
-        if date_is_probable(dt):
-            logging.info('Extracted (seconds since epoch) datetime from {}: [{}]'.format(prefix, dt))
-            new_key = '{0}_{1:02d}'.format(prefix, 0)
-            results[new_key] = dt
-            return results
+        else:
+            if date_is_probable(dt):
+                logging.info('Extracted (seconds since epoch) datetime from {}: [{}]'.format(prefix, dt))
+                new_key = '{0}_{1:02d}'.format(prefix, 0)
+                results[new_key] = dt
+                return results
 
     # ----------------------------------------------------------------
     # PART #0   -- the very special case
@@ -422,6 +425,19 @@ def bruteforce_str(text, prefix):
     logging.info('Second matcher found [{:^3}] matches after [{:^4}] tries.'.format(matches_total, tries_total))
     return results
 
+def fuzzy_datetime(text, prefix):
+    dt = None
+    try:
+        try:
+            dt = dateutil.parser.parse(text)
+            print('Sharp %r -> %s' % (text, dt))
+        except ValueError:
+            dt = dateutil.parser.parse(text, fuzzy=True)
+            print('Fuzzy %r -> %s' % (text, dt))
+    except Exception as e:
+        print('Try as I may, I cannot parse %r (%s)' % (text, e))
+
+    return dt
 
 def search_gmail(text, prefix):
     """
@@ -430,31 +446,72 @@ def search_gmail(text, prefix):
     :param prefix: prefix this to the resulting dictionary keys
     :return: a list of dictionaries containing datetime-objects.
     """
+    # TODO: Is this necessary/sane/good practice? (NO!)
+    if type(text) is list:
+        logging.warn('Converting list to string ..')
+        text = ' '.join(text)
 
-    # TODO: Implement this.
-    # # Expected date format:         Fri, Jan 8, 2016 at 3:50 PM
-    # dt_pattern_1 = re.compile('([\w]{2,5}?[, ]?[\w]{2,5}[01]\d[: -][0123]\d[: -][012]\d[: -][012345]\d[: -][012345]\d)')
-    # dt_fmt_1 = '%Y%m%d%H%M%S'
-    # for dt_str in dt_pattern_1.findall(text):
-    #     # for dt_str in re.findall(dt_pattern_1, text):
-    #     # logging.debug('dt_str : {}'.format(dt_str))
-    #     for remove in [':', '-', ',', '.', '_']:
-    #         dt_str.replace(remove, '')
+    # Create empty dictionary to hold all results.
+    results = {}
+
+    # Expected date formats:         Fri, Jan 8, 2016 at 3:50 PM
+    #                                1/11/2016
+    SEP = '[, ]'
+    REGEX_GMAIL_LONG = re.compile('(\w{3,8})' + SEP + '(\w{3,10})\ (\d{1,2})' + SEP + '([12]\d{3})' + '(\ at\ )?' + '(\d{1,2}:\d{1,2}\ [AP]M)')
+    # REGEX_GMAIL_LONG = re.compile('\w{3,5},\ \w{3,5}\ \d{1,2},\ [12]\d{3}\ at\ \d{1,2}:\d{1,2}\ [AP]M')
+    REGEX_GMAIL_SHORT = re.compile('\d{1,2}\/\d{2}\/[12]\d{3}')
+
+    # DATE_SEP = "[:\-._ \/]?"
+    # TIME_SEP = "[T:\-. _]?"
+    # DATE_REGEX = '[12]\d{3}' + DATE_SEP + '[01]\d' + DATE_SEP + '[0123]\d'
+    # TIME_REGEX = TIME_SEP + '[012]\d' + TIME_SEP + '[012345]\d(.[012345]\d)?'
+    # DATETIME_REGEX = '(' + DATE_REGEX + '(' + TIME_REGEX + ')?)'
+    #
+    # dt_pattern_1 = re.compile(DATETIME_REGEX)
+    #
+    # matches = 0
+    # for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
+    #     # Extract digits, skip if entries contain no digits.
+    #     m_date = misc.extract_digits(m_date)
+    #     m_time = misc.extract_digits(m_time)
+    #     m_time_ms = misc.extract_digits(m_time_ms)
+    #
+    #     if m_date is None or m_time is None:
+    #         continue
+    #
+    #     # Check if m_date is actually m_date *AND* m_date.
+    #     if len(m_date) > 8 and m_date.endswith(m_time):
+    #         # logging.debug('m_date contains m_date *AND* m_time')
+    #         m_date = m_date.replace(m_time, '')
+    #
+    #     if len(m_time) < 6:
+    #         # logging.debug('len(m_time) < 6 .. m_time_ms is \"{}\"'.format(m_time_ms))
+    #         pass
+    #
+    #     # Skip matches with unexpected number of digits.
+    #     if len(m_date) != 8 or len(m_time) != 6:
+    #         continue
+    #
+    #     logging.debug('m_date {:10} : {}'.format(type(m_date), m_date))
+    #     logging.debug('m_time {:10} : {}'.format(type(m_time), m_time))
+    #     logging.debug('m_time_ms {:10} : {}'.format(type(m_time_ms), m_time_ms))
+    #     logging.debug('---')
+    #
+    #     dt_fmt_1 = '%Y%m%d_%H%M%S'
+    #     dt_str = (m_date + '_' + m_time).strip()
     #     try:
-    #         logging.debug('Trying to match [%-12.12s] to [%s] ..'
-    #                       % (dt_fmt_1, dt_str))
+    #         logging.debug('Trying to match [{:13}] to [{}] ..'.format(dt_fmt_1, dt_str))
     #         dt = datetime.strptime(dt_str, dt_fmt_1)
     #     except ValueError:
     #         pass
     #     else:
-    #         if date_is_probable(dt) and dt not in results:
+    #         if date_is_probable(dt):
     #             logging.debug('Extracted datetime from text: '
     #                           '[%s]' % dt)
     #             new_key = '{0}_{1:02d}'.format(prefix, matches)
     #             results[new_key] = dt
     #             matches += 1
     #
-    #     return results
-    #
-    pass
-
+    # logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
+    # logging.info('Regex matcher returning dict with [{:^3}] results.'.format(len(results)))
+    # return results

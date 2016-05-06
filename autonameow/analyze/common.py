@@ -60,10 +60,31 @@ class AnalyzerBase(object):
         return results
 
     def get_datetime_from_name(self):
-        dt = dateandtime.bruteforce_str(self.file_object.basename_no_ext, 'Filename')
-        if dt is not None:
-            return dt
+        fn = self.file_object.basename_no_ext
+        result_list = []
+
+        dt_regex = dateandtime.regex_search_str(fn, 'Filename_regex')
+        if dt_regex is None:
+            logging.warning('Unable to extract date/time-information '
+                            'from file name using regex search.')
+            pass
         else:
-            logging.warning('Unable to extract date/time-information from file name.')
-            return False
+            result_list.append(dt_regex)
+
+        dt_brute = dateandtime.bruteforce_str(fn, 'Filename_brute')
+        if dt_brute is None:
+            logging.warning('Unable to extract date/time-information '
+                            'from file name using brute force search.')
+            pass
+        else:
+            result_list.append(dt_brute)
+
+        results = {}
+        for entry in result_list:
+            for r_key, r_value in entry.iteritems():
+                # print('results[{}] = {}'.format(r_key, r_value))
+                results[r_key] = r_value
+
+        return results
+
 

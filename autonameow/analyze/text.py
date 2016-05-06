@@ -74,7 +74,7 @@ class TextAnalyzer(AnalyzerBase):
                 #       entries? Should duplicate entry count indicate quality?
                 # if new_value not in results.values():
                 if True:
-                    print('{} is not in {}'.format(new_value, 'results.value()'))
+                    # print('{} is not in {}'.format(new_value, 'results.value()'))
                     k = '{0}_{1:03d}'.format('text_content', result_index)
                     results[k] = new_value
                     result_index += 1
@@ -90,13 +90,13 @@ class TextAnalyzer(AnalyzerBase):
             #         result_list.append(dt)
             #         match += 1
 
-            # text_split = line.split()
-            # for t in text_split:
-            #     dt = dateandtime.bruteforce_str(t, 'text_contents_{}'.format(match))
-            #     if dt is not None:
-            #         logging.debug('Added result from contents: {0}'.format(dt))
-            #         result_list.append(dt)
-            #         match += 1
+            text_split = line.split()
+            for t in text_split:
+                dt = dateandtime.bruteforce_str(t, 'text_content_{}'.format(match))
+                if dt is not None:
+                    # logging.debug('Added result from contents: {0}'.format(dt))
+                    result_list.append(dt)
+                    match += 1
 
             for result in result_list:
                 # print('result {} : {}'.format(type(result), result))
