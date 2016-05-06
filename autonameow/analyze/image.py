@@ -81,9 +81,10 @@ class ImageAnalyzer(AnalyzerBase):
                     logging.warning('Unable to parse datetime from [%s]'
                                     % field)
 
-            if dt and dt not in results:
-                logging.debug('ADDED: results[%s] = [%s]' % (field, dt))
-                results[field] = dt
+            if dt:
+                key = 'Exif_{}'.format(field)
+                logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
+                results[key] = dt
 
         logging.debug('Searching for GPS date/time-information in EXIF-tags')
         try:
@@ -107,9 +108,10 @@ class ImageAnalyzer(AnalyzerBase):
             except ValueError:
                 logging.warning('Unable to parse GPS datetime from [%s]'
                                 % gps_datetime_str)
-            if dt and dt not in results:
-                logging.debug('ADDED: results[%s] = [%s]' % ('GPSDateTime', dt))
-                results['GPSDateTime'] = dt
+            if dt:
+                key = 'Exif_GPSDateTime'
+                logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
+                results[key] = dt
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
@@ -118,10 +120,10 @@ class ImageAnalyzer(AnalyzerBase):
         try:
             if self.exif_data['Make'] == 'OnePlus' and \
                self.exif_data['Model'] == 'ONE E1003':
-                if results['DateTimeDigitized'] == bad_exif_date:
+                if results['Exif_DateTimeDigitized'] == bad_exif_date:
                     logging.debug('Removing erroneous date \"%s\"' %
                                   str(bad_exif_date))
-                    del results['DateTimeDigitized']
+                    del results['Exif_DateTimeDigitized']
         except KeyError:
             #logging.warn('KeyError for key [DateTimeDigitized]')
             pass

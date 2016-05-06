@@ -38,13 +38,13 @@ class Analysis(object):
         # print('\"%s\"' % str(self.file_object.path))
 
         datetime_report = {}
+        flipped = {}
         for dt_dict in dt_list:
             # print('[dt_dict] %-15.15s   : %-80.80s' % (type(dt_dict), str(dt_dict)))
             if type(dt_dict) is not dict:
                 logging.error('datetime list contains unexpected type %s' % type(dt_dict))
                 continue
 
-            flipped = {}
             for dt_key, dt_value in dt_dict.iteritems():
                 # logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
                 # valuestr = v.isoformat()
