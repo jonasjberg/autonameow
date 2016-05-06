@@ -71,13 +71,6 @@ class FileObject(object):
             # logging.debug('Adding datetime [%s] to list' % str(type(dt)))
             self.datetime_list.append(dt)
 
-    def get_datetime_list(self):
-        """
-        Get the list of datetime-objects found for this FileObject.
-        :return: date/time-information as a list of dicts
-        """
-        return self.datetime_list
-
     def get_oldest_datetime(self):
         """
         Get the oldest datetime-object in datetime_list.

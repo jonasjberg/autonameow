@@ -26,7 +26,6 @@ class Analysis(object):
 
     def __init__(self, file_object):
         self.file_object = file_object
-        self.datetime_list = []
 
         if self.file_object is None:
             logging.critical('Got NULL file!')
@@ -60,27 +59,49 @@ class Analysis(object):
                 else:
                     flipped[dt_value].append(dt_key)
 
+        # Sort by length of the lists stored as dict values.
+        flipped_sorted = sorted(flipped.items(), key=lambda k: len(k[1]), reverse=True)
+
         def print_report_columns(c1, c2, c3):
-            print('{0:>8s}  {1:22}  {2:>80}'.format(c1, c2, c3))
+            print('{0:30}  {1:>20}  {2:>8s}'.format(c1, c2, c3))
 
-        print_report_columns('#', 'Date-/timestamp', 'Source')
-        for key, value in flipped.iteritems():
-            # Dict keys are now datetime objects.
+        print_report_columns('Date-/timestamp', 'Source', '#')
+
+        for l in flipped_sorted:
             try:
-                keystr = key.strftime("%Y-%m-%d %H:%M:%S")
-            except ValueError:
-                continue
+                dt = l[0].isoformat()
+            except TypeError:
+                pass
 
-            count = len(value)
-            c1 = '{:03d}'.format(count)
-            c2 = '{:19}'.format(keystr)
-            c3 = '{:80}'.format(value[0])
+            count = len(l[1])
+            c1 = '{:30}'.format(dt)
+            c2 = '{:>20}'.format(l[1][0])
+            c3 = '{:03d}'.format(count)
             print_report_columns(c1, c2, c3)
 
             if count > 1:
-                for v in value[1:]:
-                    c3 = '{:80}'.format(v)
-                    print_report_columns(' ', ' ', c3)
+                for v in l[1][1:]:
+                    c2 = '{:>20}'.format(v)
+                    print_report_columns(' ', c2, ' ')
+
+        # for key, value in flipped.iteritems():
+        #     # Dict keys are now datetime objects.
+        #     try:
+        #         keystr = key.strftime("%Y-%m-%d %H:%M:%S")
+        #     except ValueError:
+        #         continue
+        #
+        #     count = len(value)
+        #
+        #     c1 = '{:03d}'.format(count)
+        #     c2 = '{:19}'.format(keystr)
+        #     c3 = '{:80}'.format(value[0])
+        #     print_report_columns(c1, c2, c3)
+        #
+        #     if count > 1:
+        #         for v in value[1:]:
+        #             c3 = '{:80}'.format(v)
+        #             print_report_columns(' ', ' ', c3)
 
 
 
