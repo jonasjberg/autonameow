@@ -54,9 +54,9 @@ class AnalyzerBase(object):
                              'from file system, which shouldnt happen.')
             logging.critical('OSError: {}'.format(e))
         else:
-            results['Fs_Modified'] = datetime.fromtimestamp(mtime)
-            results['Fs_Created'] = datetime.fromtimestamp(ctime)
-            results['Fs_Accessed'] = datetime.fromtimestamp(atime)
+            results['Fs_Modified'] = datetime.fromtimestamp(mtime).replace(microsecond=0)
+            results['Fs_Created'] = datetime.fromtimestamp(ctime).replace(microsecond=0)
+            results['Fs_Accessed'] = datetime.fromtimestamp(atime).replace(microsecond=0)
 
         logging.info('Got [{:^3}] timestamps from filesystem.'.format(len(results)))
         return results

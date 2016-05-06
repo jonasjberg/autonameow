@@ -74,12 +74,11 @@ class PdfAnalyzer(AnalyzerBase):
                     logging.error('KeyError for key [{}]'.format(field))
                     pass
 
+            k = k.strip()
             if k is None:
-                logging.warning('Got Null result from metadata field [%s]'
-                                % field)
+                logging.warning('Null value in metadata field [%s]' % field)
                 continue
 
-            k = k.strip()
             found_match = False
             dt = None
             # Expected date format:             D:20121225235237+05'30'
@@ -89,8 +88,7 @@ class PdfAnalyzer(AnalyzerBase):
             #                                      '------------' '-----'
             #                                            #1         #2
             # Which are extracted separately.
-            date_pattern_with_tz = re.compile(
-                '.*D:(\d{14})(\+\d{2}\'\d{2}\').*')
+            date_pattern_with_tz = re.compile('D:(\d{14})(\+\d{2}\'\d{2}\')')
             re_match_tz = date_pattern_with_tz.search(k)
             if re_match_tz:
                 datetime_str = re_match_tz.group(1)
@@ -104,16 +102,16 @@ class PdfAnalyzer(AnalyzerBase):
                                            "%Y%m%d%H%M%S%z")
                     found_match = True
                 except ValueError:
-                    logging.warning('Unable to parse aware datetime from '
-                                    '[%s]' % field)
+                    logging.debug('Unable to parse aware datetime from '
+                                  '[%s]' % field)
 
                 if not found_match:
                     try:
                         dt = datetime.strptime(datetime_str, "%Y%m%d%H%M%S")
                         found_match = True
                     except ValueError:
-                        logging.warning('Unable to parse naive datetime '
-                                        'from [%s]' % field)
+                        logging.debug('Unable to parse naive datetime from '
+                                      '[%s]' % field)
 
             # Try matching another pattern.
             date_pattern_no_tz = re.compile('.*D:(\d{14,14})Z.*')
@@ -123,13 +121,15 @@ class PdfAnalyzer(AnalyzerBase):
                     dt = datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
                     found_match = True
                 except ValueError:
-                    logging.warning('Unable to parse datetime from '
-                                    'metadata field [%s]' % field)
+                    logging.debug('Unable to parse datetime from '
+                                  'metadata field [%s]' % field)
                     continue
 
             if found_match:
-                logging.debug('ADDED: results[%s] = [%s]' % (field, dt))
-                results[field] = dt
+                key = '{0}_{1}'.format('pdf_metadata', field)
+                logging.debug('Extracted date/time from pdf metadata: '
+                              'results[%s] = [%s]' % (key, dt))
+                results[key] = dt
 
         return results
 

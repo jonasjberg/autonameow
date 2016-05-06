@@ -32,6 +32,10 @@ class Analysis(object):
             pass
 
     def print_all_datetime_info(self):
+        """
+        Prints all date/time-information for the current file.
+        :return:
+        """
         dt_list = self.file_object.datetime_list
 
         print('All date/time information for file:')
