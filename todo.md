@@ -8,8 +8,12 @@ TODO-list
 List of things that need to be done.
 
 ### Bugs
-- [ ] Some of the date/time-information gets lost on the way to the new pretty
+- [x] Some of the date/time-information gets lost on the way to the new pretty
       output from `print_all_datetime_info(self)`.
+- [ ] Duplicate date/time from pdf metadata printed out by 
+      `print_all_datetime_info(self)`. Not sure if the problem is in the data
+      or inte the presentation ..
+      
 
 ### Wishlist
 - [ ] Use configuration file(s) for settings program options.
