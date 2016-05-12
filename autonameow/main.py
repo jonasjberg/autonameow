@@ -49,7 +49,7 @@ class Autonameow(object):
         self.filters = []
         self.args = self.parse_args()
         if self.args.verbose:
-            self.display_options()
+            self.display_options(self.args)
 
         # Iterate over command line arguments ..
         if not self.args.input_files:
@@ -192,8 +192,23 @@ class Autonameow(object):
 
         return args
 
-    def display_options(self):
-        pass
+    def display_options(self, args):
+        def print_line(k, v):
+            print('{:<8}{:<20}  :  {:<60}'.format(' ', k, v))
+
+        print('Output')
+        print_line('debug mode', args.debug)
+        print_line('verbose mode', args.verbose)
+        print_line('quiet mode', args.quiet)
+        print('Action')
+        print_line('add datetime', args.add_datetime)
+        print('Behavior')
+        print_line('dry run', args.dry_run)
+        print('Filter')
+        print_line('ignore year', args.filter_ignore_year)
+        print('Positional')
+        print_line('input files', args.input_files)
+
 
     def get_args(self):
         """
