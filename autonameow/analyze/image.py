@@ -43,7 +43,7 @@ class ImageAnalyzer(AnalyzerBase):
         :return: Date/time as a dict of datetime-objects, keyed by EXIF-fields.
         """
         if self.exif_data is None:
-            logging.warning('File has no EXIF data')
+            logging.warning('File \"{}\" has no EXIF data.'.format(self.file_object.path))
             return
 
         DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTimeDigitized',
@@ -139,40 +139,45 @@ class ImageAnalyzer(AnalyzerBase):
 
         # Extract EXIF data using PIL.ExifTags.
         exif_data = None
+        filename = self.file_object.path
         try:
-            filename = self.file_object.path
             image = Image.open(filename)
-            exif_data = image._getexif()
-        except Exception:
-            logging.warning('Unable to extract EXIF data from \"{}\"'
-                            % str(filename))
+        except IOError as e:
+            logging.warning('PIL image I/O error({0}): {1}'.format(e.errno,
+                                                                   e.strerror))
+        else:
+            try:
+                exif_data = image._getexif()
+            except Exception as e:
+                logging.warning('PIL image EXIF extraction error({0}): {1}'.format(e.errno, e.strerror))
+
+        if not exif_data:
             return None
 
-        if exif_data:
-            for tag, value in exif_data.items():
-                # Obtain a human-readable version of the tag.
-                tag_string = TAGS.get(tag, tag)
+        for tag, value in exif_data.items():
+            # Obtain a human-readable version of the tag.
+            tag_string = TAGS.get(tag, tag)
 
-                # Check if tag contains GPS data.
-                if tag_string == 'GPSInfo':
-                    logging.debug('Found GPS information')
-                    result_gps = {}
+            # Check if tag contains GPS data.
+            if tag_string == 'GPSInfo':
+                logging.debug('Found GPS information')
+                result_gps = {}
 
-                    # Loop through the GPS information
-                    for tag_gps, value_gps in value.items():
-                        # Obtain a human-readable version of the GPS tag.
-                        tag_string_gps = GPSTAGS.get(tag_gps, tag_gps)
+                # Loop through the GPS information
+                for tag_gps, value_gps in value.items():
+                    # Obtain a human-readable version of the GPS tag.
+                    tag_string_gps = GPSTAGS.get(tag_gps, tag_gps)
 
-                        if value_gps is not None:
-                            # print('[tag_string_gps] %-15.15s : %-80.80s' % (type(tag_string_gps), str(tag_string_gps)))
-                            # print('[value_gps]      %-15.15s : %-80.80s' % (type(value_gps), str(value_gps)))
-                            result_gps[tag_string_gps] = value_gps
+                    if value_gps is not None:
+                        # print('[tag_string_gps] %-15.15s : %-80.80s' % (type(tag_string_gps), str(tag_string_gps)))
+                        # print('[value_gps]      %-15.15s : %-80.80s' % (type(value_gps), str(value_gps)))
+                        result_gps[tag_string_gps] = value_gps
 
-                else:
-                    if value is not None:
-                        # print('[tag_string] %-15.15s : %-80.80s' % (type(tag_string), str(tag_string)))
-                        # print('[value]      %-15.15s : %-80.80s' % (type(value), str(value)))
-                        result[tag_string] = value
+            else:
+                if value is not None:
+                    # print('[tag_string] %-15.15s : %-80.80s' % (type(tag_string), str(tag_string)))
+                    # print('[value]      %-15.15s : %-80.80s' % (type(value), str(value)))
+                    result[tag_string] = value
 
         # Return result, should be empty if errors occured.
         return result
