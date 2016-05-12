@@ -27,7 +27,7 @@ class TextAnalyzer(AnalyzerBase):
             # print(text_contents)
             text_timestamps = self.get_datetime_from_text(text_contents)
             if text_timestamps:
-                self.file_object.add_datetime(text_timestamps)
+                self.add_datetime(text_timestamps)
 
     def extract_text_content(self):
         """

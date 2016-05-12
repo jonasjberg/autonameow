@@ -12,6 +12,8 @@ import logging
 import os
 import sys
 
+from datetime import datetime
+
 import util.disk
 from analyze.analysis import Analysis
 from file_object import FileObject
@@ -183,7 +185,8 @@ class Autonameow(object):
 
         # TODO: Fix this and overall filter handling.
         if args.filter_ignore_year is not None:
-            self.filters.append(args.filter_ignore_year)
+            dt = datetime.strptime(str(args.filter_ignore_year), '%Y')
+            self.filters.append(dt)
 
         # Display help/usage information if no arguments are provided.
         if len(sys.argv) < 2:

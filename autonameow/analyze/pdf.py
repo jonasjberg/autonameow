@@ -39,7 +39,7 @@ class PdfAnalyzer(AnalyzerBase):
 
         metadata_datetime = self.get_metadata_datetime()
         if metadata_datetime:
-            self.file_object.add_datetime(metadata_datetime)
+            self.add_datetime(metadata_datetime)
 
         print('Title  : %s' % self.title)
         print('Author : %s' % self.author)
@@ -48,7 +48,7 @@ class PdfAnalyzer(AnalyzerBase):
         if pdf_text:
             text_timestamps = self.get_datetime_from_text(pdf_text)
             if text_timestamps:
-                self.file_object.add_datetime(text_timestamps)
+                self.add_datetime(text_timestamps)
                 # logging.debug('PDF content:')
                 # logging.debug(pdf_text)
                 # print(pdf_text)

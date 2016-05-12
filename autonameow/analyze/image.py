@@ -18,9 +18,10 @@ from analyze.common import AnalyzerBase
 
 
 class ImageAnalyzer(AnalyzerBase):
-    def __init__(self, file_object):
+    def __init__(self, file_object, filters):
         self.file_object = file_object
         self.exif_data = None
+        self.filters = filters
 
     def run(self):
         """
@@ -32,7 +33,7 @@ class ImageAnalyzer(AnalyzerBase):
 
         exif_datetime = self.get_exif_datetime()
         if exif_datetime:
-            self.file_object.add_datetime(exif_datetime)
+            self.add_datetime(exif_datetime)
 
     def get_exif_datetime(self):
         """

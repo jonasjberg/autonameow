@@ -110,8 +110,6 @@ class Analysis(object):
         #             c3 = '{:80}'.format(v)
         #             print_report_columns(' ', ' ', c3)
 
-
-
     def print_oldest_datetime(self):
         oldest_dt = self.file_object.get_oldest_datetime()
         print('Oldest date/time information for file:')
@@ -138,15 +136,15 @@ class Analysis(object):
         # Select analyzer based on detected file type.
         if self.file_object.type == "JPEG":
             logging.debug('File is of type [JPEG]')
-            self.analyzer = ImageAnalyzer(self.file_object)
+            self.analyzer = ImageAnalyzer(self.file_object, self.filters)
 
         elif self.file_object.type == "PDF":
             logging.debug('File is of type [PDF]')
-            self.analyzer = PdfAnalyzer(self.file_object)
+            self.analyzer = PdfAnalyzer(self.file_object, self.filters)
 
         elif self.file_object.type == "UTF-8" or self.file_object.type == "ASCII":
             logging.debug('File is a of type [TEXT]')
-            self.analyzer = TextAnalyzer(self.file_object)
+            self.analyzer = TextAnalyzer(self.file_object, self.filters)
 
         else:
             logging.debug('File is of type [unknown]')

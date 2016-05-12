@@ -30,7 +30,19 @@ class AnalyzerBase(object):
             self.add_datetime(fn_timestamps)
 
     def add_datetime(self, dt):
-        if dt not in self.filters:
+        filtered = {}
+
+        if self.filters is not None:
+            for key, value in dt.iteritems():
+                for filter in self.filters:
+                    if type(filter) is not datetime:
+                        continue
+                    # print('filter \"{}\" ({})'.format(filter, type(filter)))
+                    if filter.year != value.year:
+                        filtered[key] = value
+
+            self.file_object.add_datetime(filtered)
+        else:
             self.file_object.add_datetime(dt)
 
     def get_datetime(self):
