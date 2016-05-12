@@ -17,6 +17,25 @@ from analyze.analysis import Analysis
 from file_object import FileObject
 
 
+def arg_is_year(value):
+    """
+    Check if "value" is a year, as in 4 digits and 0 >= year > 9999 ..
+    :return:
+    """
+    ivalue = None
+    try:
+        ivalue = int(value.strip())
+    except ValueError:
+        pass
+
+    if ivalue:
+        if len(str(ivalue)) == 4 and ivalue >= 0:
+            return ivalue
+
+    raise argparse.ArgumentTypeError('\"{}\" is not a valid year'.format(value))
+    return None
+
+
 class Autonameow(object):
     """
     Main class to manage "autonameow" instance.
@@ -27,11 +46,14 @@ class Autonameow(object):
         Main program entry point
         """
         # Handle the command line arguments.
+        self.filters = []
         self.args = self.parse_args()
+        if self.args.verbose:
+            self.display_options()
 
         # Iterate over command line arguments ..
         if not self.args.input_files:
-            logging.critical("No input files specified. Exiting.")
+            logging.critical('No input files specified. Exiting.')
             exit(1)
         else:
             for arg in self.args.input_files:
@@ -40,14 +62,14 @@ class Autonameow(object):
                     logging.info('Processing file \"%s\"' % str(arg))
 
                     # Create a file object representing the current arg.
-                    f = FileObject(arg)
+                    curfile = FileObject(arg)
 
                     # Begin analysing the file.
-                    analysis = Analysis(f)
+                    analysis = Analysis(curfile, self.filters)
                     analysis.run()
 
                     if self.args.add_datetime:
-                        print('File: \"%s\"' % f.path)
+                        print('File: \"%s\"' % curfile.path)
                         analysis.print_all_datetime_info()
                         # analysis.print_oldest_datetime()
                         # analysis.prefix_date_to_filename()
@@ -71,7 +93,7 @@ class Autonameow(object):
             epilog='Example usage: TODO ..')
 
         optgrp_output = parser.add_mutually_exclusive_group()
-        optgrp_output.add_argument("-z", "--debug",
+        optgrp_output.add_argument('-z', '--debug',
                                    # const=0, default='0', type=int,
                                    # nargs="?",
                                    # dest='debug',
@@ -80,23 +102,23 @@ class Autonameow(object):
                                    #      'No number means some. '
                                    #      'Default is no debug verbosity.')
                                    dest='debug',
-                                   action="store_true",
+                                   action='store_true',
                                    help='debug mode')
 
-        optgrp_output.add_argument("-v", "--verbose",
+        optgrp_output.add_argument('-v', '--verbose',
                                    dest='verbose',
-                                   action="store_true",
+                                   action='store_true',
                                    help='verbose mode')
 
-        optgrp_output.add_argument("-q", "--quiet",
+        optgrp_output.add_argument('-q', '--quiet',
                                    dest='quiet',
-                                   action="store_true",
+                                   action='store_true',
                                    help='quiet mode')
 
         optgrp_action = parser.add_mutually_exclusive_group()
-        optgrp_action.add_argument("--add-datetime",
+        optgrp_action.add_argument('--add-datetime',
                                    dest='add_datetime',
-                                   action="store_true",
+                                   action='store_true',
                                    help='only add datetime to file name')
 
         parser.add_argument(dest='input_files',
@@ -109,6 +131,15 @@ class Autonameow(object):
                             action='store',
                             help='simulate what would happen but do not '
                                  'actually write any changes to disk')
+
+        optgrp_filter = parser.add_argument_group()
+        optgrp_filter.add_argument('--ignore-year',
+                                   metavar='',
+                                   type=arg_is_year,
+                                   dest='filter_ignore_year',
+                                   action='store',
+                                   help='ignore date/time-information '
+                                        'containing this year')
 
         return parser
 
@@ -124,7 +155,7 @@ class Autonameow(object):
         # Setup logging output format.
         # if args.debug == 0:
         if args.debug:
-            FORMAT = "%(asctime)s %(levelname)7.7s %(funcName)-25.25s (%(lineno)3d) -- %(message)-130.130s"
+            FORMAT = '%(asctime)s %(levelname)7.7s %(funcName)-25.25s (%(lineno)3d) -- %(message)-130.130s'
             logging.basicConfig(level=logging.DEBUG, format=FORMAT,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         # elif args.debug == 1:
@@ -140,15 +171,19 @@ class Autonameow(object):
         #     pass
 
         elif args.verbose:
-            FORMAT = "%(asctime)s %(levelname)-6s -- %(message)s"
+            FORMAT = '%(asctime)s %(levelname)-6s -- %(message)s'
             logging.basicConfig(level=logging.INFO, format=FORMAT,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         elif args.quiet:
-            FORMAT = "%(levelname)s -- %(message)s"
+            FORMAT = '%(levelname)s -- %(message)s'
             logging.basicConfig(level=logging.CRITICAL, format=FORMAT)
         else:
-            FORMAT = "%(levelname)s -- %(message)s"
+            FORMAT = '%(levelname)s -- %(message)s'
             logging.basicConfig(level=logging.WARNING, format=FORMAT)
+
+        # TODO: Fix this and overall filter handling.
+        if args.filter_ignore_year is not None:
+            self.filters.append(args.filter_ignore_year)
 
         # Display help/usage information if no arguments are provided.
         if len(sys.argv) < 2:
@@ -156,6 +191,9 @@ class Autonameow(object):
             exit(0)
 
         return args
+
+    def display_options(self):
+        pass
 
     def get_args(self):
         """

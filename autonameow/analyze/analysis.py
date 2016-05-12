@@ -24,12 +24,14 @@ class Analysis(object):
     best_datetime = None
     best_name = None
 
-    def __init__(self, file_object):
+    def __init__(self, file_object, filters):
         self.file_object = file_object
 
         if self.file_object is None:
             logging.critical('Got NULL file!')
             pass
+
+        self.filters = filters
 
     def print_all_datetime_info(self):
         """
@@ -85,7 +87,7 @@ class Analysis(object):
 
             if count > 1:
                 for v in l[1][1:]:
-                    c2 = '{:>30}'.format(v)
+                    c3 = '{:>30}'.format(v)
                     print_report_columns(' ', ' ', c3)
                 print_report_columns(' ', ' ', ' ')
 
@@ -130,7 +132,7 @@ class Analysis(object):
 
     def run(self):
         # Create a basic analyzer, common to all file types.
-        self.analyzer = AnalyzerBase(self.file_object)
+        self.analyzer = AnalyzerBase(self.file_object, self.filters)
         self.analyzer.run()
 
         # Select analyzer based on detected file type.

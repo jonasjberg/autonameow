@@ -12,8 +12,9 @@ from util import dateandtime
 
 
 class AnalyzerBase(object):
-    def __init__(self, file_object):
+    def __init__(self, file_object, filters):
         self.file_object = file_object
+        self.filters = filters
 
     def run(self):
         """
@@ -22,11 +23,15 @@ class AnalyzerBase(object):
 
         fs_timestamps = self.get_datetime_from_filesystem()
         if fs_timestamps:
-            self.file_object.add_datetime(fs_timestamps)
+            self.add_datetime(fs_timestamps)
 
         fn_timestamps = self.get_datetime_from_name()
         if fn_timestamps:
-            self.file_object.add_datetime(fn_timestamps)
+            self.add_datetime(fn_timestamps)
+
+    def add_datetime(self, dt):
+        if dt not in self.filters:
+            self.file_object.add_datetime(dt)
 
     def get_datetime(self):
         # TODO: Get datetime from information common to all file types;
@@ -54,11 +59,15 @@ class AnalyzerBase(object):
                              'from file system, which shouldnt happen.')
             logging.critical('OSError: {}'.format(e))
         else:
-            results['Fs_Modified'] = datetime.fromtimestamp(mtime).replace(microsecond=0)
-            results['Fs_Created'] = datetime.fromtimestamp(ctime).replace(microsecond=0)
-            results['Fs_Accessed'] = datetime.fromtimestamp(atime).replace(microsecond=0)
+            results['Fs_Modified'] = datetime.fromtimestamp(mtime).replace(
+                microsecond=0)
+            results['Fs_Created'] = datetime.fromtimestamp(ctime).replace(
+                microsecond=0)
+            results['Fs_Accessed'] = datetime.fromtimestamp(atime).replace(
+                microsecond=0)
 
-        logging.info('Got [{:^3}] timestamps from filesystem.'.format(len(results)))
+        logging.info(
+            'Got [{:^3}] timestamps from filesystem.'.format(len(results)))
         return results
 
     def get_datetime_from_name(self):
