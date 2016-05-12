@@ -7,6 +7,9 @@
 # ____________________________________________________________________________
 
 import logging
+from colorama import Fore
+from colorama import Back
+from colorama import Style
 
 from analyze.common import AnalyzerBase
 from analyze.image import ImageAnalyzer
@@ -71,7 +74,8 @@ class Analysis(object):
             """
             print('{0:20}  {1:>8s}  {2:>30}'.format(c1, c2, c3))
 
-        print_report_columns('Date-/timestamp', '#', 'Source')
+        print(Back.WHITE + Fore.BLACK + Style.NORMAL + '{0:20}  {1:>8s}  {2:>30}'.format('Date-/timestamp', '#', 'Source') + Style.RESET_ALL + Fore.RESET + Back.RESET)
+        # print_report_columns('Date-/timestamp', '#', 'Source')
 
         for l in flipped_sorted:
             try:
