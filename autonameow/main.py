@@ -90,7 +90,6 @@ class Autonameow(object):
                 logging.error('Unable to read file \"%s\"' % str(file))
                 continue
 
-
     def init_argparser(self):
         """
         Initialize the argparser. Add all arguments/options.
