@@ -44,9 +44,6 @@ class Analysis(object):
         dt_list = self.file_object.datetime_list
 
         print('All date/time information for file:')
-        # print('\"%s\"' % str(self.file_object.path))
-
-        datetime_report = {}
         flipped = {}
         for dt_dict in dt_list:
             # print('[dt_dict] %-15.15s   : %-80.80s' % (type(dt_dict), str(dt_dict)))
@@ -74,45 +71,25 @@ class Analysis(object):
             """
             print('{0:20}  {1:>8s}  {2:>30}'.format(c1, c2, c3))
 
-        print(Back.WHITE + Fore.BLACK + Style.NORMAL + '{0:20}  {1:>8s}  {2:>30}'.format('Date-/timestamp', '#', 'Source(s)') + Style.RESET_ALL + Fore.RESET + Back.RESET)
-        # print_report_columns('Date-/timestamp', '#', 'Source')
+        # Print the header information.
+        print(Back.WHITE + Fore.BLACK +
+              '{0:20}  {1:>8s}  {2:>30}'.format('Date-/timestamp', '#', 'Source(s)')
+              + Fore.RESET + Back.RESET)
 
-        for l in flipped_sorted:
+        for line in flipped_sorted:
             try:
-                dt = l[0].isoformat()
+                dt = line[0].isoformat()
             except TypeError:
                 pass
 
-            count = len(l[1])
-            c1 = '{:20}'.format(dt)
-            c2 = '{:03d}'.format(count)
-            c3 = '{:>30}'.format(l[1][0])
-            print_report_columns(c1, c2, c3)
-
+            count = len(line[1])
+            print_report_columns('{:20}'.format(dt),
+                                 '{:03d}'.format(count),
+                                 '{:>30}'.format(line[1][0]))
             if count > 1:
-                for v in l[1][1:]:
-                    c3 = '{:>30}'.format(v)
-                    print_report_columns(' ', ' ', c3)
+                for v in line[1][1:]:
+                    print_report_columns(' ', ' ', '{:>30}'.format(v))
                 print_report_columns(' ', ' ', ' ')
-
-        # for key, value in flipped.iteritems():
-        #     # Dict keys are now datetime objects.
-        #     try:
-        #         keystr = key.strftime("%Y-%m-%d %H:%M:%S")
-        #     except ValueError:
-        #         continue
-        #
-        #     count = len(value)
-        #
-        #     c1 = '{:03d}'.format(count)
-        #     c2 = '{:19}'.format(keystr)
-        #     c3 = '{:80}'.format(value[0])
-        #     print_report_columns(c1, c2, c3)
-        #
-        #     if count > 1:
-        #         for v in value[1:]:
-        #             c3 = '{:80}'.format(v)
-        #             print_report_columns(' ', ' ', c3)
 
     def print_oldest_datetime(self):
         oldest_dt = self.file_object.get_oldest_datetime()
@@ -156,14 +133,5 @@ class Analysis(object):
 
         # Run analyzer.
         self.analyzer.run()
-
-        #str_year = self.fileObject.get_oldest_datetime().strftime('%Y')
-        #str_title = self.analyzer.title
-        #str_author = 'author'  # self.analyzer.author
-        #str_publisher = 'publisher'
-        #new_filename = str_title + ' ' + str_author + ' ' + str_publisher + ' ' + str_year
-        #print('New Filename: \"%s\"' % new_filename)
-
-        # self.print_all_datetime_info()
 
 
