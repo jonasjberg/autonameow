@@ -82,14 +82,13 @@ class Analysis(object):
             except TypeError:
                 pass
 
-            count = len(line[1])
             print_report_columns('{:20}'.format(dt),
-                                 '{:03d}'.format(count),
+                                 '{:03d}'.format(len(line[1])),
                                  '{:>30}'.format(line[1][0]))
-            if count > 1:
+            if len(line[1]) > 1:
                 for v in line[1][1:]:
                     print_report_columns(' ', ' ', '{:>30}'.format(v))
-                print_report_columns(' ', ' ', ' ')
+                print('')
 
     def print_oldest_datetime(self):
         oldest_dt = self.file_object.get_oldest_datetime()

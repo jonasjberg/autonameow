@@ -146,6 +146,8 @@ class Autonameow(object):
         optgrp_filter.add_argument('--ignore-year',
                                    metavar='',
                                    type=arg_is_year,
+                                   default=[],
+                                   nargs='*',
                                    dest='filter_ignore_year',
                                    action='store',
                                    help='ignore date/time-information '
@@ -192,9 +194,16 @@ class Autonameow(object):
             logging.basicConfig(level=logging.WARNING, format=FORMAT)
 
         # TODO: Fix this and overall filter handling.
-        if args.filter_ignore_year is not None:
-            dt = datetime.strptime(str(args.filter_ignore_year), '%Y')
-            self.filters.append(dt)
+        if args.filter_ignore_year is not None and args.filter_ignore_year:
+            for year in args.filter_ignore_year:
+                try:
+                    dt = datetime.strptime(str(year), '%Y')
+                except ValueError as e:
+                    logging.warning('Erroneous date format: {}'.format(e.message))
+                else:
+                    self.filters.append(dt)
+
+            print self.filters
 
         # Display help/usage information if no arguments are provided.
         if len(sys.argv) < 2:

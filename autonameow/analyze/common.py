@@ -32,14 +32,18 @@ class AnalyzerBase(object):
     def add_datetime(self, dt):
         filtered = {}
 
-        if self.filters is not None:
+        if type(dt) is not dict:
+            logging.warning('Got unexpected type \"{}\"'.format(type(dt)))
+
+        if self.filters is not None and self.filters:
+            years = []
+            for filt in self.filters:
+                years.append(filt.year)
+
             for key, value in dt.iteritems():
-                for filter in self.filters:
-                    if type(filter) is not datetime:
-                        continue
-                    # print('filter \"{}\" ({})'.format(filter, type(filter)))
-                    if filter.year != value.year:
-                        filtered[key] = value
+                if not value.year in years:
+                    # del(dt[key])
+                    filtered[key] = value
 
             self.file_object.add_datetime(filtered)
         else:
