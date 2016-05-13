@@ -58,30 +58,38 @@ class Autonameow(object):
             logging.critical('No input files specified. Exiting.')
             exit(1)
         else:
-            for arg in self.args.input_files:
-                if os.path.isfile(arg) and os.access(arg, os.R_OK):
-                    # print "File exists and is readable"
-                    logging.info('Processing file \"%s\"' % str(arg))
+            try:
+                self.handle_files()
+            except KeyboardInterrupt:
+                logging.critical('Received keyboard interrupt; Exiting ..')
+                sys.exit()
 
-                    # Create a file object representing the current arg.
-                    curfile = FileObject(arg)
+    def handle_files(self):
+        for arg in self.args.input_files:
+            if os.path.isfile(arg) and os.access(arg, os.R_OK):
+                # print "File exists and is readable"
+                logging.info('Processing file \"%s\"' % str(arg))
 
-                    # Begin analysing the file.
-                    analysis = Analysis(curfile, self.filters)
-                    analysis.run()
+                # Create a file object representing the current arg.
+                curfile = FileObject(arg)
 
-                    if self.args.add_datetime:
-                        print('File: \"%s\"' % curfile.path)
-                        analysis.print_all_datetime_info()
-                        # analysis.print_oldest_datetime()
-                        # analysis.prefix_date_to_filename()
-                        print('')
+                # Begin analysing the file.
+                analysis = Analysis(curfile, self.filters)
+                analysis.run()
 
-                else:
-                    # Unable to read file. Skip ..
-                    # File is either missing or not readable. Skip ..
-                    logging.error('Unable to read file \"%s\"' % str(file))
-                    continue
+                if self.args.add_datetime:
+                    print('File: \"%s\"' % curfile.path)
+                    analysis.print_all_datetime_info()
+                    # analysis.print_oldest_datetime()
+                    # analysis.prefix_date_to_filename()
+                    print('')
+
+            else:
+                # Unable to read file. Skip ..
+                # File is either missing or not readable. Skip ..
+                logging.error('Unable to read file \"%s\"' % str(file))
+                continue
+
 
     def init_argparser(self):
         """

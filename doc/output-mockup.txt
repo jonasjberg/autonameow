@@ -77,3 +77,38 @@ All date/time information for file:
 001	 1991-01-20T00:00:00                    pdf_content_029
 001	 1975-06-07T00:00:00                    pdf_content_003
 001	 2003-10-20T00:00:00                    pdf_content_016
+
+
+
+
+
+Title  : Eclipse IDE Pocket Guide
+Author : Ed Burnette
+File: "/home/spock/dev/projects/autoname/test/Eclipse-IDE-Pocket-Guide_Burnette_OReilly-2005.pdf"
+All date/time information for file:
+Date-/timestamp              #                       Source(s)
+2005-01-01T00:00:00  ----- 003 ------------  Filename_brute_00
+                                    ``-----  Filename_brute_01
+                                     `-----    pdf_content_004
+                                                              
+2012-12-25T23:52:37  ----- 002 ---------  pdf_metadata_ModDate
+                                 `-  pdf_metadata_CreationDate
+                                                              
+2016-03-01T00:43:01  ----- 002 ------------------  Fs_Modified
+                                           `------  Fs_Created
+                                                              
+2010-02-11T00:00:00  ----- 001 --------------  pdf_content_009
+2010-02-01T00:00:00  ----- 001 --------------  pdf_content_008
+2011-02-10T00:00:00  ----- 001 --------------  pdf_content_010
+2010-01-02T00:00:00  ----- 001 --------------  pdf_content_007
+2011-01-01T00:00:00  ----- 001 --------------  pdf_content_002
+2012-02-01T00:00:00  ----- 001 --------------  pdf_content_013
+2014-01-01T00:00:00  ----- 001 --------------  pdf_content_003
+2001-01-01T00:00:00  ----- 001 --------------  pdf_content_001
+2001-01-02T00:00:00  ----- 001 --------------  pdf_content_000
+1970-01-01T03:06:07  ----- 001 --------------  pdf_content_006
+2010-11-02T00:00:00  ----- 001 --------------  pdf_content_011
+2016-03-01T00:43:00  ----- 001 --------------      Fs_Accessed
+2012-01-01T00:00:00  ----- 001 --------------  pdf_content_005
+2010-12-21T00:00:00  ----- 001 --------------  pdf_content_012
+

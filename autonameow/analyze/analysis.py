@@ -74,7 +74,7 @@ class Analysis(object):
             """
             print('{0:20}  {1:>8s}  {2:>30}'.format(c1, c2, c3))
 
-        print(Back.WHITE + Fore.BLACK + Style.NORMAL + '{0:20}  {1:>8s}  {2:>30}'.format('Date-/timestamp', '#', 'Source') + Style.RESET_ALL + Fore.RESET + Back.RESET)
+        print(Back.WHITE + Fore.BLACK + Style.NORMAL + '{0:20}  {1:>8s}  {2:>30}'.format('Date-/timestamp', '#', 'Source(s)') + Style.RESET_ALL + Fore.RESET + Back.RESET)
         # print_report_columns('Date-/timestamp', '#', 'Source')
 
         for l in flipped_sorted:

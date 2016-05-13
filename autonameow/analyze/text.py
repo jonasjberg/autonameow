@@ -8,8 +8,9 @@ from util import dateandtime
 
 
 class TextAnalyzer(AnalyzerBase):
-    def __init__(self, file_object):
+    def __init__(self, file_object, filters):
         self.file_object = file_object
+        self.filters = filters
 
         self.author = None
         self.title = None
