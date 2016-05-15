@@ -11,11 +11,13 @@ from colorama import Fore
 from colorama import Back
 from colorama import Style
 
+import util
 from analyze.common import AnalyzerBase
 from analyze.image import ImageAnalyzer
 from analyze.pdf import PdfAnalyzer
 from analyze.text import TextAnalyzer
 from util import disk
+from util.misc import unpack_dict
 
 
 class Analysis(object):
@@ -96,6 +98,23 @@ class Analysis(object):
         print('\"%s\"' % str(self.file_object.path))
         print('{:<20} : {:<}'.format('Datetime', 'Value'))
         print('{:<20} : {:<}'.format('oldest', oldest_dt))
+
+    def find_most_probable_datetime(self):
+        print('FINDING MOST PROBABLE DATETIME NOWWW')
+        dt_list = self.file_object.datetime_list
+        dt_list = unpack_dict(dt_list)
+
+        for entry in dt_list:
+            # for key, value in entry.iteritems():
+            #     if key == 'Exif_DateTimeOriginal':
+            #         print('Most probable :: Exif_DateTimeOriginal: {}'.format(value))
+            pass
+
+        if 'Filename_brute_00' in dt_list:
+            print('Most probable :: Filename_brute_00 {}'.format('value'))
+        if 'Exif_DateTimeOriginal' in dt_list:
+            print('Most probable :: Exif_DateTimeOriginal: {}'.format('value'))
+
 
     def prefix_date_to_filename(self):
         fo = self.file_object

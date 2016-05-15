@@ -1,3 +1,6 @@
+import logging
+
+
 def extract_digits(string):
     """
     Extracts digits from text string.
@@ -11,3 +14,18 @@ def extract_digits(string):
 
     return digits if digits.strip() else None
 
+def unpack_dict(dt_list):
+    if type(dt_list) is not list:
+        logging.warning('Got unexpected type: {}'.format(type(dt_list)))
+
+    results = {}
+    for entry in dt_list:
+        if type(entry) is dict:
+            if entry is not in results:
+                results[entry] = entry
+        else:
+            for content in entry:
+                if type(content) is dict:
+                    results.append(entry)
+
+    return results
