@@ -11,12 +11,18 @@ import argparse
 import logging
 import os
 import sys
+import platform
 
+from colorama import Fore
+from colorama import Back
 from datetime import datetime
 
 import util.disk
+import version
 from analyze.analysis import Analysis
 from file_object import FileObject
+
+terminal_width = 100
 
 
 def arg_is_year(value):
@@ -51,6 +57,7 @@ class Autonameow(object):
         self.filters = []
         self.args = self.parse_args()
         if self.args.verbose:
+            self.display_start_banner()
             self.display_options(self.args)
 
         # Iterate over command line arguments ..
@@ -167,7 +174,9 @@ class Autonameow(object):
         # Setup logging output format.
         # if args.debug == 0:
         if args.debug:
-            FORMAT = '%(asctime)s %(levelname)8.8s %(funcName)-25.25s (%(lineno)3d) -- %(message)-130.130s'
+            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
+                     '%(levelname)-8.8s %(funcName)-25.25s (%(lineno)3d) ' \
+                     '-- %(message)-130.130s'
             logging.basicConfig(level=logging.DEBUG, format=FORMAT,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         # elif args.debug == 1:
@@ -183,7 +192,8 @@ class Autonameow(object):
         #     pass
 
         elif args.verbose:
-            FORMAT = '%(asctime)s %(levelname)-6s -- %(message)s'
+            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
+                     ' %(levelname)-8.8s' + Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + '%(message)-130.130s'
             logging.basicConfig(level=logging.INFO, format=FORMAT,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         elif args.quiet:
@@ -214,19 +224,33 @@ class Autonameow(object):
 
     def display_options(self, args):
         def print_line(k, v):
-            print('{:<8}{:<20}  :  {:<60}'.format(' ', k, v))
+            print('{:<4}{:<20}  :  {:<60}'.format(' ', k, v))
 
-        print('Output')
+        def print_line_section(text):
+            if not text.strip():
+                return
+
+            pad_left = 2
+            pad_right = terminal_width - len(text) - 2
+            strbuf = '\n\n'
+            strbuf += Back.LIGHTBLACK_EX + Fore.LIGHTWHITE_EX
+            strbuf += ' ' * pad_left
+            strbuf += text.upper() + ' ' * pad_right
+            strbuf += Back.RESET + Fore.RESET
+            print(strbuf)
+
+
+        print_line_section('Output options')
         print_line('debug mode', args.debug)
         print_line('verbose mode', args.verbose)
         print_line('quiet mode', args.quiet)
-        print('Action')
+        print_line_section('Actions to performed')
         print_line('add datetime', args.add_datetime)
-        print('Behavior')
+        print_line_section('Behavior configuration')
         print_line('dry run', args.dry_run)
-        print('Filter')
+        print_line_section('Results filtering')
         print_line('ignore year', args.filter_ignore_year)
-        print('Positional')
+        print_line_section('Positional arguments')
         print_line('input files', args.input_files)
 
 
@@ -236,3 +260,26 @@ class Autonameow(object):
         :return: command line arguments
         """
         return self.args
+
+    def display_start_banner(self):
+        """
+        Prints a "banner" with program information and credits.
+        """
+        # TODO: Text alignment depends on manually hardcoding spaces! FIX!
+        print('')
+        date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+        username = os.environ.get('USER')
+        hostname = ' '.join(platform.uname()[:3])
+        credits1 = '  written by ' + version.__author__
+        credits2 = ' ' * 26 + version.__url__
+        credits3 = ' ' * 26 + version.__email__
+        # copyright1 = ' ' * 15 + 'Copyright(c)2016 Jonas Sjoberg'
+        copyright1 = ''
+        license1 = ' ' * 15 + 'Please see "LICENSE.md" for licensing details.'
+        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + version.__title__.upper() + ' ' + Back.RESET + Fore.RESET + '  version ' + version.__version__)
+        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + len(version.__title__) * '~' + ' ' + Back.RESET + Fore.RESET + credits1)
+        print(credits2)
+        print(credits3)
+        print(copyright1)
+        print(license1)
+        print(Fore.LIGHTBLACK_EX + '  started at {} by {} on {}'.format(date, username, hostname) + Fore.RESET)

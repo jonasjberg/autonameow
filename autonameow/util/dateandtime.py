@@ -320,10 +320,10 @@ def bruteforce_str(text, prefix):
                 matches_total += 1
 
     if results:
-        logging.info('First matcher found [{:^3}] matches after [{:^4}] tries.'.format(len(results), tries))
+        logging.info('First matcher found  [{:>3}] matches after [{:>4}] tries.'.format(len(results), tries))
         return results
     else:
-        logging.debug('Gave up first approach after [{:^4}] tries.'.format(tries))
+        logging.debug('Gave up first approach after [{:>4}] tries.'.format(tries))
 
     # ----------------------------------------------------------------
     # PART #2   -- pattern matching on just the digits
@@ -422,7 +422,7 @@ def bruteforce_str(text, prefix):
             logging.debug('Removing leading number ({} --> {})'.format(digits, digits[1:]))
             digits = digits[1:]
 
-    logging.info('Second matcher found [{:^3}] matches after [{:^4}] tries.'.format(matches_total, tries_total))
+    logging.info('Second matcher found [{:>3}] matches after [{:>4}] tries.'.format(matches_total, tries_total))
     return results
 
 def fuzzy_datetime(text, prefix):

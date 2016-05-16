@@ -44,7 +44,7 @@ class ImageAnalyzer(AnalyzerBase):
         :return: Date/time as a dict of datetime-objects, keyed by EXIF-fields.
         """
         if self.exif_data is None:
-            logging.warning('File \"{}\" has no EXIF data.'.format(self.file_object.path))
+            logging.warning('Found no EXIF data in file \"{}\"'.format(self.file_object.path))
             return
 
         DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTimeDigitized',
@@ -150,7 +150,7 @@ class ImageAnalyzer(AnalyzerBase):
             try:
                 exif_data = image._getexif()
             except Exception as e:
-                logging.warning('PIL image EXIF extraction error({0}): {1}'.format(e.errno, e.strerror))
+                logging.warning('PIL image EXIF extraction error({0}): {1}'.format(e.args, e.message))
 
         if not exif_data:
             return None

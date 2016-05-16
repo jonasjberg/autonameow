@@ -19,6 +19,10 @@ from analyze.text import TextAnalyzer
 from util import disk
 from util.misc import unpack_dict
 
+class ExtractedData(object):
+    def __init__(self, data, weight):
+        self.data = data
+        self.weight = weight
 
 class Analysis(object):
     """
@@ -132,25 +136,28 @@ class Analysis(object):
         self.analyzer = AnalyzerBase(self.file_object, self.filters)
         self.analyzer.run()
 
+        t = self.file_object.type
+
         # Select analyzer based on detected file type.
-        if self.file_object.type == 'JPG':
+        if t == 'JPG':
             logging.debug('File is of type [JPG]')
             self.analyzer = ImageAnalyzer(self.file_object, self.filters)
-
-        elif self.file_object.type == 'PDF':
+        if t == 'PNG':
+            logging.debug('File is of type [PNG]')
+            self.analyzer = ImageAnalyzer(self.file_object, self.filters)
+        elif t == 'PDF':
             logging.debug('File is of type [PDF]')
             self.analyzer = PdfAnalyzer(self.file_object, self.filters)
-
-        elif self.file_object.type == 'TXT':
+        elif t == 'TXT':
             logging.debug('File is a of type [TEXT]')
             self.analyzer = TextAnalyzer(self.file_object, self.filters)
-
+        elif t == 'TXT':
+            logging.debug('File is a of type [TEXT]')
+            self.analyzer = TextAnalyzer(self.file_object, self.filters)
         else:
-            logging.debug('File is of type [unknown]  ({})'.format(self.file_object.type))
+            logging.debug('File type ({}) is not yet mapped to a type-specific '
+                          'Analyzer.'.format(self.file_object.type))
             return
-
-        logging.critical('File is of type: {}'.format(self.file_object.type.split()[:2]))
-        return
 
         # Run analyzer.
         self.analyzer.run()
