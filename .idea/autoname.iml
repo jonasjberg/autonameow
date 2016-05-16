@@ -27,6 +27,7 @@
     <orderEntry type="module" module-name="jrnl.git" />
     <orderEntry type="module" module-name="kapslar.git" />
     <orderEntry type="module" module-name="dupeguru.git" />
+    <orderEntry type="module" module-name="filetags" />
   </component>
   <component name="PackageRequirementsSettings">
     <option name="requirementsPath" value="" />

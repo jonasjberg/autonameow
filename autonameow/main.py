@@ -255,7 +255,6 @@ class Autonameow(object):
         print_line('input files', 'TRUE' if args.input_files else 'FALSE')
         print('')
 
-
     def get_args(self):
         """
         Return the command line arguments/options.
