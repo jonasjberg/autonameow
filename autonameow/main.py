@@ -56,6 +56,7 @@ class Autonameow(object):
         # Handle the command line arguments.
         self.filters = []
         self.args = self.parse_args()
+
         if self.args.verbose:
             self.display_start_banner()
             self.display_options(self.args)
@@ -145,7 +146,7 @@ class Autonameow(object):
 
         parser.add_argument('-d', '--dry-run',
                             dest='dry_run',
-                            action='store',
+                            action='store_true',
                             help='simulate what would happen but do not '
                                  'actually write any changes to disk')
 
@@ -217,7 +218,8 @@ class Autonameow(object):
 
         # Display help/usage information if no arguments are provided.
         if len(sys.argv) < 2:
-            parser.print_help()
+            logging.critical('Add "--help" to display usage information.')
+            # parser.print_help()
             exit(0)
 
         return args
@@ -232,26 +234,26 @@ class Autonameow(object):
 
             pad_left = 2
             pad_right = terminal_width - len(text) - 2
-            strbuf = '\n\n'
+            strbuf = '\n'
             strbuf += Back.LIGHTBLACK_EX + Fore.LIGHTWHITE_EX
             strbuf += ' ' * pad_left
             strbuf += text.upper() + ' ' * pad_right
             strbuf += Back.RESET + Fore.RESET
             print(strbuf)
 
-
         print_line_section('Output options')
-        print_line('debug mode', args.debug)
-        print_line('verbose mode', args.verbose)
-        print_line('quiet mode', args.quiet)
+        print_line('debug mode', 'TRUE' if args.debug else 'FALSE')
+        print_line('verbose mode', 'TRUE' if args.verbose else 'FALSE')
+        print_line('quiet mode', 'TRUE' if args.quiet else 'FALSE')
         print_line_section('Actions to performed')
-        print_line('add datetime', args.add_datetime)
+        print_line('add datetime', 'TRUE' if args.add_datetime else 'FALSE')
         print_line_section('Behavior configuration')
-        print_line('dry run', args.dry_run)
+        print_line('dry run', 'TRUE' if args.dry_run else 'FALSE')
         print_line_section('Results filtering')
-        print_line('ignore year', args.filter_ignore_year)
+        print_line('ignore year', 'TRUE' if args.filter_ignore_year else 'FALSE')
         print_line_section('Positional arguments')
-        print_line('input files', args.input_files)
+        print_line('input files', 'TRUE' if args.input_files else 'FALSE')
+        print('')
 
 
     def get_args(self):
@@ -273,8 +275,7 @@ class Autonameow(object):
         credits1 = '  written by ' + version.__author__
         credits2 = ' ' * 26 + version.__url__
         credits3 = ' ' * 26 + version.__email__
-        # copyright1 = ' ' * 15 + 'Copyright(c)2016 Jonas Sjoberg'
-        copyright1 = ''
+        copyright1 = ' ' * 15 + 'Copyright(c)2016 Jonas Sjoberg'
         license1 = ' ' * 15 + 'Please see "LICENSE.md" for licensing details.'
         print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + version.__title__.upper() + ' ' + Back.RESET + Fore.RESET + '  version ' + version.__version__)
         print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + len(version.__title__) * '~' + ' ' + Back.RESET + Fore.RESET + credits1)
@@ -282,4 +283,5 @@ class Autonameow(object):
         print(credits3)
         print(copyright1)
         print(license1)
-        print(Fore.LIGHTBLACK_EX + '  started at {} by {} on {}'.format(date, username, hostname) + Fore.RESET)
+        print('')
+        print(Fore.LIGHTBLACK_EX + 'Started at {} by {} on {}'.format(date, username, hostname) + Fore.RESET)

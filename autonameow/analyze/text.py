@@ -62,9 +62,20 @@ class TextAnalyzer(AnalyzerBase):
             logging.warning('Got NULL argument')
             return None
 
+        if type(text) is not str:
+            logging.warning('Got unexpected type {} (expected '
+                            'string)'.format(type(text)))
+            return None
+
+        text = text.lower()
+
         # Create empty dictionary to hold all results.
         results = {}
         result_index = 0
+
+        if text.find('gmail'):
+            logging.debug('Text contains "gmail", might be a Gmail?')
+            dt_gmail_list = dateandtime.search_gmail(text, 'text_contents_gmail_')
 
         regex_match = 0
         dt_regex_list = dateandtime.regex_search_str(text, 'text_contents_regex_{}'.format(regex_match))
@@ -83,7 +94,7 @@ class TextAnalyzer(AnalyzerBase):
         match = 0
         result_list = []
         for line in text:
-            text_split = line.split('\n')
+            #text_split = line.split('\n')
             # for t in text_split:
             #     dt = dateandtime.bruteforce_str(t, 'pdf_contents_{}'.format(match))
             #     if dt is not None:

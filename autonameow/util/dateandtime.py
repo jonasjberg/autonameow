@@ -452,6 +452,10 @@ def search_gmail(text, prefix):
         logging.warn('Converting list to string ..')
         text = ' '.join(text)
 
+    if not text.lower().find('gmail'):
+        logging.debug('Text does not contains "gmail", might not be a Gmail?')
+        return
+
     # Create empty dictionary to hold all results.
     results = {}
 
