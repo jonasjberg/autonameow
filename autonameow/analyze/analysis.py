@@ -102,7 +102,7 @@ class Analysis(object):
     def find_most_probable_datetime(self):
         print('FINDING MOST PROBABLE DATETIME NOWWW')
         dt_list = self.file_object.datetime_list
-        dt_list = unpack_dict(dt_list)
+        # dt_list = unpack_dict(dt_list)
 
         for entry in dt_list:
             # for key, value in entry.iteritems():
@@ -133,21 +133,24 @@ class Analysis(object):
         self.analyzer.run()
 
         # Select analyzer based on detected file type.
-        if self.file_object.type == "JPEG":
-            logging.debug('File is of type [JPEG]')
+        if self.file_object.type == 'JPG':
+            logging.debug('File is of type [JPG]')
             self.analyzer = ImageAnalyzer(self.file_object, self.filters)
 
-        elif self.file_object.type == "PDF":
+        elif self.file_object.type == 'PDF':
             logging.debug('File is of type [PDF]')
             self.analyzer = PdfAnalyzer(self.file_object, self.filters)
 
-        elif self.file_object.type == "UTF-8" or self.file_object.type == "ASCII":
+        elif self.file_object.type == 'TXT':
             logging.debug('File is a of type [TEXT]')
             self.analyzer = TextAnalyzer(self.file_object, self.filters)
 
         else:
-            logging.debug('File is of type [unknown]')
+            logging.debug('File is of type [unknown]  ({})'.format(self.file_object.type))
             return
+
+        logging.critical('File is of type: {}'.format(self.file_object.type.split()[:2]))
+        return
 
         # Run analyzer.
         self.analyzer.run()

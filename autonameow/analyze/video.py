@@ -55,6 +55,7 @@ class VideoAnalyzer(AnalyzerBase):
         for line in os.popen('ffprobe -loglevel quiet -show_entries stream_tags=creation_time -i ' + filename).readlines():
             if line[:18] == 'TAG:creation_time=':
                 datetime = line[18:]
+                print(datetime)
                 date, time = datetime.split()
                 clean_date = parser.date(date)
                 clean_time = parser.time(time)

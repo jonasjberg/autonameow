@@ -15,13 +15,15 @@ def extract_digits(string):
     return digits if digits.strip() else None
 
 def unpack_dict(dt_list):
-    if type(dt_list) is not list:
+    if type(dt_list) is dict:
+        return dt_list
+    elif type(dt_list) is not list:
         logging.warning('Got unexpected type: {}'.format(type(dt_list)))
 
     results = {}
     for entry in dt_list:
         if type(entry) is dict:
-            if entry is not in results:
+            if entry not in results:
                 results[entry] = entry
         else:
             for content in entry:
