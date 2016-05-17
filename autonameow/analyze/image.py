@@ -31,6 +31,10 @@ class ImageAnalyzer(AnalyzerBase):
         if exif_datetime:
             self.add_datetime(exif_datetime)
 
+        # TODO: Run OCR on the image and store any textual output.
+        # TODO: Run (text) analysis on any text produced by OCR.
+        #       (I.E. extract date/time, titles, authors, etc.)
+
     def get_exif_datetime(self):
         """
         Extracts date and time information from the EXIF data.
