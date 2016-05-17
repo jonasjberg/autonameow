@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
-# coding=utf-8
-
-# autonameow
-# ~~~~~~~~~~
-# written by Jonas Sjöberg
-# jomeganas@gmail.com
-# ____________________________________________________________________________
+# This file is part of autonameow.
+# Copyright 2016, Jonas Sjoberg.
 
 import logging
 import re

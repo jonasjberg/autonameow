@@ -1,11 +1,7 @@
 #!/usr/bin/env python
-# coding=utf-8
-
-# autonameow
-# ~~~~~~~~~~
-# written by Jonas Sjöberg
-# jomeganas@gmail.com
-# ____________________________________________________________________________
+# -*- coding: utf-8 -*-
+# This file is part of autonameow.
+# Copyright 2016, Jonas Sjoberg.
 
 import argparse
 import logging
@@ -253,7 +249,7 @@ class Autonameow(object):
         print_line('ignore year', 'TRUE' if args.filter_ignore_year else 'FALSE')
         print_line_section('Positional arguments')
         print_line('input files', 'TRUE' if args.input_files else 'FALSE')
-        print('')
+        print('t')
 
     def get_args(self):
         """
