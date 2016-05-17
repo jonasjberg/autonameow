@@ -23,6 +23,7 @@ class ImageAnalyzer(AnalyzerBase):
         """
         Run the analysis.
         """
+        # Start by trying to extract EXIF information from the image.
         if self.exif_data is None:
             logging.debug('Fetching EXIF data ..')
             self.exif_data = self.get_exif_data()
