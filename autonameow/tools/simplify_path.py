@@ -8,10 +8,20 @@ import re
 import sys
 
 
+class FilePath(object):
+    def __init__(self, path):
+        self.path = path
+        self.words = self.split_into_words()
+
+    def split_into_words(self):
+        # This splits up a file name into a list.
+        # http://stackoverflow.com/a/1059601
+        words = re.split('\W+|_', self.path)
+        return words
+
+
 def enumerate_paths(path):
     """Returns the path to all the files in a directory recursively"""
-
-
     path_collection = []
 
     for root, dirs, files in os.walk(path):
@@ -44,51 +54,53 @@ def long_substr(data):
     return substr
 
 
-def simplify_path(path):
-    file_list = os.listdir(path)
-    set_of_parts = set()
+def simplify_path(list_of_paths):
+    filepath_list = []
+
+    for path in list_of_paths:
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                file_abs_path = os.path.join(root, file)
+                filepath_list.append(FilePath(file_abs_path))
 
     path_list = []
     entry_count_min = 0
+    set_of_words = set()
 
     # This splits up a file name into a list.
     # http://stackoverflow.com/a/1059601
     # These are then added to the set of parts, which handles duplicates.
-    for file in file_list:
-        parts = re.split("\W+|_", file)
-
-        for part in parts:
-            set_of_parts.add(part)
-
-        path_list.append(parts)
-
-        if len(parts) < entry_count_min:
-            entry_count_min = len(parts)
-
-    # print "Set of file name parts:"
-    # print set_of_parts
+    for filepath in filepath_list:
+        for word in filepath.words:
+            set_of_words.add(word)
 
     # print long_substr(file_list)
     for entry in path_list:
         print entry
 
-    print 'Entry count (low): {}'.format(entry_count_min)
-
-
-
-
+    # print 'Entry count (low): {}'.format(entry_count_min)
 
 def simplify_path_main(argv):
     if len(argv) == 0:
         print "Need root path as argument"
         return None
 
-    for path in argv:
-        if not os.path.isdir(path):
-            print 'Need root path as argument. Skipping "{}"'.format(path)
-            continue
+    arg_list = []
 
-        simplify_path(path)
+    # Fill up argument list.
+    for arg in argv:
+        if not os.path.isdir(arg):
+            print 'Need root path as argument. Skipping "{}"'.format(arg)
+            continue
+        else:
+            arg_list.append(arg)
+
+    # Run main routine on the argument list if it is not empty.
+    if arg_list and arg_list is not None:
+        simplify_path(arg_list)
+    else:
+        print 'Got empty argument list. Exiting.'
+        sys.exit()
 
 
 
