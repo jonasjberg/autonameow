@@ -7,6 +7,8 @@ import os
 import re
 import sys
 
+# NOTE: This is a work in progress.
+#       Nothing works and everything is yet to be done.
 
 def enumerate_paths(path):
     """Returns the path to all the files in a directory recursively"""
@@ -47,7 +49,7 @@ class FilePath(object):
         self.path = os.path.abspath(path)
         self.basename = os.path.basename(self.path)
         self.basename_words = re.split('\W+|_', self.basename)
-        self.new_path = None
+        self.new_path = []
 
     # def split_path_into_words(self):
     #     # This splits up a file name into a list.
@@ -67,7 +69,7 @@ def simplify_path(list_of_paths):
                 path = os.path.join(root, f)
                 filepath_list.append(FilePath(path))
 
-    filepath_list = sorted(filepath_list)
+    filepath_list = sorted(filepath_list, key=len)
 
     set_of_words = set()
     for filepath in filepath_list:
@@ -87,12 +89,12 @@ def simplify_path(list_of_paths):
         if not filepath:
             continue
 
-        print('')
-        print('BASENAME : {}'.format(filepath.basename))
+        # print('')
+        # print('BASENAME : {}'.format(filepath.basename))
         print('WORDS    : {}'.format(filepath.basename_words))
 
-    print('\nSet of words: ')
-    print(set_of_words)
+    # print('\nSet of words: ')
+    # print(set_of_words)
 
     for filepath in filepath_list:
         for i in range(0, len(filepath.basename_words)):
