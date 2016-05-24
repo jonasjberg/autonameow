@@ -74,7 +74,9 @@ class Autonameow(object):
         """
         for arg in self.args.input_files:
             if not os.path.exists(arg):
-                logging.error('Skipping non-existent file/directory ' '\"{}\"'.format(str(arg)))
+                logging.error(
+                    'Skipping non-existent file/directory ' '\"{}\"'.format(
+                        str(arg)))
                 continue
             elif os.path.isdir(arg):
                 logging.error('Skipping directory \"{}\"'.format(str(arg)))
@@ -199,9 +201,10 @@ class Autonameow(object):
         # Setup logging output format.
         # if args.debug == 0:
         if args.debug:
-            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
-                     ' %(levelname)-8.8s %(funcName)-25.25s (%(lineno)3d) ' \
-                     '-- %(message)-130.130s'
+            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET \
+                     + ' %(levelname)-8.8s %(funcName)-25.25s (%(lineno)3d) ' \
+                     + Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET \
+                     + '%(message)-120.120s'
             logging.basicConfig(level=logging.DEBUG, format=FORMAT,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         # elif args.debug == 1:
@@ -277,7 +280,8 @@ class Autonameow(object):
         print_line_section('Behavior configuration')
         print_line('dry run', 'TRUE' if args.dry_run else 'FALSE')
         print_line_section('Results filtering')
-        print_line('ignore year', 'TRUE' if args.filter_ignore_year else 'FALSE')
+        print_line('ignore year',
+                   'TRUE' if args.filter_ignore_year else 'FALSE')
         print_line_section('Positional arguments')
         print_line('input files', 'TRUE' if args.input_files else 'FALSE')
         print('')
@@ -303,11 +307,15 @@ class Autonameow(object):
         credits3 = ' ' * 26 + version.__email__
         copyright1 = ' ' * 15 + 'Copyright(c)2016 Jonas Sjoberg'
         license1 = ' ' * 15 + 'Please see "LICENSE.md" for licensing details.'
-        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + version.__title__.upper() + ' ' + Back.RESET + Fore.RESET + '  version ' + version.__version__)
-        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + len(version.__title__) * '~' + ' ' + Back.RESET + Fore.RESET + credits1)
+        print(
+        ' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + version.__title__.upper() + ' ' + Back.RESET + Fore.RESET + '  version ' + version.__version__)
+        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + len(
+            version.__title__) * '~' + ' ' + Back.RESET + Fore.RESET + credits1)
         print(credits2)
         print(credits3)
         print(copyright1)
         print(license1)
         print('')
-        print(Fore.LIGHTBLACK_EX + 'Started at {} by {} on {}'.format(date, username, hostname) + Fore.RESET)
+        print(
+        Fore.LIGHTBLACK_EX + 'Started at {} by {} on {}'.format(date, username,
+                                                                hostname) + Fore.RESET)
