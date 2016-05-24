@@ -43,16 +43,17 @@ def long_substr(data):
 
 
 class FilePath(object):
-    def __init__(self, path):
+    def __init__(self, path, basename):
         self.path = path
-        self.words = self.split_into_words()
+        self.basename = basename
+        self.basename_words = re.split('\W+|_', self.basename)
         self.new_path = None
 
-    def split_into_words(self):
-        # This splits up a file name into a list.
-        # http://stackoverflow.com/a/1059601
-        words = re.split('\W+|_', self.path)
-        return words
+    # def split_path_into_words(self):
+    #     # This splits up a file name into a list.
+    #     # http://stackoverflow.com/a/1059601
+    #     words = re.split('\W+|_', self.path)
+    #     return words
 
 
 def simplify_path(list_of_paths):
@@ -63,8 +64,10 @@ def simplify_path(list_of_paths):
     for path in list_of_paths:
         for root, dirs, files in os.walk(path):
             for f in files:
-                f_abs_path = os.path.abspath(os.path.join(root, f))
-                filepath_list.append(FilePath(f_abs_path))
+                path = os.path.join(root, f)
+                abs_path = os.path.abspath(path)
+                basename = os.path.basename(abs_path)
+                filepath_list.append(FilePath(abs_path, basename))
 
     filepath_list = sorted(filepath_list)
 
@@ -74,11 +77,11 @@ def simplify_path(list_of_paths):
         if longest_entry is None:
             longest_entry = filepath
         else:
-            if len(filepath.words) > len(longest_entry.words):
+            if len(filepath.basename_words) > len(longest_entry.basename_words):
                 longest_entry = filepath
 
         # Populate the set of unique words
-        for word in filepath.words:
+        for word in filepath.basename_words:
             set_of_words.add(word)
 
     # Debug printing ..
@@ -87,15 +90,15 @@ def simplify_path(list_of_paths):
             continue
 
         print('')
-        print('PATH  : {}'.format(filepath.path))
-        print('WORDS : {}'.format(filepath.words))
+        print('BASENAME : {}'.format(filepath.basename))
+        print('WORDS    : {}'.format(filepath.basename_words))
 
     print('\nSet of words: ')
     print(set_of_words)
 
     for filepath in filepath_list:
-        for i in range(0, len(filepath.words)):
-            if filepath.words[i] == longest_entry.words[i]:
+        for i in range(0, len(filepath.basename_words)):
+            if filepath.basename_words[i] == longest_entry.basename_words[i]:
                 pass
 
 
