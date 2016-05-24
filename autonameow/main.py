@@ -201,10 +201,11 @@ class Autonameow(object):
         # Setup logging output format.
         # if args.debug == 0:
         if args.debug:
-            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET \
-                     + ' %(levelname)-8.8s %(funcName)-25.25s (%(lineno)3d) ' \
-                     + Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET \
-                     + '%(message)-120.120s'
+            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
+                     Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
+                     ' %(funcName)-25.25s (%(lineno)3d) ' + \
+                     Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + \
+                     '%(message)-120.120s'
             logging.basicConfig(level=logging.DEBUG, format=FORMAT,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         # elif args.debug == 1:
@@ -220,10 +221,10 @@ class Autonameow(object):
         #     pass
 
         elif args.verbose:
-            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET \
-                     + ' %(levelname)-8.8s' \
-                     + Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET \
-                     + '%(message)-130.130s'
+            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
+                     Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
+                     Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + \
+                     '%(message)-130.130s'
             logging.basicConfig(level=logging.INFO, format=FORMAT,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         elif args.quiet:
