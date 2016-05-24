@@ -3,23 +3,21 @@
 # Copyright 2016, Jonas Sjoberg.
 
 import logging
-from colorama import Fore
 from colorama import Back
-from colorama import Style
+from colorama import Fore
 
-import util
 from analyze.common import AnalyzerBase
 from analyze.image import ImageAnalyzer
 from analyze.pdf import PdfAnalyzer
 from analyze.text import TextAnalyzer
-from util import disk
-from util.misc import unpack_dict
+
 
 class ExtractedData(object):
     # TODO: Not used and incomplete -- implement properly or remove entirely.
     def __init__(self, data, weight):
         self.data = data
         self.weight = weight
+
 
 class Analysis(object):
     """
