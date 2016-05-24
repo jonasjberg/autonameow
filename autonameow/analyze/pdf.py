@@ -231,22 +231,25 @@ class PdfAnalyzer(AnalyzerBase):
 
         result_list = []
 
-        text_split = text.split('\n')
         match = 0
-        # for t in text_split:
-        #     dt = dateandtime.bruteforce_str(t, 'pdf_contents_{}'.format(match))
-        #     if dt is not None:
-        #         logging.info('Added result from contents: {0}'.format(dt))
-        #         result_list.append(dt)
-        #         match += 1
-
-        text_split = text.split()
+        text_split = text.split('\n')
+        logging.debug('Getting datetime from text split by newlines')
         for t in text_split:
             dt = dateandtime.bruteforce_str(t, 'pdf_contents_{}'.format(match))
             if dt is not None:
                 # logging.info('Added result from contents: {0}'.format(dt))
                 result_list.append(dt)
                 match += 1
+
+        if match == 0:
+            logging.debug('No matches. Trying with text split by whitespace')
+            text_split = text.split()
+            for t in text_split:
+                dt = dateandtime.bruteforce_str(t, 'pdf_contents_{}'.format(match))
+                if dt is not None:
+                    # logging.info('Added result from contents: {0}'.format(dt))
+                    result_list.append(dt)
+                    match += 1
 
         regex_match = 0
         dt_regex = dateandtime.regex_search_str(text, 'pdf_contents_regex_{}'.format(regex_match))

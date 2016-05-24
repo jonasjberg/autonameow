@@ -70,7 +70,19 @@ class Autonameow(object):
 
     def handle_files(self):
         for arg in self.args.input_files:
-            if os.path.isfile(arg) and os.access(arg, os.R_OK):
+            if not os.path.exists(arg):
+                logging.error('Skipping non-existent file/directory \"%s\"' % str(arg))
+                continue
+            elif os.path.isdir(arg):
+                logging.error('Skipping directory \"%s\"' % str(arg))
+                continue
+            elif os.path.islink(arg):
+                logging.error('Skipping symbolic link \"%s\"' % str(arg))
+                continue
+            elif not os.access(arg, os.R_OK):
+                logging.error('Not authorized to read file \"%s\"' % str(arg))
+                continue
+            else:
                 # print "File exists and is readable"
                 logging.info('Processing file \"%s\"' % str(arg))
 
@@ -88,12 +100,6 @@ class Autonameow(object):
                     # analysis.print_oldest_datetime()
                     # analysis.prefix_date_to_filename()
                     print('')
-
-            else:
-                # Unable to read file. Skip ..
-                # File is either missing or not readable. Skip ..
-                logging.error('Unable to read file \"%s\"' % str(file))
-                continue
 
     def init_argparser(self):
         """
@@ -172,7 +178,7 @@ class Autonameow(object):
         # if args.debug == 0:
         if args.debug:
             FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
-                     '%(levelname)-8.8s %(funcName)-25.25s (%(lineno)3d) ' \
+                     ' %(levelname)-8.8s %(funcName)-25.25s (%(lineno)3d) ' \
                      '-- %(message)-130.130s'
             logging.basicConfig(level=logging.DEBUG, format=FORMAT,
                                 datefmt='%Y-%m-%d %H:%M:%S')
@@ -249,7 +255,7 @@ class Autonameow(object):
         print_line('ignore year', 'TRUE' if args.filter_ignore_year else 'FALSE')
         print_line_section('Positional arguments')
         print_line('input files', 'TRUE' if args.input_files else 'FALSE')
-        print('t')
+        print('')
 
     def get_args(self):
         """

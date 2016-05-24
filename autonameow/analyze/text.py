@@ -66,7 +66,7 @@ class TextAnalyzer(AnalyzerBase):
             logging.warning('Got NULL argument')
             return None
 
-        if type(text) is not str:
+        elif type(text) is not str:
             logging.warning('Got unexpected type {} (expected '
                             'string)'.format(type(text)))
             return None
