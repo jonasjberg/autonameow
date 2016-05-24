@@ -181,6 +181,28 @@ def regex_search_str(text, prefix):
     logging.info('Regex matcher returning dict with [{:^3}] results.'.format(len(results)))
     return results
 
+def match_special_case(text):
+    """
+    PART #0   -- the very special case
+    Very special case that is almost guaranteed to be correct.
+    That is my personal favorite naming scheme: 1992-12-24_121314
+    :param text: text to extract date/time from
+    :return: datetime if found otherwise None
+    """
+    # TODO: Allow customizing personal preferences, using a configuration
+    #       file or similar..
+    try:
+        logging.debug('Matching against very special case '
+                      '\"\%Y-\%m-\%d_\%H\%M\%S\" ..')
+        dt = datetime.strptime(text[:17], '%Y-%m-%d_%H%M%S')
+    except ValueError:
+        logging.debug('Failed matching very special case.')
+    else:
+        if date_is_probable(dt):
+            logging.info('Matched very special case: [{}]'.format(dt))
+            return dt
+    return None
+
 def bruteforce_str(text, prefix):
     """
     Extracts date/time-information from a text string.
@@ -234,29 +256,11 @@ def bruteforce_str(text, prefix):
             logging.debug('Failed matching seconds since epoch.')
         else:
             if date_is_probable(dt):
-                logging.info('Extracted (seconds since epoch) datetime from {}: [{}]'.format(prefix, dt))
+                logging.info('Extracted (seconds since epoch) datetime from '
+                             '{}: [{}]'.format(prefix, dt))
                 new_key = '{0}_{1:02d}'.format(prefix, 0)
                 results[new_key] = dt
                 return results
-
-    # ----------------------------------------------------------------
-    # PART #0   -- the very special case
-    # Very special case that is almost guaranteed to be correct.
-    # That is my personal favorite naming scheme: 1992-12-24_121314
-    # TODO: Allow customizing personal preferences, using a configuration
-    #       file or similar..
-    try:
-        logging.debug('Trying very special case ..')
-        dt = datetime.strptime(text[:17], '%Y-%m-%d_%H%M%S')
-    except ValueError:
-        logging.debug('Failed matching very special case.')
-        pass
-    else:
-        if date_is_probable(dt):
-            logging.info('Extracted (special case) datetime from {}: [{}]'.format(prefix, dt))
-            new_key = '{0}_{1:02d}'.format(prefix, 0)
-            results[new_key] = dt
-            return results
 
     # ----------------------------------------------------------------
     # PART #1   -- pattern matching
