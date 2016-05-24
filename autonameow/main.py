@@ -201,7 +201,7 @@ class Autonameow(object):
             logging.basicConfig(level=logging.WARNING, format=FORMAT)
 
         # TODO: Fix this and overall filter handling.
-        if args.filter_ignore_year is not None and args.filter_ignore_year:
+        if args.filter_ignore_year and args.filter_ignore_year is not None:
             for year in args.filter_ignore_year:
                 try:
                     dt = datetime.strptime(str(year), '%Y')
