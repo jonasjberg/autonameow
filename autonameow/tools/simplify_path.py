@@ -8,18 +8,6 @@ import re
 import sys
 
 
-class FilePath(object):
-    def __init__(self, path):
-        self.path = path
-        self.words = self.split_into_words()
-
-    def split_into_words(self):
-        # This splits up a file name into a list.
-        # http://stackoverflow.com/a/1059601
-        words = re.split('\W+|_', self.path)
-        return words
-
-
 def enumerate_paths(path):
     """Returns the path to all the files in a directory recursively"""
     path_collection = []
@@ -48,37 +36,68 @@ def long_substr(data):
     substr = ''
     if len(data) > 1 and len(data[0]) > 0:
         for i in range(len(data[0])):
-            for j in range(len(data[0])-i+1):
-                if j > len(substr) and all(data[0][i:i+j] in x for x in data):
-                    substr = data[0][i:i+j]
+            for j in range(len(data[0]) - i + 1):
+                if j > len(substr) and all(data[0][i:i + j] in x for x in data):
+                    substr = data[0][i:i + j]
     return substr
+
+
+class FilePath(object):
+    def __init__(self, path):
+        self.path = path
+        self.words = self.split_into_words()
+        self.new_path = None
+
+    def split_into_words(self):
+        # This splits up a file name into a list.
+        # http://stackoverflow.com/a/1059601
+        words = re.split('\W+|_', self.path)
+        return words
 
 
 def simplify_path(list_of_paths):
     filepath_list = []
+    longest_entry = None
 
+    # Walk path, create list of FilePath objects from found files absolute path.
     for path in list_of_paths:
         for root, dirs, files in os.walk(path):
-            for file in files:
-                file_path = os.path.join(root, file)
-                file_abs_path = os.path.abspath(file_path)
-                filepath_list.append(FilePath(file_abs_path))
+            for f in files:
+                f_abs_path = os.path.abspath(os.path.join(root, f))
+                filepath_list.append(FilePath(f_abs_path))
+
+    filepath_list = sorted(filepath_list)
 
     set_of_words = set()
-
-    # This splits up a file name into a list.
-    # http://stackoverflow.com/a/1059601
-    # These are then added to the set of parts, which handles duplicates.
     for filepath in filepath_list:
+        # Store the entry with the highest number of words
+        if longest_entry is None:
+            longest_entry = filepath
+        else:
+            if len(filepath.words) > len(longest_entry.words):
+                longest_entry = filepath
+
+        # Populate the set of unique words
         for word in filepath.words:
             set_of_words.add(word)
 
-    # print long_substr(file_list)
-    for entry in filepath_list:
-        print(entry.path)
-        print(entry.words)
+    # Debug printing ..
+    for filepath in filepath_list:
+        if not filepath:
+            continue
 
-    # print 'Entry count (low): {}'.format(entry_count_min)
+        print('')
+        print('PATH  : {}'.format(filepath.path))
+        print('WORDS : {}'.format(filepath.words))
+
+    print('\nSet of words: ')
+    print(set_of_words)
+
+    for filepath in filepath_list:
+        for i in range(0, len(filepath.words)):
+            if filepath.words[i] == longest_entry.words[i]:
+                pass
+
 
 def simplify_path_main(argv):
     if len(argv) == 0:
@@ -102,9 +121,6 @@ def simplify_path_main(argv):
     else:
         print 'Got empty argument list. Exiting.'
         sys.exit()
-
-
-
 
 
 if __name__ == '__main__':
