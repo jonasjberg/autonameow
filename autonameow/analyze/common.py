@@ -25,7 +25,6 @@ class AnalyzerBase(object):
         """
         Run the analysis.
         """
-
         fs_timestamps = self.get_datetime_from_filesystem()
         if fs_timestamps:
             self.add_datetime(fs_timestamps)
@@ -35,11 +34,16 @@ class AnalyzerBase(object):
             self.add_datetime(fn_timestamps)
 
     def add_datetime(self, dt):
-        filtered = {}
-
+        """
+        Adds a datetime-entry by first checking any filters for matches.
+        Matches are ignored, "filtered out" ..
+        :param dt: datetime to add
+        """
         if type(dt) is not dict:
-            logging.warning('Got unexpected type \"{}\"'.format(type(dt)))
+            logging.warning('Got unexpected type \"{}\" '
+                            '(expected dict)'.format(type(dt)))
 
+        filtered = {}
         if self.filters is not None and self.filters:
             years = []
             for filt in self.filters:

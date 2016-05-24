@@ -245,7 +245,19 @@ class Autonameow(object):
                 else:
                     self.filters.append(dt)
 
-            print self.filters
+        if args.filter_ignore_before_year and args.filter_ignore_before_year is not None:
+            try:
+                ignore_before = datetime.strptime(str(args.filter_ignore_before_year), '%Y')
+            except ValueError as e:
+                logging.warning('Erroneous date format: {}'.format(e.message))
+            else:
+                probable_lower_limit = datetime.strptime('1900', '%Y')
+                # probable_upper_limit = datetime.today()
+                for y in range(datetime.min, ignore_before):
+                    print('TYPE Y: {}'.format(type(y)))
+                    if not y in self.filters:
+                        self.filters.append(y)
+
 
         # Display help/usage information if no arguments are provided.
         if len(sys.argv) < 2:
