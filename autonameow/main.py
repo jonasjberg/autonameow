@@ -157,6 +157,24 @@ class Autonameow(object):
                                  'actually write any changes to disk')
 
         optgrp_filter = parser.add_argument_group()
+        optgrp_filter.add_argument('--ignore-before-year',
+                                   metavar='',
+                                   type=arg_is_year,
+                                   default=None,
+                                   nargs='?',
+                                   dest='filter_ignore_before_year',
+                                   action='store',
+                                   help='ignore date/time-information that '
+                                        'predate this year')
+        optgrp_filter.add_argument('--ignore-after-year',
+                                   metavar='',
+                                   type=arg_is_year,
+                                   default=None,
+                                   nargs='?',
+                                   dest='filter_ignore_after_year',
+                                   action='store',
+                                   help='ignore date/time-information that '
+                                        'follow this year')
         optgrp_filter.add_argument('--ignore-year',
                                    metavar='',
                                    type=arg_is_year,
@@ -199,8 +217,10 @@ class Autonameow(object):
         #     pass
 
         elif args.verbose:
-            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
-                     ' %(levelname)-8.8s' + Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + '%(message)-130.130s'
+            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET \
+                     + ' %(levelname)-8.8s' \
+                     + Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET \
+                     + '%(message)-130.130s'
             logging.basicConfig(level=logging.INFO, format=FORMAT,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         elif args.quiet:
@@ -216,7 +236,8 @@ class Autonameow(object):
                 try:
                     dt = datetime.strptime(str(year), '%Y')
                 except ValueError as e:
-                    logging.warning('Erroneous date format: {}'.format(e.message))
+                    logging.warning('Erroneous date format: '
+                                    '{}'.format(e.message))
                 else:
                     self.filters.append(dt)
 
