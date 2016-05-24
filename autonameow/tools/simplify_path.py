@@ -43,9 +43,9 @@ def long_substr(data):
 
 
 class FilePath(object):
-    def __init__(self, path, basename):
-        self.path = path
-        self.basename = basename
+    def __init__(self, path):
+        self.path = os.path.abspath(path)
+        self.basename = os.path.basename(self.path)
         self.basename_words = re.split('\W+|_', self.basename)
         self.new_path = None
 
@@ -60,14 +60,12 @@ def simplify_path(list_of_paths):
     filepath_list = []
     longest_entry = None
 
-    # Walk path, create list of FilePath objects from found files absolute path.
+    # Walk path, create list of FilePath objects from found files.
     for path in list_of_paths:
         for root, dirs, files in os.walk(path):
             for f in files:
                 path = os.path.join(root, f)
-                abs_path = os.path.abspath(path)
-                basename = os.path.basename(abs_path)
-                filepath_list.append(FilePath(abs_path, basename))
+                filepath_list.append(FilePath(path))
 
     filepath_list = sorted(filepath_list)
 
