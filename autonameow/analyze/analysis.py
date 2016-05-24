@@ -16,6 +16,7 @@ from util import disk
 from util.misc import unpack_dict
 
 class ExtractedData(object):
+    # TODO: Not used and incomplete -- implement properly or remove entirely.
     def __init__(self, data, weight):
         self.data = data
         self.weight = weight
@@ -116,8 +117,8 @@ class Analysis(object):
         if 'Exif_DateTimeOriginal' in dt_list:
             print('Most probable :: Exif_DateTimeOriginal: {}'.format('value'))
 
-
     def prefix_date_to_filename(self):
+        # TODO: Implement this properly ..
         fo = self.file_object
 
         datetime = fo.get_oldest_datetime()
@@ -129,6 +130,10 @@ class Analysis(object):
         print('%s %s.%s' % (datetime.strftime('%Y-%m-%d_%H%M%S'), fn_noext, ext))
 
     def run(self):
+        # TODO: CLEAN UP! FIX!
+        #       Reconsider the idea that the "Analysis" class is to act as an
+        #       "interface to all analyzers" ..
+
         # Create a basic analyzer, common to all file types.
         self.analyzer = AnalyzerBase(self.file_object, self.filters)
         self.analyzer.run()
@@ -139,15 +144,12 @@ class Analysis(object):
         if t == 'JPG':
             logging.debug('File is of type [JPG]')
             self.analyzer = ImageAnalyzer(self.file_object, self.filters)
-        if t == 'PNG':
+        elif t == 'PNG':
             logging.debug('File is of type [PNG]')
             self.analyzer = ImageAnalyzer(self.file_object, self.filters)
         elif t == 'PDF':
             logging.debug('File is of type [PDF]')
             self.analyzer = PdfAnalyzer(self.file_object, self.filters)
-        elif t == 'TXT':
-            logging.debug('File is a of type [TEXT]')
-            self.analyzer = TextAnalyzer(self.file_object, self.filters)
         elif t == 'TXT':
             logging.debug('File is a of type [TEXT]')
             self.analyzer = TextAnalyzer(self.file_object, self.filters)
