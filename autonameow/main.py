@@ -69,18 +69,22 @@ class Autonameow(object):
                 sys.exit()
 
     def handle_files(self):
+        """
+        Iterate over passed arguments, which should be paths to files.
+        """
         for arg in self.args.input_files:
             if not os.path.exists(arg):
-                logging.error('Skipping non-existent file/directory \"%s\"' % str(arg))
+                logging.error('Skipping non-existent file/directory ' '\"{}\"'.format(str(arg)))
                 continue
             elif os.path.isdir(arg):
-                logging.error('Skipping directory \"%s\"' % str(arg))
+                logging.error('Skipping directory \"{}\"'.format(str(arg)))
                 continue
             elif os.path.islink(arg):
-                logging.error('Skipping symbolic link \"%s\"' % str(arg))
+                logging.error('Skipping symbolic link \"{}\"'.format(str(arg)))
                 continue
             elif not os.access(arg, os.R_OK):
-                logging.error('Not authorized to read file \"%s\"' % str(arg))
+                logging.error('Not authorized to read file '
+                              '\"{}\"'.format(str(arg)))
                 continue
             else:
                 # print "File exists and is readable"
