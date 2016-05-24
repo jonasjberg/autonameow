@@ -88,7 +88,7 @@ class Autonameow(object):
                 continue
             else:
                 # print "File exists and is readable"
-                logging.info('Processing file \"%s\"' % str(arg))
+                logging.info('Processing file \"%s\"'.format(str(arg)))
 
                 # Create a file object representing the current arg.
                 curfile = FileObject(arg)
