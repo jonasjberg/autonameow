@@ -16,58 +16,56 @@ def date_is_probable(date):
     """
     Check if date is "probable", meaning greater than 1900 and
     not in the future, I.E. greater than the year of todays date.
-    That is, simply:    1900 < date < today
-    :param date: date to check
-    :return: True if the date is probable, otherwise False
+    That is, simply: 1900 < date < today
+    :param date: Date to check, preferably as a datetime-object.
+                 Other types will be converted if possible.
+    :return: True if the date is probable.
+             False if the date is not probable or a conversion to
+             datetime-object failed.
     """
+    probable_lower_limit = datetime.strptime('1900', '%Y')
+    probable_upper_limit = datetime.today()
+
     logging.debug('Checking probability of [{}] {}'.format(date, type(date)))
-    if type(date) is datetime:
-        # Do date comparisons using datetime-objects.
-        probable_lower_limit = datetime.strptime('1900', '%Y')
-        probable_upper_limit = datetime.today()
-        if date.year > probable_upper_limit.year:
-            logging.debug('Skipping future date [{}]'.format(date))
-            return False
-        elif date.year < probable_lower_limit.year:
-            logging.debug('Skipping non-probable (<{}) date '
-                          '[{}]'.format(probable_lower_limit, date))
-            return False
-        else:
-            # Date lies within window, assume it is OK.
-            return True
-    else:
-        # Date is some other type. Try to convert to integer,
-        # then do comparisons on plain integers.
+    if type(date) is not datetime:
+        # Date is some other type.
+        # Try to convert to integer, then from integer to datetime.
         try:
             date = int(date)
-        except TypeError:
-            logging.warning('Got unexpected type \"{}\"'.format(type(date)))
+        except ValueError as ex:
+            logging.warning('Got unexpected type \"{}\". '
+                            'Casting failed: {}' % (type(date), ex))
             return False
 
-        # Define arbitrary lower limit. Upper limit is todays date.
-        probable_lower_limit = int(1900)
-        probable_upper_limit = int(datetime.today().strftime('%Y'))
-
-        # Check if number of digits is less than three,
+        # Check if number of digits in "date" is less than three,
         # I.E. we got something like '86' (1986) or maybe '08' (2008).
         # TODO: Improve this here below logic ..
         if len(str(date)) < 3:
             # Test if adding 2000 would still be within the limit.
-            if date + 2000 <= probable_upper_limit:
+            if date + 2000 <= int(probable_upper_limit.strftime('%Y')):
                 date += 2000
             # Otherwise just assume this will fix it ..
             else:
                 date += 1900
 
-        if date > probable_upper_limit:
-            logging.debug('Skipping future date [{}]'.format(date))
+        try:
+            date = datetime.strptime(date, '%Y')
+        except TypeError:
+            logging.warning('Failed converting \"{}\" '
+                            'to datetime-object.'.format(date))
             return False
-        elif date < probable_lower_limit:
-            logging.debug('Skipping non-probable (<{}) date '
-                          '[{}]'.format(probable_lower_limit, date))
-            return False
-        else:
-            return True
+
+    # Do date comparisons using datetime-objects.
+    if date.year > probable_upper_limit.year:
+        logging.debug('Skipping future date [{}]'.format(date))
+        return False
+    elif date.year < probable_lower_limit.year:
+        logging.debug('Skipping non-probable (<{}) date '
+                      '[{}]'.format(probable_lower_limit, date))
+        return False
+    else:
+        # Date lies within window, assume it is OK.
+        return True
 
 
 def search_standard_formats(text, prefix):
@@ -79,6 +77,7 @@ def search_standard_formats(text, prefix):
     """
     # TODO: Implement ..
     pass
+
 
 def regex_search_str(text, prefix):
     """
@@ -138,7 +137,8 @@ def regex_search_str(text, prefix):
         dt_fmt_1 = '%Y%m%d_%H%M%S'
         dt_str = (m_date + '_' + m_time).strip()
         try:
-            logging.debug('Trying to match [{:13}] to [{}] ..'.format(dt_fmt_1, dt_str))
+            logging.debug(
+                'Trying to match [{:13}] to [{}] ..'.format(dt_fmt_1, dt_str))
             dt = datetime.strptime(dt_str, dt_fmt_1)
         except ValueError:
             pass
@@ -154,7 +154,7 @@ def regex_search_str(text, prefix):
     dt_pattern_2 = re.compile('(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
     for dt_str in re.findall(dt_pattern_2, text):
-        #logging.debug('DT STR IS \"{}\"'.format(dt_str))
+        # logging.debug('DT STR IS \"{}\"'.format(dt_str))
         try:
             logging.debug('Trying to match [%-12.12s] to [%s] ..'
                           % (dt_fmt_2, dt_str))
@@ -187,10 +187,11 @@ def regex_search_str(text, prefix):
                 results[new_key] = dt
                 matches += 1
 
-
     logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
-    logging.info('Regex matcher returning dict with [{:^3}] results.'.format(len(results)))
+    logging.info('Regex matcher returning dict with [{:^3}] results.'.format(
+        len(results)))
     return results
+
 
 def match_special_case(text):
     """
@@ -322,20 +323,20 @@ def bruteforce_str(text, prefix):
 
     #               Chars   Date/time format        Example
     #                  --   -------------------     -------------------
-    common_formats = [[14, '%Y%m%d%H%M%S'],         # 19921224121314
-                      [8, '%Y%m%d'],                # 19921224
-                      [6, '%Y%m'],                  # 199212
-                      [4, '%Y'],                    # 1992
-                      [10, '%m%d%Y'],               # 12241992
-                      [8, '%m%d%y'],                # 122492
-                      [8, '%d%m%y'],                # 241292
-                      [8, '%y%m%d'],                # 921224
-                      [11, '%b%d%Y'],               # Dec241992
-                      [11, '%d%b%Y'],               # 24Dec1992
-                      [9, '%b%d%y'],                # Dec2492
-                      [9, '%d%b%y'],                # 24Dec92
-                      [20, '%B%d%y'],               # December2492
-                      [20, '%B%d%Y']]               # December241992
+    common_formats = [[14, '%Y%m%d%H%M%S'],  # 19921224121314
+                      [8, '%Y%m%d'],  # 19921224
+                      [6, '%Y%m'],  # 199212
+                      [4, '%Y'],  # 1992
+                      [10, '%m%d%Y'],  # 12241992
+                      [8, '%m%d%y'],  # 122492
+                      [8, '%d%m%y'],  # 241292
+                      [8, '%y%m%d'],  # 921224
+                      [11, '%b%d%Y'],  # Dec241992
+                      [11, '%d%b%Y'],  # 24Dec1992
+                      [9, '%b%d%y'],  # Dec2492
+                      [9, '%d%b%y'],  # 24Dec92
+                      [20, '%B%d%y'],  # December2492
+                      [20, '%B%d%Y']]  # December241992
     tries = matches = matches_total = tries_total = 0
     for chars, fmt in common_formats:
         if len(text) < chars:
@@ -359,10 +360,13 @@ def bruteforce_str(text, prefix):
                 matches_total += 1
 
     if results:
-        logging.info('First matcher found  [{:>3}] matches after [{:>4}] tries.'.format(len(results), tries))
+        logging.info(
+            'First matcher found  [{:>3}] matches after [{:>4}] tries.'.format(
+                len(results), tries))
         return results
     else:
-        logging.debug('Gave up first approach after [{:>4}] tries.'.format(tries))
+        logging.debug(
+            'Gave up first approach after [{:>4}] tries.'.format(tries))
 
     # ----------------------------------------------------------------
     # PART #2   -- pattern matching on just the digits
@@ -392,12 +396,12 @@ def bruteforce_str(text, prefix):
     if year_first:
         #                Chars   Date/time format   Example
         #                   --   ----------------   --------------
-        common_formats2 = [[14, '%Y%m%d%H%M%S'],    # 19921224121314
-                           [12, '%Y%m%d%H%M'],      # 199212241213
-                           [10, '%Y%m%d%H'],        # 1992122412
-                           [8, '%Y%m%d'],           # 19921224
-                           [6, '%Y%m'],             # 199212
-                           [4, '%Y']]               # 1992
+        common_formats2 = [[14, '%Y%m%d%H%M%S'],  # 19921224121314
+                           [12, '%Y%m%d%H%M'],  # 199212241213
+                           [10, '%Y%m%d%H'],  # 1992122412
+                           [8, '%Y%m%d'],  # 19921224
+                           [6, '%Y%m'],  # 199212
+                           [4, '%Y']]  # 1992
         tries = 0
         logging.debug('Assuming format with year first.')
         for chars, fmt in common_formats2:
@@ -427,15 +431,15 @@ def bruteforce_str(text, prefix):
             logging.debug('Assuming format other than year first.')
             #                Chars   Date/time format   Example
             #                   --   ----------------   --------------
-            common_formats3 = [[8, '%d%m%Y'],           # 24121992
-                               [6, '%d%m%y'],           # 241292
-                               [8, '%m%d%Y'],           # 12241992
-                               [6, '%m%d%y'],           # 122492
-                               [6, '%d%m%y'],           # 241292
-                               [6, '%y%m%d'],           # 921224
-                               [6, '%Y%m'],             # 199212
-                               [4, '%Y'],               # 1992
-                               [2, '%y']]               # 92
+            common_formats3 = [[8, '%d%m%Y'],  # 24121992
+                               [6, '%d%m%y'],  # 241292
+                               [8, '%m%d%Y'],  # 12241992
+                               [6, '%m%d%y'],  # 122492
+                               [6, '%d%m%y'],  # 241292
+                               [6, '%y%m%d'],  # 921224
+                               [6, '%Y%m'],  # 199212
+                               [4, '%Y'],  # 1992
+                               [2, '%y']]  # 92
             tries = 0
             for chars, fmt in common_formats3:
                 digits_strip = digits[:chars]
@@ -458,11 +462,16 @@ def bruteforce_str(text, prefix):
 
             logging.debug('Gave up after %d tries ..' % tries)
             logging.debug('Removing leading number ..')
-            logging.debug('Removing leading number ({} --> {})'.format(digits, digits[1:]))
+            logging.debug('Removing leading number ({} --> {})'.format(digits,
+                                                                       digits[
+                                                                       1:]))
             digits = digits[1:]
 
-    logging.info('Second matcher found [{:>3}] matches after [{:>4}] tries.'.format(matches_total, tries_total))
+    logging.info(
+        'Second matcher found [{:>3}] matches after [{:>4}] tries.'.format(
+            matches_total, tries_total))
     return results
+
 
 def fuzzy_datetime(text, prefix):
     # TODO: Finish this method ..
@@ -478,6 +487,7 @@ def fuzzy_datetime(text, prefix):
         print('Try as I may, I cannot parse %r (%s)' % (text, e))
 
     return dt
+
 
 def search_gmail(text, prefix):
     """
@@ -501,7 +511,8 @@ def search_gmail(text, prefix):
     # Expected date formats:         Fri, Jan 8, 2016 at 3:50 PM
     #                                1/11/2016
     SEP = '[, ]'
-    REGEX_GMAIL_LONG = re.compile('(\w{3,8})' + SEP + '(\w{3,10})\ (\d{1,2})' + SEP + '([12]\d{3})' + '(\ at\ )?' + '(\d{1,2}:\d{1,2}\ [AP]M)')
+    REGEX_GMAIL_LONG = re.compile(
+        '(\w{3,8})' + SEP + '(\w{3,10})\ (\d{1,2})' + SEP + '([12]\d{3})' + '(\ at\ )?' + '(\d{1,2}:\d{1,2}\ [AP]M)')
     # REGEX_GMAIL_LONG = re.compile('\w{3,5},\ \w{3,5}\ \d{1,2},\ [12]\d{3}\ at\ \d{1,2}:\d{1,2}\ [AP]M')
     REGEX_GMAIL_SHORT = re.compile('\d{1,2}\/\d{2}\/[12]\d{3}')
 
