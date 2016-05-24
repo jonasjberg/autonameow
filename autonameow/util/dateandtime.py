@@ -20,14 +20,37 @@ def date_is_probable(date):
     :param date: date to check
     :return: True if the date is probable, otherwise False
     """
-    logging.debug('date_is_probable got {} : {}'.format(type(date), date))
-    if type(date) is not datetime:
+    logging.debug('Checking probability of [{}] {}'.format(date, type(date)))
+    if type(date) is datetime:
+        # Do date comparisons using datetime-objects.
+        probable_lower_limit = datetime.strptime('1900', '%Y')
+        probable_upper_limit = datetime.today()
+        if date.year > probable_upper_limit.year:
+            logging.debug('Skipping future date [{}]'.format(date))
+            return False
+        elif date.year < probable_lower_limit.year:
+            logging.debug('Skipping non-probable (<{}) date '
+                          '[{}]'.format(probable_lower_limit, date))
+            return False
+        else:
+            # Date lies within window, assume it is OK.
+            return True
+    else:
+        # Date is some other type. Try to convert to integer,
+        # then do comparisons on plain integers.
+        try:
+            date = int(date)
+        except TypeError:
+            logging.warning('Got unexpected type \"{}\"'.format(type(date)))
+            return False
+
+        # Define arbitrary lower limit. Upper limit is todays date.
         probable_lower_limit = int(1900)
         probable_upper_limit = int(datetime.today().strftime('%Y'))
 
-        date = int(date)
         # Check if number of digits is less than three,
         # I.E. we got something like '86' (1986) or maybe '08' (2008).
+        # TODO: Improve this here below logic ..
         if len(str(date)) < 3:
             # Test if adding 2000 would still be within the limit.
             if date + 2000 <= probable_upper_limit:
@@ -46,18 +69,6 @@ def date_is_probable(date):
         else:
             return True
 
-    else:
-        probable_lower_limit = datetime.strptime('1900', '%Y')
-        probable_upper_limit = datetime.today()
-        if date.year > probable_upper_limit.year:
-            logging.debug('Skipping future date [{}]'.format(date))
-            return False
-        elif date.year < probable_lower_limit.year:
-            logging.debug('Skipping non-probable (<{}) date [{}]'.format(
-                probable_lower_limit, date))
-            return False
-        else:
-            return True
 
 def search_standard_formats(text, prefix):
     """
