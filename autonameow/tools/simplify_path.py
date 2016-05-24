@@ -60,11 +60,10 @@ def simplify_path(list_of_paths):
     for path in list_of_paths:
         for root, dirs, files in os.walk(path):
             for file in files:
-                file_abs_path = os.path.join(root, file)
+                file_path = os.path.join(root, file)
+                file_abs_path = os.path.abspath(file_path)
                 filepath_list.append(FilePath(file_abs_path))
 
-    path_list = []
-    entry_count_min = 0
     set_of_words = set()
 
     # This splits up a file name into a list.
@@ -75,8 +74,9 @@ def simplify_path(list_of_paths):
             set_of_words.add(word)
 
     # print long_substr(file_list)
-    for entry in path_list:
-        print entry
+    for entry in filepath_list:
+        print(entry.path)
+        print(entry.words)
 
     # print 'Entry count (low): {}'.format(entry_count_min)
 
@@ -97,6 +97,7 @@ def simplify_path_main(argv):
 
     # Run main routine on the argument list if it is not empty.
     if arg_list and arg_list is not None:
+        print('Running simplify_path ..')
         simplify_path(arg_list)
     else:
         print 'Got empty argument list. Exiting.'
