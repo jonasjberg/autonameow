@@ -50,7 +50,9 @@ class Autonameow(object):
         Main program entry point
         """
         # Handle the command line arguments.
-        self.filters = []
+        self.filter = {"ignore_years": [],
+                       "ignore_before_year": None,
+                       "ignore_after_year": None}
         self.args = self.parse_args()
 
         if self.args.verbose:
@@ -90,13 +92,13 @@ class Autonameow(object):
                 continue
             else:
                 # print "File exists and is readable"
-                logging.info('Processing file \"%s\"'.format(str(arg)))
+                logging.info('Processing file \"{}\"'.format(str(arg)))
 
                 # Create a file object representing the current arg.
                 curfile = FileObject(arg)
 
                 # Begin analysing the file.
-                analysis = Analysis(curfile, self.filters)
+                analysis = Analysis(curfile, self.filter)
                 analysis.run()
 
                 if self.args.add_datetime:
@@ -177,15 +179,15 @@ class Autonameow(object):
                                    action='store',
                                    help='ignore date/time-information that '
                                         'follow this year')
-        optgrp_filter.add_argument('--ignore-year',
+        optgrp_filter.add_argument('--ignore-years',
                                    metavar='',
                                    type=arg_is_year,
                                    default=[],
                                    nargs='*',
-                                   dest='filter_ignore_year',
+                                   dest='filter_ignore_years',
                                    action='store',
                                    help='ignore date/time-information '
-                                        'containing this year')
+                                        'containing this year(s)')
 
         return parser
 
@@ -235,29 +237,32 @@ class Autonameow(object):
             logging.basicConfig(level=logging.WARNING, format=FORMAT)
 
         # TODO: Fix this and overall filter handling.
-        if args.filter_ignore_year and args.filter_ignore_year is not None:
-            for year in args.filter_ignore_year:
+        if args.filter_ignore_years and args.filter_ignore_years is not None:
+            for year in args.filter_ignore_years:
                 try:
                     dt = datetime.strptime(str(year), '%Y')
                 except ValueError as e:
                     logging.warning('Erroneous date format: '
                                     '{}'.format(e.message))
                 else:
-                    self.filters.append(dt)
+                    if dt not in self.filter["ignore_years"]:
+                        self.filter["ignore_years"].append(dt)
+
+            ignored_years = ', '.join((str(yr.year)
+                                       for yr in self.filter["ignore_years"]))
+            logging.debug('Using filter: ignore date/time-information for these'
+                          ' years: {}'.format(ignored_years))
 
         if args.filter_ignore_before_year and args.filter_ignore_before_year is not None:
             try:
-                ignore_before = datetime.strptime(str(args.filter_ignore_before_year), '%Y')
+                ignore_before = datetime.strptime(
+                    str(args.filter_ignore_before_year), '%Y')
             except ValueError as e:
                 logging.warning('Erroneous date format: {}'.format(e.message))
             else:
-                probable_lower_limit = datetime.strptime('1900', '%Y')
-                # probable_upper_limit = datetime.today()
-                for y in range(datetime.min, ignore_before):
-                    print('TYPE Y: {}'.format(type(y)))
-                    if not y in self.filters:
-                        self.filters.append(y)
-
+                logging.debug('Using filter: ignore date/time-information that'
+                              ' predate {}'.format(ignore_before))
+                self.filter["ignore_before_year"] = ignore_before
 
         # Display help/usage information if no arguments are provided.
         if len(sys.argv) < 2:
@@ -294,7 +299,7 @@ class Autonameow(object):
         print_line('dry run', 'TRUE' if args.dry_run else 'FALSE')
         print_line_section('Results filtering')
         print_line('ignore year',
-                   'TRUE' if args.filter_ignore_year else 'FALSE')
+                   'TRUE' if args.filter_ignore_years else 'FALSE')
         print_line_section('Positional arguments')
         print_line('input files', 'TRUE' if args.input_files else 'FALSE')
         print('')
@@ -321,7 +326,7 @@ class Autonameow(object):
         copyright1 = ' ' * 15 + 'Copyright(c)2016 Jonas Sjoberg'
         license1 = ' ' * 15 + 'Please see "LICENSE.md" for licensing details.'
         print(
-        ' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + version.__title__.upper() + ' ' + Back.RESET + Fore.RESET + '  version ' + version.__version__)
+            ' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + version.__title__.upper() + ' ' + Back.RESET + Fore.RESET + '  version ' + version.__version__)
         print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + len(
             version.__title__) * '~' + ' ' + Back.RESET + Fore.RESET + credits1)
         print(credits2)
@@ -330,5 +335,6 @@ class Autonameow(object):
         print(license1)
         print('')
         print(
-        Fore.LIGHTBLACK_EX + 'Started at {} by {} on {}'.format(date, username,
-                                                                hostname) + Fore.RESET)
+            Fore.LIGHTBLACK_EX + 'Started at {} by {} on {}'.format(date,
+                                                                    username,
+                                                                    hostname) + Fore.RESET)

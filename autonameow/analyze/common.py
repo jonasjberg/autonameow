@@ -36,26 +36,28 @@ class AnalyzerBase(object):
     def add_datetime(self, dt):
         """
         Adds a datetime-entry by first checking any filters for matches.
-        Matches are ignored, "filtered out" ..
+        Matches are ignored, "passed out" ..
         :param dt: datetime to add
         """
         if type(dt) is not dict:
             logging.warning('Got unexpected type \"{}\" '
                             '(expected dict)'.format(type(dt)))
 
-        filtered = {}
-        if self.filters is not None and self.filters:
-            years = []
-            for filt in self.filters:
-                years.append(filt.year)
-
+        passed = {}
+        removed = {}
+        ignore_years = [yr.year for yr in self.filters["ignore_years"]]
+        if ignore_years is not None and len(ignore_years) > 0:
             for key, value in dt.iteritems():
-                if not value.year in years:
-                    # del(dt[key])
-                    filtered[key] = value
+                if value.year not in ignore_years:
+                    # logging.debug('Filter passed date/time {} .. '.format(dt))
+                    passed[key] = value
+                else:
+                    logging.debug('Filter removed date/time {} .. '.format(dt))
+                    removed[key] = value
 
-            self.file_object.add_datetime(filtered)
+            self.file_object.add_datetime(passed)
         else:
+            # Just pass the datetime through, unaffected by the filter.
             self.file_object.add_datetime(dt)
 
     def get_datetime(self):
