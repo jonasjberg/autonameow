@@ -3,10 +3,9 @@
 # Copyright 2016, Jonas Sjoberg.
 
 import logging
+import re
 import string
 from datetime import datetime
-
-import re
 
 import dateutil
 
@@ -41,8 +40,8 @@ def date_is_probable(date):
             logging.debug('Skipping future date [{}]'.format(date))
             return False
         elif date < probable_lower_limit:
-            logging.debug('Skipping non-probable (<{}) date [{}]'.format(
-                probable_lower_limit, date))
+            logging.debug('Skipping non-probable (<{}) date '
+                          '[{}]'.format(probable_lower_limit, date))
             return False
         else:
             return True
@@ -67,6 +66,7 @@ def search_standard_formats(text, prefix):
     :param prefix: prefix this to the resulting dictionary keys
     :return: a list of dictionaries containing datetime-objects.
     """
+    # TODO: Implement ..
     pass
 
 def regex_search_str(text, prefix):
@@ -193,7 +193,7 @@ def match_special_case(text):
     #       file or similar..
     try:
         logging.debug('Matching against very special case '
-                      '\"\%Y-\%m-\%d_\%H\%M\%S\" ..')
+                      '\"YYYY-mm-dd_HHMMSS\" ..')
         dt = datetime.strptime(text[:17], '%Y-%m-%d_%H%M%S')
     except ValueError:
         logging.debug('Failed matching very special case.')
@@ -217,8 +217,9 @@ def match_unix_timestamp(text):
         logging.error('Got empty string!')
         return None
 
-    if not text.isdigit():
-        logging.debug('Text is not all digits, unable to extract UNIX time.')
+    text = misc.extract_digits(text)
+    if text is None or len(text) == 0:
+        logging.warn('Text contains no digits from which to extract epoch.')
         return None
 
     # Example Android phone file name: 1461786010455.jpg

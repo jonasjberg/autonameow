@@ -5,16 +5,17 @@
 import datetime
 import logging
 import os
-import string
+
 from datetime import datetime
+
+from util import dateandtime
+from util import misc
+
 
 # Analysis relevant to all files, regardless of file mime type.
 # Examines:
 #   * file names
 #   * file system metadata (modified, created, ..)
-from util import dateandtime
-
-
 class AnalyzerBase(object):
     def __init__(self, file_object, filters):
         self.file_object = file_object
