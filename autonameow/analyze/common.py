@@ -94,6 +94,14 @@ class AnalyzerBase(object):
         fn = self.file_object.basename_no_ext
         result_list = []
 
+        dt_special = dateandtime.match_special_case(fn)
+        if dt_special:
+            result_list.append({"Filename_specialcase": dt_special})
+
+        dt_unix = dateandtime.match_unix_timestamp(fn)
+        if dt_unix:
+            result_list.append({"Filename_unix": dt_unix})
+
         dt_regex = dateandtime.regex_search_str(fn, 'Filename_regex')
         if dt_regex is None:
             logging.warning('Unable to extract date/time-information '

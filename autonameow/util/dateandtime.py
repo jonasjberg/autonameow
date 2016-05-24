@@ -203,6 +203,46 @@ def match_special_case(text):
             return dt
     return None
 
+
+def match_unix_timestamp(text):
+    """
+    Match text against UNIX "seconds since epoch" timestamp.
+    :param text: text to extract date/time from
+    :return: datetime if found otherwise None
+    """
+    if text is None:
+        logging.error('Got NULL argument!')
+        return None
+    elif text.strip() is None:
+        logging.error('Got empty string!')
+        return None
+
+    if not text.isdigit():
+        logging.debug('Text is not all digits, unable to extract UNIX time.')
+        return None
+
+    # Example Android phone file name: 1461786010455.jpg
+    # Remove last 3 digits to be able to convert using GNU date:
+    # $ date --date ='@1461786010'
+    #   ons 27 apr 2016 21:40:10 CEST
+    if len(text) == 13:
+        text = text[:10]
+
+    text_float = float(text)
+    try:
+        logging.debug('Try matching seconds since 1970-01-01 00:00:00 UTC.')
+        dt = datetime.fromtimestamp(text_float)
+    except ValueError:
+        logging.debug('Failed matching seconds since epoch.')
+    else:
+        if date_is_probable(dt):
+            logging.info('Extracted UNIX timestamp from \"{}\": '
+                         '[{}]'.format(text, dt))
+            return dt
+
+    return None
+
+
 def bruteforce_str(text, prefix):
     """
     Extracts date/time-information from a text string.
@@ -222,6 +262,9 @@ def bruteforce_str(text, prefix):
     if text is None:
         logging.error('Got NULL argument!')
         return None
+    elif text.strip() is None:
+        logging.error('Got empty string!')
+        return None
 
     # (premature) optimization ..
     if len(text) < 4:
@@ -240,27 +283,6 @@ def bruteforce_str(text, prefix):
 
     # Create empty dictionary to hold all results.
     results = {}
-
-    # ----------------------------------------------------------------
-    # PART #-1   -- "unix" timestamp
-    # If the text is all digits after above modifications, then check
-    # if text represent seconds since 1970-01-01 00:00:00 UTC.
-    #
-    if text.isdigit():
-        # print('text {} is all digits'.format(text))
-        text_float = float(text)
-        try:
-            logging.debug('Try matching seconds since 1970-01-01 00:00:00 UTC.')
-            dt = datetime.fromtimestamp(text_float)
-        except ValueError:
-            logging.debug('Failed matching seconds since epoch.')
-        else:
-            if date_is_probable(dt):
-                logging.info('Extracted (seconds since epoch) datetime from '
-                             '{}: [{}]'.format(prefix, dt))
-                new_key = '{0}_{1:02d}'.format(prefix, 0)
-                results[new_key] = dt
-                return results
 
     # ----------------------------------------------------------------
     # PART #1   -- pattern matching
