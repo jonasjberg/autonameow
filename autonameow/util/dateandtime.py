@@ -224,17 +224,24 @@ def match_android_messenger_filename(text):
     :return: datetime-object if match is found, otherwise None
     """
 
+    # $ date --date='@1453473286' --rfc-3339=seconds
+    #   2016-01-22 15:34:46+01:00
+    # $ 1453473286723
+
     dt_pattern = re.compile('received_(\d{17})')
     for dt_str in re.findall(dt_pattern, text):
         try:
+            print(dt_str)
             logging.debug('Matching against Android Messenger file name ..')
-            dt = datetime.strptime(dt_str, '%f')
-        except ValueError:
+            # dt_float = float(dt_str[:13])
+            # dt_str = float(dt_str[:13])
+            dt = datetime.fromtimestamp(float(dt_str) / 1000.0)
+        except ValueError as e:
             pass
         else:
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from Android messenger file '
-                              'name text: [%s]'.format(dt.isoformat()))
+                              'name text: [{}]'.format(dt.isoformat()))
                 return dt
 
 

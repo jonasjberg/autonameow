@@ -69,8 +69,8 @@ class AnalyzerBase(object):
         """
         Extracts date and time information "from the file system", I.E.
         access-, modification- and creation-timestamps.
-        NOTE: This is all very platform-specific.
-        :return: Touple of datetime objects representing date and time.
+        NOTE: This is all very platform-specific, I think.
+        :return: dictionary of datetime objects keyed by source
         """
         filename = self.file_object.path
         results = {}
@@ -86,6 +86,7 @@ class AnalyzerBase(object):
                              'from file system, which shouldnt happen.')
             logging.critical('OSError: {}'.format(e))
         else:
+            print(str(mtime))
             results['Fs_Modified'] = datetime.fromtimestamp(mtime).replace(
                 microsecond=0)
             results['Fs_Created'] = datetime.fromtimestamp(ctime).replace(
@@ -105,26 +106,27 @@ class AnalyzerBase(object):
         if dt_special:
             result_list.append({"Filename_specialcase": dt_special})
         else:
-            # TODO: Check if image file name is Android messenger specific.
-            # Example: received_10151287690965808.jpeg
-
-            dt_unix = dateandtime.match_unix_timestamp(fn)
-            if dt_unix:
-                result_list.append({"Filename_unix": dt_unix})
+            dt_android = dateandtime.match_android_messenger_filename(fn)
+            if dt_android:
+                result_list.append({'Filename_android': dt_android})
             else:
-                dt_regex = dateandtime.regex_search_str(fn, 'Filename_regex')
-                if dt_regex is None:
-                    logging.warning('Unable to extract date/time-information '
-                                    'from file name using regex search.')
+                dt_unix = dateandtime.match_unix_timestamp(fn)
+                if dt_unix:
+                    result_list.append({"Filename_unix": dt_unix})
                 else:
-                    result_list.append(dt_regex)
+                    dt_regex = dateandtime.regex_search_str(fn, 'Filename_regex')
+                    if dt_regex is None:
+                        logging.warning('Unable to extract date/time-information '
+                                        'from file name using regex search.')
+                    else:
+                        result_list.append(dt_regex)
 
-                dt_brute = dateandtime.bruteforce_str(fn, 'Filename_brute')
-                if dt_brute is None:
-                    logging.warning('Unable to extract date/time-information '
-                                    'from file name using brute force search.')
-                else:
-                    result_list.append(dt_brute)
+                    dt_brute = dateandtime.bruteforce_str(fn, 'Filename_brute')
+                    if dt_brute is None:
+                        logging.warning('Unable to extract date/time-information '
+                                        'from file name using brute force search.')
+                    else:
+                        result_list.append(dt_brute)
 
         # results = {}
         # for entry in result_list:
