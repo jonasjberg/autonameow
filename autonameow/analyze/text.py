@@ -62,70 +62,7 @@ class TextAnalyzer(AnalyzerBase):
             return None
 
     def get_datetime_from_text(self, text):
-        if text is None:
-            logging.warning('Got NULL argument')
-            return None
-
-        logging.debug('Got text {}: {}'.format(type(text), str(text)))
-        if type(text) is list:
-            logging.warn('Converting list to string ..')
-            text = ' '.join(text).lower()
-            # text = text.lower()
-
-        # # Text is probably of type list. Make it all lowercase.
-        # text = [t.lower() for t in text]
-
-        # Create empty dictionary to hold all results.
-        results = {}
-        result_index = 0
-
-        # Text is probably of type list. Split by newlines and lower-case.
-        # text_split = [t.lower() for t in text.split('\n')]
-
-        # Look for indicators that this is a gmail.
-        # Run specific regex search for gmail-specific patterns if so.
-        # TODO: Fix unfinished code.
-        if text.find('gmail'):
-            logging.debug('Text contains "gmail", might be a Gmail?')
-            # dt_gmail_list = dateandtime.search_gmail(text, 'text_contents_gmail_')
-            pass
-
-        regex_match = 0
-        dt_regex_list = dateandtime.regex_search_str(text, 'text_contents_regex_{}'.format(regex_match))
-        if dt_regex_list is not None:
-            k = '{0}_{1:03d}'.format('text_content', result_index)
-            results[k] = new_value
-            result_index += 1
-
-        match = 0
-        result_list = []
-        for line in text:
-            #text_split = line.split('\n')
-            # for t in text_split:
-            #     dt = dateandtime.bruteforce_str(t, 'pdf_contents_{}'.format(match))
-            #     if dt is not None:
-            #         logging.info('Added result from contents: {0}'.format(dt))
-            #         result_list.append(dt)
-            #         match += 1
-
-            text_split = line.split()
-            for t in text_split:
-                dt = dateandtime.bruteforce_str(t, 'text_content_{}'.format(match))
-                if dt is not None:
-                    # logging.debug('Added result from contents: {0}'.format(dt))
-                    result_list.append(dt)
-                    match += 1
-
-            for result in result_list:
-                # print('result {} : {}'.format(type(result), result))
-                for new_key, new_value in result.iteritems():
-                    if new_value not in results.values():
-                        # print('{} is not in {}'.format(new_value, 'results.value()'))
-                        k = '{0}_{1:03d}'.format('text_content', result_index)
-                        results[k] = new_value
-                        result_index += 1
-
-        return results
+        return dateandtime.get_datetime_from_text(text, 'text')
 
     def get_file_lines(self):
         fn = self.file_object.path

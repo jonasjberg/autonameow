@@ -385,7 +385,7 @@ def bruteforce_str(text, prefix):
     digits = digits_only
     # Remove one number at a time from the front until first four digits
     # represent a probable year.
-    while not date_is_probable(int(digits[:4])):
+    while not date_is_probable(int(digits[:4])) and year_first:
         logging.debug('\"{}\" is not a probable year. '
                       'Removing a digit.'.format(digits[:4]))
         digits = digits[1:]
@@ -570,3 +570,57 @@ def search_gmail(text, prefix):
     # logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
     # logging.info('Regex matcher returning dict with [{:^3}] results.'.format(len(results)))
     # return results
+
+
+def get_datetime_from_text(text, prefix='NULL'):
+    if text is None:
+        logging.warning('Got NULL argument')
+        return None
+    if prefix == 'NULL':
+        logging.warning('Result prefix not specified! Using default "NULL"')
+
+    if type(text) == list:
+        text = ' '.join(text)
+
+    result_list = []
+
+    match = 0
+    text_split = text.split('\n')
+    logging.debug('Getting datetime from text split by newlines')
+    for t in text_split:
+        dt = bruteforce_str(t, '{}_contents_{}'.format(prefix, match))
+        if dt is not None:
+            # logging.info('Added result from contents: {0}'.format(dt))
+            result_list.append(dt)
+            match += 1
+
+    if match == 0:
+        logging.debug('No matches. Trying with text split by whitespace')
+        text_split = text.split()
+        for t in text_split:
+            dt = bruteforce_str(t, '{}_contents_{}'.format(prefix, match))
+            if dt is not None:
+                # logging.info('Added result from contents: {0}'.format(dt))
+                result_list.append(dt)
+                match += 1
+
+    regex_match = 0
+    dt_regex = regex_search_str(text, '{}_contents_regex_{}'.format(prefix,
+                                                                    regex_match))
+    if dt_regex is not None:
+        # logging.info('Added result from contents regex search: {0}'.format(dt_regex))
+        result_list.append(dt_regex)
+        regex_match += 1
+
+    results = {}
+    index = 0
+    for result in result_list:
+        # print('result {} : {}'.format(type(result), result))
+        for new_key, new_value in result.iteritems():
+            if new_value not in results.values():
+                # print('{} is not in {}'.format(new_value, 'results.value()'))
+                k = '{0}_{1:03d}'.format('{}_content'.format(prefix, index))
+                results[k] = new_value
+                index += 1
+
+    return results

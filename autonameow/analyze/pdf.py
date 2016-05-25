@@ -225,48 +225,4 @@ class PdfAnalyzer(AnalyzerBase):
             return None
 
     def get_datetime_from_text(self, text):
-        if text is None:
-            logging.warning('Got NULL argument')
-            return None
-
-        result_list = []
-
-        match = 0
-        text_split = text.split('\n')
-        logging.debug('Getting datetime from text split by newlines')
-        for t in text_split:
-            dt = dateandtime.bruteforce_str(t, 'pdf_contents_{}'.format(match))
-            if dt is not None:
-                # logging.info('Added result from contents: {0}'.format(dt))
-                result_list.append(dt)
-                match += 1
-
-        if match == 0:
-            logging.debug('No matches. Trying with text split by whitespace')
-            text_split = text.split()
-            for t in text_split:
-                dt = dateandtime.bruteforce_str(t, 'pdf_contents_{}'.format(match))
-                if dt is not None:
-                    # logging.info('Added result from contents: {0}'.format(dt))
-                    result_list.append(dt)
-                    match += 1
-
-        regex_match = 0
-        dt_regex = dateandtime.regex_search_str(text, 'pdf_contents_regex_{}'.format(regex_match))
-        if dt_regex is not None:
-            # logging.info('Added result from contents regex search: {0}'.format(dt_regex))
-            result_list.append(dt_regex)
-            regex_match += 1
-
-        results = {}
-        index = 0
-        for result in result_list:
-            # print('result {} : {}'.format(type(result), result))
-            for new_key, new_value in result.iteritems():
-                if new_value not in results.values():
-                    # print('{} is not in {}'.format(new_value, 'results.value()'))
-                    k = '{0}_{1:03d}'.format('pdf_content', index)
-                    results[k] = new_value
-                    index += 1
-
-        return results
+        return dateandtime.get_datetime_from_text(text, 'pdf')
