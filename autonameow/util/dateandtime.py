@@ -582,17 +582,24 @@ def get_datetime_from_text(text, prefix='NULL'):
     if type(text) == list:
         text = ' '.join(text)
 
-    # Create empty dictionary for storing any found date/time-objects.
+    # Create empty dictionary for storing the final result as a dictionary of
+    # dictionaries. For instance;
     results = {}
 
+    # Create empty dictionaries for storing any found date/time-objects,
+    # one dictionary per search-method.
+    results_brute = {}
+    results_regex = {}
     matches = 0
     text_split = text.split('\n')
-    logging.debug('Getting datetime from text split by newlines')
+    logging.debug('Try getting datetime from text split by newlines')
     for t in text_split:
-        dt = bruteforce_str(t, '{}_contents_{}'.format(prefix, matches))
-        if dt is not None:
+        # new_key = '{}_contents_brute_{}'.format(prefix, matches)
+        new_key = '{}'.format(matches)
+        dt = bruteforce_str(t, new_key)
+        if dt and dt is not None:
             # logging.info('Added result from contents: {0}'.format(dt))
-            result_list.append(dt)
+            results_brute[new_key] = dt
             matches += 1
 
     if matches == 0:
