@@ -66,20 +66,28 @@ class TextAnalyzer(AnalyzerBase):
             logging.warning('Got NULL argument')
             return None
 
-        elif type(text) is not str:
-            logging.warning('Got unexpected type {} (expected '
-                            'string)'.format(type(text)))
-            return None
+        logging.debug('Got text {}: {}'.format(type(text), str(text)))
+        if type(text) is list:
+            logging.warn('Converting list to string ..')
+            text = ' '.join(text)
 
-        text = text.lower()
+        # Text is probably of type list. Make it all lowercase.
+        text = [t.lower() for t in text]
 
         # Create empty dictionary to hold all results.
         results = {}
         result_index = 0
 
+        # Text is probably of type list. Split by newlines and lower-case.
+        # text_split = [t.lower() for t in text.split('\n')]
+
+        # Look for indicators that this is a gmail.
+        # Run specific regex search for gmail-specific patterns if so.
+        # TODO: Fix unfinished code.
         if text.find('gmail'):
             logging.debug('Text contains "gmail", might be a Gmail?')
-            dt_gmail_list = dateandtime.search_gmail(text, 'text_contents_gmail_')
+            # dt_gmail_list = dateandtime.search_gmail(text, 'text_contents_gmail_')
+            pass
 
         regex_match = 0
         dt_regex_list = dateandtime.regex_search_str(text, 'text_contents_regex_{}'.format(regex_match))
