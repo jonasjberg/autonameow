@@ -10,7 +10,7 @@ List of things that need to be done.
 ### Bugs
 - [x] Some of the date/time-information gets lost on the way to the new pretty
       output from `print_all_datetime_info(self)`.
-- [ ] Duplicate date/time from pdf metadata printed out by 
+- [x] Duplicate date/time from pdf metadata printed out by 
       `print_all_datetime_info(self)`. Not sure if the problem is in the data
       or inte the presentation ..
       
