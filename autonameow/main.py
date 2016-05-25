@@ -101,13 +101,15 @@ class Autonameow(object):
                 analysis = Analysis(curfile, self.filter)
                 analysis.run()
 
-                if self.args.add_datetime:
+                if self.args.list_datetime:
                     print('File: \"%s\"' % curfile.path)
                     analysis.print_all_datetime_info()
                     analysis.find_most_probable_datetime()
                     # analysis.print_oldest_datetime()
                     # analysis.prefix_date_to_filename()
                     print('')
+
+
 
     def init_argparser(self):
         """
@@ -144,10 +146,16 @@ class Autonameow(object):
                                    help='quiet mode')
 
         optgrp_action = parser.add_mutually_exclusive_group()
-        optgrp_action.add_argument('--add-datetime',
-                                   dest='add_datetime',
+        optgrp_action.add_argument('--list-datetime',
+                                   dest='list_datetime',
                                    action='store_true',
-                                   help='only add datetime to file name')
+                                   help='list all found date/time-information')
+
+        optgrp_action.add_argument('--prepend-datetime',
+                                   dest='prepend_datetime',
+                                   action='store_true',
+                                   help='prepend most probable '
+                                        'date/time-information to file name')
 
         parser.add_argument(dest='input_files',
                             metavar='filename',
@@ -294,7 +302,7 @@ class Autonameow(object):
         print_line('verbose mode', 'TRUE' if args.verbose else 'FALSE')
         print_line('quiet mode', 'TRUE' if args.quiet else 'FALSE')
         print_line_section('Actions to performed')
-        print_line('add datetime', 'TRUE' if args.add_datetime else 'FALSE')
+        print_line('add datetime', 'TRUE' if args.list_datetime else 'FALSE')
         print_line_section('Behavior configuration')
         print_line('dry run', 'TRUE' if args.dry_run else 'FALSE')
         print_line_section('Results filtering')
@@ -338,3 +346,8 @@ class Autonameow(object):
             Fore.LIGHTBLACK_EX + 'Started at {} by {} on {}'.format(date,
                                                                     username,
                                                                     hostname) + Fore.RESET)
+
+        def exit_program(self):
+            # TODO: Expand this method and/or figure out if it is even needed ..
+            logging.info('Exiting.')
+            sys.exit(0)
