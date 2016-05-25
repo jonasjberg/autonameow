@@ -354,7 +354,7 @@ class Autonameow(object):
               'Started at {} by {} on {}'.format(date, username, hostname) +
               Fore.RESET)
 
-        def exit_program(self):
-            # TODO: Expand this method and/or figure out if it is even needed ..
-            logging.info('Exiting.')
-            sys.exit(0)
+    def exit_program(self):
+        # TODO: Expand this method and/or figure out if it is even needed ..
+        logging.info('Exiting.')
+        sys.exit(0)

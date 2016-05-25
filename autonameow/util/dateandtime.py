@@ -216,14 +216,27 @@ def match_special_case(text):
     return None
 
 
-def match_android_messenger(text):
+def match_android_messenger_filename(text):
     """
     Test if text (file name) matches that of Android messenger.
     Example: received_10151287690965808.jpeg
     :param text: text (file name) to test
     :return: datetime-object if match is found, otherwise None
     """
-    # TODO: Implement this ..
+
+    dt_pattern = re.compile('received_(\d{17})')
+    for dt_str in re.findall(dt_pattern, text):
+        try:
+            logging.debug('Matching against Android Messenger file name ..')
+            dt = datetime.strptime(dt_str, '%f')
+        except ValueError:
+            pass
+        else:
+            if date_is_probable(dt):
+                logging.debug('Extracted datetime from Android messenger file '
+                              'name text: [%s]'.format(dt.isoformat()))
+                return dt
+
 
 
 def match_unix_timestamp(text):
@@ -635,16 +648,7 @@ def get_datetime_from_text(text, prefix='NULL'):
         results_regex.append(dt_regex)
         regex_match += 1
 
-    # results = {}
-    # index = 0
-    # for result in result_list:
-    #     # print('result {} : {}'.format(type(result), result))
-    #     for new_key, new_value in result.iteritems():
-    #         if new_value not in results.values():
-    #             # print('{} is not in {}'.format(new_value, 'results.value()'))
-    #             #k = '{0}_{1:03d}'.format('{}_contents'.format(prefix), index)
-    #             results[k] = new_value
-    #             index += 1
+    # Collect all individual results and return.
     results_all['{}_contents_regex'.format(prefix)] = results_regex
     results_all['{}_contents_brute'.format(prefix)] = results_brute
     return results_all

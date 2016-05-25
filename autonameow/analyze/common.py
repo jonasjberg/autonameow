@@ -27,13 +27,13 @@ class AnalyzerBase(object):
         """
         fs_timestamps = self.get_datetime_from_filesystem()
         if fs_timestamps:
-            self.add_datetime(fs_timestamps)
+            self.filter_datetime(fs_timestamps)
 
         fn_timestamps = self.get_datetime_from_name()
         if fn_timestamps:
-            self.add_datetime(fn_timestamps)
+            self.filter_datetime(fn_timestamps)
 
-    def add_datetime(self, dt):
+    def filter_datetime(self, dt):
         """
         Adds a datetime-entry by first checking any filters for matches.
         Matches are ignored, "passed out" ..

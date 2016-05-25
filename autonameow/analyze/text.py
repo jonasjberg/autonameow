@@ -32,7 +32,7 @@ class TextAnalyzer(AnalyzerBase):
             # print(text_contents)
             text_timestamps = self.get_datetime_from_text(text_contents)
             if text_timestamps:
-                self.add_datetime(text_timestamps)
+                self.filter_datetime(text_timestamps)
 
     def extract_text_content(self):
         """
@@ -62,6 +62,7 @@ class TextAnalyzer(AnalyzerBase):
             return None
 
     def get_datetime_from_text(self, text):
+        # TODO: This redirection is very ugly.
         return dateandtime.get_datetime_from_text(text, 'text')
 
     def get_file_lines(self):

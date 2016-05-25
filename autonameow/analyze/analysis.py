@@ -53,11 +53,28 @@ class Analysis(object):
 
             # Create a new dict with values being lists of the "sources"
             # for each datetime-object keyed by datetime-objects.
+            temp_dict = None
             for dt_key, dt_value in dt_dict.iteritems():
-                if dt_value not in flipped:
-                    flipped[dt_value] = [dt_key]
+                if type(dt_value) == list:
+                    i = 0
+                    temp_dict = {}
+                    for entry in dt_value:
+                        if entry is not None:
+                            temp_dict['{}_{:03d}'.format(dt_key, i)] = entry
+                            i += 1
                 else:
-                    flipped[dt_value].append(dt_key)
+                    if dt_value not in flipped:
+                        flipped[dt_value] = [dt_key]
+                    else:
+                        flipped[dt_value].append(dt_key)
+
+            if temp_dict:
+                for dt_key, dt_value in temp_dict.iteritems():
+                    if dt_value not in flipped:
+                        flipped[dt_value] = [dt_key]
+                    else:
+                        flipped[dt_value].append(dt_key)
+
 
         # Sort by length of the lists of datetime-object stored as values
         # in the dict.

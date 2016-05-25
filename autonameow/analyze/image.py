@@ -30,7 +30,7 @@ class ImageAnalyzer(AnalyzerBase):
 
         exif_datetime = self.get_exif_datetime()
         if exif_datetime:
-            self.add_datetime(exif_datetime)
+            self.filter_datetime(exif_datetime)
 
         # TODO: Run OCR on the image and store any textual output.
         # TODO: Run (text) analysis on any text produced by OCR.
