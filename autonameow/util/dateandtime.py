@@ -8,6 +8,7 @@ import string
 from datetime import datetime
 
 import dateutil
+import sys
 
 from util import misc
 
@@ -596,12 +597,10 @@ def get_datetime_from_text(text, prefix='NULL'):
     if type(text) == list:
         text = ' '.join(text)
 
-    # Create empty dictionary for storing the final result as a dictionary of
-    # dictionaries. For instance;
-    results = {}
-
-    # Create empty lists for storing any found date/time-objects,
-    # one list per search-method.
+    # Create empty dictionary for storing the final result.
+    results_all = {}
+    # Create empty lists for storing any found date/time-objects.
+    # Each search-method gets its own list for storing its own results.
     results_brute = []
     results_regex = []
 
@@ -646,12 +645,6 @@ def get_datetime_from_text(text, prefix='NULL'):
     #             #k = '{0}_{1:03d}'.format('{}_contents'.format(prefix), index)
     #             results[k] = new_value
     #             index += 1
-    results['{}_contents_regex'.format(prefix)] = results_regex
-    results['{}_contents_brute'.format(prefix)] = results_brute
-
-    print('\n\n')
-    print('RESULTS:')
-    for result in results:
-        print(str(result))
-
-    return results
+    results_all['{}_contents_regex'.format(prefix)] = results_regex
+    results_all['{}_contents_brute'.format(prefix)] = results_brute
+    return results_all

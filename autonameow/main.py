@@ -293,7 +293,6 @@ class Autonameow(object):
         def print_line_section(text):
             if not text.strip():
                 return
-
             pad_left = 2
             pad_right = terminal_width - len(text) - 2
             strbuf = '\n'
@@ -339,19 +338,21 @@ class Autonameow(object):
         credits3 = ' ' * 26 + version.__email__
         copyright1 = ' ' * 15 + 'Copyright(c)2016 Jonas Sjoberg'
         license1 = ' ' * 15 + 'Please see "LICENSE.md" for licensing details.'
-        print(
-            ' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + version.__title__.upper() + ' ' + Back.RESET + Fore.RESET + '  version ' + version.__version__)
-        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + ' ' + len(
-            version.__title__) * '~' + ' ' + Back.RESET + Fore.RESET + credits1)
+        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
+              ' ' + version.__title__.upper() +
+              ' ' + Back.RESET + Fore.RESET +
+              '  version ' + version.__version__)
+        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
+              ' ' + len(version.__title__) * '~' +
+              ' ' + Back.RESET + Fore.RESET + credits1)
         print(credits2)
         print(credits3)
         print(copyright1)
         print(license1)
         print('')
-        print(
-            Fore.LIGHTBLACK_EX + 'Started at {} by {} on {}'.format(date,
-                                                                    username,
-                                                                    hostname) + Fore.RESET)
+        print(Fore.LIGHTBLACK_EX +
+              'Started at {} by {} on {}'.format(date, username, hostname) +
+              Fore.RESET)
 
         def exit_program(self):
             # TODO: Expand this method and/or figure out if it is even needed ..
