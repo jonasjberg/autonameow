@@ -216,6 +216,16 @@ def match_special_case(text):
     return None
 
 
+def match_android_messenger(text):
+    """
+    Test if text (file name) matches that of Android messenger.
+    Example: received_10151287690965808.jpeg
+    :param text: text (file name) to test
+    :return: datetime-object if match is found, otherwise None
+    """
+    # TODO: Implement this ..
+
+
 def match_unix_timestamp(text):
     """
     Match text against UNIX "seconds since epoch" timestamp.
@@ -600,7 +610,7 @@ def get_datetime_from_text(text, prefix='NULL'):
             dt = bruteforce_str(t, '{}_contents_{}'.format(prefix, matches))
             if dt is not None:
                 # logging.info('Added result from contents: {0}'.format(dt))
-                result_list.append(dt)
+                results_brute.append(dt)
                 matches += 1
 
     regex_match = 0

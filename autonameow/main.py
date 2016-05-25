@@ -44,12 +44,12 @@ class Autonameow(object):
     """
     Main class to manage "autonameow" instance.
     """
-
     def __init__(self):
         """
         Main program entry point
         """
         # Handle the command line arguments.
+        # TODO: Fix the filtering! Not completed as-is.
         self.filter = {"ignore_years": [],
                        "ignore_before_year": None,
                        "ignore_after_year": None}
@@ -74,6 +74,7 @@ class Autonameow(object):
         """
         Iterate over passed arguments, which should be paths to files.
         """
+        should_quit = True
         for arg in self.args.input_files:
             if not os.path.exists(arg):
                 logging.error(
@@ -109,7 +110,7 @@ class Autonameow(object):
                     # analysis.prefix_date_to_filename()
                     print('')
 
-
+        self.exit_program()
 
     def init_argparser(self):
         """
@@ -281,6 +282,11 @@ class Autonameow(object):
         return args
 
     def display_options(self, args):
+        """
+        Display details on the command line options that are in effect.
+        Mainly for debug purposes.
+        :param args: arguments to display
+        """
         def print_line(k, v):
             print('{:<4}{:<20}  :  {:<60}'.format(' ', k, v))
 

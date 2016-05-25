@@ -105,6 +105,9 @@ class AnalyzerBase(object):
         if dt_special:
             result_list.append({"Filename_specialcase": dt_special})
         else:
+            # TODO: Check if image file name is Android messenger specific.
+            # Example: received_10151287690965808.jpeg
+
             dt_unix = dateandtime.match_unix_timestamp(fn)
             if dt_unix:
                 result_list.append({"Filename_unix": dt_unix})
