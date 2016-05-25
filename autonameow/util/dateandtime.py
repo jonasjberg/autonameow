@@ -279,6 +279,16 @@ def bruteforce_str(text, prefix):
         logging.error('Got empty string!')
         return None
 
+    bruteforce_str.matches = bruteforce_str.matches_total = 0
+
+    # Internal function checks result, adds to list of results if OK.
+    def validate_result(dt):
+        if date_is_probable(dt):
+            logging.debug('Extracted datetime from text: [{}]'.format(dt))
+            results.append(dt)
+            bruteforce_str.matches += 1
+            bruteforce_str.matches_total += 1
+
     # (premature) optimization ..
     if len(text) < 4:
         logging.debug('Unable to continue, text is too short.')
@@ -337,7 +347,8 @@ def bruteforce_str(text, prefix):
                       [9,   '%d%b%y'],              # 24Dec92
                       [20,  '%B%d%y'],              # December2492
                       [20,  '%B%d%Y']]              # December241992
-    tries = matches = matches_total = tries_total = 0
+
+    tries = tries_total = 0
     for chars, fmt in common_formats:
         if len(text) < chars:
             continue
@@ -352,16 +363,11 @@ def bruteforce_str(text, prefix):
         except ValueError:
             pass
         else:
-            if date_is_probable(dt):
-                logging.debug('Extracted datetime from text: [%s]' % dt)
-                results.append(dt)
-                matches += 1
-                matches_total += 1
+            validate_result(dt)
 
     if results:
-        logging.info(
-            'First matcher found  [{:>3}] matches after [{:>4}] '
-            'tries.'.format(matches, tries))
+        logging.info('First matcher found  [{:>3}] matches after [{:>4}] '
+                     'tries.'.format(bruteforce_str.matches, tries))
         return results
     else:
         logging.debug(
@@ -414,16 +420,11 @@ def bruteforce_str(text, prefix):
             except ValueError:
                 pass
             else:
-                if date_is_probable(dt):
-                    logging.debug('Extracted datetime from text: '
-                                  '[%s]' % dt)
-                    new_key = '{0}_{1:02d}'.format(prefix, matches)
-                    results[new_key] = dt
-                    matches += 1
-                    matches_total += 1
+                validate_result(dt)
 
         logging.debug('Gave up after %d tries ..' % tries)
 
+    # TODO: Examine this here below hacky conditional. Why is it there?
     if True:
         digits = digits_only
         while len(str(digits)) > 2:
@@ -451,24 +452,15 @@ def bruteforce_str(text, prefix):
                 except ValueError:
                     pass
                 else:
-                    if date_is_probable(dt):
-                        logging.debug('Extracted datetime from text: '
-                                      '[%s]' % dt)
-                        new_key = '{0}_{1:02d}'.format(prefix, matches)
-                        results[new_key] = dt
-                        matches += 1
-                        matches_total += 1
+                    validate_result(dt)
 
             logging.debug('Gave up after %d tries ..' % tries)
-            logging.debug('Removing leading number ..')
-            logging.debug('Removing leading number ({} --> {})'.format(digits,
-                                                                       digits[
-                                                                       1:]))
+            logging.debug('Removing leading number '
+                          '({} --> {})'.format(digits, digits[1:]))
             digits = digits[1:]
 
-    logging.info(
-        'Second matcher found [{:>3}] matches after [{:>4}] tries.'.format(
-            matches_total, tries_total))
+    logging.info('Second matcher found [{:>3}] matches after [{:>4}] '
+                 'tries.'.format(bruteforce_str.matches_total, tries_total))
     return results
 
 
@@ -598,7 +590,7 @@ def get_datetime_from_text(text, prefix='NULL'):
         dt = bruteforce_str(t, new_key)
         if dt and dt is not None:
             # logging.info('Added result from contents: {0}'.format(dt))
-            results_brute[new_key] = dt
+            results_brute.append(dt)
             matches += 1
 
     if matches == 0:
