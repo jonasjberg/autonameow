@@ -619,7 +619,7 @@ def get_datetime_from_text(text, prefix='NULL'):
         for new_key, new_value in result.iteritems():
             if new_value not in results.values():
                 # print('{} is not in {}'.format(new_value, 'results.value()'))
-                k = '{0}_{1:03d}'.format('{}_content'.format(prefix, index))
+                #k = '{0}_{1:03d}'.format('{}_contents'.format(prefix), index)
                 results[k] = new_value
                 index += 1
 
