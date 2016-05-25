@@ -69,10 +69,11 @@ class TextAnalyzer(AnalyzerBase):
         logging.debug('Got text {}: {}'.format(type(text), str(text)))
         if type(text) is list:
             logging.warn('Converting list to string ..')
-            text = ' '.join(text)
+            text = ' '.join(text).lower()
+            # text = text.lower()
 
-        # Text is probably of type list. Make it all lowercase.
-        text = [t.lower() for t in text]
+        # # Text is probably of type list. Make it all lowercase.
+        # text = [t.lower() for t in text]
 
         # Create empty dictionary to hold all results.
         results = {}
@@ -91,17 +92,10 @@ class TextAnalyzer(AnalyzerBase):
 
         regex_match = 0
         dt_regex_list = dateandtime.regex_search_str(text, 'text_contents_regex_{}'.format(regex_match))
-        # dt_regex = None
         if dt_regex_list is not None:
-            for new_key, new_value in dt_regex_list.iteritems():
-                # TODO: Add to results even though it will result in duplicate
-                #       entries? Should duplicate entry count indicate quality?
-                # if new_value not in results.values():
-                if True:
-                    # print('{} is not in {}'.format(new_value, 'results.value()'))
-                    k = '{0}_{1:03d}'.format('text_content', result_index)
-                    results[k] = new_value
-                    result_index += 1
+            k = '{0}_{1:03d}'.format('text_content', result_index)
+            results[k] = new_value
+            result_index += 1
 
         match = 0
         result_list = []
