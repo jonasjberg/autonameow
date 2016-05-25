@@ -294,8 +294,8 @@ def bruteforce_str(text, prefix):
     text = text.lstrip(string.letters)
     text = text.lstrip('_-[](){}')
 
-    # Create empty dictionary to hold all results.
-    results = {}
+    # Create empty list to hold all results.
+    results = []
 
     # ----------------------------------------------------------------
     # PART #1   -- pattern matching
@@ -308,10 +308,10 @@ def bruteforce_str(text, prefix):
         text = text.replace(char, '')
 
     # Replace "wildcard" parts, like '2016-02-xx', '2016-xx-xx', ..
-    WILDCARDS = [['xx', '01'],
-                 ['XX', '01'],
-                 ['0x', '01'],
-                 ['0X', '01'],
+    WILDCARDS = [['xx',   '01'],
+                 ['XX',   '01'],
+                 ['0x',   '01'],
+                 ['0X',   '01'],
                  ['20xx', '2000'],
                  ['19XX', '1901']]
     for u_old, u_new in WILDCARDS:
@@ -322,21 +322,21 @@ def bruteforce_str(text, prefix):
     text = text.replace(' ', '')
 
     #               Chars   Date/time format        Example
-    #                  --   -------------------     -------------------
-    common_formats = [[14, '%Y%m%d%H%M%S'],  # 19921224121314
-                      [8, '%Y%m%d'],  # 19921224
-                      [6, '%Y%m'],  # 199212
-                      [4, '%Y'],  # 1992
-                      [10, '%m%d%Y'],  # 12241992
-                      [8, '%m%d%y'],  # 122492
-                      [8, '%d%m%y'],  # 241292
-                      [8, '%y%m%d'],  # 921224
-                      [11, '%b%d%Y'],  # Dec241992
-                      [11, '%d%b%Y'],  # 24Dec1992
-                      [9, '%b%d%y'],  # Dec2492
-                      [9, '%d%b%y'],  # 24Dec92
-                      [20, '%B%d%y'],  # December2492
-                      [20, '%B%d%Y']]  # December241992
+    #               -----   ----------------        ----------------
+    common_formats = [[14,  '%Y%m%d%H%M%S'],        # 19921224121314
+                      [8,   '%Y%m%d'],              # 19921224
+                      [6,   '%Y%m'],                # 199212
+                      [4,   '%Y'],                  # 1992
+                      [10,  '%m%d%Y'],              # 12241992
+                      [8,   '%m%d%y'],              # 122492
+                      [8,   '%d%m%y'],              # 241292
+                      [8,   '%y%m%d'],              # 921224
+                      [11,  '%b%d%Y'],              # Dec241992
+                      [11,  '%d%b%Y'],              # 24Dec1992
+                      [9,   '%b%d%y'],              # Dec2492
+                      [9,   '%d%b%y'],              # 24Dec92
+                      [20,  '%B%d%y'],              # December2492
+                      [20,  '%B%d%Y']]              # December241992
     tries = matches = matches_total = tries_total = 0
     for chars, fmt in common_formats:
         if len(text) < chars:
@@ -354,15 +354,14 @@ def bruteforce_str(text, prefix):
         else:
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: [%s]' % dt)
-                new_key = '{0}_{1:02d}'.format(prefix, matches)
-                results[new_key] = dt
+                results.append(dt)
                 matches += 1
                 matches_total += 1
 
     if results:
         logging.info(
-            'First matcher found  [{:>3}] matches after [{:>4}] tries.'.format(
-                len(results), tries))
+            'First matcher found  [{:>3}] matches after [{:>4}] '
+            'tries.'.format(matches, tries))
         return results
     else:
         logging.debug(
@@ -395,13 +394,13 @@ def bruteforce_str(text, prefix):
 
     if year_first:
         #                Chars   Date/time format   Example
-        #                   --   ----------------   --------------
-        common_formats2 = [[14, '%Y%m%d%H%M%S'],  # 19921224121314
-                           [12, '%Y%m%d%H%M'],  # 199212241213
-                           [10, '%Y%m%d%H'],  # 1992122412
-                           [8, '%Y%m%d'],  # 19921224
-                           [6, '%Y%m'],  # 199212
-                           [4, '%Y']]  # 1992
+        #                -----   ----------------   ----------------
+        common_formats2 = [[14, '%Y%m%d%H%M%S'],    # 19921224121314
+                           [12, '%Y%m%d%H%M'],      # 199212241213
+                           [10, '%Y%m%d%H'],        # 1992122412
+                           [8,  '%Y%m%d'],          # 19921224
+                           [6,  '%Y%m'],            # 199212
+                           [4,  '%Y']]              # 1992
         tries = 0
         logging.debug('Assuming format with year first.')
         for chars, fmt in common_formats2:
@@ -429,17 +428,17 @@ def bruteforce_str(text, prefix):
         digits = digits_only
         while len(str(digits)) > 2:
             logging.debug('Assuming format other than year first.')
-            #                Chars   Date/time format   Example
-            #                   --   ----------------   --------------
-            common_formats3 = [[8, '%d%m%Y'],  # 24121992
-                               [6, '%d%m%y'],  # 241292
-                               [8, '%m%d%Y'],  # 12241992
-                               [6, '%m%d%y'],  # 122492
-                               [6, '%d%m%y'],  # 241292
-                               [6, '%y%m%d'],  # 921224
-                               [6, '%Y%m'],  # 199212
-                               [4, '%Y'],  # 1992
-                               [2, '%y']]  # 92
+            #               Chars    Date/time format   Example
+            #               -----    ----------------   ----------
+            common_formats3 = [[8,   '%d%m%Y'],         # 24121992
+                               [6,   '%d%m%y'],         # 241292
+                               [8,   '%m%d%Y'],         # 12241992
+                               [6,   '%m%d%y'],         # 122492
+                               [6,   '%d%m%y'],         # 241292
+                               [6,   '%y%m%d'],         # 921224
+                               [6,   '%Y%m'],           # 199212
+                               [4,   '%Y'],             # 1992
+                               [2,   '%y']]             # 92
             tries = 0
             for chars, fmt in common_formats3:
                 digits_strip = digits[:chars]
