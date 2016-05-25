@@ -88,11 +88,11 @@ def regex_search_str(text, prefix):
 
     :param text: the text to extract information from
     :param prefix: prefix this to the resulting dictionary keys
-    :return: a list of dictionaries containing datetime-objects.
+    :return: list of any datetime-objects or None if nothing was found
     """
 
-    # Create empty dictionary to hold all results.
-    results = {}
+    # Create empty list to hold all results.
+    results = []
 
     if type(text) is list:
         logging.warn('Converting list to string ..')
@@ -146,8 +146,8 @@ def regex_search_str(text, prefix):
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
                               '[%s]' % dt)
-                new_key = '{0}_{1:02d}'.format(prefix, matches)
-                results[new_key] = dt
+                # new_key = '{0}_{1:02d}'.format(prefix, matches)
+                results.append(dt)
                 matches += 1
 
     # Expected date format:         2016:04:07
@@ -165,8 +165,8 @@ def regex_search_str(text, prefix):
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
                               '[%s]' % dt)
-                new_key = '{0}_{1:02d}'.format(prefix, matches)
-                results[new_key] = dt
+                # new_key = '{0}_{1:02d}'.format(prefix, matches)
+                results.append(dt)
                 matches += 1
 
     # Matches '(C) 2014' and similar.
@@ -183,13 +183,12 @@ def regex_search_str(text, prefix):
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
                               '[%s]' % dt)
-                new_key = '{0}_{1:02d}'.format(prefix, matches)
-                results[new_key] = dt
+                # new_key = '{0}_{1:02d}'.format(prefix, matches)
+                results.append(dt)
                 matches += 1
 
     logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
-    logging.info('Regex matcher returning dict with [{:^3}] results.'.format(
-        len(results)))
+    logging.info('Regex matcher returning list of [{:^3}] results.'.format(len(results)))
     return results
 
 
@@ -280,7 +279,7 @@ def bruteforce_str(text, prefix):
 
     :param text: the text to extract information from
     :param prefix: prefix this to the resulting dictionary keys
-    :return: a list of dictionaries containing datetime-objects.
+    :return: list of any datetime-objects or None if nothing was found
     """
     if text is None:
         logging.error('Got NULL argument!')
@@ -574,12 +573,26 @@ def search_gmail(text, prefix):
 
 
 def get_datetime_from_text(text, prefix='NULL'):
+    """
+    Extracts date/time-information from text.
+    This method is used by both the text-analyzer and the pdf-analyzer.
+
+    TODO: Description.
+
+    :param text: try to extract date/time-information from this text
+    :param prefix: prefix this to the resulting dictionary keys
+    :return: dictionary of lists of any datetime-objects found
+             The dictionary is keyed by search method used to extract the
+             datetime-objects.
+    """
     if text is None:
         logging.warning('Got NULL argument')
         return None
     if prefix == 'NULL':
         logging.warning('Result prefix not specified! Using default "NULL"')
 
+    # TODO: Improve handlng of generalized "text" from any source.
+    #       (currently plain text and pdf documents)
     if type(text) == list:
         text = ' '.join(text)
 
@@ -587,16 +600,17 @@ def get_datetime_from_text(text, prefix='NULL'):
     # dictionaries. For instance;
     results = {}
 
-    # Create empty dictionaries for storing any found date/time-objects,
-    # one dictionary per search-method.
-    results_brute = {}
-    results_regex = {}
+    # Create empty lists for storing any found date/time-objects,
+    # one list per search-method.
+    results_brute = []
+    results_regex = []
+
     matches = 0
     text_split = text.split('\n')
     logging.debug('Try getting datetime from text split by newlines')
     for t in text_split:
         # new_key = '{}_contents_brute_{}'.format(prefix, matches)
-        new_key = '{}'.format(matches)
+        new_key = '{:03d}'.format(matches)
         dt = bruteforce_str(t, new_key)
         if dt and dt is not None:
             # logging.info('Added result from contents: {0}'.format(dt))
@@ -607,29 +621,37 @@ def get_datetime_from_text(text, prefix='NULL'):
         logging.debug('No matches. Trying with text split by whitespace')
         text_split = text.split()
         for t in text_split:
-            dt = bruteforce_str(t, '{}_contents_{}'.format(prefix, matches))
-            if dt is not None:
+            new_key = '{:03d}'.format(matches)
+            dt = bruteforce_str(t, new_key)
+            if dt and dt is not None:
                 # logging.info('Added result from contents: {0}'.format(dt))
                 results_brute.append(dt)
                 matches += 1
 
+    # TODO: Fix this here below. Looks completely broken.
     regex_match = 0
-    dt_regex = regex_search_str(text, '{}_contents_regex_{}'.format(prefix,
-                                                                    regex_match))
-    if dt_regex is not None:
+    dt_regex = regex_search_str(text, '{}_contents_regex_{:03d}'.format(prefix, regex_match))
+    if dt_regex and dt_regex is not None:
         # logging.info('Added result from contents regex search: {0}'.format(dt_regex))
-        result_list.append(dt_regex)
+        results_regex.append(dt_regex)
         regex_match += 1
 
-    results = {}
-    index = 0
-    for result in result_list:
-        # print('result {} : {}'.format(type(result), result))
-        for new_key, new_value in result.iteritems():
-            if new_value not in results.values():
-                # print('{} is not in {}'.format(new_value, 'results.value()'))
-                #k = '{0}_{1:03d}'.format('{}_contents'.format(prefix), index)
-                results[k] = new_value
-                index += 1
+    # results = {}
+    # index = 0
+    # for result in result_list:
+    #     # print('result {} : {}'.format(type(result), result))
+    #     for new_key, new_value in result.iteritems():
+    #         if new_value not in results.values():
+    #             # print('{} is not in {}'.format(new_value, 'results.value()'))
+    #             #k = '{0}_{1:03d}'.format('{}_contents'.format(prefix), index)
+    #             results[k] = new_value
+    #             index += 1
+    results['{}_contents_regex'.format(prefix)] = results_regex
+    results['{}_contents_brute'.format(prefix)] = results_brute
+
+    print('\n\n')
+    print('RESULTS:')
+    for result in results:
+        print(str(result))
 
     return results

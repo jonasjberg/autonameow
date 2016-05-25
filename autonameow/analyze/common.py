@@ -126,10 +126,9 @@ class AnalyzerBase(object):
                 else:
                     result_list.append(dt_brute)
 
-        results = {}
-        for entry in result_list:
-            for r_key, r_value in entry.iteritems():
-                # print('results[{}] = {}'.format(r_key, r_value))
-                results[r_key] = r_value
-
-        return results
+        # results = {}
+        # for entry in result_list:
+        #     for r_key, r_value in entry.iteritems():
+        #         # print('results[{}] = {}'.format(r_key, r_value))
+        #         results[r_key] = r_value
+        return result_list
