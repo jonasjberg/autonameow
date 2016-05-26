@@ -13,6 +13,19 @@ import sys
 from util import misc
 
 
+class DateTimeParser(object):
+    def __init__(self, text):
+        self.text = text
+
+    def preprocess_text(self):
+        """
+        Do preprocessing on the text before parsing.
+        """
+
+
+    def parse(self):
+        pass
+
 def date_is_probable(date):
     """
     Check if date is "probable", meaning greater than 1900 and

@@ -19,7 +19,7 @@ def extract_digits(string):
     return digits if digits.strip() else None
 
 def unpack_dict(dt_list):
-    # TODO: Finish/verify this. Not sure it is finished/correct.
+    # TODO: Finish/verify this. Not sure it is finished/correct or even needed.
     if type(dt_list) is dict:
         return dt_list
     elif type(dt_list) is not list:
