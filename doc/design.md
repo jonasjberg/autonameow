@@ -23,43 +23,59 @@ High-level logic
 ----------------
 Breakdown of what needs to happen to automatically rename a file:
 
-1. Read data from file:
+#### 1. Collect information:
 
-    * File **name**
-        * `seemingly giant cat in dollhouse.jpg`
+* From file **name**
+    * `seemingly giant cat in dollhouse.jpg`
+    * Try to extract date/time-information, title, keywords, etc.
 
-    * File **contents**
-        * Plain text extracted from contents.
-        * Extraction technique would be specfic to file type;
-          `OCR` for images, etc.
+* From file **contents**
+    * Get plain text from the file contents.
+    * Extraction technique would be specfic to file type;
+        * Run `OCR` on images to extract textual content.
+        * Convert pdf documents to plain text.
+        * Do conversion specific to file (magic) type.
 
-    * File **metadata**
-        * Plain text extracted from metadata.
-        * Metadata type and extraction technique would be specfic to file type;
-          "media" often have `EXIF` data, pdf documents, etc.
+* From file **metadata**
+    * Extract information from embedded metadata.
+    * Metadata type and extraction technique is specfic to file type;
+      "media" often have `EXIF` data, pdf documents, etc.
 
-2. Evaluate the results.
+* From file **surroundings** (optional)
+    * Extract information from the surrounding structure;
+        * Parent directory name
+        * Other files in the directory
 
-    * Sort
-        * Prioritize items by weights and/or fixed rules.
-        * For example, the EXIF-tag `Date/Time Original` would be selected
-          before `Modify Date`.
 
-    * Filter
-        * Remove obviously incorrect entries.
-        * Remove unplausible entries.
-        * Remove entries matching some kind of ruleset or blacklist.
+#### 2. Evaluate any results.
 
-3. Construct a new file name from the data.
+* Sort
+    * Prioritize items by weights and/or fixed rules.
+    * For example, the EXIF-tag `Date/Time Original` would be selected
+      before `Modify Date`. Maybe not always though.
 
-    * Fill fields in file name template with most probable values.
+* Filter
+    * Remove and/or mark:
+        * Obviously incorrect entries.
+        * Unplausible entries.
+        * Entries matching some kind of ruleset or blacklist.
+    * Apply user-specified filters
+        * Specified in configuration file
+        * Specified as command line options at program invocation
 
-4. Rename the file.
 
-    * (Ask user to proceed)
-        * Make sure file still exists, is readable, etc..
-        * Make sure destination won't be clobbered, is writable, etc..
-        * Rename file to the generated file name.
+#### 3. Construct a new file name from the data.
+
+* Fill fields in file name template with most probable values.
+
+
+#### 4. Rename the file.
+
+* (Ask user to proceed (?))
+* Do belt+suspenders sanity checks to make sure;
+    * File still exists, is readable, etc..
+    * Destination won't be clobbered, is writable, etc..
+* Rename file to the generated file name.
 
 
 Example
@@ -69,11 +85,14 @@ Example
 Reading from file `~/Downloads/DSCN9659.jpg`
 
 * **File name**
+
   `DSCN9659.jpg` (basename?)
 
 * **Contents**
-  Might be able to extract information from an image? Image similarity search?
-  TODO: Investigate .. Just skip reading image file contents for now.
+  Might be able to extract information from an image?
+  Image similarity search?
+
+  **TODO:** Investigate .. Just skip reading image file contents for now.
 
 * **Metadata**
   Extract image exif information by some means.
