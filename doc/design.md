@@ -1,6 +1,16 @@
 # `autonameow`
 ## Design Document
 
+```
+  AUTONAMEOW   version 0.0.1
+  ~~~~~~~~~~   written by Jonas Sjoberg
+                          https://github.com/jonasjberg
+                          jomeganas@gmail.com
+               Copyright(c)2016 Jonas Sjoberg
+               Please see "LICENSE.md" for licensing details.
+```
+
+
 --------------------------------------------------------------------------------
 
 
@@ -39,7 +49,7 @@ Breakdown of what needs to happen to automatically rename a file:
 * From file **metadata**
     * Extract information from embedded metadata.
     * Metadata type and extraction technique is specfic to file type;
-      "media" often have `EXIF` data, pdf documents, etc.
+      "media" often have `Exif` data, pdf documents, etc.
 
 * From file **surroundings** (optional)
     * Extract information from the surrounding structure;
@@ -81,151 +91,31 @@ Breakdown of what needs to happen to automatically rename a file:
 Example
 -------
 
-### Read data from file
+#### 1. Collect information:
 Reading from file `~/Downloads/DSCN9659.jpg`
 
-* **File name**
+* From file **name**
+    * `DSCN9659.jpg` --- No obvious information in file name.
+        * Scans using progressively liberal/tolerant matching, I.E. search
+          "fuzzyness" increase as the search progress if no results are found,
+          could return a lot of garbage in such cases.
+          **TODO:** Figure out how to handle this. Test file name length,
+          number of letters, digits, etc and decide which scans to run based
+          on results?
 
-  `DSCN9659.jpg` (basename?)
+* From file **contents**
+    * Run `OCR` on image to extract textual content.
+        * Check if any textual content is returned, run text-scans if true.
 
-* **Contents**
-  Might be able to extract information from an image?
-  Image similarity search?
+* From file **metadata**
+    * Extract image `Exif` information with `PIL`.
+        * Get date/time-information from `Exif` data.
+        * Get tags/keywords/etc from `Exif` data.
 
-  **TODO:** Investigate .. Just skip reading image file contents for now.
+* From file **surroundings** (optional)
 
-* **Metadata**
-  Extract image exif information by some means.
-  Probably won't need to use more than one program/library to do it.
-  Below two examples should be checked for duplicate data.
-
-
-```
-> $ exif ~/Downloads/DSCN9659.jpg
-EXIF tags in '/home/spock/temp/smf/img/DSCN9659.jpg' ('Intel' byte order):
---------------------+----------------------------------------------------------
-Tag                 |Value
---------------------+----------------------------------------------------------
-Image Description   |
-Manufacturer        |NIKON
-Model               |E775
-Orientation         |Top-left
-X-Resolution        |300
-Y-Resolution        |300
-Resolution Unit     |Inch
-Software            |E775v1.4u
-Date and Time       |0000:00:00 00:00:00
-YCbCr Positioning   |Co-sited
-Exposure Time       |1/41 sec.
-F-Number            |f/3,0
-Exposure Program    |Normal program
-ISO Speed Ratings   |100
-Exif Version        |Exif Version 2.1
-Date and Time (Origi|0000:00:00 00:00:00
-Date and Time (Digit|0000:00:00 00:00:00
-Components Configura|Y Cb Cr -
-Compressed Bits per | 3
-Exposure Bias       |0,00 EV
-Maximum Aperture Val|3,50 EV (f/3,4)
-Metering Mode       |Pattern
-Light Source        |Unknown
-Flash               |Flash did not fire
-Focal Length        |7,1 mm
-Maker Note          |674 bytes undefined data
-User Comment        |
-FlashPixVersion     |FlashPix Version 1.0
-Color Space         |sRGB
-Pixel X Dimension   |1600
-Pixel Y Dimension   |1200
-File Source         |DSC
-Scene Type          |Directly photographed
-Interoperability Ind|R98
-Interoperability Ver|0100
---------------------+----------------------------------------------------------
-```
-
-```
-> $ exiftool ~/Downloads/DSCN9659.jpg
-ExifTool Version Number         : 10.00
-File Name                       : DSCN9659.jpg
-Directory                       : /home/spock/Downloads
-File Size                       : 108 kB
-File Modification Date/Time     : 2016:03:21 17:44:58+01:00
-File Access Date/Time           : 2016:03:21 17:44:58+01:00
-File Inode Change Date/Time     : 2016:03:21 17:44:58+01:00
-File Permissions                : rw-rw-r--
-File Type                       : JPEG
-File Type Extension             : jpg
-MIME Type                       : image/jpeg
-JFIF Version                    : 1.02
-Ocad Revision                   : 14797
-Exif Byte Order                 : Little-endian (Intel, II)
-Image Description               :
-Make                            : NIKON
-Camera Model Name               : E775
-Orientation                     : Horizontal (normal)
-X Resolution                    : 300
-Y Resolution                    : 300
-Resolution Unit                 : inches
-Software                        : E775v1.4u
-Modify Date                     : 0000:00:00 00:00:00
-Y Cb Cr Positioning             : Co-sited
-Exposure Time                   : 1/41
-F Number                        : 3.0
-Exposure Program                : Program AE
-ISO                             : 100
-Exif Version                    : 0210
-Date/Time Original              : 0000:00:00 00:00:00
-Create Date                     : 0000:00:00 00:00:00
-Components Configuration        : Y, Cb, Cr, -
-Compressed Bits Per Pixel       : 3
-Exposure Compensation           : 0
-Max Aperture Value              : 3.4
-Metering Mode                   : Multi-segment
-Light Source                    : Unknown
-Flash                           : No Flash
-Focal Length                    : 7.1 mm
-Warning                         : [minor] Possibly incorrect maker notes offsets (fix by -288?)
-Maker Note Version              : 1.00
-Color Mode                      :
-Quality                         :
-White Balance                   :
-Sharpness                       :
-Focus Mode                      :
-Flash Setting                   :
-ISO Selection                   : .'
-Image Adjustment                : .'
-Auxiliary Lens                  :
-Manual Focus Distance           : 0.0606
-Digital Zoom                    : 0.0139
-AF Area Mode                    : Single Area
-AF Point                        : Center
-AF Points In Focus              : (none)
-Scene Mode                      : .
-Data Dump                       : (Binary data 122 bytes, use -b option to extract)
-User Comment                    :
-Flashpix Version                : 0100
-Color Space                     : sRGB
-Exif Image Width                : 1600
-Exif Image Height               : 1200
-Interoperability Index          : R98 - DCF basic file (sRGB)
-Interoperability Version        : 0100
-File Source                     : Digital Camera
-Scene Type                      : Directly photographed
-Image Width                     : 800
-Image Height                    : 600
-Encoding Process                : Baseline DCT, Huffman coding
-Bits Per Sample                 : 8
-Color Components                : 3
-Y Cb Cr Sub Sampling            : YCbCr4:2:2 (2 1)
-Aperture                        : 3.0
-Image Size                      : 800x600
-Megapixels                      : 0.480
-Shutter Speed                   : 1/41
-Focal Length                    : 7.1 mm
-Light Value                     : 8.5
-```
-
+    **TODO:** Figure out how to handle this. See for example how `beets`
+    handles jobs/tasks.
 
 
 
