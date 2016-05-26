@@ -1,32 +1,36 @@
-# `autonameow`
-## Design Document
+# `autonameow` design document
 
 ```
-  AUTONAMEOW   version 0.0.1
-  ~~~~~~~~~~   written by Jonas Sjoberg
-                          https://github.com/jonasjberg
-                          jomeganas@gmail.com
-               Copyright(c)2016 Jonas Sjoberg
-               Please see "LICENSE.md" for licensing details.
-```
+Copyright(c)2016 Jonas Sjoberg
+                 https://github.com/jonasjberg
+                 jomeganas@gmail.com
 
+Please see "LICENSE.md" for licensing details.
+```
 
 --------------------------------------------------------------------------------
 
 
 Basic program functionality
 ===========================
-Find suitable file names from a set of rules.
+`autonameow` does automatic renaming of files.
 
-A set of rules dictates what is a "suitable file name" -- **target file name**.
+The primary goal is to reduce the overhead and manual work required to
+apply a strict file naming convention uniformly and consistently.
+convention by  needed is to find suitable file names from a set of rules.
 
-The target file name is defined as a number of ordered fields.
+The user specifies the target file name structure, defined as a number of
+ordered fields, in a configuration file.
 
-#### Example target: `[timestamp] [title] [author]`
-
-The program is to fill out these fields by reading in a bunch of data
-from/about the file, which is then analyzed and ranked by probability, as
+The program is to fill out these fields by first reading in a bunch of data
+from and about the file, which is then analyzed and ranked by probability, as
 defined by some set of rules.
+
+#### Example:
+
+Name template: `[timestamp] [title] -- [author].[ext]`
+
+Resulting file name: `1998-04-01 Report of the IAB Security Architecture Workshop -- Bellovin. S.txt`
 
 
 High-level logic
@@ -96,10 +100,11 @@ Reading from file `~/Downloads/DSCN9659.jpg`
 
 * From file **name**
     * `DSCN9659.jpg` --- No obvious information in file name.
-        * Scans using progressively liberal/tolerant matching, I.E. search
-          "fuzzyness" increase as the search progress if no results are found,
-          could return a lot of garbage in such cases.
-          **TODO:** Figure out how to handle this. Test file name length,
+        * Scans using progressively liberal/tolerant matching, I.E. where
+          the search "fuzzyness" increases progressively if no results are
+          found, could return a lot of garbage in such cases.
+
+        * **TODO:** Figure out how to handle this. Test file name length,
           number of letters, digits, etc and decide which scans to run based
           on results?
 
@@ -133,20 +138,27 @@ In the examples below, ' _ ' is a customizable field separator.
 
 
 
-The terms used in the examples are defined as follows.
+The terms used in the examples are defined as follows:
 
-+----------+-----------------------------+--------------+
 | **Term** | **Field description**       | **Example**  |
-+==========+=============================+==============+
+|----------|-----------------------------|--------------|
 | ` _ `    | (top-level) field separator | `_`,` `,`-`  |
 | `[date]` | ISO-8601 style date         | `2016-02-29` |
 | `[time]` | ISO-8601 style time         | `13-24-34`   |
 | `[ext]`  | file extension              | `jpg`,`txt`  |
-+----------+-----------------------------+--------------+
 
 
+<!-- The markdown previewer in PyCharm can't handle this ..    -->
+<!-- +----------+-----------------------------+--------------+ -->
+<!-- | **Term** | **Field description**       | **Example**  | -->
+<!-- +==========+=============================+==============+ -->
+<!-- | ` _ `    | (top-level) field separator | `_`,` `,`-`  | -->
+<!-- | `[date]` | ISO-8601 style date         | `2016-02-29` | -->
+<!-- | `[time]` | ISO-8601 style time         | `13-24-34`   | -->
+<!-- | `[ext]`  | file extension              | `jpg`,`txt`  | -->
+<!-- +----------+-----------------------------+--------------+ -->
+<!-- Definition of terms                                       -->
 
-Definition of terms
 
 
 Photos
@@ -163,5 +175,5 @@ Pdf books
 File names are to match the pattern:
 
     [title] _ [edition] _ [author(s) last name] _ [publisher] _ [year] . [ext]
-              (optional)                                                 (jpg)
+              (optional)                                                 (pdf)
 
