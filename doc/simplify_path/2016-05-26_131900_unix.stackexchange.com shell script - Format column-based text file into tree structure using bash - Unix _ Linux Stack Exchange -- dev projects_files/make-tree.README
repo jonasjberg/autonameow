@@ -1,0 +1,34 @@
+spock@ProBookII:~/dev/projects/autoname/doc/simplify_path/2016-05-26_131900_unix.stackexchange.com shell script - Format column-based text file into tree structure using bash - Unix _ Linux Stack Exchange -- dev projects_files$ cat make-tree.TESTDATA | ./make-tree.sh 
+AMERICA
+	USA
+		NEW_YORK
+			AB-100
+			VF-200
+			XY-243
+		LOS_ANGELES
+			UH-198
+	CANADA
+		TORONTO
+			UT-876
+			UT-877
+		VANCOUVER
+			UT-871
+			UT-872
+			UT-873
+	MEXICO
+		MEXICO
+			OU-098
+		MONTERREY
+			OU-099
+			OU-100
+EUROPE
+	FRANCE
+		PARIS
+			IV-122
+			AV-112
+			IF-111
+			XX-190
+		TOULOUSE
+			TL-654
+spock@ProBookII:~/dev/projects/autoname/doc/simplify_path/2016-05-26_131900_unix.stackexchange.com shell script - Format column-based text file into tree structure using bash - Unix _ Linux Stack Exchange -- dev projects_files$
+
