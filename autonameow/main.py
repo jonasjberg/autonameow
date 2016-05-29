@@ -271,7 +271,7 @@ class Autonameow(object):
                 logging.warning('Erroneous date format: {}'.format(e.message))
             else:
                 logging.debug('Using filter: ignore date/time-information that'
-                              ' predate {}'.format(ignore_before))
+                              ' predate year {}'.format(ignore_before.year))
                 self.filter["ignore_before_year"] = ignore_before
 
         # Display help/usage information if no arguments are provided.
