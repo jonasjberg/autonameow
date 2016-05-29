@@ -248,7 +248,7 @@ class Autonameow(object):
             logging.basicConfig(level=logging.WARNING, format=FORMAT)
 
         # TODO: Fix this and overall filter handling.
-        if args.filter_ignore_years and args.filter_ignore_years is not None:
+        if args.filter_ignore_years:
             for year in args.filter_ignore_years:
                 try:
                     dt = datetime.strptime(str(year), '%Y')
@@ -264,7 +264,7 @@ class Autonameow(object):
             logging.debug('Using filter: ignore date/time-information for these'
                           ' years: {}'.format(ignored_years))
 
-        if args.filter_ignore_before_year and args.filter_ignore_before_year is not None:
+        if args.filter_ignore_before_year:
             try:
                 ignore_before = datetime.strptime(
                     str(args.filter_ignore_before_year), '%Y')
