@@ -99,8 +99,6 @@ class AnalyzerBase(object):
     def get_datetime_from_name(self):
         fn = self.file_object.basename_no_ext
 
-        results = []
-
         # 1. The Very Special Case
         # ========================
         # If this matches, it is very likely to be relevant, so test it first.
@@ -119,6 +117,7 @@ class AnalyzerBase(object):
 
         # DEBUG!
         return
+        results = []
 
         dt_unix = dateandtime.match_unix_timestamp(fn)
         if dt_unix:
