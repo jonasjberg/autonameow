@@ -222,6 +222,11 @@ def match_android_messenger_filename(text):
     :param text: text (file name) to test
     :return: list of datetime-objects if matches were found, otherwise None
     """
+
+    # TODO: Fix this! It currently does not seem to work, at all.
+    # Some hints are in the Android Messenger source code:
+    # .. /Messaging.git/src/com/android/messaging/datamodel/action/DownloadMmsAction.java
+
     # $ date --date='@1453473286' --rfc-3339=seconds
     #   2016-01-22 15:34:46+01:00
     # $ 1453473286723
