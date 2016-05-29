@@ -266,8 +266,7 @@ class Autonameow(object):
 
         if args.filter_ignore_before_year:
             try:
-                ignore_before = datetime.strptime(
-                    str(args.filter_ignore_before_year), '%Y')
+                ignore_before = datetime.strptime(str(args.filter_ignore_before_year), '%Y')
             except ValueError as e:
                 logging.warning('Erroneous date format: {}'.format(e.message))
             else:
