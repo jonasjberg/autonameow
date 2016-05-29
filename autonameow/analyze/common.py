@@ -86,14 +86,14 @@ class AnalyzerBase(object):
                              'from file system, which shouldnt happen.')
             logging.critical('OSError: {}'.format(e))
         else:
-        logging.info(
-            'Got [{:^3}] timestamps from filesystem.'.format(len(results)))
             def dt_fts(t):
                 return datetime.fromtimestamp(t).replace(microsecond=0)
             results['Fs_Modified'] = dt_fts(mtime)
             results['Fs_Created'] = dt_fts(ctime)
             results['Fs_Accessed'] = dt_fts(atime)
 
+        logging.info('Got [{:^3}] timestamps from '
+                     'filesystem.'.format(len(results)))
         return results
 
     def get_datetime_from_name(self):
