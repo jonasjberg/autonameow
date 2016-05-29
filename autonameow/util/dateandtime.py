@@ -240,8 +240,8 @@ def match_android_messenger_filename(text):
     #   2016-01-22 15:34:46+01:00
     # $ 1453473286723
 
-    dt_pattern = re.compile('received_(\d{17})')
-    for dt_str in re.findall(dt_pattern, text):
+    dt_pattern = re.compile('.*(received_)(\d{17})(\.jpe?g)?')
+    for _, dt_str, _ in re.findall(dt_pattern, text):
         try:
             print(dt_str)
             logging.debug('Matching against Android Messenger file name ..')
