@@ -16,6 +16,7 @@ magic_type_lookup = {'MP4':   ['video/mp4'],
                      'PNG':   ['image/png'],
                      'EMPTY': ['inode/x-empty']}
 
+
 class FileObject(object):
     def __init__(self, path):
         self.newName = None
@@ -60,6 +61,7 @@ class FileObject(object):
         # http://stackoverflow.com/a/16588375
         def find_key(input_dict, value):
             return next((k for k, v in input_dict.items() if v == value), None)
+
         try:
             return find_key(magic_type_lookup, mt.split()[:2])
         except KeyError:
