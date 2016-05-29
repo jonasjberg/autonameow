@@ -102,11 +102,19 @@ class AnalyzerBase(object):
         fn = self.file_object.basename_no_ext
 
         results = []
+
+        # 1. The Very Special Case
+        # ========================
+        # If this matches, it is very likely to be relevant, so test it first.
         dt_special = dateandtime.match_special_case(fn)
         if dt_special:
             results.append({"Filename_specialcase": dt_special})
             return results
 
+        # 2. Common patterns
+        # ==================
+        # Try more common patterns, starting with the most common.
+        # TODO: This is not the way to do it!
         dt_android = dateandtime.match_android_messenger_filename(fn)
         if dt_android:
             results.append({'Filename_android': dt_android})
