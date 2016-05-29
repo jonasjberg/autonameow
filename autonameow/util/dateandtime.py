@@ -234,9 +234,8 @@ def match_android_messenger_filename(text):
     Test if text (file name) matches that of Android messenger.
     Example: received_10151287690965808.jpeg
     :param text: text (file name) to test
-    :return: datetime-object if match is found, otherwise None
+    :return: list of datetime-objects if matches were found, otherwise None
     """
-
     # $ date --date='@1453473286' --rfc-3339=seconds
     #   2016-01-22 15:34:46+01:00
     # $ 1453473286723
