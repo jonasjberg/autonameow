@@ -114,9 +114,6 @@ class AnalyzerBase(object):
         if dt_android:
             return {'Filename_android': dt_android}
 
-
-        # DEBUG!
-        return
         results = []
 
         dt_unix = dateandtime.match_unix_timestamp(fn)
