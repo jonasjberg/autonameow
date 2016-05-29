@@ -238,8 +238,12 @@ def match_android_messenger_filename(text):
     for _, dt_str, _ in re.findall(dt_pattern, text):
         try:
             # dt_float = float(dt_str[:13])
-            # dt_str = float(dt_str[:13])
-            dt = datetime.fromtimestamp(float(dt_str) / 1000.0)
+            # dt_str = dt_str[:13]
+            # dt = datetime.fromtimestamp(float(dt_str))
+            # ms = int(dt_str[:13])
+            ms = int(dt_str[13:])
+            dt = datetime.utcfromtimestamp(ms // 1000).replace(microsecond=ms % 1000 * 1000)
+            # dt = datetime.fromtimestamp(float(dt_str) / 1000.0)
         except ValueError as e:
             pass
         else:
