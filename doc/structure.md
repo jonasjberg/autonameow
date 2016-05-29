@@ -16,10 +16,8 @@ Program structure overview
 This is a high level overview of the internal architecture of `autonameow`.
 
 
-
 Classes
 -------
-
 
 ### class `Autonameow`
 Main class to manage "autonameow" instance.
@@ -39,15 +37,22 @@ Tries to find information in for instance the file names, file system metadata
 (modified, created, ..), etc.
 
 #### class `ImageAnalyzer`
+*(subclasses `AnalyzerBase`)*
 Analysis specific to images.
 
 #### class `PdfAnalyzer`
+*(subclasses `AnalyzerBase`)*
+Analysis specific to images.
 Analysis specific to pdf documents.
 
 #### class `VideoAnalyzer`
+*(subclasses `AnalyzerBase`)*
+Analysis specific to images.
 Analysis specific to pdf documents.
 
 #### class `TextAnalyzer`
+*(subclasses `AnalyzerBase`)*
+Analysis specific to images.
 Analysis specific to plain text files.
 
 
