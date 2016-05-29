@@ -257,10 +257,10 @@ class Autonameow(object):
                                     '{}'.format(e.message))
                 else:
                     if dt not in self.filter["ignore_years"]:
-                        self.filter["ignore_years"].append(dt)
+                        self.filter['ignore_years'].append(dt)
 
             ignored_years = ', '.join((str(yr.year)
-                                       for yr in self.filter["ignore_years"]))
+                                       for yr in self.filter['ignore_years']))
             logging.debug('Using filter: ignore date/time-information for these'
                           ' years: {}'.format(ignored_years))
 
@@ -282,7 +282,7 @@ class Autonameow(object):
             else:
                 logging.debug('Using filter: ignore date/time-information that'
                               ' follow year {}'.format(ignore_after.year))
-                self.filter["ignore_after_year"] = ignore_after
+                self.filter['ignore_after_year'] = ignore_after
 
         # Display help/usage information if no arguments are provided.
         if len(sys.argv) < 2:
