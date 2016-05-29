@@ -106,8 +106,7 @@ class AnalyzerBase(object):
         # If this matches, it is very likely to be relevant, so test it first.
         dt_special = dateandtime.match_special_case(fn)
         if dt_special:
-            results.append({"Filename_specialcase": dt_special})
-            return results
+            return {'Filename_specialcase': dt_special}
 
         # 2. Common patterns
         # ==================
@@ -115,8 +114,7 @@ class AnalyzerBase(object):
         # TODO: This is not the way to do it!
         dt_android = dateandtime.match_android_messenger_filename(fn)
         if dt_android:
-            results.append({'Filename_android': dt_android})
-            return results
+            return {'Filename_android': dt_android}
 
 
         # DEBUG!
