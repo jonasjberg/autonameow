@@ -86,7 +86,6 @@ class AnalyzerBase(object):
                              'from file system, which shouldnt happen.')
             logging.critical('OSError: {}'.format(e))
         else:
-            print(str(mtime))
             results['Fs_Modified'] = datetime.fromtimestamp(mtime).replace(
                 microsecond=0)
             results['Fs_Created'] = datetime.fromtimestamp(ctime).replace(
