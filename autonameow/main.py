@@ -274,6 +274,16 @@ class Autonameow(object):
                               ' predate year {}'.format(ignore_before.year))
                 self.filter["ignore_before_year"] = ignore_before
 
+        if args.filter_ignore_after_year:
+            try:
+                ignore_after = datetime.strptime(str(args.filter_ignore_after_year), '%Y')
+            except ValueError as e:
+                logging.warning('Erroneous date format: {}'.format(e.message))
+            else:
+                logging.debug('Using filter: ignore date/time-information that'
+                              ' follow year {}'.format(ignore_after.year))
+                self.filter["ignore_after_year"] = ignore_after
+
         # Display help/usage information if no arguments are provided.
         if len(sys.argv) < 2:
             logging.critical('Add "--help" to display usage information.')
