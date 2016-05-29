@@ -177,8 +177,8 @@ class Autonameow(object):
                                    nargs='?',
                                    dest='filter_ignore_before_year',
                                    action='store',
-                                   help='ignore date/time-information that '
-                                        'predate this year')
+                                   help='ignore date/time-information from '
+                                        'this year and the years prior')
 
         optgrp_filter.add_argument('--ignore-after-year',
                                    metavar='',
@@ -187,8 +187,8 @@ class Autonameow(object):
                                    nargs='?',
                                    dest='filter_ignore_after_year',
                                    action='store',
-                                   help='ignore date/time-information that '
-                                        'follow this year')
+                                   help='ignore date/time-information from '
+                                        'this year onward')
 
         optgrp_filter.add_argument('--ignore-years',
                                    metavar='',
