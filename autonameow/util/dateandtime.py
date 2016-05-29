@@ -240,11 +240,12 @@ def match_android_messenger_filename(text):
     #   2016-01-22 15:34:46+01:00
     # $ 1453473286723
 
+    results = []
+    logging.debug('Matching against Android Messenger file name ..')
+
     dt_pattern = re.compile('.*(received_)(\d{17})(\.jpe?g)?')
     for _, dt_str, _ in re.findall(dt_pattern, text):
         try:
-            print(dt_str)
-            logging.debug('Matching against Android Messenger file name ..')
             # dt_float = float(dt_str[:13])
             # dt_str = float(dt_str[:13])
             dt = datetime.fromtimestamp(float(dt_str) / 1000.0)
@@ -254,8 +255,9 @@ def match_android_messenger_filename(text):
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from Android messenger file '
                               'name text: [{}]'.format(dt.isoformat()))
-                return dt
+                results.append(dt)
 
+    return results
 
 
 def match_unix_timestamp(text):
