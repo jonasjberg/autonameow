@@ -43,12 +43,28 @@ class AnalyzerBase(object):
             logging.warning('Got unexpected type \"{}\" '
                             '(expected dict)'.format(type(dt)))
 
+        if type(dt) is list:
+            if not dt:
+                logging.warning('Got empty list')
+                return
+
+            print(dt)
+            dt_dict = {}
+            # for item in dt:
+            #     dt_dict['']
+
+
+        return
+
         passed = {}
         removed = {}
-        ignore_years = [yr.year for yr in self.filters["ignore_years"]]
+        ignore_years = [yr.year for yr in self.filters['ignore_years']]
+        ignore_before = self.filters['ignore_before_year']
+        ignore_after = self.filters['ignore_after_year']
         if ignore_years is not None and len(ignore_years) > 0:
             for key, value in dt.iteritems():
-                if value.year not in ignore_years:
+                if value.year not in ignore_years and \
+                                value > ignore_before and value < ignore_after:
                     # logging.debug('Filter passed date/time {} .. '.format(dt))
                     passed[key] = value
                 else:
@@ -121,17 +137,19 @@ class AnalyzerBase(object):
             results.append({"Filename_unix": dt_unix})
         else:
             dt_regex = dateandtime.regex_search_str(fn, 'Filename_regex')
-            if dt_regex is None:
+            if dt_regex:
+                return dt_regex
+                # results.append(dt_regex)
+            else:
                 logging.warning('Unable to extract date/time-information '
                                 'from file name using regex search.')
-            else:
-                results.append(dt_regex)
 
             dt_brute = dateandtime.bruteforce_str(fn, 'Filename_brute')
-            if dt_brute is None:
+            if dt_brute:
+                return dt_brute
+                # results.append(dt_brute)
+            else:
                 logging.warning('Unable to extract date/time-information '
                                 'from file name using brute force search.')
-            else:
-                results.append(dt_brute)
 
         return results
