@@ -45,10 +45,13 @@ class AnalyzerBase(object):
 
         passed = {}
         removed = {}
-        ignore_years = [yr.year for yr in self.filters["ignore_years"]]
+        ignore_years = [yr.year for yr in self.filters['ignore_years']]
+        ignore_before = self.filters['ignore_before_year']
+        ignore_after = self.filters['ignore_after_year']
         if ignore_years is not None and len(ignore_years) > 0:
             for key, value in dt.iteritems():
-                if value.year not in ignore_years:
+                if value.year not in ignore_years and \
+                                value > ignore_before and value < ignore_after:
                     # logging.debug('Filter passed date/time {} .. '.format(dt))
                     passed[key] = value
                 else:
