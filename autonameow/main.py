@@ -182,15 +182,17 @@ class Autonameow(object):
                                         'this year and the years prior'
                                         'Default: {}'.format(lowest_year))
 
+        next_year = str(dateandtime.nextyear(datetime.now()).strftime('%Y'))
         optgrp_filter.add_argument('--ignore-after-year',
                                    metavar='',
                                    type=arg_is_year,
-                                   default=None,
+                                   default=next_year,
                                    nargs='?',
                                    dest='filter_ignore_after_year',
                                    action='store',
                                    help='ignore date/time-information from '
-                                        'this year onward')
+                                        'this year onward. '
+                                        'Default: {}'.format(next_year))
 
         optgrp_filter.add_argument('--ignore-years',
                                    metavar='',
