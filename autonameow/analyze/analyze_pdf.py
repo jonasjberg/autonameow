@@ -9,15 +9,15 @@ from datetime import datetime
 import PyPDF2
 from unidecode import unidecode
 
-from analyze.analyze_base import AnalyzerBase
+from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
 
 
-class PdfAnalyzer(AnalyzerBase):
     def __init__(self, file_object, filters):
         self.file_object = file_object
         self.filters = filters
         self.pdf_metadata = None
+class PdfAnalyzer(AbstractAnalyzer):
 
         self.author = None
         self.title = None
