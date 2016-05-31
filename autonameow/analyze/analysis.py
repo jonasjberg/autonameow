@@ -43,7 +43,7 @@ class Analysis(object):
             self.analyzer = ImageAnalyzer(self.file_object, self.filters)
         elif t == 'PNG':
             logging.debug('File is of type [PNG]')
-            self.analyzer = ImageAnalyzer()
+            self.analyzer = ImageAnalyzer(self.file_object, self.filters)
         elif t == 'PDF':
             logging.debug('File is of type [PDF]')
             self.analyzer = PdfAnalyzer()
@@ -54,14 +54,6 @@ class Analysis(object):
             logging.debug('File type ({}) is not yet mapped to a type-specific '
                           'Analyzer.'.format(self.file_object.type))
             return
-
-    def run(self):
-        # TODO: CLEAN UP! FIX!
-        # TODO: Maybe reconsider the idea that the "Analysis" class is to act
-        #       as an "interface to all analyzers" ..
-
-        # Run analyzer.
-        self.analyzer.run()
 
     def filter_datetime(self, dt):
         """
