@@ -10,10 +10,10 @@ from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 from datetime import datetime
 
+from analyze.analyze_abstract import AbstractAnalyzer
 from analyze.analyze_base import AnalyzerBase
 
 
-class ImageAnalyzer(AnalyzerBase):
     def __init__(self, file_object, filters):
         self.file_object = file_object
         self.exif_data = None
@@ -23,6 +23,7 @@ class ImageAnalyzer(AnalyzerBase):
         """
         Run the analysis.
         """
+class ImageAnalyzer(AbstractAnalyzer):
         # Start by trying to extract EXIF information from the image.
         if self.exif_data is None:
             logging.debug('Fetching EXIF data ..')
