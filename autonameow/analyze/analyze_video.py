@@ -5,33 +5,25 @@
 import logging
 import os
 
-from analyze.analyze_base import AnalyzerBase
+from analyze.analyze_abstract import AbstractAnalyzer
 from util.fuzzy_date_parser import DateParse
 
 
-class VideoAnalyzer(AnalyzerBase):
-    def __init__(self, file_object):
-        self.fileObject = file_object
+class VideoAnalyzer(AbstractAnalyzer):
+    def __init__(self):
+        # TODO: Implement.
         self.exif_data = None
 
-    def run(self):
-        """
-        Run the analysis.
-        """
-        # if self.exif_data is None:
-        #     self.exif_data = self.get_exif_data()
-        # exif_datetime = self.get_exif_datetime()
+    def get_author(self):
+        # TODO: Implement.
+        pass
 
-        # pp = pprint.PrettyPrinter(indent=4)
-        # pp.pprint(exif_datetime)
-
+    def get_title(self):
+        # TODO: Implement.
+        pass
     def get_datetime(self):
-        datetime = self.get_EXIF_datetime()
-
-        if datetime is None:
-            logging.warning('Unable to extract datetime.')
-        else:
-            return datetime
+        # TODO: Implement.
+        pass
 
     def get_EXIF_datetime(self):
         """
