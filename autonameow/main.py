@@ -205,7 +205,7 @@ class Autonameow(object):
                                    dest='filter_ignore_years',
                                    action='store',
                                    help='ignore date/time-information '
-                                        'containing this year(s)')
+                                        'from year(s)')
 
         return parser
 
