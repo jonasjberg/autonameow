@@ -50,9 +50,9 @@ class Autonameow(object):
         """
         # Handle the command line arguments.
         # TODO: Fix the filtering! Not completed as-is.
-        self.filter = {"ignore_years": [],
-                       "ignore_before_year": None,
-                       "ignore_after_year": None}
+        self.filter = {'ignore_years': [],
+                       'ignore_before_year': None,
+                       'ignore_after_year': None}
         self.args = self.parse_args()
 
         if self.args.verbose:
@@ -256,7 +256,7 @@ class Autonameow(object):
                     logging.warning('Erroneous date format: '
                                     '{}'.format(e.message))
                 else:
-                    if dt not in self.filter["ignore_years"]:
+                    if dt not in self.filter['ignore_years']:
                         self.filter['ignore_years'].append(dt)
 
             ignored_years = ', '.join((str(yr.year)
@@ -272,7 +272,7 @@ class Autonameow(object):
             else:
                 logging.debug('Using filter: ignore date/time-information that'
                               ' predate year {}'.format(ignore_before.year))
-                self.filter["ignore_before_year"] = ignore_before
+                self.filter['ignore_before_year'] = ignore_before
 
         if args.filter_ignore_after_year:
             try:
