@@ -265,23 +265,23 @@ class Autonameow(object):
 
         if args.filter_ignore_before_year:
             try:
-                ignore_before = datetime.strptime(str(args.filter_ignore_before_year), '%Y')
+                dt = datetime.strptime(str(args.filter_ignore_before_year), '%Y')
             except ValueError as e:
                 logging.warning('Erroneous date format: {}'.format(e.message))
             else:
                 logging.debug('Using filter: ignore date/time-information that'
-                              ' predate year {}'.format(ignore_before.year))
-                self.filter['ignore_before_year'] = ignore_before
+                              ' predate year {}'.format(dt.year))
+                self.filter['ignore_before_year'] = dt
 
         if args.filter_ignore_after_year:
             try:
-                ignore_after = datetime.strptime(str(args.filter_ignore_after_year), '%Y')
+                dt = datetime.strptime(str(args.filter_ignore_after_year), '%Y')
             except ValueError as e:
                 logging.warning('Erroneous date format: {}'.format(e.message))
             else:
                 logging.debug('Using filter: ignore date/time-information that'
-                              ' follow year {}'.format(ignore_after.year))
-                self.filter['ignore_after_year'] = ignore_after
+                              ' follow year {}'.format(dt.year))
+                self.filter['ignore_after_year'] = dt
 
         # Display help/usage information if no arguments are provided.
         if len(sys.argv) < 2:
