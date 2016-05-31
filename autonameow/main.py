@@ -77,23 +77,22 @@ class Autonameow(object):
         should_quit = True
         for arg in self.args.input_files:
             if not os.path.exists(arg):
-                logging.error(
-                    'Skipping non-existent file/directory ' '\"{}\"'.format(
-                        str(arg)))
+                logging.error('Skipping non-existent file/directory '
+                              '"{}"'.format(str(arg)))
                 continue
             elif os.path.isdir(arg):
-                logging.error('Skipping directory \"{}\"'.format(str(arg)))
+                logging.error('Skipping directory "{}"'.format(str(arg)))
                 continue
             elif os.path.islink(arg):
-                logging.error('Skipping symbolic link \"{}\"'.format(str(arg)))
+                logging.error('Skipping symbolic link "{}"'.format(str(arg)))
                 continue
             elif not os.access(arg, os.R_OK):
                 logging.error('Not authorized to read file '
-                              '\"{}\"'.format(str(arg)))
+                              '"{}"'.format(str(arg)))
                 continue
             else:
-                # print "File exists and is readable"
-                logging.info('Processing file \"{}\"'.format(str(arg)))
+                # File exists and is readable.
+                logging.info('Processing file "{}"'.format(str(arg)))
 
                 # Create a file object representing the current arg.
                 curfile = FileObject(arg)
@@ -254,7 +253,7 @@ class Autonameow(object):
                     dt = datetime.strptime(str(year), '%Y')
                 except ValueError as e:
                     logging.warning('Erroneous date format: '
-                                    '{}'.format(e.message))
+                                    '"{}"'.format(e.message))
                 else:
                     if dt not in self.filter['ignore_years']:
                         self.filter['ignore_years'].append(dt)
