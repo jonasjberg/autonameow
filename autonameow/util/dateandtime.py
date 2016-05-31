@@ -56,7 +56,7 @@ def date_is_probable(date):
         # TODO: Improve this here below logic ..
         if len(str(date)) < 3:
             # Test if adding 2000 would still be within the limit.
-            if date + 2000 <= int(probable_upper_limit.strftime('%Y')):
+            if date + 2000 <= int(year_upper_limit.strftime('%Y')):
                 date += 2000
             # Otherwise just assume this will fix it ..
             else:
@@ -70,12 +70,12 @@ def date_is_probable(date):
             return False
 
     # Do date comparisons using datetime-objects.
-    if date.year > probable_upper_limit.year:
-        logging.debug('Skipping future date [{}]'.format(date))
+    if date.year > year_upper_limit.year:
+        # logging.debug('Skipping future date [{}]'.format(date))
         return False
-    elif date.year < probable_lower_limit.year:
-        logging.debug('Skipping non-probable (<{}) date '
-                      '[{}]'.format(probable_lower_limit, date))
+    elif date.year < year_lower_limit.year:
+        # logging.debug('Skipping non-probable (<{}) date '
+        #               '[{}]'.format(year_lower_limit, date))
         return False
     else:
         # Date lies within window, assume it is OK.
