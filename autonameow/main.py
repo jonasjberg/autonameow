@@ -123,6 +123,7 @@ class Autonameow(object):
                         'several sources of information.',
             epilog='Example usage: TODO ..')
 
+        # Add option group for controlling what is printed to stdout.
         optgrp_output = parser.add_mutually_exclusive_group()
         optgrp_output.add_argument('-z', '--debug',
                                    # const=0, default='0', type=int,
@@ -146,6 +147,7 @@ class Autonameow(object):
                                    action='store_true',
                                    help='quiet mode')
 
+        # Add option group for actions to be performed.
         optgrp_action = parser.add_mutually_exclusive_group()
         optgrp_action.add_argument('--list-datetime',
                                    dest='list_datetime',
@@ -169,6 +171,7 @@ class Autonameow(object):
                             help='simulate what would happen but do not '
                                  'actually write any changes to disk')
 
+        # Add option group for filter options.
         optgrp_filter = parser.add_argument_group()
         lowest_year = str(dateandtime.year_lower_limit.strftime('%Y'))
         optgrp_filter.add_argument('--ignore-before-year',
