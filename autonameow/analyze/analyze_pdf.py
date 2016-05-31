@@ -14,7 +14,8 @@ from util import dateandtime
 
 
 class PdfAnalyzer(AbstractAnalyzer):
-    def __init__(self):
+    def __init__(self, file_object, filters):
+        super(PdfAnalyzer, self).__init__(file_object, filters)
         self.pdf_metadata = self.extract_pdf_metadata()
 
     def get_author(self):
