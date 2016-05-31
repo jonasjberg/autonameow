@@ -15,7 +15,9 @@ from analyze.analyze_base import AnalyzerBase
 
 
 class ImageAnalyzer(AbstractAnalyzer):
-    def __init__(self):
+    def __init__(self, file_object, filters):
+        super(ImageAnalyzer, self).__init__(file_object, filters)
+
         # Start by trying to extract EXIF information from the image.
         logging.debug('Extracting EXIF data ..')
         self.exif_data = self.get_exif_data()
