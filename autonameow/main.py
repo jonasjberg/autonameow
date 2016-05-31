@@ -17,6 +17,7 @@ import util.disk
 import version
 from analyze.analysis import Analysis
 from file_object import FileObject
+from util import dateandtime
 
 terminal_width = 100
 
@@ -169,15 +170,17 @@ class Autonameow(object):
                                  'actually write any changes to disk')
 
         optgrp_filter = parser.add_argument_group()
+        lowest_year = str(dateandtime.year_lower_limit.strftime('%Y'))
         optgrp_filter.add_argument('--ignore-before-year',
                                    metavar='',
                                    type=arg_is_year,
-                                   default=None,
+                                   default=lowest_year,
                                    nargs='?',
                                    dest='filter_ignore_before_year',
                                    action='store',
                                    help='ignore date/time-information from '
-                                        'this year and the years prior')
+                                        'this year and the years prior'
+                                        'Default: {}'.format(lowest_year))
 
         optgrp_filter.add_argument('--ignore-after-year',
                                    metavar='',
