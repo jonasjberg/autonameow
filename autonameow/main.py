@@ -172,7 +172,7 @@ class Autonameow(object):
         optgrp_filter = parser.add_argument_group()
         lowest_year = str(dateandtime.year_lower_limit.strftime('%Y'))
         optgrp_filter.add_argument('--ignore-before-year',
-                                   metavar='',
+                                   metavar='YYYY',
                                    type=arg_is_year,
                                    default=lowest_year,
                                    nargs='?',
@@ -184,7 +184,7 @@ class Autonameow(object):
 
         next_year = str(dateandtime.nextyear(datetime.now()).strftime('%Y'))
         optgrp_filter.add_argument('--ignore-after-year',
-                                   metavar='',
+                                   metavar='YYYY',
                                    type=arg_is_year,
                                    default=next_year,
                                    nargs='?',
@@ -195,7 +195,7 @@ class Autonameow(object):
                                         'Default: {}'.format(next_year))
 
         optgrp_filter.add_argument('--ignore-years',
-                                   metavar='',
+                                   metavar='YYYY',
                                    type=arg_is_year,
                                    default=[],
                                    nargs='*',
