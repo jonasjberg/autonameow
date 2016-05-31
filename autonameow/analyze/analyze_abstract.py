@@ -1,3 +1,6 @@
+import logging
+
+
 class AbstractAnalyzer(object):
     def __init__(self, file_object, filters):
         self.file_object = file_object
@@ -16,3 +19,4 @@ class AbstractAnalyzer(object):
     #     """
     #     Run the analysis.
     #     """
+
