@@ -64,20 +64,31 @@ class AnalyzerBase(object):
         ignore_years = [yr.year for yr in self.filters['ignore_years']]
         ignore_before = self.filters['ignore_before_year']
         ignore_after = self.filters['ignore_after_year']
-        if ignore_years is not None and len(ignore_years) > 0:
-            for key, value in dt.iteritems():
-                if value.year not in ignore_years and \
-                                value > ignore_before and value < ignore_after:
-                    # logging.debug('Filter passed date/time {} .. '.format(dt))
-                    passed[key] = value
-                else:
-                    logging.debug('Filter removed date/time {} .. '.format(dt))
-                    removed[key] = value
+        ok = True
+        for key, value in dt.iteritems():
+            if ignore_years is not None and len(ignore_years) > 0:
+                if value.year in ignore_years:
+                    ok = False
 
-            self.file_object.add_datetime(passed)
-        else:
-            # Just pass the datetime through, unaffected by the filter.
-            self.file_object.add_datetime(dt)
+            # if type(value) is not datetime:
+            #     logging.error('type(value) is not datetime: {} {}'.format(str(value), type(value)))
+            # if ignore_before.year > value.year > ignore_after.year:
+            if value.year < ignore_before.year:
+                ok = False
+            if value.year > ignore_after.year:
+                ok = False
+
+            if ok:
+                # logging.debug('Filter passed date/time {} .. '.format(dt))
+                passed[key] = value
+            else:
+                # logging.debug('Filter removed date/time {} .. '.format(dt))
+                removed[key] = value
+
+        logging.debug('Datetime filter removed {} entries, passed {} '
+                      'entries.'.format(len(removed), len(passed)))
+
+        self.file_object.add_datetime(passed)
 
     def get_datetime(self):
         # TODO: Get datetime from information common to all file types;
