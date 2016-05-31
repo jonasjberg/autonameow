@@ -48,13 +48,16 @@ class AnalyzerBase(object):
                 logging.warning('Got empty list')
                 return
 
-            print(dt)
-            dt_dict = {}
+            # TODO: Handle whether dicts or lists should be passed, and passed
+            #       only that type, OR make sure both types can be handled.
             # for item in dt:
-            #     dt_dict['']
-
-
-        return
+            #     if not item:
+            #         continue
+            #     if type(item) is dict:
+            #         for k, v in item.iteritems():
+            #             if v in
+            #             dt_dict[k] = v
+            return
 
         passed = {}
         removed = {}
