@@ -6,7 +6,7 @@ import logging
 from colorama import Back
 from colorama import Fore
 
-from analyze.analyze_base import AnalyzerBase
+from analyze.analyze_base import FilesystemAnalyzer
 from analyze.analyze_image import ImageAnalyzer
 from analyze.analyze_pdf import PdfAnalyzer
 from analyze.analyze_text import TextAnalyzer
@@ -34,7 +34,7 @@ class Analysis(object):
         self.filters = filters
 
         # Create a basic analyzer, common to all file types.
-        self.analyzer = AnalyzerBase(self.file_object, self.filters)
+        self.analyzer = FilesystemAnalyzer(self.file_object, self.filters)
 
         # Select analyzer based on detected file type.
         t = self.file_object.type

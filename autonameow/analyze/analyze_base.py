@@ -17,7 +17,7 @@ from util import misc
 # Examines:
 #   * file names
 #   * file system metadata (modified, created, ..)
-class AnalyzerBase(AbstractAnalyzer):
+class FilesystemAnalyzer(AbstractAnalyzer):
 
     def get_datetime(self):
         # TODO: Get datetime from information common to all file types;

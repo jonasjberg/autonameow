@@ -11,7 +11,7 @@ from PIL.ExifTags import TAGS, GPSTAGS
 from datetime import datetime
 
 from analyze.analyze_abstract import AbstractAnalyzer
-from analyze.analyze_base import AnalyzerBase
+from analyze.analyze_base import FilesystemAnalyzer
 
 
 class ImageAnalyzer(AbstractAnalyzer):
