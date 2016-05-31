@@ -55,7 +55,7 @@ class Analysis(object):
             # for each datetime-object keyed by datetime-objects.
             temp_dict = None
             for dt_key, dt_value in dt_dict.iteritems():
-                if type(dt_value) == list:
+                if type(dt_value) is list:
                     i = 0
                     temp_dict = {}
                     for entry in dt_value:
