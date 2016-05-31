@@ -197,9 +197,10 @@ class PdfAnalyzer(AnalyzerBase):
             pass
 
         # Collect more until a preset limit is reached.
+        logging.debug('Keep extracting pages from pdf document ..')
         for i in range(1, number_of_pages):
             # Extract text from page and add to content.
-            logging.debug('Extracting page #%s' % i)
+            # logging.debug('Extracting page #%s' % i)
             content += pdff.getPage(i).extractText() + '\n'
 
             # Cancel extraction at some arbitrary limit value.
