@@ -22,6 +22,13 @@ def nextyear(dt):
         # Add 365 days instead to arrive at March 1st
         return dt + timedelta(days=365)
 
+
+# TODO: Use separate file for globals like these?
+#       Should probably be stored in a configuration file along with other
+#       user-modifiable settings.
+year_lower_limit = datetime.strptime('1900', '%Y')
+year_upper_limit = nextyear(datetime.today())
+
 def date_is_probable(date):
     """
     Check if date is "probable", meaning greater than 1900 and
@@ -33,9 +40,6 @@ def date_is_probable(date):
              False if the date is not probable or a conversion to
              datetime-object failed.
     """
-    probable_lower_limit = datetime.strptime('1900', '%Y')
-    probable_upper_limit = datetime.today()
-
     logging.debug('Checking probability of [{}] {}'.format(date, type(date)))
     if type(date) is not datetime:
         # Date is some other type.
