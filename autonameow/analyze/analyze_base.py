@@ -8,6 +8,7 @@ import os
 
 from datetime import datetime
 
+from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
 from util import misc
 
@@ -16,10 +17,10 @@ from util import misc
 # Examines:
 #   * file names
 #   * file system metadata (modified, created, ..)
-class AnalyzerBase(object):
     def __init__(self, file_object, filters):
         self.file_object = file_object
         self.filters = filters
+class AnalyzerBase(AbstractAnalyzer):
 
     def run(self):
         """
