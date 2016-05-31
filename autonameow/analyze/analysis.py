@@ -33,6 +33,9 @@ class Analysis(object):
 
         self.filters = filters
 
+        # List of analyzers to run.
+        analysis_run_queue = [FilesystemAnalyzer]
+
         # Create a basic analyzer, common to all file types.
         self.analyzer = FilesystemAnalyzer(self.file_object, self.filters)
 
@@ -40,20 +43,46 @@ class Analysis(object):
         t = self.file_object.type
         if t == 'JPG':
             logging.debug('File is of type [JPG]')
-            self.analyzer = ImageAnalyzer(self.file_object, self.filters)
+            # self.analyzer = ImageAnalyzer(self.file_object, self.filters)
+            analysis_run_queue.append(ImageAnalyzer)
         elif t == 'PNG':
             logging.debug('File is of type [PNG]')
-            self.analyzer = ImageAnalyzer(self.file_object, self.filters)
+            # self.analyzer = ImageAnalyzer(self.file_object, self.filters)
+            analysis_run_queue.append(ImageAnalyzer)
         elif t == 'PDF':
             logging.debug('File is of type [PDF]')
-            self.analyzer = PdfAnalyzer()
+            # self.analyzer = PdfAnalyzer()
+            analysis_run_queue.append(PdfAnalyzer)
         elif t == 'TXT':
             logging.debug('File is a of type [TEXT]')
-            self.analyzer = TextAnalyzer()
+            # self.analyzer = TextAnalyzer()
+            analysis_run_queue.append(PdfAnalyzer)
         else:
             logging.debug('File type ({}) is not yet mapped to a type-specific '
                           'Analyzer.'.format(self.file_object.type))
-            return
+            pass
+
+        collected_datetime = []
+        # collected_title = []
+        # collected_author = []
+        # etc ..
+        for analysis in analysis_run_queue:
+            if not analysis:
+                logging.error('Got Null analysis.')
+                continue
+
+            a = analysis(self.file_object, self.filters)
+            if not a:
+                logging.error('Got Null analysis.')
+                continue
+            logging.debug('Running Analyzer: {}'.format(a.__class__))
+            collected_datetime.append(a.get_datetime())
+            # collected_title.append(analysis.get_title())
+            # collected_author.append(analysis.get_author())
+            # etc ..
+
+
+
 
     def filter_datetime(self, dt):
         """
