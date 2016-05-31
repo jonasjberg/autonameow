@@ -10,7 +10,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 from datetime import datetime
 
-from analyze.common import AnalyzerBase
+from analyze.analyze_base import AnalyzerBase
 
 
 class ImageAnalyzer(AnalyzerBase):

@@ -9,7 +9,7 @@ from datetime import datetime
 import PyPDF2
 from unidecode import unidecode
 
-from analyze.common import AnalyzerBase
+from analyze.analyze_base import AnalyzerBase
 from util import dateandtime
 
 

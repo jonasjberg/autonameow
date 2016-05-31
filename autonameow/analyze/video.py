@@ -5,7 +5,7 @@
 import logging
 import os
 
-from analyze.common import AnalyzerBase
+from analyze.analyze_base import AnalyzerBase
 from util.fuzzy_date_parser import DateParse
 
 
