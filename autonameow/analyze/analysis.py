@@ -6,7 +6,7 @@ import logging
 from colorama import Back
 from colorama import Fore
 
-from analyze.analyze_base import FilesystemAnalyzer
+from analyze.analyze_filesystem import FilesystemAnalyzer
 from analyze.analyze_image import ImageAnalyzer
 from analyze.analyze_pdf import PdfAnalyzer
 from analyze.analyze_text import TextAnalyzer
