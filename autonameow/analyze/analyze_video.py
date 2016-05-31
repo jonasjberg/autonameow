@@ -45,6 +45,9 @@ class VideoAnalyzer(AbstractAnalyzer):
         Extract create date using "ffprobe".
         :return: Creation date/time as a datetime-object.
         """
+        # TODO: This needs a serious looking over and most probably reworking.
+
+        # TODO: Do not use this date parser! Remove it.
         parser = DateParse()
 
         filename = self.fileObject.get_path()
