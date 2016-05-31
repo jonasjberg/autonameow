@@ -213,12 +213,12 @@ class Autonameow(object):
         # Setup logging output format.
         # if args.debug == 0:
         if args.debug:
-            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
-                     Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
+            fmt = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
+                  Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
                      ' %(funcName)-25.25s (%(lineno)3d) ' + \
-                     Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + \
+                  Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + \
                      '%(message)-120.120s'
-            logging.basicConfig(level=logging.DEBUG, format=FORMAT,
+            logging.basicConfig(level=logging.DEBUG, format=fmt,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         # elif args.debug == 1:
         #     # TODO: Fix debug logging verbosity.
@@ -233,18 +233,18 @@ class Autonameow(object):
         #     pass
 
         elif args.verbose:
-            FORMAT = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
-                     Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
-                     Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + \
-                     '%(message)-130.130s'
-            logging.basicConfig(level=logging.INFO, format=FORMAT,
+            fmt = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
+                  Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
+                  Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + \
+                  '%(message)-130.130s'
+            logging.basicConfig(level=logging.INFO, format=fmt,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         elif args.quiet:
-            FORMAT = '%(levelname)s -- %(message)s'
-            logging.basicConfig(level=logging.CRITICAL, format=FORMAT)
+            fmt = '%(levelname)s -- %(message)s'
+            logging.basicConfig(level=logging.CRITICAL, format=fmt)
         else:
-            FORMAT = '%(levelname)s -- %(message)s'
-            logging.basicConfig(level=logging.WARNING, format=FORMAT)
+            fmt = '%(levelname)s -- %(message)s'
+            logging.basicConfig(level=logging.WARNING, format=fmt)
 
         # TODO: Fix this and overall filter handling.
         if args.filter_ignore_years:
