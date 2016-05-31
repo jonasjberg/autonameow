@@ -7,7 +7,7 @@ from colorama import Back
 from colorama import Fore
 
 from analyze.analyze_base import AnalyzerBase
-from analyze.image import ImageAnalyzer
+from analyze.analyze_image import ImageAnalyzer
 from analyze.pdf import PdfAnalyzer
 from analyze.text import TextAnalyzer
 
