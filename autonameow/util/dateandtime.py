@@ -5,12 +5,22 @@
 import logging
 import re
 import string
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import dateutil
 import sys
 
 from util import misc
+
+
+def nextyear(dt):
+    # http://stackoverflow.com/a/11206511
+    try:
+        return dt.replace(year=dt.year+1)
+    except ValueError:
+        # February 29th in a leap year
+        # Add 365 days instead to arrive at March 1st
+        return dt + timedelta(days=365)
 
 def date_is_probable(date):
     """
