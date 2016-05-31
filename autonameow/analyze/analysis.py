@@ -24,8 +24,6 @@ class Analysis(object):
     Main interface to all file analyzers.
     """
     analyzer = None
-    best_datetime = None
-    best_name = None
 
     def __init__(self, file_object, filters):
         self.file_object = file_object
