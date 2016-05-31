@@ -7,14 +7,14 @@ import logging
 
 from unidecode import unidecode
 
-from analyze.analyze_base import AnalyzerBase
+from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
 
 
-class TextAnalyzer(AnalyzerBase):
     def __init__(self, file_object, filters):
         self.file_object = file_object
         self.filters = filters
+class TextAnalyzer(AbstractAnalyzer):
 
         self.author = None
         self.title = None
