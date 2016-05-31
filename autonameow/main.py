@@ -182,7 +182,7 @@ class Autonameow(object):
                                    dest='filter_ignore_before_year',
                                    action='store',
                                    help='ignore date/time-information from '
-                                        'this year and the years prior'
+                                        'this year and the years prior. '
                                         'Default: {}'.format(lowest_year))
 
         next_year = str(dateandtime.nextyear(datetime.now()).strftime('%Y'))
