@@ -63,7 +63,37 @@ class TextAnalyzer(AnalyzerBase):
 
     def get_datetime_from_text(self, text):
         # TODO: This redirection is very ugly.
-        return dateandtime.get_datetime_from_text(text, 'text')
+        dt = dateandtime.get_datetime_from_text(text, 'text')
+
+        if not dt:
+            return None
+
+        results = {}
+
+        i = 0
+        if 'text_contents_regex' in dt:
+            print('dt has key text_contents_regex')
+            for entry in dt['text_contents_regex']:
+                new_key = '{0}_{1:02d}'.format('text_contents', i)
+                results[new_key] = entry
+                i += 1
+            return results
+
+        else:
+            print('dt DOES NOT have key test_contents_regex')
+
+        if 'text_contents_brute' in dt:
+            print('dt has key text_contents_brute')
+            for entry in dt['text_contents_brute']:
+                new_key = '{0}_{1:02d}'.format('text_contents', i)
+                results[new_key] = entry
+                i += 1
+            return results
+
+        else:
+            print('dt DOES NOT have key test_contents_brute')
+
+        return None
 
     def get_file_lines(self):
         fn = self.file_object.path

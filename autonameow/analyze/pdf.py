@@ -227,4 +227,49 @@ class PdfAnalyzer(AnalyzerBase):
 
     def get_datetime_from_text(self, text):
         # TODO: This redirection is very ugly.
-        return dateandtime.get_datetime_from_text(text, 'pdf')
+        dt = dateandtime.get_datetime_from_text(text, 'text')
+
+        if not dt:
+            return None
+
+        results = {}
+
+        i = 0
+        if 'text_contents_regex' in dt:
+            print('dt has key text_contents_regex')
+            for entry in dt['text_contents_regex']:
+                if not entry:
+                    continue
+                if type(entry) is list:
+                    for e in entry:
+                        new_key = '{0}_{1:06d}'.format('text_contents', i)
+                        results[new_key] = e
+                        i += 1
+                elif type(entry) is dict:
+                    for k, v in entry.iteritems():
+                        new_key = '{0}_{1:06d}'.format('text_contents', i)
+                        results[new_key] = v
+                        i += 1
+        else:
+            print('dt DOES NOT have key test_contents_regex')
+
+        if 'text_contents_brute' in dt:
+            print('dt has key text_contents_brute')
+            for entry in dt['text_contents_brute']:
+                if not entry:
+                    continue
+                if type(entry) is list:
+                    for e in entry:
+                        new_key = '{0}_{1:06d}'.format('text_contents', i)
+                        results[new_key] = e
+                        i += 1
+                elif type(entry) is dict:
+                    for k, v in entry.iteritems():
+                        new_key = '{0}_{1:06d}'.format('text_contents', i)
+                        results[new_key] = v
+                        i += 1
+
+        else:
+            print('dt DOES NOT have key test_contents_brute')
+
+        return results
