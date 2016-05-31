@@ -13,43 +13,34 @@ from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
 
 
-    def __init__(self, file_object, filters):
-        self.file_object = file_object
-        self.filters = filters
-        self.pdf_metadata = None
 class PdfAnalyzer(AbstractAnalyzer):
+    def __init__(self):
+        self.pdf_metadata = self.extract_pdf_metadata()
 
-        self.author = None
-        self.title = None
-        self.publisher = None
+    def get_author(self):
+        # TODO: Implement.
+        pass
 
-    def run(self):
-        """
-        Run this analyzer.
-        This method is common to all analyzers.
-        :return:
-        """
+    def get_title(self):
+        # TODO: Implement.
+        pass
 
-        if self.pdf_metadata is None:
-            self.pdf_metadata = self.extract_pdf_metadata()
+    def get_datetime(self):
+        result = []
 
         metadata_datetime = self.get_metadata_datetime()
         if metadata_datetime:
-            self.filter_datetime(metadata_datetime)
-
-        print('Title  : %s' % self.title)
-        print('Author : %s' % self.author)
+            # self.filter_datetime(metadata_datetime)
+            result.append(metadata_datetime)
 
         pdf_text = self.extract_pdf_content()
         if pdf_text:
             text_timestamps = self.get_datetime_from_text(pdf_text)
             if text_timestamps:
-                self.filter_datetime(text_timestamps)
-                # logging.debug('PDF content:')
-                # logging.debug(pdf_text)
-                # print(pdf_text)
-                # for line in pdf_text:
-                #    print(line)
+                # self.filter_datetime(text_timestamps)
+                result.append(text_timestamps)
+
+        return result
 
     def get_metadata_datetime(self):
         """
