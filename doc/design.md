@@ -70,6 +70,17 @@ Breakdown of what needs to happen to automatically rename a file:
 1. Sort
 
     * Prioritize items by weights and/or fixed rules.
+        * For fixed rules, use a configuration file for specifying rules to be
+          matched.
+            * **Example:** If file (magic) type is image, and the extension is
+              upper-case PNG and the file name contains Sreenshot, OCR text
+              contains anything instagram-related; THEN run a specific routine
+              or apply a certain template.
+        * Use weights to indicate probability that some information is correct.
+            * **Example:** Exif DateTimeOriginal date/time-information would be
+              weighted 1, while date/time-information extracted by
+              brute-forcing textual contents would have a weight of 0.1.
+
     * For example, the EXIF-tag `Date/Time Original` would be selected
       before `Modify Date`. Maybe not always though.
 
