@@ -65,7 +65,7 @@ Breakdown of what needs to happen to automatically rename a file:
         * Other files in the directory
 
 
-#### 2. Evaluate any results.
+#### 2. Evaluate/process any results.
 
 1. Sort
 
@@ -85,18 +85,26 @@ Breakdown of what needs to happen to automatically rename a file:
         * Specified as command line options at program invocation
 
 
-#### 3. Construct a new file name from the data.
+#### 3. Perform actions
 
-* Fill fields in file name template with most probable values.
+1. Fill fields in file name template with most probable values.
 
+    * Construct a new file name from the data.
 
-#### 4. Rename the file.
+2. Rename the file.
 
-* (Ask user to proceed (?))
-* Do belt+suspenders sanity checks to make sure;
-    * File still exists, is readable, etc..
-    * Destination won't be clobbered, is writable, etc..
-* Rename file to the generated file name.
+    * Do belt+suspenders sanity checks to make sure;
+        * File still exists, is readable, etc..
+        * Destination won't be clobbered, is writable, etc..
+        * (Ask user to proceed (?))
+
+    * Rename file to the generated file name.
+
+3. Display results
+
+    * Print summary of results/actions performed/etc.
+        * Output is determined by the user.
+        * An option like `--dry-run` or similar would skip renaming altogether.
 
 
 Example
