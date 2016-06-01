@@ -9,47 +9,39 @@ from datetime import datetime
 import PyPDF2
 from unidecode import unidecode
 
-from analyze.common import AnalyzerBase
+from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
 
 
-class PdfAnalyzer(AnalyzerBase):
+class PdfAnalyzer(AbstractAnalyzer):
     def __init__(self, file_object, filters):
-        self.file_object = file_object
-        self.filters = filters
-        self.pdf_metadata = None
+        super(PdfAnalyzer, self).__init__(file_object, filters)
+        self.pdf_metadata = self.extract_pdf_metadata()
 
-        self.author = None
-        self.title = None
-        self.publisher = None
+    def get_author(self):
+        # TODO: Implement.
+        pass
 
-    def run(self):
-        """
-        Run this analyzer.
-        This method is common to all analyzers.
-        :return:
-        """
+    def get_title(self):
+        # TODO: Implement.
+        pass
 
-        if self.pdf_metadata is None:
-            self.pdf_metadata = self.extract_pdf_metadata()
+    def get_datetime(self):
+        result = []
 
         metadata_datetime = self.get_metadata_datetime()
         if metadata_datetime:
-            self.filter_datetime(metadata_datetime)
-
-        print('Title  : %s' % self.title)
-        print('Author : %s' % self.author)
+            # self.filter_datetime(metadata_datetime)
+            result.append(metadata_datetime)
 
         pdf_text = self.extract_pdf_content()
         if pdf_text:
             text_timestamps = self.get_datetime_from_text(pdf_text)
             if text_timestamps:
-                self.filter_datetime(text_timestamps)
-                # logging.debug('PDF content:')
-                # logging.debug(pdf_text)
-                # print(pdf_text)
-                # for line in pdf_text:
-                #    print(line)
+                # self.filter_datetime(text_timestamps)
+                result.append(text_timestamps)
+
+        return result
 
     def get_metadata_datetime(self):
         """
@@ -65,12 +57,12 @@ class PdfAnalyzer(AnalyzerBase):
             if field in self.pdf_metadata:
                 try:
                     k = self.pdf_metadata[field]
+                    k = k.strip()
                     # date, time = self.pdf_metadata[field].split()
                 except KeyError:
                     logging.error('KeyError for key [{}]'.format(field))
                     pass
 
-            k = k.strip()
             if k is None:
                 logging.warning('Null value in metadata field [%s]' % field)
                 continue

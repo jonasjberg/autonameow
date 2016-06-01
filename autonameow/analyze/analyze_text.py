@@ -7,32 +7,34 @@ import logging
 
 from unidecode import unidecode
 
-from analyze.common import AnalyzerBase
+from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
 
 
-class TextAnalyzer(AnalyzerBase):
-    def __init__(self, file_object, filters):
-        self.file_object = file_object
-        self.filters = filters
+class TextAnalyzer(AbstractAnalyzer):
+    def __init__(self):
+        self.text_contents = self.extract_text_content()
 
-        self.author = None
-        self.title = None
-        self.publisher = None
+    def get_author(self):
+        # TODO: Implement.
+        pass
 
-    def run(self):
-        """
-        Run this analyzer.
-        This method is common to all analyzers.
-        :return:
-        """
+    def get_title(self):
+        # TODO: Implement.
+        pass
 
-        text_contents = self.extract_text_content()
-        if text_contents:
+    def get_datetime(self):
+        result = []
+
+        if self.text_contents:
             # print(text_contents)
-            text_timestamps = self.get_datetime_from_text(text_contents)
+            text_timestamps = self.get_datetime_from_text()
             if text_timestamps:
-                self.filter_datetime(text_timestamps)
+                # self.filter_datetime(text_timestamps)
+                result.append(text_timestamps)
+
+        return result
+
 
     def extract_text_content(self):
         """
@@ -61,8 +63,9 @@ class TextAnalyzer(AnalyzerBase):
             logging.warn('Unable to extract PDF contents.')
             return None
 
-    def get_datetime_from_text(self, text):
+    def get_datetime_from_text(self):
         # TODO: This redirection is very ugly.
+        text = self.text
         dt = dateandtime.get_datetime_from_text(text, 'text')
 
         if not dt:

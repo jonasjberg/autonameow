@@ -10,31 +10,38 @@ from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 from datetime import datetime
 
-from analyze.common import AnalyzerBase
+from analyze.analyze_abstract import AbstractAnalyzer
+from analyze.analyze_filesystem import FilesystemAnalyzer
 
 
-class ImageAnalyzer(AnalyzerBase):
+class ImageAnalyzer(AbstractAnalyzer):
     def __init__(self, file_object, filters):
-        self.file_object = file_object
-        self.exif_data = None
-        self.filters = filters
+        super(ImageAnalyzer, self).__init__(file_object, filters)
 
-    def run(self):
-        """
-        Run the analysis.
-        """
         # Start by trying to extract EXIF information from the image.
-        if self.exif_data is None:
-            logging.debug('Fetching EXIF data ..')
-            self.exif_data = self.get_exif_data()
-
-        exif_datetime = self.get_exif_datetime()
-        if exif_datetime:
-            self.filter_datetime(exif_datetime)
+        logging.debug('Extracting EXIF data ..')
+        self.exif_data = self.get_exif_data()
 
         # TODO: Run OCR on the image and store any textual output.
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
+
+    def get_datetime(self):
+        result = []
+        exif_timestamps = self.get_exif_datetime()
+        if exif_timestamps:
+            # self.filter_datetime(exif_datetime)
+            result.append(exif_timestamps)
+
+        return result
+
+    def get_author(self):
+        # TODO: Implement.
+        pass
+
+    def get_title(self):
+        # TODO: Implement.
+        pass
 
     def get_exif_datetime(self):
         """

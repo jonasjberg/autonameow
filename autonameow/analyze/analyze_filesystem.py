@@ -8,6 +8,7 @@ import os
 
 from datetime import datetime
 
+from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
 from util import misc
 
@@ -16,83 +17,30 @@ from util import misc
 # Examines:
 #   * file names
 #   * file system metadata (modified, created, ..)
-class AnalyzerBase(object):
-    def __init__(self, file_object, filters):
-        self.file_object = file_object
-        self.filters = filters
-
-    def run(self):
-        """
-        Run the analysis.
-        """
-        fs_timestamps = self.get_datetime_from_filesystem()
-        if fs_timestamps:
-            self.filter_datetime(fs_timestamps)
-
-        fn_timestamps = self.get_datetime_from_name()
-        if fn_timestamps:
-            self.filter_datetime(fn_timestamps)
-
-    def filter_datetime(self, dt):
-        """
-        Adds a datetime-entry by first checking any filters for matches.
-        Matches are ignored, "passed out" ..
-        :param dt: datetime to add
-        """
-        if type(dt) is not dict:
-            logging.warning('Got unexpected type \"{}\" '
-                            '(expected dict)'.format(type(dt)))
-
-        if type(dt) is list:
-            if not dt:
-                logging.warning('Got empty list')
-                return
-
-            # TODO: Handle whether dicts or lists should be passed, and passed
-            #       only that type, OR make sure both types can be handled.
-            # for item in dt:
-            #     if not item:
-            #         continue
-            #     if type(item) is dict:
-            #         for k, v in item.iteritems():
-            #             if v in
-            #             dt_dict[k] = v
-            return
-
-        passed = {}
-        removed = {}
-        ignore_years = [yr.year for yr in self.filters['ignore_years']]
-        ignore_before = self.filters['ignore_before_year']
-        ignore_after = self.filters['ignore_after_year']
-        ok = True
-        for key, value in dt.iteritems():
-            if ignore_years is not None and len(ignore_years) > 0:
-                if value.year in ignore_years:
-                    ok = False
-
-            # if type(value) is not datetime:
-            #     logging.error('type(value) is not datetime: {} {}'.format(str(value), type(value)))
-            # if ignore_before.year > value.year > ignore_after.year:
-            if value.year < ignore_before.year:
-                ok = False
-            if value.year > ignore_after.year:
-                ok = False
-
-            if ok:
-                # logging.debug('Filter passed date/time {} .. '.format(dt))
-                passed[key] = value
-            else:
-                # logging.debug('Filter removed date/time {} .. '.format(dt))
-                removed[key] = value
-
-        logging.debug('Datetime filter removed {} entries, passed {} '
-                      'entries.'.format(len(removed), len(passed)))
-
-        self.file_object.add_datetime(passed)
+class FilesystemAnalyzer(AbstractAnalyzer):
 
     def get_datetime(self):
         # TODO: Get datetime from information common to all file types;
         #       file name, files in the same directory, name of directory, etc..
+        result = []
+        fs_timestamps = self.get_datetime_from_filesystem()
+        if fs_timestamps:
+            result.append(fs_timestamps)
+            #self.filter_datetime(fs_timestamps)
+
+        fn_timestamps = self.get_datetime_from_name()
+        if fn_timestamps:
+            result.append(fn_timestamps)
+            # self.filter_datetime(fn_timestamps)
+
+        return result
+
+    def get_title(self):
+        # TODO: Implement.
+        pass
+
+    def get_author(self):
+        # TODO: Implement.
         pass
 
     def get_datetime_from_filesystem(self):

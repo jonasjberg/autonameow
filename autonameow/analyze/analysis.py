@@ -6,10 +6,10 @@ import logging
 from colorama import Back
 from colorama import Fore
 
-from analyze.common import AnalyzerBase
-from analyze.image import ImageAnalyzer
-from analyze.pdf import PdfAnalyzer
-from analyze.text import TextAnalyzer
+from analyze.analyze_filesystem import FilesystemAnalyzer
+from analyze.analyze_image import ImageAnalyzer
+from analyze.analyze_pdf import PdfAnalyzer
+from analyze.analyze_text import TextAnalyzer
 
 
 class ExtractedData(object):
@@ -24,17 +24,123 @@ class Analysis(object):
     Main interface to all file analyzers.
     """
     analyzer = None
-    best_datetime = None
-    best_name = None
 
     def __init__(self, file_object, filters):
         self.file_object = file_object
-
         if self.file_object is None:
             logging.critical('Got NULL file!')
             pass
 
         self.filters = filters
+
+        # List of analyzers to run.
+        analysis_run_queue = [FilesystemAnalyzer]
+
+        # Create a basic analyzer, common to all file types.
+        self.analyzer = FilesystemAnalyzer(self.file_object, self.filters)
+
+        # Select analyzer based on detected file type.
+        t = self.file_object.type
+        if t == 'JPG':
+            logging.debug('File is of type [JPG]')
+            # self.analyzer = ImageAnalyzer(self.file_object, self.filters)
+            analysis_run_queue.append(ImageAnalyzer)
+        elif t == 'PNG':
+            logging.debug('File is of type [PNG]')
+            # self.analyzer = ImageAnalyzer(self.file_object, self.filters)
+            analysis_run_queue.append(ImageAnalyzer)
+        elif t == 'PDF':
+            logging.debug('File is of type [PDF]')
+            # self.analyzer = PdfAnalyzer()
+            analysis_run_queue.append(PdfAnalyzer)
+        elif t == 'TXT':
+            logging.debug('File is a of type [TEXT]')
+            # self.analyzer = TextAnalyzer()
+            analysis_run_queue.append(PdfAnalyzer)
+        else:
+            logging.debug('File type ({}) is not yet mapped to a type-specific '
+                          'Analyzer.'.format(self.file_object.type))
+            pass
+
+        collected_datetime = []
+        # collected_title = []
+        # collected_author = []
+        # etc ..
+        for analysis in analysis_run_queue:
+            if not analysis:
+                logging.error('Got Null analysis.')
+                continue
+
+            a = analysis(self.file_object, self.filters)
+            if not a:
+                logging.error('Got Null analysis.')
+                continue
+            logging.debug('Running Analyzer: {}'.format(a.__class__))
+            collected_datetime.append(a.get_datetime())
+            # collected_title.append(analysis.get_title())
+            # collected_author.append(analysis.get_author())
+            # etc ..
+
+
+
+
+    def filter_datetime(self, dt):
+        """
+        Adds a datetime-entry by first checking any filters for matches.
+        Matches are ignored, "passed out" ..
+        :param dt: datetime to add
+        """
+        if type(dt) is not dict:
+            logging.warning('Got unexpected type \"{}\" '
+                            '(expected dict)'.format(type(dt)))
+
+        if type(dt) is list:
+            if not dt:
+                logging.warning('Got empty list')
+                return
+
+            # TODO: Handle whether dicts or lists should be passed, and passed
+            #       only that type, OR make sure both types can be handled.
+            # for item in dt:
+            #     if not item:
+            #         continue
+            #     if type(item) is dict:
+            #         for k, v in item.iteritems():
+            #             if v in
+            #             dt_dict[k] = v
+            return
+
+        passed = {}
+        removed = {}
+        ignore_years = [yr.year for yr in self.filters['ignore_years']]
+        ignore_before = self.filters['ignore_before_year']
+        ignore_after = self.filters['ignore_after_year']
+        ok = True
+        for key, value in dt.iteritems():
+            if ignore_years is not None and len(ignore_years) > 0:
+                if value.year in ignore_years:
+                    ok = False
+
+            # if type(value) is not datetime:
+            #     logging.error('type(value) is not datetime: {} {}'.format(str(value), type(value)))
+            # if ignore_before.year > value.year > ignore_after.year:
+            if value.year < ignore_before.year:
+                ok = False
+            if value.year > ignore_after.year:
+                ok = False
+
+            if ok:
+                # logging.debug('Filter passed date/time {} .. '.format(dt))
+                passed[key] = value
+            else:
+                # logging.debug('Filter removed date/time {} .. '.format(dt))
+                removed[key] = value
+
+        logging.debug('Datetime filter removed {} entries, passed {} '
+                      'entries.'.format(len(removed), len(passed)))
+
+        self.file_object.add_datetime(passed)
+
 
     def print_all_datetime_info(self):
         """
@@ -142,37 +248,5 @@ class Analysis(object):
         fn_noext = fn_noext.replace(ext, '')
 
         print('%s %s.%s' % (datetime.strftime('%Y-%m-%d_%H%M%S'), fn_noext, ext))
-
-    def run(self):
-        # TODO: CLEAN UP! FIX!
-        #       Reconsider the idea that the "Analysis" class is to act as an
-        #       "interface to all analyzers" ..
-
-        # Create a basic analyzer, common to all file types.
-        self.analyzer = AnalyzerBase(self.file_object, self.filters)
-        self.analyzer.run()
-
-        t = self.file_object.type
-
-        # Select analyzer based on detected file type.
-        if t == 'JPG':
-            logging.debug('File is of type [JPG]')
-            self.analyzer = ImageAnalyzer(self.file_object, self.filters)
-        elif t == 'PNG':
-            logging.debug('File is of type [PNG]')
-            self.analyzer = ImageAnalyzer(self.file_object, self.filters)
-        elif t == 'PDF':
-            logging.debug('File is of type [PDF]')
-            self.analyzer = PdfAnalyzer(self.file_object, self.filters)
-        elif t == 'TXT':
-            logging.debug('File is a of type [TEXT]')
-            self.analyzer = TextAnalyzer(self.file_object, self.filters)
-        else:
-            logging.debug('File type ({}) is not yet mapped to a type-specific '
-                          'Analyzer.'.format(self.file_object.type))
-            return
-
-        # Run analyzer.
-        self.analyzer.run()
 
 

@@ -100,7 +100,6 @@ class Autonameow(object):
 
                 # Begin analysing the file.
                 analysis = Analysis(curfile, self.filter)
-                analysis.run()
 
                 if self.args.list_datetime:
                     print('File: \"%s\"' % curfile.path)
