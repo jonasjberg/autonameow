@@ -172,29 +172,29 @@ class Autonameow(object):
 
         # Add option group for filter options.
         optgrp_filter = parser.add_argument_group()
-        lowest_year = str(dateandtime.year_lower_limit.strftime('%Y'))
+        ignore_to_year_default = str(dateandtime.year_lower_limit.strftime('%Y'))
         optgrp_filter.add_argument('--ignore-before-year',
                                    metavar='YYYY',
                                    type=arg_is_year,
-                                   default=lowest_year,
+                                   default=ignore_to_year_default,
                                    nargs='?',
-                                   dest='filter_ignore_before_year',
+                                   dest='filter_ignore_to_year',
                                    action='store',
                                    help='ignore date/time-information from '
                                         'this year and the years prior. '
-                                        'Default: {}'.format(lowest_year))
+                                        'Default: {}'.format(ignore_to_year_default))
 
-        next_year = str(dateandtime.nextyear(datetime.now()).strftime('%Y'))
+        ignore_from_year_default = str(dateandtime.year_upper_limit.strftime('%Y'))
         optgrp_filter.add_argument('--ignore-after-year',
                                    metavar='YYYY',
                                    type=arg_is_year,
-                                   default=next_year,
+                                   default=ignore_from_year_default,
                                    nargs='?',
-                                   dest='filter_ignore_after_year',
+                                   dest='filter_ignore_from_year',
                                    action='store',
                                    help='ignore date/time-information from '
                                         'this year onward. '
-                                        'Default: {}'.format(next_year))
+                                        'Default: {}'.format(ignore_from_year_default))
 
         optgrp_filter.add_argument('--ignore-years',
                                    metavar='YYYY',
@@ -270,9 +270,9 @@ class Autonameow(object):
             logging.debug('Using filter: ignore date/time-information for these'
                           ' years: {}'.format(ignored_years))
 
-        if args.filter_ignore_before_year:
+        if args.filter_ignore_to_year:
             try:
-                dt = datetime.strptime(str(args.filter_ignore_before_year), '%Y')
+                dt = datetime.strptime(str(args.filter_ignore_to_year), '%Y')
             except ValueError as e:
                 logging.warning('Erroneous date format: {}'.format(e.message))
             else:
@@ -280,9 +280,9 @@ class Autonameow(object):
                               ' predate year {}'.format(dt.year))
                 self.filter['ignore_before_year'] = dt
 
-        if args.filter_ignore_after_year:
+        if args.filter_ignore_from_year:
             try:
-                dt = datetime.strptime(str(args.filter_ignore_after_year), '%Y')
+                dt = datetime.strptime(str(args.filter_ignore_from_year), '%Y')
             except ValueError as e:
                 logging.warning('Erroneous date format: {}'.format(e.message))
             else:
