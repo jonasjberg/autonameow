@@ -39,23 +39,27 @@ Breakdown of what needs to happen to automatically rename a file:
 
 #### 1. Collect information:
 
-* From file **name**
+1. From file **name**
+
     * `seemingly giant cat in dollhouse.jpg`
     * Try to extract date/time-information, title, keywords, etc.
 
-* From file **contents**
+2. From file **contents**
+
     * Get plain text from the file contents.
     * Extraction technique would be specfic to file type;
         * Run `OCR` on images to extract textual content.
         * Convert pdf documents to plain text.
         * Do conversion specific to file (magic) type.
 
-* From file **metadata**
+3. From file **metadata**
+
     * Extract information from embedded metadata.
     * Metadata type and extraction technique is specfic to file type;
       "media" often have `Exif` data, pdf documents, etc.
 
-* From file **surroundings** (optional)
+4. From file **surroundings** (optional)
+
     * Extract information from the surrounding structure;
         * Parent directory name
         * Other files in the directory
@@ -63,16 +67,19 @@ Breakdown of what needs to happen to automatically rename a file:
 
 #### 2. Evaluate any results.
 
-* Sort
+1. Sort
+
     * Prioritize items by weights and/or fixed rules.
     * For example, the EXIF-tag `Date/Time Original` would be selected
       before `Modify Date`. Maybe not always though.
 
-* Filter
+2. Filter
+
     * Remove and/or mark:
         * Obviously incorrect entries.
         * Unplausible entries.
         * Entries matching some kind of ruleset or blacklist.
+
     * Apply user-specified filters
         * Specified in configuration file
         * Specified as command line options at program invocation
