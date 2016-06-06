@@ -1,0 +1,3 @@
+[submodule "tools"]
+	path = tools
+	url = /home/spock/Dropbox/Git/software/autonametools.git
