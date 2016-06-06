@@ -39,6 +39,58 @@ def nextyear(dt):
 year_lower_limit = datetime.strptime('1900', '%Y')
 year_upper_limit = nextyear(datetime.today())
 
+
+def year_is_probable(year):
+    """
+    Check if year is "probable", meaning greater than 1900 and
+    not in the future, I.E. greater than the current year.
+    That is, simply: 1900 < year < this year
+    :param year: Year to check, preferably as a datetime-object.
+                 Other types will be converted if possible.
+    :return: True if the year is probable.
+             False if the year is not probable or a conversion to
+             datetime-object failed.
+    """
+    logging.debug('Checking probability of [{}] {}'.format(year, type(year)))
+    if type(year) is not datetime:
+        # Year is some other type.
+        # Try to convert to integer, then from integer to datetime.
+        try:
+            year = int(year)
+        except ValueError as ex:
+            logging.warning('Got unexpected type \"{}\". '
+                            'Casting failed: {}' % (type(year), ex))
+            return False
+
+        # Check if number of digits in "year" is less than three,
+        # I.E. we got something like '86' (1986) or maybe '08' (2008).
+        if year < 999:
+            # Assume 50-99 becomes 1950-1999, and 0-49 becomes 2000-2049.
+            if year < 50:
+                year += 2000
+            else:
+                year += 1900
+
+        try:
+            year = datetime.strptime(year, '%Y')
+        except TypeError:
+            logging.warning('Failed converting \"{}\" '
+                            'to datetime-object.'.format(year))
+            return False
+
+    # Do date comparisons using datetime-objects.
+    if year.year > year_upper_limit.year:
+        # logging.debug('Skipping future date [{}]'.format(date))
+        return False
+    elif year.year < year_lower_limit.year:
+        # logging.debug('Skipping non-probable (<{}) date '
+        #               '[{}]'.format(year_lower_limit, date))
+        return False
+    else:
+        # Year lies within window, assume it is OK.
+        return True
+
+
 def date_is_probable(date):
     """
     Check if date is "probable", meaning greater than 1900 and
@@ -52,32 +104,9 @@ def date_is_probable(date):
     """
     logging.debug('Checking probability of [{}] {}'.format(date, type(date)))
     if type(date) is not datetime:
-        # Date is some other type.
-        # Try to convert to integer, then from integer to datetime.
-        try:
-            date = int(date)
-        except ValueError as ex:
-            logging.warning('Got unexpected type \"{}\". '
-                            'Casting failed: {}' % (type(date), ex))
-            return False
-
-        # Check if number of digits in "date" is less than three,
-        # I.E. we got something like '86' (1986) or maybe '08' (2008).
-        # TODO: Improve this here below logic ..
-        if len(str(date)) < 3:
-            # Test if adding 2000 would still be within the limit.
-            if date + 2000 <= int(year_upper_limit.strftime('%Y')):
-                date += 2000
-            # Otherwise just assume this will fix it ..
-            else:
-                date += 1900
-
-        try:
-            date = datetime.strptime(date, '%Y')
-        except TypeError:
-            logging.warning('Failed converting \"{}\" '
-                            'to datetime-object.'.format(date))
-            return False
+        logging.warning('Got unexpected type \"{}\" '
+                        '(expected datetime)'.format(type(date)))
+        return False
 
     # Do date comparisons using datetime-objects.
     if date.year > year_upper_limit.year:
@@ -454,7 +483,7 @@ def bruteforce_str(text, prefix):
     digits = digits_only
     # Remove one number at a time from the front until first four digits
     # represent a probable year.
-    while not date_is_probable(int(digits[:4])) and year_first:
+    while not year_is_probable(int(digits[:4])) and year_first:
         logging.debug('\"{}\" is not a probable year. '
                       'Removing a digit.'.format(digits[:4]))
         digits = digits[1:]
