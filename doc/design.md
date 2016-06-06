@@ -203,3 +203,59 @@ File names are to match the pattern:
     [title] _ [edition] _ [author(s) last name] _ [publisher] _ [year] . [ext]
               (optional)                                                 (pdf)
 
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+Implementation details
+======================
+
+
+Metadata data structure
+-----------------------
+The data structure for metadata is still undecided. The following is only a
+draft/example and is subject to change.
+
+
+### Example:
+
+One piece of extracted date/time-information would store:
+
+* The date/time itself as a datetime-object.
+
+* It should probably also keep track of the source -- who found this piece of
+  information?
+
+* A "weight" or some kind of metric that approximates how reliable the
+  information is, I.E. how probable is it that it is correct?
+
+    * Note that the "correctness" is entirely context-specific; datetime for a
+      pdf-document would be correct if it matches the time of the document
+      release.
+
+The reason for keeping track of the data source (aside from debugging
+information) would be to use later when deciding on what data to use, in other
+words, it would serve the same purpose as the "weight".
+
+
+### Example of possible data structure:
+Dictionary with some values being lists of dictionaries.
+
+```python
+file_info = { 'title': 'The Cats Mjaowuw',
+              'author': 'Gibson',
+              'publisher': None,
+              'edition': None,
+              'dateandtime': [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                                 'source': pdf_metadata,
+                                 'comment': "Create date",
+                                 'weight': 1 },
+                               { 'datetime': datetime.datetime(2010, 1, 2, 34, ..),
+                                 'source': pdf_metadata,
+                                 'comment': "Modify date",
+                                 'weight': 0.8 } ],
+              'tags': ['cat', 'best'] }
+```
