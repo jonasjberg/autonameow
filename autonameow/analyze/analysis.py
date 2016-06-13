@@ -23,8 +23,6 @@ class Analysis(object):
     """
     Main interface to all file analyzers.
     """
-    analyzer = None
-
     def __init__(self, file_object, filters):
         self.file_object = file_object
         if self.file_object is None:
@@ -34,28 +32,22 @@ class Analysis(object):
         self.filters = filters
 
         # List of analyzers to run.
+        # Start with a basic analyzer that is common to all file types.
         analysis_run_queue = [FilesystemAnalyzer]
-
-        # Create a basic analyzer, common to all file types.
-        self.analyzer = FilesystemAnalyzer(self.file_object, self.filters)
 
         # Select analyzer based on detected file type.
         t = self.file_object.type
         if t == 'JPG':
             logging.debug('File is of type [JPG]')
-            # self.analyzer = ImageAnalyzer(self.file_object, self.filters)
             analysis_run_queue.append(ImageAnalyzer)
         elif t == 'PNG':
             logging.debug('File is of type [PNG]')
-            # self.analyzer = ImageAnalyzer(self.file_object, self.filters)
             analysis_run_queue.append(ImageAnalyzer)
         elif t == 'PDF':
             logging.debug('File is of type [PDF]')
-            # self.analyzer = PdfAnalyzer()
             analysis_run_queue.append(PdfAnalyzer)
         elif t == 'TXT':
             logging.debug('File is a of type [TEXT]')
-            # self.analyzer = TextAnalyzer()
             analysis_run_queue.append(TextAnalyzer)
         else:
             logging.debug('File type ({}) is not yet mapped to a type-specific '
