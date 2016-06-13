@@ -16,6 +16,7 @@ magic_type_lookup = {'MP4':   ['video/mp4'],
                      'PNG':   ['image/png'],
                      'EMPTY': ['inode/x-empty']}
 
+
 class MetadataBlock(object):
     def __init__(self, title, author, date, publisher, edition, tags):
         self.title = title
@@ -38,8 +39,8 @@ class FileObject(object):
 
         # Remains untouched, for use when renaming file
         self.originalfilename = os.path.basename(path)
-        logging.debug('fileObject original file name: {}'.format(
-            self.originalfilename))
+        logging.debug('fileObject original file '
+                      'name: {}'.format(self.originalfilename))
 
         # Get full absolute path
         self.path = os.path.abspath(path)
