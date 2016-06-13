@@ -219,6 +219,8 @@ class Analysis(object):
         fn_noext = fo.basename_no_ext
         fn_noext = fn_noext.replace(ext, '')
 
-        print('%s %s.%s' % (datetime.strftime('%Y-%m-%d_%H%M%S'), fn_noext, ext))
+        print('%s %s.%s'.format((datetime.strftime('%Y-%m-%d_%H%M%S'),
+                                 fn_noext,
+                                 ext)))
 
 
