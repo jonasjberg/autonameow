@@ -69,9 +69,7 @@ class TextAnalyzer(AbstractAnalyzer):
 
     def get_datetime_from_text(self):
         # TODO: This redirection is very ugly.
-        text = self.text_contents
-        dt = dateandtime.get_datetime_from_text(text, 'text')
-
+        dt = dateandtime.get_datetime_from_text(self.text_contents, 'text')
         if not dt:
             return None
 
