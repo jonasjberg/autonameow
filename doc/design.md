@@ -259,3 +259,37 @@ file_info = { 'title': 'The Cats Mjaowuw',
                                  'weight': 0.8 } ],
               'tags': ['cat', 'best'] }
 ```
+
+
+Analyzer return values
+----------------------
+
+
+file_object
+filters
+
+	AbstractAnalyzer
+
+		get_datetime()
+		get_title()
+		get_author()
+
+
+    FilesystemAnalyzer
+
+		get_datetime()
+                        <-- dict -- get_datetime_from_filesystem()
+                        <-- dict -- get_datetime_from_name()
+
+		get_title()
+		get_author()
+
+
+    ImageAnalyzer
+
+		get_datetime()
+                        <-- dict -- get_exif_datetime()
+                        <-- dict -- get_ocr_datetime()
+
+		get_title()
+		get_author()
