@@ -39,7 +39,6 @@ class TextAnalyzer(AbstractAnalyzer):
 
         return result
 
-
     def extract_text_content(self):
         """
         Extract the plain text contents of a text file as strings.
@@ -106,9 +105,9 @@ class TextAnalyzer(AbstractAnalyzer):
             contents = f.read().split('\n')
 
             if contents:
-                logging.info('Successfully read %d lines from \"%s\"'
-                             % (len(contents), str(fn)))
+                logging.info('Successfully read %d lines from '
+                             '\"%s\"'.format(len(contents), str(fn)))
                 return contents
             else:
-                logging.error("Got empty file \"%s\"" % fn)
+                logging.error('Got empty file \"%s\"'.format(fn))
                 return None
