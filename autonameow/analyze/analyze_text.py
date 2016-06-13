@@ -12,7 +12,11 @@ from util import dateandtime
 
 
 class TextAnalyzer(AbstractAnalyzer):
-    def __init__(self):
+    def __init__(self, file_object, filters):
+        super(TextAnalyzer, self).__init__(file_object, filters)
+
+        # Extract the textual contents.
+        logging.debug('Extracting text contents ..')
         self.text_contents = self.extract_text_content()
 
     def get_author(self):
@@ -65,7 +69,7 @@ class TextAnalyzer(AbstractAnalyzer):
 
     def get_datetime_from_text(self):
         # TODO: This redirection is very ugly.
-        text = self.text
+        text = self.text_contents
         dt = dateandtime.get_datetime_from_text(text, 'text')
 
         if not dt:
