@@ -110,9 +110,6 @@ class Analysis(object):
                 if value.year in ignore_years:
                     ok = False
 
-            # if type(value) is not datetime:
-            #     logging.error('type(value) is not datetime: {} {}'.format(str(value), type(value)))
-            # if ignore_before.year > value.year > ignore_after.year:
             if value.year < ignore_before.year:
                 ok = False
             if value.year > ignore_after.year:
@@ -140,7 +137,6 @@ class Analysis(object):
         print('All date/time information for file:')
         flipped = {}
         for dt_dict in dt_list:
-            # print('[dt_dict] %-15.15s   : %-80.80s' % (type(dt_dict), str(dt_dict)))
             if type(dt_dict) is not dict:
                 logging.error('datetime list contains unexpected type '
                               '%s'.format(type(dt_dict)))
