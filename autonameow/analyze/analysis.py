@@ -81,9 +81,6 @@ class Analysis(object):
             # collected_author.append(analysis.get_author())
             # etc ..
 
-
-
-
     def filter_datetime(self, dt):
         """
         Adds a datetime-entry by first checking any filters for matches.
@@ -141,7 +138,6 @@ class Analysis(object):
 
         self.file_object.add_datetime(passed)
 
-
     def print_all_datetime_info(self):
         """
         Prints all date/time-information for the current file.
@@ -154,7 +150,8 @@ class Analysis(object):
         for dt_dict in dt_list:
             # print('[dt_dict] %-15.15s   : %-80.80s' % (type(dt_dict), str(dt_dict)))
             if type(dt_dict) is not dict:
-                logging.error('datetime list contains unexpected type %s' % type(dt_dict))
+                logging.error('datetime list contains unexpected type '
+                              '%s'.format(type(dt_dict)))
                 continue
 
             # Create a new dict with values being lists of the "sources"
@@ -181,7 +178,6 @@ class Analysis(object):
                     else:
                         flipped[dt_value].append(dt_key)
 
-
         # Sort by length of the lists of datetime-object stored as values
         # in the dict.
         flipped_sorted = sorted(flipped.items(),
@@ -196,7 +192,8 @@ class Analysis(object):
 
         # Print the header information.
         print(Back.WHITE + Fore.BLACK +
-              '{0:20}  {1:>8s}  {2:>30}'.format('Date-/timestamp', '#', 'Source(s)')
+              '{0:20}  {1:>8s}  {2:>30}'.format('Date-/timestamp', '#',
+                                                'Source(s)')
               + Fore.RESET + Back.RESET)
 
         for line in flipped_sorted:
