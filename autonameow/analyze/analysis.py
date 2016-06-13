@@ -56,7 +56,7 @@ class Analysis(object):
         elif t == 'TXT':
             logging.debug('File is a of type [TEXT]')
             # self.analyzer = TextAnalyzer()
-            analysis_run_queue.append(PdfAnalyzer)
+            analysis_run_queue.append(TextAnalyzer)
         else:
             logging.debug('File type ({}) is not yet mapped to a type-specific '
                           'Analyzer.'.format(self.file_object.type))
