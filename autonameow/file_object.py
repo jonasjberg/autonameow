@@ -31,7 +31,7 @@ class FileObject(object):
     def __init__(self, path):
         self.newName = None
         self.datetime_list = []
-        self.metadata = None
+        self.metadata = MetadataBlock(None, None, None, None, None, None)
 
         if path is None:
             logging.critical('Got NULL path!')
