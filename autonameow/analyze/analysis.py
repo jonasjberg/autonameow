@@ -23,8 +23,6 @@ class Analysis(object):
     """
     Main interface to all file analyzers.
     """
-    analyzer = None
-
     def __init__(self, file_object, filters):
         self.file_object = file_object
         if self.file_object is None:
@@ -34,29 +32,23 @@ class Analysis(object):
         self.filters = filters
 
         # List of analyzers to run.
+        # Start with a basic analyzer that is common to all file types.
         analysis_run_queue = [FilesystemAnalyzer]
-
-        # Create a basic analyzer, common to all file types.
-        self.analyzer = FilesystemAnalyzer(self.file_object, self.filters)
 
         # Select analyzer based on detected file type.
         t = self.file_object.type
         if t == 'JPG':
             logging.debug('File is of type [JPG]')
-            # self.analyzer = ImageAnalyzer(self.file_object, self.filters)
             analysis_run_queue.append(ImageAnalyzer)
         elif t == 'PNG':
             logging.debug('File is of type [PNG]')
-            # self.analyzer = ImageAnalyzer(self.file_object, self.filters)
             analysis_run_queue.append(ImageAnalyzer)
         elif t == 'PDF':
             logging.debug('File is of type [PDF]')
-            # self.analyzer = PdfAnalyzer()
             analysis_run_queue.append(PdfAnalyzer)
         elif t == 'TXT':
             logging.debug('File is a of type [TEXT]')
-            # self.analyzer = TextAnalyzer()
-            analysis_run_queue.append(PdfAnalyzer)
+            analysis_run_queue.append(TextAnalyzer)
         else:
             logging.debug('File type ({}) is not yet mapped to a type-specific '
                           'Analyzer.'.format(self.file_object.type))
@@ -80,9 +72,6 @@ class Analysis(object):
             # collected_title.append(analysis.get_title())
             # collected_author.append(analysis.get_author())
             # etc ..
-
-
-
 
     def filter_datetime(self, dt):
         """
@@ -121,9 +110,6 @@ class Analysis(object):
                 if value.year in ignore_years:
                     ok = False
 
-            # if type(value) is not datetime:
-            #     logging.error('type(value) is not datetime: {} {}'.format(str(value), type(value)))
-            # if ignore_before.year > value.year > ignore_after.year:
             if value.year < ignore_before.year:
                 ok = False
             if value.year > ignore_after.year:
@@ -141,7 +127,6 @@ class Analysis(object):
 
         self.file_object.add_datetime(passed)
 
-
     def print_all_datetime_info(self):
         """
         Prints all date/time-information for the current file.
@@ -152,9 +137,9 @@ class Analysis(object):
         print('All date/time information for file:')
         flipped = {}
         for dt_dict in dt_list:
-            # print('[dt_dict] %-15.15s   : %-80.80s' % (type(dt_dict), str(dt_dict)))
             if type(dt_dict) is not dict:
-                logging.error('datetime list contains unexpected type %s' % type(dt_dict))
+                logging.error('datetime list contains unexpected type '
+                              '%s'.format(type(dt_dict)))
                 continue
 
             # Create a new dict with values being lists of the "sources"
@@ -181,7 +166,6 @@ class Analysis(object):
                     else:
                         flipped[dt_value].append(dt_key)
 
-
         # Sort by length of the lists of datetime-object stored as values
         # in the dict.
         flipped_sorted = sorted(flipped.items(),
@@ -196,7 +180,8 @@ class Analysis(object):
 
         # Print the header information.
         print(Back.WHITE + Fore.BLACK +
-              '{0:20}  {1:>8s}  {2:>30}'.format('Date-/timestamp', '#', 'Source(s)')
+              '{0:20}  {1:>8s}  {2:>30}'.format('Date-/timestamp', '#',
+                                                'Source(s)')
               + Fore.RESET + Back.RESET)
 
         for line in flipped_sorted:
@@ -222,20 +207,7 @@ class Analysis(object):
 
     def find_most_probable_datetime(self):
         # TODO: Implement ..
-        print('FINDING MOST PROBABLE DATETIME NOWWW')
-        dt_list = self.file_object.datetime_list
-        # dt_list = unpack_dict(dt_list)
-
-        for entry in dt_list:
-            # for key, value in entry.iteritems():
-            #     if key == 'Exif_DateTimeOriginal':
-            #         print('Most probable :: Exif_DateTimeOriginal: {}'.format(value))
-            pass
-
-        if 'Filename_brute_00' in dt_list:
-            print('Most probable :: Filename_brute_00 {}'.format('value'))
-        if 'Exif_DateTimeOriginal' in dt_list:
-            print('Most probable :: Exif_DateTimeOriginal: {}'.format('value'))
+        pass
 
     def prefix_date_to_filename(self):
         # TODO: Implement this properly ..
@@ -247,6 +219,8 @@ class Analysis(object):
         fn_noext = fo.basename_no_ext
         fn_noext = fn_noext.replace(ext, '')
 
-        print('%s %s.%s' % (datetime.strftime('%Y-%m-%d_%H%M%S'), fn_noext, ext))
+        print('%s %s.%s'.format((datetime.strftime('%Y-%m-%d_%H%M%S'),
+                                 fn_noext,
+                                 ext)))
 
 

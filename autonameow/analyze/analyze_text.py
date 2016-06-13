@@ -12,7 +12,11 @@ from util import dateandtime
 
 
 class TextAnalyzer(AbstractAnalyzer):
-    def __init__(self):
+    def __init__(self, file_object, filters):
+        super(TextAnalyzer, self).__init__(file_object, filters)
+
+        # Extract the textual contents.
+        logging.debug('Extracting text contents ..')
         self.text_contents = self.extract_text_content()
 
     def get_author(self):
@@ -34,7 +38,6 @@ class TextAnalyzer(AbstractAnalyzer):
                 result.append(text_timestamps)
 
         return result
-
 
     def extract_text_content(self):
         """
@@ -65,9 +68,7 @@ class TextAnalyzer(AbstractAnalyzer):
 
     def get_datetime_from_text(self):
         # TODO: This redirection is very ugly.
-        text = self.text
-        dt = dateandtime.get_datetime_from_text(text, 'text')
-
+        dt = dateandtime.get_datetime_from_text(self.text_contents, 'text')
         if not dt:
             return None
 
@@ -104,9 +105,9 @@ class TextAnalyzer(AbstractAnalyzer):
             contents = f.read().split('\n')
 
             if contents:
-                logging.info('Successfully read %d lines from \"%s\"'
-                             % (len(contents), str(fn)))
+                logging.info('Successfully read %d lines from '
+                             '\"%s\"'.format(len(contents), str(fn)))
                 return contents
             else:
-                logging.error("Got empty file \"%s\"" % fn)
+                logging.error('Got empty file \"%s\"'.format(fn))
                 return None
