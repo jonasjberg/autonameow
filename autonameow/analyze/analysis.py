@@ -207,20 +207,7 @@ class Analysis(object):
 
     def find_most_probable_datetime(self):
         # TODO: Implement ..
-        print('FINDING MOST PROBABLE DATETIME NOWWW')
-        dt_list = self.file_object.datetime_list
-        # dt_list = unpack_dict(dt_list)
-
-        for entry in dt_list:
-            # for key, value in entry.iteritems():
-            #     if key == 'Exif_DateTimeOriginal':
-            #         print('Most probable :: Exif_DateTimeOriginal: {}'.format(value))
-            pass
-
-        if 'Filename_brute_00' in dt_list:
-            print('Most probable :: Filename_brute_00 {}'.format('value'))
-        if 'Exif_DateTimeOriginal' in dt_list:
-            print('Most probable :: Exif_DateTimeOriginal: {}'.format('value'))
+        pass
 
     def prefix_date_to_filename(self):
         # TODO: Implement this properly ..
