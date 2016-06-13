@@ -10,8 +10,11 @@ from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 from datetime import datetime
 
+from pytesseract import image_to_string
+
 from analyze.analyze_abstract import AbstractAnalyzer
 from analyze.analyze_filesystem import FilesystemAnalyzer
+from util import dateandtime
 
 
 class ImageAnalyzer(AbstractAnalyzer):
@@ -21,6 +24,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         # Start by trying to extract EXIF information from the image.
         logging.debug('Extracting EXIF data ..')
         self.exif_data = self.get_exif_data()
+        self.ocr_text = self.get_text_from_ocr()
 
         # TODO: Run OCR on the image and store any textual output.
         # TODO: Run (text) analysis on any text produced by OCR.
@@ -32,6 +36,11 @@ class ImageAnalyzer(AbstractAnalyzer):
         if exif_timestamps:
             # self.filter_datetime(exif_datetime)
             result.append(exif_timestamps)
+
+        ocr_timestamps = self.get_ocr_datetime()
+        ocr_ts = dateandtime.get_datetime_from_text(self.ocr_text, 'ocr')
+        if ocr_ts:
+            result.append(ocr_ts)
 
         return result
 
@@ -190,3 +199,41 @@ class ImageAnalyzer(AbstractAnalyzer):
 
         # Return result, should be empty if errors occured.
         return result
+
+    def get_text_from_ocr(self):
+        """
+        Get any textual content from the image by running OCR with tesseract
+        through the pytesseract wrapper.
+        :return: image text if found, else None (?)
+        """
+        image_text = None
+        filename = self.file_object.path
+        try:
+            image = Image.open(filename)
+        except IOError as e:
+            logging.warning('PIL image I/O error({}): {}'.format(e.errno,
+                                                                 e.strerror))
+        else:
+            try:
+                image_text = image_to_string(image)
+            except Exception as e:
+                logging.warning('PyTesseract image OCR error({}): '
+                                '{}'.format(e.args, e.message))
+        if not image_text:
+            return None
+        else:
+            image_text = image_text.strip()
+            return image_text
+
+    def get_ocr_datetime(self):
+        """
+        Extracts EXIF information from a image using PIL.
+        The EXIF data is stored in a dict using human-readable keys.
+        :return: Dict of EXIF data.
+        """
+        if self.ocr_text is None:
+            logging.warning('Found no text from OCR of '
+                            '\"{}\"'.format(self.file_object.path))
+            return
+        pass
+
