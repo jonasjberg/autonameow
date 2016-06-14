@@ -13,7 +13,6 @@ from colorama import Fore
 from colorama import Back
 from datetime import datetime
 
-import util.disk
 import version
 from analyze.analysis import Analysis
 from file_object import FileObject
