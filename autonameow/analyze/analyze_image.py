@@ -61,7 +61,8 @@ class ImageAnalyzer(AbstractAnalyzer):
         :return: Date/time as a dict of datetime-objects, keyed by EXIF-fields.
         """
         if self.exif_data is None:
-            logging.warning('Found no EXIF data in file \"{}\"'.format(self.file_object.path))
+            logging.warning('Found no EXIF data in file '
+                            '"{}"'.format(self.file_object.path))
             return
 
         DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTimeDigitized',
@@ -167,7 +168,8 @@ class ImageAnalyzer(AbstractAnalyzer):
             try:
                 exif_data = image._getexif()
             except Exception as e:
-                logging.warning('PIL image EXIF extraction error({0}): {1}'.format(e.args, e.message))
+                logging.warning('PIL image EXIF extraction error({0}): '
+                                '{1}'.format(e.args, e.message))
 
         if not exif_data:
             return None
@@ -187,14 +189,22 @@ class ImageAnalyzer(AbstractAnalyzer):
                     tag_string_gps = GPSTAGS.get(tag_gps, tag_gps)
 
                     if value_gps is not None:
-                        # print('[tag_string_gps] %-15.15s : %-80.80s' % (type(tag_string_gps), str(tag_string_gps)))
-                        # print('[value_gps]      %-15.15s : %-80.80s' % (type(value_gps), str(value_gps)))
+                        # print('[tag_string_gps] %-15.15s : '
+                        #       '%-80.80s'.format(type(tag_string_gps),
+                        #                         str(tag_string_gps)))
+                        # print('[value_gps]      %-15.15s : '
+                        #       '%-80.80s'.format(type(value_gps),
+                        #                         str(value_gps)))
                         result_gps[tag_string_gps] = value_gps
 
             else:
                 if value is not None:
-                    # print('[tag_string] %-15.15s : %-80.80s' % (type(tag_string), str(tag_string)))
-                    # print('[value]      %-15.15s : %-80.80s' % (type(value), str(value)))
+                    print('[tag_string] %-15.15s : '
+                    #       '%-80.80s'.format(type(tag_string),
+                    #                         str(tag_string)))
+                    # print('[value]      %-15.15s : '
+                    #       '%-80.80s'.format(type(value),
+                    #                         str(value)))
                     result[tag_string] = value
 
         # Return result, should be empty if errors occured.
