@@ -48,7 +48,7 @@ class FileObject(object):
         # Extract parts of the file name.
         self.basename = os.path.basename(self.path)
         self.basename_no_ext = os.path.splitext(self.basename)[0]
-        self.extension = self.get_file_extension()
+        self.extension = self._get_file_extension()
 
         # Figure out basic file type
         self.type = self._get_type_from_magic()
@@ -123,7 +123,7 @@ class FileObject(object):
 
         return oldest_yet
 
-    def get_file_extension(self, make_lowercase=True):
+    def _get_file_extension(self, make_lowercase=True):
         """
         Get file extension.
         :param make_lowercase: make the extension lowercase, defaults to True
