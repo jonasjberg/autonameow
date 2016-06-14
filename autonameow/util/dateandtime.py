@@ -22,7 +22,7 @@ def delta_frac(self, delta):
     """
     delta_mins, delta_secs = divmod(delta.seconds, 60)
     delta_hours, delta_mins = divmod(delta_mins, 60)
-    return ({'hours': delta_hours, 'mins': delta_mins, 'secs': delta_secs})
+    return {'hours': delta_hours, 'mins': delta_mins, 'secs': delta_secs}
 
 
 def nextyear(dt):
