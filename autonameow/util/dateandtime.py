@@ -177,7 +177,8 @@ def regex_search_str(text, prefix):
             m_date = m_date.replace(m_time, '')
 
         if len(m_time) < 6:
-            # logging.debug('len(m_time) < 6 .. m_time_ms is \"{}\"'.format(m_time_ms))
+            # logging.debug('len(m_time) < 6 .. m_time_ms is '
+            #               '"{}"'.format(m_time_ms))
             pass
 
         # Skip matches with unexpected number of digits.
@@ -243,7 +244,8 @@ def regex_search_str(text, prefix):
                 matches += 1
 
     logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
-    logging.info('Regex matcher returning list of [{:^3}] results.'.format(len(results)))
+    logging.info('Regex matcher returning list of [{:^3}] '
+                 'results.'.format(len(results)))
     return results
 
 
@@ -716,9 +718,12 @@ def get_datetime_from_text(text, prefix='NULL'):
 
     # TODO: Fix this here below. Looks completely broken.
     regex_match = 0
-    dt_regex = regex_search_str(text, '{}_contents_regex_{:03d}'.format(prefix, regex_match))
+    dt_regex = regex_search_str(text,
+                                '{}_contents_regex_{:03d}'.format(prefix,
+                                                                  regex_match))
     if dt_regex and dt_regex is not None:
-        # logging.info('Added result from contents regex search: {0}'.format(dt_regex))
+        # logging.info('Added result from contents regex search: '
+        #              '{0}'.format(dt_regex))
         results_regex.append(dt_regex)
         regex_match += 1
 
