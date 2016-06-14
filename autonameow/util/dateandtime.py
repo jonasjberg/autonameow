@@ -42,7 +42,7 @@ year_lower_limit = datetime.strptime('1900', '%Y')
 year_upper_limit = nextyear(datetime.today())
 
 
-def year_is_probable(year):
+def _year_is_probable(year):
     """
     Check if year is "probable", meaning greater than 1900 and
     not in the future, I.E. greater than the current year.
@@ -485,7 +485,7 @@ def bruteforce_str(text, prefix):
     digits = digits_only
     # Remove one number at a time from the front until first four digits
     # represent a probable year.
-    while not year_is_probable(int(digits[:4])) and year_first:
+    while not _year_is_probable(int(digits[:4])) and year_first:
         logging.debug('\"{}\" is not a probable year. '
                       'Removing a digit.'.format(digits[:4]))
         digits = digits[1:]
