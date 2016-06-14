@@ -278,8 +278,8 @@ filters
     FilesystemAnalyzer
 
 		get_datetime()
-                        <-- dict -- get_datetime_from_filesystem()
-                        <-- dict -- get_datetime_from_name()
+                        <-- dict -- _get_datetime_from_filesystem()
+                        <-- dict -- _get_datetime_from_name()
 
 		get_title()
 		get_author()
@@ -288,8 +288,8 @@ filters
     ImageAnalyzer
 
 		get_datetime()
-                        <-- dict -- get_exif_datetime()
-                        <-- dict -- get_ocr_datetime()
+                        <-- dict -- _get_exif_datetime()
+                        <-- dict -- _get_ocr_datetime()
 
 		get_title()
 		get_author()
