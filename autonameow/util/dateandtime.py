@@ -12,6 +12,7 @@ import sys
 
 from util import misc
 
+
 def delta_frac(self, delta):
     """
     Calculate time delta between datetime objects.
@@ -21,7 +22,8 @@ def delta_frac(self, delta):
     """
     delta_mins, delta_secs = divmod(delta.seconds, 60)
     delta_hours, delta_mins = divmod(delta_mins, 60)
-    return ({'hours': delta_hours, 'mins': delta_mins, 'secs': delta_secs})
+    return {'hours': delta_hours, 'mins': delta_mins, 'secs': delta_secs}
+
 
 def nextyear(dt):
     # http://stackoverflow.com/a/11206511
@@ -40,7 +42,7 @@ year_lower_limit = datetime.strptime('1900', '%Y')
 year_upper_limit = nextyear(datetime.today())
 
 
-def year_is_probable(year):
+def _year_is_probable(year):
     """
     Check if year is "probable", meaning greater than 1900 and
     not in the future, I.E. greater than the current year.
@@ -175,7 +177,8 @@ def regex_search_str(text, prefix):
             m_date = m_date.replace(m_time, '')
 
         if len(m_time) < 6:
-            # logging.debug('len(m_time) < 6 .. m_time_ms is \"{}\"'.format(m_time_ms))
+            # logging.debug('len(m_time) < 6 .. m_time_ms is '
+            #               '"{}"'.format(m_time_ms))
             pass
 
         # Skip matches with unexpected number of digits.
@@ -241,7 +244,8 @@ def regex_search_str(text, prefix):
                 matches += 1
 
     logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
-    logging.info('Regex matcher returning list of [{:^3}] results.'.format(len(results)))
+    logging.info('Regex matcher returning list of [{:^3}] '
+                 'results.'.format(len(results)))
     return results
 
 
@@ -483,7 +487,7 @@ def bruteforce_str(text, prefix):
     digits = digits_only
     # Remove one number at a time from the front until first four digits
     # represent a probable year.
-    while not year_is_probable(int(digits[:4])) and year_first:
+    while not _year_is_probable(int(digits[:4])) and year_first:
         logging.debug('\"{}\" is not a probable year. '
                       'Removing a digit.'.format(digits[:4]))
         digits = digits[1:]
@@ -558,6 +562,7 @@ def bruteforce_str(text, prefix):
 
 
 def fuzzy_datetime(text, prefix):
+    # Currently not used at all!
     # TODO: Finish this method ..
     dt = None
     try:
@@ -580,6 +585,7 @@ def search_gmail(text, prefix):
     :param prefix: prefix this to the resulting dictionary keys
     :return: a list of dictionaries containing datetime-objects.
     """
+    # Currently not used at all!
     # TODO: Is this necessary/sane/good practice? (NO!)
     if type(text) is list:
         logging.warn('Converting list to string ..')
@@ -595,65 +601,10 @@ def search_gmail(text, prefix):
     # Expected date formats:         Fri, Jan 8, 2016 at 3:50 PM
     #                                1/11/2016
     SEP = '[, ]'
-    REGEX_GMAIL_LONG = re.compile(
-        '(\w{3,8})' + SEP + '(\w{3,10})\ (\d{1,2})' + SEP + '([12]\d{3})' + '(\ at\ )?' + '(\d{1,2}:\d{1,2}\ [AP]M)')
-    # REGEX_GMAIL_LONG = re.compile('\w{3,5},\ \w{3,5}\ \d{1,2},\ [12]\d{3}\ at\ \d{1,2}:\d{1,2}\ [AP]M')
+    REGEX_GMAIL_LONG = re.compile('(\w{3,8})' + SEP + '(\w{3,10})\ (\d{1,2})'
+                                  + SEP + '([12]\d{3})' + '(\ at\ )?' +
+                                  '(\d{1,2}:\d{1,2}\ [AP]M)')
     REGEX_GMAIL_SHORT = re.compile('\d{1,2}\/\d{2}\/[12]\d{3}')
-
-    # DATE_SEP = "[:\-._ \/]?"
-    # TIME_SEP = "[T:\-. _]?"
-    # DATE_REGEX = '[12]\d{3}' + DATE_SEP + '[01]\d' + DATE_SEP + '[0123]\d'
-    # TIME_REGEX = TIME_SEP + '[012]\d' + TIME_SEP + '[012345]\d(.[012345]\d)?'
-    # DATETIME_REGEX = '(' + DATE_REGEX + '(' + TIME_REGEX + ')?)'
-    #
-    # dt_pattern_1 = re.compile(DATETIME_REGEX)
-    #
-    # matches = 0
-    # for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
-    #     # Extract digits, skip if entries contain no digits.
-    #     m_date = misc.extract_digits(m_date)
-    #     m_time = misc.extract_digits(m_time)
-    #     m_time_ms = misc.extract_digits(m_time_ms)
-    #
-    #     if m_date is None or m_time is None:
-    #         continue
-    #
-    #     # Check if m_date is actually m_date *AND* m_date.
-    #     if len(m_date) > 8 and m_date.endswith(m_time):
-    #         # logging.debug('m_date contains m_date *AND* m_time')
-    #         m_date = m_date.replace(m_time, '')
-    #
-    #     if len(m_time) < 6:
-    #         # logging.debug('len(m_time) < 6 .. m_time_ms is \"{}\"'.format(m_time_ms))
-    #         pass
-    #
-    #     # Skip matches with unexpected number of digits.
-    #     if len(m_date) != 8 or len(m_time) != 6:
-    #         continue
-    #
-    #     logging.debug('m_date {:10} : {}'.format(type(m_date), m_date))
-    #     logging.debug('m_time {:10} : {}'.format(type(m_time), m_time))
-    #     logging.debug('m_time_ms {:10} : {}'.format(type(m_time_ms), m_time_ms))
-    #     logging.debug('---')
-    #
-    #     dt_fmt_1 = '%Y%m%d_%H%M%S'
-    #     dt_str = (m_date + '_' + m_time).strip()
-    #     try:
-    #         logging.debug('Trying to match [{:13}] to [{}] ..'.format(dt_fmt_1, dt_str))
-    #         dt = datetime.strptime(dt_str, dt_fmt_1)
-    #     except ValueError:
-    #         pass
-    #     else:
-    #         if date_is_probable(dt):
-    #             logging.debug('Extracted datetime from text: '
-    #                           '[%s]' % dt)
-    #             new_key = '{0}_{1:02d}'.format(prefix, matches)
-    #             results[new_key] = dt
-    #             matches += 1
-    #
-    # logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
-    # logging.info('Regex matcher returning dict with [{:^3}] results.'.format(len(results)))
-    # return results
 
 
 def get_datetime_from_text(text, prefix='NULL'):
@@ -712,9 +663,12 @@ def get_datetime_from_text(text, prefix='NULL'):
 
     # TODO: Fix this here below. Looks completely broken.
     regex_match = 0
-    dt_regex = regex_search_str(text, '{}_contents_regex_{:03d}'.format(prefix, regex_match))
+    dt_regex = regex_search_str(text,
+                                '{}_contents_regex_{:03d}'.format(prefix,
+                                                                  regex_match))
     if dt_regex and dt_regex is not None:
-        # logging.info('Added result from contents regex search: {0}'.format(dt_regex))
+        # logging.info('Added result from contents regex search: '
+        #              '{0}'.format(dt_regex))
         results_regex.append(dt_regex)
         regex_match += 1
 

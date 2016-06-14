@@ -23,12 +23,12 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         # TODO: Get datetime from information common to all file types;
         #       file name, files in the same directory, name of directory, etc..
         result = []
-        fs_timestamps = self.get_datetime_from_filesystem()
+        fs_timestamps = self._get_datetime_from_filesystem()
         if fs_timestamps:
             result.append(fs_timestamps)
-            #self.filter_datetime(fs_timestamps)
+            # self.filter_datetime(fs_timestamps)
 
-        fn_timestamps = self.get_datetime_from_name()
+        fn_timestamps = self._get_datetime_from_name()
         if fn_timestamps:
             result.append(fn_timestamps)
             # self.filter_datetime(fn_timestamps)
@@ -43,7 +43,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         # TODO: Implement.
         pass
 
-    def get_datetime_from_filesystem(self):
+    def _get_datetime_from_filesystem(self):
         """
         Extracts date and time information "from the file system", I.E.
         access-, modification- and creation-timestamps.
@@ -74,7 +74,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
                      'filesystem.'.format(len(results)))
         return results
 
-    def get_datetime_from_name(self):
+    def _get_datetime_from_name(self):
         fn = self.file_object.basename_no_ext
 
         # 1. The Very Special Case

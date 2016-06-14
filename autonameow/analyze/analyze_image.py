@@ -23,8 +23,8 @@ class ImageAnalyzer(AbstractAnalyzer):
 
         # Start by trying to extract EXIF information from the image.
         logging.debug('Extracting EXIF data ..')
-        self.exif_data = self.get_exif_data()
-        self.ocr_text = self.get_text_from_ocr()
+        self.exif_data = self._get_exif_data()
+        self.ocr_text = self._get_text_from_ocr()
 
         # TODO: Run OCR on the image and store any textual output.
         # TODO: Run (text) analysis on any text produced by OCR.
@@ -32,12 +32,12 @@ class ImageAnalyzer(AbstractAnalyzer):
 
     def get_datetime(self):
         result = []
-        exif_timestamps = self.get_exif_datetime()
+        exif_timestamps = self._get_exif_datetime()
         if exif_timestamps:
             # self.filter_datetime(exif_datetime)
             result.append(exif_timestamps)
 
-        ocr_timestamps = self.get_ocr_datetime()
+        ocr_timestamps = self._get_ocr_datetime()
         ocr_ts = dateandtime.get_datetime_from_text(self.ocr_text, 'ocr')
         if ocr_ts:
             result.append(ocr_ts)
@@ -52,7 +52,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         # TODO: Implement.
         pass
 
-    def get_exif_datetime(self):
+    def _get_exif_datetime(self):
         """
         Extracts date and time information from the EXIF data.
         The EXIF data could be corrupted or contain non-standard entries.
@@ -61,7 +61,8 @@ class ImageAnalyzer(AbstractAnalyzer):
         :return: Date/time as a dict of datetime-objects, keyed by EXIF-fields.
         """
         if self.exif_data is None:
-            logging.warning('Found no EXIF data in file \"{}\"'.format(self.file_object.path))
+            logging.warning('Found no EXIF data in file '
+                            '"{}"'.format(self.file_object.path))
             return
 
         DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTimeDigitized',
@@ -146,7 +147,7 @@ class ImageAnalyzer(AbstractAnalyzer):
 
         return results
 
-    def get_exif_data(self):
+    def _get_exif_data(self):
         """
         Extracts EXIF information from a image using PIL.
         The EXIF data is stored in a dict using human-readable keys.
@@ -167,7 +168,8 @@ class ImageAnalyzer(AbstractAnalyzer):
             try:
                 exif_data = image._getexif()
             except Exception as e:
-                logging.warning('PIL image EXIF extraction error({0}): {1}'.format(e.args, e.message))
+                logging.warning('PIL image EXIF extraction error({0}): '
+                                '{1}'.format(e.args, e.message))
 
         if not exif_data:
             return None
@@ -187,20 +189,28 @@ class ImageAnalyzer(AbstractAnalyzer):
                     tag_string_gps = GPSTAGS.get(tag_gps, tag_gps)
 
                     if value_gps is not None:
-                        # print('[tag_string_gps] %-15.15s : %-80.80s' % (type(tag_string_gps), str(tag_string_gps)))
-                        # print('[value_gps]      %-15.15s : %-80.80s' % (type(value_gps), str(value_gps)))
+                        # print('[tag_string_gps] %-15.15s : '
+                        #       '%-80.80s'.format(type(tag_string_gps),
+                        #                         str(tag_string_gps)))
+                        # print('[value_gps]      %-15.15s : '
+                        #       '%-80.80s'.format(type(value_gps),
+                        #                         str(value_gps)))
                         result_gps[tag_string_gps] = value_gps
 
             else:
                 if value is not None:
-                    # print('[tag_string] %-15.15s : %-80.80s' % (type(tag_string), str(tag_string)))
-                    # print('[value]      %-15.15s : %-80.80s' % (type(value), str(value)))
+                    # print('[tag_string] %-15.15s : '
+                    #       '%-80.80s'.format(type(tag_string),
+                    #                         str(tag_string)))
+                    # print('[value]      %-15.15s : '
+                    #       '%-80.80s'.format(type(value),
+                    #                         str(value)))
                     result[tag_string] = value
 
         # Return result, should be empty if errors occured.
         return result
 
-    def get_text_from_ocr(self):
+    def _get_text_from_ocr(self):
         """
         Get any textual content from the image by running OCR with tesseract
         through the pytesseract wrapper.
@@ -225,7 +235,7 @@ class ImageAnalyzer(AbstractAnalyzer):
             image_text = image_text.strip()
             return image_text
 
-    def get_ocr_datetime(self):
+    def _get_ocr_datetime(self):
         """
         Extracts EXIF information from a image using PIL.
         The EXIF data is stored in a dict using human-readable keys.

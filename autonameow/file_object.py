@@ -29,7 +29,6 @@ class MetadataBlock(object):
 
 class FileObject(object):
     def __init__(self, path):
-        self.newName = None
         self.datetime_list = []
         self.metadata = MetadataBlock(None, None, None, None, None, None)
 
@@ -49,12 +48,12 @@ class FileObject(object):
         # Extract parts of the file name.
         self.basename = os.path.basename(self.path)
         self.basename_no_ext = os.path.splitext(self.basename)[0]
-        self.extension = self.get_file_extension()
+        self.extension = self._get_file_extension()
 
         # Figure out basic file type
-        self.type = self.get_type_from_magic()
+        self.type = self._get_type_from_magic()
 
-    def get_type_from_magic(self):
+    def _get_type_from_magic(self):
         """
         Determine file type by reading "magic" header bytes.
         Similar to the 'find' command in *NIX environments.
@@ -124,7 +123,7 @@ class FileObject(object):
 
         return oldest_yet
 
-    def get_file_extension(self, make_lowercase=True):
+    def _get_file_extension(self, make_lowercase=True):
         """
         Get file extension.
         :param make_lowercase: make the extension lowercase, defaults to True
