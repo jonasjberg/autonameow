@@ -199,7 +199,7 @@ class ImageAnalyzer(AbstractAnalyzer):
 
             else:
                 if value is not None:
-                    print('[tag_string] %-15.15s : '
+                    # print('[tag_string] %-15.15s : '
                     #       '%-80.80s'.format(type(tag_string),
                     #                         str(tag_string)))
                     # print('[value]      %-15.15s : '
