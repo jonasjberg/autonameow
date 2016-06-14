@@ -29,7 +29,6 @@ class MetadataBlock(object):
 
 class FileObject(object):
     def __init__(self, path):
-        self.newName = None
         self.datetime_list = []
         self.metadata = MetadataBlock(None, None, None, None, None, None)
 
