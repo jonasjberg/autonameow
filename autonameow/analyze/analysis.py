@@ -79,6 +79,7 @@ class Analysis(object):
         Matches are ignored, "passed out" ..
         :param dt: datetime to add
         """
+        # TODO: This is currently completely unused!
         if type(dt) is not dict:
             logging.warning('Got unexpected type \"{}\" '
                             '(expected dict)'.format(type(dt)))
