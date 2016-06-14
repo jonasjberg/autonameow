@@ -51,9 +51,9 @@ class FileObject(object):
         self.extension = self.get_file_extension()
 
         # Figure out basic file type
-        self.type = self.get_type_from_magic()
+        self.type = self._get_type_from_magic()
 
-    def get_type_from_magic(self):
+    def _get_type_from_magic(self):
         """
         Determine file type by reading "magic" header bytes.
         Similar to the 'find' command in *NIX environments.
