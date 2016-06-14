@@ -560,6 +560,7 @@ def bruteforce_str(text, prefix):
 
 
 def fuzzy_datetime(text, prefix):
+    # Currently not used at all!
     # TODO: Finish this method ..
     dt = None
     try:
@@ -582,6 +583,7 @@ def search_gmail(text, prefix):
     :param prefix: prefix this to the resulting dictionary keys
     :return: a list of dictionaries containing datetime-objects.
     """
+    # Currently not used at all!
     # TODO: Is this necessary/sane/good practice? (NO!)
     if type(text) is list:
         logging.warn('Converting list to string ..')
