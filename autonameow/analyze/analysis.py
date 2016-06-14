@@ -173,7 +173,7 @@ class Analysis(object):
                                 key=lambda k: len(k[1]),
                                 reverse=True)
 
-        def print_report_columns(c1, c2, c3):
+        def __print_report_columns(c1, c2, c3):
             """
             Prints a line with three columns.
             """
@@ -191,12 +191,12 @@ class Analysis(object):
             except TypeError:
                 pass
 
-            print_report_columns('{:20}'.format(dt),
-                                 '{:03d}'.format(len(line[1])),
-                                 '{:>30}'.format(line[1][0]))
+            __print_report_columns('{:20}'.format(dt),
+                                   '{:03d}'.format(len(line[1])),
+                                   '{:>30}'.format(line[1][0]))
             if len(line[1]) > 1:
                 for v in line[1][1:]:
-                    print_report_columns(' ', ' ', '{:>30}'.format(v))
+                    __print_report_columns(' ', ' ', '{:>30}'.format(v))
                 print('')
 
     def print_oldest_datetime(self):
