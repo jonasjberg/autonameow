@@ -12,6 +12,7 @@ import sys
 
 from util import misc
 
+
 def delta_frac(self, delta):
     """
     Calculate time delta between datetime objects.
@@ -22,6 +23,7 @@ def delta_frac(self, delta):
     delta_mins, delta_secs = divmod(delta.seconds, 60)
     delta_hours, delta_mins = divmod(delta_mins, 60)
     return ({'hours': delta_hours, 'mins': delta_mins, 'secs': delta_secs})
+
 
 def nextyear(dt):
     # http://stackoverflow.com/a/11206511
