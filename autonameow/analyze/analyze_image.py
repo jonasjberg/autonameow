@@ -59,20 +59,29 @@ class ImageAnalyzer(AbstractAnalyzer):
         The EXIF data could be corrupted or contain non-standard entries.
         Extraction should be fault-tolerant and able to handle non-standard
         entry formats.
-        :return: Date/time as a dict of datetime-objects, keyed by EXIF-fields.
+        :return: a list of dictionaries on the form:
+                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                     'source'  : exif_metadata,
+                     'comment' : 'datetimeoriginal',
+                     'weight'  : 1
+                   }, .. ]
         """
         if self.exif_data is None:
             logging.warning('Found no EXIF data in file '
                             '"{}"'.format(self.file_object.path))
             return
 
-        DATE_TAG_FIELDS = ['DateTimeOriginal', 'DateTimeDigitized',
-                           'DateTimeModified', 'CreateDate', 'ModifyDate',
-                           'DateTime']
-        results = {}
+        # Exif field, weight
+        # TODO: Recheck the weights. Should they even be defined here?
+        DATE_TAG_FIELDS = [['DateTimeOriginal', 1],
+                           ['DateTimeDigitized', 1],
+                           ['DateTimeModified', 0.5],
+                           ['CreateDate', 1],
+                           ['ModifyDate', 0.5],
+                           ['DateTime', 0.75]]
+        results = []
         logging.debug('Extracting date/time-information from EXIF-tags')
-        for field in DATE_TAG_FIELDS:
-            dt = None
+        for field, weight in DATE_TAG_FIELDS:
             try:
                 dtstr = self.exif_data[field]
             except KeyError:
@@ -82,6 +91,7 @@ class ImageAnalyzer(AbstractAnalyzer):
             if not dtstr:
                 continue
 
+            dt = None
             # Expected date format:         2016:04:07 18:47:30
             date_pattern = re.compile(
                 '.*(\d{4}:[01]\d:[0123]\d\ [012]\d:[012345]\d:[012345]\d).*')
@@ -100,9 +110,11 @@ class ImageAnalyzer(AbstractAnalyzer):
                                     % field)
 
             if dt:
-                key = 'Exif_{}'.format(field)
-                logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
-                results[key] = dt
+                # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
+                results.append({'datetime': dt,
+                                'source': 'exif_metadata',
+                                'comment': field.lower(),
+                                'weight': weight})
 
         logging.debug('Searching for GPS date/time-information in EXIF-tags')
         try:
@@ -117,34 +129,38 @@ class ImageAnalyzer(AbstractAnalyzer):
             for toup in gps_time:
                 gps_time_str += str(toup[0])
 
-            logging.debug('gps_time_str: \"%s\"' % gps_time_str)
-            logging.debug('gps_date: \"%s\"' % gps_date)
+            # logging.debug('gps_time_str: \"%s\"' % gps_time_str)
+            # logging.debug('gps_date: \"%s\"' % gps_date)
             gps_datetime_str = gps_date + gps_time_str
-
             try:
                 dt = datetime.strptime(gps_datetime_str, '%Y:%m:%d%H%M%S')
             except ValueError:
                 logging.warning('Unable to parse GPS datetime from [%s]'
                                 % gps_datetime_str)
             if dt:
-                key = 'Exif_GPSDateTime'
-                logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
-                results[key] = dt
+                # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
+                results.append({'datetime': dt,
+                                'source': 'exif_metadata',
+                                'comment': 'gpsdatetime',
+                                'weight': 1})
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
-        bad_exif_date = datetime.strptime('2002-12-08_12:00:00',
-                                          '%Y-%m-%d_%H:%M:%S')
-        try:
-            if self.exif_data['Make'] == 'OnePlus' and \
-               self.exif_data['Model'] == 'ONE E1003':
-                if results['Exif_DateTimeDigitized'] == bad_exif_date:
-                    logging.debug('Removing erroneous date \"%s\"' %
-                                  str(bad_exif_date))
-                    del results['Exif_DateTimeDigitized']
-        except KeyError:
-            #logging.warn('KeyError for key [DateTimeDigitized]')
-            pass
+        if self.exif_data['Make'] == 'OnePlus' and \
+           self.exif_data['Model'] == 'ONE E1003':
+            bad_exif_date = datetime.strptime('20021208_120000', '%Y%m%d_%H%M%S')
+            try:
+                # if results['Exif_DateTimeDigitized'] == bad_exif_date:
+                #     logging.debug('Removing erroneous date \"%s\"' %
+                #                   str(bad_exif_date))
+                #     del results['Exif_DateTimeDigitized']
+                # http://stackoverflow.com/a/1235631
+                results[:] = [d for d in results if \
+                              (d.get('comment') == 'DateTimeDigitized' and \
+                               d.get('datetime') != bad_exif_date)]
+            except KeyError:
+                # logging.warn('KeyError for key [DateTimeDigitized]')
+                pass
 
         return results
 
