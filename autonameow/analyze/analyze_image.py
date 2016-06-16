@@ -184,8 +184,8 @@ class ImageAnalyzer(AbstractAnalyzer):
             except Exception as e:
                 logging.warning('PIL image EXIF extraction error({0}): '
                                 '{1}'.format(e.args, e.message))
-
         if not exif_data:
+            logging.warning('Unable to extract EXIF data.')
             return None
 
         for tag, value in exif_data.items():
