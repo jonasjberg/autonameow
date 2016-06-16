@@ -166,34 +166,39 @@ In the examples below, ' _ ' is a customizable field separator.
 
 The terms used in the examples are defined as follows:
 
-| **Term** | **Field description**       | **Example**  |
-|----------|-----------------------------|--------------|
-| ` _ `    | (top-level) field separator | `_`,` `,`-`  |
-| `[date]` | ISO-8601 style date         | `2016-02-29` |
-| `[time]` | ISO-8601 style time         | `13-24-34`   |
-| `[ext]`  | file extension              | `jpg`,`txt`  |
+| **Term**       | **Field description**           | **Example**           |
+|----------------|---------------------------------|-----------------------|
+| ` _ `          | (top-level) field separator     | `_`,` `,`-`           |
+| `[date]`       | [ISO-8601][2] style date        | `2016-02-29`          |
+| `[time]`       | ISO-8601 style time             | `13-24-34`            |
+| `[datetime]`   | ISO-8601 date and time          | `2016-02-29_132434`   |
+| `[ext]`        | file extension                  | `jpg`,`txt`           |
+| `[tags]`       | [filetags][1]                   | `projects`,`dev`      |
 
 
 <!-- The markdown previewer in PyCharm can't handle this ..    -->
-<!-- +----------+-----------------------------+--------------+ -->
-<!-- | **Term** | **Field description**       | **Example**  | -->
-<!-- +==========+=============================+==============+ -->
-<!-- | ` _ `    | (top-level) field separator | `_`,` `,`-`  | -->
-<!-- | `[date]` | ISO-8601 style date         | `2016-02-29` | -->
-<!-- | `[time]` | ISO-8601 style time         | `13-24-34`   | -->
-<!-- | `[ext]`  | file extension              | `jpg`,`txt`  | -->
-<!-- +----------+-----------------------------+--------------+ -->
-<!-- Definition of terms                                       -->
+<!-- +--------------+-----------------------------+-----------------------+ -->
+<!-- | **Term**     | **Field description**       | **Example**           | -->
+<!-- +==============+=============================+=======================+ -->
+<!-- | ` _ `        | (top-level) field separator | `_`,` `,`-`           | -->
+<!-- | `[date]`     | ISO-8601 style date         | `2016-02-29`          | -->
+<!-- | `[time]`     | ISO-8601 style time         | `13-24-34`            | -->
+<!-- | `[datetime]` | ISO-8601 date and time      | `2016-02-29_132434`   | -->
+<!-- | `[ext]`      | file extension              | `jpg`,`txt`           | -->
+<!-- | `[tags]`     | [filetags][1]               | `projects`,`dev`      | -->
+<!-- +--------------+-----------------------------+-----------------------+ -->
+<!-- Definition of terms                                                    -->
 
+[1]: https://github.com/novoid/filetags
+[2]: https://xkcd.com/1179/
 
 
 Photos
 ------
 Photo images *(schematics, etc excluded?)* should match the pattern:
 
-    [date] _ [time] _ [description/name] . [ext]
-                          (optional)       (jpg)
-
+    [date] _ [time] _ [description/name] -- [tags] . [ext]
+                          (optional)                 (jpg)
 
 
 Pdf books
@@ -203,6 +208,12 @@ File names are to match the pattern:
     [title] _ [edition] _ [author(s) last name] _ [publisher] _ [year] . [ext]
               (optional)                                                 (pdf)
 
+
+Videos
+------
+Videos  should match the pattern:
+
+    [date] _ [time] _ [description/name] -- [tags] . [ext]
 
 
 
@@ -257,7 +268,8 @@ file_info = { 'title': 'The Cats Mjaowuw',
                                  'source': pdf_metadata,
                                  'comment': "Modify date",
                                  'weight': 0.8 } ],
-              'tags': ['cat', 'best'] }
+              'description': 'Best-selling Novel',
+              'tags': set(['cat', 'best', 'book']) }
 ```
 
 
