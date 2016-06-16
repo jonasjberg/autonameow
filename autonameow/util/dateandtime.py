@@ -61,7 +61,7 @@ def _year_is_probable(year):
             year = int(year)
         except ValueError as ex:
             logging.warning('Got unexpected type "{}". '
-                            'Casting failed: {}'.format((type(year), ex)))
+                            'Casting failed: {}'.format(type(year), ex))
             return False
 
         # Check if number of digits in "year" is less than three,
@@ -211,8 +211,8 @@ def regex_search_str(text):
     for dt_str in re.findall(dt_pattern_2, text):
         # logging.debug('DT STR IS "{}"'.format(dt_str))
         try:
-            logging.debug('Trying to match [{:12s}] to '
-                          '[{}] ..'.format((dt_fmt_2, dt_str)))
+            logging.debug('Trying to match [{}] to '
+                          '[{}] ..'.format(dt_fmt_2, dt_str))
             dt = datetime.strptime(dt_str, dt_fmt_2)
         except ValueError:
             pass
@@ -453,7 +453,7 @@ def bruteforce_str(text):
         tries_total += 1
         try:
             logging.debug('Trying to match [{:17s}]to '
-                          '[{}] ..'.format((fmt, text_strip)))
+                          '[{}] ..'.format(fmt, text_strip))
             dt = datetime.strptime(text_strip, fmt)
         except ValueError:
             pass
@@ -510,7 +510,7 @@ def bruteforce_str(text):
             tries_total += 1
             try:
                 logging.debug('Trying to match [{:12s}] to '
-                              '[{}] ..'.format((fmt, digits_strip)))
+                              '[{}] ..'.format(fmt, digits_strip))
                 dt = datetime.strptime(digits_strip, fmt)
             except ValueError:
                 pass
@@ -542,7 +542,7 @@ def bruteforce_str(text):
                 tries_total += 1
                 try:
                     logging.debug('Trying to match [{:12s}] to '
-                                  '[{}] ..'.format((fmt, digits_strip)))
+                                  '[{}] ..'.format(fmt, digits_strip))
                     dt = datetime.strptime(digits_strip, fmt)
                 except ValueError:
                     pass
@@ -566,12 +566,12 @@ def fuzzy_datetime(text, prefix):
     try:
         try:
             dt = dateutil.parser.parse(text)
-            print('Sharp {} -> {}'.format((text, dt)))
+            print('Sharp {} -> {}'.format(text, dt))
         except ValueError:
             dt = dateutil.parser.parse(text, fuzzy=True)
-            print('Fuzzy {} -> {}'.format((text, dt)))
+            print('Fuzzy {} -> {}'.format(text, dt))
     except Exception as e:
-        print('Try as I may, I cannot parse {} ({})'.format((text, e)))
+        print('Try as I may, I cannot parse {} ({})'.format(text, e))
 
     return dt
 
