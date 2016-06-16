@@ -50,10 +50,22 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         pass
 
     def _get_datetime_from_guessit_metadata(self):
+        """
+        Calls the external program "guessit" and collects any results.
+        :return: a list of dictionaries (actually just one) on the form:
+                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                     'source'  : pdf_metadata,
+                     'comment' : "Create date",
+                     'weight'  : 1
+                   }, .. ]
+        """
         guessit_metadata = self._get_metadata_from_guessit()
         if guessit_metadata:
             if 'date' in guessit_metadata:
-                return guessit_metadata['date']
+                return [{'datetime': guessit_metadata['date'],
+                            'source': 'guessit',
+                            'comment': 'guessit',
+                        'weight': 0.75}]
 
     def _get_metadata_from_guessit(self):
         guessit_matches = guessit(self.file_object.basename_no_ext)
