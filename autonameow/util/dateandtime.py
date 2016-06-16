@@ -76,7 +76,7 @@ def _year_is_probable(year):
         try:
             year = datetime.strptime(year, '%Y')
         except TypeError:
-            logging.warning('Failed converting \"{}\" '
+            logging.warning('Failed converting "{}" '
                             'to datetime-object.'.format(year))
             return False
 
@@ -106,7 +106,7 @@ def date_is_probable(date):
     """
     logging.debug('Checking probability of [{}] {}'.format(date, type(date)))
     if type(date) is not datetime:
-        logging.warning('Got unexpected type \"{}\" '
+        logging.warning('Got unexpected type "{}" '
                         '(expected datetime)'.format(type(date)))
         return False
 
@@ -260,7 +260,7 @@ def match_special_case(text):
     #       file or similar..
     try:
         logging.debug('Matching against very special case '
-                      '\"YYYY-mm-dd_HHMMSS\" ..')
+                      '"YYYY-mm-dd_HHMMSS" ..')
         dt = datetime.strptime(text[:17], '%Y-%m-%d_%H%M%S')
     except ValueError:
         logging.debug('Failed matching very special case.')
@@ -345,7 +345,7 @@ def match_unix_timestamp(text):
         logging.debug('Failed matching seconds since epoch.')
     else:
         if date_is_probable(dt):
-            logging.info('Extracted UNIX timestamp from \"{}\": '
+            logging.info('Extracted UNIX timestamp from "{}": '
                          '[{}]'.format(text, dt))
             return dt
 
@@ -486,7 +486,7 @@ def bruteforce_str(text):
     # Remove one number at a time from the front until first four digits
     # represent a probable year.
     while not _year_is_probable(int(digits[:4])) and year_first:
-        logging.debug('\"{}\" is not a probable year. '
+        logging.debug('"{}" is not a probable year. '
                       'Removing a digit.'.format(digits[:4]))
         digits = digits[1:]
         if len(digits) < 4:
