@@ -117,14 +117,27 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         return results
 
     def _get_datetime_from_name(self):
+        """
+        Extracts date and time information from the file name.
+        :return: a list of dictionaries on the form:
+                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                     'source'  : pdf_metadata,
+                     'comment' : "Create date",
+                     'weight'  : 1
+                   }, .. ]
+        """
         fn = self.file_object.basename_no_ext
+        results = []
 
         # 1. The Very Special Case
         # ========================
         # If this matches, it is very likely to be relevant, so test it first.
         dt_special = dateandtime.match_special_case(fn)
         if dt_special:
-            return {'Filename_specialcase': dt_special}
+            results.append({'datetime': dt_special,
+                            'source': 'filename',
+                            'comment': 'very_special_case',
+                            'weight': 1})
 
         # 2. Common patterns
         # ==================
@@ -132,26 +145,36 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         # TODO: This is not the way to do it!
         dt_android = dateandtime.match_android_messenger_filename(fn)
         if dt_android:
-            return {'Filename_android': dt_android}
-
-        results = []
+            results.append({'datetime': dt_android,
+                            'source': 'filename',
+                            'comment': 'android_messenger',
+                            'weight': 1})
 
         dt_unix = dateandtime.match_unix_timestamp(fn)
         if dt_unix:
-            results.append({"Filename_unix": dt_unix})
+            results.append({'datetime': dt_unix,
+                            'source': 'filename',
+                            'comment': 'unix_timestamp',
+                            'weight': 1})
         else:
-            dt_regex = dateandtime.regex_search_str(fn, 'Filename_regex')
+            dt_regex = dateandtime.regex_search_str(fn)
             if dt_regex:
-                return dt_regex
-                # results.append(dt_regex)
+                for dt in dt_regex:
+                    results.append({'datetime': dt,
+                                    'source': 'filename',
+                                    'comment': 'regex_search',
+                                    'weight': 1})
             else:
                 logging.warning('Unable to extract date/time-information '
                                 'from file name using regex search.')
 
-            dt_brute = dateandtime.bruteforce_str(fn, 'Filename_brute')
+            dt_brute = dateandtime.bruteforce_str(fn)
             if dt_brute:
-                return dt_brute
-                # results.append(dt_brute)
+                for dt in dt_brute:
+                    results.append({'datetime': dt,
+                                    'source': 'filename',
+                                    'comment': 'bruteforce_search',
+                                    'weight': 1})
             else:
                 logging.warning('Unable to extract date/time-information '
                                 'from file name using brute force search.')
