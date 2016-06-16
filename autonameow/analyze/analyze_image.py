@@ -35,8 +35,9 @@ class ImageAnalyzer(AbstractAnalyzer):
         exif_timestamps = self._get_exif_datetime()
         if exif_timestamps:
             # self.filter_datetime(exif_datetime)
-            result.append(exif_timestamps)
+            result += exif_timestamps
 
+        # TODO: Fix this here below.
         ocr_timestamps = self._get_ocr_datetime()
         ocr_ts = dateandtime.get_datetime_from_text(self.ocr_text, 'ocr')
         if ocr_ts:
