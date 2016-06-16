@@ -76,12 +76,16 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         Extracts date and time information "from the file system", I.E.
         access-, modification- and creation-timestamps.
         NOTE: This is all very platform-specific, I think.
-        :return: dictionary of datetime objects keyed by source
+        :return: list of dictionaries on the form:
+                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                     'source'  : pdf_metadata,
+                     'comment' : "Create date",
+                     'weight'  : 1
+                   }, .. ]
         """
         filename = self.file_object.path
-        results = {}
+        results = []
 
-        mtime = ctime = atime = None
         logging.debug('Fetching file system timestamps ..')
         try:
             mtime = os.path.getmtime(filename)
@@ -94,9 +98,19 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         else:
             def dt_fts(t):
                 return datetime.fromtimestamp(t).replace(microsecond=0)
-            results['Fs_Modified'] = dt_fts(mtime)
-            results['Fs_Created'] = dt_fts(ctime)
-            results['Fs_Accessed'] = dt_fts(atime)
+
+            results.append({'datetime': dt_fts(mtime),
+                            'source': 'filesystem',
+                            'comment': 'modified',
+                            'weight': 1})
+            results.append({'datetime': dt_fts(ctime),
+                            'source': 'filesystem',
+                            'comment': 'created',
+                            'weight': 1})
+            results.append({'datetime': dt_fts(atime),
+                            'source': 'filesystem',
+                            'comment': 'accessed',
+                            'weight': 1})
 
         logging.info('Got [{:^3}] timestamps from '
                      'filesystem.'.format(len(results)))
