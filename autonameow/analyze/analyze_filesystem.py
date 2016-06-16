@@ -68,6 +68,10 @@ class FilesystemAnalyzer(AbstractAnalyzer):
                         'weight': 0.75}]
 
     def _get_metadata_from_guessit(self):
+        """
+        Call external program "guessit".
+        :return: dictionary of results if successful, otherwise false
+        """
         guessit_matches = guessit(self.file_object.basename_no_ext)
         return guessit_matches if guessit_matches is not None else False
 
@@ -163,7 +167,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
                     results.append({'datetime': dt,
                                     'source': 'filename',
                                     'comment': 'regex_search',
-                                    'weight': 1})
+                                    'weight': 0.25})
             else:
                 logging.warning('Unable to extract date/time-information '
                                 'from file name using regex search.')
@@ -174,7 +178,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
                     results.append({'datetime': dt,
                                     'source': 'filename',
                                     'comment': 'bruteforce_search',
-                                    'weight': 1})
+                                    'weight': 0.1})
             else:
                 logging.warning('Unable to extract date/time-information '
                                 'from file name using brute force search.')
