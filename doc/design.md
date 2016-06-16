@@ -28,9 +28,8 @@ defined by some set of rules.
 
 #### Example:
 
-Name template: `[timestamp] [title] -- [author].[ext]`
-
-Resulting file name: `1998-04-01 Report of the IAB Security Architecture Workshop -- Bellovin. S.txt`
+* **Name template**:       `[timestamp] [title] -- [author].[ext]`
+* **Resulting file name**: `1998-04-01 Report of the IAB Security Architecture Workshop -- Bellovin. S.txt`
 
 
 High-level logic
@@ -145,64 +144,81 @@ Reading from file `~/Downloads/DSCN9659.jpg`
 
 * From file **surroundings** (optional)
 
-    **TODO:** Figure out how to handle this. See for example how `beets`
-    handles jobs/tasks.
+    * **TODO:** Figure out how to handle this. See for example how `beets`
+                handles jobs/tasks.
 
 
 
 Naming convention
 ================================================================================
-
 The naming convention is a configurable pattern of fields that is used for
 constructing new file names.
 
-File type determines which naming pattern is used.
-Different naming patterns apply to different file types, should be
-user configurable.
 
+Configuration file
+------------------
+The naming patterns are specified in a configuration file (giant dictionary) in
+the file `config_defaults.py`. Probably not the most user-friendly thing in the
+world nor robust, probably should look into using a proper built-in way of
+reading from configuration files.
+
+Files are matched against `Match_rules` that are specified in the same
+configuration file. A file matching the `Match_rule` *my_rule* is renamed
+using the `match_rename_template` called *my_rule*.
+
+**TODO:** Allow specifying which `match_rename_template` to use in each
+`Match_rule`. This would allow using the same template for multiple rules.
+
+
+Rename template fields
+----------------------
 In the examples below, ' _ ' is a customizable field separator.
-
-
-
 The terms used in the examples are defined as follows:
 
-| **Term** | **Field description**       | **Example**  |
-|----------|-----------------------------|--------------|
-| ` _ `    | (top-level) field separator | `_`,` `,`-`  |
-| `[date]` | ISO-8601 style date         | `2016-02-29` |
-| `[time]` | ISO-8601 style time         | `13-24-34`   |
-| `[ext]`  | file extension              | `jpg`,`txt`  |
+| **Term**       | **Field description**           | **Example**           |
+|----------------|---------------------------------|-----------------------|
+| ` _ `          | (top-level) field separator     | `_`,` `,`-`           |
+| `[date]`       | [ISO-8601][2] style date        | `2016-02-29`          |
+| `[time]`       | ISO-8601 style time             | `13-24-34`            |
+| `[datetime]`   | ISO-8601 date and time          | `2016-02-29_132434`   |
+| `[ext]`        | file extension                  | `jpg`,`txt`           |
+| `[tags]`       | [filetags][1]                   | `projects`,`dev`      |
 
 
 <!-- The markdown previewer in PyCharm can't handle this ..    -->
-<!-- +----------+-----------------------------+--------------+ -->
-<!-- | **Term** | **Field description**       | **Example**  | -->
-<!-- +==========+=============================+==============+ -->
-<!-- | ` _ `    | (top-level) field separator | `_`,` `,`-`  | -->
-<!-- | `[date]` | ISO-8601 style date         | `2016-02-29` | -->
-<!-- | `[time]` | ISO-8601 style time         | `13-24-34`   | -->
-<!-- | `[ext]`  | file extension              | `jpg`,`txt`  | -->
-<!-- +----------+-----------------------------+--------------+ -->
-<!-- Definition of terms                                       -->
+<!-- +--------------+-----------------------------+-----------------------+ -->
+<!-- | **Term**     | **Field description**       | **Example**           | -->
+<!-- +==============+=============================+=======================+ -->
+<!-- | ` _ `        | (top-level) field separator | `_`,` `,`-`           | -->
+<!-- | `[date]`     | ISO-8601 style date         | `2016-02-29`          | -->
+<!-- | `[time]`     | ISO-8601 style time         | `13-24-34`            | -->
+<!-- | `[datetime]` | ISO-8601 date and time      | `2016-02-29_132434`   | -->
+<!-- | `[ext]`      | file extension              | `jpg`,`txt`           | -->
+<!-- | `[tags]`     | [filetags][1]               | `projects`,`dev`      | -->
+<!-- +--------------+-----------------------------+-----------------------+ -->
+<!-- Definition of terms                                                    -->
+
+[1]: https://github.com/novoid/filetags
+[2]: https://xkcd.com/1179/
 
 
+### Rename template examples
 
-Photos
-------
-Photo images *(schematics, etc excluded?)* should match the pattern:
+* Photo images *(schematics, etc excluded?)* should match the pattern:
 
-    [date] _ [time] _ [description/name] . [ext]
-                          (optional)       (jpg)
-
+        [date] _ [time] _ [description/name] -- [tags] . [ext]
+                              (optional)                 (jpg)
 
 
-Pdf books
----------
-File names are to match the pattern:
+* Pdf books names are to match the pattern:
 
-    [title] _ [edition] _ [author(s) last name] _ [publisher] _ [year] . [ext]
-              (optional)                                                 (pdf)
+        [title] _ [edition] _ [author(s) last name] _ [publisher] _ [year] . [ext]
+                  (optional)                                                 (pdf)
 
+
+* Videos should match the pattern:
+
+        [date] _ [time] _ [description/name] -- [tags] . [ext]
 
 
 
@@ -221,7 +237,6 @@ draft/example and is subject to change.
 
 
 ### Example:
-
 One piece of extracted date/time-information would store:
 
 * The date/time itself as a datetime-object.
@@ -257,7 +272,8 @@ file_info = { 'title': 'The Cats Mjaowuw',
                                  'source': pdf_metadata,
                                  'comment': "Modify date",
                                  'weight': 0.8 } ],
-              'tags': ['cat', 'best'] }
+              'description': 'Best-selling Novel',
+              'tags': set(['cat', 'best', 'book']) }
 ```
 
 

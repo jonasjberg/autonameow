@@ -8,6 +8,8 @@ import os
 
 from datetime import datetime
 
+from guessit import guessit
+
 from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
 from util import misc
@@ -33,6 +35,10 @@ class FilesystemAnalyzer(AbstractAnalyzer):
             result.append(fn_timestamps)
             # self.filter_datetime(fn_timestamps)
 
+        guessit_timestamps = self._get_datetime_from_guessit_metadata()
+        if guessit_timestamps:
+            result.append(guessit_timestamps)
+
         return result
 
     def get_title(self):
@@ -42,6 +48,16 @@ class FilesystemAnalyzer(AbstractAnalyzer):
     def get_author(self):
         # TODO: Implement.
         pass
+
+    def _get_datetime_from_guessit_metadata(self):
+        guessit_metadata = self._get_metadata_from_guessit()
+        if guessit_metadata:
+            if 'date' in guessit_metadata:
+                return guessit_metadata['date']
+
+    def _get_metadata_from_guessit(self):
+        guessit_matches = guessit(self.file_object.basename_no_ext)
+        return guessit_matches if guessit_matches is not None else False
 
     def _get_datetime_from_filesystem(self):
         """
