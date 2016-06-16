@@ -27,17 +27,17 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         result = []
         fs_timestamps = self._get_datetime_from_filesystem()
         if fs_timestamps:
-            result.append(fs_timestamps)
+            result += fs_timestamps
             # self.filter_datetime(fs_timestamps)
 
         fn_timestamps = self._get_datetime_from_name()
         if fn_timestamps:
-            result.append(fn_timestamps)
+            result += fn_timestamps
             # self.filter_datetime(fn_timestamps)
 
         guessit_timestamps = self._get_datetime_from_guessit_metadata()
         if guessit_timestamps:
-            result.append(guessit_timestamps)
+            result += guessit_timestamps
 
         return result
 
@@ -50,12 +50,28 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         pass
 
     def _get_datetime_from_guessit_metadata(self):
+        """
+        Calls the external program "guessit" and collects any results.
+        :return: a list of dictionaries (actually just one) on the form:
+                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                     'source'  : pdf_metadata,
+                     'comment' : "Create date",
+                     'weight'  : 1
+                   }, .. ]
+        """
         guessit_metadata = self._get_metadata_from_guessit()
         if guessit_metadata:
             if 'date' in guessit_metadata:
-                return guessit_metadata['date']
+                return [{'datetime': guessit_metadata['date'],
+                            'source': 'guessit',
+                            'comment': 'guessit',
+                        'weight': 0.75}]
 
     def _get_metadata_from_guessit(self):
+        """
+        Call external program "guessit".
+        :return: dictionary of results if successful, otherwise false
+        """
         guessit_matches = guessit(self.file_object.basename_no_ext)
         return guessit_matches if guessit_matches is not None else False
 
@@ -64,12 +80,16 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         Extracts date and time information "from the file system", I.E.
         access-, modification- and creation-timestamps.
         NOTE: This is all very platform-specific, I think.
-        :return: dictionary of datetime objects keyed by source
+        :return: list of dictionaries on the form:
+                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                     'source'  : pdf_metadata,
+                     'comment' : "Create date",
+                     'weight'  : 1
+                   }, .. ]
         """
         filename = self.file_object.path
-        results = {}
+        results = []
 
-        mtime = ctime = atime = None
         logging.debug('Fetching file system timestamps ..')
         try:
             mtime = os.path.getmtime(filename)
@@ -82,23 +102,46 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         else:
             def dt_fts(t):
                 return datetime.fromtimestamp(t).replace(microsecond=0)
-            results['Fs_Modified'] = dt_fts(mtime)
-            results['Fs_Created'] = dt_fts(ctime)
-            results['Fs_Accessed'] = dt_fts(atime)
+
+            results.append({'datetime': dt_fts(mtime),
+                            'source': 'filesystem',
+                            'comment': 'modified',
+                            'weight': 1})
+            results.append({'datetime': dt_fts(ctime),
+                            'source': 'filesystem',
+                            'comment': 'created',
+                            'weight': 1})
+            results.append({'datetime': dt_fts(atime),
+                            'source': 'filesystem',
+                            'comment': 'accessed',
+                            'weight': 1})
 
         logging.info('Got [{:^3}] timestamps from '
                      'filesystem.'.format(len(results)))
         return results
 
     def _get_datetime_from_name(self):
+        """
+        Extracts date and time information from the file name.
+        :return: a list of dictionaries on the form:
+                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                     'source'  : pdf_metadata,
+                     'comment' : "Create date",
+                     'weight'  : 1
+                   }, .. ]
+        """
         fn = self.file_object.basename_no_ext
+        results = []
 
         # 1. The Very Special Case
         # ========================
         # If this matches, it is very likely to be relevant, so test it first.
         dt_special = dateandtime.match_special_case(fn)
         if dt_special:
-            return {'Filename_specialcase': dt_special}
+            results.append({'datetime': dt_special,
+                            'source': 'filename',
+                            'comment': 'very_special_case',
+                            'weight': 1})
 
         # 2. Common patterns
         # ==================
@@ -106,26 +149,36 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         # TODO: This is not the way to do it!
         dt_android = dateandtime.match_android_messenger_filename(fn)
         if dt_android:
-            return {'Filename_android': dt_android}
-
-        results = []
+            results.append({'datetime': dt_android,
+                            'source': 'filename',
+                            'comment': 'android_messenger',
+                            'weight': 1})
 
         dt_unix = dateandtime.match_unix_timestamp(fn)
         if dt_unix:
-            results.append({"Filename_unix": dt_unix})
+            results.append({'datetime': dt_unix,
+                            'source': 'filename',
+                            'comment': 'unix_timestamp',
+                            'weight': 1})
         else:
-            dt_regex = dateandtime.regex_search_str(fn, 'Filename_regex')
+            dt_regex = dateandtime.regex_search_str(fn)
             if dt_regex:
-                return dt_regex
-                # results.append(dt_regex)
+                for dt in dt_regex:
+                    results.append({'datetime': dt,
+                                    'source': 'filename',
+                                    'comment': 'regex_search',
+                                    'weight': 0.25})
             else:
                 logging.warning('Unable to extract date/time-information '
                                 'from file name using regex search.')
 
-            dt_brute = dateandtime.bruteforce_str(fn, 'Filename_brute')
+            dt_brute = dateandtime.bruteforce_str(fn)
             if dt_brute:
-                return dt_brute
-                # results.append(dt_brute)
+                for dt in dt_brute:
+                    results.append({'datetime': dt,
+                                    'source': 'filename',
+                                    'comment': 'bruteforce_search',
+                                    'weight': 0.1})
             else:
                 logging.warning('Unable to extract date/time-information '
                                 'from file name using brute force search.')

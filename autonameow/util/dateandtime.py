@@ -134,7 +134,7 @@ def search_standard_formats(text, prefix):
     pass
 
 
-def regex_search_str(text, prefix):
+def regex_search_str(text):
     """
     Extracts date/time-information from a text string using regex searches.
 
@@ -142,7 +142,6 @@ def regex_search_str(text, prefix):
     Return values (should) work the same as "bruteforce_str".
 
     :param text: the text to extract information from
-    :param prefix: prefix this to the resulting dictionary keys
     :return: list of any datetime-objects or None if nothing was found
     """
 
@@ -353,7 +352,7 @@ def match_unix_timestamp(text):
     return None
 
 
-def bruteforce_str(text, prefix):
+def bruteforce_str(text):
     """
     Extracts date/time-information from a text string.
 
@@ -366,7 +365,6 @@ def bruteforce_str(text, prefix):
     are likely to be less accurate compared to those produced by the first part.
 
     :param text: the text to extract information from
-    :param prefix: prefix this to the resulting dictionary keys
     :return: list of any datetime-objects or None if nothing was found
     """
     if text is None:
@@ -496,8 +494,8 @@ def bruteforce_str(text, prefix):
             year_first = False
 
     if year_first:
-        #                Chars   Date/time format   Example
-        #                -----   ----------------   ----------------
+        #                Chars  Date/time format   Example
+        #                -----  ----------------   ----------------
         common_formats2 = [[14, '%Y%m%d%H%M%S'],    # 19921224121314
                            [12, '%Y%m%d%H%M'],      # 199212241213
                            [10, '%Y%m%d%H'],        # 1992122412
@@ -644,7 +642,7 @@ def get_datetime_from_text(text, prefix='NULL'):
     for t in text_split:
         # new_key = '{}_contents_brute_{}'.format(prefix, matches)
         new_key = '{:03d}'.format(matches)
-        dt = bruteforce_str(t, new_key)
+        dt = bruteforce_str(t)
         if dt and dt is not None:
             # logging.info('Added result from contents: {0}'.format(dt))
             results_brute.append(dt)
@@ -655,7 +653,7 @@ def get_datetime_from_text(text, prefix='NULL'):
         text_split = text.split()
         for t in text_split:
             new_key = '{:03d}'.format(matches)
-            dt = bruteforce_str(t, new_key)
+            dt = bruteforce_str(t)
             if dt and dt is not None:
                 # logging.info('Added result from contents: {0}'.format(dt))
                 results_brute.append(dt)
@@ -663,9 +661,7 @@ def get_datetime_from_text(text, prefix='NULL'):
 
     # TODO: Fix this here below. Looks completely broken.
     regex_match = 0
-    dt_regex = regex_search_str(text,
-                                '{}_contents_regex_{:03d}'.format(prefix,
-                                                                  regex_match))
+    dt_regex = regex_search_str(text)
     if dt_regex and dt_regex is not None:
         # logging.info('Added result from contents regex search: '
         #              '{0}'.format(dt_regex))
