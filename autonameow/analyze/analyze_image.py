@@ -85,9 +85,8 @@ class ImageAnalyzer(AbstractAnalyzer):
             try:
                 dtstr = self.exif_data[field]
             except KeyError:
-                #logging.warn('KeyError for key [{}]'.format(field))
+                # logging.warn('KeyError for key [{}]'.format(field))
                 continue
-
             if not dtstr:
                 continue
 
@@ -102,7 +101,6 @@ class ImageAnalyzer(AbstractAnalyzer):
             else:
                 datetime_str = re_match.group(1)
                 # logging.debug('datetime_str: %s' % datetime_str)
-
                 try:
                     dt = datetime.strptime(datetime_str, '%Y:%m:%d %H:%M:%S')
                 except ValueError:
@@ -121,7 +119,7 @@ class ImageAnalyzer(AbstractAnalyzer):
             gps_date = self.exif_data['GPSDateStamp']
             gps_time = self.exif_data['GPSTimeStamp']
         except KeyError:
-            #logging.warn('KeyError for key GPS{Date,Time}Stamp]')
+            # logging.warn('KeyError for key GPS{Date,Time}Stamp]')
             pass
         else:
             dt = None
@@ -233,6 +231,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         through the pytesseract wrapper.
         :return: image text if found, else None (?)
         """
+        # TODO: Test this!
         image_text = None
         filename = self.file_object.path
         try:
@@ -258,9 +257,9 @@ class ImageAnalyzer(AbstractAnalyzer):
         The EXIF data is stored in a dict using human-readable keys.
         :return: Dict of EXIF data.
         """
+        # TODO: Finish this method.
         if self.ocr_text is None:
             logging.warning('Found no text from OCR of '
                             '\"{}\"'.format(self.file_object.path))
             return
         pass
-
