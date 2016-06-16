@@ -17,20 +17,15 @@ magic_type_lookup = {'MP4':   ['video/mp4'],
                      'EMPTY': ['inode/x-empty']}
 
 
-class MetadataBlock(object):
-    def __init__(self, title, author, date, publisher, edition, tags):
+class FileObject(object):
+    def __init__(self, path, title, author, date, publisher, edition, tags):
+        self.datetime_list = []
         self.title = title
         self.author = author
         self.date = date
         self.publisher = publisher
         self.edition = edition
         self.tags = tags
-
-
-class FileObject(object):
-    def __init__(self, path):
-        self.datetime_list = []
-        self.metadata = MetadataBlock(None, None, None, None, None, None)
 
         if path is None:
             logging.critical('Got NULL path!')
