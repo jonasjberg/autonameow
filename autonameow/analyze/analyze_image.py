@@ -97,16 +97,15 @@ class ImageAnalyzer(AbstractAnalyzer):
             try:
                 re_match = date_pattern.search(dtstr)
             except TypeError:
-                logging.warn('TypeError for [%s]' % dtstr)
+                logging.warn('TypeError for [%s]'.format(dtstr))
             else:
                 datetime_str = re_match.group(1)
                 # logging.debug('datetime_str: %s' % datetime_str)
                 try:
                     dt = datetime.strptime(datetime_str, '%Y:%m:%d %H:%M:%S')
                 except ValueError:
-                    logging.warning('Unable to parse datetime from [%s]'
-                                    % field)
-
+                    logging.warning('Unable to parse datetime from '
+                                    '[%s]'.format(field))
             if dt:
                 # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
                 results.append({'datetime': dt,
