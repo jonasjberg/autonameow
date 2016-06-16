@@ -27,17 +27,17 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         result = []
         fs_timestamps = self._get_datetime_from_filesystem()
         if fs_timestamps:
-            result.append(fs_timestamps)
+            result += fs_timestamps
             # self.filter_datetime(fs_timestamps)
 
         fn_timestamps = self._get_datetime_from_name()
         if fn_timestamps:
-            result.append(fn_timestamps)
+            result += fn_timestamps
             # self.filter_datetime(fn_timestamps)
 
         guessit_timestamps = self._get_datetime_from_guessit_metadata()
         if guessit_timestamps:
-            result.append(guessit_timestamps)
+            result += guessit_timestamps
 
         return result
 
