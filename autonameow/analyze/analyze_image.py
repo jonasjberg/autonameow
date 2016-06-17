@@ -132,8 +132,8 @@ class ImageAnalyzer(AbstractAnalyzer):
             try:
                 dt = datetime.strptime(gps_datetime_str, '%Y:%m:%d%H%M%S')
             except ValueError:
-                logging.warning('Unable to parse GPS datetime from [%s]'
-                                % gps_datetime_str)
+                logging.warning('Unable to parse GPS datetime from '
+                                '[%s]'.format(gps_datetime_str))
             if dt:
                 # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
                 results.append({'datetime': dt,

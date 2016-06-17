@@ -60,8 +60,8 @@ def _year_is_probable(year):
         try:
             year = int(year)
         except ValueError as ex:
-            logging.warning('Got unexpected type \"{}\". '
-                            'Casting failed: {}' % (type(year), ex))
+            logging.warning('Got unexpected type "{}". '
+                            'Casting failed: {}'.format(type(year), ex))
             return False
 
         # Check if number of digits in "year" is less than three,
@@ -76,7 +76,7 @@ def _year_is_probable(year):
         try:
             year = datetime.strptime(year, '%Y')
         except TypeError:
-            logging.warning('Failed converting \"{}\" '
+            logging.warning('Failed converting "{}" '
                             'to datetime-object.'.format(year))
             return False
 
@@ -106,7 +106,7 @@ def date_is_probable(date):
     """
     logging.debug('Checking probability of [{}] {}'.format(date, type(date)))
     if type(date) is not datetime:
-        logging.warning('Got unexpected type \"{}\" '
+        logging.warning('Got unexpected type "{}" '
                         '(expected datetime)'.format(type(date)))
         return False
 
@@ -200,7 +200,7 @@ def regex_search_str(text):
         else:
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
-                              '[%s]' % dt)
+                              '[{}]'.format(dt))
                 # new_key = '{0}_{1:02d}'.format(prefix, matches)
                 results.append(dt)
                 matches += 1
@@ -209,17 +209,17 @@ def regex_search_str(text):
     dt_pattern_2 = re.compile('(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
     for dt_str in re.findall(dt_pattern_2, text):
-        # logging.debug('DT STR IS \"{}\"'.format(dt_str))
+        # logging.debug('DT STR IS "{}"'.format(dt_str))
         try:
-            logging.debug('Trying to match [%-12.12s] to [%s] ..'
-                          % (dt_fmt_2, dt_str))
+            logging.debug('Trying to match [{}] to '
+                          '[{}] ..'.format(dt_fmt_2, dt_str))
             dt = datetime.strptime(dt_str, dt_fmt_2)
         except ValueError:
             pass
         else:
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
-                              '[%s]' % dt)
+                              '[{}]'.format(dt))
                 # new_key = '{0}_{1:02d}'.format(prefix, matches)
                 results.append(dt)
                 matches += 1
@@ -229,15 +229,15 @@ def regex_search_str(text):
     dt_fmt_3 = '%Y'
     for dt_str in re.findall(dt_pattern_3, text):
         try:
-            logging.debug('Trying to match [%-12.12s] to [%s] ..'
-                          % (dt_fmt_3, dt_str))
+            logging.debug('Trying to match [{:12s}] to '
+                          '[{}] ..'.format((dt_fmt_3, dt_str)))
             dt = datetime.strptime(dt_str, dt_fmt_3)
         except ValueError:
             pass
         else:
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
-                              '[%s]' % dt)
+                              '[{}]'.format(dt))
                 # new_key = '{0}_{1:02d}'.format(prefix, matches)
                 results.append(dt)
                 matches += 1
@@ -260,7 +260,7 @@ def match_special_case(text):
     #       file or similar..
     try:
         logging.debug('Matching against very special case '
-                      '\"YYYY-mm-dd_HHMMSS\" ..')
+                      '"YYYY-mm-dd_HHMMSS" ..')
         dt = datetime.strptime(text[:17], '%Y-%m-%d_%H%M%S')
     except ValueError:
         logging.debug('Failed matching very special case.')
@@ -345,7 +345,7 @@ def match_unix_timestamp(text):
         logging.debug('Failed matching seconds since epoch.')
     else:
         if date_is_probable(dt):
-            logging.info('Extracted UNIX timestamp from \"{}\": '
+            logging.info('Extracted UNIX timestamp from "{}": '
                          '[{}]'.format(text, dt))
             return dt
 
@@ -452,8 +452,8 @@ def bruteforce_str(text):
         tries += 1
         tries_total += 1
         try:
-            logging.debug('Trying to match [%-17.17s] to [%s] ..'
-                          % (fmt, text_strip))
+            logging.debug('Trying to match [{:17s}]to '
+                          '[{}] ..'.format(fmt, text_strip))
             dt = datetime.strptime(text_strip, fmt)
         except ValueError:
             pass
@@ -486,7 +486,7 @@ def bruteforce_str(text):
     # Remove one number at a time from the front until first four digits
     # represent a probable year.
     while not _year_is_probable(int(digits[:4])) and year_first:
-        logging.debug('\"{}\" is not a probable year. '
+        logging.debug('"{}" is not a probable year. '
                       'Removing a digit.'.format(digits[:4]))
         digits = digits[1:]
         if len(digits) < 4:
@@ -509,15 +509,15 @@ def bruteforce_str(text):
             tries += 1
             tries_total += 1
             try:
-                logging.debug('Trying to match [%-12.12s] to [%s] ..'
-                              % (fmt, digits_strip))
+                logging.debug('Trying to match [{:12s}] to '
+                              '[{}] ..'.format(fmt, digits_strip))
                 dt = datetime.strptime(digits_strip, fmt)
             except ValueError:
                 pass
             else:
                 validate_result(dt)
 
-        logging.debug('Gave up after %d tries ..' % tries)
+        logging.debug('Gave up after %d tries ..'.format(tries))
 
     # TODO: Examine this here below hacky conditional. Why is it there?
     if True:
@@ -541,15 +541,15 @@ def bruteforce_str(text):
                 tries += 1
                 tries_total += 1
                 try:
-                    logging.debug('Trying to match [%-12.12s] to [%s] ..'
-                                  % (fmt, digits_strip))
+                    logging.debug('Trying to match [{:12s}] to '
+                                  '[{}] ..'.format(fmt, digits_strip))
                     dt = datetime.strptime(digits_strip, fmt)
                 except ValueError:
                     pass
                 else:
                     validate_result(dt)
 
-            logging.debug('Gave up after %d tries ..' % tries)
+            logging.debug('Gave up after {} tries ..'.format(tries))
             logging.debug('Removing leading number '
                           '({} --> {})'.format(digits, digits[1:]))
             digits = digits[1:]
@@ -566,12 +566,12 @@ def fuzzy_datetime(text, prefix):
     try:
         try:
             dt = dateutil.parser.parse(text)
-            print('Sharp %r -> %s' % (text, dt))
+            print('Sharp {} -> {}'.format(text, dt))
         except ValueError:
             dt = dateutil.parser.parse(text, fuzzy=True)
-            print('Fuzzy %r -> %s' % (text, dt))
+            print('Fuzzy {} -> {}'.format(text, dt))
     except Exception as e:
-        print('Try as I may, I cannot parse %r (%s)' % (text, e))
+        print('Try as I may, I cannot parse {} ({})'.format(text, e))
 
     return dt
 
