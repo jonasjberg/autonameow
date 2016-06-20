@@ -95,7 +95,7 @@ class Autonameow(object):
                 logging.info('Processing file "{}"'.format(str(arg)))
 
                 # Create a file object representing the current arg.
-                curfile = FileObject(arg)
+                curfile = FileObject(arg, None, None, None, None, None, None)
 
                 # Begin analysing the file.
                 analysis = Analysis(curfile, self.filter)
@@ -103,7 +103,6 @@ class Autonameow(object):
                 if self.args.list_datetime:
                     print('File: \"%s\"' % curfile.path)
                     analysis.print_all_datetime_info()
-                    analysis.find_most_probable_datetime()
                     # analysis.print_oldest_datetime()
                     # analysis.prefix_date_to_filename()
                     print('')
