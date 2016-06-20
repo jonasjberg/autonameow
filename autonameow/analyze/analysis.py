@@ -12,13 +12,6 @@ from analyze.analyze_pdf import PdfAnalyzer
 from analyze.analyze_text import TextAnalyzer
 
 
-class ExtractedData(object):
-    # TODO: Not used and incomplete -- implement properly or remove entirely.
-    def __init__(self, data, weight):
-        self.data = data
-        self.weight = weight
-
-
 class Analysis(object):
     """
     Main interface to all file analyzers.
