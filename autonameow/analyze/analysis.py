@@ -206,10 +206,6 @@ class Analysis(object):
         print('{:<20} : {:<}'.format('Datetime', 'Value'))
         print('{:<20} : {:<}'.format('oldest', oldest_dt))
 
-    def find_most_probable_datetime(self):
-        # TODO: Implement ..
-        pass
-
     def prefix_date_to_filename(self):
         # TODO: Implement this properly ..
         fo = self.file_object

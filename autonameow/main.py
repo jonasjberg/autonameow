@@ -103,7 +103,6 @@ class Autonameow(object):
                 if self.args.list_datetime:
                     print('File: \"%s\"' % curfile.path)
                     analysis.print_all_datetime_info()
-                    analysis.find_most_probable_datetime()
                     # analysis.print_oldest_datetime()
                     # analysis.prefix_date_to_filename()
                     print('')
