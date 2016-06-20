@@ -10,6 +10,7 @@ from analyze.analyze_filesystem import FilesystemAnalyzer
 from analyze.analyze_image import ImageAnalyzer
 from analyze.analyze_pdf import PdfAnalyzer
 from analyze.analyze_text import TextAnalyzer
+from util import misc
 
 
 class Analysis(object):
@@ -47,7 +48,7 @@ class Analysis(object):
                           'Analyzer.'.format(self.file_object.type))
             pass
 
-        collected_datetime = []
+        self.collected_datetime = []
         # collected_title = []
         # collected_author = []
         # etc ..
@@ -61,7 +62,7 @@ class Analysis(object):
                 logging.error('Got Null analysis.')
                 continue
             logging.debug('Running Analyzer: {}'.format(a.__class__))
-            collected_datetime.append(a.get_datetime())
+            self.collected_datetime += a.get_datetime()
             # collected_title.append(analysis.get_title())
             # collected_author.append(analysis.get_author())
             # etc ..
@@ -126,71 +127,13 @@ class Analysis(object):
         Prints all date/time-information for the current file.
         :return:
         """
-        dt_list = self.file_object.datetime_list
-
-        print('All date/time information for file:')
-        flipped = {}
-        for dt_dict in dt_list:
-            if type(dt_dict) is not dict:
-                logging.error('datetime list contains unexpected type '
-                              '%s'.format(type(dt_dict)))
-                continue
-
-            # Create a new dict with values being lists of the "sources"
-            # for each datetime-object keyed by datetime-objects.
-            temp_dict = None
-            for dt_key, dt_value in dt_dict.iteritems():
-                if type(dt_value) is list:
-                    i = 0
-                    temp_dict = {}
-                    for entry in dt_value:
-                        if entry is not None:
-                            temp_dict['{}_{:03d}'.format(dt_key, i)] = entry
-                            i += 1
-                else:
-                    if dt_value not in flipped:
-                        flipped[dt_value] = [dt_key]
-                    else:
-                        flipped[dt_value].append(dt_key)
-
-            if temp_dict:
-                for dt_key, dt_value in temp_dict.iteritems():
-                    if dt_value not in flipped:
-                        flipped[dt_value] = [dt_key]
-                    else:
-                        flipped[dt_value].append(dt_key)
-
-        # Sort by length of the lists of datetime-object stored as values
-        # in the dict.
-        flipped_sorted = sorted(flipped.items(),
-                                key=lambda k: len(k[1]),
-                                reverse=True)
-
-        def __print_report_columns(c1, c2, c3):
-            """
-            Prints a line with three columns.
-            """
-            print('{0:20}  {1:>8s}  {2:>30}'.format(c1, c2, c3))
-
-        # Print the header information.
-        print(Back.WHITE + Fore.BLACK +
-              '{0:20}  {1:>8s}  {2:>30}'.format('Date-/timestamp', '#',
-                                                'Source(s)')
-              + Fore.RESET + Back.RESET)
-
-        for line in flipped_sorted:
-            try:
-                dt = line[0].isoformat()
-            except TypeError:
-                pass
-
-            __print_report_columns('{:20}'.format(dt),
-                                   '{:03d}'.format(len(line[1])),
-                                   '{:>30}'.format(line[1][0]))
-            if len(line[1]) > 1:
-                for v in line[1][1:]:
-                    __print_report_columns(' ', ' ', '{:>30}'.format(v))
-                print('')
+        # Expected format:
+        # [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+        # 'source'  : pdf_metadata,
+        #             'comment' : "Create date",
+        #                         'weight'  : 1
+        # }, .. ]
+        misc.dump(self.collected_datetime)
 
     def print_oldest_datetime(self):
         oldest_dt = self.file_object.get_oldest_datetime()
