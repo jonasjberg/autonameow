@@ -95,7 +95,7 @@ class Autonameow(object):
                 logging.info('Processing file "{}"'.format(str(arg)))
 
                 # Create a file object representing the current arg.
-                curfile = FileObject(arg)
+                curfile = FileObject(arg, None, None, None, None, None, None)
 
                 # Begin analysing the file.
                 analysis = Analysis(curfile, self.filter)
