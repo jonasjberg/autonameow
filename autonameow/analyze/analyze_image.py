@@ -152,6 +152,8 @@ class ImageAnalyzer(AbstractAnalyzer):
                 #                   str(bad_exif_date))
                 #     del results['Exif_DateTimeDigitized']
                 # http://stackoverflow.com/a/1235631
+                # TODO: FIX THIS!
+                pass
                 results[:] = [d for d in results if \
                               (d.get('comment') == 'DateTimeDigitized' and \
                                d.get('datetime') != bad_exif_date)]
