@@ -41,7 +41,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         ocr_timestamps = self._get_ocr_datetime()
         ocr_ts = dateandtime.get_datetime_from_text(self.ocr_text, 'ocr')
         if ocr_ts:
-            result.append(ocr_ts)
+            result += ocr_ts
 
         return result
 
