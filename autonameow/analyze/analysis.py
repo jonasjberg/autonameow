@@ -48,7 +48,7 @@ class Analysis(object):
                           'Analyzer.'.format(self.file_object.type))
             pass
 
-        self.collected_datetime = []
+        self.collected_datetime = {}
         # collected_title = []
         # collected_author = []
         # etc ..
@@ -62,7 +62,7 @@ class Analysis(object):
                 logging.error('Got Null analysis.')
                 continue
             logging.debug('Running Analyzer: {}'.format(a.__class__))
-            self.collected_datetime += a.get_datetime()
+            self.collected_datetime[a.__class__.__name__] = a.get_datetime()
             # collected_title.append(analysis.get_title())
             # collected_author.append(analysis.get_author())
             # etc ..
