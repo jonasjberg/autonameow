@@ -39,9 +39,8 @@ class ImageAnalyzer(AbstractAnalyzer):
 
         # TODO: Fix this here below.
         ocr_timestamps = self._get_ocr_datetime()
-        ocr_ts = dateandtime.get_datetime_from_text(self.ocr_text, 'ocr')
-        if ocr_ts:
-            result += ocr_ts
+        if ocr_timestamps:
+            result += ocr_timestamps
 
         return result
 
@@ -260,5 +259,8 @@ class ImageAnalyzer(AbstractAnalyzer):
         if self.ocr_text is None:
             logging.warning('Found no text from OCR of '
                             '\"{}\"'.format(self.file_object.path))
-            return
-        pass
+            return None
+
+        # TODO: Fix return type/format of "_get_datetime_from_text" ..
+        dt = dateandtime.get_datetime_from_text(self.ocr_text, 'ocr')
+        return dt
