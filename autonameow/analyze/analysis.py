@@ -59,8 +59,10 @@ class Analysis(object):
 
             a = analysis(self.file_object, self.filters)
             if not a:
-                logging.error('Got Null analysis.')
+                logging.error('Unable to instantiate analysis '
+                              '"{}"'.format(str(analysis)))
                 continue
+
             logging.debug('Running Analyzer: {}'.format(a.__class__))
             self.collected_datetime[a.__class__.__name__] = a.get_datetime()
             # collected_title.append(analysis.get_title())
