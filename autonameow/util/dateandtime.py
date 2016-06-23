@@ -607,8 +607,6 @@ def get_datetime_from_text(text, prefix='NULL'):
     Extracts date/time-information from text.
     This method is used by both the text-analyzer and the pdf-analyzer.
 
-    TODO: Description.
-
     :param text: try to extract date/time-information from this text
     :param prefix: prefix this to the resulting dictionary keys
     :return: dictionary of lists of any datetime-objects found
