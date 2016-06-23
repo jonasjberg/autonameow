@@ -15,6 +15,8 @@ Program structure overview
 ==========================
 This is a high level overview of the internal architecture of `autonameow`.
 
+**TODO:** Either scrap this kind of documentation for ever, until the project
+          is done *OR*.. **MAKE SURE IT IS UP TO DATE!**
 
 Classes
 -------
