@@ -54,7 +54,7 @@ class Analysis(object):
         # etc ..
         for analysis in analysis_run_queue:
             if not analysis:
-                logging.error('Got Null analysis.')
+                logging.error('Got null analysis from analysis run queue.')
                 continue
 
             a = analysis(self.file_object, self.filters)
