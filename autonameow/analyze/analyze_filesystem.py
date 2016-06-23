@@ -117,7 +117,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
             results.append({'datetime': dt_fts(atime),
                             'source': 'filesystem',
                             'comment': 'accessed',
-                            'weight': 1})
+                            'weight': 0.25})
 
         logging.info('Got [{:^3}] timestamps from '
                      'filesystem.'.format(len(results)))
