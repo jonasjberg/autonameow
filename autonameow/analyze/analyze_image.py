@@ -41,7 +41,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         ocr_timestamps = self._get_ocr_datetime()
         ocr_ts = dateandtime.get_datetime_from_text(self.ocr_text, 'ocr')
         if ocr_ts:
-            result.append(ocr_ts)
+            result += ocr_ts
 
         return result
 
@@ -152,6 +152,8 @@ class ImageAnalyzer(AbstractAnalyzer):
                 #                   str(bad_exif_date))
                 #     del results['Exif_DateTimeDigitized']
                 # http://stackoverflow.com/a/1235631
+                # TODO: FIX THIS!
+                pass
                 results[:] = [d for d in results if \
                               (d.get('comment') == 'DateTimeDigitized' and \
                                d.get('datetime') != bad_exif_date)]

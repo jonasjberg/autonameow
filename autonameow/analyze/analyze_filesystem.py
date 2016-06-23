@@ -21,6 +21,9 @@ from util import misc
 #   * file system metadata (modified, created, ..)
 class FilesystemAnalyzer(AbstractAnalyzer):
 
+    def __init__(self, file_object, filters):
+        super(FilesystemAnalyzer, self).__init__(file_object, filters)
+
     def get_datetime(self):
         # TODO: Get datetime from information common to all file types;
         #       file name, files in the same directory, name of directory, etc..
@@ -114,7 +117,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
             results.append({'datetime': dt_fts(atime),
                             'source': 'filesystem',
                             'comment': 'accessed',
-                            'weight': 1})
+                            'weight': 0.25})
 
         logging.info('Got [{:^3}] timestamps from '
                      'filesystem.'.format(len(results)))

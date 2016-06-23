@@ -48,21 +48,23 @@ class Analysis(object):
                           'Analyzer.'.format(self.file_object.type))
             pass
 
-        self.collected_datetime = []
+        self.collected_datetime = {}
         # collected_title = []
         # collected_author = []
         # etc ..
         for analysis in analysis_run_queue:
             if not analysis:
-                logging.error('Got Null analysis.')
+                logging.error('Got null analysis from analysis run queue.')
                 continue
 
             a = analysis(self.file_object, self.filters)
             if not a:
-                logging.error('Got Null analysis.')
+                logging.error('Unable to instantiate analysis '
+                              '"{}"'.format(str(analysis)))
                 continue
+
             logging.debug('Running Analyzer: {}'.format(a.__class__))
-            self.collected_datetime += a.get_datetime()
+            self.collected_datetime[a.__class__.__name__] = a.get_datetime()
             # collected_title.append(analysis.get_title())
             # collected_author.append(analysis.get_author())
             # etc ..
