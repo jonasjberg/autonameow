@@ -6,6 +6,7 @@ import logging
 from colorama import Back
 from colorama import Fore
 
+from analyze.analyze_filename import FilenameAnalyzer
 from analyze.analyze_filesystem import FilesystemAnalyzer
 from analyze.analyze_image import ImageAnalyzer
 from analyze.analyze_pdf import PdfAnalyzer
@@ -27,7 +28,7 @@ class Analysis(object):
 
         # List of analyzers to run.
         # Start with a basic analyzer that is common to all file types.
-        analysis_run_queue = [FilesystemAnalyzer]
+        analysis_run_queue = [FilesystemAnalyzer, FilenameAnalyzer]
 
         # Select analyzer based on detected file type.
         t = self.file_object.type
