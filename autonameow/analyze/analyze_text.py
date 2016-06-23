@@ -57,10 +57,11 @@ class TextAnalyzer(AbstractAnalyzer):
 
         if decoded_content:
             # TODO: Determine what gets extracted **REALLY** ..
-            logging.debug('Extracted [%s] words (??) of content' % len(content))
+            logging.debug('Extracted {} words/lines (??) of '
+                          'content'.format(len(content)))
             return decoded_content
         else:
-            logging.warn('Unable to extract PDF contents.')
+            logging.warn('Unable to extract text contents.')
             return None
 
         # TODO: This redirection is very ugly.
@@ -92,7 +93,8 @@ class TextAnalyzer(AbstractAnalyzer):
             return results
 
         else:
-            print('dt DOES NOT have key test_contents_brute')
+            logging.warning('Unable to extract date/time-information '
+                            'from text file contents using brute force search.')
 
         return None
 
@@ -102,9 +104,9 @@ class TextAnalyzer(AbstractAnalyzer):
             contents = f.read().split('\n')
 
             if contents:
-                logging.info('Successfully read %d lines from '
-                             '\"%s\"'.format(len(contents), str(fn)))
+                logging.info('Successfully read {} lines from '
+                             '"{}"'.format(len(contents), str(fn)))
                 return contents
             else:
-                logging.error('Got empty file \"%s\"'.format(fn))
+                logging.error('Got empty file "{}"'.format(fn))
                 return None
