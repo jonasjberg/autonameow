@@ -201,7 +201,6 @@ def regex_search_str(text):
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
                               '[{}]'.format(dt))
-                # new_key = '{0}_{1:02d}'.format(prefix, matches)
                 results.append(dt)
                 matches += 1
 
@@ -220,7 +219,6 @@ def regex_search_str(text):
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
                               '[{}]'.format(dt))
-                # new_key = '{0}_{1:02d}'.format(prefix, matches)
                 results.append(dt)
                 matches += 1
 
@@ -238,7 +236,6 @@ def regex_search_str(text):
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
                               '[{}]'.format(dt))
-                # new_key = '{0}_{1:02d}'.format(prefix, matches)
                 results.append(dt)
                 matches += 1
 
@@ -640,8 +637,6 @@ def get_datetime_from_text(text, prefix='NULL'):
     text_split = text.split('\n')
     logging.debug('Try getting datetime from text split by newlines')
     for t in text_split:
-        # new_key = '{}_contents_brute_{}'.format(prefix, matches)
-        new_key = '{:03d}'.format(matches)
         dt = bruteforce_str(t)
         if dt and dt is not None:
             # logging.info('Added result from contents: {0}'.format(dt))
@@ -652,7 +647,6 @@ def get_datetime_from_text(text, prefix='NULL'):
         logging.debug('No matches. Trying with text split by whitespace')
         text_split = text.split()
         for t in text_split:
-            new_key = '{:03d}'.format(matches)
             dt = bruteforce_str(t)
             if dt and dt is not None:
                 # logging.info('Added result from contents: {0}'.format(dt))
