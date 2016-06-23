@@ -64,45 +64,46 @@ class TextAnalyzer(AbstractAnalyzer):
             logging.warn('Unable to extract text contents.')
             return None
 
-        # TODO: This redirection is very ugly.
-        dt = dateandtime.get_datetime_from_text(self.text_contents, 'text')
-        if not dt:
-            return None
-
-        results = {}
-
-        i = 0
-        if 'text_contents_regex' in dt:
-            print('dt has key text_contents_regex')
-            for entry in dt['text_contents_regex']:
-                new_key = '{0}_{1:02d}'.format('text_contents', i)
-                results[new_key] = entry
-                i += 1
-            return results
-
     def _get_datetime_from_text(self):
+        """
+        Extracts date and time information from textual contents.
+        :return: a list of dictionaries on the form:
+                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                     'source' : "Create date",
+                     'weight'  : 1
+                   }, .. ]
+        """
+        results = []
+        text = self.text_contents
+
+        dt_regex = dateandtime.regex_search_str(text)
+        if dt_regex:
+            for dt in dt_regex:
+                results.append({'datetime': dt,
+                                'source': 'regex_search',
+                                'weight': 0.25})
         else:
-            print('dt DOES NOT have key test_contents_regex')
+            logging.warning('Unable to extract date/time-information '
+                            'from text file contents using regex search.')
 
-        if 'text_contents_brute' in dt:
-            print('dt has key text_contents_brute')
-            for entry in dt['text_contents_brute']:
-                new_key = '{0}_{1:02d}'.format('text_contents', i)
-                results[new_key] = entry
-                i += 1
-            return results
-
+        if type(text) == list:
+            text = ' '.join(text)
+        dt_brute = dateandtime.bruteforce_str(text)
+        if dt_brute:
+            for dt in dt_brute:
+                results.append({'datetime': dt,
+                                'source': 'bruteforce_search',
+                                'weight': 0.1})
         else:
             logging.warning('Unable to extract date/time-information '
                             'from text file contents using brute force search.')
 
-        return None
+        return results
 
     def _get_file_lines(self):
         fn = self.file_object.path
         with io.open(fn, 'r', encoding='utf8') as f:
             contents = f.read().split('\n')
-
             if contents:
                 logging.info('Successfully read {} lines from '
                              '"{}"'.format(len(contents), str(fn)))
