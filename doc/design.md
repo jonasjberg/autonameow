@@ -309,3 +309,14 @@ filters
 
 		get_title()
 		get_author()
+
+
+### Returned from analyzers
+#### datetime
+Analyzers extracts date and time information by various means
+and returns a list of dictionaries on the form:
+[ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+    'source' : "Create date",
+    'weight'  : 1
+  }, .. ]
+
