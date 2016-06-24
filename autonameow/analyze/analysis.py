@@ -6,11 +6,20 @@ import logging
 from colorama import Back
 from colorama import Fore
 
+from analyze.analyze_filename import FilenameAnalyzer
 from analyze.analyze_filesystem import FilesystemAnalyzer
 from analyze.analyze_image import ImageAnalyzer
 from analyze.analyze_pdf import PdfAnalyzer
 from analyze.analyze_text import TextAnalyzer
 from util import misc
+
+
+class Results(object):
+    def __init__(self):
+        self.datetime = {}
+        # self.title = []
+        # self.author = []
+        # etc ..
 
 
 class Analysis(object):
@@ -24,10 +33,11 @@ class Analysis(object):
             pass
 
         self.filters = filters
+        self.results = Results()
 
         # List of analyzers to run.
         # Start with a basic analyzer that is common to all file types.
-        analysis_run_queue = [FilesystemAnalyzer]
+        analysis_run_queue = [FilesystemAnalyzer, FilenameAnalyzer]
 
         # Select analyzer based on detected file type.
         t = self.file_object.type
@@ -48,10 +58,6 @@ class Analysis(object):
                           'Analyzer.'.format(self.file_object.type))
             pass
 
-        self.collected_datetime = {}
-        # collected_title = []
-        # collected_author = []
-        # etc ..
         for analysis in analysis_run_queue:
             if not analysis:
                 logging.error('Got null analysis from analysis run queue.')
@@ -64,7 +70,7 @@ class Analysis(object):
                 continue
 
             logging.debug('Running Analyzer: {}'.format(a.__class__))
-            self.collected_datetime[a.__class__.__name__] = a.get_datetime()
+            self.results.datetime[a.__class__.__name__] = a.get_datetime()
             # collected_title.append(analysis.get_title())
             # collected_author.append(analysis.get_author())
             # etc ..
@@ -135,7 +141,7 @@ class Analysis(object):
         #             'comment' : "Create date",
         #                         'weight'  : 1
         # }, .. ]
-        misc.dump(self.collected_datetime)
+        misc.dump(self.results.datetime)
 
     def print_oldest_datetime(self):
         oldest_dt = self.file_object.get_oldest_datetime()

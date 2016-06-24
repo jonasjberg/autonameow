@@ -39,9 +39,8 @@ class ImageAnalyzer(AbstractAnalyzer):
 
         # TODO: Fix this here below.
         ocr_timestamps = self._get_ocr_datetime()
-        ocr_ts = dateandtime.get_datetime_from_text(self.ocr_text, 'ocr')
-        if ocr_ts:
-            result += ocr_ts
+        if ocr_timestamps:
+            result += ocr_timestamps
 
         return result
 
@@ -61,8 +60,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         entry formats.
         :return: a list of dictionaries on the form:
                  [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
-                     'source'  : exif_metadata,
-                     'comment' : 'datetimeoriginal',
+                     'source' : 'datetimeoriginal',
                      'weight'  : 1
                    }, .. ]
         """
@@ -109,8 +107,7 @@ class ImageAnalyzer(AbstractAnalyzer):
             if dt:
                 # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
                 results.append({'datetime': dt,
-                                'source': 'exif_metadata',
-                                'comment': field.lower(),
+                                'source': field.lower(),
                                 'weight': weight})
 
         logging.debug('Searching for GPS date/time-information in EXIF-tags')
@@ -137,8 +134,7 @@ class ImageAnalyzer(AbstractAnalyzer):
             if dt:
                 # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
                 results.append({'datetime': dt,
-                                'source': 'exif_metadata',
-                                'comment': 'gpsdatetime',
+                                'source': 'gpsdatetime',
                                 'weight': 1})
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
@@ -152,10 +148,11 @@ class ImageAnalyzer(AbstractAnalyzer):
                 #                   str(bad_exif_date))
                 #     del results['Exif_DateTimeDigitized']
                 # http://stackoverflow.com/a/1235631
-                # TODO: FIX THIS!
+                # TODO: FIX THIS! Currently does not pass anything if the bad
+                #                 exif date is in the dict.
                 pass
                 results[:] = [d for d in results if \
-                              (d.get('comment') == 'DateTimeDigitized' and \
+                              (d.get('source') == 'DateTimeDigitized' and \
                                d.get('datetime') != bad_exif_date)]
             except KeyError:
                 # logging.warn('KeyError for key [DateTimeDigitized]')
@@ -262,5 +259,8 @@ class ImageAnalyzer(AbstractAnalyzer):
         if self.ocr_text is None:
             logging.warning('Found no text from OCR of '
                             '\"{}\"'.format(self.file_object.path))
-            return
-        pass
+            return None
+
+        # TODO: Fix return type/format of "_get_datetime_from_text" ..
+        dt = dateandtime.get_datetime_from_text(self.ocr_text, 'ocr')
+        return dt
