@@ -10,34 +10,30 @@ class RuleMatcher(object):
         self.file_object = file_object
         self.rules = rules
 
+        self.use_rule = self._determine_ruleset_for_file()
+
     def _determine_ruleset_for_file(self):
         file_type = self.file_object.type
         file_name = self.file_object.basename
 
         for rule in self.rules:
             if rule['type'] is not file_type:
+                # Rule does not apply -- file type differs.
                 continue
 
             elif 'name' in rule:
-                try:
-                    name_regex = re.compile(rule['name'])
-                except re.error as e:
-                    logging.error('Invalid regex pattern in configuration file:'
-                                  ' "{}" (Error: {})'.format(rule['name'], e))
-                else:
-                    if not name_regex.match(file_name):
+                if rule['name'] is not None:
+                    try:
+                        name_regex = re.compile(rule['name'])
+                    except re.error as e:
+                        logging.critical('Invalid regex pattern in '
+                                         'configuration file: "{}" '
+                                         '(Error: {})'.format(rule['name'], e))
+                        # Rule does not apply -- regex not valid.
+                        #                        (would be unsafe to continue)
                         continue
-
-
-
-
-    # for cpattern in Config['filename_patterns']:
-    #     try:
-    #         cregex = re.compile(cpattern, re.VERBOSE)
-    #     except re.error as errormsg:
-    #         warn(
-    #             "WARNING: Invalid episode_pattern (error: %s)\nPattern:\n%s" % (
-    #                 errormsg, cpattern))
-    #     else:
-    #         self.compiled_regexs.append(cregex)
+                    else:
+                        if not name_regex.match(file_name):
+                            # Rule does not apply -- regex does not match.
+                            continue
 
