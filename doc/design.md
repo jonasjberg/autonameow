@@ -159,8 +159,8 @@ Configuration file
 ------------------
 The naming patterns are specified in a configuration file (giant dictionary) in
 the file `config_defaults.py`. Probably not the most user-friendly thing in the
-world nor robust, probably should look into using a proper built-in way of
-reading from configuration files.
+world nor robust -- should look into using a proper built-in way of reading
+from configuration files.
 
 Files are matched against `Match_rules` that are specified in the same
 configuration file. A file matching the `Match_rule` *my_rule* is renamed
@@ -235,6 +235,7 @@ Metadata data structure
 The data structure for metadata is still undecided. The following is only a
 draft/example and is subject to change.
 
+<!-- TODO: This section is incomplete at best, probably incorrect. -->
 
 ### Example:
 One piece of extracted date/time-information would store:
@@ -280,6 +281,7 @@ file_info = { 'title': 'The Cats Mjaowuw',
 Analyzer return values
 ----------------------
 
+<!-- TODO: This section is incomplete at best but probably plain wrong. -->
 
 file_object
 filters
