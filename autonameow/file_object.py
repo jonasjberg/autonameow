@@ -69,7 +69,8 @@ class FileObject(object):
         try:
             return find_key(magic_type_lookup, mt.split()[:2])
         except KeyError:
-            logging.warn('Unable to determine file type. Magic: {}'.format(mt))
+            logging.warn('Unable to determine file type. '
+                         'Magic: "{}"'.format(mt))
             return 'EMPTY'
 
     def add_datetime(self, dt):
