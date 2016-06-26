@@ -11,6 +11,7 @@ from analyze.analyze_filesystem import FilesystemAnalyzer
 from analyze.analyze_image import ImageAnalyzer
 from analyze.analyze_pdf import PdfAnalyzer
 from analyze.analyze_text import TextAnalyzer
+from analyze.analyze_video import VideoAnalyzer
 from util import misc
 
 
@@ -53,6 +54,9 @@ class Analysis(object):
         elif t == 'TXT':
             logging.debug('File is a of type [TEXT]')
             analysis_run_queue.append(TextAnalyzer)
+        elif t == 'MP4':
+            logging.debug('File is a of type [MP4]')
+            analysis_run_queue.append(VideoAnalyzer)
         else:
             logging.debug('File type ({}) is not yet mapped to a type-specific '
                           'Analyzer.'.format(self.file_object.type))
