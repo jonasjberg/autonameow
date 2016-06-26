@@ -10,18 +10,21 @@ class RuleMatcher(object):
         self.file_object = file_object
         self.rules = rules
 
-        self.use_rule = self._determine_ruleset_for_file()
+        self.file_matches_rule = self._determine_ruleset_for_file()
 
     def _determine_ruleset_for_file(self):
         file_type = self.file_object.type
         file_name = self.file_object.basename
 
         for rule in self.rules:
-            if rule['type'] is not file_type:
+            does_match = False
+            if rule['type'] is file_type:
+                does_match = True
+            else:
                 # Rule does not apply -- file type differs.
                 continue
 
-            elif 'name' in rule:
+            if 'name' in rule:
                 if rule['name'] is not None:
                     try:
                         name_regex = re.compile(rule['name'])
@@ -33,7 +36,25 @@ class RuleMatcher(object):
                         #                        (would be unsafe to continue)
                         continue
                     else:
-                        if not name_regex.match(file_name):
+                        if name_regex.match(file_name):
+                            does_match = True
+                        else:
                             # Rule does not apply -- regex does not match.
                             continue
+
+            if 'path' in rule:
+                # TODO: Path matching. Use regex here as well?
+                if rule['path'] is not None:
+                    try:
+                        pass
+                    except Exception:
+                        pass
+                    else:
+                        pass
+
+            if does_match:
+                return rule
+            else:
+                return None
+
 
