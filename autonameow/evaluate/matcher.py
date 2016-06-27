@@ -38,10 +38,10 @@ class RuleMatcher(object):
                     does_match = True
                 else:
                     # Rule does not apply -- file type differs.
-                    logging.debug('Rule [{:<20}] type "{}" does not match file '
-                                  'type "{}"'.format(rule,
-                                                self.file_object.type,
-                                                self.rules[rule]['type']))
+                    # logging.debug('Rule [{:<20}] type "{}" does not match file '
+                    #               'type "{}"'.format(rule,
+                    #                             self.file_object.type,
+                    #                             self.rules[rule]['type']))
                     continue
             else:
                 logging.debug('Rule [{:<20}] does not specify "type"'.format(rule))

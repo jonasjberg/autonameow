@@ -33,6 +33,8 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
         # Arbitrary length check limits (very slow) calls to guessit.
         if len(self.file_object.basename_no_ext) > 20:
+            # FIXME: Temporarily disable guessit while debugging.
+            return
             guessit_timestamps = self._get_datetime_from_guessit_metadata()
             if guessit_timestamps:
                 result += guessit_timestamps

@@ -84,7 +84,8 @@ class Analysis(object):
             # etc ..
 
         rule_matcher = RuleMatcher(self.file_object, config_defaults.rules)
-        logging.debug('File matches rule: {}'.format(rule_matcher.file_matches_rule))
+        logging.debug('File matches rule: '
+                      '{}'.format(rule_matcher.file_matches_rule))
 
     def filter_datetime(self, dt):
         """
