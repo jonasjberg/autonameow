@@ -6,12 +6,14 @@ import logging
 from colorama import Back
 from colorama import Fore
 
+import config_defaults
 from analyze.analyze_filename import FilenameAnalyzer
 from analyze.analyze_filesystem import FilesystemAnalyzer
 from analyze.analyze_image import ImageAnalyzer
 from analyze.analyze_pdf import PdfAnalyzer
 from analyze.analyze_text import TextAnalyzer
 from analyze.analyze_video import VideoAnalyzer
+from evaluate.matcher import RuleMatcher
 from util import misc
 
 
@@ -80,6 +82,9 @@ class Analysis(object):
             # collected_title.append(analysis.get_title())
             # collected_author.append(analysis.get_author())
             # etc ..
+
+        rule_matcher = RuleMatcher(self.file_object, config_defaults.rules)
+        logging.debug('File matches rule: {}'.format(rule_matcher.file_matches_rule))
 
     def filter_datetime(self, dt):
         """
