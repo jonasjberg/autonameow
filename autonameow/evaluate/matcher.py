@@ -24,17 +24,27 @@ class RuleMatcher(object):
             # print('rule: {} (type: {})'.format(self.rules[rule_name], type(self.rules[rule_name])))
 
             if 'type' in self.rules[rule_name]:
-                if self.rules[rule_name]['type'] == self.file_object.type:
+                ok = False
+                this_type = self.rules[rule_name]['type']
+                if isinstance(this_type, list):
+                    for t in this_type:
+                        if t == self.file_object.type:
+                            ok = True
+                            break
+                else:
+                    if this_type == self.file_object.type:
+                        ok = True
+                if ok is True:
                     does_match = True
                 else:
                     # Rule does not apply -- file type differs.
-                    logging.debug('Rule [{}] does not match (type differs: '
-                                  '{} vs. {})'.format(rule_name,
-                                                      self.file_object.type,
-                                                      self.rules[rule_name]['type']))
+                    logging.debug('Rule [{:<20}] type "{}" does not match file '
+                                  'type "{}"'.format(rule_name,
+                                                self.file_object.type,
+                                                self.rules[rule_name]['type']))
                     continue
             else:
-                logging.debug('Rule [{}] does not specify "type"'.format(rule_name))
+                logging.debug('Rule [{:<20}] does not specify "type"'.format(rule_name))
 
             if 'name' in self.rules[rule_name]:
                 if self.rules[rule_name]['name'] is not None:
@@ -42,7 +52,7 @@ class RuleMatcher(object):
                         name_regex = re.compile(self.rules[rule_name]['name'])
                     except re.error as e:
                         logging.critical('Invalid regex pattern in '
-                                         'rule [{}]: "{}" '
+                                         'rule [{:<20}]: "{}" '
                                          '(Error: {})'.format(self.rules[rule_name], self.rules[rule_name]['name'], e))
                         # Rule does not apply -- regex not valid.
                         #                        (would be unsafe to continue)
@@ -69,7 +79,7 @@ class RuleMatcher(object):
                     does_match = True
 
             if does_match:
-                logging.debug('Rule [{}] matches file '
+                logging.debug('Rule [{:<20}] matches file '
                               '"{}"'.format(rule_name,
                                             self.file_object.basename))
                 return self.rules[rule_name]
