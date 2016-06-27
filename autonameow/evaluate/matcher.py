@@ -82,7 +82,7 @@ class RuleMatcher(object):
                 logging.debug('Rule [{:<20}] matches file '
                               '"{}"'.format(rule,
                                             self.file_object.basename))
-                return self.rules[rule]
+                return rule
             else:
                 return None
 
