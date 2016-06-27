@@ -19,13 +19,13 @@ class RuleMatcher(object):
 
     def _determine_rule_matching_file(self):
         # rules = self.rules.
-        for rule_name, rule_contents in self.rules.iteritems():
+        for rule in self.rules.iterkeys():
             does_match = False
-            # print('rule: {} (type: {})'.format(self.rules[rule_name], type(self.rules[rule_name])))
+            # print('rule: {} (type: {})'.format(self.rules[rule], type(self.rules[rule])))
 
-            if 'type' in self.rules[rule_name]:
+            if 'type' in self.rules[rule]:
                 ok = False
-                this_type = self.rules[rule_name]['type']
+                this_type = self.rules[rule]['type']
                 if isinstance(this_type, list):
                     for t in this_type:
                         if t == self.file_object.type:
@@ -39,21 +39,21 @@ class RuleMatcher(object):
                 else:
                     # Rule does not apply -- file type differs.
                     logging.debug('Rule [{:<20}] type "{}" does not match file '
-                                  'type "{}"'.format(rule_name,
+                                  'type "{}"'.format(rule,
                                                 self.file_object.type,
-                                                self.rules[rule_name]['type']))
+                                                self.rules[rule]['type']))
                     continue
             else:
-                logging.debug('Rule [{:<20}] does not specify "type"'.format(rule_name))
+                logging.debug('Rule [{:<20}] does not specify "type"'.format(rule))
 
-            if 'name' in self.rules[rule_name]:
-                if self.rules[rule_name]['name'] is not None:
+            if 'name' in self.rules[rule]:
+                if self.rules[rule]['name'] is not None:
                     try:
-                        name_regex = re.compile(self.rules[rule_name]['name'])
+                        name_regex = re.compile(self.rules[rule]['name'])
                     except re.error as e:
                         logging.critical('Invalid regex pattern in '
                                          'rule [{:<20}]: "{}" '
-                                         '(Error: {})'.format(self.rules[rule_name], self.rules[rule_name]['name'], e))
+                                         '(Error: {})'.format(self.rules[rule], self.rules[rule]['name'], e))
                         # Rule does not apply -- regex not valid.
                         #                        (would be unsafe to continue)
                         continue
@@ -66,9 +66,9 @@ class RuleMatcher(object):
                 else:
                     does_match = True
 
-            if 'path' in self.rules[rule_name]:
+            if 'path' in self.rules[rule]:
                 # TODO: Path matching. Use regex here as well?
-                if self.rules[rule_name]['path'] is not None:
+                if self.rules[rule]['path'] is not None:
                     try:
                         pass
                     except Exception:
@@ -80,9 +80,9 @@ class RuleMatcher(object):
 
             if does_match:
                 logging.debug('Rule [{:<20}] matches file '
-                              '"{}"'.format(rule_name,
+                              '"{}"'.format(rule,
                                             self.file_object.basename))
-                return self.rules[rule_name]
+                return self.rules[rule]
             else:
                 return None
 
