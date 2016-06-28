@@ -38,8 +38,6 @@ class Analysis(object):
         self.filters = filters
         self.results = Results()
 
-
-
         # List of analyzers to run.
         # Start with a basic analyzer that is common to all file types.
         analysis_run_queue = [FilesystemAnalyzer, FilenameAnalyzer]
