@@ -40,11 +40,21 @@ class Analysis(object):
 
         # List of analyzers to run.
         # Start with a basic analyzer that is common to all file types.
-        analysis_run_queue = [FilesystemAnalyzer, FilenameAnalyzer]
+        self.analysis_run_queue = [FilesystemAnalyzer, FilenameAnalyzer]
 
         # Select analyzer based on detected file type.
         logging.debug('File is of type [{}]'.format(self.file_object.type))
+        self._populate_run_queue()
 
+        # Run all analyzers in the queue.
+        self._execute_run_queue()
+
+        # Create a rule matcher
+        rule_matcher = RuleMatcher(self.file_object, config_defaults.rules)
+        logging.debug('File matches rule: '
+                      '{}'.format(rule_matcher.file_matches_rule))
+
+    def _populate_run_queue(self):
         # Analyzers to use for file types
         ANALYZER_TYPE_LOOKUP = {ImageAnalyzer: ['jpg', 'png'],
                                 PdfAnalyzer: 'pdf',
@@ -68,13 +78,13 @@ class Analysis(object):
         # Append any matches to the analyzer run queue.
         if found_azr:
             logging.debug('Appending "{}" to analysis run queue'.format(found_azr))
-            analysis_run_queue.append(found_azr)
+            self.analysis_run_queue.append(found_azr)
         else:
             logging.debug('File type ({}) is not yet mapped to a type-specific '
                           'Analyzer.'.format(self.file_object.type))
 
-        # Run all analyzers in the queue.
-        for analysis in analysis_run_queue:
+    def _execute_run_queue(self):
+        for analysis in self.analysis_run_queue:
             if not analysis:
                 logging.error('Got null analysis from analysis run queue.')
                 continue
@@ -87,14 +97,10 @@ class Analysis(object):
 
             logging.debug('Running Analyzer: {}'.format(a.__class__))
             self.results.datetime[a.__class__.__name__] = a.get_datetime()
+            self.results.title[a.__class__.__name__] = a.get_title()
             # collected_title.append(analysis.get_title())
             # collected_author.append(analysis.get_author())
             # etc ..
-
-        # Create a rule matcher
-        rule_matcher = RuleMatcher(self.file_object, config_defaults.rules)
-        logging.debug('File matches rule: '
-                      '{}'.format(rule_matcher.file_matches_rule))
 
     def filter_datetime(self, dt):
         """
