@@ -74,7 +74,7 @@ def _year_is_probable(year):
                 year += 1900
 
         try:
-            year = datetime.strptime(year, '%Y')
+            year = datetime.strptime(str(year), '%Y')
         except TypeError:
             logging.warning('Failed converting "{}" '
                             'to datetime-object.'.format(year))
