@@ -46,19 +46,19 @@ class Analysis(object):
 
         # Select analyzer based on detected file type.
         t = self.file_object.type
-        if t == 'JPG':
+        if t == 'jpg':
             logging.debug('File is of type [JPG]')
             analysis_run_queue.append(ImageAnalyzer)
-        elif t == 'PNG':
+        elif t == 'png':
             logging.debug('File is of type [PNG]')
             analysis_run_queue.append(ImageAnalyzer)
-        elif t == 'PDF':
+        elif t == 'pdf':
             logging.debug('File is of type [PDF]')
             analysis_run_queue.append(PdfAnalyzer)
-        elif t == 'TXT':
+        elif t == 'txt':
             logging.debug('File is a of type [TEXT]')
             analysis_run_queue.append(TextAnalyzer)
-        elif t == 'MP4':
+        elif t == 'mp4':
             logging.debug('File is a of type [MP4]')
             analysis_run_queue.append(VideoAnalyzer)
         else:
