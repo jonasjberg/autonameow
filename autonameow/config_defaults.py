@@ -1,6 +1,9 @@
 # Default match rename template:
 DEFAULT_NAME = '%(date)s_%(time)s %(description)s -- %(tags)s%(ext)s'
 
+# Rename templates:
+DOCUMENT_NAME = '%(date)s %(title)s %(author)s -- %(tags)s%(ext)s'
+
 # Rule fields:
 # 'type'              --  mime file type
 #                         can be either a single item or a list of items,
@@ -26,9 +29,14 @@ rules = {'record_my_desktop': {'type': ['ogv', 'ogg'],
                                'name': r'^received_\d{15,17}\.jpeg$',
                                'path': None,
                                'prefer_datetime': 'android_messenger',
-                               'new_name_template': DEFAULT_NAME}}
+                               'new_name_template': DEFAULT_NAME},
          # 'photo_default': {'type': 'jpg',
          #                   'name': None,
          #                   'path': None,
          #                   'prefer_datetime': 'datetimeoriginal',
          #                   'new_name_template': DEFAULT_NAME}}
+         'document_default': {'type': 'pdf',
+                              'name': None,
+                              'path': None,
+                              'prefer_datetime': None,
+                              'new_name_template': DOCUMENT_NAME}}
