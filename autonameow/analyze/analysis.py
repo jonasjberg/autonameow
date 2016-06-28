@@ -73,8 +73,8 @@ class Analysis(object):
         else:
             logging.debug('File type ({}) is not yet mapped to a type-specific '
                           'Analyzer.'.format(self.file_object.type))
-            pass
 
+        # Run all analyzers in the queue.
         for analysis in analysis_run_queue:
             if not analysis:
                 logging.error('Got null analysis from analysis run queue.')
@@ -92,6 +92,7 @@ class Analysis(object):
             # collected_author.append(analysis.get_author())
             # etc ..
 
+        # Create a rule matcher
         rule_matcher = RuleMatcher(self.file_object, config_defaults.rules)
         logging.debug('File matches rule: '
                       '{}'.format(rule_matcher.file_matches_rule))
