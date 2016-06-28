@@ -44,21 +44,32 @@ class Analysis(object):
 
         # Select analyzer based on detected file type.
         t = self.file_object.type
-        if t == 'jpg':
-            logging.debug('File is of type [JPG]')
-            analysis_run_queue.append(ImageAnalyzer)
-        elif t == 'png':
-            logging.debug('File is of type [PNG]')
-            analysis_run_queue.append(ImageAnalyzer)
-        elif t == 'pdf':
-            logging.debug('File is of type [PDF]')
-            analysis_run_queue.append(PdfAnalyzer)
-        elif t == 'txt':
-            logging.debug('File is a of type [TEXT]')
-            analysis_run_queue.append(TextAnalyzer)
-        elif t == 'mp4':
-            logging.debug('File is a of type [MP4]')
-            analysis_run_queue.append(VideoAnalyzer)
+        logging.debug('File is of type [{}]'.format(t))
+
+        # Analyzers to use for file types
+        ANALYZER_TYPE_LOOKUP = {ImageAnalyzer: ['jpg', 'png'],
+                                PdfAnalyzer: 'pdf',
+                                TextAnalyzer: ['txt', 'md'],
+                                VideoAnalyzer: ['mp4'],
+                                None: 'none'}
+
+        # Compare file mime type with entries in "ANALYZER_TYPE_LOOKUP".
+        found_azr = None
+        for azr, tpe in ANALYZER_TYPE_LOOKUP.iteritems():
+            if found_azr is not None:
+                break
+            if isinstance(tpe, list):
+                for t in tpe:
+                    if t == self.file_object.type:
+                        found_azr = azr
+            else:
+                if tpe == self.file_object.type:
+                    found_azr = azr
+
+        # Append any matches to the analyzer run queue.
+        if found_azr:
+            logging.debug('Appending "{}" to analysis run queue'.format(found_azr))
+            analysis_run_queue.append(found_azr)
         else:
             logging.debug('File type ({}) is not yet mapped to a type-specific '
                           'Analyzer.'.format(self.file_object.type))
