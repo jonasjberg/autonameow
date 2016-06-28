@@ -83,8 +83,8 @@ class FilenameAnalyzer(AbstractAnalyzer):
         if guessit_metadata:
             if 'date' in guessit_metadata:
                 return [{'datetime': guessit_metadata['date'],
-                            'source': 'guessit',
-                        'weight': 0.75}]
+                         'source': 'guessit',
+                         'weight': 0.75}]
 
     def _get_metadata_from_guessit(self):
         """
