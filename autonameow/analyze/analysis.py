@@ -20,7 +20,7 @@ from util import misc
 class Results(object):
     def __init__(self):
         self.datetime = {}
-        # self.title = []
+        self.title = {}
         # self.author = []
         # etc ..
 
