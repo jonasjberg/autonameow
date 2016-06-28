@@ -110,7 +110,7 @@ class Analysis(object):
         """
         # TODO: This is currently completely unused!
         if type(dt) is not dict:
-            logging.warning('Got unexpected type \"{}\" '
+            logging.warning('Got unexpected type "{}" '
                             '(expected dict)'.format(type(dt)))
 
         if type(dt) is list:
@@ -190,5 +190,4 @@ class Analysis(object):
         print('%s %s.%s'.format((datetime.strftime('%Y-%m-%d_%H%M%S'),
                                  fn_noext,
                                  ext)))
-
 
