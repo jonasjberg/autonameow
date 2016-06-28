@@ -43,8 +43,7 @@ class Analysis(object):
         analysis_run_queue = [FilesystemAnalyzer, FilenameAnalyzer]
 
         # Select analyzer based on detected file type.
-        t = self.file_object.type
-        logging.debug('File is of type [{}]'.format(t))
+        logging.debug('File is of type [{}]'.format(self.file_object.type))
 
         # Analyzers to use for file types
         ANALYZER_TYPE_LOOKUP = {ImageAnalyzer: ['jpg', 'png'],
