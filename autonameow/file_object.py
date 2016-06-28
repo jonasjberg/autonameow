@@ -8,13 +8,13 @@ import magic
 import os
 
 # Match output from magic.ms
-magic_type_lookup = {'MP4':   ['video/mp4'],
-                     'OGG':   ['video/ogg'],
-                     'JPG':   ['image/jpeg'],
-                     'PDF':   ['application/pdf'],
-                     'TXT':   ['text/plain'],
-                     'PNG':   ['image/png'],
-                     'EMPTY': ['inode/x-empty']}
+magic_type_lookup = {'mp4':   ['video/mp4'],
+                     'ogg':   ['video/ogg'],
+                     'jpg':   ['image/jpeg'],
+                     'pdf':   ['application/pdf'],
+                     'txt':   ['text/plain'],
+                     'png':   ['image/png'],
+                     'empty': ['inode/x-empty']}
 
 
 class FileObject(object):
