@@ -54,7 +54,7 @@ class FileObject(object):
         Similar to the 'find' command in *NIX environments.
         :return:
         """
-        found_type = 'EMPTY'
+        found_type = None
         ms = magic.open(magic.MAGIC_MIME_TYPE)
         ms.load()
         mt = ms.file(self.path)
