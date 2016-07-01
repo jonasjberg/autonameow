@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
-from perform.action_abstract import AbstractAction
+from act.action_abstract import AbstractAction
 
 
 class RenameAction(AbstractAction):
