@@ -8,13 +8,13 @@ import magic
 import os
 
 # Match output from magic.ms
-magic_type_lookup = {'MP4':   ['video/mp4'],
-                     'OGG':   ['video/ogg'],
-                     'JPG':   ['image/jpeg'],
-                     'PDF':   ['application/pdf'],
-                     'TXT':   ['text/plain'],
-                     'PNG':   ['image/png'],
-                     'EMPTY': ['inode/x-empty']}
+magic_type_lookup = {'mp4':   ['video/mp4'],
+                     'ogg':   ['video/ogg'],
+                     'jpg':   ['image/jpeg'],
+                     'pdf':   ['application/pdf'],
+                     'txt':   ['text/plain'],
+                     'png':   ['image/png'],
+                     'empty': ['inode/x-empty']}
 
 
 class FileObject(object):
@@ -54,23 +54,26 @@ class FileObject(object):
         Similar to the 'find' command in *NIX environments.
         :return:
         """
+        found_type = None
         ms = magic.open(magic.MAGIC_MIME_TYPE)
         ms.load()
         mt = ms.file(self.path)
         ms.close()
 
         if not mt:
-            return 'EMPTY'
+            return found_type
 
         # http://stackoverflow.com/a/16588375
         def find_key(input_dict, value):
             return next((k for k, v in input_dict.items() if v == value), None)
 
         try:
-            return find_key(magic_type_lookup, mt.split()[:2])
+            found_type = find_key(magic_type_lookup, mt.split()[:2])
         except KeyError:
-            logging.warn('Unable to determine file type. Magic: {}'.format(mt))
-            return 'EMPTY'
+            logging.warn('Unable to determine file type. '
+                         'Magic: "{}"'.format(mt))
+
+        return found_type.lower()
 
     def add_datetime(self, dt):
         """

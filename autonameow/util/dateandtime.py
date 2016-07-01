@@ -53,7 +53,7 @@ def _year_is_probable(year):
              False if the year is not probable or a conversion to
              datetime-object failed.
     """
-    logging.debug('Checking probability of [{}] {}'.format(year, type(year)))
+    # logging.debug('Checking probability of [{}] {}'.format(year, type(year)))
     if type(year) is not datetime:
         # Year is some other type.
         # Try to convert to integer, then from integer to datetime.
@@ -74,7 +74,7 @@ def _year_is_probable(year):
                 year += 1900
 
         try:
-            year = datetime.strptime(year, '%Y')
+            year = datetime.strptime(str(year), '%Y')
         except TypeError:
             logging.warning('Failed converting "{}" '
                             'to datetime-object.'.format(year))
@@ -104,7 +104,7 @@ def date_is_probable(date):
              False if the date is not probable or a conversion to
              datetime-object failed.
     """
-    logging.debug('Checking probability of [{}] {}'.format(date, type(date)))
+    # logging.debug('Checking probability of [{}] {}'.format(date, type(date)))
     if type(date) is not datetime:
         logging.warning('Got unexpected type "{}" '
                         '(expected datetime)'.format(type(date)))

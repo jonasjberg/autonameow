@@ -33,6 +33,8 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
         # Arbitrary length check limits (very slow) calls to guessit.
         if len(self.file_object.basename_no_ext) > 20:
+            # FIXME: Temporarily disable guessit while debugging.
+            return
             guessit_timestamps = self._get_datetime_from_guessit_metadata()
             if guessit_timestamps:
                 result += guessit_timestamps
@@ -40,12 +42,33 @@ class FilenameAnalyzer(AbstractAnalyzer):
         return result
 
     def get_title(self):
-        # TODO: Implement.
-        pass
+        titles = []
+
+        guessit_title = self._get_title_from_guessit_metadata()
+        if guessit_title:
+            titles += guessit_title
+
+        return titles
 
     def get_author(self):
         # TODO: Implement.
         pass
+
+    def _get_title_from_guessit_metadata(self):
+        """
+        Calls the external program "guessit" and collects any results.
+        :return: a list of dictionaries (actually just one) on the form:
+                 [ { 'title': "The Cats Meouw,
+                     'source' : "guessit",
+                     'weight'  : 0.75
+                   }, .. ]
+        """
+        guessit_metadata = self._get_metadata_from_guessit()
+        if guessit_metadata:
+            if 'title' in guessit_metadata:
+                return [{'title': guessit_metadata['title'],
+                         'source': 'guessit',
+                         'weight': 0.75}]
 
     def _get_datetime_from_guessit_metadata(self):
         """
@@ -60,8 +83,8 @@ class FilenameAnalyzer(AbstractAnalyzer):
         if guessit_metadata:
             if 'date' in guessit_metadata:
                 return [{'datetime': guessit_metadata['date'],
-                            'source': 'guessit',
-                        'weight': 0.75}]
+                         'source': 'guessit',
+                         'weight': 0.75}]
 
     def _get_metadata_from_guessit(self):
         """

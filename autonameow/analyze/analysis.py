@@ -6,19 +6,21 @@ import logging
 from colorama import Back
 from colorama import Fore
 
+import config_defaults
 from analyze.analyze_filename import FilenameAnalyzer
 from analyze.analyze_filesystem import FilesystemAnalyzer
 from analyze.analyze_image import ImageAnalyzer
 from analyze.analyze_pdf import PdfAnalyzer
 from analyze.analyze_text import TextAnalyzer
 from analyze.analyze_video import VideoAnalyzer
+from evaluate.matcher import RuleMatcher
 from util import misc
 
 
 class Results(object):
     def __init__(self):
         self.datetime = {}
-        # self.title = []
+        self.title = {}
         # self.author = []
         # etc ..
 
@@ -38,31 +40,51 @@ class Analysis(object):
 
         # List of analyzers to run.
         # Start with a basic analyzer that is common to all file types.
-        analysis_run_queue = [FilesystemAnalyzer, FilenameAnalyzer]
+        self.analysis_run_queue = [FilesystemAnalyzer, FilenameAnalyzer]
 
         # Select analyzer based on detected file type.
-        t = self.file_object.type
-        if t == 'JPG':
-            logging.debug('File is of type [JPG]')
-            analysis_run_queue.append(ImageAnalyzer)
-        elif t == 'PNG':
-            logging.debug('File is of type [PNG]')
-            analysis_run_queue.append(ImageAnalyzer)
-        elif t == 'PDF':
-            logging.debug('File is of type [PDF]')
-            analysis_run_queue.append(PdfAnalyzer)
-        elif t == 'TXT':
-            logging.debug('File is a of type [TEXT]')
-            analysis_run_queue.append(TextAnalyzer)
-        elif t == 'MP4':
-            logging.debug('File is a of type [MP4]')
-            analysis_run_queue.append(VideoAnalyzer)
+        logging.debug('File is of type [{}]'.format(self.file_object.type))
+        self._populate_run_queue()
+
+        # Run all analyzers in the queue.
+        self._execute_run_queue()
+
+        # Create a rule matcher
+        rule_matcher = RuleMatcher(self.file_object, config_defaults.rules)
+        logging.debug('File matches rule: '
+                      '{}'.format(rule_matcher.file_matches_rule))
+
+    def _populate_run_queue(self):
+        # Analyzers to use for file types
+        ANALYZER_TYPE_LOOKUP = {ImageAnalyzer: ['jpg', 'png'],
+                                PdfAnalyzer: 'pdf',
+                                TextAnalyzer: ['txt', 'md'],
+                                VideoAnalyzer: ['mp4'],
+                                None: 'none'}
+
+        # Compare file mime type with entries in "ANALYZER_TYPE_LOOKUP".
+        found_azr = None
+        for azr, tpe in ANALYZER_TYPE_LOOKUP.iteritems():
+            if found_azr is not None:
+                break
+            if isinstance(tpe, list):
+                for t in tpe:
+                    if t == self.file_object.type:
+                        found_azr = azr
+            else:
+                if tpe == self.file_object.type:
+                    found_azr = azr
+
+        # Append any matches to the analyzer run queue.
+        if found_azr:
+            logging.debug('Appending "{}" to analysis run queue'.format(found_azr))
+            self.analysis_run_queue.append(found_azr)
         else:
             logging.debug('File type ({}) is not yet mapped to a type-specific '
                           'Analyzer.'.format(self.file_object.type))
-            pass
 
-        for analysis in analysis_run_queue:
+    def _execute_run_queue(self):
+        for analysis in self.analysis_run_queue:
             if not analysis:
                 logging.error('Got null analysis from analysis run queue.')
                 continue
@@ -75,6 +97,7 @@ class Analysis(object):
 
             logging.debug('Running Analyzer: {}'.format(a.__class__))
             self.results.datetime[a.__class__.__name__] = a.get_datetime()
+            self.results.title[a.__class__.__name__] = a.get_title()
             # collected_title.append(analysis.get_title())
             # collected_author.append(analysis.get_author())
             # etc ..
@@ -87,7 +110,7 @@ class Analysis(object):
         """
         # TODO: This is currently completely unused!
         if type(dt) is not dict:
-            logging.warning('Got unexpected type \"{}\" '
+            logging.warning('Got unexpected type "{}" '
                             '(expected dict)'.format(type(dt)))
 
         if type(dt) is list:
@@ -167,5 +190,4 @@ class Analysis(object):
         print('%s %s.%s'.format((datetime.strftime('%Y-%m-%d_%H%M%S'),
                                  fn_noext,
                                  ext)))
-
 

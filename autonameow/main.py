@@ -145,7 +145,7 @@ class Autonameow(object):
                                    help='quiet mode')
 
         # Add option group for actions to be performed.
-        optgrp_action = parser.add_mutually_exclusive_group()
+        optgrp_action = parser.add_argument_group('Action options')
         optgrp_action.add_argument('--list-datetime',
                                    dest='list_datetime',
                                    action='store_true',
@@ -169,7 +169,7 @@ class Autonameow(object):
                                  'actually write any changes to disk')
 
         # Add option group for filter options.
-        optgrp_filter = parser.add_argument_group()
+        optgrp_filter = parser.add_argument_group('Processing options')
         ignore_to_year_default = str(dateandtime.year_lower_limit.strftime('%Y'))
         optgrp_filter.add_argument('--ignore-before-year',
                                    metavar='YYYY',
