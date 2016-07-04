@@ -27,21 +27,21 @@ class PdfAnalyzer(AbstractAnalyzer):
         pass
 
     def get_datetime(self):
-        result = []
+        results = []
 
         metadata_datetime = self.get_metadata_datetime()
         if metadata_datetime:
             # self.filter_datetime(metadata_datetime)
-            result.append(metadata_datetime)
+            results += metadata_datetime
 
         pdf_text = self.extract_pdf_content()
         if pdf_text:
             text_timestamps = self.get_datetime_from_text(pdf_text)
             if text_timestamps:
                 # self.filter_datetime(text_timestamps)
-                result.append(text_timestamps)
+                results += text_timestamps
 
-        return result
+        return results
 
     def get_metadata_datetime(self):
         """
