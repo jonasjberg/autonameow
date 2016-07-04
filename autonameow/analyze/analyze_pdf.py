@@ -16,7 +16,7 @@ from util import dateandtime
 class PdfAnalyzer(AbstractAnalyzer):
     def __init__(self, file_object, filters):
         super(PdfAnalyzer, self).__init__(file_object, filters)
-        self.pdf_metadata = self.extract_pdf_metadata()
+        self.pdf_metadata = self._extract_pdf_metadata()
 
     def get_author(self):
         # TODO: Implement.
@@ -29,21 +29,21 @@ class PdfAnalyzer(AbstractAnalyzer):
     def get_datetime(self):
         results = []
 
-        metadata_datetime = self.get_metadata_datetime()
+        metadata_datetime = self._get_metadata_datetime()
         if metadata_datetime:
             # self.filter_datetime(metadata_datetime)
             results += metadata_datetime
 
-        pdf_text = self.extract_pdf_content()
+        pdf_text = self._extract_pdf_content()
         if pdf_text:
-            text_timestamps = self.get_datetime_from_text(pdf_text)
+            text_timestamps = self._get_datetime_from_text(pdf_text)
             if text_timestamps:
                 # self.filter_datetime(text_timestamps)
                 results += text_timestamps
 
         return results
 
-    def get_metadata_datetime(self):
+    def _get_metadata_datetime(self):
         """
         Extract date and time information from pdf metadata.
         :return: dict of datetime-objects
@@ -125,7 +125,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         # TODO: ..
         pass
 
-    def extract_pdf_metadata(self):
+    def _extract_pdf_metadata(self):
         """
         Extract metadata from a PDF document using "pyPdf".
         :return: dict of PDF metadata
@@ -153,7 +153,7 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         return result
 
-    def extract_pdf_content(self):
+    def _extract_pdf_content(self):
         """
         Extract the plain text contents of a PDF document as strings.
         :return: False or PDF content as strings
@@ -217,7 +217,7 @@ class PdfAnalyzer(AbstractAnalyzer):
             logging.warn('Unable to extract PDF contents.')
             return None
 
-    def get_datetime_from_text(self, text):
+    def _get_datetime_from_text(self, text):
         # TODO: This redirection is very ugly.
         dt = dateandtime.get_datetime_from_text(text, 'text')
 
