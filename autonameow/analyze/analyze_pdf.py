@@ -34,9 +34,9 @@ class PdfAnalyzer(AbstractAnalyzer):
             # self.filter_datetime(metadata_datetime)
             results += metadata_datetime
 
-        pdf_text = self._extract_pdf_content()
-        if pdf_text:
-            text_timestamps = self._get_datetime_from_text(pdf_text)
+        self.pdf_text = self._extract_pdf_content()
+        if self.pdf_text:
+            text_timestamps = self._get_datetime_from_text()
             if text_timestamps:
                 # self.filter_datetime(text_timestamps)
                 results += text_timestamps
@@ -51,7 +51,7 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         DATE_TAG_FIELDS = ['ModDate', 'CreationDate']
 
-        results = {}
+        results = []
         for field in DATE_TAG_FIELDS:
             date = time = k = None
             if field in self.pdf_metadata:
@@ -114,10 +114,11 @@ class PdfAnalyzer(AbstractAnalyzer):
                     continue
 
             if found_match:
-                key = '{0}_{1}'.format('pdf_metadata', field)
-                logging.debug('Extracted date/time from pdf metadata: '
-                              'results[%s] = [%s]' % (key, dt))
-                results[key] = dt
+                results.append({'datetime': dt,
+                                'source': field,
+                                'weight': 1})
+                logging.debug('Extracted date/time from pdf metadata field '
+                              '"{}": "{}"'.format(field, dt))
 
         return results
 
@@ -217,51 +218,65 @@ class PdfAnalyzer(AbstractAnalyzer):
             logging.warn('Unable to extract PDF contents.')
             return None
 
-    def _get_datetime_from_text(self, text):
-        # TODO: This redirection is very ugly.
-        dt = dateandtime.get_datetime_from_text(text, 'text')
+    def _get_datetime_from_text(self):
+        """
+        Extracts date and time information from the documents textual content.
+        :return: a list of dictionaries on the form:
+                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                     'source' : 'content',
+                     'weight'  : 0.1
+                   }, .. ]
+        """
+        results = []
+        text = self.pdf_text
+        if type(text) == list:
+            text = ' '.join(text)
 
-        if not dt:
-            return None
+        dt_regex = dateandtime.regex_search_str(text)
+        if dt_regex:
+            if isinstance(dt_regex, list):
+                for e in dt_regex:
+                    results.append({'datetime': e,
+                                    'source': 'text_content_regex',
+                                    'weight': 0.25})
+            else:
+                results.append({'datetime': dt_regex,
+                                'source': 'text_content_regex',
+                                'weight': 0.25})
 
-        results = {}
+        matches = 0
+        text_split = text.split('\n')
+        logging.debug('Try getting datetime from text split by newlines')
+        for t in text_split:
+            dt_brute = dateandtime.bruteforce_str(t)
+            if dt_brute:
+                matches += 1
+                if isinstance(dt_brute, list):
+                    for e in dt_regex:
+                        results.append({'datetime': e,
+                                        'source': 'text_content_brute',
+                                        'weight': 0.1})
+                else:
+                    results.append({'datetime': dt_brute,
+                                    'source': 'text_content_brute',
+                                    'weight': 0.1})
 
-        i = 0
-        if 'text_contents_regex' in dt:
-            print('dt has key text_contents_regex')
-            for entry in dt['text_contents_regex']:
-                if not entry:
-                    continue
-                if type(entry) is list:
-                    for e in entry:
-                        new_key = '{0}_{1:06d}'.format('text_contents', i)
-                        results[new_key] = e
-                        i += 1
-                elif type(entry) is dict:
-                    for k, v in entry.iteritems():
-                        new_key = '{0}_{1:06d}'.format('text_contents', i)
-                        results[new_key] = v
-                        i += 1
-        else:
-            print('dt DOES NOT have key test_contents_regex')
-
-        if 'text_contents_brute' in dt:
-            print('dt has key text_contents_brute')
-            for entry in dt['text_contents_brute']:
-                if not entry:
-                    continue
-                if type(entry) is list:
-                    for e in entry:
-                        new_key = '{0}_{1:06d}'.format('text_contents', i)
-                        results[new_key] = e
-                        i += 1
-                elif type(entry) is dict:
-                    for k, v in entry.iteritems():
-                        new_key = '{0}_{1:06d}'.format('text_contents', i)
-                        results[new_key] = v
-                        i += 1
-
-        else:
-            print('dt DOES NOT have key test_contents_brute')
+        # if matches == 0:
+        if True:
+            logging.debug('No matches. Trying with text split by whitespace')
+            text_split = text.split()
+            for t in text_split:
+                dt_brute = dateandtime.bruteforce_str(t)
+                if dt_brute:
+                    matches += 1
+                    if isinstance(dt_brute, list):
+                        for e in dt_regex:
+                            results.append({'datetime': e,
+                                            'source': 'text_content_brute',
+                                            'weight': 0.1})
+                    else:
+                        results.append({'datetime': dt_brute,
+                                        'source': 'text_content_brute',
+                                        'weight': 0.1})
 
         return results
