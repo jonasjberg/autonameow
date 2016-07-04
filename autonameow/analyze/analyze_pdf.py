@@ -121,8 +121,8 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         return results
 
-    def extract_xmp_metadata(self):
-        # TODO: ..
+    def _extract_xmp_metadata(self):
+        # TODO: This is currently completely unused! Remove or implement.
         pass
 
     def _extract_pdf_metadata(self):
