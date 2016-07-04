@@ -16,11 +16,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="${SCRIPT_DIR}/build"
 SRC_DIR="${SCRIPT_DIR}"
 
-# pandoc-eqnos enables references to latex style math
-# pip install pandoc-eqnos
-# https://github.com/tomduck/pandoc-eqnos
-FLAGS="--smart --normalize --toc --toc-depth=3 --standalone --highlight-style=monochrome --filter pandoc-eqnos --variable "fontsize=11pt --variable geometry:"top=1.5cm, bottom=2.5cm, left=1.5cm, right=1.5cm" --variable geometry:a4paper --number-sections --chapters -f markdown"
-
 # Source notify-script if it exists. Save to flag variable if successful.
 unset HAS_NOTIFY
 if [ -e "/home/spock/Bin/notify" ]
@@ -39,7 +34,6 @@ fi
 
 [ $HAS_NOTIFY ] && msg_notify -1 "Starting pandoc .." "\nsource path: \"${SRC_DIR}\"" "\nbuild path: \"${BUILD_DIR}\""
 
-#cd ${SRC_DIR} || { echo "Unable to change to projet directory \"${SRC_DIR}\" .. Exiting." 2>&1 ; exit 1 ; }
 
 count_errors=0
 count_documents=0
@@ -48,34 +42,46 @@ for mdfile in ${SRC_DIR}/*.md
 do
     count_documents=$(( $count_documents + 1 ))
 
-    if [ ! -f "$mdfile" ] 
-    then 
-        echo "Skipping \"${mdfile}\" .." 2>&1 
-        count_skipped=$(( $count_skipped + 1)) 
+    if [ ! -f "$mdfile" ]
+    then
+        printf "Skipping \"${mdfile}\" ..\n" 2>&1
+        count_skipped=$(( $count_skipped + 1))
         continue
     fi
 
     mdfile_base=$(basename -- "${mdfile%.*}")
     if [ -z "$mdfile_base" ]
-    then 
-        echo "Failed to resolve basename for \"${mdfile}\" .." 2>&1 
-        count_skipped=$(( $count_skipped + 1)) 
-        continue 
+    then
+        printf "[ERROR] Failed to resolve basename for \"${mdfile}\" ..\n" 2>&1
+        count_skipped=$(( $count_skipped + 1))
+        continue
     fi
 
-    printf "  processing \"$mdfile_base\" .."
-
-    pandoc $FLAGS "$mdfile" -o "${BUILD_DIR}/${mdfile_base}.pdf"
+    printf "  processing \"${mdfile_base}\" .."
+    pandoc --smart \
+           --normalize \
+           --standalone \
+           --highlight-style=monochrome \
+           --filter pandoc-eqnos \
+           --variable mainfont="DejaVu Sans" \
+           --variable monofont="DejaVu Sans Mono" \
+           --variable fontsize=10pt \
+           --variable geometry:"top=1.5cm, bottom=2.5cm, left=1cm, right=1cm" \
+           --variable geometry:a4paper \
+           --table-of-contents \
+           --toc-depth=3 \
+           --number-sections \
+           --chapters \
+           -f markdown "$mdfile" -o "${BUILD_DIR}/${mdfile_base}.pdf"
     exitcode=$?
-    
+
     if [ $exitcode -eq 0 ]
     then
         printf " [OK]\n"
     else
         count_errors=$(( $count_errors + 1 ))
-        printf " [ERROR] pandoc returned $exitcode\n"
+        printf " [ERROR] pandoc returned ${exitcode}\n"
     fi
-
 done
 
 
@@ -85,27 +91,29 @@ then
     return_code=0
 
     if [ $HAS_NOTIFY ]
-    then 
-        msg_notify 0 "Compilation SUCCESSFUL!" "\nProcessed documents #: ${count_documents}"
+    then
+        msg_notify 0 "Compilation SUCCESSFUL!" \
+                     "\n# Documents processed: ${count_documents}"
     else
-        echo "Compilation SUCCESSFUL!" 
-        echo "  Processed documents #: ${count_documents}"
+        printf "Compilation SUCCESSFUL!\n"
+        printf "  # Documents processed: ${count_documents}\n"
     fi
 else
     return_code=1
 
-    if [ $HAS_NOTIFY ] 
-    then 
-        msg_notify 1 "Compilation FAILED!" "\nProcessed documents #: ${count_documents}" "\nErrors #: ${count_errors}" "\nSkipped #: ${count_skipped}"
+    if [ $HAS_NOTIFY ]
+    then
+        msg_notify 1 "Compilation FAILED!" \
+                     "\n# Documents processed: ${count_documents}" \
+                     "\n# Errors: ${count_errors}" \
+                     "\n# Skipped: ${count_skipped}"
     else
-        echo "Compilation FAILED!"                         2>&1
-        echo "  Processed documents #: ${count_documents}" 2>&1
-        echo "  Errors #: ${count_errors}"                 2>&1
-        echo "  Skipped #: ${count_skipped}"               2>&1
+        printf "Compilation FAILED!\n"                         2>&1
+        printf "  # Documents processed: ${count_documents}\n" 2>&1
+        printf "  # Errors: ${count_errors}\n"                 2>&1
+        printf "  # Skipped: ${count_skipped}\n"               2>&1
     fi
 fi
-
-#pandoc ${FLAGS} "$FILES" -o "${PDF_NAME}"
 
 
 exit $return_code
