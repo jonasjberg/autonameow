@@ -102,7 +102,7 @@ class PdfAnalyzer(AbstractAnalyzer):
                                       '[%s]' % field)
 
             # Try matching another pattern.
-            date_pattern_no_tz = re.compile('.*D:(\d{14,14})Z.*')
+            date_pattern_no_tz = re.compile('D:(\d{14,14})Z')
             re_match = date_pattern_no_tz.search(k)
             if re_match:
                 try:
