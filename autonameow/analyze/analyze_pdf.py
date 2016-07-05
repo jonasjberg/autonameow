@@ -4,6 +4,7 @@
 
 import logging
 import re
+import subprocess
 from datetime import datetime
 
 import PyPDF2
@@ -156,10 +157,26 @@ class PdfAnalyzer(AbstractAnalyzer):
 
     def _extract_pdf_content(self):
         """
-        Extract the plain text contents of a PDF document as strings.
+        Extract the plain text contents of a PDF document.
         :return: False or PDF content as strings
         """
-        # Extract PDF content using PyPDF2.
+        # TODO: Check this
+        pdf_text = self._extract_pdf_content_with_pypdf()
+        if pdf_text:
+            logging.debug('Extracted ')
+            return pdf_text
+        else:
+            pdf_text = self._extract_pdf_content_with_pdftotext()
+            if pdf_text:
+                return pdf_text
+            else:
+                return False
+
+    def _extract_pdf_content_with_pypdf(self):
+        """
+        Extract the plain text contents of a PDF document using PyPDF2.
+        :return: False or PDF content as strings
+        """
         try:
             filename = self.file_object.path
             pdff = PyPDF2.PdfFileReader(open(filename, 'rb'))
@@ -216,6 +233,27 @@ class PdfAnalyzer(AbstractAnalyzer):
         else:
             logging.warn('Unable to extract PDF contents.')
             return None
+
+    def _extract_pdf_content_with_pdftotext(self):
+        """
+        Extract the plain text contents of a PDF document using pdftotext.
+        :return: False or PDF content as strings
+        """
+        path = self.file_object.path
+        try:
+            pipe = subprocess.Popen(["pdftotext", path, "-"], shell=False,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.STDOUT)
+        except ValueError:
+            logging.warning('"subprocess.Popen" was called with invalid '
+                            'arguments.')
+            return False
+
+        stdout, stderr = pipe.communicate()
+        if pipe.returncode != 0:
+            return False
+        elif pipe.returncode == 0:
+            return stdout
 
     def _get_datetime_from_text(self):
         """
