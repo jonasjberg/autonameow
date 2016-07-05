@@ -142,8 +142,9 @@ class PdfAnalyzer(AbstractAnalyzer):
         try:
             pdff = PyPDF2.PdfFileReader(file(filename, 'rb'))
             pdf_metadata = pdff.getDocumentInfo()
-            self.title = pdf_metadata.title
-            self.author = pdf_metadata.author
+            # TODO: These below variables are unused! Remove or implement.
+            # self.title = pdf_metadata.title
+            # self.author = pdf_metadata.author
         except Exception:
             logging.error("PDF metadata extraction error")
 
