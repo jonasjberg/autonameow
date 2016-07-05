@@ -18,7 +18,7 @@ from util import dateandtime
 class PdfAnalyzer(AbstractAnalyzer):
     def __init__(self, file_object, filters):
         super(PdfAnalyzer, self).__init__(file_object, filters)
-        self.pdf_metadata = self._extract_pdf_metadata()
+        self.metadata = self._extract_pdf_metadata()
         self.text = self._extract_pdf_content()
 
     def get_author(self):
@@ -56,9 +56,9 @@ class PdfAnalyzer(AbstractAnalyzer):
         results = []
         for field in DATE_TAG_FIELDS:
             date = time = k = None
-            if field in self.pdf_metadata:
+            if field in self.metadata:
                 try:
-                    k = self.pdf_metadata[field]
+                    k = self.metadata[field]
                     k = k.strip()
                     # date, time = self.pdf_metadata[field].split()
                 except KeyError:
