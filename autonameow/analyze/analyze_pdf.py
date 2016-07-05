@@ -19,6 +19,7 @@ class PdfAnalyzer(AbstractAnalyzer):
     def __init__(self, file_object, filters):
         super(PdfAnalyzer, self).__init__(file_object, filters)
         self.pdf_metadata = self._extract_pdf_metadata()
+        self.pdf_text = self._extract_pdf_content()
 
     def get_author(self):
         # TODO: Implement.
@@ -36,7 +37,6 @@ class PdfAnalyzer(AbstractAnalyzer):
             # self.filter_datetime(metadata_datetime)
             results += metadata_datetime
 
-        self.pdf_text = self._extract_pdf_content()
         if self.pdf_text:
             text_timestamps = self._get_datetime_from_text()
             if text_timestamps:
