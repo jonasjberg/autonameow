@@ -292,6 +292,9 @@ class PdfAnalyzer(AbstractAnalyzer):
                                 'source': 'text_content_regex',
                                 'weight': 0.25})
 
+        # TODO: Temporary premature return skips brute force search ..
+        return results
+
         matches = 0
         text_split = text.split('\n')
         logging.debug('Try getting datetime from text split by newlines')
