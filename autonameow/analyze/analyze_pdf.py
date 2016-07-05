@@ -159,7 +159,6 @@ class PdfAnalyzer(AbstractAnalyzer):
         Extract the plain text contents of a PDF document as strings.
         :return: False or PDF content as strings
         """
-
         # Extract PDF content using PyPDF2.
         try:
             filename = self.file_object.path
