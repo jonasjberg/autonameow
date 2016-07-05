@@ -8,6 +8,7 @@ import subprocess
 from datetime import datetime
 
 import PyPDF2
+from PyPDF2.utils import PdfReadError
 from unidecode import unidecode
 
 from analyze.analyze_abstract import AbstractAnalyzer
@@ -184,8 +185,17 @@ class PdfAnalyzer(AbstractAnalyzer):
             logging.error('Unable to read PDF file content.')
             return False
 
-        number_of_pages = pdff.getNumPages()
-        logging.debug('Number of pages: %d', number_of_pages)
+        try:
+            number_of_pages = pdff.getNumPages()
+        except PdfReadError:
+            # NOTE: This now wholly determines whether a pdf doucment is
+            #       readable or not. Possible to not getNumPages but still be
+            #       able to read the text?
+            logging.error('PDF document might be encrypted with restrictions '
+                          'preventing reading.')
+            return False
+        else:
+            logging.debug('PDF document has # pages: {}'.format(number_of_pages))
 
         # # Use only the first and second page of content.
         # if pdff.getNumPages() == 1:
