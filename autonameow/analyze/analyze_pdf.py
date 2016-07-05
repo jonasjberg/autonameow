@@ -136,10 +136,10 @@ class PdfAnalyzer(AbstractAnalyzer):
         # Create empty dictionary to store PDF metadata "key:value"-pairs in.
         result = {}
         pdf_metadata = None
+        filename = self.file_object.path
 
         # Extract PDF metadata using PyPdf, nicked from Violent Python.
         try:
-            filename = self.file_object.path
             pdff = PyPDF2.PdfFileReader(file(filename, 'rb'))
             pdf_metadata = pdff.getDocumentInfo()
             self.title = pdf_metadata.title
