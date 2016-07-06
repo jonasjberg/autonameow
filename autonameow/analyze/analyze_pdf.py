@@ -237,7 +237,6 @@ class PdfAnalyzer(AbstractAnalyzer):
         # Collapse whitespace.
         # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
         content = " ".join(content.replace("\xa0", " ").strip().split())
-
         if content:
             # TODO: Determine what gets extracted **REALLY** ..
             logging.debug('Extracted [%s] words (??) of content' % len(content))
