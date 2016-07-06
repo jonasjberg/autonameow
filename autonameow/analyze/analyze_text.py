@@ -97,15 +97,25 @@ class TextAnalyzer(AbstractAnalyzer):
 
         if type(text) == list:
             text = ' '.join(text)
-        dt_brute = dateandtime.bruteforce_str(text)
-        if dt_brute:
-            for dt in dt_brute:
-                results.append({'datetime': dt,
-                                'source': 'bruteforce_search',
-                                'weight': 0.1})
-        else:
+
+        matches_brute = 0
+        logging.debug('Try getting datetime from text split by newlines')
+        for t in text.split('\n'):
+            print('BRUTE FORCE SEARCH GETS: {}'.format(t))
+            dt_brute = dateandtime.bruteforce_str(t)
+            if dt_brute:
+                for dt in dt_brute:
+                    matches_brute += 1
+                    results.append({'datetime': dt,
+                                    'source': 'bruteforce_search',
+                                    'weight': 0.1})
+        if matches_brute == 0:
             logging.warning('Unable to extract date/time-information '
                             'from text file contents using brute force search.')
+        else:
+            logging.debug('Brute force search of text file contents for '
+                          'date/time-information returned {} '
+                          'results.'.format(matches_brute))
 
         return results
 
