@@ -17,7 +17,7 @@ class TextAnalyzer(AbstractAnalyzer):
 
         # Extract the textual contents.
         logging.debug('Extracting text contents ..')
-        self.text_contents = self._extract_text_content()
+        self.text = self._extract_text_content()
 
     def get_author(self):
         # TODO: Implement.
@@ -29,11 +29,11 @@ class TextAnalyzer(AbstractAnalyzer):
 
     def get_datetime(self):
         result = []
-        if self.text_contents:
+        if self.text:
             text_timestamps = self._get_datetime_from_text()
             if text_timestamps:
                 # self.filter_datetime(text_timestamps)
-                result.append(text_timestamps)
+                result += text_timestamps
 
         return result
 
@@ -64,6 +64,15 @@ class TextAnalyzer(AbstractAnalyzer):
             logging.warn('Unable to extract text contents.')
             return None
 
+    def _is_gmail(self):
+        text = self.text
+        if type(text) is list:
+            text = ' '.join(text)
+
+        if text.lower().find('gmail'):
+            logging.debug('Text might be a Gmail (contains "gmail")')
+            return
+
     def _get_datetime_from_text(self):
         """
         Extracts date and time information from textual contents.
@@ -74,7 +83,7 @@ class TextAnalyzer(AbstractAnalyzer):
                    }, .. ]
         """
         results = []
-        text = self.text_contents
+        text = self.text
 
         dt_regex = dateandtime.regex_search_str(text)
         if dt_regex:
@@ -88,15 +97,25 @@ class TextAnalyzer(AbstractAnalyzer):
 
         if type(text) == list:
             text = ' '.join(text)
-        dt_brute = dateandtime.bruteforce_str(text)
-        if dt_brute:
-            for dt in dt_brute:
-                results.append({'datetime': dt,
-                                'source': 'bruteforce_search',
-                                'weight': 0.1})
-        else:
+
+        matches_brute = 0
+        logging.debug('Try getting datetime from text split by newlines')
+        for t in text.split('\n'):
+            print('BRUTE FORCE SEARCH GETS: {}'.format(t))
+            dt_brute = dateandtime.bruteforce_str(t)
+            if dt_brute:
+                for dt in dt_brute:
+                    matches_brute += 1
+                    results.append({'datetime': dt,
+                                    'source': 'bruteforce_search',
+                                    'weight': 0.1})
+        if matches_brute == 0:
             logging.warning('Unable to extract date/time-information '
                             'from text file contents using brute force search.')
+        else:
+            logging.debug('Brute force search of text file contents for '
+                          'date/time-information returned {} '
+                          'results.'.format(matches_brute))
 
         return results
 

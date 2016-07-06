@@ -113,10 +113,11 @@ Similar functionality and overall idea of automated renaming.
 `beets`
 -------
 <https://github.com/beetbox/beets>
-Beets is the media library management system for obsessive-compulsive music geeks.
-The purpose of beets is to get your music collection right once and for all. It
-catalogs your collection, automatically improving its metadata as it goes. It
-then provides a bouquet of tools for manipulating and accessing your music.
+Beets is the media library management system for obsessive-compulsive music
+geeks.  The purpose of beets is to get your music collection right once and for
+all. It catalogs your collection, automatically improving its metadata as it
+goes. It then provides a bouquet of tools for manipulating and accessing your
+music.
 
 I use this myself and it does work well for automatically restructuring a music
 collection.
@@ -137,6 +138,39 @@ just works.
 <https://code.google.com/archive/p/movie-renamer>
 Movie Renamer is an Open Source application Windows/Linux/OSX, totally free
 written in java, for easily renaming movie files.
+
+
+`grobid`
+--------
+<https://github.com/kermitt2/grobid>
+A machine learning software for extracting information from scholarly documents.
+
+GROBID is a machine learning library for extracting, parsing and re-structuring
+raw documents such as PDF into structured TEI-encoded documents with a
+particular focus on technical and scientific publications.
+
+
+`CERMINE`
+---------
+<https://github.com/CeON/CERMINE>
+Content ExtRactor and MINEr.
+
+CERMINE is a Java library and a web service (cermine.ceon.pl) for extracting
+metadata and content from PDF files containing academic publications.  CERMINE
+is written in Java at Centre for Open Science at Interdisciplinary Centre for
+Mathematical and Computational Modelling, University of Warsaw.
+
+
+`Rexa metatagger`
+-----------------
+Scientific paper header and reference extraction.
+<https://github.com/iesl/rexa1-metatagger>
+
+Metatagger is a system which consumes the output of the Rexa's pstotext tool
+and produces an annotated version of the text, finishing by writing the results
+to an XML file. The system is a structured series of pipelined components, each
+performing some task, such as layout analysis (e.g., header block, abstract,
+body text), or finer-grained labelling, such as identifying reference fields.
 
 
 
