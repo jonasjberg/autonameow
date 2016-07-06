@@ -625,8 +625,6 @@ def get_datetime_from_text(text, prefix='NULL'):
     if type(text) == list:
         text = ' '.join(text)
 
-    # Create empty dictionary for storing the final result.
-    results_all = {}
     # Create empty lists for storing any found date/time-objects.
     # Each search-method gets its own list for storing its own results.
     results_brute = []
@@ -662,6 +660,4 @@ def get_datetime_from_text(text, prefix='NULL'):
         regex_match += 1
 
     # Collect all individual results and return.
-    results_all['{}_contents_regex'.format(prefix)] = results_regex
-    results_all['{}_contents_brute'.format(prefix)] = results_brute
-    return results_all
+    return results_regex, results_brute
