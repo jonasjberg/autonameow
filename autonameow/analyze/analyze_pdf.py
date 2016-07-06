@@ -126,6 +126,7 @@ class PdfAnalyzer(AbstractAnalyzer):
 
     def _extract_xmp_metadata(self):
         # TODO: This is currently completely unused! Remove or implement.
+        #       https://pythonhosted.org/PyPDF2/XmpInformation.html
         pass
 
     def _extract_pdf_metadata(self):
