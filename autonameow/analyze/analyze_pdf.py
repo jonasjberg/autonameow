@@ -239,11 +239,11 @@ class PdfAnalyzer(AbstractAnalyzer):
         Extract the plain text contents of a PDF document using pdftotext.
         :return: False or PDF content as string
         """
-        path = self.file_object.path
         try:
-            pipe = subprocess.Popen(["pdftotext", path, "-"], shell=False,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.STDOUT)
+            pipe = subprocess.Popen(["pdftotext", self.file_object.path, "-"],
+                                    shell=False,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
         except ValueError:
             logging.warning('"subprocess.Popen" was called with invalid '
                             'arguments.')
