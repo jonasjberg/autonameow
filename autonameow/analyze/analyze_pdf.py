@@ -199,15 +199,6 @@ class PdfAnalyzer(AbstractAnalyzer):
         else:
             logging.debug('PDF document has # pages: {}'.format(number_of_pages))
 
-        # # Use only the first and second page of content.
-        # if pdff.getNumPages() == 1:
-        #     pdf_text = pdff.pages[0].extractText()
-        # elif pdff.getNumPages() > 1:
-        #     pdf_text = pdff.pages[0].extractText() + pdff.pages[1].extractText()
-        # else:
-        #     logging.error('Unable to determine number of pages of PDF.')
-        #     return False
-
         # Start by extracting a limited range of pages.
         # Maybe relevant info is more likely to be on the front page, or at
         # least in the first few pages?
