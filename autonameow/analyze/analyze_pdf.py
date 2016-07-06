@@ -229,10 +229,6 @@ class PdfAnalyzer(AbstractAnalyzer):
                 logging.debug('Extraction hit content size limit.')
                 break
 
-        # Fix encoding and replace Swedish characters.
-        # content = content.encode('utf-8', 'ignore')
-        # content = content.replace('\xc3\xb6', 'o').replace('\xc3\xa4', 'a').replace('\xc3\xa5', 'a')
-
         content = unidecode(content)
         # Collapse whitespace.
         # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
