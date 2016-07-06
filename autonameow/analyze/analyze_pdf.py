@@ -181,8 +181,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         :return: False or PDF content as strings
         """
         try:
-            filename = self.file_object.path
-            pdff = PyPDF2.PdfFileReader(open(filename, 'rb'))
+            pdff = PyPDF2.PdfFileReader(open(self.file_object.path, 'rb'))
         except Exception:
             logging.error('Unable to read PDF file content.')
             return False
