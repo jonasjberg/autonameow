@@ -613,6 +613,7 @@ def get_datetime_from_text(text, prefix='NULL'):
              The dictionary is keyed by search method used to extract the
              datetime-objects.
     """
+    # TODO: Should this even be used at all?
     if text is None:
         logging.warning('Got NULL argument')
         return None
