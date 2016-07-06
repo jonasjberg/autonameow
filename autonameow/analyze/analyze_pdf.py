@@ -166,11 +166,14 @@ class PdfAnalyzer(AbstractAnalyzer):
         # TODO: Check this
         pdf_text = self._extract_pdf_content_with_pypdf()
         if pdf_text:
-            logging.debug('Extracted ')
+            logging.info('Extracted text with PyPDF2: ')
+            print(pdf_text)
             return pdf_text
         else:
             pdf_text = self._extract_pdf_content_with_pdftotext()
             if pdf_text:
+                logging.info('Extracted text with pdftotext: ')
+                print(pdf_text)
                 return pdf_text
             else:
                 return False
