@@ -267,6 +267,21 @@ class PdfAnalyzer(AbstractAnalyzer):
         elif pipe.returncode == 0:
             return stdout
 
+    def _is_gmail(self):
+        """
+        Check whether the text might be a "Gmail".
+        :return: True if the text is a Gmail, else False
+        """
+        text = self.text
+        if type(text) is list:
+            text = ' '.join(text)
+
+        if text.lower().find('gmail'):
+            logging.debug('Text might be a Gmail (contains "gmail")')
+            return True
+        else:
+            return False
+
     def _get_datetime_from_text(self):
         """
         Extracts date and time information from the documents textual content.
