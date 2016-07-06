@@ -17,7 +17,7 @@ class TextAnalyzer(AbstractAnalyzer):
 
         # Extract the textual contents.
         logging.debug('Extracting text contents ..')
-        self.text_contents = self._extract_text_content()
+        self.text = self._extract_text_content()
 
     def get_author(self):
         # TODO: Implement.
@@ -29,7 +29,7 @@ class TextAnalyzer(AbstractAnalyzer):
 
     def get_datetime(self):
         result = []
-        if self.text_contents:
+        if self.text:
             text_timestamps = self._get_datetime_from_text()
             if text_timestamps:
                 # self.filter_datetime(text_timestamps)
@@ -64,6 +64,15 @@ class TextAnalyzer(AbstractAnalyzer):
             logging.warn('Unable to extract text contents.')
             return None
 
+    def _is_gmail(self):
+        text = self.text
+        if type(text) is list:
+            text = ' '.join(text)
+
+        if text.lower().find('gmail'):
+            logging.debug('Text might be a Gmail (contains "gmail")')
+            return
+
     def _get_datetime_from_text(self):
         """
         Extracts date and time information from textual contents.
@@ -74,7 +83,7 @@ class TextAnalyzer(AbstractAnalyzer):
                    }, .. ]
         """
         results = []
-        text = self.text_contents
+        text = self.text
 
         dt_regex = dateandtime.regex_search_str(text)
         if dt_regex:
