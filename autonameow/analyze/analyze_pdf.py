@@ -231,13 +231,13 @@ class PdfAnalyzer(AbstractAnalyzer):
             logging.debug('Extracted [%s] words (??) of content' % len(content))
             return content
         else:
-            logging.warn('Unable to extract PDF contents.')
+            logging.info('Unable to extract text with PyPDF2 ..')
             return None
 
     def _extract_pdf_content_with_pdftotext(self):
         """
         Extract the plain text contents of a PDF document using pdftotext.
-        :return: False or PDF content as strings
+        :return: False or PDF content as string
         """
         path = self.file_object.path
         try:
