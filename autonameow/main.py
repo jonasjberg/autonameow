@@ -57,6 +57,7 @@ class Autonameow(object):
 
         if self.args.verbose:
             self._display_start_banner()
+        if self.args.dump_options:
             self._display_options(self.args)
 
         # Iterate over command line arguments ..
@@ -143,6 +144,11 @@ class Autonameow(object):
                                    dest='quiet',
                                    action='store_true',
                                    help='quiet mode')
+
+        parser.add_argument('--dump-options',
+                            dest='dump_options',
+                            action='store_true',
+                            help='dump options to stdout')
 
         # Add option group for actions to be performed.
         optgrp_action = parser.add_argument_group('Action options')
