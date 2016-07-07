@@ -21,7 +21,7 @@ def sanitize_text(text):
 
     # Collapse whitespace.
     # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
-    text = text.replace("\xa0", " ")
+    text = text.replace('\xa0', ' ')
     #pdf_text = " ".join(pdf_text.replace("\xa0", " ").strip().split())
 
     return text
