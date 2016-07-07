@@ -36,7 +36,7 @@ def arg_is_year(value):
         if len(str(ivalue)) == 4 and ivalue >= 0:
             return ivalue
 
-    raise argparse.ArgumentTypeError('\"{}\" is not a valid year'.format(value))
+    raise argparse.ArgumentTypeError('"{}" is not a valid year'.format(value))
     return None
 
 
