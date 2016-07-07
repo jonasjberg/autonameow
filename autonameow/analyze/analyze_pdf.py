@@ -163,13 +163,14 @@ class PdfAnalyzer(AbstractAnalyzer):
         Extract the plain text contents of a PDF document.
         :return: False or PDF content as strings
         """
-        # TODO: Check this
+        # First attempt at text extraction
         pdf_text = self._extract_pdf_content_with_pypdf()
         if pdf_text:
             logging.info('Extracted text with PyPDF2: ')
             print(pdf_text)
             return pdf_text
         else:
+            # Second attempt at text extraction
             pdf_text = self._extract_pdf_content_with_pdftotext()
             if pdf_text:
                 logging.info('Extracted text with pdftotext: ')
