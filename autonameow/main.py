@@ -31,11 +31,10 @@ def arg_is_year(value):
         ivalue = int(value.strip())
     except ValueError:
         pass
-
-    if ivalue:
-        if len(str(ivalue)) == 4 and ivalue >= 0:
-            return ivalue
-
+    else:
+        if ivalue:
+            if len(str(ivalue)) == 4 and ivalue >= 0:
+                return ivalue
     raise argparse.ArgumentTypeError('"{}" is not a valid year'.format(value))
     return None
 
