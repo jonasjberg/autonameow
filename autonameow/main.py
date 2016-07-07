@@ -53,11 +53,11 @@ class Autonameow(object):
         self.filter = {'ignore_years': [],
                        'ignore_before_year': None,
                        'ignore_after_year': None}
-        self.args = self.parse_args()
+        self.args = self._parse_args()
 
         if self.args.verbose:
-            self.display_start_banner()
-            self.display_options(self.args)
+            self._display_start_banner()
+            self._display_options(self.args)
 
         # Iterate over command line arguments ..
         if not self.args.input_files:
@@ -65,12 +65,12 @@ class Autonameow(object):
             exit(1)
         else:
             try:
-                self.handle_files()
+                self._handle_files()
             except KeyboardInterrupt:
                 logging.critical('Received keyboard interrupt; Exiting ..')
                 sys.exit()
 
-    def handle_files(self):
+    def _handle_files(self):
         """
         Iterate over passed arguments, which should be paths to files.
         """
@@ -109,7 +109,7 @@ class Autonameow(object):
 
         self.exit_program()
 
-    def init_argparser(self):
+    def _init_argparser(self):
         """
         Initialize the argparser. Add all arguments/options.
         :return: the argument parser
@@ -206,13 +206,13 @@ class Autonameow(object):
 
         return parser
 
-    def parse_args(self):
+    def _parse_args(self):
         """
         Parse command line arguments.
         Check combination legality, print debug info.
         Apply selected options.
         """
-        parser = self.init_argparser()
+        parser = self._init_argparser()
         args = parser.parse_args()
 
         # Setup logging output format.
@@ -296,7 +296,7 @@ class Autonameow(object):
 
         return args
 
-    def display_options(self, args):
+    def _display_options(self, args):
         """
         Display details on the command line options that are in effect.
         Mainly for debug purposes.
@@ -339,7 +339,7 @@ class Autonameow(object):
         """
         return self.args
 
-    def display_start_banner(self):
+    def _display_start_banner(self):
         """
         Prints a "banner" with program information and credits.
         """
