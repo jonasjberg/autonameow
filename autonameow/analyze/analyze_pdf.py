@@ -13,6 +13,7 @@ from unidecode import unidecode
 
 from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
+from util import text
 
 
 class PdfAnalyzer(AbstractAnalyzer):
@@ -163,21 +164,26 @@ class PdfAnalyzer(AbstractAnalyzer):
         Extract the plain text contents of a PDF document.
         :return: False or PDF content as strings
         """
-        # First attempt at text extraction
-        pdf_text = self._extract_pdf_content_with_pypdf()
+        pdf_text = None
+        i = 1
+        text_extractors = [self._extract_pdf_content_with_pypdf,
+                           self._extract_pdf_content_with_pdftotext]
+        for extractor in text_extractors:
+            logging.debug('Running pdf text extractor [{:<2}/{:<2}] '
+                          '..'.format(i, len(text_extractors)))
+            pdf_text = extractor()
+            if pdf_text:
+                logging.debug('Extracted text with: {}'.format(extractor.__name__))
+                # Post-process text extracted from a pdf document.
+                pdf_text = text.sanitize_text(pdf_text)
+                break
+
         if pdf_text:
-            logging.info('Extracted text with PyPDF2: ')
-            print(pdf_text)
+            logging.debug('Extracted [{}] bytes of text'.format(len(pdf_text)))
             return pdf_text
         else:
-            # Second attempt at text extraction
-            pdf_text = self._extract_pdf_content_with_pdftotext()
-            if pdf_text:
-                logging.info('Extracted text with pdftotext: ')
-                print(pdf_text)
-                return pdf_text
-            else:
-                return False
+            logging.info('Unable to extract textual content from pdf ..')
+            return None
 
     def _extract_pdf_content_with_pypdf(self):
         """
@@ -211,29 +217,19 @@ class PdfAnalyzer(AbstractAnalyzer):
             logging.debug('Textual content of page #0 is empty.')
             pass
 
-        # Collect more until a preset limit is reached.
-        logging.debug('Keep extracting pages from pdf document ..')
+        # Collect more until a preset arbitrary limit is reached.
         for i in range(1, number_of_pages):
-            # Extract text from page and add to content.
-            # logging.debug('Extracting page #%s' % i)
-            content += pdff.getPage(i).extractText() + '\n'
-
-            # Cancel extraction at some arbitrary limit value.
             if len(content) > 50000:
                 logging.debug('Extraction hit content size limit.')
                 break
+            logging.debug('Extracting page [{:<4} of {:<4}] ..'.format(i, number_of_pages))
+            content += pdff.getPage(i).extractText() + '\n'
 
-        content = unidecode(content)
-        # Collapse whitespace.
-        # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
-        content = " ".join(content.replace("\xa0", " ").strip().split())
         if content:
-            # TODO: Determine what gets extracted **REALLY** ..
-            logging.debug('Extracted [%s] words (??) of content' % len(content))
             return content
         else:
             logging.info('Unable to extract text with PyPDF2 ..')
-            return None
+            return False
 
     def _extract_pdf_content_with_pdftotext(self):
         """
@@ -252,8 +248,10 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         stdout, stderr = pipe.communicate()
         if pipe.returncode != 0:
+            logging.warning('subprocess returned [{}] - STDERROR: '
+                            '{}'.format(pipe.returncode, stderr))
             return False
-        elif pipe.returncode == 0:
+        else:
             return stdout
 
     def _is_gmail(self):
