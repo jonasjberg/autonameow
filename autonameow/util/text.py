@@ -4,9 +4,26 @@
 
 import logging
 
+from unidecode import unidecode
 
-def _sanitize_text(text):
-    return None
+
+def sanitize_text(text):
+    """
+    Sanitizes text of unknown origin, encoding and content.
+    :param text: text to process
+    :return: sanitized text
+    """
+    if text is None or text.strip() is None:
+        return False
+
+    # TODO: Make sure this below is OK.
+    text = unidecode(text)
+
+    # Collapse whitespace.
+    # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
+    text = text.replace("\xa0", " ")
+
+    return text
 
 
 def extract_digits(string):
