@@ -101,7 +101,7 @@ class Autonameow(object):
                 analysis = Analysis(current_file, self.filter)
 
                 if self.args.list_datetime:
-                    print('File: \"%s\"' % current_file.path)
+                    print('File: "{}"'.format(current_file.path))
                     analysis.print_all_datetime_info()
                     # analysis.print_oldest_datetime()
                     # analysis.prefix_date_to_filename()
