@@ -229,7 +229,7 @@ def regex_search_str(text):
     for dt_str in re.findall(dt_pattern_3, text):
         try:
             logging.debug('Trying to match [{:12s}] to '
-                          '[{}] ..'.format((dt_fmt_3, dt_str)))
+                          '[{}] ..'.format(dt_fmt_3, dt_str))
             dt = datetime.strptime(dt_str, dt_fmt_3)
         except ValueError:
             pass
