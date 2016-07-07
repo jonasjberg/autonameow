@@ -237,7 +237,7 @@ def regex_search_str(text):
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
                               '[{}]'.format(dt))
-                results += dt
+                results.append(dt)
                 matches += 1
 
     logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
