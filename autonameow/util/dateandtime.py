@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 import dateutil
 import sys
 
+import util.text
 from util import misc
 
 
@@ -163,9 +164,9 @@ def regex_search_str(text):
     matches = 0
     for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
         # Extract digits, skip if entries contain no digits.
-        m_date = misc.extract_digits(m_date)
-        m_time = misc.extract_digits(m_time)
-        m_time_ms = misc.extract_digits(m_time_ms)
+        m_date = util.text.extract_digits(m_date)
+        m_time = util.text.extract_digits(m_time)
+        m_time_ms = util.text.extract_digits(m_time_ms)
 
         if m_date is None or m_time is None:
             continue
@@ -322,7 +323,7 @@ def match_unix_timestamp(text):
         logging.error('Got empty string!')
         return None
 
-    text = misc.extract_digits(text)
+    text = util.text.extract_digits(text)
     if text is None or len(text) == 0:
         logging.warn('Text contains no digits from which to extract epoch.')
         return None
@@ -472,7 +473,7 @@ def bruteforce_str(text):
 
     # Try another approach, start by extracting all digits.
     logging.debug('Trying second approach.')
-    digits_only = misc.extract_digits(text)
+    digits_only = util.text.extract_digits(text)
 
     if len(digits_only) < 4:
         logging.debug('Failed second approach -- not enough digits.')
