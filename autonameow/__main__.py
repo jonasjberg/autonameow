@@ -3,14 +3,14 @@
 
 """
 Allow user to run Autonameow as a module from a directory or zip file.
+Execute with:
+
+  $ python autonameow/__main__.py (2.6)
+  $ python -m autonameow          (2.7+)
+
 """
 
-# Execute with:
-# $ python autonameow/__main__.py (2.6)
-# $ python -m autonameow          (2.7+)
-
 import sys
-
 from main import Autonameow
 
 
