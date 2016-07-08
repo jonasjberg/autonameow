@@ -68,11 +68,7 @@ class Autonameow(object):
             logging.info('No input files specified. Exiting.')
             exit(1)
         else:
-            try:
-                self._handle_files()
-            except KeyboardInterrupt:
-                logging.critical('Received keyboard interrupt; Exiting ..')
-                sys.exit()
+            self._handle_files()
 
     def _handle_files(self):
         """

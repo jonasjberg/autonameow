@@ -16,9 +16,13 @@ from main import Autonameow
 if __package__ is None and not hasattr(sys, 'frozen'):
     # It is a direct call to __main__.py
     import os.path
-
     path = os.path.realpath(os.path.abspath(__file__))
     sys.path.insert(0, os.path.dirname(os.path.dirname(path)))
 
 if __name__ == '__main__':
-    autonameow = Autonameow()
+    try:
+        autonameow = Autonameow()
+    except KeyboardInterrupt:
+        # logging.critical('Received keyboard interrupt; Exiting ..')
+        # sys.exit()
+        sys.exit('\nReceived keyboard interrupt; Exiting ..')
