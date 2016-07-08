@@ -248,7 +248,6 @@ def regex_search_str(text):
 
 def match_special_case(text):
     """
-    PART #0   -- the very special case
     Very special case that is almost guaranteed to be correct.
     That is my personal favorite naming scheme: 1992-12-24_121314
     :param text: text to extract date/time from
@@ -637,7 +636,6 @@ def get_datetime_from_text(text, prefix='NULL'):
     for t in text_split:
         dt = bruteforce_str(t)
         if dt and dt is not None:
-            # logging.info('Added result from contents: {0}'.format(dt))
             results_brute.append(dt)
             matches += 1
 
@@ -647,7 +645,6 @@ def get_datetime_from_text(text, prefix='NULL'):
         for t in text_split:
             dt = bruteforce_str(t)
             if dt and dt is not None:
-                # logging.info('Added result from contents: {0}'.format(dt))
                 results_brute.append(dt)
                 matches += 1
 
@@ -655,8 +652,6 @@ def get_datetime_from_text(text, prefix='NULL'):
     regex_match = 0
     dt_regex = regex_search_str(text)
     if dt_regex and dt_regex is not None:
-        # logging.info('Added result from contents regex search: '
-        #              '{0}'.format(dt_regex))
         results_regex.append(dt_regex)
         regex_match += 1
 
