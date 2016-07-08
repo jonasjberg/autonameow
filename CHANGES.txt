@@ -1,0 +1,17 @@
+2016-07-08  [autonameow v0.1.0]
+            First actual version bump. Development up until now has been at
+            version v0.0.1. The code has now (barely) entered a state that
+            warrants versioning.
+
+            Additions:
+            - Project now has a change log.
+            - Basic alpha version of the main program, still severily lacking
+              in functionality, stability and consistency.
+
+            Changes:
+            - N/A
+
+            Fixes:
+            - N/A
+
+
