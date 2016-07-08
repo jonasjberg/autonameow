@@ -8,8 +8,6 @@ import os
 
 from datetime import datetime
 
-from guessit import guessit
-
 from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
 from util import misc
@@ -23,6 +21,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
     def __init__(self, file_object, filters):
         super(FilenameAnalyzer, self).__init__(file_object, filters)
 
+        self.guessit_metadata = None
         # Arbitrary length check limits (very slow) calls to guessit.
         if len(self.file_object.basename_no_ext) > 20:
             self.guessit_metadata = self._get_metadata_from_guessit()
@@ -91,6 +90,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
         Call external program "guessit".
         :return: dictionary of results if successful, otherwise false
         """
+        from guessit import guessit
         guessit_matches = guessit(self.file_object.basename_no_ext, )
         return guessit_matches if guessit_matches is not None else False
 
