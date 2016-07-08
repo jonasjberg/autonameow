@@ -211,10 +211,10 @@ class PdfAnalyzer(AbstractAnalyzer):
         # Start by extracting a limited range of pages.
         # Maybe relevant info is more likely to be on the front page, or at
         # least in the first few pages?
-        logging.debug('Extracting page #0')
+        logging.debug('Extracting page #1')
         content = pdff.pages[0].extractText()
         if len(content) == 0:
-            logging.debug('Textual content of page #0 is empty.')
+            logging.debug('Textual content of page #1 is empty.')
             pass
 
         # Collect more until a preset arbitrary limit is reached.
@@ -222,7 +222,7 @@ class PdfAnalyzer(AbstractAnalyzer):
             if len(content) > 50000:
                 logging.debug('Extraction hit content size limit.')
                 break
-            logging.debug('Extracting page [{:<4} of {:<4}] ..'.format(i, number_of_pages))
+            logging.debug('Extracting page [{:<4} of {:<4}] ..'.format(i + 1, number_of_pages))
             content += pdff.getPage(i).extractText() + '\n'
 
         if content:
