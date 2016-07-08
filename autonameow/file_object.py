@@ -51,7 +51,7 @@ class FileObject(object):
     def _get_type_from_magic(self):
         """
         Determine file type by reading "magic" header bytes.
-        Similar to the 'find' command in *NIX environments.
+        Similar to the 'file' command in *NIX environments.
         :return:
         """
         found_type = None
