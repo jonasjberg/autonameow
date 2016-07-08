@@ -143,7 +143,7 @@ Session.vim
 *~
 
 # Test files
-test/
+test_files/
 
 # Documentation
 *.pdf
