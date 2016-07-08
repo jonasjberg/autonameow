@@ -34,7 +34,7 @@ class RuleMatcher(object):
                 else:
                     if this_type == self.file_object.type:
                         ok = True
-                if ok is True:
+                if ok:
                     does_match = True
                 else:
                     # Rule does not apply -- file type differs.
