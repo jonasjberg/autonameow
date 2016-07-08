@@ -227,7 +227,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         if content:
             return content
         else:
-            logging.info('Unable to extract text with PyPDF2 ..')
+            logging.warning('Unable to extract text with PyPDF2 ..')
             return False
 
     def _extract_pdf_content_with_pdftotext(self):
