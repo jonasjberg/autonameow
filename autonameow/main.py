@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 import platform
+import time
 
 from colorama import Fore
 from colorama import Back
@@ -47,6 +48,9 @@ class Autonameow(object):
         """
         Main program entry point
         """
+        # Save time of startup for later calculation of total runtime.
+        self.start_time = time.time()
+
         # Handle the command line arguments.
         # TODO: Fix the filtering! Not completed as-is.
         self.filter = {'ignore_years': [],
@@ -381,5 +385,6 @@ class Autonameow(object):
 
     def exit_program(self):
         # TODO: Expand this method and/or figure out if it is even needed ..
-        logging.info('Exiting.')
+        logging.info('Exiting. Total execution time: '
+                     '[{:.6f} seconds]'.format(time.time() - self.start_time))
         sys.exit(0)
