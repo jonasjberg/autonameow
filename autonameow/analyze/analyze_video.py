@@ -45,9 +45,7 @@ class VideoAnalyzer(AbstractAnalyzer):
         :return: Creation date/time as a datetime-object.
         """
         # TODO: This needs a serious looking over and most probably reworking.
-
-        # TODO: Do not use this date parser! Remove it.
-        parser = DateParse()
+        return None
 
         filename = self.fileObject.get_path()
         for line in os.popen('ffprobe -loglevel quiet -show_entries stream_tags=creation_time -i ' + filename).readlines():
