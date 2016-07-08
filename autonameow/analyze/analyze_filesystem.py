@@ -5,14 +5,9 @@
 import datetime
 import logging
 import os
-
 from datetime import datetime
 
-from guessit import guessit
-
 from analyze.analyze_abstract import AbstractAnalyzer
-from util import dateandtime
-from util import misc
 
 
 # Analysis relevant to all files, regardless of file mime type.
