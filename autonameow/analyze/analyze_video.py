@@ -6,7 +6,6 @@ import logging
 import os
 
 from analyze.analyze_abstract import AbstractAnalyzer
-from util.fuzzy_date_parser import DateParse
 
 
 class VideoAnalyzer(AbstractAnalyzer):
