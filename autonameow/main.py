@@ -107,6 +107,11 @@ class Autonameow(object):
                     # analysis.prefix_date_to_filename()
                     print('')
 
+                # Create a action object.
+                # TODO: Implement this or something similar to it.
+                # action = None
+                # action = RenameAction(current_file, results)
+
         self.exit_program()
 
     def _init_argparser(self):
