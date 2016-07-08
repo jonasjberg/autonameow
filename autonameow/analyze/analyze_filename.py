@@ -115,6 +115,12 @@ class FilenameAnalyzer(AbstractAnalyzer):
                             'source': 'very_special_case',
                             'weight': 1})
 
+        dt_special_no_date = dateandtime.match_special_case_no_date(fn)
+        if dt_special_no_date:
+            results.append({'datetime': dt_special_no_date,
+                            'source': 'very_special_case_no_date',
+                            'weight': 0.95})
+
         # 2. Common patterns
         # ==================
         # Try more common patterns, starting with the most common.
