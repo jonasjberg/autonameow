@@ -13,8 +13,7 @@ Execute with:
 import sys
 from main import Autonameow
 
-
-if __package__ is None and not hasattr(sys, "frozen"):
+if __package__ is None and not hasattr(sys, 'frozen'):
     # It is a direct call to __main__.py
     import os.path
 
