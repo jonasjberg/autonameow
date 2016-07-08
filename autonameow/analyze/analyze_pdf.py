@@ -9,7 +9,6 @@ from datetime import datetime
 
 import PyPDF2
 from PyPDF2.utils import PdfReadError
-from unidecode import unidecode
 
 from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
