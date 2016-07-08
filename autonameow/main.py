@@ -31,12 +31,11 @@ def arg_is_year(value):
         ivalue = int(value.strip())
     except ValueError:
         pass
-
-    if ivalue:
-        if len(str(ivalue)) == 4 and ivalue >= 0:
-            return ivalue
-
-    raise argparse.ArgumentTypeError('\"{}\" is not a valid year'.format(value))
+    else:
+        if ivalue:
+            if len(str(ivalue)) == 4 and ivalue >= 0:
+                return ivalue
+    raise argparse.ArgumentTypeError('"{}" is not a valid year'.format(value))
     return None
 
 
@@ -53,11 +52,12 @@ class Autonameow(object):
         self.filter = {'ignore_years': [],
                        'ignore_before_year': None,
                        'ignore_after_year': None}
-        self.args = self.parse_args()
+        self.args = self._parse_args()
 
         if self.args.verbose:
-            self.display_start_banner()
-            self.display_options(self.args)
+            self._display_start_banner()
+        if self.args.dump_options:
+            self._display_options(self.args)
 
         # Iterate over command line arguments ..
         if not self.args.input_files:
@@ -65,12 +65,12 @@ class Autonameow(object):
             exit(1)
         else:
             try:
-                self.handle_files()
+                self._handle_files()
             except KeyboardInterrupt:
                 logging.critical('Received keyboard interrupt; Exiting ..')
                 sys.exit()
 
-    def handle_files(self):
+    def _handle_files(self):
         """
         Iterate over passed arguments, which should be paths to files.
         """
@@ -101,15 +101,20 @@ class Autonameow(object):
                 analysis = Analysis(current_file, self.filter)
 
                 if self.args.list_datetime:
-                    print('File: \"%s\"' % current_file.path)
+                    print('File: "{}"'.format(current_file.path))
                     analysis.print_all_datetime_info()
                     # analysis.print_oldest_datetime()
                     # analysis.prefix_date_to_filename()
                     print('')
 
+                # Create a action object.
+                # TODO: Implement this or something similar to it.
+                # action = None
+                # action = RenameAction(current_file, results)
+
         self.exit_program()
 
-    def init_argparser(self):
+    def _init_argparser(self):
         """
         Initialize the argparser. Add all arguments/options.
         :return: the argument parser
@@ -143,6 +148,11 @@ class Autonameow(object):
                                    dest='quiet',
                                    action='store_true',
                                    help='quiet mode')
+
+        parser.add_argument('--dump-options',
+                            dest='dump_options',
+                            action='store_true',
+                            help='dump options to stdout')
 
         # Add option group for actions to be performed.
         optgrp_action = parser.add_argument_group('Action options')
@@ -206,13 +216,13 @@ class Autonameow(object):
 
         return parser
 
-    def parse_args(self):
+    def _parse_args(self):
         """
         Parse command line arguments.
         Check combination legality, print debug info.
         Apply selected options.
         """
-        parser = self.init_argparser()
+        parser = self._init_argparser()
         args = parser.parse_args()
 
         # Setup logging output format.
@@ -296,7 +306,7 @@ class Autonameow(object):
 
         return args
 
-    def display_options(self, args):
+    def _display_options(self, args):
         """
         Display details on the command line options that are in effect.
         Mainly for debug purposes.
@@ -339,7 +349,7 @@ class Autonameow(object):
         """
         return self.args
 
-    def display_start_banner(self):
+    def _display_start_banner(self):
         """
         Prints a "banner" with program information and credits.
         """

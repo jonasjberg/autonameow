@@ -13,6 +13,7 @@ from unidecode import unidecode
 
 from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
+from util import text
 
 
 class PdfAnalyzer(AbstractAnalyzer):
@@ -163,17 +164,26 @@ class PdfAnalyzer(AbstractAnalyzer):
         Extract the plain text contents of a PDF document.
         :return: False or PDF content as strings
         """
-        # TODO: Check this
-        pdf_text = self._extract_pdf_content_with_pypdf()
+        pdf_text = None
+        i = 1
+        text_extractors = [self._extract_pdf_content_with_pypdf,
+                           self._extract_pdf_content_with_pdftotext]
+        for extractor in text_extractors:
+            logging.debug('Running pdf text extractor [{:<2}/{:<2}] '
+                          '..'.format(i, len(text_extractors)))
+            pdf_text = extractor()
+            if pdf_text:
+                logging.debug('Extracted text with: {}'.format(extractor.__name__))
+                # Post-process text extracted from a pdf document.
+                pdf_text = text.sanitize_text(pdf_text)
+                break
+
         if pdf_text:
-            logging.debug('Extracted ')
+            logging.debug('Extracted [{}] bytes of text'.format(len(pdf_text)))
             return pdf_text
         else:
-            pdf_text = self._extract_pdf_content_with_pdftotext()
-            if pdf_text:
-                return pdf_text
-            else:
-                return False
+            logging.info('Unable to extract textual content from pdf ..')
+            return None
 
     def _extract_pdf_content_with_pypdf(self):
         """
@@ -181,8 +191,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         :return: False or PDF content as strings
         """
         try:
-            filename = self.file_object.path
-            pdff = PyPDF2.PdfFileReader(open(filename, 'rb'))
+            pdff = PyPDF2.PdfFileReader(open(self.file_object.path, 'rb'))
         except Exception:
             logging.error('Unable to read PDF file content.')
             return False
@@ -199,15 +208,6 @@ class PdfAnalyzer(AbstractAnalyzer):
         else:
             logging.debug('PDF document has # pages: {}'.format(number_of_pages))
 
-        # # Use only the first and second page of content.
-        # if pdff.getNumPages() == 1:
-        #     pdf_text = pdff.pages[0].extractText()
-        # elif pdff.getNumPages() > 1:
-        #     pdf_text = pdff.pages[0].extractText() + pdff.pages[1].extractText()
-        # else:
-        #     logging.error('Unable to determine number of pages of PDF.')
-        #     return False
-
         # Start by extracting a limited range of pages.
         # Maybe relevant info is more likely to be on the front page, or at
         # least in the first few pages?
@@ -217,45 +217,30 @@ class PdfAnalyzer(AbstractAnalyzer):
             logging.debug('Textual content of page #0 is empty.')
             pass
 
-        # Collect more until a preset limit is reached.
-        logging.debug('Keep extracting pages from pdf document ..')
+        # Collect more until a preset arbitrary limit is reached.
         for i in range(1, number_of_pages):
-            # Extract text from page and add to content.
-            # logging.debug('Extracting page #%s' % i)
-            content += pdff.getPage(i).extractText() + '\n'
-
-            # Cancel extraction at some arbitrary limit value.
             if len(content) > 50000:
                 logging.debug('Extraction hit content size limit.')
                 break
-
-        # Fix encoding and replace Swedish characters.
-        # content = content.encode('utf-8', 'ignore')
-        # content = content.replace('\xc3\xb6', 'o').replace('\xc3\xa4', 'a').replace('\xc3\xa5', 'a')
-
-        content = unidecode(content)
-        # Collapse whitespace.
-        # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
-        content = " ".join(content.replace("\xa0", " ").strip().split())
+            logging.debug('Extracting page [{:<4} of {:<4}] ..'.format(i, number_of_pages))
+            content += pdff.getPage(i).extractText() + '\n'
 
         if content:
-            # TODO: Determine what gets extracted **REALLY** ..
-            logging.debug('Extracted [%s] words (??) of content' % len(content))
             return content
         else:
-            logging.warn('Unable to extract PDF contents.')
-            return None
+            logging.info('Unable to extract text with PyPDF2 ..')
+            return False
 
     def _extract_pdf_content_with_pdftotext(self):
         """
         Extract the plain text contents of a PDF document using pdftotext.
-        :return: False or PDF content as strings
+        :return: False or PDF content as string
         """
-        path = self.file_object.path
         try:
-            pipe = subprocess.Popen(["pdftotext", path, "-"], shell=False,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.STDOUT)
+            pipe = subprocess.Popen(["pdftotext", self.file_object.path, "-"],
+                                    shell=False,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
         except ValueError:
             logging.warning('"subprocess.Popen" was called with invalid '
                             'arguments.')
@@ -263,8 +248,10 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         stdout, stderr = pipe.communicate()
         if pipe.returncode != 0:
+            logging.warning('subprocess returned [{}] - STDERROR: '
+                            '{}'.format(pipe.returncode, stderr))
             return False
-        elif pipe.returncode == 0:
+        else:
             return stdout
 
     def _is_gmail(self):
