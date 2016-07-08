@@ -240,8 +240,8 @@ def regex_search_str(text):
                 results.append(dt)
                 matches += 1
 
-    logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
-    logging.info('Regex matcher returning list of [{:^3}] '
+    logging.debug('Regex matcher found [{:^3}] matches.'.format(matches))
+    logging.debug('Regex matcher returning list of [{:^3}] '
                  'results.'.format(len(results)))
     return results
 
@@ -264,7 +264,7 @@ def match_special_case(text):
         logging.debug('Failed matching very special case.')
     else:
         if date_is_probable(dt):
-            logging.info('Matched very special case: [{}]'.format(dt))
+            logging.debug('Matched very special case: [{}]'.format(dt))
             return dt
     return None
 
@@ -343,7 +343,7 @@ def match_unix_timestamp(text):
         logging.debug('Failed matching seconds since epoch.')
     else:
         if date_is_probable(dt):
-            logging.info('Extracted UNIX timestamp from "{}": '
+            logging.debug('Extracted UNIX timestamp from "{}": '
                          '[{}]'.format(text, dt))
             return dt
 
@@ -459,7 +459,7 @@ def bruteforce_str(text):
             validate_result(dt)
 
     if results:
-        logging.info('First matcher found  [{:>3}] matches after [{:>4}] '
+        logging.debug('First matcher found  [{:>3}] matches after [{:>4}] '
                      'tries.'.format(bruteforce_str.matches, tries))
         return results
     else:
@@ -552,7 +552,7 @@ def bruteforce_str(text):
                           '({} --> {})'.format(digits, digits[1:]))
             digits = digits[1:]
 
-    logging.info('Second matcher found [{:>3}] matches after [{:>4}] '
+    logging.debug('Second matcher found [{:>3}] matches after [{:>4}] '
                  'tries.'.format(bruteforce_str.matches_total, tries_total))
     return results
 
@@ -679,7 +679,7 @@ def match_special_case_no_date(text):
         logging.debug('Failed matching date only version of very special case.')
     else:
         if date_is_probable(dt):
-            logging.info('Matched very special case, date only: '
+            logging.debug('Matched very special case, date only: '
                          '[{}]'.format(dt))
             return dt
     return None
