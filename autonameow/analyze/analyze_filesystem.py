@@ -73,7 +73,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
                             'source': 'accessed',
                             'weight': 0.25})
 
-        logging.info('Got [{:^3}] timestamps from '
+        logging.debug('Got [{:^3}] timestamps from '
                      'filesystem.'.format(len(results)))
         return results
 
