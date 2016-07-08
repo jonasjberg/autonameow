@@ -3,8 +3,6 @@
 # Copyright 2016, Jonas Sjoberg.
 
 import logging
-from colorama import Back
-from colorama import Fore
 
 import config_defaults
 from analyze.analyze_filename import FilenameAnalyzer
