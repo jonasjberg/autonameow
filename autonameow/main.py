@@ -61,7 +61,7 @@ class Autonameow(object):
 
         # Iterate over command line arguments ..
         if not self.args.input_files:
-            logging.critical('No input files specified. Exiting.')
+            logging.info('No input files specified. Exiting.')
             exit(1)
         else:
             try:
