@@ -51,7 +51,6 @@ class Autonameow(object):
         # Save time of startup for later calculation of total runtime.
         self.start_time = time.time()
 
-        # Handle the command line arguments.
         # Display help/usage information if no arguments are provided.
         if len(sys.argv) < 2:
             print('Add "--help" to display usage information.')
@@ -61,14 +60,17 @@ class Autonameow(object):
         self.filter = {'ignore_years': [],
                        'ignore_before_year': None,
                        'ignore_after_year': None}
+
+        # Handle the command line arguments.
         self.args = self._parse_args()
 
+        # Display startup banner and other information if applicable.
         if self.args.verbose:
             self._display_start_banner()
         if self.args.dump_options:
             self._display_options(self.args)
 
-        # Iterate over command line arguments ..
+        # Exit if no files are specified, for now.
         if not self.args.input_files:
             logging.info('No input files specified. Exiting.')
             exit(1)
