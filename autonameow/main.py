@@ -52,6 +52,11 @@ class Autonameow(object):
         self.start_time = time.time()
 
         # Handle the command line arguments.
+        # Display help/usage information if no arguments are provided.
+        if len(sys.argv) < 2:
+            print('Add "--help" to display usage information.')
+            self.exit_program(0)
+
         # TODO: Fix the filtering! Not completed as-is.
         self.filter = {'ignore_years': [],
                        'ignore_before_year': None,
@@ -297,12 +302,6 @@ class Autonameow(object):
                 logging.debug('Using filter: ignore date/time-information that'
                               ' follow year {}'.format(dt.year))
                 self.filter['ignore_after_year'] = dt
-
-        # Display help/usage information if no arguments are provided.
-        if len(sys.argv) < 2:
-            logging.critical('Add "--help" to display usage information.')
-            # parser.print_help()
-            exit(0)
 
         return args
 
