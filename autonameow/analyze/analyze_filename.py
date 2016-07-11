@@ -131,30 +131,42 @@ class FilenameAnalyzer(AbstractAnalyzer):
                             'source': 'android_messenger',
                             'weight': 1})
 
+        # Match UNIX timestamp
         dt_unix = dateandtime.match_unix_timestamp(fn)
         if dt_unix:
             results.append({'datetime': dt_unix,
                             'source': 'unix_timestamp',
                             'weight': 1})
-        else:
-            dt_regex = dateandtime.regex_search_str(fn)
-            if dt_regex:
-                for dt in dt_regex:
-                    results.append({'datetime': dt,
-                                    'source': 'regex_search',
-                                    'weight': 0.25})
-            else:
-                logging.warning('Unable to extract date/time-information '
-                                'from file name using regex search.')
 
-            dt_brute = dateandtime.bruteforce_str(fn)
-            if dt_brute:
-                for dt in dt_brute:
-                    results.append({'datetime': dt,
-                                    'source': 'bruteforce_search',
-                                    'weight': 0.1})
-            else:
-                logging.warning('Unable to extract date/time-information '
-                                'from file name using brute force search.')
+        # Match screencapture-prefixed UNIX timestamp
+        dt_screencapture_unix = dateandtime.match_screencapture_unixtime(fn)
+        if dt_screencapture_unix:
+            results.append({'datetime': dt_screencapture_unix,
+                            'source': 'screencapture_unixtime',
+                            'weight': 1})
+
+        # 3. Generalized patternmatching and bruteforcing
+        # ===============================================
+        # General "regex search" with various patterns.
+        dt_regex = dateandtime.regex_search_str(fn)
+        if dt_regex:
+            for dt in dt_regex:
+                results.append({'datetime': dt,
+                                'source': 'regex_search',
+                                'weight': 0.25})
+        else:
+            logging.warning('Unable to extract date/time-information '
+                            'from file name using regex search.')
+
+        # Lastly, an iterative brute force search.
+        dt_brute = dateandtime.bruteforce_str(fn)
+        if dt_brute:
+            for dt in dt_brute:
+                results.append({'datetime': dt,
+                                'source': 'bruteforce_search',
+                                'weight': 0.1})
+        else:
+            logging.warning('Unable to extract date/time-information '
+                            'from file name using brute force search.')
 
         return results

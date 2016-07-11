@@ -171,7 +171,7 @@ class PdfAnalyzer(AbstractAnalyzer):
             logging.debug('Running pdf text extractor [{:<2}/{:<2}] '
                           '..'.format(i, len(text_extractors)))
             pdf_text = extractor()
-            if pdf_text:
+            if pdf_text and len(pdf_text) > 1:
                 logging.debug('Extracted text with: {}'.format(extractor.__name__))
                 # Post-process text extracted from a pdf document.
                 pdf_text = text.sanitize_text(pdf_text)
