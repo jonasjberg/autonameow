@@ -247,6 +247,9 @@ class ImageAnalyzer(AbstractAnalyzer):
             return None
         else:
             image_text = image_text.strip()
+            logging.debug('Extracted [{}] bytes of text'.format(len(image_text)))
+            # print('Got image text: ')
+            # print(image_text)
             return image_text
 
     def _get_ocr_datetime(self):
