@@ -141,7 +141,8 @@ class ImageAnalyzer(AbstractAnalyzer):
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
         if self.exif_data['Make'] == 'OnePlus' and \
            self.exif_data['Model'] == 'ONE E1003':
-            bad_exif_date = datetime.strptime('20021208_120000', '%Y%m%d_%H%M%S')
+            bad_exif_date = datetime.strptime('20021208_120000',
+                                              '%Y%m%d_%H%M%S')
             try:
                 # if results['Exif_DateTimeDigitized'] == bad_exif_date:
                 #     logging.debug('Removing erroneous date \"%s\"' %
@@ -247,7 +248,8 @@ class ImageAnalyzer(AbstractAnalyzer):
             return None
         else:
             image_text = image_text.strip()
-            logging.debug('Extracted [{}] bytes of text'.format(len(image_text)))
+            logging.debug('Extracted [{}] bytes of '
+                          'text'.format(len(image_text)))
             # print('Got image text: ')
             # print(image_text)
             return image_text
