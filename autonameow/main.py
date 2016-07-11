@@ -380,8 +380,13 @@ class Autonameow(object):
               'Started at {} by {} on {}'.format(date, username, hostname) +
               Fore.RESET)
 
-    def exit_program(self):
-        # TODO: Expand this method and/or figure out if it is even needed ..
-        logging.info('Exiting. Total execution time: '
+    def exit_program(self, exit_code=0):
+        try:
+            exit_code = int(exit_code)
+        except TypeError:
+            exit_code = 1
+
+        logging.info('Exiting with exit code [{}]'.format(exit_code))
+        logging.info('Total execution time: '
                      '[{:.6f} seconds]'.format(time.time() - self.start_time))
-        sys.exit(0)
+        sys.exit(exit_code)
