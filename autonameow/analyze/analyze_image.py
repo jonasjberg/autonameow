@@ -254,9 +254,12 @@ class ImageAnalyzer(AbstractAnalyzer):
 
     def _get_ocr_datetime(self):
         """
-        Extracts EXIF information from a image using PIL.
-        The EXIF data is stored in a dict using human-readable keys.
-        :return: Dict of EXIF data.
+        Extracts date and time information from the text produced by OCR.
+        :return: a list of dictionaries on the form:
+                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                     'source' : 'ocr',
+                     'weight'  : 0.1
+                   }, .. ]
         """
         # TODO: Finish this method.
         if self.ocr_text is None:
