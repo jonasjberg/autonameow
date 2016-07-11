@@ -275,16 +275,29 @@ class ImageAnalyzer(AbstractAnalyzer):
 
         dt_regex = dateandtime.regex_search_str(text)
         if dt_regex:
-            if isinstance(dt_regex, list):
-                for e in dt_regex:
-                    results.append({'datetime': e,
-                                    'source': 'image_ocr_regex',
-                                    'weight': 0.25})
-            else:
-                results.append({'datetime': dt_regex,
+            for e in dt_regex:
+                results.append({'datetime': e,
                                 'source': 'image_ocr_regex',
                                 'weight': 0.25})
-            return results
-        else:
+
+        text_split = text.split('\n')
+        logging.debug('Try getting datetime from text split by newlines')
+        for t in text_split:
+            dt_brute = dateandtime.bruteforce_str(t)
+            if dt_brute:
+                for e in dt_brute:
+                    results.append({'datetime': e,
+                                    'source': 'image_ocr_brute',
+                                    'weight': 0.1})
+
+            dt_ocr_special = dateandtime.special_datetime_ocr_search(t)
+            if dt_ocr_special:
+                results.append({'datetime': dt_ocr_special,
+                                'source': 'image_ocr_special',
+                                'weight': 0.25})
+
+        if len(results) == 0:
             logging.warning('Found no date/time-information in OCR text.')
             return None
+        else:
+            return results

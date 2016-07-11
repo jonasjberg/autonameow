@@ -681,3 +681,28 @@ def match_special_case_no_date(text):
                          '[{}]'.format(dt))
             return dt
     return None
+
+
+def special_datetime_ocr_search(text):
+    """
+    Very special case. OCR text often mistakes "/" for "7", hence
+    this search.
+    Text actually contains:   2016/02/08
+    OCR returns result:       2016702708
+    :return:
+    """
+    pattern = re.compile('(\d{4}7[01]\d7[0123]\d)')
+    dt_fmt = '%Y7%m7%d'
+    for dt_str in re.findall(pattern, text):
+        try:
+            logging.debug('Trying to match [{}] to '
+                          '[{}] ..'.format(dt_fmt, dt_str))
+            dt = datetime.strptime(dt_str, dt_fmt)
+        except ValueError:
+            pass
+        else:
+            if date_is_probable(dt):
+                logging.debug('Extracted datetime from text: '
+                              '[{}]'.format(dt))
+                return dt
+    return None
