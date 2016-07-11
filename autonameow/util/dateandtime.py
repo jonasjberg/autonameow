@@ -706,3 +706,17 @@ def special_datetime_ocr_search(text):
                               '[{}]'.format(dt))
                 return dt
     return None
+
+
+def match_screencapture_unixtime(text):
+    """
+    Match filenames created by the Chrome extension "Full Page Screen Capture".
+    :param text: text to search for UNIX timestamp
+    :return: datetime-object if a match is found, else None
+    """
+    pattern = re.compile('.*(\d{13}).*')
+    for t in re.findall(pattern, text):
+        dt = match_unix_timestamp(t)
+        if dt:
+            return dt
+    return None
