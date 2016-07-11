@@ -202,7 +202,7 @@ def regex_search_str(text):
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
                               '[{}]'.format(dt))
-                results += dt
+                results.append(dt)
                 matches += 1
 
     # Expected date format:         2016:04:07
