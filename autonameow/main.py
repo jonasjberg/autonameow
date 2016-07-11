@@ -72,16 +72,21 @@ class Autonameow(object):
 
         # Exit if no files are specified, for now.
         if not self.args.input_files:
-            logging.info('No input files specified. Exiting.')
-            exit(1)
-        else:
-            self._handle_files()
+            logging.warn('No input files specified ..')
+            self.exit_program(1)
+
+        # Iterate over command line arguments ..
+        self._handle_files()
+        self.exit_program()
 
     def _handle_files(self):
         """
         Iterate over passed arguments, which should be paths to files.
         """
-        should_quit = True
+        exit_code = 0
+        if len(self.args.input_files) < 1:
+            logging.critical('No input files specified.')
+            return
         for arg in self.args.input_files:
             if not os.path.exists(arg):
                 logging.error('Skipping non-existent file/directory '
@@ -119,7 +124,6 @@ class Autonameow(object):
                 # action = None
                 # action = RenameAction(current_file, results)
 
-        self.exit_program()
 
     def _init_argparser(self):
         """
