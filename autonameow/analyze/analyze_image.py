@@ -261,12 +261,28 @@ class ImageAnalyzer(AbstractAnalyzer):
                      'weight'  : 0.1
                    }, .. ]
         """
-        # TODO: Finish this method.
         if self.ocr_text is None:
             logging.warning('Found no text from OCR of '
                             '\"{}\"'.format(self.file_object.path))
             return None
 
-        # TODO: Fix return type/format of "_get_datetime_from_text" ..
-        dt = dateandtime.get_datetime_from_text(self.ocr_text, 'ocr')
-        return dt
+        results = []
+        text = self.ocr_text
+        if type(text) == list:
+            text = ' '.join(text)
+
+        dt_regex = dateandtime.regex_search_str(text)
+        if dt_regex:
+            if isinstance(dt_regex, list):
+                for e in dt_regex:
+                    results.append({'datetime': e,
+                                    'source': 'image_ocr_regex',
+                                    'weight': 0.25})
+            else:
+                results.append({'datetime': dt_regex,
+                                'source': 'image_ocr_regex',
+                                'weight': 0.25})
+            return results
+        else:
+            logging.warning('Found no date/time-information in OCR text.')
+            return None
