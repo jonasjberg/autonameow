@@ -326,6 +326,9 @@ def match_unix_timestamp(text):
     if text is None or len(text) == 0:
         logging.warn('Text contains no digits from which to extract epoch.')
         return None
+    elif len(text) < 10:
+        logging.debug('Probably not a UNIX timestamp -- number of digits < 10.')
+        return None
 
     # Example Android phone file name: 1461786010455.jpg
     # Remove last 3 digits to be able to convert using GNU date:
