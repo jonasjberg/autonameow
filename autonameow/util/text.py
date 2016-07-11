@@ -17,13 +17,18 @@ def sanitize_text(text):
         return False
 
     # TODO: Make sure this below is OK.
-    text = unidecode(text)
+    try:
+        text = unidecode(text)
+    except UnicodeDecodeError:
+        pass
+
 
     # Collapse whitespace.
     # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
     text = text.replace('\xa0', ' ')
     #pdf_text = " ".join(pdf_text.replace("\xa0", " ").strip().split())
 
+    text = text.decode('unicode-escape')
     return text
 
 

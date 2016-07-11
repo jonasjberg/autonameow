@@ -3,16 +3,8 @@
 # Copyright 2016, Jonas Sjoberg.
 
 import logging
-from colorama import Back
-from colorama import Fore
 
 import config_defaults
-from analyze.analyze_filename import FilenameAnalyzer
-from analyze.analyze_filesystem import FilesystemAnalyzer
-from analyze.analyze_image import ImageAnalyzer
-from analyze.analyze_pdf import PdfAnalyzer
-from analyze.analyze_text import TextAnalyzer
-from analyze.analyze_video import VideoAnalyzer
 from evaluate.matcher import RuleMatcher
 from util import misc
 
@@ -40,6 +32,8 @@ class Analysis(object):
 
         # List of analyzers to run.
         # Start with a basic analyzer that is common to all file types.
+        from analyze.analyze_filesystem import FilesystemAnalyzer
+        from analyze.analyze_filename import FilenameAnalyzer
         self.analysis_run_queue = [FilesystemAnalyzer, FilenameAnalyzer]
 
         # Select analyzer based on detected file type.
@@ -56,6 +50,10 @@ class Analysis(object):
 
     def _populate_run_queue(self):
         # Analyzers to use for file types
+        from analyze.analyze_pdf import PdfAnalyzer
+        from analyze.analyze_image import ImageAnalyzer
+        from analyze.analyze_text import TextAnalyzer
+        from analyze.analyze_video import VideoAnalyzer
         ANALYZER_TYPE_LOOKUP = {ImageAnalyzer: ['jpg', 'png'],
                                 PdfAnalyzer: 'pdf',
                                 TextAnalyzer: ['txt', 'md'],

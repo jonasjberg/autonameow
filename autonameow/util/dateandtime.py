@@ -202,7 +202,7 @@ def regex_search_str(text):
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from text: '
                               '[{}]'.format(dt))
-                results += dt
+                results.append(dt)
                 matches += 1
 
     # Expected date format:         2016:04:07
@@ -240,15 +240,14 @@ def regex_search_str(text):
                 results.append(dt)
                 matches += 1
 
-    logging.info('Regex matcher found [{:^3}] matches.'.format(matches))
-    logging.info('Regex matcher returning list of [{:^3}] '
+    logging.debug('Regex matcher found [{:^3}] matches.'.format(matches))
+    logging.debug('Regex matcher returning list of [{:^3}] '
                  'results.'.format(len(results)))
     return results
 
 
 def match_special_case(text):
     """
-    PART #0   -- the very special case
     Very special case that is almost guaranteed to be correct.
     That is my personal favorite naming scheme: 1992-12-24_121314
     :param text: text to extract date/time from
@@ -264,7 +263,7 @@ def match_special_case(text):
         logging.debug('Failed matching very special case.')
     else:
         if date_is_probable(dt):
-            logging.info('Matched very special case: [{}]'.format(dt))
+            logging.debug('Matched very special case: [{}]'.format(dt))
             return dt
     return None
 
@@ -327,6 +326,9 @@ def match_unix_timestamp(text):
     if text is None or len(text) == 0:
         logging.warn('Text contains no digits from which to extract epoch.')
         return None
+    elif len(text) < 10:
+        logging.debug('Probably not a UNIX timestamp -- number of digits < 10.')
+        return None
 
     # Example Android phone file name: 1461786010455.jpg
     # Remove last 3 digits to be able to convert using GNU date:
@@ -343,7 +345,7 @@ def match_unix_timestamp(text):
         logging.debug('Failed matching seconds since epoch.')
     else:
         if date_is_probable(dt):
-            logging.info('Extracted UNIX timestamp from "{}": '
+            logging.debug('Extracted UNIX timestamp from "{}": '
                          '[{}]'.format(text, dt))
             return dt
 
@@ -459,7 +461,7 @@ def bruteforce_str(text):
             validate_result(dt)
 
     if results:
-        logging.info('First matcher found  [{:>3}] matches after [{:>4}] '
+        logging.debug('First matcher found  [{:>3}] matches after [{:>4}] '
                      'tries.'.format(bruteforce_str.matches, tries))
         return results
     else:
@@ -552,7 +554,7 @@ def bruteforce_str(text):
                           '({} --> {})'.format(digits, digits[1:]))
             digits = digits[1:]
 
-    logging.info('Second matcher found [{:>3}] matches after [{:>4}] '
+    logging.debug('Second matcher found [{:>3}] matches after [{:>4}] '
                  'tries.'.format(bruteforce_str.matches_total, tries_total))
     return results
 
@@ -637,7 +639,6 @@ def get_datetime_from_text(text, prefix='NULL'):
     for t in text_split:
         dt = bruteforce_str(t)
         if dt and dt is not None:
-            # logging.info('Added result from contents: {0}'.format(dt))
             results_brute.append(dt)
             matches += 1
 
@@ -647,7 +648,6 @@ def get_datetime_from_text(text, prefix='NULL'):
         for t in text_split:
             dt = bruteforce_str(t)
             if dt and dt is not None:
-                # logging.info('Added result from contents: {0}'.format(dt))
                 results_brute.append(dt)
                 matches += 1
 
@@ -655,10 +655,68 @@ def get_datetime_from_text(text, prefix='NULL'):
     regex_match = 0
     dt_regex = regex_search_str(text)
     if dt_regex and dt_regex is not None:
-        # logging.info('Added result from contents regex search: '
-        #              '{0}'.format(dt_regex))
         results_regex.append(dt_regex)
         regex_match += 1
 
     # Collect all individual results and return.
     return results_regex, results_brute
+
+
+def match_special_case_no_date(text):
+    """
+    Very special case that is almost guaranteed to be correct, date only.
+    That is my personal favorite naming scheme: 1992-12-24
+    :param text: text to extract date/time from
+    :return: datetime if found otherwise None
+    """
+    try:
+        logging.debug('Matching against very special case '
+                      '"YYYY-mm-dd" ..')
+        dt = datetime.strptime(text[:10], '%Y-%m-%d')
+    except ValueError:
+        logging.debug('Failed matching date only version of very special case.')
+    else:
+        if date_is_probable(dt):
+            logging.debug('Matched very special case, date only: '
+                         '[{}]'.format(dt))
+            return dt
+    return None
+
+
+def special_datetime_ocr_search(text):
+    """
+    Very special case. OCR text often mistakes "/" for "7", hence
+    this search.
+    Text actually contains:   2016/02/08
+    OCR returns result:       2016702708
+    :return:
+    """
+    pattern = re.compile('(\d{4}7[01]\d7[0123]\d)')
+    dt_fmt = '%Y7%m7%d'
+    for dt_str in re.findall(pattern, text):
+        try:
+            logging.debug('Trying to match [{}] to '
+                          '[{}] ..'.format(dt_fmt, dt_str))
+            dt = datetime.strptime(dt_str, dt_fmt)
+        except ValueError:
+            pass
+        else:
+            if date_is_probable(dt):
+                logging.debug('Extracted datetime from text: '
+                              '[{}]'.format(dt))
+                return dt
+    return None
+
+
+def match_screencapture_unixtime(text):
+    """
+    Match filenames created by the Chrome extension "Full Page Screen Capture".
+    :param text: text to search for UNIX timestamp
+    :return: datetime-object if a match is found, else None
+    """
+    pattern = re.compile('.*(\d{13}).*')
+    for t in re.findall(pattern, text):
+        dt = match_unix_timestamp(t)
+        if dt:
+            return dt
+    return None

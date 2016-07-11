@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 import platform
+import time
 
 from colorama import Fore
 from colorama import Back
@@ -47,34 +48,45 @@ class Autonameow(object):
         """
         Main program entry point
         """
-        # Handle the command line arguments.
+        # Save time of startup for later calculation of total runtime.
+        self.start_time = time.time()
+
+        # Display help/usage information if no arguments are provided.
+        if len(sys.argv) < 2:
+            print('Add "--help" to display usage information.')
+            self.exit_program(0)
+
         # TODO: Fix the filtering! Not completed as-is.
         self.filter = {'ignore_years': [],
                        'ignore_before_year': None,
                        'ignore_after_year': None}
+
+        # Handle the command line arguments.
         self.args = self._parse_args()
 
+        # Display startup banner and other information if applicable.
         if self.args.verbose:
             self._display_start_banner()
         if self.args.dump_options:
             self._display_options(self.args)
 
-        # Iterate over command line arguments ..
+        # Exit if no files are specified, for now.
         if not self.args.input_files:
-            logging.critical('No input files specified. Exiting.')
-            exit(1)
-        else:
-            try:
-                self._handle_files()
-            except KeyboardInterrupt:
-                logging.critical('Received keyboard interrupt; Exiting ..')
-                sys.exit()
+            logging.warn('No input files specified ..')
+            self.exit_program(1)
+
+        # Iterate over command line arguments ..
+        self._handle_files()
+        self.exit_program()
 
     def _handle_files(self):
         """
         Iterate over passed arguments, which should be paths to files.
         """
-        should_quit = True
+        exit_code = 0
+        if len(self.args.input_files) < 1:
+            logging.critical('No input files specified.')
+            return
         for arg in self.args.input_files:
             if not os.path.exists(arg):
                 logging.error('Skipping non-existent file/directory '
@@ -95,7 +107,7 @@ class Autonameow(object):
                 logging.info('Processing file "{}"'.format(str(arg)))
 
                 # Create a file object representing the current arg.
-                current_file = FileObject(arg, None, None, None, None, None, None)
+                current_file = FileObject(arg)
 
                 # Begin analysing the file.
                 analysis = Analysis(current_file, self.filter)
@@ -112,7 +124,6 @@ class Autonameow(object):
                 # action = None
                 # action = RenameAction(current_file, results)
 
-        self.exit_program()
 
     def _init_argparser(self):
         """
@@ -298,12 +309,6 @@ class Autonameow(object):
                               ' follow year {}'.format(dt.year))
                 self.filter['ignore_after_year'] = dt
 
-        # Display help/usage information if no arguments are provided.
-        if len(sys.argv) < 2:
-            logging.critical('Add "--help" to display usage information.')
-            # parser.print_help()
-            exit(0)
-
         return args
 
     def _display_options(self, args):
@@ -379,7 +384,13 @@ class Autonameow(object):
               'Started at {} by {} on {}'.format(date, username, hostname) +
               Fore.RESET)
 
-    def exit_program(self):
-        # TODO: Expand this method and/or figure out if it is even needed ..
-        logging.info('Exiting.')
-        sys.exit(0)
+    def exit_program(self, exit_code=0):
+        try:
+            exit_code = int(exit_code)
+        except TypeError:
+            exit_code = 1
+
+        logging.info('Exiting with exit code [{}]'.format(exit_code))
+        logging.info('Total execution time: '
+                     '[{:.6f} seconds]'.format(time.time() - self.start_time))
+        sys.exit(exit_code)

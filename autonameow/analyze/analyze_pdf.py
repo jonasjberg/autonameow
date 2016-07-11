@@ -9,7 +9,6 @@ from datetime import datetime
 
 import PyPDF2
 from PyPDF2.utils import PdfReadError
-from unidecode import unidecode
 
 from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
@@ -172,7 +171,7 @@ class PdfAnalyzer(AbstractAnalyzer):
             logging.debug('Running pdf text extractor [{:<2}/{:<2}] '
                           '..'.format(i, len(text_extractors)))
             pdf_text = extractor()
-            if pdf_text:
+            if pdf_text and len(pdf_text) > 1:
                 logging.debug('Extracted text with: {}'.format(extractor.__name__))
                 # Post-process text extracted from a pdf document.
                 pdf_text = text.sanitize_text(pdf_text)
@@ -211,10 +210,10 @@ class PdfAnalyzer(AbstractAnalyzer):
         # Start by extracting a limited range of pages.
         # Maybe relevant info is more likely to be on the front page, or at
         # least in the first few pages?
-        logging.debug('Extracting page #0')
+        logging.debug('Extracting page #1')
         content = pdff.pages[0].extractText()
         if len(content) == 0:
-            logging.debug('Textual content of page #0 is empty.')
+            logging.debug('Textual content of page #1 is empty.')
             pass
 
         # Collect more until a preset arbitrary limit is reached.
@@ -222,13 +221,13 @@ class PdfAnalyzer(AbstractAnalyzer):
             if len(content) > 50000:
                 logging.debug('Extraction hit content size limit.')
                 break
-            logging.debug('Extracting page [{:<4} of {:<4}] ..'.format(i, number_of_pages))
+            logging.debug('Extracting page [{:<4} of {:<4}] ..'.format(i + 1, number_of_pages))
             content += pdff.getPage(i).extractText() + '\n'
 
         if content:
             return content
         else:
-            logging.info('Unable to extract text with PyPDF2 ..')
+            logging.warning('Unable to extract text with PyPDF2 ..')
             return False
 
     def _extract_pdf_content_with_pdftotext(self):
@@ -306,7 +305,7 @@ class PdfAnalyzer(AbstractAnalyzer):
             if dt_brute:
                 matches += 1
                 if isinstance(dt_brute, list):
-                    for e in dt_regex:
+                    for e in dt_brute:
                         results.append({'datetime': e,
                                         'source': 'text_content_brute',
                                         'weight': 0.1})
@@ -324,7 +323,7 @@ class PdfAnalyzer(AbstractAnalyzer):
                 if dt_brute:
                     matches += 1
                     if isinstance(dt_brute, list):
-                        for e in dt_regex:
+                        for e in dt_brute:
                             results.append({'datetime': e,
                                             'source': 'text_content_brute',
                                             'weight': 0.1})

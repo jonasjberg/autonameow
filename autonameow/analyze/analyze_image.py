@@ -141,7 +141,8 @@ class ImageAnalyzer(AbstractAnalyzer):
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
         if self.exif_data['Make'] == 'OnePlus' and \
            self.exif_data['Model'] == 'ONE E1003':
-            bad_exif_date = datetime.strptime('20021208_120000', '%Y%m%d_%H%M%S')
+            bad_exif_date = datetime.strptime('20021208_120000',
+                                              '%Y%m%d_%H%M%S')
             try:
                 # if results['Exif_DateTimeDigitized'] == bad_exif_date:
                 #     logging.debug('Removing erroneous date \"%s\"' %
@@ -247,20 +248,56 @@ class ImageAnalyzer(AbstractAnalyzer):
             return None
         else:
             image_text = image_text.strip()
+            logging.debug('Extracted [{}] bytes of '
+                          'text'.format(len(image_text)))
+            # print('Got image text: ')
+            # print(image_text)
             return image_text
 
     def _get_ocr_datetime(self):
         """
-        Extracts EXIF information from a image using PIL.
-        The EXIF data is stored in a dict using human-readable keys.
-        :return: Dict of EXIF data.
+        Extracts date and time information from the text produced by OCR.
+        :return: a list of dictionaries on the form:
+                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                     'source' : 'ocr',
+                     'weight'  : 0.1
+                   }, .. ]
         """
-        # TODO: Finish this method.
         if self.ocr_text is None:
             logging.warning('Found no text from OCR of '
                             '\"{}\"'.format(self.file_object.path))
             return None
 
-        # TODO: Fix return type/format of "_get_datetime_from_text" ..
-        dt = dateandtime.get_datetime_from_text(self.ocr_text, 'ocr')
-        return dt
+        results = []
+        text = self.ocr_text
+        if type(text) == list:
+            text = ' '.join(text)
+
+        dt_regex = dateandtime.regex_search_str(text)
+        if dt_regex:
+            for e in dt_regex:
+                results.append({'datetime': e,
+                                'source': 'image_ocr_regex',
+                                'weight': 0.25})
+
+        text_split = text.split('\n')
+        logging.debug('Try getting datetime from text split by newlines')
+        for t in text_split:
+            dt_brute = dateandtime.bruteforce_str(t)
+            if dt_brute:
+                for e in dt_brute:
+                    results.append({'datetime': e,
+                                    'source': 'image_ocr_brute',
+                                    'weight': 0.1})
+
+            dt_ocr_special = dateandtime.special_datetime_ocr_search(t)
+            if dt_ocr_special:
+                results.append({'datetime': dt_ocr_special,
+                                'source': 'image_ocr_special',
+                                'weight': 0.25})
+
+        if len(results) == 0:
+            logging.warning('Found no date/time-information in OCR text.')
+            return None
+        else:
+            return results

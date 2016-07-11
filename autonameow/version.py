@@ -10,7 +10,7 @@
 # Source: http://stackoverflow.com/a/16084844
 
 __title__ = 'autonameow'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __author__ = 'Jonas Sjoberg'
 __email__ = 'jomeganas@gmail.com'
 __url__ = 'https://github.com/jonasjberg'

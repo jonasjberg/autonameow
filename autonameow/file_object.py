@@ -18,14 +18,8 @@ magic_type_lookup = {'mp4':   ['video/mp4'],
 
 
 class FileObject(object):
-    def __init__(self, path, title, author, date, publisher, edition, tags):
+    def __init__(self, path):
         self.datetime_list = []
-        self.title = title
-        self.author = author
-        self.date = date
-        self.publisher = publisher
-        self.edition = edition
-        self.tags = tags
 
         if path is None:
             logging.critical('Got NULL path!')

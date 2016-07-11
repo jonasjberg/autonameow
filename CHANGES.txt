@@ -1,0 +1,51 @@
+2016-07-11  [autonameow v0.1.1]
+
+            Additions:
+            - Log the total execution time when using the '--verbose' option.
+            - Various improvements and additions to the debugging information
+              provided by "logging" when running with the '--debug' option.
+            - Add extra date/time search pattern to handle erroneous OCR text
+              results where "/" is returned as "7".
+            - Add extra date/time search pattern for filenames created by the
+              Chrome extension "Full Page Screen Capture".
+
+            Changes:
+            - Change logging level for no files specified.
+            - Modify logging levels. A number of 'info'-level messages are now
+              'debug'-level, motivated by reducing the overall output.
+            - Keyboard interrupt handling (ctrl-c) is now handled at a higer
+              level so that "most" interrupts are handled properly.
+            - Modify extracting date/time-information from filenames.  Adds
+              search-methods and modifies the order. Still not very good and
+              needs work.
+            - Modify the default configuration in 'default_config.py'.
+            - Modify how text is "sanitized" after extraction from documents,
+              currently only pdfs. Still very broken and needs to be fixed.
+
+            Fixes:
+            - Fix pdf page numbering in debug output.
+            - Fixes bug in PdfAnalyzer date/time-extraction where results from
+              'dt_regex' would end up in 'text_content_brute', leading to the
+              bruteforce results never reaching the results.
+            - Fix cases where pdf content  extraction with PyPdf2 would return
+              a single byte that counted as a successful extraction, preventing
+              any additional tries/extractors from being run.
+
+
+2016-07-08  [autonameow v0.1.0]
+            First actual version bump. Development up until now has been at
+            version v0.0.1. The code has now (barely) entered a state that
+            warrants versioning.
+
+            Additions:
+            - Project now has a change log.
+            - Basic alpha version of the main program, still severily lacking
+              in functionality, stability and consistency.
+
+            Changes:
+            - N/A
+
+            Fixes:
+            - N/A
+
+

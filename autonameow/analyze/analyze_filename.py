@@ -8,8 +8,6 @@ import os
 
 from datetime import datetime
 
-from guessit import guessit
-
 from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
 from util import misc
@@ -23,6 +21,11 @@ class FilenameAnalyzer(AbstractAnalyzer):
     def __init__(self, file_object, filters):
         super(FilenameAnalyzer, self).__init__(file_object, filters)
 
+        self.guessit_metadata = None
+        # Arbitrary length check limits (very slow) calls to guessit.
+        if len(self.file_object.basename_no_ext) > 20:
+            self.guessit_metadata = self._get_metadata_from_guessit()
+
     def get_datetime(self):
         result = []
 
@@ -31,10 +34,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
             result += fn_timestamps
             # self.filter_datetime(fn_timestamps)
 
-        # Arbitrary length check limits (very slow) calls to guessit.
-        if len(self.file_object.basename_no_ext) > 20:
-            # FIXME: Temporarily disable guessit while debugging.
-            return
+        if self.guessit_metadata:
             guessit_timestamps = self._get_datetime_from_guessit_metadata()
             if guessit_timestamps:
                 result += guessit_timestamps
@@ -44,9 +44,10 @@ class FilenameAnalyzer(AbstractAnalyzer):
     def get_title(self):
         titles = []
 
-        guessit_title = self._get_title_from_guessit_metadata()
-        if guessit_title:
-            titles += guessit_title
+        if self.guessit_metadata:
+            guessit_title = self._get_title_from_guessit_metadata()
+            if guessit_title:
+                titles += guessit_title
 
         return titles
 
@@ -56,33 +57,31 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
     def _get_title_from_guessit_metadata(self):
         """
-        Calls the external program "guessit" and collects any results.
+        Get the title from the results returned by "guessit".
         :return: a list of dictionaries (actually just one) on the form:
                  [ { 'title': "The Cats Meouw,
                      'source' : "guessit",
                      'weight'  : 0.75
                    }, .. ]
         """
-        guessit_metadata = self._get_metadata_from_guessit()
-        if guessit_metadata:
-            if 'title' in guessit_metadata:
-                return [{'title': guessit_metadata['title'],
+        if self.guessit_metadata:
+            if 'title' in self.guessit_metadata:
+                return [{'title': self.guessit_metadata['title'],
                          'source': 'guessit',
                          'weight': 0.75}]
 
     def _get_datetime_from_guessit_metadata(self):
         """
-        Calls the external program "guessit" and collects any results.
+        Get date/time-information from the results returned by "guessit".
         :return: a list of dictionaries (actually just one) on the form:
                  [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
                      'source' : "Create date",
                      'weight'  : 1
                    }, .. ]
         """
-        guessit_metadata = self._get_metadata_from_guessit()
-        if guessit_metadata:
-            if 'date' in guessit_metadata:
-                return [{'datetime': guessit_metadata['date'],
+        if self.guessit_metadata:
+            if 'date' in self.guessit_metadata:
+                return [{'datetime': self.guessit_metadata['date'],
                          'source': 'guessit',
                          'weight': 0.75}]
 
@@ -91,7 +90,8 @@ class FilenameAnalyzer(AbstractAnalyzer):
         Call external program "guessit".
         :return: dictionary of results if successful, otherwise false
         """
-        guessit_matches = guessit(self.file_object.basename_no_ext)
+        from guessit import guessit
+        guessit_matches = guessit(self.file_object.basename_no_ext, )
         return guessit_matches if guessit_matches is not None else False
 
     def _get_datetime_from_name(self):
@@ -115,6 +115,12 @@ class FilenameAnalyzer(AbstractAnalyzer):
                             'source': 'very_special_case',
                             'weight': 1})
 
+        dt_special_no_date = dateandtime.match_special_case_no_date(fn)
+        if dt_special_no_date:
+            results.append({'datetime': dt_special_no_date,
+                            'source': 'very_special_case_no_date',
+                            'weight': 0.95})
+
         # 2. Common patterns
         # ==================
         # Try more common patterns, starting with the most common.
@@ -125,30 +131,42 @@ class FilenameAnalyzer(AbstractAnalyzer):
                             'source': 'android_messenger',
                             'weight': 1})
 
+        # Match UNIX timestamp
         dt_unix = dateandtime.match_unix_timestamp(fn)
         if dt_unix:
             results.append({'datetime': dt_unix,
                             'source': 'unix_timestamp',
                             'weight': 1})
-        else:
-            dt_regex = dateandtime.regex_search_str(fn)
-            if dt_regex:
-                for dt in dt_regex:
-                    results.append({'datetime': dt,
-                                    'source': 'regex_search',
-                                    'weight': 0.25})
-            else:
-                logging.warning('Unable to extract date/time-information '
-                                'from file name using regex search.')
 
-            dt_brute = dateandtime.bruteforce_str(fn)
-            if dt_brute:
-                for dt in dt_brute:
-                    results.append({'datetime': dt,
-                                    'source': 'bruteforce_search',
-                                    'weight': 0.1})
-            else:
-                logging.warning('Unable to extract date/time-information '
-                                'from file name using brute force search.')
+        # Match screencapture-prefixed UNIX timestamp
+        dt_screencapture_unix = dateandtime.match_screencapture_unixtime(fn)
+        if dt_screencapture_unix:
+            results.append({'datetime': dt_screencapture_unix,
+                            'source': 'screencapture_unixtime',
+                            'weight': 1})
+
+        # 3. Generalized patternmatching and bruteforcing
+        # ===============================================
+        # General "regex search" with various patterns.
+        dt_regex = dateandtime.regex_search_str(fn)
+        if dt_regex:
+            for dt in dt_regex:
+                results.append({'datetime': dt,
+                                'source': 'regex_search',
+                                'weight': 0.25})
+        else:
+            logging.warning('Unable to extract date/time-information '
+                            'from file name using regex search.')
+
+        # Lastly, an iterative brute force search.
+        dt_brute = dateandtime.bruteforce_str(fn)
+        if dt_brute:
+            for dt in dt_brute:
+                results.append({'datetime': dt,
+                                'source': 'bruteforce_search',
+                                'weight': 0.1})
+        else:
+            logging.warning('Unable to extract date/time-information '
+                            'from file name using brute force search.')
 
         return results
