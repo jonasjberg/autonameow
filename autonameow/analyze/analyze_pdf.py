@@ -305,7 +305,7 @@ class PdfAnalyzer(AbstractAnalyzer):
             if dt_brute:
                 matches += 1
                 if isinstance(dt_brute, list):
-                    for e in dt_regex:
+                    for e in dt_brute:
                         results.append({'datetime': e,
                                         'source': 'text_content_brute',
                                         'weight': 0.1})
@@ -323,7 +323,7 @@ class PdfAnalyzer(AbstractAnalyzer):
                 if dt_brute:
                     matches += 1
                     if isinstance(dt_brute, list):
-                        for e in dt_regex:
+                        for e in dt_brute:
                             results.append({'datetime': e,
                                             'source': 'text_content_brute',
                                             'weight': 0.1})
