@@ -24,6 +24,10 @@ class VideoAnalyzer(AbstractAnalyzer):
         # TODO: Implement.
         pass
 
+    def get_tags(self):
+        # TODO: Implement.
+        pass
+
     def get_EXIF_datetime(self):
         """
         Extracts date and time information from the EXIF data.

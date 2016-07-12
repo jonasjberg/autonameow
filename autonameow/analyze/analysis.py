@@ -13,6 +13,7 @@ class Results(object):
     def __init__(self):
         self.datetime = {}
         self.title = {}
+        self.tags = []
         # self.author = []
         # etc ..
 
@@ -96,6 +97,7 @@ class Analysis(object):
             logging.debug('Running Analyzer: {}'.format(a.__class__))
             self.results.datetime[a.__class__.__name__] = a.get_datetime()
             self.results.title[a.__class__.__name__] = a.get_title()
+            self.results.tags.append(a.get_tags())
             # collected_title.append(analysis.get_title())
             # collected_author.append(analysis.get_author())
             # etc ..

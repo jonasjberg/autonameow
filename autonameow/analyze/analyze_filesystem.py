@@ -36,6 +36,10 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         # TODO: Implement.
         pass
 
+    def get_tags(self):
+        # TODO: Implement.
+        pass
+
     def _get_datetime_from_filesystem(self):
         """
         Extracts date and time information "from the file system", I.E.
