@@ -21,6 +21,7 @@ class VideoAnalyzer(AbstractAnalyzer):
     def get_title(self):
         # TODO: Implement.
         pass
+
     def get_datetime(self):
         # TODO: Implement.
         pass
