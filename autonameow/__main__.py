@@ -11,7 +11,7 @@ Execute with:
 """
 
 import sys
-from main import Autonameow
+from autonameow import Autonameow
 
 if __package__ is None and not hasattr(sys, 'frozen'):
     # It is a direct call to __main__.py
