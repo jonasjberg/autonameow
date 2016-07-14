@@ -40,6 +40,37 @@ def arg_is_year(value):
     return None
 
 
+def display_start_banner():
+    """
+    Prints a "banner" with program information and credits.
+    """
+    # TODO: Text alignment depends on manually hardcoding spaces! FIX!
+    print('')
+    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    username = os.environ.get('USER')
+    hostname = ' '.join(platform.uname()[:3])
+    credits1 = '  written by ' + version.__author__
+    credits2 = ' ' * 26 + version.__url__
+    credits3 = ' ' * 26 + version.__email__
+    copyright1 = ' ' * 15 + 'Copyright(c)2016 Jonas Sjoberg'
+    license1 = ' ' * 15 + 'Please see "LICENSE.md" for licensing details.'
+    print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
+          ' ' + version.__title__.upper() +
+          ' ' + Back.RESET + Fore.RESET +
+          '  version ' + version.__version__)
+    print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
+          ' ' + len(version.__title__) * '~' +
+          ' ' + Back.RESET + Fore.RESET + credits1)
+    print(credits2)
+    print(credits3)
+    print(copyright1)
+    print(license1)
+    print('')
+    print(Fore.LIGHTBLACK_EX +
+          'Started at {} by {} on {}'.format(date, username, hostname) +
+          Fore.RESET)
+
+
 class Autonameow(object):
     """
     Main class to manage "autonameow" instance.
@@ -66,7 +97,7 @@ class Autonameow(object):
 
         # Display startup banner and other information if applicable.
         if self.args.verbose:
-            self._display_start_banner()
+            display_start_banner()
         if self.args.dump_options:
             self._display_options(self.args)
 
@@ -353,36 +384,6 @@ class Autonameow(object):
         :return: command line arguments
         """
         return self.args
-
-    def _display_start_banner(self):
-        """
-        Prints a "banner" with program information and credits.
-        """
-        # TODO: Text alignment depends on manually hardcoding spaces! FIX!
-        print('')
-        date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-        username = os.environ.get('USER')
-        hostname = ' '.join(platform.uname()[:3])
-        credits1 = '  written by ' + version.__author__
-        credits2 = ' ' * 26 + version.__url__
-        credits3 = ' ' * 26 + version.__email__
-        copyright1 = ' ' * 15 + 'Copyright(c)2016 Jonas Sjoberg'
-        license1 = ' ' * 15 + 'Please see "LICENSE.md" for licensing details.'
-        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
-              ' ' + version.__title__.upper() +
-              ' ' + Back.RESET + Fore.RESET +
-              '  version ' + version.__version__)
-        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
-              ' ' + len(version.__title__) * '~' +
-              ' ' + Back.RESET + Fore.RESET + credits1)
-        print(credits2)
-        print(credits3)
-        print(copyright1)
-        print(license1)
-        print('')
-        print(Fore.LIGHTBLACK_EX +
-              'Started at {} by {} on {}'.format(date, username, hostname) +
-              Fore.RESET)
 
     def exit_program(self, exit_code=0):
         try:
