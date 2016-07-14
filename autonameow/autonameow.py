@@ -270,7 +270,8 @@ class Autonameow(object):
                                    action='store',
                                    help='ignore date/time-information from '
                                         'this year and the years prior. '
-                                        'Default: {}'.format(ignore_to_year_default))
+                                        'Default: {}'.format(
+                                         ignore_to_year_default))
 
         ignore_from_year_default = str(dateandtime.year_upper_limit.strftime('%Y'))
         optgrp_filter.add_argument('--ignore-after-year',
@@ -282,7 +283,8 @@ class Autonameow(object):
                                    action='store',
                                    help='ignore date/time-information from '
                                         'this year onward. '
-                                        'Default: {}'.format(ignore_from_year_default))
+                                        'Default: {}'.format(
+                                         ignore_from_year_default))
 
         optgrp_filter.add_argument('--ignore-years',
                                    metavar='YYYY',
@@ -310,9 +312,9 @@ class Autonameow(object):
         if args.debug:
             fmt = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
                   Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
-                     ' %(funcName)-25.25s (%(lineno)3d) ' + \
+                  ' %(funcName)-25.25s (%(lineno)3d) ' + \
                   Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + \
-                     '%(message)-120.120s'
+                  '%(message)-120.120s'
             logging.basicConfig(level=logging.DEBUG, format=fmt,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         # elif args.debug == 1:
