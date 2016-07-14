@@ -113,6 +113,7 @@ class Autonameow(object):
     """
     Main class to manage "autonameow" instance.
     """
+
     def __init__(self):
         """
         Main program entry point
@@ -192,7 +193,6 @@ class Autonameow(object):
                 # TODO: Implement this or something similar to it.
                 # action = None
                 # action = RenameAction(current_file, results)
-
 
     def _init_argparser(self):
         """
