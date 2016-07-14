@@ -71,6 +71,44 @@ def display_start_banner():
           Fore.RESET)
 
 
+def display_options(args):
+    """
+    Display details on the command line options that are in effect.
+    Mainly for debug purposes.
+    :param args: arguments to display
+    """
+
+    def print_line(k, v):
+        print('{:<4}{:<20}  :  {:<60}'.format(' ', k, v))
+
+    def print_line_section(text):
+        if not text.strip():
+            return
+        pad_left = 2
+        pad_right = terminal_width - len(text) - 2
+        strbuf = '\n'
+        strbuf += Back.LIGHTBLACK_EX + Fore.LIGHTWHITE_EX
+        strbuf += ' ' * pad_left
+        strbuf += text.upper() + ' ' * pad_right
+        strbuf += Back.RESET + Fore.RESET
+        print(strbuf)
+
+    print_line_section('Output options')
+    print_line('debug mode', 'TRUE' if args.debug else 'FALSE')
+    print_line('verbose mode', 'TRUE' if args.verbose else 'FALSE')
+    print_line('quiet mode', 'TRUE' if args.quiet else 'FALSE')
+    print_line_section('Actions to performed')
+    print_line('add datetime', 'TRUE' if args.list_datetime else 'FALSE')
+    print_line_section('Behavior configuration')
+    print_line('dry run', 'TRUE' if args.dry_run else 'FALSE')
+    print_line_section('Results filtering')
+    print_line('ignore year',
+               'TRUE' if args.filter_ignore_years else 'FALSE')
+    print_line_section('Positional arguments')
+    print_line('input files', 'TRUE' if args.input_files else 'FALSE')
+    print('')
+
+
 class Autonameow(object):
     """
     Main class to manage "autonameow" instance.
@@ -99,7 +137,7 @@ class Autonameow(object):
         if self.args.verbose:
             display_start_banner()
         if self.args.dump_options:
-            self._display_options(self.args)
+            display_options(self.args)
 
         # Exit if no files are specified, for now.
         if not self.args.input_files:
@@ -341,42 +379,6 @@ class Autonameow(object):
                 self.filter['ignore_after_year'] = dt
 
         return args
-
-    def _display_options(self, args):
-        """
-        Display details on the command line options that are in effect.
-        Mainly for debug purposes.
-        :param args: arguments to display
-        """
-        def print_line(k, v):
-            print('{:<4}{:<20}  :  {:<60}'.format(' ', k, v))
-
-        def print_line_section(text):
-            if not text.strip():
-                return
-            pad_left = 2
-            pad_right = terminal_width - len(text) - 2
-            strbuf = '\n'
-            strbuf += Back.LIGHTBLACK_EX + Fore.LIGHTWHITE_EX
-            strbuf += ' ' * pad_left
-            strbuf += text.upper() + ' ' * pad_right
-            strbuf += Back.RESET + Fore.RESET
-            print(strbuf)
-
-        print_line_section('Output options')
-        print_line('debug mode', 'TRUE' if args.debug else 'FALSE')
-        print_line('verbose mode', 'TRUE' if args.verbose else 'FALSE')
-        print_line('quiet mode', 'TRUE' if args.quiet else 'FALSE')
-        print_line_section('Actions to performed')
-        print_line('add datetime', 'TRUE' if args.list_datetime else 'FALSE')
-        print_line_section('Behavior configuration')
-        print_line('dry run', 'TRUE' if args.dry_run else 'FALSE')
-        print_line_section('Results filtering')
-        print_line('ignore year',
-                   'TRUE' if args.filter_ignore_years else 'FALSE')
-        print_line_section('Positional arguments')
-        print_line('input files', 'TRUE' if args.input_files else 'FALSE')
-        print('')
 
     def get_args(self):
         """
