@@ -382,13 +382,6 @@ class Autonameow(object):
 
         return args
 
-    def get_args(self):
-        """
-        Return the command line arguments/options.
-        :return: command line arguments
-        """
-        return self.args
-
     def exit_program(self, exit_code=0):
         try:
             exit_code = int(exit_code)
