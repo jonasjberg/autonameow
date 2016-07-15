@@ -61,8 +61,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
             atime = os.path.getatime(filename)
         except OSError as e:
             logging.critical('Failed extracting date/time-information '
-                             'from file system, which shouldnt happen.')
-            logging.critical('OSError: {}'.format(e))
+                             'from file system -- OSError: {}'.format(e))
         else:
             def dt_fts(t):
                 return datetime.fromtimestamp(t).replace(microsecond=0)
