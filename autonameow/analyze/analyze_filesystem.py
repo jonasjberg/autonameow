@@ -45,6 +45,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         Extracts date and time information "from the file system", I.E.
         access-, modification- and creation-timestamps.
         NOTE: This is all very platform-specific, I think.
+        NOTE #2: Microseconds are simply zeroed out.
         :return: list of dictionaries on the form:
                  [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
                      'source' : "Create date",
