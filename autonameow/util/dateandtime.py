@@ -14,6 +14,18 @@ import util.text
 from util import misc
 
 
+def hyphenate_date(date_str):
+    """
+    Convert a date in 'YYYYMMDD' format to 'YYYY-MM-DD' format.
+    This function is lifted as-is from utils.py in the "youtube-dl" project.
+    """
+    match = re.match(r'^(\d\d\d\d)(\d\d)(\d\d)$', date_str)
+    if match is not None:
+        return '-'.join(match.groups())
+    else:
+        return date_str
+
+
 def delta_frac(self, delta):
     """
     Calculate time delta between datetime objects.
