@@ -22,7 +22,7 @@ class TestDiskUtils(TestCase):
         self.assertEqual('jpg', diskutils.file_suffix('.hiddenfile.jpg'))
         self.assertEqual('jpg', diskutils.file_suffix('.hiddenfile.JPG'))
         self.assertEqual('JPG', diskutils.file_suffix('.hiddenfile.JPG',
-                                                         make_lowercase=False))
+                                                      make_lowercase=False))
 
     def test_file_suffix_many_suffixes(self):
         self.assertEqual('tar', diskutils.file_suffix('filename.tar'))
