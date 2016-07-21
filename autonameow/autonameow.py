@@ -388,7 +388,7 @@ class Autonameow(object):
         except TypeError:
             exit_code = 1
 
-        logging.info('Exiting with exit code [{}]'.format(exit_code))
+        logging.info('Exiting with exit code: {}'.format(exit_code))
         logging.info('Total execution time: '
-                     '[{:.6f} seconds]'.format(time.time() - self.start_time))
+                     '{:.6f} seconds'.format(time.time() - self.start_time))
         sys.exit(exit_code)
