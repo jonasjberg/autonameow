@@ -48,7 +48,7 @@ def file_base(file_path):
     Get file basename without extension/suffix for the file located in
     "file_path".
     :param file_path: path to the file from which to get extension.
-    :return: the file basename without extension if found, else None
+    :return: the file basename without extension if not empty, else None
     """
     base, _ = split_filename(file_path)
-    return base if len(base) > 0 else None
+    return base if base else None
