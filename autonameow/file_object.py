@@ -8,6 +8,8 @@ import magic
 import os
 
 # Match output from magic.ms
+from util import diskutils
+
 magic_type_lookup = {'mp4':   ['video/mp4'],
                      'ogg':   ['video/ogg'],
                      'jpg':   ['image/jpeg'],
@@ -35,9 +37,8 @@ class FileObject(object):
         logging.debug('fileObject path: {}'.format(self.path))
 
         # Extract parts of the file name.
-        self.basename = os.path.basename(self.path)
-        self.basename_no_ext = os.path.splitext(self.basename)[0]
-        self.extension = self._get_file_extension()
+        self.basename_no_ext = diskutils.file_base(self.path)
+        self.extension = diskutils.file_suffix(self.path)
 
         # Figure out basic file type
         self.type = self._get_type_from_magic()
