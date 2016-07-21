@@ -1,3 +1,33 @@
+2016-07-21  [autonameow v0.1.2]
+
+            Additions:
+            - Add parsing filetags from file names, as per the "filetags"
+              workflow. Adds 'get_tags' to the abstract analyzer class,
+              even though not all analyzer are suited to implement it.
+            - Add settings related to the "filetags" workflow to the
+              configuration file and default settings.
+            - Start adding unit tests for 'dateandtime.py'.
+            - Add utility file system functions 'diskutils.py'.
+                - Add tests for 'diskutils.py'.
+
+            Changes:
+            - Rename 'main.py' to 'autonameow.py'.
+            - Cleanup 'autonameow.py';
+                - Remove unused code.
+                - Rename variables and methods.
+                - Make functions out of non-class specific methods.
+            - Rename 'doc' directory to 'docs'.
+            - Redo the unit tests completely, use different structure.
+            - Add program termination message when using '--verbose'.
+            - Have 'file_object' instances use the functions in 'diskutils.py'
+              for getting their own filenames, etc. This makes it easier to
+              test "simple" disk I/O code -- no need to create
+              'file_object' instances.
+
+            Fixes:
+            - Improve matching UNIX timestamps in 'dateandtime.py'.
+
+
 2016-07-11  [autonameow v0.1.1]
 
             Additions:

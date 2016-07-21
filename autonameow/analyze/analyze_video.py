@@ -9,8 +9,9 @@ from analyze.analyze_abstract import AbstractAnalyzer
 
 
 class VideoAnalyzer(AbstractAnalyzer):
-    def __init__(self):
-        # TODO: Implement.
+    def __init__(self, file_object, filters):
+        super(VideoAnalyzer, self).__init__(file_object, filters)
+
         self.exif_data = None
 
     def get_author(self):
@@ -20,7 +21,12 @@ class VideoAnalyzer(AbstractAnalyzer):
     def get_title(self):
         # TODO: Implement.
         pass
+
     def get_datetime(self):
+        # TODO: Implement.
+        pass
+
+    def get_tags(self):
         # TODO: Implement.
         pass
 

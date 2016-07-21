@@ -52,6 +52,10 @@ class ImageAnalyzer(AbstractAnalyzer):
         # TODO: Implement.
         pass
 
+    def get_tags(self):
+        # TODO: Implement.
+        pass
+
     def _get_exif_datetime(self):
         """
         Extracts date and time information from the EXIF data.

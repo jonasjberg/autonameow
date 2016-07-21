@@ -19,6 +19,9 @@ class AbstractAnalyzer(object):
     def get_author(self):
         raise NotImplementedError
 
+    def get_tags(self):
+        raise NotImplementedError
+
     # def run(self):
     #     """
     #     Run the analysis.

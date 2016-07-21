@@ -45,6 +45,10 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         return results
 
+    def get_tags(self):
+        # TODO: Implement.
+        pass
+
     def _get_metadata_datetime(self):
         """
         Extract date and time information from pdf metadata.

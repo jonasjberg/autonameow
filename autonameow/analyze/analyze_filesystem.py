@@ -36,11 +36,16 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         # TODO: Implement.
         pass
 
+    def get_tags(self):
+        # TODO: Implement.
+        pass
+
     def _get_datetime_from_filesystem(self):
         """
         Extracts date and time information "from the file system", I.E.
         access-, modification- and creation-timestamps.
         NOTE: This is all very platform-specific, I think.
+        NOTE #2: Microseconds are simply zeroed out.
         :return: list of dictionaries on the form:
                  [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
                      'source' : "Create date",
@@ -57,8 +62,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
             atime = os.path.getatime(filename)
         except OSError as e:
             logging.critical('Failed extracting date/time-information '
-                             'from file system, which shouldnt happen.')
-            logging.critical('OSError: {}'.format(e))
+                             'from file system -- OSError: {}'.format(e))
         else:
             def dt_fts(t):
                 return datetime.fromtimestamp(t).replace(microsecond=0)

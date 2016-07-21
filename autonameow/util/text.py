@@ -28,7 +28,8 @@ def sanitize_text(text):
     text = text.replace('\xa0', ' ')
     #pdf_text = " ".join(pdf_text.replace("\xa0", " ").strip().split())
 
-    text = text.decode('unicode-escape')
+    # text = text.decode('unicode-escape')
+    text = unicode(text, 'UTF-8')
     return text
 
 

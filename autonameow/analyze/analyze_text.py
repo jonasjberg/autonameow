@@ -37,6 +37,10 @@ class TextAnalyzer(AbstractAnalyzer):
 
         return result
 
+    def get_tags(self):
+        # TODO: Implement.
+        pass
+
     def _extract_text_content(self):
         """
         Extract the plain text contents of a text file as strings.

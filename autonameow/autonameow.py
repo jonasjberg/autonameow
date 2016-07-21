@@ -40,10 +40,88 @@ def arg_is_year(value):
     return None
 
 
+def display_start_banner():
+    """
+    Prints a "banner" with program information and credits.
+    """
+    # TODO: Text alignment depends on manually hardcoding spaces! FIX!
+    print('')
+    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    username = os.environ.get('USER')
+    hostname = ' '.join(platform.uname()[:3])
+    credits1 = '  written by ' + version.__author__
+    credits2 = ' ' * 26 + version.__url__
+    credits3 = ' ' * 26 + version.__email__
+    copyright1 = ' ' * 15 + 'Copyright(c)2016 Jonas Sjoberg'
+    license1 = ' ' * 15 + 'Please see "LICENSE.md" for licensing details.'
+    print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
+          ' ' + version.__title__.upper() +
+          ' ' + Back.RESET + Fore.RESET +
+          '  version ' + version.__version__)
+    print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
+          ' ' + len(version.__title__) * '~' +
+          ' ' + Back.RESET + Fore.RESET + credits1)
+    print(credits2)
+    print(credits3)
+    print(copyright1)
+    print(license1)
+    print('')
+    print(Fore.LIGHTBLACK_EX +
+          'Started at {} by {} on {}'.format(date, username, hostname) +
+          Fore.RESET)
+
+
+def display_end_banner(exit_code, elapsed_time):
+    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    print(Fore.LIGHTBLACK_EX +
+          'Terminated at {} (total execution time: {:.6f} seconds) '
+          'with exit code [{}]'.format(date, elapsed_time, exit_code) +
+          Fore.RESET)
+
+
+def display_options(args):
+    """
+    Display details on the command line options that are in effect.
+    Mainly for debug purposes.
+    :param args: arguments to display
+    """
+
+    def print_line(k, v):
+        print('{:<4}{:<20}  :  {:<60}'.format(' ', k, v))
+
+    def print_line_section(text):
+        if not text.strip():
+            return
+        pad_left = 2
+        pad_right = terminal_width - len(text) - 2
+        strbuf = '\n'
+        strbuf += Back.LIGHTBLACK_EX + Fore.LIGHTWHITE_EX
+        strbuf += ' ' * pad_left
+        strbuf += text.upper() + ' ' * pad_right
+        strbuf += Back.RESET + Fore.RESET
+        print(strbuf)
+
+    print_line_section('Output options')
+    print_line('debug mode', 'TRUE' if args.debug else 'FALSE')
+    print_line('verbose mode', 'TRUE' if args.verbose else 'FALSE')
+    print_line('quiet mode', 'TRUE' if args.quiet else 'FALSE')
+    print_line_section('Actions to performed')
+    print_line('add datetime', 'TRUE' if args.list_datetime else 'FALSE')
+    print_line_section('Behavior configuration')
+    print_line('dry run', 'TRUE' if args.dry_run else 'FALSE')
+    print_line_section('Results filtering')
+    print_line('ignore year',
+               'TRUE' if args.filter_ignore_years else 'FALSE')
+    print_line_section('Positional arguments')
+    print_line('input files', 'TRUE' if args.input_files else 'FALSE')
+    print('')
+
+
 class Autonameow(object):
     """
     Main class to manage "autonameow" instance.
     """
+
     def __init__(self):
         """
         Main program entry point
@@ -66,9 +144,9 @@ class Autonameow(object):
 
         # Display startup banner and other information if applicable.
         if self.args.verbose:
-            self._display_start_banner()
+            display_start_banner()
         if self.args.dump_options:
-            self._display_options(self.args)
+            display_options(self.args)
 
         # Exit if no files are specified, for now.
         if not self.args.input_files:
@@ -123,7 +201,6 @@ class Autonameow(object):
                 # TODO: Implement this or something similar to it.
                 # action = None
                 # action = RenameAction(current_file, results)
-
 
     def _init_argparser(self):
         """
@@ -191,7 +268,7 @@ class Autonameow(object):
 
         # Add option group for filter options.
         optgrp_filter = parser.add_argument_group('Processing options')
-        ignore_to_year_default = str(dateandtime.year_lower_limit.strftime('%Y'))
+        ignore_to_year_default = str(dateandtime.YEAR_LOWER_LIMIT.strftime('%Y'))
         optgrp_filter.add_argument('--ignore-before-year',
                                    metavar='YYYY',
                                    type=arg_is_year,
@@ -201,9 +278,10 @@ class Autonameow(object):
                                    action='store',
                                    help='ignore date/time-information from '
                                         'this year and the years prior. '
-                                        'Default: {}'.format(ignore_to_year_default))
+                                        'Default: {}'.format(
+                                         ignore_to_year_default))
 
-        ignore_from_year_default = str(dateandtime.year_upper_limit.strftime('%Y'))
+        ignore_from_year_default = str(dateandtime.YEAR_UPPER_LIMIT.strftime('%Y'))
         optgrp_filter.add_argument('--ignore-after-year',
                                    metavar='YYYY',
                                    type=arg_is_year,
@@ -213,7 +291,8 @@ class Autonameow(object):
                                    action='store',
                                    help='ignore date/time-information from '
                                         'this year onward. '
-                                        'Default: {}'.format(ignore_from_year_default))
+                                        'Default: {}'.format(
+                                         ignore_from_year_default))
 
         optgrp_filter.add_argument('--ignore-years',
                                    metavar='YYYY',
@@ -241,9 +320,9 @@ class Autonameow(object):
         if args.debug:
             fmt = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
                   Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
-                     ' %(funcName)-25.25s (%(lineno)3d) ' + \
+                  ' %(funcName)-25.25s (%(lineno)3d) ' + \
                   Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + \
-                     '%(message)-120.120s'
+                  '%(message)-120.120s'
             logging.basicConfig(level=logging.DEBUG, format=fmt,
                                 datefmt='%Y-%m-%d %H:%M:%S')
         # elif args.debug == 1:
@@ -311,86 +390,18 @@ class Autonameow(object):
 
         return args
 
-    def _display_options(self, args):
-        """
-        Display details on the command line options that are in effect.
-        Mainly for debug purposes.
-        :param args: arguments to display
-        """
-        def print_line(k, v):
-            print('{:<4}{:<20}  :  {:<60}'.format(' ', k, v))
-
-        def print_line_section(text):
-            if not text.strip():
-                return
-            pad_left = 2
-            pad_right = terminal_width - len(text) - 2
-            strbuf = '\n'
-            strbuf += Back.LIGHTBLACK_EX + Fore.LIGHTWHITE_EX
-            strbuf += ' ' * pad_left
-            strbuf += text.upper() + ' ' * pad_right
-            strbuf += Back.RESET + Fore.RESET
-            print(strbuf)
-
-        print_line_section('Output options')
-        print_line('debug mode', 'TRUE' if args.debug else 'FALSE')
-        print_line('verbose mode', 'TRUE' if args.verbose else 'FALSE')
-        print_line('quiet mode', 'TRUE' if args.quiet else 'FALSE')
-        print_line_section('Actions to performed')
-        print_line('add datetime', 'TRUE' if args.list_datetime else 'FALSE')
-        print_line_section('Behavior configuration')
-        print_line('dry run', 'TRUE' if args.dry_run else 'FALSE')
-        print_line_section('Results filtering')
-        print_line('ignore year',
-                   'TRUE' if args.filter_ignore_years else 'FALSE')
-        print_line_section('Positional arguments')
-        print_line('input files', 'TRUE' if args.input_files else 'FALSE')
-        print('')
-
-    def get_args(self):
-        """
-        Return the command line arguments/options.
-        :return: command line arguments
-        """
-        return self.args
-
-    def _display_start_banner(self):
-        """
-        Prints a "banner" with program information and credits.
-        """
-        # TODO: Text alignment depends on manually hardcoding spaces! FIX!
-        print('')
-        date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-        username = os.environ.get('USER')
-        hostname = ' '.join(platform.uname()[:3])
-        credits1 = '  written by ' + version.__author__
-        credits2 = ' ' * 26 + version.__url__
-        credits3 = ' ' * 26 + version.__email__
-        copyright1 = ' ' * 15 + 'Copyright(c)2016 Jonas Sjoberg'
-        license1 = ' ' * 15 + 'Please see "LICENSE.md" for licensing details.'
-        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
-              ' ' + version.__title__.upper() +
-              ' ' + Back.RESET + Fore.RESET +
-              '  version ' + version.__version__)
-        print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
-              ' ' + len(version.__title__) * '~' +
-              ' ' + Back.RESET + Fore.RESET + credits1)
-        print(credits2)
-        print(credits3)
-        print(copyright1)
-        print(license1)
-        print('')
-        print(Fore.LIGHTBLACK_EX +
-              'Started at {} by {} on {}'.format(date, username, hostname) +
-              Fore.RESET)
-
     def exit_program(self, exit_code=0):
         try:
             exit_code = int(exit_code)
         except TypeError:
             exit_code = 1
 
-        logging.info('Exiting with exit code [{}]'.format(exit_code))
-        logging.info('Total execution time: '
-                     '[{:.6f} seconds]'.format(time.time() - self.start_time))
+        elapsed_time = time.time() - self.start_time
+
+        if self.args.verbose:
+            display_end_banner(exit_code, elapsed_time)
+
+        logging.debug('Exiting with exit code: {}'.format(exit_code))
+        logging.debug('Total execution time: '
+                      '{:.6f} seconds'.format(elapsed_time))
         sys.exit(exit_code)

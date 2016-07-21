@@ -14,6 +14,18 @@ import util.text
 from util import misc
 
 
+def hyphenate_date(date_str):
+    """
+    Convert a date in 'YYYYMMDD' format to 'YYYY-MM-DD' format.
+    This function is lifted as-is from utils.py in the "youtube-dl" project.
+    """
+    match = re.match(r'^(\d\d\d\d)(\d\d)(\d\d)$', date_str)
+    if match is not None:
+        return '-'.join(match.groups())
+    else:
+        return date_str
+
+
 def delta_frac(self, delta):
     """
     Calculate time delta between datetime objects.
@@ -39,8 +51,8 @@ def nextyear(dt):
 # TODO: Use separate file for globals like these?
 #       Should probably be stored in a configuration file along with other
 #       user-modifiable settings.
-year_lower_limit = datetime.strptime('1900', '%Y')
-year_upper_limit = nextyear(datetime.today())
+YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
+YEAR_UPPER_LIMIT = nextyear(datetime.today())
 
 
 def _year_is_probable(year):
@@ -82,10 +94,10 @@ def _year_is_probable(year):
             return False
 
     # Do date comparisons using datetime-objects.
-    if year.year > year_upper_limit.year:
+    if year.year > YEAR_UPPER_LIMIT.year:
         # logging.debug('Skipping future date [{}]'.format(date))
         return False
-    elif year.year < year_lower_limit.year:
+    elif year.year < YEAR_LOWER_LIMIT.year:
         # logging.debug('Skipping non-probable (<{}) date '
         #               '[{}]'.format(year_lower_limit, date))
         return False
@@ -112,10 +124,10 @@ def date_is_probable(date):
         return False
 
     # Do date comparisons using datetime-objects.
-    if date.year > year_upper_limit.year:
+    if date.year > YEAR_UPPER_LIMIT.year:
         # logging.debug('Skipping future date [{}]'.format(date))
         return False
-    elif date.year < year_lower_limit.year:
+    elif date.year < YEAR_LOWER_LIMIT.year:
         # logging.debug('Skipping non-probable (<{}) date '
         #               '[{}]'.format(year_lower_limit, date))
         return False
@@ -316,39 +328,36 @@ def match_unix_timestamp(text):
     :return: datetime if found otherwise None
     """
     if text is None:
-        logging.error('Got NULL argument!')
+        # logging.error('Got NULL argument!')
         return None
     elif text.strip() is None:
-        logging.error('Got empty string!')
+        # logging.error('Got empty string!')
         return None
 
-    text = util.text.extract_digits(text)
-    if text is None or len(text) == 0:
-        logging.warn('Text contains no digits from which to extract epoch.')
+    re_match = re.search(r'(\d{10,13})', text)
+    if re_match is None:
+        logging.debug('Probably not a UNIX timestamp -- does not contain '
+                      '10-13 consecutive digits.')
         return None
-    elif len(text) < 10:
-        logging.debug('Probably not a UNIX timestamp -- number of digits < 10.')
-        return None
+    digits = re_match.group(0)
 
     # Example Android phone file name: 1461786010455.jpg
     # Remove last 3 digits to be able to convert using GNU date:
     # $ date --date ='@1461786010'
     #   ons 27 apr 2016 21:40:10 CEST
-    if len(text) == 13:
-        text = text[:10]
+    if len(digits) == 13:
+        digits = digits[:10]
 
-    text_float = float(text)
     try:
-        logging.debug('Try matching seconds since 1970-01-01 00:00:00 UTC.')
-        dt = datetime.fromtimestamp(text_float)
-    except ValueError:
-        logging.debug('Failed matching seconds since epoch.')
+        digits = float(digits)
+        dt = datetime.fromtimestamp(digits)
+    except TypeError, ValueError:
+        logging.debug('Failed matching UNIX timestamp.')
     else:
         if date_is_probable(dt):
-            logging.debug('Extracted UNIX timestamp from "{}": '
-                         '[{}]'.format(text, dt))
+            logging.debug('Extracted date/time-info [{}] from UNIX timestamp '
+                          '"{}"'.format(dt, text))
             return dt
-
     return None
 
 
