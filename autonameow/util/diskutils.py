@@ -4,14 +4,13 @@
 
 import os
 
+
 def split_filename(file_path):
     """
-    Get file extension for file located in "path".
-    Handles some special cases, for instance "basename.tar.gz" returns
-    "tar.gz" and not just "gz".
-    :param file_path: path to the file from which to get extension.
-    :param make_lowercase: make the extension lowercase, defaults to True
-    :return: the file extension if found, else None
+    Split file name for file located in "path" to two components;
+    "name" and "suffix/extension".
+    :param file_path: path to the file to split
+    :return: tuple of the file "name" and "extension/suffix"
     """
     base, ext = os.path.splitext(os.path.basename(file_path))
 
