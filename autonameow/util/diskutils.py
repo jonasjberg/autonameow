@@ -7,7 +7,7 @@ import os
 
 def split_filename(file_path):
     """
-    Split file name for file located in "path" to two components;
+    Split file name of the file located in "file_path" into two components;
     "name" and "suffix/extension".
     :param file_path: path to the file to split
     :return: tuple of the file "name" and "extension/suffix"
@@ -28,7 +28,7 @@ def split_filename(file_path):
 
 def file_suffix(file_path, make_lowercase=True):
     """
-    Get file suffix/extension for file located in "path".
+    Get file suffix/extension for the file located in "file_path".
     Handles some special cases, for instance "basename.tar.gz" returns
     the suffix "tar.gz" and not just the extension "gz".
     :param file_path: path to the file from which to get extension.
@@ -42,3 +42,13 @@ def file_suffix(file_path, make_lowercase=True):
 
     return ext
 
+
+def file_base(file_path):
+    """
+    Get file basename without extension/suffix for the file located in
+    "file_path".
+    :param file_path: path to the file from which to get extension.
+    :return: the file basename without extension if found, else None
+    """
+    base, _ = split_filename(file_path)
+    return base if len(base) > 0 else None
