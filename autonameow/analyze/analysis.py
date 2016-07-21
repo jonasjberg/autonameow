@@ -83,7 +83,9 @@ class Analysis(object):
                           'Analyzer.'.format(self.file_object.type))
 
     def _execute_run_queue(self):
-        for analysis in self.analysis_run_queue:
+        for i, analysis in enumerate(self.analysis_run_queue):
+            logging.debug('Executing analysis run queue item '
+                          '[{}/{}]'.format(i + 1, len(self.analysis_run_queue)))
             if not analysis:
                 logging.error('Got null analysis from analysis run queue.')
                 continue
