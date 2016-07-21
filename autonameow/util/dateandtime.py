@@ -334,33 +334,30 @@ def match_unix_timestamp(text):
         logging.error('Got empty string!')
         return None
 
-    text = util.text.extract_digits(text)
-    if text is None or len(text) == 0:
-        logging.warn('Text contains no digits from which to extract epoch.')
+    re_match = re.search(r'(\d{10,13})', text)
+    if re_match is None:
+        logging.debug('Probably not a UNIX timestamp -- does not contain '
+                      '10-13 consecutive digits.')
         return None
-    elif len(text) < 10:
-        logging.debug('Probably not a UNIX timestamp -- number of digits < 10.')
-        return None
+    digits = re_match.group(0)
 
     # Example Android phone file name: 1461786010455.jpg
     # Remove last 3 digits to be able to convert using GNU date:
     # $ date --date ='@1461786010'
     #   ons 27 apr 2016 21:40:10 CEST
-    if len(text) == 13:
-        text = text[:10]
+    if len(digits) == 13:
+        digits = digits[:10]
 
-    text_float = float(text)
     try:
-        logging.debug('Try matching seconds since 1970-01-01 00:00:00 UTC.')
-        dt = datetime.fromtimestamp(text_float)
-    except ValueError:
-        logging.debug('Failed matching seconds since epoch.')
+        digits = float(digits)
+        dt = datetime.fromtimestamp(digits)
+    except TypeError, ValueError:
+        logging.debug('Failed matching UNIX timestamp.')
     else:
         if date_is_probable(dt):
-            logging.debug('Extracted UNIX timestamp from "{}": '
-                         '[{}]'.format(text, dt))
+            logging.debug('Extracted date/time-info [{}] from UNIX timestamp '
+                          '"{}"'.format(dt, text))
             return dt
-
     return None
 
 
