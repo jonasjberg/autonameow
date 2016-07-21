@@ -35,7 +35,7 @@ def file_suffix(file_path, make_lowercase=True):
     :param make_lowercase: make the extension lowercase, defaults to True
     :return: the file suffix/extension if found, else None
     """
-    base, ext = split_filename(file_path)
+    _, ext = split_filename(file_path)
 
     if ext and make_lowercase:
         ext = ext.lower()
