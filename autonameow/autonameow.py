@@ -71,6 +71,14 @@ def display_start_banner():
           Fore.RESET)
 
 
+def display_end_banner(exit_code, elapsed_time):
+    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    print(Fore.LIGHTBLACK_EX +
+          'Terminated at {} (total execution time: {:.6f} seconds) '
+          'with exit code [{}]'.format(date, elapsed_time, exit_code) +
+          Fore.RESET)
+
+
 def display_options(args):
     """
     Display details on the command line options that are in effect.
@@ -388,7 +396,12 @@ class Autonameow(object):
         except TypeError:
             exit_code = 1
 
-        logging.info('Exiting with exit code: {}'.format(exit_code))
-        logging.info('Total execution time: '
-                     '{:.6f} seconds'.format(time.time() - self.start_time))
+        elapsed_time = time.time() - self.start_time
+
+        if self.args.verbose:
+            display_end_banner(exit_code, elapsed_time)
+
+        logging.debug('Exiting with exit code: {}'.format(exit_code))
+        logging.debug('Total execution time: '
+                      '{:.6f} seconds'.format(elapsed_time))
         sys.exit(exit_code)
