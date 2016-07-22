@@ -285,6 +285,27 @@ def match_special_case(text):
     return None
 
 
+def match_special_case_no_date(text):
+    """
+    Very special case that is almost guaranteed to be correct, date only.
+    That is my personal favorite naming scheme: 1992-12-24
+    :param text: text to extract date/time from
+    :return: datetime if found otherwise None
+    """
+    try:
+        logging.debug('Matching against very special case '
+                      '"YYYY-mm-dd" ..')
+        dt = datetime.strptime(text[:10], '%Y-%m-%d')
+    except ValueError:
+        logging.debug('Failed matching date only version of very special case.')
+    else:
+        if date_is_probable(dt):
+            logging.debug('Matched very special case, date only: '
+                          '[{}]'.format(dt))
+            return dt
+    return None
+
+
 def match_android_messenger_filename(text):
     """
     Test if text (file name) matches that of Android messenger.
@@ -670,27 +691,6 @@ def get_datetime_from_text(text, prefix='NULL'):
 
     # Collect all individual results and return.
     return results_regex, results_brute
-
-
-def match_special_case_no_date(text):
-    """
-    Very special case that is almost guaranteed to be correct, date only.
-    That is my personal favorite naming scheme: 1992-12-24
-    :param text: text to extract date/time from
-    :return: datetime if found otherwise None
-    """
-    try:
-        logging.debug('Matching against very special case '
-                      '"YYYY-mm-dd" ..')
-        dt = datetime.strptime(text[:10], '%Y-%m-%d')
-    except ValueError:
-        logging.debug('Failed matching date only version of very special case.')
-    else:
-        if date_is_probable(dt):
-            logging.debug('Matched very special case, date only: '
-                         '[{}]'.format(dt))
-            return dt
-    return None
 
 
 def special_datetime_ocr_search(text):
