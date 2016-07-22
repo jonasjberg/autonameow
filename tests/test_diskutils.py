@@ -133,6 +133,7 @@ class TestFileTypeMagic(TestCase):
                            ('magic_mp4.mp4', 'mp4'),
                            ('magic_pdf.pdf', 'pdf'),
                            ('magic_png.png', 'png'),
+                           ('magic_txt', 'txt'),
                            ('magic_txt.md', 'txt'),
                            ('magic_txt.txt', 'txt')]
 
