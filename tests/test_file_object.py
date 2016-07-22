@@ -24,7 +24,7 @@ class TestFileObjectFilenamePartitioningLongNameNoTags(TestCase):
         self.assertEqual('txt', self.fo.filenamepart_ext)
 
     def test__filenamepart_tags(self):
-        self.assertIsNone(self.fo.filenamepart_tags)
+        self.assertEqual([], self.fo.filenamepart_tags)
 
 
 class TestFileObjectFilenamePartitioningLongNameWithTags(TestCase):
@@ -71,7 +71,7 @@ class TestFileObjectFilenamePartitioningHiddenFileNoExtensionNoTags(TestCase):
         self.assertIsNone(self.fo.filenamepart_ext)
 
     def test__filenamepart_tags(self):
-        self.assertIsNone(self.fo._filenamepart_tags())
+        self.assertEqual([], self.fo.filenamepart_tags)
 
 
 class TestFileObjectFilenamePartitioningHiddenFileNoTags(TestCase):
@@ -94,7 +94,7 @@ class TestFileObjectFilenamePartitioningHiddenFileNoTags(TestCase):
         self.assertEqual('jpg', self.fo.filenamepart_ext)
 
     def test__filenamepart_tags(self):
-        self.assertIsNone(self.fo._filenamepart_tags())
+        self.assertEqual([], self.fo.filenamepart_tags)
 
 
 class TestFileObjectFilenamePartitioningHiddenFileCompoundSuffix(TestCase):
@@ -118,7 +118,7 @@ class TestFileObjectFilenamePartitioningHiddenFileCompoundSuffix(TestCase):
         self.assertEqual('tar.gz', self.fo.filenamepart_ext)
 
     def test__filenamepart_tags(self):
-        self.assertIsNone(self.fo._filenamepart_tags())
+        self.assertEqual([], self.fo.filenamepart_tags)
 
 
 class TestFileObjectFilenamePartitioningHiddenFileWithTags(TestCase):
