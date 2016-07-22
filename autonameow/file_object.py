@@ -53,8 +53,15 @@ class FileObject(object):
         return self.extension
 
     def _filenamepart_tags(self):
-        r = re.split(FILENAME_TAG_SEPARATOR + '?', self.basename_no_ext)
-        return r[1]
+        if not re.findall(BETWEEN_TAG_SEPARATOR, self.basename_no_ext):
+            return None
+
+        r = re.split(FILENAME_TAG_SEPARATOR, self.basename_no_ext, 1)
+        try:
+            tags = r[1].split(BETWEEN_TAG_SEPARATOR)
+            return tags
+        except IndexError:
+            return None
 
     def add_datetime(self, dt):
         """
