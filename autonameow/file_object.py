@@ -41,34 +41,8 @@ class FileObject(object):
         self.extension = diskutils.file_suffix(self.path)
 
         # Figure out basic file type
-        self.type = self._get_type_from_magic()
+        self.type = diskutils.filetype_magic(self.path)
 
-    def _get_type_from_magic(self):
-        """
-        Determine file type by reading "magic" header bytes.
-        Similar to the 'file' command in *NIX environments.
-        :return:
-        """
-        found_type = None
-        ms = magic.open(magic.MAGIC_MIME_TYPE)
-        ms.load()
-        mt = ms.file(self.path)
-        ms.close()
-
-        if not mt:
-            return found_type
-
-        # http://stackoverflow.com/a/16588375
-        def find_key(input_dict, value):
-            return next((k for k, v in input_dict.items() if v == value), None)
-
-        try:
-            found_type = find_key(magic_type_lookup, mt.split()[:2])
-        except KeyError:
-            logging.warn('Unable to determine file type. '
-                         'Magic: "{}"'.format(mt))
-
-        return found_type.lower()
 
     def add_datetime(self, dt):
         """
