@@ -261,7 +261,8 @@ def regex_search_str(text):
 def match_special_case(text):
     """
     Very special case that is almost guaranteed to be correct.
-    That is my personal favorite naming scheme: 1992-12-24_121314
+    That is my personal favorite naming scheme; 1992-12-24_121314
+                                                1992-12-24T121314
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
