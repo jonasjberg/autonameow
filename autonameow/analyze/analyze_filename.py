@@ -147,7 +147,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
                             'weight': 1})
 
         # Match UNIX timestamp
-        dt_unix = dateandtime.match_unix_timestamp(fn)
+        dt_unix = dateandtime.match_any_unix_timestamp(fn)
         if dt_unix:
             results.append({'datetime': dt_unix,
                             'source': 'unix_timestamp',

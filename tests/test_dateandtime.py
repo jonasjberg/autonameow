@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from util.dateandtime import (
     hyphenate_date,
-    match_unix_timestamp,
+    match_any_unix_timestamp,
     match_special_case
 )
 
@@ -21,26 +21,26 @@ class TestDateAndTime(TestCase):
         self.assertIsInstance(expected2, datetime)
         self.assertNotEqual(expected, expected2)
 
-        self.assertIsNone(match_unix_timestamp(None))
-        self.assertIsNone(match_unix_timestamp(''))
-        self.assertIsNone(match_unix_timestamp(' '))
-        self.assertIsNone(match_unix_timestamp('abc'))
-        self.assertIsNone(match_unix_timestamp('123456'))
+        self.assertIsNone(match_any_unix_timestamp(None))
+        self.assertIsNone(match_any_unix_timestamp(''))
+        self.assertIsNone(match_any_unix_timestamp(' '))
+        self.assertIsNone(match_any_unix_timestamp('abc'))
+        self.assertIsNone(match_any_unix_timestamp('123456'))
 
-        self.assertEqual(expected, match_unix_timestamp('1464459165'))
-        self.assertEqual(expected, match_unix_timestamp('1464459165038'))
+        self.assertEqual(expected, match_any_unix_timestamp('1464459165'))
+        self.assertEqual(expected, match_any_unix_timestamp('1464459165038'))
         self.assertEqual(expected,
-                         match_unix_timestamp('IMG_1464459165038.jpg'))
+                         match_any_unix_timestamp('IMG_1464459165038.jpg'))
         self.assertEqual(expected,
-                         match_unix_timestamp('IMG_1464459165038.jpg'
+                         match_any_unix_timestamp('IMG_1464459165038.jpg'
                                               '1464459165038'))
         self.assertEqual(expected,
-                         match_unix_timestamp('1464459165038 1464459165038'))
+                         match_any_unix_timestamp('1464459165038 1464459165038'))
 
         self.assertEqual(expected2,
-                         match_unix_timestamp('date --date="@1461786010" '
+                         match_any_unix_timestamp('date --date="@1461786010" '
                                               '--rfc-3339=seconds'))
-        self.assertNotEqual(expected2, match_unix_timestamp('1464459165'))
+        self.assertNotEqual(expected2, match_any_unix_timestamp('1464459165'))
 
     def test_match_special_case(self):
         expected = datetime.strptime('20160722 131730', '%Y%m%d %H%M%S')

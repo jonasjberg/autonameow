@@ -326,7 +326,7 @@ def match_android_messenger_filename(text):
     return results
 
 
-def match_unix_timestamp(text):
+def match_any_unix_timestamp(text):
     """
     Match text against UNIX "seconds since epoch" timestamp.
     :param text: text to extract date/time from
@@ -726,7 +726,7 @@ def match_screencapture_unixtime(text):
     """
     pattern = re.compile('.*(\d{13}).*')
     for t in re.findall(pattern, text):
-        dt = match_unix_timestamp(t)
+        dt = match_any_unix_timestamp(t)
         if dt:
             return dt
     return None
