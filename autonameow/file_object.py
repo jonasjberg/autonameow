@@ -45,6 +45,10 @@ class FileObject(object):
         # Figure out basic file type
         self.type = diskutils.filetype_magic(self.path)
 
+        self.filenamepart_base = self._filenamepart_base()
+        self.filenamepart_ext = self._filenamepart_ext()
+        self.filenamepart_tags = self._filenamepart_tags() or []
+
     def _filenamepart_base(self):
         if not re.findall(BETWEEN_TAG_SEPARATOR, self.fnbase):
             return self.fnbase
