@@ -145,3 +145,34 @@ class TestFileObjectFilenamePartitioningHiddenFileWithTags(TestCase):
         self.assertNotEqual(['firsttag'], self.fo._filenamepart_tags())
         self.assertNotEqual(['2ndtag'], self.fo._filenamepart_tags())
         self.assertEqual(['firsttag', '2ndtag'], self.fo._filenamepart_tags())
+
+
+class TestFileObjectFilenamePartitioningHiddenFileCompoundSuffixTags(TestCase):
+    def setUp(self):
+        self.fo = FileObject('.name -- firsttag 2ndtag.tar.gz')
+
+    def test_setUp(self):
+        self.assertIsNotNone(self.fo)
+        self.assertEqual('.name -- firsttag 2ndtag', self.fo.basename_no_ext)
+
+    def test__filenamepart_base(self):
+        self.assertIsNotNone(self.fo._filenamepart_base())
+        self.assertEqual('.name', self.fo._filenamepart_base())
+
+    def test__filenamepart_ext(self):
+        self.assertIsNotNone(self.fo._filenamepart_ext())
+        self.assertNotEqual(' ', self.fo._filenamepart_ext())
+        self.assertNotEqual('', self.fo._filenamepart_ext())
+        self.assertNotEqual('tar', self.fo._filenamepart_ext())
+        self.assertNotEqual('gz', self.fo._filenamepart_ext())
+        self.assertNotEqual('gz.tar', self.fo._filenamepart_ext())
+        self.assertEqual('tar.gz', self.fo._filenamepart_ext())
+
+    def test__filenamepart_tags(self):
+        self.assertIsNotNone(self.fo._filenamepart_tags())
+        self.assertNotEqual(['firsttag'], self.fo._filenamepart_tags())
+        self.assertNotEqual(['2ndtag'], self.fo._filenamepart_tags())
+        self.assertNotEqual(['tar'], self.fo._filenamepart_tags())
+        self.assertNotEqual(['gz'], self.fo._filenamepart_tags())
+        self.assertNotEqual(['tar.gz'], self.fo._filenamepart_tags())
+        self.assertEqual(['firsttag', '2ndtag'], self.fo._filenamepart_tags())
