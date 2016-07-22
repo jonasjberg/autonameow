@@ -19,23 +19,35 @@ MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
 def filetype_magic(file_path):
     """
     Determine file type by reading "magic" header bytes.
-    Similar to the 'file' command in *NIX environments.
+    Uses wrapper around the 'file' command in *NIX environments.
     :return:
     """
-    # Workaround confusion around what magic library actually gets used.
-    # http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
-    def build_magic():
-        try:
-            mymagic = magic.open(magic.MAGIC_MIME_TYPE)
-            mymagic.load()
-        except AttributeError, e:
-            mymagic = magic.Magic(mime=True)
-            mymagic.file = mymagic.from_file
-        return (mymagic)
+    def _build_magic():
+        """
+        Workaround confusion around which magic library actually gets used.
 
-    mymagic = build_magic()
-    mtype = mymagic.file(file_path)
-    if not mtype:
+        https://github.com/ahupp/python-magic
+          "There are, sadly, two libraries which use the module name magic.
+           Both have been around for quite a while.If you are using this
+           module and get an error using a method like open, your code is
+           expecting the other one."
+
+        http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
+          "The following code allows the rest of the script to work the same
+           way with either version of 'magic'"
+        """
+        try:
+            _mymagic = magic.open(magic.MAGIC_MIME_TYPE)
+            _mymagic.load()
+        except AttributeError:
+            _mymagic = magic.Magic(mime=True)
+            _mymagic.file = _mymagic.from_file
+        return _mymagic
+
+    mymagic = _build_magic()
+    try:
+        mtype = mymagic.file(file_path)
+    except Exception:
         return None
 
     # http://stackoverflow.com/a/16588375
