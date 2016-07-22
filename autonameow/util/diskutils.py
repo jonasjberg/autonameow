@@ -3,6 +3,51 @@
 # Copyright 2016, Jonas Sjoberg.
 
 import os
+import magic
+
+MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
+                     'gif':   ['image/gif'],
+                     'jpg':   ['image/jpeg'],
+                     'mp4':   ['video/mp4'],
+                     'ogg':   ['video/ogg'],
+                     'pdf':   ['application/pdf'],
+                     'png':   ['image/png'],
+                     'txt':   ['text/plain'],
+                     'empty': ['inode/x-empty']}
+
+
+def filetype_magic(file_path):
+    """
+    Determine file type by reading "magic" header bytes.
+    Similar to the 'file' command in *NIX environments.
+    :return:
+    """
+    # Workaround confusion around what magic library actually gets used.
+    # http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
+    def build_magic():
+        try:
+            mymagic = magic.open(magic.MAGIC_MIME_TYPE)
+            mymagic.load()
+        except AttributeError, e:
+            mymagic = magic.Magic(mime=True)
+            mymagic.file = mymagic.from_file
+        return (mymagic)
+
+    mymagic = build_magic()
+    mtype = mymagic.file(file_path)
+    if not mtype:
+        return None
+
+    # http://stackoverflow.com/a/16588375
+    def find_key(input_dict, value):
+        return next((k for k, v in input_dict.items() if v == value), None)
+
+    try:
+        found_type = find_key(MAGIC_TYPE_LOOKUP, mtype.split()[:2])
+    except KeyError:
+        return None
+
+    return found_type.lower() if found_type else None
 
 
 def split_filename(file_path):

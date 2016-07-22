@@ -1,3 +1,4 @@
+import os
 from unittest import TestCase
 
 from util import diskutils
@@ -70,3 +71,31 @@ class TestDiskUtils(TestCase):
         self.assertEqual(',', diskutils.file_base(',. '))
         self.assertEqual(' ', diskutils.file_base(' . '))
         # self.assertEqual(' ', diskutils.file_base(' . . '))
+
+
+class TestFileTypeMagic(TestCase):
+    def setUp(self):
+        os.chdir(os.path.abspath(os.path.dirname(__file__)))
+
+        self.test_files = [('magic_bmp.bmp', 'bmp'),
+                           ('magic_gif.gif', 'gif'),
+                           ('magic_jpg.jpg', 'jpg'),
+                           ('magic_pdf.pdf', 'pdf'),
+                           ('magic_png.png', 'png')]
+
+    def test_test_files_defined(self):
+        for fname, fmagic in self.test_files:
+            self.assertIsNotNone(fname)
+            self.assertIsNotNone(fmagic)
+
+    def test_test_files_exist(self):
+        for fname, _ in self.test_files:
+            self.assertTrue(os.path.isfile(fname))
+
+    def test_test_files_are_readable(self):
+        for fname, _ in self.test_files:
+            self.assertTrue(os.access(fname, os.R_OK))
+
+    def test_filetype_magic(self):
+        for fname, fmagic in self.test_files:
+            self.assertEqual(fmagic, diskutils.filetype_magic(fname))
