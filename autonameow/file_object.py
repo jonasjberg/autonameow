@@ -27,14 +27,14 @@ class FileObject(object):
             logging.critical('Got NULL path!')
             pass
 
+        # Get full absolute path
+        self.path = os.path.abspath(path)
+        logging.debug('fileObject path: {}'.format(self.path))
+
         # Remains untouched, for use when renaming file
         self.originalfilename = os.path.basename(path)
         logging.debug('fileObject original file '
                       'name: {}'.format(self.originalfilename))
-
-        # Get full absolute path
-        self.path = os.path.abspath(path)
-        logging.debug('fileObject path: {}'.format(self.path))
 
         # Extract parts of the file name.
         self.basename_no_ext = diskutils.file_base(self.path)
