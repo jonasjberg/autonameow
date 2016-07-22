@@ -1,7 +1,11 @@
 from datetime import datetime
 from unittest import TestCase
 
-from util.dateandtime import hyphenate_date, match_unix_timestamp
+from util.dateandtime import (
+    hyphenate_date,
+    match_unix_timestamp,
+    match_special_case
+)
 
 
 class TestDateAndTime(TestCase):
