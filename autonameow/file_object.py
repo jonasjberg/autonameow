@@ -8,7 +8,14 @@ import magic
 import os
 
 # Match output from magic.ms
+import re
+
 from util import diskutils
+
+from config_defaults import (
+    FILENAME_TAG_SEPARATOR,
+    BETWEEN_TAG_SEPARATOR
+)
 
 magic_type_lookup = {'mp4':   ['video/mp4'],
                      'ogg':   ['video/ogg'],
@@ -39,13 +46,15 @@ class FileObject(object):
         self.type = diskutils.filetype_magic(self.path)
 
     def _filenamepart_base(self):
-        pass
+        r = re.split(FILENAME_TAG_SEPARATOR + '?', self.basename_no_ext)
+        return r[0]
 
     def _filenamepart_ext(self):
-        pass
+        return self.extension
 
     def _filenamepart_tags(self):
-        pass
+        r = re.split(FILENAME_TAG_SEPARATOR + '?', self.basename_no_ext)
+        return r[1]
 
     def add_datetime(self, dt):
         """
