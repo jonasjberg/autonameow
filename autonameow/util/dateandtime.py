@@ -332,11 +332,7 @@ def match_unix_timestamp(text):
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
-    if text is None:
-        # logging.error('Got NULL argument!')
-        return None
-    elif text.strip() is None:
-        # logging.error('Got empty string!')
+    if text is None or text.strip() is None:
         return None
 
     re_match = re.search(r'(\d{10,13})', text)
