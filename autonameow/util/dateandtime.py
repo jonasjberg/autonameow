@@ -261,21 +261,48 @@ def regex_search_str(text):
 def match_special_case(text):
     """
     Very special case that is almost guaranteed to be correct.
-    That is my personal favorite naming scheme: 1992-12-24_121314
+    That is my personal favorite naming scheme; 1992-12-24_121314
+                                                1992-12-24T121314
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
+    if text is None or text.strip() is None:
+        return None
+
     # TODO: Allow customizing personal preferences, using a configuration
     #       file or similar..
+    match_patterns = ['%Y-%m-%d_%H%M%S', '%Y-%m-%dT%H%M%S']
+    for mp in match_patterns:
+        try:
+            logging.debug('Matching against very special case '
+                          '"YYYY-mm-dd_HHMMSS" ..')
+            dt = datetime.strptime(text[:17], mp)
+        except ValueError:
+            logging.debug('Failed matching very special case.')
+        else:
+            if date_is_probable(dt):
+                logging.debug('Matched very special case: [{}]'.format(dt))
+                return dt
+    return None
+
+
+def match_special_case_no_date(text):
+    """
+    Very special case that is almost guaranteed to be correct, date only.
+    That is my personal favorite naming scheme: 1992-12-24
+    :param text: text to extract date/time from
+    :return: datetime if found otherwise None
+    """
     try:
         logging.debug('Matching against very special case '
-                      '"YYYY-mm-dd_HHMMSS" ..')
-        dt = datetime.strptime(text[:17], '%Y-%m-%d_%H%M%S')
+                      '"YYYY-mm-dd" ..')
+        dt = datetime.strptime(text[:10], '%Y-%m-%d')
     except ValueError:
-        logging.debug('Failed matching very special case.')
+        logging.debug('Failed matching date only version of very special case.')
     else:
         if date_is_probable(dt):
-            logging.debug('Matched very special case: [{}]'.format(dt))
+            logging.debug('Matched very special case, date only: '
+                          '[{}]'.format(dt))
             return dt
     return None
 
@@ -321,17 +348,13 @@ def match_android_messenger_filename(text):
     return results
 
 
-def match_unix_timestamp(text):
+def match_any_unix_timestamp(text):
     """
     Match text against UNIX "seconds since epoch" timestamp.
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
-    if text is None:
-        # logging.error('Got NULL argument!')
-        return None
-    elif text.strip() is None:
-        # logging.error('Got empty string!')
+    if text is None or text.strip() is None:
         return None
 
     re_match = re.search(r'(\d{10,13})', text)
@@ -671,27 +694,6 @@ def get_datetime_from_text(text, prefix='NULL'):
     return results_regex, results_brute
 
 
-def match_special_case_no_date(text):
-    """
-    Very special case that is almost guaranteed to be correct, date only.
-    That is my personal favorite naming scheme: 1992-12-24
-    :param text: text to extract date/time from
-    :return: datetime if found otherwise None
-    """
-    try:
-        logging.debug('Matching against very special case '
-                      '"YYYY-mm-dd" ..')
-        dt = datetime.strptime(text[:10], '%Y-%m-%d')
-    except ValueError:
-        logging.debug('Failed matching date only version of very special case.')
-    else:
-        if date_is_probable(dt):
-            logging.debug('Matched very special case, date only: '
-                         '[{}]'.format(dt))
-            return dt
-    return None
-
-
 def special_datetime_ocr_search(text):
     """
     Very special case. OCR text often mistakes "/" for "7", hence
@@ -725,7 +727,7 @@ def match_screencapture_unixtime(text):
     """
     pattern = re.compile('.*(\d{13}).*')
     for t in re.findall(pattern, text):
-        dt = match_unix_timestamp(t)
+        dt = match_any_unix_timestamp(t)
         if dt:
             return dt
     return None

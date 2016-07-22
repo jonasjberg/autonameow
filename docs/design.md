@@ -322,3 +322,31 @@ and returns a list of dictionaries on the form:
     'weight'  : 1
   }, .. ]
 
+
+
+
+Filename handling
+-----------------
+Filenames are inherently tricky to handle and extractng information is
+especially difficult. But since I am writing this program primarily for me
+to use, the generalizations have to give way to my personal needs.
+So, since most of my filenames follow the "filetags" workflow and naming,
+`autonameow` must be able to handle these names well.
+
+The `FileObject` class will internally split the file name into three
+parts, which I call "filename partitioning":
+
+
+* `filenamepart_base`   -- Descriptive text.
+* `filenamepart_ext`    -- File extension/suffix.
+* `filenamepart_tags`   -- Tags created with the "filetags" workflow.
+
+
+Example for file basename `20160722 Descriptive name -- firsttag tagtwo.txt`:
+
+```
+	'20160722 Descriptive name -- firsttag tagtwo.txt'
+	 |_______________________|    |_____________| |_|
+			   base                    tags       ext
+```
+

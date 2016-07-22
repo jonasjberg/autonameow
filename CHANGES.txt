@@ -1,3 +1,38 @@
+2016-07-22  [autonameow v0.1.3]
+
+            Additions:
+            - Add a very fancy ASCII art logo, created with "figlet".
+              Displayed only when using the '--verbose' option.
+            - Add tests for functions in 'dateandtime.py'.
+            - Move function 'filetype_magic' to the utility file system
+              functions in 'diskutils.py'.
+                - Add tests for 'filetype_magic' in 'diskutils.py'.
+            - Move responsability for basic file name operations to the utility
+              file system functions in 'diskutils.py'.
+                - Tests for getting file name extensions, file basename, etc.
+            - Tests for extracting "filetags" tags.
+
+            Changes:
+            - Modify startup "banner" text contents and overall appearance.
+            - Improve 'match_special_case' in 'dateandtime.py'.
+            - Rename 'match_unix_timestamp' to 'match_any_unix_timestamp'.
+            - Modify program exit message text.
+            - Class 'FileObject' now gets the file type magic from
+              'filetype_magic' in 'diskutils.py'.
+            - Remove unused variable 'originalfilename' in 'FileObject'.
+
+            Fixes:
+            - Change how "very special case" date format in filenames are
+              detected. This prevents duplicate results and is performant.
+            - Improve handling filenames, especially compound extensions
+              such as "filename.tar.gz" which does have the extension
+              ".gz" but when dealing with "filetags" it makes more sense to
+              treat all of ".tar.gz" as the extension/suffix.
+            - Spell my my last name properly in 'version.py'.
+              The encoding definition would allow using "ö", instead of
+              the cautious "o". ..right?
+
+
 2016-07-21  [autonameow v0.1.2]
 
             Additions:

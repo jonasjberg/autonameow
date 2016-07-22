@@ -8,7 +8,14 @@ import magic
 import os
 
 # Match output from magic.ms
+import re
+
 from util import diskutils
+
+from config_defaults import (
+    FILENAME_TAG_SEPARATOR,
+    BETWEEN_TAG_SEPARATOR
+)
 
 magic_type_lookup = {'mp4':   ['video/mp4'],
                      'ogg':   ['video/ogg'],
@@ -27,11 +34,6 @@ class FileObject(object):
             logging.critical('Got NULL path!')
             pass
 
-        # Remains untouched, for use when renaming file
-        self.originalfilename = os.path.basename(path)
-        logging.debug('fileObject original file '
-                      'name: {}'.format(self.originalfilename))
-
         # Get full absolute path
         self.path = os.path.abspath(path)
         logging.debug('fileObject path: {}'.format(self.path))
@@ -41,34 +43,27 @@ class FileObject(object):
         self.extension = diskutils.file_suffix(self.path)
 
         # Figure out basic file type
-        self.type = self._get_type_from_magic()
+        self.type = diskutils.filetype_magic(self.path)
 
-    def _get_type_from_magic(self):
-        """
-        Determine file type by reading "magic" header bytes.
-        Similar to the 'file' command in *NIX environments.
-        :return:
-        """
-        found_type = None
-        ms = magic.open(magic.MAGIC_MIME_TYPE)
-        ms.load()
-        mt = ms.file(self.path)
-        ms.close()
+    def _filenamepart_base(self):
+        if not re.findall(BETWEEN_TAG_SEPARATOR, self.basename_no_ext):
+            return self.basename_no_ext
+        r = re.split(FILENAME_TAG_SEPARATOR + '?', self.basename_no_ext)
+        return r[0]
 
-        if not mt:
-            return found_type
+    def _filenamepart_ext(self):
+        return self.extension
 
-        # http://stackoverflow.com/a/16588375
-        def find_key(input_dict, value):
-            return next((k for k, v in input_dict.items() if v == value), None)
+    def _filenamepart_tags(self):
+        if not re.findall(BETWEEN_TAG_SEPARATOR, self.basename_no_ext):
+            return None
 
+        r = re.split(FILENAME_TAG_SEPARATOR, self.basename_no_ext, 1)
         try:
-            found_type = find_key(magic_type_lookup, mt.split()[:2])
-        except KeyError:
-            logging.warn('Unable to determine file type. '
-                         'Magic: "{}"'.format(mt))
-
-        return found_type.lower()
+            tags = r[1].split(BETWEEN_TAG_SEPARATOR)
+            return tags
+        except IndexError:
+            return None
 
     def add_datetime(self, dt):
         """

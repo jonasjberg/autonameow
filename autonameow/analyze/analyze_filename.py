@@ -129,12 +129,12 @@ class FilenameAnalyzer(AbstractAnalyzer):
             results.append({'datetime': dt_special,
                             'source': 'very_special_case',
                             'weight': 1})
-
-        dt_special_no_date = dateandtime.match_special_case_no_date(fn)
-        if dt_special_no_date:
-            results.append({'datetime': dt_special_no_date,
-                            'source': 'very_special_case_no_date',
-                            'weight': 0.95})
+        else:
+            dt_special_no_date = dateandtime.match_special_case_no_date(fn)
+            if dt_special_no_date:
+                results.append({'datetime': dt_special_no_date,
+                                'source': 'very_special_case_no_date',
+                                'weight': 1})
 
         # 2. Common patterns
         # ==================
@@ -147,7 +147,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
                             'weight': 1})
 
         # Match UNIX timestamp
-        dt_unix = dateandtime.match_unix_timestamp(fn)
+        dt_unix = dateandtime.match_any_unix_timestamp(fn)
         if dt_unix:
             results.append({'datetime': dt_unix,
                             'source': 'unix_timestamp',

@@ -10,8 +10,8 @@
 # Source: http://stackoverflow.com/a/16084844
 
 __title__ = 'autonameow'
-__version__ = '0.1.2'
-__author__ = 'Jonas Sjoberg'
+__version__ = '0.1.3'
+__author__ = 'Jonas Sjöberg'
 __email__ = 'jomeganas@gmail.com'
 __url__ = 'https://github.com/jonasjberg'
 __license__ = 'TODO: Pick a license (any license) ..'
