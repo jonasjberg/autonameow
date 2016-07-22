@@ -29,10 +29,7 @@ magic_type_lookup = {'mp4':   ['video/mp4'],
 class FileObject(object):
     def __init__(self, path):
         self.datetime_list = []
-
-        if path is None:
-            logging.critical('Got NULL path!')
-            pass
+        assert path is not None
 
         # Get full absolute path
         self.path = os.path.abspath(path)
