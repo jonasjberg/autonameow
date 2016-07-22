@@ -81,12 +81,16 @@ class TestFileTypeMagic(TestCase):
                            ('magic_gif.gif', 'gif'),
                            ('magic_jpg.jpg', 'jpg'),
                            ('magic_pdf.pdf', 'pdf'),
+                           ('magic_txt.md', 'txt'),
+                           ('magic_txt.txt', 'txt'),
                            ('magic_png.png', 'png')]
 
     def test_test_files_defined(self):
         for fname, fmagic in self.test_files:
             self.assertIsNotNone(fname)
             self.assertIsNotNone(fmagic)
+            self.assertTrue(len(fname) > 0)
+            self.assertTrue(len(fmagic) > 0)
 
     def test_test_files_exist(self):
         for fname, _ in self.test_files:
@@ -98,4 +102,10 @@ class TestFileTypeMagic(TestCase):
 
     def test_filetype_magic(self):
         for fname, fmagic in self.test_files:
+            self.assertIsNotNone(diskutils.filetype_magic(fname))
             self.assertEqual(fmagic, diskutils.filetype_magic(fname))
+
+    def test_filetype_magic_with_invalid_args(self):
+        self.assertIsNone(diskutils.filetype_magic(None))
+        self.assertIsNone(diskutils.filetype_magic(' '))
+        self.assertIsNone(diskutils.filetype_magic(os.path.dirname(__file__)))
