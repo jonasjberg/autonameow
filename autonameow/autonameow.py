@@ -42,32 +42,36 @@ def arg_is_year(value):
 
 def display_start_banner():
     """
-    Prints a "banner" with program information and credits.
+    Prints a "banner" with some ASCII art, program information and credits.
     """
     # TODO: Text alignment depends on manually hardcoding spaces! FIX!
-    print('')
     date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-    username = os.environ.get('USER')
-    hostname = ' '.join(platform.uname()[:3])
-    credits1 = '  written by ' + version.__author__
-    credits2 = ' ' * 26 + version.__url__
-    credits3 = ' ' * 26 + version.__email__
-    copyright1 = ' ' * 15 + 'Copyright(c)2016 Jonas Sjoberg'
-    license1 = ' ' * 15 + 'Please see "LICENSE.md" for licensing details.'
-    print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
-          ' ' + version.__title__.upper() +
-          ' ' + Back.RESET + Fore.RESET +
-          '  version ' + version.__version__)
-    print(' ' + Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX +
-          ' ' + len(version.__title__) * '~' +
-          ' ' + Back.RESET + Fore.RESET + credits1)
-    print(credits2)
-    print(credits3)
-    print(copyright1)
-    print(license1)
+
+    print(Fore.LIGHTYELLOW_EX +
+    '''
+   ###   ### ### ####### #####  #### ##   ###   ##   ## ####### #####  ### ###
+  #####  ### ###   ###  ### ### #### ##  #####  # # ### ####   ### ### ### ###
+ ### ### ### ###   ###  ### ### ####### ### ### ####### ###### ### ### #######
+ ### ### ### ###   ###  ### ### ####### ### ### ####### ####   ### ### #######
+ ####### #######   ###  ####### ### ### ####### ### ### ####   ####### ### ###
+ ### ###  ### ##   ###   #####  ### ### ### ### ### ### ####### #####  ##   ##
+    ''' +
+          Fore.RESET)
+    colortitle=Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + \
+               ' ' + version.__title__.lower() + \
+               ' ' + Back.RESET + Fore.RESET
+    toplineleft = ' {colortitle}  version {version}'.format(colortitle=colortitle,
+                                                    version=version.__version__)
+    toplineright = 'Copyright(c)2016 ' + version.__author__
+    print('{:<}{:>50}'.format(toplineleft, toplineright))
+    print('{:>78}'.format(version.__url__))
+    print('{:>78}'.format(version.__email__))
     print('')
     print(Fore.LIGHTBLACK_EX +
-          'Started at {} by {} on {}'.format(date, username, hostname) +
+          'Started at {date} by {user} on {platform}'.format(
+              date=date,
+              user=os.environ.get('USER'),
+              platform=' '.join(platform.uname()[:3])) +
           Fore.RESET)
 
 
