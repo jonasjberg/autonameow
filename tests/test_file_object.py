@@ -3,7 +3,7 @@ from unittest import TestCase
 from file_object import FileObject
 
 
-class TestFileObject(TestCase):
+class TestFileObjectFilenamePartitioningSimple(TestCase):
     def setUp(self):
         self.fo = FileObject('20160722 Descriptive name -- firsttag tagtwo.txt')
 
