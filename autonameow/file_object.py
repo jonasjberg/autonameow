@@ -39,26 +39,27 @@ class FileObject(object):
         logging.debug('fileObject path: {}'.format(self.path))
 
         # Extract parts of the file name.
-        self.basename_no_ext = diskutils.file_base(self.path)
-        self.extension = diskutils.file_suffix(self.path)
+        self.fnbase = diskutils.file_base(self.path)
+        self.suffix = diskutils.file_suffix(self.path)
 
         # Figure out basic file type
         self.type = diskutils.filetype_magic(self.path)
 
     def _filenamepart_base(self):
-        if not re.findall(BETWEEN_TAG_SEPARATOR, self.basename_no_ext):
-            return self.basename_no_ext
-        r = re.split(FILENAME_TAG_SEPARATOR + '?', self.basename_no_ext)
+        if not re.findall(BETWEEN_TAG_SEPARATOR, self.fnbase):
+            return self.fnbase
+
+        r = re.split(FILENAME_TAG_SEPARATOR + '?', self.fnbase)
         return r[0]
 
     def _filenamepart_ext(self):
-        return self.extension
+        return self.suffix
 
     def _filenamepart_tags(self):
-        if not re.findall(BETWEEN_TAG_SEPARATOR, self.basename_no_ext):
+        if not re.findall(BETWEEN_TAG_SEPARATOR, self.fnbase):
             return None
 
-        r = re.split(FILENAME_TAG_SEPARATOR, self.basename_no_ext, 1)
+        r = re.split(FILENAME_TAG_SEPARATOR, self.fnbase, 1)
         try:
             tags = r[1].split(BETWEEN_TAG_SEPARATOR)
             return tags
