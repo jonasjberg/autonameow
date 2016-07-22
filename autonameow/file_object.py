@@ -31,11 +31,6 @@ class FileObject(object):
         self.path = os.path.abspath(path)
         logging.debug('fileObject path: {}'.format(self.path))
 
-        # Remains untouched, for use when renaming file
-        self.originalfilename = os.path.basename(path)
-        logging.debug('fileObject original file '
-                      'name: {}'.format(self.originalfilename))
-
         # Extract parts of the file name.
         self.basename_no_ext = diskutils.file_base(self.path)
         self.extension = diskutils.file_suffix(self.path)
