@@ -46,6 +46,8 @@ class FileObject(object):
         self.type = diskutils.filetype_magic(self.path)
 
     def _filenamepart_base(self):
+        if not re.findall(BETWEEN_TAG_SEPARATOR, self.basename_no_ext):
+            return self.basename_no_ext
         r = re.split(FILENAME_TAG_SEPARATOR + '?', self.basename_no_ext)
         return r[0]
 

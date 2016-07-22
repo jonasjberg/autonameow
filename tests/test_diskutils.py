@@ -56,7 +56,7 @@ class TestDiskUtils(TestCase):
         self.assertEqual('JPG', diskutils.file_suffix('.hiddenfile.JPG',
                                                       make_lowercase=False))
 
-    def test_file_suffix_many_suffixes(self):
+    def test_file_suffix_file_has_many_suffixes(self):
         self.assertEqual('tar', diskutils.file_suffix('filename.tar'))
         self.assertEqual('gz', diskutils.file_suffix('filename.gz'))
         self.assertEqual('tar.gz', diskutils.file_suffix('filename.tar.gz'))
@@ -65,6 +65,15 @@ class TestDiskUtils(TestCase):
         self.assertEqual('tar.lzma', diskutils.file_suffix('filename.tar.lzma'))
         self.assertEqual('tar.lzo', diskutils.file_suffix('filename.tar.lzo'))
 
+    def test_file_suffix_from_hidden_file_many_suffixes(self):
+        self.assertEqual('tar', diskutils.file_suffix('.filename.tar'))
+        self.assertEqual('gz', diskutils.file_suffix('.filename.gz'))
+        self.assertEqual('tar.gz', diskutils.file_suffix('.filename.tar.gz'))
+        self.assertEqual('tar.z', diskutils.file_suffix('.filename.tar.z'))
+        self.assertEqual('tar.lz', diskutils.file_suffix('.filename.tar.lz'))
+        self.assertEqual('tar.lzma', diskutils.file_suffix('.filename.tar.lzma'))
+        self.assertEqual('tar.lzo', diskutils.file_suffix('.filename.tar.lzo'))
+
     def test_file_base_no_name(self):
         self.assertIsNone(diskutils.file_base(''))
         self.assertEqual(' ', diskutils.file_base(' '))
@@ -72,6 +81,38 @@ class TestDiskUtils(TestCase):
         self.assertEqual(' ', diskutils.file_base(' . '))
         # self.assertEqual(' ', diskutils.file_base(' . . '))
 
+    def test_file_base_file_has_no_extension(self):
+        self.assertIsNotNone(diskutils.file_base('filename'))
+        self.assertEqual('file name', diskutils.file_base('file name'))
+        self.assertEqual('.hiddenfile', diskutils.file_base('.hiddenfile'))
+        self.assertEqual('.hidden file', diskutils.file_base('.hidden file'))
+
+    def test_file_base_file_has_one_extension(self):
+        self.assertEqual('filename', diskutils.file_base('filename.jpg'))
+        self.assertEqual('filename', diskutils.file_base('filename.JPG'))
+
+    def test_file_base_from_hidden_file(self):
+        self.assertEqual('.hiddenfile', diskutils.file_base('.hiddenfile.jpg'))
+        self.assertEqual('.hiddenfile', diskutils.file_base('.hiddenfile.JPG'))
+        self.assertEqual('.hiddenfile', diskutils.file_base('.hiddenfile.JPG'))
+
+    def test_file_base_file_has_many_suffixes(self):
+        self.assertEqual('filename', diskutils.file_base('filename.tar'))
+        self.assertEqual('filename', diskutils.file_base('filename.gz'))
+        self.assertEqual('filename', diskutils.file_base('filename.tar.gz'))
+        self.assertEqual('filename', diskutils.file_base('filename.tar.z'))
+        self.assertEqual('filename', diskutils.file_base('filename.tar.lz'))
+        self.assertEqual('filename', diskutils.file_base('filename.tar.lzma'))
+        self.assertEqual('filename', diskutils.file_base('filename.tar.lzo'))
+
+    def test_file_base_from_hidden_file_many_suffixes(self):
+        self.assertEqual('.filename', diskutils.file_base('.filename.tar'))
+        self.assertEqual('.filename', diskutils.file_base('.filename.gz'))
+        self.assertEqual('.filename', diskutils.file_base('.filename.tar.gz'))
+        self.assertEqual('.filename', diskutils.file_base('.filename.tar.z'))
+        self.assertEqual('.filename', diskutils.file_base('.filename.tar.lz'))
+        self.assertEqual('.filename', diskutils.file_base('.filename.tar.lzma'))
+        self.assertEqual('.filename', diskutils.file_base('.filename.tar.lzo'))
 
 class TestFileTypeMagic(TestCase):
     def setUp(self):
