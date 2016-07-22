@@ -265,18 +265,23 @@ def match_special_case(text):
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
+    if text is None or text.strip() is None:
+        return None
+
     # TODO: Allow customizing personal preferences, using a configuration
     #       file or similar..
-    try:
-        logging.debug('Matching against very special case '
-                      '"YYYY-mm-dd_HHMMSS" ..')
-        dt = datetime.strptime(text[:17], '%Y-%m-%d_%H%M%S')
-    except ValueError:
-        logging.debug('Failed matching very special case.')
-    else:
-        if date_is_probable(dt):
-            logging.debug('Matched very special case: [{}]'.format(dt))
-            return dt
+    match_patterns = ['%Y-%m-%d_%H%M%S', '%Y-%m-%dT%H%M%S']
+    for mp in match_patterns:
+        try:
+            logging.debug('Matching against very special case '
+                          '"YYYY-mm-dd_HHMMSS" ..')
+            dt = datetime.strptime(text[:17], mp)
+        except ValueError:
+            logging.debug('Failed matching very special case.')
+        else:
+            if date_is_probable(dt):
+                logging.debug('Matched very special case: [{}]'.format(dt))
+                return dt
     return None
 
 

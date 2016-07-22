@@ -31,3 +31,15 @@ class TestDateAndTime(TestCase):
         self.assertIsNone(match_unix_timestamp('abc'))
         self.assertNotEqual(match_unix_timestamp('1464459165'),
                             datetime.strptime('20160427 214010', '%Y%m%d %H%M%S'))
+
+    def test_match_special_case(self):
+        self.assertIsNone(match_special_case(None))
+        self.assertIsNone(match_special_case(''))
+        self.assertIsNone(match_special_case(' '))
+        self.assertIsNone(match_special_case('abc'))
+        self.assertIsNotNone(match_special_case('2016-07-22_131730'))
+
+        expected = datetime.strptime('20160722 131730', '%Y%m%d %H%M%S')
+        self.assertEqual(expected, match_special_case('2016-07-22_131730'))
+        self.assertEqual(expected, match_special_case('2016-07-22T131730'))
+        self.assertNotEqual(expected, match_special_case('2016-07-22T131731'))
