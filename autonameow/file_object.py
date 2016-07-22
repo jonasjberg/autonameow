@@ -43,6 +43,14 @@ class FileObject(object):
         # Figure out basic file type
         self.type = diskutils.filetype_magic(self.path)
 
+    def _filenamepart_base(self):
+        pass
+
+    def _filenamepart_ext(self):
+        pass
+
+    def _filenamepart_tags(self):
+        pass
 
     def add_datetime(self, dt):
         """
