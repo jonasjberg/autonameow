@@ -19,8 +19,9 @@ MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
 def filetype_magic(file_path):
     """
     Determine file type by reading "magic" header bytes.
-    Uses wrapper around the 'file' command in *NIX environments.
-    :return:
+    Uses a wrapper around the 'file' command in *NIX environments.
+    :return: the file type if the magic can be determined and mapped to one of
+             the keys in "MAGIC_TYPE_LOOKUP", else None.
     """
     def _build_magic():
         """
