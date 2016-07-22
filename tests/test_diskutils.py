@@ -80,10 +80,11 @@ class TestFileTypeMagic(TestCase):
         self.test_files = [('magic_bmp.bmp', 'bmp'),
                            ('magic_gif.gif', 'gif'),
                            ('magic_jpg.jpg', 'jpg'),
+                           ('magic_mp4.mp4', 'mp4'),
                            ('magic_pdf.pdf', 'pdf'),
+                           ('magic_png.png', 'png'),
                            ('magic_txt.md', 'txt'),
-                           ('magic_txt.txt', 'txt'),
-                           ('magic_png.png', 'png')]
+                           ('magic_txt.txt', 'txt')]
 
     def test_test_files_defined(self):
         for fname, fmagic in self.test_files:
