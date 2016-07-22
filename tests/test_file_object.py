@@ -55,6 +55,34 @@ class TestFileObjectFilenamePartitioningLongNameWithTags(TestCase):
         self.assertEqual(['firsttag', 'tagtwo'], self.fo.filenamepart_tags)
 
 
+class TestFileObjectFilenamePartitioningLongNameWithTagsDashesInName(TestCase):
+    def setUp(self):
+        self.fo = FileObject('20160722--23 Descriptive-- name -- firsttag tagtwo.txt')
+
+    def test_setUp(self):
+        self.assertIsNotNone(self.fo)
+        self.assertEqual('20160722--23 Descriptive-- name -- firsttag tagtwo',
+                         self.fo.fnbase)
+
+    def test__filenamepart_base(self):
+        self.assertIsNotNone(self.fo.filenamepart_base)
+        self.assertEqual('20160722--23 Descriptive-- name',
+                         self.fo.filenamepart_base)
+
+    def test__filenamepart_ext(self):
+        self.assertIsNotNone(self.fo.filenamepart_ext)
+        self.assertNotEqual(' ', self.fo.filenamepart_ext)
+        self.assertNotEqual('', self.fo.filenamepart_ext)
+        self.assertNotEqual('jpg', self.fo.filenamepart_ext)
+        self.assertEqual('txt', self.fo.filenamepart_ext)
+
+    def test__filenamepart_tags(self):
+        self.assertIsNotNone(self.fo.filenamepart_tags)
+        self.assertNotEqual(['firsttag'], self.fo.filenamepart_tags)
+        self.assertNotEqual(['tagtwo'], self.fo.filenamepart_tags)
+        self.assertEqual(['firsttag', 'tagtwo'], self.fo.filenamepart_tags)
+
+
 class TestFileObjectFilenamePartitioningHiddenFileNoExtensionNoTags(TestCase):
     def setUp(self):
         self.fo = FileObject('.name')
