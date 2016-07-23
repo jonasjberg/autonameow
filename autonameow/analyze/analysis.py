@@ -164,10 +164,4 @@ class Analysis(object):
         Prints all date/time-information for the current file.
         :return:
         """
-        # Expected format:
-        # [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
-        # 'source'  : pdf_metadata,
-        #             'comment' : "Create date",
-        #                         'weight'  : 1
-        # }, .. ]
         misc.dump(self.results.datetime)
