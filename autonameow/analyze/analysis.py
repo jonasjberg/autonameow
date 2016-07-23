@@ -178,18 +178,3 @@ class Analysis(object):
         print('\"%s\"' % str(self.file_object.path))
         print('{:<20} : {:<}'.format('Datetime', 'Value'))
         print('{:<20} : {:<}'.format('oldest', oldest_dt))
-
-    def prefix_date_to_filename(self):
-        # TODO: Implement this properly ..
-        fo = self.file_object
-
-        datetime = fo.get_oldest_datetime()
-
-        ext = fo.extension
-        fn_noext = fo.basename_no_ext
-        fn_noext = fn_noext.replace(ext, '')
-
-        print('%s %s.%s'.format((datetime.strftime('%Y-%m-%d_%H%M%S'),
-                                 fn_noext,
-                                 ext)))
-
