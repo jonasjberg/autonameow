@@ -1,3 +1,25 @@
+2016-07-23  [autonameow v0.1.4]
+
+            Additions:
+            - Extend tests for utility file system functions in 'diskutils.py'.
+            - Add test cases to tests of filename partitioning in 'FileObject'.
+            - Add assertions and remove unhelpful warning messages.
+
+            Changes:
+            - Various cleanup and formatting fixes.
+            - Remove debug print statement.
+            - Temporarily disable unicode encoding in 'sanitize_text'.
+
+            Fixes:
+            - Remove unused and unfinished code.
+                - Method 'prefix_date_to_filename'.
+                - Method 'print_oldest_datetime'.
+            - Fix incorrect usage of 'FileObject', modify to match new
+              attribute names and structure.
+            - Update how the 'FilenameAnalyzer' gets tags from filenames.
+              Now uses the "partitioned filename" methods in 'FileObject'.
+
+
 2016-07-22  [autonameow v0.1.3]
 
             Additions:
