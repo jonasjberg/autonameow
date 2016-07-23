@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
+# This file is part of autonameow.
+# Copyright 2016, Jonas Sjoberg.
+
 import os
 from unittest import TestCase
 
 from util import diskutils
 
 
-class TestDiskUtils(TestCase):
+class TestSplitFileName(TestCase):
     def test_split_filename_no_name(self):
         self.assertIsNone(None, diskutils.split_filename(''))
 
@@ -31,6 +35,8 @@ class TestDiskUtils(TestCase):
         # self.assertEqual(('foo.bar', 'tar.gz'),
         #                  diskutils.split_filename('foo.bar.tar.gz'))
 
+
+class TestFileSuffix(TestCase):
     def test_file_suffix_no_name(self):
         self.assertIsNone(diskutils.file_suffix(''))
         self.assertIsNone(diskutils.file_suffix(' '))
@@ -74,6 +80,8 @@ class TestDiskUtils(TestCase):
         self.assertEqual('tar.lzma', diskutils.file_suffix('.filename.tar.lzma'))
         self.assertEqual('tar.lzo', diskutils.file_suffix('.filename.tar.lzo'))
 
+
+class TestFileBase(TestCase):
     def test_file_base_no_name(self):
         self.assertIsNone(diskutils.file_base(''))
         self.assertEqual(' ', diskutils.file_base(' '))
@@ -114,6 +122,7 @@ class TestDiskUtils(TestCase):
         self.assertEqual('.filename', diskutils.file_base('.filename.tar.lzma'))
         self.assertEqual('.filename', diskutils.file_base('.filename.tar.lzo'))
 
+
 class TestFileTypeMagic(TestCase):
     def setUp(self):
         os.chdir(os.path.abspath(os.path.dirname(__file__)))
@@ -124,6 +133,7 @@ class TestFileTypeMagic(TestCase):
                            ('magic_mp4.mp4', 'mp4'),
                            ('magic_pdf.pdf', 'pdf'),
                            ('magic_png.png', 'png'),
+                           ('magic_txt', 'txt'),
                            ('magic_txt.md', 'txt'),
                            ('magic_txt.txt', 'txt')]
 

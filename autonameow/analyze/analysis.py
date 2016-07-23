@@ -122,13 +122,6 @@ class Analysis(object):
 
             # TODO: Handle whether dicts or lists should be passed, and passed
             #       only that type, OR make sure both types can be handled.
-            # for item in dt:
-            #     if not item:
-            #         continue
-            #     if type(item) is dict:
-            #         for k, v in item.iteritems():
-            #             if v in
-            #             dt_dict[k] = v
             return
 
         passed = {}
@@ -164,32 +157,4 @@ class Analysis(object):
         Prints all date/time-information for the current file.
         :return:
         """
-        # Expected format:
-        # [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
-        # 'source'  : pdf_metadata,
-        #             'comment' : "Create date",
-        #                         'weight'  : 1
-        # }, .. ]
         misc.dump(self.results.datetime)
-
-    def print_oldest_datetime(self):
-        oldest_dt = self.file_object.get_oldest_datetime()
-        print('Oldest date/time information for file:')
-        print('\"%s\"' % str(self.file_object.path))
-        print('{:<20} : {:<}'.format('Datetime', 'Value'))
-        print('{:<20} : {:<}'.format('oldest', oldest_dt))
-
-    def prefix_date_to_filename(self):
-        # TODO: Implement this properly ..
-        fo = self.file_object
-
-        datetime = fo.get_oldest_datetime()
-
-        ext = fo.extension
-        fn_noext = fo.basename_no_ext
-        fn_noext = fn_noext.replace(ext, '')
-
-        print('%s %s.%s'.format((datetime.strftime('%Y-%m-%d_%H%M%S'),
-                                 fn_noext,
-                                 ext)))
-

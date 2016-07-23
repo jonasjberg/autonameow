@@ -58,7 +58,7 @@ class RuleMatcher(object):
                         #                        (would be unsafe to continue)
                         continue
                     else:
-                        if name_regex.match(self.file_object.basename):
+                        if name_regex.match(self.file_object.path):
                             does_match = True
                         else:
                             # Rule does not apply -- regex does not match.
@@ -81,7 +81,7 @@ class RuleMatcher(object):
             if does_match:
                 logging.debug('Rule [{:<20}] matches file '
                               '"{}"'.format(rule,
-                                            self.file_object.basename))
+                                            self.file_object.path))
                 return rule
             else:
                 return None
