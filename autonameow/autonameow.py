@@ -80,6 +80,8 @@ def display_end_banner(exit_code, elapsed_time):
           'Stopped at {} (total execution time: {:.6f} seconds) '
           'with exit code [{}]'.format(date, elapsed_time, exit_code) +
           Fore.RESET)
+    # TODO: Format the execution time to minutes and seconds if it exceeds
+    #       60 seconds, hours, minutes and seconds if it exceeds 60 minutes ..
 
 
 def display_options(args):
