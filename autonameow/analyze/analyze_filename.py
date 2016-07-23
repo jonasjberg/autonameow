@@ -54,21 +54,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
         pass
 
     def get_tags(self):
-        # file names containing tags matches following regular expression
-        FILE_WITH_TAGS_REGEX = re.compile("(.+?)" + FILENAME_TAG_SEPARATOR + "(.+?)(\.(\w+))??$")
-        FILE_WITH_TAGS_REGEX_FILENAME_INDEX = 1  # component.group(1)
-        FILE_WITH_TAGS_REGEX_TAGLIST_INDEX = 2
-        FILE_WITH_TAGS_REGEX_EXTENSION_INDEX = 4
-
-        components = re.match(FILE_WITH_TAGS_REGEX,
-                              self.file_object.basename_no_ext)
-        if components:
-            tags = components.group(FILE_WITH_TAGS_REGEX_TAGLIST_INDEX).split(BETWEEN_TAG_SEPARATOR)
-            if tags:
-                logging.debug('Extracted ({}) tags from filename: '
-                              '{}'.format(len(tags), tags))
-                return tags
-        return None
+        return self.file_object.filenamepart_tags
 
     def _get_title_from_guessit_metadata(self):
         """
