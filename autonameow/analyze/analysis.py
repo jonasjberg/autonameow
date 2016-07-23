@@ -171,10 +171,3 @@ class Analysis(object):
         #                         'weight'  : 1
         # }, .. ]
         misc.dump(self.results.datetime)
-
-    def print_oldest_datetime(self):
-        oldest_dt = self.file_object.get_oldest_datetime()
-        print('Oldest date/time information for file:')
-        print('\"%s\"' % str(self.file_object.path))
-        print('{:<20} : {:<}'.format('Datetime', 'Value'))
-        print('{:<20} : {:<}'.format('oldest', oldest_dt))
