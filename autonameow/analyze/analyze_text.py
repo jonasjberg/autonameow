@@ -105,7 +105,6 @@ class TextAnalyzer(AbstractAnalyzer):
         matches_brute = 0
         logging.debug('Try getting datetime from text split by newlines')
         for t in text.split('\n'):
-            print('BRUTE FORCE SEARCH GETS: {}'.format(t))
             dt_brute = dateandtime.bruteforce_str(t)
             if dt_brute:
                 for dt in dt_brute:
