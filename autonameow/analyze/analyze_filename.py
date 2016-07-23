@@ -21,7 +21,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
         self.guessit_metadata = None
         # Arbitrary length check limits (very slow) calls to guessit.
-        if len(self.file_object.basename_no_ext) > 20:
+        if len(self.file_object.filenamepart_base) > 20:
             self.guessit_metadata = self._get_metadata_from_guessit()
 
     def get_datetime(self):
@@ -106,7 +106,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
         :return: dictionary of results if successful, otherwise false
         """
         from guessit import guessit
-        guessit_matches = guessit(self.file_object.basename_no_ext, )
+        guessit_matches = guessit(self.file_object.filenamepart_base, )
         return guessit_matches if guessit_matches is not None else False
 
     def _get_datetime_from_name(self):
@@ -118,7 +118,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
                      'weight'  : 1
                    }, .. ]
         """
-        fn = self.file_object.basename_no_ext
+        fn = self.file_object.filenamepart_base
         results = []
 
         # 1. The Very Special Case
