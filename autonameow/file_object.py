@@ -113,23 +113,3 @@ class FileObject(object):
 
         return oldest_yet
 
-    def _get_file_extension(self, make_lowercase=True):
-        """
-        Get file extension.
-        :param make_lowercase: make the extension lowercase, defaults to True
-        :return: the file extension
-        """
-        base, ext = os.path.splitext(self.path)
-
-        if ext.lower() in ['.z', '.gz', '.bz2']:
-            ext = os.path.splitext(base)[1] + ext
-
-        ext = ext.lstrip('.')
-
-        if make_lowercase:
-            ext = ext.lower()
-
-        if ext and ext.strip():
-            return ext
-        else:
-            return None
