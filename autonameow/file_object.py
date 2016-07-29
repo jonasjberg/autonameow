@@ -2,19 +2,15 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
-import datetime
 import logging
-import magic
 import os
-
 import re
-
-from util import diskutils
 
 from config_defaults import (
     FILENAME_TAG_SEPARATOR,
     BETWEEN_TAG_SEPARATOR
 )
+from util import diskutils
 
 
 class FileObject(object):
