@@ -39,7 +39,7 @@ class FileObject(object):
         #    20160722 Descriptive name -- firsttag tagtwo.txt
         #    |_______________________|    |_____________| |_|
         #              base                    tags       ext
-
+        #
         self.filenamepart_base = self._filenamepart_base()
         self.filenamepart_ext = self._filenamepart_ext()
         self.filenamepart_tags = self._filenamepart_tags() or []
