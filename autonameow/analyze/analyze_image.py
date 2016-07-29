@@ -13,7 +13,6 @@ from datetime import datetime
 from pytesseract import image_to_string
 
 from analyze.analyze_abstract import AbstractAnalyzer
-from analyze.analyze_filesystem import FilesystemAnalyzer
 from util import dateandtime
 
 
