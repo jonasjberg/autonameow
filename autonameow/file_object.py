@@ -49,7 +49,7 @@ class FileObject(object):
             return self.fnbase
 
         # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
-        r = re.split(FILENAME_TAG_SEPARATOR + '?', self.fnbase)
+        r = re.split(FILENAME_TAG_SEPARATOR, self.fnbase)
         return r[0]
 
     def _filenamepart_ext(self):
