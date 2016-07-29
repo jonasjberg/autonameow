@@ -28,7 +28,6 @@ magic_type_lookup = {'mp4':   ['video/mp4'],
 
 class FileObject(object):
     def __init__(self, path):
-        self.datetime_list = []
         assert path is not None
 
         # Get full absolute path
@@ -66,24 +65,4 @@ class FileObject(object):
             return tags
         except IndexError:
             return None
-
-    def get_oldest_datetime(self):
-        """
-        Get the oldest datetime-object in datetime_list.
-        :return:
-        """
-        oldest_yet = datetime.datetime.max
-        for dt_dict in self.datetime_list:
-            for dt_key, dt_value in dt_dict.iteritems():
-                try:
-                    # For now, lets get the first filename datetime only.
-                    if dt_key.startswith('FilenameDateTime_'):
-                        if dt_key != 'FilenameDateTime_00':
-                            continue
-                    if dt_value < oldest_yet:
-                        oldest_yet = dt_value
-                except Exception:
-                    pass
-
-        return oldest_yet
 
