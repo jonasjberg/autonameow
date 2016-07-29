@@ -4,10 +4,7 @@
 
 import logging
 
-import re
-
 from analyze.analyze_abstract import AbstractAnalyzer
-from config_defaults import FILENAME_TAG_SEPARATOR, BETWEEN_TAG_SEPARATOR
 from util import dateandtime
 
 
