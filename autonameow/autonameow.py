@@ -198,7 +198,6 @@ class Autonameow(object):
                 if self.args.list_datetime:
                     print('File: "{}"'.format(current_file.path))
                     analysis.print_all_datetime_info()
-                    # analysis.prefix_date_to_filename()
                     print('')
 
                 # Create a action object.
