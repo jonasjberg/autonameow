@@ -67,32 +67,6 @@ class FileObject(object):
         except IndexError:
             return None
 
-    def add_datetime(self, dt):
-        """
-        Add date/time-information dict to the list of all date/time-objects
-        found for this FileObject.
-        :param dt: date/time-information dict ('KEY' 'datetime') to add
-        :return:
-        """
-        if dt is None:
-            logging.warning('Got null argument')
-            return
-        elif type(dt) is not dict:
-            logging.warning('Got non-dict argument')
-            return
-
-        # Arbitrary maximum amount of date/time entries to hold.
-        LIST_MAX_LEN = 200
-        if len(self.datetime_list) >= LIST_MAX_LEN:
-            logging.info('Date/time list hit limit ({})'.format(LIST_MAX_LEN))
-            return
-
-        # TODO: Should duplicate entries be allowed?
-        # if dt not in self.datetime_list:
-        if True:
-            logging.debug('Adding datetime [%s] to list' % str(type(dt)))
-            self.datetime_list.append(dt)
-
     def get_oldest_datetime(self):
         """
         Get the oldest datetime-object in datetime_list.
