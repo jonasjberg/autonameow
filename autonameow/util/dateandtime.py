@@ -2,16 +2,13 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
+import dateutil
 import logging
 import re
 import string
 from datetime import datetime, timedelta
 
-import dateutil
-import sys
-
 import util.text
-from util import misc
 
 
 def hyphenate_date(date_str):
