@@ -23,10 +23,8 @@ class Analysis(object):
     Main interface to all file analyzers.
     """
     def __init__(self, file_object, filters):
+        assert file_object is not None
         self.file_object = file_object
-        if self.file_object is None:
-            logging.critical('Got NULL file!')
-            pass
 
         self.filters = filters
         self.results = Results()
