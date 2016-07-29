@@ -7,7 +7,6 @@ import logging
 import magic
 import os
 
-# Match output from magic.ms
 import re
 
 from util import diskutils
@@ -16,14 +15,6 @@ from config_defaults import (
     FILENAME_TAG_SEPARATOR,
     BETWEEN_TAG_SEPARATOR
 )
-
-magic_type_lookup = {'mp4':   ['video/mp4'],
-                     'ogg':   ['video/ogg'],
-                     'jpg':   ['image/jpeg'],
-                     'pdf':   ['application/pdf'],
-                     'txt':   ['text/plain'],
-                     'png':   ['image/png'],
-                     'empty': ['inode/x-empty']}
 
 
 class FileObject(object):
