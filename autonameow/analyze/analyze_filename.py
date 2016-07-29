@@ -8,9 +8,6 @@ from analyze.analyze_abstract import AbstractAnalyzer
 from util import dateandtime
 
 
-# Analysis relevant to all files, regardless of file mime type.
-# Examines:
-#   * file names
 class FilenameAnalyzer(AbstractAnalyzer):
 
     def __init__(self, file_object, filters):
