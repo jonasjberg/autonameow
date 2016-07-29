@@ -48,6 +48,7 @@ class FileObject(object):
         if not re.findall(BETWEEN_TAG_SEPARATOR, self.fnbase):
             return self.fnbase
 
+        # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
         r = re.split(FILENAME_TAG_SEPARATOR + '?', self.fnbase)
         return r[0]
 
