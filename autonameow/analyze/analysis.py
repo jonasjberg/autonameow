@@ -108,3 +108,10 @@ class Analysis(object):
         :return:
         """
         misc.dump(self.results.datetime)
+
+    def print_title_info(self):
+        """
+        Prints the title for the current file, if found.
+        :return:
+        """
+        misc.dump(self.results.title)
