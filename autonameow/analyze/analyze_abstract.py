@@ -2,8 +2,6 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
-import logging
-
 
 class AbstractAnalyzer(object):
     def __init__(self, file_object, filters):
