@@ -30,7 +30,6 @@ class FilenameAnalyzer(AbstractAnalyzer):
         fn_timestamps = self._get_datetime_from_name()
         if fn_timestamps:
             result += fn_timestamps
-            # self.filter_datetime(fn_timestamps)
 
         if self.guessit_metadata:
             guessit_timestamps = self._get_datetime_from_guessit_metadata()

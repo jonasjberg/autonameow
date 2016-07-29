@@ -32,7 +32,6 @@ class TextAnalyzer(AbstractAnalyzer):
         if self.text:
             text_timestamps = self._get_datetime_from_text()
             if text_timestamps:
-                # self.filter_datetime(text_timestamps)
                 result += text_timestamps
 
         return result

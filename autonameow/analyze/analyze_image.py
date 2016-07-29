@@ -34,7 +34,6 @@ class ImageAnalyzer(AbstractAnalyzer):
         result = []
         exif_timestamps = self._get_exif_datetime()
         if exif_timestamps:
-            # self.filter_datetime(exif_datetime)
             result += exif_timestamps
 
         # TODO: Fix this here below.

@@ -24,7 +24,6 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         fs_timestamps = self._get_datetime_from_filesystem()
         if fs_timestamps:
             result += fs_timestamps
-            # self.filter_datetime(fs_timestamps)
 
         return result
 

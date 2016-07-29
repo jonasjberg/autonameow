@@ -34,13 +34,11 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         metadata_datetime = self._get_metadata_datetime()
         if metadata_datetime:
-            # self.filter_datetime(metadata_datetime)
             results += metadata_datetime
 
         if self.text:
             text_timestamps = self._get_datetime_from_text()
             if text_timestamps:
-                # self.filter_datetime(text_timestamps)
                 results += text_timestamps
 
         return results
