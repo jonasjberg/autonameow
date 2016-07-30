@@ -38,6 +38,30 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         expected = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
         self.assertEqual(expected, dt_modified.get('datetime'))
 
+    def test_get_datetime_contains_filesystem_created(self):
+        dt_created = filter(lambda dt: dt['source'] == 'created',
+                            self.fsa.get_datetime())
+        self.assertIsNotNone(dt_created)
+
+    def test_get_datetime_filesystem_created_is_valid(self):
+        dt_created, = filter(lambda dt: dt['source'] == 'created',
+                             self.fsa.get_datetime())
+
+        expected = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
+        self.assertEqual(expected, dt_created.get('datetime'))
+
+    def test_get_datetime_contains_filesystem_accessed(self):
+        dt_created = filter(lambda dt: dt['source'] == 'created',
+                            self.fsa.get_datetime())
+        self.assertIsNotNone(dt_created)
+
+    def test_get_datetime_filesystem_accessed_is_valid(self):
+        dt_accessed, = filter(lambda dt: dt['source'] == 'accessed',
+                              self.fsa.get_datetime())
+
+        expected = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
+        self.assertEqual(expected, dt_accessed.get('datetime'))
+
     def test_get_title(self):
         pass
 
