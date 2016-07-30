@@ -9,7 +9,7 @@ from analyze.analyze_filename import FilenameAnalyzer
 from file_object import FileObject
 
 
-class TestFilenameAnalyzer(TestCase):
+class TestFilenameAnalyzerWithImageFile(TestCase):
     def setUp(self):
         # TODO: Fix the filtering! Not completed as-is.
         self.filter = {'ignore_years': [],
@@ -37,3 +37,23 @@ class TestFilenameAnalyzer(TestCase):
 
         expected = datetime.strptime('20100131 161251', '%Y%m%d %H%M%S')
         self.assertEqual(expected, dt_special.get('datetime'))
+
+
+class TestFilenameAnalyzerWithEmptyFile(TestCase):
+    def setUp(self):
+        # TODO: Fix the filtering! Not completed as-is.
+        self.filter = {'ignore_years': [],
+                       'ignore_before_year': None,
+                       'ignore_after_year': None}
+
+        self.fo = FileObject('~/dev/projects/autonameow/test_files/empty')
+        self.fna = FilenameAnalyzer(self.fo, self.filter)
+
+    def test_setup(self):
+        self.assertIsNotNone(self.fna)
+
+    def test_get_datetime_does_not_return_none(self):
+        self.assertIsNotNone(self.fna.get_datetime())
+
+    def test_get_datetime_returns_empty_list(self):
+        self.assertEqual([], self.fna.get_datetime())
