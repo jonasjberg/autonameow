@@ -40,6 +40,10 @@ class FilenameAnalyzer(AbstractAnalyzer):
             if guessit_title:
                 titles += guessit_title
 
+        fn_title = self._get_title_from_filename()
+        if fn_title:
+            titles += fn_title
+
         return titles
 
     def get_author(self):
@@ -48,6 +52,15 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
     def get_tags(self):
         return self.file_object.filenamepart_tags
+
+    def _get_title_from_filename(self):
+        fnp_tags = self.file_object.filenamepart_tags or None
+        fnp_base = self.file_object.filenamepart_base or None
+        if fnp_tags and len(fnp_tags) > 0:
+            if fnp_base and len(fnp_base) > 0:
+                return [{'title': self.file_object.filenamepart_base,
+                         'source': 'filename',
+                         'weight': 0.25}]
 
     def _get_title_from_guessit_metadata(self):
         """
