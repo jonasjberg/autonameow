@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# This file is part of autonameow.
+# Copyright 2016, Jonas Sjoberg.
+
 from unittest import TestCase
 
 from file_object import FileObject

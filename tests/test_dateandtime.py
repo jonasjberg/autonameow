@@ -2,8 +2,8 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
-from datetime import datetime
 from unittest import TestCase
+from datetime import datetime
 
 from util.dateandtime import (
     hyphenate_date,
