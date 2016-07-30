@@ -149,8 +149,8 @@ class FilenameAnalyzer(AbstractAnalyzer):
                                 'source': 'regex_search',
                                 'weight': 0.25})
         else:
-            logging.warning('Unable to extract date/time-information '
-                            'from file name using regex search.')
+            logging.debug('Unable to extract date/time-information '
+                          'from file name using regex search.')
 
         # Lastly, an iterative brute force search.
         dt_brute = dateandtime.bruteforce_str(fn)
@@ -160,7 +160,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
                                 'source': 'bruteforce_search',
                                 'weight': 0.1})
         else:
-            logging.warning('Unable to extract date/time-information '
-                            'from file name using brute force search.')
+            logging.debug('Unable to extract date/time-information '
+                          'from file name using brute force search.')
 
         return results
