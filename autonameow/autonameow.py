@@ -168,18 +168,18 @@ class Autonameow(object):
         """
         exit_code = 0
         if len(self.args.input_files) < 1:
-            logging.critical('No input files specified.')
+            logging.error('No input files specified.')
             return
         for arg in self.args.input_files:
             if not os.path.exists(arg):
-                logging.error('Skipping non-existent file/directory '
-                              '"{}"'.format(str(arg)))
+                logging.warning('Skipping non-existent file/directory '
+                                '"{}"'.format(str(arg)))
                 continue
             elif os.path.isdir(arg):
-                logging.error('Skipping directory "{}"'.format(str(arg)))
+                logging.warning('Skipping directory "{}"'.format(str(arg)))
                 continue
             elif os.path.islink(arg):
-                logging.error('Skipping symbolic link "{}"'.format(str(arg)))
+                logging.warning('Skipping symbolic link "{}"'.format(str(arg)))
                 continue
             elif not os.access(arg, os.R_OK):
                 logging.error('Not authorized to read file '
