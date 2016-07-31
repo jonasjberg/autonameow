@@ -20,7 +20,11 @@ class Results(object):
 
 class Analysis(object):
     """
-    Main interface to all file analyzers.
+    Handles the filename analyzer and analyzers specific to file content.
+    A run queue is populated based on which analyzers are suited for the
+    current file, based on the file type type magic.
+    The analysises in the run queue is then executed and the results are
+    stored as dictionary entries, with the source analyzer name being the key.
     """
     def __init__(self, file_object, filters):
         assert file_object is not None
@@ -48,6 +52,10 @@ class Analysis(object):
                       '{}'.format(rule_matcher.file_matches_rule))
 
     def _populate_run_queue(self):
+        """
+        Populate the list of analyzers to run.
+        Imports are done locally for performance reasons.
+        """
         # Analyzers to use for file types
         from analyze.analyze_pdf import PdfAnalyzer
         from analyze.analyze_image import ImageAnalyzer
