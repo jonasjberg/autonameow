@@ -114,13 +114,11 @@ class Analysis(object):
     def print_all_datetime_info(self):
         """
         Prints all date/time-information for the current file.
-        :return:
         """
         misc.dump(self.results.datetime)
 
     def print_title_info(self):
         """
         Prints the title for the current file, if found.
-        :return:
         """
         misc.dump(self.results.title)
