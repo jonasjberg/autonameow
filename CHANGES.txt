@@ -1,3 +1,28 @@
+2016-07-31  [autonameow v0.1.5]
+
+            Additions:
+            - Add new option '--list-title' which dumps all "title" information
+              from the analysis results. Similar to '--list-datetime'.
+            - Extend tests of "filname partitioning" in the 'FileObject' class.
+            - Add more unit tests;
+                - Start adding tests for the 'FilenameAnalyzer' class.
+                - Start adding tests for the 'FilesystemAnalyzer' class.
+            - Add new option '--list-all' which dumps all information
+
+            Changes:
+            - Replaced logging errors with assertions.
+            - Modify logging message levels to prefer lower level messages such
+              as "debug" and "info" before higher levels like "warning" and
+              "error".
+            - Extend matching "special case" pattern in 'dateandtime.py'.
+
+            Fixes:
+            - Remove commented/dead code, listed by class:
+                - FileObject: get_oldest_datetime, add_datetime.
+                - Analysis: filter_datetime, print_oldest_datetime.
+            - Optimize import statements.
+
+
 2016-07-23  [autonameow v0.1.4]
 
             Additions:
