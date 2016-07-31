@@ -268,12 +268,15 @@ def match_special_case(text):
 
     # TODO: Allow customizing personal preferences, using a configuration
     #       file or similar..
-    match_patterns = ['%Y-%m-%d_%H%M%S', '%Y-%m-%dT%H%M%S']
-    for mp in match_patterns:
+    match_patterns = [('%Y-%m-%d_%H%M%S', 17),
+                      ('%Y-%m-%dT%H%M%S', 17),
+                      ('%Y%m%d_%H%M%S', 15),
+                      ('%Y%m%dT%H%M%S', 15)]
+    for mp, chars in match_patterns:
         try:
-            logging.debug('Matching against very special case '
-                          '"YYYY-mm-dd_HHMMSS" ..')
-            dt = datetime.strptime(text[:17], mp)
+            logging.debug('Matching first [{}] characters against pattern '
+                          '"{}" ..'.format(chars, mp))
+            dt = datetime.strptime(text[:chars], mp)
         except ValueError:
             logging.debug('Failed matching very special case.')
         else:
