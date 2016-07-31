@@ -20,13 +20,15 @@ class Results(object):
 
 class Analysis(object):
     """
-    Main interface to all file analyzers.
+    Handles the filename analyzer and analyzers specific to file content.
+    A run queue is populated based on which analyzers are suited for the
+    current file, based on the file type type magic.
+    The analysises in the run queue is then executed and the results are
+    stored as dictionary entries, with the source analyzer name being the key.
     """
     def __init__(self, file_object, filters):
+        assert file_object is not None
         self.file_object = file_object
-        if self.file_object is None:
-            logging.critical('Got NULL file!')
-            pass
 
         self.filters = filters
         self.results = Results()
@@ -50,7 +52,12 @@ class Analysis(object):
                       '{}'.format(rule_matcher.file_matches_rule))
 
     def _populate_run_queue(self):
+        """
+        Populate the list of analyzers to run.
+        Imports are done locally for performance reasons.
+        """
         # Analyzers to use for file types
+        # TODO: Do the actual imports for found matches only!
         from analyze.analyze_pdf import PdfAnalyzer
         from analyze.analyze_image import ImageAnalyzer
         from analyze.analyze_text import TextAnalyzer
@@ -104,57 +111,25 @@ class Analysis(object):
             # collected_author.append(analysis.get_author())
             # etc ..
 
-    def filter_datetime(self, dt):
-        """
-        Adds a datetime-entry by first checking any filters for matches.
-        Matches are ignored, "passed out" ..
-        :param dt: datetime to add
-        """
-        # TODO: This is currently completely unused!
-        if type(dt) is not dict:
-            logging.warning('Got unexpected type "{}" '
-                            '(expected dict)'.format(type(dt)))
-
-        if type(dt) is list:
-            if not dt:
-                logging.warning('Got empty list')
-                return
-
-            # TODO: Handle whether dicts or lists should be passed, and passed
-            #       only that type, OR make sure both types can be handled.
-            return
-
-        passed = {}
-        removed = {}
-        ignore_years = [yr.year for yr in self.filters['ignore_years']]
-        ignore_before = self.filters['ignore_before_year']
-        ignore_after = self.filters['ignore_after_year']
-        ok = True
-        for key, value in dt.iteritems():
-            if ignore_years is not None and len(ignore_years) > 0:
-                if value.year in ignore_years:
-                    ok = False
-
-            if value.year < ignore_before.year:
-                ok = False
-            if value.year > ignore_after.year:
-                ok = False
-
-            if ok:
-                # logging.debug('Filter passed date/time {} .. '.format(dt))
-                passed[key] = value
-            else:
-                # logging.debug('Filter removed date/time {} .. '.format(dt))
-                removed[key] = value
-
-        logging.debug('Datetime filter removed {} entries, passed {} '
-                      'entries.'.format(len(removed), len(passed)))
-
-        self.file_object.add_datetime(passed)
-
     def print_all_datetime_info(self):
         """
         Prints all date/time-information for the current file.
-        :return:
         """
         misc.dump(self.results.datetime)
+
+    def print_title_info(self):
+        """
+        Prints the title for the current file, if found.
+        """
+        misc.dump(self.results.title)
+
+    def print_all_results_info(self):
+        """
+        Prints all analysis results for the current file.
+        """
+        print('TITLE:')
+        misc.dump(self.results.title)
+        print('DATETIME:')
+        misc.dump(self.results.datetime)
+        print('TAGS:')
+        misc.dump(self.results.tags)

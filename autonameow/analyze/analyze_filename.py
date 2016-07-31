@@ -4,16 +4,10 @@
 
 import logging
 
-import re
-
 from analyze.analyze_abstract import AbstractAnalyzer
-from config_defaults import FILENAME_TAG_SEPARATOR, BETWEEN_TAG_SEPARATOR
 from util import dateandtime
 
 
-# Analysis relevant to all files, regardless of file mime type.
-# Examines:
-#   * file names
 class FilenameAnalyzer(AbstractAnalyzer):
 
     def __init__(self, file_object, filters):
@@ -30,7 +24,6 @@ class FilenameAnalyzer(AbstractAnalyzer):
         fn_timestamps = self._get_datetime_from_name()
         if fn_timestamps:
             result += fn_timestamps
-            # self.filter_datetime(fn_timestamps)
 
         if self.guessit_metadata:
             guessit_timestamps = self._get_datetime_from_guessit_metadata()
@@ -47,6 +40,10 @@ class FilenameAnalyzer(AbstractAnalyzer):
             if guessit_title:
                 titles += guessit_title
 
+        fn_title = self._get_title_from_filename()
+        if fn_title:
+            titles += fn_title
+
         return titles
 
     def get_author(self):
@@ -55,6 +52,15 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
     def get_tags(self):
         return self.file_object.filenamepart_tags
+
+    def _get_title_from_filename(self):
+        fnp_tags = self.file_object.filenamepart_tags or None
+        fnp_base = self.file_object.filenamepart_base or None
+        if fnp_tags and len(fnp_tags) > 0:
+            if fnp_base and len(fnp_base) > 0:
+                return [{'title': self.file_object.filenamepart_base,
+                         'source': 'filename',
+                         'weight': 0.25}]
 
     def _get_title_from_guessit_metadata(self):
         """
@@ -156,8 +162,8 @@ class FilenameAnalyzer(AbstractAnalyzer):
                                 'source': 'regex_search',
                                 'weight': 0.25})
         else:
-            logging.warning('Unable to extract date/time-information '
-                            'from file name using regex search.')
+            logging.debug('Unable to extract date/time-information '
+                          'from file name using regex search.')
 
         # Lastly, an iterative brute force search.
         dt_brute = dateandtime.bruteforce_str(fn)
@@ -167,7 +173,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
                                 'source': 'bruteforce_search',
                                 'weight': 0.1})
         else:
-            logging.warning('Unable to extract date/time-information '
-                            'from file name using brute force search.')
+            logging.debug('Unable to extract date/time-information '
+                          'from file name using brute force search.')
 
         return results

@@ -10,9 +10,6 @@ from datetime import datetime
 from analyze.analyze_abstract import AbstractAnalyzer
 
 
-# Analysis relevant to all files, regardless of file mime type.
-# Examines:
-#   * file system metadata (modified, created, ..)
 class FilesystemAnalyzer(AbstractAnalyzer):
 
     def __init__(self, file_object, filters):
@@ -24,7 +21,6 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         fs_timestamps = self._get_datetime_from_filesystem()
         if fs_timestamps:
             result += fs_timestamps
-            # self.filter_datetime(fs_timestamps)
 
         return result
 
@@ -78,6 +74,6 @@ class FilesystemAnalyzer(AbstractAnalyzer):
                             'weight': 0.25})
 
         logging.debug('Got [{:^3}] timestamps from '
-                     'filesystem.'.format(len(results)))
+                      'filesystem.'.format(len(results)))
         return results
 

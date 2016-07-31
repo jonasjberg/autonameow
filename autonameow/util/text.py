@@ -2,8 +2,6 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
-import logging
-
 from unidecode import unidecode
 
 
@@ -22,11 +20,10 @@ def sanitize_text(text):
     except UnicodeDecodeError:
         pass
 
-
     # Collapse whitespace.
     # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
     text = text.replace('\xa0', ' ')
-    #pdf_text = " ".join(pdf_text.replace("\xa0", " ").strip().split())
+    # pdf_text = " ".join(pdf_text.replace("\xa0", " ").strip().split())
 
     # text = text.decode('unicode-escape')
     # text = unicode(text, 'UTF-8')

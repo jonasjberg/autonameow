@@ -2,33 +2,19 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
-import datetime
 import logging
-import magic
 import os
-
-# Match output from magic.ms
 import re
-
-from util import diskutils
 
 from config_defaults import (
     FILENAME_TAG_SEPARATOR,
     BETWEEN_TAG_SEPARATOR
 )
-
-magic_type_lookup = {'mp4':   ['video/mp4'],
-                     'ogg':   ['video/ogg'],
-                     'jpg':   ['image/jpeg'],
-                     'pdf':   ['application/pdf'],
-                     'txt':   ['text/plain'],
-                     'png':   ['image/png'],
-                     'empty': ['inode/x-empty']}
+from util import diskutils
 
 
 class FileObject(object):
     def __init__(self, path):
-        self.datetime_list = []
         assert path is not None
 
         # Get full absolute path
@@ -42,6 +28,18 @@ class FileObject(object):
         # Figure out basic file type
         self.type = diskutils.filetype_magic(self.path)
 
+        # Do "filename partitioning" -- split the file name into three parts:
+        #
+        #   * filenamepart_base   Descriptive text.
+        #   * filenamepart_ext    File extension/suffix.
+        #   * filenamepart_tags   Tags created within the "filetags" workflow.
+        #
+        # Example basename '20160722 Descriptive name -- firsttag tagtwo.txt':
+        #
+        #    20160722 Descriptive name -- firsttag tagtwo.txt
+        #    |_______________________|    |_____________| |_|
+        #              base                    tags       ext
+        #
         self.filenamepart_base = self._filenamepart_base()
         self.filenamepart_ext = self._filenamepart_ext()
         self.filenamepart_tags = self._filenamepart_tags() or []
@@ -50,8 +48,9 @@ class FileObject(object):
         if not re.findall(BETWEEN_TAG_SEPARATOR, self.fnbase):
             return self.fnbase
 
-        r = re.split(FILENAME_TAG_SEPARATOR + '?', self.fnbase)
-        return r[0]
+        # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
+        r = re.split(FILENAME_TAG_SEPARATOR, self.fnbase, 1)
+        return str(r[0])
 
     def _filenamepart_ext(self):
         return self.suffix
@@ -67,69 +66,3 @@ class FileObject(object):
         except IndexError:
             return None
 
-    def add_datetime(self, dt):
-        """
-        Add date/time-information dict to the list of all date/time-objects
-        found for this FileObject.
-        :param dt: date/time-information dict ('KEY' 'datetime') to add
-        :return:
-        """
-        if dt is None:
-            logging.warning('Got null argument')
-            return
-        elif type(dt) is not dict:
-            logging.warning('Got non-dict argument')
-            return
-
-        # Arbitrary maximum amount of date/time entries to hold.
-        LIST_MAX_LEN = 200
-        if len(self.datetime_list) >= LIST_MAX_LEN:
-            logging.info('Date/time list hit limit ({})'.format(LIST_MAX_LEN))
-            return
-
-        # TODO: Should duplicate entries be allowed?
-        # if dt not in self.datetime_list:
-        if True:
-            logging.debug('Adding datetime [%s] to list' % str(type(dt)))
-            self.datetime_list.append(dt)
-
-    def get_oldest_datetime(self):
-        """
-        Get the oldest datetime-object in datetime_list.
-        :return:
-        """
-        oldest_yet = datetime.datetime.max
-        for dt_dict in self.datetime_list:
-            for dt_key, dt_value in dt_dict.iteritems():
-                try:
-                    # For now, lets get the first filename datetime only.
-                    if dt_key.startswith('FilenameDateTime_'):
-                        if dt_key != 'FilenameDateTime_00':
-                            continue
-                    if dt_value < oldest_yet:
-                        oldest_yet = dt_value
-                except Exception:
-                    pass
-
-        return oldest_yet
-
-    def _get_file_extension(self, make_lowercase=True):
-        """
-        Get file extension.
-        :param make_lowercase: make the extension lowercase, defaults to True
-        :return: the file extension
-        """
-        base, ext = os.path.splitext(self.path)
-
-        if ext.lower() in ['.z', '.gz', '.bz2']:
-            ext = os.path.splitext(base)[1] + ext
-
-        ext = ext.lstrip('.')
-
-        if make_lowercase:
-            ext = ext.lower()
-
-        if ext and ext.strip():
-            return ext
-        else:
-            return None

@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# This file is part of autonameow.
+# Copyright 2016, Jonas Sjoberg.
+
 from unittest import TestCase
 
 from file_object import FileObject
@@ -303,3 +307,61 @@ class TestFileObjectFilenamePartitioningEvenMoreDifficultCombination(TestCase):
         self.assertNotEqual(['tar.gz'], self.fo.filenamepart_tags)
         self.assertEqual(['gz', 'firsttag', '2ndtag'],
                          self.fo.filenamepart_tags)
+
+
+class TestFileObjectFilenamePartitioningReturnValueType(TestCase):
+    def setUp(self):
+        self.fo = FileObject('20160722 Descriptive name -- firsttag tagtwo.txt')
+
+    def test_setUp(self):
+        self.assertIsNotNone(self.fo)
+        self.assertEqual('20160722 Descriptive name -- firsttag tagtwo',
+                         self.fo.fnbase)
+
+    def test__filenamepart_base_returns_string_or_none(self):
+        self.assertIs(str, type(self.fo.filenamepart_base))
+
+    def test__filenamepart_ext_returns_string_or_none(self):
+        self.assertIs(str, type(self.fo.filenamepart_ext))
+
+    def test__filenamepart_tags_returns_list_of_string_or_empty_list(self):
+        self.assertIs(list, type(self.fo.filenamepart_tags))
+
+
+class TestFileObjectFilenamePartitioningReturnValueTypeNoTags(TestCase):
+    def setUp(self):
+        self.fo = FileObject('20160722 Descriptive name.txt')
+
+    def test_setUp(self):
+        self.assertIsNotNone(self.fo)
+        self.assertEqual('20160722 Descriptive name', self.fo.fnbase)
+
+    def test__filenamepart_base_returns_string_or_none(self):
+        self.assertIs(str, type(self.fo.filenamepart_base))
+
+    def test__filenamepart_ext_returns_string_or_none(self):
+        self.assertIs(str, type(self.fo.filenamepart_ext))
+
+    def test__filenamepart_tags_returns_list_of_string_or_empty_list(self):
+        self.assertIs(list, type(self.fo.filenamepart_tags))
+        self.assertEqual([], self.fo.filenamepart_tags)
+
+
+class TestFileObjectFilenamePartitioningReturnValueTypeNoTagsNoExt(TestCase):
+    def setUp(self):
+        self.fo = FileObject('20160722 Descriptive name')
+
+    def test_setUp(self):
+        self.assertIsNotNone(self.fo)
+        self.assertEqual('20160722 Descriptive name', self.fo.fnbase)
+
+    def test__filenamepart_base_returns_string_or_none(self):
+        self.assertIs(str, type(self.fo.filenamepart_base))
+
+    def test__filenamepart_ext_returns_string_or_none(self):
+        self.assertIsNot(str, type(self.fo.filenamepart_ext))
+        self.assertIsNone(self.fo.filenamepart_ext)
+
+    def test__filenamepart_tags_returns_list_of_string_or_empty_list(self):
+        self.assertIs(list, type(self.fo.filenamepart_tags))
+        self.assertEqual([], self.fo.filenamepart_tags)

@@ -80,6 +80,8 @@ def display_end_banner(exit_code, elapsed_time):
           'Stopped at {} (total execution time: {:.6f} seconds) '
           'with exit code [{}]'.format(date, elapsed_time, exit_code) +
           Fore.RESET)
+    # TODO: Format the execution time to minutes and seconds if it exceeds
+    #       60 seconds, hours, minutes and seconds if it exceeds 60 minutes ..
 
 
 def display_options(args):
@@ -166,18 +168,18 @@ class Autonameow(object):
         """
         exit_code = 0
         if len(self.args.input_files) < 1:
-            logging.critical('No input files specified.')
+            logging.error('No input files specified.')
             return
         for arg in self.args.input_files:
             if not os.path.exists(arg):
-                logging.error('Skipping non-existent file/directory '
-                              '"{}"'.format(str(arg)))
+                logging.warning('Skipping non-existent file/directory '
+                                '"{}"'.format(str(arg)))
                 continue
             elif os.path.isdir(arg):
-                logging.error('Skipping directory "{}"'.format(str(arg)))
+                logging.warning('Skipping directory "{}"'.format(str(arg)))
                 continue
             elif os.path.islink(arg):
-                logging.error('Skipping symbolic link "{}"'.format(str(arg)))
+                logging.warning('Skipping symbolic link "{}"'.format(str(arg)))
                 continue
             elif not os.access(arg, os.R_OK):
                 logging.error('Not authorized to read file '
@@ -196,8 +198,16 @@ class Autonameow(object):
                 if self.args.list_datetime:
                     print('File: "{}"'.format(current_file.path))
                     analysis.print_all_datetime_info()
-                    # analysis.print_oldest_datetime()
-                    # analysis.prefix_date_to_filename()
+                    print('')
+
+                if self.args.list_title:
+                    print('File: "{}"'.format(current_file.path))
+                    analysis.print_title_info()
+                    print('')
+
+                if self.args.list_all:
+                    print('File: "{}"'.format(current_file.path))
+                    analysis.print_all_results_info()
                     print('')
 
                 # Create a action object.
@@ -251,6 +261,16 @@ class Autonameow(object):
                                    dest='list_datetime',
                                    action='store_true',
                                    help='list all found date/time-information')
+
+        optgrp_action.add_argument('--list-title',
+                                   dest='list_title',
+                                   action='store_true',
+                                   help='list all "title" information')
+
+        optgrp_action.add_argument('--list-all',
+                                   dest='list_all',
+                                   action='store_true',
+                                   help='list all found information')
 
         optgrp_action.add_argument('--prepend-datetime',
                                    dest='prepend_datetime',

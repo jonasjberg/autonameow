@@ -2,8 +2,8 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
-from datetime import datetime
 from unittest import TestCase
+from datetime import datetime
 
 from util.dateandtime import (
     hyphenate_date,
@@ -54,16 +54,26 @@ class TestMatchUnixTimestamp(TestCase):
 
 
 class TestMatchSpecialCase(TestCase):
-    def test_match_special_case(self):
+    def setUp(self):
         # Setup and sanity check:
-        expected = datetime.strptime('20160722 131730', '%Y%m%d %H%M%S')
-        self.assertIsInstance(expected, datetime)
+        self.expect = datetime.strptime('20160722 131730', '%Y%m%d %H%M%S')
+        self.assertIsInstance(self.expect, datetime)
 
-        # Tests:
+    def test_match_special_case_1st_variation(self):
         self.assertIsNotNone(match_special_case('2016-07-22_131730'))
-        self.assertEqual(expected, match_special_case('2016-07-22_131730'))
-        self.assertEqual(expected, match_special_case('2016-07-22T131730'))
-        self.assertNotEqual(expected, match_special_case('2016-07-22T131731'))
+        self.assertEqual(self.expect, match_special_case('2016-07-22_131730'))
+
+    def test_match_special_case_2nd_variation(self):
+        self.assertIsNotNone(match_special_case('2016-07-22T131730'))
+        self.assertEqual(self.expect, match_special_case('2016-07-22T131730'))
+
+    def test_match_special_case_3rd_variation(self):
+        self.assertIsNotNone(match_special_case('20160722_131730'))
+        self.assertEqual(self.expect, match_special_case('20160722_131730'))
+
+    def test_match_special_case_4th_variation(self):
+        self.assertIsNotNone(match_special_case('20160722T131730'))
+        self.assertEqual(self.expect, match_special_case('20160722T131730'))
 
     def test_match_special_case_with_invalid_argument(self):
         self.assertIsNone(match_special_case(None))
