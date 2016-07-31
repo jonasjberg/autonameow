@@ -57,6 +57,7 @@ class Analysis(object):
         Imports are done locally for performance reasons.
         """
         # Analyzers to use for file types
+        # TODO: Do the actual imports for found matches only!
         from analyze.analyze_pdf import PdfAnalyzer
         from analyze.analyze_image import ImageAnalyzer
         from analyze.analyze_text import TextAnalyzer
