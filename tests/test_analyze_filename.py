@@ -10,6 +10,7 @@ from file_object import FileObject
 
 
 class TestFilenameAnalyzerWithImageFile(TestCase):
+    # Setup and sanity check:
     def setUp(self):
         # TODO: Fix the filtering! Not completed as-is.
         self.filter = {'ignore_years': [],
@@ -23,6 +24,7 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
         self.assertIsNotNone(self.fo)
         self.assertIsNotNone(self.fna)
 
+    # Tests:
     def test_get_datetime_does_not_return_none(self):
         dt_list = self.fna.get_datetime()
         self.assertIsNotNone(dt_list)
@@ -47,6 +49,7 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
 
 
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
+    # Setup and sanity check:
     def setUp(self):
         # TODO: Fix the filtering! Not completed as-is.
         self.filter = {'ignore_years': [],
@@ -60,6 +63,7 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
         self.assertIsNotNone(self.fo)
         self.assertIsNotNone(self.fna)
 
+    # Tests:
     def test_get_datetime_does_not_return_none(self):
         self.assertIsNotNone(self.fna.get_datetime())
 
@@ -72,8 +76,15 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def test_get_tags_returns_empty_list(self):
         self.assertEqual([], self.fna.get_tags())
 
+    def test_get_title_does_not_return_none(self):
+        self.assertIsNotNone(self.fna.get_title())
+
+    def test_get_title_returns_empty_list(self):
+        self.assertEqual([], self.fna.get_title())
+
 
 class TestFilenameAnalyzerWithTaggedFile(TestCase):
+    # Setup and sanity check:
     def setUp(self):
         # TODO: Fix the filtering! Not completed as-is.
         self.filter = {'ignore_years': [],
@@ -87,6 +98,7 @@ class TestFilenameAnalyzerWithTaggedFile(TestCase):
         self.assertIsNotNone(self.fo)
         self.assertIsNotNone(self.fna)
 
+    # Tests:
     def test_get_datetime_does_not_return_none(self):
         dt_list = self.fna.get_datetime()
         self.assertIsNotNone(dt_list)
