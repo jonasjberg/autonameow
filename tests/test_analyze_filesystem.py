@@ -68,8 +68,8 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
     def test_get_author(self):
         pass
 
-    def test_get_tags(self):
-        pass
+    def test_get_tags_returns_none(self):
+        self.assertIsNone(self.fsa.get_tags())
 
     def test__get_datetime_from_filesystem(self):
         pass

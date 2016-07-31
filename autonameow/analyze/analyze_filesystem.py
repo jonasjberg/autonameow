@@ -33,8 +33,9 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         pass
 
     def get_tags(self):
-        # TODO: Implement.
-        pass
+        # Currently not relevant to this analyzer.
+        # Filesystem with low-level support for file metadata
+        return None
 
     def _get_datetime_from_filesystem(self):
         """
