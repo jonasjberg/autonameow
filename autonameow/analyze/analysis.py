@@ -122,3 +122,14 @@ class Analysis(object):
         Prints the title for the current file, if found.
         """
         misc.dump(self.results.title)
+
+    def print_all_results_info(self):
+        """
+        Prints all analysis results for the current file.
+        """
+        print('TITLE:')
+        misc.dump(self.results.title)
+        print('DATETIME:')
+        misc.dump(self.results.datetime)
+        print('TAGS:')
+        misc.dump(self.results.tags)

@@ -205,6 +205,11 @@ class Autonameow(object):
                     analysis.print_title_info()
                     print('')
 
+                if self.args.list_all:
+                    print('File: "{}"'.format(current_file.path))
+                    analysis.print_all_results_info()
+                    print('')
+
                 # Create a action object.
                 # TODO: Implement this or something similar to it.
                 # action = None
@@ -261,6 +266,11 @@ class Autonameow(object):
                                    dest='list_title',
                                    action='store_true',
                                    help='list all "title" information')
+
+        optgrp_action.add_argument('--list-all',
+                                   dest='list_all',
+                                   action='store_true',
+                                   help='list all found information')
 
         optgrp_action.add_argument('--prepend-datetime',
                                    dest='prepend_datetime',
