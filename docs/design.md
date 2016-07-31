@@ -265,11 +265,11 @@ file_info = { 'title': 'The Cats Mjaowuw',
               'author': 'Gibson',
               'publisher': None,
               'edition': None,
-              'dateandtime': [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+              'dateandtime': [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
                                  'source': pdf_metadata,
                                  'comment': "Create date",
                                  'weight': 1 },
-                               { 'datetime': datetime.datetime(2010, 1, 2, 34, ..),
+                               { 'value': datetime.datetime(2010, 1, 2, 34, ..),
                                  'source': pdf_metadata,
                                  'comment': "Modify date",
                                  'weight': 0.8 } ],
@@ -317,7 +317,7 @@ filters
 #### datetime
 Analyzers extracts date and time information by various means
 and returns a list of dictionaries on the form:
-[ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+[ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
     'source' : "Create date",
     'weight'  : 1
   }, .. ]

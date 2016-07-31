@@ -118,7 +118,7 @@ class PdfAnalyzer(AbstractAnalyzer):
                     continue
 
             if found_match:
-                results.append({'datetime': dt,
+                results.append({'value': dt,
                                 'source': field,
                                 'weight': 1})
                 logging.debug('Extracted date/time from pdf metadata field '
@@ -274,7 +274,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         """
         Extracts date and time information from the documents textual content.
         :return: a list of dictionaries on the form:
-                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
                      'source' : 'content',
                      'weight'  : 0.1
                    }, .. ]
@@ -288,11 +288,11 @@ class PdfAnalyzer(AbstractAnalyzer):
         if dt_regex:
             if isinstance(dt_regex, list):
                 for e in dt_regex:
-                    results.append({'datetime': e,
+                    results.append({'value': e,
                                     'source': 'text_content_regex',
                                     'weight': 0.25})
             else:
-                results.append({'datetime': dt_regex,
+                results.append({'value': dt_regex,
                                 'source': 'text_content_regex',
                                 'weight': 0.25})
 
@@ -308,11 +308,11 @@ class PdfAnalyzer(AbstractAnalyzer):
                 matches += 1
                 if isinstance(dt_brute, list):
                     for e in dt_brute:
-                        results.append({'datetime': e,
+                        results.append({'value': e,
                                         'source': 'text_content_brute',
                                         'weight': 0.1})
                 else:
-                    results.append({'datetime': dt_brute,
+                    results.append({'value': dt_brute,
                                     'source': 'text_content_brute',
                                     'weight': 0.1})
 
@@ -326,11 +326,11 @@ class PdfAnalyzer(AbstractAnalyzer):
                     matches += 1
                     if isinstance(dt_brute, list):
                         for e in dt_brute:
-                            results.append({'datetime': e,
+                            results.append({'value': e,
                                             'source': 'text_content_brute',
                                             'weight': 0.1})
                     else:
-                        results.append({'datetime': dt_brute,
+                        results.append({'value': dt_brute,
                                         'source': 'text_content_brute',
                                         'weight': 0.1})
 

@@ -61,7 +61,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         Extraction should be fault-tolerant and able to handle non-standard
         entry formats.
         :return: a list of dictionaries on the form:
-                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
                      'source' : 'datetimeoriginal',
                      'weight'  : 1
                    }, .. ]
@@ -108,7 +108,7 @@ class ImageAnalyzer(AbstractAnalyzer):
                                     '[%s]'.format(field))
             if dt:
                 # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
-                results.append({'datetime': dt,
+                results.append({'value': dt,
                                 'source': field.lower(),
                                 'weight': weight})
 
@@ -135,7 +135,7 @@ class ImageAnalyzer(AbstractAnalyzer):
                                 '[%s]'.format(gps_datetime_str))
             if dt:
                 # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
-                results.append({'datetime': dt,
+                results.append({'value': dt,
                                 'source': 'gpsdatetime',
                                 'weight': 1})
 
@@ -156,7 +156,7 @@ class ImageAnalyzer(AbstractAnalyzer):
                 pass
                 results[:] = [d for d in results if \
                               (d.get('source') == 'DateTimeDigitized' and \
-                               d.get('datetime') != bad_exif_date)]
+                               d.get('value') != bad_exif_date)]
             except KeyError:
                 # logging.warn('KeyError for key [DateTimeDigitized]')
                 pass
@@ -260,7 +260,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         """
         Extracts date and time information from the text produced by OCR.
         :return: a list of dictionaries on the form:
-                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
                      'source' : 'ocr',
                      'weight'  : 0.1
                    }, .. ]
@@ -278,7 +278,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         dt_regex = dateandtime.regex_search_str(text)
         if dt_regex:
             for e in dt_regex:
-                results.append({'datetime': e,
+                results.append({'value': e,
                                 'source': 'image_ocr_regex',
                                 'weight': 0.25})
 
@@ -288,13 +288,13 @@ class ImageAnalyzer(AbstractAnalyzer):
             dt_brute = dateandtime.bruteforce_str(t)
             if dt_brute:
                 for e in dt_brute:
-                    results.append({'datetime': e,
+                    results.append({'value': e,
                                     'source': 'image_ocr_brute',
                                     'weight': 0.1})
 
             dt_ocr_special = dateandtime.special_datetime_ocr_search(t)
             if dt_ocr_special:
-                results.append({'datetime': dt_ocr_special,
+                results.append({'value': dt_ocr_special,
                                 'source': 'image_ocr_special',
                                 'weight': 0.25})
 

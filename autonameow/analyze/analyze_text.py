@@ -80,7 +80,7 @@ class TextAnalyzer(AbstractAnalyzer):
         """
         Extracts date and time information from textual contents.
         :return: a list of dictionaries on the form:
-                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
                      'source' : "Create date",
                      'weight'  : 1
                    }, .. ]
@@ -91,7 +91,7 @@ class TextAnalyzer(AbstractAnalyzer):
         dt_regex = dateandtime.regex_search_str(text)
         if dt_regex:
             for dt in dt_regex:
-                results.append({'datetime': dt,
+                results.append({'value': dt,
                                 'source': 'regex_search',
                                 'weight': 0.25})
         else:
@@ -108,7 +108,7 @@ class TextAnalyzer(AbstractAnalyzer):
             if dt_brute:
                 for dt in dt_brute:
                     matches_brute += 1
-                    results.append({'datetime': dt,
+                    results.append({'value': dt,
                                     'source': 'bruteforce_search',
                                     'weight': 0.1})
         if matches_brute == 0:

@@ -43,7 +43,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         NOTE: This is all very platform-specific, I think.
         NOTE #2: Microseconds are simply zeroed out.
         :return: list of dictionaries on the form:
-                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
                      'source' : "Create date",
                      'weight'  : 1
                    }, .. ]
@@ -63,13 +63,13 @@ class FilesystemAnalyzer(AbstractAnalyzer):
             def dt_fts(t):
                 return datetime.fromtimestamp(t).replace(microsecond=0)
 
-            results.append({'datetime': dt_fts(mtime),
+            results.append({'value': dt_fts(mtime),
                             'source': 'modified',
                             'weight': 1})
-            results.append({'datetime': dt_fts(ctime),
+            results.append({'value': dt_fts(ctime),
                             'source': 'created',
                             'weight': 1})
-            results.append({'datetime': dt_fts(atime),
+            results.append({'value': dt_fts(atime),
                             'source': 'accessed',
                             'weight': 0.25})
 
