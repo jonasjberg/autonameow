@@ -2,6 +2,8 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
+import os
+
 from unittest import TestCase
 from datetime import datetime
 
@@ -16,10 +18,20 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
                        'ignore_before_year': None,
                        'ignore_after_year': None}
 
-        self.fo = FileObject('/home/spock/dev/projects/autoname/test_files/empty')
+        # Go back one directory (..) from the location of this file.
+        p_this_file = os.path.abspath(os.path.dirname(__file__))
+        self.assertTrue(os.path.isdir(p_this_file))
+        p_project_root = os.path.normpath(p_this_file + os.sep + os.pardir)
+        self.assertTrue(os.path.isdir(p_project_root))
+        p_test_file = os.path.join(
+            p_project_root + os.sep + 'test_files' + os.sep + 'empty')
+        self.assertTrue(os.path.isfile(p_test_file))
+
+        self.fo = FileObject(p_test_file)
         self.fsa = FilesystemAnalyzer(self.fo, self.filter)
 
     def test_setup(self):
+        self.assertIsNotNone(self.fo)
         self.assertIsNotNone(self.fsa)
 
     def test_get_datetime_does_not_return_none(self):
