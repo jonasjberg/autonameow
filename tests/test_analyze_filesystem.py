@@ -12,6 +12,7 @@ from file_object import FileObject
 
 
 class TestFilesystemAnalyzerWithEmptyFile(TestCase):
+    # Setup and sanity check:
     def setUp(self):
         # TODO: Fix the filtering! Not completed as-is.
         self.filter = {'ignore_years': [],
@@ -34,6 +35,7 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         self.assertIsNotNone(self.fo)
         self.assertIsNotNone(self.fsa)
 
+    # Tests:
     def test_get_datetime_does_not_return_none(self):
         dt_list = self.fsa.get_datetime()
         self.assertIsNotNone(dt_list)
