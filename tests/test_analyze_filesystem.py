@@ -63,13 +63,28 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         self.assertEqual(expected, dt_accessed.get('value'))
 
     def test_get_title(self):
+        # TODO: Implement ..
         pass
 
     def test_get_author(self):
+        # TODO: Implement ..
         pass
 
     def test_get_tags_returns_none(self):
         self.assertIsNone(self.fsa.get_tags())
 
     def test__get_datetime_from_filesystem(self):
-        pass
+        expect_dt_mod = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
+        expect_dt_cre = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
+        expect_dt_acc = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
+        expect_list = [{'value': expect_dt_mod,
+                        'source': 'modified',
+                        'weight': 1},
+                       {'value': expect_dt_cre,
+                        'source': 'created',
+                        'weight': 1},
+                       {'value': expect_dt_acc,
+                        'source': 'accessed',
+                        'weight': 0.25}]
+
+        self.assertEqual(expect_list, self.fsa._get_datetime_from_filesystem())
