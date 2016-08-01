@@ -74,13 +74,11 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         expected = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
         self.assertEqual(expected, dt_accessed.get('value'))
 
-    def test_get_title(self):
-        # TODO: Implement ..
-        pass
+    def test_get_title_should_return_none(self):
+        self.assertIsNone(self.fsa.get_title())
 
-    def test_get_author(self):
-        # TODO: Implement ..
-        pass
+    def test_get_author_should_return_none(self):
+        self.assertIsNone(self.fsa.get_author())
 
     def test_get_tags_returns_none(self):
         self.assertIsNone(self.fsa.get_tags())
