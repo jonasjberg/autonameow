@@ -16,7 +16,7 @@ from datetime import datetime
 
 import version
 from analyze.analysis import Analysis
-from file_object import FileObject
+from fileobject import FileObject
 from util import dateandtime
 
 terminal_width = 100

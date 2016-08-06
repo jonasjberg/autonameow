@@ -4,7 +4,7 @@
 
 from unittest import TestCase
 
-from file_object import FileObject
+from fileobject import FileObject
 
 
 class TestFileObjectFilenamePartitioningLongNameNoTags(TestCase):

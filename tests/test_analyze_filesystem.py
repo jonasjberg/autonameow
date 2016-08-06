@@ -8,7 +8,7 @@ from unittest import TestCase
 from datetime import datetime
 
 from analyze.analyze_filesystem import FilesystemAnalyzer
-from file_object import FileObject
+from fileobject import FileObject
 
 
 class TestFilesystemAnalyzerWithEmptyFile(TestCase):

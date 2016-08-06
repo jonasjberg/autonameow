@@ -6,7 +6,7 @@ from unittest import TestCase
 from datetime import datetime
 
 from analyze.analyze_filename import FilenameAnalyzer
-from file_object import FileObject
+from fileobject import FileObject
 
 
 class TestFilenameAnalyzerWithImageFile(TestCase):
