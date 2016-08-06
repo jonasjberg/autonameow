@@ -28,8 +28,9 @@ class FileObject(object):
         # Figure out basic file type
         self.type = diskutils.filetype_magic(self.path)
 
-        # Do "filename partitioning" -- split the file name into three parts:
+        # Do "filename partitioning" -- split the file name into four parts:
         #
+        #   * filenamepart_ts     Date-/timestamp.
         #   * filenamepart_base   Descriptive text.
         #   * filenamepart_ext    File extension/suffix.
         #   * filenamepart_tags   Tags created within the "filetags" workflow.
@@ -37,12 +38,16 @@ class FileObject(object):
         # Example basename '20160722 Descriptive name -- firsttag tagtwo.txt':
         #
         #    20160722 Descriptive name -- firsttag tagtwo.txt
-        #    |_______________________|    |_____________| |_|
-        #              base                    tags       ext
+        #    |______| |______________|    |_____________| |_|
+        #       ts          base               tags       ext
         #
+        self.filenamepart_ts = self._filenamepart_ts()
         self.filenamepart_base = self._filenamepart_base()
         self.filenamepart_ext = self._filenamepart_ext()
         self.filenamepart_tags = self._filenamepart_tags() or []
+
+    def _filenamepart_ts(self):
+        pass
 
     def _filenamepart_base(self):
         if not re.findall(BETWEEN_TAG_SEPARATOR, self.fnbase):
@@ -65,4 +70,3 @@ class FileObject(object):
             return tags
         except IndexError:
             return None
-
