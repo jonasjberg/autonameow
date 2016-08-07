@@ -426,3 +426,43 @@ class TestFileObjectFilenamePartitioningWithActualFilename(TestCase):
 
     def test_filenamepart_tags(self):
         self.assertEqual(['projects', 'frfx'], self.fo.filenamepart_tags)
+
+
+class TestFileObjectFilenamePartitioningWithActualFilename2(TestCase):
+    def setUp(self):
+        self.fo = FileObject('2016-07-30T175241 Drawing with Hanvon tablet in krita_x86_xp_2.8.1.1 -- projects.png')
+
+    def test_setUp(self):
+        self.assertIsNotNone(self.fo)
+
+    def test_filenamepart_ts(self):
+        self.assertEqual('2016-07-30T175241', self.fo.filenamepart_ts)
+
+    def test_filenamepart_base(self):
+        self.assertEqual('Drawing with Hanvon tablet in krita_x86_xp_2.8.1.1', self.fo.filenamepart_base)
+
+    def test_filenamepart_ext(self):
+        self.assertEqual('png', self.fo.filenamepart_ext)
+
+    def test_filenamepart_tags(self):
+        self.assertEqual(['projects'], self.fo.filenamepart_tags)
+
+
+class TestFileObjectFilenamePartitioningWithActualFilename3(TestCase):
+    def setUp(self):
+        self.fo = FileObject('2016-08-01_104304_pages.stern.nyu.edu oyepa - Linux tagging filesystem -- workflow pim.html')
+
+    def test_setUp(self):
+        self.assertIsNotNone(self.fo)
+
+    def test_filenamepart_ts(self):
+        self.assertEqual('2016-08-01_104304', self.fo.filenamepart_ts)
+
+    def test_filenamepart_base(self):
+        self.assertEqual('pages.stern.nyu.edu oyepa - Linux tagging filesystem', self.fo.filenamepart_base)
+
+    def test_filenamepart_ext(self):
+        self.assertEqual('html', self.fo.filenamepart_ext)
+
+    def test_filenamepart_tags(self):
+        self.assertEqual(['workflow', 'pim'], self.fo.filenamepart_tags)

@@ -15,11 +15,11 @@ from config_defaults import (
 from util import diskutils
 from util.dateandtime import date_is_probable
 
-DATE_SEP = "[:\-._ \/]?"
-TIME_SEP = "[:\-._ T]?"
+DATE_SEP = '[:\-._ ]?'
+TIME_SEP = '[:\-._ T]?'
 DATE_REGEX = '[12]\d{3}' + DATE_SEP + '[01]\d' + DATE_SEP + '[0123]\d'
-TIME_REGEX = TIME_SEP + '[012]\d' + TIME_SEP + '[012345]\d(.[012345]\d)?'
-FILENAMEPART_TS_REGEX = re.compile('(' + DATE_REGEX + '(' + TIME_REGEX + ')?)')
+TIME_REGEX = '[012]\d' + TIME_SEP + '[012345]\d' + TIME_SEP + '[012345]\d(.[012345]\d)?'
+FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + '([T_ -]?' + TIME_REGEX + ')?')
 
 
 class FileObject(object):
