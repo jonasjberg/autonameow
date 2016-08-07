@@ -47,6 +47,9 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
     def test_get_tags_returns_empty_list(self):
         self.assertEqual([], self.fna.get_tags())
 
+    def test_get_title_returns_empty_list(self):
+        self.assertEqual([], self.fna.get_title())
+
 
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
     # Setup and sanity check:
@@ -79,8 +82,10 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def test_get_title_does_not_return_none(self):
         self.assertIsNotNone(self.fna.get_title())
 
-    def test_get_title_returns_empty_list(self):
-        self.assertEqual([], self.fna.get_title())
+    def test_get_title_return_is_valid(self):
+        self.assertEqual([{'source': 'filenamepart_base',
+                           'title': 'empty',
+                           'weight': 0.25}], self.fna.get_title())
 
 
 class TestFilenameAnalyzerWithTaggedFile(TestCase):
@@ -118,19 +123,18 @@ class TestFilenameAnalyzerWithTaggedFile(TestCase):
     def test_get_tags_does_not_return_none(self):
         self.assertIsNotNone(self.fna.get_tags())
 
-    def test_get_tags_valid_return(self):
+    def test_get_tags_return_is_valid(self):
         self.assertEqual(['dv017a', 'dev'], self.fna.get_tags())
 
     def test_get_title_does_not_return_none(self):
         self.assertIsNotNone(self.fna.get_title())
 
     def test_get_title_contains_filename(self):
-        title_fn, = filter(lambda t: t['source'] == 'filename',
+        title_fn, = filter(lambda t: t['source'] == 'filenamepart_base',
                            self.fna.get_title())
         self.assertIsNotNone(title_fn)
 
-    def test_get_title_filename_valid(self):
-        self.skipTest('todo')
-        # title_fn, = filter(lambda t: t['source'] == 'filename',
-        #                    self.fna.get_title())
-        # self.assertEqual('Keeping notes in Vim', title_fn.get('title'))
+    def test_get_title_return_is_valid(self):
+        self.assertEqual([{'source': 'filenamepart_base',
+                           'title': 'Keeping notes in Vim',
+                           'weight': 1}], self.fna.get_title())
