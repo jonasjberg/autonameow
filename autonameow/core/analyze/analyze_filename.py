@@ -56,11 +56,23 @@ class FilenameAnalyzer(AbstractAnalyzer):
     def _get_title_from_filename(self):
         fnp_tags = self.file_object.filenamepart_tags or None
         fnp_base = self.file_object.filenamepart_base or None
-        if fnp_tags and len(fnp_tags) > 0:
-            if fnp_base and len(fnp_base) > 0:
-                return [{'title': self.file_object.filenamepart_base,
-                         'source': 'filename',
-                         'weight': 0.25}]
+        fnp_ts = self.file_object.filenamepart_ts or None
+
+        # Weight cases with all "filetags" filename parts present higher.
+        if fnp_base and len(fnp_base) > 0:
+            if fnp_ts and len(fnp_ts) > 0:
+                if fnp_tags and len(fnp_tags) > 0:
+                    weight = 1
+                else:
+                    weight = 0.75
+            else:
+                weight = 0.5
+
+            return [{'title': fnp_base,
+                     'source': 'filenamepart_base',
+                     'weight': weight}]
+        else:
+            return None
 
     def _get_title_from_guessit_metadata(self):
         """
