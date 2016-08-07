@@ -110,7 +110,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
                      'weight'  : 1
                    }, .. ]
         """
-        fn = self.file_object.filenamepart_base
+        fn = self.file_object.fnbase
         results = []
 
         # 1. The Very Special Case
