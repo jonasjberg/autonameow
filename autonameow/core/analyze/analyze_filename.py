@@ -66,7 +66,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
                 if fnp_tags and len(fnp_tags) > 0:
                     weight = 1
 
-            return [{'title': fnp_base,
+            return [{'value': fnp_base,
                      'source': 'filenamepart_base',
                      'weight': weight}]
         else:

@@ -84,7 +84,7 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
 
     def test_get_title_return_is_valid(self):
         self.assertEqual([{'source': 'filenamepart_base',
-                           'title': 'empty',
+                           'value': 'empty',
                            'weight': 0.25}], self.fna.get_title())
 
 
@@ -136,5 +136,5 @@ class TestFilenameAnalyzerWithTaggedFile(TestCase):
 
     def test_get_title_return_is_valid(self):
         self.assertEqual([{'source': 'filenamepart_base',
-                           'title': 'Keeping notes in Vim',
+                           'value': 'Keeping notes in Vim',
                            'weight': 1}], self.fna.get_title())
