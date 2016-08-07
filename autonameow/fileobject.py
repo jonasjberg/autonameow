@@ -6,11 +6,19 @@ import logging
 import os
 import re
 
+from datetime import datetime
+
 from config_defaults import (
     FILENAME_TAG_SEPARATOR,
     BETWEEN_TAG_SEPARATOR
 )
 from util import diskutils
+from util.dateandtime import date_is_probable
+
+SEP = '[\ -:_]?'
+DATE_SEP = "[:\-._ \/]?"
+ts_regex_pattern = '^[12]\d{3}' + SEP + '[01]\d' + SEP + '[0123]\d'
+FILENAMEPART_TS_REGEX = re.compile(ts_regex_pattern)
 
 
 class FileObject(object):
@@ -47,15 +55,22 @@ class FileObject(object):
         self.filenamepart_tags = self._filenamepart_tags() or []
 
     def _filenamepart_ts(self):
-        pass
+        ts = FILENAMEPART_TS_REGEX.match(self.fnbase)
+        if ts:
+            return ts.group(0)
+        return None
 
     def _filenamepart_base(self):
-        if not re.findall(BETWEEN_TAG_SEPARATOR, self.fnbase):
-            return self.fnbase
+        fnbase = self.fnbase
+        if self.filenamepart_ts:
+            fnbase = self.fnbase.lstrip(self.filenamepart_ts)
+
+        if not re.findall(BETWEEN_TAG_SEPARATOR, fnbase):
+            return fnbase
 
         # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
-        r = re.split(FILENAME_TAG_SEPARATOR, self.fnbase, 1)
-        return str(r[0])
+        r = re.split(FILENAME_TAG_SEPARATOR, fnbase, 1)
+        return str(r[0].strip())
 
     def _filenamepart_ext(self):
         return self.suffix
