@@ -67,5 +67,5 @@ class VideoAnalyzer(AbstractAnalyzer):
                     try:
                         dt = datetime.combine(clean_date, clean_time)
                     except ValueError:
-                        logging.warning('Unable to extract date/time from ffprobe output.')
+                        logging.debug('Unable to extract date/time from ffprobe output.')
                     return dt

@@ -159,7 +159,7 @@ def regex_search_str(text):
     results = []
 
     if type(text) is list:
-        logging.warn('Converting list to string ..')
+        logging.debug('Converting list to string ..')
         text = ' '.join(text)
 
     DATE_SEP = "[:\-._ \/]?"
@@ -337,8 +337,8 @@ def match_android_messenger_filename(text):
             dt = datetime.utcfromtimestamp(ms // 1000).replace(microsecond=ms % 1000 * 1000)
             # dt = datetime.fromtimestamp(float(dt_str) / 1000.0)
         except ValueError as e:
-            logging.warning('Unable to extract datetime from '
-                            '[{}] - {}'.format(dt_str, e.message))
+            logging.debug('Unable to extract datetime from '
+                          '[{}] - {}'.format(dt_str, e.message))
         else:
             if date_is_probable(dt):
                 logging.debug('Extracted datetime from Android messenger file '
@@ -618,7 +618,7 @@ def search_gmail(text, prefix):
     # Currently not used at all!
     # TODO: Is this necessary/sane/good practice? (NO!)
     if type(text) is list:
-        logging.warn('Converting list to string ..')
+        logging.debug('Converting list to string ..')
         text = ' '.join(text)
 
     if not text.lower().find('gmail'):
@@ -653,7 +653,7 @@ def get_datetime_from_text(text, prefix='NULL'):
         logging.warning('Got NULL argument')
         return None
     if prefix == 'NULL':
-        logging.warning('Result prefix not specified! Using default "NULL"')
+        logging.debug('Result prefix not specified! Using default "NULL"')
 
     # TODO: Improve handlng of generalized "text" from any source.
     #       (currently plain text and pdf documents)

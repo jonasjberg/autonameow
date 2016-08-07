@@ -95,8 +95,8 @@ class TextAnalyzer(AbstractAnalyzer):
                                 'source': 'regex_search',
                                 'weight': 0.25})
         else:
-            logging.warning('Unable to extract date/time-information '
-                            'from text file contents using regex search.')
+            logging.debug('Unable to extract date/time-information '
+                          'from text file contents using regex search.')
 
         if type(text) == list:
             text = ' '.join(text)
@@ -112,8 +112,8 @@ class TextAnalyzer(AbstractAnalyzer):
                                     'source': 'bruteforce_search',
                                     'weight': 0.1})
         if matches_brute == 0:
-            logging.warning('Unable to extract date/time-information '
-                            'from text file contents using brute force search.')
+            logging.debug('Unable to extract date/time-information '
+                          'from text file contents using brute force search.')
         else:
             logging.debug('Brute force search of text file contents for '
                           'date/time-information returned {} '

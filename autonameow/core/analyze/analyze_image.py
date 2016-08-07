@@ -67,8 +67,8 @@ class ImageAnalyzer(AbstractAnalyzer):
                    }, .. ]
         """
         if self.exif_data is None:
-            logging.warning('Found no EXIF data in file '
-                            '"{}"'.format(self.file_object.path))
+            logging.debug('Found no EXIF data in file '
+                          '"{}"'.format(self.file_object.path))
             return
 
         # Exif field, weight
@@ -104,8 +104,8 @@ class ImageAnalyzer(AbstractAnalyzer):
                 try:
                     dt = datetime.strptime(datetime_str, '%Y:%m:%d %H:%M:%S')
                 except ValueError:
-                    logging.warning('Unable to parse datetime from '
-                                    '[%s]'.format(field))
+                    logging.debug('Unable to parse datetime from '
+                                  '[%s]'.format(field))
             if dt:
                 # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
                 results.append({'value': dt,
@@ -131,8 +131,8 @@ class ImageAnalyzer(AbstractAnalyzer):
             try:
                 dt = datetime.strptime(gps_datetime_str, '%Y:%m:%d%H%M%S')
             except ValueError:
-                logging.warning('Unable to parse GPS datetime from '
-                                '[%s]'.format(gps_datetime_str))
+                logging.debug('Unable to parse GPS datetime from '
+                              '[%s]'.format(gps_datetime_str))
             if dt:
                 # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
                 results.append({'value': dt,
@@ -184,10 +184,10 @@ class ImageAnalyzer(AbstractAnalyzer):
             try:
                 exif_data = image._getexif()
             except Exception as e:
-                logging.warning('PIL image EXIF extraction error({0}): '
-                                '{1}'.format(e.args, e.message))
+                logging.debug('PIL image EXIF extraction error({0}): '
+                              '{1}'.format(e.args, e.message))
         if not exif_data:
-            logging.warning('Unable to extract EXIF data.')
+            logging.debug('Unable to extract EXIF data.')
             return None
 
         for tag, value in exif_data.items():
@@ -266,8 +266,8 @@ class ImageAnalyzer(AbstractAnalyzer):
                    }, .. ]
         """
         if self.ocr_text is None:
-            logging.warning('Found no text from OCR of '
-                            '\"{}\"'.format(self.file_object.path))
+            logging.debug('Found no text from OCR of '
+                          '"{}"'.format(self.file_object.path))
             return None
 
         results = []
@@ -299,7 +299,7 @@ class ImageAnalyzer(AbstractAnalyzer):
                                 'weight': 0.25})
 
         if len(results) == 0:
-            logging.warning('Found no date/time-information in OCR text.')
+            logging.debug('Found no date/time-information in OCR text.')
             return None
         else:
             return results

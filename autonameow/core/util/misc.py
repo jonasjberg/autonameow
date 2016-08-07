@@ -35,7 +35,7 @@ def unpack_dict(dt_list):
     if type(dt_list) is dict:
         return dt_list
     elif type(dt_list) is not list:
-        logging.warning('Got unexpected type: {}'.format(type(dt_list)))
+        logging.debug('Got unexpected type: {}'.format(type(dt_list)))
 
     results = {}
     for entry in dt_list:
