@@ -93,6 +93,7 @@ Inspired by wackou's guessit python module, but in no way as feature complete.
 `guessfilename.py`
 ------------------
 <https://github.com/novoid/guess-filename.py>
+
 Tries to come up with a new file name for each file from command line argument.
 
 Part of a very interesting and very well thought out system, similar to what I
@@ -113,6 +114,7 @@ Similar functionality and overall idea of automated renaming.
 `beets`
 -------
 <https://github.com/beetbox/beets>
+
 Beets is the media library management system for obsessive-compulsive music
 geeks.  The purpose of beets is to get your music collection right once and for
 all. It catalogs your collection, automatically improving its metadata as it
@@ -143,6 +145,7 @@ written in java, for easily renaming movie files.
 `grobid`
 --------
 <https://github.com/kermitt2/grobid>
+
 A machine learning software for extracting information from scholarly documents.
 
 GROBID is a machine learning library for extracting, parsing and re-structuring
@@ -153,6 +156,7 @@ particular focus on technical and scientific publications.
 `CERMINE`
 ---------
 <https://github.com/CeON/CERMINE>
+
 Content ExtRactor and MINEr.
 
 CERMINE is a Java library and a web service (cermine.ceon.pl) for extracting
@@ -172,6 +176,20 @@ to an XML file. The system is a structured series of pipelined components, each
 performing some task, such as layout analysis (e.g., header block, abstract,
 body text), or finer-grained labelling, such as identifying reference fields.
 
+
+`movemetafs`
+------------
+A searchable filesystem metadata store for Linux.
+<https://pts.50.hu>
+
+movemetafs is a searchable filesystem metadata store for Linux (with MySQL,
+Perl and FUSE), which lets users tag local files (including image, video,
+audio and text files) by simply moving the files to a special folder using
+any file manager, and it also lets users find files by tags, using a boolean
+search query. The original files (and their names) are kept intact.
+movemetafs doesn't have its own user interface, but it is usable with any
+file manager. movemetafs also lets users attach (unsearchable) textual
+description to files.
 
 
 [1]: http://karl-voit.at

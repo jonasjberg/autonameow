@@ -6,11 +6,20 @@ import logging
 import os
 import re
 
+from datetime import datetime
+
 from config_defaults import (
     FILENAME_TAG_SEPARATOR,
     BETWEEN_TAG_SEPARATOR
 )
 from util import diskutils
+from util.dateandtime import date_is_probable
+
+DATE_SEP = '[:\-._ ]?'
+TIME_SEP = '[:\-._ T]?'
+DATE_REGEX = '[12]\d{3}' + DATE_SEP + '[01]\d' + DATE_SEP + '[0123]\d'
+TIME_REGEX = '[012]\d' + TIME_SEP + '[012345]\d' + TIME_SEP + '[012345]\d(.[012345]\d)?'
+FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + '([T_ -]?' + TIME_REGEX + ')?')
 
 
 class FileObject(object):
@@ -28,8 +37,9 @@ class FileObject(object):
         # Figure out basic file type
         self.type = diskutils.filetype_magic(self.path)
 
-        # Do "filename partitioning" -- split the file name into three parts:
+        # Do "filename partitioning" -- split the file name into four parts:
         #
+        #   * filenamepart_ts     Date-/timestamp.
         #   * filenamepart_base   Descriptive text.
         #   * filenamepart_ext    File extension/suffix.
         #   * filenamepart_tags   Tags created within the "filetags" workflow.
@@ -37,20 +47,31 @@ class FileObject(object):
         # Example basename '20160722 Descriptive name -- firsttag tagtwo.txt':
         #
         #    20160722 Descriptive name -- firsttag tagtwo.txt
-        #    |_______________________|    |_____________| |_|
-        #              base                    tags       ext
+        #    |______| |______________|    |_____________| |_|
+        #       ts          base               tags       ext
         #
+        self.filenamepart_ts = self._filenamepart_ts()
         self.filenamepart_base = self._filenamepart_base()
         self.filenamepart_ext = self._filenamepart_ext()
         self.filenamepart_tags = self._filenamepart_tags() or []
 
+    def _filenamepart_ts(self):
+        ts = FILENAMEPART_TS_REGEX.match(self.fnbase)
+        if ts:
+            return ts.group(0)
+        return None
+
     def _filenamepart_base(self):
-        if not re.findall(BETWEEN_TAG_SEPARATOR, self.fnbase):
-            return self.fnbase
+        fnbase = self.fnbase
+        if self.filenamepart_ts:
+            fnbase = self.fnbase.lstrip(self.filenamepart_ts)
+
+        if not re.findall(BETWEEN_TAG_SEPARATOR, fnbase):
+            return fnbase
 
         # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
-        r = re.split(FILENAME_TAG_SEPARATOR, self.fnbase, 1)
-        return str(r[0])
+        r = re.split(FILENAME_TAG_SEPARATOR, fnbase, 1)
+        return str(r[0].strip())
 
     def _filenamepart_ext(self):
         return self.suffix
@@ -65,4 +86,3 @@ class FileObject(object):
             return tags
         except IndexError:
             return None
-

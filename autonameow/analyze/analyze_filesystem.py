@@ -11,6 +11,25 @@ from analyze.analyze_abstract import AbstractAnalyzer
 
 
 class FilesystemAnalyzer(AbstractAnalyzer):
+    """
+    FilesystemAnalyzer -- Gets information about files from the filesystem.
+
+    Currently has only the very most basic functionality; retrieves timestamps
+    for file creation, modification and access using "os.path.getXtime".
+
+    The other implemented superclass methods always returns None for now.
+
+    Extending this to properly implement all superclass methods will most
+    likely require separate solutions for each operating system and/or
+    filesystem. Needs more research into any available wrappers, etc.
+    And as I personally don't use filesystem metadata for my own metadata
+    storage, all further exploration will have to wait.
+
+    References:
+    http://en.wikipedia.org/wiki/Extended_file_attributes
+    http://www.freedesktop.org/wiki/CommonExtendedAttributes
+    http://timgolden.me.uk/python/win32_how_do_i/get-document-summary-info.html
+    """
 
     def __init__(self, file_object, filters):
         super(FilesystemAnalyzer, self).__init__(file_object, filters)
@@ -25,16 +44,19 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         return result
 
     def get_title(self):
-        # TODO: Implement.
-        pass
+        # Currently not relevant to this analyzer.
+        # Future support for reading filesystem metadata could implement this.
+        return None
 
     def get_author(self):
-        # TODO: Implement.
-        pass
+        # Currently not relevant to this analyzer.
+        # Future support for reading filesystem metadata could implement this.
+        return None
 
     def get_tags(self):
-        # TODO: Implement.
-        pass
+        # Currently not relevant to this analyzer.
+        # Future support for reading filesystem metadata could implement this.
+        return None
 
     def _get_datetime_from_filesystem(self):
         """
@@ -43,7 +65,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         NOTE: This is all very platform-specific, I think.
         NOTE #2: Microseconds are simply zeroed out.
         :return: list of dictionaries on the form:
-                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
                      'source' : "Create date",
                      'weight'  : 1
                    }, .. ]
@@ -63,17 +85,17 @@ class FilesystemAnalyzer(AbstractAnalyzer):
             def dt_fts(t):
                 return datetime.fromtimestamp(t).replace(microsecond=0)
 
-            results.append({'datetime': dt_fts(mtime),
+            results.append({'value': dt_fts(mtime),
                             'source': 'modified',
                             'weight': 1})
-            results.append({'datetime': dt_fts(ctime),
+            results.append({'value': dt_fts(ctime),
                             'source': 'created',
                             'weight': 1})
-            results.append({'datetime': dt_fts(atime),
+            results.append({'value': dt_fts(atime),
                             'source': 'accessed',
                             'weight': 0.25})
 
-        logging.debug('Got [{:^3}] timestamps from '
+        logging.debug('Got [{:^3}] timestamps from the '
                       'filesystem.'.format(len(results)))
         return results
 

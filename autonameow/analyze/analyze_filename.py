@@ -73,7 +73,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
         """
         if self.guessit_metadata:
             if 'title' in self.guessit_metadata:
-                return [{'title': self.guessit_metadata['title'],
+                return [{'value': self.guessit_metadata['title'],
                          'source': 'guessit',
                          'weight': 0.75}]
 
@@ -81,14 +81,14 @@ class FilenameAnalyzer(AbstractAnalyzer):
         """
         Get date/time-information from the results returned by "guessit".
         :return: a list of dictionaries (actually just one) on the form:
-                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
                      'source' : "Create date",
                      'weight'  : 1
                    }, .. ]
         """
         if self.guessit_metadata:
             if 'date' in self.guessit_metadata:
-                return [{'datetime': self.guessit_metadata['date'],
+                return [{'value': self.guessit_metadata['date'],
                          'source': 'guessit',
                          'weight': 0.75}]
 
@@ -105,12 +105,12 @@ class FilenameAnalyzer(AbstractAnalyzer):
         """
         Extracts date and time information from the file name.
         :return: a list of dictionaries on the form:
-                 [ { 'datetime': datetime.datetime(2016, 6, 5, 16, ..),
+                 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
                      'source' : "Create date",
                      'weight'  : 1
                    }, .. ]
         """
-        fn = self.file_object.filenamepart_base
+        fn = self.file_object.fnbase
         results = []
 
         # 1. The Very Special Case
@@ -118,13 +118,13 @@ class FilenameAnalyzer(AbstractAnalyzer):
         # If this matches, it is very likely to be relevant, so test it first.
         dt_special = dateandtime.match_special_case(fn)
         if dt_special:
-            results.append({'datetime': dt_special,
+            results.append({'value': dt_special,
                             'source': 'very_special_case',
                             'weight': 1})
         else:
             dt_special_no_date = dateandtime.match_special_case_no_date(fn)
             if dt_special_no_date:
-                results.append({'datetime': dt_special_no_date,
+                results.append({'value': dt_special_no_date,
                                 'source': 'very_special_case_no_date',
                                 'weight': 1})
 
@@ -134,21 +134,21 @@ class FilenameAnalyzer(AbstractAnalyzer):
         # TODO: This is not the way to do it!
         dt_android = dateandtime.match_android_messenger_filename(fn)
         if dt_android:
-            results.append({'datetime': dt_android,
+            results.append({'value': dt_android,
                             'source': 'android_messenger',
                             'weight': 1})
 
         # Match UNIX timestamp
         dt_unix = dateandtime.match_any_unix_timestamp(fn)
         if dt_unix:
-            results.append({'datetime': dt_unix,
+            results.append({'value': dt_unix,
                             'source': 'unix_timestamp',
                             'weight': 1})
 
         # Match screencapture-prefixed UNIX timestamp
         dt_screencapture_unix = dateandtime.match_screencapture_unixtime(fn)
         if dt_screencapture_unix:
-            results.append({'datetime': dt_screencapture_unix,
+            results.append({'value': dt_screencapture_unix,
                             'source': 'screencapture_unixtime',
                             'weight': 1})
 
@@ -158,7 +158,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
         dt_regex = dateandtime.regex_search_str(fn)
         if dt_regex:
             for dt in dt_regex:
-                results.append({'datetime': dt,
+                results.append({'value': dt,
                                 'source': 'regex_search',
                                 'weight': 0.25})
         else:
@@ -169,7 +169,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
         dt_brute = dateandtime.bruteforce_str(fn)
         if dt_brute:
             for dt in dt_brute:
-                results.append({'datetime': dt,
+                results.append({'value': dt,
                                 'source': 'bruteforce_search',
                                 'weight': 0.1})
         else:

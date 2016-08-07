@@ -9,15 +9,6 @@ from evaluate.matcher import RuleMatcher
 from util import misc
 
 
-class Results(object):
-    def __init__(self):
-        self.datetime = {}
-        self.title = {}
-        self.tags = []
-        # self.author = []
-        # etc ..
-
-
 class Analysis(object):
     """
     Handles the filename analyzer and analyzers specific to file content.
@@ -31,7 +22,9 @@ class Analysis(object):
         self.file_object = file_object
 
         self.filters = filters
-        self.results = Results()
+        self.results = {'datetime': {},
+                        'title': {},
+                        'tags': {}}
 
         # List of analyzers to run.
         # Start with a basic analyzer that is common to all file types.
@@ -99,37 +92,28 @@ class Analysis(object):
 
             a = analysis(self.file_object, self.filters)
             if not a:
-                logging.error('Unable to instantiate analysis '
+                logging.error('Unable to start Analyzer '
                               '"{}"'.format(str(analysis)))
                 continue
 
-            logging.debug('Running Analyzer: {}'.format(a.__class__))
-            self.results.datetime[a.__class__.__name__] = a.get_datetime()
-            self.results.title[a.__class__.__name__] = a.get_title()
-            self.results.tags.append(a.get_tags())
-            # collected_title.append(analysis.get_title())
-            # collected_author.append(analysis.get_author())
-            # etc ..
+            self.results['datetime'][a.__class__.__name__] = a.get_datetime()
+            self.results['title'][a.__class__.__name__] = a.get_title()
+            self.results['tags'][a.__class__.__name__] = a.get_tags()
 
     def print_all_datetime_info(self):
         """
         Prints all date/time-information for the current file.
         """
-        misc.dump(self.results.datetime)
+        misc.dump(self.results['datetime'])
 
     def print_title_info(self):
         """
         Prints the title for the current file, if found.
         """
-        misc.dump(self.results.title)
+        misc.dump(self.results['title'])
 
     def print_all_results_info(self):
         """
         Prints all analysis results for the current file.
         """
-        print('TITLE:')
-        misc.dump(self.results.title)
-        print('DATETIME:')
-        misc.dump(self.results.datetime)
-        print('TAGS:')
-        misc.dump(self.results.tags)
+        misc.dump(self.results)

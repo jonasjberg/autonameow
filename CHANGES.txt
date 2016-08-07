@@ -1,9 +1,34 @@
+2016-08-07  [autonameow v0.1.6]
+
+            Additions:
+            - Implement all target features in 'FilesystemAnalyzer' and add the
+              relevant tests, making it the first completed analyzer.
+            - Extend the "filename partitioning" to include a date-/timestamp.
+              Add and/or modify unit tests for extracting 'filenamepart_ts'.
+
+            Changes:
+            - Remove the 'Results' class in 'analysis.py' and substitute a
+              plain dictionary instead.
+            - Rename the actual value key in the results dictionary returned by
+              analyzers to "value", instead of the previous "datetime" and
+              "title" for datetime and title respectively.
+            - Rename 'file_object.py' to 'fileobject.py'.
+            - Extract file checks in '_handle_files' to method '_check_file'.
+            - Set the "quiet mode" ('-q', '--quiet') default to False.
+            - Set the "verbose mode" ('-v', '--verbose') default to False.
+
+            Fixes:
+            - Minor logging debug message grammar/spelling fixes.
+            - Fix bug where execution with no commad-line arguments causes
+              failed read of 'args.verbose'.
+
+
 2016-07-31  [autonameow v0.1.5]
 
             Additions:
             - Add new option '--list-title' which dumps all "title" information
               from the analysis results. Similar to '--list-datetime'.
-            - Extend tests of "filname partitioning" in the 'FileObject' class.
+            - Extend tests of "filename partitioning" in the 'FileObject' class.
             - Add more unit tests;
                 - Start adding tests for the 'FilenameAnalyzer' class.
                 - Start adding tests for the 'FilesystemAnalyzer' class.
