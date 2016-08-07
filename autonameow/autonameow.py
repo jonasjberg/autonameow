@@ -249,7 +249,8 @@ class Autonameow(object):
         optgrp_output.add_argument('-v', '--verbose',
                                    dest='verbose',
                                    action='store_true',
-                                   help='verbose mode')
+                                   help='verbose mode',
+                                   default=False)
 
         optgrp_output.add_argument('-q', '--quiet',
                                    dest='quiet',
