@@ -406,3 +406,23 @@ class TestFileObjectFilenamePartitioningReturnValueTypeNoTagsNoExt(TestCase):
     def test__filenamepart_tags_returns_list_of_string_or_empty_list(self):
         self.assertIs(list, type(self.fo.filenamepart_tags))
         self.assertEqual([], self.fo.filenamepart_tags)
+
+
+class TestFileObjectFilenamePartitioningWithActualFilename(TestCase):
+    def setUp(self):
+        self.fo = FileObject('2016-08-05_18-46-34 Working on PLL-monstret -- projects frfx.png')
+
+    def test_setUp(self):
+        self.assertIsNotNone(self.fo)
+
+    def test_filenamepart_ts(self):
+        self.assertEqual('2016-08-05_18-46-34', self.fo.filenamepart_ts)
+
+    def test_filenamepart_base(self):
+        self.assertEqual('Working on PLL-monstret', self.fo.filenamepart_base)
+
+    def test_filenamepart_ext(self):
+        self.assertEqual('png', self.fo.filenamepart_ext)
+
+    def test_filenamepart_tags(self):
+        self.assertEqual(['projects', 'frfx'], self.fo.filenamepart_tags)
