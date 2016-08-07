@@ -466,3 +466,23 @@ class TestFileObjectFilenamePartitioningWithActualFilename3(TestCase):
 
     def test_filenamepart_tags(self):
         self.assertEqual(['workflow', 'pim'], self.fo.filenamepart_tags)
+
+
+class TestFileObjectFilenamePartitioningWithActualFilename4(TestCase):
+    def setUp(self):
+        self.fo = FileObject('2010-01-31_161251.jpg')
+
+    def test_setUp(self):
+        self.assertIsNotNone(self.fo)
+
+    def test_filenamepart_ts(self):
+        self.assertEqual('2010-01-31_161251', self.fo.filenamepart_ts)
+
+    def test_filenamepart_base(self):
+        self.assertEqual('', self.fo.filenamepart_base)
+
+    def test_filenamepart_ext(self):
+        self.assertEqual('jpg', self.fo.filenamepart_ext)
+
+    def test_filenamepart_tags(self):
+        self.assertEqual([], self.fo.filenamepart_tags)
