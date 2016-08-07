@@ -254,7 +254,8 @@ class Autonameow(object):
         optgrp_output.add_argument('-q', '--quiet',
                                    dest='quiet',
                                    action='store_true',
-                                   help='quiet mode')
+                                   help='quiet mode',
+                                   default=False)
 
         parser.add_argument('--dump-options',
                             dest='dump_options',
