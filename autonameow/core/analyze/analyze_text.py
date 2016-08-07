@@ -7,8 +7,8 @@ import logging
 
 from unidecode import unidecode
 
-from analyze.analyze_abstract import AbstractAnalyzer
-from util import dateandtime
+from core.analyze.analyze_abstract import AbstractAnalyzer
+from core.util import dateandtime
 
 
 class TextAnalyzer(AbstractAnalyzer):

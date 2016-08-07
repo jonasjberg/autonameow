@@ -6,14 +6,11 @@ import logging
 import os
 import re
 
-from datetime import datetime
-
 from config_defaults import (
     FILENAME_TAG_SEPARATOR,
     BETWEEN_TAG_SEPARATOR
 )
 from util import diskutils
-from util.dateandtime import date_is_probable
 
 DATE_SEP = '[:\-._ ]?'
 TIME_SEP = '[:\-._ T]?'

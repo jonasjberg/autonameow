@@ -5,7 +5,7 @@
 import os
 from unittest import TestCase
 
-from util import diskutils
+from core.util import diskutils
 
 
 class TestSplitFileName(TestCase):

@@ -5,7 +5,7 @@
 import logging
 import os
 
-from analyze.analyze_abstract import AbstractAnalyzer
+from core.analyze.analyze_abstract import AbstractAnalyzer
 
 
 class VideoAnalyzer(AbstractAnalyzer):

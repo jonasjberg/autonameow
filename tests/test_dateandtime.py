@@ -2,10 +2,11 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
-from unittest import TestCase
 from datetime import datetime
+from unittest import TestCase
 
-from util.dateandtime import (
+
+from core.util.dateandtime import (
     hyphenate_date,
     match_any_unix_timestamp,
     match_special_case

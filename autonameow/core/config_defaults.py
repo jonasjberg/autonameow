@@ -1,3 +1,7 @@
+# This file is part of autonameow.
+# Copyright 2016, Jonas Sjoberg.
+# -*- coding: utf-8 -*-
+
 # Filetags options
 FILENAME_TAG_SEPARATOR = u' -- '
 BETWEEN_TAG_SEPARATOR = u' '

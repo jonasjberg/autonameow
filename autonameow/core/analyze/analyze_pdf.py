@@ -10,9 +10,9 @@ from datetime import datetime
 import PyPDF2
 from PyPDF2.utils import PdfReadError
 
-from analyze.analyze_abstract import AbstractAnalyzer
-from util import dateandtime
-from util import text
+from core.analyze.analyze_abstract import AbstractAnalyzer
+from core.util import dateandtime
+from core.util import textutils
 
 
 class PdfAnalyzer(AbstractAnalyzer):
@@ -176,7 +176,7 @@ class PdfAnalyzer(AbstractAnalyzer):
             if pdf_text and len(pdf_text) > 1:
                 logging.debug('Extracted text with: {}'.format(extractor.__name__))
                 # Post-process text extracted from a pdf document.
-                pdf_text = text.sanitize_text(pdf_text)
+                pdf_text = textutils.sanitize_text(pdf_text)
                 break
 
         if pdf_text:

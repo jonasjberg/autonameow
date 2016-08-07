@@ -8,7 +8,7 @@ import re
 import string
 from datetime import datetime, timedelta
 
-import util.text
+from core.util import textutils
 
 
 def hyphenate_date(date_str):
@@ -173,9 +173,9 @@ def regex_search_str(text):
     matches = 0
     for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
         # Extract digits, skip if entries contain no digits.
-        m_date = util.text.extract_digits(m_date)
-        m_time = util.text.extract_digits(m_time)
-        m_time_ms = util.text.extract_digits(m_time_ms)
+        m_date = textutils.extract_digits(m_date)
+        m_time = textutils.extract_digits(m_time)
+        m_time_ms = textutils.extract_digits(m_time_ms)
 
         if m_date is None or m_time is None:
             continue
@@ -507,7 +507,7 @@ def bruteforce_str(text):
 
     # Try another approach, start by extracting all digits.
     logging.debug('Trying second approach.')
-    digits_only = util.text.extract_digits(text)
+    digits_only = textutils.extract_digits(text)
 
     if len(digits_only) < 4:
         logging.debug('Failed second approach -- not enough digits.')

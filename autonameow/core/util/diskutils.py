@@ -5,6 +5,7 @@
 import os
 import magic
 
+
 MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
                      'gif':   ['image/gif'],
                      'jpg':   ['image/jpeg'],

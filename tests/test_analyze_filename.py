@@ -2,11 +2,11 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
-from unittest import TestCase
 from datetime import datetime
+from unittest import TestCase
 
-from analyze.analyze_filename import FilenameAnalyzer
-from fileobject import FileObject
+from core.analyze.analyze_filename import FilenameAnalyzer
+from core.fileobject import FileObject
 
 
 class TestFilenameAnalyzerWithImageFile(TestCase):

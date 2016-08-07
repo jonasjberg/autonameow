@@ -3,12 +3,11 @@
 # Copyright 2016, Jonas Sjoberg.
 
 import os
-
-from unittest import TestCase
 from datetime import datetime
+from unittest import TestCase
 
-from analyze.analyze_filesystem import FilesystemAnalyzer
-from fileobject import FileObject
+from core.fileobject import FileObject
+from core.analyze.analyze_filesystem import FilesystemAnalyzer
 
 
 class TestFilesystemAnalyzerWithEmptyFile(TestCase):

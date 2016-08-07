@@ -6,18 +6,18 @@
 import argparse
 import logging
 import os
-import sys
 import platform
+import sys
 import time
 
-from colorama import Fore
 from colorama import Back
+from colorama import Fore
 from datetime import datetime
 
 import version
-from analyze.analysis import Analysis
-from fileobject import FileObject
-from util import dateandtime
+from core.analyze.analysis import Analysis
+from core.fileobject import FileObject
+from core.util import dateandtime
 
 terminal_width = 100
 
@@ -127,15 +127,18 @@ class Autonameow(object):
     Main class to manage "autonameow" instance.
     """
 
-    def __init__(self):
+    def __init__(self, opts):
         """
         Main program entry point
         """
         # Save time of startup for later calculation of total runtime.
         self.start_time = time.time()
 
+        self.opts = opts
+
+    def run(self):
         # Display help/usage information if no arguments are provided.
-        if len(sys.argv) < 2:
+        if len(self.opts) < 2:
             print('Add "--help" to display usage information.')
             self.exit_program(0)
 
@@ -312,7 +315,8 @@ class Autonameow(object):
                                         'Default: {}'.format(
                                          ignore_to_year_default))
 
-        ignore_from_year_default = str(dateandtime.YEAR_UPPER_LIMIT.strftime('%Y'))
+        ignore_from_year_default = str(
+            dateandtime.YEAR_UPPER_LIMIT.strftime('%Y'))
         optgrp_filter.add_argument('--ignore-after-year',
                                    metavar='YYYY',
                                    type=arg_is_year,

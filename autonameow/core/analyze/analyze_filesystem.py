@@ -5,9 +5,10 @@
 import datetime
 import logging
 import os
+
 from datetime import datetime
 
-from analyze.analyze_abstract import AbstractAnalyzer
+from core.analyze.analyze_abstract import AbstractAnalyzer
 
 
 class FilesystemAnalyzer(AbstractAnalyzer):
