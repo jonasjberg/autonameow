@@ -429,8 +429,11 @@ class Autonameow(object):
 
         elapsed_time = time.time() - self.start_time
 
-        if self.args.verbose:
-            display_end_banner(exit_code, elapsed_time)
+        try:
+            if self.args.verbose:
+                display_end_banner(exit_code, elapsed_time)
+        except AttributeError:
+            pass
 
         logging.debug('Exiting with exit code: {}'.format(exit_code))
         logging.debug('Total execution time: '
