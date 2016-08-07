@@ -60,13 +60,11 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
         # Weight cases with all "filetags" filename parts present higher.
         if fnp_base and len(fnp_base) > 0:
+            weight = 0.25
             if fnp_ts and len(fnp_ts) > 0:
+                weight = 0.75
                 if fnp_tags and len(fnp_tags) > 0:
                     weight = 1
-                else:
-                    weight = 0.75
-            else:
-                weight = 0.5
 
             return [{'title': fnp_base,
                      'source': 'filenamepart_base',
