@@ -171,22 +171,9 @@ class Autonameow(object):
             logging.error('No input files specified.')
             return
         for arg in self.args.input_files:
-            if not os.path.exists(arg):
-                logging.warning('Skipping non-existent file/directory '
-                                '"{}"'.format(str(arg)))
-                continue
-            elif os.path.isdir(arg):
-                logging.warning('Skipping directory "{}"'.format(str(arg)))
-                continue
-            elif os.path.islink(arg):
-                logging.warning('Skipping symbolic link "{}"'.format(str(arg)))
-                continue
-            elif not os.access(arg, os.R_OK):
-                logging.error('Not authorized to read file '
-                              '"{}"'.format(str(arg)))
+            if not self._check_file(arg):
                 continue
             else:
-                # File exists and is readable.
                 logging.info('Processing file "{}"'.format(str(arg)))
 
                 # Create a file object representing the current arg.
@@ -214,6 +201,25 @@ class Autonameow(object):
                 # TODO: Implement this or something similar to it.
                 # action = None
                 # action = RenameAction(current_file, results)
+
+    def _check_file(self, file):
+        if not os.path.exists(file):
+            logging.warning('Skipping non-existent file/directory '
+                            '"{}"'.format(str(file)))
+            return False
+        elif os.path.isdir(file):
+            logging.warning('Skipping directory "{}"'.format(str(file)))
+            return False
+        elif os.path.islink(file):
+            logging.warning('Skipping symbolic link "{}"'.format(str(file)))
+            return False
+        elif not os.access(file, os.R_OK):
+            logging.error('Not authorized to read file '
+                          '"{}"'.format(str(file)))
+            return False
+        else:
+            # File exists and is readable.
+            return True
 
     def _init_argparser(self):
         """
