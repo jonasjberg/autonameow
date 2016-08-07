@@ -314,13 +314,16 @@ filters
 
 
 ### Returned from analyzers
-#### datetime
+#### `datetime`
 Analyzers extracts date and time information by various means
 and returns a list of dictionaries on the form:
+
+```python
 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
     'source' : "Create date",
     'weight'  : 1
   }, .. ]
+```
 
 
 
@@ -333,10 +336,12 @@ to use, the generalizations have to give way to my personal needs.
 So, since most of my filenames follow the "filetags" workflow and naming,
 `autonameow` must be able to handle these names well.
 
+### Filename "partitioning"
 The `FileObject` class will internally split the file name into three
 parts, which I call "filename partitioning":
 
 
+* `filenamepart_ts`     -- Date-/timestamp.
 * `filenamepart_base`   -- Descriptive text.
 * `filenamepart_ext`    -- File extension/suffix.
 * `filenamepart_tags`   -- Tags created with the "filetags" workflow.
@@ -345,8 +350,9 @@ parts, which I call "filename partitioning":
 Example for file basename `20160722 Descriptive name -- firsttag tagtwo.txt`:
 
 ```
-	'20160722 Descriptive name -- firsttag tagtwo.txt'
-	 |_______________________|    |_____________| |_|
-			   base                    tags       ext
+    '20160722 Descriptive name -- firsttag tagtwo.txt'
+     |______| |______________|    |_____________| |_|
+        ts          base               tags       ext
 ```
+
 
