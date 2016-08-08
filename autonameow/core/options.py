@@ -66,11 +66,6 @@ def init_argparser():
                                help='quiet mode',
                                default=False)
 
-    parser.add_argument('--dump-options',
-                        dest='dump_options',
-                        action='store_true',
-                        help='dump options to stdout')
-
     # Add option group for actions to be performed.
     optgrp_action = parser.add_argument_group('Action options')
     optgrp_action.add_argument('--list-datetime',
@@ -100,17 +95,6 @@ def init_argparser():
                                help='Figure out most probable new filename '
                                     'without requiring user interaction.'
                                     ' (development feature)')
-
-    parser.add_argument(dest='input_files',
-                        metavar='filename',
-                        nargs='*',
-                        help='input file(s)')
-
-    parser.add_argument('-d', '--dry-run',
-                        dest='dry_run',
-                        action='store_true',
-                        help='simulate what would happen but do not '
-                             'actually write any changes to disk')
 
     # Add option group for filter options.
     optgrp_filter = parser.add_argument_group('Processing options')
@@ -149,6 +133,22 @@ def init_argparser():
                                action='store',
                                help='ignore date/time-information '
                                     'from year(s)')
+
+    parser.add_argument(dest='input_files',
+                        metavar='filename',
+                        nargs='*',
+                        help='input file(s)')
+
+    parser.add_argument('-d', '--dry-run',
+                        dest='dry_run',
+                        action='store_true',
+                        help='simulate what would happen but do not '
+                             'actually write any changes to disk')
+
+    parser.add_argument('--dump-options',
+                        dest='dump_options',
+                        action='store_true',
+                        help='dump options to stdout')
     return parser
 
 
