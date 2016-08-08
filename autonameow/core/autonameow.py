@@ -117,6 +117,7 @@ class Autonameow(object):
         self.start_time = time.time()
 
         self.opts = opts
+        self.args = None
         self.filter = None
 
     def run(self):
@@ -126,6 +127,7 @@ class Autonameow(object):
             self.exit_program(0)
 
         # Handle the command line arguments.
+        # TODO: What is parsed and why? opts or args? Where does it end up?
         self.args = options.parse_args()
 
         # Setup results filtering
