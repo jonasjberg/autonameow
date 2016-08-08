@@ -39,12 +39,10 @@ Breakdown of what needs to happen to automatically rename a file:
 #### 1. Collect information:
 
 1. From file **name**
-
     * `seemingly giant cat in dollhouse.jpg`
     * Try to extract date/time-information, title, keywords, etc.
 
 2. From file **contents**
-
     * Get plain text from the file contents.
     * Extraction technique would be specfic to file type;
         * Run `OCR` on images to extract textual content.
@@ -52,13 +50,11 @@ Breakdown of what needs to happen to automatically rename a file:
         * Do conversion specific to file (magic) type.
 
 3. From file **metadata**
-
     * Extract information from embedded metadata.
     * Metadata type and extraction technique is specfic to file type;
       "media" often have `Exif` data, pdf documents, etc.
 
 4. From file **surroundings** (optional)
-
     * Extract information from the surrounding structure;
         * Parent directory name
         * Other files in the directory
@@ -67,7 +63,6 @@ Breakdown of what needs to happen to automatically rename a file:
 #### 2. Evaluate/process any results.
 
 1. Sort
-
     * Prioritize items by weights and/or fixed rules.
         * For fixed rules, use a configuration file for specifying rules to be
           matched.
@@ -84,7 +79,6 @@ Breakdown of what needs to happen to automatically rename a file:
       before `Modify Date`. Maybe not always though.
 
 2. Filter
-
     * Remove and/or mark:
         * Obviously incorrect entries.
         * Unplausible entries.
@@ -98,20 +92,16 @@ Breakdown of what needs to happen to automatically rename a file:
 #### 3. Perform actions
 
 1. Fill fields in file name template with most probable values.
-
     * Construct a new file name from the data.
 
 2. Rename the file.
-
     * Do belt+suspenders sanity checks to make sure;
         * File still exists, is readable, etc..
         * Destination won't be clobbered, is writable, etc..
         * (Ask user to proceed (?))
-
     * Rename file to the generated file name.
 
 3. Display results
-
     * Print summary of results/actions performed/etc.
         * Output is determined by the user.
         * An option like `--dry-run` or similar would skip renaming altogether.
@@ -143,7 +133,6 @@ Reading from file `~/Downloads/DSCN9659.jpg`
         * Get tags/keywords/etc from `Exif` data.
 
 * From file **surroundings** (optional)
-
     * **TODO:** Figure out how to handle this. See for example how `beets`
                 handles jobs/tasks.
 
