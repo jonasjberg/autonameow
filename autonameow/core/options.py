@@ -162,7 +162,10 @@ def parse_args():
     args = parser.parse_args()
 
     # Setup logging output format.
-    # if args.debug == 0:
+    # TODO: Make logging verbosity more controllable with additional logging
+    #       levels, enabled by adding on any number of '-v' options to the
+    #       command-line. For instance, verbosity levels 1 and 3 would be
+    #       enabled with '-v' and '-vvv', respectively.
     if args.debug:
         fmt = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
               Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
@@ -171,18 +174,6 @@ def parse_args():
               '%(message)-120.120s'
         logging.basicConfig(level=logging.DEBUG, format=fmt,
                             datefmt='%Y-%m-%d %H:%M:%S')
-    # elif args.debug == 1:
-    #     # TODO: Fix debug logging verbosity.
-    #     pass
-    #
-    # elif args.debug == 2:
-    #     # TODO: Fix debug logging verbosity.
-    #     pass
-    #
-    # elif args.debug == 3:
-    #     # TODO: Fix debug logging verbosity.
-    #     pass
-
     elif args.verbose:
         fmt = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
               Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
