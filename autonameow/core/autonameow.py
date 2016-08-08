@@ -16,6 +16,7 @@ from datetime import datetime
 import version
 from core import options
 from core.analyze.analysis import Analysis
+from core.evaluate.filter import ResultFilter
 from core.fileobject import FileObject
 
 terminal_width = 100
@@ -116,6 +117,7 @@ class Autonameow(object):
         self.start_time = time.time()
 
         self.opts = opts
+        self.filter = None
 
     def run(self):
         # Display help/usage information if no arguments are provided.
@@ -123,52 +125,11 @@ class Autonameow(object):
             print('Add "--help" to display usage information.')
             self.exit_program(0)
 
-        # TODO: Fix the filtering! Not completed as-is.
-        self.filter = {'ignore_years': [],
-                       'ignore_before_year': None,
-                       'ignore_after_year': None}
-
         # Handle the command line arguments.
         self.args = options.parse_args()
 
-        # TODO: Fix this and overall filter handling.
-        if self.args.filter_ignore_years:
-            for year in self.args.filter_ignore_years:
-                try:
-                    dt = datetime.strptime(str(year), '%Y')
-                except ValueError as e:
-                    logging.warning('Erroneous date format: '
-                                    '"{}"'.format(e.message))
-                else:
-                    if dt not in self.filter['ignore_years']:
-                        self.filter['ignore_years'].append(dt)
-
-            ignored_years = ', '.join((str(yr.year)
-                                       for yr in self.filter['ignore_years']))
-            logging.debug('Using filter: ignore date/time-information for these'
-                          ' years: {}'.format(ignored_years))
-
-        if self.args.filter_ignore_to_year:
-            try:
-                dt = datetime.strptime(str(self.args.filter_ignore_to_year),
-                                       '%Y')
-            except ValueError as e:
-                logging.warning('Erroneous date format: {}'.format(e.message))
-            else:
-                logging.debug('Using filter: ignore date/time-information that'
-                              ' predate year {}'.format(dt.year))
-                self.filter['ignore_before_year'] = dt
-
-        if self.args.filter_ignore_from_year:
-            try:
-                dt = datetime.strptime(str(self.args.filter_ignore_from_year),
-                                       '%Y')
-            except ValueError as e:
-                logging.warning('Erroneous date format: {}'.format(e.message))
-            else:
-                logging.debug('Using filter: ignore date/time-information that'
-                              ' follow year {}'.format(dt.year))
-                self.filter['ignore_after_year'] = dt
+        # Setup results filtering
+        self.filter = ResultFilter().configure_filter(self.args)
 
         # Display startup banner and other information if applicable.
         if self.args.verbose:
