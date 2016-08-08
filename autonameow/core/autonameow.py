@@ -289,6 +289,13 @@ class Autonameow(object):
                                    help='prepend most probable '
                                         'date/time-information to file name')
 
+        optgrp_action.add_argument('--automagic',
+                                   dest='automagic',
+                                   action='store_true',
+                                   help='Figure out most probable new filename '
+                                        'without requiring user interaction.'
+                                        ' (development feature)')
+
         parser.add_argument(dest='input_files',
                             metavar='filename',
                             nargs='*',
