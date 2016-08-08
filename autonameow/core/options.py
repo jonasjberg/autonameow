@@ -52,18 +52,18 @@ def init_argparser():
                                #      'Default is no debug verbosity.')
                                dest='debug',
                                action='store_true',
-                               help='debug mode')
+                               help='Debug mode.')
 
     optgrp_output.add_argument('-v', '--verbose',
                                dest='verbose',
                                action='store_true',
-                               help='verbose mode',
+                               help='Verbose mode.',
                                default=False)
 
     optgrp_output.add_argument('-q', '--quiet',
                                dest='quiet',
                                action='store_true',
-                               help='quiet mode',
+                               help='Quiet mode.',
                                default=False)
 
     # Add option group for actions to be performed.
@@ -71,23 +71,23 @@ def init_argparser():
     optgrp_action.add_argument('--list-datetime',
                                dest='list_datetime',
                                action='store_true',
-                               help='list all found "date/time"-information')
+                               help='List all found "date/time"-information.')
 
     optgrp_action.add_argument('--list-title',
                                dest='list_title',
                                action='store_true',
-                               help='list all "title"-information')
+                               help='List all "title"-information.')
 
     optgrp_action.add_argument('--list-all',
                                dest='list_all',
                                action='store_true',
-                               help='list all information found')
+                               help='List all information found.')
 
     optgrp_action.add_argument('--prepend-datetime',
                                dest='prepend_datetime',
                                action='store_true',
-                               help='prepend most probable '
-                                    '"date/time"-information to file name')
+                               help='Prepend most probable '
+                                    '"date/time"-information to file names.')
 
     optgrp_action.add_argument('--automagic',
                                dest='automagic',
@@ -106,7 +106,7 @@ def init_argparser():
                                nargs='?',
                                dest='filter_ignore_to_year',
                                action='store',
-                               help='ignore date/time-information from '
+                               help='Ignore date/time-information from '
                                     'this year and the years prior. '
                                     'Default: {}'.format(
                                    ignore_to_year_default))
@@ -119,10 +119,10 @@ def init_argparser():
                                nargs='?',
                                dest='filter_ignore_from_year',
                                action='store',
-                               help='ignore date/time-information from '
-                                    'this year onward. '
+                               help='Ignore date/time-information from '
+                                    'year specified (inclusive). '
                                     'Default: {}'.format(
-                                   ignore_from_year_default))
+                                    ignore_from_year_default))
 
     optgrp_filter.add_argument('--ignore-years',
                                metavar='YYYY',
@@ -131,24 +131,24 @@ def init_argparser():
                                nargs='*',
                                dest='filter_ignore_years',
                                action='store',
-                               help='ignore date/time-information '
-                                    'from year(s)')
+                               help='Ignore date/time-information '
+                                    'from the year(s) specified.')
 
     parser.add_argument(dest='input_files',
                         metavar='filename',
                         nargs='*',
-                        help='input file(s)')
+                        help='Input file(s)')
 
     parser.add_argument('-d', '--dry-run',
                         dest='dry_run',
                         action='store_true',
-                        help='simulate what would happen but do not '
-                             'actually write any changes to disk')
+                        help='Simulate what would happen but do not '
+                             'actually write any changes to disk.')
 
     parser.add_argument('--dump-options',
                         dest='dump_options',
                         action='store_true',
-                        help='dump options to stdout')
+                        help='Dump options to stdout.')
     return parser
 
 
