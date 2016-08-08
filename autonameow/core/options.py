@@ -42,7 +42,7 @@ def init_argparser():
 
     # Add option group for controlling what is printed to stdout.
     optgrp_output = parser.add_mutually_exclusive_group()
-    optgrp_output.add_argument('-z', '--debug',
+    optgrp_output.add_argument('--debug',
                                # const=0, default='0', type=int,
                                # nargs="?",
                                # dest='debug',
