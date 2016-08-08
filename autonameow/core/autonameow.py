@@ -110,7 +110,7 @@ def display_options(args):
     print_line('debug mode', 'TRUE' if args.debug else 'FALSE')
     print_line('verbose mode', 'TRUE' if args.verbose else 'FALSE')
     print_line('quiet mode', 'TRUE' if args.quiet else 'FALSE')
-    print_line_section('Actions to performed')
+    print_line_section('Actions to be performed')
     print_line('add datetime', 'TRUE' if args.list_datetime else 'FALSE')
     print_line_section('Behavior configuration')
     print_line('dry run', 'TRUE' if args.dry_run else 'FALSE')
