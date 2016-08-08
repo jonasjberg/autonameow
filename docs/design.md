@@ -74,7 +74,6 @@ Breakdown of what needs to happen to automatically rename a file:
             * **Example:** Exif DateTimeOriginal date/time-information would be
               weighted 1, while date/time-information extracted by
               brute-forcing textual contents would have a weight of 0.1.
-
     * For example, the EXIF-tag `Date/Time Original` would be selected
       before `Modify Date`. Maybe not always though.
 
@@ -83,7 +82,6 @@ Breakdown of what needs to happen to automatically rename a file:
         * Obviously incorrect entries.
         * Unplausible entries.
         * Entries matching some kind of ruleset or blacklist.
-
     * Apply user-specified filters
         * Specified in configuration file
         * Specified as command line options at program invocation
@@ -118,7 +116,6 @@ Reading from file `~/Downloads/DSCN9659.jpg`
         * Scans using progressively liberal/tolerant matching, I.E. where
           the search "fuzzyness" increases progressively if no results are
           found, could return a lot of garbage in such cases.
-
         * **TODO:** Figure out how to handle this. Test file name length,
           number of letters, digits, etc and decide which scans to run based
           on results?
