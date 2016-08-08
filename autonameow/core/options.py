@@ -76,23 +76,23 @@ def init_argparser():
     optgrp_action.add_argument('--list-datetime',
                                dest='list_datetime',
                                action='store_true',
-                               help='list all found date/time-information')
+                               help='list all found "date/time"-information')
 
     optgrp_action.add_argument('--list-title',
                                dest='list_title',
                                action='store_true',
-                               help='list all "title" information')
+                               help='list all "title"-information')
 
     optgrp_action.add_argument('--list-all',
                                dest='list_all',
                                action='store_true',
-                               help='list all found information')
+                               help='list all information found')
 
     optgrp_action.add_argument('--prepend-datetime',
                                dest='prepend_datetime',
                                action='store_true',
                                help='prepend most probable '
-                                    'date/time-information to file name')
+                                    '"date/time"-information to file name')
 
     optgrp_action.add_argument('--automagic',
                                dest='automagic',
