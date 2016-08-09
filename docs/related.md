@@ -125,6 +125,23 @@ I use this myself and it does work well for automatically restructuring a music
 collection.
 
 
+`filebot`
+---------
+<http://www.filebot.net>
+<https://github.com/filebot/filebot>
+FileBot is the ultimate tool for organizing and renaming your movies, tv shows
+or anime, and music well as downloading subtitles and artwork. It's smart and
+just works.
+
+
+`Movie Renamer`
+---------------
+<http://movie-renamer.fr>
+<https://code.google.com/archive/p/movie-renamer>
+Movie Renamer is an Open Source application Windows/Linux/OSX, totally free
+written in java, for easily renaming movie files.
+
+
 `grobid`
 --------
 <https://github.com/kermitt2/grobid>
@@ -138,8 +155,9 @@ particular focus on technical and scientific publications.
 
 `CERMINE`
 ---------
-Content ExtRactor and MINEr.
 <https://github.com/CeON/CERMINE>
+
+Content ExtRactor and MINEr.
 
 CERMINE is a Java library and a web service (cermine.ceon.pl) for extracting
 metadata and content from PDF files containing academic publications.  CERMINE
