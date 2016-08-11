@@ -41,13 +41,6 @@ def init_argparser():
     # Add option group for controlling what is printed to stdout.
     optgrp_output = parser.add_mutually_exclusive_group()
     optgrp_output.add_argument('--debug',
-                               # const=0, default='0', type=int,
-                               # nargs="?",
-                               # dest='debug',
-                               # help='debug verbosity: 0 = none, 1 = some, '
-                               #      '2 = more, 3 = everything. '
-                               #      'No number means some. '
-                               #      'Default is no debug verbosity.')
                                dest='debug',
                                action='store_true',
                                help='Debug mode.')
