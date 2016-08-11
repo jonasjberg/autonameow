@@ -150,14 +150,14 @@ def init_argparser():
     return parser
 
 
-def parse_args():
+def parse_args(opts):
     """
     Parse command line arguments.
     Check combination legality, print debug info.
     Apply selected options.
     """
     parser = init_argparser()
-    args = parser.parse_args()
+    args = parser.parse_args(args=opts)
 
     # Setup logging output format.
     # TODO: Make logging verbosity more controllable with additional logging

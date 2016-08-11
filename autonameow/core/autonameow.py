@@ -90,7 +90,7 @@ class Autonameow(object):
 
         # Handle the command line arguments.
         # TODO: What is parsed and why? opts or args? Where does it end up?
-        self.args = options.parse_args()
+        self.args = options.parse_args(self.opts)
 
         # Setup results filtering
         self.filter = ResultFilter().configure_filter(self.args)
