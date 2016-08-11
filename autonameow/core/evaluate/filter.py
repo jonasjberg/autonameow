@@ -11,6 +11,7 @@ class ResultFilter(object):
     Class ResultFilter handles filtering of the results gathered by file
     analysis by evaluating the results based on a set of filter rules.
     """
+
     def __init__(self):
         self.rules = {'ignore_years': [],
                       'ignore_before_year': None,
@@ -36,8 +37,7 @@ class ResultFilter(object):
 
         if opts.filter_ignore_to_year:
             try:
-                dt = datetime.strptime(str(opts.filter_ignore_to_year),
-                                       '%Y')
+                dt = datetime.strptime(str(opts.filter_ignore_to_year), '%Y')
             except ValueError as e:
                 logging.warning('Erroneous date format: {}'.format(e.message))
             else:
