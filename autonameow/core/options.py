@@ -126,7 +126,7 @@ def init_argparser():
                                metavar='YYYY',
                                type=arg_is_year,
                                default=[],
-                               nargs='*',
+                               nargs='+',
                                dest='filter_ignore_years',
                                action='store',
                                help='Ignore date/time-information '
