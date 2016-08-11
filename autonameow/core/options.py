@@ -111,7 +111,7 @@ def init_argparser():
                                     '{}'.format(ignore_to_year_default))
 
     ignore_from_year_default = str(dateandtime.YEAR_UPPER_LIMIT.strftime('%Y'))
-    optgrp_filter.add_argument('--ignore-after-year',
+    optgrp_filter.add_argument('--ignore-from-year',
                                metavar='YYYY',
                                type=arg_is_year,
                                default=ignore_from_year_default,
