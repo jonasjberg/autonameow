@@ -103,7 +103,7 @@ def init_argparser():
                                metavar='YYYY',
                                type=arg_is_year,
                                default=ignore_to_year_default,
-                               nargs='?',
+                               nargs=1,
                                dest='filter_ignore_to_year',
                                action='store',
                                help='Ignore all date/time-information for the '
@@ -115,7 +115,7 @@ def init_argparser():
                                metavar='YYYY',
                                type=arg_is_year,
                                default=ignore_from_year_default,
-                               nargs='?',
+                               nargs=1,
                                dest='filter_ignore_from_year',
                                action='store',
                                help='Ignore all date/time-information following'
