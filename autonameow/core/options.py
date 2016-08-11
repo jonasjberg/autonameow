@@ -13,8 +13,9 @@ from core.util import dateandtime
 
 def arg_is_year(value):
     """
-    Check if "value" is a year, as in 4 digits and 0 >= year > 9999 ..
-    :return:
+    Check if "value" is a year, here defined as consisting solely of 4 digits,
+    with a value in the range 0 >= year > 9999.
+    :return: True if the value is a year by the above definition
     """
     ivalue = None
     try:
