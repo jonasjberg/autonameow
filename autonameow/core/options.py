@@ -99,7 +99,7 @@ def init_argparser():
     # Add option group for filter options.
     optgrp_filter = parser.add_argument_group('Processing options')
     ignore_to_year_default = str(dateandtime.YEAR_LOWER_LIMIT.strftime('%Y'))
-    optgrp_filter.add_argument('--ignore-before-year',
+    optgrp_filter.add_argument('--ignore-to-year',
                                metavar='YYYY',
                                type=arg_is_year,
                                default=ignore_to_year_default,
