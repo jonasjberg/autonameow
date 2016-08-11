@@ -106,10 +106,9 @@ def init_argparser():
                                nargs='?',
                                dest='filter_ignore_to_year',
                                action='store',
-                               help='Ignore date/time-information from '
-                                    'this year and the years prior. '
-                                    'Default: {}'.format(
-                                   ignore_to_year_default))
+                               help='Ignore all date/time-information for the '
+                                    'specified year and years prior. Default: '
+                                    '{}'.format(ignore_to_year_default))
 
     ignore_from_year_default = str(dateandtime.YEAR_UPPER_LIMIT.strftime('%Y'))
     optgrp_filter.add_argument('--ignore-after-year',
