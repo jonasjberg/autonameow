@@ -17,13 +17,14 @@ def arg_is_year(value):
     with a value in the range 0 >= year > 9999.
     :return: True if the value is a year by the above definition
     """
-    try:
-        ivalue = int(value.strip())
-    except ValueError:
-        pass
-    else:
-        if len(str(ivalue)) == 4 and ivalue >= 0:
-            return ivalue
+    if value:
+        try:
+            ivalue = int(value.strip())
+        except ValueError:
+            pass
+        else:
+            if len(str(ivalue)) == 4 and ivalue >= 0:
+                return ivalue
     raise argparse.ArgumentTypeError('"{}" is not a valid year'.format(value))
 
 
