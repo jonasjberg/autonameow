@@ -4,9 +4,8 @@
 
 import argparse
 import logging
-from colorama import Fore
 
-from datetime import datetime
+from colorama import Fore
 
 from core.util import dateandtime
 
