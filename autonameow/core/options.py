@@ -184,17 +184,13 @@ def prettyprint_options(opts):
     """
     Display details on the command line options that are in effect.
     Mainly for debug purposes.
-    :param args: arguments to display
+    :param opts: arguments to display
     """
-
-    def print_line(k, v):
-        print('{:<30}'.format(k) + Fore.LIGHTBLACK_EX + ' : ' +
-              Fore.RESET + '{:<40}'.format(v))
-
     opts_dict = vars(opts)
     for k, v in opts_dict.iteritems():
         if v == 0:
             v = 'False'
         elif v == 1:
             v = 'True'
-        print_line(k, v)
+        print('{:<30}'.format(k) + Fore.LIGHTBLACK_EX + ' : ' +
+              Fore.RESET + '{:<40}'.format(v))
