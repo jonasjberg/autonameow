@@ -10,8 +10,8 @@ from core.util import dateandtime
 
 class FilenameAnalyzer(AbstractAnalyzer):
 
-    def __init__(self, file_object, filters):
-        super(FilenameAnalyzer, self).__init__(file_object, filters)
+    def __init__(self, file_object):
+        super(FilenameAnalyzer, self).__init__(file_object)
 
         self.guessit_metadata = None
         # Arbitrary length check limits (very slow) calls to guessit.

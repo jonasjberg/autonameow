@@ -12,13 +12,8 @@ from core.fileobject import FileObject
 class TestFilenameAnalyzerWithImageFile(TestCase):
     # Setup and sanity check:
     def setUp(self):
-        # TODO: Fix the filtering! Not completed as-is.
-        self.filter = {'ignore_years': [],
-                       'ignore_before_year': None,
-                       'ignore_after_year': None}
-
         self.fo = FileObject('~/dev/projects/autonameow/test_files/2010-01-31_161251.jpg')
-        self.fna = FilenameAnalyzer(self.fo, self.filter)
+        self.fna = FilenameAnalyzer(self.fo)
 
     def test_setup(self):
         self.assertIsNotNone(self.fo)
@@ -54,13 +49,8 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
     # Setup and sanity check:
     def setUp(self):
-        # TODO: Fix the filtering! Not completed as-is.
-        self.filter = {'ignore_years': [],
-                       'ignore_before_year': None,
-                       'ignore_after_year': None}
-
         self.fo = FileObject('~/dev/projects/autonameow/test_files/empty')
-        self.fna = FilenameAnalyzer(self.fo, self.filter)
+        self.fna = FilenameAnalyzer(self.fo)
 
     def test_setup(self):
         self.assertIsNotNone(self.fo)
@@ -91,13 +81,8 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
 class TestFilenameAnalyzerWithTaggedFile(TestCase):
     # Setup and sanity check:
     def setUp(self):
-        # TODO: Fix the filtering! Not completed as-is.
-        self.filter = {'ignore_years': [],
-                       'ignore_before_year': None,
-                       'ignore_after_year': None}
-
         self.fo = FileObject('~/dev/projects/autonameow/test_files/2015-07-03_163838 Keeping notes in Vim -- dv017a dev.ogv')
-        self.fna = FilenameAnalyzer(self.fo, self.filter)
+        self.fna = FilenameAnalyzer(self.fo)
 
     def test_setup(self):
         self.assertIsNotNone(self.fo)

@@ -18,11 +18,10 @@ class Analysis(object):
     The analysises in the run queue is then executed and the results are
     stored as dictionary entries, with the source analyzer name being the key.
     """
-    def __init__(self, file_object, filters):
+    def __init__(self, file_object):
         assert file_object is not None
         self.file_object = file_object
 
-        self.filters = filters
         self.results = {'datetime': {},
                         'title': {},
                         'tags': {}}
@@ -91,7 +90,7 @@ class Analysis(object):
                 logging.error('Got null analysis from analysis run queue.')
                 continue
 
-            a = analysis(self.file_object, self.filters)
+            a = analysis(self.file_object)
             if not a:
                 logging.error('Unable to start Analyzer '
                               '"{}"'.format(str(analysis)))

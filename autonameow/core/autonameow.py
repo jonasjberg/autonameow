@@ -128,7 +128,7 @@ class Autonameow(object):
                 current_file = FileObject(arg)
 
                 # Begin analysing the file.
-                analysis = Analysis(current_file, self.filter)
+                analysis = Analysis(current_file)
 
                 if self.args.list_datetime:
                     print('File: "{}"'.format(current_file.path))

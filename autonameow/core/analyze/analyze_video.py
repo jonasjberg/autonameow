@@ -9,8 +9,8 @@ from core.analyze.analyze_abstract import AbstractAnalyzer
 
 
 class VideoAnalyzer(AbstractAnalyzer):
-    def __init__(self, file_object, filters):
-        super(VideoAnalyzer, self).__init__(file_object, filters)
+    def __init__(self, file_object):
+        super(VideoAnalyzer, self).__init__(file_object)
 
         self.exif_data = None
 
