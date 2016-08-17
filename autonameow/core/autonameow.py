@@ -154,7 +154,8 @@ class Autonameow(object):
 
                 if self.args.automagic:
                     # 3. Create a name builder.
-                    name_builder = NameBuilder(current_file, analysis.results)
+                    name_builder = NameBuilder(current_file, analysis.results,
+                                               rule_matcher.active_rule)
                     name_builder.build()
 
                     if self.args.dry_run:
