@@ -161,7 +161,9 @@ class Autonameow(object):
                     if self.args.dry_run:
                         logging.info('Automagically built filename: '
                                      '"{}"'.format(name_builder.new_name))
-
+                    else:
+                        # TODO: Do actual file renaming.
+                        pass
 
                 # TODO: Implement this or something similar to it.
                 # Create a action object.
