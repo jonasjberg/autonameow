@@ -4,9 +4,6 @@
 
 import logging
 
-from core.evaluate.matcher import RuleMatcher
-
-from core import config_defaults
 from core.util import misc
 
 
@@ -38,11 +35,6 @@ class Analysis(object):
 
         # Run all analyzers in the queue.
         self._execute_run_queue()
-
-        # Create a rule matcher
-        rule_matcher = RuleMatcher(self.file_object, config_defaults.rules)
-        logging.debug('File matches rule: '
-                      '{}'.format(rule_matcher.file_matches_rule))
 
     def _populate_run_queue(self):
         """

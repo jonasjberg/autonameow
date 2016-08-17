@@ -14,9 +14,11 @@ from colorama import Fore
 from datetime import datetime
 
 import version
+from core import config_defaults
 from core import options
 from core.analyze.analysis import Analysis
 from core.evaluate.filter import ResultFilter
+from core.evaluate.matcher import RuleMatcher
 from core.fileobject import FileObject
 
 terminal_width = 100
@@ -145,7 +147,11 @@ class Autonameow(object):
                     analysis.print_all_results_info()
                     print('')
 
-                # Create a action object.
+                # 2. Create a rule matcher
+                rule_matcher = RuleMatcher(current_file, config_defaults.rules)
+                logging.debug('File matches rule: '
+                              '{}'.format(rule_matcher.file_matches_rule))
+
                 # TODO: Implement this or something similar to it.
                 # action = None
                 # action = RenameAction(current_file, results)
