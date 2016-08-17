@@ -19,6 +19,7 @@ from core import options
 from core.analyze.analysis import Analysis
 from core.evaluate.filter import ResultFilter
 from core.evaluate.matcher import RuleMatcher
+from core.evaluate.namebuilder import NameBuilder
 from core.fileobject import FileObject
 
 terminal_width = 100
@@ -151,6 +152,16 @@ class Autonameow(object):
                 rule_matcher = RuleMatcher(current_file, config_defaults.rules)
                 logging.debug('File matches rule: '
                               '{}'.format(rule_matcher.file_matches_rule))
+
+                if self.args.automagic:
+                    # 3. Create a name builder.
+                    name_builder = NameBuilder(current_file, analysis.results)
+                    name_builder.build()
+
+                    if self.args.dry_run:
+                        logging.info('Automagically built filename: '
+                                     '"{}"'.format(name_builder.new_name))
+
 
                 # TODO: Implement this or something similar to it.
                 # action = None

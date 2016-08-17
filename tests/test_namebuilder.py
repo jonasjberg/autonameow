@@ -6,5 +6,7 @@ from unittest import TestCase
 
 
 class TestNameBuilder(TestCase):
-    def test_build_name(self):
+    def setUp(self):
+
+    def test_build(self):
         self.fail()
