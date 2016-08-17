@@ -151,8 +151,6 @@ class Autonameow(object):
 
                 # 2. Create a rule matcher
                 rule_matcher = RuleMatcher(current_file, config_defaults.rules)
-                logging.debug('File matches rule: '
-                              '{}'.format(rule_matcher.file_matches_rule))
 
                 if self.args.automagic:
                     # 3. Create a name builder.

@@ -10,10 +10,9 @@ class RuleMatcher(object):
     def __init__(self, file_object, rules):
         self.file_object = file_object
         self.rules = rules
-        logging.debug('Initialized RuleMatcher [{}] with rules "{}"'.format(self.__str__(), self.rules))
+        logging.debug('Initialized RuleMatcher [{}] with rules '
+                      '"{}"'.format(self.__str__(), self.rules))
 
-        # print('self.rules (type: {}):'.format(type(self.rules)))
-        # print(misc.dump(self.rules))
         self.file_matches_rule = self._determine_rule_matching_file()
 
     def _determine_rule_matching_file(self):
