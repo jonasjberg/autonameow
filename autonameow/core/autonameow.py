@@ -127,12 +127,13 @@ class Autonameow(object):
             else:
                 logging.info('Processing file "{}"'.format(str(arg)))
 
-                # Create a file object representing the current arg.
+                # 0. Create a file object representing the current arg.
                 current_file = FileObject(arg)
 
-                # Begin analysing the file.
+                # 1. Begin analysing the file.
                 analysis = Analysis(current_file)
 
+                # TODO: Fix this here below temporary printing of results.
                 if self.args.list_datetime:
                     print('File: "{}"'.format(current_file.path))
                     analysis.print_all_datetime_info()
@@ -164,6 +165,7 @@ class Autonameow(object):
 
 
                 # TODO: Implement this or something similar to it.
+                # Create a action object.
                 # action = None
                 # action = RenameAction(current_file, results)
 
