@@ -14,8 +14,8 @@ class NameBuilder(object):
     """
     def __init__(self, file_object, analysis_results, rule):
         assert isinstance(file_object, FileObject)
-        assert isinstance(analysis_results, dict)
-        assert isinstance(rule, dict)
+        # assert isinstance(analysis_results, dict)
+        # assert isinstance(rule, dict)
 
         self.file_object = file_object
         self.analysis_results = analysis_results
