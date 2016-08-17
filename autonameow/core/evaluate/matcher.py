@@ -13,9 +13,12 @@ class RuleMatcher(object):
         logging.debug('Initialized RuleMatcher [{}] with rules '
                       '"{}"'.format(self.__str__(), self.rules))
 
-        self.file_matches_rule = self._determine_rule_matching_file()
+        self._active_rule_key = self._determine_active_rule_key()
+        logging.debug('File matches rule: '
+                      '{}'.format(self._active_rule_key))
+        self.active_rule = self.rules[self._active_rule_key]
 
-    def _determine_rule_matching_file(self):
+    def _determine_active_rule_key(self):
         # rules = self.rules.
         for rule in self.rules.iterkeys():
             does_match = False

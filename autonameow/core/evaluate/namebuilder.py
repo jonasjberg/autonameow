@@ -19,8 +19,19 @@ class NameBuilder(object):
 
         self.file_object = file_object
         self.analysis_results = analysis_results
+        self.rule = rule
 
         self.new_name = None
 
     def build(self):
-        pass
+        if self.rule is None:
+            return False
+        elif self.analysis_results is None:
+            return False
+
+        print(self.rule)
+        print(self.analysis_results)
+
+
+        self.new_name = self.rule['new_name_template']
+        # TODO: Finish this method. Very much a work in progress.
