@@ -1,3 +1,44 @@
+2016-08-19  [autonameow v0.1.8]
+
+            Additions:
+            - Add unit tests for 'options.py'.
+            - Add a 'NameBuilder' class for assembling new names.
+              Fills out the empty template specified by a matching rule with
+              data from analysis results.
+            - Extend and improve the 'RuleMatcher'.
+            - Add dynamic listing of Analyzer classes.
+            	- Store all analyzer classes in '_ALL_ANALYZER_CLASSES'.
+                  The classes are added if their name ends with "Analyzer".
+                - Adds function 'get_analyzer_classes' to access the above list.
+                - Adds function 'get_instantiated_analyzers' to get a list of
+                  analyzer objects.
+                  Note that these are instantiated with a None 'FileObject'.
+            - Store relevant file mime types in the analyzers themselves.  Add
+              a new field 'applies_to_mime' that can be a string, a list of
+              strings or None, which means the analyzer should be used
+              regardless of file mimetype.
+
+            Changes:
+            - Rename the command-line option '--ignore-before-year' to
+              '--ignore-to-year'.
+            - Rename the command-line option '--ignore-after-year' to
+              '--ignore-from-year'.
+            - Change how the command-line options are passed in to argparse.
+            - Improve function 'arg_is_year'.
+            - Remove stub "action" classes 'AbstractAction' and 'RenameAction'.
+            - Do not pass filter instances to the analyzers.  Filters were not
+              used anyway, instead do the filtering as a separate step after
+              the analysis.
+			- Analyzers do not execute their analysis at instantiation.
+				- Use new method 'run()' to start the analysis.
+
+            Fixes:
+            - Fix incorrect number of arguments expected for options
+              '--ignore-from-year', '--ignore-years' and '--ignore-to-year'.
+            - Rule matcher name regex tests file basename.
+			- Fix no matching rule caused crash.
+
+
 2016-08-09  [autonameow v0.1.7]
 
             Additions:
