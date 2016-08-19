@@ -64,6 +64,7 @@ class RuleMatcher(object):
                             does_match = True
                         else:
                             # Rule does not apply -- regex does not match.
+                            logging.debug('Name regex in rule does not match')
                             continue
                 else:
                     does_match = True
