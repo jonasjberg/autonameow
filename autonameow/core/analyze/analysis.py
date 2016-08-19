@@ -51,7 +51,7 @@ class Analysis(object):
     Handles the filename analyzer and analyzers specific to file content.
     A run queue is populated based on which analyzers are suited for the
     current file, based on the file type type magic.
-    The analysises in the run queue is then executed and the results are
+    The analyses in the run queue is then executed and the results are
     stored as dictionary entries, with the source analyzer name being the key.
     """
     def __init__(self, file_object):
