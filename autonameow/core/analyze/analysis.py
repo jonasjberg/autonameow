@@ -5,8 +5,12 @@
 import logging
 
 from core.util import misc
-
-
+from core.analyze.analyze_pdf import PdfAnalyzer
+from core.analyze.analyze_image import ImageAnalyzer
+from core.analyze.analyze_text import TextAnalyzer
+from core.analyze.analyze_video import VideoAnalyzer
+from core.analyze.analyze_filename import FilenameAnalyzer
+from core.analyze.analyze_filesystem import FilesystemAnalyzer
 
 # Collect all analyzers from their class name.
 _ALL_ANALYZER_CLASSES = [
@@ -46,6 +50,27 @@ def get_analyzer_mime_mappings():
     return analyzer_mime_mappings
 
 
+class AnalysisRunQueue(object):
+    """
+    Stores references to all analyzers to be executed.
+    Essentially a glorified list, motivated by future expansion.
+    """
+    def __init__(self):
+        self._queue = []
+
+    def enqueue(self, analysis):
+        if isinstance(analysis, list):
+            self._queue += analysis
+        else:
+            self._queue.append(analysis)
+
+    def __len__(self):
+        return len(self._queue)
+
+    def __getitem__(self, item):
+        return self._queue[item]
+
+
 class Analysis(object):
     """
     Handles the filename analyzer and analyzers specific to file content.
@@ -64,9 +89,8 @@ class Analysis(object):
 
         # List of analyzers to run.
         # Start with a basic analyzer that is common to all file types.
-        from core.analyze.analyze_filesystem import FilesystemAnalyzer
-        from core.analyze.analyze_filename import FilenameAnalyzer
-        self.analysis_run_queue = [FilesystemAnalyzer, FilenameAnalyzer]
+        self.analysis_run_queue = AnalysisRunQueue()
+        self.analysis_run_queue.enqueue([FilesystemAnalyzer, FilenameAnalyzer])
 
         # Select analyzer based on detected file type.
         logging.debug('File is of type [{}]'.format(self.file_object.type))
@@ -96,7 +120,7 @@ class Analysis(object):
         # Append any matches to the analyzer run queue.
         if found_azr:
             logging.debug('Appending "{}" to analysis run queue'.format(found_azr))
-            self.analysis_run_queue.append(found_azr)
+            self.analysis_run_queue.enqueue(found_azr)
         else:
             logging.debug('File type ({}) is not yet mapped to a type-specific '
                           'Analyzer.'.format(self.file_object.type))
