@@ -80,21 +80,9 @@ class Analysis(object):
         Populate the list of analyzers to run.
         Imports are done locally for performance reasons.
         """
-        # Analyzers to use for file types
-        # TODO: Do the actual imports for found matches only!
-        from core.analyze.analyze_pdf import PdfAnalyzer
-        from core.analyze.analyze_image import ImageAnalyzer
-        from core.analyze.analyze_text import TextAnalyzer
-        from core.analyze.analyze_video import VideoAnalyzer
-        ANALYZER_TYPE_LOOKUP = {ImageAnalyzer: ['jpg', 'png'],
-                                PdfAnalyzer: 'pdf',
-                                TextAnalyzer: ['txt', 'md'],
-                                VideoAnalyzer: ['mp4'],
-                                None: 'none'}
-
-        # Compare file mime type with entries in "ANALYZER_TYPE_LOOKUP".
+        # Compare file mime type with entries from get_analyzer_mime_mappings().
         found_azr = None
-        for azr, tpe in ANALYZER_TYPE_LOOKUP.iteritems():
+        for azr, tpe in get_analyzer_mime_mappings().iteritems():
             if found_azr is not None:
                 break
             if isinstance(tpe, list):

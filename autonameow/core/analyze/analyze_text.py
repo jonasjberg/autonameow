@@ -14,6 +14,7 @@ from core.util import dateandtime
 class TextAnalyzer(AbstractAnalyzer):
     def __init__(self, file_object):
         super(TextAnalyzer, self).__init__(file_object)
+        self.applies_to_mime = ['txt', 'md']
 
         # Extract the textual contents.
         logging.debug('Extracting text contents ..')
