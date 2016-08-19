@@ -16,7 +16,8 @@ class RuleMatcher(object):
         self._active_rule_key = self._determine_active_rule_key()
         logging.debug('File matches rule: '
                       '{}'.format(self._active_rule_key))
-        self.active_rule = self.rules[self._active_rule_key]
+        if self._active_rule_key:
+            self.active_rule = self.rules[self._active_rule_key]
 
     def _determine_active_rule_key(self):
         # rules = self.rules.
