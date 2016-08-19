@@ -2,6 +2,8 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
+import os
+
 from core.fileobject import FileObject
 
 
@@ -23,15 +25,34 @@ class NameBuilder(object):
 
         self.new_name = None
 
-    def build(self):
-        if self.rule is None:
-            return False
-        elif self.analysis_results is None:
-            return False
+    def _populate_fields(self, analysis_results, rule):
+        """
+        Assembles a dict with keys matching the fields in the new name template
+        defined in the rule. The dict values come from the analysis results,
+        which ones is also defined in the rule.
+        :param analysis_results:
+        :return:
+        """
+        print(analysis_results)
+        ardate = None #rule['prefer_datetime']
+        artime = None
+        artitle = None
+        artags = None
 
-        print(self.rule)
-        print(self.analysis_results)
+        populated_fields = {
+            'date': ardate or None,
+            'time': artime or None,
+            'description': artitle or None,
+            'tags': artags or None,
+            'ext': os.path.extsep + self.file_object.filenamepart_ext
+        }
+        return populated_fields
 
-
-        self.new_name = self.rule['new_name_template']
+    def _fill_template(self, populated_fields, rule):
         # TODO: Finish this method. Very much a work in progress.
+        return rule['new_name_template'] % populated_fields
+
+    def build(self):
+        fields = self._populate_fields(self.analysis_results, self.rule)
+        self.new_name = self._fill_template(fields, self.rule)
+        print(self.new_name)
