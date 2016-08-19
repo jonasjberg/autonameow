@@ -7,6 +7,45 @@ import logging
 from core.util import misc
 
 
+
+# Collect all analyzers from their class name.
+_ALL_ANALYZER_CLASSES = [
+        klass
+        for name, klass in globals().items()
+        if name.endswith('Analyzer') and name != 'AbstractAnalyzer'
+    ]
+
+
+def get_analyzer_classes():
+    """
+    Returns all analyzer classes in '_ALL_ANALYZER_CLASSES' as a list of type.
+    :return: a list of all analyzers.
+    """
+    return _ALL_ANALYZER_CLASSES
+
+
+def get_instantiated_analyzers():
+    """
+    Returns a list of instantiated analyzers defined in '_ALL_ANALYZER_CLASSES'.
+    :return: a list of all analyzers as objects.
+    """
+    # NOTE: These are instantiated with a None FIleObject, which might be a
+    #       problem and is surely not very pretty.
+    return [klass(None) for klass in get_analyzer_classes()]
+
+
+def get_analyzer_mime_mappings():
+    """
+    Returns a dictionary keyed by the class names of all analyzers, storing
+    the class variable 'applies_to_mime' from each analyzer.
+    :return: a dictionary of strings or list of strings.
+    """
+    analyzer_mime_mappings = {}
+    for azr in get_instantiated_analyzers():
+        analyzer_mime_mappings[azr.__class__] = azr.applies_to_mime
+    return analyzer_mime_mappings
+
+
 class Analysis(object):
     """
     Handles the filename analyzer and analyzers specific to file content.
