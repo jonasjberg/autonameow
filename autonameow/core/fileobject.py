@@ -27,6 +27,8 @@ class FileObject(object):
         self.path = os.path.abspath(path)
         logging.debug('FileObject path: {}'.format(self.path))
 
+        self.filename = os.path.basename(self.path)
+
         # Extract parts of the file name.
         self.fnbase = diskutils.file_base(self.path)
         self.suffix = diskutils.file_suffix(self.path)
