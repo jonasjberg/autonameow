@@ -43,6 +43,9 @@ class FileObject(object):
         #
         # Example basename '20160722 Descriptive name -- firsttag tagtwo.txt':
         #
+        #                               .------------ FILENAME_TAG_SEPARATOR
+        #                              ||         .-- BETWEEN_TAG_SEPARATOR
+        #                              VV         V
         #    20160722 Descriptive name -- firsttag tagtwo.txt
         #    |______| |______________|    |_____________| |_|
         #       ts          base               tags       ext
