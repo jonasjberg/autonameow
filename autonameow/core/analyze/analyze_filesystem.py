@@ -36,6 +36,8 @@ class FilesystemAnalyzer(AbstractAnalyzer):
         super(FilesystemAnalyzer, self).__init__(file_object)
         self.applies_to_mime = None
 
+    def run(self):
+        pass
 
     def get_datetime(self):
         result = []

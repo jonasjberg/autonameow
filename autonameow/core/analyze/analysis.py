@@ -139,6 +139,9 @@ class Analysis(object):
                               '"{}"'.format(str(analysis)))
                 continue
 
+            # Run the analysis
+            a.run()
+
             # Collect the results, ordered first by fields, then by the
             # analyzer which produced the results.
             # TODO: Rework how this is done. Fetching the results from the

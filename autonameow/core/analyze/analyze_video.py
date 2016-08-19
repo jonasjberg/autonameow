@@ -15,6 +15,10 @@ class VideoAnalyzer(AbstractAnalyzer):
 
         self.exif_data = None
 
+    def run(self):
+        # TODO: Implement.
+        pass
+
     def get_author(self):
         # TODO: Implement.
         pass

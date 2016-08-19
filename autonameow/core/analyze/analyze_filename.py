@@ -15,6 +15,8 @@ class FilenameAnalyzer(AbstractAnalyzer):
         self.applies_to_mime = None
 
         self.guessit_metadata = None
+
+    def run(self):
         # Arbitrary length check limits (very slow) calls to guessit.
         if len(self.file_object.filenamepart_base) > 20:
             self.guessit_metadata = self._get_metadata_from_guessit()

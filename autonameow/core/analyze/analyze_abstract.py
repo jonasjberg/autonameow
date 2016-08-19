@@ -8,6 +8,8 @@ class AbstractAnalyzer(object):
         self.file_object = file_object
         self.applies_to_mime = None
 
+    def run(self):
+        raise NotImplementedError
 
     def get_datetime(self):
         raise NotImplementedError

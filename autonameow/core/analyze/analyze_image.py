@@ -21,6 +21,10 @@ class ImageAnalyzer(AbstractAnalyzer):
         super(ImageAnalyzer, self).__init__(file_object)
         self.applies_to_mime = ['jpg', 'png']
 
+        self.exif_data = None
+        self.ocr_text = None
+
+    def run(self):
         # Start by trying to extract EXIF information from the image.
         logging.debug('Extracting EXIF data ..')
         self.exif_data = self._get_exif_data()
