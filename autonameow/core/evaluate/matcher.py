@@ -59,7 +59,7 @@ class RuleMatcher(object):
                         #                        (would be unsafe to continue)
                         continue
                     else:
-                        if name_regex.match(self.file_object.path):
+                        if name_regex.match(self.file_object.filename):
                             does_match = True
                         else:
                             # Rule does not apply -- regex does not match.
