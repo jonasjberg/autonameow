@@ -127,6 +127,10 @@ class Analysis(object):
                               '"{}"'.format(str(analysis)))
                 continue
 
+            # Collect the results, ordered first by fields, then by the
+            # analyzer which produced the results.
+            # TODO: Rework how this is done. Fetching the results from the
+            #       RuleMatcher is cumbersome with this storage-scheme.
             self.results['datetime'][a.__class__.__name__] = a.get_datetime()
             self.results['title'][a.__class__.__name__] = a.get_title()
             self.results['tags'][a.__class__.__name__] = a.get_tags()
