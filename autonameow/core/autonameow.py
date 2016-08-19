@@ -14,9 +14,12 @@ from colorama import Fore
 from datetime import datetime
 
 import version
+from core import config_defaults
 from core import options
 from core.analyze.analysis import Analysis
 from core.evaluate.filter import ResultFilter
+from core.evaluate.matcher import RuleMatcher
+from core.evaluate.namebuilder import NameBuilder
 from core.fileobject import FileObject
 
 terminal_width = 100
@@ -90,7 +93,7 @@ class Autonameow(object):
 
         # Handle the command line arguments.
         # TODO: What is parsed and why? opts or args? Where does it end up?
-        self.args = options.parse_args()
+        self.args = options.parse_args(self.opts)
 
         # Setup results filtering
         self.filter = ResultFilter().configure_filter(self.args)
@@ -124,12 +127,13 @@ class Autonameow(object):
             else:
                 logging.info('Processing file "{}"'.format(str(arg)))
 
-                # Create a file object representing the current arg.
+                # 0. Create a file object representing the current arg.
                 current_file = FileObject(arg)
 
-                # Begin analysing the file.
-                analysis = Analysis(current_file, self.filter)
+                # 1. Begin analysing the file.
+                analysis = Analysis(current_file)
 
+                # TODO: Fix this here below temporary printing of results.
                 if self.args.list_datetime:
                     print('File: "{}"'.format(current_file.path))
                     analysis.print_all_datetime_info()
@@ -145,8 +149,24 @@ class Autonameow(object):
                     analysis.print_all_results_info()
                     print('')
 
-                # Create a action object.
+                # 2. Create a rule matcher
+                rule_matcher = RuleMatcher(current_file, config_defaults.rules)
+
+                if self.args.automagic:
+                    # 3. Create a name builder.
+                    name_builder = NameBuilder(current_file, analysis.results,
+                                               rule_matcher.active_rule)
+                    name_builder.build()
+
+                    if self.args.dry_run:
+                        logging.info('Automagically built filename: '
+                                     '"{}"'.format(name_builder.new_name))
+                    else:
+                        # TODO: Do actual file renaming.
+                        pass
+
                 # TODO: Implement this or something similar to it.
+                # Create a action object.
                 # action = None
                 # action = RenameAction(current_file, results)
 

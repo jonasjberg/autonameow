@@ -32,8 +32,12 @@ class FilesystemAnalyzer(AbstractAnalyzer):
     http://timgolden.me.uk/python/win32_how_do_i/get-document-summary-info.html
     """
 
-    def __init__(self, file_object, filters):
-        super(FilesystemAnalyzer, self).__init__(file_object, filters)
+    def __init__(self, file_object):
+        super(FilesystemAnalyzer, self).__init__(file_object)
+        self.applies_to_mime = None
+
+    def run(self):
+        pass
 
     def get_datetime(self):
         result = []

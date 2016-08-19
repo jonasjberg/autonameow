@@ -12,9 +12,13 @@ from core.util import dateandtime
 
 
 class TextAnalyzer(AbstractAnalyzer):
-    def __init__(self, file_object, filters):
-        super(TextAnalyzer, self).__init__(file_object, filters)
+    def __init__(self, file_object):
+        super(TextAnalyzer, self).__init__(file_object)
+        self.applies_to_mime = ['txt', 'md']
 
+        self.text = None
+
+    def run(self):
         # Extract the textual contents.
         logging.debug('Extracting text contents ..')
         self.text = self._extract_text_content()

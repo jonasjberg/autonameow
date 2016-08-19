@@ -28,7 +28,7 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         self.assertTrue(os.path.isfile(p_test_file))
 
         self.fo = FileObject(p_test_file)
-        self.fsa = FilesystemAnalyzer(self.fo, self.filter)
+        self.fsa = FilesystemAnalyzer(self.fo)
 
     def test_setup(self):
         self.assertIsNotNone(self.fo)

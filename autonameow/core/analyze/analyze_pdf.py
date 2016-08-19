@@ -16,8 +16,14 @@ from core.util import textutils
 
 
 class PdfAnalyzer(AbstractAnalyzer):
-    def __init__(self, file_object, filters):
-        super(PdfAnalyzer, self).__init__(file_object, filters)
+    def __init__(self, file_object):
+        super(PdfAnalyzer, self).__init__(file_object)
+        self.applies_to_mime = 'pdf'
+
+        self.metadata = None
+        self.text = None
+
+    def run(self):
         self.metadata = self._extract_pdf_metadata()
         self.text = self._extract_pdf_content()
 

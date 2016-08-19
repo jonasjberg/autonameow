@@ -4,9 +4,12 @@
 
 
 class AbstractAnalyzer(object):
-    def __init__(self, file_object, filters):
+    def __init__(self, file_object):
         self.file_object = file_object
-        self.filters = filters
+        self.applies_to_mime = None
+
+    def run(self):
+        raise NotImplementedError
 
     def get_datetime(self):
         raise NotImplementedError

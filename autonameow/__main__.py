@@ -22,7 +22,7 @@ if __package__ is None and not hasattr(sys, 'frozen'):
 
 if __name__ == '__main__':
     try:
-        autonameow = Autonameow(sys.argv)
+        autonameow = Autonameow(sys.argv[1:])
         autonameow.run()
     except KeyboardInterrupt:
         # logging.critical('Received keyboard interrupt; Exiting ..')

@@ -4,29 +4,27 @@
 
 import argparse
 import logging
-from colorama import Fore
 
-from datetime import datetime
+from colorama import Fore
 
 from core.util import dateandtime
 
 
 def arg_is_year(value):
     """
-    Check if "value" is a year, as in 4 digits and 0 >= year > 9999 ..
-    :return:
+    Check if "value" is a year, here defined as consisting solely of 4 digits,
+    with a value in the range 0 >= year > 9999.
+    :return: True if the value is a year by the above definition
     """
-    ivalue = None
-    try:
-        ivalue = int(value.strip())
-    except ValueError:
-        pass
-    else:
-        if ivalue:
+    if value:
+        try:
+            ivalue = int(value.strip())
+        except ValueError:
+            pass
+        else:
             if len(str(ivalue)) == 4 and ivalue >= 0:
                 return ivalue
     raise argparse.ArgumentTypeError('"{}" is not a valid year'.format(value))
-    return None
 
 
 def init_argparser():
@@ -43,13 +41,6 @@ def init_argparser():
     # Add option group for controlling what is printed to stdout.
     optgrp_output = parser.add_mutually_exclusive_group()
     optgrp_output.add_argument('--debug',
-                               # const=0, default='0', type=int,
-                               # nargs="?",
-                               # dest='debug',
-                               # help='debug verbosity: 0 = none, 1 = some, '
-                               #      '2 = more, 3 = everything. '
-                               #      'No number means some. '
-                               #      'Default is no debug verbosity.')
                                dest='debug',
                                action='store_true',
                                help='Debug mode.')
@@ -99,36 +90,32 @@ def init_argparser():
     # Add option group for filter options.
     optgrp_filter = parser.add_argument_group('Processing options')
     ignore_to_year_default = str(dateandtime.YEAR_LOWER_LIMIT.strftime('%Y'))
-    optgrp_filter.add_argument('--ignore-before-year',
+    optgrp_filter.add_argument('--ignore-to-year',
                                metavar='YYYY',
                                type=arg_is_year,
                                default=ignore_to_year_default,
-                               nargs='?',
                                dest='filter_ignore_to_year',
                                action='store',
-                               help='Ignore date/time-information from '
-                                    'this year and the years prior. '
-                                    'Default: {}'.format(
-                                   ignore_to_year_default))
+                               help='Ignore all date/time-information for the '
+                                    'specified year and years prior. Default: '
+                                    '{}'.format(ignore_to_year_default))
 
     ignore_from_year_default = str(dateandtime.YEAR_UPPER_LIMIT.strftime('%Y'))
-    optgrp_filter.add_argument('--ignore-after-year',
+    optgrp_filter.add_argument('--ignore-from-year',
                                metavar='YYYY',
                                type=arg_is_year,
                                default=ignore_from_year_default,
-                               nargs='?',
                                dest='filter_ignore_from_year',
                                action='store',
-                               help='Ignore date/time-information from '
-                                    'year specified (inclusive). '
-                                    'Default: {}'.format(
-                                    ignore_from_year_default))
+                               help='Ignore all date/time-information following'
+                                    ' the specified year (inclusive). Default: '
+                                    '{}'.format(ignore_from_year_default))
 
     optgrp_filter.add_argument('--ignore-years',
                                metavar='YYYY',
                                type=arg_is_year,
                                default=[],
-                               nargs='*',
+                               nargs='+',
                                dest='filter_ignore_years',
                                action='store',
                                help='Ignore date/time-information '
@@ -152,14 +139,14 @@ def init_argparser():
     return parser
 
 
-def parse_args():
+def parse_args(opts):
     """
     Parse command line arguments.
     Check combination legality, print debug info.
     Apply selected options.
     """
     parser = init_argparser()
-    args = parser.parse_args()
+    args = parser.parse_args(args=opts)
 
     # Setup logging output format.
     # TODO: Make logging verbosity more controllable with additional logging
@@ -195,17 +182,13 @@ def prettyprint_options(opts):
     """
     Display details on the command line options that are in effect.
     Mainly for debug purposes.
-    :param args: arguments to display
+    :param opts: arguments to display
     """
-
-    def print_line(k, v):
-        print('{:<30}'.format(k) + Fore.LIGHTBLACK_EX + ' : ' +
-              Fore.RESET + '{:<40}'.format(v))
-
     opts_dict = vars(opts)
     for k, v in opts_dict.iteritems():
         if v == 0:
             v = 'False'
         elif v == 1:
             v = 'True'
-        print_line(k, v)
+        print('{:<30}'.format(k) + Fore.LIGHTBLACK_EX + ' : ' +
+              Fore.RESET + '{:<40}'.format(v))

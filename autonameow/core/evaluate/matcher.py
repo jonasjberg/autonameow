@@ -10,13 +10,16 @@ class RuleMatcher(object):
     def __init__(self, file_object, rules):
         self.file_object = file_object
         self.rules = rules
-        logging.debug('Initialized RuleMatcher [{}] with rules "{}"'.format(self.__str__(), self.rules))
+        logging.debug('Initialized RuleMatcher [{}] with rules '
+                      '"{}"'.format(self.__str__(), self.rules))
 
-        # print('self.rules (type: {}):'.format(type(self.rules)))
-        # print(misc.dump(self.rules))
-        self.file_matches_rule = self._determine_rule_matching_file()
+        self._active_rule_key = self._determine_active_rule_key()
+        logging.debug('File matches rule: '
+                      '{}'.format(self._active_rule_key))
+        if self._active_rule_key:
+            self.active_rule = self.rules[self._active_rule_key]
 
-    def _determine_rule_matching_file(self):
+    def _determine_active_rule_key(self):
         # rules = self.rules.
         for rule in self.rules.iterkeys():
             does_match = False
@@ -57,10 +60,11 @@ class RuleMatcher(object):
                         #                        (would be unsafe to continue)
                         continue
                     else:
-                        if name_regex.match(self.file_object.path):
+                        if name_regex.match(self.file_object.filename):
                             does_match = True
                         else:
                             # Rule does not apply -- regex does not match.
+                            logging.debug('Name regex in rule does not match')
                             continue
                 else:
                     does_match = True
