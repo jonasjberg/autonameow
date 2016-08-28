@@ -54,7 +54,7 @@ def filetype_magic(file_path):
 
     # http://stackoverflow.com/a/16588375
     def find_key(input_dict, value):
-        return next((k for k, v in input_dict.items() if v == value), None)
+        return next((k for k, v in list(input_dict.items()) if v == value), None)
 
     try:
         found_type = find_key(MAGIC_TYPE_LOOKUP, mtype.split()[:2])

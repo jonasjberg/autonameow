@@ -6,11 +6,11 @@ import logging
 import os
 import re
 
-from config_defaults import (
+from .config_defaults import (
     FILENAME_TAG_SEPARATOR,
     BETWEEN_TAG_SEPARATOR
 )
-from util import diskutils
+from .util import diskutils
 
 DATE_SEP = '[:\-._ ]?'
 TIME_SEP = '[:\-._ T]?'

@@ -55,4 +55,4 @@ class NameBuilder(object):
     def build(self):
         fields = self._populate_fields(self.analysis_results, self.rule)
         self.new_name = self._fill_template(fields, self.rule)
-        print(self.new_name)
+        print((self.new_name))

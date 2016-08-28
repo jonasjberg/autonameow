@@ -15,7 +15,7 @@ from core.analyze.analyze_filesystem import FilesystemAnalyzer
 # Collect all analyzers from their class name.
 _ALL_ANALYZER_CLASSES = [
         klass
-        for name, klass in globals().items()
+        for name, klass in list(globals().items())
         if name.endswith('Analyzer') and name != 'AbstractAnalyzer'
     ]
 
@@ -106,7 +106,7 @@ class Analysis(object):
         """
         # Compare file mime type with entries from get_analyzer_mime_mappings().
         found_azr = None
-        for azr, tpe in get_analyzer_mime_mappings().iteritems():
+        for azr, tpe in get_analyzer_mime_mappings().items():
             if found_azr is not None:
                 break
             if isinstance(tpe, list):

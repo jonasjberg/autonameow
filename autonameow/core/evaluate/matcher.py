@@ -21,7 +21,7 @@ class RuleMatcher(object):
 
     def _determine_active_rule_key(self):
         # rules = self.rules.
-        for rule in self.rules.iterkeys():
+        for rule in self.rules.keys():
             does_match = False
             # print('rule: {} (type: {})'.format(self.rules[rule], type(self.rules[rule])))
 
