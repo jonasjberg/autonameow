@@ -3,8 +3,8 @@
 # -*- coding: utf-8 -*-
 
 # Filetags options
-FILENAME_TAG_SEPARATOR = u' -- '
-BETWEEN_TAG_SEPARATOR = u' '
+FILENAME_TAG_SEPARATOR = ' -- '
+BETWEEN_TAG_SEPARATOR = ' '
 
 # Default match rename template:
 DEFAULT_NAME = '%(date)s_%(time)s %(description)s -- %(tags)s%(ext)s'

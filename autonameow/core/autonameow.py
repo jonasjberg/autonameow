@@ -13,7 +13,7 @@ from colorama import Back
 from colorama import Fore
 from datetime import datetime
 
-import version
+from . import version
 from core import config_defaults
 from core import options
 from core.analyze.analysis import Analysis
@@ -32,7 +32,7 @@ def display_start_banner():
     # TODO: Text alignment depends on manually hardcoding spaces! FIX!
     date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
 
-    print(Fore.LIGHTYELLOW_EX +
+    print((Fore.LIGHTYELLOW_EX +
     '''
    ###   ### ### ####### #####  ###  ##   ###   ##   ## ####### #####  ### ###
   #####  ### ###   ###  ### ### #### ##  #####  # # ### ####   ####### ### ###
@@ -40,31 +40,31 @@ def display_start_banner():
  ####### #######   ###  ####### ### ### ####### ### ### ####   ### ### ### ###
  ### ###  ### ##   ###   #####  ### ### ### ### ### ### ####### #####  ##   ##
     ''' +
-          Fore.RESET)
+          Fore.RESET))
     colortitle=Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + \
                ' ' + version.__title__.lower() + \
                ' ' + Back.RESET + Fore.RESET
     toplineleft = ' {colortitle}  version {version}'.format(colortitle=colortitle,
                                                     version=version.__version__)
     toplineright = 'Copyright(c)2016 ' + version.__author__
-    print('{:<}{:>50}'.format(toplineleft, toplineright))
-    print('{:>78}'.format(version.__url__))
-    print('{:>78}'.format(version.__email__))
+    print(('{:<}{:>50}'.format(toplineleft, toplineright)))
+    print(('{:>78}'.format(version.__url__)))
+    print(('{:>78}'.format(version.__email__)))
     print('')
-    print(Fore.LIGHTBLACK_EX +
+    print((Fore.LIGHTBLACK_EX +
           'Started at {date} by {user} on {platform}'.format(
               date=date,
               user=os.environ.get('USER'),
               platform=' '.join(platform.uname()[:3])) +
-          Fore.RESET)
+          Fore.RESET))
 
 
 def display_end_banner(exit_code, elapsed_time):
     date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-    print(Fore.LIGHTBLACK_EX +
+    print((Fore.LIGHTBLACK_EX +
           'Stopped at {} (total execution time: {:.6f} seconds) '
           'with exit code [{}]'.format(date, elapsed_time, exit_code) +
-          Fore.RESET)
+          Fore.RESET))
     # TODO: Format the execution time to minutes and seconds if it exceeds
     #       60 seconds, hours, minutes and seconds if it exceeds 60 minutes ..
 
@@ -135,17 +135,17 @@ class Autonameow(object):
 
                 # TODO: Fix this here below temporary printing of results.
                 if self.args.list_datetime:
-                    print('File: "{}"'.format(current_file.path))
+                    print(('File: "{}"'.format(current_file.path)))
                     analysis.print_all_datetime_info()
                     print('')
 
                 if self.args.list_title:
-                    print('File: "{}"'.format(current_file.path))
+                    print(('File: "{}"'.format(current_file.path)))
                     analysis.print_title_info()
                     print('')
 
                 if self.args.list_all:
-                    print('File: "{}"'.format(current_file.path))
+                    print(('File: "{}"'.format(current_file.path)))
                     analysis.print_all_results_info()
                     print('')
 

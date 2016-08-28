@@ -2,7 +2,7 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
-from __future__ import print_function
+
 
 import logging
 import re
@@ -195,7 +195,7 @@ class ImageAnalyzer(AbstractAnalyzer):
             logging.debug('Unable to extract EXIF data.')
             return None
 
-        for tag, value in exif_data.items():
+        for tag, value in list(exif_data.items()):
             # Obtain a human-readable version of the tag.
             tag_string = TAGS.get(tag, tag)
 
@@ -205,7 +205,7 @@ class ImageAnalyzer(AbstractAnalyzer):
                 result_gps = {}
 
                 # Loop through the GPS information
-                for tag_gps, value_gps in value.items():
+                for tag_gps, value_gps in list(value.items()):
                     # Obtain a human-readable version of the GPS tag.
                     tag_string_gps = GPSTAGS.get(tag_gps, tag_gps)
 
