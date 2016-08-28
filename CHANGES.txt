@@ -1,3 +1,19 @@
+2016-08-28  [autonameow v0.2.0]
+
+            Additions:
+            - N/A
+
+            Changes:
+            - Migrate project to Python 3.5.
+              Drop Python 2 support entirely for simplicity.
+              Backwards compatibility fixes might be added at some future time.
+            - All source files processed with the '2to3' conversion tool,
+              version "2to3-2.7 2.7 January 2012". Some passed unchanged.
+
+            Fixes:
+            - N/A
+
+
 2016-08-19  [autonameow v0.1.8]
 
             Additions:
@@ -7,7 +23,7 @@
               data from analysis results.
             - Extend and improve the 'RuleMatcher'.
             - Add dynamic listing of Analyzer classes.
-            	- Store all analyzer classes in '_ALL_ANALYZER_CLASSES'.
+                - Store all analyzer classes in '_ALL_ANALYZER_CLASSES'.
                   The classes are added if their name ends with "Analyzer".
                 - Adds function 'get_analyzer_classes' to access the above list.
                 - Adds function 'get_instantiated_analyzers' to get a list of
@@ -29,14 +45,14 @@
             - Do not pass filter instances to the analyzers.  Filters were not
               used anyway, instead do the filtering as a separate step after
               the analysis.
-			- Analyzers do not execute their analysis at instantiation.
-				- Use new method 'run()' to start the analysis.
+            - Analyzers do not execute their analysis at instantiation.
+                - Use new method 'run()' to start the analysis.
 
             Fixes:
             - Fix incorrect number of arguments expected for options
               '--ignore-from-year', '--ignore-years' and '--ignore-to-year'.
             - Rule matcher name regex tests file basename.
-			- Fix no matching rule caused crash.
+            - Fix no matching rule caused crash.
 
 
 2016-08-09  [autonameow v0.1.7]
