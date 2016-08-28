@@ -374,7 +374,7 @@ def match_any_unix_timestamp(text):
     try:
         digits = float(digits)
         dt = datetime.fromtimestamp(digits)
-    except TypeError, ValueError:
+    except TypeError as ValueError:
         logging.debug('Failed matching UNIX timestamp.')
     else:
         if date_is_probable(dt):
@@ -598,12 +598,12 @@ def fuzzy_datetime(text, prefix):
     try:
         try:
             dt = dateutil.parser.parse(text)
-            print('Sharp {} -> {}'.format(text, dt))
+            print(('Sharp {} -> {}'.format(text, dt)))
         except ValueError:
             dt = dateutil.parser.parse(text, fuzzy=True)
-            print('Fuzzy {} -> {}'.format(text, dt))
+            print(('Fuzzy {} -> {}'.format(text, dt)))
     except Exception as e:
-        print('Try as I may, I cannot parse {} ({})'.format(text, e))
+        print(('Try as I may, I cannot parse {} ({})'.format(text, e)))
 
     return dt
 

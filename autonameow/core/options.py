@@ -185,10 +185,10 @@ def prettyprint_options(opts):
     :param opts: arguments to display
     """
     opts_dict = vars(opts)
-    for k, v in opts_dict.iteritems():
+    for k, v in opts_dict.items():
         if v == 0:
             v = 'False'
         elif v == 1:
             v = 'True'
-        print('{:<30}'.format(k) + Fore.LIGHTBLACK_EX + ' : ' +
-              Fore.RESET + '{:<40}'.format(v))
+        print(('{:<30}'.format(k) + Fore.LIGHTBLACK_EX + ' : ' +
+              Fore.RESET + '{:<40}'.format(v)))
