@@ -147,3 +147,6 @@ test_files/
 
 # Documentation
 *.pdf
+
+# Backup-files created by '2to3'
+*.bak
