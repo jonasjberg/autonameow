@@ -428,7 +428,7 @@ def bruteforce_str(text):
         return None
 
     # Strip all letters from the left.
-    text = text.lstrip(string.letters)
+    text = text.lstrip(string.ascii_letters)
     text = text.lstrip('_-[](){}')
 
     # Create empty list to hold all results.
