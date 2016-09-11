@@ -22,7 +22,7 @@ DOCUMENT_NAME = '%(date)s %(title)s %(author)s -- %(tags)s%(ext)s'
 # 'prefer_datetime'   --  TODO: Decide on behaviour/format.
 # 'new_name_template' --  Template used to construct a new filename.
 #
-# Rule ordering matters as the first matching rule is used.
+# **Rule ordering matters** -- the first matching rule is used.
 rules = {'record_my_desktop': {'type': ['ogv', 'ogg'],
                                'name': None,
                                'path': None,
