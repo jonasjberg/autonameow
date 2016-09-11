@@ -7,6 +7,10 @@ import re
 
 
 class RuleMatcher(object):
+    """
+    Handles matching FileObjects to rules.
+    Determines which rule applies to a given FileObject.
+    """
     def __init__(self, file_object, rules):
         self.file_object = file_object
         self.rules = rules
