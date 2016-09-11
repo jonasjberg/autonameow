@@ -36,6 +36,11 @@ class RuleMatcher(object):
             logging.debug('File matches rule: '
                           '{}'.format(self._active_rule_key))
             self.active_rule = self.rules[self._active_rule_key]
+        else:
+            # TODO: Handle this case properly.
+            #       NameBuilder (and others?) depend on this *NOT* being None.
+            logging.debug('File does not match any rules.')
+            self.active_rule = None
 
     def _determine_active_rule_key(self):
         # rules = self.rules.
