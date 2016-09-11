@@ -189,8 +189,8 @@ class ImageAnalyzer(AbstractAnalyzer):
             try:
                 exif_data = image._getexif()
             except Exception as e:
-                logging.debug('PIL image EXIF extraction error({0}): '
-                              '{1}'.format(e.args, e.message))
+                logging.debug('PIL image EXIF extraction error: '
+                              '{}'.format(e.args))
         if not exif_data:
             logging.debug('Unable to extract EXIF data.')
             return None
