@@ -9,7 +9,7 @@ from core.fileobject import FileObject
 
 class NameBuilder(object):
     """
-    Builds a new filename for a given FileObject and a rule (set of rules).
+    Builds a new filename for a FileObject from a set of rules.
     The 'rule' contains a 'new_name_template', which is filled out with data
     from 'analysis_results'.
     The rule also specifies which data from 'analysis_results' is to be used.
