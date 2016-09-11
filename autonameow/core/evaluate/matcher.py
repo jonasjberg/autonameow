@@ -8,10 +8,24 @@ import re
 
 class RuleMatcher(object):
     """
-    Handles matching FileObjects to rules.
-    Determines which rule applies to a given FileObject.
+    Handles matching of FileObjects to rules.
+
+    Determines which rule, if any; applies to the given FileObject.
+
+    Note:
+        This class is in very bad shape and a work in progress.
     """
     def __init__(self, file_object, rules):
+        """
+        RuleMatcher initialization.
+
+        Note:
+            Matching starts straight away at instantiation.
+
+        Args:
+            file_object (FileObject): FileObject to match against rules
+            rules (dict): set of all available rules
+        """
         self.file_object = file_object
         self.rules = rules
         logging.debug('Initialized RuleMatcher [{}] with rules '
