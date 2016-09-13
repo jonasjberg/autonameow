@@ -68,8 +68,7 @@ class TestFileObjectFilenamePartitioningLongNameWithTags(TestCase):
 
 class TestFileObjectFilenamePartitioningLongNameWithTagsDashesInName(TestCase):
     def setUp(self):
-        self.fo = FileObject(
-            '19920722 --Descriptive-- name -- firsttag tagtwo.txt')
+        self.fo = FileObject('19920722 --Descriptive-- name -- firsttag tagtwo.txt')
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -439,7 +438,8 @@ class TestFileObjectFilenamePartitioningWithActualFilename2(TestCase):
         self.assertEqual('2016-07-30T175241', self.fo.filenamepart_ts)
 
     def test_filenamepart_base(self):
-        self.assertEqual('Drawing with Hanvon tablet in krita_x86_xp_2.8.1.1', self.fo.filenamepart_base)
+        self.assertEqual('Drawing with Hanvon tablet in krita_x86_xp_2.8.1.1',
+                         self.fo.filenamepart_base)
 
     def test_filenamepart_ext(self):
         self.assertEqual('png', self.fo.filenamepart_ext)
@@ -459,7 +459,8 @@ class TestFileObjectFilenamePartitioningWithActualFilename3(TestCase):
         self.assertEqual('2016-08-01_104304', self.fo.filenamepart_ts)
 
     def test_filenamepart_base(self):
-        self.assertEqual('pages.stern.nyu.edu oyepa - Linux tagging filesystem', self.fo.filenamepart_base)
+        self.assertEqual('pages.stern.nyu.edu oyepa - Linux tagging filesystem',
+                         self.fo.filenamepart_base)
 
     def test_filenamepart_ext(self):
         self.assertEqual('html', self.fo.filenamepart_ext)
