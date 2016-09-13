@@ -24,9 +24,3 @@ class AbstractAnalyzer(object):
 
     def get_tags(self):
         raise NotImplementedError
-
-    # def run(self):
-    #     """
-    #     Run the analysis.
-    #     """
-
