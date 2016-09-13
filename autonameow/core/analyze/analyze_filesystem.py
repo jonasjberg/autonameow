@@ -31,6 +31,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
     http://www.freedesktop.org/wiki/CommonExtendedAttributes
     http://timgolden.me.uk/python/win32_how_do_i/get-document-summary-info.html
     """
+    run_queue_priority = 1
 
     def __init__(self, file_object):
         super(FilesystemAnalyzer, self).__init__(file_object)

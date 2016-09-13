@@ -9,6 +9,8 @@ from core.analyze.analyze_abstract import AbstractAnalyzer
 
 
 class VideoAnalyzer(AbstractAnalyzer):
+    run_queue_priority = 0.1
+
     def __init__(self, file_object):
         super(VideoAnalyzer, self).__init__(file_object)
         self.applies_to_mime = 'mp4'

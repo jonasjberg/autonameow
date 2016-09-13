@@ -17,6 +17,8 @@ from core.util import dateandtime
 
 
 class ImageAnalyzer(AbstractAnalyzer):
+    run_queue_priority = 0.5
+
     def __init__(self, file_object):
         super(ImageAnalyzer, self).__init__(file_object)
         self.applies_to_mime = ['jpg', 'png']

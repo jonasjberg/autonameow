@@ -81,6 +81,10 @@ class AnalysisRunQueue(object):
     def __getitem__(self, item):
         return self._queue[item]
 
+    def __iter__(self):
+        for a in sorted(self._queue, key=lambda x: x.run_queue_priority):
+            yield a
+
 
 class Analysis(object):
     """

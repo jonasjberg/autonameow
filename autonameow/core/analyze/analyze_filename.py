@@ -11,6 +11,7 @@ from core.util import dateandtime
 
 
 class FilenameAnalyzer(AbstractAnalyzer):
+    run_queue_priority = 1
 
     def __init__(self, file_object):
         super(FilenameAnalyzer, self).__init__(file_object)
