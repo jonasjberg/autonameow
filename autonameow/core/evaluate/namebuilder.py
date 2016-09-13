@@ -33,10 +33,26 @@ class NameBuilder(object):
         :param analysis_results:
         :return:
         """
-        print(analysis_results)
-        ardate = None #rule['prefer_datetime']
-        artime = None
-        artitle = None
+
+        # TODO: FIX THIS insane hackery! Temporary!
+        def get_datetime_by_alias(alias):
+            for key in self.analysis_results['datetime']:
+                if self.analysis_results['title'][key]:
+                    for result in self.analysis_results['datetime'][key]:
+                        if result['source'] == alias:
+                            return result['value']
+
+        # TODO: FIX THIS insane hackery! Temporary!
+        def get_title_by_alias(alias):
+            for key in self.analysis_results['title']:
+                if self.analysis_results['title'][key]:
+                    for result in self.analysis_results['title'][key]:
+                        if result['source'] == alias:
+                            return result['value']
+
+        ardate = get_datetime_by_alias(rule['prefer_datetime']).strftime('%Y-%m-%d')
+        artime = get_datetime_by_alias(rule['prefer_datetime']).strftime('%H%M%S')
+        artitle = get_title_by_alias(rule['prefer_title'])
         artags = None
 
         populated_fields = {
@@ -55,4 +71,5 @@ class NameBuilder(object):
     def build(self):
         fields = self._populate_fields(self.analysis_results, self.rule)
         self.new_name = self._fill_template(fields, self.rule)
-        print((self.new_name))
+        print('-' * 78)
+        print('Automagic generated name: "{}"'.format(self.new_name))
