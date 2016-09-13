@@ -20,6 +20,7 @@ DOCUMENT_NAME = '%(date)s %(title)s %(author)s -- %(tags)s%(ext)s'
 #                         (any leading directories removed)
 # 'path'              --  TODO: Decide on behaviour/format.
 # 'prefer_datetime'   --  TODO: Decide on behaviour/format.
+# 'prefer_title'      --  TODO: Decide on behaviour/format.
 # 'new_name_template' --  Template used to construct a new filename.
 #
 # **Rule ordering matters** -- the first matching rule is used.
@@ -27,30 +28,35 @@ rules = {'record_my_desktop': {'type': ['ogv', 'ogg'],
                                'name': None,
                                'path': None,
                                'prefer_datetime': 'accessed',
+                               'prefer_title': None,
                                'new_name_template': DEFAULT_NAME,
                                'tags': []},
          'photo_oneplusx': {'type': 'jpg',
                             'name': r'^IMG_\d{8}_\d{6}\.jpg$',
                             'path': None,
                             'prefer_datetime': 'very_special_case',
+                            'prefer_title': None,
                             'new_name_template': DEFAULT_NAME,
                             'tags': []},
          'photo_android_msg': {'type': 'jpg',
                                'name': r'^received_\d{15,17}\.jpeg$',
                                'path': None,
                                'prefer_datetime': 'android_messenger',
+                               'prefer_title': None,
                                'new_name_template': DEFAULT_NAME,
                                'tags': []},
          'screencapture': {'type': 'png',
                            'name': r'^screencapture.*.png$',
                            'path': None,
                            'prefer_datetime': 'screencapture_unixtime',
+                           'prefer_title': None,
                            'new_name_template': DEFAULT_NAME,
                            'tags': ['screenshot']},
          'filetagsscreenshot': {'type': 'png',
                                 'name': None,
                                 'path': None,
                                 'prefer_datetime': 'very_special_case',
+                                'prefer_title': None,
                                 'new_name_template': DEFAULT_NAME,
                                 'tags': ['screenshot']},
 
@@ -63,6 +69,7 @@ rules = {'record_my_desktop': {'type': ['ogv', 'ogg'],
                               'name': None,
                               'path': None,
                               'prefer_datetime': None,
+                              'prefer_title': None,
                               'new_name_template': DOCUMENT_NAME,
                               'tags': []},
          }
