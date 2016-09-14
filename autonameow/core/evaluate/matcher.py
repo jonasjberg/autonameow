@@ -104,6 +104,11 @@ class RuleMatcher(object):
                 else:
                     does_match = True
 
+            if 'filename_in_filetags_format' in self.rules[rule]:
+                if self.rules[rule]['filename_in_filetags_format']:
+                    if not self.file_object.filetags_format_filename:
+                        does_match = False
+
             if does_match:
                 logging.debug('Rule [{:<20}] matches file '
                               '"{}"'.format(rule,
