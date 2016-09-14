@@ -14,6 +14,7 @@ class RuleMatcher(object):
 
     Note:
         This class is in very bad shape and a work in progress.
+        TODO: Fix everything! It's just all so very hacky! *SO SO VERY HACKY*
     """
     def __init__(self, file_object, rules):
         """
