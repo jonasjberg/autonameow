@@ -41,6 +41,10 @@ class NameBuilder(object):
                     for result in self.analysis_results['datetime'][key]:
                         if result['source'] == alias:
                             return result['value']
+                        else:
+                            return None
+                else:
+                    return None
 
         # TODO: FIX THIS insane hackery! Temporary!
         def get_title_by_alias(alias):
@@ -49,10 +53,14 @@ class NameBuilder(object):
                     for result in self.analysis_results['title'][key]:
                         if result['source'] == alias:
                             return result['value']
+                        else:
+                            return None
+                else:
+                    return None
 
-        ardate = get_datetime_by_alias(rule['prefer_datetime']).strftime('%Y-%m-%d')
-        artime = get_datetime_by_alias(rule['prefer_datetime']).strftime('%H%M%S')
-        artitle = get_title_by_alias(rule['prefer_title'])
+        ardate = get_datetime_by_alias(rule['prefer_datetime']).strftime('%Y-%m-%d') or None
+        artime = get_datetime_by_alias(rule['prefer_datetime']).strftime('%H%M%S') or None
+        artitle = get_title_by_alias(rule['prefer_title']) or None
         artags = None
 
         populated_fields = {
