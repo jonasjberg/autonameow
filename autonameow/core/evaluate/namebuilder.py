@@ -58,10 +58,18 @@ class NameBuilder(object):
                 else:
                     return None
 
-        ardate = get_datetime_by_alias(rule['prefer_datetime']).strftime('%Y-%m-%d') or None
-        artime = get_datetime_by_alias(rule['prefer_datetime']).strftime('%H%M%S') or None
-        artitle = get_title_by_alias(rule['prefer_title']) or None
-        artags = None
+        ardate = artime = artags = artitle = None
+        try:
+            ardate = get_datetime_by_alias(rule['prefer_datetime'])
+            artime = get_datetime_by_alias(rule['prefer_datetime'])
+            artitle = get_title_by_alias(rule['prefer_title'])
+        except TypeError:
+            pass
+
+        if artime:
+            artime.strftime('%H%M%S')
+        if ardate:
+            ardate = ardate.strftime('%Y-%m-%d')
 
         populated_fields = {
             'date': ardate or None,
@@ -74,7 +82,10 @@ class NameBuilder(object):
 
     def _fill_template(self, populated_fields, rule):
         # TODO: Finish this method. Very much a work in progress.
-        return rule['new_name_template'] % populated_fields
+        if populated_fields is not None:
+            return rule['new_name_template'] % populated_fields
+        else:
+            return None
 
     def build(self):
         fields = self._populate_fields(self.analysis_results, self.rule)
