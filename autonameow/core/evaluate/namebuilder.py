@@ -41,6 +41,10 @@ class NameBuilder(object):
                     for result in self.analysis_results['datetime'][key]:
                         if result['source'] == alias:
                             return result['value']
+                        else:
+                            return None
+                else:
+                    return None
 
         # TODO: FIX THIS insane hackery! Temporary!
         def get_title_by_alias(alias):
@@ -49,6 +53,10 @@ class NameBuilder(object):
                     for result in self.analysis_results['title'][key]:
                         if result['source'] == alias:
                             return result['value']
+                        else:
+                            return None
+                else:
+                    return None
 
         ardate = artime = artags = artitle = None
         try:
