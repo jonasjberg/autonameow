@@ -3,8 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/autoname.iml" filepath="$PROJECT_DIR$/.idea/autoname.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../filetags/.idea/filetags.iml" filepath="$PROJECT_DIR$/../filetags/.idea/filetags.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../glade-test/.idea/glade-test.iml" filepath="$PROJECT_DIR$/../glade-test/.idea/glade-test.iml" />
       <module fileurl="file://$PROJECT_DIR$/../kapslar.git/.idea/kapslar.git.iml" filepath="$PROJECT_DIR$/../kapslar.git/.idea/kapslar.git.iml" />
       <module fileurl="file://$PROJECT_DIR$/../logdotmd/.idea/logdotmd.iml" filepath="$PROJECT_DIR$/../logdotmd/.idea/logdotmd.iml" />
     </modules>
