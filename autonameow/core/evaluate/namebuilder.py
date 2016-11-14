@@ -9,7 +9,7 @@ from core.fileobject import FileObject
 
 class NameBuilder(object):
     """
-    Builds a new filename for a given FileObject and a rule (set of rules).
+    Builds a new filename for a FileObject from a set of rules.
     The 'rule' contains a 'new_name_template', which is filled out with data
     from 'analysis_results'.
     The rule also specifies which data from 'analysis_results' is to be used.
@@ -33,11 +33,43 @@ class NameBuilder(object):
         :param analysis_results:
         :return:
         """
-        print(analysis_results)
-        ardate = None #rule['prefer_datetime']
-        artime = None
-        artitle = None
-        artags = None
+
+        # TODO: FIX THIS insane hackery! Temporary!
+        def get_datetime_by_alias(alias):
+            for key in self.analysis_results['datetime']:
+                if self.analysis_results['title'][key]:
+                    for result in self.analysis_results['datetime'][key]:
+                        if result['source'] == alias:
+                            return result['value']
+                        else:
+                            return None
+                else:
+                    return None
+
+        # TODO: FIX THIS insane hackery! Temporary!
+        def get_title_by_alias(alias):
+            for key in self.analysis_results['title']:
+                if self.analysis_results['title'][key]:
+                    for result in self.analysis_results['title'][key]:
+                        if result['source'] == alias:
+                            return result['value']
+                        else:
+                            return None
+                else:
+                    return None
+
+        ardate = artime = artags = artitle = None
+        try:
+            ardate = get_datetime_by_alias(rule['prefer_datetime'])
+            artime = get_datetime_by_alias(rule['prefer_datetime'])
+            artitle = get_title_by_alias(rule['prefer_title'])
+        except TypeError:
+            pass
+
+        if artime:
+            artime.strftime('%H%M%S')
+        if ardate:
+            ardate = ardate.strftime('%Y-%m-%d')
 
         populated_fields = {
             'date': ardate or None,
@@ -50,9 +82,13 @@ class NameBuilder(object):
 
     def _fill_template(self, populated_fields, rule):
         # TODO: Finish this method. Very much a work in progress.
-        return rule['new_name_template'] % populated_fields
+        if populated_fields is not None:
+            return rule['new_name_template'] % populated_fields
+        else:
+            return None
 
     def build(self):
         fields = self._populate_fields(self.analysis_results, self.rule)
         self.new_name = self._fill_template(fields, self.rule)
-        print((self.new_name))
+        print('-' * 78)
+        print('Automagic generated name: "{}"'.format(self.new_name))

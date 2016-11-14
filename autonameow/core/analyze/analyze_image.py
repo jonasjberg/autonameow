@@ -17,6 +17,8 @@ from core.util import dateandtime
 
 
 class ImageAnalyzer(AbstractAnalyzer):
+    run_queue_priority = 0.5
+
     def __init__(self, file_object):
         super(ImageAnalyzer, self).__init__(file_object)
         self.applies_to_mime = ['jpg', 'png']
@@ -189,8 +191,8 @@ class ImageAnalyzer(AbstractAnalyzer):
             try:
                 exif_data = image._getexif()
             except Exception as e:
-                logging.debug('PIL image EXIF extraction error({0}): '
-                              '{1}'.format(e.args, e.message))
+                logging.debug('PIL image EXIF extraction error: '
+                              '{}'.format(e.args))
         if not exif_data:
             logging.debug('Unable to extract EXIF data.')
             return None

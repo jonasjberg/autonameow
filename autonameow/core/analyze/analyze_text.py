@@ -12,6 +12,8 @@ from core.util import dateandtime
 
 
 class TextAnalyzer(AbstractAnalyzer):
+    run_queue_priority = 0.5
+
     def __init__(self, file_object):
         super(TextAnalyzer, self).__init__(file_object)
         self.applies_to_mime = ['txt', 'md']

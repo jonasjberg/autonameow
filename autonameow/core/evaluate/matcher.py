@@ -7,17 +7,41 @@ import re
 
 
 class RuleMatcher(object):
+    """
+    Handles matching of FileObjects to rules.
+
+    Determines which rule, if any; applies to the given FileObject.
+
+    Note:
+        This class is in very bad shape and a work in progress.
+        TODO: Fix everything! It's just all so very hacky! *SO SO VERY HACKY*
+    """
     def __init__(self, file_object, rules):
+        """
+        RuleMatcher initialization.
+
+        Note:
+            Matching starts straight away at instantiation.
+
+        Args:
+            file_object (FileObject): FileObject to match against rules
+            rules (dict): set of all available rules
+        """
         self.file_object = file_object
         self.rules = rules
         logging.debug('Initialized RuleMatcher [{}] with rules '
                       '"{}"'.format(self.__str__(), self.rules))
 
         self._active_rule_key = self._determine_active_rule_key()
-        logging.debug('File matches rule: '
-                      '{}'.format(self._active_rule_key))
         if self._active_rule_key:
+            logging.debug('File matches rule: '
+                          '{}'.format(self._active_rule_key))
             self.active_rule = self.rules[self._active_rule_key]
+        else:
+            # TODO: Handle this case properly.
+            #       NameBuilder (and others?) depend on this *NOT* being None.
+            logging.debug('File does not match any rules.')
+            self.active_rule = None
 
     def _determine_active_rule_key(self):
         # rules = self.rules.
@@ -80,6 +104,11 @@ class RuleMatcher(object):
                         pass
                 else:
                     does_match = True
+
+            if 'filename_in_filetags_format' in self.rules[rule]:
+                if self.rules[rule]['filename_in_filetags_format']:
+                    if not self.file_object.filetags_format_filename:
+                        does_match = False
 
             if does_match:
                 logging.debug('Rule [{:<20}] matches file '

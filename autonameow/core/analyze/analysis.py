@@ -22,16 +22,17 @@ _ALL_ANALYZER_CLASSES = [
 
 def get_analyzer_classes():
     """
-    Returns all analyzer classes in '_ALL_ANALYZER_CLASSES' as a list of type.
-    :return: a list of all analyzers.
+    Returns:
+        All analyzer classes in '_ALL_ANALYZER_CLASSES' as a list of type.
     """
     return _ALL_ANALYZER_CLASSES
 
 
 def get_instantiated_analyzers():
     """
-    Returns a list of instantiated analyzers defined in '_ALL_ANALYZER_CLASSES'.
-    :return: a list of all analyzers as objects.
+    Returns:
+        A list of instantiated analyzers (all analyzers as objects)
+        defined in '_ALL_ANALYZER_CLASSES'.
     """
     # NOTE: These are instantiated with a None FIleObject, which might be a
     #       problem and is surely not very pretty.
@@ -40,9 +41,12 @@ def get_instantiated_analyzers():
 
 def get_analyzer_mime_mappings():
     """
-    Returns a dictionary keyed by the class names of all analyzers, storing
-    the class variable 'applies_to_mime' from each analyzer.
-    :return: a dictionary of strings or list of strings.
+    Provides a mapping of which analyzers should apply to which mime types.
+
+    Returns:
+        Dictionary of strings or list of strings.
+        The dictionary is keyed by the class names of all analyzers,
+        storing the class variable 'applies_to_mime' from each analyzer.
     """
     analyzer_mime_mappings = {}
     for azr in get_instantiated_analyzers():
@@ -53,12 +57,19 @@ def get_analyzer_mime_mappings():
 class AnalysisRunQueue(object):
     """
     Stores references to all analyzers to be executed.
+
     Essentially a glorified list, motivated by future expansion.
     """
     def __init__(self):
         self._queue = []
 
     def enqueue(self, analysis):
+        """
+        Adds a analysis to the queue.
+
+        Args:
+            analysis: Analysis to enqueue, either single instance or list.
+        """
         if isinstance(analysis, list):
             self._queue += analysis
         else:
@@ -70,16 +81,30 @@ class AnalysisRunQueue(object):
     def __getitem__(self, item):
         return self._queue[item]
 
+    def __iter__(self):
+        for a in sorted(self._queue, key=lambda x: x.run_queue_priority):
+            yield a
+
 
 class Analysis(object):
     """
     Handles the filename analyzer and analyzers specific to file content.
+
     A run queue is populated based on which analyzers are suited for the
-    current file, based on the file type type magic.
+    current file.
     The analyses in the run queue is then executed and the results are
     stored as dictionary entries, with the source analyzer name being the key.
     """
     def __init__(self, file_object):
+        """
+        Starts an analysis of a file. This is done once per file.
+
+        Note:
+            Run queue is populated and executed straight away at instantiation.
+
+        Args:
+            file_object (FileObject): File to analyze.
+        """
         assert file_object is not None
         self.file_object = file_object
 
@@ -102,7 +127,9 @@ class Analysis(object):
     def _populate_run_queue(self):
         """
         Populate the list of analyzers to run.
-        Imports are done locally for performance reasons.
+
+        Note:
+            Imports are done locally for performance reasons.
         """
         # Compare file mime type with entries from get_analyzer_mime_mappings().
         found_azr = None
@@ -126,6 +153,15 @@ class Analysis(object):
                           'Analyzer.'.format(self.file_object.type))
 
     def _execute_run_queue(self):
+        """
+        Executes analyzers in the analyzer run queue.
+
+        This does all the real work. Analyzers are called in turn and their
+        results are stored to `self.results`.
+
+        Note:
+            Still a work in progress.
+        """
         for i, analysis in enumerate(self.analysis_run_queue):
             logging.debug('Executing analysis run queue item '
                           '[{}/{}]'.format(i + 1, len(self.analysis_run_queue)))
