@@ -6,7 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/related" />
       <excludeFolder url="file://$MODULE_DIR$/test_files" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.5.1+ (/usr/bin/python3.5)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.5.2 (/usr/bin/python3.5)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="adhdo" />
     <orderEntry type="module" module-name="appendfilename" />
