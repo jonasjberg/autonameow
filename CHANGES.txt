@@ -1,3 +1,35 @@
+INSERTDATE  [autonameow v0.2.1]
+
+            Additions:
+            - Improved inline documentation/docstrings.
+            - Add priority to the analysis run queue execution.
+                - Analyzers are assigned a priority number 0-1, stored in the
+                  class variable 'run_queue_priority'.
+                - Analysis with a higher number are executed before those
+                  with a lower number.
+            - Add rule field 'prefer_title'.
+              Specifies which title to use, similar to 'prefer_datetime'.
+            - Add detecting filename in "filetags" format.
+                - Add method 'filetags_format_filename()' to 'FileObject' that
+                  returns boolean True if the filename is in "filetags" format.
+                - Add unit tests for 'filetags_format_filename()'.
+            - Add rules to 'config_defaults.py' for testing.
+            - Add matching of rule field 'filename_in_filetags_format' in
+              'RuleMatcher'.
+
+            Changes:
+            - Start using "Google-style" documentation string formatting.
+            - Modified rules in 'config_defaults.py'.
+
+            Fixes:
+            - Fix error caused by missing 'string.letters' attribute with
+              Python 3. Use 'ascii_letters' for now. Should be fixed.
+            - Fix broken unit tests.
+            - PIL exception logging debug message caused crash.
+            - Fix guessit import statement.
+            - Fix logging message was shown regardless of match.
+
+
 2016-08-28  [autonameow v0.2.0]
 
             Additions:
