@@ -68,8 +68,7 @@ class TestFileObjectFilenamePartitioningLongNameWithTags(TestCase):
 
 class TestFileObjectFilenamePartitioningLongNameWithTagsDashesInName(TestCase):
     def setUp(self):
-        self.fo = FileObject(
-            '19920722 --Descriptive-- name -- firsttag tagtwo.txt')
+        self.fo = FileObject('19920722 --Descriptive-- name -- firsttag tagtwo.txt')
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -439,7 +438,8 @@ class TestFileObjectFilenamePartitioningWithActualFilename2(TestCase):
         self.assertEqual('2016-07-30T175241', self.fo.filenamepart_ts)
 
     def test_filenamepart_base(self):
-        self.assertEqual('Drawing with Hanvon tablet in krita_x86_xp_2.8.1.1', self.fo.filenamepart_base)
+        self.assertEqual('Drawing with Hanvon tablet in krita_x86_xp_2.8.1.1',
+                         self.fo.filenamepart_base)
 
     def test_filenamepart_ext(self):
         self.assertEqual('png', self.fo.filenamepart_ext)
@@ -459,7 +459,8 @@ class TestFileObjectFilenamePartitioningWithActualFilename3(TestCase):
         self.assertEqual('2016-08-01_104304', self.fo.filenamepart_ts)
 
     def test_filenamepart_base(self):
-        self.assertEqual('pages.stern.nyu.edu oyepa - Linux tagging filesystem', self.fo.filenamepart_base)
+        self.assertEqual('pages.stern.nyu.edu oyepa - Linux tagging filesystem',
+                         self.fo.filenamepart_base)
 
     def test_filenamepart_ext(self):
         self.assertEqual('html', self.fo.filenamepart_ext)
@@ -486,3 +487,49 @@ class TestFileObjectFilenamePartitioningWithActualFilename4(TestCase):
 
     def test_filenamepart_tags(self):
         self.assertEqual([], self.fo.filenamepart_tags)
+
+
+class TestFileObjectFilenameIsInFiletagsFormat(TestCase):
+    """
+    Tests that a FileObject filename is in the "filetags" format, I.E:
+
+                                   .------------ FILENAME_TAG_SEPARATOR
+                                  ||         .-- BETWEEN_TAG_SEPARATOR
+                                  VV         V
+        20160722 Descriptive name -- firsttag tagtwo.txt
+        |______| |______________|    |_____________| |_|
+           ts          base               tags       ext
+
+
+    Cases where all the filename parts; 'ts', 'base' and 'tags' are present.
+    """
+    def test_has_filetags_format(self):
+        self.fo = FileObject('2016-08-05_18-46-34 Working on PLL-monstret -- projects frfx.png')
+        self.assertTrue(self.fo.filetags_format_filename())
+
+    def test_has_filetags_format_no_extension(self):
+        self.fo = FileObject('2016-08-05_18-46-34 Working on PLL-monstret -- projects frfx')
+        self.assertTrue(self.fo.filetags_format_filename())
+
+    def test_has_filetags_format_date_only(self):
+        self.fo = FileObject('2016-08-05 Working on PLL-monstret -- projects frfx.png')
+        self.assertTrue(self.fo.filetags_format_filename())
+
+
+class TestFileObjectFilenameNotInFiletagsFormat(TestCase):
+    """
+    Tests that a FileObject filename is in the "filetags" format as per above.
+
+    Cases where filename parts are missing.
+    """
+    def test_doesnt_have_filetags_format_missing_fnpart_base(self):
+        self.fo = FileObject('2016-08-05_18-46-34 -- projects frfx.png')
+        self.assertFalse(self.fo.filetags_format_filename())
+
+    def test_doesnt_have_filetags_format_missing_fnpart_tags(self):
+        self.fo = FileObject('2016-08-05_18-46-34 Working on PLL-monstret.png')
+        self.assertFalse(self.fo.filetags_format_filename())
+
+    def test_doesnt_have_filetags_format_missing_fnpart_ts(self):
+        self.fo = FileObject('Working on PLL-monstret.png')
+        self.assertFalse(self.fo.filetags_format_filename())

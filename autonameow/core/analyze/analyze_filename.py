@@ -4,11 +4,14 @@
 
 import logging
 
+import guessit as guessit
+
 from core.analyze.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
 
 
 class FilenameAnalyzer(AbstractAnalyzer):
+    run_queue_priority = 1
 
     def __init__(self, file_object):
         super(FilenameAnalyzer, self).__init__(file_object)
@@ -110,8 +113,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
         Call external program "guessit".
         :return: dictionary of results if successful, otherwise false
         """
-        from guessit import guessit
-        guessit_matches = guessit(self.file_object.filenamepart_base, )
+        guessit_matches = guessit.guessit(self.file_object.filenamepart_base, )
         return guessit_matches if guessit_matches is not None else False
 
     def _get_datetime_from_name(self):

@@ -17,7 +17,7 @@ Basic program functionality
 
 The primary goal is to reduce the overhead and manual work required to
 apply a strict file naming convention uniformly and consistently.
-convention by  needed is to find suitable file names from a set of rules.
+The main function is to find suitable file names from a set of rules.
 
 The user specifies the target file name structure, defined as a number of
 ordered fields, in a configuration file.
@@ -26,10 +26,14 @@ The program is to fill out these fields by first reading in a bunch of data
 from and about the file, which is then analyzed and ranked by probability, as
 defined by some set of rules.
 
+
 #### Example:
 
-* **Name template**:       `[timestamp] [title] -- [author].[ext]`
-* **Resulting file name**: `1998-04-01 Report of the IAB Security Architecture Workshop -- Bellovin. S.txt`
+* **Name template**:       `[timestamp] [title] - [author].[ext]`
+* **Resulting file name**: `1998-04-01 Report of the IAB Security Architecture Workshop - Bellovin. S.txt`
+
+* **Name template**:       `[author] - [title] - [timestamp].[ext]`
+* **Resulting file name**: `Bellovin. S - Report of the IAB Security Architecture Workshop - 1998-04-01.txt`
 
 
 High-level logic
@@ -305,9 +309,9 @@ Analyzers extracts date and time information by various means
 and returns a list of dictionaries on the form:
 
 ```python
-[ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
-    'source' : "Create date",
-    'weight'  : 1
+[ { 'value':  datetime.datetime(2016, 6, 5, 16, ..),
+    'source': "Create date",
+    'weight':  1
   }, .. ]
 ```
 

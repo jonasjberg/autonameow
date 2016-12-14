@@ -88,3 +88,26 @@ class FileObject(object):
             return tags
         except IndexError:
             return None
+
+    def filetags_format_filename(self):
+        """
+        Returns whether the file name is in the "filetags" format.
+
+                                   .------------ FILENAME_TAG_SEPARATOR
+                                  ||         .-- BETWEEN_TAG_SEPARATOR
+                                  VV         V
+        20160722 Descriptive name -- firsttag tagtwo.txt
+        |______| |______________|    |_____________| |_|
+           ts          base               tags       ext
+
+        All filename parts; 'ts', 'base' and 'tags' must be present.
+
+        Returns:
+            True if the filename is in the "filetags" format.
+            Otherwise False.
+        """
+        if self.filenamepart_ts and self.filenamepart_base and \
+               self.filenamepart_tags:
+            return True
+        else:
+            return False

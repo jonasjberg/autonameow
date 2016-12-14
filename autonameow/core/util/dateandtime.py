@@ -159,7 +159,7 @@ def regex_search_str(text):
     results = []
 
     if type(text) is list:
-        logging.debug('Converting list to string ..')
+        # logging.debug('Converting list to string ..')
         text = ' '.join(text)
 
     DATE_SEP = "[:\-._ \/]?"
@@ -194,16 +194,16 @@ def regex_search_str(text):
         if len(m_date) != 8 or len(m_time) != 6:
             continue
 
-        logging.debug('m_date {:10} : {}'.format(type(m_date), m_date))
-        logging.debug('m_time {:10} : {}'.format(type(m_time), m_time))
-        logging.debug('m_time_ms {:10} : {}'.format(type(m_time_ms), m_time_ms))
-        logging.debug('---')
+        # logging.debug('m_date {:10} : {}'.format(type(m_date), m_date))
+        # logging.debug('m_time {:10} : {}'.format(type(m_time), m_time))
+        # logging.debug('m_time_ms {:10} : {}'.format(type(m_time_ms), m_time_ms))
+        # logging.debug('---')
 
         dt_fmt_1 = '%Y%m%d_%H%M%S'
         dt_str = (m_date + '_' + m_time).strip()
         try:
-            logging.debug(
-                'Trying to match [{:13}] to [{}] ..'.format(dt_fmt_1, dt_str))
+            # logging.debug('Trying to match [{:13}] to [{}] '
+            #               '..'.format(dt_fmt_1, dt_str))
             dt = datetime.strptime(dt_str, dt_fmt_1)
         except ValueError:
             pass
@@ -220,8 +220,8 @@ def regex_search_str(text):
     for dt_str in re.findall(dt_pattern_2, text):
         # logging.debug('DT STR IS "{}"'.format(dt_str))
         try:
-            logging.debug('Trying to match [{}] to '
-                          '[{}] ..'.format(dt_fmt_2, dt_str))
+            # logging.debug('Trying to match [{}] to '
+            #               '[{}] ..'.format(dt_fmt_2, dt_str))
             dt = datetime.strptime(dt_str, dt_fmt_2)
         except ValueError:
             pass
@@ -237,8 +237,8 @@ def regex_search_str(text):
     dt_fmt_3 = '%Y'
     for dt_str in re.findall(dt_pattern_3, text):
         try:
-            logging.debug('Trying to match [{:12s}] to '
-                          '[{}] ..'.format(dt_fmt_3, dt_str))
+            # logging.debug('Trying to match [{:12s}] to '
+            #               '[{}] ..'.format(dt_fmt_3, dt_str))
             dt = datetime.strptime(dt_str, dt_fmt_3)
         except ValueError:
             pass
@@ -250,8 +250,8 @@ def regex_search_str(text):
                 matches += 1
 
     logging.debug('Regex matcher found [{:^3}] matches.'.format(matches))
-    logging.debug('Regex matcher returning list of [{:^3}] '
-                 'results.'.format(len(results)))
+    # logging.debug('Regex matcher returning list of [{:^3}] '
+    #               'results.'.format(len(results)))
     return results
 
 
@@ -274,8 +274,8 @@ def match_special_case(text):
                       ('%Y%m%dT%H%M%S', 15)]
     for mp, chars in match_patterns:
         try:
-            logging.debug('Matching first [{}] characters against pattern '
-                          '"{}" ..'.format(chars, mp))
+            # logging.debug('Matching first [{}] characters against pattern '
+            #               '"{}" ..'.format(chars, mp))
             dt = datetime.strptime(text[:chars], mp)
         except ValueError:
             logging.debug('Failed matching very special case.')
@@ -294,8 +294,8 @@ def match_special_case_no_date(text):
     :return: datetime if found otherwise None
     """
     try:
-        logging.debug('Matching against very special case '
-                      '"YYYY-mm-dd" ..')
+        # logging.debug('Matching against very special case '
+        #               '"YYYY-mm-dd" ..')
         dt = datetime.strptime(text[:10], '%Y-%m-%d')
     except ValueError:
         logging.debug('Failed matching date only version of very special case.')
@@ -324,7 +324,7 @@ def match_android_messenger_filename(text):
     # $ 1453473286723
 
     results = []
-    logging.debug('Matching against Android Messenger file name ..')
+    # logging.debug('Matching against Android Messenger file name ..')
 
     dt_pattern = re.compile('.*(received_)(\d{17})(\.jpe?g)?')
     for _, dt_str, _ in re.findall(dt_pattern, text):
@@ -428,7 +428,7 @@ def bruteforce_str(text):
         return None
 
     # Strip all letters from the left.
-    text = text.lstrip(string.letters)
+    text = text.lstrip(string.ascii_letters)
     text = text.lstrip('_-[](){}')
 
     # Create empty list to hold all results.
@@ -484,8 +484,8 @@ def bruteforce_str(text):
         tries += 1
         tries_total += 1
         try:
-            logging.debug('Trying to match [{:17s}]to '
-                          '[{}] ..'.format(fmt, text_strip))
+            # logging.debug('Trying to match [{:17s}]to '
+            #               '[{}] ..'.format(fmt, text_strip))
             dt = datetime.strptime(text_strip, fmt)
         except ValueError:
             pass
@@ -497,8 +497,8 @@ def bruteforce_str(text):
                      'tries.'.format(bruteforce_str.matches, tries))
         return results
     else:
-        logging.debug(
-            'Gave up first approach after [{:>4}] tries.'.format(tries))
+        logging.debug('Gave up first approach after [{:>4}] '
+                      'tries.'.format(tries))
 
     # ----------------------------------------------------------------
     # PART #2   -- pattern matching on just the digits
@@ -506,11 +506,11 @@ def bruteforce_str(text):
     # discards everything except digits in the text.
 
     # Try another approach, start by extracting all digits.
-    logging.debug('Trying second approach.')
+    # logging.debug('Trying second approach.')
     digits_only = textutils.extract_digits(text)
 
     if len(digits_only) < 4:
-        logging.debug('Failed second approach -- not enough digits.')
+        # logging.debug('Failed second approach -- not enough digits.')
         return results
 
     year_first = True
@@ -518,11 +518,11 @@ def bruteforce_str(text):
     # Remove one number at a time from the front until first four digits
     # represent a probable year.
     while not _year_is_probable(int(digits[:4])) and year_first:
-        logging.debug('"{}" is not a probable year. '
-                      'Removing a digit.'.format(digits[:4]))
+        # logging.debug('"{}" is not a probable year. '
+        #               'Removing a digit.'.format(digits[:4]))
         digits = digits[1:]
         if len(digits) < 4:
-            logging.debug('Failed second approach -- no leading year.')
+            # logging.debug('Failed second approach -- no leading year.')
             year_first = False
 
     if year_first:
@@ -535,27 +535,27 @@ def bruteforce_str(text):
                            [6,  '%Y%m'],            # 199212
                            [4,  '%Y']]              # 1992
         tries = 0
-        logging.debug('Assuming format with year first.')
+        # logging.debug('Assuming format with year first.')
         for chars, fmt in common_formats2:
             digits_strip = digits[:chars]
             tries += 1
             tries_total += 1
             try:
-                logging.debug('Trying to match [{:12s}] to '
-                              '[{}] ..'.format(fmt, digits_strip))
+                # logging.debug('Trying to match [{:12s}] to '
+                #               '[{}] ..'.format(fmt, digits_strip))
                 dt = datetime.strptime(digits_strip, fmt)
             except ValueError:
                 pass
             else:
                 validate_result(dt)
 
-        logging.debug('Gave up after %d tries ..'.format(tries))
+        # logging.debug('Gave up after %d tries ..'.format(tries))
 
     # TODO: Examine this here below hacky conditional. Why is it there?
     if True:
         digits = digits_only
         while len(str(digits)) > 2:
-            logging.debug('Assuming format other than year first.')
+            # logging.debug('Assuming format other than year first.')
             #               Chars    Date/time format   Example
             #               -----    ----------------   ----------
             common_formats3 = [[8,   '%d%m%Y'],         # 24121992
@@ -573,21 +573,21 @@ def bruteforce_str(text):
                 tries += 1
                 tries_total += 1
                 try:
-                    logging.debug('Trying to match [{:12s}] to '
-                                  '[{}] ..'.format(fmt, digits_strip))
+                    # logging.debug('Trying to match [{:12s}] to '
+                    #               '[{}] ..'.format(fmt, digits_strip))
                     dt = datetime.strptime(digits_strip, fmt)
                 except ValueError:
                     pass
                 else:
                     validate_result(dt)
 
-            logging.debug('Gave up after {} tries ..'.format(tries))
-            logging.debug('Removing leading number '
-                          '({} --> {})'.format(digits, digits[1:]))
+            # logging.debug('Gave up after {} tries ..'.format(tries))
+            # logging.debug('Removing leading number '
+            #               '({} --> {})'.format(digits, digits[1:]))
             digits = digits[1:]
 
     logging.debug('Second matcher found [{:>3}] matches after [{:>4}] '
-                 'tries.'.format(bruteforce_str.matches_total, tries_total))
+                  'tries.'.format(bruteforce_str.matches_total, tries_total))
     return results
 
 
@@ -618,11 +618,11 @@ def search_gmail(text, prefix):
     # Currently not used at all!
     # TODO: Is this necessary/sane/good practice? (NO!)
     if type(text) is list:
-        logging.debug('Converting list to string ..')
+        # logging.debug('Converting list to string ..')
         text = ' '.join(text)
 
     if not text.lower().find('gmail'):
-        logging.debug('Text does not contains "gmail", might not be a Gmail?')
+        # logging.debug('Text does not contains "gmail", might not be a Gmail?')
         return
 
     # Create empty dictionary to hold all results.
@@ -653,7 +653,8 @@ def get_datetime_from_text(text, prefix='NULL'):
         logging.warning('Got NULL argument')
         return None
     if prefix == 'NULL':
-        logging.debug('Result prefix not specified! Using default "NULL"')
+        # logging.debug('Result prefix not specified! Using default "NULL"')
+        pass
 
     # TODO: Improve handlng of generalized "text" from any source.
     #       (currently plain text and pdf documents)
@@ -667,7 +668,7 @@ def get_datetime_from_text(text, prefix='NULL'):
 
     matches = 0
     text_split = text.split('\n')
-    logging.debug('Try getting datetime from text split by newlines')
+    # logging.debug('Try getting datetime from text split by newlines')
     for t in text_split:
         dt = bruteforce_str(t)
         if dt and dt is not None:
@@ -675,7 +676,7 @@ def get_datetime_from_text(text, prefix='NULL'):
             matches += 1
 
     if matches == 0:
-        logging.debug('No matches. Trying with text split by whitespace')
+        # logging.debug('No matches. Trying with text split by whitespace')
         text_split = text.split()
         for t in text_split:
             dt = bruteforce_str(t)
@@ -706,8 +707,8 @@ def special_datetime_ocr_search(text):
     dt_fmt = '%Y7%m7%d'
     for dt_str in re.findall(pattern, text):
         try:
-            logging.debug('Trying to match [{}] to '
-                          '[{}] ..'.format(dt_fmt, dt_str))
+            # logging.debug('Trying to match [{}] to '
+            #               '[{}] ..'.format(dt_fmt, dt_str))
             dt = datetime.strptime(dt_str, dt_fmt)
         except ValueError:
             pass

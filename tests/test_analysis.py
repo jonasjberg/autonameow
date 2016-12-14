@@ -32,7 +32,7 @@ class TestAnalysis(TestCase):
         ANALYZER_CLASSES = [ImageAnalyzer, FilesystemAnalyzer, FilenameAnalyzer,
                             VideoAnalyzer, PdfAnalyzer, TextAnalyzer]
 
-        self.assertEqual(ANALYZER_CLASSES, get_analyzer_classes())
+        self.assertCountEqual(ANALYZER_CLASSES, get_analyzer_classes())
 
     def test_get_instantiated_analyzers(self):
         self.skipTest('Fix/skip this test ..')
