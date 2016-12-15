@@ -87,7 +87,7 @@ class Autonameow(object):
 
     def run(self):
         # Display help/usage information if no arguments are provided.
-        if len(self.opts) < 2:
+        if not self.opts:
             print('Add "--help" to display usage information.')
             self.exit_program(0)
 
