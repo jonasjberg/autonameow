@@ -26,7 +26,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.text = None
 
     def run(self):
-        self.metadata = self._extract_pdf_metadata()
+        self.metadata = self._extract_pdf_metadata_with_pypdf()
         self.text = self._extract_pdf_content()
 
     def get_author(self):
@@ -139,7 +139,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         #       https://pythonhosted.org/PyPDF2/XmpInformation.html
         pass
 
-    def _extract_pdf_metadata(self):
+    def _extract_pdf_metadata_with_pypdf(self):
         """
         Extract metadata from a PDF document using "pyPdf".
         :return: dict of PDF metadata
