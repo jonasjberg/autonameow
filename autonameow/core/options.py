@@ -80,12 +80,21 @@ def init_argparser():
                                help='Prepend most probable '
                                     '"date/time"-information to file names.')
 
-    optgrp_action.add_argument('--automagic',
-                               dest='automagic',
-                               action='store_true',
-                               help='Figure out most probable new filename '
-                                    'without requiring user interaction.'
-                                    ' (development feature)')
+    # Add option group for operating mode.
+    optgrp_mode = parser.add_argument_group('Operating mode')
+    optgrp_mode.add_argument('--automagic',
+                             dest='automagic',
+                             action='store_true',
+                             help='Figure out most probable new filename '
+                                  'without requiring user interaction.'
+                                  ' (development feature)')
+
+    optgrp_mode.add_argument('--interactive',
+                             dest='interactive',
+                             action='store_true',
+                             help='(DEFAULT) Enable interactive mode. User '
+                                  'selects which of the analysis results is to '
+                                  'make up the new filename.')
 
     # Add option group for filter options.
     optgrp_filter = parser.add_argument_group('Processing options')
@@ -174,6 +183,16 @@ def parse_args(opts):
     else:
         fmt = '%(levelname)s -- %(message)s'
         logging.basicConfig(level=logging.WARNING, format=fmt)
+
+    if args.automagic and args.interactive:
+        logging.critical('Operating mode must be either one of "automagic" or '
+                         '"interactive", not both. Reverting to default: '
+                         '[interactive mode].')
+        args.automagic = False
+        args.interactive = True
+    if not args.automagic and not args.interactive:
+        logging.debug('Using default operating mode: [interactive mode].')
+        args.interactive = True
 
     return args
 

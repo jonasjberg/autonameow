@@ -165,10 +165,9 @@ class Autonameow(object):
                         # TODO: Do actual file renaming.
                         pass
 
-                # TODO: Implement this or something similar to it.
-                # Create a action object.
-                # action = None
-                # action = RenameAction(current_file, results)
+                elif self.args.interactive:
+                    # Create a interactive interface.
+                    pass
 
     def _check_file(self, file):
         if not os.path.exists(file):
