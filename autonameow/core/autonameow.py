@@ -43,9 +43,9 @@ def display_start_banner():
     colortitle=Back.BLUE + Fore.BLACK + \
                ' ' + version.__title__.lower() + \
                ' ' + Back.RESET + Fore.RESET
-    toplineleft = ' {colortitle}  version {version}'.format(colortitle=colortitle,
-                                                    version=version.__version__)
-    toplineright = 'Copyright(c)2016 ' + version.__author__
+    toplineleft = ' {title}  version {ver}'.format(title=colortitle,
+                                                   ver=version.__version__)
+    toplineright = version.__copyright__
     print(('{:<}{:>50}'.format(toplineleft, toplineright)))
     print(('{:>78}'.format(version.__url__)))
     print(('{:>78}'.format(version.__email__)))
