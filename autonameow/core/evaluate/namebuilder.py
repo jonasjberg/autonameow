@@ -22,6 +22,7 @@ class NameBuilder(object):
         self.file_object = file_object
         self.analysis_results = analysis_results
         self.rule = rule
+        self.fields = None
 
         self.new_name = None
 
@@ -88,7 +89,7 @@ class NameBuilder(object):
             return None
 
     def build(self):
-        fields = self._populate_fields(self.analysis_results, self.rule)
-        self.new_name = self._fill_template(fields, self.rule)
+        self.fields = self._populate_fields(self.analysis_results, self.rule)
+        self.new_name = self._fill_template(self.fields, self.rule)
         print('-' * 78)
         print('Automagic generated name: "{}"'.format(self.new_name))
