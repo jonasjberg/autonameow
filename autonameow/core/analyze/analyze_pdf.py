@@ -151,13 +151,13 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         # Extract PDF metadata using PyPdf, nicked from Violent Python.
         try:
-            pdff = PyPDF2.PdfFileReader(file(filename, 'rb'))
+            pdff = PyPDF2.PdfFileReader(filename, 'rb')
             pdf_metadata = pdff.getDocumentInfo()
             # TODO: These below variables are unused! Remove or implement.
             # self.title = pdf_metadata.title
             # self.author = pdf_metadata.author
-        except Exception:
-            logging.error("PDF metadata extraction error")
+        except Exception as e:
+            logging.error('PDF metadata extraction error: "{}"'.format(e))
 
         if pdf_metadata:
             # Remove leading '/' from all entries and save to new dict 'result'.
