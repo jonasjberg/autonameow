@@ -110,7 +110,8 @@ class Analysis(object):
 
         self.results = {'datetime': {},
                         'title': {},
-                        'tags': {}}
+                        'tags': {},
+                        'author': {}}
 
         # List of analyzers to run.
         # Start with a basic analyzer that is common to all file types.
@@ -182,9 +183,10 @@ class Analysis(object):
             # analyzer which produced the results.
             # TODO: Rework how this is done. Fetching the results from the
             #       RuleMatcher is cumbersome with this storage-scheme.
-            self.results['datetime'][a.__class__.__name__] = a.get_datetime()
-            self.results['title'][a.__class__.__name__] = a.get_title()
-            self.results['tags'][a.__class__.__name__] = a.get_tags()
+            self.results['datetime'][a.__class__.__name__] = a.get('datetime')
+            self.results['title'][a.__class__.__name__] = a.get('title')
+            self.results['tags'][a.__class__.__name__] = a.get('tags')
+            self.results['author'][a.__class__.__name__] = a.get('author')
 
     def print_all_datetime_info(self):
         """
