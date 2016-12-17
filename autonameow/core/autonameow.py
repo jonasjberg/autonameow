@@ -126,10 +126,10 @@ class Autonameow(object):
             else:
                 logging.info('Processing file "{}"'.format(str(arg)))
 
-                # 0. Create a file object representing the current arg.
+                # Create a file object representing the current arg.
                 current_file = FileObject(arg)
 
-                # 1. Begin analysing the file.
+                # Begin analysing the file.
                 analysis = Analysis(current_file)
 
                 # TODO: Fix this here below temporary printing of results.
@@ -148,11 +148,11 @@ class Autonameow(object):
                     analysis.print_all_results_info()
                     print('')
 
-                # 2. Create a rule matcher
+                # Create a rule matcher
                 rule_matcher = RuleMatcher(current_file, config_defaults.rules)
 
                 if self.args.automagic:
-                    # 3. Create a name builder.
+                    # Create a name builder.
                     name_builder = NameBuilder(current_file, analysis.results,
                                                rule_matcher.active_rule)
                     name_builder.build()
