@@ -32,16 +32,15 @@ def display_start_banner():
     # TODO: Text alignment depends on manually hardcoding spaces! FIX!
     date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
 
-    print((Fore.LIGHTYELLOW_EX +
+    print((Fore.LIGHTBLUE_EX +
     '''
    ###   ### ### ####### #####  ###  ##   ###   ##   ## ####### #####  ### ###
   #####  ### ###   ###  ### ### #### ##  #####  # # ### ####   ####### ### ###
  ### ### ### ###   ###  ### ### ####### ### ### ####### ###### ### ### #######
  ####### #######   ###  ####### ### ### ####### ### ### ####   ### ### ### ###
  ### ###  ### ##   ###   #####  ### ### ### ### ### ### ####### #####  ##   ##
-    ''' +
-          Fore.RESET))
-    colortitle=Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + \
+    ''' + Fore.RESET))
+    colortitle=Back.BLUE + Fore.BLACK + \
                ' ' + version.__title__.lower() + \
                ' ' + Back.RESET + Fore.RESET
     toplineleft = ' {colortitle}  version {version}'.format(colortitle=colortitle,
