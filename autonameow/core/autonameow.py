@@ -151,6 +151,11 @@ class Autonameow(object):
                 # Create a rule matcher
                 rule_matcher = RuleMatcher(current_file, config_defaults.rules)
 
+                if self.args.prepend_datetime:
+                    # TODO: Prepend datetime to filename.
+                    logging.critical('This feature is not implemented yet.')
+                    self.exit_program(1)
+
                 if self.args.automagic:
                     # Create a name builder.
                     name_builder = NameBuilder(current_file, analysis.results,
