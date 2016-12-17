@@ -13,6 +13,7 @@ from PyPDF2.utils import PdfReadError
 from core.analyze.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
 from core.util import textutils
+from core.util import wrap_exiftool
 
 
 class PdfAnalyzer(AbstractAnalyzer):
@@ -23,15 +24,36 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.applies_to_mime = 'pdf'
 
         self.metadata = None
+        self.metadata_exiftool = None
         self.text = None
 
     def run(self):
         self.metadata = self._extract_pdf_metadata_with_pypdf()
+        self.metadata_exiftool = self._extract_pdf_metadata_with_exiftool()
+
         self.text = self._extract_pdf_content()
 
     def get_author(self):
-        # TODO: Implement.
-        pass
+        results = []
+
+        field = 'Author'
+        if field in self.metadata:
+            value = self.metadata[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted author from pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
+
+        field = 'PDF:Author'
+        if field in self.metadata_exiftool:
+            value = self.metadata_exiftool[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted author from (exiftool) pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
+        return results
 
     def get_title(self):
         # TODO: Implement.
@@ -55,13 +77,28 @@ class PdfAnalyzer(AbstractAnalyzer):
         # TODO: Implement.
         pass
 
+    def _get_metadata_author(self):
+
+        AUTHOR_TAG_FIELDS = ['Author', 'PDF:Author']
+
+        results = []
+        for field in AUTHOR_TAG_FIELDS:
+            if field in self.metadata:
+                try:
+                    k = self.metadata[field].strip()
+                except KeyError:
+                    logging.error('KeyError for key [{}]'.format(field))
+                    pass
+
+
+
     def _get_metadata_datetime(self):
         """
         Extract date and time information from pdf metadata.
         :return: dict of datetime-objects
         """
 
-        DATE_TAG_FIELDS = ['ModDate', 'CreationDate']
+        DATE_TAG_FIELDS = ['ModDate', 'CreationDate', 'ModDate']
 
         results = []
         for field in DATE_TAG_FIELDS:
@@ -167,6 +204,11 @@ class PdfAnalyzer(AbstractAnalyzer):
                 result[key] = value
 
         return result
+
+    def _extract_pdf_metadata_with_exiftool(self):
+        with wrap_exiftool.ExifTool() as et:
+            metadata = et.get_metadata(self.file_object.path)
+        return metadata
 
     def _extract_pdf_content(self):
         """
