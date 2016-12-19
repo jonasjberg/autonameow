@@ -36,30 +36,6 @@ class NameBuilder(object):
         :return:
         """
 
-        # TODO: FIX THIS insane hackery! Temporary!
-        def get_datetime_by_alias(alias):
-            for key in analysis_results['datetime']:
-                if analysis_results['datetime'][key]:
-                    for result in analysis_results['datetime'][key]:
-                        if result['source'] == alias:
-                            return result['value']
-                        else:
-                            return None
-                else:
-                    return None
-
-        # TODO: FIX THIS insane hackery! Temporary!
-        def get_title_by_alias(alias):
-            for key in analysis_results['title']:
-                if analysis_results['title'][key]:
-                    for result in analysis_results['title'][key]:
-                        if result['source'] == alias:
-                            return result['value']
-                        else:
-                            return None
-                else:
-                    return None
-
         def get_field_by_alias(field, alias):
             logging.debug('Trying to get "field" by "alias": '
                           '[{}] [{}]'.format(field, alias))
