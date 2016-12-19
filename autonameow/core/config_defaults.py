@@ -11,6 +11,7 @@ DEFAULT_NAME = '%(date)s_%(time)s %(description)s -- %(tags)s%(ext)s'
 
 # Rename templates:
 DOCUMENT_NAME = '%(date)s %(title)s %(author)s -- %(tags)s%(ext)s'
+EBOOK_NAME = '%(author)s %(date)s %(publisher)s - %(title)s%(ext)s'
 
 # Rule fields:
 # 'type'              --  mime file type
@@ -85,4 +86,13 @@ rules = {'record_my_desktop': {'type': ['ogv', 'ogg'],
                               'prefer_title': None,
                               'new_name_template': DOCUMENT_NAME,
                               'tags': []},
+         'ebook_pdf': {'type': 'pdf',
+                       'name': None,
+                       'path': None,
+                       'prefer_author': 'PDF:Author',
+                       'prefer_datetime': 'CreationDate',
+                       'prefer_title': 'PDF:Title',
+                       'prefer_publisher': 'PDF:EBX_PUBLISHER',
+                       'new_name_template': EBOOK_NAME,
+                       'tags': []},
          }
