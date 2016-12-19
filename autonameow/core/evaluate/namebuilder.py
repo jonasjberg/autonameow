@@ -65,9 +65,11 @@ class NameBuilder(object):
             ardate = ardate.strftime('%Y-%m-%d')
 
         populated_fields = {
+            'author': arauthor or None,
             'date': ardate or None,
-            'time': artime or None,
             'description': artitle or None,
+            'publisher': arpublisher or None,
+            'title': artitle or None,
             'tags': artags or None,
             'ext': os.path.extsep + self.file_object.filenamepart_ext
         }
