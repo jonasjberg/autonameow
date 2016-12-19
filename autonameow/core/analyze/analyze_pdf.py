@@ -17,6 +17,7 @@ from core.util import wrap_exiftool
 
 
 class PdfAnalyzer(AbstractAnalyzer):
+    # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 1
 
     def __init__(self, file_object):
@@ -27,12 +28,14 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.metadata_exiftool = None
         self.text = None
 
+    # @Overrides method in AbstractAnalyzer
     def run(self):
         self.metadata = self._extract_pdf_metadata_with_pypdf()
         self.metadata_exiftool = self._extract_pdf_metadata_with_exiftool()
 
         self.text = self._extract_pdf_content()
 
+    # @Overrides method in AbstractAnalyzer
     def get_author(self):
         results = []
 
@@ -55,10 +58,12 @@ class PdfAnalyzer(AbstractAnalyzer):
                           '"{}": "{}"'.format(field, value))
         return results
 
+    # @Overrides method in AbstractAnalyzer
     def get_title(self):
         # TODO: Implement.
         pass
 
+    # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
         results = []
 

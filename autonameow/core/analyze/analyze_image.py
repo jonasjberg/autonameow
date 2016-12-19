@@ -17,6 +17,7 @@ from core.util import dateandtime
 
 
 class ImageAnalyzer(AbstractAnalyzer):
+    # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 0.5
 
     def __init__(self, file_object):
@@ -26,6 +27,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         self.exif_data = None
         self.ocr_text = None
 
+    # @Overrides method in AbstractAnalyzer
     def run(self):
         # Start by trying to extract EXIF information from the image.
         logging.debug('Extracting EXIF data ..')
@@ -36,6 +38,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
 
+    # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
         result = []
         exif_timestamps = self._get_exif_datetime()
@@ -49,14 +52,17 @@ class ImageAnalyzer(AbstractAnalyzer):
 
         return result
 
+    # @Overrides method in AbstractAnalyzer
     def get_author(self):
         # TODO: Implement.
         pass
 
+    # @Overrides method in AbstractAnalyzer
     def get_title(self):
         # TODO: Implement.
         pass
 
+    # @Overrides method in AbstractAnalyzer
     def get_tags(self):
         # TODO: Implement.
         pass

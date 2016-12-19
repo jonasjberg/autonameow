@@ -31,15 +31,18 @@ class FilesystemAnalyzer(AbstractAnalyzer):
     http://www.freedesktop.org/wiki/CommonExtendedAttributes
     http://timgolden.me.uk/python/win32_how_do_i/get-document-summary-info.html
     """
+    # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 1
 
     def __init__(self, file_object):
         super(FilesystemAnalyzer, self).__init__(file_object)
         self.applies_to_mime = None
 
+    # @Overrides method in AbstractAnalyzer
     def run(self):
         pass
 
+    # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
         result = []
 
@@ -49,19 +52,26 @@ class FilesystemAnalyzer(AbstractAnalyzer):
 
         return result
 
+    # @Overrides method in AbstractAnalyzer
     def get_title(self):
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
         return None
 
+    # @Overrides method in AbstractAnalyzer
     def get_author(self):
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
         return None
 
+    # @Overrides method in AbstractAnalyzer
     def get_tags(self):
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
+        return None
+
+    # @Overrides method in AbstractAnalyzer
+    def get_publisher(self):
         return None
 
     def _get_datetime_from_filesystem(self):

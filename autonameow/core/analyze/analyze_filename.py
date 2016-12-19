@@ -11,6 +11,7 @@ from core.util import dateandtime
 
 
 class FilenameAnalyzer(AbstractAnalyzer):
+    # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 1
 
     def __init__(self, file_object):
@@ -19,11 +20,13 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
         self.guessit_metadata = None
 
+    # @Overrides method in AbstractAnalyzer
     def run(self):
         # Arbitrary length check limits (very slow) calls to guessit.
         if len(self.file_object.filenamepart_base) > 20:
             self.guessit_metadata = self._get_metadata_from_guessit()
 
+    # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
         result = []
 
@@ -38,6 +41,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
         return result
 
+    # @Overrides method in AbstractAnalyzer
     def get_title(self):
         titles = []
 
@@ -52,10 +56,12 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
         return titles
 
+    # @Overrides method in AbstractAnalyzer
     def get_author(self):
         # TODO: Implement.
         pass
 
+    # @Overrides method in AbstractAnalyzer
     def get_tags(self):
         return self.file_object.filenamepart_tags
 
