@@ -36,3 +36,6 @@ class AbstractAnalyzer(object):
 
     def get_tags(self):
         raise NotImplementedError
+
+    def get_publisher(self):
+        raise NotImplementedError

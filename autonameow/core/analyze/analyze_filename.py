@@ -59,6 +59,10 @@ class FilenameAnalyzer(AbstractAnalyzer):
     def get_tags(self):
         return self.file_object.filenamepart_tags
 
+    # @Overrides method in AbstractAnalyzer
+    def get_publisher(self):
+        return None
+
     def _get_title_from_filename(self):
         fnp_tags = self.file_object.filenamepart_tags or None
         fnp_base = self.file_object.filenamepart_base or None

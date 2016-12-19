@@ -73,24 +73,33 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         return results
 
+    # @Overrides method in AbstractAnalyzer
     def get_tags(self):
         # TODO: Implement.
         pass
 
-    def _get_metadata_author(self):
-
-        AUTHOR_TAG_FIELDS = ['Author', 'PDF:Author']
-
+    # @Overrides method in AbstractAnalyzer
+    def get_publisher(self):
         results = []
-        for field in AUTHOR_TAG_FIELDS:
-            if field in self.metadata:
-                try:
-                    k = self.metadata[field].strip()
-                except KeyError:
-                    logging.error('KeyError for key [{}]'.format(field))
-                    pass
 
+        field = 'PDF:EBX_PUBLISHER'
+        if field in self.metadata:
+            value = self.metadata[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted publisher from pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
 
+        field = 'PDF:EBX_PUBLISHER'
+        if field in self.metadata_exiftool:
+            value = self.metadata_exiftool[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted publisher from (exiftool) pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
+        return results
 
     def _get_metadata_datetime(self):
         """

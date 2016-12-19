@@ -109,6 +109,7 @@ class Analysis(object):
         self.file_object = file_object
 
         self.results = {'datetime': {},
+                        'publisher': {},
                         'title': {},
                         'tags': {},
                         'author': {}}
@@ -187,6 +188,7 @@ class Analysis(object):
             self.results['title'][a.__class__.__name__] = a.get('title')
             self.results['tags'][a.__class__.__name__] = a.get('tags')
             self.results['author'][a.__class__.__name__] = a.get('author')
+            self.results['publisher'][a.__class__.__name__] = a.get('publisher')
 
     def print_all_datetime_info(self):
         """
