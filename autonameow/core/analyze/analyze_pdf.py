@@ -60,8 +60,26 @@ class PdfAnalyzer(AbstractAnalyzer):
 
     # @Overrides method in AbstractAnalyzer
     def get_title(self):
-        # TODO: Implement.
-        pass
+        results = []
+
+        field = 'Title'
+        if field in self.metadata:
+            value = self.metadata[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted title from pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
+
+        field = 'PDF:Title'
+        if field in self.metadata_exiftool:
+            value = self.metadata_exiftool[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted title from (exiftool) pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
+        return results
 
     # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
