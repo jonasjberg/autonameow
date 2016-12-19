@@ -3,6 +3,7 @@
 # Copyright 2016, Jonas Sjoberg.
 
 import os
+import logging
 
 from core.fileobject import FileObject
 
@@ -22,6 +23,7 @@ class NameBuilder(object):
         self.file_object = file_object
         self.analysis_results = analysis_results
         self.rule = rule
+        self.fields = None
 
         self.new_name = None
 
@@ -34,35 +36,26 @@ class NameBuilder(object):
         :return:
         """
 
-        # TODO: FIX THIS insane hackery! Temporary!
-        def get_datetime_by_alias(alias):
-            for key in self.analysis_results['datetime']:
-                if self.analysis_results['title'][key]:
-                    for result in self.analysis_results['datetime'][key]:
+        def get_field_by_alias(field, alias):
+            logging.debug('Trying to get "field" by "alias": '
+                          '[{}] [{}]'.format(field, alias))
+            for key in analysis_results[field]:
+                if analysis_results[field][key]:
+                    for result in analysis_results[field][key]:
                         if result['source'] == alias:
                             return result['value']
                         else:
-                            return None
-                else:
-                    return None
-
-        # TODO: FIX THIS insane hackery! Temporary!
-        def get_title_by_alias(alias):
-            for key in self.analysis_results['title']:
-                if self.analysis_results['title'][key]:
-                    for result in self.analysis_results['title'][key]:
-                        if result['source'] == alias:
-                            return result['value']
-                        else:
-                            return None
+                            logging.debug('NOPE -- result["source"] == {'
+                                          '}'.format(result['source']))
                 else:
                     return None
 
         ardate = artime = artags = artitle = None
         try:
-            ardate = get_datetime_by_alias(rule['prefer_datetime'])
-            artime = get_datetime_by_alias(rule['prefer_datetime'])
-            artitle = get_title_by_alias(rule['prefer_title'])
+            ardate = get_field_by_alias('datetime', rule['prefer_datetime'])
+            artitle = get_field_by_alias('title', rule['prefer_title'])
+            arauthor = get_field_by_alias('author', rule['prefer_author'])
+            arpublisher = get_field_by_alias('publisher', rule['prefer_publisher'])
         except TypeError:
             pass
 
@@ -72,9 +65,11 @@ class NameBuilder(object):
             ardate = ardate.strftime('%Y-%m-%d')
 
         populated_fields = {
+            'author': arauthor or None,
             'date': ardate or None,
-            'time': artime or None,
             'description': artitle or None,
+            'publisher': arpublisher or None,
+            'title': artitle or None,
             'tags': artags or None,
             'ext': os.path.extsep + self.file_object.filenamepart_ext
         }
@@ -88,7 +83,7 @@ class NameBuilder(object):
             return None
 
     def build(self):
-        fields = self._populate_fields(self.analysis_results, self.rule)
-        self.new_name = self._fill_template(fields, self.rule)
+        self.fields = self._populate_fields(self.analysis_results, self.rule)
+        self.new_name = self._fill_template(self.fields, self.rule)
         print('-' * 78)
         print('Automagic generated name: "{}"'.format(self.new_name))

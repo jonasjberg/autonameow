@@ -13,9 +13,11 @@ from PyPDF2.utils import PdfReadError
 from core.analyze.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
 from core.util import textutils
+from core.util import wrap_exiftool
 
 
 class PdfAnalyzer(AbstractAnalyzer):
+    # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 1
 
     def __init__(self, file_object):
@@ -23,20 +25,63 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.applies_to_mime = 'pdf'
 
         self.metadata = None
+        self.metadata_exiftool = None
         self.text = None
 
+    # @Overrides method in AbstractAnalyzer
     def run(self):
-        self.metadata = self._extract_pdf_metadata()
+        self.metadata = self._extract_pdf_metadata_with_pypdf()
+        self.metadata_exiftool = self._extract_pdf_metadata_with_exiftool()
+
         self.text = self._extract_pdf_content()
 
+    # @Overrides method in AbstractAnalyzer
     def get_author(self):
-        # TODO: Implement.
-        pass
+        results = []
 
+        field = 'Author'
+        if field in self.metadata:
+            value = self.metadata[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted author from pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
+
+        field = 'PDF:Author'
+        if field in self.metadata_exiftool:
+            value = self.metadata_exiftool[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted author from (exiftool) pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
+        return results
+
+    # @Overrides method in AbstractAnalyzer
     def get_title(self):
-        # TODO: Implement.
-        pass
+        results = []
 
+        field = 'Title'
+        if field in self.metadata:
+            value = self.metadata[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted title from pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
+
+        field = 'PDF:Title'
+        if field in self.metadata_exiftool:
+            value = self.metadata_exiftool[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted title from (exiftool) pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
+        return results
+
+    # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
         results = []
 
@@ -51,9 +96,33 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         return results
 
+    # @Overrides method in AbstractAnalyzer
     def get_tags(self):
         # TODO: Implement.
         pass
+
+    # @Overrides method in AbstractAnalyzer
+    def get_publisher(self):
+        results = []
+
+        field = 'PDF:EBX_PUBLISHER'
+        if field in self.metadata:
+            value = self.metadata[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted publisher from pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
+
+        field = 'PDF:EBX_PUBLISHER'
+        if field in self.metadata_exiftool:
+            value = self.metadata_exiftool[field]
+            results.append({'value': value,
+                            'source': field,
+                            'weight': 1})
+            logging.debug('Extracted publisher from (exiftool) pdf metadata field '
+                          '"{}": "{}"'.format(field, value))
+        return results
 
     def _get_metadata_datetime(self):
         """
@@ -61,7 +130,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         :return: dict of datetime-objects
         """
 
-        DATE_TAG_FIELDS = ['ModDate', 'CreationDate']
+        DATE_TAG_FIELDS = ['ModDate', 'CreationDate', 'ModDate']
 
         results = []
         for field in DATE_TAG_FIELDS:
@@ -139,7 +208,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         #       https://pythonhosted.org/PyPDF2/XmpInformation.html
         pass
 
-    def _extract_pdf_metadata(self):
+    def _extract_pdf_metadata_with_pypdf(self):
         """
         Extract metadata from a PDF document using "pyPdf".
         :return: dict of PDF metadata
@@ -151,13 +220,13 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         # Extract PDF metadata using PyPdf, nicked from Violent Python.
         try:
-            pdff = PyPDF2.PdfFileReader(file(filename, 'rb'))
+            pdff = PyPDF2.PdfFileReader(filename, 'rb')
             pdf_metadata = pdff.getDocumentInfo()
             # TODO: These below variables are unused! Remove or implement.
             # self.title = pdf_metadata.title
             # self.author = pdf_metadata.author
-        except Exception:
-            logging.error("PDF metadata extraction error")
+        except Exception as e:
+            logging.error('PDF metadata extraction error: "{}"'.format(e))
 
         if pdf_metadata:
             # Remove leading '/' from all entries and save to new dict 'result'.
@@ -167,6 +236,11 @@ class PdfAnalyzer(AbstractAnalyzer):
                 result[key] = value
 
         return result
+
+    def _extract_pdf_metadata_with_exiftool(self):
+        with wrap_exiftool.ExifTool() as et:
+            metadata = et.get_metadata(self.file_object.path)
+        return metadata
 
     def _extract_pdf_content(self):
         """

@@ -32,21 +32,20 @@ def display_start_banner():
     # TODO: Text alignment depends on manually hardcoding spaces! FIX!
     date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
 
-    print((Fore.LIGHTYELLOW_EX +
+    print((Fore.LIGHTBLUE_EX +
     '''
    ###   ### ### ####### #####  ###  ##   ###   ##   ## ####### #####  ### ###
   #####  ### ###   ###  ### ### #### ##  #####  # # ### ####   ####### ### ###
  ### ### ### ###   ###  ### ### ####### ### ### ####### ###### ### ### #######
  ####### #######   ###  ####### ### ### ####### ### ### ####   ### ### ### ###
  ### ###  ### ##   ###   #####  ### ### ### ### ### ### ####### #####  ##   ##
-    ''' +
-          Fore.RESET))
-    colortitle=Back.LIGHTBLACK_EX + Fore.LIGHTYELLOW_EX + \
+    ''' + Fore.RESET))
+    colortitle=Back.BLUE + Fore.BLACK + \
                ' ' + version.__title__.lower() + \
                ' ' + Back.RESET + Fore.RESET
-    toplineleft = ' {colortitle}  version {version}'.format(colortitle=colortitle,
-                                                    version=version.__version__)
-    toplineright = 'Copyright(c)2016 ' + version.__author__
+    toplineleft = ' {title}  version {ver}'.format(title=colortitle,
+                                                   ver=version.__version__)
+    toplineright = version.__copyright__
     print(('{:<}{:>50}'.format(toplineleft, toplineright)))
     print(('{:>78}'.format(version.__url__)))
     print(('{:>78}'.format(version.__email__)))
@@ -87,7 +86,7 @@ class Autonameow(object):
 
     def run(self):
         # Display help/usage information if no arguments are provided.
-        if len(self.opts) < 2:
+        if not self.opts:
             print('Add "--help" to display usage information.')
             self.exit_program(0)
 
@@ -127,10 +126,10 @@ class Autonameow(object):
             else:
                 logging.info('Processing file "{}"'.format(str(arg)))
 
-                # 0. Create a file object representing the current arg.
+                # Create a file object representing the current arg.
                 current_file = FileObject(arg)
 
-                # 1. Begin analysing the file.
+                # Begin analysing the file.
                 analysis = Analysis(current_file)
 
                 # TODO: Fix this here below temporary printing of results.
@@ -149,11 +148,16 @@ class Autonameow(object):
                     analysis.print_all_results_info()
                     print('')
 
-                # 2. Create a rule matcher
+                # Create a rule matcher
                 rule_matcher = RuleMatcher(current_file, config_defaults.rules)
 
+                if self.args.prepend_datetime:
+                    # TODO: Prepend datetime to filename.
+                    logging.critical('This feature is not implemented yet.')
+                    self.exit_program(1)
+
                 if self.args.automagic:
-                    # 3. Create a name builder.
+                    # Create a name builder.
                     name_builder = NameBuilder(current_file, analysis.results,
                                                rule_matcher.active_rule)
                     name_builder.build()
@@ -165,10 +169,9 @@ class Autonameow(object):
                         # TODO: Do actual file renaming.
                         pass
 
-                # TODO: Implement this or something similar to it.
-                # Create a action object.
-                # action = None
-                # action = RenameAction(current_file, results)
+                elif self.args.interactive:
+                    # Create a interactive interface.
+                    pass
 
     def _check_file(self, file):
         if not os.path.exists(file):

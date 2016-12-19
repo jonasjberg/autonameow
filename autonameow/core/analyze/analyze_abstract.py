@@ -2,6 +2,8 @@
 # This file is part of autonameow.
 # Copyright 2016, Jonas Sjoberg.
 
+import logging
+
 
 class AbstractAnalyzer(object):
     run_queue_priority = None
@@ -13,6 +15,16 @@ class AbstractAnalyzer(object):
     def run(self):
         raise NotImplementedError
 
+    def get(self, field):
+        func_name = 'get_{}'.format(field)
+
+        get_func = getattr(self, func_name, None)
+        if callable(get_func):
+            return get_func()
+        else:
+            logging.error('Invalid get parameter: {}'.format(str(field)))
+            return None
+
     def get_datetime(self):
         raise NotImplementedError
 
@@ -23,4 +35,7 @@ class AbstractAnalyzer(object):
         raise NotImplementedError
 
     def get_tags(self):
+        raise NotImplementedError
+
+    def get_publisher(self):
         raise NotImplementedError

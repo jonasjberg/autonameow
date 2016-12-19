@@ -9,6 +9,7 @@ from core.analyze.analyze_abstract import AbstractAnalyzer
 
 
 class VideoAnalyzer(AbstractAnalyzer):
+    # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 0.1
 
     def __init__(self, file_object):
@@ -17,22 +18,27 @@ class VideoAnalyzer(AbstractAnalyzer):
 
         self.exif_data = None
 
+    # @Overrides method in AbstractAnalyzer
     def run(self):
         # TODO: Implement.
         pass
 
+    # @Overrides method in AbstractAnalyzer
     def get_author(self):
         # TODO: Implement.
         pass
 
+    # @Overrides method in AbstractAnalyzer
     def get_title(self):
         # TODO: Implement.
         pass
 
+    # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
         # TODO: Implement.
         pass
 
+    # @Overrides method in AbstractAnalyzer
     def get_tags(self):
         # TODO: Implement.
         pass

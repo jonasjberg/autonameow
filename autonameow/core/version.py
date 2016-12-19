@@ -10,9 +10,9 @@
 # Source: http://stackoverflow.com/a/16084844
 
 __title__ = 'autonameow'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __author__ = 'Jonas Sjöberg'
-__email__ = 'jomeganas@gmail.com'
-__url__ = 'https://github.com/jonasjberg'
+__email__ = 'jomeganas[at]gmail.com'
+__url__ = 'www.jonasjberg.com'
 __license__ = 'TODO: Pick a license (any license) ..'
-__copyright__ = 'Copyright 2016 Jonas Sjoberg'
+__copyright__ = 'Copyright \N{COPYRIGHT SIGN} 2016 Jonas Sjoberg'

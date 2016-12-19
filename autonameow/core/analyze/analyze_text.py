@@ -12,6 +12,7 @@ from core.util import dateandtime
 
 
 class TextAnalyzer(AbstractAnalyzer):
+    # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 0.5
 
     def __init__(self, file_object):
@@ -20,19 +21,23 @@ class TextAnalyzer(AbstractAnalyzer):
 
         self.text = None
 
+    # @Overrides method in AbstractAnalyzer
     def run(self):
         # Extract the textual contents.
         logging.debug('Extracting text contents ..')
         self.text = self._extract_text_content()
 
+    # @Overrides method in AbstractAnalyzer
     def get_author(self):
         # TODO: Implement.
         pass
 
+    # @Overrides method in AbstractAnalyzer
     def get_title(self):
         # TODO: Implement.
         pass
 
+    # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
         result = []
         if self.text:
@@ -42,6 +47,7 @@ class TextAnalyzer(AbstractAnalyzer):
 
         return result
 
+    # @Overrides method in AbstractAnalyzer
     def get_tags(self):
         # TODO: Implement.
         pass
