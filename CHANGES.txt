@@ -1,3 +1,39 @@
+2016-12-19  [autonameow v0.2.2]
+
+            Additions:
+            - Include exiftool wrapper 'pyexiftool'.
+                  http://smarnach.github.com/pyexiftool
+                  https://github.com/smarnach/pyexiftool
+              Simply copied in place for now. Dependecies should be handled
+              properly, as git submodules, via pip or similar mechanism.
+            - Add wrapper script 'run.sh' to act as a main entry point.
+            - Start using exiftool in the pdf analyser.
+            - Add 'get_publisher' to all analyzers.
+            - Implement first version of 'get_publisher' in the PdfAnalyzer.
+            - Add comments to indicate overridden methods and attributes.
+            - Implement 'get_title' in the PdfAnalyzer.
+            - Add ebook name template and matching rules to config defaults.
+
+            Changes:
+            - Separate operating mode from actions to perform.
+                - Operating mode is either "automagic" or "interactive".
+                  Default mode is the (safer (?)) "interactive mode".
+                - Options for which actions to perform, for example:
+                  "prepend datetime" or "rename" (unimplemented) are separate.
+            - Add simpler method for getting fields from analyzers.
+            - Change main color in the ASCII art header from yellow to blue.
+            - Various changes to the 'namebuilder' class. Still far from done.
+            - Various improvements and refactorings in the 'NameBuilder' class.
+
+            Fixes:
+            - Fix bug where the message to use '--help' to display help was
+              displayed even when '--help' was used.
+            - Display  message if the yet unimplemented feature "prepend
+              datetime" is enabled.
+            - Fix bug in 'prettyprint_options' by explicitly wrapping
+              everything in 'str()' calls.
+
+
 2016-11-14  [autonameow v0.2.1]
 
             Additions:
