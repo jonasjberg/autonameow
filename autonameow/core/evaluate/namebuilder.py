@@ -38,9 +38,9 @@ class NameBuilder(object):
 
         # TODO: FIX THIS insane hackery! Temporary!
         def get_datetime_by_alias(alias):
-            for key in self.analysis_results['datetime']:
-                if self.analysis_results['title'][key]:
-                    for result in self.analysis_results['datetime'][key]:
+            for key in analysis_results['datetime']:
+                if analysis_results['datetime'][key]:
+                    for result in analysis_results['datetime'][key]:
                         if result['source'] == alias:
                             return result['value']
                         else:
@@ -50,9 +50,9 @@ class NameBuilder(object):
 
         # TODO: FIX THIS insane hackery! Temporary!
         def get_title_by_alias(alias):
-            for key in self.analysis_results['title']:
-                if self.analysis_results['title'][key]:
-                    for result in self.analysis_results['title'][key]:
+            for key in analysis_results['title']:
+                if analysis_results['title'][key]:
+                    for result in analysis_results['title'][key]:
                         if result['source'] == alias:
                             return result['value']
                         else:
