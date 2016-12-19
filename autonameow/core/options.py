@@ -209,5 +209,5 @@ def prettyprint_options(opts):
             v = 'False'
         elif v == 1:
             v = 'True'
-        print(('{:<30}'.format(k) + Fore.LIGHTBLACK_EX + ' : ' +
-              Fore.RESET + '{:<40}'.format(v)))
+        print(('{:<30}'.format(str(k)) + Fore.LIGHTBLACK_EX + ' : ' +
+              Fore.RESET + '{:<40}'.format(str(v))))
