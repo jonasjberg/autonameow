@@ -50,7 +50,6 @@ class NameBuilder(object):
                 else:
                     return None
 
-
         ardate = artime = artags = artitle = None
         try:
             ardate = get_field_by_alias('datetime', rule['prefer_datetime'])
