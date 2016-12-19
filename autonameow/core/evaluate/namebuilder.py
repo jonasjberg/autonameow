@@ -3,6 +3,7 @@
 # Copyright 2016, Jonas Sjoberg.
 
 import os
+import logging
 
 from core.fileobject import FileObject
 
