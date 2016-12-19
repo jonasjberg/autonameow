@@ -60,11 +60,27 @@ class NameBuilder(object):
                 else:
                     return None
 
+        def get_field_by_alias(field, alias):
+            logging.debug('Trying to get "field" by "alias": '
+                          '[{}] [{}]'.format(field, alias))
+            for key in analysis_results[field]:
+                if analysis_results[field][key]:
+                    for result in analysis_results[field][key]:
+                        if result['source'] == alias:
+                            return result['value']
+                        else:
+                            logging.debug('NOPE -- result["source"] == {'
+                                          '}'.format(result['source']))
+                else:
+                    return None
+
+
         ardate = artime = artags = artitle = None
         try:
-            ardate = get_datetime_by_alias(rule['prefer_datetime'])
-            artime = get_datetime_by_alias(rule['prefer_datetime'])
-            artitle = get_title_by_alias(rule['prefer_title'])
+            ardate = get_field_by_alias('datetime', rule['prefer_datetime'])
+            artitle = get_field_by_alias('title', rule['prefer_title'])
+            arauthor = get_field_by_alias('author', rule['prefer_author'])
+            arpublisher = get_field_by_alias('publisher', rule['prefer_publisher'])
         except TypeError:
             pass
 
