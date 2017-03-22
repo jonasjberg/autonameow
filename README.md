@@ -1,0 +1,18 @@
+`autonameow`
+============
+*Copyright(c) 2016-2017 Jonas Sjöberg*  
+<https://github.com/jonasjberg>  
+<http://www.jonasjberg.com>  
+
+--------------------------------------------------------------------------------
+
+__`autonameow` does automatic renaming of files__
+
+The primary goal is to reduce the overhead and manual work required to
+apply a strict file naming convention uniformly and consistently.
+
+
+
+See the [project wiki](https://github.com/1dv430/js224eh-project/wiki) for
+project documentation and development status.
+
