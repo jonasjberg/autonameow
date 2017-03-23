@@ -13,6 +13,6 @@ apply a strict file naming convention uniformly and consistently.
 
 
 
-See the [project wiki](https://github.com/1dv430/js224eh-project/wiki) for
-project documentation and development status.
+Refer to the [project wiki](https://github.com/1dv430/js224eh-project/wiki) for
+current project documentation and development status.
 
