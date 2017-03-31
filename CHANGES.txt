@@ -1,0 +1,342 @@
+2016-12-19  [autonameow v0.2.2]
+
+            Additions:
+            - Include exiftool wrapper 'pyexiftool'.
+                  http://smarnach.github.com/pyexiftool
+                  https://github.com/smarnach/pyexiftool
+              Simply copied in place for now. Dependecies should be handled
+              properly, as git submodules, via pip or similar mechanism.
+            - Add wrapper script 'run.sh' to act as a main entry point.
+            - Start using exiftool in the pdf analyser.
+            - Add 'get_publisher' to all analyzers.
+            - Implement first version of 'get_publisher' in the PdfAnalyzer.
+            - Add comments to indicate overridden methods and attributes.
+            - Implement 'get_title' in the PdfAnalyzer.
+            - Add ebook name template and matching rules to config defaults.
+
+            Changes:
+            - Separate operating mode from actions to perform.
+                - Operating mode is either "automagic" or "interactive".
+                  Default mode is the (safer (?)) "interactive mode".
+                - Options for which actions to perform, for example:
+                  "prepend datetime" or "rename" (unimplemented) are separate.
+            - Add simpler method for getting fields from analyzers.
+            - Change main color in the ASCII art header from yellow to blue.
+            - Various changes to the 'namebuilder' class. Still far from done.
+            - Various improvements and refactorings in the 'NameBuilder' class.
+
+            Fixes:
+            - Fix bug where the message to use '--help' to display help was
+              displayed even when '--help' was used.
+            - Display  message if the yet unimplemented feature "prepend
+              datetime" is enabled.
+            - Fix bug in 'prettyprint_options' by explicitly wrapping
+              everything in 'str()' calls.
+
+
+2016-11-14  [autonameow v0.2.1]
+
+            Additions:
+            - Improved inline documentation/docstrings.
+            - Add priority to the analysis run queue execution.
+                - Analyzers are assigned a priority number 0-1, stored in the
+                  class variable 'run_queue_priority'.
+                - Analysis with a higher number are executed before those
+                  with a lower number.
+            - Add rule field 'prefer_title'.
+              Specifies which title to use, similar to 'prefer_datetime'.
+            - Add detecting filename in "filetags" format.
+                - Add method 'filetags_format_filename()' to 'FileObject' that
+                  returns boolean True if the filename is in "filetags" format.
+                - Add unit tests for 'filetags_format_filename()'.
+            - Add rules to 'config_defaults.py' for testing.
+            - Add matching of rule field 'filename_in_filetags_format' in
+              'RuleMatcher'.
+
+            Changes:
+            - Start using "Google-style" documentation string formatting.
+            - Modified rules in 'config_defaults.py'.
+
+            Fixes:
+            - Fix error caused by missing 'string.letters' attribute with
+              Python 3. Use 'ascii_letters' for now. Should be fixed.
+            - Fix broken unit tests.
+            - PIL exception logging debug message caused crash.
+            - Fix guessit import statement.
+            - Fix logging message was shown regardless of match.
+
+
+2016-08-28  [autonameow v0.2.0]
+
+            Additions:
+            - N/A
+
+            Changes:
+            - Migrate project to Python 3.5.
+              Drop Python 2 support entirely for simplicity.
+              Backwards compatibility fixes might be added at some future time.
+            - All source files processed with the '2to3' conversion tool,
+              version "2to3-2.7 2.7 January 2012". Some passed unchanged.
+
+            Fixes:
+            - N/A
+
+
+2016-08-19  [autonameow v0.1.8]
+
+            Additions:
+            - Add unit tests for 'options.py'.
+            - Add a 'NameBuilder' class for assembling new names.
+              Fills out the empty template specified by a matching rule with
+              data from analysis results.
+            - Extend and improve the 'RuleMatcher'.
+            - Add dynamic listing of Analyzer classes.
+                - Store all analyzer classes in '_ALL_ANALYZER_CLASSES'.
+                  The classes are added if their name ends with "Analyzer".
+                - Adds function 'get_analyzer_classes' to access the above list.
+                - Adds function 'get_instantiated_analyzers' to get a list of
+                  analyzer objects.
+                  Note that these are instantiated with a None 'FileObject'.
+            - Store relevant file mime types in the analyzers themselves.  Add
+              a new field 'applies_to_mime' that can be a string, a list of
+              strings or None, which means the analyzer should be used
+              regardless of file mimetype.
+
+            Changes:
+            - Rename the command-line option '--ignore-before-year' to
+              '--ignore-to-year'.
+            - Rename the command-line option '--ignore-after-year' to
+              '--ignore-from-year'.
+            - Change how the command-line options are passed in to argparse.
+            - Improve function 'arg_is_year'.
+            - Remove stub "action" classes 'AbstractAction' and 'RenameAction'.
+            - Do not pass filter instances to the analyzers.  Filters were not
+              used anyway, instead do the filtering as a separate step after
+              the analysis.
+            - Analyzers do not execute their analysis at instantiation.
+                - Use new method 'run()' to start the analysis.
+
+            Fixes:
+            - Fix incorrect number of arguments expected for options
+              '--ignore-from-year', '--ignore-years' and '--ignore-to-year'.
+            - Rule matcher name regex tests file basename.
+            - Fix no matching rule caused crash.
+
+
+2016-08-09  [autonameow v0.1.7]
+
+            Additions:
+            - Extends title extraction in 'FilenameAnalyzer' by weighting
+              results by how many "filetags" filename parts are present.
+
+                  Filename:                                   Weight:
+                  20160620 Descriptive title -- tags.ext      1
+                  20160620 Descriptive title.ext              0.75
+                  Descriptive title.ext                       0.25
+
+              Add tests for the above additions and changes.
+
+            - Add unit tests for main program class 'Autonameow'.
+            - Extend test cases for the "filename partitioning".
+            - Add new option '--automagic' to be used during development.
+            - Add a new class 'ResultFilter' for filtering analysis results.
+
+            Changes:
+            - Restructure project directory hierarchy.
+              Nest most of the main program code in a new package 'core'.
+            - Modify logging message levels.  Substitute "warning" for "debug"
+              in non-critical blocks for less overall logging output.
+            - Move argparse command-line handling to a new file 'options.py'.
+            - Removes the short form '-z' of command-line option "debug mode".
+            - Improve implementation of command-line option '--dump-options'.
+
+            Fixes:
+            - Spelling, formatting and similar minor changes.
+
+
+2016-08-07  [autonameow v0.1.6]
+
+            Additions:
+            - Implement all target features in 'FilesystemAnalyzer' and add the
+              relevant tests, making it the first completed analyzer.
+            - Extend the "filename partitioning" to include a date-/timestamp.
+              Add and/or modify unit tests for extracting 'filenamepart_ts'.
+
+            Changes:
+            - Remove the 'Results' class in 'analysis.py' and substitute a
+              plain dictionary instead.
+            - Rename the actual value key in the results dictionary returned by
+              analyzers to "value", instead of the previous "datetime" and
+              "title" for datetime and title respectively.
+            - Rename 'file_object.py' to 'fileobject.py'.
+            - Extract file checks in '_handle_files' to method '_check_file'.
+            - Set the "quiet mode" ('-q', '--quiet') default to False.
+            - Set the "verbose mode" ('-v', '--verbose') default to False.
+
+            Fixes:
+            - Minor logging debug message grammar/spelling fixes.
+            - Fix bug where execution with no commad-line arguments causes
+              failed read of 'args.verbose'.
+
+
+2016-07-31  [autonameow v0.1.5]
+
+            Additions:
+            - Add new option '--list-title' which dumps all "title" information
+              from the analysis results. Similar to '--list-datetime'.
+            - Extend tests of "filename partitioning" in the 'FileObject' class.
+            - Add more unit tests;
+                - Start adding tests for the 'FilenameAnalyzer' class.
+                - Start adding tests for the 'FilesystemAnalyzer' class.
+            - Add new option '--list-all' which dumps all information
+
+            Changes:
+            - Replaced logging errors with assertions.
+            - Modify logging message levels to prefer lower level messages such
+              as "debug" and "info" before higher levels like "warning" and
+              "error".
+            - Extend matching "special case" pattern in 'dateandtime.py'.
+
+            Fixes:
+            - Remove commented/dead code, listed by class:
+                - FileObject: get_oldest_datetime, add_datetime.
+                - Analysis: filter_datetime, print_oldest_datetime.
+            - Optimize import statements.
+
+
+2016-07-23  [autonameow v0.1.4]
+
+            Additions:
+            - Extend tests for utility file system functions in 'diskutils.py'.
+            - Add test cases to tests of filename partitioning in 'FileObject'.
+            - Add assertions and remove unhelpful warning messages.
+
+            Changes:
+            - Various cleanup and formatting fixes.
+            - Remove debug print statement.
+            - Temporarily disable unicode encoding in 'sanitize_text'.
+
+            Fixes:
+            - Remove unused and unfinished code.
+                - Method 'prefix_date_to_filename'.
+                - Method 'print_oldest_datetime'.
+            - Fix incorrect usage of 'FileObject', modify to match new
+              attribute names and structure.
+            - Update how the 'FilenameAnalyzer' gets tags from filenames.
+              Now uses the "partitioned filename" methods in 'FileObject'.
+
+
+2016-07-22  [autonameow v0.1.3]
+
+            Additions:
+            - Add a very fancy ASCII art logo, created with "figlet".
+              Displayed only when using the '--verbose' option.
+            - Add tests for functions in 'dateandtime.py'.
+            - Move function 'filetype_magic' to the utility file system
+              functions in 'diskutils.py'.
+                - Add tests for 'filetype_magic' in 'diskutils.py'.
+            - Move responsability for basic file name operations to the utility
+              file system functions in 'diskutils.py'.
+                - Tests for getting file name extensions, file basename, etc.
+            - Tests for extracting "filetags" tags.
+
+            Changes:
+            - Modify startup "banner" text contents and overall appearance.
+            - Improve 'match_special_case' in 'dateandtime.py'.
+            - Rename 'match_unix_timestamp' to 'match_any_unix_timestamp'.
+            - Modify program exit message text.
+            - Class 'FileObject' now gets the file type magic from
+              'filetype_magic' in 'diskutils.py'.
+            - Remove unused variable 'originalfilename' in 'FileObject'.
+
+            Fixes:
+            - Change how "very special case" date format in filenames are
+              detected. This prevents duplicate results and is performant.
+            - Improve handling filenames, especially compound extensions
+              such as "filename.tar.gz" which does have the extension
+              ".gz" but when dealing with "filetags" it makes more sense to
+              treat all of ".tar.gz" as the extension/suffix.
+            - Spell my my last name properly in 'version.py'.
+              The encoding definition would allow using "ö", instead of
+              the cautious "o". ..right?
+
+
+2016-07-21  [autonameow v0.1.2]
+
+            Additions:
+            - Add parsing filetags from file names, as per the "filetags"
+              workflow. Adds 'get_tags' to the abstract analyzer class,
+              even though not all analyzer are suited to implement it.
+            - Add settings related to the "filetags" workflow to the
+              configuration file and default settings.
+            - Start adding unit tests for 'dateandtime.py'.
+            - Add utility file system functions 'diskutils.py'.
+                - Add tests for 'diskutils.py'.
+
+            Changes:
+            - Rename 'main.py' to 'autonameow.py'.
+            - Cleanup 'autonameow.py';
+                - Remove unused code.
+                - Rename variables and methods.
+                - Make functions out of non-class specific methods.
+            - Rename 'doc' directory to 'docs'.
+            - Redo the unit tests completely, use different structure.
+            - Add program termination message when using '--verbose'.
+            - Have 'file_object' instances use the functions in 'diskutils.py'
+              for getting their own filenames, etc. This makes it easier to
+              test "simple" disk I/O code -- no need to create
+              'file_object' instances.
+
+            Fixes:
+            - Improve matching UNIX timestamps in 'dateandtime.py'.
+
+
+2016-07-11  [autonameow v0.1.1]
+
+            Additions:
+            - Log the total execution time when using the '--verbose' option.
+            - Various improvements and additions to the debugging information
+              provided by "logging" when running with the '--debug' option.
+            - Add extra date/time search pattern to handle erroneous OCR text
+              results where "/" is returned as "7".
+            - Add extra date/time search pattern for filenames created by the
+              Chrome extension "Full Page Screen Capture".
+
+            Changes:
+            - Change logging level for no files specified.
+            - Modify logging levels. A number of 'info'-level messages are now
+              'debug'-level, motivated by reducing the overall output.
+            - Keyboard interrupt handling (ctrl-c) is now handled at a higer
+              level so that "most" interrupts are handled properly.
+            - Modify extracting date/time-information from filenames.  Adds
+              search-methods and modifies the order. Still not very good and
+              needs work.
+            - Modify the default configuration in 'default_config.py'.
+            - Modify how text is "sanitized" after extraction from documents,
+              currently only pdfs. Still very broken and needs to be fixed.
+
+            Fixes:
+            - Fix pdf page numbering in debug output.
+            - Fixes bug in PdfAnalyzer date/time-extraction where results from
+              'dt_regex' would end up in 'text_content_brute', leading to the
+              bruteforce results never reaching the results.
+            - Fix cases where pdf content  extraction with PyPdf2 would return
+              a single byte that counted as a successful extraction, preventing
+              any additional tries/extractors from being run.
+
+
+2016-07-08  [autonameow v0.1.0]
+            First actual version bump. Development up until now has been at
+            version v0.0.1. The code has now (barely) entered a state that
+            warrants versioning.
+
+            Additions:
+            - Project now has a change log.
+            - Basic alpha version of the main program, still severily lacking
+              in functionality, stability and consistency.
+
+            Changes:
+            - N/A
+
+            Fixes:
+            - N/A

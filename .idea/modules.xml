@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/autoname.iml" filepath="$PROJECT_DIR$/.idea/autoname.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../kapslar.git/.idea/kapslar.git.iml" filepath="$PROJECT_DIR$/../kapslar.git/.idea/kapslar.git.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../logdotmd/.idea/logdotmd.iml" filepath="$PROJECT_DIR$/../logdotmd/.idea/logdotmd.iml" />
+    </modules>
+  </component>
+</project>

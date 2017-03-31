@@ -1,0 +1,114 @@
+All date/time information for file:
+Date-/timestamp              #                          Source
+2015-05-18T16:43:08        002            pdf_metadata_ModDate
+                                          pdf_metadata_ModDate
+                                                              
+2016-04-23T15:14:19        002                     Fs_Accessed
+                                                   Fs_Accessed
+                                                              
+2010-03-15T20:10:00        001                 pdf_content_033
+2015-05-18T16:58:25        001                     Fs_Modified
+2009-12-20T00:00:00        001                 pdf_content_008
+2005-01-21T00:00:00        001                 pdf_content_035
+2005-02-11T00:00:00        001                 pdf_content_036
+2012-11-01T00:00:00        001                 pdf_content_019
+2010-03-01T00:00:00        001                 pdf_content_017
+2015-03-10T00:00:00        001                 pdf_content_014
+2012-12-20T00:00:00        001                 pdf_content_007
+2012-11-05T00:00:00        001                 pdf_content_026
+2003-01-01T00:00:00        001                 pdf_content_020
+2015-01-01T00:00:00        001                 pdf_content_021
+2000-01-01T00:00:00        001                 pdf_content_018
+2012-01-01T00:00:00        001                 pdf_content_011
+1991-01-20T00:00:00        001                 pdf_content_029
+1975-06-07T00:00:00        001                 pdf_content_003
+2003-10-20T00:00:00        001                 pdf_content_016
+2011-01-01T00:00:00        001                 pdf_content_028
+2010-01-01T00:00:00        001                 pdf_content_012
+1991-01-01T00:00:00        001                 pdf_content_022
+1970-01-01T01:00:40        001                 pdf_content_037
+2010-01-21T00:00:00        001                 pdf_content_025
+1977-01-01T00:00:00        001                 pdf_content_000
+2012-09-01T00:00:00        001                 pdf_content_030
+1975-07-06T00:00:00        001                 pdf_content_002
+2005-12-11T00:00:00        001                 pdf_content_023
+2012-09-12T00:00:00        001                 pdf_content_009
+2012-03-15T00:00:00        001                 pdf_content_031
+2012-12-09T00:00:00        001                 pdf_content_010
+2001-01-01T00:00:00        001                 pdf_content_006
+2010-03-15T20:00:00        001                 pdf_content_032
+2010-03-15T20:10:03        001                 pdf_content_034
+2015-10-03T00:00:00        001                 pdf_content_015
+2005-11-12T00:00:00        001                 pdf_content_004
+2014-01-01T00:00:00        001                 pdf_content_001
+2009-01-01T00:00:00        001                 pdf_content_024
+1970-01-01T01:00:50        001                 pdf_content_038
+2010-03-15T00:00:00        001                 pdf_content_013
+2005-01-01T00:00:00        001                 pdf_content_005
+2011-12-20T00:00:00        001                 pdf_content_027
+
+
+
+
+
+
+All date/time information for file:
+  #	 Date-/timestamp                                      Source
+002	 2015-05-18T16:43:08  <-----+---------  pdf_metadata_ModDate
+   	                             `--------  pdf_metadata_ModDate
+   	                                                            
+002	 2016-04-23T15:14:19  <-----+---------  Fs_Accessed
+   	                             `--------  Fs_Accessed
+   	                                                            
+001	 2010-03-15T20:10:00  <---------------  pdf_content_033
+001	 2015-05-18T16:58:25                    Fs_Modified
+001	 2009-12-20T00:00:00                    pdf_content_008
+001	 2005-01-21T00:00:00                    pdf_content_035
+001	 2005-02-11T00:00:00                    pdf_content_036
+001	 2012-11-01T00:00:00                    pdf_content_019
+001	 2010-03-01T00:00:00                    pdf_content_017
+001	 2015-03-10T00:00:00                    pdf_content_014
+001	 2012-12-20T00:00:00                    pdf_content_007
+001	 2012-11-05T00:00:00                    pdf_content_026
+001	 2003-01-01T00:00:00                    pdf_content_020
+001	 2015-01-01T00:00:00                    pdf_content_021
+001	 2000-01-01T00:00:00                    pdf_content_018
+001	 2012-01-01T00:00:00                    pdf_content_011
+001	 1991-01-20T00:00:00                    pdf_content_029
+001	 1975-06-07T00:00:00                    pdf_content_003
+001	 2003-10-20T00:00:00                    pdf_content_016
+
+
+
+
+
+Title  : Eclipse IDE Pocket Guide
+Author : Ed Burnette
+File: "/home/spock/dev/projects/autoname/test/Eclipse-IDE-Pocket-Guide_Burnette_OReilly-2005.pdf"
+All date/time information for file:
+Date-/timestamp              #                       Source(s)
+2005-01-01T00:00:00  ----- 003 ------------  Filename_brute_00
+                                    ``-----  Filename_brute_01
+                                     `-----    pdf_content_004
+                                                              
+2012-12-25T23:52:37  ----- 002 ---------  pdf_metadata_ModDate
+                                 `-  pdf_metadata_CreationDate
+                                                              
+2016-03-01T00:43:01  ----- 002 ------------------  Fs_Modified
+                                           `------  Fs_Created
+                                                              
+2010-02-11T00:00:00  ----- 001 --------------  pdf_content_009
+2010-02-01T00:00:00  ----- 001 --------------  pdf_content_008
+2011-02-10T00:00:00  ----- 001 --------------  pdf_content_010
+2010-01-02T00:00:00  ----- 001 --------------  pdf_content_007
+2011-01-01T00:00:00  ----- 001 --------------  pdf_content_002
+2012-02-01T00:00:00  ----- 001 --------------  pdf_content_013
+2014-01-01T00:00:00  ----- 001 --------------  pdf_content_003
+2001-01-01T00:00:00  ----- 001 --------------  pdf_content_001
+2001-01-02T00:00:00  ----- 001 --------------  pdf_content_000
+1970-01-01T03:06:07  ----- 001 --------------  pdf_content_006
+2010-11-02T00:00:00  ----- 001 --------------  pdf_content_011
+2016-03-01T00:43:00  ----- 001 --------------      Fs_Accessed
+2012-01-01T00:00:00  ----- 001 --------------  pdf_content_005
+2010-12-21T00:00:00  ----- 001 --------------  pdf_content_012
+
