@@ -48,7 +48,7 @@ fi
 (cd "$AUTONAMEOW_PATH") 2>/dev/null 
 if [ "$?" -ne "0" ]
 then
-    echo "[ERROR] Unable to cd to AUTONAMEOW_PATH: \"${SUBSHELL_PATH}\"" >&2
+    echo "[ERROR] Unable to cd to AUTONAMEOW_PATH: \"${AUTONAMEOW_PATH}\"" >&2
     exit 1
 fi
 
