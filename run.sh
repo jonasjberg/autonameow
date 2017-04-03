@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Make sure that Python 3 is available.
+if ! command -v python3 >/dev/null 2>&1
+then
+    echo "[ERROR] This program requires Python v3.x to run."
+    echo "        Please install python3 and make sure it is executable."
+    exit 1
+fi
 
 # The version of readlink shipped with MacOS does not have the '-f' option.
 # Description from the "readlink (GNU coreutils) 8.25" manpage:
