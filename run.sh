@@ -21,13 +21,16 @@ then
     exit 1
 fi
 
-# The version of readlink shipped with MacOS does not have the '-f' option.
-# Description from the "readlink (GNU coreutils) 8.25" manpage:
-#
-#   -f, --canonicalize
-#   canonicalize by following every symlink in every component of 
-#   the given name recursively; all but the last component must exist
 
+# Get the absolute path of the main module.
+#
+# NOTE: The version of readlink shipped with MacOS does not have the '-f'
+#       option. Description from the "readlink (GNU coreutils) 8.25" manpage:
+#
+#       -f, --canonicalize
+#       canonicalize by following every symlink in every component of
+#       the given name recursively; all but the last component must exist
+#
 if readlink --version 2>/dev/null | grep -q 'GNU coreutils'
 then
     # Using GNU coreutils version of readlink.
@@ -41,6 +44,7 @@ else
 fi
 
 
+# Make sure that the resulting path is accessible.
 (cd "$AUTONAMEOW_PATH") 2>/dev/null 
 if [ "$?" -ne "0" ]
 then
@@ -48,5 +52,7 @@ then
     exit 1
 fi
 
+
+# Execute the main module.
 python3 "${AUTONAMEOW_PATH}/autonameow" "$@"
 
