@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+# 'run.sh' -- autonameow launcher script
+# ======================================
+# This file is part of autonameow.
+# Copyright(c) 2016-2017 Jonas Sjöberg
+# https://github.com/jonasjberg
+# http://www.jonasjberg.com
+# University mail: js224eh[a]student.lnu.se
+#
+# Shell wrapper to use when executing autonameow from shortcuts, icons, desktop
+# environment, other scripts, etc.  You could also launch autonameow by
+# invoking Python directly, like so:  python3 <absolute path to main module>
+
+
 # Make sure that Python 3 is available.
 if ! command -v python3 >/dev/null 2>&1
 then
