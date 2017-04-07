@@ -17,3 +17,7 @@ apply a strict file naming convention uniformly and consistently.
 Refer to the [project wiki](https://github.com/1dv430/js224eh-project/wiki) for
 current project documentation and development status.
 
+
+See [`docs/install.md`](./docs/install.md) for a *(temporary)* guide to
+installing under Linux and MacOS.
+
