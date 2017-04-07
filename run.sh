@@ -34,7 +34,7 @@ fi
 if readlink --version 2>/dev/null | grep -q 'GNU coreutils'
 then
     # Using GNU coreutils version of readlink.
-    AUTONAMEOW_PATH="$(dirname -- "$(readlink -fn -- "$1")")"
+    AUTONAMEOW_PATH="$(dirname -- "$(readlink -fn -- "$0")")"
 else
     # Running on MacOS.
 
