@@ -36,7 +36,7 @@ then
     # Using GNU coreutils version of readlink.
     AUTONAMEOW_PATH="$(dirname -- "$(readlink -fn -- "$1")")"
 else
-    # Running on MacOS, resolving path with perl shim.
+    # Running on MacOS.
 
     # TODO: Untange symlinks and get an absolute path.
     AUTONAMEOW_PATH="$(dirname -- "$0")"
