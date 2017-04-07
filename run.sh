@@ -38,9 +38,8 @@ then
 else
     # Running on MacOS, resolving path with perl shim.
 
-    # TODO: This does not work properly for nested symlinks.
-    readlinkf() { perl -MCwd -e 'print Cwd::abs_path shift' "$1" ; }
-    AUTONAMEOW_PATH="$(dirname -- "$(readlinkf "$1")")"
+    # TODO: Untange symlinks and get an absolute path.
+    AUTONAMEOW_PATH="$(dirname -- "$0")"
 fi
 
 
