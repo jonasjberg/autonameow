@@ -37,6 +37,9 @@
 # IntelliJ
 /out/
 
+# Ignore all Intellij metadata
+.idea/*
+
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 
