@@ -21,6 +21,8 @@ Install these executables:
 
 * `python3` (3.x)
 * `libmagic`
+* `exiftool`
+* `tesseract`
 
 Install these Python modules:
 
@@ -42,13 +44,13 @@ command -v python3 2>&1 >/dev/null && echo OK
 
 Next, make sure you can execute `pip3`; the package manager that will be used
 to install the project dependencies. Also note that `homebrew` is used to
-install `libmagic`.
+install the non-Python dependencies.
 
 #### Installing the Dependencies
 Install the dependencies by running the following commands in a terminal:
 
 ```bash
-brew install libmagic
+brew install libmagic exiftool tesseract
 pip3 install colorama python-dateutil unidecode PyPDF2 pytesseract python-magic
 ```
 
@@ -67,6 +69,7 @@ which python3 || sudo apt-get install python3
 Install the dependencies by running the following commands in a terminal:
 
 ```bash
+apt install exiftool tesseract-ocr
 pip3 install colorama python-dateutil unidecode PyPDF2 pytesseract python-magic
 ```
 
