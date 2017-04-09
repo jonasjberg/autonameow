@@ -77,7 +77,7 @@ Alternatively, search the repositories for the packages with `apt-search`.
 Make sure to install the `python3-PACKAGE_NAME` versions, most packages are
 available for both `python2` and `python3`.
 
-### Windows
+### Instructions for Windows
 The `autonameow` project does not target any version of Windows.  Getting it
 running should not be all too difficult, the core `autonameow` code should run
 just fine on Windows.
