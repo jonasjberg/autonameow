@@ -1,3 +1,27 @@
+2017-04-xx  [autonameow v0.3.0]
+            Start developing the project during the course "1DV430 --
+            Individual Software Development Project", part of the "Software
+            Development and Operations" programme at Linnaeus University.
+
+            Bump version to version v0.3.0, which will be the first version to
+            contain changes made during the duration of the course.
+
+            Additions:
+            - Add Github-hosted project Wiki:
+              https://github.com/1dv430/js224eh-project/wiki
+
+            Changes:
+            - Make 'guessit' integration optional, silently ignore errors and
+              skip code that depend on the module if it is unavailable.
+
+            Fixes:
+            - Various cleanups of non-source files like documentation and notes.
+            - Overall restructuring of the project directory hierarchy.
+            - Improve wrapper launcher script 'run.sh'
+                - Better error-handling and overall robustness.
+                - Add OS-specific fixes for MacOS Sierra version '10.12.3' and
+                  Linux version '4.4.0-71-generic'.
+
 2016-12-19  [autonameow v0.2.2]
 
             Additions:
