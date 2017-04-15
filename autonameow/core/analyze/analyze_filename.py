@@ -7,7 +7,7 @@ import logging
 try:
     import guessit as guessit
 except ImportError:
-    pass
+    guessit = False
 
 from core.analyze.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
@@ -26,7 +26,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
     # @Overrides method in AbstractAnalyzer
     def run(self):
         # Arbitrary length check limits (very slow) calls to guessit.
-        if len(self.file_object.filenamepart_base) > 20 and guessit:
+        if guessit and len(self.file_object.filenamepart_base) > 20:
             self.guessit_metadata = self._get_metadata_from_guessit()
 
     # @Overrides method in AbstractAnalyzer
