@@ -20,7 +20,11 @@ class AbstractAnalyzer(object):
 
         get_func = getattr(self, func_name, None)
         if callable(get_func):
-            return get_func()
+            try:
+                return get_func()
+            except NotImplementedError as e:
+                logging.warning('Called unimplemented code')
+                return None
         else:
             logging.error('Invalid get parameter: {}'.format(str(field)))
             return None
