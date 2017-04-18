@@ -258,7 +258,7 @@ tags
 test_files/
 
 # Documentation
-*.pdf
+# *.pdf
 
 # Backup-files created by '2to3'
 *.bak
