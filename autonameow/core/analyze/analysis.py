@@ -195,18 +195,24 @@ class Analysis(object):
         """
         Prints all date/time-information for the current file.
         """
+
+        # TODO: [BL007] Move results printing to separate module/class.
         misc.dump(self.results['datetime'])
 
     def print_title_info(self):
         """
         Prints the title for the current file, if found.
         """
+
+        # TODO: [BL007] Move results printing to separate module/class.
         misc.dump(self.results['title'])
 
     def print_all_results_info(self):
         """
         Prints all analysis results for the current file.
         """
+
+        # TODO: [BL007] Move results printing to separate module/class.
         misc.dump(self.results)
 
     def get_datetime_by_alias(self, alias):
