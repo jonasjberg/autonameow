@@ -1,11 +1,11 @@
 # `autonameow` design document
 
 ```
-Copyright(c)2016 Jonas Sjoberg
-                 https://github.com/jonasjberg
-                 jomeganas@gmail.com
+Copyright(c)2016-2017 Jonas Sjoberg
+                      https://github.com/jonasjberg
+                      jomeganas@gmail.com
 
-Please see "LICENSE.md" for licensing details.
+Please see "LICENSE.txt" for licensing details.
 ```
 
 --------------------------------------------------------------------------------
