@@ -108,6 +108,7 @@ class Analysis(object):
         assert file_object is not None
         self.file_object = file_object
 
+        # TODO: [BL006] Reevaluate/redesign internal metadata storage format.
         self.results = {'datetime': {},
                         'publisher': {},
                         'title': {},
