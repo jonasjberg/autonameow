@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # This file is part of autonameow.
-# Copyright 2016, Jonas Sjoberg.
+# Copyright 2016-2017, Jonas Sjoberg.
 
 import dateutil
 import logging

@@ -1,5 +1,5 @@
 # This file is part of autonameow.
-# Copyright 2016, Jonas Sjoberg.
+# Copyright 2016-2017, Jonas Sjoberg.
 # -*- coding: utf-8 -*-
 
 # Filetags options
