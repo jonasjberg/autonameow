@@ -49,6 +49,7 @@ class VideoAnalyzer(AbstractAnalyzer):
     # @Overrides method in AbstractAnalyzer
     def get_title(self):
         # TODO: Implement.
+        # TODO: Extract exiftool metadata field 'title'.
         pass
 
     # @Overrides method in AbstractAnalyzer
