@@ -9,8 +9,7 @@
 #
 #   autonameow is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 3 of the License, or
-#   (at your option) any later version.
+#   the Free Software Foundation.
 #
 #   autonameow is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,5 +31,5 @@ __version__ = '0.2.2'
 __author__ = 'Jonas Sjöberg'
 __email__ = 'jomeganas[at]gmail.com'
 __url__ = 'www.jonasjberg.com'
-__license__ = 'TODO: Pick a license (any license) ..'
+__license__ = 'GNU General Public License Version 2'
 __copyright__ = 'Copyright \N{COPYRIGHT SIGN} 2016 Jonas Sjoberg'
