@@ -162,6 +162,11 @@ def init_argparser():
                         dest='dump_options',
                         action='store_true',
                         help='Dump options to stdout.')
+
+    parser.add_argument('--version',
+                        dest='show_version',
+                        action='store_true',
+                        help='Print program version and exit.')
     return parser
 
 

@@ -110,12 +110,14 @@ class Autonameow(object):
         # Handle the command line arguments.
         self.args = options.parse_args(self.opts)
 
+        # Display startup banner with program version and exit.
+        if self.args.show_version:
+            display_start_banner()
+            self.exit_program(0)
+
         # Setup results filtering
         self.filter = ResultFilter().configure_filter(self.args)
 
-        # Display startup banner and other information if applicable.
-        if self.args.verbose:
-            display_start_banner()
         if self.args.dump_options:
             options.prettyprint_options(self.args)
 
