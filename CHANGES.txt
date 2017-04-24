@@ -1,4 +1,4 @@
-2017-04-xx  [autonameow v0.3.0]
+2017-04-24  [autonameow v0.3.0]
             Start developing the project during the course "1DV430 --
             Individual Software Development Project", part of the "Software
             Development and Operations" programme at Linnaeus University.
@@ -9,10 +9,15 @@
             Additions:
             - Add Github-hosted project Wiki:
               https://github.com/1dv430/js224eh-project/wiki
+            - Added prototype integration test; 'tests/run_integration_1.sh'.
+            - Add new option '--version' that displays the program version
+              and exits. This is now the only use of the ASCII-art banner.
 
             Changes:
             - Make 'guessit' integration optional, silently ignore errors and
               skip code that depend on the module if it is unavailable.
+            - Add explicit licensing with GNU General Public License (v2).
+              https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
             Fixes:
             - Various cleanups of non-source files like documentation and notes.
@@ -21,6 +26,10 @@
                 - Better error-handling and overall robustness.
                 - Add OS-specific fixes for MacOS Sierra version '10.12.3' and
                   Linux version '4.4.0-71-generic'.
+            - Add simple handling of NotImplementedError exceptions thrown in
+              the abstract analyzer base class when an unimplemented field
+              attribute getter is called.
+            - Fixed various failing unit tests.
 
 2016-12-19  [autonameow v0.2.2]
 
