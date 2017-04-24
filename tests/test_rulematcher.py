@@ -19,11 +19,14 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 from unittest import TestCase
 
 from core.evaluate.matcher import RuleMatcher
 from core.fileobject import FileObject
 from core import config_defaults
+from utils import abspath_testfile
 
 RULES = config_defaults.rules
 
@@ -32,8 +35,16 @@ class TestRuleMatcher(TestCase):
     def setUp(self):
         pass
 
+    def test_setup(self):
+        pass
+
     def test_rule_matches_record_my_desktop(self):
-        fo = FileObject('../test_files/recordmydesktop.ogv')
+        _file = abspath_testfile('recordmydesktop.ogv')
+        self.assertTrue(os.path.isfile(_file))
+
+        fo = FileObject(_file)
+        self.assertIsNotNone(fo)
+
         rm = RuleMatcher(fo, RULES)
         self.assertEqual('record_my_desktop', rm._active_rule_key)
 
