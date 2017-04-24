@@ -40,7 +40,7 @@ class AbstractAnalyzer(object):
             try:
                 return get_func()
             except NotImplementedError as e:
-                logging.warning('Called unimplemented code')
+                logging.warning('Called unimplemented code: {}'.format(func_name))
                 return None
         else:
             logging.error('Invalid get parameter: {}'.format(str(field)))
