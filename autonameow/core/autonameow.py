@@ -108,7 +108,6 @@ class Autonameow(object):
             self.exit_program(0)
 
         # Handle the command line arguments.
-        # TODO: What is parsed and why? opts or args? Where does it end up?
         self.args = options.parse_args(self.opts)
 
         # Setup results filtering
