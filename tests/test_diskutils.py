@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 from unittest import TestCase
 
 from core.util import diskutils
@@ -140,41 +139,3 @@ class TestFileBase(TestCase):
         self.assertEqual('.filename', diskutils.file_base('.filename.tar.lzo'))
 
 
-class TestFileTypeMagic(TestCase):
-    def setUp(self):
-        os.chdir(os.path.abspath(os.path.dirname(__file__)))
-
-        self.test_files = [('magic_bmp.bmp', 'bmp'),
-                           ('magic_gif.gif', 'gif'),
-                           ('magic_jpg.jpg', 'jpg'),
-                           ('magic_mp4.mp4', 'mp4'),
-                           ('magic_pdf.pdf', 'pdf'),
-                           ('magic_png.png', 'png'),
-                           ('magic_txt', 'txt'),
-                           ('magic_txt.md', 'txt'),
-                           ('magic_txt.txt', 'txt')]
-
-    def test_test_files_defined(self):
-        for fname, fmagic in self.test_files:
-            self.assertIsNotNone(fname)
-            self.assertIsNotNone(fmagic)
-            self.assertTrue(len(fname) > 0)
-            self.assertTrue(len(fmagic) > 0)
-
-    def test_test_files_exist(self):
-        for fname, _ in self.test_files:
-            self.assertTrue(os.path.isfile(fname))
-
-    def test_test_files_are_readable(self):
-        for fname, _ in self.test_files:
-            self.assertTrue(os.access(fname, os.R_OK))
-
-    def test_filetype_magic(self):
-        for fname, fmagic in self.test_files:
-            self.assertIsNotNone(diskutils.filetype_magic(fname))
-            self.assertEqual(fmagic, diskutils.filetype_magic(fname))
-
-    def test_filetype_magic_with_invalid_args(self):
-        self.assertIsNone(diskutils.filetype_magic(None))
-        self.assertIsNone(diskutils.filetype_magic(' '))
-        self.assertIsNone(diskutils.filetype_magic(os.path.dirname(__file__)))
