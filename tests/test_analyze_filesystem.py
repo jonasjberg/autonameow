@@ -77,7 +77,7 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         dt_created, = filter(lambda dt: dt['source'] == 'created',
                              self.fsa.get_datetime())
 
-        expected = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
+        expected = datetime.strptime('20170415 025614', '%Y%m%d %H%M%S')
         self.assertEqual(expected, dt_created.get('value'))
 
     def test_get_datetime_contains_filesystem_accessed(self):
@@ -89,7 +89,7 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         dt_accessed, = filter(lambda dt: dt['source'] == 'accessed',
                               self.fsa.get_datetime())
 
-        expected = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
+        expected = datetime.strptime('20170415 025614', '%Y%m%d %H%M%S')
         self.assertEqual(expected, dt_accessed.get('value'))
 
     def test_get_title_should_return_none(self):
@@ -103,8 +103,8 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
 
     def test__get_datetime_from_filesystem(self):
         expect_dt_mod = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
-        expect_dt_cre = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
-        expect_dt_acc = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
+        expect_dt_cre = datetime.strptime('20170415 025614', '%Y%m%d %H%M%S')
+        expect_dt_acc = datetime.strptime('20170415 025614', '%Y%m%d %H%M%S')
         expect_list = [{'value': expect_dt_mod,
                         'source': 'modified',
                         'weight': 1},
