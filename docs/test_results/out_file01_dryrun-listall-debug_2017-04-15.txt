@@ -1,0 +1,164 @@
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m parse_args                (194) [90m -- [39mUsing default operating mode: [interactive mode].                                                                       
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m configure_filter          ( 45) [90m -- [39mUsing filter: ignore date/time-information that predate year 1900                                                       
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m configure_filter          ( 56) [90m -- [39mUsing filter: ignore date/time-information that follow year 2018                                                        
+[90m2017-04-15 20:00:12[39m[94m INFO    [39m _handle_files             (127) [90m -- [39mProcessing file "2017-04-03T212516 Gibson is undoubtedly the best cat ever -- dev screenshot macbookpro.png"            
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m __init__                  ( 28) [90m -- [39mFileObject path: /Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/tests/2017-04-03T212516 Gib
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m __init__                  (123) [90m -- [39mFile is of type [png]                                                                                                   
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m _populate_run_queue       (151) [90m -- [39mAppending "<class 'core.analyze.analyze_image.ImageAnalyzer'>" to analysis run queue                                    
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m _execute_run_queue        (169) [90m -- [39mExecuting analysis run queue item [1/3]                                                                                 
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m run                       ( 33) [90m -- [39mExtracting EXIF data ..                                                                                                 
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m call                      (135) [90m -- [39mSTREAM b'IHDR' 16 13                                                                                                    
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m call                      (135) [90m -- [39mSTREAM b'bKGD' 41 6                                                                                                     
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m _open                     (542) [90m -- [39mb'bKGD' 41 6 (unknown)                                                                                                  
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m call                      (135) [90m -- [39mSTREAM b'pHYs' 59 9                                                                                                     
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m call                      (135) [90m -- [39mSTREAM b'tIME' 80 7                                                                                                     
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m _open                     (542) [90m -- [39mb'tIME' 80 7 (unknown)                                                                                                  
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m call                      (135) [90m -- [39mSTREAM b'IDAT' 99 8192                                                                                                  
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m _get_exif_data            (201) [90m -- [39mPIL image EXIF extraction error: ("'PngImageFile' object has no attribute '_getexif'",)                                 
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m _get_exif_data            (203) [90m -- [39mUnable to extract EXIF data.                                                                                            
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m call                      (135) [90m -- [39mSTREAM b'IHDR' 16 13                                                                                                    
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m call                      (135) [90m -- [39mSTREAM b'bKGD' 41 6                                                                                                     
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m _open                     (542) [90m -- [39mb'bKGD' 41 6 (unknown)                                                                                                  
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m call                      (135) [90m -- [39mSTREAM b'pHYs' 59 9                                                                                                     
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m call                      (135) [90m -- [39mSTREAM b'tIME' 80 7                                                                                                     
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m _open                     (542) [90m -- [39mb'tIME' 80 7 (unknown)                                                                                                  
+[90m2017-04-15 20:00:12[39m[94m DEBUG   [39m call                      (135) [90m -- [39mSTREAM b'IDAT' 99 8192                                                                                                  
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m _get_text_from_ocr        (267) [90m -- [39mExtracted [115] bytes of text                                                                                           
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m _get_exif_datetime        ( 84) [90m -- [39mFound no EXIF data in file "/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/tests/2017-04-03
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m regex_search_str          (252) [90m -- [39mRegex matcher found [ 0 ] matches.                                                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m _get_ocr_datetime         (299) [90m -- [39mTry getting datetime from text split by newlines                                                                        
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (428) [90m -- [39mUnable to continue -- text contains insufficient number of digits.                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (428) [90m -- [39mUnable to continue -- text contains insufficient number of digits.                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (428) [90m -- [39mUnable to continue -- text contains insufficient number of digits.                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (428) [90m -- [39mUnable to continue -- text contains insufficient number of digits.                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (428) [90m -- [39mUnable to continue -- text contains insufficient number of digits.                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (428) [90m -- [39mUnable to continue -- text contains insufficient number of digits.                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (423) [90m -- [39mUnable to continue, text is too short.                                                                                  
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (423) [90m -- [39mUnable to continue, text is too short.                                                                                  
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (423) [90m -- [39mUnable to continue, text is too short.                                                                                  
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (428) [90m -- [39mUnable to continue -- text contains insufficient number of digits.                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (428) [90m -- [39mUnable to continue -- text contains insufficient number of digits.                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (423) [90m -- [39mUnable to continue, text is too short.                                                                                  
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m _get_ocr_datetime         (315) [90m -- [39mFound no date/time-information in OCR text.                                                                             
+[90m2017-04-15 20:00:13[39m[94m WARNING [39m get                       ( 26) [90m -- [39mCalled unimplemented code                                                                                               
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m _execute_run_queue        (169) [90m -- [39mExecuting analysis run queue item [2/3]                                                                                 
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m _get_datetime_from_filesy ( 92) [90m -- [39mFetching file system timestamps ..                                                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m _get_datetime_from_filesy (115) [90m -- [39mGot [ 3 ] timestamps from the filesystem.                                                                               
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m _execute_run_queue        (169) [90m -- [39mExecuting analysis run queue item [3/3]                                                                                 
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m match_special_case        (281) [90m -- [39mFailed matching very special case.                                                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m match_special_case        (284) [90m -- [39mMatched very special case: [2017-04-03 21:25:16]                                                                        
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m match_any_unix_timestamp  (362) [90m -- [39mProbably not a UNIX timestamp -- does not contain 10-13 consecutive digits.                                             
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m regex_search_str          (231) [90m -- [39mExtracted datetime from text: [2017-04-03 00:00:00]                                                                     
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m regex_search_str          (252) [90m -- [39mRegex matcher found [ 1 ] matches.                                                                                      
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m validate_result           (416) [90m -- [39mExtracted datetime from text: [2017-04-03 00:00:00]                                                                     
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m validate_result           (416) [90m -- [39mExtracted datetime from text: [2017-04-01 00:00:00]                                                                     
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m validate_result           (416) [90m -- [39mExtracted datetime from text: [2017-01-01 00:00:00]                                                                     
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m bruteforce_str            (501) [90m -- [39mFirst matcher found  [  3] matches after [  14] tries.                                                                  
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m __init__                  ( 33) [90m -- [39mInitialized RuleMatcher [<core.evaluate.matcher.RuleMatcher object at 0x10218d4a8>] with rules "{'record_my_desktop': {'
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m _determine_active_rule_ke ( 91) [90m -- [39mName regex in rule does not match                                                                                       
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m _determine_active_rule_ke (116) [90m -- [39mRule [filetagsscreenshot  ] matches file "/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/te
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m __init__                  ( 38) [90m -- [39mFile matches rule: filetagsscreenshot                                                                                   
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m exit_program              (209) [90m -- [39mExiting with exit code: 0                                                                                               
+[90m2017-04-15 20:00:13[39m[94m DEBUG   [39m exit_program              (211) [90m -- [39mTotal execution time: 1.427906 seconds                                                                                  
+File: "/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/tests/2017-04-03T212516 Gibson is undoubtedly the best cat ever -- dev screenshot macbookpro.png"
+{
+   datetime:
+   {
+      ImageAnalyzer:
+      [
+      ]
+      FilesystemAnalyzer:
+      [
+         {
+            value: 2017-04-15 19:46:53
+            source:
+            modified
+            weight: 1
+         }
+         {
+            value: 2017-04-15 19:46:54
+            source:
+            created
+            weight: 1
+         }
+         {
+            value: 2017-04-15 20:00:12
+            source:
+            accessed
+            weight: 0.25
+         }
+      ]
+      FilenameAnalyzer:
+      [
+         {
+            value: 2017-04-03 21:25:16
+            source:
+            very_special_case
+            weight: 1
+         }
+         {
+            value: 2017-04-03 00:00:00
+            source:
+            regex_search
+            weight: 0.25
+         }
+         {
+            value: 2017-04-03 00:00:00
+            source:
+            bruteforce_search
+            weight: 0.1
+         }
+         {
+            value: 2017-04-01 00:00:00
+            source:
+            bruteforce_search
+            weight: 0.1
+         }
+         {
+            value: 2017-01-01 00:00:00
+            source:
+            bruteforce_search
+            weight: 0.1
+         }
+      ]
+   }
+   publisher:
+   {
+      ImageAnalyzer: None
+      FilesystemAnalyzer: None
+      FilenameAnalyzer: None
+   }
+   title:
+   {
+      ImageAnalyzer: None
+      FilesystemAnalyzer: None
+      FilenameAnalyzer:
+      [
+         {
+            value:
+            Gibson is undoubtedly the best cat ever
+            source:
+            filenamepart_base
+            weight: 1
+         }
+      ]
+   }
+   tags:
+   {
+      ImageAnalyzer: None
+      FilesystemAnalyzer: None
+      FilenameAnalyzer:
+      [
+         dev
+         screenshot
+         macbookpro
+      ]
+   }
+   author:
+   {
+      ImageAnalyzer: None
+      FilesystemAnalyzer: None
+      FilenameAnalyzer: None
+   }
+}
+

@@ -1,0 +1,124 @@
+[90m2017-04-18 11:49:50[39m[94m INFO    [39m[90m -- [39mProcessing file "2017-04-03T212516 Gibson is undoubtedly the best cat ever -- dev screenshot macbookpro.png"                      
+[90m2017-04-18 11:49:51[39m[94m WARNING [39m[90m -- [39mCalled unimplemented code                                                                                                         
+[94m
+   ###   ### ### ####### #####  ###  ##   ###   ##   ## ####### #####  ### ###
+  #####  ### ###   ###  ### ### #### ##  #####  # # ### ####   ####### ### ###
+ ### ### ### ###   ###  ### ### ####### ### ### ####### ###### ### ### #######
+ ####### #######   ###  ####### ### ### ####### ### ### ####   ### ### ### ###
+ ### ###  ### ##   ###   #####  ### ### ### ### ### ### ####### #####  ##   ##
+    [39m
+ [44m[30m autonameow [49m[39m  version 0.2.2                    Copyright © 2016 Jonas Sjoberg
+                                                            www.jonasjberg.com
+                                                        jomeganas[at]gmail.com
+
+[90mStarted at 2017-04-18 11:49:50 by jonas on Linux Skylake 4.4.0-72-generic[39m
+File: "/home/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/tests/2017-04-03T212516 Gibson is undoubtedly the best cat ever -- dev screenshot macbookpro.png"
+{
+   datetime:
+   {
+      ImageAnalyzer:
+      [
+      ]
+      FilesystemAnalyzer:
+      [
+         {
+            value: 2017-04-15 19:46:53
+            source:
+            modified
+            weight: 1
+         }
+         {
+            value: 2017-04-15 19:46:55
+            source:
+            created
+            weight: 1
+         }
+         {
+            value: 2017-04-15 19:46:55
+            source:
+            accessed
+            weight: 0.25
+         }
+      ]
+      FilenameAnalyzer:
+      [
+         {
+            value: 2017-04-03 21:25:16
+            source:
+            very_special_case
+            weight: 1
+         }
+         {
+            value: 2017-04-03 00:00:00
+            source:
+            regex_search
+            weight: 0.25
+         }
+         {
+            value: 2017-04-03 00:00:00
+            source:
+            bruteforce_search
+            weight: 0.1
+         }
+         {
+            value: 2017-04-01 00:00:00
+            source:
+            bruteforce_search
+            weight: 0.1
+         }
+         {
+            value: 2017-01-01 00:00:00
+            source:
+            bruteforce_search
+            weight: 0.1
+         }
+      ]
+   }
+   author:
+   {
+      ImageAnalyzer: None
+      FilesystemAnalyzer: None
+      FilenameAnalyzer: None
+   }
+   title:
+   {
+      ImageAnalyzer: None
+      FilesystemAnalyzer: None
+      FilenameAnalyzer:
+      [
+         {
+            value:
+            Gibson is undoubtedly the best cat ever
+            source:
+            guessit
+            weight: 0.75
+         }
+         {
+            value:
+            Gibson is undoubtedly the best cat ever
+            source:
+            filenamepart_base
+            weight: 1
+         }
+      ]
+   }
+   publisher:
+   {
+      ImageAnalyzer: None
+      FilesystemAnalyzer: None
+      FilenameAnalyzer: None
+   }
+   tags:
+   {
+      ImageAnalyzer: None
+      FilesystemAnalyzer: None
+      FilenameAnalyzer:
+      [
+         dev
+         screenshot
+         macbookpro
+      ]
+   }
+}
+
+[90mStopped at 2017-04-18 11:49:51 (total execution time: 0.805470 seconds) with exit code [0][39m
