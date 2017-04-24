@@ -22,12 +22,15 @@
 import logging
 
 from core.util import misc
+from core.analyze.analyze_filename import FilenameAnalyzer
+from core.analyze.analyze_filesystem import FilesystemAnalyzer
+
+# NOTE: Below imports needed by unit tests, do not "optimize".
 from core.analyze.analyze_pdf import PdfAnalyzer
 from core.analyze.analyze_image import ImageAnalyzer
 from core.analyze.analyze_text import TextAnalyzer
 from core.analyze.analyze_video import VideoAnalyzer
-from core.analyze.analyze_filename import FilenameAnalyzer
-from core.analyze.analyze_filesystem import FilesystemAnalyzer
+
 
 # Collect all analyzers from their class name.
 _ALL_ANALYZER_CLASSES = [
