@@ -33,6 +33,7 @@ class RuleMatcher(object):
         This class is in very bad shape and a work in progress.
         TODO: Fix everything! It's just all so very hacky! *SO SO VERY HACKY*
     """
+    # TODO: [BL004] Implement reading user configuration from config files.
     def __init__(self, file_object, rules):
         """
         RuleMatcher initialization.
