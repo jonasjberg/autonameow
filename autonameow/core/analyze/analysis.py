@@ -205,6 +205,7 @@ class Analysis(object):
             # analyzer which produced the results.
             # TODO: Rework how this is done. Fetching the results from the
             #       RuleMatcher is cumbersome with this storage-scheme.
+            # TODO: [BL006] Reevaluate/redesign internal metadata storage format.
             self.results['datetime'][a.__class__.__name__] = a.get('datetime')
             self.results['title'][a.__class__.__name__] = a.get('title')
             self.results['tags'][a.__class__.__name__] = a.get('tags')
