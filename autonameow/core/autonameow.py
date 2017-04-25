@@ -150,17 +150,19 @@ class Autonameow(object):
                 # Begin analysing the file.
                 analysis = Analysis(current_file)
 
-                # TODO: Fix this here below temporary printing of results.
+                # TODO: [BL007] Move results printing to separate module/class.
                 if self.args.list_datetime:
                     print(('File: "{}"'.format(current_file.path)))
                     analysis.print_all_datetime_info()
                     print('')
 
+                # TODO: [BL007] Move results printing to separate module/class.
                 if self.args.list_title:
                     print(('File: "{}"'.format(current_file.path)))
                     analysis.print_title_info()
                     print('')
 
+                # TODO: [BL007] Move results printing to separate module/class.
                 if self.args.list_all:
                     print(('File: "{}"'.format(current_file.path)))
                     analysis.print_all_results_info()
