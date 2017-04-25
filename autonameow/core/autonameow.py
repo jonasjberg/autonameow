@@ -187,7 +187,7 @@ class Autonameow(object):
                         logging.info('Automagically built filename: '
                                      '"{}"'.format(name_builder.new_name))
                     else:
-                        # TODO: Do actual file renaming.
+                        # TODO: [BL011] Rename files.
                         pass
 
                 elif self.args.interactive:
