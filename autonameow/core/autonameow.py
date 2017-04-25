@@ -178,6 +178,7 @@ class Autonameow(object):
 
                 if self.args.automagic:
                     # Create a name builder.
+                    # TODO: [BL010] Implement NameBuilder.
                     name_builder = NameBuilder(current_file, analysis.results,
                                                rule_matcher.active_rule)
                     name_builder.build()

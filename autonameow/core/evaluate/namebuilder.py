@@ -32,6 +32,7 @@ class NameBuilder(object):
     from 'analysis_results'.
     The rule also specifies which data from 'analysis_results' is to be used.
     """
+    # TODO: [BL010] Implement NameBuilder.
     def __init__(self, file_object, analysis_results, rule):
         assert isinstance(file_object, FileObject)
         # assert isinstance(analysis_results, dict)
@@ -52,6 +53,7 @@ class NameBuilder(object):
         :param analysis_results:
         :return:
         """
+        # TODO: [BL010] Implement NameBuilder.
 
         def get_field_by_alias(field, alias):
             logging.debug('Trying to get "field" by "alias": '
@@ -94,12 +96,14 @@ class NameBuilder(object):
 
     def _fill_template(self, populated_fields, rule):
         # TODO: Finish this method. Very much a work in progress.
+        # TODO: [BL010] Implement NameBuilder.
         if populated_fields is not None:
             return rule['new_name_template'] % populated_fields
         else:
             return None
 
     def build(self):
+        # TODO: [BL010] Implement NameBuilder.
         self.fields = self._populate_fields(self.analysis_results, self.rule)
         self.new_name = self._fill_template(self.fields, self.rule)
         print('-' * 78)
