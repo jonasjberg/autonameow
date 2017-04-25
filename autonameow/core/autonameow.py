@@ -192,6 +192,7 @@ class Autonameow(object):
 
                 elif self.args.interactive:
                     # Create a interactive interface.
+                    # TODO: [BL013] Interactive mode in 'interactive.py'.
                     pass
 
     def _check_file(self, file):
