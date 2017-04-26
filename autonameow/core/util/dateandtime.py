@@ -426,8 +426,8 @@ def bruteforce_str(text):
     bruteforce_str.matches = bruteforce_str.matches_total = 0
 
     # Internal function checks result, adds to list of results if OK.
-    # TODO: Include number of tries in the result to act as a weight;
-    #       lower numbers more probable to be true positives.
+    # TODO: [BL002] Include number of tries in the result to act as a weight;
+    #               lower numbers more probable to be true positives.
     def validate_result(dt):
         if date_is_probable(dt):
             logging.debug('Extracted datetime from text: [{}]'.format(dt))
@@ -509,8 +509,8 @@ def bruteforce_str(text):
         except ValueError:
             pass
         else:
-            # TODO: Include number of tries in the result to act as a weight;
-            #       lower numbers more probable to be true positives.
+            # TODO: [BL002] Include number of tries in the result to act as a
+            #       weight; lower numbers more probable to be true positives.
             validate_result(dt)
 
     if results:
@@ -568,8 +568,8 @@ def bruteforce_str(text):
             except ValueError:
                 pass
             else:
-                # TODO: Include number of tries in the result to act as a weight;
-                #       lower numbers more probable to be true positives.
+                # TODO: [BL002] Include number of tries in the result to act as a
+                #       weight; lower numbers more probable to be true positives.
                 validate_result(dt)
 
         # logging.debug('Gave up after %d tries ..'.format(tries))
@@ -602,8 +602,9 @@ def bruteforce_str(text):
                 except ValueError:
                     pass
                 else:
-                    # TODO: Include number of tries in the result to act as a weight;
-                    #       lower numbers more probable to be true positives.
+                    # TODO: [BL002] Include number of tries in the result to
+                    #       act as a weight; lower numbers more probable to be
+                    #       true positives.
                     validate_result(dt)
 
             # logging.debug('Gave up after {} tries ..'.format(tries))
