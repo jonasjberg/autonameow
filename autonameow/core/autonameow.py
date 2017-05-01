@@ -40,6 +40,8 @@ from core.evaluate.namebuilder import NameBuilder
 from core.fileobject import FileObject
 
 terminal_width = 100
+PYTHON_VERSION = sys.version.replace('\n', '')
+HOSTNAME = ' '.join(platform.uname()[:3])
 
 
 def display_start_banner():
@@ -108,6 +110,14 @@ class Autonameow(object):
 
         # Handle the command line arguments.
         self.args = options.parse_args(self.opts)
+
+        # Display detailed information in debug mode.
+        if self.args.debug:
+            logging.debug('Started {} version {}'.format(version.__title__,
+                                                         version.__version__))
+            logging.debug('Running on Python {}'.format(PYTHON_VERSION))
+            logging.debug('Hostname: {}'.format(HOSTNAME))
+            logging.debug('Process ID: {}'.format(os.getpid()))
 
         # Display startup banner with program version and exit.
         if self.args.show_version:
