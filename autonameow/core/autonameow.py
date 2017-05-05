@@ -42,6 +42,7 @@ from core.fileobject import FileObject
 terminal_width = 100
 PYTHON_VERSION = sys.version.replace('\n', '')
 HOSTNAME = ' '.join(platform.uname()[:3])
+PROGNAME = version.__title__
 
 
 def display_start_banner():
@@ -60,7 +61,7 @@ def display_start_banner():
  ### ###  ### ##   ###   #####  ### ### ### ### ### ### ####### #####  ##   ##
     ''' + Fore.RESET))
     colortitle = Back.BLUE + Fore.BLACK + ' ' + \
-        version.__title__.lower() + ' ' + Back.RESET + Fore.RESET
+        PROGNAME.lower() + ' ' + Back.RESET + Fore.RESET
     toplineleft = ' {title}  version {ver}'.format(title=colortitle,
                                                    ver=version.__version__)
     toplineright = version.__copyright__
@@ -113,7 +114,7 @@ class Autonameow(object):
 
         # Display detailed information in debug mode.
         if self.args.debug:
-            logging.debug('Started {} version {}'.format(version.__title__,
+            logging.debug('Started {} version {}'.format(PROGNAME,
                                                          version.__version__))
             logging.debug('Running on Python {}'.format(PYTHON_VERSION))
             logging.debug('Hostname: {}'.format(HOSTNAME))
