@@ -31,7 +31,7 @@ from colorama import Fore
 from datetime import datetime
 
 from . import version
-from core import config_defaults
+from core import config_defaults, config
 from core import options
 from core.analyze.analysis import Analysis
 from core.evaluate.filter import ResultFilter
@@ -124,6 +124,24 @@ class Autonameow(object):
         if self.args.show_version:
             display_start_banner()
             self.exit_program(0)
+
+        # Check configuration file. If no alternate config file path is
+        # provided and no config file is found at default paths; copy the
+        # template config and tell the user.
+        # TODO: [BL004] Implement storing settings in configuration file.
+        if not self.args.config_path:
+            if not config.has_config_file():
+                logging.warning('No configuration file was found.')
+
+                _new_config = config.write_default_config()
+                if _new_config:
+                    logging.info('A configuration file template with example '
+                                 'settings has been written to '
+                                 '"{}"'.format(str(_new_config)))
+                    logging.info('Use this file to configure {}.'.format(PROGNAME))
+                else:
+                    logging.error('Unable to write template config file')
+                    # TODO: Handle this ..
 
         # Setup results filtering
         self.filter = ResultFilter().configure_filter(self.args)
