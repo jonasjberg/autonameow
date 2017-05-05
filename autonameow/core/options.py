@@ -21,6 +21,7 @@
 
 import argparse
 import logging
+import os
 
 from colorama import Fore
 
@@ -42,6 +43,26 @@ def arg_is_year(value):
             if len(str(ivalue)) == 4 and ivalue >= 0:
                 return ivalue
     raise argparse.ArgumentTypeError('"{}" is not a valid year'.format(value))
+
+
+def arg_is_readable_file(arg):
+    """
+    Used by argparse to validate argument is a readable file.
+    Handles expansion of '~' into the proper user "$HOME" directory.
+    Throws an exception if the checks fail. Exception is caught by argparse.
+
+    Args:
+        arg: The argument to validate.
+
+    Returns: The expanded absolute path specified by "arg" if valid.
+
+    """
+    if os.path.exists(arg) and os.path.isfile(arg) and os.access(arg, os.R_OK):
+        if arg.startswith('~/'):
+            arg = os.path.expanduser(arg)
+        return os.path.normpath(os.path.abspath(arg))
+
+    raise argparse.ArgumentTypeError('Invalid file: "{}"'.format(str(arg)))
 
 
 def init_argparser():
@@ -172,6 +193,7 @@ def init_argparser():
                         dest='config_path',
                         metavar='CONFIG_PATH',
                         nargs=1,
+                        type=arg_is_readable_file,
                         help='Use configuration file at CONFIG_PATH instead '
                              'of the default configuration file.')
     return parser
