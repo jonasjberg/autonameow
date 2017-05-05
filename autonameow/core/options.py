@@ -167,6 +167,13 @@ def init_argparser():
                         dest='show_version',
                         action='store_true',
                         help='Print program version and exit.')
+
+    parser.add_argument('--config-path',
+                        dest='config_path',
+                        metavar='CONFIG_PATH',
+                        nargs=1,
+                        help='Use configuration file at CONFIG_PATH instead '
+                             'of the default configuration file.')
     return parser
 
 
