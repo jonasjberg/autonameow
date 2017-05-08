@@ -112,6 +112,22 @@ assert_false()
     fi
 }
 
+current_unix_time()
+{
+    # The 'date' command differs between versions; the GNU coreutils version
+    # uses '+%N' to print nanoseconds, which is missing in the BSD version
+    # shipped with MacOS.  Circumvent hackily by inlining Python call ..
+    #
+    # NOTE: This should probably only be done once for performance.
+    #       Lets just assume we're mostly interested in relative measurements.
+
+    case "$OSTYPE" in
+        linux*) python -c 'import time ; t="%.9f"%time.time() ; print t.replace(".","")';;
+        linux*) date "+%s%N" ;;
+             *) ;; # Unsupported OS ..
+    esac
+}
+
 
 
 # Test Cases
