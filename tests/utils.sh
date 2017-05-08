@@ -40,10 +40,11 @@ fi
 
 # Get absolute path to the log file, used by all sourcing scripts.
 _LOGFILE_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
-LOGFILE="${_LOGFILE_DIR}/${_LOGFILE_TIMESTAMP}.raw"
-if [ -f "$LOGFILE" ]
+AUTONAMEOW_TEST_LOG="${_LOGFILE_DIR}/${_LOGFILE_TIMESTAMP}.raw"
+if [ -f "$AUTONAMEOW_TEST_LOG" ]
 then
-    echo "NOTE: File exists: \"${LOGFILE}\" .. " >&2
+    # echo "NOTE: File exists: \"${AUTONAMEOW_TEST_LOG}\" .. " >&2
+    true
 fi
 
 
@@ -54,12 +55,12 @@ tests_failed=0
 
 
 
-# Print message to stdout and append message to LOGFILE.
+# Print message to stdout and append message to AUTONAMEOW_TEST_LOG.
 # ANSI escape codes are allowed and included in the log file.
 logmsg()
 {
     local _timestamp="$(date "+%Y-%m-%d %H:%M:%S")"
-    printf "%s %s\n" "$_timestamp" "$*" | tee -a "$LOGFILE"
+    printf "%s %s\n" "$_timestamp" "$*" | tee -a "$AUTONAMEOW_TEST_LOG"
 }
 
 calculate_statistics()
