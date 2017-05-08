@@ -25,7 +25,7 @@
 C_RED="$(tput setaf 1)"
 C_GREEN="$(tput setaf 2)"
 C_RESET="$(tput sgr0)"
-C_RESET='\E[0m'
+# C_RESET='\E[0m'
 
 _SELF_DIR="$(dirname "$0")"
 
