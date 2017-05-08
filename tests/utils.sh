@@ -20,8 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-
 C_RED="$(tput setaf 1)"
 C_GREEN="$(tput setaf 2)"
 C_RESET="$(tput sgr0)"
@@ -30,31 +28,32 @@ C_RESET="$(tput sgr0)"
 _SELF_DIR="$(dirname "$0")"
 
 
-# Get absolute path to log file directory and make sure it is valid.
-_LOGFILE_DIR="$( ( cd "$SELF_DIR" && realpath -e -- "../docs/test_results/" ) )"
-if [ ! -d "$_LOGFILE_DIR" ]
-then
-    echo "Not a directory: \"${_LOGFILE_DIR}\" .. Aborting" >&2
-    exit 1
-fi
-
-# Get absolute path to the log file, used by all sourcing scripts.
-_LOGFILE_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
-AUTONAMEOW_TEST_LOG="${_LOGFILE_DIR}/${_LOGFILE_TIMESTAMP}.raw"
-export AUTONAMEOW_TEST_LOG
-if [ -f "$AUTONAMEOW_TEST_LOG" ]
-then
-    # echo "NOTE: File exists: \"${AUTONAMEOW_TEST_LOG}\" .. " >&2
-    true
-fi
-
-
-
+# Initialize counter variables.
 tests_total=0
 tests_passed=0
 tests_failed=0
 
 
+initialize_logging()
+{
+    # Get absolute path to log file directory and make sure it is valid.
+    _LOGFILE_DIR="$( ( cd "$SELF_DIR" && realpath -e -- "../docs/test_results/" ) )"
+    if [ ! -d "$_LOGFILE_DIR" ]
+    then
+        echo "Not a directory: \"${_LOGFILE_DIR}\" .. Aborting" >&2
+        exit 1
+    fi
+
+    # Get absolute path to the log file, used by all sourcing scripts.
+    _LOGFILE_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
+    AUTONAMEOW_TEST_LOG="${_LOGFILE_DIR}/${_LOGFILE_TIMESTAMP}.raw"
+    export AUTONAMEOW_TEST_LOG
+    if [ -f "$AUTONAMEOW_TEST_LOG" ]
+    then
+        # echo "NOTE: File exists: \"${AUTONAMEOW_TEST_LOG}\" .. " >&2
+        true
+    fi
+}
 
 # Print message to stdout and append message to AUTONAMEOW_TEST_LOG.
 # ANSI escape codes are allowed and included in the log file.

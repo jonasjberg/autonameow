@@ -33,6 +33,7 @@ source "${SELF_DIR}/utils.sh"
 # Store current time for later calculation of total execution time.
 time_start="$(current_unix_time)"
 
+initialize_logging
 logmsg "Started \"${SELF}\""
 logmsg "Executing all files in \"${SELF_DIR}\" matching \"test_*.sh\".."
 
