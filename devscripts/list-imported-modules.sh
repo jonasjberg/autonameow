@@ -43,14 +43,9 @@ fi
 # call by means of process substitution.
 
 python3 -v "$1" 2>&1 | grep -Eo "^import\ \'[A-Za-z0-9]+" | sort -u | \
-while IFS='\n' read -r line
+while IFS='\n' read -r _line
 do
-    module="${line#import \'}"
-    echo "$module"
-done | grep -vFf <(python3 -v -c 'print("no-op")' "$1" 2>&1 \
-| grep -Eo "^import\ \'[A-Za-z0-9]+" | sort -u | while IFS='\n' read -r line \
-do 
-    module="${line#import \'}"
-    echo "$module"
-done)
+    _module="${_line#import \'}"
+    echo "$_module"
+done | grep -vFf <(python3 -v -c 'print("no-op")' 2>&1 | grep -Eo "^import\ \'[A-Za-z0-9]+" | sort -u | while IFS='\n' read -r __line ; do __module="${__line#import \'}" ; echo "$__module" ; done)
 
