@@ -121,9 +121,9 @@ current_unix_time()
     #       Lets just assume we're mostly interested in relative measurements.
 
     case "$OSTYPE" in
-        linux*) python -c 'import time ; t="%.9f"%time.time() ; print t.replace(".","")';;
-        linux*) date "+%s%N" ;;
-             *) ;; # Unsupported OS ..
+        darwin*) python -c 'import time ; t="%.9f"%time.time() ; print t.replace(".","")';;
+         linux*) date "+%s%N" ;;
+              *) ;; # Unsupported OS ..
     esac
 }
 
