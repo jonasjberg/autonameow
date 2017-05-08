@@ -68,9 +68,9 @@ assert_true()
     eval "${1}"
     if [ "$?" -ne "0" ]
     then
-        shift ; test_fail "${FUNCNAME[1]}  $*"
+        shift ; test_fail "$*"
     else
-        shift ; test_pass "${FUNCNAME[1]}  $*"
+        shift ; test_pass "$*"
     fi
 }
 
@@ -79,9 +79,9 @@ assert_false()
     eval "${1}"
     if [ "$?" -ne "0" ]
     then
-        shift ; test_pass "${FUNCNAME[1]}  $*"
+        shift ; test_pass "$*"
     else
-        shift ; test_fail "${FUNCNAME[1]}  $*"
+        shift ; test_fail "$*"
     fi
 }
 
