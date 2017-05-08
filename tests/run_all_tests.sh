@@ -32,7 +32,7 @@ source "${SELF_DIR}/utils.sh"
 
 # Store current time for later calculation of total execution time.
 # Appending %N to date +%s gives us nanosecond accuracy.
-time_start="$(date +%s%N)"
+time_start="$(current_unix_time)"
 
 logmsg "Started \"${SELF}\""
 logmsg "Executing all files in \"${SELF_DIR}\" matching \"test_*.sh\".."
@@ -51,9 +51,9 @@ do
 done
 
 
-total_time="$((($(date +%s%N) - $time_start) / 1000000))"
-logmsg "Total executing time: ${total_time} ms"
-
+time_end="$(current_unix_time)"
+total_time="$((($time_end - $time_start) / 1000000))"
+logmsg "Total execution time: ${total_time} ms"
 
 
 if command -v "aha" >/dev/null 2>&1
