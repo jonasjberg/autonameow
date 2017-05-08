@@ -23,6 +23,7 @@
 # NOTE: Requires "aha" to be installed in order to convert the "raw"
 #       (containing ANSI escape codes) log files to HTML.
 
+set -o noclobber -o nounset -o pipefail
 
 SELF="$(basename "$0")"
 SELF_DIR="$(realpath -e "$(dirname "$0")")"

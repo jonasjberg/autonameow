@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+set -o noclobber -o nounset -o pipefail
 
 C_RED="$(tput setaf 1)"
 C_GREEN="$(tput setaf 2)"
