@@ -34,7 +34,7 @@ source "${SELF_DIR}/utils.sh"
 time_start="$(current_unix_time)"
 
 initialize_logging
-logmsg "Started \"${SELF}\""
+logmsg "Started integration test runner \"${SELF}\""
 logmsg "Executing all files in \"${SELF_DIR}\" matching \"test_*.sh\".."
 
 
