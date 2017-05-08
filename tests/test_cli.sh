@@ -38,13 +38,25 @@ logmsg "Running the Command-Line Interface test suite .."
 
 AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../run.sh" ) )"
 assert_true '[ -e "$AUTONAMEOW_RUNNER" ]' \
-            "The autonameow launcher script should exist"
+            "The autonameow launcher script \""$(basename -- "$AUTONAMEOW_RUNNER")"\" exists"
 
 assert_true '[ -x "$AUTONAMEOW_RUNNER" ]' \
             "The autonameow launcher script has executable permission"
 
 assert_true '"$AUTONAMEOW_RUNNER"' \
             "The autonameow launcher script can be started with no arguments"
+
+assert_true '"$AUTONAMEOW_RUNNER" | grep -q -- "--help"' \
+            "[TC005] autonameow should print how to get help when started with no arguments"
+
+assert_true '"$AUTONAMEOW_RUNNER" --help | head -n 1 | grep -q "usage"' \
+            "[TC005] autonameow should display usage information when started with \"--help\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --help | grep -q "dry-run"' \
+            "[TC001] autonameow should provide a \"--dry-run\" option"
+
+assert_true '"$AUTONAMEOW_RUNNER" --interactive 2>/dev/null' \
+            "[TC013] autonameow should provide a \"--interactive\" option"
 
 
 
