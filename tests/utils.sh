@@ -41,24 +41,24 @@ logresults()
 {
     if [ "$tests_failed" -eq "0" ]
     then
-        printf "\n${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
+        logmsg "${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
     else
-        printf "\n${C_RED}[ TESTS FAILED ]${C_RESET}"
+        logmsg "${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
     fi
 
-    printf " Executed %d tests -- Pass: %d   Fail: %d\n\n" "$tests_total" "$tests_passed" "$tests_failed"
+    logmsg "$(printf "Summary:  %d total, %d passed, %d failed" "$tests_total" "$tests_passed" "$tests_failed")"
 }
 
 test_fail()
 {
-    printf "${C_RED}[ TEST FAILED ]${C_RESET} %s\n" "$*"
+    logmsg "${C_RED}[FAILED]${C_RESET} " "$*"
     tests_failed="$((tests_failed + 1))"
     tests_total="$((tests_total + 1))"
 }
 
 test_pass()
 {
-    printf "${C_GREEN}[ TEST PASSED ]${C_RESET} %s\n" "$*"
+    logmsg "${C_GREEN}[PASSED]${C_RESET} " "$*"
     tests_passed="$((tests_passed + 1))"
     tests_total="$((tests_total + 1))"
 }
