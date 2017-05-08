@@ -31,18 +31,22 @@ source "${SELF_DIR}/utils.sh"
 # ____________________________________________________________________________
 
 
-logmsg "Starting documentation tests \"${SELF}\""
+logmsg "Started \"${SELF}\""
+logmsg "Running Documentation test suite tests .."
 
 
 
 FORMATS_DOC="$( ( cd "$SELF_DIR" && realpath -e "../docs/formats.md" ) )"
-assert_true '[ -f "$FORMATS_DOC" ]' "Data formats docs \""$(basename -- "$FORMATS_DOC")"\" should exist"
+assert_true '[ -f "$FORMATS_DOC" ]' \
+            "Data formats docs \""$(basename -- "$FORMATS_DOC")"\" should exist"
 
-assert_true '[ "$(cat "$FORMATS_DOC" | wc -l)" -gt "50" ]' "Data formats docs must have some content"
+assert_true '[ "$(cat "$FORMATS_DOC" | wc -l)" -gt "50" ]' \
+            "Data formats docs contains at least 50 lines"
 
-assert_false 'grep -q "\(TODO\|FIXME\|XXX\).*" "$FORMATS_DOC"' "Data formats docs should not contain TODOs"
+assert_false 'grep -q "\(TODO\|FIXME\|XXX\).*" "$FORMATS_DOC"' \
+             "Data formats docs does not contain TODOs"
 
 
 
 calculate_statistics
-msg "Finished Documentation test suite tests after ${SECONDS} seconds"
+logmsg "Finished Documentation test suite tests after ${SECONDS} seconds"
