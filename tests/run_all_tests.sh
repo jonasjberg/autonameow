@@ -56,6 +56,7 @@ total_time="$((($time_end - $time_start) / 1000000))"
 logmsg "Total execution time: ${total_time} ms"
 
 
+# Convert the test log file to HTML using executable 'aha' if available.
 if command -v "aha" >/dev/null 2>&1
 then
     [ -z "${AUTONAMEOW_TEST_LOG:-}" ] && exit 1
