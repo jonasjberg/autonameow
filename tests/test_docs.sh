@@ -44,6 +44,5 @@ assert_false 'grep -q "\(TODO\|FIXME\|XXX\).*" "$FORMATS_DOC"' "Data formats doc
 
 
 
-logmsg "Finished documentation tests!"
-
-logresults
+calculate_statistics
+msg "Finished Documentation test suite tests after ${SECONDS} seconds"

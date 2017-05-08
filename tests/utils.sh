@@ -26,39 +26,80 @@ C_RED="$(tput setaf 1)"
 C_GREEN="$(tput setaf 2)"
 C_RESET="$(tput sgr0)"
 
+_SELF_DIR="$(dirname "$0")"
+
+
+# Get absolute path to log file directory and make sure it is valid.
+_LOGFILE_DIR="$( ( cd "$SELF_DIR" && realpath -e -- "../docs/test_results/" ) )"
+if [ ! -d "$_LOGFILE_DIR" ]
+then
+    echo "Not a directory: \"${_LOGFILE_DIR}\" .. Aborting" >&2
+    exit 1
+fi
+
+# Get absolute path to the log file, used by all sourcing scripts.
+_LOGFILE_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
+LOGFILE="${_LOGFILE_DIR}/${_LOGFILE_TIMESTAMP}.txt"
+if [ -f "$LOGFILE" ]
+then
+    echo "File exists: \"${LOGFILE}\" .. Aborting" >&2
+    exit 1
+fi
+
+
+
 tests_total=0
 tests_passed=0
 tests_failed=0
 
 
-logmsg()
+# Print message to stdout. ANSI escape codes allowed.
+printmsg()
 {
     local _timestamp="$(date "+%Y-%m-%d %H:%M:%S")"
     printf "%s %s\n" "$_timestamp" "$*"
 }
 
-logresults()
+# Append message to LOGFILE.
+logmsg()
+{
+    local _timestamp="$(date "+%Y-%m-%d %H:%M:%S")"
+    printf "%s %s\n" "$_timestamp" "$*" >> "$LOGFILE"
+}
+
+# Print message to stdout and append to LOGFILE.
+msg()
+{
+    printmsg "$*"
+    logmsg "$*"
+}
+
+calculate_statistics()
 {
     if [ "$tests_failed" -eq "0" ]
     then
-        logmsg "${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
+        printmsg "${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
+        logmsg "[ ALL TESTS PASSED ]"
     else
-        logmsg "${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
+        printmsg "${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
+        logmsg "[ SOME TESTS FAILED ]"
     fi
 
-    logmsg "$(printf "Summary:  %d total, %d passed, %d failed" "$tests_total" "$tests_passed" "$tests_failed")"
+    msg "$(printf "Summary:  %d total, %d passed, %d failed" "$tests_total" "$tests_passed" "$tests_failed")"
 }
 
 test_fail()
 {
-    logmsg "${C_RED}[FAILED]${C_RESET} " "$*"
+    printmsg "${C_RED}[FAILED]${C_RESET} " "$*"
+    logmsg "[FAILED] " "$*"
     tests_failed="$((tests_failed + 1))"
     tests_total="$((tests_total + 1))"
 }
 
 test_pass()
 {
-    logmsg "${C_GREEN}[PASSED]${C_RESET} " "$*"
+    printmsg "${C_GREEN}[PASSED]${C_RESET} " "$*"
+    logmsg "[PASSED] " "$*"
     tests_passed="$((tests_passed + 1))"
     tests_total="$((tests_total + 1))"
 }
@@ -100,11 +141,11 @@ assert_false()
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
 then
-    logmsg "Starting self-tests .."
+    printmsg "Starting self-tests .."
     assert_true  "[ "0" -eq "0" ]" '(Internal Test) Expect success ..'
     assert_true  "[ "1" -eq "0" ]" '(Internal Test) Expect failure ..'
     assert_false "[ "1" -eq "0" ]" '(Internal Test) Expect success ..'
     assert_false "[ "1" -ne "0" ]" '(Internal Test) Expect failure ..'
-    logmsg "Finished self-tests!"
+    printmsg "Finished self-tests!"
 fi
 
