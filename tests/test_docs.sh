@@ -41,10 +41,10 @@ assert_true '[ -f "$FORMATS_DOC" ]' \
             "Data formats docs \""$(basename -- "$FORMATS_DOC")"\" should exist"
 
 assert_true '[ "$(cat "$FORMATS_DOC" | wc -l)" -gt "50" ]' \
-            "Data formats docs contains at least 50 lines"
+            "[TC006][TC008] Data formats docs contains at least 50 lines"
 
 assert_false 'grep -q "\(TODO\|FIXME\|XXX\).*" "$FORMATS_DOC"' \
-             "Data formats docs does not contain TODOs"
+             "[TC006][TC008] Data formats docs does not contain TODOs"
 
 
 
