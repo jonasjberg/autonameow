@@ -31,7 +31,6 @@ source "${SELF_DIR}/utils.sh"
 
 
 # Store current time for later calculation of total execution time.
-# Appending %N to date +%s gives us nanosecond accuracy.
 time_start="$(current_unix_time)"
 
 logmsg "Started \"${SELF}\""
@@ -51,6 +50,7 @@ do
 done
 
 
+# Calculate total execution time.
 time_end="$(current_unix_time)"
 total_time="$((($time_end - $time_start) / 1000000))"
 logmsg "Total execution time: ${total_time} ms"
