@@ -43,7 +43,7 @@ assert_true '[ -e "$AUTONAMEOW_RUNNER" ]' \
 assert_true '[ -x "$AUTONAMEOW_RUNNER" ]' \
             "The autonameow launcher script has executable permission"
 
-assert_true '"$AUTONAMEOW_RUNNER"' \
+assert_true '"$AUTONAMEOW_RUNNER" >/dev/null' \
             "The autonameow launcher script can be started with no arguments"
 
 assert_true '"$AUTONAMEOW_RUNNER" | grep -q -- "--help"' \
