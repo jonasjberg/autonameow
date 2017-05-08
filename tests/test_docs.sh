@@ -32,7 +32,7 @@ source "${SELF_DIR}/utils.sh"
 
 
 logmsg "Started \"${SELF}\""
-logmsg "Running Documentation test suite tests .."
+logmsg "Running the Documentation test suite .."
 
 
 
@@ -49,4 +49,5 @@ assert_false 'grep -q "\(TODO\|FIXME\|XXX\).*" "$FORMATS_DOC"' \
 
 
 calculate_statistics
-logmsg "Finished Documentation test suite tests after ${SECONDS} seconds"
+logmsg "Completed the Documentation test suite tests in ${SECONDS} seconds"
+
