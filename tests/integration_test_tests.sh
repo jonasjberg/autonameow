@@ -43,12 +43,32 @@ logmsg "Running the Test Suite test suite .."
 
 
 
-assert_true  "[ "0" -eq "0" ]" 'Expect success .. (true positive)'
-assert_true  "[ "1" -eq "0" ]" 'Expect failure .. (false negative)'
-assert_false "[ "1" -eq "0" ]" 'Expect success .. (true positive)'
-assert_false "[ "1" -ne "0" ]" 'Expect failure .. (false negative)'
+assert_true  '[ "0" -eq "0" ]' 'Expect success .. (true positive)'
+assert_true  '[ "1" -eq "0" ]' 'Expect failure .. (false negative)'
+assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
+assert_false '[ "1" -ne "0" ]' 'Expect failure .. (false negative)'
 
 
+assert_true '[ -e "${SELF_DIR}/integration_runner.sh" ]' \
+            'The integration test runner exists'
+
+assert_true '[ -x "${SELF_DIR}/integration_runner.sh" ]' \
+            'The integration test runner is executable'
+
+assert_true '[ -e "${SELF_DIR}/integration_test_cli.sh" ]' \
+            "The Command-Line Interface test suite exists"
+
+assert_true '[ -x "${SELF_DIR}/integration_test_cli.sh" ]' \
+            'The Command-Line Interface test suite is executable'
+
+assert_true '[ -e "${SELF_DIR}/integration_test_docs.sh" ]' \
+            'The Documentation test suite exists'
+
+assert_true '[ -x "${SELF_DIR}/integration_test_docs.sh" ]' \
+            'The Documentation test suite is executable'
+
+assert_true 'command -v "aha" >/dev/null 2>&1' \
+            'The executable "aha" is available on the system'
 
 
 
