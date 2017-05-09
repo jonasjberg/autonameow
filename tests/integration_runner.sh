@@ -69,8 +69,11 @@ then
     [ -f "$AUTONAMEOW_TEST_LOG" ] || exit 1
 
     _html_test_log="${AUTONAMEOW_TEST_LOG%.*}.html"
+    _html_title="autonameow Integration Test Log ${AUTONAMEOW_TEST_TIMESTAMP}"
 
-    if aha < "$AUTONAMEOW_TEST_LOG" | sed 's///g' > "$_html_test_log"
+    echo "AUTONAMEOW_TEST_TIMESTAMP: $AUTONAMEOW_TEST_TIMESTAMP"
+    if aha --title "$_html_title" \
+        < "$AUTONAMEOW_TEST_LOG" | sed 's///g' > "$_html_test_log"
     then
         if [ -f "$_html_test_log" ]
         then
