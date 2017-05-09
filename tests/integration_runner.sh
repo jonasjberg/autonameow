@@ -71,7 +71,6 @@ then
     _html_test_log="${AUTONAMEOW_TEST_LOG%.*}.html"
     _html_title="autonameow Integration Test Log ${AUTONAMEOW_TEST_TIMESTAMP}"
 
-    echo "AUTONAMEOW_TEST_TIMESTAMP: $AUTONAMEOW_TEST_TIMESTAMP"
     if aha --title "$_html_title" \
         < "$AUTONAMEOW_TEST_LOG" | sed 's///g' > "$_html_test_log"
     then
