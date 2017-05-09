@@ -40,8 +40,11 @@ logmsg "Started \"${SELF}\""
 logmsg "Running the Documentation test suite .."
 
 
+DOC_PATH="$( ( cd "$SELF_DIR" && realpath -e "../docs/" ) )"
+assert_true '[ -d "$DOC_PATH" ]' \
+            "Documentation directory \""$(basename -- "$DOC_PATH")"\" should exist"
 
-FORMATS_DOC="$( ( cd "$SELF_DIR" && realpath -e "../docs/formats.md" ) )"
+FORMATS_DOC="${DOC_PATH}/formats.md"
 assert_true '[ -f "$FORMATS_DOC" ]' \
             "Data formats docs \""$(basename -- "$FORMATS_DOC")"\" should exist"
 
