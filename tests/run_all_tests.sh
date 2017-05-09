@@ -28,7 +28,11 @@ set -o noclobber -o nounset -o pipefail
 SELF="$(basename "$0")"
 SELF_DIR="$(realpath -e "$(dirname "$0")")"
 
-source "${SELF_DIR}/utils.sh"
+if ! source "${SELF_DIR}/integration_utils.sh"
+then
+    echo "Integration test utility library is missing. Aborting .." 1>&2
+    exit 1
+fi
 
 
 # Store current time for later calculation of total execution time.

@@ -24,7 +24,7 @@ set -o noclobber -o nounset -o pipefail
 SELF="$(basename "$0")"
 SELF_DIR="$(dirname "$0")"
 
-source "${SELF_DIR}/utils.sh"
+source "${SELF_DIR}/integration_utils.sh"
 
 
 
