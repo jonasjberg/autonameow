@@ -77,7 +77,8 @@ calculate_statistics()
         logmsg "${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
     fi
 
-    logmsg "$(printf "Summary:  %d total, %d passed, %d failed" "$tests_total" "$tests_passed" "$tests_failed")"
+    logmsg "$(printf "Summary:  %d total, %d passed, %d failed" \
+              "$tests_total" "$tests_passed" "$tests_failed")"
 }
 
 # Logs a test failure message and increments counters.
