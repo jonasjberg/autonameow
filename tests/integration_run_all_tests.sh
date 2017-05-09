@@ -40,10 +40,10 @@ time_start="$(current_unix_time)"
 
 initialize_logging
 logmsg "Started integration test runner \"${SELF}\""
-logmsg "Executing all files in \"${SELF_DIR}\" matching \"test_*.sh\".."
+logmsg "Executing all files in \"${SELF_DIR}\" matching \"integration_test_*.sh\".."
 
 
-find "$SELF_DIR" -mindepth 1 -maxdepth 1 -type f -name "test_*.sh" \
+find "$SELF_DIR" -mindepth 1 -maxdepth 1 -type f -name "integration_test_*.sh" \
 | while IFS='\n' read -r testscript
 do
     if [ ! -x "$testscript" ]
