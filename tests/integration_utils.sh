@@ -49,9 +49,10 @@ initialize_logging()
     fi
 
     # Get absolute path to the log file, used by all sourcing scripts.
-    _LOGFILE_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
-    AUTONAMEOW_TEST_LOG="${_LOGFILE_DIR}/${_LOGFILE_TIMESTAMP}.raw"
+    AUTONAMEOW_TEST_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
+    AUTONAMEOW_TEST_LOG="${_LOGFILE_DIR}/${AUTONAMEOW_TEST_TIMESTAMP}.raw"
     export AUTONAMEOW_TEST_LOG
+    export AUTONAMEOW_TEST_TIMESTAMP
     if [ -f "$AUTONAMEOW_TEST_LOG" ]
     then
         # echo "NOTE: File exists: \"${AUTONAMEOW_TEST_LOG}\" .. " >&2
