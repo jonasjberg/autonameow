@@ -29,12 +29,15 @@ C_RESET="$(tput sgr0)"
 _SELF_DIR="$(dirname "$0")"
 
 
-# Initialize counter variables.
+# Initialize counter variables every time this script is sourced, which means
+# these count numbers for each test suite.  Used in 'calculate_statistics'.
 tests_total=0
 tests_passed=0
 tests_failed=0
 
 
+# Should be called once at the start of a test run. Creates a timestamped log
+# file and exports the the log file path as 'AUTONAMEOW_TEST_LOG'.
 initialize_logging()
 {
     # Get absolute path to log file directory and make sure it is valid.
@@ -64,6 +67,7 @@ logmsg()
     printf "%s %s\n" "$_timestamp" "$*" | tee -a "$AUTONAMEOW_TEST_LOG"
 }
 
+# Prints out a summary of test results for the currently sourcing script.
 calculate_statistics()
 {
     if [ "$tests_failed" -eq "0" ]
@@ -76,6 +80,7 @@ calculate_statistics()
     logmsg "$(printf "Summary:  %d total, %d passed, %d failed" "$tests_total" "$tests_passed" "$tests_failed")"
 }
 
+# Logs a test failure message and increments counters.
 test_fail()
 {
     logmsg "${C_RED}[FAILED]${C_RESET} " "$*"
@@ -83,6 +88,7 @@ test_fail()
     tests_total="$((tests_total + 1))"
 }
 
+# Logs a test success message and increments counters.
 test_pass()
 {
     logmsg "${C_GREEN}[PASSED]${C_RESET} " "$*"
@@ -90,6 +96,9 @@ test_pass()
     tests_total="$((tests_total + 1))"
 }
 
+# Evaluates an expression, given as the first argument.
+# Calls 'test_fail' if the expression returns NON-zero.
+# Calls 'test_pass' if the expression returns zero.
 assert_true()
 {
     eval "${1}"
@@ -101,6 +110,9 @@ assert_true()
     fi
 }
 
+# Evaluates an expression, given as the first argument.
+# Calls 'test_pass' if the expression returns NON-zero.
+# Calls 'test_fail' if the expression returns zero.
 assert_false()
 {
     eval "${1}"
@@ -112,6 +124,7 @@ assert_false()
     fi
 }
 
+# Returns the current time as a UNIX timestamp.
 current_unix_time()
 {
     # The 'date' command differs between versions; the GNU coreutils version
