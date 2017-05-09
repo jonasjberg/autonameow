@@ -75,7 +75,7 @@ then
     if aha --title "$_html_title" \
         < "$AUTONAMEOW_TEST_LOG" | sed 's///g' > "$_html_test_log"
     then
-        if [ -f "$_html_test_log" ]
+        if [ -s "$_html_test_log" ]
         then
             logmsg "Wrote HTML log file: \"${_html_test_log}\""
             rm -- "$AUTONAMEOW_TEST_LOG"
