@@ -41,10 +41,10 @@ logmsg "Running the Test Suite test suite .."
 
 
 
-assert_true  "[ "0" -eq "0" ]" 'Expect success ..'
-assert_true  "[ "1" -eq "0" ]" 'Expect failure ..'
-assert_false "[ "1" -eq "0" ]" 'Expect success ..'
-assert_false "[ "1" -ne "0" ]" 'Expect failure ..'
+assert_true  "[ "0" -eq "0" ]" 'Expect success .. (true positive)'
+assert_true  "[ "1" -eq "0" ]" 'Expect failure .. (false negative)'
+assert_false "[ "1" -eq "0" ]" 'Expect success .. (true positive)'
+assert_false "[ "1" -ne "0" ]" 'Expect failure .. (false negative)'
 
 
 
