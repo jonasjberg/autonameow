@@ -35,6 +35,8 @@ fi
 # Test Cases
 # ____________________________________________________________________________
 
+# Store current time for later calculation of total execution time.
+time_start="$(current_unix_time)"
 
 logmsg "Started \"${SELF}\""
 logmsg "Running the Command-Line Interface test suite .."
@@ -65,5 +67,9 @@ assert_true '"$AUTONAMEOW_RUNNER" --interactive 2>/dev/null' \
 
 
 
+# Calculate total execution time.
+time_end="$(current_unix_time)"
+total_time="$((($time_end - $time_start) / 1000000))"
+
 calculate_statistics
-logmsg "Completed the Command-Line Interface test suite tests in ${SECONDS} seconds"
+logmsg "Completed the Command-Line Interface test suite tests in ${total_time} ms"

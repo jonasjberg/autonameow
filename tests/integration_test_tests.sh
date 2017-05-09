@@ -35,6 +35,8 @@ fi
 # Test Cases
 # ____________________________________________________________________________
 
+# Store current time for later calculation of total execution time.
+time_start="$(current_unix_time)"
 
 logmsg "Started \"${SELF}\""
 logmsg "Running the Test Suite test suite .."
@@ -48,5 +50,11 @@ assert_false "[ "1" -ne "0" ]" 'Expect failure .. (false negative)'
 
 
 
+
+
+# Calculate total execution time.
+time_end="$(current_unix_time)"
+total_time="$((($time_end - $time_start) / 1000000))"
+
 calculate_statistics
-logmsg "Completed the Test Suite test suite tests in ${SECONDS} seconds"
+logmsg "Completed the Test Suite test suite tests in ${total_time} ms"

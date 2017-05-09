@@ -35,9 +35,12 @@ fi
 # Test Cases
 # ____________________________________________________________________________
 
+# Store current time for later calculation of total execution time.
+time_start="$(current_unix_time)"
 
 logmsg "Started \"${SELF}\""
 logmsg "Running the Documentation test suite .."
+
 
 
 DOC_PATH="$( ( cd "$SELF_DIR" && realpath -e "../docs/" ) )"
@@ -56,6 +59,9 @@ assert_false 'grep -q "\(TODO\|FIXME\|XXX\).*" "$FORMATS_DOC"' \
 
 
 
-calculate_statistics
-logmsg "Completed the Documentation test suite tests in ${SECONDS} seconds"
+# Calculate total execution time.
+time_end="$(current_unix_time)"
+total_time="$((($time_end - $time_start) / 1000000))"
 
+calculate_statistics
+logmsg "Completed the Documentation test suite tests in ${total_time} ms"
