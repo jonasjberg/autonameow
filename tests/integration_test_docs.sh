@@ -42,8 +42,7 @@ logmsg "Started \"${SELF}\""
 logmsg "Running the Documentation test suite .."
 
 
-
-DOC_PATH="$( ( cd "$SELF_DIR" && realpath -e "../docs/" ) )"
+DOC_PATH="$( ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e "./docs/" ) )"
 assert_true '[ -d "$DOC_PATH" ]' \
             "Documentation directory \""$(basename -- "$DOC_PATH")"\" should exist"
 
