@@ -50,7 +50,7 @@ fi
 
 
 _timestamp="$(date "+%Y-%m-%dT%H%M%S")"
-_unittest_log="${AUTONAMEOW_TESTRESULTS_DIR}/unit_generated_${_timestamp}.html"
+_unittest_log="${AUTONAMEOW_TESTRESULTS_DIR}/unittest_log_${_timestamp}.html"
 if [ -e "$_unittest_log" ]
 then
     echo "File exists: \"${_unittest_log}\" .. Aborting" >&2
