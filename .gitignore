@@ -259,6 +259,9 @@ test_files/
 docs/test_results/.integrationlog.toreport
 docs/test_results/.unittestlog.toreport
 
+# TODO: Should be automated!
+docs/test_results/
+
 # Documentation
 # *.pdf
 
