@@ -144,7 +144,8 @@ current_unix_time()
     case "$OSTYPE" in
         darwin*) python -c 'import time ; t="%.9f"%time.time() ; print t.replace(".","")';;
          linux*) date "+%s%N" ;;
-              *) ;; # Unsupported OS ..
+           msys) date "+%s%N" ;; # NOTE: Not a target OS!
+              *) { echo 'ERROR: Unsupported Operating System!' 1>&2 ; exit 1 ; } ;;
     esac
 }
 
