@@ -21,6 +21,7 @@
 
 set -o noclobber -o nounset -o pipefail
 
+SELF="$(basename "$0")"
 SELF_DIR="$(dirname "$0")"
 
 
@@ -43,4 +44,25 @@ then
     exit 1
 else
     export AUTONAMEOW_TESTRESULTS_DIR
+fi
+
+# Get absolute path to the project wiki source root.
+#
+# NOTE: Hardcoded path! "AUTONAMEOW_WIKI_ROOT_DIR" must be changed
+#       to the correct path to the wiki repository on your system.
+#
+AUTONAMEOW_WIKI_ROOT_DIR="${HOME}/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.wiki.git"
+if [ ! -d "$AUTONAMEOW_WIKI_ROOT_DIR" ]
+then
+    cat >&2 <<EOF
+
+Not a directory: "${AUTONAMEOW_WIKI_ROOT_DIR}" ..
+
+    NOTE: You must set the variable "AUTONAMEOW_WIKI_ROOT_DIR" in "${SELF}" to
+          the full path of the autonameow wiki repository root on this system.
+EOF
+
+    exit 1
+else
+    export AUTONAMEOW_WIKI_ROOT_DIR
 fi
