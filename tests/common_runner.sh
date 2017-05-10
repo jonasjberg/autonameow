@@ -89,7 +89,7 @@ then
 
     if [ -f "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport" ]
     then
-        # Read file contents; the path to the most recent integration test log.
+        # Read file contents; the path to the most recent unit test log.
         _unit_log_path="$( < "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport" )"
         if [ ! -f "$_unit_log_path" ]
         then
