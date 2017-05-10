@@ -67,6 +67,12 @@ assert_false '[ -z "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
 assert_true '[ -d "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
             'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should be a directory'
 
+assert_false '[ -z "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
+             'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should not be unset'
+
+assert_true '[ -d "$AUTONAMEOW_WIKI_ROOT_DIR" ]' \
+            'Environment variable "AUTONAMEOW_WIKI_ROOT_DIR" should be a directory'
+
 assert_true '[ -e "${SELF_DIR}/integration_runner.sh" ]' \
             'The integration test runner exists'
 
@@ -85,6 +91,12 @@ assert_true '[ -e "${SELF_DIR}/integration_test_docs.sh" ]' \
 assert_true '[ -x "${SELF_DIR}/integration_test_docs.sh" ]' \
             'The Documentation test suite is executable'
 
+assert_true '[ -e "${SELF_DIR}/unit_runner.sh" ]' \
+            'The unit test runner exists'
+
+assert_true '[ -x "${SELF_DIR}/unit_runner.sh" ]' \
+            'The unit test runner is executable'
+
 assert_true 'command -v "aha" >/dev/null 2>&1' \
             'The executable "aha" is available on the system'
 
@@ -94,6 +106,11 @@ assert_true 'command -v "pytest" >/dev/null 2>&1' \
 _pytesthelp="$(pytest --help 2>&1)"
 assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
             'Module "pytest-html" is available on the system'
+
+assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
+            'Should be running a target operating system'
+
+
 
 
 # Calculate total execution time.
