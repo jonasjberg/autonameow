@@ -52,17 +52,12 @@ initialize_logging()
         exit 1
     fi
 
-    # Get absolute path to the log file, used by all sourcing scripts.
+    # Export variables to be used by all sourcing scripts during this test run.
     AUTONAMEOW_TEST_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
-    AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/${AUTONAMEOW_TEST_TIMESTAMP}.raw"
     export AUTONAMEOW_TEST_TIMESTAMP
-    export AUTONAMEOW_INTEGRATION_LOG
 
-    if [ -f "$AUTONAMEOW_INTEGRATION_LOG" ]
-    then
-        # echo "NOTE: File exists: \"${AUTONAMEOW_INTEGRATION_LOG}\" .. " >&2
-        true
-    fi
+    AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/integration_log_${AUTONAMEOW_TEST_TIMESTAMP}.raw"
+    export AUTONAMEOW_INTEGRATION_LOG
 }
 
 # Print message to stdout and append message to AUTONAMEOW_INTEGRATION_LOG.
