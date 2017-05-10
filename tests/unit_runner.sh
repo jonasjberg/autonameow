@@ -50,15 +50,20 @@ then
 fi
 
 
-
 _timestamp="$(date "+%Y-%m-%dT%H%M%S")"
-
-_unittest_log="${_LOGFILE_DIR}/unit_${_timestamp}.html"
+_unittest_log="${_LOGFILE_DIR}/unit_generated_${_timestamp}.html"
 if [ -e "$_unittest_log" ]
 then
     echo "File exists: \"${_unittest_log}\" .. Aborting" >&2
     exit 1
 fi
+
+# _unittest_rawlog="${_LOGFILE_DIR}/unit_stdout_${_timestamp}.raw"
+# if [ -e "$_unittest_rawlog" ]
+# then
+#     echo "File exists: \"${_unittest_rawlog}\" .. Aborting" >&2
+#     exit 1
+# fi
 
 
 AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIR" && realpath -e -- ".." ) )"
@@ -70,6 +75,25 @@ fi
 
 # Run tests and generate HTML report
 ( cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests pytest --html="${_unittest_log}" )
+
+# ( cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests pytest --verbose --color=yes 2>&1 >> "$_unittest_rawlog")
+
+# if [ -s "$_unittest_rawlog" ]
+# then
+#     _unittest_rawlog_html="${_unittest_rawlog}.html"
+#
+#     if aha --title "autonameow Unit Test Log ${_timestamp}" \
+#         < "$_unittest_rawlog" > "$_unittest_rawlog_html"
+#     then
+#         if [ -s "$_unittest_rawlog_html" ]
+#         then
+#             logmsg "Wrote HTML log file: \"${_unittest_rawlog_html}\""
+#             rm -- "$AUTONAMEOW_TEST_LOG"
+#         fi
+#     else
+#         logmsg 'FAILED to write HTML log file!'
+#     fi
+# fi
 
 
 if [ -s "$_unittest_log" ]
