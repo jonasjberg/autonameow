@@ -65,19 +65,19 @@ logmsg "Total execution time: ${total_time} ms"
 # Convert the test log file to HTML using executable 'aha' if available.
 if command -v "aha" >/dev/null 2>&1
 then
-    [ -z "${AUTONAMEOW_TEST_LOG:-}" ] && exit 1
-    [ -f "$AUTONAMEOW_TEST_LOG" ] || exit 1
+    [ -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] && exit 1
+    [ -f "$AUTONAMEOW_INTEGRATION_LOG" ] || exit 1
 
-    _html_test_log="${AUTONAMEOW_TEST_LOG%.*}.html"
+    _html_test_log="${AUTONAMEOW_INTEGRATION_LOG%.*}.html"
     _html_title="autonameow Integration Test Log ${AUTONAMEOW_TEST_TIMESTAMP}"
 
     if aha --title "$_html_title" \
-        < "$AUTONAMEOW_TEST_LOG" | sed 's///g' > "$_html_test_log"
+        < "$AUTONAMEOW_INTEGRATION_LOG" | sed 's///g' > "$_html_test_log"
     then
         if [ -s "$_html_test_log" ]
         then
             logmsg "Wrote HTML log file: \"${_html_test_log}\""
-            rm -- "$AUTONAMEOW_TEST_LOG"
+            rm -- "$AUTONAMEOW_INTEGRATION_LOG"
 
             # Write log file name to temporary file, used by other scripts.
             set +o noclobber

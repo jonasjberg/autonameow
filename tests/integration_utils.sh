@@ -43,7 +43,7 @@ tests_failed=0
 
 
 # Should be called once at the start of a test run. Creates a timestamped log
-# file and exports the the log file path as 'AUTONAMEOW_TEST_LOG'.
+# file and exports the the log file path as 'AUTONAMEOW_INTEGRATION_LOG'.
 initialize_logging()
 {
     if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ]
@@ -54,23 +54,23 @@ initialize_logging()
 
     # Get absolute path to the log file, used by all sourcing scripts.
     AUTONAMEOW_TEST_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
-    AUTONAMEOW_TEST_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/${AUTONAMEOW_TEST_TIMESTAMP}.raw"
+    AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/${AUTONAMEOW_TEST_TIMESTAMP}.raw"
     export AUTONAMEOW_TEST_TIMESTAMP
-    export AUTONAMEOW_TEST_LOG
+    export AUTONAMEOW_INTEGRATION_LOG
 
-    if [ -f "$AUTONAMEOW_TEST_LOG" ]
+    if [ -f "$AUTONAMEOW_INTEGRATION_LOG" ]
     then
-        # echo "NOTE: File exists: \"${AUTONAMEOW_TEST_LOG}\" .. " >&2
+        # echo "NOTE: File exists: \"${AUTONAMEOW_INTEGRATION_LOG}\" .. " >&2
         true
     fi
 }
 
-# Print message to stdout and append message to AUTONAMEOW_TEST_LOG.
+# Print message to stdout and append message to AUTONAMEOW_INTEGRATION_LOG.
 # ANSI escape codes are allowed and included in the log file.
 logmsg()
 {
     local _timestamp="$(date "+%Y-%m-%d %H:%M:%S")"
-    printf "%s %s\n" "$_timestamp" "$*" | tee -a "$AUTONAMEOW_TEST_LOG"
+    printf "%s %s\n" "$_timestamp" "$*" | tee -a "$AUTONAMEOW_INTEGRATION_LOG"
 }
 
 # Prints out a summary of test results for the currently sourcing script.
