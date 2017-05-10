@@ -104,7 +104,6 @@ fi
 #         if [ -s "$_unittest_rawlog_html" ]
 #         then
 #             logmsg "Wrote HTML log file: \"${_unittest_rawlog_html}\""
-#             rm -- "$AUTONAMEOW_TEST_LOG"
 #         fi
 #     else
 #         logmsg 'FAILED to write HTML log file!'
