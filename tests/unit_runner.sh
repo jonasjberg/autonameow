@@ -38,7 +38,9 @@ then
     echo "This script requires \"pytest\" to run. Exiting .." 1>&2
     exit 1
 else
-    if ! pytest --help | grep -q '--html'
+    # Workaround for pytest crashing when writing something other than stdout ..
+    _pytesthelp="$(pytest --help 2>&1)"
+    if ! grep -q -- '--html' <<< "$_pytesthelp"
     then
         echo "This script requires \"pytest-html\" to generate HTML reports." 1>&2
         echo "Install using pip by executing:  pip3 install pytest-html"
