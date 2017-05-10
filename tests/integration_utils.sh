@@ -187,6 +187,13 @@ convert_raw_log_to_html()
     fi
 }
 
+# Searches the contents of a file for "TODOs" -- 'TODO', 'FIXME' or 'XXX'.
+# The file should be given as the first argument.
+# Returns ZERO if the file contains TODOs, otherwise non-zero.
+grep_todos()
+{
+    grep -q "\(TODO\|FIXME\|XXX\).*" -- "$1"
+}
 
 
 
