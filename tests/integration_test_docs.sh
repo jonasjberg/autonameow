@@ -56,6 +56,13 @@ assert_true '[ "$(cat "$FORMATS_DOC" | wc -l)" -gt "50" ]' \
 assert_false 'grep -q "\(TODO\|FIXME\|XXX\).*" "$FORMATS_DOC"' \
              "[TC006][TC008] Data formats docs does not contain TODOs"
 
+_srcroot_readme="${AUTONAMEOW_ROOT_DIR}/README.md"
+assert_true '[ -f "$_srcroot_readme" ]' \
+            'The root source directory should contain a "README.md"'
+
+assert_false 'grep_todos "$_srcroot_readme"' \
+             "Main README.md does not contain TODOs"
+
 
 
 # Calculate total execution time.
