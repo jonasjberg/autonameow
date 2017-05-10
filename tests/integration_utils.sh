@@ -148,6 +148,46 @@ current_unix_time()
     esac
 }
 
+# Converts the integration test log file to HTML using executable 'aha' if
+# available.  Executed at the end of a test run by 'integration_runner.sh'.
+convert_raw_log_to_html()
+{
+    if ! command -v "aha" >/dev/null 2>&1
+    then
+        logmsg "The executable \"aha\" is not available on this system"
+        logmsg "Skipping converting raw logfiles to HTML .."
+        exit 1
+    fi
+
+    if [ -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] \
+    || [ ! -f "$AUTONAMEOW_INTEGRATION_LOG" ]
+    then
+        echo "Logging has not been initialized. Aborting .." 1>&2
+        return 1
+    fi
+
+    _html_integration_log="${AUTONAMEOW_INTEGRATION_LOG%.*}.html"
+    _html_title="autonameow Integration Test Log ${AUTONAMEOW_TEST_TIMESTAMP}"
+
+    if aha --title "$_html_title" \
+        < "$AUTONAMEOW_INTEGRATION_LOG" | sed 's///g' > "$_html_integration_log"
+    then
+        if [ -s "$_html_integration_log" ]
+        then
+            logmsg "Wrote integration test log HTML file: \"${_html_integration_log}\""
+            rm -- "$AUTONAMEOW_INTEGRATION_LOG"
+
+            # Write log file name to temporary file, used by other scripts.
+            set +o noclobber
+            echo "${_html_integration_log}" > "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport"
+            set -o noclobber
+        fi
+    else
+        logmsg 'FAILED to write HTML log file!'
+    fi
+}
+
+
 
 
 # Test Cases

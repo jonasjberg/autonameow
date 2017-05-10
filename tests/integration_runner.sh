@@ -61,36 +61,5 @@ time_end="$(current_unix_time)"
 total_time="$((($time_end - $time_start) / 1000000))"
 logmsg "Total execution time: ${total_time} ms"
 
-
-# Convert the test log file to HTML using executable 'aha' if available.
-if command -v "aha" >/dev/null 2>&1
-then
-    [ -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] && exit 1
-    [ -f "$AUTONAMEOW_INTEGRATION_LOG" ] || exit 1
-
-    _html_test_log="${AUTONAMEOW_INTEGRATION_LOG%.*}.html"
-    _html_title="autonameow Integration Test Log ${AUTONAMEOW_TEST_TIMESTAMP}"
-
-    if aha --title "$_html_title" \
-        < "$AUTONAMEOW_INTEGRATION_LOG" | sed 's///g' > "$_html_test_log"
-    then
-        if [ -s "$_html_test_log" ]
-        then
-            logmsg "Wrote HTML log file: \"${_html_test_log}\""
-            rm -- "$AUTONAMEOW_INTEGRATION_LOG"
-
-            # Write log file name to temporary file, used by other scripts.
-            set +o noclobber
-            echo "${_html_test_log}" > "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport"
-            set -o noclobber
-        fi
-    else
-        logmsg 'FAILED to write HTML log file!'
-    fi
-else
-    logmsg "The executable \"aha\" is not available on this system"
-    logmsg "Skipping converting raw logfiles to HTML .."
-    exit 1
-fi
-
+convert_raw_log_to_html
 
