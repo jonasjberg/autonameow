@@ -62,10 +62,15 @@ initialize_logging()
 
 # Print message to stdout and append message to AUTONAMEOW_INTEGRATION_LOG.
 # ANSI escape codes are allowed and included in the log file.
+
+# Conditional piping inside the subshell allows executing only this file, in
+# which case AUTONAMEOW_INTEGRATION_LOG will be undefined and the 'tee' call is
+# skipped. In this case no log file is written do disk.
 logmsg()
 {
     local _timestamp="$(date "+%Y-%m-%d %H:%M:%S")"
-    printf "%s %s\n" "$_timestamp" "$*" | tee -a "$AUTONAMEOW_INTEGRATION_LOG"
+    printf "%s %s\n" "$_timestamp" "$*" |
+    ( [ ! -z "${AUTONAMEOW_INTEGRATION_LOG:-}" ] && tee -a "$AUTONAMEOW_INTEGRATION_LOG" || cat )
 }
 
 # Prints out a summary of test results for the currently sourcing script.
