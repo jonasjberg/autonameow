@@ -256,6 +256,8 @@ tags
 
 # Test files
 test_files/
+docs/test_results/.integrationlog.toreport
+docs/test_results/.unittestlog.toreport
 
 # Documentation
 # *.pdf
