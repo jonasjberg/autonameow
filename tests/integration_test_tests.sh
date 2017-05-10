@@ -44,9 +44,9 @@ logmsg "Running the Test Suite test suite .."
 
 
 assert_true  '[ "0" -eq "0" ]' 'Expect success .. (true positive)'
-assert_true  '[ "1" -eq "0" ]' 'Expect failure .. (false negative)'
+#assert_true  '[ "1" -eq "0" ]' 'Expect failure .. (false negative)'
 assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
-assert_false '[ "1" -ne "0" ]' 'Expect failure .. (false negative)'
+#assert_false '[ "1" -ne "0" ]' 'Expect failure .. (false negative)'
 
 
 assert_true '[ -e "${SELF_DIR}/shared_utils.sh" ]' \
