@@ -49,6 +49,24 @@ assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
 assert_false '[ "1" -ne "0" ]' 'Expect failure .. (false negative)'
 
 
+assert_true '[ -e "${SELF_DIR}/shared_utils.sh" ]' \
+            'Shared test utility library exists'
+
+assert_true '[ -x "${SELF_DIR}/shared_utils.sh" ]' \
+            'Shared test utility library is executable'
+
+assert_false '[ -z "$AUTONAMEOW_ROOT_DIR" ]' \
+             'Environment variable "AUTONAMEOW_ROOT_DIR" should not be unset'
+
+assert_true '[ -d "$AUTONAMEOW_ROOT_DIR" ]' \
+            'Environment variable "AUTONAMEOW_ROOT_DIR" should be a directory'
+
+assert_false '[ -z "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
+             'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should not be unset'
+
+assert_true '[ -d "$AUTONAMEOW_TESTRESULTS_DIR" ]' \
+            'Environment variable "AUTONAMEOW_TESTRESULTS_DIR" should be a directory'
+
 assert_true '[ -e "${SELF_DIR}/integration_runner.sh" ]' \
             'The integration test runner exists'
 
@@ -70,6 +88,12 @@ assert_true '[ -x "${SELF_DIR}/integration_test_docs.sh" ]' \
 assert_true 'command -v "aha" >/dev/null 2>&1' \
             'The executable "aha" is available on the system'
 
+assert_true 'command -v "pytest" >/dev/null 2>&1' \
+            'The executable "pytest" is available on the system'
+
+_pytesthelp="$(pytest --help 2>&1)"
+assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
+            'Module "pytest-html" is available on the system'
 
 
 # Calculate total execution time.
