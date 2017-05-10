@@ -49,10 +49,10 @@ assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
 #assert_false '[ "1" -ne "0" ]' 'Expect failure .. (false negative)'
 
 
-assert_true '[ -e "${SELF_DIR}/shared_utils.sh" ]' \
+assert_true '[ -e "${SELF_DIR}/common_utils.sh" ]' \
             'Shared test utility library exists'
 
-assert_true '[ -x "${SELF_DIR}/shared_utils.sh" ]' \
+assert_true '[ -x "${SELF_DIR}/common_utils.sh" ]' \
             'Shared test utility library is executable'
 
 assert_false '[ -z "$AUTONAMEOW_ROOT_DIR" ]' \

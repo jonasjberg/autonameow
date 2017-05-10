@@ -28,7 +28,7 @@ C_RESET="$(tput sgr0)"
 
 SELF_DIR="$(dirname "$0")"
 
-if ! source "${SELF_DIR}/shared_utils.sh"
+if ! source "${SELF_DIR}/common_utils.sh"
 then
     echo "Shared test utility library is missing. Aborting .." 1>&2
     exit 1
