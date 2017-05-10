@@ -25,6 +25,12 @@ set -o noclobber -o nounset -o pipefail
 SELF="$(basename "$0")"
 SELF_DIR="$(realpath -e "$(dirname "$0")")"
 
+if ! source "${SELF_DIR}/shared_utils.sh"
+then
+    echo "Shared test utility library is missing. Aborting .." 1>&2
+    exit 1
+fi
+
 
 # Make sure required executables are available.
 if ! command -v "pytest" >/dev/null 2>&1
@@ -41,40 +47,48 @@ else
 fi
 
 
-# Get absolute path to log file directory and make sure it is valid.
-_LOGFILE_DIR="$( ( cd "$SELF_DIR" && realpath -e -- "../docs/test_results/" ) )"
-if [ ! -d "$_LOGFILE_DIR" ]
-then
-    echo "Not a directory: \"${_LOGFILE_DIR}\" .. Aborting" >&2
-    exit 1
-fi
-
-
 _timestamp="$(date "+%Y-%m-%dT%H%M%S")"
-_unittest_log="${_LOGFILE_DIR}/unit_generated_${_timestamp}.html"
+_unittest_log="${AUTONAMEOW_TESTRESULTS_DIR}/unit_generated_${_timestamp}.html"
 if [ -e "$_unittest_log" ]
 then
     echo "File exists: \"${_unittest_log}\" .. Aborting" >&2
     exit 1
 fi
 
-# _unittest_rawlog="${_LOGFILE_DIR}/unit_stdout_${_timestamp}.raw"
+
+# Run tests and generate HTML report
+( cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests pytest --html="${_unittest_log}" )
+
+if [ -s "$_unittest_log" ]
+then
+    echo "Wrote unit test HTML log file: \"${_unittest_log}\""
+
+    # Write log file name to temporary file, used by other scripts.
+    set +o noclobber
+    echo "${_unittest_log}" > "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
+    set -o noclobber
+
+    exit 0
+fi
+
+
+
+
+# if ! command -v "aha" >/dev/null 2>&1
+# then
+#     logmsg "The executable \"aha\" is not available on this system"
+#     # logmsg "Skipping converting raw logfiles to HTML .."
+#     # exit 1
+# fi
+
+
+# _unittest_rawlog="${AUTONAMEOW_TESTRESULTS_DIR}/unit_stdout_${_timestamp}.raw"
 # if [ -e "$_unittest_rawlog" ]
 # then
 #     echo "File exists: \"${_unittest_rawlog}\" .. Aborting" >&2
 #     exit 1
 # fi
 
-
-AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIR" && realpath -e -- ".." ) )"
-if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
-then
-    echo "Unable to get autonameow root directory. Exiting .." 1>&2
-    exit 1
-fi
-
-# Run tests and generate HTML report
-( cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests pytest --html="${_unittest_log}" )
 
 # ( cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests pytest --verbose --color=yes 2>&1 >> "$_unittest_rawlog")
 
@@ -94,11 +108,3 @@ fi
 #         logmsg 'FAILED to write HTML log file!'
 #     fi
 # fi
-
-
-if [ -s "$_unittest_log" ]
-then
-    echo "Wrote unit test HTML log file: \"${_unittest_log}\""
-    exit 0
-fi
-

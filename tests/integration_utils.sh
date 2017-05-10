@@ -28,6 +28,12 @@ C_RESET="$(tput sgr0)"
 
 SELF_DIR="$(dirname "$0")"
 
+if ! source "${SELF_DIR}/shared_utils.sh"
+then
+    echo "Shared test utility library is missing. Aborting .." 1>&2
+    exit 1
+fi
+
 
 # Initialize counter variables every time this script is sourced, which means
 # these count numbers for each test suite.  Used in 'calculate_statistics'.
@@ -40,19 +46,18 @@ tests_failed=0
 # file and exports the the log file path as 'AUTONAMEOW_TEST_LOG'.
 initialize_logging()
 {
-    # Get absolute path to log file directory and make sure it is valid.
-    _LOGFILE_DIR="$( ( cd "$SELF_DIR" && realpath -e -- "../docs/test_results/" ) )"
-    if [ ! -d "$_LOGFILE_DIR" ]
+    if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ]
     then
-        echo "Not a directory: \"${_LOGFILE_DIR}\" .. Aborting" >&2
+        echo "Not a directory: \"${AUTONAMEOW_TESTRESULTS_DIR}\" .. Aborting" >&2
         exit 1
     fi
 
     # Get absolute path to the log file, used by all sourcing scripts.
     AUTONAMEOW_TEST_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
-    AUTONAMEOW_TEST_LOG="${_LOGFILE_DIR}/${AUTONAMEOW_TEST_TIMESTAMP}.raw"
-    export AUTONAMEOW_TEST_LOG
+    AUTONAMEOW_TEST_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/${AUTONAMEOW_TEST_TIMESTAMP}.raw"
     export AUTONAMEOW_TEST_TIMESTAMP
+    export AUTONAMEOW_TEST_LOG
+
     if [ -f "$AUTONAMEOW_TEST_LOG" ]
     then
         # echo "NOTE: File exists: \"${AUTONAMEOW_TEST_LOG}\" .. " >&2
