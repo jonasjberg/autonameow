@@ -58,8 +58,9 @@ then
 
 Not a directory: "${AUTONAMEOW_WIKI_ROOT_DIR}" ..
 
-    NOTE: You must set the variable "AUTONAMEOW_WIKI_ROOT_DIR" in "${SELF}" to
-          the full path of the autonameow wiki repository root on this system.
+  NOTE: You must set the variable "AUTONAMEOW_WIKI_ROOT_DIR" in
+        "common_utils.sh" to the full path of the autonameow wiki
+        repository root on this system.
 EOF
 
     exit 1
