@@ -26,7 +26,7 @@ C_GREEN="$(tput setaf 2)"
 C_RESET="$(tput sgr0)"
 # C_RESET='\E[0m'
 
-_SELF_DIR="$(dirname "$0")"
+SELF_DIR="$(dirname "$0")"
 
 
 # Initialize counter variables every time this script is sourced, which means
