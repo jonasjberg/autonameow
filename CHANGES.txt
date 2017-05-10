@@ -1,3 +1,45 @@
+2017-05-10  [autonameow v0.3.1]
+            Insignificant changes of the core functionality. But major rework
+            and improvements of the testing code, documentation and structure.
+
+            Additions:
+            - Include additional information on the environment in debug mode.
+			- Add new option '--config-path' to allow specifying an alternative
+			  configuration file to use instead of the default configuration
+              file at predetermined platform-specific locations.
+            - Add shared library for the integration test scripts;
+              'tests/integration_utils.sh', contains common utility functions
+              used by bash test-scripts, like assertions, execution time
+              measurement, logging, etc.
+            - Add integration tests and integration test runner;
+                - Add main integration runner 'integration_runner.sh'.
+                - Add "Test Suite" test suite 'integration_test_tests.sh'.
+                - Add "Command-Line Interface" test suite
+                  'integration_test_cli.sh'.
+                - Add "Documentation" test suite 'integration_test_docs.sh'.
+            - Add directory 'devscripts' for developer tools and scripts.
+                - Add experimental script 'list-imported-modules.sh'.
+            - Add shared library for ALL tests; 'tests/common_utils.sh'.
+              Handles setting up paths and global variables that are exported
+              to the environment.
+            - Add unit test runner; 'unit_runner.py'.
+              Wraps 'pytest' which is used to run all unit tests and export the
+              test results report to a HTML file.
+            - Add (work in progress) runner for ALL tests; 'common_runner.sh'.
+              This script will run both integration tests and unit tests and
+              produce a summary report which will be included in the project
+              wiki page, alternatively uploaded to GitHub pages.
+
+            Changes:
+            - Remove matching of rule field 'filename_in_filetags_format'
+              in 'RuleMatcher'. Motivation is limiting project scope.
+            - Remove prototype integration test; 'tests/run_integration_1.sh'.
+
+            Fixes:
+            - Various fixes and corrections to the main source and unit tests.
+            - Various fixes and corrections to the utility scripts.
+
+
 2017-04-24  [autonameow v0.3.0]
             Start developing the project during the course "1DV430 --
             Individual Software Development Project", part of the "Software
@@ -30,6 +72,7 @@
               the abstract analyzer base class when an unimplemented field
               attribute getter is called.
             - Fixed various failing unit tests.
+
 
 2016-12-19  [autonameow v0.2.2]
 
