@@ -42,10 +42,17 @@ logmsg "Started \"${SELF}\""
 logmsg "Running the Command-Line Interface test suite .."
 
 
+
+assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
+            'Should be running a target operating system'
+
 assert_true 'command -v python3 >/dev/null 2>&1' \
             "Python v3.x is available on the system"
 
 AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../run.sh" ) )"
+assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
+             'Environment variable "AUTONAMEOW_RUNNER" should not be unset'
+
 assert_true '[ -e "$AUTONAMEOW_RUNNER" ]' \
             "The autonameow launcher script \""$(basename -- "$AUTONAMEOW_RUNNER")"\" exists"
 
