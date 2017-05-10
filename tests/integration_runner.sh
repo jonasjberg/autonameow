@@ -78,6 +78,11 @@ then
         then
             logmsg "Wrote HTML log file: \"${_html_test_log}\""
             rm -- "$AUTONAMEOW_TEST_LOG"
+
+            # Write log file name to temporary file, used by other scripts.
+            set +o noclobber
+            echo "${_html_test_log}" > "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport"
+            set -o noclobber
         fi
     else
         logmsg 'FAILED to write HTML log file!'
