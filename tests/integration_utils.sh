@@ -153,6 +153,31 @@ current_unix_time()
     esac
 }
 
+# TODO: Finish this function ..
+log_system_info()
+{
+    local _os_name="$(uname -s)"
+    local _os_vers="$(uname -r)"
+    local _cpu_info
+
+    case "$OSTYPE" in
+        darwin*)
+            _cpu_info="$(sysctl -n machdep.cpu.brand_string)" ;;
+
+        linux*|msys)
+            if [ -e "/proc/cpuinfo" ]
+            then
+                _cpu_info="$(cat /proc/cpuinfo | grep -m1 'model name')"
+                _cpu_info="${_cpu_info#*:}"
+            fi ;;
+
+        *)
+            _cpu_info="undetermined" ;;
+    esac
+
+    echo "System info: Running ${_os_name} ${_os_vers} on ${_cpu_info}"
+}
+
 # Converts the integration test log file to HTML using executable 'aha' if
 # available.  Executed at the end of a test run by 'integration_runner.sh'.
 convert_raw_log_to_html()
