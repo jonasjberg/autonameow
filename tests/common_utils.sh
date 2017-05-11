@@ -22,7 +22,11 @@
 set -o noclobber -o nounset -o pipefail
 
 SELF="$(basename "$0")"
-SELF_DIR="$(dirname "$0")"
+
+# Get the full absolute path to this file.
+# Also handles case where the script being sourced.
+_self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
+SELF_DIR="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
 
 
 

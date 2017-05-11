@@ -26,7 +26,10 @@ C_GREEN="$(tput setaf 2)"
 C_RESET="$(tput sgr0)"
 # C_RESET='\E[0m'
 
-SELF_DIR="$(dirname "$0")"
+# Get the full absolute path to this file.
+# Also handles case where the script being sourced.
+_self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
+SELF_DIR="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
 
 if ! source "${SELF_DIR}/common_utils.sh"
 then
