@@ -31,6 +31,7 @@ C_RESET="$(tput sgr0)"
 _self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
 SELF_DIR="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
 
+# Source script that sets up shared environment variables.
 if ! source "${SELF_DIR}/common_utils.sh"
 then
     echo "Shared test utility library is missing. Aborting .." 1>&2
