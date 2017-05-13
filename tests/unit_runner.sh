@@ -59,7 +59,7 @@ fi
 
 
 # Run tests and generate HTML report
-( cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests pytest --self-contained-html --html="${_unittest_log}" )
+( cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests pytest --self-contained-html --html="${_unittest_log}" tests/unit_test_*.py )
 
 if [ -s "$_unittest_log" ]
 then
