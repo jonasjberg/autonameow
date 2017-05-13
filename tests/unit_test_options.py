@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import os
 from unittest import TestCase
 
 from core import options
@@ -32,4 +33,26 @@ class TestArgumentValidators(TestCase):
             with self.assertRaises(argparse.ArgumentTypeError) as e:
                 options.arg_is_year(y)
             self.assertIsNotNone(e)
-            # self.assertIn('"{}" is not a valid year'.format(y), e.exception)
+
+    def test_arg_is_readable_file_raises_exception_missing_file(self):
+        _file_missing = '/tmp/nopenopenopenope_no-file-here_nono'
+        self.assertFalse(os.path.isfile(_file_missing))
+
+        with self.assertRaises(argparse.ArgumentTypeError) as e:
+            options.arg_is_readable_file(_file_missing)
+        self.assertIsNotNone(e)
+
+    def test_arg_is_readable_file_raises_exception_none_argument(self):
+        with self.assertRaises(argparse.ArgumentTypeError) as e:
+            options.arg_is_readable_file(None)
+        self.assertIsNotNone(e)
+
+    def test_arg_is_readable_file_raises_exception_empty_string_arg(self):
+        with self.assertRaises(argparse.ArgumentTypeError) as e:
+            options.arg_is_readable_file('')
+        self.assertIsNotNone(e)
+
+    def test_arg_is_readable_file_raises_exception_arg_is_directory(self):
+        with self.assertRaises(argparse.ArgumentTypeError) as e:
+            options.arg_is_readable_file()
+        self.assertIsNotNone(e)
