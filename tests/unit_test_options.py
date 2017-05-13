@@ -34,12 +34,23 @@ class TestArgumentValidators(TestCase):
                 options.arg_is_year(y)
             self.assertIsNotNone(e)
 
+    def test_arg_is_year_passes_valid_years(self):
+        valid_years = ['1000', '1970', '2017', '9999']
+        for y in valid_years:
+            self.assertTrue(options.arg_is_year(y))
+
     def test_arg_is_readable_file_raises_exception_missing_file(self):
         _file_missing = '/tmp/nopenopenopenope_no-file-here_nono'
+        self.assertFalse(os.path.exists(_file_missing))
         self.assertFalse(os.path.isfile(_file_missing))
 
         with self.assertRaises(argparse.ArgumentTypeError) as e:
             options.arg_is_readable_file(_file_missing)
+        self.assertIsNotNone(e)
+
+    def test_arg_is_readable_file_raises_exception_arg_is_dev_null(self):
+        with self.assertRaises(argparse.ArgumentTypeError) as e:
+            options.arg_is_readable_file('/dev/null')
         self.assertIsNotNone(e)
 
     def test_arg_is_readable_file_raises_exception_none_argument(self):
@@ -54,5 +65,5 @@ class TestArgumentValidators(TestCase):
 
     def test_arg_is_readable_file_raises_exception_arg_is_directory(self):
         with self.assertRaises(argparse.ArgumentTypeError) as e:
-            options.arg_is_readable_file()
+            options.arg_is_readable_file('/tmp')
         self.assertIsNotNone(e)
