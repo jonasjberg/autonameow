@@ -57,7 +57,8 @@ def arg_is_readable_file(arg):
     Returns: The expanded absolute path specified by "arg" if valid.
 
     """
-    if os.path.exists(arg) and os.path.isfile(arg) and os.access(arg, os.R_OK):
+    if arg and os.path.exists(arg) and os.path.isfile(arg) \
+            and os.access(arg, os.R_OK):
         if arg.startswith('~/'):
             arg = os.path.expanduser(arg)
         return os.path.normpath(os.path.abspath(arg))
