@@ -26,7 +26,7 @@ from unittest import TestCase
 from core.evaluate.matcher import RuleMatcher
 from core.fileobject import FileObject
 from core import config_defaults
-from utils import abspath_testfile
+from unit_utils import abspath_testfile
 
 RULES = config_defaults.rules
 
