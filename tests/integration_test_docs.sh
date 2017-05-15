@@ -63,6 +63,10 @@ assert_true '[ -f "$_srcroot_readme" ]' \
 assert_false 'grep_todos "$_srcroot_readme"' \
              "Main README.md does not contain TODOs"
 
+_wiki_report_results="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
+assert_true '[ -f "$_wiki_report_results" ]' \
+            'The project Wiki should contain "Test-Results.md"'
+
 
 
 # Calculate total execution time.
