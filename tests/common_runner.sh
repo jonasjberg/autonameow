@@ -84,7 +84,7 @@ then
         _int_log_basename="$(basename -- "${_int_log_path}")"
         _int_log_timestamp="$(get_timestamp_from_basename "${_int_log_basename}")"
         _int_log_link="${REMOTE_TEST_RESULTS}/${_int_log_basename}"
-        report_append "* [${_int_log_timestamp}] [Integration Test Report](${_int_log_link})\n"
+        report_append "* \`${_int_log_timestamp}\` [Integration Test Report](${_int_log_link})\n"
     fi
 
     if [ -f "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport" ]
@@ -100,7 +100,7 @@ then
         _unit_log_basename="$(basename -- "${_unit_log_path}")"
         _unit_log_timestamp="$(get_timestamp_from_basename "${_unit_log_basename}")"
         _unit_log_link="${REMOTE_TEST_RESULTS}/${_unit_log_basename}"
-        report_append "* [${_unit_log_timestamp}] [Unit Test Report](${_unit_log_link})\n"
+        report_append "* \`${_unit_log_timestamp}\` [Unit Test Report](${_unit_log_link})\n"
     fi
 fi
 
