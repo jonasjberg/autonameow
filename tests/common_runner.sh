@@ -53,21 +53,23 @@ else
 fi
 
 
-# TODO: This should not be a dummy file ..
-dummy_markdown_report="${AUTONAMEOW_TESTRESULTS_DIR}/dummy_test_report_summary.md"
-report_append_printf()
-{
-    printf "$*" | tee -a "$dummy_markdown_report"
-}
-
+wiki_report_results="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
 report_append()
 {
-    tee -a "$dummy_markdown_report"
+    printf "$*" | tee -a "$wiki_report_results"
 }
 
 if [ "$count_fail" -eq "0" ]
 then
-    report_append_printf '\n\n'
+    # Insert heading with todays date if not already present.
+    _date="$(date "+%Y-%m-%d")"
+    if ! grep -q "^### ${_date}$" "$wiki_report_results"
+    then
+        report_append "\n### ${_date}\n\n"
+    fi
+
+    # Root path used in the links that are added to the report.
+    REMOTE_TEST_RESULTS="https://github.com/1dv430/js224eh-project/blob/master/docs/test_results"
 
     if [ -f "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport" ]
     then
@@ -79,12 +81,10 @@ then
             exit 1
         fi
 
-        # TODO: This is still incomplete and does not work as intended.
-        report_append_printf '### Integration Test Report\n'
-        report_append_printf "Read from file: \`${_int_log_path}\`\n"
-        report_append_printf '\n\nSTART Testing HTML to markdown conversion with pandoc .. \n'
-        pandoc -f html -t markdown "$_int_log_path" | report_append
-        report_append_printf '\n\nDONE Testing .. \n'
+        _int_log_basename="$(basename -- "${_int_log_path}")"
+        _int_log_timestamp="$(get_timestamp_from_basename "${_int_log_basename}")"
+        _int_log_link="${REMOTE_TEST_RESULTS}/${_int_log_basename}"
+        report_append "* [${_int_log_timestamp}] [Integration Test Report](${_int_log_link})\n"
     fi
 
     if [ -f "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport" ]
@@ -97,16 +97,10 @@ then
             exit 1
         fi
 
-        # TODO: This is still incomplete and does not work as intended.
-        report_append_printf '### Unit Test Report\n'
-        report_append_printf "Read from file: \`${_unit_log_path}\`\n"
-        report_append_printf '\n\nSTART Testing HTML to markdown conversion with pandoc .. \n'
-        pandoc -f html -t markdown "$_unit_log_path" | report_append
-        report_append_printf '\n\nDONE Testing .. \n'
+        _unit_log_basename="$(basename -- "${_unit_log_path}")"
+        _unit_log_timestamp="$(get_timestamp_from_basename "${_unit_log_basename}")"
+        _unit_log_link="${REMOTE_TEST_RESULTS}/${_unit_log_basename}"
+        report_append "* [${_unit_log_timestamp}] [Unit Test Report](${_unit_log_link})\n"
     fi
-    # report_append_printf ''
-    # report_append_printf '===============\n'
-    # report_append_printf 'Line under header\n'
-    # report_append_printf '\n\n'
 fi
 
