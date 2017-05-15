@@ -110,6 +110,14 @@ assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
 assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
 
+assert_true 'type -t get_timestamp_from_basename >/dev/null' \
+            '"get_timestamp_from_basename" is a function'
+
+assert_false '[ -n "$(get_timestamp_from_basename "abc")" ]' \
+             '"get_timestamp_from_basename" returns empty string given "abc"'
+
+assert_true 'get_timestamp_from_basename "unittest_log_2017-05-15T134801.html" | grep -qE -- "^2017-05-15 13:48:01$"' \
+            '"get_timestamp_from_basename" returns "2017-05-15 13:48:01" given "unittest_log_2017-05-15T134801.html"'
 
 
 
