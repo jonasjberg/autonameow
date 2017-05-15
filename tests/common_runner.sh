@@ -56,7 +56,7 @@ fi
 wiki_report_results="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
 report_append()
 {
-    printf "$*" | tee -a "$wiki_report_results"
+    printf "$*" >> "$wiki_report_results"
 }
 
 if [ "$count_fail" -eq "0" ]
