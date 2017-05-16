@@ -29,6 +29,10 @@ _self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
 SELF_DIR="$(dirname -- "$(realpath -e -- "$_self_dir_relative")")"
 
 
+C_RED="$(tput setaf 1)"
+C_GREEN="$(tput setaf 2)"
+C_RESET="$(tput sgr0)"
+
 
 # Get absolute path to the autonameow source root.
 AUTONAMEOW_ROOT_DIR="$( ( cd "$SELF_DIR" && realpath -e -- ".." ) )"
