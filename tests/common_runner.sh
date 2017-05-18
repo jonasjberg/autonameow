@@ -38,6 +38,7 @@ REMOTE_TEST_RESULTS="https://github.com/1dv430/js224eh-project/blob/master/docs/
 WIKI_REPORT_RESULTS="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
 
 # Default configuration.
+option_skip_reports='false'
 option_skip_wiki='false'
 option_verbose='false'
 
@@ -48,9 +49,12 @@ print_usage_info()
 
 "${SELF}"  --  autonameow test suite helper script
 
-  USAGE:  ${SELF} ([OPTIONS])"
+  USAGE:  ${SELF} ([OPTIONS])
 
-  OPTIONS:  -h   Display usage information and exit.
+  OPTIONS:  -d   Do not write any reports.
+                 Calls unit/integration-runners with the '-n' option.
+                 NOTE: Implies '-n', will not add reports to the wiki.
+            -h   Display usage information and exit.
             -n   Do not add test reports to project wiki.
             -v   Enable all output from the unit/integration-runners.
                  This also increases the verbosity of this script.
@@ -179,9 +183,10 @@ if [ "$#" -eq "0" ]
 then
     printf "(USING DEFAULTS -- "${SELF} -h" for usage information)\n\n"
 else
-    while getopts hnv opt
+    while getopts dhnv opt
     do
         case "$opt" in
+            d) option_skip_reports='true' ; option_skip_wiki='true' ;;
             h) print_usage_info ; exit 0 ;;
             n) option_skip_wiki='true' ;;
             v) option_verbose='true' ;;
@@ -192,10 +197,12 @@ else
 fi
 
 
-count_fail=0
+runner_opts="'-n"
+[ "$option_skip_reports" != 'true' ] || runner_opts=''
 
-run_task 'Running integration test runner' ${SELF_DIR}/integration_runner.sh
-run_task 'Running unit test runner' ${SELF_DIR}/unit_runner.sh
+count_fail=0
+run_task 'Running integration test runner' ${SELF_DIR}/integration_runner.sh ${runner_opts}
+run_task 'Running unit test runner' ${SELF_DIR}/unit_runner.sh ${runner_opts}
 
 # Do not proceed if a runner failed.
 if [ "$count_fail" -ne "0" ]
