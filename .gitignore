@@ -269,3 +269,4 @@ docs/test_results/*.raw
 # Archives
 *.tar.gz
 *.tar.lzma
+junk
