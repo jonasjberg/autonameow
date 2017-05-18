@@ -58,6 +58,25 @@ print_usage_info()
 EOF
 }
 
+# Set options to 'true' here and invert logic as necessary when testing (use
+# "if not true"). Motivated by hopefully reducing bugs and weird behaviour
+# caused by users setting the default option variables to unexpected values.
+if [ "$#" -eq "0" ]
+then
+    printf "(USING DEFAULTS -- "${SELF} -h" for usage information)\n\n"
+else
+    while getopts hnq opt
+    do
+        case "$opt" in
+            h) print_usage_info ; exit 0 ;;
+            n) option_skip_report='true' ;;
+            q) option_quiet='true' ;;
+        esac
+    done
+
+    shift $(( $OPTIND - 1 ))
+fi
+
 
 # Store current time for later calculation of total execution time.
 time_start="$(current_unix_time)"
