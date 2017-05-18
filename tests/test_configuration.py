@@ -21,9 +21,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import yaml
 from unittest import TestCase
 
-from core.config import configuration
+from core.config.configuration import Configuration
 from unit_utils import make_temp_dir
 
 TEST_CONFIG_DATA = {'key1': 'value1',
@@ -42,17 +43,35 @@ key5:
 - value6
 '''
 
+
 class TestWriteConfig(TestCase):
     def setUp(self):
         self.dest_path = os.path.join(make_temp_dir(), 'test_config.yaml')
 
+        self.configuration = Configuration()
+        self.configuration.load_from_dict(TEST_CONFIG_DATA)
+
     def test_setup(self):
-        self.assertFalse(os.path.exists(self.dest_path))
+        self.assertFalse(os.path.exists(self.dest_path),
+                         'Destination path should not already exist')
+
+    def test_load_from_dict(self):
+        self.assertIsNotNone(self.configuration.data,
+                             'Configuration data should be loaded')
 
     def test_write_config(self):
-        configuration.write_config(TEST_CONFIG_DATA, self.dest_path)
-        self.assertTrue(os.path.exists(self.dest_path))
+        self.configuration.write_to_disk(self.dest_path)
+        self.assertTrue(os.path.exists(self.dest_path),
+                        'Configuration file exists on disk')
 
     def test_write_and_verify(self):
-        configuration.write_config(TEST_CONFIG_DATA, self.dest_path)
-        self.assertEqual(TEST_CONFIG_YAML_DATA, self.dest_path)
+        self.configuration.write_to_disk(self.dest_path)
+
+        def load_yaml(path):
+            with open(path, 'r') as file_handle:
+                data = yaml.load(file_handle)
+            return data
+
+        expected = load_yaml(self.dest_path)
+        self.assertEqual(expected, self.configuration.data,
+                         'Loaded, written and then re-read data should match')

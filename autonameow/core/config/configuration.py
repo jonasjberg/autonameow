@@ -28,8 +28,14 @@ import yaml
 
 
 class Configuration(object):
-    def __init__(self):
-        self.data = {}
+    def __init__(self, data=None):
+        if data:
+            self.data = data
+        else:
+            self.data = {}
+
+    def load_from_dict(self, data):
+        self.data = data
 
     def load_from_disk(self, load_path=None):
         with open(load_path, 'r') as file_handle:
