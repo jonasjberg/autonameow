@@ -83,3 +83,49 @@ get_timestamp_from_basename()
     local ts="$(grep -Eo -- "20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{6}" <<< "$1")"
     sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)T\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3 \4:\5:\6/' <<< "$ts"
 }
+
+# Runs a "task" (evaluates an expression) and prints messages.
+#
+# 1. First argument controls message printing and supression of expression
+#    output. Everything but 'true' results in passing all output.
+# 2. Second argument is a message that describes the task being performed.
+#    Message formatting is controlled by the first argument. If 'quiet' is
+#    'true', a single line is printed for each task. Otherwise, the same
+#    line is printed before running the tasks and then again after.
+# 3. Third argument is an arbitrary expression to evalute.
+#    If the expression evaluates to 0 the task is considered to have succeeded,
+#    any other return code is considered a failure.
+run_task()
+{
+    local _opt_quiet="$1"
+    local _msg="$2"
+    local _cmd="$3"
+
+    # Print tasks is starting message.
+    local FMT
+    [ "$_opt_quiet" = 'true' ] && local FMT='%s ..' || local FMT='%s ..\n'
+    printf "$FMT" "$_msg"
+
+    if [ "$_opt_quiet" != 'true' ]
+    then
+        eval "${_cmd}"
+    else
+        eval "${_cmd}" 2>&1 >/dev/null
+    fi
+
+    # Run task and check exit status.
+    local _retcode="$?"
+    if [ "$_retcode" -ne '0' ]
+    then
+        count_fail="$((count_fail + 1))"
+    fi
+
+    # Print task has ended message.
+    [ "$_opt_quiet" = 'true' ] || printf "${_msg} .."
+    if [ "$_retcode" -eq '0' ]
+    then
+        printf " ${C_GREEN}[FINISHED]${C_RESET}\n"
+    else
+        printf " ${C_RED}[FAILED]${C_RESET}\n"
+    fi
+}

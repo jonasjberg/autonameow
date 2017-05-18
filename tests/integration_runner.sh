@@ -78,6 +78,9 @@ else
 fi
 
 
+
+count_fail=0
+
 # Store current time for later calculation of total execution time.
 time_start="$(current_unix_time)"
 
@@ -95,7 +98,8 @@ do
         continue
     fi
 
-    "$testscript"
+    _testscript_base="$(basename -- "$testscript")"
+    run_task "$option_quiet" "Running \"${_testscript_base}\"" "$testscript"
 done
 
 
@@ -104,5 +108,8 @@ time_end="$(current_unix_time)"
 total_time="$((($time_end - $time_start) / 1000000))"
 logmsg "Total execution time: ${total_time} ms"
 
-convert_raw_log_to_html
+if [ "$option_skip_report" != 'true' ]
+then
+    run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
+fi
 

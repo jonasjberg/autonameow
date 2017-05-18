@@ -65,60 +65,6 @@ print_usage_info()
 EOF
 }
 
-# Prints a message describing a task that is about to start.
-# Message formatting depends on the option 'option_verbose'.
-msg_task_start()
-{
-    local FMT
-    [ "$option_verbose" != 'true' ] && FMT='%s ..' || FMT='%s ..\n'
-    printf "$FMT" "$*"
-}
-
-# Prints a message when a task has ended.
-# First argument is the exit status of the task. Non-zero is considered a
-# failure. Any arguments following the first is a message describing the task.
-# Message formatting depends on the option 'option_verbose'.
-msg_task_end()
-{
-    local _status="$1"
-    shift
-    local _msg="$*"
-
-    [ "$option_verbose" != 'true' ] || printf "\n${_msg} .."
-    if [ "$_status" -eq '0' ]
-    then
-        printf " ${C_GREEN}[FINISHED]${C_RESET}\n"
-    else
-        printf " ${C_RED}[FAILED]${C_RESET}\n"
-    fi
-}
-
-# Runs a "task" and prints a message,
-# First argument is a message to print before running the task.
-# Second argument is an arbitrary expression to evalute.
-# If the expression evaluates to 0 the task is considered to have succeeded,
-# any other return code is considered a failure. Suppresses the eval output
-# based on the 'option_verbose' option.
-run_task()
-{
-    local _msg="$1"
-    msg_task_start "$_msg"
-
-    if [ "$option_verbose" != 'true' ]
-    then
-        eval "$2" 2>&1 >/dev/null
-    else
-        eval "$2"
-    fi
-
-    local _retcode="$?"
-    if [ "$_retcode" -ne '0' ]
-    then
-        count_fail="$((count_fail + 1))"
-    fi
-
-    msg_task_end "$_retcode" "$_msg"
-}
 
 # Append arguments to the wiki project report and print to stdout.
 wiki_report_append()
@@ -196,13 +142,14 @@ else
     shift $(( $OPTIND - 1 ))
 fi
 
+[ "$option_verbose" != 'true' ] && option_quiet='true' || option_quiet='false'
 
 runner_opts="'-n"
 [ "$option_skip_reports" != 'true' ] || runner_opts=''
 
 count_fail=0
-run_task 'Running integration test runner' ${SELF_DIR}/integration_runner.sh ${runner_opts}
-run_task 'Running unit test runner' ${SELF_DIR}/unit_runner.sh ${runner_opts}
+run_task "$option_quiet" 'Running integration test runner' ${SELF_DIR}/integration_runner.sh ${runner_opts}
+run_task "$option_quiet" 'Running unit test runner' ${SELF_DIR}/unit_runner.sh ${runner_opts}
 
 # Do not proceed if a runner failed.
 if [ "$count_fail" -ne "0" ]
@@ -214,9 +161,9 @@ fi
 
 if [ "$option_skip_wiki" != 'true' ]
 then
-    run_task 'Adding heading with current date to report if needed' wiki_check_add_header
-    run_task 'Adding integration test log to Test Results wiki page' wiki_add_integration_link
-    run_task 'Adding unit test log to Test Results wiki page' wiki_add_unit_link
+    run_task "$option_quiet" 'Adding heading with current date to report if needed' wiki_check_add_header
+    run_task "$option_quiet" 'Adding integration test log to Test Results wiki page' wiki_add_integration_link
+    run_task "$option_quiet" 'Adding unit test log to Test Results wiki page' wiki_add_unit_link
 
     # TODO: Commit reports to version control.
 fi

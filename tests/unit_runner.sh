@@ -31,6 +31,51 @@ then
     exit 1
 fi
 
+# Default configuration.
+option_skip_report='false'
+option_quiet='false'
+
+
+print_usage_info()
+{
+    cat <<EOF
+
+"${SELF}"  --  autonameow unit tests runner
+
+  USAGE:  ${SELF} ([OPTIONS])
+
+  OPTIONS:  -h   Display usage information and exit.
+            -n   Do not write HTML test reports to disk.
+                 Note: "raw" log file is always written.
+            -q   Suppress output from test suites.
+
+  All options are optional. Default behaviour is to export test result
+  reports and print the test results to stdout/stderr in real-time.
+
+EOF
+}
+
+
+
+# Set options to 'true' here and invert logic as necessary when testing (use
+# "if not true"). Motivated by hopefully reducing bugs and weird behaviour
+# caused by users setting the default option variables to unexpected values.
+if [ "$#" -eq "0" ]
+then
+    printf "(USING DEFAULTS -- "${SELF} -h" for usage information)\n\n"
+else
+    while getopts hnq opt
+    do
+        case "$opt" in
+            h) print_usage_info ; exit 0 ;;
+            n) option_skip_report='true' ;;
+            q) option_quiet='true' ;;
+        esac
+    done
+
+    shift $(( $OPTIND - 1 ))
+fi
+
 
 # Make sure required executables are available.
 if ! command -v "pytest" >/dev/null 2>&1
@@ -58,8 +103,16 @@ then
 fi
 
 
-# Run tests and generate HTML report
-( cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests pytest --self-contained-html --html="${_unittest_log}" tests/unit_test_*.py )
+run_pytest()
+{
+    _pytest_report_opts="--self-contained-html --html="${_unittest_log}""
+    [ "$option_skip_report" != 'true' ] || _pytest_report_opts=''
+    ( cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests pytest ${_pytest_report_opts} tests/unit_test_*.py )
+}
+
+count_fail=0
+run_task "$option_quiet" "Running \"pytest\"" run_pytest
+
 
 if [ -s "$_unittest_log" ]
 then
