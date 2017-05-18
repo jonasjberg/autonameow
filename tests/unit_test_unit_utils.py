@@ -20,34 +20,14 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import os
-import tempfile
+from unittest import TestCase
 
-_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-_PARENT_DIR = os.path.normpath(_THIS_DIR + os.sep + os.pardir)
-TESTS_DIR = os.path.join(_PARENT_DIR + os.sep + 'test_files')
+from unit_utils import make_temp_dir
 
 
-def abspath_testfile(file):
-    """
-    Utility method used by tests to construct a full path to individual test
-    files in the 'test_files' directory.
-    
-    Args:
-        file: The basename of a file in the 'test_files' directory.
-
-    Returns: The full path to the specified file.
-
-    """
-    return os.path.join(TESTS_DIR + os.sep + file)
-
-
-def make_temp_dir():
-    """
-    Creates and returns a temporary directory.
-
-    Returns: A new temporary directory.
-
-    """
-    return tempfile.mkdtemp()
+class TestUtilities(TestCase):
+    def test_make_temp_dir(self):
+        self.assertIsNotNone(make_temp_dir())
+        self.assertTrue(os.path.exists(make_temp_dir()))
+        self.assertTrue(os.path.isdir(make_temp_dir()))
