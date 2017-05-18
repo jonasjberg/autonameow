@@ -34,6 +34,30 @@ then
     exit 1
 fi
 
+# Default configuration.
+option_skip_report='false'
+option_quiet='false'
+
+
+print_usage_info()
+{
+    cat <<EOF
+
+"${SELF}"  --  autonameow integration test suite runner
+
+  USAGE:  ${SELF} ([OPTIONS])
+
+  OPTIONS:  -h   Display usage information and exit.
+            -n   Do not write HTML test reports to disk.
+                 Note: "raw" log file is always written.
+            -q   Suppress output from test suites.
+
+  All options are optional. Default behaviour is to export test result
+  reports and print the test results to stdout/stderr in real-time.
+
+EOF
+}
+
 
 # Store current time for later calculation of total execution time.
 time_start="$(current_unix_time)"
