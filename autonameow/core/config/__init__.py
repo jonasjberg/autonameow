@@ -22,6 +22,8 @@
 import platform
 import os
 
+import yaml
+
 CONFDIR_MAC = '~/Library/Application Support'
 CONFDIR_UNIX_VAR = 'XDG_CONFIG_HOME'
 CONFDIR_UNIX_FALLBACK = '~/.config'
@@ -34,14 +36,14 @@ CONFIG_BASENAME = 'autonameow.yaml'
 def config_dirs():
     """
     Returns a platform-specific list of possible user configuration directories.
-    
+
     The returned directories are listed in order of priority, from high to low.
     Assume that the first directory to contain a configuration file is the one
     that is used.
-    
-    CREDITS: Parts of this code is shamelessly lifted pretty much as-is from 
+
+    CREDITS: Parts of this code is shamelessly lifted pretty much as-is from
              the venerable "beets" (/beets/util/confit.py) by Adrian Sampson.
-    
+
     Returns:
         A list of absolute paths to configuration directories, ordered from
         high to low priority.
@@ -78,26 +80,55 @@ def config_dirs():
     return abs_paths
 
 
-def config_file():
+# TODO: What is this?
+def default_config_dict():
+    default_config = dict(
+        A='a',
+        B=dict(
+            M='b',
+            J='c',
+            A='d',
+            O='e',
+        ),
+        C='f'
+    )
+
+    return default_config
+
+
+def config_file_path():
     """
-    Returns a configuration file.
-    
+    Returns the path to the configuration file. The file might or might not
+    actually exist.
+
     Returns:
-        The absolute path to a autonameow configuration file or False.
+        The absolute path to the autonameow configuration file.
     """
 
     directories = config_dirs()
-    if not dirs:
+    if not directories:
         return False
 
-    for directory in directories:
-        _file = os.path.join(directory, CONFIG_BASENAME)
-        if os.path.isfile(_file):
-            return _file
+    out = os.path.normpath(os.path.join(directories[0], CONFIG_BASENAME))
+    return out
+
+
+def config_file():
+    """
+    Returns the path to an existing configuration file.
+
+    Returns:
+        The absolute path to an autonameow configuration file or False.
+    """
+
+    out = config_file_path
+    if os.path.isfile(out):
+        return out
 
     return False
 
 
+# TODO: Document.
 def has_config_file():
     # TODO: [BL004] Implement copy default configuration.
     file = config_file()
@@ -107,10 +138,26 @@ def has_config_file():
     return False
 
 
+# TODO: Document.
 def write_default_config():
     # TODO: [BL004] Implement copy default configuration.
-    # dirs = config_dirs()
-    return 'TODO'
+    config_path = config_file_path
+    default_config = default_config_dict()
+
+    if os.path.exists(config_path):
+        print('Path exists: "{}"'.format(config_path))
+        return False
+
+    if not default_config:
+        print('Missing default config!')
+        return False
+
+    if os.access(config_path, os.W_OK):
+        try:
+            with open(config_path, 'w') as fh:
+                yaml.dump(default_config, fh, default_flow_style=False)
+        except OSError:
+            pass
 
 
 if __name__ == '__main__':
@@ -120,5 +167,11 @@ if __name__ == '__main__':
     for dir in dirs:
         print('  "{}"'.format(str(dir)))
 
+    config_file_path = config_file_path()
+    print('Configuration file path: "{}"'.format(str(config_file_path)))
+
+    has_config = has_config_file()
+    print('Has config file?: "{}"'.format(str(has_config)))
+
     config_file = config_file()
-    print('\nConfiguration file: "{}"'.format(config_file))
+    print('Configuration file: "{}"'.format(str(config_file)))
