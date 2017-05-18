@@ -38,7 +38,7 @@ REMOTE_TEST_RESULTS="https://github.com/1dv430/js224eh-project/blob/master/docs/
 WIKI_REPORT_RESULTS="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
 
 # Default configuration.
-option_skip_report='false'
+option_skip_wiki='false'
 option_verbose='false'
 
 
@@ -183,7 +183,7 @@ else
     do
         case "$opt" in
             h) print_usage_info ; exit 0 ;;
-            n) option_skip_report='true' ;;
+            n) option_skip_wiki='true' ;;
             v) option_verbose='true' ;;
         esac
     done
@@ -205,7 +205,7 @@ then
 fi
 
 
-if [ "$option_skip_report" != 'true' ]
+if [ "$option_skip_wiki" != 'true' ]
 then
     run_task 'Adding heading with current date to report if needed' wiki_check_add_header
     run_task 'Adding integration test log to Test Results wiki page' wiki_add_integration_link
