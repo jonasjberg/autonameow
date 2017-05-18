@@ -23,13 +23,24 @@
 import os
 from unittest import TestCase
 
-from core.config import yaml_reader
+from core.config import configuration
 from unit_utils import make_temp_dir
 
 TEST_CONFIG_DATA = {'key1': 'value1',
                     'key2': ['value2', 'value3'],
                     'key3': {'key4': 'value4',
                              'key5': ['value5', 'value6']}}
+TEST_CONFIG_YAML_DATA = '''
+key1: value1
+key2:
+- value2
+- value3
+key3:
+key4: value4
+key5:
+- value5
+- value6
+'''
 
 class TestWriteConfig(TestCase):
     def setUp(self):
@@ -39,6 +50,9 @@ class TestWriteConfig(TestCase):
         self.assertFalse(os.path.exists(self.dest_path))
 
     def test_write_config(self):
-        yaml_reader.write_config(TEST_CONFIG_DATA, self.dest_path)
+        configuration.write_config(TEST_CONFIG_DATA, self.dest_path)
         self.assertTrue(os.path.exists(self.dest_path))
 
+    def test_write_and_verify(self):
+        configuration.write_config(TEST_CONFIG_DATA, self.dest_path)
+        self.assertEqual(TEST_CONFIG_YAML_DATA, self.dest_path)

@@ -27,9 +27,17 @@ import yaml
 #     config = yaml.safe_load(open("path/to/config.yml"))
 
 
-def write_config(data, dest_path):
-    if os.path.exists(dest_path):
-        return False
+class Configuration(object):
+    def __init__(self):
+        self.data = {}
 
-    with open(dest_path, 'w') as file_handle:
-        yaml.dump(data, file_handle, default_flow_style=False)
+    def load_from_disk(self, load_path=None):
+        with open(load_path, 'r') as file_handle:
+            self.data = yaml.load(file_handle)
+
+    def write_to_disk(self, dest_path=None):
+        if os.path.exists(dest_path):
+            return False
+
+        with open(dest_path, 'w') as file_handle:
+            yaml.dump(self.data, file_handle, default_flow_style=False)
