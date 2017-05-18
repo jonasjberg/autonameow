@@ -117,7 +117,7 @@ run_task()
 }
 
 # Append arguments to the wiki project report and print to stdout.
-report_append()
+wiki_report_append()
 {
     printf "Appending to report:\n"
     printf "$*" | tee -a "$WIKI_REPORT_RESULTS"
@@ -130,7 +130,7 @@ wiki_check_add_header()
     local _date="$(date "+%Y-%m-%d")"
     if ! grep -q "^### ${_date}$" "$WIKI_REPORT_RESULTS"
     then
-        report_append "\n### ${_date}\n\n"
+        wiki_report_append "\n### ${_date}\n\n"
     fi
 }
 
@@ -146,7 +146,7 @@ wiki_add_integration_link()
     _int_log_basename="$(basename -- "${_int_log_path}")"
     _int_log_timestamp="$(get_timestamp_from_basename "${_int_log_basename}")"
     _int_log_link="${REMOTE_TEST_RESULTS}/${_int_log_basename}"
-    report_append "* \`${_int_log_timestamp}\` [Integration Test Report](${_int_log_link})\n"
+    wiki_report_append "* \`${_int_log_timestamp}\` [Integration Test Report](${_int_log_link})\n"
 
     rm -v -- "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport"
     return 0
@@ -164,7 +164,7 @@ wiki_add_unit_link()
     _unit_log_basename="$(basename -- "${_unit_log_path}")"
     _unit_log_timestamp="$(get_timestamp_from_basename "${_unit_log_basename}")"
     _unit_log_link="${REMOTE_TEST_RESULTS}/${_unit_log_basename}"
-    report_append "* \`${_unit_log_timestamp}\` [Unit Test Report](${_unit_log_link})\n"
+    wiki_report_append "* \`${_unit_log_timestamp}\` [Unit Test Report](${_unit_log_link})\n"
 
     rm -v -- "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
     return 0
