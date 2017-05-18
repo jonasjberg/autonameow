@@ -261,6 +261,7 @@ docs/test_results/.unittestlog.toreport
 
 # Documentation
 # *.pdf
+docs/test_results/*.raw
 
 # Backup-files created by '2to3'
 *.bak
