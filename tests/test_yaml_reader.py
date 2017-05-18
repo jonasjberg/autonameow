@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #   Copyright(c) 2016-2017 Jonas Sjöberg
@@ -20,16 +21,24 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import yaml
+from unittest import TestCase
 
-# TODO: [BL004] Implement storing settings in configuration file.
-# def load_config():
-#     config = yaml.safe_load(open("path/to/config.yml"))
+from core.config import yaml_reader
+from unit_utils import make_temp_dir
 
+TEST_CONFIG_DATA = {'key1': 'value1',
+                    'key2': ['value2', 'value3'],
+                    'key3': {'key4': 'value4',
+                             'key5': ['value5', 'value6']}}
 
-def write_config(data, dest_path):
-    if os.path.exists(dest_path):
-        return False
+class TestWriteConfig(TestCase):
+    def setUp(self):
+        self.dest_path = os.path.join(make_temp_dir(), 'test_config.yaml')
 
-    with open(dest_path, 'w') as file_handle:
-        yaml.dump(data, file_handle, default_flow_style=False)
+    def test_setup(self):
+        self.assertFalse(os.path.exists(self.dest_path))
+
+    def test_write_config(self):
+        yaml_reader.write_config(TEST_CONFIG_DATA, self.dest_path)
+        self.assertTrue(os.path.exists(self.dest_path))
+
