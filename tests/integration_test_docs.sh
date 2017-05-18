@@ -24,6 +24,7 @@ set -o noclobber -o nounset -o pipefail
 SELF="$(basename "$0")"
 SELF_DIR="$(dirname "$0")"
 
+# Source 'integration_utils.sh', which in turn sources 'common_utils.sh'.
 if ! source "${SELF_DIR}/integration_utils.sh"
 then
     echo "Integration test utility library is missing. Aborting .." 1>&2
