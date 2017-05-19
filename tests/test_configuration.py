@@ -87,6 +87,15 @@ class TestDefaultConfig(TestCase):
     def default_configuration_exists(self):
         self.assertIsNotNone(NEW_DEFAULT_CONFIG)
 
+    def default_configuration_contain_rules(self):
+        self.assertIsNotNone(self.configuration.data.rules)
+
+    def default_configuration_rules_is_type_list(self):
+        self.assertEqual(type)
+
+    def default_configuration_contain_at_least_two_rules(self):
+        self.assertGreaterEqual(2, len(self.configuration.data.rules))
+
 
         expected = load_yaml(self.dest_path)
         self.assertEqual(expected, self.configuration.data,
