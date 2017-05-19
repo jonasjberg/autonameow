@@ -76,6 +76,8 @@ _count_untracked="$(wc -l <<< "$_untracked_files")"
 
 count_file_in_document()
 {
+    [ -z "${1:-}" ] && { echo "0" ; return ; }
+
     local _file
     while IFS='\n' read -r _file
     do
