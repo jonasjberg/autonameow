@@ -45,6 +45,12 @@ key5:
 '''
 
 
+def load_yaml(path):
+    with open(path, 'r') as file_handle:
+        data = yaml.load(file_handle)
+    return data
+
+
 class TestWriteConfig(TestCase):
     def setUp(self):
         self.dest_path = os.path.join(make_temp_dir(), 'test_config.yaml')
@@ -68,10 +74,10 @@ class TestWriteConfig(TestCase):
     def test_write_and_verify(self):
         self.configuration.write_to_disk(self.dest_path)
 
-        def load_yaml(path):
-            with open(path, 'r') as file_handle:
-                data = yaml.load(file_handle)
-            return data
+        expected = load_yaml(self.dest_path)
+        self.assertEqual(expected, self.configuration.data,
+                         'Loaded, written and then re-read data should match')
+
 
 class TestDefaultConfig(TestCase):
     def setUp(self):
