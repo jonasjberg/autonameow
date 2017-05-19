@@ -97,6 +97,31 @@ class TestDefaultConfig(TestCase):
         self.assertGreaterEqual(2, len(self.configuration.data.rules))
 
 
+class TestWriteDefaultConfig(TestCase):
+    def setUp(self):
+        self.dest_path = os.path.join(make_temp_dir(),
+                                      'test_default_config.yaml')
+
+        self.configuration = Configuration()
+
+    def test_setup(self):
+        self.assertFalse(os.path.exists(self.dest_path),
+                         'Destination path should not already exist')
+
+    def test_load_default_config_from_dict_before_write(self):
+        self.configuration.load_from_dict(NEW_DEFAULT_CONFIG)
+        self.assertIsNotNone(self.configuration.data)
+
+    def test_write_default_config_to_disk(self):
+        self.configuration.load_from_dict(NEW_DEFAULT_CONFIG)
+        self.configuration.write_to_disk(self.dest_path)
+        self.assertTrue(os.path.exists(self.dest_path),
+                        'Default configuration file exists on disk')
+
+    def test_write_default_config_to_disk_and_verify(self):
+        self.configuration.load_from_dict(NEW_DEFAULT_CONFIG)
+        self.configuration.write_to_disk(self.dest_path)
+
         expected = load_yaml(self.dest_path)
         self.assertEqual(expected, self.configuration.data,
                          'Loaded, written and then re-read data should match')
