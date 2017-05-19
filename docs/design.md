@@ -11,31 +11,6 @@ Please see "LICENSE.txt" for licensing details.
 --------------------------------------------------------------------------------
 
 
-Basic program functionality
-===========================
-`autonameow` does automatic renaming of files.
-
-The primary goal is to reduce the overhead and manual work required to
-apply a strict file naming convention uniformly and consistently.
-The main function is to find suitable file names from a set of rules.
-
-The user specifies the target file name structure, defined as a number of
-ordered fields, in a configuration file.
-
-The program is to fill out these fields by first reading in a bunch of data
-from and about the file, which is then analyzed and ranked by probability, as
-defined by some set of rules.
-
-
-#### Example:
-
-* **Name template**:       `[timestamp] [title] - [author].[ext]`
-* **Resulting file name**: `1998-04-01 Report of the IAB Security Architecture Workshop - Bellovin. S.txt`
-
-* **Name template**:       `[author] - [title] - [timestamp].[ext]`
-* **Resulting file name**: `Bellovin. S - Report of the IAB Security Architecture Workshop - 1998-04-01.txt`
-
-
 High-level logic
 ----------------
 Breakdown of what needs to happen to automatically rename a file:
@@ -344,5 +319,27 @@ Example for file basename `20160722 Descriptive name -- firsttag tagtwo.txt`:
      |______| |______________|    |_____________| |_|
         ts          base               tags       ext
 ```
+
+
+
+--------------------------------------------------------------------------------
+
+Rule Matching
+=============
+Make more abstract to handle any number and type of field comparisons.
+
+
+Each individual rule specify a field and a test/conditional for the field
+contents. For example;
+
+| Rule | Field        | Condition           |
+| ---- | ------------ | ------------------- |
+| 1    | Name         | Matches `[A-Za-z]+` |
+| 2    | Modify date  | Before 2017-05-19   |
+
+
+
+* The `RuleMatcher` checks if the *rule conditions* are met.
+
 
 
