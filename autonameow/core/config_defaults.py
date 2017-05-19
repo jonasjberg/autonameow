@@ -109,3 +109,38 @@ rules = {'record_my_desktop': {'type': ['ogv', 'ogg'],
                        'new_name_template': EBOOK_NAME,
                        'tags': []},
          }
+
+# NOTE: New default configuration
+
+NEW_DEFAULT_CONFIG = [
+    {
+        'description': 'First Entry in the Default Configuration',
+        'exact_match': False,
+        'weight': None,
+        'conditions': {
+            'filename': {
+                'pathname': None,
+                'basename': None,
+                'extension': None
+            },
+            'contents': {
+                'mime_type': None
+            }
+        }
+    },
+    {
+        'description': 'Second Entry in the Default Configuration',
+        'exact_match': True,
+        'weight': None,
+        'conditions': {
+            'filename': {
+                'pathname': 'whatever_pattern_to_match',
+                'basename': None,
+                'extension': None
+            },
+            'contents': {
+                'mime_type': 'image/jpeg'
+            }
+        }
+    }
+]

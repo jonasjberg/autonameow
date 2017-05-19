@@ -25,6 +25,7 @@ import yaml
 from unittest import TestCase
 
 from core.config.configuration import Configuration
+from core.config_defaults import NEW_DEFAULT_CONFIG
 from unit_utils import make_temp_dir
 
 TEST_CONFIG_DATA = {'key1': 'value1',
@@ -71,6 +72,15 @@ class TestWriteConfig(TestCase):
             with open(path, 'r') as file_handle:
                 data = yaml.load(file_handle)
             return data
+
+class TestDefaultConfig(TestCase):
+    def setUp(self):
+        self.configuration = Configuration()
+        self.configuration.load_from_dict(NEW_DEFAULT_CONFIG)
+
+    def default_configuration_exists(self):
+        self.assertIsNotNone(NEW_DEFAULT_CONFIG)
+
 
         expected = load_yaml(self.dest_path)
         self.assertEqual(expected, self.configuration.data,
