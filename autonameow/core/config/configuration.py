@@ -46,4 +46,5 @@ class Configuration(object):
             return False
 
         with open(dest_path, 'w') as file_handle:
-            yaml.dump(self.data, file_handle, default_flow_style=False)
+            yaml.dump(self.data, file_handle,
+                      default_flow_style=False, encoding='utf-8')
