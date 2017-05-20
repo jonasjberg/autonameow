@@ -160,6 +160,55 @@ def write_default_config():
             pass
 
 
+class ConfigError(Exception):
+    """Base class for exceptions raised when querying a configuration.
+    """
+
+
+YAML_TAB_PROBLEM = "found character '\\t' that cannot start any token"
+
+
+class ConfigReadError(ConfigError):
+    """A configuration file could not be read."""
+    def __init__(self, filename, reason=None):
+        self.filename = filename
+        self.reason = reason
+
+        message = u'file {0} could not be read'.format(filename)
+        if isinstance(reason, yaml.scanner.ScannerError) and \
+                reason.problem == YAML_TAB_PROBLEM:
+            # Special-case error message for tab indentation in YAML markup.
+            message += u': found tab character at line {0}, column {1}'.format(
+                reason.problem_mark.line + 1,
+                reason.problem_mark.column + 1,
+            )
+        elif reason:
+            # Generic error message uses exception's message.
+            message += u': {0}'.format(reason)
+
+        super(ConfigReadError, self).__init__(message)
+
+
+class ConfigWriteError(ConfigError):
+    """A configuration file could not be written."""
+
+
+def load_yaml_file(file_path):
+    try:
+        with open(file_path, 'r') as fh:
+            return yaml.safe_load(fh)
+    except (IOError, yaml.YAMLError) as e:
+        raise ConfigReadError(file_path, e)
+
+
+def write_yaml_file(dest_path, yaml_data):
+    try:
+        with open(dest_path, 'w') as fh:
+            yaml.dump(yaml_data, fh, default_flow_style=False, encoding='utf-8')
+    except (IOError, yaml.YAMLError) as e:
+        raise ConfigWriteError(dest_path, e)
+
+
 if __name__ == '__main__':
     dirs = config_dirs()
 
