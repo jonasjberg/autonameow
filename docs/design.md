@@ -339,7 +339,11 @@ contents. For example;
 
 
 
+
 * The `RuleMatcher` checks if the *rule conditions* are met.
+* (Rule numberings is arbitrary and unimportant)
+    * *Rule matching "collisions" of any kind is resolved by comparing
+      the rule `weight` fields.*
 
 
 
