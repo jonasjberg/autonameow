@@ -20,11 +20,16 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import yaml
+
+from core.config import load_yaml_file, write_yaml_file
+
 
 # TODO: [BL004] Implement storing settings in configuration file.
 # def load_config():
 #     config = yaml.safe_load(open("path/to/config.yml"))
+
+
+
 
 
 class Configuration(object):
@@ -34,17 +39,16 @@ class Configuration(object):
         else:
             self.data = {}
 
+        self.rules = []
+
     def load_from_dict(self, data):
         self.data = data
 
-    def load_from_disk(self, load_path=None):
-        with open(load_path, 'r') as file_handle:
-            self.data = yaml.load(file_handle)
+    def load_from_disk(self, load_path):
+        self.data = load_yaml_file(load_path)
 
-    def write_to_disk(self, dest_path=None):
+    def write_to_disk(self, dest_path):
         if os.path.exists(dest_path):
             return False
-
-        with open(dest_path, 'w') as file_handle:
-            yaml.dump(self.data, file_handle,
-                      default_flow_style=False, encoding='utf-8')
+        else:
+            write_yaml_file(dest_path, self.data)
