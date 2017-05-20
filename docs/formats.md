@@ -175,6 +175,8 @@ The following formats must be reworked:
 * All analyzer results, stored in `Analysis.results`
 * Configuration file
 
+<!-- TODO: Redesign formats .. -->
+
 
 Configuration File
 ------------------
