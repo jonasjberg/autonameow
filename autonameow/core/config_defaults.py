@@ -114,9 +114,9 @@ rules = {'record_my_desktop': {'type': ['ogv', 'ogg'],
 
 NEW_DEFAULT_CONFIG = [
     {
-        'description': 'First Entry in the Default Configuration',
-        'exact_match': False,
-        'weight': None,
+        '_description': 'First Entry in the Default Configuration',
+        '_exact_match': False,
+        '_weight': None,
         'conditions': {
             'filename': {
                 'pathname': None,
@@ -129,9 +129,9 @@ NEW_DEFAULT_CONFIG = [
         }
     },
     {
-        'description': 'Second Entry in the Default Configuration',
-        'exact_match': True,
-        'weight': None,
+        '_description': 'Second Entry in the Default Configuration',
+        '_exact_match': True,
+        '_weight': None,
         'conditions': {
             'filename': {
                 'pathname': 'whatever_pattern_to_match',
