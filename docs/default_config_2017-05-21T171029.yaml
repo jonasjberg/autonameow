@@ -1,0 +1,69 @@
+file_rules:
+- _description: First Entry in the Default Configuration
+  _exact_match: false
+  _weight: null
+  conditions:
+    contents:
+      mime_type: null
+    filename:
+      basename: null
+      extension: null
+      pathname: null
+  data_sources:
+    author: null
+    datetime: null
+    description: null
+    extension: filename.extension
+    publisher: null
+    title: null
+  name_template: default_template_name
+- _description: Sample Entry for Photos with strict rules
+  _exact_match: true
+  _weight: 1
+  conditions:
+    contents:
+      metadata: exif.datetimeoriginal
+      mime_type: image/jpeg
+    filename:
+      basename: DCIM*
+      extension: jpg
+      pathname: ~/Pictures/incoming
+  data_sources:
+    author: null
+    datetime:
+    - metadata.exif.datetimeoriginal
+    - metadata.exif.datetimedigitized
+    - metadata.exif.createdate
+    description: plugin.microsoftvision.caption
+    extension: filename.extension
+    publisher: null
+    tags: plugin.microsoftvision.tags
+    title: null
+  name_template: '[datetime(%Y-%m-%dT%H%M%S)] [description] -- [tags].[ext]'
+- _description: Sample Entry for Photos with strict rules
+  _exact_match: true
+  _weight: 1
+  conditions:
+    contents:
+      metadata: exif.datetimeoriginal
+      mime_type: image/jpeg
+    filename:
+      basename: DCIM*
+      extension: jpg
+      pathname: ~/Pictures/incoming
+  data_sources:
+    author: null
+    datetime:
+    - metadata.exif.datetimeoriginal
+    - metadata.exif.datetimedigitized
+    - metadata.exif.createdate
+    description: plugin.microsoftvision.caption
+    extension: filename.extension
+    publisher: null
+    tags: plugin.microsoftvision.tags
+    title: null
+  name_template: '[datetime(%Y-%m-%dT%H%M%S)] [description] -- [tags].[ext]'
+name_templates:
+- _description: First name template in the Default Configuration
+  _name: default_template_name
+  name_format: '%(title)s - %(author)s %(datetime)s.%(extension)s'
