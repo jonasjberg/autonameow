@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 # Filetags options
+
 FILENAME_TAG_SEPARATOR = ' -- '
 BETWEEN_TAG_SEPARATOR = ' '
 
@@ -144,3 +145,113 @@ NEW_DEFAULT_CONFIG = [
         }
     }
 ]
+
+NEW_DEFAULT_CONFIG_2 = {
+    'file_rules': [
+        {'_description': 'First Entry in the Default Configuration',
+         '_exact_match': False,
+         '_weight': None,
+         'name_template': 'default_template_name',
+         'conditions': {
+             'filename': {
+                 'pathname': None,
+                 'basename': None,
+                 'extension': None
+             },
+             'contents': {
+                 'mime_type': None
+             }
+         },
+         'data_sources': {
+             'datetime': None,
+             'description': None,
+             'title': None,
+             'author': None,
+             'publisher': None,
+             'extension': 'filename.extension'
+         }
+         },
+        {'_description': 'Sample Entry for Photos with strict rules',
+         '_exact_match': True,
+         '_weight': 1,
+         'name_template': '[datetime(%Y-%m-%dT%H%M%S)] [description] -- [tags].[ext]',
+         'conditions': {
+             'filename': {
+                 'pathname': '~/Pictures/incoming',
+                 'basename': 'DCIM*',
+                 'extension': 'jpg'
+             },
+             'contents': {
+                 'mime_type': 'image/jpeg',
+                 'metadata': 'exif.datetimeoriginal'
+             }
+         },
+         'data_sources': {
+             'datetime': ['metadata.exif.datetimeoriginal',
+                          'metadata.exif.datetimedigitized',
+                          'metadata.exif.createdate'],
+             'description': 'plugin.microsoftvision.caption',
+             'title': None,
+             'author': None,
+             'publisher': None,
+             'extension': 'filename.extension',
+             'tags': 'plugin.microsoftvision.tags'
+         }
+         },
+        {'_description': 'Sample Entry for Photos with strict rules',
+         '_exact_match': True,
+         '_weight': 1,
+         'name_template': '[datetime(%Y-%m-%dT%H%M%S)] [description] -- [tags].[ext]',
+         'conditions': {
+             'filename': {
+                 'pathname': '~/Pictures/incoming',
+                 'basename': 'DCIM*',
+                 'extension': 'jpg'
+             },
+             'contents': {
+                 'mime_type': 'image/jpeg',
+                 'metadata': 'exif.datetimeoriginal'
+             }
+         },
+         'data_sources': {
+             'datetime': ['metadata.exif.datetimeoriginal',
+                          'metadata.exif.datetimedigitized',
+                          'metadata.exif.createdate'],
+             'description': 'plugin.microsoftvision.caption',
+             'title': None,
+             'author': None,
+             'publisher': None,
+             'extension': 'filename.extension',
+             'tags': 'plugin.microsoftvision.tags'
+         }
+         }
+    ],
+    'name_templates': [
+        {'_description': 'First name template in the Default Configuration',
+         '_name': 'default_template_name',
+         'name_format': '%(title)s - %(author)s %(datetime)s.%(extension)s'}
+    ]
+}
+
+# %(show)s - S%(series_num)02dE%(episode_num)02d - %(title)s.%(extension)s
+
+
+if __name__ == '__main__':
+    import sys
+
+    if len(sys.argv) >= 2 and '--write-default' in sys.argv:
+        import os
+        from datetime import datetime
+        from config import write_yaml_file
+
+        _this_dir = os.path.dirname(os.path.realpath(__file__))
+        _basename = 'default_config_{}.yaml'.format(datetime.now().strftime('%Y-%m-%dT%H%M%S'))
+        _dest = os.path.join(_this_dir, _basename)
+
+        try:
+            write_yaml_file(_dest, NEW_DEFAULT_CONFIG_2)
+        except Exception:
+            print('Unable to write NEW_DEFAULT_CONFIG_2 to disk')
+        else:
+            print('Wrote NEW_DEFAULT_CONFIG_2 to file: "{}"'.format(_dest))
+
