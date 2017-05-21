@@ -1,0 +1,41 @@
+# $ exiftool -short -e -a -s -G1 '/Users/jonas/Books//www-gutenberg-org/The Legend of Sleepy Hollow by Washington Irving/pg41-images.mobi' >> sample_exiftool_mobi
+
+[ExifTool] ExifToolVersion: 10.50
+[System] FileName: pg41-images.mobi
+[System] Directory: /Users/jonas/Books//www-gutenberg-org/The Legend of Sleepy Hollow by Washington Irving
+[System] FileSize: 171 kB
+[System] FileModifyDate: 2015:11:29 04:04:03+01:00
+[System] FileAccessDate: 2017:05:21 18:24:39+02:00
+[System] FileInodeChangeDate: 2017:05:17 20:12:23+02:00
+[System] FilePermissions: rw-r-----
+[File] FileType: MOBI
+[File] FileTypeExtension: mobi
+[File] MIMEType: application/x-mobipocket-ebook
+[Palm] DatabaseName: The_Legend_of_Sleepy_Hollow
+[Palm] CreateDate: 2015:11:01 06:08:02+01:00
+[Palm] ModifyDate: 2015:11:01 06:08:02+01:00
+[Palm] LastBackupDate: 0000:00:00 00:00:00
+[Palm] ModificationNumber: 0
+[Palm] PalmFileType: Mobipocket
+[MOBI] Compression: PalmDOC
+[MOBI] UncompressedTextLength: 91 kB
+[MOBI] Encryption: None
+[MOBI] MobiType: Mobipocket Book
+[MOBI] CodePage: Unicode (UTF-8)
+[MOBI] MobiVersion: 6
+[MOBI] BookName: The Legend of Sleepy Hollow
+[MOBI] MinimumVersion: 6
+[MOBI] PublishDate: 2008-06-27
+[MOBI] Author: Washington Irving
+[MOBI] Subject: Ghosts -- Fiction, New York (State) -- History -- 1775-1865 -- Fiction
+[MOBI] Rights: Public domain in the USA.
+[MOBI] Source: http://www.gutenberg.org/files/41/41-h/41-h.htm
+[MOBI] Language: en
+[MOBI] Alignment: horizontal-lr
+[MOBI] KF8CoverURI: kindle:embed:0001
+[MOBI] CreatorSoftware: Kindlegen (Linux)
+[MOBI] CreatorMajorVersion: 2
+[MOBI] CreatorMinorVersion: 9
+[MOBI] CreatorBuildNumber2: 0730-890adc2
+[MOBI] CreatorBuildNumber: 0
+[MOBI] ResourceCount: 1

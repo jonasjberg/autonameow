@@ -1,0 +1,49 @@
+# $ exiftool -short -e -a -s -G1 '/Users/jonas/Books//www-gutenberg-org/The Legend of Sleepy Hollow by Washington Irving/pg41-images.epub' >> sample_exiftool_epub
+
+[ExifTool] ExifToolVersion: 10.50
+[System] FileName: pg41-images.epub
+[System] Directory: /Users/jonas/Books//www-gutenberg-org/The Legend of Sleepy Hollow by Washington Irving
+[System] FileSize: 39 kB
+[System] FileModifyDate: 2015:11:29 04:04:00+01:00
+[System] FileAccessDate: 2017:05:21 18:26:52+02:00
+[System] FileInodeChangeDate: 2017:05:17 20:12:23+02:00
+[System] FilePermissions: rw-r-----
+[File] FileType: EPUB
+[File] FileTypeExtension: epub
+[File] MIMEType: application/epub+zip
+[XMP-dc] Rights: Public domain in the USA.
+[XMP-dc] IdentifierScheme: URI
+[XMP-dc] IdentifierId: id
+[XMP-dc] Identifier: http://www.gutenberg.org/ebooks/41
+[XMP-dc] CreatorFile-as: Irving, Washington
+[XMP-dc] Creator: Washington Irving
+[XMP-dc] Title: The Legend of Sleepy Hollow
+[XMP-dc] LanguageType: dcterms:RFC4646
+[XMP-dc] Language: en
+[XMP-dc] Subject: Ghosts -- Fiction, New York (State) -- History -- 1775-1865 -- Fiction
+[XMP-dc] PublicationDate: 2008:06:27
+[XMP-dc] ConversionDate: 2015:11:01 05:08:00.611409+00:00
+[XMP-dc] Source: http://www.gutenberg.org/files/41/41-h/41-h.htm
+[XML] ManifestItemId: item1
+[XML] ManifestItemMedia-type: text/css
+[XML] ManifestItemHref: pgepub.css
+[XML] ManifestItemId: item2
+[XML] ManifestItemMedia-type: text/css
+[XML] ManifestItemHref: 0.css
+[XML] ManifestItemId: item3
+[XML] ManifestItemMedia-type: text/css
+[XML] ManifestItemHref: 1.css
+[XML] ManifestItemId: item4
+[XML] ManifestItemMedia-type: application/xhtml+xml
+[XML] ManifestItemHref: @public@vhost@g@gutenberg@html@files@41@41-h@41-h-0.htm.html
+[XML] ManifestItemId: item5
+[XML] ManifestItemMedia-type: application/xhtml+xml
+[XML] ManifestItemHref: @public@vhost@g@gutenberg@html@files@41@41-h@41-h-1.htm.html
+[XML] ManifestItemId: ncx
+[XML] ManifestItemMedia-type: application/x-dtbncx+xml
+[XML] ManifestItemHref: toc.ncx
+[XML] SpineToc: ncx
+[XML] SpineItemrefLinear: yes
+[XML] SpineItemrefIdref: item4
+[XML] SpineItemrefLinear: yes
+[XML] SpineItemrefIdref: item5
