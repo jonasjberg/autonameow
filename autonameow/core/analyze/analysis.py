@@ -21,7 +21,6 @@
 
 import logging
 
-from core.util import misc
 from core.analyze.analyze_filename import FilenameAnalyzer
 from core.analyze.analyze_filesystem import FilesystemAnalyzer
 
