@@ -30,6 +30,7 @@ from colorama import Back
 from colorama import Fore
 from datetime import datetime
 
+from core.util import misc
 from . import version
 from core import config_defaults, config
 from core import options
@@ -181,19 +182,19 @@ class Autonameow(object):
                 # TODO: [BL007] Move results printing to separate module/class.
                 if self.args.list_datetime:
                     print(('File: "{}"'.format(current_file.path)))
-                    analysis.print_all_datetime_info()
+                    misc.dump(analysis.results['datetime'])
                     print('')
 
                 # TODO: [BL007] Move results printing to separate module/class.
                 if self.args.list_title:
                     print(('File: "{}"'.format(current_file.path)))
-                    analysis.print_title_info()
+                    misc.dump(analysis.results['title'])
                     print('')
 
                 # TODO: [BL007] Move results printing to separate module/class.
                 if self.args.list_all:
                     print(('File: "{}"'.format(current_file.path)))
-                    analysis.print_all_results_info()
+                    misc.dump(analysis.results)
                     print('')
 
                 # Create a rule matcher
