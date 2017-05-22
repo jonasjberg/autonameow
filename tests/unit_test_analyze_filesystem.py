@@ -74,6 +74,9 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         self.assertIsNotNone(dt_created)
 
     def test_get_datetime_filesystem_created_is_valid(self):
+        self.skipTest('Create time might have changed. Should be set to a '
+                      'known time as part of the tests setup.')
+
         dt_created, = filter(lambda dt: dt['source'] == 'created',
                              self.fsa.get_datetime())
 
@@ -86,6 +89,8 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         self.assertIsNotNone(dt_created)
 
     def test_get_datetime_filesystem_accessed_is_valid(self):
+        self.skipTest('Access time might have changed between test runs.')
+
         dt_accessed, = filter(lambda dt: dt['source'] == 'accessed',
                               self.fsa.get_datetime())
 
@@ -102,6 +107,9 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         self.assertIsNone(self.fsa.get_tags())
 
     def test__get_datetime_from_filesystem(self):
+        self.skipTest('Create and access time might have changed. Should be '
+                      'set to a known state as part of the tests setup.')
+
         expect_dt_mod = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
         expect_dt_cre = datetime.strptime('20170415 025614', '%Y%m%d %H%M%S')
         expect_dt_acc = datetime.strptime('20170415 025614', '%Y%m%d %H%M%S')
