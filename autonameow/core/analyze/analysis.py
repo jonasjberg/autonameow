@@ -206,11 +206,6 @@ class Analysis(object):
             # TODO: Rework how this is done. Fetching the results from the
             #       RuleMatcher is cumbersome with this storage-scheme.
             # TODO: [BL006] Reevaluate/redesign internal metadata storage format.
-            self.results['datetime'][a.__class__.__name__] = a.get('datetime')
-            self.results['title'][a.__class__.__name__] = a.get('title')
-            self.results['tags'][a.__class__.__name__] = a.get('tags')
-            self.results['author'][a.__class__.__name__] = a.get('author')
-            self.results['publisher'][a.__class__.__name__] = a.get('publisher')
 
     def print_all_datetime_info(self):
         """
@@ -233,8 +228,9 @@ class Analysis(object):
         Prints all analysis results for the current file.
         """
 
-        # TODO: [BL007] Move results printing to separate module/class.
         misc.dump(self.results)
+            for key in self.results.keys():
+                self.results[key][a.__class__.__name__] = a.get(key)
 
     def get_datetime_by_alias(self, alias):
         pass
