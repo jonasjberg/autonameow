@@ -39,7 +39,9 @@ class Configuration(object):
         else:
             self.data = {}
 
-        self.rules = []
+    @property
+    def rules(self):
+        return list(self.data)
 
     def load_from_dict(self, data):
         self.data = data
