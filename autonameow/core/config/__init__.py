@@ -121,8 +121,8 @@ def config_file():
         The absolute path to an autonameow configuration file or False.
     """
 
-    out = config_file_path
-    if os.path.isfile(out):
+    out = config_file_path()
+    if os.path.exists(out) and os.path.isfile(out):
         return out
 
     return False
@@ -141,7 +141,7 @@ def has_config_file():
 # TODO: Document.
 def write_default_config():
     # TODO: [BL004] Implement copy default configuration.
-    config_path = config_file_path
+    config_path = config_file_path()
     default_config = default_config_dict()
 
     if os.path.exists(config_path):
