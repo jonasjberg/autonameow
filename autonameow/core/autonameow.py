@@ -202,7 +202,7 @@ class Autonameow(object):
 
                 if self.args.prepend_datetime:
                     # TODO: Prepend datetime to filename.
-                    logging.critical('This feature is not implemented yet.')
+                    logging.critical('[UNIMPLEMENTED FEATURE] prepend_datetime')
                     self.exit_program(1)
 
                 if self.args.automagic:
@@ -217,11 +217,13 @@ class Autonameow(object):
                                      '"{}"'.format(name_builder.new_name))
                     else:
                         # TODO: [BL011] Rename files.
+                        logging.critical('[UNIMPLEMENTED FEATURE] not dry_run')
                         pass
 
                 elif self.args.interactive:
                     # Create a interactive interface.
                     # TODO: [BL013] Interactive mode in 'interactive.py'.
+                    logging.critical('[UNIMPLEMENTED FEATURE] interactive mode')
                     pass
 
     def _check_file(self, file):
