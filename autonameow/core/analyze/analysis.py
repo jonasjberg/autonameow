@@ -140,6 +140,9 @@ class Analysis(object):
         self.analysis_run_queue = AnalysisRunQueue()
         self.analysis_run_queue.enqueue([FilesystemAnalyzer, FilenameAnalyzer])
 
+        self.start()
+
+    def start(self):
         # Select analyzer based on detected file type.
         logging.debug('File is of type [{}]'.format(self.file_object.type))
         self._populate_run_queue()
