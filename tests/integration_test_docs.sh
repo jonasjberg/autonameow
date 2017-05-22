@@ -77,7 +77,7 @@ assert_false 'grep_todos "$_src_rulematcher"' \
 
 
 
-_tracked_files="$( (cd "$AUTONAMEOW_TESTRESULTS_DIR" && git ls-files) )"
+_tracked_files="$( (cd "$AUTONAMEOW_TESTRESULTS_DIR" && git ls-files | grep -- '.*\.pdf$') )"
 _untracked_files="$( (cd "$AUTONAMEOW_TESTRESULTS_DIR" && git ls-files --others --exclude-standard) )"
 _count_tracked="$(wc -l <<< "$_tracked_files")"
 _count_untracked="$(wc -l <<< "$_untracked_files")"
