@@ -209,29 +209,6 @@ class Analysis(object):
             # TODO: Rework how this is done. Fetching the results from the
             #       RuleMatcher is cumbersome with this storage-scheme.
             # TODO: [BL006] Reevaluate/redesign internal metadata storage format.
-
-    def print_all_datetime_info(self):
-        """
-        Prints all date/time-information for the current file.
-        """
-
-        # TODO: [BL007] Move results printing to separate module/class.
-        misc.dump(self.results['datetime'])
-
-    def print_title_info(self):
-        """
-        Prints the title for the current file, if found.
-        """
-
-        # TODO: [BL007] Move results printing to separate module/class.
-        misc.dump(self.results['title'])
-
-    def print_all_results_info(self):
-        """
-        Prints all analysis results for the current file.
-        """
-
-        misc.dump(self.results)
             for key in self.results.keys():
                 self.results[key][a.__class__.__name__] = a.get(key)
 
