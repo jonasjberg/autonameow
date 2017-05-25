@@ -113,26 +113,11 @@ def config_file_path():
     return out
 
 
-def config_file():
-    """
-    Returns the path to an existing configuration file.
-
-    Returns:
-        The absolute path to an autonameow configuration file or False.
-    """
-
-    out = config_file_path()
-    if os.path.exists(out) and os.path.isfile(out):
-        return out
-
-    return False
-
-
 # TODO: Document.
 def has_config_file():
     # TODO: [BL004] Implement copy default configuration.
-    file = config_file()
-    if file:
+    _path = config_file_path()
+    if os.path.exists(_path) and os.path.isfile(_path):
         return True
 
     return False
@@ -141,20 +126,20 @@ def has_config_file():
 # TODO: Document.
 def write_default_config():
     # TODO: [BL004] Implement copy default configuration.
-    config_path = config_file_path()
     default_config = default_config_dict()
+    _path = config_file_path()
 
-    if os.path.exists(config_path):
-        print('Path exists: "{}"'.format(config_path))
+    if os.path.exists(_path):
+        print('Path exists: "{}"'.format(_path))
         return False
 
     if not default_config:
         print('Missing default config!')
         return False
 
-    if os.access(config_path, os.W_OK):
+    if os.access(_path, os.W_OK):
         try:
-            with open(config_path, 'w') as fh:
+            with open(_path, 'w') as fh:
                 yaml.dump(default_config, fh, default_flow_style=False)
         except OSError:
             pass
@@ -222,5 +207,3 @@ if __name__ == '__main__':
     has_config = has_config_file()
     print('Has config file?: "{}"'.format(str(has_config)))
 
-    config_file = config_file()
-    print('Configuration file: "{}"'.format(str(config_file)))
