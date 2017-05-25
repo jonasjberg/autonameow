@@ -129,3 +129,14 @@ class TestWriteDefaultConfig(TestCase):
         expected = load_yaml(self.dest_path)
         self.assertEqual(expected, self.configuration.data,
                          'Loaded, written and then re-read data should match')
+
+
+class TestConfigurationDataAccess(TestCase):
+    def setUp(self):
+        self.configuration = Configuration(DEFAULT_CONFIG)
+
+    def test_get_rules_does_not_return_none(self):
+        self.assertIsNotNone(self.configuration.rules)
+
+    def test_get_file_rules_does_not_return_none(self):
+        self.assertIsNotNone(self.configuration.file_rules)
