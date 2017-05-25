@@ -40,8 +40,6 @@ from . import version
 
 terminal_width = 100
 PYTHON_VERSION = sys.version.replace('\n', '')
-HOSTNAME = ' '.join(platform.uname()[:3])
-PROGNAME = version.__title__
 
 
 class Autonameow(object):
@@ -71,10 +69,10 @@ class Autonameow(object):
 
         # Display detailed information in debug mode.
         if self.args.debug:
-            logging.debug('Started {} version {}'.format(PROGNAME,
+            logging.debug('Started {} version {}'.format(version.__title__,
                                                          version.__version__))
             logging.debug('Running on Python {}'.format(PYTHON_VERSION))
-            logging.debug('Hostname: {}'.format(HOSTNAME))
+            logging.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
             logging.debug('Process ID: {}'.format(os.getpid()))
 
         # Display startup banner with program version and exit.
@@ -95,7 +93,8 @@ class Autonameow(object):
                     logging.info('A configuration file template with example '
                                  'settings has been written to '
                                  '"{}"'.format(str(_new_config)))
-                    logging.info('Use this file to configure {}.'.format(PROGNAME))
+                    logging.info('Use this file to configure '
+                                 '{}.'.format(version.__title__))
                 else:
                     logging.error('Unable to write template config file')
                     # TODO: Handle this ..
