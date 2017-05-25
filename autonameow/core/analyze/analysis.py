@@ -49,6 +49,10 @@ def get_analyzer_classes():
     return _ALL_ANALYZER_CLASSES
 
 
+def get_analyzer_classes_basename():
+    return [c.__name__ for c in get_analyzer_classes()]
+
+
 def get_instantiated_analyzers():
     """
     Returns:
@@ -129,11 +133,10 @@ class Results(object):
         if field not in ANALYSIS_RESULTS_FIELDS:
             raise KeyError('Invalid results field: {}'.format(field))
 
-        if source not in get_analyzer_classes():
+        if source not in get_analyzer_classes_basename():
             raise TypeError('Invalid source analyzer: {}'.format(source))
 
         self._data[field][source] = data
-        # self.data[field][a.__class__.__name__] = a.get(key)
 
     def get(self, field):
         """
@@ -183,12 +186,7 @@ class Analysis(object):
         assert file_object is not None
         self.file_object = file_object
 
-        # TODO: [BL006] Reevaluate/redesign internal metadata storage format.
-        self.results = {'datetime': {},
-                        'publisher': {},
-                        'title': {},
-                        'tags': {},
-                        'author': {}}
+        self.results = Results()
 
         # List of analyzers to run.
         # Start with a basic analyzer that is common to all file types.
@@ -256,16 +254,10 @@ class Analysis(object):
                               '"{}"'.format(str(analysis)))
                 continue
 
-            # Run the analysis
+            # Run the analysis and collect the results.
             a.run()
-
-            # Collect the results, ordered first by fields, then by the
-            # analyzer which produced the results.
-            # TODO: Rework how this is done. Fetching the results from the
-            #       RuleMatcher is cumbersome with this storage-scheme.
-            # TODO: [BL006] Reevaluate/redesign internal metadata storage format.
-            for key in self.results.keys():
-                self.results[key][a.__class__.__name__] = a.get(key)
+            for field in ANALYSIS_RESULTS_FIELDS:
+                self.results.add(field, a.get(field), str(a.__class__.__name__))
 
     def get_datetime_by_alias(self, alias):
         pass

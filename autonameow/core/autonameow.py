@@ -182,19 +182,19 @@ class Autonameow(object):
                 # TODO: [BL007] Move results printing to separate module/class.
                 if self.args.list_datetime:
                     print(('File: "{}"'.format(current_file.path)))
-                    misc.dump(analysis.results['datetime'])
+                    misc.dump(analysis.results.get('datetime'))
                     print('')
 
                 # TODO: [BL007] Move results printing to separate module/class.
                 if self.args.list_title:
                     print(('File: "{}"'.format(current_file.path)))
-                    misc.dump(analysis.results['title'])
+                    misc.dump(analysis.results.get('title'))
                     print('')
 
                 # TODO: [BL007] Move results printing to separate module/class.
                 if self.args.list_all:
                     print(('File: "{}"'.format(current_file.path)))
-                    misc.dump(analysis.results)
+                    misc.dump(analysis.results.get_all())
                     print('')
 
                 # Create a rule matcher
