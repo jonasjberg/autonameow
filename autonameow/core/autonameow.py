@@ -30,6 +30,7 @@ from core import config
 from core import options
 from core.analyze.analysis import Analysis
 from core.config import config_defaults
+from core.config.configuration import Configuration
 from core.evaluate.filter import ResultFilter
 from core.evaluate.matcher import RuleMatcher
 from core.evaluate.namebuilder import NameBuilder
@@ -57,6 +58,8 @@ class Autonameow(object):
         self.opts = opts
         self.args = None
         self.filter = None
+
+        self.config = Configuration()
 
     def run(self):
         # Display help/usage information if no arguments are provided.
@@ -153,7 +156,7 @@ class Autonameow(object):
                     print('')
 
                 # Create a rule matcher
-                rule_matcher = RuleMatcher(current_file, config_defaults.rules)
+                rule_matcher = RuleMatcher(current_file, self.config)
 
                 if self.args.prepend_datetime:
                     # TODO: Prepend datetime to filename.
