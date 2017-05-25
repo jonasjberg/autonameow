@@ -76,7 +76,6 @@ class TestAnalysisUtilityFunctions(TestCase):
                          sorted(EXPECT_ANALYZER_CLASSES_BASENAME))
 
     def test_get_analysis_mime_mappings(self):
-        self.skipTest('jdhfg')
         ANALYZER_TYPE_LOOKUP = {ImageAnalyzer: ['jpg', 'png'],
                                 PdfAnalyzer: 'pdf',
                                 TextAnalyzer: ['txt', 'md'],
