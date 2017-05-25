@@ -24,7 +24,9 @@ from unittest import TestCase
 from core.analyze.analysis import (
     get_analyzer_mime_mappings,
     get_analyzer_classes,
-    get_instantiated_analyzers
+    get_instantiated_analyzers,
+    Results, ANALYSIS_RESULTS_FIELDS,
+    get_analyzer_classes_basename
 )
 
 from core.analyze.analyze_pdf import PdfAnalyzer
@@ -58,3 +60,43 @@ class TestAnalysis(TestCase):
     #                               FilesystemAnalyzer(None),
     #                               FilenameAnalyzer(None)]
     #     self.assertEqual(INSTANTIATED_ANALYZERS, get_instantiated_analyzers())
+
+
+class TestResults(TestCase):
+    def setUp(self):
+        self.results = Results()
+
+    def test_results_init_contains_valid_results_fields(self):
+        for field in ANALYSIS_RESULTS_FIELDS:
+            self.assertTrue(field in self.results._data)
+
+    def test_results_init_contains_all_valid_results_fields(self):
+        self.assertEqual(len(ANALYSIS_RESULTS_FIELDS), len(self.results._data))
+
+    def test_results_init_results_fields_are_type_dict(self):
+        for field in ANALYSIS_RESULTS_FIELDS:
+            self.assertEqual(type(self.results._data[field]), dict)
+
+    def test_results_init_results_fields_are_empty(self):
+        for field in ANALYSIS_RESULTS_FIELDS:
+            self.assertEqual(len(self.results._data[field]), 0)
+
+    def test_add_with_invalid_field_raises_exception(self):
+        _field = 'invalid_field_surely'
+        _results = []
+
+        with self.assertRaises(KeyError):
+            self.results.add(_field, _results, ImageAnalyzer)
+
+    def test_add_with_invalid_analyzer_raises_exception(self):
+        _field = ANALYSIS_RESULTS_FIELDS[0]
+        _results = []
+
+        with self.assertRaises(TypeError):
+            self.results.add(_field, _results, 'InvalidAnalyzerSurely')
+
+    def test_add(self):
+        _field = ANALYSIS_RESULTS_FIELDS[0]
+        _results = []
+
+        self.results.add(_field, _results, ImageAnalyzer)

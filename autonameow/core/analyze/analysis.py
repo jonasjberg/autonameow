@@ -31,6 +31,8 @@ from core.analyze.analyze_text import TextAnalyzer
 from core.analyze.analyze_video import VideoAnalyzer
 
 
+ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
+
 # Collect all analyzers from their class name.
 _ALL_ANALYZER_CLASSES = [
         klass
@@ -103,6 +105,60 @@ class AnalysisRunQueue(object):
     def __iter__(self):
         for a in sorted(self._queue, key=lambda x: x.run_queue_priority):
             yield a
+
+
+class Results(object):
+    """
+    Container for results gathered during an analysis of a file.
+    """
+
+    def __init__(self):
+        self._data = {}
+        for field in ANALYSIS_RESULTS_FIELDS:
+            self._data[field] = {}
+
+    def add(self, field, data, source):
+        """
+        Adds results from an analyzer.
+
+        Args:
+            field: Analysis results field to add.
+            data: The results data to add, as a list of dicts.
+            source: Class name of the source analyzer.
+        """
+        if field not in ANALYSIS_RESULTS_FIELDS:
+            raise KeyError('Invalid results field: {}'.format(field))
+
+        if source not in get_analyzer_classes():
+            raise TypeError('Invalid source analyzer: {}'.format(source))
+
+        self._data[field][source] = data
+        # self.data[field][a.__class__.__name__] = a.get(key)
+
+    def get(self, field):
+        """
+        Returns all analysis results data for the given field.
+
+        Args:
+            field: Analysis results field data to return.
+            The field must be one of those defined in "ANALYSIS_RESULTS_FIELD".
+
+        Returns:
+            All analysis results data for the given field.
+        """
+        if field not in ANALYSIS_RESULTS_FIELDS:
+            raise KeyError('Invalid results field: {}'.format(field))
+
+        return self._data[field]
+
+    def get_all(self):
+        """
+        Returns all analysis results data.
+
+        Returns:
+            All analysis results data.
+        """
+        return self._data
 
 
 class Analysis(object):
