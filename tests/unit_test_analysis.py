@@ -145,4 +145,4 @@ class TestResults(TestCase):
         _field = ANALYSIS_RESULTS_FIELDS[0]
         _results = []
 
-        self.results.add(_field, _results, ImageAnalyzer)
+        self.results.add(_field, _results, 'ImageAnalyzer')
