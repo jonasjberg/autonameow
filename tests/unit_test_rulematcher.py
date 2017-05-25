@@ -27,7 +27,7 @@ from core.evaluate.matcher import RuleMatcher
 from core.fileobject import FileObject
 from unit_utils import abspath_testfile
 
-RULES = config_defaults.rules
+RULES = config_defaults.DEFAULT_CONFIG
 
 
 class TestRuleMatcher(TestCase):

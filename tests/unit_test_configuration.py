@@ -25,7 +25,7 @@ from unittest import TestCase
 
 import yaml
 
-from core.config.config_defaults import NEW_DEFAULT_CONFIG
+from core.config.config_defaults import DEFAULT_CONFIG
 from core.config.configuration import Configuration
 from unit_utils import make_temp_dir
 
@@ -83,10 +83,10 @@ class TestWriteConfig(TestCase):
 class TestDefaultConfig(TestCase):
     def setUp(self):
         self.configuration = Configuration()
-        self.configuration.load_from_dict(NEW_DEFAULT_CONFIG)
+        self.configuration.load_from_dict(DEFAULT_CONFIG)
 
     def test_default_configuration_exists(self):
-        self.assertIsNotNone(NEW_DEFAULT_CONFIG,
+        self.assertIsNotNone(DEFAULT_CONFIG,
                              'Default config dict is available')
 
     def test_default_configuration_contain_rules(self):
@@ -112,18 +112,18 @@ class TestWriteDefaultConfig(TestCase):
                          'Destination path should not already exist')
 
     def test_load_default_config_from_dict_before_write(self):
-        self.configuration.load_from_dict(NEW_DEFAULT_CONFIG)
+        self.configuration.load_from_dict(DEFAULT_CONFIG)
         self.assertIsNotNone(self.configuration.data,
                              'Configuration data should exist')
 
     def test_write_default_config_to_disk(self):
-        self.configuration.load_from_dict(NEW_DEFAULT_CONFIG)
+        self.configuration.load_from_dict(DEFAULT_CONFIG)
         self.configuration.write_to_disk(self.dest_path)
         self.assertTrue(os.path.exists(self.dest_path),
                         'Default configuration file exists on disk')
 
     def test_write_default_config_to_disk_and_verify(self):
-        self.configuration.load_from_dict(NEW_DEFAULT_CONFIG)
+        self.configuration.load_from_dict(DEFAULT_CONFIG)
         self.configuration.write_to_disk(self.dest_path)
 
         expected = load_yaml(self.dest_path)

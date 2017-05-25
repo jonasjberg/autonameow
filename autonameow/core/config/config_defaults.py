@@ -20,133 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 # Filetags options
-
 FILENAME_TAG_SEPARATOR = ' -- '
 BETWEEN_TAG_SEPARATOR = ' '
 
-# Default match rename template:
-DEFAULT_NAME = '%(date)s_%(time)s %(description)s -- %(tags)s%(ext)s'
 
-# Rename templates:
-DOCUMENT_NAME = '%(date)s %(title)s %(author)s -- %(tags)s%(ext)s'
-EBOOK_NAME = '%(author)s %(date)s %(publisher)s - %(title)s%(ext)s'
-
-# Rule fields:
-# 'type'              --  mime file type
-#                         can be either a single item or a list of items,
-#                         where one match in the list counts as a positive.
-# 'name'              --  Regular expression matching the basename.
-#                         (any leading directories removed)
-# 'path'              --  TODO: Decide on behaviour/format.
-# 'prefer_datetime'   --  TODO: Decide on behaviour/format.
-# 'prefer_title'      --  TODO: Decide on behaviour/format.
-# 'new_name_template' --  Template used to construct a new filename.
-#
-# **Rule ordering matters** -- the first matching rule is used.
-rules = {'record_my_desktop': {'type': ['ogv', 'ogg'],
-                               'name': None,
-                               'path': None,
-                               'prefer_datetime': 'accessed',
-                               'prefer_title': None,
-                               'new_name_template': DEFAULT_NAME,
-                               'tags': []},
-         'photo_oneplusx': {'type': 'jpg',
-                            'name': r'^IMG_\d{8}_\d{6}\.jpg$',
-                            'path': None,
-                            'prefer_datetime': 'very_special_case',
-                            'prefer_title': None,
-                            'new_name_template': DEFAULT_NAME,
-                            'tags': []},
-         'photo_android_msg': {'type': 'jpg',
-                               'name': r'^received_\d{15,17}\.jpeg$',
-                               'path': None,
-                               'prefer_datetime': 'android_messenger',
-                               'prefer_title': None,
-                               'new_name_template': DEFAULT_NAME,
-                               'tags': []},
-         'screencapture': {'type': 'png',
-                           'name': r'^screencapture.*.png$',
-                           'path': None,
-                           'prefer_datetime': 'screencapture_unixtime',
-                           'prefer_title': None,
-                           'new_name_template': DEFAULT_NAME,
-                           'tags': ['screenshot']},
-         'filetagsscreenshot': {'type': 'png',
-                                'name': None,
-                                'path': None,
-                                'prefer_datetime': 'very_special_case',
-                                'prefer_title': None,
-                                'new_name_template': DEFAULT_NAME,
-                                'tags': ['screenshot']},
-         'filetagsphoto': {'type': 'jpg',
-                           'name': None,
-                           'path': None,
-                           'prefer_datetime': 'very_special_case',
-                           'prefer_title': None,
-                           'new_name_template': DEFAULT_NAME,
-                           'tags': ['screenshot']},
-
-         # 'photo_default': {'type': 'jpg',
-         #                   'name': None,
-         #                   'path': None,
-         #                   'prefer_datetime': 'datetimeoriginal',
-         #                   'new_name_template': DEFAULT_NAME}}
-         'document_default': {'type': 'pdf',
-                              'name': None,
-                              'path': None,
-                              'prefer_author': 'PDF:Author',
-                              'prefer_datetime': 'CreationDate',
-                              'prefer_title': None,
-                              'prefer_publisher': 'PDF:EBX_PUBLISHER',
-                              'new_name_template': DOCUMENT_NAME,
-                              'tags': []},
-         'ebook_pdf': {'type': 'pdf',
-                       'name': None,
-                       'path': None,
-                       'prefer_author': 'PDF:Author',
-                       'prefer_datetime': 'CreationDate',
-                       'prefer_title': 'PDF:Title',
-                       'prefer_publisher': 'PDF:EBX_PUBLISHER',
-                       'new_name_template': EBOOK_NAME,
-                       'tags': []},
-         }
-
-# NOTE: New default configuration
-
-NEW_DEFAULT_CONFIG = [
-    {
-        '_description': 'First Entry in the Default Configuration',
-        '_exact_match': False,
-        '_weight': None,
-        'conditions': {
-            'filename': {
-                'pathname': None,
-                'basename': None,
-                'extension': None
-            },
-            'contents': {
-                'mime_type': None
-            }
-        }
-    },
-    {
-        '_description': 'Second Entry in the Default Configuration',
-        '_exact_match': True,
-        '_weight': None,
-        'conditions': {
-            'filename': {
-                'pathname': 'whatever_pattern_to_match',
-                'basename': None,
-                'extension': None
-            },
-            'contents': {
-                'mime_type': 'image/jpeg'
-            }
-        }
-    }
-]
-
-NEW_DEFAULT_CONFIG_2 = {
+DEFAULT_CONFIG = {
     # File rules specify conditions that should be true for the rule to apply
     # for a given file.
     #
@@ -266,6 +144,9 @@ NEW_DEFAULT_CONFIG_2 = {
          }
          }
     ],
+    # Templates used when constructing new file names.
+    # Can be reused by multiple file rules. Reference the template name
+    # in the file rule 'name_template' field.
     'name_templates': [
         {'_description': 'First name template in the Default Configuration',
          '_name': 'default_template_name',
@@ -276,8 +157,6 @@ NEW_DEFAULT_CONFIG_2 = {
     ]
 }
 
-# %(show)s - S%(series_num)02dE%(episode_num)02d - %(title)s.%(extension)s
-
 
 if __name__ == '__main__':
     import sys
@@ -285,16 +164,16 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2 and '--write-default' in sys.argv:
         import os
         from datetime import datetime
-        from config import write_yaml_file
+        from core.config import write_yaml_file
 
         _this_dir = os.path.dirname(os.path.realpath(__file__))
         _basename = 'default_config_{}.yaml'.format(datetime.now().strftime('%Y-%m-%dT%H%M%S'))
         _dest = os.path.join(_this_dir, _basename)
 
         try:
-            write_yaml_file(_dest, NEW_DEFAULT_CONFIG_2)
+            write_yaml_file(_dest, DEFAULT_CONFIG)
         except Exception:
-            print('Unable to write NEW_DEFAULT_CONFIG_2 to disk')
+            print('Unable to write DEFAULT_CONFIG to disk')
         else:
-            print('Wrote NEW_DEFAULT_CONFIG_2 to file: "{}"'.format(_dest))
+            print('Wrote DEFAULT_CONFIG to file: "{}"'.format(_dest))
 
