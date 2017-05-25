@@ -25,10 +25,6 @@ import os
 import platform
 import sys
 import time
-from datetime import datetime
-
-from colorama import Back
-from colorama import Fore
 
 from core import config
 from core import options
@@ -38,6 +34,7 @@ from core.evaluate.filter import ResultFilter
 from core.evaluate.matcher import RuleMatcher
 from core.evaluate.namebuilder import NameBuilder
 from core.fileobject import FileObject
+from core.options import display_start_banner, display_end_banner
 from core.util import misc
 from . import version
 
@@ -45,48 +42,6 @@ terminal_width = 100
 PYTHON_VERSION = sys.version.replace('\n', '')
 HOSTNAME = ' '.join(platform.uname()[:3])
 PROGNAME = version.__title__
-
-
-def display_start_banner():
-    """
-    Prints a "banner" with some ASCII art, program information and credits.
-    """
-    # TODO: Text alignment depends on manually hardcoding spaces! FIX!
-    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-
-    print((Fore.LIGHTBLUE_EX +
-           '''
-   ###   ### ### ####### #####  ###  ##   ###   ##   ## ####### #####  ### ###
-  #####  ### ###   ###  ### ### #### ##  #####  # # ### ####   ####### ### ###
- ### ### ### ###   ###  ### ### ####### ### ### ####### ###### ### ### #######
- ####### #######   ###  ####### ### ### ####### ### ### ####   ### ### ### ###
- ### ###  ### ##   ###   #####  ### ### ### ### ### ### ####### #####  ##   ##
-    ''' + Fore.RESET))
-    colortitle = Back.BLUE + Fore.BLACK + ' ' + \
-        PROGNAME.lower() + ' ' + Back.RESET + Fore.RESET
-    toplineleft = ' {title}  version {ver}'.format(title=colortitle,
-                                                   ver=version.__version__)
-    toplineright = version.__copyright__
-    print(('{:<}{:>50}'.format(toplineleft, toplineright)))
-    print(('{:>78}'.format(version.__url__)))
-    print(('{:>78}'.format(version.__email__)))
-    print('')
-    print((Fore.LIGHTBLACK_EX +
-           'Started at {date} by {user} on {platform}'.format(
-               date=date,
-               user=os.environ.get('USER'),
-               platform=HOSTNAME) +
-           Fore.RESET))
-
-
-def display_end_banner(exit_code, elapsed_time):
-    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-    print((Fore.LIGHTBLACK_EX +
-           'Stopped at {} (total execution time: {:.6f} seconds) '
-           'with exit code [{}]'.format(date, elapsed_time, exit_code) +
-           Fore.RESET))
-    # TODO: Format the execution time to minutes and seconds if it exceeds
-    #       60 seconds, hours, minutes and seconds if it exceeds 60 minutes ..
 
 
 class Autonameow(object):
