@@ -233,22 +233,10 @@ class ImageAnalyzer(AbstractAnalyzer):
                     tag_string_gps = GPSTAGS.get(tag_gps, tag_gps)
 
                     if value_gps is not None:
-                        # print('[tag_string_gps] %-15.15s : '
-                        #       '%-80.80s'.format(type(tag_string_gps),
-                        #                         str(tag_string_gps)))
-                        # print('[value_gps]      %-15.15s : '
-                        #       '%-80.80s'.format(type(value_gps),
-                        #                         str(value_gps)))
                         result_gps[tag_string_gps] = value_gps
 
             else:
                 if value is not None:
-                    # print('[tag_string] %-15.15s : '
-                    #       '%-80.80s'.format(type(tag_string),
-                    #                         str(tag_string)))
-                    # print('[value]      %-15.15s : '
-                    #       '%-80.80s'.format(type(value),
-                    #                         str(value)))
                     result[tag_string] = value
 
         # Return result, should be empty if errors occured.
