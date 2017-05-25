@@ -20,12 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
 from unittest import TestCase
 
+from core.config import config_defaults
 from core.evaluate.matcher import RuleMatcher
 from core.fileobject import FileObject
-from core import config_defaults
 from unit_utils import abspath_testfile
 
 RULES = config_defaults.rules

@@ -21,11 +21,12 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import yaml
 from unittest import TestCase
 
+import yaml
+
+from core.config.config_defaults import NEW_DEFAULT_CONFIG
 from core.config.configuration import Configuration
-from core.config_defaults import NEW_DEFAULT_CONFIG
 from unit_utils import make_temp_dir
 
 TEST_CONFIG_DATA = {'key1': 'value1',

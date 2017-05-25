@@ -25,20 +25,21 @@ import os
 import platform
 import sys
 import time
+from datetime import datetime
 
 from colorama import Back
 from colorama import Fore
-from datetime import datetime
 
-from core.util import misc
-from . import version
-from core import config_defaults, config
+from core import config
 from core import options
 from core.analyze.analysis import Analysis
+from core.config import config_defaults
 from core.evaluate.filter import ResultFilter
 from core.evaluate.matcher import RuleMatcher
 from core.evaluate.namebuilder import NameBuilder
 from core.fileobject import FileObject
+from core.util import misc
+from . import version
 
 terminal_width = 100
 PYTHON_VERSION = sys.version.replace('\n', '')
