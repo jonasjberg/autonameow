@@ -52,6 +52,9 @@ class FileRule(Rule):
     def get_data_sources(self):
         return self.data_sources
 
+    def get_name_template(self):
+        return self.name_template
+
 
 
 class Configuration(object):
