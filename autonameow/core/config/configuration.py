@@ -41,14 +41,49 @@ class Rule(object):
 
 
 class FileRule(Rule):
-    def __init__(self, file_rule):
-        for key, value in file_rule.items():
-            try:
-                setattr(self, key, value)
-            except AttributeError as e:
-                logging.error('{}  KEY:{} VALUE:{}'.format(str(e), str(key),
-                                                           str(value)))
-                raise AttributeError
+    """
+    Represents a single file rule entry in a configuration.
+    """
+    # EXAMPLE FILE RULE:
+    # ==================
+    # {'_description': 'First Entry in the Default Configuration',
+    #  '_exact_match': False,
+    #  '_weight': None,
+    #  'name_template': 'default_template_name',
+    #  'conditions': {
+    #      'filename': {
+    #          'pathname': None,
+    #          'basename': None,
+    #          'extension': None
+    #      },
+    #      'contents': {
+    #          'mime_type': None
+    #      }
+    #  },
+    #      'data_sources': {
+    #          'datetime': None,
+    #          'description': None,
+    #          'title': None,
+    #          'author': None,
+    #          'publisher': None,
+    #          'extension': 'filename.extension'
+    #      }
+    # },
+
+    def __init__(self, **kwargs):
+        self.description = str(file_rule.get('_description')) or None
+        self.exact_match = bool(file_rule.get('_exact_match'))
+        self.weight = self._parse_weight(file_rule.get('_weight'))
+        self.name_template = self._parse_name_template(file_rule.get('name_template'))
+
+        self._conditions
+        #for key, value in file_rule.items():
+        #    try:
+        #        setattr(self, key, value)
+        #    except AttributeError as e:
+        #        logging.error('{}  KEY:{} VALUE:{}'.format(str(e), str(key),
+        #                                                   str(value)))
+        #        raise AttributeError
 
     def get_conditions(self):
         return self.conditions
@@ -59,6 +94,30 @@ class FileRule(Rule):
     def get_name_template(self):
         return self.name_template
 
+    def test_file_conditions(self, file, rule):
+        for condition in rule['conditions']:
+            self.parse_file_conditional()
+
+    def parse_file_conditional(self, field_name, field_value):
+        # 'conditions': {
+        #     'filename': {
+        #         'pathname': '~/Pictures/incoming',
+        #         'basename': 'DCIM*',
+        #         'extension': 'jpg'
+        #     },
+        #     'contents': {
+        #         'mime_type': 'image/jpeg',
+        #         'metadata': 'exif.datetimeoriginal'
+        #         ^^^^^^^^^^   ^^^^^^^^^^^^^^^^^^^^^
+        #     }   ||||||||||
+        # },      field_name
+
+        # Check which of all available parsers should handle this conditional.
+        for parser in self.parsers:
+            if field_name in parser.applies_to_field:
+                pass
+
+            pass
 
 
 class Configuration(object):
