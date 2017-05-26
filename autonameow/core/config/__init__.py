@@ -22,6 +22,7 @@
 import platform
 import os
 
+import logging as log
 import yaml
 
 CONFDIR_MAC = '~/Library/Application Support'
@@ -130,7 +131,7 @@ def write_default_config():
     _path = config_file_path()
 
     if os.path.exists(_path):
-        print('Path exists: "{}"'.format(_path))
+        log.warning('Path exists: "{}"'.format(_path))
         return False
 
     if not default_config:
