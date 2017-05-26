@@ -155,6 +155,7 @@ class TestConfigurationInit(TestCase):
 class TestConfigurationDataAccess(TestCase):
     def setUp(self):
         self.configuration = Configuration(DEFAULT_CONFIG)
+        self.maxDiff = None
 
     def test_get_data_does_not_return_none(self):
         self.assertIsNotNone(self.configuration.data)
