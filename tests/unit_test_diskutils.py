@@ -37,6 +37,14 @@ class TestMimeTypes(TestCase):
         self.assertTrue(isinstance(MAGIC_TYPE_LOOKUP, dict),
                         'MAGIC_TYPE_LOOKUP should be an instance of dict')
 
+    def test_magic_type_lookup_table_values_are_type_list(self):
+        for value in MAGIC_TYPE_LOOKUP.values():
+            self.assertTrue(isinstance(value, list),
+                            'MAGIC_TYPE_LOOKUP values should be lists')
+
+    def test_magic_type_lookup_arbitrarily_assert_image_is_jpeg(self):
+        self.assertEqual(['image/jpeg'], MAGIC_TYPE_LOOKUP['jpg'])
+
 
 class TestSplitFileName(TestCase):
     def test_split_filename_no_name(self):
