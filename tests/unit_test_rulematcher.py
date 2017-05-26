@@ -19,42 +19,15 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 from unittest import TestCase
-
-from core.config import config_defaults
-from core.evaluate.matcher import RuleMatcher
-from core.fileobject import FileObject
-from unit_utils import abspath_testfile
-
-RULES = config_defaults.DEFAULT_CONFIG
 
 
 class TestRuleMatcher(TestCase):
     def setUp(self):
+        # TODO: Implement test!
         pass
 
     def test_setup(self):
+        # TODO: Implement test!
         pass
 
-    def test_rule_matches_record_my_desktop(self):
-        _file = abspath_testfile('recordmydesktop.ogv')
-        self.assertTrue(os.path.isfile(_file))
-
-        fo = FileObject(_file)
-        self.assertIsNotNone(fo)
-
-        rm = RuleMatcher(fo, RULES)
-        self.assertEqual('record_my_desktop', rm._active_rule_key)
-
-    def test_rule_matches_screencapture(self):
-        self.skipTest('Fails intermittently due to shoddy implementation; '
-                      'to be removed.')
-
-        _file = abspath_testfile('screencapture-github-com-jonasjberg-shell-scripts-blob-master-convert-video-to-mp4-1464459165038.png')
-        fo = FileObject(_file)
-
-        # TODO: Fix everything! It's just all so very hacky! *SO SO VERY HACKY*
-        # TODO: This fails at random due to bad matching in 'RuleMatcher' ..
-        rm = RuleMatcher(fo, RULES)
-        self.assertEqual('filetagsscreenshot', rm._active_rule_key)
