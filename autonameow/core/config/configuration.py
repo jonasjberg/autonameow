@@ -23,7 +23,7 @@ import os
 
 import logging
 
-from core.config import load_yaml_file, write_yaml_file
+from core.config import load_yaml_file, write_yaml_file, rule_parsers
 
 
 # TODO: [BL004] Implement storing settings in configuration file.
@@ -63,6 +63,12 @@ class Configuration(object):
             self.data = data
         else:
             self.data = {}
+
+        # Instantiate rule parsers inheriting from the 'Parser' class.
+        self.parsers = [p() for p in rule_parsers.__dict__.values()
+                        if isinstance(p, rule_parsers.Parser)
+                        and issubclass(p, rule_parsers.Parser)
+                        and p != rule_parsers.Parser]
 
     @property
     def rules(self):
