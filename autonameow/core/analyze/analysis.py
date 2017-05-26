@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
+import logging as log
 
 from core.analyze.analyze_filename import FilenameAnalyzer
 from core.analyze.analyze_filesystem import FilesystemAnalyzer
@@ -197,7 +197,7 @@ class Analysis(object):
 
     def start(self):
         # Select analyzer based on detected file type.
-        logging.debug('File is of type [{}]'.format(self.file_object.type))
+        log.debug('File is of type [{}]'.format(self.file_object.type))
         self._populate_run_queue()
 
         # Run all analyzers in the queue.
@@ -225,10 +225,10 @@ class Analysis(object):
 
         # Append any matches to the analyzer run queue.
         if found_azr:
-            logging.debug('Appending "{}" to analysis run queue'.format(found_azr))
+            log.debug('Appending "{}" to analysis run queue'.format(found_azr))
             self.analysis_run_queue.enqueue(found_azr)
         else:
-            logging.debug('File type ({}) is not yet mapped to a type-specific '
+            log.debug('File type ({}) is not yet mapped to a type-specific '
                           'Analyzer.'.format(self.file_object.type))
 
     def _execute_run_queue(self):
@@ -242,15 +242,15 @@ class Analysis(object):
             Still a work in progress.
         """
         for i, analysis in enumerate(self.analysis_run_queue):
-            logging.debug('Executing analysis run queue item '
+            log.debug('Executing analysis run queue item '
                           '[{}/{}]'.format(i + 1, len(self.analysis_run_queue)))
             if not analysis:
-                logging.error('Got null analysis from analysis run queue.')
+                log.error('Got null analysis from analysis run queue.')
                 continue
 
             a = analysis(self.file_object)
             if not a:
-                logging.error('Unable to start Analyzer '
+                log.error('Unable to start Analyzer '
                               '"{}"'.format(str(analysis)))
                 continue
 

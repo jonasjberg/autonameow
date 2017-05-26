@@ -20,7 +20,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
+import logging as log
 import os
 import platform
 import sys
@@ -72,11 +72,11 @@ class Autonameow(object):
 
         # Display detailed information in debug mode.
         if self.args.debug:
-            logging.debug('Started {} version {}'.format(version.__title__,
+            log.debug('Started {} version {}'.format(version.__title__,
                                                          version.__version__))
-            logging.debug('Running on Python {}'.format(PYTHON_VERSION))
-            logging.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
-            logging.debug('Process ID: {}'.format(os.getpid()))
+            log.debug('Running on Python {}'.format(PYTHON_VERSION))
+            log.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
+            log.debug('Process ID: {}'.format(os.getpid()))
 
         # Display startup banner with program version and exit.
         if self.args.show_version:
@@ -89,17 +89,17 @@ class Autonameow(object):
         # TODO: [BL004] Implement storing settings in configuration file.
         if not self.args.config_path:
             if not config.has_config_file():
-                logging.warning('No configuration file was found.')
+                log.warning('No configuration file was found.')
 
                 _new_config = config.write_default_config()
                 if _new_config:
-                    logging.info('A configuration file template with example '
+                    log.info('A configuration file template with example '
                                  'settings has been written to '
                                  '"{}"'.format(str(_new_config)))
-                    logging.info('Use this file to configure '
+                    log.info('Use this file to configure '
                                  '{}.'.format(version.__title__))
                 else:
-                    logging.error('Unable to write template config file')
+                    log.error('Unable to write template config file')
                     # TODO: Handle this ..
 
         # Setup results filtering
@@ -110,7 +110,7 @@ class Autonameow(object):
 
         # Exit if no files are specified, for now.
         if not self.args.input_files:
-            logging.warn('No input files specified ..')
+            log.warn('No input files specified ..')
             self.exit_program(1)
 
         # Iterate over command line arguments ..
@@ -123,13 +123,13 @@ class Autonameow(object):
         """
         exit_code = 0
         if len(self.args.input_files) < 1:
-            logging.error('No input files specified.')
+            log.error('No input files specified.')
             return
         for arg in self.args.input_files:
             if not self._check_file(arg):
                 continue
             else:
-                logging.info('Processing file "{}"'.format(str(arg)))
+                log.info('Processing file "{}"'.format(str(arg)))
 
                 # Create a file object representing the current arg.
                 current_file = FileObject(arg)
@@ -160,7 +160,7 @@ class Autonameow(object):
 
                 if self.args.prepend_datetime:
                     # TODO: Prepend datetime to filename.
-                    logging.critical('[UNIMPLEMENTED FEATURE] prepend_datetime')
+                    log.critical('[UNIMPLEMENTED FEATURE] prepend_datetime')
                     self.exit_program(1)
 
                 if self.args.automagic:
@@ -171,32 +171,32 @@ class Autonameow(object):
                     name_builder.build()
 
                     if self.args.dry_run:
-                        logging.info('Automagically built filename: '
+                        log.info('Automagically built filename: '
                                      '"{}"'.format(name_builder.new_name))
                     else:
                         # TODO: [BL011] Rename files.
-                        logging.critical('[UNIMPLEMENTED FEATURE] not dry_run')
+                        log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
                         pass
 
                 elif self.args.interactive:
                     # Create a interactive interface.
                     # TODO: [BL013] Interactive mode in 'interactive.py'.
-                    logging.critical('[UNIMPLEMENTED FEATURE] interactive mode')
+                    log.critical('[UNIMPLEMENTED FEATURE] interactive mode')
                     pass
 
     def _check_file(self, file):
         if not os.path.exists(file):
-            logging.warning('Skipping non-existent file/directory '
+            log.warning('Skipping non-existent file/directory '
                             '"{}"'.format(str(file)))
             return False
         elif os.path.isdir(file):
-            logging.warning('Skipping directory "{}"'.format(str(file)))
+            log.warning('Skipping directory "{}"'.format(str(file)))
             return False
         elif os.path.islink(file):
-            logging.warning('Skipping symbolic link "{}"'.format(str(file)))
+            log.warning('Skipping symbolic link "{}"'.format(str(file)))
             return False
         elif not os.access(file, os.R_OK):
-            logging.error('Not authorized to read file '
+            log.error('Not authorized to read file '
                           '"{}"'.format(str(file)))
             return False
         else:
@@ -217,7 +217,7 @@ class Autonameow(object):
         except AttributeError:
             pass
 
-        logging.debug('Exiting with exit code: {}'.format(exit_code))
-        logging.debug('Total execution time: '
+        log.debug('Exiting with exit code: {}'.format(exit_code))
+        log.debug('Total execution time: '
                       '{:.6f} seconds'.format(elapsed_time))
         sys.exit(exit_code)
