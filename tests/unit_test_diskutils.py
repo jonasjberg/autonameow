@@ -22,6 +22,20 @@
 from unittest import TestCase
 
 from core.util import diskutils
+from core.util.diskutils import MAGIC_TYPE_LOOKUP
+
+
+class TestMimeTypes(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_magic_type_lookup_table_exists(self):
+        self.assertIsNotNone(MAGIC_TYPE_LOOKUP,
+                             'MAGIC_TYPE_LOOKUP mime type lookup should exist')
+
+    def test_magic_type_lookup_table_is_instance_of_dict(self):
+        self.assertTrue(isinstance(MAGIC_TYPE_LOOKUP, dict),
+                        'MAGIC_TYPE_LOOKUP should be an instance of dict')
 
 
 class TestSplitFileName(TestCase):
