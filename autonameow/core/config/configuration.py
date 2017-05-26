@@ -92,7 +92,7 @@ class Configuration(object):
 
     def write_to_disk(self, dest_path):
         if os.path.exists(dest_path):
-            return False
+            raise FileExistsError
         else:
             write_yaml_file(dest_path, self._data)
 
