@@ -37,6 +37,7 @@ class ConfigurationSyntaxError(Exception):
 
 class Rule(object):
     def __init__(self):
+        # self.help = ''
         pass
 
 
@@ -71,12 +72,13 @@ class FileRule(Rule):
     # },
 
     def __init__(self, **kwargs):
-        self.description = str(file_rule.get('_description')) or None
-        self.exact_match = bool(file_rule.get('_exact_match'))
-        self.weight = self._parse_weight(file_rule.get('_weight'))
-        self.name_template = self._parse_name_template(file_rule.get('name_template'))
+        self.description = kwargs.get('description')
+        self.exact_match = kwargs.get('exact_match')
+        self.weight = kwargs.get('weight')
+        self.name_template = kwargs.get('name_template')
+        self.conditions = kwargs.get('conditions', {})
+        self.data_sources = kwargs.get('data_sources', {})
 
-        self._conditions
         #for key, value in file_rule.items():
         #    try:
         #        setattr(self, key, value)
@@ -135,13 +137,17 @@ class Configuration(object):
                         if isinstance(p, rule_parsers.RuleParser)
                         and issubclass(p, rule_parsers.RuleParser)
                         and p != rule_parsers.RuleParser]
+
+    def _load_file_rules(self):
+        for file_rule_entry in self._data['file_rules']:
+            file_rule = FileRule(file_rule_entry)
+
     @property
     def data(self):
         return self._data
 
     @property
     def file_rules(self):
-        # return [rule for rule in self._data['file_rules']]
         return self._file_rules
 
     def load_from_dict(self, data):
@@ -158,8 +164,17 @@ class Configuration(object):
         else:
             write_yaml_file(dest_path, self._data)
 
-    def _load_file_rules(self):
-        for rule in self._data['file_rules']:
-            file_rule = FileRule(rule)
-            if file_rule not in self._file_rules:
-                self._file_rules.append(file_rule)
+    def _parse_weight(self, param):
+        try:
+            w = float(param)
+        except TypeError:
+            pass
+        else:
+            if 0 <= w <= 1:
+                return w
+            else:
+                raise ConfigurationSyntaxError('Expected integer in range 0-1')
+
+    def _parse_name_template(self, param):
+        # TODO: Use "NameBuilder" in try/catch-block to validate name template.
+        pass
