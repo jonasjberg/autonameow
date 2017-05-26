@@ -26,6 +26,29 @@ class RuleParser(object):
     Provides common functionality and interfaces that must be implemented
     by inheriting rule parser classes.
     """
-    pass
+
+    applies_to_field = []
+    applies_to_conditions = None
+    applies_to_data_sources = None
+
+    def __init__(self):
+
+        self.init()
+
+    def __init__(self):
+        # Possibly implemented by inheriting classes.
+        pass
+
+    def get_validation_function(self):
+        """
+        Used to check that the syntax and content of a subset of rules.
+
+        Returns:
+            A function that validates rules in fields defined in
+            "applies_to_field".
+            This function returns True if the rule is valid, otherwise False.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
 
 
