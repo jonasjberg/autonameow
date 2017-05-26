@@ -21,6 +21,8 @@
 
 import os
 
+import logging
+
 from core.config import load_yaml_file, write_yaml_file
 
 
@@ -29,6 +31,26 @@ from core.config import load_yaml_file, write_yaml_file
 #     config = yaml.safe_load(open("path/to/config.yml"))
 
 
+class Rule(object):
+    def __init__(self):
+        pass
+
+
+class FileRule(Rule):
+    def __init__(self, file_rule):
+        for key, value in file_rule.items():
+            try:
+                setattr(self, key, value)
+            except AttributeError as e:
+                logging.error('{}  KEY:{} VALUE:{}'.format(str(e), str(key),
+                                                           str(value)))
+                raise AttributeError
+
+    def get_conditions(self):
+        return self.conditions
+
+    def get_data_sources(self):
+        return self.data_sources
 
 
 
