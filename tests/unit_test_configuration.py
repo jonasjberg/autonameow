@@ -25,6 +25,7 @@ from unittest import TestCase
 
 import yaml
 
+from core.config import rule_parsers
 from core.config.config_defaults import DEFAULT_CONFIG
 from core.config.configuration import Configuration, FileRule
 from unit_utils import make_temp_dir
@@ -129,6 +130,26 @@ class TestWriteDefaultConfig(TestCase):
         expected = load_yaml(self.dest_path)
         self.assertEqual(expected, self.configuration.data,
                          'Loaded, written and then re-read data should match')
+
+
+class TestConfigurationInit(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.configuration = Configuration(DEFAULT_CONFIG)
+
+    def test_configuration_parsers_in_not_none(self):
+        self.assertIsNotNone(self.configuration.parsers,
+                             'Configuration should have a list of parsers.')
+
+    def test_configuration_parsers_subclass_of_parser(self):
+        for parser in self.configuration.parsers:
+            self.assertTrue(issubclass(parser, rule_parsers.Parser),
+                            'Configuration should have a list of parsers that'
+                            'are subclasses of (inherit from) class "Parser".')
+
+    def test_configuration_parsers_instance_of_parser(self):
+        for parser in self.configuration.parsers:
+            self.assertTrue(isinstance(parser, rule_parsers.Parser))
 
 
 class TestConfigurationDataAccess(TestCase):
