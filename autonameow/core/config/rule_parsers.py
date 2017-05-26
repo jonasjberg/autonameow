@@ -20,9 +20,9 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class Parser(object):
+class RuleParser(object):
     """
-    Top-level superclass for all rule parsers.
+    Top-level superclass for all parsers of rule "conditions".
     Provides common functionality and interfaces that must be implemented
     by inheriting rule parser classes.
     """

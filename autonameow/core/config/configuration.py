@@ -132,10 +132,9 @@ class Configuration(object):
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
         self.parsers = [p() for p in rule_parsers.__dict__.values()
-                        if isinstance(p, rule_parsers.Parser)
-                        and issubclass(p, rule_parsers.Parser)
-                        and p != rule_parsers.Parser]
-
+                        if isinstance(p, rule_parsers.RuleParser)
+                        and issubclass(p, rule_parsers.RuleParser)
+                        and p != rule_parsers.RuleParser]
     @property
     def data(self):
         return self._data
