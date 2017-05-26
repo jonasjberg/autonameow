@@ -26,6 +26,10 @@ import logging
 from core.config import load_yaml_file, write_yaml_file, rule_parsers
 
 
+class ConfigurationSyntaxError(Exception):
+    pass
+
+
 # TODO: [BL004] Implement storing settings in configuration file.
 # def load_config():
 #     config = yaml.safe_load(open("path/to/config.yml"))
