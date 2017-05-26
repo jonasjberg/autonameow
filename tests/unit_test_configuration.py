@@ -57,7 +57,7 @@ class TestWriteConfig(TestCase):
         self.dest_path = os.path.join(make_temp_dir(), 'test_config.yaml')
 
         self.configuration = Configuration()
-        self.configuration.load_from_dict(TEST_CONFIG_DATA)
+        self.configuration.load_from_dict(DEFAULT_CONFIG)
 
     def test_setup(self):
         self.assertFalse(os.path.exists(self.dest_path),
@@ -90,10 +90,10 @@ class TestDefaultConfig(TestCase):
                              'Default config dict is available')
 
     def test_default_configuration_contain_rules(self):
-        self.assertIsNotNone(self.configuration.rules)
+        self.assertIsNotNone(self.configuration.file_rules)
 
     def test_default_configuration_contain_at_least_two_rules(self):
-        self.assertGreaterEqual(len(self.configuration.rules), 2,
+        self.assertGreaterEqual(len(self.configuration.file_rules), 2,
                                 'Arbitrary rule count test')
 
 
@@ -135,8 +135,8 @@ class TestConfigurationDataAccess(TestCase):
     def setUp(self):
         self.configuration = Configuration(DEFAULT_CONFIG)
 
-    def test_get_rules_does_not_return_none(self):
-        self.assertIsNotNone(self.configuration.rules)
+    def test_get_data_does_not_return_none(self):
+        self.assertIsNotNone(self.configuration.data)
 
     def test_get_file_rules_does_not_return_none(self):
         self.assertIsNotNone(self.configuration.file_rules)
