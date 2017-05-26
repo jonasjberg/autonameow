@@ -20,7 +20,12 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class Matcher(object):
+class Parser(object):
+    """
+    Top-level superclass for all rule parsers.
+    Provides common functionality and interfaces that must be implemented
+    by inheriting rule parser classes.
+    """
     pass
 
 
