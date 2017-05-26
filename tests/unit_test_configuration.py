@@ -143,13 +143,13 @@ class TestConfigurationInit(TestCase):
 
     def test_configuration_parsers_subclass_of_parser(self):
         for parser in self.configuration.parsers:
-            self.assertTrue(issubclass(parser, rule_parsers.Parser),
+            self.assertTrue(issubclass(parser, rule_parsers.RuleParser),
                             'Configuration should have a list of parsers that'
                             'are subclasses of (inherit from) class "Parser".')
 
     def test_configuration_parsers_instance_of_parser(self):
         for parser in self.configuration.parsers:
-            self.assertTrue(isinstance(parser, rule_parsers.Parser))
+            self.assertTrue(isinstance(parser, rule_parsers.RuleParser))
 
 
 class TestConfigurationDataAccess(TestCase):

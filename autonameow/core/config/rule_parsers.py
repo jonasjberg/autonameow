@@ -19,6 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
+from datetime import datetime
+
+from core.util.diskutils import MAGIC_TYPE_LOOKUP
+
 
 class RuleParser(object):
     """
@@ -49,6 +54,57 @@ class RuleParser(object):
             This function returns True if the rule is valid, otherwise False.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
+
+class RegexRuleParser(RuleParser):
+    applies_to_field = ['pathname', 'basename', 'extension']
+    applies_to_conditions = True
+    applies_to_data_sources = False
+
+    def get_validation_function(self):
+        def is_valid_regex(expression):
+            try:
+                re.compile(expression)
+                valid = True
+            except re.error:
+                return False
+            else:
+                return True
+
+        return is_valid_regex
+
+
+class MimeTypeRuleParser(RuleParser):
+    applies_to_field = ['mime_type']
+    applies_to_conditions = True
+    applies_to_data_sources = False
+
+    def get_validation_function(self):
+        def is_valid_mime_type(expression):
+            if expression in MAGIC_TYPE_LOOKUP.values() or \
+               expression in MAGIC_TYPE_LOOKUP.keys():
+                return True
+
+            return False
+
+        return is_valid_mime_type
+
+
+class DateTimeRuleParser(RuleParser):
+    applies_to_field = ['datetime']
+    applies_to_conditions = True
+    applies_to_data_sources = True
+
+    def get_validation_function(self):
+        def is_valid_datetime(expression):
+            try:
+                _ = datetime.strptime(expression, '%Y-%m-%d')
+            except ValueError:
+                return False
+            else:
+                return True
+
+        return is_valid_datetime
 
 
 
