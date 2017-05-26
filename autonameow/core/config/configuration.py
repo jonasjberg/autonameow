@@ -59,10 +59,13 @@ class FileRule(Rule):
 
 class Configuration(object):
     def __init__(self, data=None):
+        self._file_rules = []
+
         if data:
-            self.data = data
+            self._data = data
+            self._load_file_rules()
         else:
-            self.data = {}
+            self._data = {}
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
         self.parsers = [p() for p in rule_parsers.__dict__.values()
@@ -71,17 +74,30 @@ class Configuration(object):
                         and p != rule_parsers.Parser]
 
     @property
-    def rules(self):
-        return list(self.data)
+    def data(self):
+        return self._data
+
+    @property
+    def file_rules(self):
+        # return [rule for rule in self._data['file_rules']]
+        return self._file_rules
 
     def load_from_dict(self, data):
-        self.data = data
+        self._data = data
+        self._load_file_rules()
 
     def load_from_disk(self, load_path):
-        self.data = load_yaml_file(load_path)
+        _yaml_data = load_yaml_file(load_path)
+        self.load_from_dict(_yaml_data)
 
     def write_to_disk(self, dest_path):
         if os.path.exists(dest_path):
             return False
         else:
-            write_yaml_file(dest_path, self.data)
+            write_yaml_file(dest_path, self._data)
+
+    def _load_file_rules(self):
+        for rule in self._data['file_rules']:
+            file_rule = FileRule(rule)
+            if file_rule not in self._file_rules:
+                self._file_rules.append(file_rule)
