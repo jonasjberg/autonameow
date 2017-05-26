@@ -29,7 +29,6 @@ import time
 from core import config
 from core import options
 from core.analyze.analysis import Analysis
-from core.config import config_defaults
 from core.config.configuration import Configuration
 from core.evaluate.filter import ResultFilter
 from core.evaluate.matcher import RuleMatcher
@@ -87,7 +86,9 @@ class Autonameow(object):
         # provided and no config file is found at default paths; copy the
         # template config and tell the user.
         # TODO: [BL004] Implement storing settings in configuration file.
-        if not self.args.config_path:
+        if self.args.config_path:
+            self.config.load_from_disk(self.args.config_path)
+        else:
             if not config.has_config_file():
                 log.warning('No configuration file was found.')
 
