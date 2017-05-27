@@ -87,16 +87,8 @@ class FileRule(Rule):
         #                                                   str(value)))
         #        raise AttributeError
 
-    def get_conditions(self):
-        return self.conditions
-
-    def get_data_sources(self):
-        return self.data_sources
-
-    def get_name_template(self):
-        return self.name_template
-
     def test_file_conditions(self, file, rule):
+        # TODO: ..
         for condition in rule['conditions']:
             self.parse_file_conditional()
 
@@ -116,6 +108,7 @@ class FileRule(Rule):
 
         # Check which of all available parsers should handle this conditional.
         for parser in self.parsers:
+            # TODO: ..
             if field_name in parser.applies_to_field:
                 pass
 

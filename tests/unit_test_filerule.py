@@ -54,27 +54,12 @@ class TestFileRule(TestCase):
         }
         self.filerule = FileRule(_rule_contents)
 
-    def test_get_conditions(self):
-        _expect_conditions = {
-            'filename': {
-                'pathname': None,
-                'basename': None,
-                'extension': None
-            },
-            'contents': {
-                'mime_type': None
-            }
-        }
-        self.assertEqual(self.filerule.get_conditions(), _expect_conditions)
+    def test_init_description_is_str_or_none(self):
+        self.assertTrue(isinstance(self.filerule.description, str) or
+                        self.filerule.description is None,
+                        'FileRule description should be of type string or None')
 
-    def test_get_data_sources(self):
-        _expect_data_sources = {
-                'datetime': None,
-                'description': None,
-                'title': None,
-                'author': None,
-                'publisher': None,
-                'extension': 'filename.extension'
-            }
+    def test_init_exact_match_is_boolean(self):
+        self.assertTrue(isinstance(self.filerule.exact_match, bool),
+                        'FileRule exact_match should be a boolean')
 
-        self.assertEqual(self.filerule.get_data_sources(), _expect_data_sources)
