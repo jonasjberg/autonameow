@@ -70,12 +70,11 @@ class FileRule(Rule):
     #          'extension': 'filename.extension'
     #      }
     # },
-
     def __init__(self, **kwargs):
         super().__init__()
 
-        self.description = kwargs.get('description', '(empty)')
-        self.exact_match = kwargs.get('exact_match', False)
+        self.description = str(kwargs.get('description'))
+        self.exact_match = bool(kwargs.get('exact_match'))
         self.weight = kwargs.get('weight')
         self.name_template = kwargs.get('name_template')
         self.conditions = kwargs.get('conditions', {})
