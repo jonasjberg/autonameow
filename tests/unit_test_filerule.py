@@ -49,7 +49,7 @@ RULE_CONTENTS = {
 }
 
 
-class TestFileRule(TestCase):
+class TestFileRuleInstantiation(TestCase):
     def setUp(self):
         self.maxDiff = None
 
