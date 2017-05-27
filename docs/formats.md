@@ -113,9 +113,9 @@ This example would match jpeg image files.
 
 #### Data Sources
 Next is the second main part of each rule; `data_sources`.
-Each field represent a field in the `name_template` that is used to construct new file names.
 
-The field values specify *which data* should be used to populate that field.
+Each field corresponds to a field in `name_template`.  The field values specify
+*which data* should be used to populate that field.
 
 ```python
 'data_sources': {
