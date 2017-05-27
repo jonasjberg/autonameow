@@ -21,6 +21,29 @@
 
 from unittest import TestCase
 
+from core.config.rule_parsers import (
+    RegexRuleParser,
+    RuleParser,
+    get_instantiated_parsers,
+)
+
+
+class TestRuleParserFunctions(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_get_instantiated_parsers_returns_list(self):
+        self.assertTrue(isinstance(get_instantiated_parsers(), list))
+
+    def test_get_instantiated_parsers_returns_3_parsers(self):
+        # TODO: Likely to break; Fix or remove!
+        self.assertEqual(len(get_instantiated_parsers()), 3)
+
+    def test_get_instantiated_parsers_returns_class_objects(self):
+        parsers = get_instantiated_parsers()
+        for p in parsers:
+            self.assertEqual(type(p), type)
+
 
 class TestRegexRuleParser(TestCase):
     def test_get_validation_function(self):

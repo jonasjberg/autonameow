@@ -107,4 +107,15 @@ class DateTimeRuleParser(RuleParser):
         return is_valid_datetime
 
 
+def get_instantiated_parsers():
+    """
+    Get a list of all available rule parsers as instantiated class objects.
+    All classes inheriting from the "RuleParser" class are included.
+
+    Returns:
+        A list of class instances, one object per subclass of  "RuleParser".
+    """
+    return [p() for p in globals()['RuleParser'].__subclasses__()]
+
+
 
