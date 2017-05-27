@@ -19,11 +19,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import platform
-import os
-
 import logging as log
+import os
+import platform
+
 import yaml
+
+from core.exceptions import ConfigReadError, ConfigWriteError
 
 CONFDIR_MAC = '~/Library/Application Support'
 CONFDIR_UNIX_VAR = 'XDG_CONFIG_HOME'
@@ -144,39 +146,6 @@ def write_default_config():
                 yaml.dump(default_config, fh, default_flow_style=False)
         except OSError:
             pass
-
-
-class ConfigError(Exception):
-    """Base class for exceptions raised when querying a configuration.
-    """
-
-
-YAML_TAB_PROBLEM = "found character '\\t' that cannot start any token"
-
-
-class ConfigReadError(ConfigError):
-    """A configuration file could not be read."""
-    def __init__(self, filename, reason=None):
-        self.filename = filename
-        self.reason = reason
-
-        message = u'file {0} could not be read'.format(filename)
-        if isinstance(reason, yaml.scanner.ScannerError) and \
-                reason.problem == YAML_TAB_PROBLEM:
-            # Special-case error message for tab indentation in YAML markup.
-            message += u': found tab character at line {0}, column {1}'.format(
-                reason.problem_mark.line + 1,
-                reason.problem_mark.column + 1,
-            )
-        elif reason:
-            # Generic error message uses exception's message.
-            message += u': {0}'.format(reason)
-
-        super(ConfigReadError, self).__init__(message)
-
-
-class ConfigWriteError(ConfigError):
-    """A configuration file could not be written."""
 
 
 def load_yaml_file(file_path):

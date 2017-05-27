@@ -19,15 +19,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import logging as log
+import os
 
-from core.config import load_yaml_file, write_yaml_file, rule_parsers
+from core.config import load_yaml_file, write_yaml_file
 from core.config.rule_parsers import get_instantiated_parsers
-
-
-class ConfigurationSyntaxError(Exception):
-    pass
+from core.exceptions import ConfigurationSyntaxError
+from core.util.misc import unique_identifier
 
 
 # TODO: [BL004] Implement storing settings in configuration file.
