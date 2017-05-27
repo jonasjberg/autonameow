@@ -86,18 +86,50 @@ class Configuration(object):
     def __init__(self, data=None):
         self._file_rules = []
 
+        # Instantiate rule parsers inheriting from the 'Parser' class.
+        self.rule_parsers = get_instantiated_parsers()
+
         if data:
             self._data = data
             self._load_file_rules()
         else:
             self._data = {}
 
-        # Instantiate rule parsers inheriting from the 'Parser' class.
-        self.rule_parsers = get_instantiated_parsers()
-
     def _load_file_rules(self):
-        for file_rule_entry in self._data['file_rules']:
-            file_rule = FileRule(file_rule_entry)
+        # Check raw dictionary data.
+        # Create and populate "FileRule" objects with *validated* data.
+        for fr in self._data['file_rules']:
+
+            # Prioritize 'name_format', the "raw" name format string.
+            # If it is not defined in the rule, check that 'name_template'
+            # refers to a valid entry in 'name_templates'.
+            if 'name_format' in fr:
+                _name_template = self.validate(fr, 'name_format')
+            elif 'name_template' in fr:
+                # TODO: ..
+                # _name_template = self.get_format_from_template(fr['name_format'])
+                _name_template = 'TODO'
+            else:
+                # TODO: Handle case where all name format fields are missing.
+                _name_template = 'TODO'
+
+            file_rule = FileRule(description=fr.get('_description'),
+                                 exact_match=fr.get('_exact_match'),
+                                 weight=fr.get('_weight'),
+                                 name_template=_name_template,  # Check for name_format, else check and get name_template
+                                 conditions=self._parse_conditions(),
+                                 data_sources=self._parse_sources())
+
+            self._file_rules.append(file_rule)
+
+    def validate(self, raw_file_rule, field_name):
+        for parser in self.rule_parsers:
+            if field_name in parser.applies_to_field:
+                val_func = parser.get_validation_function()
+                return val_func(raw_file_rule.get('field_name'))
+
+        log.critical('Config file entry not validated correctly!')
+        return False
 
     @property
     def data(self):
@@ -134,4 +166,15 @@ class Configuration(object):
 
     def _parse_name_template(self, param):
         # TODO: Use "NameBuilder" in try/catch-block to validate name template.
+        return None
+        pass
+
+    def _parse_conditions(self):
+        # TODO: ..
+        return None
+        pass
+
+    def _parse_sources(self):
+        # TODO: ..
+        return None
         pass
