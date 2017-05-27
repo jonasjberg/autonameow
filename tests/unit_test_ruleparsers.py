@@ -25,8 +25,8 @@ from core.config.rule_parsers import (
     RegexRuleParser,
     RuleParser,
     get_instantiated_parsers,
-    available_parsers
-)
+    available_parsers,
+    MimeTypeRuleParser)
 
 
 class TestRuleParserFunctions(TestCase):
@@ -73,6 +73,10 @@ class TestRuleParserSubclasses(TestCase):
     def test_setup(self):
         self.assertIsNotNone(self.parsers)
 
+    def test_get_validation_function_should_not_return_none(self):
+        for p in self.parsers:
+            self.assertIsNotNone(p.get_validation_function())
+
     def test_get_validation_function_should_return_function(self):
         for p in self.parsers:
             self.assertTrue(hasattr(p.get_validation_function(), '__call__'))
@@ -98,10 +102,31 @@ class TestRegexRuleParser(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = RegexRuleParser()
+        self.val_func = self.p.get_validation_function()
 
-    def test_get_validation_function_should_not_return_none(self):
-        self.assertIsNotNone(self.p.get_validation_function())
+    def test_validation_function_expect_fail(self):
+        self.assertFalse(self.val_func('[[['))
+        self.assertFalse(self.val_func('"  |[2'))
+        self.assertFalse(self.val_func(None))
 
-    def test_get_validation_function_should_return_function(self):
-        self.assertTrue(hasattr(self.p.get_validation_function(), '__call__'))
+    def test_validation_function_expect_pass(self):
+        self.assertTrue(self.val_func('[A-Za-z]+'))
+        self.assertTrue(self.val_func('.*'))
 
+
+class TestMimeTypeRuleParser(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.p = MimeTypeRuleParser()
+        self.val_func = self.p.get_validation_function()
+
+    def test_validation_function_expect_fail(self):
+        self.assertFalse(self.val_func('MJAOO'))
+        self.assertFalse(self.val_func(None))
+        self.assertFalse(self.val_func('imaggee'))
+        self.assertFalse(self.val_func('.*'))
+        self.assertFalse(self.val_func('*'))
+
+    def test_validation_function_expect_pass(self):
+        self.assertTrue(self.val_func('text/plain'))
+        self.assertTrue(self.val_func('jpg'))
