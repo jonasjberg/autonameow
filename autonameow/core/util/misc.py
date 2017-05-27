@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import random
 import sys
 
 
@@ -65,3 +66,25 @@ def unpack_dict(dt_list):
                     results.append(entry)
 
     return results
+
+
+def unique_identifier():
+    """
+    Generates a unique identifier string.
+    The identifier consists of 8 random digits prefixed with "UUID".
+
+        NOTE:  This is not a proper UUID as per RFC 4122.
+
+    Returns:
+        A identifier text on the form "UUID00000000" as a string.
+    """
+    def uuid_generator():
+        # Max 24-bit value: 16777215
+        seed = random.getrandbits(24)
+
+        while True:
+            yield 'UUID{:08d}'.format(seed)
+            seed += 1
+
+    unique_sequence = uuid_generator()
+    return next(unique_sequence)
