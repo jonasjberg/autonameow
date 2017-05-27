@@ -23,36 +23,37 @@ from unittest import TestCase
 
 from core.config.configuration import FileRule
 
+RULE_CONTENTS = {
+    '_description': 'First Entry in the Default Configuration',
+    '_exact_match': False,
+    '_weight': None,
+    'name_template': 'default_template_name',
+    'conditions': {
+        'filename': {
+            'pathname': None,
+            'basename': None,
+            'extension': None
+        },
+        'contents': {
+            'mime_type': None
+        }
+    },
+    'data_sources': {
+        'datetime': None,
+        'description': None,
+        'title': None,
+        'author': None,
+        'publisher': None,
+        'extension': 'filename.extension'
+    }
+}
+
 
 class TestFileRule(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        _rule_contents = {
-            '_description': 'First Entry in the Default Configuration',
-            '_exact_match': False,
-            '_weight': None,
-            'name_template': 'default_template_name',
-            'conditions': {
-                'filename': {
-                    'pathname': None,
-                    'basename': None,
-                    'extension': None
-                },
-                'contents': {
-                    'mime_type': None
-                }
-            },
-            'data_sources': {
-                'datetime': None,
-                'description': None,
-                'title': None,
-                'author': None,
-                'publisher': None,
-                'extension': 'filename.extension'
-            }
-        }
-        self.filerule = FileRule(_rule_contents)
+        self.filerule = FileRule(RULE_CONTENTS)
 
     def test_init_description_is_str_or_none(self):
         self.assertTrue(isinstance(self.filerule.description, str) or
