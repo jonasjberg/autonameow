@@ -90,17 +90,29 @@ class Configuration(object):
             self._data = {}
 
     def _load_name_templates(self):
+        if not self._data:
+            # TODO: Handle properly ..
+            return False
+
         templates = []
 
         if 'name_templates' in self._data:
             for nt in self._data['name_templates']:
+                valid_format = self.validate(nt, 'name_format')
+                if not valid_format:
+                    msg = 'Invalid format: "{}"'.format(nt.get('name_format'))
+                    raise ConfigurationSyntaxError(msg)
                 templates.append({'description': nt.get('_description'),
                                   'name': nt.get('_name', unique_identifier()),
                                   'name_format': self.validate(nt,
                                                                'name_format')})
-        return templates
+        self._name_templates = templates
 
     def _load_file_rules(self):
+        if not self._data:
+            # TODO: Handle properly ..
+            return False
+
         # Check raw dictionary data.
         # Create and populate "FileRule" objects with *validated* data.
         for fr in self._data['file_rules']:
@@ -113,13 +125,14 @@ class Configuration(object):
                 _valid_template = self.validate(fr, 'name_format')
             elif 'name_template' in fr:
                 _template_name = fr.get('name_template')
-                if _template_name in self.name_templates:
-                    _valid_template = self.name_templates.get(_template_name)
-            else:
-                # TODO: Handle case where all name format fields are missing.
-                pass
+
+                for nt in self.name_templates:
+                    if nt['name'] == _template_name:
+                        _valid_template = nt.get('name_format')
+                        break
 
             if not _valid_template:
+                print(str(fr))
                 raise ConfigurationSyntaxError('Invalid name format')
 
             file_rule = FileRule(description=fr.get('_description'),
