@@ -25,6 +25,7 @@ from core.config.rule_parsers import (
     RegexRuleParser,
     RuleParser,
     get_instantiated_parsers,
+    available_parsers
 )
 
 
@@ -43,6 +44,16 @@ class TestRuleParserFunctions(TestCase):
         parsers = get_instantiated_parsers()
         for p in parsers:
             self.assertEqual(type(p), type)
+
+    def test_get_available_parsers(self):
+        self.assertIsNotNone(available_parsers())
+
+    def test_get_available_parsers_returns_list_of_strings(self):
+        self.assertTrue(isinstance(available_parsers(), list))
+
+        for p in available_parsers():
+            self.assertTrue(isinstance(p, str))
+
 
 
 class TestRegexRuleParser(TestCase):

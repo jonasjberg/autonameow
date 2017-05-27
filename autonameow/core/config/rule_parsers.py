@@ -118,4 +118,15 @@ def get_instantiated_parsers():
     return [p() for p in globals()['RuleParser'].__subclasses__()]
 
 
+def available_parsers():
+    """
+    Get a list of all available parsers, I.E. the names of all classes that
+    inherit from "RuleParser".
+
+    Returns:
+        The names of available rule parsers as strings.
+    """
+    return [klass.__name__ for klass in
+            globals()['RuleParser'].__subclasses__()]
+
 
