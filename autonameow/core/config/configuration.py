@@ -23,6 +23,7 @@ import os
 import logging as log
 
 from core.config import load_yaml_file, write_yaml_file, rule_parsers
+from core.config.rule_parsers import get_instantiated_parsers
 
 
 class ConfigurationSyntaxError(Exception):
@@ -92,10 +93,7 @@ class Configuration(object):
             self._data = {}
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
-        self.parsers = [p() for p in rule_parsers.__dict__.values()
-                        if isinstance(p, rule_parsers.RuleParser)
-                        and issubclass(p, rule_parsers.RuleParser)
-                        and p != rule_parsers.RuleParser]
+        self.rule_parsers = get_instantiated_parsers()
 
     def _load_file_rules(self):
         for file_rule_entry in self._data['file_rules']:
