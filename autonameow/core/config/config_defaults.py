@@ -62,7 +62,7 @@ DEFAULT_CONFIG = {
         {'_description': 'Sample Entry for Photos with strict rules',
          '_exact_match': True,
          '_weight': 1,
-         'name_format': '%(datetime)s %(description)s -- %(tags)s.%(extension)s',
+         'name_format': '{datetime} {description} -- {tags}.{extension}',
          'conditions': {
              'filename': {
                  'pathname': '~/Pictures/incoming',
@@ -150,10 +150,10 @@ DEFAULT_CONFIG = {
     'name_templates': [
         {'_description': 'First name template in the Default Configuration',
          '_name': 'default_template_name',
-         'name_format': '%(title)s - %(author)s %(datetime)s.%(extension)s'},
+         'name_format': '{title} - {author} {datetime}.{extension}'},
         {'_description': 'Ebook name template in the Default Configuration',
          '_name': 'default_ebook_name',
-         'name_format': '%(publisher)s %(title)s %(edition)s - %(author)s %(year)s.%(extension)s'}
+         'name_format': '{publisher} {title} {edition} - {author} {year}.{extension}'}
     ]
 }
 

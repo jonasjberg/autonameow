@@ -115,7 +115,7 @@ class NameFormatRuleParser(RuleParser):
     def get_validation_function(self):
         def is_valid_format_string(expression):
             try:
-                namebuilder.assemble_basename(expression)
+                namebuilder.assemble_basename(expression, **DATA_FIELDS)
             except (ValueError, TypeError, Exception):
                 # TODO: Have NameBuilder raise a custom exception?
                 return False
