@@ -21,11 +21,50 @@
 
 from unittest import TestCase
 
+from core.evaluate.namebuilder import assemble_basename
+from core.exceptions import NameTemplateSyntaxError
+
 
 class TestNameBuilder(TestCase):
     def setUp(self):
-        pass
+        self.maxDiff = None
 
-    def test_build(self):
-        # self.fail()
-        pass
+    def test_assemble_basename_using_template_1_given_all_fields(self):
+        template = '%(title)s - %(author)s %(datetime)s.%(extension)s'
+        data = {'title': '11 years old and dying',
+                'author': 'Gibson',
+                'datetime': '2017-05-27',
+                'extension': 'pdf'}
+        expected = '11 years old and dying - Gibson 2017-05-27.pdf'
+
+        self.assertEqual(assemble_basename(template, **data), expected)
+
+    def test_assemble_basename_using_template_1_some_fields_missing(self):
+        with self.assertRaises(NameTemplateSyntaxError):
+            template = '%(title)s - %(author)s %(datetime)s.%(extension)s'
+            data = {'author': None,
+                    'datetime': '2017-05-27',
+                    'extension': None}
+            expected = '11 years old and dying - Gibson 2017-05-27.pdf'
+            self.assertEqual(assemble_basename(template, **data), expected)
+
+    def test_assemble_basename_using_template_2_given_all_fields(self):
+        template = '%(publisher)s %(title)s %(edition)s - %(author)s %(year)s.%(extension)s'
+        data = {'title': '11 years old and dying',
+                'publisher': 'CatPub',
+                'edition': 'Final Edition',
+                'author': 'Gibson',
+                'year': '2017',
+                'extension': 'pdf'}
+        expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
+
+        self.assertEqual(assemble_basename(template, **data), expected)
+
+    def test_assemble_basename_using_template_2_all_fields_missing(self):
+        with self.assertRaises(NameTemplateSyntaxError):
+            template = '%(publisher)s %(title)s %(edition)s - %(author)s %(year)s.%(extension)s'
+            data = {}
+            expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
+            self.assertEqual(assemble_basename(template, **data), expected)
+
+

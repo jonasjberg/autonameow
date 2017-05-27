@@ -22,6 +22,7 @@
 import os
 import logging
 
+from core.exceptions import NameTemplateSyntaxError
 from core.fileobject import FileObject
 
 
@@ -111,9 +112,10 @@ class NameBuilder(object):
 
 
 def assemble_basename(name_template, **kwargs):
-    # TODO: Implement ..
-
     # NOTE: Used to validate name formatting strings in the configuration file.
-
-    # TODO: Should raise some kind of exception if the name_template is invalid.
-    pass
+    try:
+        out = name_template % kwargs
+    except (TypeError, KeyError):
+        raise NameTemplateSyntaxError
+    else:
+        return out
