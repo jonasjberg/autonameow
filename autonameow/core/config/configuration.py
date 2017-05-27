@@ -82,15 +82,28 @@ class FileRule(Rule):
 class Configuration(object):
     def __init__(self, data=None):
         self._file_rules = []
+        self._name_templates = []
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
         self.rule_parsers = get_instantiated_parsers()
 
         if data:
             self._data = data
+            self._load_name_templates()
             self._load_file_rules()
         else:
             self._data = {}
+
+    def _load_name_templates(self):
+        templates = []
+
+        if 'name_templates' in self._data:
+            for nt in self._data['name_templates']:
+                templates.append({'description': nt.get('_description'),
+                                  'name': nt.get('_name', unique_identifier()),
+                                  'name_format': self.validate(nt,
+                                                               'name_format')})
+        return templates
 
     def _load_file_rules(self):
         # Check raw dictionary data.
@@ -100,20 +113,24 @@ class Configuration(object):
             # Prioritize 'name_format', the "raw" name format string.
             # If it is not defined in the rule, check that 'name_template'
             # refers to a valid entry in 'name_templates'.
+            _valid_template = None
             if 'name_format' in fr:
-                _name_template = self.validate(fr, 'name_format')
+                _valid_template = self.validate(fr, 'name_format')
             elif 'name_template' in fr:
-                # TODO: ..
-                # _name_template = self.get_format_from_template(fr['name_format'])
-                _name_template = 'TODO'
+                _template_name = fr.get('name_template')
+                if _template_name in self.name_templates:
+                    _valid_template = self.name_templates.get(_template_name)
             else:
                 # TODO: Handle case where all name format fields are missing.
-                _name_template = 'TODO'
+                pass
+
+            if not _valid_template:
+                raise ConfigurationSyntaxError('Invalid name format')
 
             file_rule = FileRule(description=fr.get('_description'),
                                  exact_match=fr.get('_exact_match'),
                                  weight=fr.get('_weight'),
-                                 name_template=_name_template,  # Check for name_format, else check and get name_template
+                                 name_template=_valid_template,
                                  conditions=self._parse_conditions(),
                                  data_sources=self._parse_sources())
 
@@ -136,8 +153,13 @@ class Configuration(object):
     def file_rules(self):
         return self._file_rules
 
+    @property
+    def name_templates(self):
+        return self._name_templates
+
     def load_from_dict(self, data):
         self._data = data
+        self._load_name_templates()
         self._load_file_rules()
 
     def load_from_disk(self, load_path):
