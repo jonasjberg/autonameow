@@ -127,7 +127,7 @@ class Autonameow(object):
             log.error('No input files specified.')
             return
         for arg in self.args.input_files:
-            if not self._check_file(arg):
+            if not self._valid_file(arg):
                 continue
             else:
                 log.info('Processing file "{}"'.format(str(arg)))
@@ -185,10 +185,11 @@ class Autonameow(object):
                     log.critical('[UNIMPLEMENTED FEATURE] interactive mode')
                     pass
 
-    def _check_file(self, file):
+    @staticmethod
+    def _valid_file(file):
         if not os.path.exists(file):
             log.warning('Skipping non-existent file/directory '
-                            '"{}"'.format(str(file)))
+                        '"{}"'.format(str(file)))
             return False
         elif os.path.isdir(file):
             log.warning('Skipping directory "{}"'.format(str(file)))
@@ -197,8 +198,7 @@ class Autonameow(object):
             log.warning('Skipping symbolic link "{}"'.format(str(file)))
             return False
         elif not os.access(file, os.R_OK):
-            log.error('Not authorized to read file '
-                          '"{}"'.format(str(file)))
+            log.error('Not authorized to read file "{}"'.format(str(file)))
             return False
         else:
             # File exists and is readable.
