@@ -36,14 +36,14 @@ class TestRuleParserFunctions(TestCase):
     def test_get_instantiated_parsers_returns_list(self):
         self.assertTrue(isinstance(get_instantiated_parsers(), list))
 
-    def test_get_instantiated_parsers_returns_3_parsers(self):
-        # TODO: Likely to break; Fix or remove!
-        self.assertEqual(len(get_instantiated_parsers()), 3)
+    def test_get_instantiated_parsers_returns_arbitrary_number(self):
+        # TODO: [hardcoded] Likely to break; Fix or remove!
+        self.assertGreaterEqual(len(get_instantiated_parsers()), 3)
 
     def test_get_instantiated_parsers_returns_class_objects(self):
         parsers = get_instantiated_parsers()
         for p in parsers:
-            self.assertEqual(type(p), type)
+            self.assertTrue(hasattr(p, '__class__'))
 
     def test_get_available_parsers(self):
         self.assertIsNotNone(available_parsers())
@@ -55,7 +55,53 @@ class TestRuleParserFunctions(TestCase):
             self.assertTrue(isinstance(p, str))
 
 
+class TestRuleParser(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.p = RuleParser()
+
+    def test_get_validation_function_should_raise_error_if_unimplemented(self):
+        with self.assertRaises(NotImplementedError):
+            self.p.get_validation_function()
+
+
+class TestRuleParserSubclasses(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.parsers = get_instantiated_parsers()
+
+    def test_setup(self):
+        self.assertIsNotNone(self.parsers)
+
+    def test_get_validation_function_should_return_function(self):
+        for p in self.parsers:
+            self.assertTrue(hasattr(p.get_validation_function(), '__call__'))
+
+    def test_validation_function_should_return_booleans(self):
+        for p in self.parsers:
+            valfunc = p.get_validation_function()
+
+            result = valfunc('dummy_value')
+            self.assertEqual(type(result), bool,
+                             'Validation function should always return boolean')
+
+            result = valfunc(None)
+            self.assertEqual(type(result), bool,
+                             'Validation function should always return boolean')
+
+            result = valfunc('123')
+            self.assertEqual(type(result), bool,
+                             'Validation function should always return boolean')
+
 
 class TestRegexRuleParser(TestCase):
-    def test_get_validation_function(self):
-        self.fail()
+    def setUp(self):
+        self.maxDiff = None
+        self.p = RegexRuleParser()
+
+    def test_get_validation_function_should_not_return_none(self):
+        self.assertIsNotNone(self.p.get_validation_function())
+
+    def test_get_validation_function_should_return_function(self):
+        self.assertTrue(hasattr(self.p.get_validation_function(), '__call__'))
+
