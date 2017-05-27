@@ -92,16 +92,22 @@ class Autonameow(object):
             if not config.has_config_file():
                 log.warning('No configuration file was found.')
 
-                _new_config = config.write_default_config()
-                if _new_config:
-                    log.info('A configuration file template with example '
-                                 'settings has been written to '
-                                 '"{}"'.format(str(_new_config)))
-                    log.info('Use this file to configure '
-                                 '{}.'.format(version.__title__))
+                _config_path = config.config_file_path()
+
+                try:
+                    config.write_default_config()
+                except PermissionError:
+                    log.critical('Unable to write config file to path: '
+                                 '"{}"'.format(str(_config_path)))
+                    self.exit_program(1)
                 else:
-                    log.error('Unable to write template config file')
-                    # TODO: Handle this ..
+                    log.info('A template configuration file was written to '
+                             '"{}"'.format(str(_config_path)))
+                    log.info('Use this file to configure '
+                             '{}.'.format(version.__title__))
+            else:
+                log.debug('Using configuration: "{}"'.format(config.config_file_path()))
+                self.config.load_from_disk(config.config_file_path())
 
         # Setup results filtering
         self.filter = ResultFilter().configure_filter(self.args)

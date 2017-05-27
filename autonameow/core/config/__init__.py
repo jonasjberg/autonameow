@@ -25,6 +25,7 @@ import platform
 
 import yaml
 
+from core.config.config_defaults import DEFAULT_CONFIG
 from core.exceptions import ConfigReadError, ConfigWriteError
 
 CONFDIR_MAC = '~/Library/Application Support'
@@ -83,22 +84,6 @@ def config_dirs():
     return abs_paths
 
 
-# TODO: What is this?
-def default_config_dict():
-    default_config = dict(
-        A='a',
-        B=dict(
-            M='b',
-            J='c',
-            A='d',
-            O='e',
-        ),
-        C='f'
-    )
-
-    return default_config
-
-
 def config_file_path():
     """
     Returns the path to the configuration file. The file might or might not
@@ -107,13 +92,12 @@ def config_file_path():
     Returns:
         The absolute path to the autonameow configuration file.
     """
-
     directories = config_dirs()
     if not directories:
         return False
 
     out = os.path.normpath(os.path.join(directories[0], CONFIG_BASENAME))
-    return out
+    return str(out)
 
 
 # TODO: Document.
@@ -129,26 +113,19 @@ def has_config_file():
 # TODO: Document.
 def write_default_config():
     # TODO: [BL004] Implement copy default configuration.
-    default_config = default_config_dict()
     _path = config_file_path()
 
     if os.path.exists(_path):
         log.warning('Path exists: "{}"'.format(_path))
-        return False
+        raise FileExistsError
 
-    if not default_config:
-        print('Missing default config!')
-        return False
-
-    if os.access(_path, os.W_OK):
-        try:
-            with open(_path, 'w') as fh:
-                yaml.dump(default_config, fh, default_flow_style=False)
-        except OSError:
-            pass
+    write_yaml_file(_path, DEFAULT_CONFIG)
 
 
 def load_yaml_file(file_path):
+    if not os.access(file_path, os.R_OK):
+        raise PermissionError
+
     try:
         with open(file_path, 'r') as fh:
             return yaml.safe_load(fh)
@@ -157,6 +134,9 @@ def load_yaml_file(file_path):
 
 
 def write_yaml_file(dest_path, yaml_data):
+    if not os.access(os.path.dirname(dest_path), os.W_OK):
+        raise PermissionError
+
     try:
         with open(dest_path, 'w') as fh:
             yaml.dump(yaml_data, fh, default_flow_style=False, encoding='utf-8')
@@ -171,9 +151,9 @@ if __name__ == '__main__':
     for dir in dirs:
         print('  "{}"'.format(str(dir)))
 
-    config_file_path = config_file_path()
-    print('Configuration file path: "{}"'.format(str(config_file_path)))
+    __config_file_path = config_file_path()
+    print('Configuration file path: "{}"'.format(str(__config_file_path)))
 
-    has_config = has_config_file()
-    print('Has config file?: "{}"'.format(str(has_config)))
+    __has_config = has_config_file()
+    print('Has config file?: "{}"'.format(str(__has_config)))
 
