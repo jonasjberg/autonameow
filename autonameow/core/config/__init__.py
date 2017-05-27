@@ -100,9 +100,13 @@ def config_file_path():
     return str(out)
 
 
-# TODO: Document.
 def has_config_file():
-    # TODO: [BL004] Implement copy default configuration.
+    """
+    Checks if a configuration file is available.
+
+    Returns:
+        True if a configuration file is available, else False.
+    """
     _path = config_file_path()
     if os.path.exists(_path) and os.path.isfile(_path):
         return True
@@ -110,9 +114,10 @@ def has_config_file():
     return False
 
 
-# TODO: Document.
 def write_default_config():
-    # TODO: [BL004] Implement copy default configuration.
+    """
+    Writes a default template configuration file to disk in YAML format.
+    """
     _path = config_file_path()
 
     if os.path.exists(_path):
@@ -123,6 +128,18 @@ def write_default_config():
 
 
 def load_yaml_file(file_path):
+    """
+    Loads a YAML file from the specified path and returns its contents.
+
+    Callers should handle exceptions and logging.
+
+    Args:
+        file_path: (Absolute) path of the file to read.
+
+    Returns:
+        The contents of the yaml file at the given file as a "Python object"
+        (dict).  Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
+    """
     if not os.access(file_path, os.R_OK):
         raise PermissionError
 
@@ -134,6 +151,15 @@ def load_yaml_file(file_path):
 
 
 def write_yaml_file(dest_path, yaml_data):
+    """
+    Writes the given data ("Python object"/dict) to the specified path.
+
+    Args:
+        dest_path: The (absolute) path to the output file, which will be
+                   *overwritten* if it already exists.
+        yaml_data: Data to write as a "Python object" (dict).
+                   Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
+    """
     if not os.access(os.path.dirname(dest_path), os.W_OK):
         raise PermissionError
 
