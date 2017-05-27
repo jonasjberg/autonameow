@@ -68,3 +68,12 @@ class TestNameBuilder(TestCase):
             self.assertEqual(assemble_basename(template, **data), expected)
 
 
+    def test_assemble_basename_using_default_name_template(self):
+        template = "%(title)s - %(author)s %(datetime)s.%(extension)s"
+        data = {'title': '11 years old and dying',
+                'publisher': 'CatPub',
+                'edition': 'Final Edition',
+                'author': 'Gibson',
+                'year': '2017',
+                'extension': 'pdf'}
+        expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
