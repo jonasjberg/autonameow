@@ -148,7 +148,7 @@ class Configuration(object):
         for parser in self.rule_parsers:
             if field_name in parser.applies_to_field:
                 val_func = parser.get_validation_function()
-                return val_func(raw_file_rule.get('field_name'))
+                return val_func(raw_file_rule.get(field_name))
 
         log.critical('Config file entry not validated correctly!')
         return False
