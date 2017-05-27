@@ -62,7 +62,7 @@ DEFAULT_CONFIG = {
         {'_description': 'Sample Entry for Photos with strict rules',
          '_exact_match': True,
          '_weight': 1,
-         'name_format': '%(datetime(%Y-%m-%dT%H%M%S))s %(description)s -- %(tags)s.%(extension)s',
+         'name_format': '%(datetime)s %(description)s -- %(tags)s.%(extension)s',
          'conditions': {
              'filename': {
                  'pathname': '~/Pictures/incoming',
