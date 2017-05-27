@@ -71,47 +71,14 @@ class FileRule(Rule):
     # },
 
     def __init__(self, **kwargs):
-        self.description = kwargs.get('description')
-        self.exact_match = kwargs.get('exact_match')
+        super().__init__()
+
+        self.description = kwargs.get('description', '(empty)')
+        self.exact_match = kwargs.get('exact_match', False)
         self.weight = kwargs.get('weight')
         self.name_template = kwargs.get('name_template')
         self.conditions = kwargs.get('conditions', {})
         self.data_sources = kwargs.get('data_sources', {})
-
-        #for key, value in file_rule.items():
-        #    try:
-        #        setattr(self, key, value)
-        #    except AttributeError as e:
-        #        logging.error('{}  KEY:{} VALUE:{}'.format(str(e), str(key),
-        #                                                   str(value)))
-        #        raise AttributeError
-
-    def test_file_conditions(self, file, rule):
-        # TODO: ..
-        for condition in rule['conditions']:
-            self.parse_file_conditional()
-
-    def parse_file_conditional(self, field_name, field_value):
-        # 'conditions': {
-        #     'filename': {
-        #         'pathname': '~/Pictures/incoming',
-        #         'basename': 'DCIM*',
-        #         'extension': 'jpg'
-        #     },
-        #     'contents': {
-        #         'mime_type': 'image/jpeg',
-        #         'metadata': 'exif.datetimeoriginal'
-        #         ^^^^^^^^^^   ^^^^^^^^^^^^^^^^^^^^^
-        #     }   ||||||||||
-        # },      field_name
-
-        # Check which of all available parsers should handle this conditional.
-        for parser in self.parsers:
-            # TODO: ..
-            if field_name in parser.applies_to_field:
-                pass
-
-            pass
 
 
 class Configuration(object):
