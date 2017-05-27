@@ -65,8 +65,7 @@ class RegexRuleParser(RuleParser):
         def is_valid_regex(expression):
             try:
                 re.compile(expression)
-                valid = True
-            except re.error:
+            except (re.error, TypeError):
                 return False
             else:
                 return True
@@ -84,8 +83,8 @@ class MimeTypeRuleParser(RuleParser):
             if expression in MAGIC_TYPE_LOOKUP.values() or \
                expression in MAGIC_TYPE_LOOKUP.keys():
                 return True
-
-            return False
+            else:
+                return False
 
         return is_valid_mime_type
 
@@ -99,7 +98,7 @@ class DateTimeRuleParser(RuleParser):
         def is_valid_datetime(expression):
             try:
                 _ = datetime.strptime(expression, '%Y-%m-%d')
-            except ValueError:
+            except (ValueError, TypeError):
                 return False
             else:
                 return True
@@ -128,5 +127,4 @@ def available_parsers():
     """
     return [klass.__name__ for klass in
             globals()['RuleParser'].__subclasses__()]
-
 
