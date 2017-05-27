@@ -138,17 +138,17 @@ class TestConfigurationInit(TestCase):
         self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_configuration_parsers_in_not_none(self):
-        self.assertIsNotNone(self.configuration.parsers,
+        self.assertIsNotNone(self.configuration.rule_parsers,
                              'Configuration should have a list of parsers.')
 
     def test_configuration_parsers_subclass_of_parser(self):
-        for parser in self.configuration.parsers:
-            self.assertTrue(issubclass(parser, rule_parsers.RuleParser),
+        for parser in self.configuration.rule_parsers:
+            self.assertTrue(isinstance(parser, rule_parsers.RuleParser),
                             'Configuration should have a list of parsers that'
                             'are subclasses of (inherit from) class "Parser".')
 
     def test_configuration_parsers_instance_of_parser(self):
-        for parser in self.configuration.parsers:
+        for parser in self.configuration.rule_parsers:
             self.assertTrue(isinstance(parser, rule_parsers.RuleParser))
 
 

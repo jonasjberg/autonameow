@@ -53,7 +53,7 @@ class TestFileRuleInstantiation(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.filerule = FileRule(RULE_CONTENTS)
+        self.filerule = FileRule()
 
     def test_init_description_is_str_or_none(self):
         self.assertTrue(isinstance(self.filerule.description, str) or
