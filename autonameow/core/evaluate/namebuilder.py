@@ -108,3 +108,12 @@ class NameBuilder(object):
         self.new_name = self._fill_template(self.fields, self.rule)
         print('-' * 78)
         print('Automagic generated name: "{}"'.format(self.new_name))
+
+
+def assemble_basename(name_template, **kwargs):
+    # TODO: Implement ..
+
+    # NOTE: Used to validate name formatting strings in the configuration file.
+
+    # TODO: Should raise some kind of exception if the name_template is invalid.
+    pass

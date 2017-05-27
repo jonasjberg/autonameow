@@ -22,6 +22,7 @@
 import re
 from datetime import datetime
 
+from core.evaluate import namebuilder
 from core.util.diskutils import MAGIC_TYPE_LOOKUP
 
 
@@ -104,6 +105,24 @@ class DateTimeRuleParser(RuleParser):
                 return True
 
         return is_valid_datetime
+
+
+class NameFormatRuleParser(RuleParser):
+    applies_to_field = ['name_format']
+    applies_to_conditions = False
+    applies_to_data_sources = False
+
+    def get_validation_function(self):
+        def is_valid_format_string(expression):
+            try:
+                namebuilder.assemble_basename(expression)
+            except (ValueError, TypeError, Exception):
+                # TODO: Have NameBuilder raise a custom exception?
+                return False
+            else:
+                return True
+
+        return is_valid_format_string
 
 
 def get_instantiated_parsers():
