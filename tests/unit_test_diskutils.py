@@ -22,7 +22,7 @@
 from unittest import TestCase
 
 from core.util import diskutils
-from core.util.diskutils import MAGIC_TYPE_LOOKUP
+from core.config.constants import MAGIC_TYPE_LOOKUP
 
 
 class TestMimeTypes(TestCase):

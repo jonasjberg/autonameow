@@ -22,8 +22,8 @@
 import re
 from datetime import datetime
 
+from core.config.constants import DATA_FIELDS, MAGIC_TYPE_LOOKUP
 from core.evaluate import namebuilder
-from core.util.diskutils import MAGIC_TYPE_LOOKUP
 
 
 class RuleParser(object):

@@ -29,7 +29,7 @@ from core.config.config_defaults import (
     FILENAME_TAG_SEPARATOR,
     BETWEEN_TAG_SEPARATOR
 )
-from core.util.diskutils import MAGIC_TYPE_LOOKUP
+from core.config.constants import MAGIC_TYPE_LOOKUP
 from .util import diskutils
 
 DATE_SEP = '[:\-._ ]?'
