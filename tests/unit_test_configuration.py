@@ -152,6 +152,91 @@ class TestConfigurationInit(TestCase):
             self.assertTrue(isinstance(parser, rule_parsers.RuleParser))
 
 
+class TestConfigurationValidation(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.configuration = Configuration()
+        self.VALID_RAW_FILE_RULE = {
+            '_description': 'Sample Entry for Photos with strict rules',
+            '_exact_match': True,
+            '_weight': 1,
+            'name_format': '{datetime} {description} -- {tags}.{extension}',
+            'conditions': {
+                'filename': {
+                    'pathname': '~/Pictures/incoming',
+                    'basename': 'DCIM*',
+                    'extension': 'jpg'
+                },
+                'contents': {
+                    'mime_type': 'image/jpeg',
+                    'metadata': 'exif.datetimeoriginal'
+                }
+            }
+        }
+
+        self.INVALID_RAW_FILE_RULE = {
+            '_description': 'Sample Entry for Photos with strict rules',
+            '_exact_match': True,
+            '_weight': 1,
+            'name_format': None,
+            'conditions': {
+                'filename': {
+                    'pathname': '[[[',      # Invalid regular expression
+                    'basename': 'DCIM[[',   # Invalid regular expression
+                    'extension': 'jpeg[[['  # Invalid regular expression
+                },
+                'contents': {
+                    'mime_type': 'mjao/mmmmmmmjao',         # Invalid MIME type
+                    'metadata': 'exif.datetimeoriginal'
+                }
+            }
+        }
+
+    def test_setup(self):
+        self.assertIsNotNone(self.configuration)
+
+    def test_validate_valid_rule_name_format(self):
+        self.assertTrue(self.configuration.validate(self.VALID_RAW_FILE_RULE,
+                                                    'name_format'))
+
+    def test_validate_invalid_rule_name_format(self):
+        self.assertFalse(self.configuration.validate(self.INVALID_RAW_FILE_RULE,
+                                                     'name_format'))
+
+    def test_validate_valid_rule_conditions_filename_pathname(self):
+        self.assertTrue(self.configuration.validate(
+            self.VALID_RAW_FILE_RULE['conditions']['filename'], 'pathname'))
+
+    def test_validate_invalid_rule_conditions_filename_pathname(self):
+        self.assertFalse(self.configuration.validate(
+            self.INVALID_RAW_FILE_RULE['conditions']['filename'], 'pathname'))
+
+    def test_validate_valid_rule_conditions_filename_basename(self):
+        self.assertTrue(self.configuration.validate(
+            self.VALID_RAW_FILE_RULE['conditions']['filename'], 'basename'))
+
+    def test_validate_invalid_rule_conditions_filename_basename(self):
+        self.assertFalse(self.configuration.validate(
+            self.INVALID_RAW_FILE_RULE['conditions']['filename'], 'basename'))
+
+    def test_validate_valid_rule_conditions_filename_extension(self):
+        self.assertTrue(self.configuration.validate(
+            self.VALID_RAW_FILE_RULE['conditions']['filename'], 'extension'))
+
+    def test_validate_invalid_rule_conditions_filename_extension(self):
+        self.assertFalse(self.configuration.validate(
+            self.INVALID_RAW_FILE_RULE['conditions']['filename'], 'extension'))
+
+    def test_validate_valid_rule_conditions_filename_mime_type(self):
+        self.assertTrue(self.configuration.validate(
+            self.VALID_RAW_FILE_RULE['conditions']['contents'], 'mime_type'))
+
+    def test_validate_invalid_rule_conditions_filename_mime_type(self):
+        self.assertFalse(self.configuration.validate(
+            self.INVALID_RAW_FILE_RULE['conditions']['contents'], 'mime_type'))
+
+
+
 class TestConfigurationDataAccess(TestCase):
     def setUp(self):
         self.configuration = Configuration(DEFAULT_CONFIG)
