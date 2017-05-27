@@ -21,16 +21,6 @@
 
 import os
 
-MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
-                     'gif':   ['image/gif'],
-                     'jpg':   ['image/jpeg'],
-                     'mp4':   ['video/mp4'],
-                     'ogg':   ['video/ogg'],
-                     'pdf':   ['application/pdf'],
-                     'png':   ['image/png'],
-                     'txt':   ['text/plain'],
-                     'empty': ['inode/x-empty']}
-
 
 def split_filename(file_path):
     """
