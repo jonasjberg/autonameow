@@ -28,11 +28,6 @@ from core.exceptions import ConfigurationSyntaxError
 from core.util.misc import unique_identifier
 
 
-# TODO: [BL004] Implement storing settings in configuration file.
-# def load_config():
-#     config = yaml.safe_load(open("path/to/config.yml"))
-
-
 class Rule(object):
     def __init__(self):
         # self.help = ''

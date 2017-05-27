@@ -85,7 +85,6 @@ class Autonameow(object):
         # Check configuration file. If no alternate config file path is
         # provided and no config file is found at default paths; copy the
         # template config and tell the user.
-        # TODO: [BL004] Implement storing settings in configuration file.
         if self.args.config_path:
             self.config.load_from_disk(self.args.config_path)
         else:
