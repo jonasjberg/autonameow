@@ -40,7 +40,7 @@ class RuleParser(object):
 
         self.init()
 
-    def __init__(self):
+    def init(self):
         # Possibly implemented by inheriting classes.
         pass
 
