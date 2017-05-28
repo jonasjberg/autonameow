@@ -30,7 +30,7 @@ class InvalidFileArgumentError(AutonameowException):
     """The argument (file) is not suited for processing."""
 
 
-class ConfigError(Exception):
+class ConfigError(AutonameowException):
     """Base class for exceptions raised when querying a configuration."""
 
 
