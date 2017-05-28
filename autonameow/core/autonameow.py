@@ -35,7 +35,7 @@ from core.evaluate.matcher import RuleMatcher
 from core.evaluate.namebuilder import NameBuilder
 from core.exceptions import InvalidFileArgumentError
 from core.fileobject import FileObject
-from core.options import display_start_banner, print_exit_info
+from core.options import print_ascii_banner, print_exit_info
 from core.util import misc
 from . import version
 
@@ -80,7 +80,7 @@ class Autonameow(object):
 
         # Display startup banner with program version and exit.
         if self.args.show_version:
-            display_start_banner()
+            print_ascii_banner()
             self.exit_program(0)
 
         # Check configuration file. If no alternate config file path is

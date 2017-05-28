@@ -268,7 +268,7 @@ def prettyprint_options(opts):
               Fore.RESET + '{:<40}'.format(str(v))))
 
 
-def display_start_banner():
+def print_ascii_banner():
     """
     Prints a "banner" with some ASCII art, program information and credits.
     """
