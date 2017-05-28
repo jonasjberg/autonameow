@@ -30,7 +30,7 @@ class TestNameBuilder(TestCase):
         self.maxDiff = None
 
     def test_assemble_basename_using_template_1_given_all_fields(self):
-        template = '%(title)s - %(author)s %(datetime)s.%(extension)s'
+        template = '{title} - {author} {datetime}.{extension}'
         data = {'title': '11 years old and dying',
                 'author': 'Gibson',
                 'datetime': '2017-05-27',
@@ -41,7 +41,7 @@ class TestNameBuilder(TestCase):
 
     def test_assemble_basename_using_template_1_some_fields_missing(self):
         with self.assertRaises(NameTemplateSyntaxError):
-            template = '%(title)s - %(author)s %(datetime)s.%(extension)s'
+            template = '{title} - {author} {datetime}.{extension}'
             data = {'author': None,
                     'datetime': '2017-05-27',
                     'extension': None}
@@ -49,7 +49,7 @@ class TestNameBuilder(TestCase):
             self.assertEqual(assemble_basename(template, **data), expected)
 
     def test_assemble_basename_using_template_2_given_all_fields(self):
-        template = '%(publisher)s %(title)s %(edition)s - %(author)s %(year)s.%(extension)s'
+        template = '{publisher} {title} {edition} - {author} {year}.{extension}'
         data = {'title': '11 years old and dying',
                 'publisher': 'CatPub',
                 'edition': 'Final Edition',
@@ -62,14 +62,14 @@ class TestNameBuilder(TestCase):
 
     def test_assemble_basename_using_template_2_all_fields_missing(self):
         with self.assertRaises(NameTemplateSyntaxError):
-            template = '%(publisher)s %(title)s %(edition)s - %(author)s %(year)s.%(extension)s'
+            template = '{publisher} {title} {edition} - {author} {year}.{extension}'
             data = {}
             expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
             self.assertEqual(assemble_basename(template, **data), expected)
 
 
     def test_assemble_basename_using_default_name_template(self):
-        template = "%(title)s - %(author)s %(datetime)s.%(extension)s"
+        template = '{title} - {author} {datetime}.{extension}'
         data = {'title': '11 years old and dying',
                 'publisher': 'CatPub',
                 'edition': 'Final Edition',
