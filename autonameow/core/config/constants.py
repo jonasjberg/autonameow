@@ -34,7 +34,7 @@ from core.analyze.analysis import ANALYSIS_RESULTS_FIELDS
 #                  'description': 'DUMMY'}
 
 DATA_FIELDS = dict.fromkeys(ANALYSIS_RESULTS_FIELDS +
-                            ['description', 'extension'], 'DUMMY')
+                            ['edition', 'year', 'description', 'extension'], 'DUMMY')
 
 MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
                      'gif':   ['image/gif'],
