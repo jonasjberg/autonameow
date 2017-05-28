@@ -273,16 +273,15 @@ def print_ascii_banner():
     Prints a "banner" with some ASCII art, program information and credits.
     """
     # TODO: Text alignment depends on manually hardcoding spaces! FIX!
-    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
 
-    print((Fore.LIGHTBLUE_EX +
+    print(Fore.LIGHTBLUE_EX +
            '''
    ###   ### ### ####### #####  ###  ##   ###   ##   ## ####### #####  ### ###
   #####  ### ###   ###  ### ### #### ##  #####  # # ### ####   ####### ### ###
  ### ### ### ###   ###  ### ### ####### ### ### ####### ###### ### ### #######
  ####### #######   ###  ####### ### ### ####### ### ### ####   ### ### ### ###
  ### ###  ### ##   ###   #####  ### ### ### ### ### ### ####### #####  ##   ##
-    ''' + Fore.RESET))
+    ''' + Fore.RESET)
     colortitle = Back.BLUE + Fore.BLACK + \
         ' ' + version.__title__.lower() + ' ' + \
         Back.RESET + Fore.RESET
