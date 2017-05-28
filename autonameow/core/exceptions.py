@@ -26,6 +26,10 @@ class AutonameowException(Exception):
     """Base exception. All custom exceptions should subclass this."""
 
 
+class InvalidFileArgumentError(AutonameowException):
+    """The argument (file) is not suited for processing."""
+
+
 class NameTemplateSyntaxError(Exception):
     """The name format template is invalid."""
     pass
