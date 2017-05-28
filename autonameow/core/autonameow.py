@@ -33,6 +33,7 @@ from core.config.configuration import Configuration
 from core.evaluate.filter import ResultFilter
 from core.evaluate.matcher import RuleMatcher
 from core.evaluate.namebuilder import NameBuilder
+from core.exceptions import InvalidFileArgumentError
 from core.fileobject import FileObject
 from core.options import display_start_banner, display_end_banner
 from core.util import misc
@@ -132,7 +133,10 @@ class Autonameow(object):
             log.error('No input files specified.')
             return
         for arg in self.args.input_files:
-            if not self._valid_file(arg):
+            try:
+                self._valid_file(arg)
+            except InvalidFileArgumentError as e:
+                log.warning('{} - SKIPPING: "{}"'.format(str(e), str(arg)))
                 continue
             else:
                 log.info('Processing file "{}"'.format(str(arg)))
@@ -193,20 +197,16 @@ class Autonameow(object):
     @staticmethod
     def _valid_file(file):
         if not os.path.exists(file):
-            log.warning('Skipping non-existent file/directory '
-                        '"{}"'.format(str(file)))
-            return False
+            raise InvalidFileArgumentError('Path does not exist')
         elif os.path.isdir(file):
-            log.warning('Skipping directory "{}"'.format(str(file)))
-            return False
+            raise InvalidFileArgumentError('Safe handling of directories is '
+                                           'not implemented yet')
         elif os.path.islink(file):
-            log.warning('Skipping symbolic link "{}"'.format(str(file)))
-            return False
+            raise InvalidFileArgumentError('Safe handling of symblic links is '
+                                           'not implemented yet')
         elif not os.access(file, os.R_OK):
-            log.error('Not authorized to read file "{}"'.format(str(file)))
-            return False
+            raise InvalidFileArgumentError('Not authorized to read path')
         else:
-            # File exists and is readable.
             return True
 
     def exit_program(self, exit_code=0):
