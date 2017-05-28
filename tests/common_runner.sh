@@ -95,8 +95,9 @@ wiki_add_integration_link()
 
     _int_log_basename="$(basename -- "${_int_log_path}")"
     _int_log_timestamp="$(get_timestamp_from_basename "${_int_log_basename}")"
-    _int_log_link="${REMOTE_TEST_RESULTS}/${_int_log_basename}"
-    wiki_report_append "* \`${_int_log_timestamp}\` [Integration Test Report](${_int_log_link})\n"
+    _int_log_link_html="${REMOTE_TEST_RESULTS}/${_int_log_basename}"
+    _int_log_link_pdf="${_int_log_link_html/.html/.pdf}"
+    wiki_report_append "* \`${_int_log_timestamp}\` Integration Test Report ([pdf](${_int_log_link_pdf}), [html](${_int_log_link_html}))\n"
 
     rm -v -- "${AUTONAMEOW_TESTRESULTS_DIR}/.integrationlog.toreport"
     return 0
@@ -113,8 +114,9 @@ wiki_add_unit_link()
 
     _unit_log_basename="$(basename -- "${_unit_log_path}")"
     _unit_log_timestamp="$(get_timestamp_from_basename "${_unit_log_basename}")"
-    _unit_log_link="${REMOTE_TEST_RESULTS}/${_unit_log_basename}"
-    wiki_report_append "* \`${_unit_log_timestamp}\` [Unit Test Report](${_unit_log_link})\n"
+    _unit_log_link_html="${REMOTE_TEST_RESULTS}/${_unit_log_basename}"
+    _unit_log_link_pdf="${_unit_log_link_html/.html/.pdf}"
+    wiki_report_append "* \`${_unit_log_timestamp}\` Unit Test Report ([pdf](${_unit_log_link_pdf}), [html](${_unit_log_link_html}))\n"
 
     rm -v -- "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
     return 0
