@@ -97,6 +97,17 @@ assert_true '[ -f "/tmp/autonameow_sample" ] && rm -- "/tmp/autonameow_sample" ;
             "[rename_sample_jpg_file] Test teardown should succeed"
 
 
+assert_true '( "$AUTONAMEOW_RUNNER" --version 2>&1 ) >/dev/null' \
+            "autonameow should return zero when started with \"--version\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --version --verbose 2>&1 ) >/dev/null' \
+            "autonameow should return zero when started with \"--version\" and \"--verbose\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --version --debug 2>&1 ) >/dev/null' \
+            "autonameow should return zero when started with \"--version\" and \"--debug\""
+
+
+
 # Calculate total execution time.
 time_end="$(current_unix_time)"
 total_time="$((($time_end - $time_start) / 1000000))"
