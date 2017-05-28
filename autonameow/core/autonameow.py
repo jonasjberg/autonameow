@@ -35,7 +35,7 @@ from core.evaluate.matcher import RuleMatcher
 from core.evaluate.namebuilder import NameBuilder
 from core.exceptions import InvalidFileArgumentError
 from core.fileobject import FileObject
-from core.options import display_start_banner, display_end_banner
+from core.options import display_start_banner, print_exit_info
 from core.util import misc
 from . import version
 
@@ -202,7 +202,7 @@ class Autonameow(object):
 
         try:
             if self.args.verbose:
-                display_end_banner(exit_code, elapsed_time)
+                print_exit_info(exit_code, elapsed_time)
         except AttributeError:
             pass
 

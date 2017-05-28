@@ -301,7 +301,7 @@ def display_start_banner():
            Fore.RESET))
 
 
-def display_end_banner(exit_code, elapsed_time):
+def print_exit_info(exit_code, elapsed_time):
     date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
     print((Fore.LIGHTBLACK_EX +
            'Stopped at {} (total execution time: {:.6f} seconds) '
