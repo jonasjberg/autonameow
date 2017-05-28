@@ -97,6 +97,9 @@ class TestDefaultConfig(TestCase):
         self.assertGreaterEqual(len(self.configuration.file_rules), 2,
                                 'Arbitrary rule count test')
 
+    def test_default_configuration_contain_name_templates(self):
+        self.assertIsNotNone(self.configuration.name_templates)
+
 
 class TestWriteDefaultConfig(TestCase):
     # Show contents of most recent temporary log on Mac OS;
@@ -234,7 +237,6 @@ class TestConfigurationValidation(TestCase):
     def test_validate_invalid_rule_conditions_filename_mime_type(self):
         self.assertFalse(self.configuration.validate(
             self.INVALID_RAW_FILE_RULE['conditions']['contents'], 'mime_type'))
-
 
 
 class TestConfigurationDataAccess(TestCase):
