@@ -298,12 +298,12 @@ def print_start_info():
     """
     Prints information on program startup; current date/time, user and platform.
     """
-    print((Fore.LIGHTBLACK_EX +
-           'Started at {date} by {user} on {platform}'.format(
-               date=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-               user=os.environ.get('USER'),
-               platform=' '.join(platform.uname()[:3])) +
-           Fore.RESET))
+    print(Fore.LIGHTBLACK_EX +
+          'Started at {date} by {user} on {platform}'.format(
+              date=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
+              user=os.environ.get('USER'),
+              platform=' '.join(platform.uname()[:3])) +
+          Fore.RESET)
 
 
 def print_exit_info(exit_code, elapsed_time):
@@ -315,9 +315,11 @@ def print_exit_info(exit_code, elapsed_time):
         elapsed_time: Program execution time in seconds.
     """
     date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-    print((Fore.LIGHTBLACK_EX +
-           'Stopped at {} (total execution time: {:.6f} seconds) '
-           'with exit code [{}]'.format(date, elapsed_time, exit_code) +
-           Fore.RESET))
+
     # TODO: Format the execution time to minutes and seconds if it exceeds
     #       60 seconds, hours, minutes and seconds if it exceeds 60 minutes ..
+
+    print(Fore.LIGHTBLACK_EX +
+          'Finished at {} after {:.6f} seconds '
+          'with exit code {}'.format(date, elapsed_time, exit_code) +
+          Fore.RESET)
