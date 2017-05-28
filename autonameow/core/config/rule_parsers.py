@@ -81,11 +81,17 @@ class MimeTypeRuleParser(RuleParser):
 
     def get_validation_function(self):
         def is_valid_mime_type(expression):
-            if expression in MAGIC_TYPE_LOOKUP.values() or \
-               expression in MAGIC_TYPE_LOOKUP.keys():
-                return True
-            else:
+            if not expression:
                 return False
+
+            if '/' in expression:
+                for v in MAGIC_TYPE_LOOKUP.values():
+                    if expression in v:
+                        return True
+            elif expression in MAGIC_TYPE_LOOKUP.keys():
+                return True
+
+            return False
 
         return is_valid_mime_type
 
