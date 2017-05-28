@@ -302,6 +302,13 @@ def display_start_banner():
 
 
 def print_exit_info(exit_code, elapsed_time):
+    """
+    Prints information on program exit; total execution time and exit code.
+
+    Args:
+        exit_code: Program exit status, for display only.
+        elapsed_time: Program execution time in seconds.
+    """
     date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
     print((Fore.LIGHTBLACK_EX +
            'Stopped at {} (total execution time: {:.6f} seconds) '
