@@ -22,6 +22,10 @@
 import yaml
 
 
+class AutonameowException(Exception):
+    """Base exception. All custom exceptions should subclass this."""
+
+
 class NameTemplateSyntaxError(Exception):
     """The name format template is invalid."""
     pass
