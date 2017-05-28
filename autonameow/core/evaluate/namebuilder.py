@@ -112,6 +112,23 @@ class NameBuilder(object):
 
 
 def assemble_basename(name_template, **kwargs):
+    """
+    Assembles a basename string from a given "name_template" format string
+    that is populated with an arbitrary number of keyword arguments.
+
+    Args:
+        name_template: The format string to populate and return.
+        **kwargs: An arbitrary number of keyword arguments used to fill out
+            the format string.
+
+    Returns:
+        A string on the form specified by the given name template, populated
+        with values from the given argument keywords.
+
+    Raises:
+        NameTemplateSyntaxError: Error due to either an invalid "name_template"
+            or insufficient/invalid keyword arguments.
+    """
     assert(type(name_template) == str)
 
     # TODO: Users should be made aware of these replacements.
