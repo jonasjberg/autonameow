@@ -30,6 +30,7 @@ from core.config.config_defaults import (
     BETWEEN_TAG_SEPARATOR
 )
 from core.config.constants import MAGIC_TYPE_LOOKUP
+from core.exceptions import InvalidFileArgumentError
 from .util import diskutils
 
 DATE_SEP = '[:\-._ ]?'
@@ -41,7 +42,16 @@ FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + '([T_ -]?' + TIME_REGEX + ')?')
 
 class FileObject(object):
     def __init__(self, path):
-        assert path is not None
+        if not os.path.exists(path):
+            raise InvalidFileArgumentError('Path does not exist')
+        elif os.path.isdir(path):
+            raise InvalidFileArgumentError('Safe handling of directories is '
+                                           'not implemented yet')
+        elif os.path.islink(path):
+            raise InvalidFileArgumentError('Safe handling of symbolic links is '
+                                           'not implemented yet')
+        elif not os.access(path, os.R_OK):
+            raise InvalidFileArgumentError('Not authorized to read path')
 
         # Get full absolute path
         self.path = os.path.abspath(path)

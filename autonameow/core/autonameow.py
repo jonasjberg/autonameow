@@ -133,16 +133,14 @@ class Autonameow(object):
             log.error('No input files specified.')
             return
         for arg in self.args.input_files:
+            log.info('Processing file "{}"'.format(str(arg)))
+
+            # Try to create a file object representing the current argument.
             try:
-                self._valid_file(arg)
+                current_file = FileObject(arg)
             except InvalidFileArgumentError as e:
                 log.warning('{} - SKIPPING: "{}"'.format(str(e), str(arg)))
                 continue
-
-            log.info('Processing file "{}"'.format(str(arg)))
-
-            # Create a file object representing the current arg.
-            current_file = FileObject(arg)
 
             # Begin analysing the file.
             analysis = Analysis(current_file)
@@ -193,21 +191,6 @@ class Autonameow(object):
                 # TODO: [BL013] Interactive mode in 'interactive.py'.
                 log.critical('[UNIMPLEMENTED FEATURE] interactive mode')
                 pass
-
-    @staticmethod
-    def _valid_file(file):
-        if not os.path.exists(file):
-            raise InvalidFileArgumentError('Path does not exist')
-        elif os.path.isdir(file):
-            raise InvalidFileArgumentError('Safe handling of directories is '
-                                           'not implemented yet')
-        elif os.path.islink(file):
-            raise InvalidFileArgumentError('Safe handling of symblic links is '
-                                           'not implemented yet')
-        elif not os.access(file, os.R_OK):
-            raise InvalidFileArgumentError('Not authorized to read path')
-        else:
-            return True
 
     def exit_program(self, exit_code=0):
         try:
