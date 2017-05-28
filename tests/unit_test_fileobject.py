@@ -24,11 +24,13 @@ from unittest import TestCase
 
 from core import fileobject
 from core.fileobject import FileObject
+from unit_utils import make_temporary_file
 
 
 class TestFileObjectFilenamePartitioningLongNameNoTags(TestCase):
     def setUp(self):
-        self.fo = FileObject('20160722 Descriptive name.txt')
+        tf = make_temporary_file(basename='20160722 Descriptive name.txt')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -56,7 +58,8 @@ class TestFileObjectFilenamePartitioningLongNameNoTags(TestCase):
 
 class TestFileObjectFilenamePartitioningLongNameWithTags(TestCase):
     def setUp(self):
-        self.fo = FileObject('19990212 Descriptive name -- firsttag tagtwo.txt')
+        tf = make_temporary_file(basename='19990212 Descriptive name -- firsttag tagtwo.txt')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -87,7 +90,8 @@ class TestFileObjectFilenamePartitioningLongNameWithTags(TestCase):
 
 class TestFileObjectFilenamePartitioningLongNameWithTagsDashesInName(TestCase):
     def setUp(self):
-        self.fo = FileObject('19920722 --Descriptive-- name -- firsttag tagtwo.txt')
+        tf = make_temporary_file(basename='19920722 --Descriptive-- name -- firsttag tagtwo.txt')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -118,7 +122,8 @@ class TestFileObjectFilenamePartitioningLongNameWithTagsDashesInName(TestCase):
 
 class TestFileObjectFilenamePartitioningHiddenFileNoExtensionNoTags(TestCase):
     def setUp(self):
-        self.fo = FileObject('.name')
+        tf = make_temporary_file(basename='.name')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -140,7 +145,8 @@ class TestFileObjectFilenamePartitioningHiddenFileNoExtensionNoTags(TestCase):
 
 class TestFileObjectFilenamePartitioningHiddenFileNoTags(TestCase):
     def setUp(self):
-        self.fo = FileObject('.name.jpg')
+        tf = make_temporary_file(basename='.name.jpg')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -166,7 +172,8 @@ class TestFileObjectFilenamePartitioningHiddenFileNoTags(TestCase):
 
 class TestFileObjectFilenamePartitioningHiddenFileCompoundSuffix(TestCase):
     def setUp(self):
-        self.fo = FileObject('.name.tar.gz')
+        tf = make_temporary_file(basename='.name.tar.gz')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -193,7 +200,8 @@ class TestFileObjectFilenamePartitioningHiddenFileCompoundSuffix(TestCase):
 
 class TestFileObjectFilenamePartitioningHiddenFileWithTags(TestCase):
     def setUp(self):
-        self.fo = FileObject('.name -- firsttag 2ndtag.jpg')
+        tf = make_temporary_file(basename='.name -- firsttag 2ndtag.jpg')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -222,7 +230,8 @@ class TestFileObjectFilenamePartitioningHiddenFileWithTags(TestCase):
 
 class TestFileObjectFilenamePartitioningHiddenFileCompoundSuffixTags(TestCase):
     def setUp(self):
-        self.fo = FileObject('.name -- firsttag 2ndtag.tar.gz')
+        tf = make_temporary_file(basename='.name -- firsttag 2ndtag.tar.gz')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -256,7 +265,8 @@ class TestFileObjectFilenamePartitioningHiddenFileCompoundSuffixTags(TestCase):
 
 class TestFileObjectFilenamePartitioningDifficultCombination(TestCase):
     def setUp(self):
-        self.fo = FileObject('.name -- tar firsttag 2ndtag.tar.gz')
+        tf = make_temporary_file(basename='.name -- tar firsttag 2ndtag.tar.gz')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -291,7 +301,8 @@ class TestFileObjectFilenamePartitioningDifficultCombination(TestCase):
 
 class TestFileObjectFilenamePartitioningAnotherDifficultCombination(TestCase):
     def setUp(self):
-        self.fo = FileObject('.tar name -- gz firsttag 2ndtag.tar.gz')
+        tf = make_temporary_file(basename='.tar name -- gz firsttag 2ndtag.tar.gz')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -326,7 +337,8 @@ class TestFileObjectFilenamePartitioningAnotherDifficultCombination(TestCase):
 
 class TestFileObjectFilenamePartitioningEvenMoreDifficultCombination(TestCase):
     def setUp(self):
-        self.fo = FileObject('.tar.gz name -- gz firsttag 2ndtag.tar.gz')
+        tf = make_temporary_file(basename='.tar.gz name -- gz firsttag 2ndtag.tar.gz')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -361,7 +373,8 @@ class TestFileObjectFilenamePartitioningEvenMoreDifficultCombination(TestCase):
 
 class TestFileObjectFilenamePartitioningReturnValueType(TestCase):
     def setUp(self):
-        self.fo = FileObject('20160722 Descriptive name -- firsttag tagtwo.txt')
+        tf = make_temporary_file(basename='20160722 Descriptive name -- firsttag tagtwo.txt')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -383,7 +396,8 @@ class TestFileObjectFilenamePartitioningReturnValueType(TestCase):
 
 class TestFileObjectFilenamePartitioningReturnValueTypeNoTags(TestCase):
     def setUp(self):
-        self.fo = FileObject('20160722 Descriptive name.txt')
+        tf = make_temporary_file(basename='20160722 Descriptive name.txt')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -405,7 +419,8 @@ class TestFileObjectFilenamePartitioningReturnValueTypeNoTags(TestCase):
 
 class TestFileObjectFilenamePartitioningReturnValueTypeNoTagsNoExt(TestCase):
     def setUp(self):
-        self.fo = FileObject('20160722 Descriptive name')
+        tf = make_temporary_file(basename='20160722 Descriptive name')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -428,7 +443,8 @@ class TestFileObjectFilenamePartitioningReturnValueTypeNoTagsNoExt(TestCase):
 
 class TestFileObjectFilenamePartitioningWithActualFilename(TestCase):
     def setUp(self):
-        self.fo = FileObject('2016-08-05_18-46-34 Working on PLL-monstret -- projects frfx.png')
+        tf = make_temporary_file(basename='2016-08-05_18-46-34 Working on PLL-monstret -- projects frfx.png')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -448,7 +464,8 @@ class TestFileObjectFilenamePartitioningWithActualFilename(TestCase):
 
 class TestFileObjectFilenamePartitioningWithActualFilename2(TestCase):
     def setUp(self):
-        self.fo = FileObject('2016-07-30T175241 Drawing with Hanvon tablet in krita_x86_xp_2.8.1.1 -- projects.png')
+        tf = make_temporary_file(basename='2016-07-30T175241 Drawing with Hanvon tablet in krita_x86_xp_2.8.1.1 -- projects.png')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -469,7 +486,8 @@ class TestFileObjectFilenamePartitioningWithActualFilename2(TestCase):
 
 class TestFileObjectFilenamePartitioningWithActualFilename3(TestCase):
     def setUp(self):
-        self.fo = FileObject('2016-08-01_104304_pages.stern.nyu.edu oyepa - Linux tagging filesystem -- workflow pim.html')
+        tf = make_temporary_file(basename='2016-08-01_104304_pages.stern.nyu.edu oyepa - Linux tagging filesystem -- workflow pim.html')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -490,7 +508,8 @@ class TestFileObjectFilenamePartitioningWithActualFilename3(TestCase):
 
 class TestFileObjectFilenamePartitioningWithActualFilename4(TestCase):
     def setUp(self):
-        self.fo = FileObject('2010-01-31_161251.jpg')
+        tf = make_temporary_file(basename='2010-01-31_161251.jpg')
+        self.fo = FileObject(tf)
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
@@ -522,16 +541,22 @@ class TestFileObjectFilenameIsInFiletagsFormat(TestCase):
 
     Cases where all the filename parts; 'ts', 'base' and 'tags' are present.
     """
+    def setUp(self):
+        self.maxDiff = None
+
     def test_has_filetags_format(self):
-        self.fo = FileObject('2016-08-05_18-46-34 Working on PLL-monstret -- projects frfx.png')
+        tf = make_temporary_file(basename='2016-08-05_18-46-34 Working on PLL-monstret -- projects frfx.png')
+        self.fo = FileObject(tf)
         self.assertTrue(self.fo.filetags_format_filename())
 
     def test_has_filetags_format_no_extension(self):
-        self.fo = FileObject('2016-08-05_18-46-34 Working on PLL-monstret -- projects frfx')
+        tf = make_temporary_file(basename='2016-08-05_18-46-34 Working on PLL-monstret -- projects frfx')
+        self.fo = FileObject(tf)
         self.assertTrue(self.fo.filetags_format_filename())
 
     def test_has_filetags_format_date_only(self):
-        self.fo = FileObject('2016-08-05 Working on PLL-monstret -- projects frfx.png')
+        tf = make_temporary_file(basename='2016-08-05 Working on PLL-monstret -- projects frfx.png')
+        self.fo = FileObject(tf)
         self.assertTrue(self.fo.filetags_format_filename())
 
 
@@ -541,16 +566,22 @@ class TestFileObjectFilenameNotInFiletagsFormat(TestCase):
 
     Cases where filename parts are missing.
     """
+    def setUp(self):
+        self.maxDiff = None
+
     def test_doesnt_have_filetags_format_missing_fnpart_base(self):
-        self.fo = FileObject('2016-08-05_18-46-34 -- projects frfx.png')
+        tf = make_temporary_file(basename='2016-08-05_18-46-34 -- projects frfx.png')
+        self.fo = FileObject(tf)
         self.assertFalse(self.fo.filetags_format_filename())
 
     def test_doesnt_have_filetags_format_missing_fnpart_tags(self):
-        self.fo = FileObject('2016-08-05_18-46-34 Working on PLL-monstret.png')
+        tf = make_temporary_file(basename='2016-08-05_18-46-34 Working on PLL-monstret.png')
+        self.fo = FileObject(tf)
         self.assertFalse(self.fo.filetags_format_filename())
 
     def test_doesnt_have_filetags_format_missing_fnpart_ts(self):
-        self.fo = FileObject('Working on PLL-monstret.png')
+        tf = make_temporary_file(basename='Working on PLL-monstret.png')
+        self.fo = FileObject(tf)
         self.assertFalse(self.fo.filetags_format_filename())
 
 
