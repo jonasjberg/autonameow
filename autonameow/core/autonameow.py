@@ -124,8 +124,8 @@ class Autonameow(object):
             self.exit_program(1)
 
         # Iterate over command line arguments ..
-        self._handle_files()
-        self.exit_program()
+        exit_code = self._handle_files()
+        self.exit_program(exit_code)
 
     def _handle_files(self):
         """
@@ -134,7 +134,7 @@ class Autonameow(object):
         exit_code = 0
         if len(self.args.input_files) < 1:
             log.error('No input files specified.')
-            return
+            return 1
         for arg in self.args.input_files:
             log.info('Processing file "{}"'.format(str(arg)))
 
@@ -187,13 +187,17 @@ class Autonameow(object):
                 else:
                     # TODO: [BL011] Rename files.
                     log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
+                    exit_code &= 1
                     pass
 
             elif self.args.interactive:
                 # Create a interactive interface.
                 # TODO: [BL013] Interactive mode in 'interactive.py'.
                 log.critical('[UNIMPLEMENTED FEATURE] interactive mode')
+                exit_code &= 1
                 pass
+
+        return exit_code
 
     def exit_program(self, exit_code=0):
         try:
