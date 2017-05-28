@@ -104,7 +104,7 @@ class DateTimeRuleParser(RuleParser):
     def get_validation_function(self):
         def is_valid_datetime(expression):
             try:
-                _ = datetime.strptime(expression, '%Y-%m-%d')
+                _ = datetime.today().strftime(expression)
             except (ValueError, TypeError):
                 return False
             else:
