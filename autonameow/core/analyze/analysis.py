@@ -197,7 +197,7 @@ class Analysis(object):
 
     def start(self):
         # Select analyzer based on detected file type.
-        log.debug('File is of type [{}]'.format(self.file_object.type))
+        log.debug('File is of type [{!s}]'.format(self.file_object.type))
         self._populate_run_queue()
 
         # Run all analyzers in the queue.
@@ -225,11 +225,11 @@ class Analysis(object):
 
         # Append any matches to the analyzer run queue.
         if found_azr:
-            log.debug('Appending "{}" to analysis run queue'.format(found_azr))
+            log.debug('Appending "{!s}" to analysis run queue'.format(found_azr))
             self.analysis_run_queue.enqueue(found_azr)
         else:
-            log.debug('File type ({}) is not yet mapped to a type-specific '
-                          'Analyzer.'.format(self.file_object.type))
+            log.debug('File type ({!s}) is not yet mapped to a type-specific '
+                      'Analyzer.'.format(self.file_object.type))
 
     def _execute_run_queue(self):
         """
@@ -250,8 +250,7 @@ class Analysis(object):
 
             a = analysis(self.file_object)
             if not a:
-                log.error('Unable to start Analyzer '
-                              '"{}"'.format(str(analysis)))
+                log.error('Unable to start Analyzer "{!s}"'.format(analysis))
                 continue
 
             # Run the analysis and collect the results.

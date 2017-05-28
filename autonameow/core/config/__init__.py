@@ -175,11 +175,11 @@ if __name__ == '__main__':
 
     print('Configuration directories:')
     for dir in dirs:
-        print('  "{}"'.format(str(dir)))
+        print('  "{!s}"'.format(dir))
 
     __config_file_path = config_file_path()
-    print('Configuration file path: "{}"'.format(str(__config_file_path)))
+    print('Configuration file path: "{!s}"'.format(__config_file_path))
 
     __has_config = has_config_file()
-    print('Has config file?: "{}"'.format(str(__has_config)))
+    print('Has config file?: "{!s}"'.format(__has_config))
 

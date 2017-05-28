@@ -66,7 +66,7 @@ def arg_is_readable_file(arg):
             arg = os.path.expanduser(arg)
         return os.path.normpath(os.path.abspath(arg))
 
-    raise argparse.ArgumentTypeError('Invalid file: "{}"'.format(str(arg)))
+    raise argparse.ArgumentTypeError('Invalid file: "{!s}"'.format(arg))
 
 
 def init_argparser():

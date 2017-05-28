@@ -101,11 +101,11 @@ class Autonameow(object):
                     config.write_default_config()
                 except PermissionError:
                     log.critical('Unable to write config file to path: '
-                                 '"{}"'.format(str(_config_path)))
+                                 '"{!s}"'.format(_config_path))
                     self.exit_program(1)
                 else:
                     log.info('A template configuration file was written to '
-                             '"{}"'.format(str(_config_path)))
+                             '"{!s}"'.format(_config_path))
                     log.info('Use this file to configure '
                              '{}.'.format(version.__title__))
             else:
@@ -136,13 +136,13 @@ class Autonameow(object):
             log.error('No input files specified.')
             return 1
         for arg in self.args.input_files:
-            log.info('Processing file "{}"'.format(str(arg)))
+            log.info('Processing file "{!s}"'.format(arg))
 
             # Try to create a file object representing the current argument.
             try:
                 current_file = FileObject(arg)
             except InvalidFileArgumentError as e:
-                log.warning('{} - SKIPPING: "{}"'.format(str(e), str(arg)))
+                log.warning('{!s} - SKIPPING: "{!s}"'.format(e, arg))
                 continue
 
             # Begin analysing the file.
@@ -183,7 +183,7 @@ class Autonameow(object):
 
                 if self.args.dry_run:
                     log.info('Automagically built filename: '
-                                 '"{}"'.format(name_builder.new_name))
+                             '"{}"'.format(name_builder.new_name))
                 else:
                     # TODO: [BL011] Rename files.
                     log.critical('[UNIMPLEMENTED FEATURE] not dry_run')

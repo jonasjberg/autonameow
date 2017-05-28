@@ -43,7 +43,7 @@ class AbstractAnalyzer(object):
                 logging.warning('Called unimplemented code: {}'.format(func_name))
                 return None
         else:
-            logging.error('Invalid get parameter: {}'.format(str(field)))
+            logging.error('Invalid get parameter: {!s}'.format(field))
             return None
 
     def get_datetime(self):
