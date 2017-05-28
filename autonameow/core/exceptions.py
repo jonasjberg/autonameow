@@ -30,6 +30,10 @@ class InvalidFileArgumentError(AutonameowException):
     """The argument (file) is not suited for processing."""
 
 
+class ConfigError(Exception):
+    """Base class for exceptions raised when querying a configuration."""
+
+
 class NameTemplateSyntaxError(Exception):
     """The name format template is invalid."""
     pass
@@ -38,10 +42,6 @@ class NameTemplateSyntaxError(Exception):
 class ConfigurationSyntaxError(Exception):
     """The configuration contains invalid entries."""
     pass
-
-
-class ConfigError(Exception):
-    """Base class for exceptions raised when querying a configuration."""
 
 
 YAML_TAB_PROBLEM = "found character '\\t' that cannot start any token"
