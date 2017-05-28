@@ -138,61 +138,61 @@ class Autonameow(object):
             except InvalidFileArgumentError as e:
                 log.warning('{} - SKIPPING: "{}"'.format(str(e), str(arg)))
                 continue
-            else:
-                log.info('Processing file "{}"'.format(str(arg)))
 
-                # Create a file object representing the current arg.
-                current_file = FileObject(arg)
+            log.info('Processing file "{}"'.format(str(arg)))
 
-                # Begin analysing the file.
-                analysis = Analysis(current_file)
+            # Create a file object representing the current arg.
+            current_file = FileObject(arg)
 
-                # TODO: [BL007] Move results printing to separate module/class.
-                if self.args.list_datetime:
-                    print(('File: "{}"'.format(current_file.path)))
-                    misc.dump(analysis.results.get('datetime'))
-                    print('')
+            # Begin analysing the file.
+            analysis = Analysis(current_file)
 
-                # TODO: [BL007] Move results printing to separate module/class.
-                if self.args.list_title:
-                    print(('File: "{}"'.format(current_file.path)))
-                    misc.dump(analysis.results.get('title'))
-                    print('')
+            # TODO: [BL007] Move results printing to separate module/class.
+            if self.args.list_datetime:
+                print(('File: "{}"'.format(current_file.path)))
+                misc.dump(analysis.results.get('datetime'))
+                print('')
 
-                # TODO: [BL007] Move results printing to separate module/class.
-                if self.args.list_all:
-                    print(('File: "{}"'.format(current_file.path)))
-                    misc.dump(analysis.results.get_all())
-                    print('')
+            # TODO: [BL007] Move results printing to separate module/class.
+            if self.args.list_title:
+                print(('File: "{}"'.format(current_file.path)))
+                misc.dump(analysis.results.get('title'))
+                print('')
 
-                # Create a rule matcher
-                rule_matcher = RuleMatcher(current_file, self.config)
+            # TODO: [BL007] Move results printing to separate module/class.
+            if self.args.list_all:
+                print(('File: "{}"'.format(current_file.path)))
+                misc.dump(analysis.results.get_all())
+                print('')
 
-                if self.args.prepend_datetime:
-                    # TODO: Prepend datetime to filename.
-                    log.critical('[UNIMPLEMENTED FEATURE] prepend_datetime')
-                    self.exit_program(1)
+            # Create a rule matcher
+            rule_matcher = RuleMatcher(current_file, self.config)
 
-                if self.args.automagic:
-                    # Create a name builder.
-                    # TODO: [BL010] Implement NameBuilder.
-                    name_builder = NameBuilder(current_file, analysis.results,
-                                               rule_matcher.active_rule)
-                    name_builder.build()
+            if self.args.prepend_datetime:
+                # TODO: Prepend datetime to filename.
+                log.critical('[UNIMPLEMENTED FEATURE] prepend_datetime')
+                self.exit_program(1)
 
-                    if self.args.dry_run:
-                        log.info('Automagically built filename: '
-                                     '"{}"'.format(name_builder.new_name))
-                    else:
-                        # TODO: [BL011] Rename files.
-                        log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
-                        pass
+            if self.args.automagic:
+                # Create a name builder.
+                # TODO: [BL010] Implement NameBuilder.
+                name_builder = NameBuilder(current_file, analysis.results,
+                                           rule_matcher.active_rule)
+                name_builder.build()
 
-                elif self.args.interactive:
-                    # Create a interactive interface.
-                    # TODO: [BL013] Interactive mode in 'interactive.py'.
-                    log.critical('[UNIMPLEMENTED FEATURE] interactive mode')
+                if self.args.dry_run:
+                    log.info('Automagically built filename: '
+                                 '"{}"'.format(name_builder.new_name))
+                else:
+                    # TODO: [BL011] Rename files.
+                    log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
                     pass
+
+            elif self.args.interactive:
+                # Create a interactive interface.
+                # TODO: [BL013] Interactive mode in 'interactive.py'.
+                log.critical('[UNIMPLEMENTED FEATURE] interactive mode')
+                pass
 
     @staticmethod
     def _valid_file(file):
