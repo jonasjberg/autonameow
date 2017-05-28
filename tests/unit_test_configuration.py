@@ -254,7 +254,6 @@ class TestConfigurationDataAccess(TestCase):
         self.assertTrue(isinstance(self.configuration.file_rules, list))
 
     def test_get_file_rules_returns_expected_rule_count(self):
-        _rules = self.configuration.file_rules
-        self.assertEqual(len(self.configuration.file_rules), 3)
+        self.assertGreaterEqual(len(self.configuration.file_rules), 4)
 
 
