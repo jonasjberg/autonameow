@@ -214,6 +214,5 @@ class Autonameow(object):
             pass
 
         log.debug('Exiting with exit code: {}'.format(exit_code))
-        log.debug('Total execution time: '
-                      '{:.6f} seconds'.format(elapsed_time))
+        log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
         sys.exit(exit_code)
