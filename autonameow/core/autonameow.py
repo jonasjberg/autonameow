@@ -35,7 +35,7 @@ from core.evaluate.matcher import RuleMatcher
 from core.evaluate.namebuilder import NameBuilder
 from core.exceptions import InvalidFileArgumentError
 from core.fileobject import FileObject
-from core.options import print_ascii_banner, print_exit_info
+from core.options import print_ascii_banner, print_exit_info, print_start_info
 from core.util import misc
 from . import version
 
@@ -70,7 +70,10 @@ class Autonameow(object):
         # Handle the command line arguments.
         self.args = options.parse_args(self.opts)
 
-        # Display detailed information in debug mode.
+        # Display various information depending on verbosity level.
+        if self.args.verbose:
+            print_start_info()
+
         if self.args.debug:
             log.debug('Started {} version {}'.format(version.__title__,
                                                          version.__version__))

@@ -293,9 +293,15 @@ def print_ascii_banner():
     print(('{:>78}'.format(version.__url__)))
     print(('{:>78}'.format(version.__email__)))
     print('')
+
+
+def print_start_info():
+    """
+    Prints information on program startup; current date/time, user and platform.
+    """
     print((Fore.LIGHTBLACK_EX +
            'Started at {date} by {user} on {platform}'.format(
-               date=date,
+               date=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
                user=os.environ.get('USER'),
                platform=' '.join(platform.uname()[:3])) +
            Fore.RESET))
