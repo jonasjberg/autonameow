@@ -24,19 +24,19 @@ from unittest import TestCase
 
 from core.analyze.analyze_filename import FilenameAnalyzer
 from core.fileobject import FileObject
+from unit_utils import make_temporary_file
 
 
 class TestFilenameAnalyzerWithImageFile(TestCase):
-    # Setup and sanity check:
     def setUp(self):
-        self.fo = FileObject('~/dev/projects/autonameow/test_files/2010-01-31_161251.jpg')
+        tf = make_temporary_file(basename='2010-01-31_161251.jpg')
+        self.fo = FileObject(tf)
         self.fna = FilenameAnalyzer(self.fo)
 
     def test_setup(self):
         self.assertIsNotNone(self.fo)
         self.assertIsNotNone(self.fna)
 
-    # Tests:
     def test_get_datetime_does_not_return_none(self):
         dt_list = self.fna.get_datetime()
         self.assertIsNotNone(dt_list)
@@ -64,16 +64,15 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
 
 
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
-    # Setup and sanity check:
     def setUp(self):
-        self.fo = FileObject('~/dev/projects/autonameow/test_files/empty')
+        tf = make_temporary_file(basename='empty')
+        self.fo = FileObject(tf)
         self.fna = FilenameAnalyzer(self.fo)
 
     def test_setup(self):
         self.assertIsNotNone(self.fo)
         self.assertIsNotNone(self.fna)
 
-    # Tests:
     def test_get_datetime_does_not_return_none(self):
         self.assertIsNotNone(self.fna.get_datetime())
 
@@ -96,16 +95,15 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
 
 
 class TestFilenameAnalyzerWithTaggedFile(TestCase):
-    # Setup and sanity check:
     def setUp(self):
-        self.fo = FileObject('~/dev/projects/autonameow/test_files/2015-07-03_163838 Keeping notes in Vim -- dv017a dev.ogv')
+        tf = make_temporary_file(basename='2015-07-03_163838 Keeping notes in Vim -- dv017a dev.ogv')
+        self.fo = FileObject(tf)
         self.fna = FilenameAnalyzer(self.fo)
 
     def test_setup(self):
         self.assertIsNotNone(self.fo)
         self.assertIsNotNone(self.fna)
 
-    # Tests:
     def test_get_datetime_does_not_return_none(self):
         dt_list = self.fna.get_datetime()
         self.assertIsNotNone(dt_list)
