@@ -34,12 +34,12 @@ class ConfigError(AutonameowException):
     """Base class for exceptions raised when querying a configuration."""
 
 
-class NameTemplateSyntaxError(Exception):
+class NameTemplateSyntaxError(ConfigError):
     """The name format template is invalid."""
     pass
 
 
-class ConfigurationSyntaxError(Exception):
+class ConfigurationSyntaxError(ConfigError):
     """The configuration contains invalid entries."""
     pass
 
