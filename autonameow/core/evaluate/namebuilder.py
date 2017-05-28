@@ -114,6 +114,12 @@ class NameBuilder(object):
 def assemble_basename(name_template, **kwargs):
     assert(type(name_template) == str)
 
+    # TODO: Users should be made aware of these replacements.
+    while "'" in name_template:
+        name_template = name_template.replace("'", '')
+    while '"' in name_template:
+        name_template = name_template.replace('"', '')
+
     # NOTE: Used to validate name formatting strings in the configuration file.
     try:
         out = name_template.format(**kwargs)
