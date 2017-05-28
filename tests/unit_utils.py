@@ -51,3 +51,35 @@ def make_temp_dir():
 
     """
     return tempfile.mkdtemp()
+
+
+def make_temporary_file(prefix=None, suffix=None, basename=None):
+    """
+    Creates a temporary file and returns the full path to the file.
+
+    Use "basename" to specify a specific file basename, including any extension.
+    Arguments "prefix" and "suffix" have no effect if "basename" is specified.
+
+    If "basename" is not specified, either or both of "prefix" and "suffix"
+    can be used to specify a fixed suffix or prefix of the file basename.
+    Any file extension should be specified with "suffix".
+
+    Args:
+        prefix: Optional prefix for the file basename given as a string.
+        suffix: Optional suffix for the file basename given as a string.
+        basename: Basename for the file given as a string.
+            Overrides "prefix" and "suffix".
+
+    Returns:
+        The full absolute path of the created file as a string.
+    """
+    if basename:
+        f = os.path.realpath(tempfile.NamedTemporaryFile(delete=False).name)
+        _dest_dir = os.path.realpath(os.path.dirname(f))
+        _dest_path = os.path.join(_dest_dir, basename)
+        os.rename(f, _dest_path)
+        return os.path.realpath(_dest_path)
+
+    return os.path.realpath(tempfile.NamedTemporaryFile(delete=False,
+                                                        prefix=prefix,
+                                                        suffix=suffix).name)
