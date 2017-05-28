@@ -26,7 +26,7 @@ from core.config.rule_parsers import (
     RuleParser,
     get_instantiated_parsers,
     available_parsers,
-    MimeTypeRuleParser)
+    MimeTypeRuleParser, DateTimeRuleParser, NameFormatRuleParser)
 
 
 class TestRuleParserFunctions(TestCase):
@@ -128,5 +128,37 @@ class TestMimeTypeRuleParser(TestCase):
         self.assertFalse(self.val_func('*'))
 
     def test_validation_function_expect_pass(self):
+        self.assertTrue(self.val_func('txt'))
         self.assertTrue(self.val_func('text/plain'))
         self.assertTrue(self.val_func('jpg'))
+
+
+class TestDateTimeRuleParser(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.p = DateTimeRuleParser()
+        self.val_func = self.p.get_validation_function()
+
+    def test_validation_function_expect_fail(self):
+        self.assertFalse(self.val_func(None))
+        self.assertFalse(self.val_func(1))
+
+    def test_validation_function_expect_pass(self):
+        self.assertTrue(self.val_func('%Y-%m-%d %H:%M:%S'))
+        self.assertTrue(self.val_func(''))
+        self.assertTrue(self.val_func('_'))
+
+
+class TestNameFormatRuleParser(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.p = NameFormatRuleParser()
+        self.val_func = self.p.get_validation_function()
+
+    def test_validation_function_expect_fail(self):
+        # TODO: Write tests ..
+        self.assertFalse(self.val_func(None))
+
+    def test_validation_function_expect_pass(self):
+        # TODO: Write tests ..
+        self.assertTrue(self.val_func('TODO'))
