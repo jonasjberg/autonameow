@@ -73,6 +73,12 @@ class FileRule(Rule):
         self.conditions = kwargs.get('conditions', {})
         self.data_sources = kwargs.get('data_sources', {})
 
+    def __str__(self):
+        desc = []
+        for key in self.__dict__:
+            desc.append('{}: {}'.format(key.title(), self.__dict__[key]))
+        return '\n'.join(desc)
+
 
 class Configuration(object):
     def __init__(self, data=None):

@@ -64,3 +64,17 @@ class TestFileRuleInstantiation(TestCase):
         self.assertTrue(isinstance(self.filerule.exact_match, bool),
                         'FileRule exact_match should be a boolean')
 
+class TestFileRuleMethods(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.filerule = FileRule(description='dummy',
+                                 exact_match=False,
+                                 weight=0.5,
+                                 name_template='dummy',
+                                 conditions='dummy',
+                                 data_sources='dummy')
+
+    def test_filerule_string(self):
+        actual = str(self.filerule)
+        print(actual)
+        self.assertTrue(isinstance(actual, str))
