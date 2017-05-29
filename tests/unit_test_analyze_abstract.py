@@ -21,9 +21,21 @@
 
 from unittest import TestCase
 
-from core.analyze.analyze_abstract import AbstractAnalyzer
+from core.analyze.analyze_abstract import (
+    AbstractAnalyzer,
+    get_analyzer_classes_basename,
+    get_analyzer_mime_mappings,
+    get_instantiated_analyzers
+)
+from core.analyze.analyze_filename import FilenameAnalyzer
+from core.analyze.analyze_filesystem import FilesystemAnalyzer
+from core.analyze.analyze_image import ImageAnalyzer
+from core.analyze.analyze_pdf import PdfAnalyzer
+from core.analyze.analyze_text import TextAnalyzer
+from core.analyze.analyze_video import VideoAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
 from core.exceptions import AnalysisResultsFieldError
+from unit_test_analysis import EXPECT_ANALYZER_CLASSES_BASENAME
 
 from unit_utils import get_mock_fileobject
 
@@ -74,3 +86,47 @@ class TestAbstractAnalyzer(TestCase):
     def test_get_publisher_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.a.get_publisher()
+
+
+class TestAnalysisUtilityFunctions(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_get_analyzer_classes_basename_returns_expected_count(self):
+        _classes = get_analyzer_classes_basename()
+        self.assertEqual(len(_classes), len(EXPECT_ANALYZER_CLASSES_BASENAME))
+
+    def test_get_analyzer_classes_basename_returns_expected_contents(self):
+        _classes = get_analyzer_classes_basename()
+        self.assertEqual(sorted(_classes),
+                         sorted(EXPECT_ANALYZER_CLASSES_BASENAME))
+
+    def test_get_analysis_mime_mappings(self):
+        # TODO: [hardcoded] Likely to break; fixed analyzer type mapping.
+        ANALYZER_TYPE_LOOKUP = {ImageAnalyzer: ['jpg', 'png'],
+                                PdfAnalyzer: 'pdf',
+                                TextAnalyzer: ['txt', 'md'],
+                                VideoAnalyzer: 'mp4',
+                                FilesystemAnalyzer: None,
+                                FilenameAnalyzer: None}
+        self.assertEqual(ANALYZER_TYPE_LOOKUP, get_analyzer_mime_mappings())
+
+    def test_get_instantiated_analyzers_returns_class_objects(self):
+        analyzers = get_instantiated_analyzers()
+        for a in analyzers:
+            self.assertTrue(hasattr(a, '__class__'))
+
+    def test_get_instantiated_analyzers_returns_arbitrary_number(self):
+        # TODO: [hardcoded] Likely to break; Fix or remove!
+        self.assertGreaterEqual(len(get_instantiated_analyzers()), 6)
+
+    def test_get_instantiated_analyzsers_returns_list(self):
+        self.assertTrue(isinstance(get_instantiated_analyzers(), list))
+
+    #def test_get_instantiated_analyzers(self):
+        # _analyzers = get_instantiated_analyzers()
+        # INSTANTIATED_ANALYZERS = [ImageAnalyzer(None), PdfAnalyzer(None),
+        #                           TextAnalyzer(None), VideoAnalyzer(None),
+        #                           FilesystemAnalyzer(None),
+        #                           FilenameAnalyzer(None)]
+        # self.assertEqual(INSTANTIATED_ANALYZERS, _analyzers)

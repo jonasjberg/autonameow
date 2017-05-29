@@ -21,7 +21,10 @@
 
 import logging as log
 
-from core.analyze.analyze_abstract import AbstractAnalyzer
+from core.analyze.analyze_abstract import (
+    get_analyzer_classes_basename,
+    get_analyzer_mime_mappings
+)
 from core.analyze.analyze_filename import FilenameAnalyzer
 from core.analyze.analyze_filesystem import FilesystemAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
@@ -31,49 +34,6 @@ from core.analyze.analyze_pdf import PdfAnalyzer
 from core.analyze.analyze_image import ImageAnalyzer
 from core.analyze.analyze_text import TextAnalyzer
 from core.analyze.analyze_video import VideoAnalyzer
-
-
-def get_analyzer_classes():
-    """
-    Get a list of all available analyzers as a list of "type".
-    All classes inheriting from the "AbstractAnalyzer" class are included.
-
-    Returns:
-        All available analyzer classes as a list of type.
-    """
-    return [klass for klass in globals()['AbstractAnalyzer'].__subclasses__()]
-
-
-def get_analyzer_classes_basename():
-    return [c.__name__ for c in get_analyzer_classes()]
-
-
-def get_instantiated_analyzers():
-    """
-    Get a list of all available analyzers as instantiated class objects.
-    All classes inheriting from the "AbstractAnalyzer" class are included.
-
-    Returns:
-        A list of class instances, one per subclass of "AbstractAnalyzer".
-    """
-    # NOTE: These are instantiated with a None FIleObject, which might be a
-    #       problem and is surely not very pretty.
-    return [klass(None) for klass in get_analyzer_classes()]
-
-
-def get_analyzer_mime_mappings():
-    """
-    Provides a mapping of which analyzers should apply to which mime types.
-
-    Returns:
-        Dictionary of strings or list of strings.
-        The dictionary is keyed by the class names of all analyzers,
-        storing the class variable 'applies_to_mime' from each analyzer.
-    """
-    analyzer_mime_mappings = {}
-    for azr in get_instantiated_analyzers():
-        analyzer_mime_mappings[azr.__class__] = azr.applies_to_mime
-    return analyzer_mime_mappings
 
 
 class AnalysisRunQueue(object):
