@@ -21,6 +21,7 @@
 
 import logging as log
 
+from core.analyze.analyze_abstract import AbstractAnalyzer
 from core.analyze.analyze_filename import FilenameAnalyzer
 from core.analyze.analyze_filesystem import FilesystemAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
@@ -32,20 +33,15 @@ from core.analyze.analyze_text import TextAnalyzer
 from core.analyze.analyze_video import VideoAnalyzer
 
 
-# Collect all analyzers from their class name.
-_ALL_ANALYZER_CLASSES = [
-        klass
-        for name, klass in list(globals().items())
-        if name.endswith('Analyzer') and name != 'AbstractAnalyzer'
-    ]
-
-
 def get_analyzer_classes():
     """
+    Get a list of all available analyzers as a list of "type".
+    All classes inheriting from the "AbstractAnalyzer" class are included.
+
     Returns:
-        All analyzer classes in '_ALL_ANALYZER_CLASSES' as a list of type.
+        All available analyzer classes as a list of type.
     """
-    return _ALL_ANALYZER_CLASSES
+    return [klass for klass in globals()['AbstractAnalyzer'].__subclasses__()]
 
 
 def get_analyzer_classes_basename():
@@ -54,9 +50,11 @@ def get_analyzer_classes_basename():
 
 def get_instantiated_analyzers():
     """
+    Get a list of all available analyzers as instantiated class objects.
+    All classes inheriting from the "AbstractAnalyzer" class are included.
+
     Returns:
-        A list of instantiated analyzers (all analyzers as objects)
-        defined in '_ALL_ANALYZER_CLASSES'.
+        A list of class instances, one per subclass of "AbstractAnalyzer".
     """
     # NOTE: These are instantiated with a None FIleObject, which might be a
     #       problem and is surely not very pretty.
