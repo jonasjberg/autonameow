@@ -19,10 +19,15 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
+from core.config.constants import ANALYSIS_RESULTS_FIELDS
+from core.exceptions import AnalysisResultsFieldError
 
 
 class AbstractAnalyzer(object):
+    """
+    Abstract Analyzer base class.
+    All methods must be implemented by inheriting classes.
+    """
     run_queue_priority = None
 
     def __init__(self, file_object):
@@ -30,21 +35,38 @@ class AbstractAnalyzer(object):
         self.applies_to_mime = None
 
     def run(self):
+        """
+        Starts the analysis performed by this analyzer.
+        """
         raise NotImplementedError
 
     def get(self, field):
-        func_name = 'get_{}'.format(field)
+        """
+        Wrapper method allows calling 'a.get_FIELD()' as 'a.get("FIELD")'.
 
-        get_func = getattr(self, func_name, None)
+        This method simply calls other methods by assembling the method name
+        to call from the prefix 'get_' and the given "field" as the postfix.
+
+        Args:
+            field: Name of the field to get.  Must be included in
+                ANALYSIS_RESULTS_FIELDS, else an exception is raised.
+
+        Returns:
+            Equivalent to calling 'a.get_FIELD()'
+
+        Raises:
+            AnalysisResultsFieldError: Error caused by invalid argument "field",
+                which must be included in ANALYSIS_RESULTS_FIELDS.
+        """
+        if field not in ANALYSIS_RESULTS_FIELDS:
+            raise AnalysisResultsFieldError(field)
+
+        _func_name = 'get_{}'.format(field)
+        get_func = getattr(self, _func_name, False)
         if callable(get_func):
-            try:
-                return get_func()
-            except NotImplementedError as e:
-                logging.warning('Called unimplemented code: {}'.format(func_name))
-                return None
+            return get_func()
         else:
-            logging.error('Invalid get parameter: {!s}'.format(field))
-            return None
+            raise NotImplementedError(field)
 
     def get_datetime(self):
         raise NotImplementedError

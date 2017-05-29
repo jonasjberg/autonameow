@@ -34,6 +34,10 @@ class ConfigError(AutonameowException):
     """Base class for exceptions raised when querying a configuration."""
 
 
+class AnalysisResultsFieldError(AutonameowException):
+    """Attempt to query/access an invalid analyzer data field."""
+
+
 class NameTemplateSyntaxError(ConfigError):
     """The name format template is invalid."""
     pass
