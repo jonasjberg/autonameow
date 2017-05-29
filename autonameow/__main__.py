@@ -30,7 +30,6 @@ Execute with:
 """
 
 import sys
-# from autonameow import Autonameow
 from core.autonameow import Autonameow
 
 if __package__ is None and not hasattr(sys, 'frozen'):
@@ -44,6 +43,4 @@ if __name__ == '__main__':
         autonameow = Autonameow(sys.argv[1:])
         autonameow.run()
     except KeyboardInterrupt:
-        # logging.critical('Received keyboard interrupt; Exiting ..')
-        # sys.exit()
         sys.exit('\nReceived keyboard interrupt; Exiting ..')
