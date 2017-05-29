@@ -21,11 +21,12 @@
 
 from unittest import TestCase
 
-from core.analyze.analysis import (
-    get_analyzer_mime_mappings,
+from core.analyze.analysis import Results
+from core.analyze.analyze_abstract import (
     get_analyzer_classes,
-    Results, get_analyzer_classes_basename,
-    get_instantiated_analyzers
+    get_analyzer_classes_basename,
+    get_instantiated_analyzers,
+    get_analyzer_mime_mappings
 )
 from core.analyze.analyze_filename import FilenameAnalyzer
 from core.analyze.analyze_filesystem import FilesystemAnalyzer
@@ -35,7 +36,7 @@ from core.analyze.analyze_text import TextAnalyzer
 from core.analyze.analyze_video import VideoAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
 
-# NOTE: [hardcoded] Likely to break; fixed analyzer names!
+# TODO: [hardcoded] Likely to break; fixed analyzer names!
 EXPECT_ANALYZER_CLASSES = ['core.analyze.analyze_image.ImageAnalyzer',
                            'core.analyze.analyze_filesystem.FilesystemAnalyzer',
                            'core.analyze.analyze_filename.FilenameAnalyzer',
@@ -43,7 +44,7 @@ EXPECT_ANALYZER_CLASSES = ['core.analyze.analyze_image.ImageAnalyzer',
                            'core.analyze.analyze_pdf.PdfAnalyzer',
                            'core.analyze.analyze_text.TextAnalyzer']
 
-# NOTE: [hardcoded] Likely to break; fixed analyzer classes basename!
+# TODO: [hardcoded] Likely to break; fixed analyzer classes basename!
 EXPECT_ANALYZER_CLASSES_BASENAME = ['ImageAnalyzer',
                                     'FilesystemAnalyzer',
                                     'FilenameAnalyzer',
@@ -75,7 +76,7 @@ class TestAnalysisUtilityFunctions(TestCase):
                          sorted(EXPECT_ANALYZER_CLASSES_BASENAME))
 
     def test_get_analysis_mime_mappings(self):
-        # NOTE: [hardcoded] Likely to break; fixed analyzer type mapping.
+        # TODO: [hardcoded] Likely to break; fixed analyzer type mapping.
         ANALYZER_TYPE_LOOKUP = {ImageAnalyzer: ['jpg', 'png'],
                                 PdfAnalyzer: 'pdf',
                                 TextAnalyzer: ['txt', 'md'],
@@ -86,7 +87,6 @@ class TestAnalysisUtilityFunctions(TestCase):
 
     def test_get_analyzer_classes_returns_expected_count(self):
         _class_names = [c.__name__ for c in get_analyzer_classes()]
-
 
     def test_get_instantiated_analyzers_returns_class_objects(self):
         analyzers = get_instantiated_analyzers()
