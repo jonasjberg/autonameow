@@ -45,20 +45,25 @@ PYTHON_VERSION = sys.version.replace('\n', '')
 
 class Autonameow(object):
     """
-    Main class to manage "autonameow" instance.
+    Main class to manage a running "autonameow" instance.
     """
 
     def __init__(self, opts):
         """
-        Main program entry point
+        Main program entry point.
+
+        Initializes and starts executing a autonameow instance/session.
+
+        Args:
+            opts: Option arguments as a list of strings.
         """
         # Save time of startup for later calculation of total runtime.
         self.start_time = time.time()
 
-        self.opts = opts
-        self.args = None
-        self.filter = None
+        self.opts = opts        # "Raw" option arguments as list of strings.
+        self.args = None        # Parsed options returned by argparse.
 
+        self.filter = None
         self.config = Configuration()
 
     def run(self):
