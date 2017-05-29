@@ -197,6 +197,10 @@ class Configuration(object):
             else:
                 raise ConfigurationSyntaxError('Expected integer in range 0-1')
 
+    # TODO: Implement something like this here?
+    #def parse_file_conditional(self, field_name, field_value):
+    #   pass
+
     def _parse_name_template(self, param):
         # TODO: Use "NameBuilder" in try/catch-block to validate name template.
         return None
