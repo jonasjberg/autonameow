@@ -33,20 +33,18 @@ EXPECT_ANALYZER_CLASSES = ['core.analyze.analyze_image.ImageAnalyzer',
                            'core.analyze.analyze_pdf.PdfAnalyzer',
                            'core.analyze.analyze_text.TextAnalyzer']
 
-# TODO: [hardcoded] Likely to break; fixed analyzer classes basename!
-EXPECT_ANALYZER_CLASSES_BASENAME = ['ImageAnalyzer',
-                                    'FilesystemAnalyzer',
-                                    'FilenameAnalyzer',
-                                    'VideoAnalyzer',
-                                    'PdfAnalyzer',
-                                    'TextAnalyzer']
-
-
+EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
+                                    for c in EXPECT_ANALYZER_CLASSES]
 
 
 class TestAnalysis(TestCase):
     def setUp(self):
-        pass
+        # TODO: Add tests ..
+        self.skipTest('TODO: Add tests ..')
+
+    def test_analysis(self):
+        # TODO: Add tests ..
+        self.skipTest('TODO: Add tests ..')
 
 
 class TestResults(TestCase):
