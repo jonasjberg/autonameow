@@ -32,9 +32,9 @@ from core.config.constants import ANALYSIS_RESULTS_FIELDS
 
 class AnalysisRunQueue(object):
     """
-    Stores references to all analyzers to be executed.
+    Execution queue for analyzers.
 
-    Essentially a glorified list, motivated by future expansion.
+    The queue order is determined by the class variable "run_queue_priority".
     """
     def __init__(self):
         self._queue = []
@@ -156,10 +156,11 @@ class Analysis(object):
 
     def _populate_run_queue(self):
         """
-        Populate the list of analyzers to run.
+        Populate the analysis run queue with analyzers that will be executed.
 
         Note:
-            Imports are done locally for performance reasons.
+            Includes only analyzers whose MIME type ('applies_to_mime')
+            matches the MIME type of the current file object.
         """
         # Compare file mime type with entries from get_analyzer_mime_mappings().
         found_azr = None
@@ -194,7 +195,7 @@ class Analysis(object):
         """
         for i, analysis in enumerate(self.analysis_run_queue):
             log.debug('Executing analysis run queue item '
-                          '[{}/{}]'.format(i + 1, len(self.analysis_run_queue)))
+                      '[{}/{}]'.format(i + 1, len(self.analysis_run_queue)))
             if not analysis:
                 log.error('Got null analysis from analysis run queue.')
                 continue
