@@ -1,11 +1,60 @@
+2017-05-29  [autonameow v0.3.2]
+            Includes major changes to both functionality and implementation.
+
+            Marks the end of development as part of the course work of
+            "1DV430 -- Individual Software Development Project", part of
+            "Software Development and Operations" at Linnaeus University.
+
+            Additions:
+            - Custom "integration" testing framework.
+                - Bash shell scripts allows testing anything on the system.
+                - Generates test result reports as html and pdf documents.
+                - Scripts for running all unit tests, integration tests,
+                  producing reports and updating the project wiki.
+            - Add a lot of missing unit tests.
+            - Add shared utility functions for unit tests along with
+              corresponding unit tests.
+            - Add functions for reading and writing YAML files.
+            - Add configuration handling.
+                - Configuration data is handled by a 'Configuration' class.
+                - Parsing and validation of configuration settings is done
+                  by the following subclasses of the 'RuleParser' class;
+                    - 'RegexRuleParser'      (Regular expression fields)
+                    - 'MimeTypeRuleParser'   (MIME type fields)
+                    - 'DateTimeRuleParser'   (Date/time-information fields)
+                    - 'NameFormatRuleParser' (File name format string fields)
+            - Add custom exceptions using the following inheritance hierarchy;
+                - 'AutonameowException' (top-level base class)
+                    - 'InvalidFileArgumentError' (invalid arguments)
+                    - 'ConfigError' (top-level configuration exception class)
+                        - 'NameTemplateSyntaxError' (invalid formatting string)
+                        - 'ConfigurationSyntaxError' (bad configuration syntax)
+                        - 'ConfigReadError' (configuration file read error)
+                        - 'ConfigWriteError' (configuration file write error)
+
+            Changes:
+            - A lot of miscellaneous fixes, cleanup and refactoring.
+                - Add 'constants.py' for all fixed global constants.
+            - Add/update documentation strings.
+            - Modify content and formatting of printed messages.
+            - Move argument validation to 'FileObject' class.
+            - Rewrite default configuration file.
+            - Rewrite configuration structure and configuration file syntax.
+
+            Fixes:
+            - Fix failing unit tests.
+            - Fix a lot of miscellaneous bugs.
+            - Improve handling of calling unimplemented code.
+
+
 2017-05-10  [autonameow v0.3.1]
             Insignificant changes of the core functionality. But major rework
             and improvements of the testing code, documentation and structure.
 
             Additions:
             - Include additional information on the environment in debug mode.
-			- Add new option '--config-path' to allow specifying an alternative
-			  configuration file to use instead of the default configuration
+            - Add new option '--config-path' to allow specifying an alternative
+              configuration file to use instead of the default configuration
               file at predetermined platform-specific locations.
             - Add shared library for the integration test scripts;
               'tests/integration_utils.sh', contains common utility functions
