@@ -26,7 +26,8 @@ from core.config.rule_parsers import (
     RuleParser,
     get_instantiated_parsers,
     available_parsers,
-    MimeTypeRuleParser, DateTimeRuleParser, NameFormatRuleParser)
+    MimeTypeRuleParser, DateTimeRuleParser, NameFormatRuleParser
+)
 
 
 class TestRuleParserFunctions(TestCase):
