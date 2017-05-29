@@ -202,12 +202,14 @@ class Autonameow(object):
 
         return exit_code
 
-    def exit_program(self, exit_code=0):
-        try:
-            exit_code = int(exit_code)
-        except TypeError:
-            exit_code = 1
+    def exit_program(self, exit_code):
+        """
+        Main program exit point.  Shuts down this autonameow instance/session.
 
+        Args:
+            exit_code: Integer exit code to pass to the parent process.
+                Indicate success with 0, failure non-zero.
+        """
         elapsed_time = time.time() - self.start_time
 
         try:
