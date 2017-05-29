@@ -156,6 +156,7 @@ class Analysis(object):
         # Select analyzer based on detected file type.
         log.debug('File is of type [{!s}]'.format(self.file_object.type))
         self._populate_run_queue()
+        log.debug('Queued analyzers: {!s}'.format(self.analysis_run_queue))
 
         # Run all analyzers in the queue.
         self._execute_run_queue()
@@ -200,8 +201,10 @@ class Analysis(object):
             Still a work in progress.
         """
         for i, analysis in enumerate(self.analysis_run_queue):
-            log.debug('Executing analysis run queue item '
-                      '[{}/{}]'.format(i + 1, len(self.analysis_run_queue)))
+            log.debug('Executing enqueued analyzer {}/{}: '
+                      '{}'.format(i + 1,
+                                  len(self.analysis_run_queue),
+                                  analysis.__name__))
             if not analysis:
                 log.error('Got null analysis from analysis run queue.')
                 continue
