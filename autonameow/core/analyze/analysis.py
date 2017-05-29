@@ -29,12 +29,6 @@ from core.analyze.analyze_filename import FilenameAnalyzer
 from core.analyze.analyze_filesystem import FilesystemAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
 
-# NOTE: Below imports needed by unit tests, do not "optimize".
-from core.analyze.analyze_pdf import PdfAnalyzer
-from core.analyze.analyze_image import ImageAnalyzer
-from core.analyze.analyze_text import TextAnalyzer
-from core.analyze.analyze_video import VideoAnalyzer
-
 
 class AnalysisRunQueue(object):
     """
