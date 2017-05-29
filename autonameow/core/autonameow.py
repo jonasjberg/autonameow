@@ -50,9 +50,7 @@ class Autonameow(object):
 
     def __init__(self, opts):
         """
-        Main program entry point.
-
-        Initializes and starts executing a autonameow instance/session.
+        Main program entry point.  Initializes a autonameow instance/session.
 
         Args:
             opts: Option arguments as a list of strings.
@@ -134,7 +132,7 @@ class Autonameow(object):
 
     def _handle_files(self):
         """
-        Iterate over passed arguments, which should be paths to files.
+        Main loop. Iterates over passed arguments (paths/files).
         """
         exit_code = 0
         if len(self.args.input_files) < 1:
