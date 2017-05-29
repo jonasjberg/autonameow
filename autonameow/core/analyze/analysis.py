@@ -61,6 +61,12 @@ class AnalysisRunQueue(object):
         for a in sorted(self._queue, key=lambda x: x.run_queue_priority):
             yield a
 
+    def __str__(self):
+        out = []
+        for i, a in enumerate(self):
+            out.append('{:02d}: {}'.format(i, a.__name__))
+        return ', '.join(out)
+
 
 class Results(object):
     """
