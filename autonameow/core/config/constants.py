@@ -35,10 +35,12 @@ ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 #                  'author': 'DUMMY',
 #                  'extension': 'DUMMY',
 #                  'description': 'DUMMY'}
-
 DATA_FIELDS = dict.fromkeys(ANALYSIS_RESULTS_FIELDS +
                             ['edition', 'year', 'description', 'extension'], 'DUMMY')
 
+
+# File "magic" MIME type lookup table keyed by shorthand. Each value is a
+# list of file MIME types that is classified for that particular shorthand.
 MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
                      'gif':   ['image/gif'],
                      'jpg':   ['image/jpeg'],
