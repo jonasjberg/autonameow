@@ -172,10 +172,10 @@ def init_argparser():
                                help='Ignore date/time-information '
                                     'from the year(s) specified.')
 
-    parser.add_argument(dest='input_files',
-                        metavar='filename',
+    parser.add_argument(dest='input_paths',
+                        metavar='INPUT_PATH',
                         nargs='*',
-                        help='Input file(s)')
+                        help='Path(s) to file(s) to process.')
 
     parser.add_argument('-d', '--dry-run',
                         dest='dry_run',

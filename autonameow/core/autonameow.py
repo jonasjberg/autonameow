@@ -122,7 +122,7 @@ class Autonameow(object):
             options.prettyprint_options(self.args)
 
         # Exit if no files are specified, for now.
-        if not self.args.input_files:
+        if not self.args.input_paths:
             log.warning('No input files specified ..')
             self.exit_program(1)
 
@@ -135,8 +135,8 @@ class Autonameow(object):
         Main loop. Iterates over passed arguments (paths/files).
         """
         exit_code = 0
-        for arg in self.args.input_files:
-            log.info('Processing file "{!s}"'.format(arg))
+        for arg in self.args.input_paths:
+            log.info('Processing: "{!s}"'.format(arg))
 
             # Try to create a file object representing the current argument.
             try:
