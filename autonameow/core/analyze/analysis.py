@@ -23,6 +23,7 @@ import logging as log
 
 from core.analyze.analyze_filename import FilenameAnalyzer
 from core.analyze.analyze_filesystem import FilesystemAnalyzer
+from core.config.constants import ANALYSIS_RESULTS_FIELDS
 
 # NOTE: Below imports needed by unit tests, do not "optimize".
 from core.analyze.analyze_pdf import PdfAnalyzer
@@ -30,8 +31,6 @@ from core.analyze.analyze_image import ImageAnalyzer
 from core.analyze.analyze_text import TextAnalyzer
 from core.analyze.analyze_video import VideoAnalyzer
 
-
-ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 
 # Collect all analyzers from their class name.
 _ALL_ANALYZER_CLASSES = [

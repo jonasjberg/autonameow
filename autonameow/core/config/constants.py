@@ -19,7 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core.analyze.analysis import ANALYSIS_RESULTS_FIELDS
+
+# Each analyzer can be queried for these fields by calling either;
+#   the_analyzer.get_FIELD()   or   the_analyzer.get('FIELD')
+ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 
 
 # All possible field names. Used for constructing file names and testing.
