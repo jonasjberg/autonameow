@@ -24,6 +24,8 @@
 import os
 import tempfile
 
+from core.fileobject import FileObject
+
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 _PARENT_DIR = os.path.normpath(_THIS_DIR + os.sep + os.pardir)
 TESTS_DIR = os.path.join(_PARENT_DIR + os.sep + 'test_files')
@@ -83,3 +85,10 @@ def make_temporary_file(prefix=None, suffix=None, basename=None):
     return os.path.realpath(tempfile.NamedTemporaryFile(delete=False,
                                                         prefix=prefix,
                                                         suffix=suffix).name)
+
+
+def get_mock_fileobject():
+    """
+    Returns: A mock FileObject built from an actual (empty) file.
+    """
+    return FileObject(make_temporary_file())
