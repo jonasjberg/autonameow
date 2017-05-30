@@ -266,7 +266,7 @@ def regex_search_str(text):
                 results.append(dt)
                 matches += 1
 
-    logging.debug('Regex matcher found [{:^3}] matches.'.format(matches))
+    logging.debug('[DATETIME] Regex matcher found {:^3} matches'.format(matches))
     # logging.debug('Regex matcher returning list of [{:^3}] '
     #               'results.'.format(len(results)))
     return results
@@ -298,7 +298,8 @@ def match_special_case(text):
             logging.debug('Failed matching very special case.')
         else:
             if date_is_probable(dt):
-                logging.debug('Matched very special case: [{}]'.format(dt))
+                logging.debug('[DATETIME] Found very special case: '
+                              '[{}]'.format(dt))
                 return dt
     return None
 
@@ -318,7 +319,7 @@ def match_special_case_no_date(text):
         logging.debug('Failed matching date only version of very special case.')
     else:
         if date_is_probable(dt):
-            logging.debug('Matched very special case, date only: '
+            logging.debug('[DATETIME] Found very special case, date only: '
                           '[{}]'.format(dt))
             return dt
     return None
@@ -612,7 +613,7 @@ def bruteforce_str(text):
             #               '({} --> {})'.format(digits, digits[1:]))
             digits = digits[1:]
 
-    logging.debug('Second matcher found [{:>3}] matches after [{:>4}] '
+    logging.debug('Second matcher found {:>3} matches after {:>4} '
                   'tries.'.format(bruteforce_str.matches_total, tries_total))
     return results
 
@@ -740,8 +741,8 @@ def special_datetime_ocr_search(text):
             pass
         else:
             if date_is_probable(dt):
-                logging.debug('Extracted datetime from text: '
-                              '[{}]'.format(dt))
+                logging.debug('[DATETIME] Special OCR search found {} '
+                              'matches'.format(dt))
                 return dt
     return None
 
