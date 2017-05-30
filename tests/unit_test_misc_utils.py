@@ -33,10 +33,6 @@ class TestUniqueIdentifier(TestCase):
         uuid = unique_identifier()
         self.assertTrue(isinstance(uuid, str))
 
-    def test_unique_identifier_has_prefix_uuid(self):
-        uuid = unique_identifier()
-        self.assertTrue(uuid.startswith('UUID'))
-
     def test_unique_identifier_returns_100_unique_values(self):
         seen = set()
         count = 100
@@ -46,11 +42,3 @@ class TestUniqueIdentifier(TestCase):
 
         self.assertEqual(len(seen), count)
 
-    def test_unique_identifier_returns_1000_unique_values(self):
-        seen = set()
-        count = 1000
-
-        for i in range(0, count):
-            seen.add(unique_identifier())
-
-        self.assertEqual(len(seen), count)
