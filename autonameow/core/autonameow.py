@@ -178,11 +178,11 @@ class Autonameow(object):
                 # TODO: [BL010] Implement NameBuilder.
                 name_builder = NameBuilder(current_file, analysis.results,
                                            self.config)
-                name_builder.build()
+                new_name = name_builder.build()
 
                 if self.args.dry_run:
                     log.info('Automagically built filename: '
-                             '"{}"'.format(name_builder.new_name))
+                             '"{}"'.format(new_name))
                 else:
                     # TODO: [BL011] Rename files.
                     log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
