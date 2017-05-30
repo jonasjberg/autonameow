@@ -26,19 +26,18 @@ from core.config.constants import DATA_FIELDS, MAGIC_TYPE_LOOKUP
 from core.evaluate import namebuilder
 
 
-class RuleParser(object):
+class ConfigFieldParser(object):
     """
-    Top-level superclass for all parsers of rule "conditions".
+    Top-level superclass for all parsers of configuration fields.
+
     Provides common functionality and interfaces that must be implemented
     by inheriting rule parser classes.
     """
-
     applies_to_field = []
     applies_to_conditions = None
     applies_to_data_sources = None
 
     def __init__(self):
-
         self.init()
 
     def init(self):
@@ -47,17 +46,17 @@ class RuleParser(object):
 
     def get_validation_function(self):
         """
-        Used to check that the syntax and content of a subset of rules.
+        Used to check that the syntax and content of a subset of fields.
 
         Returns:
-            A function that validates rules in fields defined in
-            "applies_to_field".
-            This function returns True if the rule is valid, otherwise False.
+            A function that validates configuration fields, specified
+            by "applies_to_field".
+            This function returns True if the field is valid, otherwise False.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
 
-class RegexRuleParser(RuleParser):
+class RegexConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['pathname', 'basename', 'extension']
     applies_to_conditions = True
     applies_to_data_sources = False
@@ -74,7 +73,7 @@ class RegexRuleParser(RuleParser):
         return is_valid_regex
 
 
-class MimeTypeRuleParser(RuleParser):
+class MimeTypeConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['mime_type']
     applies_to_conditions = True
     applies_to_data_sources = False
@@ -96,7 +95,7 @@ class MimeTypeRuleParser(RuleParser):
         return is_valid_mime_type
 
 
-class DateTimeRuleParser(RuleParser):
+class DateTimeConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['datetime']
     applies_to_conditions = True
     applies_to_data_sources = True
@@ -113,7 +112,7 @@ class DateTimeRuleParser(RuleParser):
         return is_valid_datetime
 
 
-class NameFormatRuleParser(RuleParser):
+class NameFormatConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['name_format']
     applies_to_conditions = False
     applies_to_data_sources = False
@@ -131,25 +130,25 @@ class NameFormatRuleParser(RuleParser):
         return is_valid_format_string
 
 
-def get_instantiated_parsers():
+def get_instantiated_field_parsers():
     """
-    Get a list of all available rule parsers as instantiated class objects.
-    All classes inheriting from the "RuleParser" class are included.
+    Get a list of all available field parsers as instantiated class objects.
+    All classes inheriting from the "ConfigFieldParser" class are included.
 
     Returns:
-        A list of class instances, one object per subclass of  "RuleParser".
+        A list of class instances, one per subclass of "ConfigFieldParser".
     """
-    return [p() for p in globals()['RuleParser'].__subclasses__()]
+    return [p() for p in globals()['ConfigFieldParser'].__subclasses__()]
 
 
-def available_parsers():
+def available_field_parsers():
     """
-    Get a list of all available parsers, I.E. the names of all classes that
-    inherit from "RuleParser".
+    Get a list of all available field parsers, I.E. the names of all classes
+    that inherit from "ConfigFieldParser".
 
     Returns:
-        The names of available rule parsers as strings.
+        The names of available field parsers as strings.
     """
     return [klass.__name__ for klass in
-            globals()['RuleParser'].__subclasses__()]
+            globals()['ConfigFieldParser'].__subclasses__()]
 

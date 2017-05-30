@@ -23,7 +23,7 @@ import logging as log
 import os
 
 from core.config import load_yaml_file, write_yaml_file
-from core.config.rule_parsers import get_instantiated_parsers
+from core.config.field_parsers import get_instantiated_field_parsers
 from core.exceptions import ConfigurationSyntaxError, ConfigError
 from core.util.misc import unique_identifier
 
@@ -85,7 +85,7 @@ class Configuration(object):
         self._name_templates = []
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
-        self.rule_parsers = get_instantiated_parsers()
+        self.field_parsers = get_instantiated_field_parsers()
 
         if data:
             self._data = data
@@ -102,7 +102,7 @@ class Configuration(object):
 
         if 'name_templates' in self._data:
             for nt in self._data['name_templates']:
-                valid_format = self.validate(nt, 'name_format')
+                valid_format = self.validate_field(nt, 'name_format')
                 if not valid_format:
                     msg = 'Invalid format: "{}"'.format(nt.get('name_format'))
                     raise ConfigurationSyntaxError(msg)
@@ -124,7 +124,7 @@ class Configuration(object):
             # refers to a valid entry in 'name_templates'.
             _valid_template = None
             if 'name_format' in fr and fr.get('name_format'):
-                _valid_template = self.validate(fr, 'name_format')
+                _valid_template = self.validate_field(fr, 'name_format')
             elif 'name_template' in fr:
                 _template_name = fr.get('name_template')
 
@@ -146,8 +146,8 @@ class Configuration(object):
 
             self._file_rules.append(file_rule)
 
-    def validate(self, raw_file_rule, field_name):
-        for parser in self.rule_parsers:
+    def validate_field(self, raw_file_rule, field_name):
+        for parser in self.field_parsers:
             if field_name in parser.applies_to_field:
                 val_func = parser.get_validation_function()
                 if val_func(raw_file_rule.get(field_name)):

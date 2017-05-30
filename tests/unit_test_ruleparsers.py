@@ -21,12 +21,14 @@
 
 from unittest import TestCase
 
-from core.config.rule_parsers import (
-    RegexRuleParser,
-    RuleParser,
-    get_instantiated_parsers,
-    available_parsers,
-    MimeTypeRuleParser, DateTimeRuleParser, NameFormatRuleParser
+from core.config.field_parsers import (
+    RegexConfigFieldParser,
+    ConfigFieldParser,
+    get_instantiated_field_parsers,
+    available_field_parsers,
+    MimeTypeConfigFieldParser,
+    DateTimeConfigFieldParser,
+    NameFormatConfigFieldParser
 )
 
 
@@ -35,31 +37,31 @@ class TestRuleParserFunctions(TestCase):
         self.maxDiff = None
 
     def test_get_instantiated_parsers_returns_list(self):
-        self.assertTrue(isinstance(get_instantiated_parsers(), list))
+        self.assertTrue(isinstance(get_instantiated_field_parsers(), list))
 
     def test_get_instantiated_parsers_returns_arbitrary_number(self):
         # TODO: [hardcoded] Likely to break; Fix or remove!
-        self.assertGreaterEqual(len(get_instantiated_parsers()), 3)
+        self.assertGreaterEqual(len(get_instantiated_field_parsers()), 3)
 
     def test_get_instantiated_parsers_returns_class_objects(self):
-        parsers = get_instantiated_parsers()
+        parsers = get_instantiated_field_parsers()
         for p in parsers:
             self.assertTrue(hasattr(p, '__class__'))
 
     def test_get_available_parsers(self):
-        self.assertIsNotNone(available_parsers())
+        self.assertIsNotNone(available_field_parsers())
 
     def test_get_available_parsers_returns_list_of_strings(self):
-        self.assertTrue(isinstance(available_parsers(), list))
+        self.assertTrue(isinstance(available_field_parsers(), list))
 
-        for p in available_parsers():
+        for p in available_field_parsers():
             self.assertTrue(isinstance(p, str))
 
 
 class TestRuleParser(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.p = RuleParser()
+        self.p = ConfigFieldParser()
 
     def test_get_validation_function_should_raise_error_if_unimplemented(self):
         with self.assertRaises(NotImplementedError):
@@ -69,7 +71,7 @@ class TestRuleParser(TestCase):
 class TestRuleParserSubclasses(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.parsers = get_instantiated_parsers()
+        self.parsers = get_instantiated_field_parsers()
 
     def test_setup(self):
         self.assertIsNotNone(self.parsers)
@@ -102,7 +104,7 @@ class TestRuleParserSubclasses(TestCase):
 class TestRegexRuleParser(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.p = RegexRuleParser()
+        self.p = RegexConfigFieldParser()
         self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):
@@ -118,7 +120,7 @@ class TestRegexRuleParser(TestCase):
 class TestMimeTypeRuleParser(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.p = MimeTypeRuleParser()
+        self.p = MimeTypeConfigFieldParser()
         self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):
@@ -137,7 +139,7 @@ class TestMimeTypeRuleParser(TestCase):
 class TestDateTimeRuleParser(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.p = DateTimeRuleParser()
+        self.p = DateTimeConfigFieldParser()
         self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):
@@ -153,7 +155,7 @@ class TestDateTimeRuleParser(TestCase):
 class TestNameFormatRuleParser(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.p = NameFormatRuleParser()
+        self.p = NameFormatConfigFieldParser()
         self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):

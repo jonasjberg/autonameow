@@ -25,7 +25,7 @@ from unittest import TestCase
 
 import yaml
 
-from core.config import rule_parsers
+from core.config import field_parsers
 from core.config.config_defaults import DEFAULT_CONFIG
 from core.config.configuration import Configuration
 from unit_utils import make_temp_dir
@@ -141,18 +141,18 @@ class TestConfigurationInit(TestCase):
         self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_configuration_parsers_in_not_none(self):
-        self.assertIsNotNone(self.configuration.rule_parsers,
-                             'Configuration should have a list of parsers.')
+        self.assertIsNotNone(self.configuration.field_parsers,
+                             'Config should have a list of field parsers.')
 
-    def test_configuration_parsers_subclass_of_parser(self):
-        for parser in self.configuration.rule_parsers:
-            self.assertTrue(isinstance(parser, rule_parsers.RuleParser),
-                            'Configuration should have a list of parsers that'
-                            'are subclasses of (inherit from) class "Parser".')
+    def test_configuration_field_parsers_subclass_of_config_field_parser(self):
+        for parser in self.configuration.field_parsers:
+            self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser),
+                            'Configuration should have a list of field parsers '
+                            'inheriting from "FieldParser".')
 
-    def test_configuration_parsers_instance_of_parser(self):
-        for parser in self.configuration.rule_parsers:
-            self.assertTrue(isinstance(parser, rule_parsers.RuleParser))
+    def test_configuration_field_parsers_instance_of_config_field_parser(self):
+        for parser in self.configuration.field_parsers:
+            self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
 
 
 class TestConfigurationValidation(TestCase):
@@ -198,44 +198,44 @@ class TestConfigurationValidation(TestCase):
     def test_setup(self):
         self.assertIsNotNone(self.configuration)
 
-    def test_validate_valid_rule_name_format(self):
-        self.assertTrue(self.configuration.validate(self.VALID_RAW_FILE_RULE,
+    def test_validate_valid_field_name_format(self):
+        self.assertTrue(self.configuration.validate_field(self.VALID_RAW_FILE_RULE,
                                                     'name_format'))
 
-    def test_validate_invalid_rule_name_format(self):
-        self.assertFalse(self.configuration.validate(self.INVALID_RAW_FILE_RULE,
+    def test_validate_invalid_field_name_format(self):
+        self.assertFalse(self.configuration.validate_field(self.INVALID_RAW_FILE_RULE,
                                                      'name_format'))
 
-    def test_validate_valid_rule_conditions_filename_pathname(self):
-        self.assertTrue(self.configuration.validate(
+    def test_validate_valid_field_conditions_filename_pathname(self):
+        self.assertTrue(self.configuration.validate_field(
             self.VALID_RAW_FILE_RULE['conditions']['filename'], 'pathname'))
 
-    def test_validate_invalid_rule_conditions_filename_pathname(self):
-        self.assertFalse(self.configuration.validate(
+    def test_validate_invalid_field_conditions_filename_pathname(self):
+        self.assertFalse(self.configuration.validate_field(
             self.INVALID_RAW_FILE_RULE['conditions']['filename'], 'pathname'))
 
-    def test_validate_valid_rule_conditions_filename_basename(self):
-        self.assertTrue(self.configuration.validate(
+    def test_validate_valid_field_conditions_filename_basename(self):
+        self.assertTrue(self.configuration.validate_field(
             self.VALID_RAW_FILE_RULE['conditions']['filename'], 'basename'))
 
-    def test_validate_invalid_rule_conditions_filename_basename(self):
-        self.assertFalse(self.configuration.validate(
+    def test_validate_invalid_field_conditions_filename_basename(self):
+        self.assertFalse(self.configuration.validate_field(
             self.INVALID_RAW_FILE_RULE['conditions']['filename'], 'basename'))
 
-    def test_validate_valid_rule_conditions_filename_extension(self):
-        self.assertTrue(self.configuration.validate(
+    def test_validate_valid_field_conditions_filename_extension(self):
+        self.assertTrue(self.configuration.validate_field(
             self.VALID_RAW_FILE_RULE['conditions']['filename'], 'extension'))
 
-    def test_validate_invalid_rule_conditions_filename_extension(self):
-        self.assertFalse(self.configuration.validate(
+    def test_validate_invalid_field_conditions_filename_extension(self):
+        self.assertFalse(self.configuration.validate_field(
             self.INVALID_RAW_FILE_RULE['conditions']['filename'], 'extension'))
 
-    def test_validate_valid_rule_conditions_filename_mime_type(self):
-        self.assertTrue(self.configuration.validate(
+    def test_validate_valid_field_conditions_filename_mime_type(self):
+        self.assertTrue(self.configuration.validate_field(
             self.VALID_RAW_FILE_RULE['conditions']['contents'], 'mime_type'))
 
-    def test_validate_invalid_rule_conditions_filename_mime_type(self):
-        self.assertFalse(self.configuration.validate(
+    def test_validate_invalid_field_conditions_filename_mime_type(self):
+        self.assertFalse(self.configuration.validate_field(
             self.INVALID_RAW_FILE_RULE['conditions']['contents'], 'mime_type'))
 
 
