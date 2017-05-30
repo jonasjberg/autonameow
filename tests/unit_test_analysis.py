@@ -21,9 +21,13 @@
 
 from unittest import TestCase
 
-from core.analyze.analysis import Results
+from core.analyze.analysis import (
+    Results,
+    AnalysisRunQueue
+)
 from core.analyze.analyze_image import ImageAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
+from unit_utils import get_mock_analyzer
 
 
 class TestAnalysis(TestCase):
@@ -74,3 +78,38 @@ class TestResults(TestCase):
         _results = []
 
         self.results.add(_field, _results, 'ImageAnalyzer')
+
+
+class TestAnalysisRunQueue(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.q = AnalysisRunQueue()
+
+    def test_init(self):
+        self.assertIsNotNone(self.q)
+
+    def test_len_initial(self):
+        self.assertEqual(len(self.q), 0)
+
+    def test_len_after_enqueueing_analyzer(self):
+        self.q.enqueue(get_mock_analyzer())
+        self.assertEqual(len(self.q), 1)
+        self.q.enqueue(get_mock_analyzer())
+        self.assertEqual(len(self.q), 2)
+
+    def test_enqueue_single_analyzer(self):
+        ma = next(get_mock_analyzer())
+        self.q.enqueue(ma)
+
+        for a in self.q:
+            self.assertEqual(ma, a)
+
+    def test_enqueue_multiple_analyzers(self):
+        enqueued = []
+
+        for ma in get_mock_analyzer():
+            enqueued.append(ma)
+            self.q.enqueue(ma)
+
+        for dequeued in self.q:
+            self.assertTrue(dequeued in enqueued)
