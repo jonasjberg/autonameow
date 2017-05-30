@@ -143,6 +143,7 @@ class Configuration(object):
                                  name_template=_valid_template,
                                  conditions=self._parse_conditions(),
                                  data_sources=self._parse_sources())
+            # TODO: Make parse_conditions and parse_sources functions.
 
             self._file_rules.append(file_rule)
 
