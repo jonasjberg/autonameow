@@ -37,7 +37,6 @@ class NameBuilder(object):
     """
     # TODO: [BL010] Implement NameBuilder.
     def __init__(self, file_object, analysis_results, active_config):
-
         self.file = file_object
         self.data = analysis_results
         self.config = active_config
@@ -48,69 +47,9 @@ class NameBuilder(object):
     def new_name(self):
         return self._new_name
 
-    def _populate_fields(self, analysis_results, rule):
-        """
-        Assembles a dict with keys matching the fields in the new name template
-        defined in the rule. The dict values come from the analysis results,
-        which ones is also defined in the rule.
-        :param analysis_results:
-        :return:
-        """
-        # TODO: [BL010] Implement NameBuilder.
-
-        def get_field_by_alias(field, alias):
-            logging.debug('Trying to get "field" by "alias": '
-                          '[{}] [{}]'.format(field, alias))
-            for key in analysis_results[field]:
-                if analysis_results[field][key]:
-                    for result in analysis_results[field][key]:
-                        if result['source'] == alias:
-                            return result['value']
-                        else:
-                            logging.debug('NOPE -- result["source"] == '
-                                          '{}'.format(result['source']))
-                else:
-                    return None
-
-        ardate = artime = artags = artitle = None
-        try:
-            ardate = get_field_by_alias('datetime', rule['prefer_datetime'])
-            artitle = get_field_by_alias('title', rule['prefer_title'])
-            arauthor = get_field_by_alias('author', rule['prefer_author'])
-            arpublisher = get_field_by_alias('publisher', rule['prefer_publisher'])
-        except TypeError:
-            pass
-
-        if artime:
-            artime.strftime('%H%M%S')
-        if ardate:
-            ardate = ardate.strftime('%Y-%m-%d')
-
-        populated_fields = {
-            'author': arauthor or None,
-            'date': ardate or None,
-            'description': artitle or None,
-            'publisher': arpublisher or None,
-            'title': artitle or None,
-            'tags': artags or None,
-            'ext': os.path.extsep + self.file_object.filenamepart_ext
-        }
-        return populated_fields
-
-    def _fill_template(self, populated_fields, rule):
-        # TODO: Finish this method. Very much a work in progress.
-        # TODO: [BL010] Implement NameBuilder.
-        if populated_fields is not None:
-            return rule['new_name_template'] % populated_fields
-        else:
-            return None
-
     def build(self):
         # TODO: [BL010] Implement NameBuilder.
-        self.fields = self._populate_fields(self.analysis_results, self.rule)
-        self.new_name = self._fill_template(self.fields, self.rule)
-        print('-' * 78)
-        print('Automagic generated name: "{}"'.format(self.new_name))
+        raise NotImplementedError('TODO: Implement NameBuilder')
 
 
 def assemble_basename(name_template, **kwargs):
