@@ -218,7 +218,11 @@ class Analysis(object):
             # Run the analysis and collect the results.
             a.run()
             for field in ANALYSIS_RESULTS_FIELDS:
+                # TODO: Remember to add exception handling!
+                # try:
                 self.results.add(field, a.get(field), str(a.__class__.__name__))
+                # except NotImplementedError as e:
+                #     logging.warning('Called unimplemented code: {}'.format(func_name))
 
     def get_datetime_by_alias(self, alias):
         pass
