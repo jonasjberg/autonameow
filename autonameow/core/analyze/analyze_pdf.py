@@ -439,7 +439,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
             break
         logging.debug('Extracting page {:<4} of {:<4} ..'.format(i + 1,
                                                                  num_pages))
-        content += pdff.getPage(i).extractText() + '\n'
+        content += pdff.getPage(i).extractText()
 
     if content:
         return content
