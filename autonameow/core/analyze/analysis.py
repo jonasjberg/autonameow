@@ -39,20 +39,25 @@ class AnalysisRunQueue(object):
     def __init__(self):
         self._queue = []
 
-    def enqueue(self, analyzer):
+    def enqueue(self, analyzers):
         """
         Adds one or more analyzers to the queue.
 
         The queue acts as a set; duplicate analyzers are silently ignored.
 
         Args:
-            analyzer: Analyzer(s) to enqueue as either type 'type' or
+            analyzers: Analyzer(s) to enqueue as either type 'type' or
                 list of type 'type'.
         """
-        if isinstance(analyzer, list):
-            self._queue += analyzer
+        def _dupe_check_append(_analyzer):
+            if _analyzer not in self._queue:
+                self._queue.append(_analyzer)
+
+        if isinstance(analyzers, list):
+            for a in analyzers:
+                _dupe_check_append(a)
         else:
-            self._queue.append(analyzer)
+            _dupe_check_append(analyzers)
 
     def __len__(self):
         return len(self._queue)
