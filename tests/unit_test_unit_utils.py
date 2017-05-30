@@ -27,10 +27,12 @@ from unittest import TestCase
 from core.analyze.analyze_abstract import (
     get_analyzer_classes,
 )
+from core.fileobject import FileObject
 from unit_utils import (
     make_temp_dir,
     make_temporary_file,
-    get_mock_analyzer
+    get_mock_analyzer,
+    get_mock_fileobject
 )
 
 
@@ -70,6 +72,7 @@ class TestUtilities(TestCase):
         self.assertEqual(os.path.basename(make_temporary_file(basename='mjao.jpg')), 'mjao.jpg')
 
     def test_get_mock_analyzer(self):
+        self.assertIsNotNone(get_mock_analyzer)
         self.assertIsNotNone(get_mock_analyzer())
 
     def test_get_mock_analyzer_is_generator(self):
@@ -78,3 +81,10 @@ class TestUtilities(TestCase):
     def test_get_mock_analyzer_returns_analyzers(self):
         for a in get_mock_analyzer():
             self.assertIn(type(a), get_analyzer_classes())
+
+    def test_get_mock_fileobject(self):
+        self.assertIsNotNone(get_mock_fileobject)
+        self.assertIsNotNone(get_mock_fileobject())
+
+    def test_get_mock_fileobject_returns_expected_type(self):
+        self.assertTrue(isinstance(get_mock_fileobject(), FileObject))
