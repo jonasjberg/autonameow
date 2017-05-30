@@ -103,4 +103,3 @@ def get_mock_analyzer():
     while n < len(get_instantiated_analyzers()):
         yield get_instantiated_analyzers()[n]
         n += 1
-    #return get_instantiated_analyzers()[0]
