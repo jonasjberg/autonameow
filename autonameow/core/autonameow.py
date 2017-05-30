@@ -94,10 +94,10 @@ class Autonameow(object):
         if self.args.config_path:
             self.config.load_from_disk(self.args.config_path)
         else:
+            _config_path = config.config_file_path()
+
             if not config.has_config_file():
                 log.warning('No configuration file was found.')
-
-                _config_path = config.config_file_path()
 
                 try:
                     config.write_default_config()
@@ -111,8 +111,8 @@ class Autonameow(object):
                     log.info('Use this file to configure '
                              '{}.'.format(version.__title__))
             else:
-                log.debug('Using configuration: "{}"'.format(config.config_file_path()))
-                self.config.load_from_disk(config.config_file_path())
+                log.debug('Using configuration: "{}"'.format(_config_path))
+                self.config.load_from_disk(_config_path)
 
         # Setup results filtering
         self.filter = ResultFilter().configure_filter(self.args)
