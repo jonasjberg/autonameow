@@ -69,18 +69,18 @@ class ImageAnalyzer(AbstractAnalyzer):
 
     # @Overrides method in AbstractAnalyzer
     def get_author(self):
-        # TODO: Implement.
-        pass
+        raise NotImplementedError('Get "author" from ImageAnalyzer')
 
     # @Overrides method in AbstractAnalyzer
     def get_title(self):
-        # TODO: Implement.
-        pass
+        raise NotImplementedError('Get "title" from ImageAnalyzer')
 
     # @Overrides method in AbstractAnalyzer
     def get_tags(self):
-        # TODO: Implement.
-        pass
+        raise NotImplementedError('Get "tags" from ImageAnalyzer')
+
+    def get_publisher(self):
+        raise NotImplementedError('Get "publisher" from ImageAnalyzer')
 
     def _get_exif_datetime(self):
         """

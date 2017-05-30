@@ -118,8 +118,7 @@ class PdfAnalyzer(AbstractAnalyzer):
 
     # @Overrides method in AbstractAnalyzer
     def get_tags(self):
-        # TODO: Implement.
-        pass
+        raise NotImplementedError('Get "tags" from PdfAnalyzer')
 
     # @Overrides method in AbstractAnalyzer
     def get_publisher(self):
