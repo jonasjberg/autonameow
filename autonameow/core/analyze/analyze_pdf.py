@@ -265,8 +265,8 @@ class PdfAnalyzer(AbstractAnalyzer):
         """
         pdf_text = None
         i = 1
-        text_extractors = [extract_pdf_content_with_pypdf,
-                           extract_pdf_content_with_pdftotext]
+        text_extractors = [extract_pdf_content_with_pdftotext,
+                           extract_pdf_content_with_pypdf]
         for extractor in text_extractors:
             logging.debug('Running pdf text extractor {}/{}: '
                           '{}'.format(i, len(text_extractors), str(extractor)))
