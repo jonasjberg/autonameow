@@ -24,6 +24,7 @@
 import os
 import tempfile
 
+from core.analyze.analyze_abstract import get_instantiated_analyzers
 from core.fileobject import FileObject
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -92,3 +93,14 @@ def get_mock_fileobject():
     Returns: A mock FileObject built from an actual (empty) file.
     """
     return FileObject(make_temporary_file())
+
+
+def get_mock_analyzer():
+    """
+    Returns: A mock Analyzer class.
+    """
+    n = 0
+    while n < len(get_instantiated_analyzers()):
+        yield get_instantiated_analyzers()[n]
+        n += 1
+    #return get_instantiated_analyzers()[0]

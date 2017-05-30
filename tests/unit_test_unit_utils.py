@@ -21,9 +21,17 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import types
 from unittest import TestCase
 
-from unit_utils import make_temp_dir, make_temporary_file
+from core.analyze.analyze_abstract import (
+    get_analyzer_classes,
+)
+from unit_utils import (
+    make_temp_dir,
+    make_temporary_file,
+    get_mock_analyzer
+)
 
 
 class TestUtilities(TestCase):
@@ -60,3 +68,13 @@ class TestUtilities(TestCase):
         self.assertTrue(os.path.exists(make_temporary_file(basename='mjao.jpg')))
         self.assertTrue(os.path.isfile(make_temporary_file(basename='mjao.jpg')))
         self.assertEqual(os.path.basename(make_temporary_file(basename='mjao.jpg')), 'mjao.jpg')
+
+    def test_get_mock_analyzer(self):
+        self.assertIsNotNone(get_mock_analyzer())
+
+    def test_get_mock_analyzer_is_generator(self):
+        self.assertTrue(isinstance(get_mock_analyzer(), types.GeneratorType))
+
+    def test_get_mock_analyzer_returns_analyzers(self):
+        for a in get_mock_analyzer():
+            self.assertIn(type(a), get_analyzer_classes())
