@@ -121,7 +121,7 @@ def get_instantiated_analyzers():
 
 def get_analyzer_mime_mappings():
     """
-    Provides a mapping of which analyzers should apply to which mime types.
+    Provides a mapping of which analyzers applies to which mime types.
 
     Returns:
         Dictionary of strings or list of strings.
