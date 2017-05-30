@@ -379,9 +379,8 @@ def extract_pdf_content_with_pdftotext(pdf_file):
         False or PDF content as string
     """
     try:
-        pipe = subprocess.Popen(['pdftotext', '-nopgbrk', '-layout',
-                                 '-enc', 'UTF-8', pdf_file, '-'],
-                                shell=False,
+        pipe = subprocess.Popen(['pdftotext', '-nopgbrk', '-enc', 'UTF-8',
+                                 pdf_file, '-'], shell=False,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)
     except ValueError:
