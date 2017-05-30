@@ -226,8 +226,7 @@ def regex_search_str(text):
             pass
         else:
             if date_is_probable(dt):
-                logging.debug('Extracted datetime from text: '
-                              '[{}]'.format(dt))
+                logging.debug('Extracted datetime from text: "{}"'.format(dt))
                 results.append(dt)
                 matches += 1
 
@@ -244,8 +243,7 @@ def regex_search_str(text):
             pass
         else:
             if date_is_probable(dt):
-                logging.debug('Extracted datetime from text: '
-                              '[{}]'.format(dt))
+                logging.debug('Extracted datetime from text: "{}"'.format(dt))
                 results.append(dt)
                 matches += 1
 
@@ -261,8 +259,7 @@ def regex_search_str(text):
             pass
         else:
             if date_is_probable(dt):
-                logging.debug('Extracted datetime from text: '
-                              '[{}]'.format(dt))
+                logging.debug('Extracted datetime from text: "{}"'.format(dt))
                 results.append(dt)
                 matches += 1
 
@@ -299,7 +296,7 @@ def match_special_case(text):
         else:
             if date_is_probable(dt):
                 logging.debug('[DATETIME] Found very special case: '
-                              '[{}]'.format(dt))
+                              '"{}"'.format(dt))
                 return dt
     return None
 
@@ -320,7 +317,7 @@ def match_special_case_no_date(text):
     else:
         if date_is_probable(dt):
             logging.debug('[DATETIME] Found very special case, date only: '
-                          '[{}]'.format(dt))
+                          '"{}"'.format(dt))
             return dt
     return None
 
@@ -515,12 +512,11 @@ def bruteforce_str(text):
             validate_result(dt)
 
     if results:
-        logging.debug('First matcher found  [{:>3}] matches after [{:>4}] '
-                     'tries.'.format(bruteforce_str.matches, tries))
+        logging.debug('First matcher found  {:>3} matches after {:>4} '
+                      'tries.'.format(bruteforce_str.matches, tries))
         return results
     else:
-        logging.debug('Gave up first approach after [{:>4}] '
-                      'tries.'.format(tries))
+        logging.debug('Gave up first approach after {:>4} tries.'.format(tries))
 
     # ----------------------------------------------------------------
     # PART #2   -- pattern matching on just the digits
