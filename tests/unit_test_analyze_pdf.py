@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from unittest import TestCase
 
 import PyPDF2
@@ -28,8 +29,9 @@ from core.analyze.analyze_pdf import (
     extract_pdf_content_with_pdftotext
 )
 
-# TODO: [hardcoded] Replace with included test file.
-pdf_file = '/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/test_files/simplest_pdf-md.pdf'
+from unit_utils import abspath_testfile
+
+pdf_file = abspath_testfile('simplest_pdf.md.pdf')
 expected_text = '''Probably a title
 Text following the title, probably.
 
@@ -43,6 +45,11 @@ Test test. This file contains no digits whatsoever.
 1
 
 '''
+
+
+class TestSetup(TestCase):
+    def test_sample_pdf_file_exists(self):
+        self.assertTrue(os.path.isfile(pdf_file))
 
 
 class TestPyPdf(TestCase):
@@ -61,7 +68,8 @@ class TestExtractPdfContentWithPyPdf(TestCase):
         self.assertEqual(type(extract_pdf_content_with_pypdf(pdf_file)), str)
 
     def test_extract_pdf_content_with_pypdf_returns_expected_text(self):
-        self.skipTest('PyPDF strips all whitespace. Using pdftotext instead.')
+        self.skipTest('PyPDF strips all whitespace for some reason. '
+                      'Will use pdftotext instead.')
         self.assertEqual(extract_pdf_content_with_pypdf(pdf_file),
                          expected_text)
 
