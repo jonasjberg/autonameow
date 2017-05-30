@@ -73,23 +73,23 @@ class FilesystemAnalyzer(AbstractAnalyzer):
     def get_title(self):
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
-        return None
+        raise NotImplementedError
 
     # @Overrides method in AbstractAnalyzer
     def get_author(self):
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
-        return None
+        raise NotImplementedError
 
     # @Overrides method in AbstractAnalyzer
     def get_tags(self):
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
-        return None
+        raise NotImplementedError
 
     # @Overrides method in AbstractAnalyzer
     def get_publisher(self):
-        return None
+        raise NotImplementedError
 
     def _get_datetime_from_filesystem(self):
         """
