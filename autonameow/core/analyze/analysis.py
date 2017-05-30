@@ -28,6 +28,7 @@ from core.analyze.analyze_abstract import (
 from core.analyze.analyze_filename import FilenameAnalyzer
 from core.analyze.analyze_filesystem import FilesystemAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
+from core.exceptions import AutonameowException
 
 
 class AnalysisRunQueue(object):
@@ -177,26 +178,25 @@ class Analysis(object):
             Includes only analyzers whose MIME type ('applies_to_mime')
             matches the MIME type of the current file object.
         """
+        found = []
+
         # Compare file mime type with entries from get_analyzer_mime_mappings().
-        found_azr = None
         for azr, tpe in get_analyzer_mime_mappings().items():
-            if found_azr is not None:
-                break
             if isinstance(tpe, list):
                 for t in tpe:
-                    if t == self.file_object.type:
-                        found_azr = azr
+                    if t == self.file_object.type or t == 'MIME_ALL':
+                        found.append(azr)
+                        log.debug('Enqueueing "{!s}"'.format(azr))
             else:
-                if tpe == self.file_object.type:
-                    found_azr = azr
+                if tpe == self.file_object.type or tpe == 'MIME_ALL':
+                    found.append(azr)
+                    log.debug('Enqueueing "{!s}"'.format(azr))
 
         # Append any matches to the analyzer run queue.
-        if found_azr:
-            log.debug('Appending "{!s}" to analysis run queue'.format(found_azr))
-            self.analysis_run_queue.enqueue(found_azr)
+        if found:
+            self.analysis_run_queue.enqueue(found)
         else:
-            log.debug('File type ({!s}) is not yet mapped to a type-specific '
-                      'Analyzer.'.format(self.file_object.type))
+            raise AutonameowException('This should not happen!')
 
     def _execute_run_queue(self):
         """

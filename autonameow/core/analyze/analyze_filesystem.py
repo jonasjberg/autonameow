@@ -53,7 +53,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
 
     def __init__(self, file_object):
         super(FilesystemAnalyzer, self).__init__(file_object)
-        self.applies_to_mime = None
+        self.applies_to_mime = 'MIME_ALL'
 
     # @Overrides method in AbstractAnalyzer
     def run(self):

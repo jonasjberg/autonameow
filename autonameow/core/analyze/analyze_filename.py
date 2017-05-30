@@ -36,7 +36,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
     def __init__(self, file_object):
         super(FilenameAnalyzer, self).__init__(file_object)
-        self.applies_to_mime = None
+        self.applies_to_mime = 'MIME_ALL'
 
         self.guessit_metadata = None
 
