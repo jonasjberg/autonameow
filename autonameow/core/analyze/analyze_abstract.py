@@ -19,8 +19,21 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import tempfile
+
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
 from core.exceptions import AnalysisResultsFieldError
+from core.fileobject import FileObject
+
+
+# TODO: Remove this hack! Used for instantiating analyzers so that they are
+# included in the global namespace and seen by 'get_analyzer_classes()'.
+def get_dummy_fileobject():
+    def _create_temp_file():
+        return os.path.realpath(tempfile.NamedTemporaryFile(delete=False).name)
+
+    return FileObject(_create_temp_file())
 
 
 class AbstractAnalyzer(object):
@@ -92,7 +105,26 @@ def get_analyzer_classes():
     Returns:
         All available analyzer classes as a list of type.
     """
+
+    # TODO: Fix this! Used for instantiating analyzers so that they are
+    # included in the global namespace and seen by 'get_analyzer_classes()'.
+    from core.analyze.analyze_filename import FilenameAnalyzer
+    from core.analyze.analyze_filesystem import FilesystemAnalyzer
+    from core.analyze.analyze_image import ImageAnalyzer
+    from core.analyze.analyze_pdf import PdfAnalyzer
+    from core.analyze.analyze_video import VideoAnalyzer
+
+    # TODO: Fix this! Used for instantiating analyzers so that they are
+    # included in the global namespace and seen by 'get_analyzer_classes()'.
+    # fa = FilenameAnalyzer(get_dummy_fileobject())
+    # fs = FilesystemAnalyzer(get_dummy_fileobject())
+    # im = ImageAnalyzer(get_dummy_fileobject())
+    # pf = PdfAnalyzer(get_dummy_fileobject())
+    # va = VideoAnalyzer(get_dummy_fileobject())
     return [klass for klass in globals()['AbstractAnalyzer'].__subclasses__()]
+    # out = [klass for name, klass in list(globals().items())
+    #        if name.endswith('Analyzer') and name != 'AbstractAnalyzer']
+    # return out
 
 
 def get_analyzer_classes_basename():
