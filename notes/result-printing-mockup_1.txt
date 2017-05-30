@@ -1,0 +1,62 @@
+File: "/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/test_files/course.pdf"
+{
+   datetime:
+                FilesystemAnalyzer:
+                    Value:                       Source:                Weight:
+                    2015-05-18 16:58:25          modified               1
+                    2017-04-15 02:56:11          created                1
+                    2017-05-30 09:18:13          accessed               0.25
+
+                FilenameAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --
+
+                PdfAnalyzer:
+                    Value:                       Source:                Weight:
+                    2015-05-18 16:43:08+02:00    ModDate                1
+                    2015-05-18 16:43:08+02:00    CreationDate           1
+                    2015-05-18 16:43:08+02:00    ModDate                1
+                    2010-03-15 00:00:00          text_content_regex     0.25
+                    2010-03-15 00:00:00          text_content_regex     0.25
+                    2012-09-12 00:00:00          text_content_regex     0.25
+                    2012-11-05 00:00:00          text_content_regex     0.25
+
+   publisher:
+                FilesystemAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --
+
+                FilenameAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --
+
+                PdfAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --
+
+   title:
+                FilesystemAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --
+
+                FilenameAnalyzer:
+                    Value:                       Source:                Weight:
+                    course                       filenamepart_base      0.25
+
+                PdfAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --
+
+   tags:
+                FilesystemAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --
+
+                FilenameAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --
+
+                PdfAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --
+
+   author:
+                FilesystemAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --
+
+                FilenameAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --
+
+                PdfAnalyzer:
+                         -- --  -- --    NO RESULTS    -- --  -- --

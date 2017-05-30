@@ -1,0 +1,23 @@
+File: "/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/test_files/course.pdf"
+{
+            Value:                       Source:                                Weight:
+
+datetime:   2015-05-18 16:58:25          FilesystemAnalyzer:modified            1
+datetime:   2017-04-15 02:56:11          FilesystemAnalyzer:created             1
+datetime:   2017-05-30 09:18:13          FilesystemAnalyzer:accessed            0.25
+
+datetime:   2015-05-18 16:43:08+02:00    PdfAnalyzer:ModDate                    1
+datetime:   2015-05-18 16:43:08+02:00    PdfAnalyzer:CreationDate               1
+datetime:   2015-05-18 16:43:08+02:00    PdfAnalyzer:ModDate                    1
+datetime:   2010-03-15 00:00:00          PdfAnalyzer:text_content_regex         0.25
+datetime:   2010-03-15 00:00:00          PdfAnalyzer:text_content_regex         0.25
+datetime:   2012-09-12 00:00:00          PdfAnalyzer:text_content_regex         0.25
+datetime:   2012-11-05 00:00:00          PdfAnalyzer:text_content_regex         0.25
+
+publisher:              -- --  -- --    NO RESULTS    -- --  -- --
+
+title:      course                       FilenameAnalyzer:filenamepart_base     0.25
+
+tags:                   -- --  -- --    NO RESULTS    -- --  -- --
+
+author:                 -- --  -- --    NO RESULTS    -- --  -- --
