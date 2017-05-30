@@ -178,7 +178,10 @@ class Autonameow(object):
                 # TODO: [BL010] Implement NameBuilder.
                 name_builder = NameBuilder(current_file, analysis.results,
                                            self.config)
-                new_name = name_builder.build()
+                try:
+                    new_name = name_builder.build()
+                except NotImplementedError:
+                    log.critical('TODO: [BL010] Implement NameBuilder.')
 
                 if self.args.dry_run:
                     log.info('Automagically built filename: '
