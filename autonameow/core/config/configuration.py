@@ -24,7 +24,7 @@ import os
 
 from core.config import load_yaml_file, write_yaml_file
 from core.config.rule_parsers import get_instantiated_parsers
-from core.exceptions import ConfigurationSyntaxError
+from core.exceptions import ConfigurationSyntaxError, ConfigError
 from core.util.misc import unique_identifier
 
 
@@ -96,8 +96,7 @@ class Configuration(object):
 
     def _load_name_templates(self):
         if not self._data:
-            # TODO: Handle properly ..
-            return False
+            raise ConfigError('Invalid state; missing "self._data" ..')
 
         templates = []
 
@@ -114,8 +113,7 @@ class Configuration(object):
 
     def _load_file_rules(self):
         if not self._data:
-            # TODO: Handle properly ..
-            return False
+            raise ConfigError('Invalid state; missing "self._data" ..')
 
         # Check raw dictionary data.
         # Create and populate "FileRule" objects with *validated* data.
