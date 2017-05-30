@@ -36,12 +36,14 @@ from unit_utils import (
 )
 
 
-class TestUtilities(TestCase):
+class TestUnitUtilityMakeTempDir(TestCase):
     def test_make_temp_dir(self):
         self.assertIsNotNone(make_temp_dir())
         self.assertTrue(os.path.exists(make_temp_dir()))
         self.assertTrue(os.path.isdir(make_temp_dir()))
 
+
+class TestUnitUtilityMakeTemporaryFile(TestCase):
     def test_make_temporary_file(self):
         self.assertIsNotNone(make_temporary_file)
         self.assertTrue(os.path.exists(make_temporary_file()))
@@ -71,7 +73,9 @@ class TestUtilities(TestCase):
         self.assertTrue(os.path.isfile(make_temporary_file(basename='mjao.jpg')))
         self.assertEqual(os.path.basename(make_temporary_file(basename='mjao.jpg')), 'mjao.jpg')
 
-    def test_get_mock_analyzer(self):
+
+class TestUnitUtilityGetMockAnalyzer(TestCase):
+    def test_get_mock_analyzer_is_defined(self):
         self.assertIsNotNone(get_mock_analyzer)
         self.assertIsNotNone(get_mock_analyzer())
 
@@ -82,7 +86,9 @@ class TestUtilities(TestCase):
         for a in get_mock_analyzer():
             self.assertIn(type(a), get_analyzer_classes())
 
-    def test_get_mock_fileobject(self):
+
+class TestUnitUtilityGetMockFileObject(TestCase):
+    def test_get_mock_fileobject_is_defined(self):
         self.assertIsNotNone(get_mock_fileobject)
         self.assertIsNotNone(get_mock_fileobject())
 
