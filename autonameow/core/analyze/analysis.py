@@ -195,11 +195,7 @@ class Analysis(object):
         """
         Executes analyzers in the analyzer run queue.
 
-        This does all the real work. Analyzers are called in turn and their
-        results are stored to `self.results`.
-
-        Note:
-            Still a work in progress.
+        Analyzers are called sequentially, results are stored in 'self.results'.
         """
         for i, analysis in enumerate(self.analysis_run_queue):
             log.debug('Executing enqueued analyzer {}/{}: '
