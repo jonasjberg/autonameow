@@ -67,3 +67,29 @@ class TestArgumentValidators(TestCase):
         with self.assertRaises(argparse.ArgumentTypeError) as e:
             options.arg_is_readable_file('/tmp')
         self.assertIsNotNone(e)
+
+
+class TestArgParse(TestCase):
+    def test_init_argparser(self):
+        self.assertTrue(isinstance(options.init_argparser(),
+                                   argparse.ArgumentParser))
+
+    def test_parse_args_returns_expected_type(self):
+        self.assertEqual(type(options.parse_args('')), argparse.Namespace)
+        self.assertEqual(type(options.parse_args('--help')), argparse.Namespace)
+
+    def test_parse_args_raises_typeerror_if_argument_missing(self):
+        with self.assertRaises(TypeError):
+            options.parse_args()
+
+    def test_parse_args_accepts_argument_help(self):
+        self.assertIsNotNone(options.parse_args('--help'))
+
+    def test_parse_args_accepts_argument_dry_run(self):
+        self.assertIsNotNone(options.parse_args('--dry-run'))
+
+    def test_parse_args_accepts_argument_verbose(self):
+        self.assertIsNotNone(options.parse_args('--verbose'))
+
+    def test_parse_args_accepts_argument_debug(self):
+        self.assertIsNotNone(options.parse_args('--debug'))
