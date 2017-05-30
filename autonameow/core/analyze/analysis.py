@@ -43,6 +43,8 @@ class AnalysisRunQueue(object):
         """
         Adds one or more analyzers to the queue.
 
+        The queue acts as a set; duplicate analyzers are silently ignored.
+
         Args:
             analyzer: Analyzer(s) to enqueue as either type 'type' or
                 list of type 'type'.
