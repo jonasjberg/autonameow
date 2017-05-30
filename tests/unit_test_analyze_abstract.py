@@ -25,7 +25,8 @@ from core.analyze.analyze_abstract import (
     AbstractAnalyzer,
     get_analyzer_classes_basename,
     get_analyzer_mime_mappings,
-    get_instantiated_analyzers
+    get_instantiated_analyzers,
+    get_analyzer_classes
 )
 from core.analyze.analyze_filename import FilenameAnalyzer
 from core.analyze.analyze_filesystem import FilesystemAnalyzer
@@ -102,6 +103,15 @@ class TestAnalysisUtilityFunctions(TestCase):
     def setUp(self):
         self.maxDiff = None
 
+    def test_get_analyzer_classes_returns_expected_count(self):
+        _classes = get_analyzer_classes()
+        self.assertEqual(len(_classes), len(EXPECT_ANALYZER_CLASSES))
+
+    def test_get_analyzer_classes_returns_class_objects(self):
+        analyzers = get_analyzer_classes()
+        for a in analyzers:
+            self.assertTrue(hasattr(a, '__class__'))
+
     def test_get_analyzer_classes_basename_returns_expected_count(self):
         _classes = get_analyzer_classes_basename()
         self.assertEqual(len(_classes), len(EXPECT_ANALYZER_CLASSES_BASENAME))
@@ -110,6 +120,12 @@ class TestAnalysisUtilityFunctions(TestCase):
         _classes = get_analyzer_classes_basename()
         self.assertEqual(sorted(_classes),
                          sorted(EXPECT_ANALYZER_CLASSES_BASENAME))
+
+    def test_get_analyzer_classes_basename_returns_list_of_strings(self):
+        self.assertTrue(isinstance(get_analyzer_classes_basename(), list))
+
+        for a in get_analyzer_classes_basename():
+            self.assertTrue(isinstance(a, str))
 
     def test_get_analysis_mime_mappings(self):
         # TODO: [hardcoded] Likely to break; fixed analyzer type mapping.
@@ -130,10 +146,11 @@ class TestAnalysisUtilityFunctions(TestCase):
         # TODO: [hardcoded] Likely to break; Fix or remove!
         self.assertGreaterEqual(len(get_instantiated_analyzers()), 6)
 
-    def test_get_instantiated_analyzsers_returns_list(self):
+    def test_get_instantiated_analyzers_returns_list(self):
         self.assertTrue(isinstance(get_instantiated_analyzers(), list))
 
     #def test_get_instantiated_analyzers(self):
+        # TODO: Fix test ..
         # _analyzers = get_instantiated_analyzers()
         # INSTANTIATED_ANALYZERS = [ImageAnalyzer(None), PdfAnalyzer(None),
         #                           TextAnalyzer(None), VideoAnalyzer(None),
