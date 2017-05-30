@@ -71,10 +71,6 @@ assert_true '[ -f "$_wiki_report_results" ]' \
 assert_false 'grep_todos "$FORMATS_DOC"' \
              "[TC012] Data formats docs does not contain TODOs"
 
-_src_rulematcher="${AUTONAMEOW_ROOT_DIR}/autonameow/core/evaluate/matcher.py"
-assert_false 'grep_todos "$_src_rulematcher"' \
-             "[TC012] Main rule matching source "matcher.py" does not contain TODOs"
-
 
 
 _tracked_files="$( (cd "$AUTONAMEOW_TESTRESULTS_DIR" && git ls-files | grep -- '.*\.pdf$') )"
