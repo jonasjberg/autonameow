@@ -28,7 +28,6 @@ from core.analyze.analyze_filesystem import FilesystemAnalyzer
 
 
 class TestFilesystemAnalyzerWithEmptyFile(TestCase):
-    # Setup and sanity check:
     def setUp(self):
         # TODO: Fix the filtering! Not completed as-is.
         self.filter = {'ignore_years': [],
@@ -47,7 +46,7 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         self.fo = FileObject(p_test_file)
         self.fsa = FilesystemAnalyzer(self.fo)
 
-    def get_result_field(self, field_name):
+    def get_datetime_source(self, field_name):
         return filter(lambda dt: dt['source'] == field_name,
                       self.fsa.get_datetime())
 
@@ -55,23 +54,22 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         self.assertIsNotNone(self.fo)
         self.assertIsNotNone(self.fsa)
 
-    # Tests:
     def test_get_datetime_does_not_return_none(self):
         dt_list = self.fsa.get_datetime()
         self.assertIsNotNone(dt_list)
 
     def test_get_datetime_contains_filesystem_modified(self):
-        dt_modified = self.get_result_field('modified')
+        dt_modified = self.get_datetime_source('modified')
         self.assertIsNotNone(dt_modified)
 
     def test_get_datetime_filesystem_modified_is_valid(self):
-        dt_modified, = self.get_result_field('modified')
+        dt_modified, = self.get_datetime_source('modified')
 
         expected = datetime.strptime('20160628 112136', '%Y%m%d %H%M%S')
         self.assertEqual(expected, dt_modified.get('value'))
 
     def test_get_datetime_contains_filesystem_created(self):
-        dt_created = self.get_result_field('created')
+        dt_created = self.get_datetime_source('created')
         self.assertIsNotNone(dt_created)
 
     def test_get_datetime_filesystem_created_is_valid(self):
@@ -85,7 +83,7 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         self.assertEqual(expected, dt_created.get('value'))
 
     def test_get_datetime_contains_filesystem_accessed(self):
-        dt_created = self.get_result_field('created')
+        dt_created = self.get_datetime_source('created')
         self.assertIsNotNone(dt_created)
 
     def test_get_datetime_filesystem_accessed_is_valid(self):
