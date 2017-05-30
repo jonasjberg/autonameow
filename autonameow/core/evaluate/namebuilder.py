@@ -28,23 +28,25 @@ from core.fileobject import FileObject
 
 class NameBuilder(object):
     """
-    Builds a new filename for a FileObject from a set of rules.
-    The 'rule' contains a 'new_name_template', which is filled out with data
-    from 'analysis_results'.
-    The rule also specifies which data from 'analysis_results' is to be used.
+    Constructs a new filename for a FileObject given a set of rules,
+    a file object and data gathered by analyzers.
+
+    A rule contains the name template that determines the format of the
+    resulting name. The rule also determines what analysis data to use when
+    populating the name template fields.
     """
     # TODO: [BL010] Implement NameBuilder.
-    def __init__(self, file_object, analysis_results, rule):
-        assert isinstance(file_object, FileObject)
-        # assert isinstance(analysis_results, dict)
-        # assert isinstance(rule, dict)
+    def __init__(self, file_object, analysis_results, active_config):
 
-        self.file_object = file_object
-        self.analysis_results = analysis_results
-        self.rule = rule
-        self.fields = None
+        self.file = file_object
+        self.data = analysis_results
+        self.config = active_config
 
-        self.new_name = None
+        self._new_name = None
+
+    @property
+    def new_name(self):
+        return self._new_name
 
     def _populate_fields(self, analysis_results, rule):
         """
