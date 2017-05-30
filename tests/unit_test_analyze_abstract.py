@@ -137,6 +137,18 @@ class TestAnalysisUtilityFunctions(TestCase):
                                 FilenameAnalyzer: None}
         self.assertEqual(ANALYZER_TYPE_LOOKUP, get_analyzer_mime_mappings())
 
+    def test_get_analyzer_mime_mappings_returns_expected_type(self):
+        for analyzer, mime_type in get_analyzer_mime_mappings().items():
+            self.assertEqual(type(analyzer), type)
+
+            # TODO: Do not use None mime_type to indicate "all types" ..
+            if type(mime_type) != list:
+                if type(mime_type) != str:
+                    from _pytest.compat import NoneType
+                    if not isinstance(mime_type, NoneType):
+                        self.fail('Expected type: list, str or None')
+
+
     def test_get_instantiated_analyzers_returns_class_objects(self):
         analyzers = get_instantiated_analyzers()
         for a in analyzers:
