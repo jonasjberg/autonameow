@@ -135,7 +135,7 @@ class Configuration(object):
 
             if not _valid_template:
                 log.critical('Bad: ' + str(fr))
-                raise ConfigurationSyntaxError('Invalid name format')
+                raise ConfigurationSyntaxError('Invalid name template format')
 
             file_rule = FileRule(description=fr.get('_description'),
                                  exact_match=fr.get('_exact_match'),
