@@ -22,7 +22,10 @@
 import re
 from datetime import datetime
 
-from core.config.constants import DATA_FIELDS, MAGIC_TYPE_LOOKUP
+from core.config.constants import (
+    DATA_FIELDS,
+    MAGIC_TYPE_LOOKUP
+)
 from core.evaluate import namebuilder
 
 
