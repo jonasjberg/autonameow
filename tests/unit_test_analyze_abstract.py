@@ -127,14 +127,14 @@ class TestAnalysisUtilityFunctions(TestCase):
         for a in get_analyzer_classes_basename():
             self.assertTrue(isinstance(a, str))
 
-    def test_get_analysis_mime_mappings(self):
+    def test_get_analyzer_mime_mappings(self):
         # TODO: [hardcoded] Likely to break; fixed analyzer type mapping.
         ANALYZER_TYPE_LOOKUP = {ImageAnalyzer: ['jpg', 'png'],
                                 PdfAnalyzer: 'pdf',
                                 TextAnalyzer: ['txt', 'md'],
                                 VideoAnalyzer: 'mp4',
-                                FilesystemAnalyzer: None,
-                                FilenameAnalyzer: None}
+                                FilesystemAnalyzer: 'MIME_ALL',
+                                FilenameAnalyzer: 'MIME_ALL'}
         self.assertEqual(ANALYZER_TYPE_LOOKUP, get_analyzer_mime_mappings())
 
     def test_get_analyzer_mime_mappings_returns_expected_type(self):
