@@ -35,9 +35,19 @@ from core.analyze.analyze_text import TextAnalyzer
 from core.analyze.analyze_video import VideoAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
 from core.exceptions import AnalysisResultsFieldError
-from unit_test_analysis import EXPECT_ANALYZER_CLASSES_BASENAME
 
 from unit_utils import get_mock_fileobject
+
+
+# TODO: [hardcoded] Likely to break; fixed analyzer names!
+EXPECT_ANALYZER_CLASSES = ['core.analyze.analyze_image.ImageAnalyzer',
+                           'core.analyze.analyze_filesystem.FilesystemAnalyzer',
+                           'core.analyze.analyze_filename.FilenameAnalyzer',
+                           'core.analyze.analyze_video.VideoAnalyzer',
+                           'core.analyze.analyze_pdf.PdfAnalyzer',
+                           'core.analyze.analyze_text.TextAnalyzer']
+EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
+                                    for c in EXPECT_ANALYZER_CLASSES]
 
 
 class TestAbstractAnalyzer(TestCase):
