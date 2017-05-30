@@ -165,7 +165,7 @@ class Analysis(object):
         # Select analyzer based on detected file type.
         log.debug('File is of type [{!s}]'.format(self.file_object.type))
         self._populate_run_queue()
-        log.debug('Queued analyzers: {!s}'.format(self.analysis_run_queue))
+        log.debug('Enqueued analyzers: {!s}'.format(self.analysis_run_queue))
 
         # Run all analyzers in the queue.
         self._execute_run_queue()
@@ -205,17 +205,17 @@ class Analysis(object):
         Analyzers are called sequentially, results are stored in 'self.results'.
         """
         for i, analysis in enumerate(self.analysis_run_queue):
-            log.debug('Executing enqueued analyzer {}/{}: '
+            log.debug('Executing queue item {}/{}: '
                       '{}'.format(i + 1,
                                   len(self.analysis_run_queue),
                                   analysis.__name__))
             if not analysis:
-                log.error('Got null analysis from analysis run queue.')
+                log.critical('Got null analysis from analysis run queue.')
                 continue
 
             a = analysis(self.file_object)
             if not a:
-                log.error('Unable to start Analyzer "{!s}"'.format(analysis))
+                log.critical('Unable to start Analyzer "{!s}"'.format(analysis))
                 continue
 
             # Run the analysis and collect the results.
