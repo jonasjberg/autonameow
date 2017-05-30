@@ -28,10 +28,10 @@ if [ "$#" -ne "1" ] || [ ! -e "$1" ]
 then
     echo "USAGE: $SELF [PYTHON_PROGRAM]"
     echo "Lists modules imported by the specified Python program."
-	echo "Imports used by a simple \"no-op\" program is used to filter the"
+    echo "Imports used by a simple \"no-op\" program is used to filter the"
     echo "listing.  The idea is to get rid of default standard libraries."
     echo "NOTE:  This method *might* be thoroughly unsound and misguided."
-	# TODO: Figure out if this is stupid.
+    # TODO: Figure out if this is stupid.
     exit 1
 fi
 
