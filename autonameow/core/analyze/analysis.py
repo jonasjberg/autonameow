@@ -39,17 +39,18 @@ class AnalysisRunQueue(object):
     def __init__(self):
         self._queue = []
 
-    def enqueue(self, analysis):
+    def enqueue(self, analyzer):
         """
-        Adds a analysis to the queue.
+        Adds one or more analyzers to the queue.
 
         Args:
-            analysis: Analysis to enqueue, either single instance or list.
+            analyzer: Analyzer(s) to enqueue as either type 'type' or
+                list of type 'type'.
         """
-        if isinstance(analysis, list):
-            self._queue += analysis
+        if isinstance(analyzer, list):
+            self._queue += analyzer
         else:
-            self._queue.append(analysis)
+            self._queue.append(analyzer)
 
     def __len__(self):
         return len(self._queue)
