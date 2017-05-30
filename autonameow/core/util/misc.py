@@ -23,6 +23,8 @@ import logging
 import random
 import sys
 
+import itertools
+
 
 def dump(obj, nested_level=0, output=sys.stdout):
     # http://stackoverflow.com/a/21049038
@@ -68,23 +70,29 @@ def unpack_dict(dt_list):
     return results
 
 
+_counter_generator_function = itertools.count(0)
+
+
 def unique_identifier():
     """
-    Generates a unique identifier string.
-    The identifier consists of 8 random digits prefixed with "UUID".
+    Returns a (practically unique) identifier string.
 
-        NOTE:  This is not a proper UUID as per RFC 4122.
+    The numeric part of the identifier is incremented at each function call.
+
+    Numbers are unique even after as much as 10^6 function calls, which I doubt
+    will be used up during a single program invocation.
 
     Returns:
-        A identifier text on the form "UUID00000000" as a string.
+        A (pretty much unique) identifier text string.
     """
-    def uuid_generator():
-        # Max 24-bit value: 16777215
-        seed = random.getrandbits(24)
+    n = next(_counter_generator_function)
+    if n % 3 == 0:
+        _prefix = 'M3'
+    else:
+        _prefix = 'ME'
+    if n % 2 == 0:
+        _postfix = 'OW'
+    else:
+        _postfix = '0W'
+    return '{}{:03d}{}'.format(_prefix, n, _postfix)
 
-        while True:
-            yield 'UUID{:08d}'.format(seed)
-            seed += 1
-
-    unique_sequence = uuid_generator()
-    return next(unique_sequence)
