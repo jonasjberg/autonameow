@@ -65,8 +65,8 @@ class NameBuilder(object):
                         if result['source'] == alias:
                             return result['value']
                         else:
-                            logging.debug('NOPE -- result["source"] == {'
-                                          '}'.format(result['source']))
+                            logging.debug('NOPE -- result["source"] == '
+                                          '{}'.format(result['source']))
                 else:
                     return None
 
