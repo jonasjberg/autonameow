@@ -21,32 +21,30 @@
 
 from unittest import TestCase
 
-from core.analyze.analyze_abstract import (
+from analyzers.analyze_abstract import (
     AbstractAnalyzer,
+    get_analyzer_classes,
     get_analyzer_classes_basename,
     get_analyzer_mime_mappings,
-    get_instantiated_analyzers,
-    get_analyzer_classes
+    get_instantiated_analyzers
 )
-from core.analyze.analyze_filename import FilenameAnalyzer
-from core.analyze.analyze_filesystem import FilesystemAnalyzer
-from core.analyze.analyze_image import ImageAnalyzer
-from core.analyze.analyze_pdf import PdfAnalyzer
-from core.analyze.analyze_text import TextAnalyzer
-from core.analyze.analyze_video import VideoAnalyzer
+from analyzers.analyze_filename import FilenameAnalyzer
+from analyzers.analyze_filesystem import FilesystemAnalyzer
+from analyzers.analyze_pdf import PdfAnalyzer
+from analyzers.analyze_text import TextAnalyzer
+from analyzers.analyze_video import VideoAnalyzer
+from analyzers.analyze_image import ImageAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
 from core.exceptions import AnalysisResultsFieldError
-
 from unit_utils import get_mock_fileobject
 
-
 # TODO: [hardcoded] Likely to break; fixed analyzer names!
-EXPECT_ANALYZER_CLASSES = ['core.analyze.analyze_image.ImageAnalyzer',
-                           'core.analyze.analyze_filesystem.FilesystemAnalyzer',
-                           'core.analyze.analyze_filename.FilenameAnalyzer',
-                           'core.analyze.analyze_video.VideoAnalyzer',
-                           'core.analyze.analyze_pdf.PdfAnalyzer',
-                           'core.analyze.analyze_text.TextAnalyzer']
+EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
+                           'analyzers.analyze_filesystem.FilesystemAnalyzer',
+                           'analyzers.analyze_filename.FilenameAnalyzer',
+                           'analyzers.analyze_video.VideoAnalyzer',
+                           'analyzers.analyze_pdf.PdfAnalyzer',
+                           'analyzers.analyze_text.TextAnalyzer']
 EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
                                     for c in EXPECT_ANALYZER_CLASSES]
 

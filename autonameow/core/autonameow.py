@@ -28,7 +28,7 @@ import time
 
 from core import config
 from core import options
-from core.analyze.analysis import Analysis
+from core.analysis import Analysis
 from core.config.configuration import Configuration
 from core.evaluate.filter import ResultFilter
 from core.evaluate.namebuilder import NameBuilder

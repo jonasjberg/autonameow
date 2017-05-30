@@ -21,11 +21,11 @@
 
 from unittest import TestCase
 
-from core.analyze.analysis import (
+from analyzers.analyze_image import ImageAnalyzer
+from core.analysis import (
     Results,
     AnalysisRunQueue
 )
-from core.analyze.analyze_image import ImageAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
 from unit_utils import get_mock_analyzer
 

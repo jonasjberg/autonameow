@@ -22,7 +22,7 @@
 import logging
 import os
 
-from core.analyze.analyze_abstract import AbstractAnalyzer
+from analyzers.analyze_abstract import AbstractAnalyzer
 
 
 class VideoAnalyzer(AbstractAnalyzer):

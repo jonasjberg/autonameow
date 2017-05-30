@@ -22,10 +22,9 @@
 import datetime
 import logging
 import os
-
 from datetime import datetime
 
-from core.analyze.analyze_abstract import AbstractAnalyzer
+from analyzers.analyze_abstract import AbstractAnalyzer
 
 
 class FilesystemAnalyzer(AbstractAnalyzer):

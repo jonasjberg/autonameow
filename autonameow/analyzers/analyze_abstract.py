@@ -108,14 +108,14 @@ def get_analyzer_classes():
 
     # TODO: Fix this! Used for instantiating analyzers so that they are
     # included in the global namespace and seen by 'get_analyzer_classes()'.
-    from core.analyze.analyze_filename import FilenameAnalyzer
-    from core.analyze.analyze_filesystem import FilesystemAnalyzer
-    from core.analyze.analyze_image import ImageAnalyzer
-    from core.analyze.analyze_pdf import PdfAnalyzer
-    from core.analyze.analyze_video import VideoAnalyzer
 
     # TODO: Fix this! Used for instantiating analyzers so that they are
     # included in the global namespace and seen by 'get_analyzer_classes()'.
+    from analyzers.analyze_filename import FilenameAnalyzer
+    from analyzers.analyze_filesystem import FilesystemAnalyzer
+    from analyzers.analyze_image import ImageAnalyzer
+    from analyzers.analyze_pdf import PdfAnalyzer
+    from analyzers.analyze_video import VideoAnalyzer
     # fa = FilenameAnalyzer(get_dummy_fileobject())
     # fs = FilesystemAnalyzer(get_dummy_fileobject())
     # im = ImageAnalyzer(get_dummy_fileobject())
