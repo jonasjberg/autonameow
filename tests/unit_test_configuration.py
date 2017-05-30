@@ -30,22 +30,6 @@ from core.config.config_defaults import DEFAULT_CONFIG
 from core.config.configuration import Configuration
 from unit_utils import make_temp_dir
 
-TEST_CONFIG_DATA = {'key1': 'value1',
-                    'key2': ['value2', 'value3'],
-                    'key3': {'key4': 'value4',
-                             'key5': ['value5', 'value6']}}
-TEST_CONFIG_YAML_DATA = '''
-key1: value1
-key2:
-- value2
-- value3
-key3:
-key4: value4
-key5:
-- value5
-- value6
-'''
-
 
 def load_yaml(path):
     with open(path, 'r') as file_handle:
