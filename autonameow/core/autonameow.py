@@ -173,29 +173,26 @@ class Autonameow(object):
             if self.args.automagic:
                 log.critical('[UNIMPLEMENTED FEATURE] automagic mode')
                 exit_code &= 1
-                pass
 
                 # Create a name builder.
                 # TODO: [BL010] Implement NameBuilder.
-                # name_builder = NameBuilder(current_file, analysis.results,
-                #                            self.config)
-                # name_builder.build()
-                #
-                # if self.args.dry_run:
-                #     log.info('Automagically built filename: '
-                #              '"{}"'.format(name_builder.new_name))
-                # else:
-                #     # TODO: [BL011] Rename files.
-                #     log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
-                #     exit_code &= 1
-                #     pass
+                name_builder = NameBuilder(current_file, analysis.results,
+                                           self.config)
+                name_builder.build()
+
+                if self.args.dry_run:
+                    log.info('Automagically built filename: '
+                             '"{}"'.format(name_builder.new_name))
+                else:
+                    # TODO: [BL011] Rename files.
+                    log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
+                    exit_code &= 1
 
             elif self.args.interactive:
                 # Create a interactive interface.
                 # TODO: [BL013] Interactive mode in 'interactive.py'.
                 log.critical('[UNIMPLEMENTED FEATURE] interactive mode')
                 exit_code &= 1
-                pass
 
         return exit_code
 
