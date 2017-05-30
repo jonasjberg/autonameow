@@ -25,6 +25,10 @@ import subprocess
 from datetime import datetime
 
 import PyPDF2
+from PyPDF2.utils import (
+    PyPdfError,
+    PdfReadError
+)
 
 from core.analyze.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
@@ -411,7 +415,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
 
     try:
         num_pages = pdff.getNumPages()
-    except PyPDF2.utils.PdfReadError:
+    except PdfReadError:
         # NOTE: This now wholly determines whether a pdf is readable.
         #       Possible to not getNumPages but still be able to read the text?
         logging.error('PDF document might be encrypted with restrictions '
