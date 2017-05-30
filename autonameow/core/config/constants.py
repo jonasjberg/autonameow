@@ -28,15 +28,18 @@ ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 # All possible field names. Used for constructing file names and testing.
 # The dictionary is populated like this;
 #
-#   DATA_FIELDS = {'datetime': 'DUMMY',
-#                  'publisher': 'DUMMY',
-#                  'title': 'DUMMY',
-#                  'tags': 'DUMMY',
-#                  'author': 'DUMMY',
+#   DATA_FIELDS = {'author': 'DUMMY',
+#                  'datetime': 'DUMMY',
+#                  'description': 'DUMMY',
+#                  'edition': 'DUMMY',
 #                  'extension': 'DUMMY',
-#                  'description': 'DUMMY'}
+#                  'publisher': 'DUMMY',
+#                  'tags': 'DUMMY',
+#                  'title': 'DUMMY',
+#                  'year': 'DUMMY'}
 DATA_FIELDS = dict.fromkeys(ANALYSIS_RESULTS_FIELDS +
-                            ['edition', 'year', 'description', 'extension'], 'DUMMY')
+                            ['edition', 'year', 'description', 'extension'],
+                            'DUMMY')
 
 
 # File "magic" MIME type lookup table keyed by shorthand. Each value is a
