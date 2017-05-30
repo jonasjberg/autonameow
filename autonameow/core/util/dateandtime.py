@@ -435,13 +435,13 @@ def bruteforce_str(text):
 
     # (premature) optimization ..
     if len(text) < 4:
-        logging.debug('Unable to continue, text is too short.')
+        # logging.debug('Unable to continue, text is too short.')
         return None
 
     number_digits_in_text = sum(c.isdigit() for c in text)
     if number_digits_in_text < 4:
-        logging.debug('Unable to continue -- text contains '
-                      'insufficient number of digits.')
+        # logging.debug('Unable to continue -- text contains '
+        #               'insufficient number of digits.')
         return None
 
     # Strip all letters from the left.
