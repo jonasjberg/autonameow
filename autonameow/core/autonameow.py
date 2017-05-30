@@ -31,7 +31,6 @@ from core import options
 from core.analyze.analysis import Analysis
 from core.config.configuration import Configuration
 from core.evaluate.filter import ResultFilter
-from core.evaluate.matcher import RuleMatcher
 from core.evaluate.namebuilder import NameBuilder
 from core.exceptions import InvalidFileArgumentError
 from core.fileobject import FileObject
@@ -166,29 +165,30 @@ class Autonameow(object):
                 misc.dump(analysis.results.get_all())
                 print('')
 
-            # Create a rule matcher
-            rule_matcher = RuleMatcher(current_file, self.config)
-
             if self.args.prepend_datetime:
                 # TODO: Prepend datetime to filename.
                 log.critical('[UNIMPLEMENTED FEATURE] prepend_datetime')
                 self.exit_program(1)
 
             if self.args.automagic:
+                log.critical('[UNIMPLEMENTED FEATURE] automagic mode')
+                exit_code &= 1
+                pass
+
                 # Create a name builder.
                 # TODO: [BL010] Implement NameBuilder.
-                name_builder = NameBuilder(current_file, analysis.results,
-                                           rule_matcher.active_rule)
-                name_builder.build()
-
-                if self.args.dry_run:
-                    log.info('Automagically built filename: '
-                             '"{}"'.format(name_builder.new_name))
-                else:
-                    # TODO: [BL011] Rename files.
-                    log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
-                    exit_code &= 1
-                    pass
+                # name_builder = NameBuilder(current_file, analysis.results,
+                #                            self.config)
+                # name_builder.build()
+                #
+                # if self.args.dry_run:
+                #     log.info('Automagically built filename: '
+                #              '"{}"'.format(name_builder.new_name))
+                # else:
+                #     # TODO: [BL011] Rename files.
+                #     log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
+                #     exit_code &= 1
+                #     pass
 
             elif self.args.interactive:
                 # Create a interactive interface.
