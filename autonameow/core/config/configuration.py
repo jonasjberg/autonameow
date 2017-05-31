@@ -26,15 +26,14 @@ from core.config import (
     load_yaml_file,
     write_yaml_file
 )
-import core.config.field_parsers
+from core.config.field_parsers import (
+    NameFormatConfigFieldParser,
+    get_instantiated_field_parsers
+)
 from core.exceptions import (
     ConfigurationSyntaxError,
     ConfigError,
-    InvalidFileRuleError
 )
-
-from core.fileobject import FileObject
-from core.util.misc import unique_identifier
 
 
 class Rule(object):
@@ -69,7 +68,7 @@ class Configuration(object):
         self._name_templates = {}
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
-        self.field_parsers = core.config.field_parsers.get_instantiated_field_parsers()
+        self.field_parsers = get_instantiated_field_parsers()
 
         if data:
             self._data = data
@@ -88,7 +87,7 @@ class Configuration(object):
 
         loaded_templates = {}
         for k, v in self._data.get('name_templates').items():
-            if self.validate_name_format(v):
+            if NameFormatConfigFieldParser.is_valid_format_string(v):
                 loaded_templates[k] = v
             else:
                 msg = f'Invalid name template "{k}": "{v}"'
@@ -129,15 +128,6 @@ class Configuration(object):
             # TODO: Make parse_conditions and parse_sources functions.
 
             self._file_rules.append(file_rule)
-
-    def validate_name_format(self, format_string):
-        for parser in self.field_parsers:
-            if 'name_format' in parser.applies_to_field:
-                val_func = parser.get_validation_function()
-                if val_func(format_string):
-                    return format_string
-                else:
-                    return False
 
     def validate_field(self, raw_file_rule, field_name):
         for parser in self.field_parsers:

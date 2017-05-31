@@ -120,17 +120,18 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
     applies_to_conditions = False
     applies_to_data_sources = False
 
-    def get_validation_function(self):
-        def is_valid_format_string(expression):
-            try:
-                namebuilder.assemble_basename(expression, **DATA_FIELDS)
-            except (ValueError, TypeError, Exception):
-                # TODO: Have NameBuilder raise a custom exception?
-                return False
-            else:
-                return True
+    @staticmethod
+    def is_valid_format_string(expression):
+        try:
+            namebuilder.assemble_basename(expression, **DATA_FIELDS)
+        except (ValueError, TypeError, Exception):
+            # TODO: Have NameBuilder raise a custom exception?
+            return False
+        else:
+            return True
 
-        return is_valid_format_string
+    def get_validation_function(self):
+        return self.is_valid_format_string
 
 
 def get_instantiated_field_parsers():
