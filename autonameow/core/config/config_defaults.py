@@ -25,16 +25,27 @@ BETWEEN_TAG_SEPARATOR = ' '
 
 
 DEFAULT_CONFIG = {
-    # File rules specify conditions that should be true for the rule to apply
-    # for a given file.
+
+    #   File Rules
+    #   ----------
+    #   File rules determine which files are handled and how they are handled.
     #
-    # If '_exact_match' is True, *all* conditions must apply for the rule to be
-    # considered a match for a given file.
-    # Otherwise, when '_exact_match' is False, the rule with the most amount of
-    # satisfied conditions is chosen.
-    # If multiple rules end up tied (same amount of satisified conditions for a
-    # given file) the '_weight' is used as a last resort to pick out a single
-    # rule to use.
+    #   Each rule specifies conditions that should be met for the rule to apply
+    #   to a given file.
+    #
+    #   TODO: Document all fields ..
+    #
+    #   * If '_exact_match' is True, __all__ conditions must be met,
+    #     otherwise the rule is considered to not apply to the given file.
+    #
+    #   * If '_exact_match' is False, the rule with the highest number of
+    #     satisfied conditions is used.
+    #     When multiple rules end up tied for the "best fit", I.E. they all
+    #     have an equal amount of satisfied conditions; '_weight' is used
+    #     to prioritize the candidates.
+    #
+    #   TODO: Document all fields ..
+    #
     'file_rules': [
         {'_description': 'First Entry in the Default Configuration',
          '_exact_match': False,
@@ -144,9 +155,15 @@ DEFAULT_CONFIG = {
          }
          }
     ],
-    # Templates used when constructing new file names.
-    # Can be reused by multiple file rules. Reference the template name
-    # in the file rule 'name_template' field.
+
+    #  File Name Templates
+    #  -------------------
+    #  These file name templates can be reused by multiple file rules.
+    #  Simply add the template name to the file rule 'name_template' field.
+    #
+    #  NOTE: If a rule specifies both 'name_format' and 'name_template',
+    #        'name_format' will be prioritized.
+    #
     'name_templates': [
         {'_description': 'First name template in the Default Configuration',
          '_name': 'default_template_name',
