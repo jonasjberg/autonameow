@@ -85,3 +85,25 @@ def assemble_basename(name_template, **kwargs):
         raise NameTemplateSyntaxError(e)
     else:
         return out
+
+
+def rule_applies(file_rule, file_object):
+    """
+    Tests if a rule applies to a given file.
+
+    Args:
+        file_object: The file to test as an instance of 'FileObject'.
+        file_object: The rule to test as an instance of 'FileRule'.
+
+    Returns: True if the rule applies to the given file, else False.
+
+    """
+    if not isinstance(file_object, FileObject):
+        raise TypeError('"file_object" must be instance of "FileObject"')
+    if not isinstance(file_rule, FileRule):
+        raise TypeError('"file_rule" must be instance of "FileRule"')
+
+    if not self.conditions:
+        raise InvalidFileRuleError('Rule does not specify any conditions')
+
+        # if self.exact_match:
