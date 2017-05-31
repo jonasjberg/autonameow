@@ -87,7 +87,34 @@ class Results(object):
             self._data[field] = {}
 
         # TODO: Redesign data storage structure.
-        # self._fixed_data = {'filename'}
+        # self._fixed_data = {
+        #     'filesystem': {
+        #         'basename': None,
+        #         'extension': None,
+        #         'pathname': None,
+        #         'date_accessed': None,
+        #         'date_created': None,
+        #         'date_modified': None
+        #     },
+        #     'contents': {
+        #         'mime_type': None,
+        #         'textual': {
+        #             'raw_text': None,
+        #             'paginated': False,
+        #         },
+        #         'visual': {
+        #             'ocr_text': None
+        #             'ocr_description': None,
+        #             'ocr_tags': None
+        #         },
+        #         'binary': {
+        #
+        #         }
+        #     },
+        #     'metadata': {
+        #
+        #     }
+        # }
 
     def add(self, field, data, source):
         """
