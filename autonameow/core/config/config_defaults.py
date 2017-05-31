@@ -171,7 +171,21 @@ DEFAULT_CONFIG = {
         {'_description': 'Ebook name template in the Default Configuration',
          '_name': 'default_ebook_name',
          'name_format': '{publisher} {title} {edition} - {author} {year}.{extension}'}
-    ]
+    ],
+
+    #  File Name Date and Time Format
+    #  ------------------------------
+    #  Specifies the format of date and time in constructed file names.
+    #  Fields are parsed with "datetime" from the Python standard library.
+    #  Refer to the "datetime" library documentation for more information;
+    #
+    #      docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+    #
+    'name_datetime_format': {
+        'date': '%Y-%m-%d',
+        'time': '%H-%M-%S',
+        'datetime': '%Y-%m-%dT%H%M%S'
+    },
 }
 
 
