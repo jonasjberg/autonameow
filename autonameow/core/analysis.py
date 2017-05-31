@@ -30,6 +30,7 @@ from analyzers.analyze_filename import FilenameAnalyzer
 from analyzers.analyze_filesystem import FilesystemAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
 from core.exceptions import AutonameowException
+from core.fileobject import FileObject
 
 
 class AnalysisRunQueue(object):
@@ -148,9 +149,10 @@ class Analysis(object):
             Run queue is populated and executed straight away at instantiation.
 
         Args:
-            file_object (FileObject): File to analyze.
+            file_object: File to analyze as an instance of class 'FileObject'.
         """
-        assert file_object is not None
+        if not isinstance(file_object, FileObject):
+            raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
         self.results = Results()
