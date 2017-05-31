@@ -27,7 +27,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 from pytesseract import image_to_string
 
-from core.analyze.analyze_abstract import AbstractAnalyzer
+from analyzers.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
 
 

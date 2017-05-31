@@ -20,7 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import logging
+import logging as log
 
 from core.exceptions import NameTemplateSyntaxError
 from core.fileobject import FileObject

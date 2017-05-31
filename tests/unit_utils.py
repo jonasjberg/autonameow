@@ -24,7 +24,7 @@
 import os
 import tempfile
 
-from core.analyze.analyze_abstract import get_instantiated_analyzers
+from analyzers.analyze_abstract import get_instantiated_analyzers
 from core.fileobject import FileObject
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))

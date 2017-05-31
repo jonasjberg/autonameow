@@ -23,8 +23,8 @@ import os
 from datetime import datetime
 from unittest import TestCase
 
+from analyzers.analyze_filesystem import FilesystemAnalyzer
 from core.fileobject import FileObject
-from core.analyze.analyze_filesystem import FilesystemAnalyzer
 
 
 class TestFilesystemAnalyzerWithEmptyFile(TestCase):

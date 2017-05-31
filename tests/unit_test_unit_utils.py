@@ -24,7 +24,7 @@ import os
 import types
 from unittest import TestCase
 
-from core.analyze.analyze_abstract import (
+from analyzers.analyze_abstract import (
     get_analyzer_classes,
 )
 from core.fileobject import FileObject

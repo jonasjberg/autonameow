@@ -24,7 +24,7 @@ import logging
 
 from unidecode import unidecode
 
-from core.analyze.analyze_abstract import AbstractAnalyzer
+from analyzers.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
 
 

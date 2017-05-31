@@ -21,12 +21,13 @@
 
 import logging
 
+from .analyze_abstract import AbstractAnalyzer
+
 try:
     import guessit as guessit
 except ImportError:
     guessit = False
 
-from core.analyze.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
 
 

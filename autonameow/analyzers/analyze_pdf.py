@@ -30,7 +30,7 @@ from PyPDF2.utils import (
     PdfReadError
 )
 
-from core.analyze.analyze_abstract import AbstractAnalyzer
+from analyzers.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
 from core.util import textutils
 from core.util import wrap_exiftool

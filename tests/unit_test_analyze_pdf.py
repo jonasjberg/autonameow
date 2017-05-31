@@ -24,11 +24,10 @@ from unittest import TestCase
 
 import PyPDF2
 
-from core.analyze.analyze_pdf import (
+from analyzers.analyze_pdf import (
     extract_pdf_content_with_pypdf,
     extract_pdf_content_with_pdftotext
 )
-
 from unit_utils import abspath_testfile
 
 pdf_file = abspath_testfile('simplest_pdf.md.pdf')

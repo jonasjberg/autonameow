@@ -21,12 +21,13 @@
 
 import logging as log
 
-from core.analyze.analyze_abstract import (
+
+from analyzers.analyze_abstract import (
     get_analyzer_classes_basename,
     get_analyzer_mime_mappings
 )
-from core.analyze.analyze_filename import FilenameAnalyzer
-from core.analyze.analyze_filesystem import FilesystemAnalyzer
+from analyzers.analyze_filename import FilenameAnalyzer
+from analyzers.analyze_filesystem import FilesystemAnalyzer
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
 from core.exceptions import AutonameowException
 
