@@ -44,7 +44,7 @@ logmsg "Running the Source Code test suite .."
 
 
 
-ANALYSIS_RESULTS="$( ( cd "$SELF_DIR" && realpath -e "../autonameow/core/analyze/analysis.py" ) )"
+ANALYSIS_RESULTS="$( ( cd "$SELF_DIR" && realpath -e "../autonameow/core/analysis.py" ) )"
 assert_true '[ -f "$ANALYSIS_RESULTS" ]' \
             'The source file containing the "analysis" class exists'
 assert_false 'grep -qE -- "def print.*\(" "$ANALYSIS_RESULTS"' \
