@@ -37,7 +37,7 @@ class AnalysisRunQueue(object):
     The queue order is determined by the class variable "run_queue_priority".
     """
     def __init__(self):
-        self._queue = []
+        self.__queue = []
 
     def enqueue(self, analyzers):
         """
@@ -50,8 +50,8 @@ class AnalysisRunQueue(object):
                 list of type 'type'.
         """
         def _dupe_check_append(_analyzer):
-            if _analyzer not in self._queue:
-                self._queue.append(_analyzer)
+            if _analyzer not in self.__queue:
+                self.__queue.append(_analyzer)
 
         if isinstance(analyzers, list):
             for a in analyzers:
@@ -60,13 +60,13 @@ class AnalysisRunQueue(object):
             _dupe_check_append(analyzers)
 
     def __len__(self):
-        return len(self._queue)
+        return len(self.__queue)
 
     def __getitem__(self, item):
-        return self._queue[item]
+        return self.__queue[item]
 
     def __iter__(self):
-        for a in sorted(self._queue, key=lambda x: x.run_queue_priority):
+        for a in sorted(self.__queue, key=lambda x: x.run_queue_priority):
             yield a
 
     def __str__(self):
