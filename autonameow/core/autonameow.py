@@ -32,9 +32,16 @@ from core.analysis import Analysis
 from core.config.configuration import Configuration
 from core.evaluate.filter import ResultFilter
 from core.evaluate.namebuilder import NameBuilder
-from core.exceptions import InvalidFileArgumentError
+from core.exceptions import (
+    InvalidFileArgumentError,
+    ConfigurationSyntaxError
+)
 from core.fileobject import FileObject
-from core.options import print_ascii_banner, print_exit_info, print_start_info
+from core.options import (
+    print_ascii_banner,
+    print_exit_info,
+    print_start_info
+)
 from core.util import misc
 from . import version
 
@@ -113,7 +120,11 @@ class Autonameow(object):
                     self.exit_program(0)
             else:
                 log.debug('Using configuration: "{}"'.format(_config_path))
-                self.config.load_from_disk(_config_path)
+                try:
+                    self.config.load_from_disk(_config_path)
+                except ConfigurationSyntaxError as e:
+                    log.critical('Configuration syntax error: "{!s}"'.format(e))
+
 
         # Setup results filtering
         self.filter = ResultFilter().configure_filter(self.args)
