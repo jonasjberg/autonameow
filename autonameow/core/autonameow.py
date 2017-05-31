@@ -110,6 +110,7 @@ class Autonameow(object):
                              '"{!s}"'.format(_config_path))
                     log.info('Use this file to configure '
                              '{}.'.format(version.__title__))
+                    self.exit_program(0)
             else:
                 log.debug('Using configuration: "{}"'.format(_config_path))
                 self.config.load_from_disk(_config_path)
