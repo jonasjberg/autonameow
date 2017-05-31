@@ -50,7 +50,7 @@ DEFAULT_CONFIG = {
         {'_description': 'First Entry in the Default Configuration',
          '_exact_match': False,
          '_weight': None,
-         'name_template': 'default_template_name',
+         'name_template': 'default_document',
          'conditions': {
              'filename': {
                  'pathname': None,
@@ -59,6 +59,14 @@ DEFAULT_CONFIG = {
              },
              'contents': {
                  'mime_type': None
+             },
+             'metadata': {
+                 'exif': {
+                     # NOTE: Possibly use exiftool for all metadata?
+                     # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
+                     'datetimeoriginal': None,
+                     'camera-model': None
+                 },
              }
          },
          'data_sources': {
@@ -101,7 +109,7 @@ DEFAULT_CONFIG = {
          '_exact_match': True,
          '_weight': 1,
          'name_format': '',
-         'name_template': 'default_ebook_name',
+         'name_template': 'default_book',
          'conditions': {
              'filename': {
                  'pathname': None,
@@ -129,8 +137,8 @@ DEFAULT_CONFIG = {
         {'_description': 'Sample Entry for MOBI e-books',
          '_exact_match': True,
          '_weight': 1,
-         'name_format': None,
-         'name_template': 'default_ebook_name',
+         'name_format': '{publisher} {title} {edition} - {author} {date}.{extension}',
+         'name_template': None,
          'conditions': {
              'filename': {
                  'pathname': None,
@@ -164,14 +172,11 @@ DEFAULT_CONFIG = {
     #  NOTE: If a rule specifies both 'name_format' and 'name_template',
     #        'name_format' will be prioritized.
     #
-    'name_templates': [
-        {'_description': 'First name template in the Default Configuration',
-         '_name': 'default_template_name',
-         'name_format': '{title} - {author} {datetime}.{extension}'},
-        {'_description': 'Ebook name template in the Default Configuration',
-         '_name': 'default_ebook_name',
-         'name_format': '{publisher} {title} {edition} - {author} {year}.{extension}'}
-    ],
+    'name_templates': {
+        'default_document': '{title} - {author} {datetime}.{extension}',
+        'default_book': '{publisher} {title} {edition} - {author} {date}.{extension}',
+        'default_photo': '{datetime} {description} -- {tags}.{extension}'
+    },
 
     #  File Name Date and Time Format
     #  ------------------------------

@@ -108,7 +108,7 @@ class FileRule(Rule):
 class Configuration(object):
     def __init__(self, data=None):
         self._file_rules = []
-        self._name_templates = []
+        self._name_templates = {}
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
         self.field_parsers = get_instantiated_field_parsers()
@@ -124,18 +124,19 @@ class Configuration(object):
         if not self._data:
             raise ConfigError('Invalid state; missing "self._data" ..')
 
-        templates = []
+        if 'name_templates' not in self._data:
+            log.debug('Configuration does not contain name templates')
+            return
 
-        if 'name_templates' in self._data:
-            for nt in self._data['name_templates']:
-                valid_format = self.validate_field(nt, 'name_format')
-                if not valid_format:
-                    msg = 'Invalid format: "{}"'.format(nt.get('name_format'))
-                    raise ConfigurationSyntaxError(msg)
-                templates.append({'description': nt.get('_description'),
-                                  'name': nt.get('_name', unique_identifier()),
-                                  'name_format': valid_format})
-        self._name_templates += templates
+        loaded_templates = {}
+        for k, v in self._data.get('name_templates').items():
+            if self.validate_name_format(v):
+                loaded_templates[k] = v
+            else:
+                msg = f'Invalid name template "{k}": "{v}"'
+                raise ConfigurationSyntaxError(msg)
+
+        self._name_templates.update(loaded_templates)
 
     def _load_file_rules(self):
         if not self._data:
@@ -154,10 +155,8 @@ class Configuration(object):
             elif 'name_template' in fr:
                 _template_name = fr.get('name_template')
 
-                for nt in self.name_templates:
-                    if nt['name'] == _template_name:
-                        _valid_template = nt.get('name_format')
-                        break
+                if _template_name in self.name_templates:
+                    _valid_template = self._name_templates.get(_template_name)
 
             if not _valid_template:
                 log.critical('Bad: ' + str(fr))
@@ -172,6 +171,15 @@ class Configuration(object):
             # TODO: Make parse_conditions and parse_sources functions.
 
             self._file_rules.append(file_rule)
+
+    def validate_name_format(self, format_string):
+        for parser in self.field_parsers:
+            if 'name_format' in parser.applies_to_field:
+                val_func = parser.get_validation_function()
+                if val_func(format_string):
+                    return format_string
+                else:
+                    return False
 
     def validate_field(self, raw_file_rule, field_name):
         for parser in self.field_parsers:
