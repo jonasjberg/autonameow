@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-# Filetags options
+# TODO: Integrate filetags options with new configuration format.
 FILENAME_TAG_SEPARATOR = ' -- '
 BETWEEN_TAG_SEPARATOR = ' '
 
