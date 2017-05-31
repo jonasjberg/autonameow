@@ -43,33 +43,8 @@ class Rule(object):
 
 class FileRule(Rule):
     """
-    Represents a single file rule entry in a configuration.
+    Represents a single file rule entry in a loaded configuration.
     """
-    # EXAMPLE FILE RULE:
-    # ==================
-    # {'_description': 'First Entry in the Default Configuration',
-    #  '_exact_match': False,
-    #  '_weight': None,
-    #  'name_template': 'default_template_name',
-    #  'conditions': {
-    #      'filename': {
-    #          'pathname': None,
-    #          'basename': None,
-    #          'extension': None
-    #      },
-    #      'contents': {
-    #          'mime_type': None
-    #      }
-    #  },
-    #      'data_sources': {
-    #          'datetime': None,
-    #          'description': None,
-    #          'title': None,
-    #          'author': None,
-    #          'publisher': None,
-    #          'extension': 'filename.extension'
-    #      }
-    # },
     def __init__(self, **kwargs):
         super().__init__()
 
