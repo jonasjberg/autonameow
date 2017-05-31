@@ -48,6 +48,11 @@ class ConfigurationSyntaxError(ConfigError):
     pass
 
 
+class InvalidFileRuleError(ConfigError):
+    """The FileRule is in a bad state. The FileRule state should only be set
+    with known good data. This error implies data validation has failed."""
+
+
 YAML_TAB_PROBLEM = "found character '\\t' that cannot start any token"
 
 
