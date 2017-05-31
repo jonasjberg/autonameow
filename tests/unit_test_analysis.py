@@ -24,20 +24,45 @@ from unittest import TestCase
 from analyzers.analyze_image import ImageAnalyzer
 from core.analysis import (
     Results,
-    AnalysisRunQueue
+    AnalysisRunQueue,
+    Analysis
 )
 from core.config.constants import ANALYSIS_RESULTS_FIELDS
-from unit_utils import get_mock_analyzer
+from unit_utils import (
+    get_mock_analyzer,
+    get_mock_fileobject
+)
 
 
 class TestAnalysis(TestCase):
     def setUp(self):
-        # TODO: Add tests ..
-        self.skipTest('TODO: Add tests ..')
+        self.a = Analysis(get_mock_fileobject())
 
-    def test_analysis(self):
-        # TODO: Add tests ..
-        self.skipTest('TODO: Add tests ..')
+    def test_analysis_is_defined(self):
+        self.assertIsNotNone(Analysis,
+                             'The Analysis class should exist and be available')
+
+    def test_analysis_requires_file_object_argument(self):
+        with self.assertRaises(TypeError):
+            a = Analysis(None)
+            a = Analysis('  ')
+
+    def test_analysis_start_method_exists(self):
+        self.assertIsNotNone(self.a.start)
+
+    def test_analysis__populate_run_queue_method_exists(self):
+        self.assertIsNotNone(self.a._populate_run_queue)
+
+    def test_analysis__populate_run_queue_populates_queue(self):
+        self.assertEqual(len(self.a.analysis_run_queue), 0)
+        self.a._populate_run_queue()
+        self.assertEqual(len(self.a.analysis_run_queue), 2)
+
+    def test_analysis__execute_run_queue_method_exists(self):
+        self.assertIsNotNone(self.a._execute_run_queue)
+
+    def test_analysis__execute_run_queue_increases_number_of_results(self):
+        self.assertEqual(len(self.a.results), 0)
 
 
 class TestResults(TestCase):
