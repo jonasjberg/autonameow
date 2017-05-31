@@ -195,14 +195,14 @@ class Autonameow(object):
                     new_name = name_builder.build()
                 except NotImplementedError:
                     log.critical('TODO: [BL010] Implement NameBuilder.')
-
-                if self.args.dry_run:
-                    log.info('Automagically built filename: '
-                             '"{}"'.format(new_name))
                 else:
-                    # TODO: [BL011] Rename files.
-                    log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
-                    exit_code &= 1
+                    if self.args.dry_run:
+                        log.info('Automagically built filename: '
+                                 '"{}"'.format(new_name))
+                    else:
+                        # TODO: [BL011] Rename files.
+                        log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
+                        exit_code &= 1
 
             elif self.args.interactive:
                 # Create a interactive interface.
