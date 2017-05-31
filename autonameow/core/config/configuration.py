@@ -26,12 +26,13 @@ from core.config import (
     load_yaml_file,
     write_yaml_file
 )
-from core.config.field_parsers import get_instantiated_field_parsers
+import core.config.field_parsers
 from core.exceptions import (
     ConfigurationSyntaxError,
     ConfigError,
     InvalidFileRuleError
 )
+
 from core.fileobject import FileObject
 from core.util.misc import unique_identifier
 
@@ -68,7 +69,7 @@ class Configuration(object):
         self._name_templates = {}
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
-        self.field_parsers = get_instantiated_field_parsers()
+        self.field_parsers = core.config.field_parsers.get_instantiated_field_parsers()
 
         if data:
             self._data = data
