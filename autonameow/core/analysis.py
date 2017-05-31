@@ -159,11 +159,7 @@ class Analysis(object):
         self.file_object = file_object
 
         self.results = Results()
-
-        # List of analyzers to run.
-        # Start with a basic analyzer that is common to all file types.
         self.analysis_run_queue = AnalysisRunQueue()
-        self.analysis_run_queue.enqueue([FilesystemAnalyzer, FilenameAnalyzer])
 
         self.start()
 
