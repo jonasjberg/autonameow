@@ -146,6 +146,7 @@ class Autonameow(object):
 
             # Begin analysing the file.
             analysis = Analysis(current_file)
+            analysis.start()
 
             # TODO: [BL007] Move results printing to separate module/class.
             if self.args.list_datetime:
