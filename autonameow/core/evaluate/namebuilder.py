@@ -70,7 +70,8 @@ def assemble_basename(name_template, **kwargs):
         NameTemplateSyntaxError: Error due to either an invalid "name_template"
             or insufficient/invalid keyword arguments.
     """
-    assert(type(name_template) == str)
+    if not isinstance(name_template, str):
+        raise TypeError('"name_template" must be of type "str"')
 
     # TODO: Users should be made aware of these replacements.
     while "'" in name_template:
