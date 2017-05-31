@@ -73,7 +73,8 @@ def assemble_basename(name_template, **kwargs):
     if not isinstance(name_template, str):
         raise TypeError('"name_template" must be of type "str"')
 
-    # TODO: Users should be made aware of these replacements.
+    if "'" or '"' in name_template:
+        log.debug('Removing single and double quotes from template')
     while "'" in name_template:
         name_template = name_template.replace("'", '')
     while '"' in name_template:
