@@ -38,7 +38,7 @@ ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 #                  'title': 'DUMMY',
 #                  'year': 'DUMMY'}
 DATA_FIELDS = dict.fromkeys(ANALYSIS_RESULTS_FIELDS +
-                            ['edition', 'year', 'description', 'extension'],
+                            ['edition', 'date', 'description', 'extension'],
                             'DUMMY')
 
 
