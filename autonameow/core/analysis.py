@@ -224,7 +224,7 @@ class Analysis(object):
                 try:
                     result = a.get(field)
                 except NotImplementedError as e:
-                    log.critical('Called unimplemented code: {!s}'.format(e))
+                    log.error('Called unimplemented code: {!s}'.format(e))
                     result = None
 
                 self.results.add(field, result, str(a.__class__.__name__))
