@@ -22,9 +22,17 @@
 import logging as log
 import os
 
-from core.config import load_yaml_file, write_yaml_file
+from core.config import (
+    load_yaml_file,
+    write_yaml_file
+)
 from core.config.field_parsers import get_instantiated_field_parsers
-from core.exceptions import ConfigurationSyntaxError, ConfigError
+from core.exceptions import (
+    ConfigurationSyntaxError,
+    ConfigError,
+    InvalidFileRuleError
+)
+from core.fileobject import FileObject
 from core.util.misc import unique_identifier
 
 
@@ -69,14 +77,32 @@ class FileRule(Rule):
         self.exact_match = bool(kwargs.get('exact_match'))
         self.weight = kwargs.get('weight')
         self.name_template = kwargs.get('name_template')
-        self.conditions = kwargs.get('conditions', {})
-        self.data_sources = kwargs.get('data_sources', {})
+        self.conditions = kwargs.get('conditions', False)
+        self.data_sources = kwargs.get('data_sources', False)
 
     def __str__(self):
         desc = []
         for key in self.__dict__:
             desc.append('{}: {}'.format(key.title(), self.__dict__[key]))
         return '\n'.join(desc)
+
+    def applies_to(self, file_object):
+        """
+        Performs testing if this rule applies to the given file.
+
+        The rule applies to a given file if all conditions are met.
+
+        Args:
+            file_object: The file to test as an instance of 'FileObject'.
+
+        Returns: True if the rule applies to the given file, else False.
+
+        """
+        if not isinstance(file_object, FileObject):
+            raise TypeError('FileRule is only applicable to "FileObject" types')
+
+        if not self.conditions:
+            raise InvalidFileRuleError('Rule does not specify any conditions')
 
 
 class Configuration(object):
