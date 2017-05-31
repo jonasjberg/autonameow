@@ -89,6 +89,9 @@ class Results(object):
         for field in ANALYSIS_RESULTS_FIELDS:
             self._data[field] = {}
 
+        # TODO: Redesign data storage structure.
+        # self._fixed_data = {'filename'}
+
     def add(self, field, data, source):
         """
         Adds results from an analyzer.
