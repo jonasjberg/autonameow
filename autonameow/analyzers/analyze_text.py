@@ -69,6 +69,7 @@ class TextAnalyzer(AbstractAnalyzer):
         # TODO: Implement.
         pass
 
+    # TODO: Move all text extraction to functions in 'extract_text.py'.
     def _extract_text_content(self):
         """
         Extract the plain text contents of a text file as strings.
@@ -150,6 +151,7 @@ class TextAnalyzer(AbstractAnalyzer):
 
         return results
 
+    # TODO: Move all text extraction to functions in 'extract_text.py'.
     def _get_file_lines(self):
         fn = self.file_object.path
         with io.open(fn, 'r', encoding='utf8') as f:

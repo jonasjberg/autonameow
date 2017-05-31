@@ -261,6 +261,7 @@ class PdfAnalyzer(AbstractAnalyzer):
             metadata = et.get_metadata(self.file_object.path)
         return metadata
 
+    # TODO: Move all text extraction to functions in 'extract_text.py'.
     def _extract_pdf_content(self):
         """
         Extract the plain text contents of a PDF document.
@@ -370,6 +371,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         return results
 
 
+# TODO: Move all text extraction to functions in 'extract_text.py'.
 def extract_pdf_content_with_pdftotext(pdf_file):
     """
     Extract the plain text contents of a PDF document using pdftotext.
@@ -397,6 +399,7 @@ def extract_pdf_content_with_pdftotext(pdf_file):
         return stdout.decode('utf-8', errors='replace')
 
 
+# TODO: Move all text extraction to functions in 'extract_text.py'.
 def extract_pdf_content_with_pypdf(pdf_file):
     """
     Extract the plain text contents of a PDF document using PyPDF2.
