@@ -159,7 +159,7 @@ class Configuration(object):
                     _valid_template = self._name_templates.get(_template_name)
 
             if not _valid_template:
-                log.critical('Bad: ' + str(fr))
+                log.debug('Bad: ' + str(fr))
                 raise ConfigurationSyntaxError('Invalid name template format')
 
             file_rule = FileRule(description=fr.get('_description'),
