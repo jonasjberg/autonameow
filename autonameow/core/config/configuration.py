@@ -56,11 +56,20 @@ class FileRule(Rule):
         self.conditions = kwargs.get('conditions', False)
         self.data_sources = kwargs.get('data_sources', False)
 
+        self.score = 0
+
     def __str__(self):
         desc = []
         for key in self.__dict__:
             desc.append('{}: {}'.format(key.title(), self.__dict__[key]))
         return '\n'.join(desc)
+
+    def upvote(self):
+        self.score += 1
+
+    def downvote(self):
+        if self.score > 0:
+            self.score -= 1
 
 
 class Configuration(object):
