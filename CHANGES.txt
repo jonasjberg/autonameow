@@ -1,3 +1,20 @@
+TODO: DATE  [autonameow v0.3.3]
+
+            Additions:
+            - TODO
+
+            Changes:
+            - Major restructuring of module hierarchy.
+              All analyzers are moved to a new module 'analyzers' located at
+              the same "depth" as the main 'core' module.  This is motivated
+              by striving strict separation between the main program core and
+              auxiliary modules that perform various tasks like data extraction
+              and interaction with other systems.
+
+            Fixes:
+            - TODO
+
+
 2017-05-29  [autonameow v0.3.2]
             Includes major changes to both functionality and implementation.
 
