@@ -27,6 +27,7 @@ from core.config import (
     write_yaml_file
 )
 from core.config.field_parsers import (
+    MimeTypeConfigFieldParser,
     NameFormatConfigFieldParser,
     get_instantiated_field_parsers
 )
@@ -184,12 +185,29 @@ class Configuration(object):
             else:
                 raise ConfigurationSyntaxError('Expected integer in range 0-1')
 
-    def _parse_conditions(self):
+    def _parse_conditions(self, raw_conditions):
         # TODO: ..
-        return None
-        pass
+        out = {}
 
-    def _parse_sources(self):
+        if 'contents' in raw_conditions:
+            contents = raw_conditions['contents']
+            if 'mime_type' in contents:
+                v = contents['mime_type']
+                if MimeTypeConfigFieldParser.is_valid_mime_type(v):
+                    out['mime_type'] = v
+
+        if 'filename' in raw_conditions:
+            filename = raw_conditions['filename']
+            if 'mime_type' in filename:
+                v = contents['mime_type']
+                if MimeTypeConfigFieldParser.is_valid_mime_type(v):
+                    out['mime_type'] = v
+
+
+
+        return out
+
+    def _parse_sources(self, raw_sources):
         # TODO: ..
         return None
         pass
