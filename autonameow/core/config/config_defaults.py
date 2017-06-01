@@ -24,6 +24,29 @@ FILENAME_TAG_SEPARATOR = ' -- '
 BETWEEN_TAG_SEPARATOR = ' '
 
 
+ALL_CONDITIONS_FIELDS = {
+    'filesystem': {
+        'basename': None,                       # Regular expression
+        'extension': None,                      # Regular expression
+        'pathname': None,                       # Regular expression
+        'date_accessed': None,                  # Python "datetime" format
+        'date_created': None,                   # Python "datetime" format
+        'date_modified': None,                  # Python "datetime" format
+    },
+    'contents': {
+        'mime_type': None,                      # As per *NIX "file" command
+    },
+    'metadata': {
+        'exiftool': {
+            # NOTE: Possibly use exiftool for all metadata?
+            # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
+            'datetimeoriginal': None,
+            'camera-model': None
+        },
+    }
+}
+
+
 DEFAULT_CONFIG = {
 
     #   File Rules
@@ -52,13 +75,20 @@ DEFAULT_CONFIG = {
          '_weight': None,
          'NAME_TEMPLATE': 'default_document',
          'CONDITIONS': {
-             'filename': {
-                 'pathname': None,
+             'filesystem': {
                  'basename': None,
-                 'extension': None
+                 'extension': None,
+                 'pathname': None,
+                 'date_accessed': None,
+                 'date_created': None,
+                 'date_modified': None,
              },
              'contents': {
-                 'mime_type': None
+                 'mime_type': None,
+                 'textual': {
+                     'raw_text': None,
+                 }
+
              },
              'metadata': {
                  'exif': {
@@ -83,7 +113,7 @@ DEFAULT_CONFIG = {
          '_weight': 1,
          'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
          'CONDITIONS': {
-             'filename': {
+             'filesystem': {
                  'pathname': '~/Pictures/incoming',
                  'basename': 'DCIM*',
                  'extension': 'jpg'
@@ -111,7 +141,7 @@ DEFAULT_CONFIG = {
          'NAME_FORMAT': '',
          'NAME_TEMPLATE': 'default_book',
          'CONDITIONS': {
-             'filename': {
+             'filesystem': {
                  'pathname': None,
                  'basename': None,
                  'extension': 'epub'
@@ -134,34 +164,6 @@ DEFAULT_CONFIG = {
              'tags': None
          }
          },
-        {'_description': 'Sample Entry for MOBI e-books',
-         '_exact_match': True,
-         '_weight': 1,
-         'NAME_FORMAT': '{publisher} {title} {edition} - {author} {date}.{extension}',
-         'NAME_TEMPLATE': None,
-         'CONDITIONS': {
-             'filename': {
-                 'pathname': None,
-                 'basename': None,
-                 'extension': ['mobi']
-             },
-             'contents': {
-                 'mime_type': 'application/x-mobipocket-ebook',
-                 'metadata': 'metadata.MOBI.***'
-             }
-         },
-         'DATA_SOURCES': {
-             'datetime': ['metadata.MOBI.PublishDate'],
-             'description': ['metadata.MOBI.Description',
-                             'metadata.MOBI.Subject'],
-             'title': ['metadata.MOBI.BookName',
-                       'metadata.MOBI.UpdatedTitle'],
-             'author': 'metadata.MOBI.Author',
-             'publisher': 'metadata.MOBI.Publisher',
-             'extension': 'filename.extension',
-             'tags': None
-         }
-         }
     ],
 
     #  File Name Templates

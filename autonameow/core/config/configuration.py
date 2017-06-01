@@ -29,7 +29,8 @@ from core.config import (
 from core.config.field_parsers import (
     MimeTypeConfigFieldParser,
     NameFormatConfigFieldParser,
-    get_instantiated_field_parsers
+    get_instantiated_field_parsers,
+    RegexConfigFieldParser
 )
 from core.exceptions import (
     ConfigurationSyntaxError,
@@ -57,6 +58,8 @@ class FileRule(Rule):
         self.data_sources = kwargs.get('data_sources', False)
 
         self.score = 0
+
+        # TODO: Implement "conditions" field ..
 
     def __str__(self):
         desc = []
@@ -133,8 +136,8 @@ class Configuration(object):
                 log.debug('Bad: ' + str(fr))
                 raise ConfigurationSyntaxError('Invalid name template format')
 
-            _valid_conditions = self._parse_conditions(fr.get('CONDITIONS'))
-            _valid_sources = self._parse_sources(fr.get('DATA_SOURCES'))
+            _valid_conditions = parse_conditions(fr.get('CONDITIONS'))
+            _valid_sources = parse_sources(fr.get('DATA_SOURCES'))
 
             file_rule = FileRule(description=fr.get('_description'),
                                  exact_match=fr.get('_exact_match'),
@@ -194,29 +197,30 @@ class Configuration(object):
             else:
                 raise ConfigurationSyntaxError('Expected integer in range 0-1')
 
-    def _parse_conditions(self, raw_conditions):
-        # TODO: ..
-        out = {}
 
-        if 'contents' in raw_conditions:
-            contents = raw_conditions['contents']
-            if 'mime_type' in contents:
-                v = contents['mime_type']
-                if MimeTypeConfigFieldParser.is_valid_mime_type(v):
-                    out['mime_type'] = v
+def parse_sources(raw_sources):
+    # TODO: ..
+    out = {}
 
-        if 'filename' in raw_conditions:
-            filename = raw_conditions['filename']
-            if 'mime_type' in filename:
-                v = contents['mime_type']
-                if MimeTypeConfigFieldParser.is_valid_mime_type(v):
-                    out['mime_type'] = v
+    return out
 
 
+def parse_conditions(raw_conditions):
+    # TODO: ..
+    out = {}
 
-        return out
+    if 'contents' in raw_conditions:
+        contents = raw_conditions['contents']
+        if 'mime_type' in contents:
+            v = contents['mime_type']
+            if MimeTypeConfigFieldParser.is_valid_mime_type(v):
+                out['mime_type'] = v
 
-    def _parse_sources(self, raw_sources):
-        # TODO: ..
-        return None
-        pass
+    if 'filesystem' in raw_conditions:
+        cond_filesystem = raw_conditions['filesystem']
+        v = cond_filesystem.get('pathname')
+        if v and RegexConfigFieldParser.is_valid_regex(v):
+            out['pathname'] = v
+
+    return out
+

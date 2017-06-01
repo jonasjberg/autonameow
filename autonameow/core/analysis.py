@@ -95,9 +95,9 @@ class Results(object):
         #         'date_accessed': None,
         #         'date_created': None,
         #         'date_modified': None
+        #         'mime_type': None,
         #     },
         #     'contents': {
-        #         'mime_type': None,
         #         'textual': {
         #             'raw_text': None,
         #             'paginated': False,

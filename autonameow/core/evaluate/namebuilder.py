@@ -153,12 +153,12 @@ def evaluate_rule(file_rule, file_object):
         raise InvalidFileRuleError('Rule does not specify any conditions')
 
     # TODO: ..
-    for condition in file_rule.conditions:
-        if file_rule.exact_match:
+    if file_rule.exact_match:
+        for condition in file_rule.conditions:
             if not eval_condition(condition, file_object):
                 return False
-            return True
-    else:
-        for condition in file_rule.conditions:
-            if eval_condition(condition, file_object):
-                file_rule.upvote()
+        return True
+
+    for condition in file_rule.conditions:
+        if eval_condition(condition, file_object):
+            file_rule.upvote()

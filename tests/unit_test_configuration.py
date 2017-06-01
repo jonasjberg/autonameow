@@ -27,7 +27,7 @@ import yaml
 
 from core.config import field_parsers
 from core.config.config_defaults import DEFAULT_CONFIG
-from core.config.configuration import Configuration
+from core.config.configuration import Configuration, parse_conditions
 from unit_utils import make_temp_dir
 
 
@@ -238,6 +238,36 @@ class TestConfigurationDataAccess(TestCase):
         self.assertTrue(isinstance(self.configuration.file_rules, list))
 
     def test_get_file_rules_returns_expected_rule_count(self):
-        self.assertGreaterEqual(len(self.configuration.file_rules), 4)
+        self.assertGreaterEqual(len(self.configuration.file_rules), 3)
 
+
+class TestParseConditions(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.raw_conditions = {
+            'filesystem': {
+                'pathname': '~/.config',
+                'basename': None,
+                'extension': None
+            },
+            'contents': {
+                'mime_type': 'image/jpeg'
+            },
+            'metadata': {
+                'exif': {
+                    # NOTE: Possibly use exiftool for all metadata?
+                    # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
+                    'datetimeoriginal': None,
+                    'camera-model': None
+                },
+            }
+        }
+
+    def test_parse_condition_filesystem_pathname_is_valid(self):
+        actual = parse_conditions(self.raw_conditions)
+        self.assertEqual(actual['pathname'], '~/.config')
+
+    def test_parse_condition_contents_mime_type_is_valid(self):
+        actual = parse_conditions(self.raw_conditions)
+        self.assertEqual(actual['mime_type'], 'image/jpeg')
 

@@ -18,7 +18,8 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
-
+import glob
+import os
 import re
 from datetime import datetime
 
@@ -57,6 +58,8 @@ class ConfigFieldParser(object):
             This function returns True if the field is valid, otherwise False.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    # TODO: Add validation and evaluation methods to parser classes?
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
@@ -101,7 +104,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['datetime']
+    applies_to_field = ['datetime', 'date_accessed', 'date_created', 'date_modified']
     applies_to_conditions = True
     applies_to_data_sources = True
 
@@ -125,6 +128,11 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
     @staticmethod
     def is_valid_format_string(expression):
+        if not expression:
+            return False
+        # if len(expression) == 0:
+        #     return False
+
         try:
             namebuilder.assemble_basename(expression, **DATA_FIELDS)
         except (ValueError, TypeError, Exception):
