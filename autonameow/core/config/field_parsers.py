@@ -64,16 +64,17 @@ class RegexConfigFieldParser(ConfigFieldParser):
     applies_to_conditions = True
     applies_to_data_sources = False
 
-    def get_validation_function(self):
-        def is_valid_regex(expression):
-            try:
-                re.compile(expression)
-            except (re.error, TypeError):
-                return False
-            else:
-                return True
+    @staticmethod
+    def is_valid_regex(expression):
+        try:
+            re.compile(expression)
+        except (re.error, TypeError):
+            return False
+        else:
+            return True
 
-        return is_valid_regex
+    def get_validation_function(self):
+        return self.is_valid_regex
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
@@ -81,21 +82,22 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
     applies_to_conditions = True
     applies_to_data_sources = False
 
-    def get_validation_function(self):
-        def is_valid_mime_type(expression):
-            if not expression:
-                return False
-
-            if '/' in expression:
-                for v in MAGIC_TYPE_LOOKUP.values():
-                    if expression in v:
-                        return True
-            elif expression in MAGIC_TYPE_LOOKUP.keys():
-                return True
-
+    @staticmethod
+    def is_valid_mime_type(expression):
+        if not expression:
             return False
 
-        return is_valid_mime_type
+        if '/' in expression:
+            for v in MAGIC_TYPE_LOOKUP.values():
+                if expression in v:
+                    return True
+        elif expression in MAGIC_TYPE_LOOKUP.keys():
+            return True
+
+        return False
+
+    def get_validation_function(self):
+        return self.is_valid_mime_type
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
@@ -103,16 +105,17 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
     applies_to_conditions = True
     applies_to_data_sources = True
 
-    def get_validation_function(self):
-        def is_valid_datetime(expression):
-            try:
-                _ = datetime.today().strftime(expression)
-            except (ValueError, TypeError):
-                return False
-            else:
-                return True
+    @staticmethod
+    def is_valid_datetime(expression):
+        try:
+            _ = datetime.today().strftime(expression)
+        except (ValueError, TypeError):
+            return False
+        else:
+            return True
 
-        return is_valid_datetime
+    def get_validation_function(self):
+        return self.is_valid_datetime
 
 
 class NameFormatConfigFieldParser(ConfigFieldParser):
