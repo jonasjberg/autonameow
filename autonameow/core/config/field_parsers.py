@@ -59,6 +59,10 @@ class ConfigFieldParser(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
+    def validate(self, expression):
+        return self.get_validation_function()(expression)
+
+
     # TODO: Add validation and evaluation methods to parser classes?
 
 
@@ -91,8 +95,8 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
             return False
 
         if '/' in expression:
-            for v in MAGIC_TYPE_LOOKUP.values():
-                if expression in v:
+            for magic_value in MAGIC_TYPE_LOOKUP.values():
+                if expression == magic_value:
                     return True
         elif expression in MAGIC_TYPE_LOOKUP.keys():
             return True
@@ -104,7 +108,8 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['datetime', 'date_accessed', 'date_created', 'date_modified']
+    applies_to_field = ['datetime', 'date_accessed', 'date_created',
+                        'date_modified']
     applies_to_conditions = True
     applies_to_data_sources = True
 
@@ -130,8 +135,6 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
     def is_valid_format_string(expression):
         if not expression:
             return False
-        # if len(expression) == 0:
-        #     return False
 
         try:
             namebuilder.assemble_basename(expression, **DATA_FIELDS)

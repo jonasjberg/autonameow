@@ -38,6 +38,9 @@ from core.exceptions import (
 )
 
 
+field_parsers = get_instantiated_field_parsers()
+
+
 class Rule(object):
     def __init__(self):
         pass
@@ -60,6 +63,7 @@ class FileRule(Rule):
         self.score = 0
 
         # TODO: Implement "conditions" field ..
+        # Possible a list of functions already "loaded" with the target value.
 
     def __str__(self):
         desc = []
@@ -152,9 +156,9 @@ class Configuration(object):
     def validate_field(self, raw_file_rule, field_name):
         for parser in self.field_parsers:
             if field_name in parser.applies_to_field:
-                val_func = parser.get_validation_function()
-                if val_func(raw_file_rule.get(field_name)):
-                    return raw_file_rule.get(field_name)
+                field_value = raw_file_rule.get(field_name)
+                if parser.validate(field_value):
+                    return field_value
 
         log.critical('Config file entry not validated correctly!')
         return False
@@ -209,18 +213,29 @@ def parse_conditions(raw_conditions):
     # TODO: ..
     out = {}
 
-    if 'contents' in raw_conditions:
-        contents = raw_conditions['contents']
-        if 'mime_type' in contents:
-            v = contents['mime_type']
-            if MimeTypeConfigFieldParser.is_valid_mime_type(v):
-                out['mime_type'] = v
+    def traverse_dict(the_dict):
+        try:
+            for key, value in the_dict.items():
+                if isinstance(value, dict):
+                    traverse_dict(value)
+                else:
+                    valid_condition = validate_condition(key, value)
+                    if valid_condition:
+                        out[key] = value
+        except ValueError as e:
+            raise ConfigurationSyntaxError('Bad condition; ' + str(e))
 
-    if 'filesystem' in raw_conditions:
-        cond_filesystem = raw_conditions['filesystem']
-        v = cond_filesystem.get('pathname')
-        if v and RegexConfigFieldParser.is_valid_regex(v):
-            out['pathname'] = v
+    if 'contents' in raw_conditions:
+        raw_contents = raw_conditions['contents']
+        traverse_dict(raw_contents)
 
     return out
 
+
+def validate_condition(condition_field, condition_value):
+    for parser in field_parsers:
+        if condition_field in parser.applies_to_field:
+            if parser.validate(condition_value):
+                return condition_value
+            else:
+                return False

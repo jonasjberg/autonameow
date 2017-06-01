@@ -133,6 +133,7 @@ class TestMimeTypeRuleParser(TestCase):
     def test_validation_function_expect_pass(self):
         self.assertTrue(self.val_func('txt'))
         self.assertTrue(self.val_func('text/plain'))
+        self.assertTrue(self.val_func('image/jpeg'))
         self.assertTrue(self.val_func('jpg'))
 
 

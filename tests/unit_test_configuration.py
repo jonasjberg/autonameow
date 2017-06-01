@@ -214,11 +214,11 @@ class TestConfigurationValidation(TestCase):
         self.assertFalse(self.configuration.validate_field(
             self.INVALID_RAW_FILE_RULE['CONDITIONS']['filename'], 'extension'))
 
-    def test_validate_valid_field_conditions_filename_mime_type(self):
+    def test_validate_valid_field_conditions_contents_mime_type(self):
         self.assertTrue(self.configuration.validate_field(
             self.VALID_RAW_FILE_RULE['CONDITIONS']['contents'], 'mime_type'))
 
-    def test_validate_invalid_field_conditions_filename_mime_type(self):
+    def test_validate_invalid_field_conditions_contents_mime_type(self):
         self.assertFalse(self.configuration.validate_field(
             self.INVALID_RAW_FILE_RULE['CONDITIONS']['contents'], 'mime_type'))
 
@@ -265,9 +265,9 @@ class TestParseConditions(TestCase):
 
     def test_parse_condition_filesystem_pathname_is_valid(self):
         actual = parse_conditions(self.raw_conditions)
-        self.assertEqual(actual['pathname'], '~/.config')
+        self.assertEqual(actual.get('pathname'), '~/.config')
 
     def test_parse_condition_contents_mime_type_is_valid(self):
         actual = parse_conditions(self.raw_conditions)
-        self.assertEqual(actual['mime_type'], 'image/jpeg')
+        self.assertEqual(actual.get('mime_type'), 'image/jpeg')
 
