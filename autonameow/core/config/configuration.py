@@ -123,12 +123,15 @@ class Configuration(object):
                 log.debug('Bad: ' + str(fr))
                 raise ConfigurationSyntaxError('Invalid name template format')
 
+            _valid_conditions = self._parse_conditions()
+            _valid_sources = self._parse_sources()
+
             file_rule = FileRule(description=fr.get('_description'),
                                  exact_match=fr.get('_exact_match'),
                                  weight=fr.get('_weight'),
                                  name_template=_valid_template,
-                                 conditions=self._parse_conditions(),
-                                 data_sources=self._parse_sources())
+                                 conditions=_valid_conditions,
+                                 data_sources=_valid_sources)
             # TODO: Make parse_conditions and parse_sources functions.
 
             self._file_rules.append(file_rule)
