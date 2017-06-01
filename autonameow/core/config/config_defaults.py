@@ -76,7 +76,7 @@ DEFAULT_CONFIG = {
          'NAME_TEMPLATE': 'default_document',
          'CONDITIONS': {
              'filesystem': {
-                 'basename': None,
+                 'basename': '^test_[0-9]+.*',
                  'extension': None,
                  'pathname': None,
                  'date_accessed': None,

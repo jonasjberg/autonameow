@@ -67,7 +67,7 @@ class ConfigFieldParser(object):
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['pathname', 'basename', 'extension']
+    applies_to_field = ['pathname', 'basename', 'extension', 'raw_text']
     applies_to_conditions = True
     applies_to_data_sources = False
 

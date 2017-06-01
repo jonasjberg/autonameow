@@ -27,7 +27,10 @@ import yaml
 
 from core.config import field_parsers
 from core.config.config_defaults import DEFAULT_CONFIG
-from core.config.configuration import Configuration, parse_conditions
+from core.config.configuration import (
+    Configuration,
+    parse_conditions
+)
 from unit_utils import make_temp_dir
 
 
@@ -247,7 +250,7 @@ class TestParseConditions(TestCase):
         self.raw_conditions = {
             'filesystem': {
                 'pathname': '~/.config',
-                'basename': None,
+                'basename': '^test_[0-9]+.*',
                 'extension': None
             },
             'contents': {

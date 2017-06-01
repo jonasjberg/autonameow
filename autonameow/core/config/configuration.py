@@ -218,16 +218,21 @@ def parse_conditions(raw_conditions):
             for key, value in the_dict.items():
                 if isinstance(value, dict):
                     traverse_dict(value)
-                else:
-                    valid_condition = validate_condition(key, value)
-                    if valid_condition:
-                        out[key] = value
+
+                valid_condition = validate_condition(key, value)
+                if valid_condition:
+                    out[key] = value
         except ValueError as e:
             raise ConfigurationSyntaxError('Bad condition; ' + str(e))
 
     if 'contents' in raw_conditions:
         raw_contents = raw_conditions['contents']
         traverse_dict(raw_contents)
+
+    if 'filesystem' in raw_conditions:
+        raw_contents = raw_conditions['filesystem']
+        traverse_dict(raw_contents)
+
 
     return out
 
