@@ -81,12 +81,12 @@ class Configuration(object):
         if not self._data:
             raise ConfigError('Invalid state; missing "self._data" ..')
 
-        if 'name_templates' not in self._data:
+        if 'NAME_TEMPLATES' not in self._data:
             log.debug('Configuration does not contain name templates')
             return
 
         loaded_templates = {}
-        for k, v in self._data.get('name_templates').items():
+        for k, v in self._data.get('NAME_TEMPLATES').items():
             if NameFormatConfigFieldParser.is_valid_format_string(v):
                 loaded_templates[k] = v
             else:
@@ -101,7 +101,7 @@ class Configuration(object):
 
         # Check raw dictionary data.
         # Create and populate "FileRule" objects with *validated* data.
-        for fr in self._data['file_rules']:
+        for fr in self._data['FILE_RULES']:
 
             # Prioritize 'name_format', the "raw" name format string.
             # If it is not defined in the rule, check that 'name_template'
@@ -111,10 +111,10 @@ class Configuration(object):
             #       Test if the field data is a valid name template,
             #       if it isn't, use it as a format string.
             _valid_template = None
-            if 'name_format' in fr and fr.get('name_format'):
-                _valid_template = self.validate_field(fr, 'name_format')
-            elif 'name_template' in fr:
-                _template_name = fr.get('name_template')
+            if 'NAME_FORMAT' in fr and fr.get('NAME_FORMAT'):
+                _valid_template = self.validate_field(fr, 'NAME_FORMAT')
+            elif 'NAME_TEMPLATE' in fr:
+                _template_name = fr.get('NAME_TEMPLATE')
 
                 if _template_name in self.name_templates:
                     _valid_template = self._name_templates.get(_template_name)
@@ -123,8 +123,8 @@ class Configuration(object):
                 log.debug('Bad: ' + str(fr))
                 raise ConfigurationSyntaxError('Invalid name template format')
 
-            _valid_conditions = self._parse_conditions()
-            _valid_sources = self._parse_sources()
+            _valid_conditions = self._parse_conditions(fr.get('CONDITIONS'))
+            _valid_sources = self._parse_sources(fr.get('DATA_SOURCES'))
 
             file_rule = FileRule(description=fr.get('_description'),
                                  exact_match=fr.get('_exact_match'),

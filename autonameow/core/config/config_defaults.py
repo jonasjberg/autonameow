@@ -46,12 +46,12 @@ DEFAULT_CONFIG = {
     #
     #   TODO: Document all fields ..
     #
-    'file_rules': [
+    'FILE_RULES': [
         {'_description': 'First Entry in the Default Configuration',
          '_exact_match': False,
          '_weight': None,
-         'name_template': 'default_document',
-         'conditions': {
+         'NAME_TEMPLATE': 'default_document',
+         'CONDITIONS': {
              'filename': {
                  'pathname': None,
                  'basename': None,
@@ -69,7 +69,7 @@ DEFAULT_CONFIG = {
                  },
              }
          },
-         'data_sources': {
+         'DATA_SOURCES': {
              'datetime': None,
              'description': None,
              'title': None,
@@ -81,8 +81,8 @@ DEFAULT_CONFIG = {
         {'_description': 'Sample Entry for Photos with strict rules',
          '_exact_match': True,
          '_weight': 1,
-         'name_format': '{datetime} {description} -- {tags}.{extension}',
-         'conditions': {
+         'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
+         'CONDITIONS': {
              'filename': {
                  'pathname': '~/Pictures/incoming',
                  'basename': 'DCIM*',
@@ -93,7 +93,7 @@ DEFAULT_CONFIG = {
                  'metadata': 'exif.datetimeoriginal'
              }
          },
-         'data_sources': {
+         'DATA_SOURCES': {
              'datetime': ['metadata.exif.datetimeoriginal',
                           'metadata.exif.datetimedigitized',
                           'metadata.exif.createdate'],
@@ -108,9 +108,9 @@ DEFAULT_CONFIG = {
         {'_description': 'Sample Entry for EPUB e-books',
          '_exact_match': True,
          '_weight': 1,
-         'name_format': '',
-         'name_template': 'default_book',
-         'conditions': {
+         'NAME_FORMAT': '',
+         'NAME_TEMPLATE': 'default_book',
+         'CONDITIONS': {
              'filename': {
                  'pathname': None,
                  'basename': None,
@@ -121,7 +121,7 @@ DEFAULT_CONFIG = {
                  'metadata': 'metadata.XMP-dc.***'
              }
          },
-         'data_sources': {
+         'DATA_SOURCES': {
              'datetime': ['metadata.XMP-dc.PublicationDate',
                           'metadata.XMP-dc.Date'],
              'description': None,
@@ -137,9 +137,9 @@ DEFAULT_CONFIG = {
         {'_description': 'Sample Entry for MOBI e-books',
          '_exact_match': True,
          '_weight': 1,
-         'name_format': '{publisher} {title} {edition} - {author} {date}.{extension}',
-         'name_template': None,
-         'conditions': {
+         'NAME_FORMAT': '{publisher} {title} {edition} - {author} {date}.{extension}',
+         'NAME_TEMPLATE': None,
+         'CONDITIONS': {
              'filename': {
                  'pathname': None,
                  'basename': None,
@@ -150,7 +150,7 @@ DEFAULT_CONFIG = {
                  'metadata': 'metadata.MOBI.***'
              }
          },
-         'data_sources': {
+         'DATA_SOURCES': {
              'datetime': ['metadata.MOBI.PublishDate'],
              'description': ['metadata.MOBI.Description',
                              'metadata.MOBI.Subject'],
@@ -167,12 +167,12 @@ DEFAULT_CONFIG = {
     #  File Name Templates
     #  -------------------
     #  These file name templates can be reused by multiple file rules.
-    #  Simply add the template name to the file rule 'name_template' field.
+    #  Simply add the template name to the file rule 'NAME_TEMPLATE' field.
     #
-    #  NOTE: If a rule specifies both 'name_format' and 'name_template',
-    #        'name_format' will be prioritized.
+    #  NOTE: If a rule specifies both 'NAME_FORMAT' and 'NAME_TEMPLATE',
+    #        'NAME_FORMAT' will be prioritized.
     #
-    'name_templates': {
+    'NAME_TEMPLATES': {
         'default_document': '{title} - {author} {datetime}.{extension}',
         'default_book': '{publisher} {title} {edition} - {author} {date}.{extension}',
         'default_photo': '{datetime} {description} -- {tags}.{extension}'

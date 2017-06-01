@@ -119,7 +119,7 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
 
 
 class NameFormatConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['name_format']
+    applies_to_field = ['NAME_FORMAT']
     applies_to_conditions = False
     applies_to_data_sources = False
 

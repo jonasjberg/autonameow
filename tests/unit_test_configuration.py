@@ -147,8 +147,8 @@ class TestConfigurationValidation(TestCase):
             '_description': 'Sample Entry for Photos with strict rules',
             '_exact_match': True,
             '_weight': 1,
-            'name_format': '{datetime} {description} -- {tags}.{extension}',
-            'conditions': {
+            'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
+            'CONDITIONS': {
                 'filename': {
                     'pathname': '~/Pictures/incoming',
                     'basename': 'DCIM*',
@@ -165,8 +165,8 @@ class TestConfigurationValidation(TestCase):
             '_description': 'Sample Entry for Photos with strict rules',
             '_exact_match': True,
             '_weight': 1,
-            'name_format': None,
-            'conditions': {
+            'NAME_FORMAT': None,
+            'CONDITIONS': {
                 'filename': {
                     'pathname': '[[[',      # Invalid regular expression
                     'basename': 'DCIM[[',   # Invalid regular expression
@@ -184,43 +184,43 @@ class TestConfigurationValidation(TestCase):
 
     def test_validate_valid_field_name_format(self):
         self.assertTrue(self.configuration.validate_field(self.VALID_RAW_FILE_RULE,
-                                                    'name_format'))
+                                                    'NAME_FORMAT'))
 
     def test_validate_invalid_field_name_format(self):
         self.assertFalse(self.configuration.validate_field(self.INVALID_RAW_FILE_RULE,
-                                                     'name_format'))
+                                                     'NAME_FORMAT'))
 
     def test_validate_valid_field_conditions_filename_pathname(self):
         self.assertTrue(self.configuration.validate_field(
-            self.VALID_RAW_FILE_RULE['conditions']['filename'], 'pathname'))
+            self.VALID_RAW_FILE_RULE['CONDITIONS']['filename'], 'pathname'))
 
     def test_validate_invalid_field_conditions_filename_pathname(self):
         self.assertFalse(self.configuration.validate_field(
-            self.INVALID_RAW_FILE_RULE['conditions']['filename'], 'pathname'))
+            self.INVALID_RAW_FILE_RULE['CONDITIONS']['filename'], 'pathname'))
 
     def test_validate_valid_field_conditions_filename_basename(self):
         self.assertTrue(self.configuration.validate_field(
-            self.VALID_RAW_FILE_RULE['conditions']['filename'], 'basename'))
+            self.VALID_RAW_FILE_RULE['CONDITIONS']['filename'], 'basename'))
 
     def test_validate_invalid_field_conditions_filename_basename(self):
         self.assertFalse(self.configuration.validate_field(
-            self.INVALID_RAW_FILE_RULE['conditions']['filename'], 'basename'))
+            self.INVALID_RAW_FILE_RULE['CONDITIONS']['filename'], 'basename'))
 
     def test_validate_valid_field_conditions_filename_extension(self):
         self.assertTrue(self.configuration.validate_field(
-            self.VALID_RAW_FILE_RULE['conditions']['filename'], 'extension'))
+            self.VALID_RAW_FILE_RULE['CONDITIONS']['filename'], 'extension'))
 
     def test_validate_invalid_field_conditions_filename_extension(self):
         self.assertFalse(self.configuration.validate_field(
-            self.INVALID_RAW_FILE_RULE['conditions']['filename'], 'extension'))
+            self.INVALID_RAW_FILE_RULE['CONDITIONS']['filename'], 'extension'))
 
     def test_validate_valid_field_conditions_filename_mime_type(self):
         self.assertTrue(self.configuration.validate_field(
-            self.VALID_RAW_FILE_RULE['conditions']['contents'], 'mime_type'))
+            self.VALID_RAW_FILE_RULE['CONDITIONS']['contents'], 'mime_type'))
 
     def test_validate_invalid_field_conditions_filename_mime_type(self):
         self.assertFalse(self.configuration.validate_field(
-            self.INVALID_RAW_FILE_RULE['conditions']['contents'], 'mime_type'))
+            self.INVALID_RAW_FILE_RULE['CONDITIONS']['contents'], 'mime_type'))
 
 
 class TestConfigurationDataAccess(TestCase):
