@@ -1,0 +1,97 @@
+FILE_RULES:
+- CONDITIONS:
+    contents.mimetype: 'image/jpeg'
+    filesystem.file.basename: null
+    filesystem.file.extension: null
+    filesystem.file.pathname: null
+    metadata.exif.camera-model: null
+    metadata.exif.datetimeoriginal: null
+  DATA_SOURCES:
+    author: null
+    datetime: null
+    description: null
+    extension: filename.extension
+    publisher: null
+    title: null
+  NAME_TEMPLATE: default_document
+  _description: First Entry in the Default Configuration
+  _exact_match: false
+  _weight: null
+- CONDITIONS:
+    contents.mimetype: 'image/jpeg'
+    metadata.exif.datetimeoriginal: true
+    filesystem.file.basename: DCIM*
+    filesystem.file.extension: jpg
+    filesystem.file.pathname: ~/Pictures/incoming
+  DATA_SOURCES:
+    author: null
+    datetime:
+    - metadata.exif.datetimeoriginal
+    - metadata.exif.datetimedigitized
+    - metadata.exif.createdate
+    description: plugin.microsoftvision.caption
+    extension: filename.extension
+    publisher: null
+    tags: plugin.microsoftvision.tags
+    title: null
+  NAME_FORMAT: '{datetime} {description} -- {tags}.{extension}'
+  _description: Sample Entry for Photos with strict rules
+  _exact_match: true
+  _weight: 1
+- CONDITIONS:
+    contents.mime_type: application/epub+zip
+    metadata.metadata.XMP-dc: .***
+    filesystem.file.basename: null
+    filesystem.file.extension: epub
+    filesystem.file.pathname: null
+  DATA_SOURCES:
+    author:
+    - metadata.XMP-dc.Creator
+    - metadata.XMP-dc.CreatorFile-as
+    datetime:
+    - metadata.XMP-dc.PublicationDate
+    - metadata.XMP-dc.Date
+    description: null
+    edition: null
+    extension: filename.extension
+    publisher: metadata.XMP-dc.Publisher
+    tags: null
+    title: metadata.XMP-dc.Title
+  NAME_FORMAT: ''
+  NAME_TEMPLATE: default_book
+  _description: Sample Entry for EPUB e-books
+  _exact_match: true
+  _weight: 1
+- CONDITIONS:
+    metadata: exif.metadata.MOBI.***
+    contents.mime_type: application/x-mobipocket-ebook
+    filesystem.file.basename: null
+    filesystem.file.extension:
+    - mobi
+    filesystem.file.pathname: null
+  DATA_SOURCES:
+    author: metadata.MOBI.Author
+    datetime:
+    - metadata.MOBI.PublishDate
+    description:
+    - metadata.MOBI.Description
+    - metadata.MOBI.Subject
+    extension: filename.extension
+    publisher: metadata.MOBI.Publisher
+    tags: null
+    title:
+    - metadata.MOBI.BookName
+    - metadata.MOBI.UpdatedTitle
+  NAME_FORMAT: '{publisher} {title} {edition} - {author} {date}.{extension}'
+  NAME_TEMPLATE: null
+  _description: Sample Entry for MOBI e-books
+  _exact_match: true
+  _weight: 1
+NAME_TEMPLATES:
+  default_book: '{publisher} {title} {edition} - {author} {date}.{extension}'
+  default_document: '{title} - {author} {datetime}.{extension}'
+  default_photo: '{datetime} {description} -- {tags}.{extension}'
+name_datetime_format:
+  date: '%Y-%m-%d'
+  datetime: '%Y-%m-%dT%H%M%S'
+  time: '%H-%M-%S'
