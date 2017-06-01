@@ -52,6 +52,42 @@ class NameBuilder(object):
 
     def build(self):
         # TODO: [BL010] Implement NameBuilder.
+
+        #   Assemble basename requires;
+        #   1. Name template string
+        #     * Get rule that knows which string
+        #         * Get rule matching current file
+        #   2. Data to populate name template
+        #     * Get rule that knows what data
+        #         * Get rule matching current file
+        #
+        #   Assemble file sub-tasks;
+        #   1. Get rule matching current file
+        #   2. Get template string from rule
+        #   3. Get data from analysis results, using sources given by the rule
+
+        #   Test if rule matches current file tasks;
+        #   1. For each rule;
+        #     * Evaluate each condition, upvote for each passing condition
+        #   2. For each rule requiring exact match;
+        #     *
+
+
+        template = None
+        data_sources = None
+
+        rules_to_examine = list(self.config.file_rules)
+
+        for rule in rules_to_examine:
+            if not evaluate_rule(rule, self.file):
+                rules_to_examine.remove(rule)
+
+        if len(rules_to_examine) == 0:
+            # None of the rules apply to the file
+            # TODO: ..
+            return False
+
+        # TODO: ..
         raise NotImplementedError('TODO: Implement NameBuilder')
 
 
@@ -92,7 +128,12 @@ def assemble_basename(name_template, **kwargs):
         return out
 
 
-def rule_applies(file_rule, file_object):
+def eval_condition(condition, file_object):
+    # TODO: ..
+    pass
+
+
+def evaluate_rule(file_rule, file_object):
     """
     Tests if a rule applies to a given file.
 
@@ -111,5 +152,13 @@ def rule_applies(file_rule, file_object):
     if not file_rule.conditions:
         raise InvalidFileRuleError('Rule does not specify any conditions')
 
-    if file_rule.exact_match:
-        pass
+    # TODO: ..
+    for condition in file_rule.conditions:
+        if file_rule.exact_match:
+            if not eval_condition(condition, file_object):
+                return False
+            return True
+    else:
+        for condition in file_rule.conditions:
+            if eval_condition(condition, file_object):
+                file_rule.upvote()
