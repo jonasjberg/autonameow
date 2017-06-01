@@ -106,6 +106,10 @@ class Configuration(object):
             # Prioritize 'name_format', the "raw" name format string.
             # If it is not defined in the rule, check that 'name_template'
             # refers to a valid entry in 'name_templates'.
+            #
+            # TODO: Consolidate 'name_format' and 'name_template' to one field.
+            #       Test if the field data is a valid name template,
+            #       if it isn't, use it as a format string.
             _valid_template = None
             if 'name_format' in fr and fr.get('name_format'):
                 _valid_template = self.validate_field(fr, 'name_format')
