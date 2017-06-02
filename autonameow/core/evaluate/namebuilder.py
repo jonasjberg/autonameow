@@ -27,8 +27,11 @@ import core.config.configuration
 from core.fileobject import FileObject
 from core.exceptions import (
     NameTemplateSyntaxError,
-    InvalidFileRuleError
+    InvalidFileRuleError,
+    AutonameowException,
+    NameBuilderError
 )
+from core.util import cli
 
 
 class NameBuilder(object):
@@ -87,15 +90,28 @@ class NameBuilder(object):
         #
         rules_to_examine = list(self.config.file_rules)
 
-        for rule in rules_to_examine:
-            if not evaluate_rule(rule, self.file):
-                log.debug('Rule evaluated false; removing: {!s}'.format(rule))
+        for count, rule in enumerate(rules_to_examine):
+            log.debug('Evaluating rule {}/{} ..'.format(count + 1,
+                                                        len(rules_to_examine)))
+            result = evaluate_rule(rule, self.file)
+            if not result and rule.exact_match:
+                log.debug('Rule evaluated false -- removing;')
+                log.debug('{!r}'.format(rule))
                 rules_to_examine.remove(rule)
 
         if len(rules_to_examine) == 0:
-            # None of the rules apply to the file
-            # TODO: ..
-            return False
+            log.debug('No valid rules remain after evaluation')
+            raise NameBuilderError('None of the rules seem to apply')
+
+        log.debug('Prioritizing (sorting) remaining {} rules'
+                  ' ..'.format(len(rules_to_examine)))
+        # rules_sorted = sorted(rules_to_examine, key=lambda x: -x.score)
+        rules_sorted = sorted(rules_to_examine, reverse=True)
+
+        active_rule = rules_sorted[0]
+        cli.msg('Using file rule: {}'.format(active_rule.description))
+
+        log.info('')
 
         # TODO: ..
         raise NotImplementedError('TODO: Implement NameBuilder')
@@ -144,15 +160,25 @@ def eval_condition(condition_field, condition_value, file_object):
             return True
         return False
 
+    def eval_mime_type(expression, match_data):
+        if expression == match_data:
+            return True
+        return False
+
     # Regex Fields
     if condition_field == 'basename':
-        return eval_regex(condition_value, file_object.fnbase)
+        return eval_regex(condition_value, file_object.filename)
 
-    if condition_field == 'extension':
+    elif condition_field == 'extension':
         return eval_regex(condition_value, file_object.suffix)
 
-    if condition_field == 'pathname':
+    elif condition_field == 'pathname':
         return eval_regex(condition_value, file_object.abspath)
+
+    elif condition_field == 'mime_type':
+        return eval_mime_type(condition_value, file_object.mime_type)
+    else:
+        raise AutonameowException('Unhandled condition check!')
 
 
 def evaluate_rule(file_rule, file_object):
@@ -177,10 +203,19 @@ def evaluate_rule(file_rule, file_object):
     # TODO: ..
     if file_rule.exact_match:
         for cond_field, cond_value in file_rule.conditions.items():
+            log.debug('Evaluating condition "{} == {}"'.format(cond_field,
+                                                               cond_value))
             if not eval_condition(cond_field, cond_value, file_object):
+                log.debug('Condition FAILED -- Exact match impossible ..')
                 return False
         return True
 
     for cond_field, cond_value in file_rule.conditions.items():
+        log.debug('Evaluating condition "{} == {}"'.format(cond_field,
+                                                           cond_value))
         if eval_condition(cond_field, cond_value, file_object):
+            log.debug('Condition Passed rule.votes++')
             file_rule.upvote()
+        else:
+            file_rule.downvote()
+            log.debug('Condition FAILED rule.votes--')
