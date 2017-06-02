@@ -26,6 +26,7 @@ from core.config import (
     load_yaml_file,
     write_yaml_file
 )
+from core.config.constants import FILERULE_DEFAULT_WEIGHT
 from core.config.field_parsers import (
     MimeTypeConfigFieldParser,
     NameFormatConfigFieldParser,
@@ -56,7 +57,7 @@ class FileRule(Rule):
 
         self.description = str(kwargs.get('description'))
         self.exact_match = bool(kwargs.get('exact_match'))
-        self.weight = kwargs.get('weight')
+        self.weight = kwargs.get('weight', FILERULE_DEFAULT_WEIGHT)
         self.name_template = kwargs.get('name_template')
         self.conditions = kwargs.get('conditions', False)
         self.data_sources = kwargs.get('data_sources', False)
@@ -213,7 +214,7 @@ class Configuration(object):
         try:
             w = float(param)
         except TypeError:
-            pass
+            return FILERULE_DEFAULT_WEIGHT
         else:
             if 0 <= w <= 1:
                 return w
