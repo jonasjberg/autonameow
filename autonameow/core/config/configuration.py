@@ -146,8 +146,6 @@ class Configuration(object):
                                  name_template=_valid_template,
                                  conditions=_valid_conditions,
                                  data_sources=_valid_sources)
-            # TODO: Make parse_conditions and parse_sources functions.
-
             self._file_rules.append(file_rule)
 
     def validate_field(self, raw_file_rule, field_name):
