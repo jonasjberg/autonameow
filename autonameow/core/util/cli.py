@@ -105,9 +105,13 @@ def colorize(text, fore=None, back=None, style=None):
     Args:
         text: The text to colorize.
         fore: Optional foreground color as a string. Available options;
-              BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
+              BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE,
+              LIGHTBLACK_EX, LIGHTRED_EX, LIGHTGREEN_EX, LIGHTYELLOW_EX
+              LIGHTBLUE_EX, LIGHTMAGENTA_EX, LIGHTCYAN_EX, LIGHTWHITE_EX
         back: Optional background color as a string. Available options;
-              BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
+              BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE,
+              LIGHTBLACK_EX, LIGHTRED_EX LIGHTGREEN_EX, LIGHTYELLOW_EX,
+              LIGHTBLUE_EX, LIGHTMAGENTA_EX, LIGHTCYAN_EX, LIGHTWHITE_EX
         style: Optional style settings as a string. Available options;
                DIM, NORMAL, BRIGHT, RESET_ALL
 
