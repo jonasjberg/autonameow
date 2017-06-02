@@ -67,8 +67,7 @@ class FileRule(Rule):
         # Possible a list of functions already "loaded" with the target value.
 
     def __str__(self):
-        out = misc.dump_to_list(self.__dict__)
-        return '\n'.join(out)
+        return misc.dump(self.__dict__)
 
     def upvote(self):
         self.score += 1
