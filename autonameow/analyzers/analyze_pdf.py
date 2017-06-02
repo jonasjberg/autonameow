@@ -235,7 +235,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         # Create empty dictionary to store PDF metadata "key:value"-pairs in.
         result = {}
         pdf_metadata = None
-        filename = self.file_object.path
+        filename = self.file_object.abspath
 
         # Extract PDF metadata using PyPdf, nicked from Violent Python.
         try:
@@ -258,7 +258,7 @@ class PdfAnalyzer(AbstractAnalyzer):
 
     def _extract_pdf_metadata_with_exiftool(self):
         with wrap_exiftool.ExifTool() as et:
-            metadata = et.get_metadata(self.file_object.path)
+            metadata = et.get_metadata(self.file_object.abspath)
         return metadata
 
     # TODO: Move all text extraction to functions in 'extract_text.py'.
@@ -274,7 +274,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         for extractor in text_extractors:
             logging.debug('Running pdf text extractor {}/{}: '
                           '{}'.format(i, len(text_extractors), str(extractor)))
-            pdf_text = extractor(self.file_object.path)
+            pdf_text = extractor(self.file_object.abspath)
             if pdf_text and len(pdf_text) > 1:
                 logging.debug('Extracted text with: '
                               '{}'.format(extractor.__name__))

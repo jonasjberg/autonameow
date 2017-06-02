@@ -96,7 +96,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         """
         if self.exif_data is None:
             logging.debug('Found no EXIF data in file '
-                          '"{}"'.format(self.file_object.path))
+                          '"{}"'.format(self.file_object.abspath))
             return
 
         # Exif field, weight
@@ -202,7 +202,7 @@ class ImageAnalyzer(AbstractAnalyzer):
 
         # Extract EXIF data using PIL.ExifTags.
         exif_data = None
-        filename = self.file_object.path
+        filename = self.file_object.abspath
         try:
             image = Image.open(filename)
         except IOError as e:
@@ -250,7 +250,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         """
         # TODO: Test this!
         image_text = None
-        filename = self.file_object.path
+        filename = self.file_object.abspath
         try:
             image = Image.open(filename)
         except IOError as e:
@@ -283,7 +283,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         """
         if self.ocr_text is None:
             logging.debug('Found no text from OCR of '
-                          '"{}"'.format(self.file_object.path))
+                          '"{}"'.format(self.file_object.abspath))
             return None
 
         results = []

@@ -153,7 +153,7 @@ class TextAnalyzer(AbstractAnalyzer):
 
     # TODO: Move all text extraction to functions in 'extract_text.py'.
     def _get_file_lines(self):
-        fn = self.file_object.path
+        fn = self.file_object.abspath
         with io.open(fn, 'r', encoding='utf8') as f:
             contents = f.read().split('\n')
             if contents:

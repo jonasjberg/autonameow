@@ -63,9 +63,9 @@ class FilesystemAnalyzer(AbstractAnalyzer):
             return datetime.fromtimestamp(t).replace(microsecond=0)
 
         try:
-            mtime = os.path.getmtime(self.file_object.path)
-            ctime = os.path.getctime(self.file_object.path)
-            atime = os.path.getatime(self.file_object.path)
+            mtime = os.path.getmtime(self.file_object.abspath)
+            ctime = os.path.getctime(self.file_object.abspath)
+            atime = os.path.getatime(self.file_object.abspath)
         except OSError as e:
             logging.critical('Unable to get timestamps from filesystem:'
                              ' {!s}'.format(e))
@@ -120,7 +120,7 @@ class FilesystemAnalyzer(AbstractAnalyzer):
                      'weight'  : 1
                    }, .. ]
         """
-        filename = self.file_object.path
+        filename = self.file_object.abspath
         results = []
 
         logging.debug('Fetching file system timestamps ..')
