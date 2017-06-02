@@ -168,10 +168,11 @@ class Configuration(object):
 
             _valid_conditions = parse_conditions(fr.get('CONDITIONS'))
             _valid_sources = parse_sources(fr.get('DATA_SOURCES'))
+            _valid_weight = self.parse_weight(fr.get('_weight'))
 
             file_rule = FileRule(description=fr.get('_description'),
                                  exact_match=fr.get('_exact_match'),
-                                 weight=fr.get('_weight'),
+                                 weight=_valid_weight,
                                  name_template=_valid_template,
                                  conditions=_valid_conditions,
                                  data_sources=_valid_sources)
@@ -239,7 +240,7 @@ class Configuration(object):
         else:
             write_yaml_file(dest_path, self._data)
 
-    def _parse_weight(self, param):
+    def parse_weight(self, param):
         try:
             w = float(param)
         except TypeError:
