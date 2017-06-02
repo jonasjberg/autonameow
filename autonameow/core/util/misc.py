@@ -19,10 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-import random
-import sys
-
 import itertools
 
 import yaml
@@ -69,27 +65,6 @@ def dump_to_list(obj, nested_level=0, output=None):
         out.append(('%s%s' % (nested_level * spacing, obj)))
 
     return out
-
-
-
-def unpack_dict(dt_list):
-    # TODO: Finish/verify this. Not sure it is finished/correct or even needed.
-    if type(dt_list) is dict:
-        return dt_list
-    elif type(dt_list) is not list:
-        logging.debug('Got unexpected type: {}'.format(type(dt_list)))
-
-    results = {}
-    for entry in dt_list:
-        if type(entry) is dict:
-            if entry not in results:
-                results[entry] = entry
-        else:
-            for content in entry:
-                if type(content) is dict:
-                    results.append(entry)
-
-    return results
 
 
 _counter_generator_function = itertools.count(0)
