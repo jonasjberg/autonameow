@@ -285,6 +285,8 @@ def parse_conditions(raw_conditions):
 
                 valid_condition = validate_condition(key, value)
                 if valid_condition:
+                    if key in out:
+                        log.warning('Clobbering condition: {!s}'.format(key))
                     out[key] = value
         except ValueError as e:
             raise ConfigurationSyntaxError('Bad condition; ' + str(e))
