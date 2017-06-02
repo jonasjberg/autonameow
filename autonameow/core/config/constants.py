@@ -53,3 +53,7 @@ MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
                      'png':   ['image/png'],
                      'txt':   ['text/plain'],
                      'empty': ['inode/x-empty']}
+
+
+# Default values for required configuration fields.
+FILERULE_DEFAULT_WEIGHT = 0.5
