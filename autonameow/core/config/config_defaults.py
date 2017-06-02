@@ -114,7 +114,7 @@ DEFAULT_CONFIG = {
                  'date_modified': None
              },
              'contents': {
-                 'mime_type': 'image/jpeg',
+                 'mime_type': 'jpg',
              },
              'metadata': {
                  'exif': {
