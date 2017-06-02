@@ -70,10 +70,10 @@ DEFAULT_CONFIG = {
     #   TODO: Document all fields ..
     #
     'FILE_RULES': [
-        {'_description': 'First Entry in the Default Configuration',
+        {'_description': 'test_files Gmail print-to-pdf',
          '_exact_match': False,
          '_weight': None,
-         'NAME_TEMPLATE': 'test_files Gmail print-to-pdf ',
+         'NAME_FORMAT': '{datetime} {title} -- {tags}.{extension}',
          'CONDITIONS': {
              'filesystem': {
                  'basename': 'gmail.pdf',
@@ -140,8 +140,7 @@ DEFAULT_CONFIG = {
         {'_description': 'Sample Entry for EPUB e-books',
          '_exact_match': True,
          '_weight': 1,
-         'NAME_FORMAT': '',
-         'NAME_TEMPLATE': 'default_book',
+         'NAME_FORMAT': 'default_book',
          'CONDITIONS': {
              'filesystem': {
                  'pathname': None,
