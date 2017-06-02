@@ -165,7 +165,8 @@ def write_yaml_file(dest_path, yaml_data):
 
     try:
         with open(dest_path, 'w') as fh:
-            yaml.dump(yaml_data, fh, default_flow_style=False, encoding='utf-8')
+            yaml.dump(yaml_data, fh, default_flow_style=False, encoding='utf-8',
+                      width=160, indent=4)
     except (IOError, yaml.YAMLError) as e:
         raise ConfigWriteError(dest_path, e)
 
