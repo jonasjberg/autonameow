@@ -111,10 +111,12 @@ class Autonameow(object):
                                  '"{!s}"'.format(_config_path))
                     self.exit_program(1)
                 else:
-                    log.info('A template configuration file was written to '
-                             '"{!s}"'.format(_config_path))
-                    log.info('Use this file to configure '
-                             '{}.'.format(version.__title__))
+                    cli.msg('A template configuration file was written to '
+                            '"{!s}"'.format(_config_path), type='info')
+                    cli.msg('Use this file to configure {}. '
+                            'Refer to the documentation for additional '
+                            'information.'.format(version.__title__),
+                            type='info')
                     self.exit_program(0)
             else:
                 log.debug('Using configuration: "{}"'.format(_config_path))
