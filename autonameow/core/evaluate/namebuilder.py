@@ -79,6 +79,12 @@ class NameBuilder(object):
         template = None
         data_sources = None
 
+        # Check a copy of all rules.
+        # Conditions are evaluated with the current file object.
+        # If a rule requires an exact match, it is removed at first failed
+        # evaluation. After evaluating all rules, the remaining rules are
+        # sorted. The first rule in the resulting sorted list is used.
+        #
         rules_to_examine = list(self.config.file_rules)
 
         for rule in rules_to_examine:
