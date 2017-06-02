@@ -106,12 +106,6 @@ class FileRule(Rule):
         else:
             return self.score < other.score
 
-    def __eq__(self, other):
-        if self.score == other.score and self.weight == other.weight:
-            # raise FileRulePriorityError('Rules score and weight are both equal')
-            return True
-        return False
-
 
 class Configuration(object):
     def __init__(self, data=None):
