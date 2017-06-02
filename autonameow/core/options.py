@@ -183,7 +183,7 @@ def init_argparser():
     parser.add_argument('--dump-options',
                         dest='dump_options',
                         action='store_true',
-                        help='Dump options to stdout.')
+                        help='[DEBUG] Dump options to stdout.')
 
     parser.add_argument('--dump-config',
                         dest='dump_config',
