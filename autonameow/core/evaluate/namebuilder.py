@@ -180,8 +180,14 @@ def eval_condition(condition_field, condition_value, file_object):
     elif condition_field == 'pathname':
         return eval_regex(condition_value, file_object.abspath)
 
+    # TODO: Fix MIME type check
     elif condition_field == 'mime_type':
         return eval_mime_type(condition_value, file_object.mime_type)
+
+    # TODO: Implement datetime check
+    elif condition_field == 'date_accessed':
+        return eval_datetime(condition_value, None)
+
     else:
         raise AutonameowException('Unhandled condition check!')
 
