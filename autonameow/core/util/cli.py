@@ -23,6 +23,7 @@
 import os
 import platform
 from datetime import datetime
+import logging
 
 try:
     import colorama
@@ -137,5 +138,33 @@ def colorize(text, fore=None, back=None, style=None):
         return text
 
 
-def print_msg(message):
-    pass
+def msg(message, type=None, log=False):
+    """
+    Displays a message to the user using preset formatting options.
+
+    Args:
+        message: The raw text message to print as a string.
+        type: Optional message type.
+        log: Displays and logs the message if True. Defaults to False.
+    """
+    def print_default_msg(text):
+        print(colorize(text, fore='LIGHTBLACK_EX'))
+
+    def print_info_msg(text):
+        prefix = colorize('[info]',
+                          back='LIGHTWHITE_EX', fore='BLUE', style='DIM')
+        colored_text = colorize(text, fore='LIGHTBLACK_EX')
+        print(prefix + ' ' + colored_text)
+
+    if not type:
+        print_default_msg(message)
+        if log:
+            logging.info(message)
+    elif type == 'info':
+        print_info_msg(message)
+        if log:
+            logging.info(message)
+    else:
+        print_default_msg(message)
+        if log:
+            logging.info(message)
