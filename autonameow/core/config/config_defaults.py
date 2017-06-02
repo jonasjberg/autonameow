@@ -73,31 +73,23 @@ DEFAULT_CONFIG = {
         {'_description': 'First Entry in the Default Configuration',
          '_exact_match': False,
          '_weight': None,
-         'NAME_TEMPLATE': 'default_document',
+         'NAME_TEMPLATE': 'test_files Gmail print-to-pdf ',
          'CONDITIONS': {
              'filesystem': {
-                 'basename': '^test_[0-9]+.*',
-                 'extension': 'txt',
+                 'basename': 'gmail.pdf',
+                 'extension': 'pdf',
                  'pathname': None,
                  'date_accessed': None,
                  'date_created': None,
                  'date_modified': None,
              },
              'contents': {
-                 'mime_type': None,
+                 'mime_type': 'application/pdf',
                  'textual': {
                      'raw_text': None,
                  }
 
              },
-             'metadata': {
-                 'exif': {
-                     # NOTE: Possibly use exiftool for all metadata?
-                     # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-                     'datetimeoriginal': None,
-                     'camera-model': None
-                 },
-             }
          },
          'DATA_SOURCES': {
              'datetime': None,
@@ -116,11 +108,21 @@ DEFAULT_CONFIG = {
              'filesystem': {
                  'pathname': '~/Pictures/incoming',
                  'basename': 'DCIM*',
-                 'extension': 'jpg'
+                 'extension': 'jpg',
+                 'date_accessed': None,
+                 'date_created': None,
+                 'date_modified': None
              },
              'contents': {
                  'mime_type': 'image/jpeg',
-                 'metadata': 'exif.datetimeoriginal'
+             },
+             'metadata': {
+                 'exif': {
+                     # NOTE: Possibly use exiftool for all metadata?
+                     # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
+                     'datetimeoriginal': None,
+                     'camera-model': None
+                 },
              }
          },
          'DATA_SOURCES': {
