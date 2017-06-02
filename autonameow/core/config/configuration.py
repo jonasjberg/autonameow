@@ -37,6 +37,7 @@ from core.config.field_parsers import (
 from core.exceptions import (
     ConfigurationSyntaxError,
     ConfigError,
+    FileRulePriorityError
 )
 from core.util import misc
 
@@ -82,6 +83,28 @@ class FileRule(Rule):
     def downvote(self):
         if self.score > 0:
             self.score -= 1
+
+    def __gt__(self, other):
+        if self.score == other.score and self.weight == other.weight:
+            raise FileRulePriorityError('Rules score and weight are both equal')
+        if self.score == other.score:
+            return self.weight > other.weight
+        else:
+            return self.score > other.score
+
+    def __lt__(self, other):
+        if self.score == other.score and self.weight == other.weight:
+            raise FileRulePriorityError('Rules score and weight are both equal')
+        if self.score == other.score:
+            return self.weight < other.weight
+        else:
+            return self.score < other.score
+
+    def __eq__(self, other):
+        if self.score == other.score and self.weight == other.weight:
+            # raise FileRulePriorityError('Rules score and weight are both equal')
+            return True
+        return False
 
 
 class Configuration(object):
