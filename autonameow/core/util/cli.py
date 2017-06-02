@@ -24,10 +24,12 @@ import os
 import platform
 from datetime import datetime
 
-from colorama import (
-    Fore,
-    Back
-)
+try:
+    import colorama
+    colorama.init()
+except ImportError:
+    colorama = None
+
 
 from core import version
 
@@ -38,17 +40,19 @@ def print_ascii_banner():
     """
     # TODO: Text alignment depends on manually hardcoding spaces! FIX!
 
-    print(Fore.LIGHTBLUE_EX +
+    ascii_banner = colorize(
            '''
    ###   ### ### ####### #####  ###  ##   ###   ##   ## ####### #####  ### ###
   #####  ### ###   ###  ### ### #### ##  #####  # # ### ####   ####### ### ###
  ### ### ### ###   ###  ### ### ####### ### ### ####### ###### ### ### #######
  ####### #######   ###  ####### ### ### ####### ### ### ####   ### ### ### ###
  ### ###  ### ##   ###   #####  ### ### ### ### ### ### ####### #####  ##   ##
-    ''' + Fore.RESET)
-    colortitle = Back.LIGHTYELLOW_EX + Fore.YELLOW + \
-        ' ' + version.__title__.lower() + ' ' + \
-        Back.RESET + Fore.RESET
+    ''', fore='LIGHTBLUE_EX')
+
+    print(ascii_banner)
+
+    colortitle = colorize(' ' + version.__title__.lower() + ' ',
+                          back='BLUE', fore='BLACK')
     toplineleft = ' {title}  version {ver}'.format(title=colortitle,
                                                    ver=version.__version__)
     toplineright = version.__copyright__
@@ -62,12 +66,12 @@ def print_start_info():
     """
     Prints information on program startup; current date/time, user and platform.
     """
-    print(Fore.LIGHTBLACK_EX +
-          'Started at {date} by {user} on {platform}'.format(
-              date=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-              user=os.environ.get('USER'),
-              platform=' '.join(platform.uname()[:3])) +
-          Fore.RESET)
+    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    user = os.environ.get('USER')
+    plat = ' '.join(platform.uname()[:3])
+    i = colorize('Started at {d} by {u} on {p}'.format(d=date, u=user, p=plat),
+                 fore='LIGHTBLACK_EX')
+    print(i)
 
 
 def print_exit_info(exit_code, elapsed_time):
@@ -78,20 +82,56 @@ def print_exit_info(exit_code, elapsed_time):
         exit_code: Program exit status, for display only.
         elapsed_time: Program execution time in seconds.
     """
-    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
 
+    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
     # TODO: Format the execution time to minutes and seconds if it exceeds
     #       60 seconds, hours, minutes and seconds if it exceeds 60 minutes ..
 
-    print(Fore.LIGHTBLACK_EX +
-          'Finished at {} after {:.6f} seconds '
-          'with exit code {}'.format(date, elapsed_time, exit_code) +
-          Fore.RESET)
+    i = colorize('Finished at {d} after {t:.6f} seconds with exit code '
+                 '{c}'.format(d=date, t=elapsed_time, c=exit_code),
+                 fore='LIGHTBLACK_EX')
+    print(i)
 
 
-def blue_text(text):
-    return Fore.LIGHTBLACK_EX + text + Fore.RESET
+def colorize(text, fore=None, back=None, style=None):
+    """
+    Adds ANSI formatting to text strings with "colorama".
+
+    The text is returned as-is if the top-level import of "colorama" failed.
+
+    Refer the "colorama" library documentation for additional information;
+        https://pypi.python.org/pypi/colorama
+
+    Args:
+        text: The text to colorize.
+        fore: Optional foreground color as a string. Available options;
+              BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
+        back: Optional background color as a string. Available options;
+              BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
+        style: Optional style settings as a string. Available options;
+               DIM, NORMAL, BRIGHT, RESET_ALL
+
+    Returns:
+        The given string with the specified coloring and style options applied.
+        If no options are specified or if "colorama" is not available, the
+        text is returned as-is.
+    """
+    if colorama:
+        buffer = []
+        if fore:
+            buffer.append(getattr(colorama.Fore, fore.upper(), None))
+        if back:
+            buffer.append(getattr(colorama.Back, back.upper(), None))
+        if style:
+            buffer.append(getattr(colorama.Style, style.upper(), None))
+
+        buffer.append(text)
+        # buffer = filter(None, buffer)
+        buffer.append(colorama.Fore.RESET + colorama.Back.RESET + colorama.Style.RESET_ALL)
+        return ''.join(buffer)
+    else:
+        return text
 
 
 def print_msg(message):
-    out = blue_text()
+    pass
