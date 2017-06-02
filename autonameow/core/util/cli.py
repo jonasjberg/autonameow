@@ -172,3 +172,10 @@ def msg(message, type=None, log=False):
         print_default_msg(message)
         if log:
             logging.info(message)
+
+
+if __name__ == '__main__':
+    msg('text printed by msg()')
+    msg('text printed by msg() with type="info"', type='info')
+    msg('text printed by msg() with type="info", log=True',
+        type='info', log=True)
