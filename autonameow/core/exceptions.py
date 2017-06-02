@@ -38,6 +38,10 @@ class AnalysisResultsFieldError(AutonameowException):
     """Attempt to query/access an invalid analyzer data field."""
 
 
+class NameBuilderError(AutonameowException):
+    """An error occurred while constructing a name. Unable to proceed."""
+
+
 class NameTemplateSyntaxError(ConfigError):
     """The name format template is invalid."""
     pass
