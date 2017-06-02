@@ -185,12 +185,15 @@ def evaluate_rule(file_rule, file_object):
     """
     Tests if a rule applies to a given file.
 
+    Returns at first unmatched condition if the rule requires an exact match.
+    If the rule does not require an exact match, all conditions are
+    evaluated and the rule is scored through "upvote()" and "downvote()".
+
     Args:
         file_object: The file to test as an instance of 'FileObject'.
         file_rule: The rule to test as an instance of 'FileRule'.
 
     Returns: True if the rule applies to the given file, else False.
-
     """
     if not isinstance(file_object, FileObject):
         raise TypeError('"file_object" must be instance of "FileObject"')
@@ -200,7 +203,6 @@ def evaluate_rule(file_rule, file_object):
     if not file_rule.conditions:
         raise InvalidFileRuleError('Rule does not specify any conditions')
 
-    # TODO: ..
     if file_rule.exact_match:
         for cond_field, cond_value in file_rule.conditions.items():
             log.debug('Evaluating condition "{} == {}"'.format(cond_field,
