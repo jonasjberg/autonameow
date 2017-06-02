@@ -204,7 +204,12 @@ def evaluate_rule(file_rule, file_object):
         file_object: The file to test as an instance of 'FileObject'.
         file_rule: The rule to test as an instance of 'FileRule'.
 
-    Returns: True if the rule applies to the given file, else False.
+    Returns:
+        If the rule requires an exact match:
+            True if all rule conditions evaluates to True.
+            False if any rule condition evaluates to False.
+        If the rule does not require an exact match:
+            None
     """
     if not isinstance(file_object, FileObject):
         raise TypeError('"file_object" must be instance of "FileObject"')
