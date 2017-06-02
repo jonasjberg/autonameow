@@ -170,7 +170,7 @@ DEFAULT_CONFIG = {
     #  File Name Templates
     #  -------------------
     #  These file name templates can be reused by multiple file rules.
-    #  Simply add the template name to the file rule 'NAME_TEMPLATE' field.
+    #  Simply add the template name to the file rule 'NAME_FORMAT' field.
     #
     #  NOTE: If a rule specifies both 'NAME_FORMAT' and 'NAME_TEMPLATE',
     #        'NAME_FORMAT' will be prioritized.

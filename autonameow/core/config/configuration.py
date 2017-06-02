@@ -124,21 +124,16 @@ class Configuration(object):
         # Create and populate "FileRule" objects with *validated* data.
         for fr in self._data['FILE_RULES']:
 
-            # Prioritize 'name_format', the "raw" name format string.
-            # If it is not defined in the rule, check that 'name_template'
-            # refers to a valid entry in 'name_templates'.
-            #
-            # TODO: Consolidate 'name_format' and 'name_template' to one field.
-            #       Test if the field data is a valid name template,
-            #       if it isn't, use it as a format string.
+            # First test if the field data is a valid name template entry,
+            # If it is, use the format string defined in that entry.
+            # If not, try to use 'name_template' as a format string.
             _valid_template = None
-            if 'NAME_FORMAT' in fr and fr.get('NAME_FORMAT'):
-                _valid_template = self.validate_field(fr, 'NAME_FORMAT')
-            elif 'NAME_TEMPLATE' in fr:
-                _template_name = fr.get('NAME_TEMPLATE')
-
-                if _template_name in self.name_templates:
-                    _valid_template = self._name_templates.get(_template_name)
+            if 'NAME_FORMAT' in fr:
+                name_format = fr.get('NAME_FORMAT')
+                if name_format in self.name_templates:
+                    _valid_template = self._name_templates.get(name_format)
+                else:
+                    _valid_template = self.validate_field(fr, 'NAME_FORMAT')
 
             if not _valid_template:
                 log.debug('Bad: ' + str(fr))
