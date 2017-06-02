@@ -29,12 +29,17 @@ from core.config import (
 from core.config.field_parsers import (
     MimeTypeConfigFieldParser,
     NameFormatConfigFieldParser,
-    get_instantiated_field_parsers
+    get_instantiated_field_parsers,
+    RegexConfigFieldParser,
+    DateTimeConfigFieldParser
 )
 from core.exceptions import (
     ConfigurationSyntaxError,
     ConfigError,
 )
+
+
+field_parsers = get_instantiated_field_parsers()
 
 
 class Rule(object):
@@ -58,6 +63,9 @@ class FileRule(Rule):
 
         self.score = 0
 
+        # TODO: Implement "conditions" field ..
+        # Possible a list of functions already "loaded" with the target value.
+
     def __str__(self):
         desc = []
         for key in self.__dict__:
@@ -76,6 +84,8 @@ class Configuration(object):
     def __init__(self, data=None):
         self._file_rules = []
         self._name_templates = {}
+        self._options = {'DATETIME_FORMAT': {},
+                         'FILETAGS_OPTIONS': {}}
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
         self.field_parsers = get_instantiated_field_parsers()
@@ -84,6 +94,7 @@ class Configuration(object):
             self._data = data
             self._load_name_templates()
             self._load_file_rules()
+            self._load_options()
         else:
             self._data = {}
 
@@ -133,8 +144,8 @@ class Configuration(object):
                 log.debug('Bad: ' + str(fr))
                 raise ConfigurationSyntaxError('Invalid name template format')
 
-            _valid_conditions = self._parse_conditions(fr.get('CONDITIONS'))
-            _valid_sources = self._parse_sources(fr.get('DATA_SOURCES'))
+            _valid_conditions = parse_conditions(fr.get('CONDITIONS'))
+            _valid_sources = parse_sources(fr.get('DATA_SOURCES'))
 
             file_rule = FileRule(description=fr.get('_description'),
                                  exact_match=fr.get('_exact_match'),
@@ -149,12 +160,36 @@ class Configuration(object):
     def validate_field(self, raw_file_rule, field_name):
         for parser in self.field_parsers:
             if field_name in parser.applies_to_field:
-                val_func = parser.get_validation_function()
-                if val_func(raw_file_rule.get(field_name)):
-                    return raw_file_rule.get(field_name)
+                field_value = raw_file_rule.get(field_name)
+                if parser.validate(field_value):
+                    return field_value
 
         log.critical('Config file entry not validated correctly!')
         return False
+
+    def _load_options(self):
+        def _try_load_date_format_option(option):
+            _value = self._data['DATETIME_FORMAT'].get(option)
+            if _value and DateTimeConfigFieldParser.is_valid_datetime(_value):
+                self._options['DATETIME_FORMAT'][option] = _value
+
+        def _try_load_filetags_option(option):
+            _value = self._data['filetags_options'].get(option)
+            if _value:
+                self._options['filetags'][option] = _value
+
+        if 'DATETIME_FORMAT' in self._data:
+            _try_load_date_format_option('date')
+            _try_load_date_format_option('time')
+            _try_load_date_format_option('datetime')
+
+        if 'FILETAGS_OPTIONS' in self._data:
+            _try_load_filetags_option('filename_tag_separator')
+            _try_load_filetags_option('between_tag_separator')
+
+    @property
+    def options(self):
+        return self._options
 
     @property
     def data(self):
@@ -172,6 +207,7 @@ class Configuration(object):
         self._data = data
         self._load_name_templates()
         self._load_file_rules()
+        self._load_options()
 
     def load_from_disk(self, load_path):
         _yaml_data = load_yaml_file(load_path)
@@ -194,29 +230,45 @@ class Configuration(object):
             else:
                 raise ConfigurationSyntaxError('Expected integer in range 0-1')
 
-    def _parse_conditions(self, raw_conditions):
-        # TODO: ..
-        out = {}
 
-        if 'contents' in raw_conditions:
-            contents = raw_conditions['contents']
-            if 'mime_type' in contents:
-                v = contents['mime_type']
-                if MimeTypeConfigFieldParser.is_valid_mime_type(v):
-                    out['mime_type'] = v
+def parse_sources(raw_sources):
+    # TODO: ..
+    out = {}
 
-        if 'filename' in raw_conditions:
-            filename = raw_conditions['filename']
-            if 'mime_type' in filename:
-                v = contents['mime_type']
-                if MimeTypeConfigFieldParser.is_valid_mime_type(v):
-                    out['mime_type'] = v
+    return out
 
 
+def parse_conditions(raw_conditions):
+    # TODO: ..
+    out = {}
 
-        return out
+    def traverse_dict(the_dict):
+        try:
+            for key, value in the_dict.items():
+                if isinstance(value, dict):
+                    traverse_dict(value)
 
-    def _parse_sources(self, raw_sources):
-        # TODO: ..
-        return None
-        pass
+                valid_condition = validate_condition(key, value)
+                if valid_condition:
+                    out[key] = value
+        except ValueError as e:
+            raise ConfigurationSyntaxError('Bad condition; ' + str(e))
+
+    if 'contents' in raw_conditions:
+        raw_contents = raw_conditions['contents']
+        traverse_dict(raw_contents)
+
+    if 'filesystem' in raw_conditions:
+        raw_contents = raw_conditions['filesystem']
+        traverse_dict(raw_contents)
+
+    return out
+
+
+def validate_condition(condition_field, condition_value):
+    for parser in field_parsers:
+        if condition_field in parser.applies_to_field:
+            if parser.validate(condition_value):
+                return condition_value
+            else:
+                return False

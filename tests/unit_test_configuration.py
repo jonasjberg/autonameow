@@ -27,7 +27,10 @@ import yaml
 
 from core.config import field_parsers
 from core.config.config_defaults import DEFAULT_CONFIG
-from core.config.configuration import Configuration
+from core.config.configuration import (
+    Configuration,
+    parse_conditions
+)
 from unit_utils import make_temp_dir
 
 
@@ -214,11 +217,11 @@ class TestConfigurationValidation(TestCase):
         self.assertFalse(self.configuration.validate_field(
             self.INVALID_RAW_FILE_RULE['CONDITIONS']['filename'], 'extension'))
 
-    def test_validate_valid_field_conditions_filename_mime_type(self):
+    def test_validate_valid_field_conditions_contents_mime_type(self):
         self.assertTrue(self.configuration.validate_field(
             self.VALID_RAW_FILE_RULE['CONDITIONS']['contents'], 'mime_type'))
 
-    def test_validate_invalid_field_conditions_filename_mime_type(self):
+    def test_validate_invalid_field_conditions_contents_mime_type(self):
         self.assertFalse(self.configuration.validate_field(
             self.INVALID_RAW_FILE_RULE['CONDITIONS']['contents'], 'mime_type'))
 
@@ -238,6 +241,36 @@ class TestConfigurationDataAccess(TestCase):
         self.assertTrue(isinstance(self.configuration.file_rules, list))
 
     def test_get_file_rules_returns_expected_rule_count(self):
-        self.assertGreaterEqual(len(self.configuration.file_rules), 4)
+        self.assertGreaterEqual(len(self.configuration.file_rules), 3)
 
+
+class TestParseConditions(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.raw_conditions = {
+            'filesystem': {
+                'pathname': '~/.config',
+                'basename': '^test_[0-9]+.*',
+                'extension': None
+            },
+            'contents': {
+                'mime_type': 'jpg'
+            },
+            'metadata': {
+                'exif': {
+                    # NOTE: Possibly use exiftool for all metadata?
+                    # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
+                    'datetimeoriginal': None,
+                    'camera-model': None
+                },
+            }
+        }
+
+    def test_parse_condition_filesystem_pathname_is_valid(self):
+        actual = parse_conditions(self.raw_conditions)
+        self.assertEqual(actual.get('pathname'), '~/.config')
+
+    def test_parse_condition_contents_mime_type_is_valid(self):
+        actual = parse_conditions(self.raw_conditions)
+        self.assertEqual(actual.get('mime_type'), 'jpg')
 

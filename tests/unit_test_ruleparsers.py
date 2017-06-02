@@ -28,7 +28,7 @@ from core.config.field_parsers import (
     available_field_parsers,
     MimeTypeConfigFieldParser,
     DateTimeConfigFieldParser,
-    NameFormatConfigFieldParser
+    NameFormatConfigFieldParser,
 )
 
 
@@ -133,6 +133,7 @@ class TestMimeTypeRuleParser(TestCase):
     def test_validation_function_expect_pass(self):
         self.assertTrue(self.val_func('txt'))
         self.assertTrue(self.val_func('text/plain'))
+        self.assertTrue(self.val_func('image/jpeg'))
         self.assertTrue(self.val_func('jpg'))
 
 
@@ -159,9 +160,12 @@ class TestNameFormatRuleParser(TestCase):
         self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):
-        # TODO: Write tests ..
         self.assertFalse(self.val_func(None))
+        self.assertFalse(self.val_func(''))
+        self.assertFalse(self.val_func('{bad_field}'))
+        self.assertFalse(self.val_func('{datetime} {bad_field}'))
 
     def test_validation_function_expect_pass(self):
-        # TODO: Write tests ..
-        self.assertTrue(self.val_func('TODO'))
+        self.assertTrue(self.val_func('{datetime}'))
+        self.assertTrue(self.val_func('{publisher} "abc" {tags}'))
+        self.assertTrue(self.val_func('{datetime} {title}.{extension}'))

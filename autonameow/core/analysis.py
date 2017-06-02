@@ -87,34 +87,34 @@ class Results(object):
             self._data[field] = {}
 
         # TODO: Redesign data storage structure.
-        # self._fixed_data = {
-        #     'filesystem': {
-        #         'basename': None,
-        #         'extension': None,
-        #         'pathname': None,
-        #         'date_accessed': None,
-        #         'date_created': None,
-        #         'date_modified': None
-        #     },
-        #     'contents': {
-        #         'mime_type': None,
-        #         'textual': {
-        #             'raw_text': None,
-        #             'paginated': False,
-        #         },
-        #         'visual': {
-        #             'ocr_text': None
-        #             'ocr_description': None,
-        #             'ocr_tags': None
-        #         },
-        #         'binary': {
-        #
-        #         }
-        #     },
-        #     'metadata': {
-        #
-        #     }
-        # }
+        self._fixed_data = {
+            'filesystem': {
+                'basename': None,
+                'extension': None,
+                'pathname': None,
+                'date_accessed': None,
+                'date_created': None,
+                'date_modified': None,
+                'mime_type': None,
+            },
+            'contents': {
+                'textual': {
+                    'raw_text': None,
+                    'paginated': False,
+                },
+                'visual': {
+                    'ocr_text': None,
+                    'ocr_description': None,
+                    'ocr_tags': None
+                },
+                'binary': {
+
+                }
+            },
+            'metadata': {
+
+            }
+        }
 
     def add(self, field, data, source):
         """
@@ -225,6 +225,9 @@ class Analysis(object):
         else:
             raise AutonameowException('This should not happen!')
 
+    # def _execute_common_analyzers(self):
+    #     filesystem_analyzer = FilesystemAnalyzer()
+
     def _execute_run_queue(self):
         """
         Executes analyzers in the analyzer run queue.
@@ -255,6 +258,7 @@ class Analysis(object):
                     result = None
 
                 self.results.add(field, result, str(a.__class__.__name__))
+                # self.results._fixed_data['filesystem']['basename'] =
 
     def get_datetime_by_alias(self, alias):
         pass

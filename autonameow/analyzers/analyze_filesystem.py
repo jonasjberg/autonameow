@@ -58,6 +58,24 @@ class FilesystemAnalyzer(AbstractAnalyzer):
     def run(self):
         pass
 
+    def results(self):
+        def dt_fts(t):
+            return datetime.fromtimestamp(t).replace(microsecond=0)
+
+        try:
+            mtime = os.path.getmtime(self.file_object.path)
+            ctime = os.path.getctime(self.file_object.path)
+            atime = os.path.getatime(self.file_object.path)
+        except OSError as e:
+            logging.critical('Unable to get timestamps from filesystem:'
+                             ' {!s}'.format(e))
+        else:
+            return {'filesystem': {
+                'date_accessed': dt_fts(atime),
+                'date_created': dt_fts(ctime),
+                'date_modified': dt_fts(mtime)
+            }}
+
     # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
         result = []
