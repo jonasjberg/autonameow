@@ -84,7 +84,8 @@ class Configuration(object):
     def __init__(self, data=None):
         self._file_rules = []
         self._name_templates = {}
-        self._options = {}
+        self._options = {'DATETIME_FORMAT': {},
+                         'FILETAGS_OPTIONS': {}}
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
         self.field_parsers = get_instantiated_field_parsers()
@@ -93,6 +94,7 @@ class Configuration(object):
             self._data = data
             self._load_name_templates()
             self._load_file_rules()
+            self._load_options()
         else:
             self._data = {}
 
@@ -167,14 +169,23 @@ class Configuration(object):
 
     def _load_options(self):
         def _try_load_date_format_option(option):
-            _value = self._data['datetime_format'].get(option)
+            _value = self._data['DATETIME_FORMAT'].get(option)
             if _value and DateTimeConfigFieldParser.is_valid_datetime(_value):
-                self._options[option] = _value
+                self._options['DATETIME_FORMAT'][option] = _value
 
-        if 'datetime_format' in self._data:
+        def _try_load_filetags_option(option):
+            _value = self._data['filetags_options'].get(option)
+            if _value:
+                self._options['filetags'][option] = _value
+
+        if 'DATETIME_FORMAT' in self._data:
             _try_load_date_format_option('date')
             _try_load_date_format_option('time')
             _try_load_date_format_option('datetime')
+
+        if 'FILETAGS_OPTIONS' in self._data:
+            _try_load_filetags_option('filename_tag_separator')
+            _try_load_filetags_option('between_tag_separator')
 
     @property
     def options(self):
@@ -250,7 +261,6 @@ def parse_conditions(raw_conditions):
     if 'filesystem' in raw_conditions:
         raw_contents = raw_conditions['filesystem']
         traverse_dict(raw_contents)
-
 
     return out
 

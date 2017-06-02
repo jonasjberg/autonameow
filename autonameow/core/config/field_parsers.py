@@ -88,6 +88,14 @@ class RegexConfigFieldParser(ConfigFieldParser):
         else:
             return True
 
+    @staticmethod
+    def evaluate_regex(expression, test_data):
+        _match = re.match(expression, test_data)
+        if _match:
+            return _match
+        else:
+            return False
+
     def get_validation_function(self):
         return self.is_valid_regex
 

@@ -72,6 +72,7 @@ class NameBuilder(object):
         #   2. For each rule requiring exact match;
         #     *
 
+        # TODO: Format date/time-information using "datetime_format" in config.
 
         template = None
         data_sources = None
@@ -128,9 +129,18 @@ def assemble_basename(name_template, **kwargs):
         return out
 
 
-def eval_condition(condition, file_object):
-    # TODO: ..
-    pass
+def eval_condition(condition_field, condition_value, file_object):
+    if condition_field == 'basename':
+        if file_object.fnbase == condition_value:
+            return True
+        else:
+            return False
+
+    if condition_field == 'extension':
+        if file_object.suffix == condition_value:
+            return True
+        else:
+            return False
 
 
 def evaluate_rule(file_rule, file_object):
@@ -154,11 +164,11 @@ def evaluate_rule(file_rule, file_object):
 
     # TODO: ..
     if file_rule.exact_match:
-        for condition in file_rule.conditions:
-            if not eval_condition(condition, file_object):
+        for cond_field, cond_value in file_rule.conditions.items():
+            if not eval_condition(cond_field, cond_value, file_object):
                 return False
         return True
 
-    for condition in file_rule.conditions:
-        if eval_condition(condition, file_object):
+    for cond_field, cond_value in file_rule.conditions.items():
+        if eval_condition(cond_field, cond_value, file_object):
             file_rule.upvote()

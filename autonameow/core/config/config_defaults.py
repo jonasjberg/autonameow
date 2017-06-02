@@ -77,7 +77,7 @@ DEFAULT_CONFIG = {
          'CONDITIONS': {
              'filesystem': {
                  'basename': '^test_[0-9]+.*',
-                 'extension': None,
+                 'extension': 'txt',
                  'pathname': None,
                  'date_accessed': None,
                  'date_created': None,
@@ -188,7 +188,7 @@ DEFAULT_CONFIG = {
     #
     #      docs.python.org/3/library/datetime.html#strftime-strptime-behavior
     #
-    'datetime_format': {
+    'DATETIME_FORMAT': {
         'date': '%Y-%m-%d',
         'time': '%H-%M-%S',
         'datetime': '%Y-%m-%dT%H%M%S'
