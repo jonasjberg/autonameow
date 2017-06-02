@@ -21,6 +21,8 @@
 
 import logging as log
 
+import re
+
 import core.config.configuration
 from core.fileobject import FileObject
 from core.exceptions import (
@@ -131,17 +133,20 @@ def assemble_basename(name_template, **kwargs):
 
 
 def eval_condition(condition_field, condition_value, file_object):
-    if condition_field == 'basename':
-        if file_object.fnbase == condition_value:
+    def eval_regex(expression, match_data):
+        if re.match(expression, match_data):
             return True
-        else:
-            return False
+        return False
+
+    # Regex Fields
+    if condition_field == 'basename':
+        return eval_regex(condition_value, file_object.fnbase)
 
     if condition_field == 'extension':
-        if file_object.suffix == condition_value:
-            return True
-        else:
-            return False
+        return eval_regex(condition_value, file_object.suffix)
+
+    if condition_field == 'pathname':
+        return eval_regex(condition_value, file_object.abspath)
 
 
 def evaluate_rule(file_rule, file_object):
