@@ -164,6 +164,10 @@ def msg(message, type=None, log=False):
         print_info_msg(message)
         if log:
             logging.info(message)
+    elif type == 'heading':
+        print_default_msg(message)
+        print_default_msg('=' * len(message))
+        print_default_msg('')
     else:
         print_default_msg(message)
         if log:

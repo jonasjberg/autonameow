@@ -25,29 +25,66 @@ import sys
 
 import itertools
 
+import yaml
 
-def dump(obj, nested_level=0, output=sys.stdout):
-    # http://stackoverflow.com/a/21049038
+
+# def dump(obj, nested_level=0, output=sys.stdout):
+#     # http://stackoverflow.com/a/21049038
+#     spacing = '   '
+#     if type(obj) == dict:
+#         print(('%s{' % ((nested_level) * spacing)))
+#         for k, v in list(obj.items()):
+#             if hasattr(v, '__iter__'):
+#                 print(('%s%s:' % ((nested_level + 1) * spacing, k)))
+#                 dump(v, nested_level + 1, output)
+#             else:
+#                 print(('%s%s: %s' % ((nested_level + 1) * spacing, k, v)))
+#         print(('%s}' % (nested_level * spacing)))
+#     elif type(obj) == list:
+#         print(('%s[' % ((nested_level) * spacing)))
+#         for v in obj:
+#             if hasattr(v, '__iter__'):
+#                 dump(v, nested_level + 1, output)
+#             else:
+#                 print(('%s%s' % ((nested_level + 1) * spacing, v)))
+#         print(('%s]' % ((nested_level) * spacing)))
+#     else:
+#         print(('%s%s' % (nested_level * spacing, obj)))
+
+
+def dump(obj):
+    return yaml.dump(obj, default_flow_style=False)
+
+
+def dump_to_list(obj, nested_level=0, output=None):
     spacing = '   '
+    if not output:
+        out = []
+    else:
+        out = output
+
     if type(obj) == dict:
-        print(('%s{' % ((nested_level) * spacing)))
+        out.append(('%s{' % ((nested_level) * spacing)))
         for k, v in list(obj.items()):
             if hasattr(v, '__iter__'):
-                print(('%s%s:' % ((nested_level + 1) * spacing, k)))
-                dump(v, nested_level + 1, output)
+                out.append(('%s%s:' % ((nested_level + 1) * spacing, k)))
+                dump_to_list(v, nested_level + 1, out)
             else:
-                print(('%s%s: %s' % ((nested_level + 1) * spacing, k, v)))
-        print(('%s}' % (nested_level * spacing)))
+                out.append(('%s%s: %s' % ((nested_level + 1) * spacing, k, v)))
+        out.append(('%s}' % (nested_level * spacing)))
     elif type(obj) == list:
-        print(('%s[' % ((nested_level) * spacing)))
+        out.append(('%s[' % ((nested_level) * spacing)))
         for v in obj:
             if hasattr(v, '__iter__'):
-                dump(v, nested_level + 1, output)
+                dump_to_list(v, nested_level + 1, out)
             else:
-                print(('%s%s' % ((nested_level + 1) * spacing, v)))
-        print(('%s]' % ((nested_level) * spacing)))
+                out.append(('%s%s' % ((nested_level + 1) * spacing, v)))
+        out.append(('%s]' % ((nested_level) * spacing)))
     else:
-        print(('%s%s' % (nested_level * spacing, obj)))
+        out.append(('%s%s' % (nested_level * spacing, obj)))
+
+    return out
+
 
 
 def unpack_dict(dt_list):

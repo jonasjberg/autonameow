@@ -134,7 +134,7 @@ class Autonameow(object):
 
         if self.args.dump_config:
             cli.msg('Dumping Active Configuration:', type='heading')
-            cli.msg(str(self.config), type='info')
+            cli.msg(str(self.config))
 
         # Exit if no files are specified, for now.
         if not self.args.input_paths:
@@ -164,23 +164,17 @@ class Autonameow(object):
             analysis = Analysis(current_file)
             analysis.start()
 
-            # TODO: [BL007] Move results printing to separate module/class.
             if self.args.list_datetime:
-                print(('File: "{}"'.format(current_file.abspath)))
-                misc.dump(analysis.results.get('datetime'))
-                print('')
+                cli.msg(('File: "{}"'.format(current_file.abspath)))
+                cli.msg(misc.dump(analysis.results.get('datetime')))
 
-            # TODO: [BL007] Move results printing to separate module/class.
             if self.args.list_title:
-                print(('File: "{}"'.format(current_file.abspath)))
-                misc.dump(analysis.results.get('title'))
-                print('')
+                cli.msg(('File: "{}"'.format(current_file.abspath)))
+                cli.msg(misc.dump(analysis.results.get('title')))
 
-            # TODO: [BL007] Move results printing to separate module/class.
             if self.args.list_all:
-                print(('File: "{}"'.format(current_file.abspath)))
-                misc.dump(analysis.results.get_all())
-                print('')
+                cli.msg(('File: "{}"'.format(current_file.abspath)))
+                cli.msg(misc.dump(analysis.results.get_all()))
 
             if self.args.prepend_datetime:
                 # TODO: Prepend datetime to filename.
