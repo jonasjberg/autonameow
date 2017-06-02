@@ -42,6 +42,10 @@ class NameBuilderError(AutonameowException):
     """An error occurred while constructing a name. Unable to proceed."""
 
 
+class FileRulePriorityError(ConfigError):
+    """Failed to prioritize rules. FileRule comparison failed."""
+
+
 class NameTemplateSyntaxError(ConfigError):
     """The name format template is invalid."""
     pass
