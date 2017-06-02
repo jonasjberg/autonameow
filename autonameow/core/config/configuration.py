@@ -134,7 +134,7 @@ class Configuration(object):
                     _valid_template = self.validate_field(fr, 'NAME_FORMAT')
 
             if not _valid_template:
-                log.debug('Bad: ' + str(fr))
+                log.debug('Bad rule: ' + str(fr))
                 raise ConfigurationSyntaxError('Invalid name template format')
 
             _valid_conditions = parse_conditions(fr.get('CONDITIONS'))
