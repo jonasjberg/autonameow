@@ -37,7 +37,7 @@ from core.exceptions import (
     ConfigurationSyntaxError,
     ConfigError,
 )
-
+from core.util import misc
 
 field_parsers = get_instantiated_field_parsers()
 
@@ -67,10 +67,8 @@ class FileRule(Rule):
         # Possible a list of functions already "loaded" with the target value.
 
     def __str__(self):
-        desc = []
-        for key in self.__dict__:
-            desc.append('{}: {}'.format(key.title(), self.__dict__[key]))
-        return '\n'.join(desc)
+        out = misc.dump_to_list(self.__dict__)
+        return '\n'.join(out)
 
     def upvote(self):
         self.score += 1
