@@ -133,7 +133,8 @@ class Autonameow(object):
             options.prettyprint_options(self.args)
 
         if self.args.dump_config:
-            cli.msg('Dumping Active Configuration:', type='heading')
+            log.info('Dumping active configuration ..')
+            cli.msg('Active Configuration:', type='heading')
             cli.msg(str(self.config))
 
         # Exit if no files are specified, for now.
