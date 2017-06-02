@@ -119,7 +119,7 @@ class Autonameow(object):
                             type='info')
                     self.exit_program(0)
             else:
-                log.debug('Using configuration: "{}"'.format(_config_path))
+                log.info('Using configuration: "{}"'.format(_config_path))
                 try:
                     self.config.load_from_disk(_config_path)
                 except ConfigurationSyntaxError as e:
