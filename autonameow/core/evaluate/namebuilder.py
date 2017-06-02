@@ -105,6 +105,11 @@ class NameBuilder(object):
 
         log.debug('Prioritizing (sorting) remaining {} rules'
                   ' ..'.format(len(rules_to_examine)))
+        for rule in rules_to_examine:
+            log.debug('* "{}" Score: {}  Weight: {}'.format(rule.description,
+                                                            rule.score,
+                                                            rule.weight))
+
         # rules_sorted = sorted(rules_to_examine, key=lambda x: -x.score)
         rules_sorted = sorted(rules_to_examine, reverse=True)
 
