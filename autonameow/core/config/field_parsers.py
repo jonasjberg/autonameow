@@ -96,7 +96,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
         if '/' in expression:
             for magic_value in MAGIC_TYPE_LOOKUP.values():
-                if expression == magic_value:
+                if expression in magic_value:
                     return True
         elif expression in MAGIC_TYPE_LOOKUP.keys():
             return True
