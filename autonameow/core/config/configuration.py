@@ -70,6 +70,12 @@ class FileRule(Rule):
     def __str__(self):
         return misc.dump(self.__dict__)
 
+    def __repr__(self):
+        out = []
+        for key in self.__dict__:
+            out.append('{}: {}'.format(key.title(), self.__dict__[key]))
+        return ', '.join(out)
+
     def upvote(self):
         self.score += 1
 
