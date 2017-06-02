@@ -132,6 +132,10 @@ class Autonameow(object):
         if self.args.dump_options:
             options.prettyprint_options(self.args)
 
+        if self.args.dump_config:
+            cli.msg('Dumping Active Configuration:', type='heading')
+            cli.msg(str(self.config), type='info')
+
         # Exit if no files are specified, for now.
         if not self.args.input_paths:
             log.warning('No input files specified ..')

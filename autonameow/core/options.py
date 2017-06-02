@@ -185,6 +185,11 @@ def init_argparser():
                         action='store_true',
                         help='Dump options to stdout.')
 
+    parser.add_argument('--dump-config',
+                        dest='dump_config',
+                        action='store_true',
+                        help='[DEBUG] Dump condiguration to stdout.')
+
     parser.add_argument('--version',
                         dest='show_version',
                         action='store_true',
