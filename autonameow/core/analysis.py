@@ -190,7 +190,7 @@ class Analysis(object):
         Starts the analysis.
         """
         # Select analyzer based on detected file type.
-        log.debug('File is of type [{!s}]'.format(self.file_object.type))
+        log.debug('File is of type [{!s}]'.format(self.file_object.mime_type))
         self._populate_run_queue()
         log.debug('Enqueued analyzers: {!s}'.format(self.analysis_run_queue))
 
@@ -211,11 +211,11 @@ class Analysis(object):
         for azr, tpe in get_analyzer_mime_mappings().items():
             if isinstance(tpe, list):
                 for t in tpe:
-                    if t == self.file_object.type or t == 'MIME_ALL':
+                    if t == self.file_object.mime_type or t == 'MIME_ALL':
                         found.append(azr)
                         log.debug('Enqueueing "{!s}"'.format(azr))
             else:
-                if tpe == self.file_object.type or tpe == 'MIME_ALL':
+                if tpe == self.file_object.mime_type or tpe == 'MIME_ALL':
                     found.append(azr)
                     log.debug('Enqueueing "{!s}"'.format(azr))
 

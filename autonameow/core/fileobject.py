@@ -53,18 +53,15 @@ class FileObject(object):
         elif not os.access(path, os.R_OK):
             raise InvalidFileArgumentError('Not authorized to read path')
 
-        # Get full absolute path
         self.abspath = os.path.abspath(path)
         logging.debug('FileObject path: {}'.format(self.abspath))
-
         self.filename = os.path.basename(self.abspath)
+
+        self.mime_type = filetype_magic(self.abspath)
 
         # Extract parts of the file name.
         self.fnbase = diskutils.file_base(self.abspath)
         self.suffix = diskutils.file_suffix(self.abspath)
-
-        # Figure out basic file type
-        self.type = filetype_magic(self.abspath)
 
         # Do "filename partitioning" -- split the file name into four parts:
         #
