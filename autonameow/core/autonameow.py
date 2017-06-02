@@ -37,12 +37,10 @@ from core.exceptions import (
     ConfigurationSyntaxError
 )
 from core.fileobject import FileObject
-from core.options import (
-    print_ascii_banner,
-    print_exit_info,
-    print_start_info
+from core.util import (
+    misc,
+    cli
 )
-from core.util import misc
 from . import version
 
 terminal_width = 100
@@ -81,7 +79,7 @@ class Autonameow(object):
 
         # Display various information depending on verbosity level.
         if self.args.verbose:
-            print_start_info()
+            cli.print_start_info()
 
         if self.args.debug:
             log.debug('Started {} version {}'.format(version.__title__,
@@ -92,7 +90,7 @@ class Autonameow(object):
 
         # Display startup banner with program version and exit.
         if self.args.show_version:
-            print_ascii_banner()
+            cli.print_ascii_banner()
             self.exit_program(0)
 
         # Check configuration file. If no alternate config file path is
@@ -224,7 +222,7 @@ class Autonameow(object):
 
         try:
             if self.args.verbose:
-                print_exit_info(exit_code, elapsed_time)
+                cli.print_exit_info(exit_code, elapsed_time)
         except AttributeError:
             pass
 

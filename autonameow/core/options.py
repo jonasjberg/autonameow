@@ -22,12 +22,9 @@
 import argparse
 import logging
 import os
-import platform
-from datetime import datetime
 
-from colorama import Fore, Back
+from colorama import Fore
 
-from core import version
 from core.util import dateandtime
 
 
@@ -268,58 +265,3 @@ def prettyprint_options(opts):
               Fore.RESET + '{:<40}'.format(str(v))))
 
 
-def print_ascii_banner():
-    """
-    Prints a "banner" with some ASCII art, program information and credits.
-    """
-    # TODO: Text alignment depends on manually hardcoding spaces! FIX!
-
-    print(Fore.LIGHTBLUE_EX +
-           '''
-   ###   ### ### ####### #####  ###  ##   ###   ##   ## ####### #####  ### ###
-  #####  ### ###   ###  ### ### #### ##  #####  # # ### ####   ####### ### ###
- ### ### ### ###   ###  ### ### ####### ### ### ####### ###### ### ### #######
- ####### #######   ###  ####### ### ### ####### ### ### ####   ### ### ### ###
- ### ###  ### ##   ###   #####  ### ### ### ### ### ### ####### #####  ##   ##
-    ''' + Fore.RESET)
-    colortitle = Back.BLUE + Fore.BLACK + \
-        ' ' + version.__title__.lower() + ' ' + \
-        Back.RESET + Fore.RESET
-    toplineleft = ' {title}  version {ver}'.format(title=colortitle,
-                                                   ver=version.__version__)
-    toplineright = version.__copyright__
-    print(('{:<}{:>50}'.format(toplineleft, toplineright)))
-    print(('{:>78}'.format(version.__url__)))
-    print(('{:>78}'.format(version.__email__)))
-    print('')
-
-
-def print_start_info():
-    """
-    Prints information on program startup; current date/time, user and platform.
-    """
-    print(Fore.LIGHTBLACK_EX +
-          'Started at {date} by {user} on {platform}'.format(
-              date=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-              user=os.environ.get('USER'),
-              platform=' '.join(platform.uname()[:3])) +
-          Fore.RESET)
-
-
-def print_exit_info(exit_code, elapsed_time):
-    """
-    Prints information on program exit; total execution time and exit code.
-
-    Args:
-        exit_code: Program exit status, for display only.
-        elapsed_time: Program execution time in seconds.
-    """
-    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-
-    # TODO: Format the execution time to minutes and seconds if it exceeds
-    #       60 seconds, hours, minutes and seconds if it exceeds 60 minutes ..
-
-    print(Fore.LIGHTBLACK_EX +
-          'Finished at {} after {:.6f} seconds '
-          'with exit code {}'.format(date, elapsed_time, exit_code) +
-          Fore.RESET)
