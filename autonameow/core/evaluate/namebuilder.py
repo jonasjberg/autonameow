@@ -81,6 +81,7 @@ class NameBuilder(object):
 
         for rule in rules_to_examine:
             if not evaluate_rule(rule, self.file):
+                log.debug('Rule evaluated false; removing: {!s}'.format(rule))
                 rules_to_examine.remove(rule)
 
         if len(rules_to_examine) == 0:
