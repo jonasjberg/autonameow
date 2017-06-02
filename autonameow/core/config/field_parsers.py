@@ -18,6 +18,7 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
+
 import glob
 import os
 import re
@@ -38,8 +39,6 @@ class ConfigFieldParser(object):
     by inheriting rule parser classes.
     """
     applies_to_field = []
-    applies_to_conditions = None
-    applies_to_data_sources = None
 
     def __init__(self):
         self.init()
@@ -60,16 +59,25 @@ class ConfigFieldParser(object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def validate(self, expression):
-        return self.get_validation_function()(expression)
+        """
+        Validates a given field. Should be called through classes inheriting
+        from "ConfigFieldParser", which will validate the expression depending
+        on which class is used.  Can NOT be called as a class method.
 
+        Args:
+            expression: The expression to validate.
+
+        Returns:
+            True if expression is valid, else False.
+
+        """
+        return self.get_validation_function()(expression)
 
     # TODO: Add validation and evaluation methods to parser classes?
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['pathname', 'basename', 'extension', 'raw_text']
-    applies_to_conditions = True
-    applies_to_data_sources = False
 
     @staticmethod
     def is_valid_regex(expression):
@@ -86,8 +94,6 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['mime_type']
-    applies_to_conditions = True
-    applies_to_data_sources = False
 
     @staticmethod
     def is_valid_mime_type(expression):
@@ -110,8 +116,6 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 class DateTimeConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['datetime', 'date_accessed', 'date_created',
                         'date_modified']
-    applies_to_conditions = True
-    applies_to_data_sources = True
 
     @staticmethod
     def is_valid_datetime(expression):
@@ -128,8 +132,6 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
 
 class NameFormatConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['NAME_FORMAT']
-    applies_to_conditions = False
-    applies_to_data_sources = False
 
     @staticmethod
     def is_valid_format_string(expression):

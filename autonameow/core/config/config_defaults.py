@@ -188,7 +188,7 @@ DEFAULT_CONFIG = {
     #
     #      docs.python.org/3/library/datetime.html#strftime-strptime-behavior
     #
-    'name_datetime_format': {
+    'datetime_format': {
         'date': '%Y-%m-%d',
         'time': '%H-%M-%S',
         'datetime': '%Y-%m-%dT%H%M%S'

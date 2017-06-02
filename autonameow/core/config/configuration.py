@@ -30,7 +30,8 @@ from core.config.field_parsers import (
     MimeTypeConfigFieldParser,
     NameFormatConfigFieldParser,
     get_instantiated_field_parsers,
-    RegexConfigFieldParser
+    RegexConfigFieldParser,
+    DateTimeConfigFieldParser
 )
 from core.exceptions import (
     ConfigurationSyntaxError,
@@ -83,6 +84,7 @@ class Configuration(object):
     def __init__(self, data=None):
         self._file_rules = []
         self._name_templates = {}
+        self._options = {}
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
         self.field_parsers = get_instantiated_field_parsers()
@@ -163,6 +165,21 @@ class Configuration(object):
         log.critical('Config file entry not validated correctly!')
         return False
 
+    def _load_options(self):
+        def _try_load_date_format_option(option):
+            _value = self._data['datetime_format'].get(option)
+            if _value and DateTimeConfigFieldParser.is_valid_datetime(_value):
+                self._options[option] = _value
+
+        if 'datetime_format' in self._data:
+            _try_load_date_format_option('date')
+            _try_load_date_format_option('time')
+            _try_load_date_format_option('datetime')
+
+    @property
+    def options(self):
+        return self._options
+
     @property
     def data(self):
         return self._data
@@ -179,6 +196,7 @@ class Configuration(object):
         self._data = data
         self._load_name_templates()
         self._load_file_rules()
+        self._load_options()
 
     def load_from_disk(self, load_path):
         _yaml_data = load_yaml_file(load_path)
