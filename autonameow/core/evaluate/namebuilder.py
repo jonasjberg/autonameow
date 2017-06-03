@@ -241,5 +241,6 @@ def evaluate_rule(file_rule, file_object):
             log.debug('Condition Passed rule.votes++')
             file_rule.upvote()
         else:
-            file_rule.downvote()
-            log.debug('Condition FAILED rule.votes--')
+            # file_rule.downvote()
+            # log.debug('Condition FAILED rule.votes--')
+            log.debug('Condition FAILED')
