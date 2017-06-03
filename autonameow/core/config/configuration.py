@@ -340,7 +340,7 @@ def parse_sources(raw_sources):
             out['description'] = source.split('.')[-2:]
 
     if 'extension' in raw_sources:
-        source = raw_sources['description']
+        source = raw_sources['extension']
         if isinstance(source, list):
             source = source[0]
         if source and source == 'filename.extension':
