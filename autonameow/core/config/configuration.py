@@ -188,33 +188,45 @@ class Configuration(object):
         # Check raw dictionary data.
         # Create and populate "FileRule" objects with *validated* data.
         for fr in self._data['FILE_RULES']:
+            try:
+                valid_file_rule = self._validate_rule_data(fr)
+            except ConfigurationSyntaxError as e:
+                log.error('Bad configuration: {!s}'.format(e))
+            else:
+                self._file_rules.append(valid_file_rule)
 
-            # First test if the field data is a valid name template entry,
-            # If it is, use the format string defined in that entry.
-            # If not, try to use 'name_template' as a format string.
-            _valid_template = None
-            if 'NAME_FORMAT' in fr:
-                name_format = fr.get('NAME_FORMAT')
-                if name_format in self.name_templates:
-                    _valid_template = self._name_templates.get(name_format)
-                else:
-                    _valid_template = self.validate_field(fr, 'NAME_FORMAT')
+    def _validate_rule_data(self, raw_rule):
+        if 'NAME_FORMAT' not in raw_rule:
+            log.debug('File rule contains no name format data' + str(raw_rule))
+            raise ConfigurationSyntaxError('Missing name template format')
 
-            if not _valid_template:
-                log.debug('Bad rule: ' + str(fr))
-                raise ConfigurationSyntaxError('Invalid name template format')
+        # First test if the field data is a valid name template entry,
+        # If it is, use the format string defined in that entry.
+        # If not, try to use 'name_template' as a format string.
+        name_format = raw_rule.get('NAME_FORMAT')
+        if name_format in self.name_templates:
+            valid_format = self.name_templates.get(name_format, False)
+        else:
+            # _valid_template = self.validate_field(fr, 'NAME_FORMAT')
+            if NameFormatConfigFieldParser.is_valid_format_string(name_format):
+                valid_format = name_format
 
-            _valid_conditions = parse_conditions(fr.get('CONDITIONS'))
-            _valid_sources = parse_sources(fr.get('DATA_SOURCES'))
-            _valid_weight = self.parse_weight(fr.get('weight'))
+        if not valid_format:
+            log.debug('File rule name format is invalid: ' + str(raw_rule))
+            raise ConfigurationSyntaxError('Invalid name template format')
 
-            file_rule = FileRule(description=fr.get('description'),
-                                 exact_match=fr.get('exact_match'),
-                                 weight=_valid_weight,
-                                 name_template=_valid_template,
-                                 conditions=_valid_conditions,
-                                 data_sources=_valid_sources)
-            self._file_rules.append(file_rule)
+        _valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
+        _valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
+        _valid_weight = self.parse_weight(raw_rule.get('weight'))
+
+        file_rule = FileRule(description=raw_rule.get('description'),
+                             exact_match=raw_rule.get('exact_match'),
+                             weight=_valid_weight,
+                             name_template=valid_format,
+                             conditions=_valid_conditions,
+                             data_sources=_valid_sources)
+        return file_rule
+
 
     def validate_field(self, raw_file_rule, field_name):
         for parser in self.field_parsers:
