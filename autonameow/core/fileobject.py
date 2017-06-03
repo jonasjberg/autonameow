@@ -139,8 +139,8 @@ class FileObject(object):
             True if the filename is in the "filetags" format.
             Otherwise False.
         """
-        if self.filenamepart_ts and self.filenamepart_base and \
-               self.filenamepart_tags:
+        if (self.filenamepart_ts and self.filenamepart_base
+                and self.filenamepart_tags):
             return True
         else:
             return False

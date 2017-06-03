@@ -166,8 +166,8 @@ class Autonameow(object):
             analysis = Analysis(current_file)
             analysis.start()
 
-            list_any = self.args.list_datetime or self.args.list_title or \
-                       self.args.list_all
+            list_any = (self.args.list_datetime or self.args.list_title
+                        or self.args.list_all)
             if list_any:
                 cli.msg(('File: "{}"'.format(current_file.abspath)))
 

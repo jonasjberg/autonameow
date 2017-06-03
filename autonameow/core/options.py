@@ -57,8 +57,8 @@ def arg_is_readable_file(arg):
     Returns: The expanded absolute path specified by "arg" if valid.
 
     """
-    if arg and os.path.exists(arg) and os.path.isfile(arg) \
-            and os.access(arg, os.R_OK):
+    if (arg and os.path.exists(arg) and os.path.isfile(arg)
+            and os.access(arg, os.R_OK)):
         if arg.startswith('~/'):
             arg = os.path.expanduser(arg)
         return os.path.normpath(os.path.abspath(arg))
@@ -220,18 +220,17 @@ def parse_args(opts):
     #       command-line. For instance, verbosity levels 1 and 3 would be
     #       enabled with '-v' and '-vvv', respectively.
     if args.debug:
-        fmt = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
-              Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
-              ' %(funcName)-25.25s (%(lineno)3d) ' + \
-              Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + \
-              '%(message)s'
+        fmt = (Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET
+               + Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET
+               + ' %(funcName)-25.25s (%(lineno)3d) ' + Fore.LIGHTBLACK_EX
+               + ' -- ' + Fore.RESET + '%(message)s')
         logging.basicConfig(level=logging.DEBUG, format=fmt,
                             datefmt='%Y-%m-%d %H:%M:%S')
     elif args.verbose:
-        fmt = Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET + \
-              Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET + \
-              Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET + \
-              '%(message)s'
+        fmt = (Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET
+               + Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET
+               + Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET
+               + '%(message)s')
         logging.basicConfig(level=logging.INFO, format=fmt,
                             datefmt='%Y-%m-%d %H:%M:%S')
     elif args.quiet:

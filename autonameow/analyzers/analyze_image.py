@@ -169,8 +169,8 @@ class ImageAnalyzer(AbstractAnalyzer):
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
-        if self.exif_data['Make'] == 'OnePlus' and \
-           self.exif_data['Model'] == 'ONE E1003':
+        if (self.exif_data['Make'] == 'OnePlus' and
+                self.exif_data['Model'] == 'ONE E1003'):
             bad_exif_date = datetime.strptime('20021208_120000',
                                               '%Y%m%d_%H%M%S')
             try:
@@ -182,8 +182,8 @@ class ImageAnalyzer(AbstractAnalyzer):
                 # TODO: FIX THIS! Currently does not pass anything if the bad
                 #                 exif date is in the dict.
                 pass
-                results[:] = [d for d in results if \
-                              (d.get('source') == 'DateTimeDigitized' and \
+                results[:] = [d for d in results if
+                              (d.get('source') == 'DateTimeDigitized' and
                                d.get('value') != bad_exif_date)]
             except KeyError:
                 # logging.warn('KeyError for key [DateTimeDigitized]')

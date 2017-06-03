@@ -123,13 +123,13 @@ class FileRule(Rule):
     #    else:
     #        return self.score < other.score
 
-    #def __eq__(self, other):
-    #    return self.description == other.description and \
-    #           self.exact_match == other.exact_match and \
-    #           self.weight == other.weight and \
-    #           self.name_template == other.name_template and \
-    #           self.conditions == other.conditions and \
-    #           self.data_sources == other.data_sources
+    # def __eq__(self, other):
+    #     return (self.description == other.description
+    #             and self.exact_match == other.exact_match
+    #             and self.weight == other.weight
+    #             and self.name_template == other.name_template
+    #             and self.conditions == other.conditions
+    #             and self.data_sources == other.data_sources)
 
 
 class Configuration(object):
