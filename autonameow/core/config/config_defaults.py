@@ -84,7 +84,7 @@ DEFAULT_CONFIG = {
                  'date_modified': None,
              },
              'contents': {
-                 'mime_type': 'application/pdf',
+                 'mime_type': 'pdf',
                  'textual': {
                      'raw_text': None,
                  }
