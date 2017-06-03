@@ -129,6 +129,25 @@ assert_true '( "$AUTONAMEOW_RUNNER" --version --debug 2>&1 ) >/dev/null' \
              "autonameow should return zero when started with \"--version\" and \"--debug\""
 
 
+SAMPLE_PDF_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/gmail.pdf" ) )"
+assert_true '[ -e "$SAMPLE_PDF_FILE" ]' \
+            "The test sample pdf file exists. Add suitable test file if this test fails!"
+
+set +o pipefail
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 | grep -q -- "Using file rule: test_files Gmail print-to-pdf" ) >/dev/null' \
+            "[TC014] autonameow should choose file rule \"test_files Gmail print-to-pdf\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+
+assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_JPG_FILE" 2>&1 | grep -q -- "Using file rule: test_files Gmail print-to-pdf" ) >/dev/null' \
+             "[TC014] autonameow should NOT choose file rule \"test_files Gmail print-to-pdf\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_JPG_FILE" 2>&1 | grep -q -- "Using file rule: test_files smulan.jpg" ) >/dev/null' \
+            "[TC014] autonameow should choose file rule \"test_files smulan.jpg\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
+
+assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 | grep -q -- "Using file rule: test_files smulan.jpg" ) >/dev/null' \
+            "[TC014] autonameow should NOT choose file rule \"test_files smulan.jpg\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+set -o pipefail
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
