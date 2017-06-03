@@ -22,6 +22,8 @@
 import os
 import logging as log
 
+import sys
+
 from core.exceptions import AutonameowPluginError
 from plugins import microsoft_vision
 
@@ -78,3 +80,33 @@ def plugin_query(plugin_name, query, data):
             log.debug('Returning tags: {}'.format(tags_pretty))
             return tags
 
+
+if __name__ == '__main__':
+    TEST_IMAGE = '~/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/test_files/smulan.jpg'
+    image_path = os.path.realpath(os.path.expanduser(TEST_IMAGE))
+
+    if not os.path.isfile(image_path):
+        sys.exit('Not a file: "{}"'.format(image_path))
+
+    response_caption = plugin_query('microsoft_vision', 'caption', image_path)
+    response_tags = plugin_query('microsoft_vision', 'tags', image_path)
+
+    print('Microsoft vision API test')
+    print('-------------------------')
+    print('Using image: "{}"'.format(str(image_path)))
+    print('')
+    print('Caption: {}'.format(response_caption))
+    print('   Tags: {}'.format(response_tags))
+
+
+# Expected output:
+# ================
+# (Current working directory is "$SRCROOT/autonameow")
+#
+#   $ PYTHONPATH=. python3 plugins/__init__.py
+#   Microsoft vision API test
+#   -------------------------
+#   Using image: "/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/test_files/smulan.jpg"
+#
+#   Caption: a cat lying on a rug
+#      Tags: ['cat', 'black', 'indoor', 'laying', 'white']
