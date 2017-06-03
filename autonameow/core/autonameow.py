@@ -166,17 +166,21 @@ class Autonameow(object):
             analysis = Analysis(current_file)
             analysis.start()
 
-            if self.args.list_datetime:
+            list_any = self.args.list_datetime or self.args.list_title or \
+                       self.args.list_all
+            if list_any:
                 cli.msg(('File: "{}"'.format(current_file.abspath)))
-                cli.msg(misc.dump(analysis.results.get('datetime')))
-
-            if self.args.list_title:
-                cli.msg(('File: "{}"'.format(current_file.abspath)))
-                cli.msg(misc.dump(analysis.results.get('title')))
 
             if self.args.list_all:
-                cli.msg(('File: "{}"'.format(current_file.abspath)))
+                log.info('Listing ALL analysis results ..')
                 cli.msg(misc.dump(analysis.results.get_all()))
+            else:
+                if self.args.list_datetime:
+                    log.info('Listing "datetime" analysis results ..')
+                    cli.msg(misc.dump(analysis.results.get('datetime')))
+                if self.args.list_title:
+                    log.info('Listing "title" analysis results ..')
+                    cli.msg(misc.dump(analysis.results.get('title')))
 
             if self.args.prepend_datetime:
                 # TODO: Prepend datetime to filename.
