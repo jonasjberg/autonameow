@@ -116,6 +116,9 @@ class Results(object):
             }
         }
 
+    # def __getitem__(self, key):
+    # TODO: Implement proper getter method.
+
     def add(self, field, data, source):
         """
         Adds results from an analyzer.
