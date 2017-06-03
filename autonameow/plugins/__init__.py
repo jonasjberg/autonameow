@@ -53,19 +53,28 @@ def plugin_query(plugin_name, query, data):
     Hack interface to query plugins.
     """
     # TODO: Rewrite from scratch!
+
     if plugin_name == 'microsoft_vision':
+        # NOTE: Expecting "data" to be a valid path to an image file.
         if not API_KEY:
             raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
 
-        if query == 'caption':
-            # NOTE: Expecting "data" to be a valid path to an image file.
+        if query == 'caption' or query == 'tags':
             response = microsoft_vision.query_api(data, API_KEY)
-
             if not response:
                 log.error('[plugin.microsoft_vision] Unable to query to API')
                 raise AutonameowPluginError('Did not receive a valid response')
+            else:
+                log.debug('Received microsoft_vision API query response')
 
-            log.debug('Received microsoft_vision API query response')
+        if query == 'caption':
             caption = microsoft_vision.get_caption_text(response)
             log.debug('Returning caption: "{!s}"'.format(caption))
             return str(caption)
+
+        elif query == 'tags':
+            tags = microsoft_vision.get_tags(response, 5)
+            tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
+            log.debug('Returning tags: {}'.format(tags_pretty))
+            return tags
+
