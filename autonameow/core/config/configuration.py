@@ -56,6 +56,17 @@ class Rule(object):
 class FileRule(Rule):
     """
     Represents a single file rule entry in a loaded configuration.
+
+    This class is a container; assumes all data in "kwargs" is valid.
+    All data validation should be performed outside of this class.
+
+    File rules are prioritized and sorted by both "score" and "weight".
+
+      - score  Represents how well suited a rule is for a given file.
+               This value is changed at run-time.
+      - weight If multiple rules end up with an equal score, weights are
+               used to further prioritize as to get a single "winning" rule.
+               This value is specified in the active configuration.
     """
     def __init__(self, **kwargs):
         super().__init__()
@@ -72,7 +83,7 @@ class FileRule(Rule):
 
         # TODO: Implement "conditions" field ..
         # Possible a list of functions already "loaded" with the target value.
-        # Also "loaded" with correspondin (reference to) a validation function.
+        # Also "loaded" with corresponding (reference to) a validation function.
 
     def __str__(self):
         return misc.dump(self.__dict__)
@@ -84,9 +95,15 @@ class FileRule(Rule):
         return ', '.join(out)
 
     def upvote(self):
+        """
+        Increases the score of this rule.
+        """
         self.score += 1
 
     def downvote(self):
+        """
+        Decreases the score of this rule.
+        """
         if self.score > 0:
             self.score -= 1
 
@@ -116,7 +133,20 @@ class FileRule(Rule):
 
 
 class Configuration(object):
+    """
+    Container for a loaded and active configuration.
+
+    Loads and validates data from a dictionary or YAML file.
+    """
     def __init__(self, data=None):
+        """
+        Instantiates a new Configuration object.
+
+        All parsing and loading happens at instantiation.
+
+        Args:
+            data: Raw configuration data to load as a dictionary.
+        """
         self._file_rules = []
         self._name_templates = {}
         self._options = {'DATETIME_FORMAT': {},
@@ -215,15 +245,28 @@ class Configuration(object):
             _try_load_date_format_option('datetime')
 
         if 'FILETAGS_OPTIONS' in self._data:
-            _try_load_filetags_option('filename_tag_separator')
-            _try_load_filetags_option('between_tag_separator')
+            _try_load_filetags_option('filename_tag_separator',
+                                      FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR)
+            _try_load_filetags_option('between_tag_separator',
+                                      FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR)
 
     @property
     def options(self):
+        """
+        Public interface for configuration options.
+        Returns:
+            Current and valid configuration options.
+        """
         return self._options
 
     @property
     def data(self):
+        """
+        NOTE: Intended for debugging and testing!
+
+        Returns:
+            Raw configuration data as a dictionary.
+        """
         return self._data
 
     @property
