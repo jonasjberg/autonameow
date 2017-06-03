@@ -113,11 +113,8 @@ DEFAULT_CONFIG = {
              },
          },
          'DATA_SOURCES': {
-             'datetime': None,
-             'description': None,
-             'title': None,
-             'author': None,
-             'publisher': None,
+             'datetime': 'metadata.exiftool.DateTimeOriginal',
+             'description': 'plugin.microsoftvision.caption',
              'extension': 'filename.extension'
          }
          },
