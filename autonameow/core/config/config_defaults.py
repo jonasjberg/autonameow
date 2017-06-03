@@ -89,7 +89,7 @@ DEFAULT_CONFIG = {
              },
          },
          'DATA_SOURCES': {
-             'datetime': None,
+             'datetime': 'metadata.exiftool.PDF:CreateDate',
              'description': None,
              'title': None,
              'author': None,
