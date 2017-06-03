@@ -280,18 +280,25 @@ def parse_sources(raw_sources):
 
     if 'datetime' in raw_sources:
         source = raw_sources['datetime']
-        if source.startswith('metadata.exiftool.'):
-            # Slice returns two last items in split() list.
-            out['datetime'] = source.split('.')[-2:]
+        if source:
+            if isinstance(source, list):
+                source = source[0]
+            if source.startswith('metadata.exiftool.'):
+                # Slice returns two last items in split() list.
+                out['datetime'] = source.split('.')[-2:]
 
     if 'description' in raw_sources:
         source = raw_sources['description']
-        if source == 'plugin.microsoftvision.caption':
+        if isinstance(source, list):
+            source = source[0]
+        if source and source == 'plugin.microsoftvision.caption':
             out['description'] = source.split('.')[-2:]
 
     if 'extension' in raw_sources:
         source = raw_sources['description']
-        if source == 'filename.extension':
+        if isinstance(source, list):
+            source = source[0]
+        if source and source == 'filename.extension':
             out['extension'] = 'filesystem.extension'
 
     return out
