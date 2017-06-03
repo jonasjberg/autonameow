@@ -26,7 +26,8 @@ from core.exceptions import AutonameowPluginError
 from plugins import microsoft_vision
 
 
-api_key_path = os.path.join(os.path.realpath(__file__), 'microsoft_vision.key')
+api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
+                            'microsoft_vision.key')
 try:
     with open(api_key_path, mode='r', encoding='utf8') as f:
         API_KEY = f.read()
