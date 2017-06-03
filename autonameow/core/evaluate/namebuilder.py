@@ -111,9 +111,7 @@ class NameBuilder(object):
                               key=operator.attrgetter('score', 'weight'))
         for i, rule in enumerate(rules_to_examine):
             log.debug('{}. (score: {}, weight: {}) {} '.format(i + 1,
-                                                           rule.score,
-                                                           rule.weight,
-                                                           rule.description))
+                      rule.score, rule.weight, rule.description))
 
         active_rule = rules_sorted[0]
         cli.msg('Using file rule: {}'.format(active_rule.description))
