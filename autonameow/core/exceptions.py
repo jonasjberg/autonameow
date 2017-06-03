@@ -34,6 +34,10 @@ class ConfigError(AutonameowException):
     """Base class for exceptions raised when querying a configuration."""
 
 
+class AutonameowPluginError(AutonameowException):
+    """A plugin encountered an unrecoverable error."""
+
+
 class AnalysisResultsFieldError(AutonameowException):
     """Attempt to query/access an invalid analyzer data field."""
 
