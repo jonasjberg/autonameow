@@ -136,6 +136,7 @@ class Autonameow(object):
             log.info('Dumping active configuration ..')
             cli.msg('Active Configuration:', type='heading')
             cli.msg(str(self.config))
+            self.exit_program(0)
 
         # Exit if no files are specified, for now.
         if not self.args.input_paths:
