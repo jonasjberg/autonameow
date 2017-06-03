@@ -287,7 +287,7 @@ def parse_sources(raw_sources):
         source = raw_sources['description']
         if isinstance(source, list):
             source = source[0]
-        if source and source == 'plugin.microsoftvision.caption':
+        if source and source == 'plugin.microsoft_vision.caption':
             out['description'] = source.split('.')[-2:]
 
     if 'extension' in raw_sources:
@@ -296,6 +296,8 @@ def parse_sources(raw_sources):
             source = source[0]
         if source and source == 'filename.extension':
             out['extension'] = 'filesystem.extension'
+        if source and source == 'contents.mime_type':
+            out['extension'] = 'contents.mime_type'
 
     return out
 
