@@ -116,7 +116,9 @@ class NameBuilder(object):
         active_rule = rules_sorted[0]
         cli.msg('Using file rule: {}'.format(active_rule.description))
 
-        log.info('')
+        template = active_rule.name_template
+        log.debug('Using name template: {}'.format(template))
+
 
         # TODO: ..
         raise NotImplementedError('TODO: Implement NameBuilder')
