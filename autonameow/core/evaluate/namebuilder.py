@@ -22,6 +22,7 @@
 import logging as log
 
 import re
+import operator
 
 import core.config.configuration
 from core.fileobject import FileObject
@@ -111,7 +112,8 @@ class NameBuilder(object):
                                                             rule.weight))
 
         # rules_sorted = sorted(rules_to_examine, key=lambda x: -x.score)
-        rules_sorted = sorted(rules_to_examine, reverse=True)
+        rules_sorted = sorted(rules_to_examine, reverse=True,
+                              key=operator.attrgetter('score', 'weight'))
 
         active_rule = rules_sorted[0]
         cli.msg('Using file rule: {}'.format(active_rule.description))
