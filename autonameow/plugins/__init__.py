@@ -48,18 +48,23 @@ except FileNotFoundError as e:
 
 
 def plugin_query(plugin_name, query, data):
-    if not API_KEY:
-        raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
-
+    """
+    Hack interface to query plugins.
+    """
+    # TODO: Rewrite from scratch!
     if plugin_name == 'microsoft_vision':
+        if not API_KEY:
+            raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
+
         if query == 'caption':
             # NOTE: Expecting "data" to be a valid path to an image file.
             response = microsoft_vision.query_api(data, API_KEY)
 
             if not response:
                 log.error('[plugin.microsoft_vision] Unable to query to API')
-                return None
+                raise AutonameowPluginError('Did not receive a valid response')
 
-            log.debug('Received query response')
+            log.debug('Received microsoft_vision API query response')
             caption = microsoft_vision.get_caption_text(response)
+            log.debug('Returning caption: "{!s}"'.format(caption))
             return str(caption)
