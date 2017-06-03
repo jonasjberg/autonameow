@@ -232,6 +232,8 @@ def evaluate_rule(file_rule, file_object):
             if not eval_condition(cond_field, cond_value, file_object):
                 log.debug('Condition FAILED -- Exact match impossible ..')
                 return False
+            else:
+                file_rule.upvote()
         return True
 
     for cond_field, cond_value in file_rule.conditions.items():
