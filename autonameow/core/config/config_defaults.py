@@ -58,21 +58,21 @@ DEFAULT_CONFIG = {
     #
     #   TODO: Document all fields ..
     #
-    #   * If '_exact_match' is True, __all__ conditions must be met,
+    #   * If 'exact_match' is True, __all__ conditions must be met,
     #     otherwise the rule is considered to not apply to the given file.
     #
-    #   * If '_exact_match' is False, the rule with the highest number of
+    #   * If 'exact_match' is False, the rule with the highest number of
     #     satisfied conditions is used.
     #     When multiple rules end up tied for the "best fit", I.E. they all
-    #     have an equal amount of satisfied conditions; '_weight' is used
+    #     have an equal amount of satisfied conditions; 'weight' is used
     #     to prioritize the candidates.
     #
     #   TODO: Document all fields ..
     #
     'FILE_RULES': [
-        {'_description': 'test_files Gmail print-to-pdf',
-         '_exact_match': True,
-         '_weight': None,
+        {'description': 'test_files Gmail print-to-pdf',
+         'exact_match': True,
+         'weight': None,
          'NAME_FORMAT': '{datetime} {title} -- {tags}.{extension}',
          'CONDITIONS': {
              'filesystem': {
@@ -100,9 +100,9 @@ DEFAULT_CONFIG = {
              'extension': 'filename.extension'
          }
          },
-        {'_description': 'test_files smulan.jpg',
-         '_exact_match': True,
-         '_weight': 1,
+        {'description': 'test_files smulan.jpg',
+         'exact_match': True,
+         'weight': 1,
          'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
              'filesystem': {
@@ -118,9 +118,9 @@ DEFAULT_CONFIG = {
              'extension': 'filename.extension'
          }
          },
-        {'_description': 'Sample Entry for Photos with strict rules',
-         '_exact_match': True,
-         '_weight': 1,
+        {'description': 'Sample Entry for Photos with strict rules',
+         'exact_match': True,
+         'weight': 1,
          'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
          'CONDITIONS': {
              'filesystem': {
@@ -155,9 +155,9 @@ DEFAULT_CONFIG = {
              'tags': 'plugin.microsoftvision.tags'
          }
          },
-        {'_description': 'Sample Entry for EPUB e-books',
-         '_exact_match': True,
-         '_weight': 1,
+        {'description': 'Sample Entry for EPUB e-books',
+         'exact_match': True,
+         'weight': 1,
          'NAME_FORMAT': 'default_book',
          'CONDITIONS': {
              'filesystem': {

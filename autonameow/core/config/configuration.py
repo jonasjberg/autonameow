@@ -176,10 +176,10 @@ class Configuration(object):
 
             _valid_conditions = parse_conditions(fr.get('CONDITIONS'))
             _valid_sources = parse_sources(fr.get('DATA_SOURCES'))
-            _valid_weight = self.parse_weight(fr.get('_weight'))
+            _valid_weight = self.parse_weight(fr.get('weight'))
 
-            file_rule = FileRule(description=fr.get('_description'),
-                                 exact_match=fr.get('_exact_match'),
+            file_rule = FileRule(description=fr.get('description'),
+                                 exact_match=fr.get('exact_match'),
                                  weight=_valid_weight,
                                  name_template=_valid_template,
                                  conditions=_valid_conditions,

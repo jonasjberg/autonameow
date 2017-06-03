@@ -147,9 +147,9 @@ class TestConfigurationValidation(TestCase):
         self.maxDiff = None
         self.configuration = Configuration()
         self.VALID_RAW_FILE_RULE = {
-            '_description': 'Sample Entry for Photos with strict rules',
-            '_exact_match': True,
-            '_weight': 1,
+            'description': 'Sample Entry for Photos with strict rules',
+            'exact_match': True,
+            'weight': 1,
             'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
             'CONDITIONS': {
                 'filename': {
@@ -165,9 +165,9 @@ class TestConfigurationValidation(TestCase):
         }
 
         self.INVALID_RAW_FILE_RULE = {
-            '_description': 'Sample Entry for Photos with strict rules',
-            '_exact_match': True,
-            '_weight': 1,
+            'description': 'Sample Entry for Photos with strict rules',
+            'exact_match': True,
+            'weight': 1,
             'NAME_FORMAT': None,
             'CONDITIONS': {
                 'filename': {

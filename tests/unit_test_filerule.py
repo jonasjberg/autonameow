@@ -24,9 +24,9 @@ from unittest import TestCase
 from core.config.configuration import FileRule
 
 RULE_CONTENTS = {
-    '_description': 'First Entry in the Default Configuration',
-    '_exact_match': False,
-    '_weight': None,
+    'description': 'First Entry in the Default Configuration',
+    'exact_match': False,
+    'weight': None,
     'name_template': 'default_template_name',
     'conditions': {
         'filename': {
