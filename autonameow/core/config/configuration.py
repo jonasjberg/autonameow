@@ -63,16 +63,12 @@ class FileRule(Rule):
         self.conditions = kwargs.get('conditions', False)
         self.data_sources = kwargs.get('data_sources', False)
 
-        # Rules requiring an exact match are handled _AS IF_ their score is max.
-        # (would happen when all conditions evaluates to True for a given file)
-        # These rules can only be sorted/prioritized by their weights.
-        #
-        # Rules that DO NOT require an exact match are sorted/prioritized by
-        # their score.
+        # Rules are sorted/prioritized by first the score, secondly the weight.
         self.score = 0
 
         # TODO: Implement "conditions" field ..
         # Possible a list of functions already "loaded" with the target value.
+        # Also "loaded" with correspondin (reference to) a validation function.
 
     def __str__(self):
         return misc.dump(self.__dict__)
