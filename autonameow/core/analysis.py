@@ -112,7 +112,7 @@ class Results(object):
                 }
             },
             'metadata': {
-
+                'exiftool': {},   # 'metadata.exiftool.PDF:CreateDate'
             }
         }
 
