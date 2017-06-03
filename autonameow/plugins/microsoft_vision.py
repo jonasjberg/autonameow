@@ -152,6 +152,27 @@ def get_caption_text(json_data):
         return caption
 
 
+def get_tags(json_data, count=None):
+    if count:
+        try:
+            count = int(count)
+        except TypeError:
+            count = None
+        else:
+            if count < 0:
+                count = None
+
+    try:
+        tags = json_data['description']['tags']
+    except KeyError as e:
+        log.error('[ERROR] Unable to get tags: ', str(e))
+    else:
+        if count and len(tags) > count:
+            return tags[:count]
+        else:
+            return tags
+
+
 def main(paths, api_key, dump_response=False, print_caption=True):
     """
     Main program entry point, iterates over paths to images and queries
