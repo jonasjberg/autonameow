@@ -142,7 +142,7 @@ class Configuration(object):
             if NameFormatConfigFieldParser.is_valid_format_string(v):
                 loaded_templates[k] = v
             else:
-                msg = f'Invalid name template "{k}": "{v}"'
+                msg = 'Invalid name template "{}": "{}"'.format(k, v)
                 raise ConfigurationSyntaxError(msg)
 
         self._name_templates.update(loaded_templates)
