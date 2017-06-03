@@ -26,6 +26,17 @@ from core.exceptions import AutonameowPluginError
 from plugins import microsoft_vision
 
 
+# 'microsoft_vision.py'
+# =====================
+# Queries the Microsoft Vision API with images for information about visual
+# content found in the image.
+#
+# Requires a Microsoft Visual API key, available for free at:
+#   <https://www.microsoft.com/cognitive-services/en-us/sign-up>
+#
+# Add your API key to the file 'microsoft_vision.key' in this directory,
+# or modify the line below to point to the file containing your API key.
+#
 api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
                             'microsoft_vision.key')
 try:
