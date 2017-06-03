@@ -114,7 +114,7 @@ DEFAULT_CONFIG = {
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.DateTimeOriginal',
-             'description': 'plugin.microsoftvision.caption',
+             'description': 'plugin.microsoft_vision.caption',
              'extension': 'filename.extension'
          }
          },
@@ -144,15 +144,15 @@ DEFAULT_CONFIG = {
              }
          },
          'DATA_SOURCES': {
-             'datetime': ['metadata.exif.datetimeoriginal',
-                          'metadata.exif.datetimedigitized',
-                          'metadata.exif.createdate'],
-             'description': 'plugin.microsoftvision.caption',
+             'datetime': ['metadata.exiftool.DateTimeOriginal',
+                          'metadata.exiftool.DateTimeDigitized',
+                          'metadata.exiftool.CreateDate'],
+             'description': 'plugin.microsoft_vision.caption',
              'title': None,
              'author': None,
              'publisher': None,
              'extension': 'filename.extension',
-             'tags': 'plugin.microsoftvision.tags'
+             'tags': 'plugin.microsoft_vision.tags'
          }
          },
         {'description': 'Sample Entry for EPUB e-books',
