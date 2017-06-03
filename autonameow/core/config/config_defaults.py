@@ -19,9 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-# TODO: Integrate filetags options with new configuration format.
-FILENAME_TAG_SEPARATOR = ' -- '
-BETWEEN_TAG_SEPARATOR = ' '
 
 
 ALL_CONDITIONS_FIELDS = {
@@ -212,6 +209,15 @@ DEFAULT_CONFIG = {
         'time': '%H-%M-%S',
         'datetime': '%Y-%m-%dT%H%M%S'
     },
+
+    #  Filetags Options
+    #  ----------------
+    #  Options for functionality related to the "filetags" workflow.
+    #
+    'FILETAGS_OPTIONS': {
+        'filename_tag_separator': ' -- ',
+        'between_tag_separator': ' '
+    }
 }
 
 

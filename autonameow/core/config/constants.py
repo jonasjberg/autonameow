@@ -57,3 +57,5 @@ MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
 
 # Default values for required configuration fields.
 FILERULE_DEFAULT_WEIGHT = 0.5
+FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR = ' -- '
+FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR = ' '

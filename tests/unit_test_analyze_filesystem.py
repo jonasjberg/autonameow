@@ -43,7 +43,15 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
             p_project_root + os.sep + 'test_files' + os.sep + 'empty')
         self.assertTrue(os.path.isfile(p_test_file))
 
-        self.fo = FileObject(p_test_file)
+
+        class MockOptions(object):
+            def __init__(self):
+                self.options = {'FILETAGS_OPTIONS':
+                                    {'between_tag_separator': ' ',
+                                     'filename_tag_separator': ' -- '}}
+        opts = MockOptions()
+
+        self.fo = FileObject(p_test_file, opts)
         self.fsa = FilesystemAnalyzer(self.fo)
 
     def get_datetime_source(self, field_name):

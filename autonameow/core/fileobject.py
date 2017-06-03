@@ -25,11 +25,11 @@ import re
 
 import magic
 
-from core.config.config_defaults import (
-    FILENAME_TAG_SEPARATOR,
-    BETWEEN_TAG_SEPARATOR
+from core.config.constants import (
+    MAGIC_TYPE_LOOKUP,
+    FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR,
+    FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR
 )
-from core.config.constants import MAGIC_TYPE_LOOKUP
 from core.exceptions import InvalidFileArgumentError
 from .util import diskutils
 
@@ -41,7 +41,7 @@ FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + '([T_ -]?' + TIME_REGEX + ')?')
 
 
 class FileObject(object):
-    def __init__(self, path):
+    def __init__(self, path, opts):
         if not os.path.exists(path):
             raise InvalidFileArgumentError('Path does not exist')
         elif os.path.isdir(path):
@@ -62,6 +62,10 @@ class FileObject(object):
         # Extract parts of the file name.
         self.fnbase = diskutils.file_base(self.abspath)
         self.suffix = diskutils.file_suffix(self.abspath)
+
+        self.BETWEEN_TAG_SEPARATOR = opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
+        self.FILENAME_TAG_SEPARATOR = opts.options['FILETAGS_OPTIONS'].get('filename_tag_separator')
+
 
         # Do "filename partitioning" -- split the file name into four parts:
         #
@@ -96,23 +100,23 @@ class FileObject(object):
         if self.filenamepart_ts:
             fnbase = self.fnbase.lstrip(self.filenamepart_ts)
 
-        if not re.findall(BETWEEN_TAG_SEPARATOR, fnbase):
+        if not re.findall(self.BETWEEN_TAG_SEPARATOR, fnbase):
             return fnbase
 
         # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
-        r = re.split(FILENAME_TAG_SEPARATOR, fnbase, 1)
+        r = re.split(self.FILENAME_TAG_SEPARATOR, fnbase, 1)
         return str(r[0].strip())
 
     def _filenamepart_ext(self):
         return self.suffix
 
     def _filenamepart_tags(self):
-        if not re.findall(BETWEEN_TAG_SEPARATOR, self.fnbase):
+        if not re.findall(self.BETWEEN_TAG_SEPARATOR, self.fnbase):
             return None
 
-        r = re.split(FILENAME_TAG_SEPARATOR, self.fnbase, 1)
+        r = re.split(self.FILENAME_TAG_SEPARATOR, self.fnbase, 1)
         try:
-            tags = r[1].split(BETWEEN_TAG_SEPARATOR)
+            tags = r[1].split(self.BETWEEN_TAG_SEPARATOR)
             return tags
         except IndexError:
             return None

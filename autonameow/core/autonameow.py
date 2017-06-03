@@ -156,7 +156,7 @@ class Autonameow(object):
 
             # Try to create a file object representing the current argument.
             try:
-                current_file = FileObject(arg)
+                current_file = FileObject(arg, self.config)
             except InvalidFileArgumentError as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(e, arg))
                 continue

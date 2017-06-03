@@ -92,7 +92,15 @@ def get_mock_fileobject():
     """
     Returns: A mock FileObject built from an actual (empty) file.
     """
-    return FileObject(make_temporary_file())
+    class MockOptions(object):
+        def __init__(self):
+            self.options = {'FILETAGS_OPTIONS':
+                                {'between_tag_separator': ' -- ',
+                                 'filename_tag_separator': ' '}}
+
+    opts = MockOptions()
+
+    return FileObject(make_temporary_file(), opts)
 
 
 def get_mock_analyzer():
@@ -103,3 +111,19 @@ def get_mock_analyzer():
     while n < len(get_instantiated_analyzers()):
         yield get_instantiated_analyzers()[n]
         n += 1
+
+
+def get_named_file_object(basename):
+    """
+    Returns: A FileObject with mocked options and the specified basename.
+    """
+    tf = make_temporary_file(basename=basename)
+
+    class MockOptions(object):
+        def __init__(self):
+            self.options = {'FILETAGS_OPTIONS':
+                                {'between_tag_separator': ' ',
+                                 'filename_tag_separator': ' -- '}}
+    opts = MockOptions()
+
+    return FileObject(tf, opts)

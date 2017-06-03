@@ -24,13 +24,15 @@ from unittest import TestCase
 
 from analyzers.analyze_filename import FilenameAnalyzer
 from core.fileobject import FileObject
-from unit_utils import make_temporary_file
+from unit_utils import (
+    make_temporary_file,
+    get_named_file_object
+)
 
 
 class TestFilenameAnalyzerWithImageFile(TestCase):
     def setUp(self):
-        tf = make_temporary_file(basename='2010-01-31_161251.jpg')
-        self.fo = FileObject(tf)
+        self.fo = get_named_file_object('2010-01-31_161251.jpg')
         self.fna = FilenameAnalyzer(self.fo)
 
     def test_setup(self):
@@ -65,8 +67,7 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
 
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def setUp(self):
-        tf = make_temporary_file(basename='empty')
-        self.fo = FileObject(tf)
+        self.fo = get_named_file_object('empty')
         self.fna = FilenameAnalyzer(self.fo)
 
     def test_setup(self):
@@ -96,8 +97,7 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
 
 class TestFilenameAnalyzerWithTaggedFile(TestCase):
     def setUp(self):
-        tf = make_temporary_file(basename='2015-07-03_163838 Keeping notes in Vim -- dv017a dev.ogv')
-        self.fo = FileObject(tf)
+        self.fo = get_named_file_object('2015-07-03_163838 Keeping notes in Vim -- dv017a dev.ogv')
         self.fna = FilenameAnalyzer(self.fo)
 
     def test_setup(self):

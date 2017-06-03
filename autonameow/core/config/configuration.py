@@ -26,7 +26,11 @@ from core.config import (
     load_yaml_file,
     write_yaml_file
 )
-from core.config.constants import FILERULE_DEFAULT_WEIGHT
+from core.config.constants import (
+    FILERULE_DEFAULT_WEIGHT,
+    FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR,
+    FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR
+)
 from core.config.field_parsers import (
     MimeTypeConfigFieldParser,
     NameFormatConfigFieldParser,
@@ -198,10 +202,12 @@ class Configuration(object):
             if _value and DateTimeConfigFieldParser.is_valid_datetime(_value):
                 self._options['DATETIME_FORMAT'][option] = _value
 
-        def _try_load_filetags_option(option):
-            _value = self._data['filetags_options'].get(option)
+        def _try_load_filetags_option(option, default):
+            _value = self._data['FILETAGS_OPTIONS'].get(option)
             if _value:
-                self._options['filetags'][option] = _value
+                self._options['FILETAGS_OPTIONS'][option] = _value
+            else:
+                self._options['FILETAGS_OPTIONS'][option] = default
 
         if 'DATETIME_FORMAT' in self._data:
             _try_load_date_format_option('date')
