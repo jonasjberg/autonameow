@@ -71,7 +71,7 @@ DEFAULT_CONFIG = {
     #
     'FILE_RULES': [
         {'_description': 'test_files Gmail print-to-pdf',
-         '_exact_match': False,
+         '_exact_match': True,
          '_weight': None,
          'NAME_FORMAT': '{datetime} {title} -- {tags}.{extension}',
          'CONDITIONS': {
@@ -89,6 +89,27 @@ DEFAULT_CONFIG = {
                      'raw_text': None,
                  }
 
+             },
+         },
+         'DATA_SOURCES': {
+             'datetime': None,
+             'description': None,
+             'title': None,
+             'author': None,
+             'publisher': None,
+             'extension': 'filename.extension'
+         }
+         },
+        {'_description': 'test_files smulan.jpg',
+         '_exact_match': True,
+         '_weight': 1,
+         'NAME_FORMAT': '{datetime} {description}.{extension}',
+         'CONDITIONS': {
+             'filesystem': {
+                 'basename': 'smulan.jpg',
+             },
+             'contents': {
+                 'mime_type': 'jpg',
              },
          },
          'DATA_SOURCES': {
