@@ -172,6 +172,10 @@ def eval_condition(condition_field, condition_value, file_object):
             return True
         return False
 
+    def eval_datetime(expression, match_data):
+        # TODO: Implement!
+        return True
+
     # Regex Fields
     if condition_field == 'basename':
         return eval_regex(condition_value, file_object.filename)
