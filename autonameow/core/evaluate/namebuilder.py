@@ -96,8 +96,8 @@ class NameBuilder(object):
                                                         len(rules_to_examine)))
             result = evaluate_rule(rule, self.file)
             if rule.exact_match and result is False:
-                log.debug('Rule evaluated false -- removing;')
-                log.debug('{!r}'.format(rule))
+                log.debug('Rule evaluated false -- removing '
+                          '"{}"'.format(rule.description))
                 rules_to_examine.remove(rule)
 
         if len(rules_to_examine) == 0:
