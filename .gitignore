@@ -270,3 +270,6 @@ docs/test_results/*.raw
 *.tar.gz
 *.tar.lzma
 junk
+
+# API keys
+autonameow/plugins/microsoft_vision.key
