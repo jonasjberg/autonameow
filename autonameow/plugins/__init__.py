@@ -42,6 +42,7 @@ api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
 try:
     with open(api_key_path, mode='r', encoding='utf8') as f:
         API_KEY = f.read()
+        API_KEY = API_KEY.strip()
 except FileNotFoundError as e:
     log.critical('Unable to find "microsoft_vision.py" API key!')
     API_KEY = False
