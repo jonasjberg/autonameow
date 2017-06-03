@@ -262,10 +262,3 @@ class Analysis(object):
 
                 self.results.add(field, result, str(a.__class__.__name__))
                 # self.results._fixed_data['filesystem']['basename'] =
-
-    def get_datetime_by_alias(self, alias):
-        pass
-        # ALIAS_LOOKUP = {
-        #     'accessed': f for f in self.results['datetime']['FilesystemAnalyzer'] if f['source'] == 'accessed',
-        #     'very_special_case': None
-        # }
