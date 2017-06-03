@@ -70,7 +70,7 @@ DEFAULT_CONFIG = {
         {'description': 'test_files Gmail print-to-pdf',
          'exact_match': True,
          'weight': None,
-         'NAME_FORMAT': '{datetime} {title} -- {tags}.{extension}',
+         'NAME_FORMAT': '{datetime} {title} -- email.{extension}',
          'CONDITIONS': {
              'filesystem': {
                  'basename': 'gmail.pdf',
@@ -85,15 +85,11 @@ DEFAULT_CONFIG = {
                  'textual': {
                      'raw_text': None,
                  }
-
              },
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.PDF:CreateDate',
-             'description': None,
              'title': None,
-             'author': None,
-             'publisher': None,
              'extension': 'filename.extension'
          }
          },
