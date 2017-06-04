@@ -331,6 +331,9 @@ class Configuration(object):
 
 def parse_sources(raw_sources):
     # TODO: [hardcoded] Fix this! Solves a very limited number of cases!
+
+    # TODO: Check that the sources include the data fields used in the
+    #       name template format string.
     out = {}
 
     if 'datetime' in raw_sources:
