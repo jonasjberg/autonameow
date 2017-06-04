@@ -78,9 +78,9 @@ class TestResults(TestCase):
     def test_results_init_contains_all_valid_results_fields(self):
         self.assertEqual(len(ANALYSIS_RESULTS_FIELDS), len(self.results._data))
 
-    def test_results_init_results_fields_are_type_dict(self):
+    def test_results_init_results_fields_are_type_list(self):
         for field in ANALYSIS_RESULTS_FIELDS:
-            self.assertEqual(type(self.results._data[field]), dict)
+            self.assertEqual(type(self.results._data[field]), list)
 
     def test_results_init_results_fields_are_empty(self):
         for field in ANALYSIS_RESULTS_FIELDS:
@@ -91,20 +91,13 @@ class TestResults(TestCase):
         _results = []
 
         with self.assertRaises(KeyError):
-            self.results.add(_field, _results, ImageAnalyzer)
-
-    def test_add_with_invalid_analyzer_raises_exception(self):
-        _field = ANALYSIS_RESULTS_FIELDS[0]
-        _results = []
-
-        with self.assertRaises(TypeError):
-            self.results.add(_field, _results, 'InvalidAnalyzerSurely')
+            self.results.add(_field, _results)
 
     def test_add(self):
         _field = ANALYSIS_RESULTS_FIELDS[0]
         _results = []
 
-        self.results.add(_field, _results, 'ImageAnalyzer')
+        self.results.add(_field, _results)
 
 
 class TestAnalysisRunQueue(TestCase):

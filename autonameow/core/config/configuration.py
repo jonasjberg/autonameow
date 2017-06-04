@@ -215,18 +215,17 @@ class Configuration(object):
             log.debug('File rule name format is invalid: ' + str(raw_rule))
             raise ConfigurationSyntaxError('Invalid name template format')
 
-        _valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
-        _valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
-        _valid_weight = self.parse_weight(raw_rule.get('weight'))
+        valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
+        valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
+        valid_weight = self.parse_weight(raw_rule.get('weight'))
 
         file_rule = FileRule(description=raw_rule.get('description'),
                              exact_match=raw_rule.get('exact_match'),
-                             weight=_valid_weight,
+                             weight=valid_weight,
                              name_template=valid_format,
-                             conditions=_valid_conditions,
-                             data_sources=_valid_sources)
+                             conditions=valid_conditions,
+                             data_sources=valid_sources)
         return file_rule
-
 
     def validate_field(self, raw_file_rule, field_name):
         for parser in self.field_parsers:

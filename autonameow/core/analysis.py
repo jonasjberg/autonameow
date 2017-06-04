@@ -84,7 +84,7 @@ class Results(object):
     def __init__(self):
         self._data = {}
         for field in ANALYSIS_RESULTS_FIELDS:
-            self._data[field] = {}
+            self._data[field] = []
 
         # TODO: Redesign data storage structure.
         self._fixed_data = {
@@ -119,22 +119,22 @@ class Results(object):
     # def __getitem__(self, key):
     # TODO: Implement proper getter method.
 
-    def add(self, field, data, source):
+    def add(self, field, data):
         """
-        Adds results from an analyzer.
+        Adds results data for a specific field to the aggregate data.
 
         Args:
-            field: Analysis results field to add.
-            data: The results data to add, as a list of dicts.
-            source: Class name of the source analyzer.
+            field: The field type of the data to add.
+                   Must be included in "ANALYSIS_RESULTS_FIELDS".
+            data: Data to add as a list of dicts.
+
+        Raises:
+            KeyError: The specified field is not in "ANALYSIS_RESULTS_FIELDS".
         """
         if field not in ANALYSIS_RESULTS_FIELDS:
             raise KeyError('Invalid results field: {}'.format(field))
 
-        if source not in get_analyzer_classes_basename():
-            raise TypeError('Invalid source analyzer: {}'.format(source))
-
-        self._data[field][source] = data
+        self._data[field] += data
 
     def get(self, field):
         """
@@ -251,14 +251,31 @@ class Analysis(object):
                 log.critical('Unable to start Analyzer "{!s}"'.format(analysis))
                 continue
 
+            a_name = str(a.__class__.__name__)
+            log.debug('Starting Analyzer "{!s}"'.format(a_name))
+
             # Run the analysis and collect the results.
             a.run()
             for field in ANALYSIS_RESULTS_FIELDS:
                 try:
                     result = a.get(field)
                 except NotImplementedError as e:
-                    log.error('Called unimplemented code: {!s}'.format(e))
-                    result = None
+                    log.error('Called unimplemented code in {!s}: '
+                              '{!s}'.format(a_name, e))
+                    continue
 
-                self.results.add(field, result, str(a.__class__.__name__))
-                # self.results._fixed_data['filesystem']['basename'] =
+                if not result:
+                    continue
+
+                # Add the analyzer name to the results dictionary.
+                results = include_analyzer_name(result, a_name)
+                self.results.add(field, results)
+
+
+def include_analyzer_name(result_list, source):
+    out = []
+    for result in result_list:
+        result['analyzer'] = source
+        out.append(result)
+
+    return out
