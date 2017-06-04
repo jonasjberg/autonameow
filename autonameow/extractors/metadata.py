@@ -23,9 +23,12 @@ from core.util import wrap_exiftool
 from extractors.extractor import Extractor
 
 
-class ExifToolMetadataExtractor(Extractor):
+class ExiftoolMetadataExtractor(Extractor):
+    """
+    Extracts various types of metadata using "exiftool".
+    """
     def __init__(self, source):
-        super(ExifToolMetadataExtractor, self).__init__(source)
+        super(ExiftoolMetadataExtractor, self).__init__(source)
 
         self.__raw_metadata = None
 
