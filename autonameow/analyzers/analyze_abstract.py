@@ -51,7 +51,7 @@ class AbstractAnalyzer(object):
         """
         Starts the analysis performed by this analyzer.
         """
-        raise NotImplementedError
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def get(self, field):
         """
@@ -82,19 +82,19 @@ class AbstractAnalyzer(object):
             raise NotImplementedError(field)
 
     def get_datetime(self):
-        raise NotImplementedError
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def get_title(self):
-        raise NotImplementedError
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def get_author(self):
-        raise NotImplementedError
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def get_tags(self):
-        raise NotImplementedError
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def get_publisher(self):
-        raise NotImplementedError
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
 
 def get_analyzer_classes():
