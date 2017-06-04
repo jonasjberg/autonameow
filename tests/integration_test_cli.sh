@@ -147,6 +147,21 @@ assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE"
             "[TC014] autonameow should NOT choose file rule \"test_files smulan.jpg\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 set -o pipefail
 
+assert_true '( "$AUTONAMEOW_RUNNER" --list-datetime -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
+            "Expect exit code 0 when started with \"--list-datetime\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --list-datetime -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -q -- "2016-01-11 12:41:32" 2>&1 ) >/dev/null' \
+            "Output should contain expected date when started with \"--list-datetime\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --list-all -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
+            "Expect exit code 0 when started with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --list-all -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -q -- "2016-01-11 12:41:32" 2>&1 ) >/dev/null' \
+            "Output should include expected date when started with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --list-title -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
+            "Expect exit code 0 when started with \"--list-title\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+
 
 
 # Calculate total execution time.
