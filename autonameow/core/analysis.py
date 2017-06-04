@@ -101,6 +101,7 @@ class Results(object):
                 'textual': {
                     'raw_text': None,
                     'paginated': False,
+                    'number_pages': None,
                 },
                 'visual': {
                     'ocr_text': None,
