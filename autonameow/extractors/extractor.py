@@ -24,6 +24,6 @@ class Extractor(object):
     def __init__(self, source):
         self.source = source
 
-    def __getattr__(self, item):
-        pass
+    def query(self, field):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
