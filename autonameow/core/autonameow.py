@@ -195,7 +195,7 @@ class Autonameow(object):
 
             if self.args.automagic:
                 log.critical('[UNIMPLEMENTED FEATURE] automagic mode')
-                exit_code &= 1
+                exit_code |= 1
 
                 # Create a name builder.
                 # TODO: [BL010] Implement NameBuilder.
@@ -212,13 +212,13 @@ class Autonameow(object):
                     else:
                         # TODO: [BL011] Rename files.
                         log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
-                        exit_code &= 1
+                        exit_code |= 1
 
             elif self.args.interactive:
                 # Create a interactive interface.
                 # TODO: [BL013] Interactive mode in 'interactive.py'.
                 log.critical('[UNIMPLEMENTED FEATURE] interactive mode')
-                exit_code &= 1
+                exit_code |= 1
 
         return exit_code
 
