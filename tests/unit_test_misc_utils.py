@@ -46,7 +46,7 @@ class TestUniqueIdentifier(TestCase):
         self.assertEqual(len(seen), count)
 
 
-class TestListDuplicateCount(TestCase):
+class TestMultisetCount(TestCase):
     def test_list_duplicate_count_returns_empty_dict_for_empty_list(self):
         self.assertEqual(multiset_count([]), {})
 
