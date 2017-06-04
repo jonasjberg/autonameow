@@ -31,13 +31,13 @@ class ExifToolMetadataExtractor(Extractor):
 
     def query_all(self):
         if not self.__raw_metadata:
-            self.__raw_metadata = self.get_exiftool_data(self.source)
+            self.__raw_metadata = self.get_exiftool_data()
 
         return self.__raw_metadata
 
     def query(self, field):
         if not self.__raw_metadata:
-            self.__raw_metadata = self.get_exiftool_data(self.source)
+            self.__raw_metadata = self.get_exiftool_data()
 
         return self.__raw_metadata.get(field)
 
