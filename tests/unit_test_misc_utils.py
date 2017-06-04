@@ -22,7 +22,10 @@
 
 from unittest import TestCase
 
-from core.util.misc import unique_identifier
+from core.util.misc import (
+    unique_identifier,
+    multiset_count
+)
 
 
 class TestUniqueIdentifier(TestCase):
@@ -42,3 +45,34 @@ class TestUniqueIdentifier(TestCase):
 
         self.assertEqual(len(seen), count)
 
+
+class TestListDuplicateCount(TestCase):
+    def test_list_duplicate_count_returns_empty_dict_for_empty_list(self):
+        self.assertEqual(multiset_count([]), {})
+
+    def test_list_duplicate_count_returns_none_for_none(self):
+        self.assertIsNone(multiset_count(None))
+
+    def test_list_duplicate_count_returns_expected_no_duplicates(self):
+        self.assertEqual(multiset_count(['a', 'b', 'c']),
+                         {'a': 1, 'b': 1, 'c': 1})
+
+    def test_list_duplicate_count_returns_expected_one_duplicate(self):
+        self.assertEqual(multiset_count(['a', 'a', 'c']),
+                         {'a': 2, 'c': 1})
+
+    def test_list_duplicate_count_returns_expected_only_duplicates(self):
+        self.assertEqual(multiset_count(['a', 'a', 'a']),
+                         {'a': 3})
+
+    def test_list_duplicate_count_returns_expected_no_duplicate_one_none(self):
+        self.assertEqual(multiset_count(['a', None, 'b']),
+                         {None: 1, 'a': 1, 'b': 1})
+
+    def test_list_duplicate_count_returns_expected_one_duplicate_one_none(self):
+        self.assertEqual(multiset_count(['b', None, 'b']),
+                         {None: 1, 'b': 2})
+
+    def test_list_duplicate_count_returns_expected_no_duplicate_two_none(self):
+        self.assertEqual(multiset_count(['a', None, 'b', None]),
+                         {None: 2, 'a': 1, 'b': 1})

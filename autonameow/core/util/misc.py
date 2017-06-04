@@ -113,3 +113,33 @@ def indent(text, amount=4, ch=' '):
     """
     padding = amount * ch
     return ''.join(padding + line for line in text.splitlines(True))
+
+
+def multiset_count(list_data):
+    """
+    Counts duplicate entries in a list and returns a dictionary of frequencies.
+
+    keyed by entries,
+    with the entry count as value.
+
+    Args:
+        list_data: A list of data to count.
+
+    Returns:
+        A dictionary with unique list entries as keys and the corresponding
+        value is the frequency of that entry in the given "list_data".
+    """
+    if list_data is None:
+        return None
+    elif not list_data:
+        return {}
+
+    out = {}
+
+    for entry in list_data:
+        if entry in out:
+            out[entry] += 1
+        else:
+            out[entry] = 1
+
+    return out
