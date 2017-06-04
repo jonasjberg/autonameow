@@ -21,7 +21,10 @@
 
 import itertools
 
+import collections
 import yaml
+
+from core.exceptions import InvalidQueryStringError
 
 
 def dump(obj):
@@ -143,3 +146,74 @@ def multiset_count(list_data):
             out[entry] = 1
 
     return out
+
+
+def query_string_list(query_string):
+    """
+    Converts a "query string" to a list suited for traversing nested dicts.
+
+    Example query string:  "metadata.exiftool.datetimeoriginal"
+    Resulting output:      ['metadata', 'exiftool', 'datetimeoriginal']
+
+    Args:
+        query_string: The "query string" to convert.
+
+    Returns: A list suited for traversing nested dicts.
+    """
+    if not isinstance(query_string, str):
+        raise InvalidQueryStringError('Query string must be of type "str"')
+    else:
+        query_string = query_string.strip()
+    if not query_string:
+        raise InvalidQueryStringError('Got empty query string')
+
+    if '.' not in query_string:
+        raise InvalidQueryStringError('Query string is too shallow (missing .)')
+
+    # TODO: Implement tests and function!
+
+    parts = query_string.split('.')
+
+    # TODO: Detect invalid parts
+
+
+def flatten_dict(d, parent_key='', sep='.'):
+    """
+    Flattens a possibly nested dictionary by joining nested keys.
+
+    Based on this post:  https://stackoverflow.com/a/6027615/7802196
+    Example:
+              INPUT = {
+                  'contents': {
+                      'mime_type': None,
+                      'textual': {
+                          'raw_text': None,
+                      }
+                  }
+              }
+              OUTPUT = {
+                  'contents.mime_type': None,
+                  'contents.textual.raw_text': None,
+              }
+    Args:
+        d: The dictionary to flatten.
+        parent_key: Not used, required for recursion.
+        sep: String or character to use as separator.
+
+    Returns:
+        A flattened dictionary with nested keys are joined by "sep".
+    """
+    if not isinstance(d, (dict, list)):
+        raise TypeError
+
+    items = []
+
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+
+        if isinstance(v, collections.MutableMapping):
+            items.extend(flatten_dict(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+
+    return dict(items)

@@ -22,9 +22,12 @@
 
 from unittest import TestCase
 
+from core.exceptions import InvalidQueryStringError
 from core.util.misc import (
     unique_identifier,
-    multiset_count
+    multiset_count,
+    query_string_list,
+    flatten_dict
 )
 
 
@@ -76,3 +79,81 @@ class TestMultisetCount(TestCase):
     def test_list_duplicate_count_returns_expected_no_duplicate_two_none(self):
         self.assertEqual(multiset_count(['a', None, 'b', None]),
                          {None: 2, 'a': 1, 'b': 1})
+
+
+class TestQueryStringList(TestCase):
+    # TODO: Implement tests and function!
+    def test_raises_exception_for_none_argument(self):
+        with self.assertRaises(InvalidQueryStringError):
+            self.assertIsNone(query_string_list(None))
+
+    def test_raises_exception_for_empty_argument(self):
+        with self.assertRaises(InvalidQueryStringError):
+            self.assertIsNone(query_string_list(''))
+
+    def test_raises_exception_for_invalid_root(self):
+        with self.assertRaises(InvalidQueryStringError):
+            self.assertIsNone(query_string_list('not_valid_surely'))
+
+
+class TestFlattenDict(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.INPUT = {
+            'filesystem': {
+                'basename': None,
+                'extension': None,
+                'pathname': None,
+            },
+            'contents': {
+                'mime_type': None,
+                'textual': {
+                    'raw_text': None,
+                    'number_pages': None,
+                },
+                'visual': {
+                    'ocr_text': None,
+                    'ocr_tags': None
+                },
+                'binary': {
+
+                }
+            },
+            'metadata': {
+                'exiftool': {}
+            }
+        }
+        self.EXPECTED = {
+            'filesystem.basename': None,
+            'filesystem.extension': None,
+            'filesystem.pathname': None,
+            'contents.mime_type': None,
+            'contents.textual.raw_text': None,
+            'contents.textual.number_pages': None,
+            'contents.visual.ocr_text': None,
+            'contents.visual.ocr_tags': None,
+            'contents.binary': None,
+            'metadata.exiftool': None
+        }
+
+    def test_raises_type_error_for_invalid_input(self):
+        with self.assertRaises(TypeError):
+            flatten_dict(None)
+            flatten_dict([])
+            flatten_dict('')
+
+    def test_returns_expected_type(self):
+        actual = flatten_dict(self.INPUT)
+
+        self.assertTrue(isinstance(actual, dict))
+
+    def test_returns_expected_len(self):
+        actual = flatten_dict(self.INPUT)
+        self.assertEqual(len(actual), 8)
+
+    def test_returns_expected(self):
+        actual = flatten_dict(self.INPUT)
+
+        for k, v in actual.items():
+            self.assertTrue(k in self.EXPECTED)
+            self.assertEqual(actual[k], self.EXPECTED[k])
