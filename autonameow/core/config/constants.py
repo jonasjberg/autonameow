@@ -42,6 +42,38 @@ DATA_FIELDS = dict.fromkeys(ANALYSIS_RESULTS_FIELDS +
                             'DUMMY')
 
 
+# Reference analysis results data structure with all valid fields/sources.
+RESULTS_DATA_STRUCTURE = {
+    'filesystem': {
+        'basename': None,
+        'extension': None,
+        'pathname': None,
+        'date_accessed': None,
+        'date_created': None,
+        'date_modified': None,
+    },
+    'contents': {
+        'mime_type': None,
+        'textual': {
+            'raw_text': None,
+            'paginated': False,
+            'number_pages': None,
+        },
+        'visual': {
+            'ocr_text': None,
+            'ocr_description': None,
+            'ocr_tags': None
+        },
+        'binary': {
+
+        }
+    },
+    'metadata': {
+        'exiftool': {},
+    }
+}
+
+
 # File "magic" MIME type lookup table keyed by shorthand. Each value is a
 # list of file MIME types that is classified for that particular shorthand.
 MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
