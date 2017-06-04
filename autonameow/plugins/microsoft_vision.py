@@ -160,7 +160,7 @@ def get_tags(json_data, count=None):
             count = None
         else:
             if count < 0:
-                count = None
+                raise ValueError
 
     try:
         tags = json_data['description']['tags']
