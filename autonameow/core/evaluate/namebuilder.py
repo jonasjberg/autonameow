@@ -94,7 +94,7 @@ class NameBuilder(object):
         for count, rule in enumerate(rules_to_examine):
             log.debug('Evaluating rule {}/{} ..'.format(count + 1,
                                                         len(rules_to_examine)))
-            result = evaluate_rule(rule, self.file)
+            result = evaluate_rule(rule, self.file, self.data)
             if rule.exact_match and result is False:
                 log.debug('Rule evaluated false -- removing '
                           '"{}"'.format(rule.description))
@@ -161,7 +161,8 @@ def assemble_basename(name_template, **kwargs):
         return out
 
 
-def eval_condition(condition_field, condition_value, file_object):
+def eval_condition(condition_field, condition_value, file_object,
+                   analysis_data):
     def eval_regex(expression, match_data):
         if re.match(expression, match_data):
             return True
@@ -198,7 +199,7 @@ def eval_condition(condition_field, condition_value, file_object):
         raise AutonameowException('Unhandled condition check!')
 
 
-def evaluate_rule(file_rule, file_object):
+def evaluate_rule(file_rule, file_object, analysis_data):
     """
     Tests if a rule applies to a given file.
 
@@ -209,6 +210,7 @@ def evaluate_rule(file_rule, file_object):
     Args:
         file_object: The file to test as an instance of 'FileObject'.
         file_rule: The rule to test as an instance of 'FileRule'.
+        analysis_data: Results data from analysis of the given file.
 
     Returns:
         If the rule requires an exact match:
@@ -229,7 +231,8 @@ def evaluate_rule(file_rule, file_object):
         for cond_field, cond_value in file_rule.conditions.items():
             log.debug('Evaluating condition "{} == {}"'.format(cond_field,
                                                                cond_value))
-            if not eval_condition(cond_field, cond_value, file_object):
+            if not eval_condition(cond_field, cond_value, file_object,
+                                  analysis_data):
                 log.debug('Condition FAILED -- Exact match impossible ..')
                 return False
             else:
@@ -239,7 +242,7 @@ def evaluate_rule(file_rule, file_object):
     for cond_field, cond_value in file_rule.conditions.items():
         log.debug('Evaluating condition "{} == {}"'.format(cond_field,
                                                            cond_value))
-        if eval_condition(cond_field, cond_value, file_object):
+        if eval_condition(cond_field, cond_value, file_object, analysis_data):
             log.debug('Condition Passed rule.votes++')
             file_rule.upvote()
         else:
