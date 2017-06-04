@@ -32,17 +32,14 @@ class ExiftoolMetadataExtractor(Extractor):
 
         self.__raw_metadata = None
 
-    def query_all(self):
+    def query(self, field=None):
         if not self.__raw_metadata:
             self.__raw_metadata = self.get_exiftool_data()
 
-        return self.__raw_metadata
-
-    def query(self, field):
-        if not self.__raw_metadata:
-            self.__raw_metadata = self.get_exiftool_data()
-
-        return self.__raw_metadata.get(field, False)
+        if not field:
+            return self.__raw_metadata
+        else:
+            return self.__raw_metadata.get(field, False)
 
     def get_exiftool_data(self):
         with wrap_exiftool.ExifTool() as et:
