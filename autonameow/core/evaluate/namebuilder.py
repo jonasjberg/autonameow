@@ -246,3 +246,21 @@ def evaluate_rule(file_rule, file_object):
             # file_rule.downvote()
             # log.debug('Condition FAILED rule.votes--')
             log.debug('Condition FAILED')
+
+
+def format_string_placeholders(format_string):
+    """
+    Gets the format string placeholder fields from a text string.
+
+    The text "{foo} mjao baz {bar}" would return ['foo', 'bar'].
+
+    Args:
+        format_string: Format string to get placeholders from.
+
+    Returns:
+        Format string placeholder fields in the text as a list of strings.
+
+    """
+    if not format_string:
+        return []
+    return re.findall(r'{(\w+)}', format_string)

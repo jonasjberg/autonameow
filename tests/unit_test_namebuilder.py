@@ -21,7 +21,10 @@
 
 from unittest import TestCase
 
-from core.evaluate.namebuilder import assemble_basename
+from core.evaluate.namebuilder import (
+    assemble_basename,
+    format_string_placeholders
+)
 from core.exceptions import NameTemplateSyntaxError
 
 
@@ -77,3 +80,22 @@ class TestNameBuilder(TestCase):
                 'year': '2017',
                 'extension': 'pdf'}
         expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
+
+
+class TestFormatStringPlaceholders(TestCase):
+    def test_format_string_placeholders_no_input(self):
+        self.assertEqual(format_string_placeholders(None), [])
+
+    def test_format_string_placeholders_no_placeholders(self):
+        self.assertEqual(format_string_placeholders('abc'), [])
+
+    def test_format_string_placeholders_one_placeholder(self):
+        self.assertEqual(format_string_placeholders('abc {foo}'), ['foo'])
+
+    def test_format_string_placeholders_two_unique_placeholders(self):
+        self.assertEqual(format_string_placeholders('{abc} abc {foo}'),
+                         ['abc', 'foo'])
+
+    def test_format_string_placeholders_duplicate_placeholders(self):
+        self.assertEqual(format_string_placeholders('{foo} abc {foo}'),
+                         ['foo', 'foo'])
