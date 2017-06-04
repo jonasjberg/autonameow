@@ -93,6 +93,15 @@ assert_false '( "$AUTONAMEOW_RUNNER" --automagic --verbose -- 2>&1 ) >/dev/null'
 assert_false '( "$AUTONAMEOW_RUNNER" --automagic --debug -- 2>&1 ) >/dev/null' \
              "autonameow should return non-zero when started with \"--automagic\" and \"--debug\" without specifying files"
 
+assert_false '( "$AUTONAMEOW_RUNNER" --verbose --debug -- 2>&1 ) >/dev/null' \
+             "Starting with mutually exclusive options \"--verbose\" and \"--debug\" should generate an error"
+
+assert_false '( "$AUTONAMEOW_RUNNER" --verbose --quiet -- 2>&1 ) >/dev/null' \
+             "Starting with mutually exclusive options \"--verbose\" and \"--quiet\" should generate an error"
+
+assert_false '( "$AUTONAMEOW_RUNNER" --debug --quiet -- 2>&1 ) >/dev/null' \
+             "Starting with mutually exclusive options \"--debug\" and \"--quiet\" should generate an error"
+
 
 SAMPLE_JPG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/smulan.jpg" ) )"
 assert_true '[ -e "$SAMPLE_JPG_FILE" ]' \
@@ -127,6 +136,9 @@ assert_true '( "$AUTONAMEOW_RUNNER" --version --verbose 2>&1 ) >/dev/null' \
 
 assert_true '( "$AUTONAMEOW_RUNNER" --version --debug 2>&1 ) >/dev/null' \
              "autonameow should return zero when started with \"--version\" and \"--debug\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --version --quiet 2>&1 ) >/dev/null' \
+             "autonameow should return zero when started with \"--version\" and \"--quiet\""
 
 
 SAMPLE_PDF_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/gmail.pdf" ) )"
