@@ -120,7 +120,7 @@ class NameBuilder(object):
         log.debug('Using name template: {}'.format(template))
 
 
-        # TODO: ..
+        # TODO: Populate "template" with "self.data".
         raise NotImplementedError('TODO: Implement NameBuilder')
 
 
