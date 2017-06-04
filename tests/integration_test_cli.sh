@@ -108,13 +108,13 @@ assert_true '[ -e "$SAMPLE_JPG_FILE" ]' \
             "The test sample jpg file exists. Add suitable test file if this test fails!"
 
 assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_JPG_FILE" 2>&1 ) >/dev/null' \
-             "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\" and a valid file"
+            "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\" and a valid file"
 
 assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>&1 ) >/dev/null' \
-             "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\", \"--verbose\" and a valid file"
+            "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\", \"--verbose\" and a valid file"
 
 assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "$SAMPLE_JPG_FILE" 2>&1 ) >/dev/null' \
-             "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\", \"--debug\" and a valid file"
+            "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\", \"--debug\" and a valid file"
 
 
 _expected_name='/tmp/2010-01-31T161251 a cat lying on a rug.jpg'
@@ -132,13 +132,13 @@ assert_true '( "$AUTONAMEOW_RUNNER" --version 2>&1 ) >/dev/null' \
             "autonameow should return zero when started with \"--version\""
 
 assert_true '( "$AUTONAMEOW_RUNNER" --version --verbose 2>&1 ) >/dev/null' \
-             "autonameow should return zero when started with \"--version\" and \"--verbose\""
+            "autonameow should return zero when started with \"--version\" and \"--verbose\""
 
 assert_true '( "$AUTONAMEOW_RUNNER" --version --debug 2>&1 ) >/dev/null' \
-             "autonameow should return zero when started with \"--version\" and \"--debug\""
+            "autonameow should return zero when started with \"--version\" and \"--debug\""
 
 assert_true '( "$AUTONAMEOW_RUNNER" --version --quiet 2>&1 ) >/dev/null' \
-             "autonameow should return zero when started with \"--version\" and \"--quiet\""
+            "autonameow should return zero when started with \"--version\" and \"--quiet\""
 
 
 SAMPLE_PDF_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/gmail.pdf" ) )"
@@ -156,7 +156,7 @@ assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_JPG_FILE" 
             "[TC014] autonameow should choose file rule \"test_files smulan.jpg\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
 
 assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 | grep -q -- "Using file rule: test_files smulan.jpg" ) >/dev/null' \
-            "[TC014] autonameow should NOT choose file rule \"test_files smulan.jpg\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+             "[TC014] autonameow should NOT choose file rule \"test_files smulan.jpg\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 set -o pipefail
 
 assert_true '( "$AUTONAMEOW_RUNNER" --list-datetime -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
