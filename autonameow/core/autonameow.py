@@ -96,7 +96,7 @@ class Autonameow(object):
         # provided and no config file is found at default paths; copy the
         # template config and tell the user.
         if self.args.config_path:
-            self.config.load_from_disk(self.args.config_path)
+            self.config.load(self.args.config_path)
         else:
             _config_path = config.config_file_path()
 
@@ -120,7 +120,7 @@ class Autonameow(object):
             else:
                 log.info('Using configuration: "{}"'.format(_config_path))
                 try:
-                    self.config.load_from_disk(_config_path)
+                    self.config.load(_config_path)
                 except ConfigurationSyntaxError as e:
                     log.critical('Configuration syntax error: "{!s}"'.format(e))
 

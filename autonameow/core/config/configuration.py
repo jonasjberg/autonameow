@@ -287,15 +287,30 @@ class Configuration(object):
     def name_templates(self):
         return self._name_templates
 
-    def load_from_dict(self, data):
+    def load(self, source):
+        """
+        Loads a configuration from either a dictionary or file path.
+
+        Args:
+            source: The configuration to load as either a dictionary or a
+
+        Returns:
+
+        """
+        if isinstance(source, dict):
+            self._load_from_dict(source)
+        else:
+            self._load_from_disk(source)
+
+    def _load_from_dict(self, data):
         self._data = data
         self._load_name_templates()
         self._load_file_rules()
         self._load_options()
 
-    def load_from_disk(self, load_path):
+    def _load_from_disk(self, load_path):
         _yaml_data = load_yaml_file(load_path)
-        self.load_from_dict(_yaml_data)
+        self._load_from_dict(_yaml_data)
 
     def write_to_disk(self, dest_path):
         if os.path.exists(dest_path):
