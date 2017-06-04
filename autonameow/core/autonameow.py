@@ -34,7 +34,8 @@ from core.evaluate.filter import ResultFilter
 from core.evaluate.namebuilder import NameBuilder
 from core.exceptions import (
     InvalidFileArgumentError,
-    ConfigurationSyntaxError
+    ConfigurationSyntaxError,
+    AutonameowException
 )
 from core.fileobject import FileObject
 from core.util import (
@@ -163,7 +164,13 @@ class Autonameow(object):
 
             # Begin analysing the file.
             analysis = Analysis(current_file)
-            analysis.start()
+            try:
+                analysis.start()
+            except AutonameowException as e:
+                log.critical('Analysis FAILED: {!s}'.format(e))
+                log.critical('Skipping file "{}" ..'.format(current_file))
+                exit_code |= 1
+                continue
 
             list_any = (self.args.list_datetime or self.args.list_title
                         or self.args.list_all)
