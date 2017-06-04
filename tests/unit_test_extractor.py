@@ -19,13 +19,27 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from unittest import TestCase
 
-class Extractor(object):
-    def __init__(self, source):
-        self.source = source
+from extractors.extractor import Extractor
+from unit_utils import make_temporary_file
 
-    def query(self, field=None):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def __str__(self):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
+class TestExtractor(TestCase):
+    def setUp(self):
+        self.e = Extractor(make_temporary_file())
+
+    def test_extractor_class_is_available(self):
+        self.assertIsNotNone(Extractor)
+
+    def test_extractor_class_can_be_instantiated(self):
+        self.assertIsNotNone(self.e)
+
+    def test_method_query_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            self.e.query()
+
+    def test_method_str_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            _ = str(self.e)
+            __ = self.e.__str__
