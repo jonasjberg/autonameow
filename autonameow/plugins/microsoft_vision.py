@@ -153,6 +153,19 @@ def get_caption_text(json_data):
 
 
 def get_tags(json_data, count=None):
+    """
+    Returns a specified number of tags from the JSON response.
+
+    NOTE:  Added after integration into autonameow.
+
+    Args:
+        json_data: API JSON response.
+        count: Number of tags to return.
+
+    Returns:
+        The specified number of tags, or all tags if no count is specified.
+
+    """
     if count:
         try:
             count = int(count)
@@ -161,7 +174,6 @@ def get_tags(json_data, count=None):
         else:
             if count < 0:
                 raise ValueError
-
     try:
         tags = json_data['description']['tags']
     except KeyError as e:
