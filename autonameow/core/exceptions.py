@@ -46,6 +46,10 @@ class NameBuilderError(AutonameowException):
     """An error occurred while constructing a name. Unable to proceed."""
 
 
+class InvalidQueryStringError(ConfigError):
+    """The query string format is invalid, can not be used to traverse data."""
+
+
 class FileRulePriorityError(ConfigError):
     """Failed to prioritize rules. FileRule comparison failed."""
 
