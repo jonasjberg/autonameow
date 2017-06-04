@@ -29,6 +29,7 @@ from pytesseract import image_to_string
 
 from analyzers.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
+from extractors.metadata import ExiftoolMetadataExtractor
 
 
 class ImageAnalyzer(AbstractAnalyzer):
@@ -44,9 +45,10 @@ class ImageAnalyzer(AbstractAnalyzer):
 
     # @Overrides method in AbstractAnalyzer
     def run(self):
-        # Start by trying to extract EXIF information from the image.
-        logging.debug('Extracting EXIF data ..')
-        self.exif_data = self._get_exif_data()
+        exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
+        logging.debug('Extracting metadata with {!s} ..'.format(exiftool))
+
+        self.exif_data = exiftool.query()
         self.ocr_text = self._get_text_from_ocr()
 
         # TODO: Run OCR on the image and store any textual output.
