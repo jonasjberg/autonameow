@@ -43,7 +43,6 @@ from core.util import (
 )
 from . import version
 
-terminal_width = 100
 PYTHON_VERSION = sys.version.replace('\n', '')
 
 
