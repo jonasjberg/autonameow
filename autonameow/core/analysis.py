@@ -194,7 +194,7 @@ class Analysis(object):
         Starts the analysis.
         """
         # Select analyzer based on detected file type.
-        log.debug('File is of type [{!s}]'.format(self.file_object.mime_type))
+        log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
         self._populate_run_queue()
         log.debug('Enqueued analyzers: {!s}'.format(self.analysis_run_queue))
 
