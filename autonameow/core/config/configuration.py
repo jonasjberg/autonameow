@@ -207,7 +207,6 @@ class Configuration(object):
         if name_format in self.name_templates:
             valid_format = self.name_templates.get(name_format, False)
         else:
-            # _valid_template = self.validate_field(fr, 'NAME_FORMAT')
             if NameFormatConfigFieldParser.is_valid_format_string(name_format):
                 valid_format = name_format
 
