@@ -45,6 +45,9 @@ class ExiftoolMetadataExtractor(Extractor):
         with wrap_exiftool.ExifTool() as et:
             return et.get_metadata(self.source)
 
+    def __str__(self):
+        return self.__class__.__name__
+
 
 # get_exiftool_data("test_files/gmail.pdf"):
 # ==========================================
