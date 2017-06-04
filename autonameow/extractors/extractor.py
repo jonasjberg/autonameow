@@ -21,10 +21,36 @@
 
 
 class Extractor(object):
+    """
+    Top-level abstract base class for all extractor classes.
+
+    Includes common functionality and interfaces that must be implemented
+    by inheriting extractor classes.
+    """
+
     def __init__(self, source):
+        """
+        Creates a extractor instance acting on the specified source data.
+
+        Args:
+            source: Source of data from which to extract information.
+        """
         self.source = source
 
     def query(self, field=None):
+        """
+        Queries the extractor for extracted data.
+
+        Argument "field" is optional. All data is returned by default.
+
+        Args:
+            field: Optional refinement of the query.
+                Expect format and type is defined by the extractor class.
+
+        Returns:
+            All data gathered by the extractor if no field is specified.
+            Else the data matching the specified field.
+        """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):
