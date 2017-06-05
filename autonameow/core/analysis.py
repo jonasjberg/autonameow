@@ -86,35 +86,8 @@ class Results(object):
             self._data[field] = []
 
         # TODO: Redesign data storage structure.
-        self._fixed_data = {
-            'filesystem': {
-                'basename': None,
-                'extension': None,
-                'pathname': None,
-                'date_accessed': None,
-                'date_created': None,
-                'date_modified': None,
-                'mime_type': None,
-            },
-            'contents': {
-                'textual': {
-                    'raw_text': None,
-                    'paginated': False,
-                    'number_pages': None,
-                },
-                'visual': {
-                    'ocr_text': None,
-                    'ocr_description': None,
-                    'ocr_tags': None
-                },
-                'binary': {
-
-                }
-            },
-            'metadata': {
-                'exiftool': {},   # 'metadata.exiftool.PDF:CreateDate'
-            }
-        }
+        self._fixed_data = dict(constants.RESULTS_DATA_STRUCTURE)
+        self.new_data = {}
 
     def query(self, field):
         # TODO: Return result data from a query of type dict.
