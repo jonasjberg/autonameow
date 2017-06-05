@@ -116,6 +116,11 @@ class Results(object):
             }
         }
 
+    def query(self, field):
+        # TODO: Return result data from a query string.
+        #       Example query string: "metadata.exiftool.PDF:CreateDate"
+        pass
+
     # def __getitem__(self, key):
     # TODO: Implement proper getter method.
 
