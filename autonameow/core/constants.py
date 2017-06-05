@@ -76,6 +76,9 @@ RESULTS_DATA_STRUCTURE = {
     },
     'metadata': {
         'exiftool': None,
+    },
+    'plugin': {
+        'microsoft_vision': None,
     }
 }
 
