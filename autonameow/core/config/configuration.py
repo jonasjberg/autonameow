@@ -381,6 +381,9 @@ def is_valid_source(source_value):
     Returns:
         The given source value if it passes the test, otherwise False.
     """
+    if not source_value or not source_value.strip():
+        return False
+
     if source_value.startswith(tuple(constants.VALID_DATA_SOURCES)):
         return source_value
     else:
