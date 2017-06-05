@@ -90,7 +90,7 @@ DEFAULT_CONFIG = {
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.PDF:CreateDate',
              'title': None,
-             'extension': 'filename.extension'
+             'extension': 'filesystem.extension'
          }
          },
         {'description': 'test_files smulan.jpg',
@@ -108,7 +108,7 @@ DEFAULT_CONFIG = {
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.DateTimeOriginal',
              'description': 'plugin.microsoft_vision.caption',
-             'extension': 'filename.extension'
+             'extension': 'filesystem.extension'
          }
          },
         {'description': 'Sample Entry for Photos with strict rules',
@@ -144,7 +144,7 @@ DEFAULT_CONFIG = {
              'title': None,
              'author': None,
              'publisher': None,
-             'extension': 'filename.extension',
+             'extension': 'filesystem.extension',
              'tags': 'plugin.microsoft_vision.tags'
          }
          },
@@ -164,15 +164,15 @@ DEFAULT_CONFIG = {
              }
          },
          'DATA_SOURCES': {
-             'datetime': ['metadata.XMP-dc.PublicationDate',
-                          'metadata.XMP-dc.Date'],
+             'datetime': ['metadata.exiftool.XMP-dc.PublicationDate',
+                          'metadata.exiftool.XMP-dc.Date'],
              'description': None,
-             'title': 'metadata.XMP-dc.Title',
-             'author': ['metadata.XMP-dc.Creator',
-                        'metadata.XMP-dc.CreatorFile-as'],
-             'publisher': 'metadata.XMP-dc.Publisher',
+             'title': 'metadata.exiftool.XMP-dc.Title',
+             'author': ['metadata.exiftool.XMP-dc.Creator',
+                        'metadata.exiftool.XMP-dc.CreatorFile-as'],
+             'publisher': 'metadata.exiftool.XMP-dc.Publisher',
              'edition': None,
-             'extension': 'filename.extension',
+             'extension': 'filesystem.extension',
              'tags': None
          }
          },
