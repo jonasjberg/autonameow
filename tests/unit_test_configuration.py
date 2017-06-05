@@ -27,7 +27,7 @@ import yaml
 
 from core import constants
 from core.config import field_parsers
-from core.config.config_defaults import DEFAULT_CONFIG
+from core.config.default_config import DEFAULT_CONFIG
 from core.config.configuration import (
     Configuration,
     parse_conditions,

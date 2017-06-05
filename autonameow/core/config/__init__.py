@@ -25,7 +25,7 @@ import platform
 
 import yaml
 
-from core.config.config_defaults import DEFAULT_CONFIG
+from core.config.default_config import DEFAULT_CONFIG
 from core.exceptions import ConfigReadError, ConfigWriteError
 
 CONFDIR_MAC = '~/Library/Application Support'
