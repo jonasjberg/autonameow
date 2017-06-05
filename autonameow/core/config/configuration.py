@@ -338,8 +338,7 @@ def parse_weight(value):
 
 
 def parse_sources(raw_sources):
-    # TODO: Check that the sources include the data fields used in the
-    #       name template format string.
+    # TODO: Check that all data fields used in the name template is included.
 
     passed = {}
 
@@ -375,6 +374,9 @@ def is_valid_source(source_value):
     For example, that the source value "metadata.exiftool.PDF:CreateDate" is
     considered valid because "metadata.exiftool" is listed as a valid source.
 
+    NOTE:
+        The field could still be invalid! The result query might fail!
+
     Args:
         source_value: The source to test as a text string.
 
@@ -383,6 +385,8 @@ def is_valid_source(source_value):
     """
     if not source_value or not source_value.strip():
         return False
+
+    # TODO: Test if the field specified in the source is valid.
 
     if source_value.startswith(tuple(constants.VALID_DATA_SOURCES)):
         return source_value
