@@ -71,11 +71,11 @@ RESULTS_DATA_STRUCTURE = {
             'ocr_tags': None
         },
         'binary': {
-
+            'placeholder_field': None,
         }
     },
     'metadata': {
-        'exiftool': {},
+        'exiftool': None,
     }
 }
 
