@@ -81,6 +81,21 @@ class AbstractAnalyzer(object):
         else:
             raise NotImplementedError(field)
 
+    def query(self, query_string):
+        """
+        Queries the analyzer for with a compound query string.
+
+        Example query string: "metadata.exiftool.datetimeoriginal"
+
+        Args:
+            query_string:
+
+        Returns:
+
+        """
+        # TODO: Implement or remove!
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
     def get_datetime(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
