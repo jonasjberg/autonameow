@@ -185,7 +185,7 @@ class Configuration(object):
 
         valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
         valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
-        valid_weight = self.parse_weight(raw_rule.get('weight'))
+        valid_weight = parse_weight(raw_rule.get('weight'))
 
         file_rule = FileRule(description=raw_rule.get('description'),
                              exact_match=raw_rule.get('exact_match'),
@@ -287,17 +287,6 @@ class Configuration(object):
         else:
             write_yaml_file(dest_path, self._data)
 
-    def parse_weight(self, param):
-        try:
-            w = float(param)
-        except TypeError:
-            return constants.FILERULE_DEFAULT_WEIGHT
-        else:
-            if 0 <= w <= 1:
-                return w
-            else:
-                raise ConfigurationSyntaxError('Expected integer in range 0-1')
-
     def __str__(self):
         out = []
         for number, rule in enumerate(self.file_rules):
@@ -311,6 +300,41 @@ class Configuration(object):
         out.append(misc.indent(misc.dump(self.options), amount=4))
 
         return ''.join(out)
+
+
+def parse_weight(value):
+    """
+    Validates data to be used as a "weight".
+
+    The value must be an integer or float between 0 and 1.
+    To allow for unspecified weights, None values are allowed and substituted
+    with the default weight defined by "FILERULE_DEFAULT_WEIGHT".
+    Args:
+        value: The raw value to parse.
+
+    Returns:
+        The specified value if the value is a number type in the range 0-1.
+        If the specified value is None, a default weight is returned.
+    Raises:
+        ConfigurationSyntaxError: The value is of an unexpected type or not
+            within the range 0-1.
+    """
+    ERROR_MSG = 'Expected float in range 0-1. Got: "{}"'.format(value)
+
+    if value is None:
+        return constants.FILERULE_DEFAULT_WEIGHT
+    if not isinstance(value, (int, float)):
+        raise ConfigurationSyntaxError(ERROR_MSG)
+
+    try:
+        w = float(value)
+    except TypeError:
+        raise ConfigurationSyntaxError(ERROR_MSG)
+    else:
+        if 0 <= w <= 1:
+            return w
+        else:
+            raise ConfigurationSyntaxError(ERROR_MSG)
 
 
 def parse_sources(raw_sources):
