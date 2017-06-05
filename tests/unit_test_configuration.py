@@ -31,7 +31,8 @@ from core.config.default_config import DEFAULT_CONFIG
 from core.config.configuration import (
     Configuration,
     parse_conditions,
-    parse_weight
+    parse_weight,
+    is_valid_source
 )
 from core.exceptions import ConfigurationSyntaxError
 from unit_utils import make_temp_dir
@@ -305,3 +306,19 @@ class test_parse_weight(TestCase):
 
         for value in VALUES:
            self.assertEqual(parse_weight(value), value)
+
+
+class TestIsValidSourceSpecification(TestCase):
+    def test_empty_source_returns_false(self):
+        self.assertFalse(is_valid_source(None))
+        self.assertFalse(is_valid_source(''))
+
+    def test_bad_source_returns_false(self):
+        self.assertFalse(is_valid_source('not.a.valid.source.surely'))
+
+    def test_good_source_returns_true(self):
+        self.assertTrue(is_valid_source('metadata.exiftool.PDF:CreateDate'))
+        self.assertTrue(is_valid_source('metadata.exiftool'))
+        self.assertTrue(is_valid_source('filesystem.basename'))
+        self.assertTrue(is_valid_source('filesystem.extension'))
+        self.assertTrue(is_valid_source('contents.mime_type'))
