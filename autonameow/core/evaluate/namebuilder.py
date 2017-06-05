@@ -65,11 +65,11 @@ class NameBuilder(object):
         data_sources = None
 
         # Check a copy of all rules.
-        # Conditions are evaluated with the current file object.
-        # If a rule requires an exact match, it is removed at first failed
-        # evaluation. After evaluating all rules, the remaining rules are
-        # sorted. The first rule in the resulting sorted list is used.
-        #
+        # Conditions are evaluated with the current file object and current
+        # analysis results data.
+        # If a rule requires an exact match, it is skipped at first failed
+        # evaluation. After evaluating all rules, the remaining rules in
+        # "ok_rules" are sorted. The first rule in the resulting list is used.
         rules_to_examine = list(self.config.file_rules)
 
         ok_rules = examine_rules(rules_to_examine, self.file, self.data)
