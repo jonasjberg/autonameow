@@ -49,10 +49,14 @@ EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
                                     for c in EXPECT_ANALYZER_CLASSES]
 
 
+def get_filename_analyzer(file_object):
+    return FilenameAnalyzer(file_object, None)
+
+
 class TestAbstractAnalyzer(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.a = AbstractAnalyzer(get_mock_fileobject())
+        self.a = AbstractAnalyzer(get_mock_fileobject(), None)
 
     def test_run_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

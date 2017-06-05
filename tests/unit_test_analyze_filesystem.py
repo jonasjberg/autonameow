@@ -27,6 +27,11 @@ from analyzers.analyze_filesystem import FilesystemAnalyzer
 from core.fileobject import FileObject
 
 
+def get_filesystem_analyzer(file_object):
+    return FilesystemAnalyzer(file_object, None)
+
+
+
 class TestFilesystemAnalyzerWithEmptyFile(TestCase):
     def setUp(self):
         # TODO: Fix the filtering! Not completed as-is.
@@ -52,7 +57,7 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         opts = MockOptions()
 
         self.fo = FileObject(p_test_file, opts)
-        self.fsa = FilesystemAnalyzer(self.fo)
+        self.fsa = get_filesystem_analyzer(self.fo)
 
     def get_datetime_source(self, field_name):
         return filter(lambda dt: dt['source'] == field_name,

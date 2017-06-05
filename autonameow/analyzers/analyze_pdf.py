@@ -43,6 +43,7 @@ class PdfAnalyzer(AbstractAnalyzer):
     def __init__(self, file_object, add_results_callback):
         super(PdfAnalyzer, self).__init__(file_object, add_results_callback)
         self.applies_to_mime = 'pdf'
+        self.add_results = add_results_callback
 
         self.metadata = None
         self.metadata_exiftool = None

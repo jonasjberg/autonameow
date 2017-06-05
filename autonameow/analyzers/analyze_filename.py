@@ -36,8 +36,10 @@ class FilenameAnalyzer(AbstractAnalyzer):
     run_queue_priority = 1
 
     def __init__(self, file_object, add_results_callback):
-        super(FilenameAnalyzer, self).__init__(file_object, add_results_callback)
+        super(FilenameAnalyzer, self).__init__(file_object,
+                                               add_results_callback)
         self.applies_to_mime = 'MIME_ALL'
+        self.add_results = add_results_callback
 
         self.guessit_metadata = None
 

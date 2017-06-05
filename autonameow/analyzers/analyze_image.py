@@ -39,12 +39,11 @@ class ImageAnalyzer(AbstractAnalyzer):
     def __init__(self, file_object, add_results_callback):
         super(ImageAnalyzer, self).__init__(file_object, add_results_callback)
         self.applies_to_mime = ['jpg', 'png']
+        self.add_results = add_results_callback
 
         self.exiftool = None
         self.exif_data = None
         self.ocr_text = None
-
-        self.add_results = add_results_callback
 
     # @Overrides method in AbstractAnalyzer
     def run(self):

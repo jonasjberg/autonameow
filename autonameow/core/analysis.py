@@ -156,8 +156,8 @@ class Analysis(object):
 
     A run queue is populated based on which analyzers are suited for the
     current file.
-    The analyses in the run queue is then executed and the results are
-    stored as dictionary entries, with the source analyzer name being the key.
+    The analyses in the run queue are executed and any results are
+    passed back through a callback function.
     """
     def __init__(self, file_object):
         """

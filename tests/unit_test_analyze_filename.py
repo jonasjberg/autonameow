@@ -30,10 +30,14 @@ from unit_utils import (
 )
 
 
+def get_filename_analyzer(file_object):
+    return FilenameAnalyzer(file_object, None)
+
+
 class TestFilenameAnalyzerWithImageFile(TestCase):
     def setUp(self):
         self.fo = get_named_file_object('2010-01-31_161251.jpg')
-        self.fna = FilenameAnalyzer(self.fo)
+        self.fna = get_filename_analyzer(self.fo)
 
     def test_setup(self):
         self.assertIsNotNone(self.fo)
@@ -68,7 +72,7 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def setUp(self):
         self.fo = get_named_file_object('empty')
-        self.fna = FilenameAnalyzer(self.fo)
+        self.fna = get_filename_analyzer(self.fo)
 
     def test_setup(self):
         self.assertIsNotNone(self.fo)
@@ -98,7 +102,7 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
 class TestFilenameAnalyzerWithTaggedFile(TestCase):
     def setUp(self):
         self.fo = get_named_file_object('2015-07-03_163838 Keeping notes in Vim -- dv017a dev.ogv')
-        self.fna = FilenameAnalyzer(self.fo)
+        self.fna = get_filename_analyzer(self.fo)
 
     def test_setup(self):
         self.assertIsNotNone(self.fo)
