@@ -212,6 +212,7 @@ class FilenameAnalyzer(AbstractAnalyzer):
                           'from file name using regex search.')
 
         # Lastly, an iterative brute force search.
+        # TODO: Collapse duplicate results with 'util.misc.multiset_count'..?
         dt_brute = dateandtime.bruteforce_str(fn)
         if dt_brute:
             for dt in dt_brute:
