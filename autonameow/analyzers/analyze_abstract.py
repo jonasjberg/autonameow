@@ -47,6 +47,15 @@ class AbstractAnalyzer(object):
         self.file_object = file_object
         self.applies_to_mime = None
 
+        # TODO: Rework how analyzers store results.
+        # TODO: Add new data container?
+        #       New system should allow removing these ugly duplicate things:
+        #
+        #           results.append({'value': dt_unix,
+        #                               'source': 'unix_timestamp',
+        #                               'weight': 1})
+        # TODO: Allow querying for (cached) results, all or subsets.
+
     def run(self):
         """
         Starts the analysis performed by this analyzer.
