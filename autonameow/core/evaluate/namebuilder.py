@@ -47,7 +47,7 @@ class NameBuilder(object):
     # TODO: [BL010] Implement NameBuilder.
     def __init__(self, file_object, analysis_results, active_config):
         self.file = file_object
-        self.data = analysis_results
+        self.analysis_data = analysis_results
         self.config = active_config
 
         self._new_name = None
@@ -72,7 +72,8 @@ class NameBuilder(object):
         # "ok_rules" are sorted. The first rule in the resulting list is used.
         rules_to_examine = list(self.config.file_rules)
 
-        ok_rules = examine_rules(rules_to_examine, self.file, self.data)
+        ok_rules = examine_rules(rules_to_examine, self.file,
+                                 self.analysis_data)
 
         if len(ok_rules) == 0:
             log.debug('No valid rules remain after evaluation')
@@ -99,7 +100,8 @@ class NameBuilder(object):
                       'given a data source; Check the configuration!')
             raise NameBuilderError('Some template field sources are unknown')
 
-        # TODO: Populate "template" with entries from "self.data" specified in "data_sources".
+        # TODO: Populate "template" with entries from "self.analysis_data"
+        # TODO: as specified in "data_sources".
 
         raise NotImplementedError('TODO: Implement NameBuilder')
 
