@@ -100,6 +100,10 @@ class NameBuilder(object):
                       'given a data source; Check the configuration!')
             raise NameBuilderError('Some template field sources are unknown')
 
+        # Get a dictionary of data to pass to 'assemble_basename'.
+        # Should be keyed by the placeholder fields used in the name template.
+        data = self.analysis_data.query(data_sources)
+
         # TODO: Populate "template" with entries from "self.analysis_data"
         # TODO: as specified in "data_sources".
 

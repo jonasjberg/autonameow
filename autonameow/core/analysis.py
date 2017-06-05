@@ -117,8 +117,14 @@ class Results(object):
         }
 
     def query(self, field):
-        # TODO: Return result data from a query string.
-        #       Example query string: "metadata.exiftool.PDF:CreateDate"
+        # TODO: Return result data from a query of type dict.
+        #
+        # Example query: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
+        #                 'description' = 'plugin.microsoft_vision.caption'
+        #                 'extension'   = 'filesystem.extension'}
+        #
+        # Should return a dictionary with the same keys, data should be strings
+        # that will be used to populate the name template.
         pass
 
     # def __getitem__(self, key):
