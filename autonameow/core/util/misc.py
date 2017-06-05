@@ -74,7 +74,7 @@ def dump_to_list(obj, nested_level=0, output=None):
     return out
 
 
-_counter_generator_function = itertools.count(0)
+__counter_generator_function = itertools.count(0)
 
 
 def unique_identifier():
@@ -89,7 +89,7 @@ def unique_identifier():
     Returns:
         A (pretty much unique) identifier text string.
     """
-    n = next(_counter_generator_function)
+    n = next(__counter_generator_function)
     if n % 3 == 0:
         _prefix = 'M3'
     else:
