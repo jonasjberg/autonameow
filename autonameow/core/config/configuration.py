@@ -100,30 +100,6 @@ class FileRule(Rule):
         if self.score > 0:
             self.score -= 1
 
-    #def __gt__(self, other):
-    #    if self.score == other.score and self.weight == other.weight:
-    #        raise FileRulePriorityError('Rules score and weight are both equal')
-    #    if self.score == other.score:
-    #        return self.weight > other.weight
-    #    else:
-    #        return self.score > other.score
-
-    #def __lt__(self, other):
-    #    if self.score == other.score and self.weight == other.weight:
-    #        raise FileRulePriorityError('Rules score and weight are both equal')
-    #    if self.score == other.score:
-    #        return self.weight < other.weight
-    #    else:
-    #        return self.score < other.score
-
-    # def __eq__(self, other):
-    #     return (self.description == other.description
-    #             and self.exact_match == other.exact_match
-    #             and self.weight == other.weight
-    #             and self.name_template == other.name_template
-    #             and self.conditions == other.conditions
-    #             and self.data_sources == other.data_sources)
-
 
 class Configuration(object):
     """
