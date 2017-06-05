@@ -24,10 +24,7 @@ import os
 import re
 from datetime import datetime
 
-from core.config.constants import (
-    DATA_FIELDS,
-    MAGIC_TYPE_LOOKUP
-)
+from core import constants
 from core.evaluate import namebuilder
 
 
@@ -109,10 +106,10 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
             return False
 
         if '/' in expression:
-            for magic_value in MAGIC_TYPE_LOOKUP.values():
+            for magic_value in constants.MAGIC_TYPE_LOOKUP.values():
                 if expression in magic_value:
                     return True
-        elif expression in MAGIC_TYPE_LOOKUP.keys():
+        elif expression in constants.MAGIC_TYPE_LOOKUP.keys():
             return True
 
         return False
@@ -147,7 +144,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
             return False
 
         try:
-            namebuilder.assemble_basename(expression, **DATA_FIELDS)
+            namebuilder.assemble_basename(expression, **constants.DATA_FIELDS)
         except (ValueError, TypeError, Exception):
             # TODO: Have NameBuilder raise a custom exception?
             return False

@@ -22,7 +22,7 @@
 import os
 import tempfile
 
-from core.config.constants import ANALYSIS_RESULTS_FIELDS
+from core import constants
 from core.exceptions import AnalysisResultsFieldError
 from core.fileobject import FileObject
 
@@ -71,7 +71,7 @@ class AbstractAnalyzer(object):
             AnalysisResultsFieldError: Error caused by invalid argument "field",
                 which must be included in ANALYSIS_RESULTS_FIELDS.
         """
-        if field not in ANALYSIS_RESULTS_FIELDS:
+        if field not in constants.ANALYSIS_RESULTS_FIELDS:
             raise AnalysisResultsFieldError(field)
 
         _func_name = 'get_{}'.format(field)

@@ -25,11 +25,7 @@ import re
 
 import magic
 
-from core.config.constants import (
-    MAGIC_TYPE_LOOKUP,
-    FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR,
-    FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR
-)
+from core import constants
 from core.exceptions import InvalidFileArgumentError
 from .util import diskutils
 
@@ -186,7 +182,7 @@ def filetype_magic(file_path):
         return next((k for k, v in list(input_dict.items()) if v == value), None)
 
     try:
-        found_type = find_key(MAGIC_TYPE_LOOKUP, mtype.split()[:2])
+        found_type = find_key(constants.MAGIC_TYPE_LOOKUP, mtype.split()[:2])
     except KeyError:
         return None
 

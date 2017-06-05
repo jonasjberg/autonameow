@@ -22,14 +22,10 @@
 import logging as log
 import os
 
+from core import constants
 from core.config import (
     load_yaml_file,
     write_yaml_file
-)
-from core.config.constants import (
-    FILERULE_DEFAULT_WEIGHT,
-    FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR,
-    FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR
 )
 from core.config.field_parsers import (
     MimeTypeConfigFieldParser,
@@ -73,7 +69,7 @@ class FileRule(Rule):
 
         self.description = str(kwargs.get('description'))
         self.exact_match = bool(kwargs.get('exact_match'))
-        self.weight = kwargs.get('weight', FILERULE_DEFAULT_WEIGHT)
+        self.weight = kwargs.get('weight', constants.FILERULE_DEFAULT_WEIGHT)
         self.name_template = kwargs.get('name_template')
         self.conditions = kwargs.get('conditions', False)
         self.data_sources = kwargs.get('data_sources', False)
@@ -256,9 +252,9 @@ class Configuration(object):
 
         if 'FILETAGS_OPTIONS' in self._data:
             _try_load_filetags_option('filename_tag_separator',
-                                      FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR)
+                                      constants.FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR)
             _try_load_filetags_option('between_tag_separator',
-                                      FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR)
+                                      constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR)
 
     @property
     def options(self):
@@ -322,7 +318,7 @@ class Configuration(object):
         try:
             w = float(param)
         except TypeError:
-            return FILERULE_DEFAULT_WEIGHT
+            return constants.FILERULE_DEFAULT_WEIGHT
         else:
             if 0 <= w <= 1:
                 return w

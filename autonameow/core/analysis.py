@@ -25,7 +25,7 @@ from analyzers.analyze_abstract import (
     get_analyzer_classes_basename,
     get_analyzer_mime_mappings
 )
-from core.config.constants import ANALYSIS_RESULTS_FIELDS
+from core import constants
 from core.exceptions import AutonameowException
 from core.fileobject import FileObject
 
@@ -83,7 +83,7 @@ class Results(object):
 
     def __init__(self):
         self._data = {}
-        for field in ANALYSIS_RESULTS_FIELDS:
+        for field in constants.ANALYSIS_RESULTS_FIELDS:
             self._data[field] = []
 
         # TODO: Redesign data storage structure.
@@ -132,7 +132,7 @@ class Results(object):
         Raises:
             KeyError: The specified field is not in "ANALYSIS_RESULTS_FIELDS".
         """
-        if field not in ANALYSIS_RESULTS_FIELDS:
+        if field not in constants.ANALYSIS_RESULTS_FIELDS:
             raise KeyError('Invalid results field: {}'.format(field))
 
         self._data[field] += data
@@ -148,7 +148,7 @@ class Results(object):
         Returns:
             All analysis results data for the given field.
         """
-        if field not in ANALYSIS_RESULTS_FIELDS:
+        if field not in constants.ANALYSIS_RESULTS_FIELDS:
             raise KeyError('Invalid results field: {}'.format(field))
 
         return self._data[field]
@@ -257,7 +257,7 @@ class Analysis(object):
 
             # Run the analysis and collect the results.
             a.run()
-            for field in ANALYSIS_RESULTS_FIELDS:
+            for field in constants.ANALYSIS_RESULTS_FIELDS:
                 try:
                     result = a.get(field)
                 except NotImplementedError as e:

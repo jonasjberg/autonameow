@@ -27,7 +27,7 @@ from core.analysis import (
     AnalysisRunQueue,
     Analysis
 )
-from core.config.constants import ANALYSIS_RESULTS_FIELDS
+from core.constants import ANALYSIS_RESULTS_FIELDS
 from unit_utils import (
     get_mock_analyzer,
     get_mock_fileobject

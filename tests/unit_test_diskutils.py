@@ -21,8 +21,8 @@
 
 from unittest import TestCase
 
+from core.constants import MAGIC_TYPE_LOOKUP
 from core.util import diskutils
-from core.config.constants import MAGIC_TYPE_LOOKUP
 
 
 class TestMimeTypes(TestCase):
