@@ -80,7 +80,6 @@ class NameBuilder(object):
 
         log.debug('Prioritizing (sorting) remaining {} rules'
                   ' ..'.format(len(ok_rules)))
-        # rules_sorted = sorted(rules_to_examine, key=lambda x: -x.score)
         rules_sorted = sorted(ok_rules, reverse=True,
                               key=operator.attrgetter('score', 'weight'))
         for i, rule in enumerate(rules_sorted):
