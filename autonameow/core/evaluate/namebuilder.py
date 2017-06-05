@@ -106,10 +106,23 @@ class NameBuilder(object):
 
 
 def all_template_fields_defined(template, data_sources):
-    format_fields = format_string_placeholders(template)
+    """
+    Tests if all name template placeholder fields is included in the sources.
 
+    This tests only the keys of the sources, for instance "datetime".
+    But the value stored for the key could still be invalid.
+
+    Args:
+        template: The name template to compare against.
+        data_sources: The sources to check.
+
+    Returns:
+        True if all placeholder fields in the template is accounted for in
+        the sources. else False.
+    """
+    format_fields = format_string_placeholders(template)
     for field in format_fields:
-        if not field in data_sources.keys():
+        if field not in data_sources.keys():
             return False
     return True
 
