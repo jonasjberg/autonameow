@@ -338,8 +338,6 @@ def parse_weight(value):
 
 
 def parse_sources(raw_sources):
-    # TODO: Check that all data fields used in the name template is included.
-
     passed = {}
 
     log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))

@@ -94,6 +94,9 @@ class NameBuilder(object):
 
         data_sources = active_rule.data_sources
 
+
+        # TODO: Check that all data fields used in the name template is included.
+
         # TODO: Populate "template" with entries from "self.data" specified in "data_sources".
         raise NotImplementedError('TODO: Implement NameBuilder')
 
