@@ -21,8 +21,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging as log
-import os
-import platform
 import sys
 import time
 
@@ -40,8 +38,8 @@ from core.exceptions import (
 )
 from core.fileobject import FileObject
 from core.util import (
-    misc,
-    cli
+    cli,
+    misc
 )
 from . import version
 
