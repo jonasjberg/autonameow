@@ -103,6 +103,10 @@ class Results(object):
     # def __getitem__(self, key):
     # TODO: Implement proper getter method.
 
+    def new_add(self, label, data):
+        # TODO: FIX ME! Should replace "old add".
+        self.new_data.update({label: data})
+
     def add(self, field, data):
         """
         Adds results data for a specific field to the aggregate data.
@@ -169,8 +173,6 @@ class Analysis(object):
             raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
-        self.test_callbacked_results = dict()
-
         self.results = Results()
         self.analysis_run_queue = AnalysisRunQueue()
 
@@ -184,7 +186,7 @@ class Analysis(object):
             label: Arbitrary label that uniquely identifies the data.
             data: The data to add.
         """
-        self.test_callbacked_results.update({label: data})
+        self.results.new_add(label, data)
 
     def start(self):
         """
