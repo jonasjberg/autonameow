@@ -44,11 +44,15 @@ class ImageAnalyzer(AbstractAnalyzer):
         self.exif_data = None
         self.ocr_text = None
 
+        self.add_results = add_results_callback
+
     # @Overrides method in AbstractAnalyzer
     def run(self):
         self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
         logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
         self.exif_data = self.exiftool.query()
+
+        self.add_results('metadata.exiftool', self.exif_data)
 
         self.ocr_text = self._get_text_from_ocr()
 
