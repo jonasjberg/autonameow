@@ -99,9 +99,8 @@ class NameBuilder(object):
                       'given a data source; Check the configuration!')
             raise NameBuilderError('Some template field sources are unknown')
 
-        # TODO: Check that all data fields used in the name template is included.
-
         # TODO: Populate "template" with entries from "self.data" specified in "data_sources".
+
         raise NotImplementedError('TODO: Implement NameBuilder')
 
 
