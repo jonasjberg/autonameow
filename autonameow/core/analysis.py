@@ -89,7 +89,7 @@ class Results(object):
         self._fixed_data = dict(constants.RESULTS_DATA_STRUCTURE)
         self.new_data = {}
 
-    def query(self, field):
+    def query(self, field_data_source_map):
         # TODO: Return result data from a query of type dict.
         #
         # Example query: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
@@ -98,7 +98,11 @@ class Results(object):
         #
         # Should return a dictionary with the same keys, data should be strings
         # that will be used to populate the name template.
-        pass
+
+        out = {}
+        for field, source in field_data_source_map.items():
+            out[field] = self.new_data.get(source)
+        return out
 
     # def __getitem__(self, key):
     # TODO: Implement proper getter method.
