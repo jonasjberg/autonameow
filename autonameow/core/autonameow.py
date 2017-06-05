@@ -117,8 +117,7 @@ class Autonameow(object):
                 except ConfigurationSyntaxError as e:
                     log.critical('Configuration syntax error: "{!s}"'.format(e))
 
-
-        # Setup results filtering
+        # TODO: Integrate filter settings in configuration (file).
         self.filter = ResultFilter().configure_filter(self.args)
 
         if self.args.dump_options:
