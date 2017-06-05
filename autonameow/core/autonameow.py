@@ -45,8 +45,6 @@ from core.util import (
 )
 from . import version
 
-PYTHON_VERSION = sys.version.replace('\n', '')
-
 
 class Autonameow(object):
     """
@@ -79,15 +77,8 @@ class Autonameow(object):
         self.args = options.parse_args(self.opts)
 
         # Display various information depending on verbosity level.
-        if self.args.verbose:
+        if self.args.verbose or self.args.debug:
             cli.print_start_info()
-
-        if self.args.debug:
-            log.debug('Started {} version {}'.format(version.__title__,
-                                                         version.__version__))
-            log.debug('Running on Python {}'.format(PYTHON_VERSION))
-            log.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
-            log.debug('Process ID: {}'.format(os.getpid()))
 
         # Display startup banner with program version and exit.
         if self.args.show_version:

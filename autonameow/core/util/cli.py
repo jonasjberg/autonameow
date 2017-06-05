@@ -31,8 +31,10 @@ try:
 except ImportError:
     colorama = None
 
-
-from core import version
+from core import (
+    version,
+    constants
+)
 
 
 def print_ascii_banner():
@@ -73,6 +75,12 @@ def print_start_info():
     i = colorize('Started at {d} by {u} on {p}'.format(d=date, u=user, p=plat),
                  fore='LIGHTBLACK_EX')
     print(i)
+
+    logging.debug('Started {} version {}'.format(version.__title__,
+                                                 version.__version__))
+    logging.debug('Running on Python {}'.format(constants.PYTHON_VERSION))
+    logging.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
+    logging.debug('Process ID: {}'.format(os.getpid()))
 
 
 def print_exit_info(exit_code, elapsed_time):

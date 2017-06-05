@@ -19,6 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+
+
+PYTHON_VERSION = sys.version.replace('\n', '')
+
 
 # Each analyzer can be queried for these fields by calling either;
 #   the_analyzer.get_FIELD()   or   the_analyzer.get('FIELD')
