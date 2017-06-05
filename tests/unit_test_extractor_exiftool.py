@@ -27,10 +27,13 @@ from unit_utils import (
     abspath_testfile
 )
 
+E = ExiftoolMetadataExtractor(make_temporary_file())
+
 
 class TestExiftoolMetadataExtractorWithEmptyFile(TestCase):
     def setUp(self):
-        self.e = ExiftoolMetadataExtractor(make_temporary_file())
+        # self.e = ExiftoolMetadataExtractor(make_temporary_file())
+        self.e = E
 
     def test_extractor_class_is_available(self):
         self.assertIsNotNone(ExiftoolMetadataExtractor)
