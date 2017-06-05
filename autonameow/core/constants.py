@@ -48,6 +48,7 @@ DATA_FIELDS = dict.fromkeys(ANALYSIS_RESULTS_FIELDS +
 
 
 # Reference analysis results data structure with all valid fields/sources.
+# Used to validate sources defined in the configuration file.
 RESULTS_DATA_STRUCTURE = {
     'filesystem': {
         'basename': None,
