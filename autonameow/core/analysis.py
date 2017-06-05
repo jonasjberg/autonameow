@@ -227,7 +227,7 @@ class Analysis(object):
         if found:
             self.analysis_run_queue.enqueue(found)
         else:
-            raise AutonameowException('This should not happen!')
+            raise AutonameowException('None of the analyzers applies (!)')
 
     # def _execute_common_analyzers(self):
     #     filesystem_analyzer = FilesystemAnalyzer()
