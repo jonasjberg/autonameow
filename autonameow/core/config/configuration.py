@@ -338,38 +338,36 @@ def parse_weight(value):
 
 
 def parse_sources(raw_sources):
-    # TODO: [hardcoded] Fix this! Solves a very limited number of cases!
-
     # TODO: Check that the sources include the data fields used in the
     #       name template format string.
-    out = {}
 
-    if 'datetime' in raw_sources:
-        source = raw_sources['datetime']
-        if source:
-            if isinstance(source, list):
-                source = source[0]
-            if source.startswith('metadata.exiftool.'):
-                # Slice returns two last items in split() list.
-                out['datetime'] = source.split('.')[-2:]
+    passed = {}
 
-    if 'description' in raw_sources:
-        source = raw_sources['description']
-        if isinstance(source, list):
-            source = source[0]
-        if source and source == 'plugin.microsoft_vision.caption':
-            out['description'] = source.split('.')[-2:]
+    log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
 
-    if 'extension' in raw_sources:
-        source = raw_sources['extension']
-        if isinstance(source, list):
-            source = source[0]
-        if source and source == 'filename.extension':
-            out['extension'] = 'filesystem.extension'
-        if source and source == 'contents.mime_type':
-            out['extension'] = 'contents.mime_type'
+    for field, value in raw_sources.items():
+        if not value:
+            log.debug('Skipped empty source specification: {}'.format(field))
+            continue
 
-    return out
+        if not isinstance(value, list):
+            value = [value]
+
+        for v in value:
+            if is_valid_source(v):
+                log.debug('Validated source: [{}]: {}'.format(field, v))
+                passed[field] = v
+            else:
+                log.debug('Skipped invalid source: [{}]: {}'.format(field, v))
+
+    log.debug('First filter passed {} sources'.format(len(passed)))
+
+    return passed
+
+
+def is_valid_source(source_value):
+    if source_value.startswith(tuple(constants.VALID_DATA_SOURCES)):
+        return source_value
 
 
 def parse_conditions(raw_conditions):
