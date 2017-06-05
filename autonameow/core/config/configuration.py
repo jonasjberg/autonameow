@@ -366,8 +366,25 @@ def parse_sources(raw_sources):
 
 
 def is_valid_source(source_value):
+    """
+    Check if the source is valid.
+
+    Tests if the given source starts with the same text as any of the valid
+    date sources defined in the 'VALID_DATA_SOURCES' list.
+
+    For example, that the source value "metadata.exiftool.PDF:CreateDate" is
+    considered valid because "metadata.exiftool" is listed as a valid source.
+
+    Args:
+        source_value: The source to test as a text string.
+
+    Returns:
+        The given source value if it passes the test, otherwise False.
+    """
     if source_value.startswith(tuple(constants.VALID_DATA_SOURCES)):
         return source_value
+    else:
+        return False
 
 
 def parse_conditions(raw_conditions):
