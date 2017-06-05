@@ -36,8 +36,8 @@ class ImageAnalyzer(AbstractAnalyzer):
     # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 0.5
 
-    def __init__(self, file_object):
-        super(ImageAnalyzer, self).__init__(file_object)
+    def __init__(self, file_object, add_results_callback):
+        super(ImageAnalyzer, self).__init__(file_object, add_results_callback)
         self.applies_to_mime = ['jpg', 'png']
 
         self.exiftool = None

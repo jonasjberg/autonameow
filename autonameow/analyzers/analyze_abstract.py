@@ -43,9 +43,10 @@ class AbstractAnalyzer(object):
     """
     run_queue_priority = None
 
-    def __init__(self, file_object):
+    def __init__(self, file_object, add_results_callback):
         self.file_object = file_object
         self.applies_to_mime = None
+        self.add_results = add_results_callback
 
         # TODO: Rework how analyzers store results.
         # TODO: Add new data container?
@@ -163,7 +164,7 @@ def get_instantiated_analyzers():
     """
     # NOTE: These are instantiated with a None FIleObject, which might be a
     #       problem and is surely not very pretty.
-    return [klass(None) for klass in get_analyzer_classes()]
+    return [klass(None, None) for klass in get_analyzer_classes()]
 
 
 def get_analyzer_mime_mappings():

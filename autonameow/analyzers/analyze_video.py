@@ -29,8 +29,8 @@ class VideoAnalyzer(AbstractAnalyzer):
     # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 0.1
 
-    def __init__(self, file_object):
-        super(VideoAnalyzer, self).__init__(file_object)
+    def __init__(self, file_object, add_results_callback):
+        super(VideoAnalyzer, self).__init__(file_object, add_results_callback)
         self.applies_to_mime = 'mp4'
 
         self.exif_data = None

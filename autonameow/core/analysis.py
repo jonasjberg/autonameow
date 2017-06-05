@@ -196,8 +196,22 @@ class Analysis(object):
             raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
+        self.test_callbacked_results = dict()
+
         self.results = Results()
         self.analysis_run_queue = AnalysisRunQueue()
+
+    def collect_results(self, label, data):
+        """
+        Collects analysis results. Passed to analyzers as a callback.
+
+        Analyzers call this to store collected data.
+
+        Args:
+            label: Arbitrary label that uniquely identifies the data.
+            data: The data to add.
+        """
+        self.test_callbacked_results.update({label: data})
 
     def start(self):
         """
@@ -257,7 +271,7 @@ class Analysis(object):
                 log.critical('Got null analysis from analysis run queue.')
                 continue
 
-            a = analysis(self.file_object)
+            a = analysis(self.file_object, self.collect_results)
             if not a:
                 log.critical('Unable to start Analyzer "{!s}"'.format(analysis))
                 continue
