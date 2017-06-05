@@ -40,15 +40,16 @@ class ImageAnalyzer(AbstractAnalyzer):
         super(ImageAnalyzer, self).__init__(file_object)
         self.applies_to_mime = ['jpg', 'png']
 
+        self.exiftool = None
         self.exif_data = None
         self.ocr_text = None
 
     # @Overrides method in AbstractAnalyzer
     def run(self):
-        exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
-        logging.debug('Extracting metadata with {!s} ..'.format(exiftool))
+        self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
+        logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
+        self.exif_data = self.exiftool.query()
 
-        self.exif_data = exiftool.query()
         self.ocr_text = self._get_text_from_ocr()
 
         # TODO: Run OCR on the image and store any textual output.
