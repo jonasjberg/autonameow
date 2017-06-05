@@ -94,11 +94,24 @@ class NameBuilder(object):
 
         data_sources = active_rule.data_sources
 
+        if not all_template_fields_defined(template, data_sources):
+            log.error('All name template placeholder fields must be '
+                      'given a data source; Check the configuration!')
+            raise NameBuilderError('Some template field sources are unknown')
 
         # TODO: Check that all data fields used in the name template is included.
 
         # TODO: Populate "template" with entries from "self.data" specified in "data_sources".
         raise NotImplementedError('TODO: Implement NameBuilder')
+
+
+def all_template_fields_defined(template, data_sources):
+    format_fields = format_string_placeholders(template)
+
+    for field in format_fields:
+        if not field in data_sources.keys():
+            return False
+    return True
 
 
 def examine_rules(rules_to_examine, file_object, analysis_data):
