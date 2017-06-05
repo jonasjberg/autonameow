@@ -35,7 +35,8 @@ from core.evaluate.namebuilder import NameBuilder
 from core.exceptions import (
     InvalidFileArgumentError,
     ConfigurationSyntaxError,
-    AutonameowException
+    AutonameowException,
+    NameBuilderError
 )
 from core.fileobject import FileObject
 from core.util import (
@@ -205,6 +206,10 @@ class Autonameow(object):
                 except NotImplementedError:
                     log.critical('TODO: [BL010] Implement NameBuilder.')
                     exit_code |= 1
+                except NameBuilderError as e:
+                    log.critical('Name assembly FAILED: {!s}'.format(e))
+                    exit_code |= 1
+                    continue
                 else:
                     if self.args.dry_run:
                         log.info('Automagically built filename: '
