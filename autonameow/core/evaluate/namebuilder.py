@@ -123,6 +123,7 @@ def all_template_fields_defined(template, data_sources):
     format_fields = format_string_placeholders(template)
     for field in format_fields:
         if field not in data_sources.keys():
+            log.error('Field "{}" has not been assigned a source'.format(field))
             return False
     return True
 
