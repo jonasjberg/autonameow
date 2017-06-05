@@ -21,6 +21,7 @@
 
 import sys
 
+from core.util import misc
 
 PYTHON_VERSION = sys.version.replace('\n', '')
 
@@ -48,7 +49,6 @@ DATA_FIELDS = dict.fromkeys(ANALYSIS_RESULTS_FIELDS +
 
 
 # Reference analysis results data structure with all valid fields/sources.
-# Used to validate sources defined in the configuration file.
 RESULTS_DATA_STRUCTURE = {
     'filesystem': {
         'basename': None,
@@ -78,6 +78,10 @@ RESULTS_DATA_STRUCTURE = {
         'exiftool': None,
     }
 }
+
+# Used to validate sources defined in the configuration file.
+__flat_results_data_structure = misc.flatten_dict(RESULTS_DATA_STRUCTURE)
+VALID_DATA_SOURCES = list(__flat_results_data_structure.keys())
 
 
 # File "magic" MIME type lookup table keyed by shorthand. Each value is a
