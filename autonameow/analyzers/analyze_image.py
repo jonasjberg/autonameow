@@ -97,27 +97,17 @@ class ImageAnalyzer(AbstractAnalyzer):
                      'weight'  : 1
                    }, .. ]
         """
-        if self.exif_data is None:
-            logging.debug('Found no EXIF data in file '
-                          '"{}"'.format(self.file_object.abspath))
-            return
-
-        # Exif field, weight
         # TODO: Recheck the weights. Should they even be defined here?
-        DATE_TAG_FIELDS = [['DateTimeOriginal', 1],
-                           ['DateTimeDigitized', 1],
-                           ['DateTimeModified', 0.5],
-                           ['CreateDate', 1],
-                           ['ModifyDate', 0.5],
-                           ['DateTime', 0.75]]
+        DATE_TAG_FIELDS = [['EXIF:DateTimeOriginal', 1],
+                           ['EXIF:DateTimeDigitized', 1],
+                           ['EXIF:DateTimeModified', 0.5],
+                           ['EXIF:CreateDate', 1],
+                           ['EXIF:ModifyDate', 0.5],
+                           ['EXIF:DateTime', 0.75]]
         results = []
         logging.debug('Extracting date/time-information from EXIF-tags')
         for field, weight in DATE_TAG_FIELDS:
-            try:
-                dtstr = self.exif_data[field]
-            except KeyError:
-                # logging.warn('KeyError for key [{}]'.format(field))
-                continue
+            dtstr = self.exif_data.get(field, None)
             if not dtstr:
                 continue
 
@@ -140,7 +130,7 @@ class ImageAnalyzer(AbstractAnalyzer):
             if dt:
                 # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
                 results.append({'value': dt,
-                                'source': field.lower(),
+                                'source': field,
                                 'weight': weight})
 
         logging.debug('Searching for GPS date/time-information in EXIF-tags')
@@ -172,8 +162,8 @@ class ImageAnalyzer(AbstractAnalyzer):
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
-        if (self.exif_data['Make'] == 'OnePlus' and
-                self.exif_data['Model'] == 'ONE E1003'):
+        if (self.exif_data.get('Make') == 'OnePlus' and
+                self.exif_data.get('Model') == 'ONE E1003'):
             bad_exif_date = datetime.strptime('20021208_120000',
                                               '%Y%m%d_%H%M%S')
             try:
