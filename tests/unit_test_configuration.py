@@ -279,7 +279,7 @@ class TestParseConditions(TestCase):
         self.assertEqual(actual.get('mime_type'), 'jpg')
 
 
-class test_parse_weight(TestCase):
+class TestParseWeight(TestCase):
     def test_negative_value_raises_configuration_syntax_error(self):
         with self.assertRaises(ConfigurationSyntaxError):
             parse_weight(-1)
