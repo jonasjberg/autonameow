@@ -59,25 +59,6 @@ class NameBuilder(object):
     def build(self):
         # TODO: [BL010] Implement NameBuilder.
 
-        #   Assemble basename requires;
-        #   1. Name template string
-        #     * Get rule that knows which string
-        #         * Get rule matching current file
-        #   2. Data to populate name template
-        #     * Get rule that knows what data
-        #         * Get rule matching current file
-        #
-        #   Assemble file sub-tasks;
-        #   1. Get rule matching current file
-        #   2. Get template string from rule
-        #   3. Get data from analysis results, using sources given by the rule
-
-        #   Test if rule matches current file tasks;
-        #   1. For each rule;
-        #     * Evaluate each condition, upvote for each passing condition
-        #   2. For each rule requiring exact match;
-        #     *
-
         # TODO: Format date/time-information using "datetime_format" in config.
 
         template = None
