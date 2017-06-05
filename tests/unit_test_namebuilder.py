@@ -23,7 +23,8 @@ from unittest import TestCase
 
 from core.evaluate.namebuilder import (
     assemble_basename,
-    format_string_placeholders
+    format_string_placeholders,
+    all_template_fields_defined
 )
 from core.exceptions import NameTemplateSyntaxError
 
@@ -52,12 +53,12 @@ class TestNameBuilder(TestCase):
             self.assertEqual(assemble_basename(template, **data), expected)
 
     def test_assemble_basename_using_template_2_given_all_fields(self):
-        template = '{publisher} {title} {edition} - {author} {year}.{extension}'
+        template = '{publisher} {title} {edition} - {author} {date}.{extension}'
         data = {'title': '11 years old and dying',
                 'publisher': 'CatPub',
                 'edition': 'Final Edition',
                 'author': 'Gibson',
-                'year': '2017',
+                'date': '2017',
                 'extension': 'pdf'}
         expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
 
@@ -65,21 +66,10 @@ class TestNameBuilder(TestCase):
 
     def test_assemble_basename_using_template_2_all_fields_missing(self):
         with self.assertRaises(NameTemplateSyntaxError):
-            template = '{publisher} {title} {edition} - {author} {year}.{extension}'
+            template = '{publisher} {title} {edition} - {author} {date}.{extension}'
             data = {}
             expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
             self.assertEqual(assemble_basename(template, **data), expected)
-
-
-    def test_assemble_basename_using_default_name_template(self):
-        template = '{title} - {author} {datetime}.{extension}'
-        data = {'title': '11 years old and dying',
-                'publisher': 'CatPub',
-                'edition': 'Final Edition',
-                'author': 'Gibson',
-                'year': '2017',
-                'extension': 'pdf'}
-        expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
 
 
 class TestFormatStringPlaceholders(TestCase):
