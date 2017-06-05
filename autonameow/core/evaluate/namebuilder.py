@@ -91,25 +91,18 @@ class NameBuilder(object):
         #
         rules_to_examine = list(self.config.file_rules)
 
-        for count, rule in enumerate(rules_to_examine):
-            log.debug('Evaluating rule {}/{} ..'.format(count + 1,
-                                                        len(rules_to_examine)))
-            result = evaluate_rule(rule, self.file, self.data)
-            if rule.exact_match and result is False:
-                log.debug('Rule evaluated false -- removing '
-                          '"{}"'.format(rule.description))
-                rules_to_examine.remove(rule)
+        ok_rules = examine_rules(rules_to_examine, self.file, self.data)
 
-        if len(rules_to_examine) == 0:
+        if len(ok_rules) == 0:
             log.debug('No valid rules remain after evaluation')
             raise NameBuilderError('None of the rules seem to apply')
 
         log.debug('Prioritizing (sorting) remaining {} rules'
-                  ' ..'.format(len(rules_to_examine)))
+                  ' ..'.format(len(ok_rules)))
         # rules_sorted = sorted(rules_to_examine, key=lambda x: -x.score)
-        rules_sorted = sorted(rules_to_examine, reverse=True,
+        rules_sorted = sorted(ok_rules, reverse=True,
                               key=operator.attrgetter('score', 'weight'))
-        for i, rule in enumerate(rules_to_examine):
+        for i, rule in enumerate(rules_sorted):
             log.debug('{}. (score: {}, weight: {}) {} '.format(i + 1,
                       rule.score, rule.weight, rule.description))
 
@@ -122,6 +115,25 @@ class NameBuilder(object):
 
         # TODO: Populate "template" with "self.data".
         raise NotImplementedError('TODO: Implement NameBuilder')
+
+
+def examine_rules(rules_to_examine, file_object, analysis_data):
+    ok_rules = []
+
+    for count, rule in enumerate(rules_to_examine):
+        log.debug('Evaluating rule {}/{}: "{}"'.format(count + 1,
+                                                       len(rules_to_examine),
+                                                       rule.description))
+        result = evaluate_rule(rule, file_object, analysis_data)
+        if rule.exact_match and result is False:
+            log.debug('Rule evaluated false, removing: '
+                      '"{}"'.format(rule.description))
+            continue
+
+        log.debug('Rule evaluated true: "{}"'.format(rule.description))
+        ok_rules.append(rule)
+
+    return ok_rules
 
 
 def assemble_basename(name_template, **kwargs):
