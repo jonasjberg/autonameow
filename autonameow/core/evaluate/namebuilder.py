@@ -112,8 +112,9 @@ class NameBuilder(object):
         template = active_rule.name_template
         log.debug('Using name template: {}'.format(template))
 
+        data_sources = active_rule.data_sources
 
-        # TODO: Populate "template" with "self.data".
+        # TODO: Populate "template" with entries from "self.data" specified in "data_sources".
         raise NotImplementedError('TODO: Implement NameBuilder')
 
 
