@@ -106,7 +106,7 @@ DEFAULT_CONFIG = {
              },
          },
          'DATA_SOURCES': {
-             'datetime': 'metadata.exiftool.DateTimeOriginal',
+             'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
              'description': 'plugin.microsoft_vision.caption',
              'extension': 'filesystem.extension'
          }
@@ -137,9 +137,9 @@ DEFAULT_CONFIG = {
              }
          },
          'DATA_SOURCES': {
-             'datetime': ['metadata.exiftool.DateTimeOriginal',
-                          'metadata.exiftool.DateTimeDigitized',
-                          'metadata.exiftool.CreateDate'],
+             'datetime': ['metadata.exiftool.EXIF:DateTimeOriginal',
+                          'metadata.exiftool.EXIF:DateTimeDigitized',
+                          'metadata.exiftool.EXIF:CreateDate'],
              'description': 'plugin.microsoft_vision.caption',
              'title': None,
              'author': None,
@@ -164,13 +164,13 @@ DEFAULT_CONFIG = {
              }
          },
          'DATA_SOURCES': {
-             'datetime': ['metadata.exiftool.XMP-dc.PublicationDate',
-                          'metadata.exiftool.XMP-dc.Date'],
+             'datetime': ['metadata.exiftool.XMP-dc:PublicationDate',
+                          'metadata.exiftool.XMP-dc:Date'],
              'description': None,
-             'title': 'metadata.exiftool.XMP-dc.Title',
-             'author': ['metadata.exiftool.XMP-dc.Creator',
-                        'metadata.exiftool.XMP-dc.CreatorFile-as'],
-             'publisher': 'metadata.exiftool.XMP-dc.Publisher',
+             'title': 'metadata.exiftool.XMP-dc:Title',
+             'author': ['metadata.exiftool.XMP-dc:Creator',
+                        'metadata.exiftool.XMP-dc:CreatorFile-as'],
+             'publisher': 'metadata.exiftool.XMP-dc:Publisher',
              'edition': None,
              'extension': 'filesystem.extension',
              'tags': None
