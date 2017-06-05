@@ -141,6 +141,9 @@ class FileObject(object):
         else:
             return False
 
+    def __str__(self):
+        return str(self.filename)
+
 
 def filetype_magic(file_path):
     """
