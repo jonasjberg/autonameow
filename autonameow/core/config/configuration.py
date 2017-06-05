@@ -28,16 +28,13 @@ from core.config import (
     write_yaml_file
 )
 from core.config.field_parsers import (
-    MimeTypeConfigFieldParser,
     NameFormatConfigFieldParser,
     get_instantiated_field_parsers,
-    RegexConfigFieldParser,
     DateTimeConfigFieldParser
 )
 from core.exceptions import (
     ConfigurationSyntaxError,
-    ConfigError,
-    FileRulePriorityError
+    ConfigError
 )
 from core.util import misc
 

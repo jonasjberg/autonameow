@@ -30,10 +30,10 @@ from analyzers.analyze_abstract import (
 )
 from analyzers.analyze_filename import FilenameAnalyzer
 from analyzers.analyze_filesystem import FilesystemAnalyzer
+from analyzers.analyze_image import ImageAnalyzer
 from analyzers.analyze_pdf import PdfAnalyzer
 from analyzers.analyze_text import TextAnalyzer
 from analyzers.analyze_video import VideoAnalyzer
-from analyzers.analyze_image import ImageAnalyzer
 from core.constants import ANALYSIS_RESULTS_FIELDS
 from core.exceptions import AnalysisResultsFieldError
 from unit_utils import get_mock_fileobject

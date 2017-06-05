@@ -21,7 +21,6 @@
 
 from unittest import TestCase
 
-from analyzers.analyze_image import ImageAnalyzer
 from core.analysis import (
     Results,
     AnalysisRunQueue,

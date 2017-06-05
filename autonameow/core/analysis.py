@@ -22,7 +22,6 @@
 import logging as log
 
 from analyzers.analyze_abstract import (
-    get_analyzer_classes_basename,
     get_analyzer_mime_mappings
 )
 from core import constants
