@@ -24,8 +24,6 @@ import logging as log
 import re
 import operator
 
-from dateutil import parser
-
 import core.config.configuration
 from core.fileobject import FileObject
 from core.exceptions import (
@@ -34,7 +32,10 @@ from core.exceptions import (
     AutonameowException,
     NameBuilderError
 )
-from core.util import cli
+from core.util import (
+    cli,
+    dateandtime
+)
 
 
 class NameBuilder(object):
@@ -376,8 +377,9 @@ def formatted_datetime(datetime_string, format_string):
     Returns:
         A string in the specified format with the data from the given string.
     """
+
     try:
-        datetime_object = parser.parse(datetime_string)
+        datetime_object = dateandtime.to_datetime(datetime_string)
     except (TypeError, ValueError) as e:
         log.error('Unable to format datetime string: "{!s}"'.format(
             datetime_string))
