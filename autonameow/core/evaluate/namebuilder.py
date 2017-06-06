@@ -105,6 +105,13 @@ class NameBuilder(object):
         # Get a dictionary of data to pass to 'assemble_basename'.
         # Should be keyed by the placeholder fields used in the name template.
         data = self.analysis_data.query(data_sources)
+        log.debug('Query for results fields returned:')
+        log.debug(str(data))
+
+        # Format datetime
+        data = pre_assemble_format(data, template, self.config)
+        log.debug('After pre-assembly formatting;')
+        log.debug(str(data))
 
         # TODO: Populate "template" with entries from "self.analysis_data"
         # TODO: as specified in "data_sources".
@@ -299,6 +306,31 @@ def format_string_placeholders(format_string):
     if not format_string:
         return []
     return re.findall(r'{(\w+)}', format_string)
+
+
+def pre_assemble_format(data, template, config):
+    out = {}
+
+    # TODO: Handle this properly and more generally
+
+    for key, value in data.items():
+        if key == 'datetime':
+            datetime_format = config.options['DATETIME_FORMAT']['datetime']
+            out['datetime'] = formatted_datetime(data['datetime'],
+                                                 datetime_format)
+        elif key == 'date':
+            datetime_format = config.options['DATETIME_FORMAT']['date']
+            out['date'] = formatted_datetime(data['date'],
+                                             datetime_format)
+        elif key == 'time':
+            datetime_format = config.options['DATETIME_FORMAT']['time']
+            out['time'] = formatted_datetime(data['time'],
+                                             datetime_format)
+        else:
+            # TODO: Other substitutions, etc ..
+            out[key] = data[key]
+
+    return out
 
 
 def formatted_datetime(datetime_string, format_string):
