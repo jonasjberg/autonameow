@@ -56,29 +56,43 @@ def plugin_query(plugin_name, query, data):
     """
     # TODO: Rewrite from scratch!
 
+    # ** NOTE: This is a "mock" for testing! Returns constants! **
     if plugin_name == 'microsoft_vision':
-        # NOTE: Expecting "data" to be a valid path to an image file.
-        if not API_KEY:
-            raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
-
-        if query == 'caption' or query == 'tags':
-            response = microsoft_vision.query_api(data, API_KEY)
-            if not response:
-                log.error('[plugin.microsoft_vision] Unable to query to API')
-                raise AutonameowPluginError('Did not receive a valid response')
-            else:
-                log.debug('Received microsoft_vision API query response')
-
         if query == 'caption':
-            caption = microsoft_vision.get_caption_text(response)
+            caption = 'a cat lying on a rug'
             log.debug('Returning caption: "{!s}"'.format(caption))
             return str(caption)
 
         elif query == 'tags':
-            tags = microsoft_vision.get_tags(response, 5)
+            tags = ['cat', 'black', 'indoor', 'laying', 'white']
             tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
             log.debug('Returning tags: {}'.format(tags_pretty))
             return tags
+
+    # ** NOTE: Actual query code below! Comment the mock and uncomment this **
+    # if plugin_name == 'microsoft_vision':
+    #     # NOTE: Expecting "data" to be a valid path to an image file.
+    #     if not API_KEY:
+    #         raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
+    #
+    #     if query == 'caption' or query == 'tags':
+    #         response = microsoft_vision.query_api(data, API_KEY)
+    #         if not response:
+    #             log.error('[plugin.microsoft_vision] Unable to query to API')
+    #             raise AutonameowPluginError('Did not receive a valid response')
+    #         else:
+    #             log.debug('Received microsoft_vision API query response')
+    #
+    #     if query == 'caption':
+    #         caption = microsoft_vision.get_caption_text(response)
+    #         log.debug('Returning caption: "{!s}"'.format(caption))
+    #         return str(caption)
+    #
+    #     elif query == 'tags':
+    #         tags = microsoft_vision.get_tags(response, 5)
+    #         tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
+    #         log.debug('Returning tags: {}'.format(tags_pretty))
+    #         return tags
 
 
 if __name__ == '__main__':
