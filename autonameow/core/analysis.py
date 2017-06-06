@@ -296,7 +296,7 @@ class Analysis(object):
                 try:
                     result = a.get(field)
                 except NotImplementedError as e:
-                    log.error('Called unimplemented code in {!s}: '
+                    log.debug('[WARNING] Called unimplemented code in {!s}: '
                               '{!s}'.format(a_name, e))
                     continue
 
