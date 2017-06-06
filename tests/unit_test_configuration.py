@@ -319,6 +319,6 @@ class TestIsValidSourceSpecification(TestCase):
     def test_good_source_returns_true(self):
         self.assertTrue(is_valid_source('metadata.exiftool.PDF:CreateDate'))
         self.assertTrue(is_valid_source('metadata.exiftool'))
-        self.assertTrue(is_valid_source('filesystem.basename'))
-        self.assertTrue(is_valid_source('filesystem.extension'))
+        self.assertTrue(is_valid_source('filesystem.basename.full'))
+        self.assertTrue(is_valid_source('filesystem.basename.extension'))
         self.assertTrue(is_valid_source('contents.mime_type'))
