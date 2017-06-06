@@ -21,6 +21,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
 import platform
 from datetime import datetime
 import logging
@@ -156,13 +157,21 @@ def msg(message, type=None, log=False):
         log: Displays and logs the message if True. Defaults to False.
     """
     def print_default_msg(text):
-        print(colorize(text, fore='LIGHTBLACK_EX'))
+        print(colorize(text))
 
     def print_info_msg(text):
-        prefix = colorize('[info]',
-                          back='LIGHTWHITE_EX', fore='BLUE', style='DIM')
-        colored_text = colorize(text, fore='LIGHTBLACK_EX')
+        prefix = colorize('[info]', fore='LIGHTBLACK_EX')
+        colored_text = colorize(text)
         print(prefix + ' ' + colored_text)
+
+    def print_color_quoted(text):
+        match_iter = re.findall(r'"(.*?)"', text)
+
+        for match in match_iter:
+            colored_match = colorize(match, fore='LIGHTGREEN_EX')
+            text = text.replace(match, colored_match)
+
+        print(text)
 
     if not type:
         print_default_msg(message)
@@ -176,6 +185,8 @@ def msg(message, type=None, log=False):
         print_default_msg(message)
         print_default_msg('=' * len(message))
         print_default_msg('')
+    elif type == 'color_quoted':
+        print_color_quoted(message)
     else:
         print_default_msg(message)
         if log:
@@ -187,3 +198,5 @@ if __name__ == '__main__':
     msg('text printed by msg() with type="info"', type='info')
     msg('text printed by msg() with type="info", log=True',
         type='info', log=True)
+    msg('text printed by msg() with type="color_quoted" no "yes" no',
+        type='color_quoted')

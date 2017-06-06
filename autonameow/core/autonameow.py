@@ -254,9 +254,11 @@ class Autonameow(object):
                 return 1
             else:
                 cli.msg('Renamed "{!s}" -> "{!s}"'.format(from_basename,
-                                                          dest_basename))
+                                                          dest_basename),
+                        type='color_quoted')
                 return 0
         else:
             cli.msg('Would have renamed "{!s}" -> "{!s}"'.format(from_basename,
-                                                                 dest_basename))
+                                                                 dest_basename),
+                    type='color_quoted')
             return 0
