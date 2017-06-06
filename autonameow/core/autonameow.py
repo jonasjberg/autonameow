@@ -179,7 +179,7 @@ class Autonameow(object):
 
             if self.args.prepend_datetime:
                 # TODO: Prepend datetime to filename.
-                log.critical('[UNIMPLEMENTED FEATURE] prepend_datetime')
+                log.warning('[UNIMPLEMENTED FEATURE] prepend_datetime')
                 self.exit_program(1)
 
             if self.args.automagic:
@@ -208,7 +208,7 @@ class Autonameow(object):
             elif self.args.interactive:
                 # Create a interactive interface.
                 # TODO: [BL013] Interactive mode in 'interactive.py'.
-                log.critical('[UNIMPLEMENTED FEATURE] interactive mode')
+                log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
         return exit_code
 
