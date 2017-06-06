@@ -1,7 +1,21 @@
-TODO: DATE  [autonameow v0.3.3]
+2017-06-06  [autonameow v0.4.0]
+            Final version used in the demonstration videos recorded 2017-06-06.
+            Includes major changes. Refer to the Git log for in depth coverage.
+
+              This is the first actually usable version! Still very much alpha.
 
             Additions:
-            - TODO
+            - Improved out printing with presets and coloring.
+            - Added actual renaming of files. '--automagic' mode now
+              renames files matched in the configuration file.
+            - Add 'santizize_filename' from the "youtube-dl" project.
+            - Various utility functions and related unit tests.
+            - Add customizable date/time formats in configuration file.
+            - Add parsing configuration file rules, conditions and sources.
+              Parts of this still needs quite a bit of work.
+            - Add 'extractor' package for content extractors that can be used
+              by analyzers. Should reduce code duplication.
+            - Documentation, bug fixes, refactoring and cleanup.
 
             Changes:
             - Major restructuring of module hierarchy.
@@ -10,9 +24,16 @@ TODO: DATE  [autonameow v0.3.3]
               by striving strict separation between the main program core and
               auxiliary modules that perform various tasks like data extraction
               and interaction with other systems.
+            - Restructued internal data format. All crucial internal data
+              structures are dervied from a reference 'RESULTS_DATA_STRUCTURE'.
+            - Start move towards using callbacks to collect analyzer results.
+            - Redesigned exiftool wrapper.
+            - Abandon 'PyPDF' text extraction. Use 'pdftotext' exclusively.
+            - Documentation, bug fixes, refactoring and cleanup.
 
             Fixes:
-            - TODO
+            - Numerous fixes and corrections.
+            - Documentation, bug fixes, refactoring and cleanup.
 
 
 2017-05-29  [autonameow v0.3.2]
