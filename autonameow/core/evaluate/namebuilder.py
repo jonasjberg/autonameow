@@ -116,6 +116,9 @@ class NameBuilder(object):
         # TODO: Populate "template" with entries from "self.analysis_data"
         # TODO: as specified in "data_sources".
 
+        result = assemble_basename(template, **data)
+        log.debug('Assembled basename: "{}"'.format(result))
+
         raise NotImplementedError('TODO: Implement NameBuilder')
 
 
