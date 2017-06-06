@@ -116,6 +116,10 @@ assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_
 assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "$SAMPLE_JPG_FILE" 2>&1 ) >/dev/null' \
             "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\", \"--debug\" and a valid file"
 
+SAMPLE_JPG_FILE_EXPECTED='New name: "2010-01-31T161251 a cat lying on a rug.jpg"'
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_JPG_FILE" 2>&1 | grep -q -- "${SAMPLE_JPG_FILE_EXPECTED}" ) >/dev/null' \
+            "Automagic mode output should include \"${SAMPLE_JPG_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
+
 
 _expected_name='/tmp/2010-01-31T161251 a cat lying on a rug.jpg'
 assert_true 'cp -n -- "$SAMPLE_JPG_FILE" /tmp/autonameow_sample 2>&1 >/dev/null' \
