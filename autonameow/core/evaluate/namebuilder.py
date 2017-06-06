@@ -24,6 +24,8 @@ import logging as log
 import re
 import operator
 
+from dateutil import parser
+
 import core.config.configuration
 from core.fileobject import FileObject
 from core.exceptions import (
@@ -297,3 +299,28 @@ def format_string_placeholders(format_string):
     if not format_string:
         return []
     return re.findall(r'{(\w+)}', format_string)
+
+
+def formatted_datetime(datetime_string, format_string):
+    """
+    Takes a date/time string, converts it to a datetime object and
+    returns a formatted version on the form specified with "format_string".
+
+    Note that the parsing of "datetime_string" might fail.
+    TODO: Handle the [raw data] -> [formatted datetime] conversion better!
+
+    Args:
+        datetime_string: Date/time information as a string.
+        format_string: The format string to use for the output. Refer to:
+            https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+
+    Returns:
+        A string in the specified format with the data from the given string.
+    """
+    try:
+        datetime_object = parser.parse(datetime_string)
+    except (TypeError, ValueError) as e:
+        log.error('Unable to format datetime string: "{!s}"'.format(
+            datetime_string))
+    else:
+        return datetime_object.strftime(format_string)
