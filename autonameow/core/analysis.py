@@ -205,6 +205,20 @@ class Analysis(object):
         self._populate_run_queue()
         log.debug('Enqueued analyzers: {!s}'.format(self.analysis_run_queue))
 
+        # Add information from 'FileObject' to results.
+        self.collect_results('filesystem.basename.full',
+                             self.file_object.filename)
+        self.collect_results('filesystem.basename.extension',
+                             self.file_object.suffix)
+        self.collect_results('filesystem.basename.suffix',
+                             self.file_object.suffix)
+        self.collect_results('filesystem.basename.prefix',
+                             self.file_object.fnbase)
+        self.collect_results('filesystem.pathname.full',
+                             self.file_object.pathname)
+        self.collect_results('filesystem.pathname.parent',
+                             self.file_object.pathparent)
+
         # Run all analyzers in the queue.
         self._execute_run_queue()
 
