@@ -119,7 +119,12 @@ class NameBuilder(object):
         result = assemble_basename(template, **data)
         log.debug('Assembled basename: "{}"'.format(result))
 
-        raise NotImplementedError('TODO: Implement NameBuilder')
+        if not result:
+            log.debug('Unable to assemble basename with template "{!s}" and '
+                      'data: {!s}'.format(template, data))
+            raise NameBuilderError('Unable to assemble basename')
+
+        return result
 
 
 def all_template_fields_defined(template, data_sources):
