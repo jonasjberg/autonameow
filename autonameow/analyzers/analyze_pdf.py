@@ -34,6 +34,7 @@ from analyzers.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
 from core.util import textutils
 from core.util import wrap_exiftool
+from extractors.metadata import ExiftoolMetadataExtractor
 
 
 class PdfAnalyzer(AbstractAnalyzer):
@@ -45,16 +46,24 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.applies_to_mime = 'pdf'
         self.add_results = add_results_callback
 
+        self.exiftool = None
+        self.exif_data = None
+
         self.metadata = None
-        self.metadata_exiftool = None
         self.text = None
 
     # @Overrides method in AbstractAnalyzer
     def run(self):
         self.metadata = self._extract_pdf_metadata_with_pypdf()
-        self.metadata_exiftool = self._extract_pdf_metadata_with_exiftool()
+        self.add_results('metadata.pypdf', self.metadata)
+
+        self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
+        logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
+        self.exif_data = self.exiftool.query()
+        self.add_results('metadata.exiftool', self.exif_data)
 
         self.text = self._extract_pdf_content()
+        self.add_results('contents.textual.raw_text', self.text)
 
     # @Overrides method in AbstractAnalyzer
     def get_author(self):
@@ -70,8 +79,8 @@ class PdfAnalyzer(AbstractAnalyzer):
                           '"{}": "{}"'.format(field, value))
 
         field = 'PDF:Author'
-        if field in self.metadata_exiftool:
-            value = self.metadata_exiftool[field]
+        if field in self.exif_data:
+            value = self.exif_data[field]
             results.append({'value': value,
                             'source': field,
                             'weight': 1})
@@ -93,8 +102,8 @@ class PdfAnalyzer(AbstractAnalyzer):
                           '"{}": "{}"'.format(field, value))
 
         field = 'PDF:Title'
-        if field in self.metadata_exiftool:
-            value = self.metadata_exiftool[field]
+        if field in self.exif_data:
+            value = self.exif_data[field]
             results.append({'value': value,
                             'source': field,
                             'weight': 1})
@@ -135,8 +144,8 @@ class PdfAnalyzer(AbstractAnalyzer):
                           '"{}": "{}"'.format(field, value))
 
         field = 'PDF:EBX_PUBLISHER'
-        if field in self.metadata_exiftool:
-            value = self.metadata_exiftool[field]
+        if field in self.exif_data:
+            value = self.exif_data[field]
             results.append({'value': value,
                             'source': field,
                             'weight': 1})
