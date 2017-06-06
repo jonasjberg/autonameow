@@ -173,10 +173,15 @@ def query_string_list(query_string):
 
     if '.' not in query_string:
         raise InvalidQueryStringError('Query string is too shallow (missing .)')
+    else:
+        stripped_period = str(query_string).replace('.', '')
+        if not stripped_period.strip():
+            raise InvalidQueryStringError('Invalid query string')
 
     # TODO: Implement tests and function!
 
     parts = query_string.split('.')
+    return parts
 
     # TODO: Detect invalid parts
 
