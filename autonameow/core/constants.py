@@ -51,9 +51,16 @@ DATA_FIELDS = dict.fromkeys(ANALYSIS_RESULTS_FIELDS +
 # Reference analysis results data structure with all valid fields/sources.
 RESULTS_DATA_STRUCTURE = {
     'filesystem': {
-        'basename': None,
-        'extension': None,
-        'pathname': None,
+        'basename': {
+            'full': None,
+            'prefix': None,
+            'suffix': None,
+            'extension': None
+        },
+        'pathname': {
+            'full': None,
+            'parent': None
+        },
         'date_accessed': None,
         'date_created': None,
         'date_modified': None,
