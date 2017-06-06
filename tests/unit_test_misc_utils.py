@@ -82,7 +82,6 @@ class TestMultisetCount(TestCase):
 
 
 class TestQueryStringList(TestCase):
-    # TODO: Implement tests and function!
     def test_raises_exception_for_none_argument(self):
         with self.assertRaises(InvalidQueryStringError):
             self.assertIsNone(query_string_list(None))
@@ -91,9 +90,18 @@ class TestQueryStringList(TestCase):
         with self.assertRaises(InvalidQueryStringError):
             self.assertIsNone(query_string_list(''))
 
-    def test_raises_exception_for_invalid_root(self):
+    def test_raises_exception_for_only_periods(self):
         with self.assertRaises(InvalidQueryStringError):
-            self.assertIsNone(query_string_list('not_valid_surely'))
+            self.assertIsNone(query_string_list('.'))
+            self.assertIsNone(query_string_list('..'))
+            self.assertIsNone(query_string_list('...'))
+
+    def test_return_value_is_type_list(self):
+        self.assertTrue(isinstance(query_string_list('a.b'), list))
+
+    def test_valid_argument_returns_expected(self):
+        self.assertEqual(query_string_list('a.b'), ['a', 'b'])
+
 
 
 class TestFlattenDict(TestCase):
