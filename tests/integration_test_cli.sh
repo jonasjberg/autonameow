@@ -174,6 +174,12 @@ assert_true '( "$AUTONAMEOW_RUNNER" --list-all -- "$SAMPLE_PDF_FILE" 2>/dev/null
 assert_true '( "$AUTONAMEOW_RUNNER" --list-title -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
             "Expect exit code 0 when started with \"--list-title\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
+SAMPLE_PDF_FILE_EXPECTED='New name: "2017-06-06T124132 gmail.pdf"'
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 | grep -q -- "${SAMPLE_PDF_FILE_EXPECTED}" ) >/dev/null' \
+            "Automagic mode output should include \"${SAMPLE_PDF_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+
+
+
 
 
 # Calculate total execution time.
