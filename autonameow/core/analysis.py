@@ -21,6 +21,7 @@
 
 import logging as log
 
+import plugins
 from analyzers.analyze_abstract import (
     get_analyzer_mime_mappings
 )
@@ -110,6 +111,12 @@ class Results(object):
             if source.startswith('metadata.exiftool'):
                 key = source.lstrip('metadata.exiftool')
                 out[field] = self.new_data.get('metadata.exiftool').get(key)
+            elif source.startswith('plugin.'):
+                # TODO: Results should NOT be querying plugins from here!
+                # TODO: Rework processing pipeline to integrate plugins
+                plugin_name, plugin_query = source.lstrip('plugin.').split('.')
+                result = plugins.plugin_query(plugin_name, plugin_query, None)
+                out[field] = result
             else:
                 out[field] = self.new_data.get(source)
 
