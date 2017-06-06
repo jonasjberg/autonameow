@@ -116,8 +116,8 @@ assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_
 assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "$SAMPLE_JPG_FILE" 2>&1 ) >/dev/null' \
             "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\", \"--debug\" and a valid file"
 
-SAMPLE_JPG_FILE_EXPECTED='New name: "2010-01-31T161251 a cat lying on a rug.jpg"'
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_JPG_FILE" 2>&1 | grep -q -- "${SAMPLE_JPG_FILE_EXPECTED}" ) >/dev/null' \
+SAMPLE_JPG_FILE_EXPECTED='2010-01-31T161251 a cat lying on a rug.jpg'
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>&1 | grep -q -- "${SAMPLE_JPG_FILE_EXPECTED}" ) >/dev/null' \
             "Automagic mode output should include \"${SAMPLE_JPG_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
 
 
@@ -150,36 +150,36 @@ assert_true '[ -e "$SAMPLE_PDF_FILE" ]' \
             "The test sample pdf file exists. Add suitable test file if this test fails!"
 
 set +o pipefail
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 | grep -q -- "Using file rule: test_files Gmail print-to-pdf" ) >/dev/null' \
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -q -- "Using file rule: test_files Gmail print-to-pdf" ) >/dev/null' \
             "[TC014] autonameow should choose file rule \"test_files Gmail print-to-pdf\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
-assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_JPG_FILE" 2>&1 | grep -q -- "Using file rule: test_files Gmail print-to-pdf" ) >/dev/null' \
+assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>&1 | grep -q -- "Using file rule: test_files Gmail print-to-pdf" ) >/dev/null' \
              "[TC014] autonameow should NOT choose file rule \"test_files Gmail print-to-pdf\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
 
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_JPG_FILE" 2>&1 | grep -q -- "Using file rule: test_files smulan.jpg" ) >/dev/null' \
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>&1 | grep -q -- "Using file rule: test_files smulan.jpg" ) >/dev/null' \
             "[TC014] autonameow should choose file rule \"test_files smulan.jpg\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
 
-assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 | grep -q -- "Using file rule: test_files smulan.jpg" ) >/dev/null' \
+assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -q -- "Using file rule: test_files smulan.jpg" ) >/dev/null' \
              "[TC014] autonameow should NOT choose file rule \"test_files smulan.jpg\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 set -o pipefail
 
-assert_true '( "$AUTONAMEOW_RUNNER" --list-datetime -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
+assert_true '( "$AUTONAMEOW_RUNNER" --list-datetime --verbose -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
             "Expect exit code 0 when started with \"--list-datetime\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
-assert_true '( "$AUTONAMEOW_RUNNER" --list-datetime -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -q -- "2016-01-11 12:41:32" 2>&1 ) >/dev/null' \
+assert_true '( "$AUTONAMEOW_RUNNER" --list-datetime --verbose -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -q -- "2016-01-11 12:41:32" 2>&1 ) >/dev/null' \
             "Output should contain expected date when started with \"--list-datetime\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
 assert_true '( "$AUTONAMEOW_RUNNER" --list-all -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
             "Expect exit code 0 when started with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
-assert_true '( "$AUTONAMEOW_RUNNER" --list-all -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -q -- "2016-01-11 12:41:32" 2>&1 ) >/dev/null' \
+assert_true '( "$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>/dev/null | grep -q -- "2016-01-11 12:41:32" 2>&1 ) >/dev/null' \
             "Output should include expected date when started with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
 assert_true '( "$AUTONAMEOW_RUNNER" --list-title -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
             "Expect exit code 0 when started with \"--list-title\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
-SAMPLE_PDF_FILE_EXPECTED='New name: "2016-01-11T124132 gmail.pdf"'
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 | grep -q -- "${SAMPLE_PDF_FILE_EXPECTED}" ) >/dev/null' \
+SAMPLE_PDF_FILE_EXPECTED='2016-01-11T124132 gmail.pdf'
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -q -- "${SAMPLE_PDF_FILE_EXPECTED}" ) >/dev/null' \
             "Automagic mode output should include \"${SAMPLE_PDF_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
 
