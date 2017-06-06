@@ -89,6 +89,10 @@ def rename_file(source_path, new_basename):
         raise FileExistsError('Destination exists: "{!s}"'.format(dest_path))
 
     log.debug('Renaming "{!s}" to "{!s}"'.format(source_path, dest_path))
+    try:
+        os.rename(source_path, dest_path)
+    except OSError:
+        raise
 
 
 def split_filename(file_path):
