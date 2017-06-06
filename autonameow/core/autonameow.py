@@ -183,14 +183,11 @@ class Autonameow(object):
                 self.exit_program(1)
 
             if self.args.automagic:
-                log.critical('[UNIMPLEMENTED FEATURE] automagic mode')
-
                 # Create a name builder.
-                # TODO: [BL010] Implement NameBuilder.
-                name_builder = NameBuilder(current_file, analysis.results,
-                                           self.config)
                 try:
-                    new_name = name_builder.build()
+                    self.builder = NameBuilder(current_file, analysis.results,
+                                               self.config)
+                    new_name = self.builder.build()
                 except NotImplementedError:
                     log.critical('TODO: [BL010] Implement NameBuilder.')
                     exit_code |= 1
@@ -202,6 +199,7 @@ class Autonameow(object):
                     if self.args.dry_run:
                         log.info('Automagically built filename: '
                                  '"{}"'.format(new_name))
+                        cli.msg('New name: "{}"'.format(new_name))
                     else:
                         # TODO: [BL011] Rename files.
                         log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
