@@ -208,6 +208,25 @@ def assemble_basename(name_template, **kwargs):
 
 def eval_condition(condition_field, condition_value, file_object,
                    analysis_data):
+    """
+    Evaluates a condition.
+
+    Evaluates a CONDITION, given as a condition field (like "basename") and a
+    associated condition value (like "test.jpg").
+    The evaluation process depends on the condition field.
+    The condition value ("expected") is compared with data in the file
+    object and analysis data ("actual").
+
+    Args:
+        condition_field:
+        condition_value:
+        file_object:
+        analysis_data:
+
+    Returns:
+    """
+    # TODO: Needs a COMPLETE rewrite using some general (GOOD) method!
+
     def eval_regex(expression, match_data):
         if re.match(expression, match_data):
             return True
