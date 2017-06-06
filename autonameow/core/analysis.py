@@ -101,7 +101,11 @@ class Results(object):
 
         out = {}
         for field, source in field_data_source_map.items():
-            out[field] = self.new_data.get(source)
+            if source.startswith('metadata.exiftool'):
+                key = source.lstrip('metadata.exiftool')
+                out[field] = self.new_data.get('metadata.exiftool').get(key)
+            else:
+                out[field] = self.new_data.get(source)
         return out
 
     # def __getitem__(self, key):
