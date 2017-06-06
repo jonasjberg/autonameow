@@ -91,7 +91,7 @@ class NameBuilder(object):
                       rule.score, rule.weight, rule.description))
 
         active_rule = rules_sorted[0]
-        cli.msg('Using file rule: {}'.format(active_rule.description))
+        log.info('Using file rule: {}'.format(active_rule.description))
 
         template = active_rule.name_template
         log.debug('Using name template: {}'.format(template))
