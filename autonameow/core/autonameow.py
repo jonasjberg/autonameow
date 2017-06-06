@@ -39,7 +39,8 @@ from core.exceptions import (
 from core.fileobject import FileObject
 from core.util import (
     cli,
-    misc
+    misc,
+    diskutils
 )
 from . import version
 
@@ -196,14 +197,10 @@ class Autonameow(object):
                     exit_code |= 1
                     continue
                 else:
-                    if self.args.dry_run:
-                        log.info('Automagically built filename: '
-                                 '"{}"'.format(new_name))
-                        cli.msg('New name: "{}"'.format(new_name))
-                    else:
-                        # TODO: [BL011] Rename files.
-                        log.critical('[UNIMPLEMENTED FEATURE] not dry_run')
-                        exit_code |= 1
+                    cli.msg('New name: "{}"'.format(new_name))
+                    renamed_ok = self.do_rename(current_file.abspath, new_name,
+                                                dry_run=self.args.dry_run)
+                    exit_code |= renamed_ok
 
             elif self.args.interactive:
                 # Create a interactive interface.
@@ -231,3 +228,23 @@ class Autonameow(object):
         log.debug('Exiting with exit code: {}'.format(exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
         sys.exit(exit_code)
+
+    def do_rename(self, from_path, new_basename, dry_run=True):
+        dest_basename = diskutils.sanitize_filename(new_basename)
+        from_basename = diskutils.file_basename(from_path)
+        log.debug('Sanitized basename: "{!s}"'.format(dest_basename))
+
+        if dry_run is False:
+            try:
+                diskutils.rename_file(from_path, dest_basename)
+            except (FileNotFoundError, FileExistsError, OSError) as e:
+                log.error('Rename FAILED: {!s}'.format(e))
+                return 1
+            else:
+                cli.msg('Renamed "{!s}" -> "{!s}"'.format(from_basename,
+                                                          dest_basename))
+                return 0
+        else:
+            cli.msg('Would have renamed "{!s}" -> "{!s}"'.format(from_basename,
+                                                                 dest_basename))
+            return 0

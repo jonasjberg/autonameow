@@ -22,6 +22,7 @@
 import os
 import re
 import itertools
+import logging as log
 
 
 # Needed by 'sanitize_filename' for sanitizing filenames in restricted mode.
@@ -76,6 +77,18 @@ def sanitize_filename(s, restricted=False, is_id=False):
     return result
 
 
+def rename_file(source_path, new_basename):
+    source_path = os.path.realpath(os.path.normpath(source_path))
+    if not os.path.exists(source_path):
+        raise FileNotFoundError('Source does not exist: "{!s}"'.format(
+            source_path))
+
+    dest_dir = os.path.dirname(source_path)
+    dest_path = os.path.normpath(os.path.join(dest_dir, new_basename))
+    if os.path.exists(dest_path):
+        raise FileExistsError('Destination exists: "{!s}"'.format(dest_path))
+
+    log.debug('Renaming "{!s}" to "{!s}"'.format(source_path, dest_path))
 
 
 def split_filename(file_path):
@@ -125,3 +138,7 @@ def file_base(file_path):
     """
     base, _ = split_filename(file_path)
     return base if base else None
+
+
+def file_basename(file_path):
+    return os.path.basename(file_path)
