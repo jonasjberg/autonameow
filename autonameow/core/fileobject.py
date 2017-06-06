@@ -52,6 +52,8 @@ class FileObject(object):
         self.abspath = os.path.abspath(path)
         logging.debug('FileObject path: {}'.format(self.abspath))
         self.filename = os.path.basename(self.abspath)
+        self.pathname = os.path.dirname(self.abspath)
+        self.pathparent = os.path.basename(self.pathname)
 
         self.mime_type = filetype_magic(self.abspath)
 
