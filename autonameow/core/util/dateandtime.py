@@ -25,6 +25,8 @@ import re
 import string
 from datetime import datetime, timedelta
 
+from dateutil import parser
+
 from core.util import textutils
 
 
@@ -756,3 +758,25 @@ def match_screencapture_unixtime(text):
         if dt:
             return dt
     return None
+
+
+def to_datetime(datetime_string):
+    # TODO: Handle time zone offsets properly!
+
+    if datetime_string.endswith('+00:00'):
+        datetime_string = datetime_string.replace('+00:00', '')
+
+    REGEX_FORMAT_MAP = [(r'^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$',
+                         '%Y:%m:%d %H:%M:%S'), # '2010:01:31 16:12:51'
+                        ]
+
+    for regex_pattern, datetime_format in REGEX_FORMAT_MAP:
+        if re.match(regex_pattern, datetime_string):
+            return datetime.strptime(datetime_string, datetime_format)
+
+    try:
+        datetime_object = parser.parse(datetime_string)
+    except (TypeError, ValueError):
+        return None
+    else:
+        return datetime_object
