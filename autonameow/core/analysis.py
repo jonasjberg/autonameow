@@ -90,22 +90,29 @@ class Results(object):
         self.new_data = {}
 
     def query(self, field_data_source_map):
-        # TODO: Return result data from a query of type dict.
-        #
-        # Example query: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
-        #                 'description' = 'plugin.microsoft_vision.caption'
-        #                 'extension'   = 'filesystem.extension'}
-        #
-        # Should return a dictionary with the same keys, data should be strings
-        # that will be used to populate the name template.
+        """
+        Returns result data fields matching a "query string".
 
+        Args:
+            field_data_source_map: Dictionary of fields and query string.
+
+                Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
+                          'description' = 'plugin.microsoft_vision.caption'
+                          'extension'   = 'filesystem.extension'}
+
+        Returns:
+            Results data for the specified fields matching the specified query.
+        """
         out = {}
+
         for field, source in field_data_source_map.items():
+            # TODO: Fix hacky word splitting to keys for dictionary access.
             if source.startswith('metadata.exiftool'):
                 key = source.lstrip('metadata.exiftool')
                 out[field] = self.new_data.get('metadata.exiftool').get(key)
             else:
                 out[field] = self.new_data.get(source)
+
         return out
 
     # def __getitem__(self, key):
