@@ -778,7 +778,9 @@ def to_datetime(datetime_string):
 
     try:
         datetime_object = parser.parse(datetime_string)
-    except (TypeError, ValueError):
-        return None
+    except ValueError:
+        raise ValueError
+    except TypeError:
+        raise TypeError
     else:
         return datetime_object
