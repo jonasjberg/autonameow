@@ -89,8 +89,8 @@ DEFAULT_CONFIG = {
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.PDF:CreateDate',
-             'title': None,
-             'extension': 'filesystem.extension'
+             'title': 'filesystem.basename.prefix',
+             'extension': 'filesystem.basename.extension'
          }
          },
         {'description': 'test_files smulan.jpg',
@@ -108,7 +108,7 @@ DEFAULT_CONFIG = {
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
              'description': 'plugin.microsoft_vision.caption',
-             'extension': 'filesystem.extension'
+             'extension': 'filesystem.basename.extension'
          }
          },
         {'description': 'Sample Entry for Photos with strict rules',
@@ -144,7 +144,7 @@ DEFAULT_CONFIG = {
              'title': None,
              'author': None,
              'publisher': None,
-             'extension': 'filesystem.extension',
+             'extension': 'filesystem.basename.extension',
              'tags': 'plugin.microsoft_vision.tags'
          }
          },
@@ -172,7 +172,7 @@ DEFAULT_CONFIG = {
                         'metadata.exiftool.XMP-dc:CreatorFile-as'],
              'publisher': 'metadata.exiftool.XMP-dc:Publisher',
              'edition': None,
-             'extension': 'filesystem.extension',
+             'extension': 'filesystem.basename.extension',
              'tags': None
          }
          },
