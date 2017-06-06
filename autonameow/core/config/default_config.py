@@ -70,21 +70,14 @@ DEFAULT_CONFIG = {
         {'description': 'test_files Gmail print-to-pdf',
          'exact_match': True,
          'weight': None,
-         'NAME_FORMAT': '{datetime} {title} -- email.{extension}',
+         'NAME_FORMAT': '{datetime} {title}.{extension}',
          'CONDITIONS': {
              'filesystem': {
                  'basename': 'gmail.pdf',
                  'extension': 'pdf',
-                 'pathname': None,
-                 'date_accessed': None,
-                 'date_created': None,
-                 'date_modified': None,
              },
              'contents': {
                  'mime_type': 'pdf',
-                 'textual': {
-                     'raw_text': None,
-                 }
              },
          },
          'DATA_SOURCES': {
