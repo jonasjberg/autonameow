@@ -401,7 +401,7 @@ def match_any_unix_timestamp(text):
     return None
 
 
-def bruteforce_str(text):
+def bruteforce_str(text, return_first_match=False):
     """
     Extracts date/time-information from a text string.
 
@@ -435,6 +435,8 @@ def bruteforce_str(text):
             results.append(dt)
             bruteforce_str.matches += 1
             bruteforce_str.matches_total += 1
+            if return_first_match:
+                return dt
 
     # (premature) optimization ..
     if len(text) < 4:
