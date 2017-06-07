@@ -219,11 +219,8 @@ class Autonameow(object):
         """
         elapsed_time = time.time() - self.start_time
 
-        try:
-            if self.args.verbose:
-                cli.print_exit_info(exit_code, elapsed_time)
-        except AttributeError:
-            pass
+        if self.args.verbose:
+            cli.print_exit_info(exit_code, elapsed_time)
 
         log.debug('Exiting with exit code: {}'.format(exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
