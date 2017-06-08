@@ -258,11 +258,6 @@ class PdfAnalyzer(AbstractAnalyzer):
         #       https://pythonhosted.org/PyPDF2/XmpInformation.html
         pass
 
-    def _extract_pdf_metadata_with_exiftool(self):
-        with wrap_exiftool.ExifTool() as et:
-            metadata = et.get_metadata(self.file_object.abspath)
-        return metadata
-
     # TODO: Move all text extraction to functions in 'extract_text.py'.
     def _extract_pdf_content(self):
         """
