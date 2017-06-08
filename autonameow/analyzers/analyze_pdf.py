@@ -52,7 +52,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.meta_extractor = None
 
         self.exiftool = None
-        self.exif_data = None
+        self.exiftool_data = None
 
         self.metadata = None
         self.text = None
@@ -67,8 +67,8 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
         logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
-        self.exif_data = self.exiftool.query()
-        self.add_results('metadata.exiftool', self.exif_data)
+        self.exiftool_data = self.exiftool.query()
+        self.add_results('metadata.exiftool', self.exiftool_data)
 
         self.text = self._extract_pdf_content()
         self.add_results('contents.textual.raw_text', self.text)
@@ -81,9 +81,9 @@ class PdfAnalyzer(AbstractAnalyzer):
                                  ('PDF:Producer', 0.5)]
 
         for field, weight in exiftool_field_weight:
-            if field in self.exif_data:
+            if field in self.exiftool_data:
                 source = 'metadata.exiftool.' + field
-                value = self.exif_data[field]
+                value = self.exiftool_data[field]
                 results += result_list_add(value, source, weight)
                 # results.append({'value': value,
                 #                 'source': source,
@@ -121,8 +121,8 @@ class PdfAnalyzer(AbstractAnalyzer):
                           '"{}": "{}"'.format(field, value))
 
         field = 'PDF:Title'
-        if field in self.exif_data:
-            value = self.exif_data[field]
+        if field in self.exiftool_data:
+            value = self.exiftool_data[field]
             results.append({'value': value,
                             'source': field,
                             'weight': 1})
@@ -163,8 +163,8 @@ class PdfAnalyzer(AbstractAnalyzer):
                           '"{}": "{}"'.format(field, value))
 
         field = 'PDF:EBX_PUBLISHER'
-        if field in self.exif_data:
-            value = self.exif_data[field]
+        if field in self.exiftool_data:
+            value = self.exiftool_data[field]
             results.append({'value': value,
                             'source': field,
                             'weight': 1})
