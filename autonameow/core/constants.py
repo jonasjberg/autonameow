@@ -83,9 +83,11 @@ RESULTS_DATA_STRUCTURE = {
     },
     'metadata': {
         'exiftool': None,
+        'pypdf': None,
     },
     'plugin': {
         'microsoft_vision': None,
+        'guessit': None,
     }
 }
 
