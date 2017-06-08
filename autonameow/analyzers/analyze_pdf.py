@@ -21,22 +21,18 @@
 
 import logging
 import re
-import subprocess
 from datetime import datetime
-
-import PyPDF2
-from PyPDF2.utils import (
-    PyPdfError,
-    PdfReadError
-)
 
 from analyzers.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
 from core.util import textutils
-from core.util import wrap_exiftool
 from extractors.metadata import (
     ExiftoolMetadataExtractor,
     PyPDFMetadataExtractor
+)
+from extractors.textual import (
+    extract_pdf_content_with_pdftotext,
+    extract_pdf_content_with_pypdf
 )
 
 
@@ -370,85 +366,6 @@ class PdfAnalyzer(AbstractAnalyzer):
                                         'weight': 0.1})
 
         return results
-
-
-# TODO: Move all text extraction to functions in 'extract_text.py'.
-def extract_pdf_content_with_pdftotext(pdf_file):
-    """
-    Extract the plain text contents of a PDF document using pdftotext.
-
-    Returns:
-        False or PDF content as string
-    """
-    try:
-        pipe = subprocess.Popen(['pdftotext', '-nopgbrk', '-enc', 'UTF-8',
-                                 pdf_file, '-'], shell=False,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT)
-    except ValueError:
-        logging.warning(
-            '"subprocess.Popen" was called with invalid arguments.')
-        return False
-
-    stdout, stderr = pipe.communicate()
-    if pipe.returncode != 0:
-        logging.warning('subprocess returned [{}] - STDERROR: '
-                        '{}'.format(pipe.returncode, stderr))
-        # TODO: Raise exception instead?
-        return False
-    else:
-        return stdout.decode('utf-8', errors='replace')
-
-
-# TODO: Move all text extraction to functions in 'extract_text.py'.
-def extract_pdf_content_with_pypdf(pdf_file):
-    """
-    Extract the plain text contents of a PDF document using PyPDF2.
-
-    Returns:
-        False or PDF content as strings.
-    """
-    try:
-        pdff = PyPDF2.PdfFileReader(open(pdf_file, 'rb'))
-    except (IOError, PyPdfError):
-        logging.error('Unable to read PDF file content.')
-        # TODO:
-        return False
-
-    try:
-        num_pages = pdff.getNumPages()
-    except PdfReadError:
-        # NOTE: This now wholly determines whether a pdf is readable.
-        #       Possible to not getNumPages but still be able to read the text?
-        logging.error('PDF document might be encrypted with restrictions '
-                      'preventing reading.')
-        # TODO: Raise exception instead?
-        raise
-    else:
-        logging.debug('Number of pdf pages: {}'.format(num_pages))
-
-    # Start by extracting a limited range of pages.
-    # TODO: Relevant info is more likely to be within some range of pages?
-    logging.debug('Extracting page #1')
-    content = pdff.pages[0].extractText()
-    if len(content) == 0:
-        logging.debug('Textual content of page #1 is empty.')
-        pass
-
-    # Collect more until a preset arbitrary limit is reached.
-    for i in range(1, num_pages):
-        if len(content) > 50000:
-            logging.debug('Extraction hit content size limit.')
-            break
-        logging.debug('Extracting page {:<4} of {:<4} ..'.format(i + 1,
-                                                                 num_pages))
-        content += pdff.getPage(i).extractText()
-
-    if content:
-        return content
-    else:
-        logging.debug('Unable to extract text with PyPDF2 ..')
-        return False
 
 
 def result_list_add(value, source, weight):
