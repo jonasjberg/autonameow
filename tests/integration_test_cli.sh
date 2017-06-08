@@ -198,6 +198,14 @@ assert_false '( "$AUTONAMEOW_RUNNER" --config-path /tmp/does_not_exist_surely.mj
              "Specifying an invalid path with \"--config-path\" should be handled properly"
 
 
+BAD_CONFIG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/bad_config.yaml" ) )"
+assert_true '[ -e "$BAD_CONFIG_FILE" ]' \
+            "A known bad configuration file exists. Add suitable test file if this test fails!"
+
+assert_false '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE" 2>&1 ) >/dev/null' \
+             "Attempting to load a invalid configuration file with \"--config-path\" should be handled properly"
+
+
 
 
 # Calculate total execution time.
