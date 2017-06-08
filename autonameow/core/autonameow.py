@@ -34,7 +34,8 @@ from core.exceptions import (
     InvalidFileArgumentError,
     ConfigurationSyntaxError,
     AutonameowException,
-    NameBuilderError
+    NameBuilderError,
+    ConfigError
 )
 from core.fileobject import FileObject
 from core.util import (
@@ -88,7 +89,14 @@ class Autonameow(object):
         # provided and no config file is found at default paths; copy the
         # template config and tell the user.
         if self.args.config_path:
-            self.config.load(self.args.config_path)
+            try:
+                log.info('Using configuration file: '
+                         '"{!s}"'.format(self.args.config_path))
+                self.config.load(self.args.config_path)
+            except ConfigError as e:
+                log.critical('Failed to load configuration file!')
+                log.debug(str(e))
+                self.exit_program(1)
         else:
             _config_path = config.config_file_path()
 

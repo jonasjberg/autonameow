@@ -26,7 +26,11 @@ import platform
 import yaml
 
 from core.config.default_config import DEFAULT_CONFIG
-from core.exceptions import ConfigReadError, ConfigWriteError
+from core.exceptions import (
+    ConfigReadError,
+    ConfigWriteError
+)
+
 
 CONFDIR_MAC = '~/Library/Application Support'
 CONFDIR_UNIX_VAR = 'XDG_CONFIG_HOME'

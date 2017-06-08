@@ -34,7 +34,8 @@ from core.config.field_parsers import (
 )
 from core.exceptions import (
     ConfigurationSyntaxError,
-    ConfigError
+    ConfigError,
+    ConfigReadError
 )
 from core.util import misc
 
@@ -278,8 +279,15 @@ class Configuration(object):
         self._load_options()
 
     def _load_from_disk(self, load_path):
-        _yaml_data = load_yaml_file(load_path)
-        self._load_from_dict(_yaml_data)
+        try:
+            _yaml_data = load_yaml_file(load_path)
+        except (OSError, ConfigReadError) as e:
+            raise ConfigError(e)
+        else:
+            if not _yaml_data:
+                raise ConfigError('Bad (empty?) config: {!s}'.format(load_path))
+
+            self._load_from_dict(_yaml_data)
 
     def write_to_disk(self, dest_path):
         if os.path.exists(dest_path):

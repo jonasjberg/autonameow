@@ -198,7 +198,6 @@ def init_argparser():
     parser.add_argument('--config-path',
                         dest='config_path',
                         metavar='CONFIG_PATH',
-                        nargs=1,
                         type=arg_is_readable_file,
                         help='Use configuration file at CONFIG_PATH instead '
                              'of the default configuration file.')
