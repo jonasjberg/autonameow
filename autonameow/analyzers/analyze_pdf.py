@@ -80,7 +80,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.text = self._extract_pdf_content()
         self.add_results('contents.textual.raw_text', self.text)
 
-    def collect_results(self, query_string, source_dict, source_field, weight):
+    def __collect_results(self, query_string, source_dict, source_field, weight):
         if not source_dict:
             return []
 
@@ -108,8 +108,8 @@ class PdfAnalyzer(AbstractAnalyzer):
             ('metadata.pypdf.Producer', self.metadata, 'Producer', 0.5)]
 
         for query_string, source_dict, source_field, weight in possible_authors:
-            results += self.collect_results(query_string, source_dict,
-                                            source_field, weight)
+            results += self.__collect_results(query_string, source_dict,
+                                              source_field, weight)
         return results
 
     # @Overrides method in AbstractAnalyzer
@@ -127,8 +127,8 @@ class PdfAnalyzer(AbstractAnalyzer):
             ('metadata.pypdf.Subject', self.metadata, 'Creator', 0.25)]
 
         for query_string, source_dict, source_field, weight in possible_titles:
-            results += self.collect_results(query_string, source_dict,
-                                            source_field, weight)
+            results += self.__collect_results(query_string, source_dict,
+                                              source_field, weight)
 
         return results
 
@@ -165,8 +165,8 @@ class PdfAnalyzer(AbstractAnalyzer):
              'EBX_PUBLISHER', 1)]
 
         for query_string, source_dict, source_field, weight in possible_publishers:
-            results += self.collect_results(query_string, source_dict,
-                                            source_field, weight)
+            results += self.__collect_results(query_string, source_dict,
+                                              source_field, weight)
         return results
 
     def _get_metadata_datetime(self):
