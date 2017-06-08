@@ -80,16 +80,6 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.text = self._extract_pdf_content()
         self.add_results('contents.textual.raw_text', self.text)
 
-    #   Possible author fields:
-    #
-    # QUERY STRING                   SOURCE LOCATION                    WEIGHT
-    # metadata.exiftool.PDF:Author   self.exiftool_data['PDF:Author']   1
-    # metadata.exiftool.PDF:Creator  self.exiftool_data['PDF:Creator']  0.8
-    # metadata.exiftool.PDF:Producer self.exiftool_data['PDF:Producer'] 0.5
-    # metadata.pypdf.Author          self.metadata['Author']            1
-    # metadata.pypdf.Creator         self.metadata['Creator']           0.8
-    # metadata.pypdf.Producer        self.metadata['Producer']          0.5
-
     def collect_results(self, query_string, source_dict, source_field, weight):
         if not source_dict:
             return []
