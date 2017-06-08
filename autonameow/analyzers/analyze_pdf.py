@@ -95,6 +95,9 @@ class PdfAnalyzer(AbstractAnalyzer):
     # metadata.pypdf.Producer        self.metadata['Producer']          0.5
 
     def collect_results(self, query_string, source_dict, source_field, weight):
+        if not source_dict:
+            return []
+
         if source_field in source_dict:
             value = source_dict.get(source_field)
             return result_list_add(value, query_string, weight)
