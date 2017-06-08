@@ -77,23 +77,34 @@ class PdfAnalyzer(AbstractAnalyzer):
     def get_author(self):
         results = []
 
-        field = 'Author'
-        if field in self.metadata:
-            value = self.metadata[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted author from pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        exiftool_field_weight = [('PDF:Author', 1), ('PDF:Creator', 0.8),
+                                 ('PDF:Producer', 0.5)]
 
-        field = 'PDF:Author'
-        if field in self.exif_data:
-            value = self.exif_data[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted author from (exiftool) pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        for field, weight in exiftool_field_weight:
+            if field in self.exif_data:
+                source = 'metadata.exiftool.' + field
+                value = self.exif_data[field]
+                results += result_list_add(value, source, weight)
+                # results.append({'value': value,
+                #                 'source': source,
+                #                 'weight': weight})
+                logging.debug('Added AUTHOR from "{}": "{}" '
+                              '(weight: {})'.format(source, value, weight))
+
+        pypdf_field_weight = [('Author', 1), ('Creator', 0.8),
+                              ('Producer', 0.5)]
+
+        for field, weight in pypdf_field_weight:
+            if field in self.metadata:
+                source = 'metadata.pypdf.' + field
+                value = self.metadata[field]
+                results += result_list_add(value, source, weight)
+                # results.append({'value': value,
+                #                 'source': source,
+                #                 'weight': weight})
+                logging.debug('Added AUTHOR from "{}": "{}" '
+                              '(weight: {})'.format(source, value, weight))
+
         return results
 
     # @Overrides method in AbstractAnalyzer
@@ -437,3 +448,9 @@ def extract_pdf_content_with_pypdf(pdf_file):
     else:
         logging.debug('Unable to extract text with PyPDF2 ..')
         return False
+
+
+def result_list_add(value, source, weight):
+    return [{'value': value,
+             'source': source,
+             'weight': weight}]
