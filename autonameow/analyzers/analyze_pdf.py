@@ -82,38 +82,38 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.text = self._extract_pdf_content()
         self.add_results('contents.textual.raw_text', self.text)
 
+    #   Possible author fields:
+    #
+    # QUERY STRING                   SOURCE LOCATION                    WEIGHT
+    # metadata.exiftool.PDF:Author   self.exiftool_data['PDF:Author']   1
+    # metadata.exiftool.PDF:Creator  self.exiftool_data['PDF:Creator']  0.8
+    # metadata.exiftool.PDF:Producer self.exiftool_data['PDF:Producer'] 0.5
+    # metadata.pypdf.Author          self.metadata['Author']            1
+    # metadata.pypdf.Creator         self.metadata['Creator']           0.8
+    # metadata.pypdf.Producer        self.metadata['Producer']          0.5
+
+    def collect_results(self, query_string, source_dict, source_field, weight):
+        if source_field in source_dict:
+            value = source_dict.get(source_field)
+            return result_list_add(value, query_string, weight)
+        else:
+            return []
+
     # @Overrides method in AbstractAnalyzer
     def get_author(self):
         results = []
 
-        exiftool_field_weight = [('PDF:Author', 1), ('PDF:Creator', 0.8),
-                                 ('PDF:Producer', 0.5)]
+        possible_authors = [
+            ('metadata.exiftool.PDF:Author', self.exiftool_data, 'PDF:Author', 1),
+            ('metadata.exiftool.PDF:Creator', self.exiftool_data, 'PDF:Creator', 0.8),
+            ('metadata.exiftool.PDF:Producer', self.exiftool_data, 'PDF:Producer', 0.5),
+            ('metadata.pypdf.Author', self.metadata, 'Author', 1),
+            ('metadata.pypdf.Creator', self.metadata, 'Creator', 0.8),
+            ('metadata.pypdf.Producer', self.metadata, 'Producer', 0.5)]
 
-        for field, weight in exiftool_field_weight:
-            if field in self.exiftool_data:
-                source = 'metadata.exiftool.' + field
-                value = self.exiftool_data[field]
-                results += result_list_add(value, source, weight)
-                # results.append({'value': value,
-                #                 'source': source,
-                #                 'weight': weight})
-                logging.debug('Added AUTHOR from "{}": "{}" '
-                              '(weight: {})'.format(source, value, weight))
-
-        pypdf_field_weight = [('Author', 1), ('Creator', 0.8),
-                              ('Producer', 0.5)]
-
-        for field, weight in pypdf_field_weight:
-            if field in self.metadata:
-                source = 'metadata.pypdf.' + field
-                value = self.metadata[field]
-                results += result_list_add(value, source, weight)
-                # results.append({'value': value,
-                #                 'source': source,
-                #                 'weight': weight})
-                logging.debug('Added AUTHOR from "{}": "{}" '
-                              '(weight: {})'.format(source, value, weight))
-
+        for query_string, source_dict, source_field, weight in possible_authors:
+            results += self.collect_results(query_string, source_dict,
+                                            source_field, weight)
         return results
 
     # @Overrides method in AbstractAnalyzer
