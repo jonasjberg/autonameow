@@ -65,6 +65,15 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.metadata = self.meta_extractor.query()
         self.add_results('metadata.pypdf', self.metadata)
 
+        try:
+            number_pages = self.metadata.get('number_pages', False)
+            number_pages = int(number_pages)
+        except ValueError:
+            pass
+        else:
+            self.add_results('contents.textual.number_pages', number_pages)
+            self.add_results('contents.textual.paginated', True)
+
         self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
         logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
         self.exiftool_data = self.exiftool.query()
