@@ -192,7 +192,7 @@ class PdfAnalyzer(AbstractAnalyzer):
                     # date, time = self.pdf_metadata[field].split()
                 except KeyError:
                     logging.error('KeyError for key [{}]'.format(field))
-                    pass
+                    continue
 
             if k is None:
                 logging.warning('Null value in metadata field [%s]' % field)
