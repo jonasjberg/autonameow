@@ -128,7 +128,8 @@ class Autonameow(object):
         self.filter = ResultFilter().configure_filter(self.args)
 
         if self.args.dump_options:
-            options.prettyprint_options(self.args)
+            include_opts = {'config_file_path': config.config_file_path()}
+            options.prettyprint_options(self.args, include_opts)
 
         if self.args.dump_config:
             log.info('Dumping active configuration ..')

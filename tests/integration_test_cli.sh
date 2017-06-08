@@ -206,6 +206,10 @@ assert_false '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE" 2>&1 ) >/d
              "Attempting to load a invalid configuration file with \"--config-path\" should be handled properly"
 
 
+assert_true '( "$AUTONAMEOW_RUNNER" --dump-options --verbose 2>&1 ) >/dev/null' \
+            "autonameow should return zero when started with \"--dump-options\" and \"--verbose\""
+
+
 
 
 # Calculate total execution time.

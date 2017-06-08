@@ -252,13 +252,17 @@ def parse_args(opts):
     return args
 
 
-def prettyprint_options(opts):
+def prettyprint_options(opts, extra_opts):
     """
     Display details on the command line options that are in effect.
     Mainly for debug purposes.
     :param opts: arguments to display
     """
     opts_dict = vars(opts)
+
+    if extra_opts:
+        opts_dict.update(extra_opts)
+
     for k, v in opts_dict.items():
         if v == 0:
             v = 'False'
