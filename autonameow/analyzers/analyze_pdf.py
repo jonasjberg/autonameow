@@ -34,7 +34,10 @@ from analyzers.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
 from core.util import textutils
 from core.util import wrap_exiftool
-from extractors.metadata import ExiftoolMetadataExtractor
+from extractors.metadata import (
+    ExiftoolMetadataExtractor,
+    PyPDFMetadataExtractor
+)
 
 
 class PdfAnalyzer(AbstractAnalyzer):
@@ -46,6 +49,8 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.applies_to_mime = 'pdf'
         self.add_results = add_results_callback
 
+        self.meta_extractor = None
+
         self.exiftool = None
         self.exif_data = None
 
@@ -54,7 +59,10 @@ class PdfAnalyzer(AbstractAnalyzer):
 
     # @Overrides method in AbstractAnalyzer
     def run(self):
-        self.metadata = self._extract_pdf_metadata_with_pypdf()
+        self.meta_extractor = PyPDFMetadataExtractor(self.file_object.abspath)
+        logging.debug('Extracting metadata with {!s} '
+                      '..'.format(self.meta_extractor))
+        self.metadata = self.meta_extractor.query()
         self.add_results('metadata.pypdf', self.metadata)
 
         self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
@@ -236,35 +244,6 @@ class PdfAnalyzer(AbstractAnalyzer):
         # TODO: This is currently completely unused! Remove or implement.
         #       https://pythonhosted.org/PyPDF2/XmpInformation.html
         pass
-
-    def _extract_pdf_metadata_with_pypdf(self):
-        """
-        Extract metadata from a PDF document using "pyPdf".
-        :return: dict of PDF metadata
-        """
-        # Create empty dictionary to store PDF metadata "key:value"-pairs in.
-        result = {}
-        pdf_metadata = None
-        filename = self.file_object.abspath
-
-        # Extract PDF metadata using PyPdf, nicked from Violent Python.
-        try:
-            pdff = PyPDF2.PdfFileReader(filename, 'rb')
-            pdf_metadata = pdff.getDocumentInfo()
-            # TODO: These below variables are unused! Remove or implement.
-            # self.title = pdf_metadata.title
-            # self.author = pdf_metadata.author
-        except Exception as e:
-            logging.error('PDF metadata extraction error: "{}"'.format(e))
-
-        if pdf_metadata:
-            # Remove leading '/' from all entries and save to new dict 'result'.
-            for entry in pdf_metadata:
-                value = pdf_metadata[entry]
-                key = entry.lstrip('\/')
-                result[key] = value
-
-        return result
 
     def _extract_pdf_metadata_with_exiftool(self):
         with wrap_exiftool.ExifTool() as et:
