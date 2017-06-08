@@ -143,7 +143,7 @@ def load_yaml_file(file_path):
     try:
         with open(file_path, 'r') as fh:
             return yaml.safe_load(fh)
-    except (IOError, yaml.YAMLError) as e:
+    except (IOError, yaml.YAMLError, UnicodeDecodeError) as e:
         raise ConfigReadError(file_path, e)
 
 
