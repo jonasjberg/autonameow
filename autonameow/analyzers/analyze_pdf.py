@@ -109,9 +109,14 @@ class PdfAnalyzer(AbstractAnalyzer):
         results = []
 
         possible_authors = [
-            ('metadata.exiftool.PDF:Author', self.exiftool_data, 'PDF:Author', 1),
-            ('metadata.exiftool.PDF:Creator', self.exiftool_data, 'PDF:Creator', 0.8),
-            ('metadata.exiftool.PDF:Producer', self.exiftool_data, 'PDF:Producer', 0.5),
+            ('metadata.exiftool.PDF:Author', self.exiftool_data,
+             'PDF:Author', 1),
+            ('metadata.exiftool.PDF:Creator', self.exiftool_data,
+             'PDF:Creator', 0.8),
+            ('metadata.exiftool.PDF:Producer', self.exiftool_data,
+             'PDF:Producer', 0.8),
+            ('metadata.exiftool.XMP:Creator', self.exiftool_data,
+             'XMP:Creator', 0.8),
             ('metadata.pypdf.Author', self.metadata, 'Author', 1),
             ('metadata.pypdf.Creator', self.metadata, 'Creator', 0.8),
             ('metadata.pypdf.Producer', self.metadata, 'Producer', 0.5)]
@@ -126,8 +131,12 @@ class PdfAnalyzer(AbstractAnalyzer):
         results = []
 
         possible_titles = [
-            ('metadata.exiftool.PDF:Title', self.exiftool_data, 'PDF:Title', 1),
-            ('metadata.exiftool.PDF:Subject', self.exiftool_data, 'PDF:Subject', 0.25),
+            ('metadata.exiftool.PDF:Title', self.exiftool_data,
+             'PDF:Title', 1),
+            ('metadata.exiftool.XMP:Title', self.exiftool_data,
+             'XMP:Title', 8),
+            ('metadata.exiftool.PDF:Subject', self.exiftool_data,
+             'PDF:Subject', 0.25),
             ('metadata.pypdf.Title', self.metadata, 'Title', 1),
             ('metadata.pypdf.Subject', self.metadata, 'Creator', 0.25)]
 
