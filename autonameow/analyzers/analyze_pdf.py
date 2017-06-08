@@ -63,21 +63,23 @@ class PdfAnalyzer(AbstractAnalyzer):
         logging.debug('Extracting metadata with {!s} '
                       '..'.format(self.meta_extractor))
         self.metadata = self.meta_extractor.query()
-        self.add_results('metadata.pypdf', self.metadata)
+        if self.metadata:
+            self.add_results('metadata.pypdf', self.metadata)
 
-        try:
-            number_pages = self.metadata.get('number_pages', False)
-            number_pages = int(number_pages)
-        except ValueError:
-            pass
-        else:
-            self.add_results('contents.textual.number_pages', number_pages)
-            self.add_results('contents.textual.paginated', True)
+            try:
+                number_pages = self.metadata.get('number_pages', False)
+                number_pages = int(number_pages)
+            except ValueError:
+                pass
+            else:
+                self.add_results('contents.textual.number_pages', number_pages)
+                self.add_results('contents.textual.paginated', True)
 
         self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
         logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
         self.exiftool_data = self.exiftool.query()
-        self.add_results('metadata.exiftool', self.exiftool_data)
+        if self.exiftool_data:
+            self.add_results('metadata.exiftool', self.exiftool_data)
 
         self.text = self._extract_pdf_content()
         self.add_results('contents.textual.raw_text', self.text)
@@ -136,14 +138,15 @@ class PdfAnalyzer(AbstractAnalyzer):
     def get_datetime(self):
         results = []
 
-        metadata_datetime = self._get_metadata_datetime()
-        if metadata_datetime:
-            results += metadata_datetime
+        if self.metadata:
+            metadata_datetime = self._get_metadata_datetime()
+            if metadata_datetime:
+                results += metadata_datetime
 
-        if self.text:
-            text_timestamps = self._get_datetime_from_text()
-            if text_timestamps:
-                results += text_timestamps
+            if self.text:
+                text_timestamps = self._get_datetime_from_text()
+                if text_timestamps:
+                    results += text_timestamps
 
         return results
 

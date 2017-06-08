@@ -51,7 +51,8 @@ class ImageAnalyzer(AbstractAnalyzer):
         logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
         self.exif_data = self.exiftool.query()
 
-        self.add_results('metadata.exiftool', self.exif_data)
+        if self.exif_data:
+            self.add_results('metadata.exiftool', self.exif_data)
 
         self.ocr_text = self._get_text_from_ocr()
 
