@@ -184,6 +184,19 @@ assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE"
              "Automagic mode output should include \"${SAMPLE_PDF_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
 
+EMPTY_CONFIG='/tmp/autonameow_empty_config.yaml'
+assert_true 'touch "$EMPTY_CONFIG" 2>&1 >/dev/null' \
+            "detect_empty_config Test setup should succeed"
+
+assert_false '( "$AUTONAMEOW_RUNNER" --config-path "$EMPTY_CONFIG" 2>&1 ) >/dev/null' \
+             "detect_empty_config Specifying a empty configuration file with \"--config-path\" should be handled properly"
+
+assert_true '[ -f "$EMPTY_CONFIG" ] && rm -- "$EMPTY_CONFIG" 2>&1 >/dev/null' \
+            "detect_empty_config Test teardown should succeed"
+
+assert_false '( "$AUTONAMEOW_RUNNER" --config-path /tmp/does_not_exist_surely.mjao 2>&1 ) >/dev/null' \
+             "Specifying an invalid path with \"--config-path\" should be handled properly"
+
 
 
 
