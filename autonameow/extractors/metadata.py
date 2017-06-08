@@ -145,7 +145,7 @@ class PyPDFMetadataExtractor(Extractor):
 
         try:
             file_reader = PyPDF2.PdfFileReader(self.source, 'rb')
-        except Exception as e:
+        except Exception:
             # TODO: Raise custom exception .. ?
             raise
         else:
