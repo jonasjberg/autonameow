@@ -180,16 +180,6 @@ def init_argparser():
                         help='Simulate what would happen but do not '
                              'actually write any changes to disk.')
 
-    parser.add_argument('--dump-options',
-                        dest='dump_options',
-                        action='store_true',
-                        help='[DEBUG] Dump options to stdout.')
-
-    parser.add_argument('--dump-config',
-                        dest='dump_config',
-                        action='store_true',
-                        help='[DEBUG] Dump condiguration to stdout.')
-
     parser.add_argument('--version',
                         dest='show_version',
                         action='store_true',
@@ -201,6 +191,19 @@ def init_argparser():
                         type=arg_is_readable_file,
                         help='Use configuration file at CONFIG_PATH instead '
                              'of the default configuration file.')
+
+    # Add option group for debugging options.
+    optgrp_debug = parser.add_argument_group('Debug/developer options')
+    optgrp_debug.add_argument('--dump-options',
+                              dest='dump_options',
+                              action='store_true',
+                              help='Dump options to stdout.')
+
+    optgrp_debug.add_argument('--dump-config',
+                              dest='dump_config',
+                              action='store_true',
+                              help='Dump active configuration to stdout.')
+
     return parser
 
 
