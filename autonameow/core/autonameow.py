@@ -93,12 +93,12 @@ class Autonameow(object):
             _config_path = config.config_file_path()
 
             if not config.has_config_file():
-                log.warning('No configuration file was found.')
+                log.info('No configuration file was found. Writing default ..')
 
                 try:
                     config.write_default_config()
                 except PermissionError:
-                    log.critical('Unable to write config file to path: '
+                    log.critical('Unable to write configuration file to path: '
                                  '"{!s}"'.format(_config_path))
                     self.exit_program(1)
                 else:
