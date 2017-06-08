@@ -170,23 +170,17 @@ class PdfAnalyzer(AbstractAnalyzer):
     def get_publisher(self):
         results = []
 
-        field = 'PDF:EBX_PUBLISHER'
-        if field in self.metadata:
-            value = self.metadata[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted publisher from pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        possible_publishers = [
+            ('metadata.exiftool.PDF:EBX_PUBLISHER', self.exiftool_data,
+             'PDF:EBX_PUBLISHER', 1),
+            ('metadata.exiftool.XMP:EbxPublisher', self.exiftool_data,
+             'XMP:EbxPublisher', 1),
+            ('metadata.pypdf.EBX_PUBLISHER', self.metadata,
+             'EBX_PUBLISHER', 1)]
 
-        field = 'PDF:EBX_PUBLISHER'
-        if field in self.exiftool_data:
-            value = self.exiftool_data[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted publisher from (exiftool) pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        for query_string, source_dict, source_field, weight in possible_publishers:
+            results += self.collect_results(query_string, source_dict,
+                                            source_field, weight)
         return results
 
     def _get_metadata_datetime(self):
