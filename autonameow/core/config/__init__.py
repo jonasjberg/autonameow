@@ -140,9 +140,6 @@ def load_yaml_file(file_path):
         The contents of the yaml file at the given file as a "Python object"
         (dict).  Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
     """
-    if not os.access(file_path, os.R_OK):
-        raise PermissionError
-
     try:
         with open(file_path, 'r') as fh:
             return yaml.safe_load(fh)
