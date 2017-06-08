@@ -141,6 +141,8 @@ class PyPDFMetadataExtractor(Extractor):
             return self.__raw_metadata.get(field, False)
 
     def get_pypdf_data(self):
+        out = {}
+
         try:
             file_reader = PyPDF2.PdfFileReader(self.source, 'rb')
         except Exception as e:
@@ -155,22 +157,26 @@ class PyPDFMetadataExtractor(Extractor):
                 # Convert PyPDF values of type 'PyPDF2.generic.TextStringObject'
                 out = {k: str(v) for k, v in out.items()}
 
-                # for field in ['author', 'author_raw', 'creator',
-                #               'creator_raw', 'producer', 'producer_raw',
-                #               'subject', 'subject_raw', 'title', 'title_raw',
-                #               'xmpMetadata']:
-                #     out[field] = doc_info.getText(field)
-
             out.update({'encrypted': file_reader.isEncrypted})
 
-        try:
-            num_pages = file_reader.getNumPages()
-        except PdfReadError:
-            # PDF document might be encrypted with restrictions for reading.
-            # TODO: Raise custom exception .. ?
-            raise
-        else:
-            out.update({'number_pages': num_pages})
+            try:
+                num_pages = file_reader.getNumPages()
+            except PdfReadError:
+                # PDF document might be encrypted with restrictions for reading.
+                # TODO: Raise custom exception .. ?
+                raise
+            else:
+                out.update({'number_pages': num_pages})
+
+            # https://pythonhosted.org/PyPDF2/XmpInformation.html
+            xmp_metadata = file_reader.getXmpMetadata()
+            if xmp_metadata:
+                xmp = {}
+                for k, v in xmp_metadata.items():
+                    if v:
+                        xmp[k] = v
+
+                out.update(xmp)
 
         return out
 
