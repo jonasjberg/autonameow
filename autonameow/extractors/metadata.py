@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging as log
+
 import PyPDF2
 from PyPDF2.utils import (
     PyPdfError,
@@ -51,7 +53,11 @@ class ExiftoolMetadataExtractor(Extractor):
             The specified fields or False if the extraction fails.
         """
         if not self.__raw_metadata:
-            self.__raw_metadata = self.get_exiftool_data()
+            try:
+                self.__raw_metadata = self.get_exiftool_data()
+            except Exception as e:
+                log.error('Exiftool invocation FAILED: {!s}'.format(e))
+                return False
 
         if not field:
             return self.__raw_metadata
@@ -60,7 +66,11 @@ class ExiftoolMetadataExtractor(Extractor):
 
     def get_exiftool_data(self):
         with wrap_exiftool.ExifTool() as et:
-            return et.get_metadata(self.source)
+            # Raises ValueError if an ExifTool instance isn't running.
+            try:
+                return et.get_metadata(self.source)
+            except (ValueError, TypeError):
+                raise
 
     def __str__(self):
         return self.__class__.__name__
@@ -119,7 +129,11 @@ class PyPDFMetadataExtractor(Extractor):
 
     def query(self, field=None):
         if not self.__raw_metadata:
-            self.__raw_metadata = self.get_pypdf_data()
+            try:
+                self.__raw_metadata = self.get_pypdf_data()
+            except Exception as e:
+                log.error('PyPDF invocation FAILED: {!s}'.format(e))
+                return False
 
         if not field:
             return self.__raw_metadata
