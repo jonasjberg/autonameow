@@ -39,6 +39,17 @@ class ExiftoolMetadataExtractor(Extractor):
         self.__raw_metadata = None
 
     def query(self, field=None):
+        """
+        Queries this extractor for a specific field or all field if argument
+        "field" is left unspecified.
+
+        Args:
+            field: Optional refinement of the query.
+                All fields are returned by default.
+
+        Returns:
+            The specified fields or False if the extraction fails.
+        """
         if not self.__raw_metadata:
             self.__raw_metadata = self.get_exiftool_data()
 
