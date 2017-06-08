@@ -120,23 +120,16 @@ class PdfAnalyzer(AbstractAnalyzer):
     def get_title(self):
         results = []
 
-        field = 'Title'
-        if field in self.metadata:
-            value = self.metadata[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted title from pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        possible_titles = [
+            ('metadata.exiftool.PDF:Title', self.exiftool_data, 'PDF:Title', 1),
+            ('metadata.exiftool.PDF:Subject', self.exiftool_data, 'PDF:Subject', 0.25),
+            ('metadata.pypdf.Title', self.metadata, 'Title', 1),
+            ('metadata.pypdf.Subject', self.metadata, 'Creator', 0.25)]
 
-        field = 'PDF:Title'
-        if field in self.exiftool_data:
-            value = self.exiftool_data[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted title from (exiftool) pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        for query_string, source_dict, source_field, weight in possible_titles:
+            results += self.collect_results(query_string, source_dict,
+                                            source_field, weight)
+
         return results
 
     # @Overrides method in AbstractAnalyzer
