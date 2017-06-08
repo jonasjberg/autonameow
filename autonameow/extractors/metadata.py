@@ -19,6 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import PyPDF2
+from PyPDF2.utils import (
+    PyPdfError,
+    PdfReadError
+)
+
 from core.util import wrap_exiftool
 from extractors.extractor import Extractor
 
@@ -92,3 +98,56 @@ class ExiftoolMetadataExtractor(Extractor):
 # 'PDF:PageCount' (4396452464) = {int} 2
 # 'PDF:Producer' (4396452592) = {str} 'iText 4.2.0 by 1T3XT'
 # 'SourceFile' (4396452016) = {str} '/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/test_files/course.pdf'
+
+
+class PyPDFMetadataExtractor(Extractor):
+    def __init__(self, source):
+        super(PyPDFMetadataExtractor, self).__init__(source)
+
+        self.__raw_metadata = None
+
+    def query(self, field=None):
+        if not self.__raw_metadata:
+            self.__raw_metadata = self.get_pypdf_data()
+
+        if not field:
+            return self.__raw_metadata
+        else:
+            return self.__raw_metadata.get(field, False)
+
+    def get_pypdf_data(self):
+        try:
+            file_reader = PyPDF2.PdfFileReader(self.source, 'rb')
+        except Exception as e:
+            # TODO: Raise custom exception .. ?
+            raise
+        else:
+            doc_info = file_reader.getDocumentInfo()
+            if doc_info:
+                # Remove any leading '/' from all dict keys.
+                out = {k.lstrip('\/'): v for k, v in doc_info.items()}
+
+                # Convert PyPDF values of type 'PyPDF2.generic.TextStringObject'
+                out = {k: str(v) for k, v in out.items()}
+
+                # for field in ['author', 'author_raw', 'creator',
+                #               'creator_raw', 'producer', 'producer_raw',
+                #               'subject', 'subject_raw', 'title', 'title_raw',
+                #               'xmpMetadata']:
+                #     out[field] = doc_info.getText(field)
+
+            out.update({'encrypted': file_reader.isEncrypted})
+
+        try:
+            num_pages = file_reader.getNumPages()
+        except PdfReadError:
+            # PDF document might be encrypted with restrictions for reading.
+            # TODO: Raise custom exception .. ?
+            raise
+        else:
+            out.update({'number_pages': num_pages})
+
+        return out
+
+    def __str__(self):
+        return self.__class__.__name__
