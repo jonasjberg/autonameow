@@ -248,7 +248,6 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         return results
 
-    # TODO: Move all text extraction to functions in 'extract_text.py'.
     def _extract_pdf_content(self):
         """
         Extract the plain text contents of a PDF document.
