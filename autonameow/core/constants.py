@@ -115,6 +115,9 @@ FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR = ' -- '
 FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR = ' '
 
 # Exit code values returned to the executing shell or parent process.
+# Normal, successful termination should return "0" (EXIT_SUCCESS)
+# Any non-zero value is interpreted as an error. Higher values should
+# correspond to increasingly critical error conditions.
 EXIT_SUCCESS = 0    # Program finished successfully.
 EXIT_WARNING = 1    # Program execution completed but there were errors.
 EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.
