@@ -256,10 +256,9 @@ class PdfAnalyzer(AbstractAnalyzer):
             The textual contents of the PDF document or None.
         """
         pdf_text = None
-        i = 1
         text_extractors = [extract_pdf_content_with_pdftotext,
                            extract_pdf_content_with_pypdf]
-        for extractor in text_extractors:
+        for i, extractor in enumerate(text_extractors):
             logging.debug('Running pdf text extractor {}/{}: '
                           '{}'.format(i, len(text_extractors), str(extractor)))
             pdf_text = extractor(self.file_object.abspath)
