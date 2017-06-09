@@ -146,12 +146,12 @@ fi
 
 [ "$option_verbose" != 'true' ] && option_quiet='true' || option_quiet='false'
 
-runner_opts="'-n"
-[ "$option_skip_reports" != 'true' ] || runner_opts=''
+runner_opts='-n'
+[ "$option_skip_reports" != 'true' ] && runner_opts=''
 
 count_fail=0
-run_task "$option_quiet" 'Running integration test runner' ${SELF_DIR}/integration_runner.sh ${runner_opts}
-run_task "$option_quiet" 'Running unit test runner' ${SELF_DIR}/unit_runner.sh ${runner_opts}
+run_task "$option_quiet" 'Running integration test runner' "${SELF_DIR}/integration_runner.sh ${runner_opts}"
+run_task "$option_quiet" 'Running unit test runner' "${SELF_DIR}/unit_runner.sh ${runner_opts}"
 
 # Do not proceed if a runner failed.
 if [ "$count_fail" -ne "0" ]
