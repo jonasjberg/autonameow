@@ -72,9 +72,6 @@ class ExiftoolMetadataExtractor(Extractor):
             except (ValueError, TypeError):
                 raise
 
-    def __str__(self):
-        return self.__class__.__name__
-
 
 # get_exiftool_data("test_files/gmail.pdf"):
 # ==========================================
@@ -179,6 +176,3 @@ class PyPDFMetadataExtractor(Extractor):
                 out.update(xmp)
 
         return out
-
-    def __str__(self):
-        return self.__class__.__name__

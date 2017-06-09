@@ -54,4 +54,4 @@ class Extractor(object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
+        return self.__class__.__name__
