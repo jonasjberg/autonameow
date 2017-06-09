@@ -46,7 +46,7 @@ try:
         API_KEY = f.read()
         API_KEY = API_KEY.strip()
 except FileNotFoundError as e:
-    log.critical('Unable to find "microsoft_vision.py" API key!')
+    # log.critical('Unable to find "microsoft_vision.py" API key!')
     API_KEY = False
 
 
