@@ -250,8 +250,10 @@ class PdfAnalyzer(AbstractAnalyzer):
 
     def _extract_pdf_content(self):
         """
-        Extract the plain text contents of a PDF document.
-        :return: False or PDF content as strings
+        Extracts the plain text contents of a PDF document using "extractors".
+
+        Returns:
+            The textual contents of the PDF document or None.
         """
         pdf_text = None
         i = 1
