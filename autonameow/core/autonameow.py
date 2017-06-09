@@ -178,7 +178,10 @@ class Autonameow(object):
 
             if self.args.list_all:
                 log.info('Listing ALL analysis results ..')
+                cli.msg('Legacy Results Data', type='heading', log=True)
                 cli.msg(misc.dump(analysis.results.get_all()))
+                cli.msg('Redesigned Results Data', type='heading', log=True)
+                cli.msg(misc.dump(analysis.results.new_data))
             else:
                 if self.args.list_datetime:
                     log.info('Listing "datetime" analysis results ..')
