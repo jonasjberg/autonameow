@@ -85,8 +85,8 @@ class FileRule(Rule):
     def __repr__(self):
         out = []
         for key in self.__dict__:
-            out.append('{}: {}'.format(key.title(), self.__dict__[key]))
-        return ', '.join(out)
+            out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
+        return 'FileRule({})'.format(', '.join(out))
 
     def upvote(self):
         """
