@@ -90,13 +90,13 @@ class FileRule(Rule):
 
     def upvote(self):
         """
-        Increases the score of this rule.
+        Increases the matching score of this rule.
         """
         self.score += 1
 
     def downvote(self):
         """
-        Decreases the score of this rule.
+        Decreases the matching score of this rule.
         """
         if self.score > 0:
             self.score -= 1
