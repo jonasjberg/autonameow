@@ -52,6 +52,7 @@ class MetadataExtractor(Extractor):
         """
         if not self._raw_metadata:
             try:
+                log.debug('MetadataExtractor initial query for raw metadata ..')
                 self._raw_metadata = self._get_raw_metadata()
             except ExtractorError as e:
                 log.error('MetadataExtractor query FAILED: {!s}'.format(e))
@@ -62,8 +63,11 @@ class MetadataExtractor(Extractor):
                 return False
 
         if not field:
+            log.debug('MetadataExtractor responding to query for all fields')
             return self._raw_metadata
         else:
+            log.debug('MetadataExtractor responding to query for field: '
+                      '"{!s}"'.format(field))
             return self._raw_metadata.get(field, False)
 
     def _get_raw_metadata(self):
@@ -90,7 +94,7 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
             # Raises ValueError if an ExifTool instance isn't running.
             try:
                 return et.get_metadata(self.source)
-            except (ValueError, TypeError):
+            except (AttributeError, ValueError, TypeError):
                 raise
 
 
@@ -139,24 +143,17 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
 # 'SourceFile' (4396452016) = {str} '/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/test_files/course.pdf'
 
 
-class PyPDFMetadataExtractor(Extractor):
+class PyPDFMetadataExtractor(MetadataExtractor):
     def __init__(self, source):
         super(PyPDFMetadataExtractor, self).__init__(source)
 
-        self.__raw_metadata = None
+        self._raw_metadata = None
 
-    def query(self, field=None):
-        if not self.__raw_metadata:
-            try:
-                self.__raw_metadata = self.get_pypdf_data()
-            except Exception as e:
-                log.error('PyPDF invocation FAILED: {!s}'.format(e))
-                return False
-
-        if not field:
-            return self.__raw_metadata
-        else:
-            return self.__raw_metadata.get(field, False)
+    def _get_raw_metadata(self):
+        try:
+            return self.get_pypdf_data()
+        except Exception as e:
+            raise ExtractorError(e)
 
     def get_pypdf_data(self):
         out = {}
