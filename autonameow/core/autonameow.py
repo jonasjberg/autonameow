@@ -24,7 +24,10 @@ import logging as log
 import sys
 import time
 
-from core import config
+from core import (
+    config,
+    constants
+)
 from core import options
 from core.analysis import Analysis
 from core.config.configuration import Configuration
@@ -44,6 +47,9 @@ from core.util import (
     diskutils
 )
 from . import version
+
+
+exit_code = constants.EXIT_SUCCESS
 
 
 class Autonameow(object):
@@ -71,7 +77,7 @@ class Autonameow(object):
         # Display help/usage information if no arguments are provided.
         if not self.opts:
             print('Add "--help" to display usage information.')
-            self.exit_program(0)
+            self.exit_program(constants.EXIT_SUCCESS)
 
         # Handle the command line arguments.
         self.args = options.parse_args(self.opts)
@@ -80,10 +86,13 @@ class Autonameow(object):
         if self.args.verbose or self.args.debug:
             cli.print_start_info()
 
+        cli.msg('Word "1234-56 word" -> "1234-56 word"', type='color_quoted')
+        cli.msg('Word "gmail.pdf" -> "1234-56-78 gmail.pdf"', type='color_quoted')
+
         # Display startup banner with program version and exit.
         if self.args.show_version:
             cli.print_ascii_banner()
-            self.exit_program(0)
+            self.exit_program(constants.EXIT_SUCCESS)
 
         # Check configuration file. If no alternate config file path is
         # provided and no config file is found at default paths; copy the
@@ -96,7 +105,7 @@ class Autonameow(object):
             except ConfigError as e:
                 log.critical('Failed to load configuration file!')
                 log.debug(str(e))
-                self.exit_program(1)
+                self.exit_program(constants.EXIT_ERROR)
         else:
             _config_path = config.config_file_path()
 
@@ -108,7 +117,7 @@ class Autonameow(object):
                 except PermissionError:
                     log.critical('Unable to write configuration file to path: '
                                  '"{!s}"'.format(_config_path))
-                    self.exit_program(1)
+                    self.exit_program(constants.EXIT_ERROR)
                 else:
                     cli.msg('A template configuration file was written to '
                             '"{!s}"'.format(_config_path), type='info')
@@ -116,7 +125,7 @@ class Autonameow(object):
                             'Refer to the documentation for additional '
                             'information.'.format(version.__title__),
                             type='info')
-                    self.exit_program(0)
+                    self.exit_program(constants.EXIT_SUCCESS)
             else:
                 log.info('Using configuration: "{}"'.format(_config_path))
                 try:
@@ -135,22 +144,21 @@ class Autonameow(object):
             log.info('Dumping active configuration ..')
             cli.msg('Active Configuration:', type='heading')
             cli.msg(str(self.config))
-            self.exit_program(0)
+            self.exit_program(constants.EXIT_SUCCESS)
 
         # Exit if no files are specified, for now.
         if not self.args.input_paths:
             log.warning('No input files specified ..')
-            self.exit_program(1)
+            self.exit_program(constants.EXIT_ERROR)
 
         # Iterate over command line arguments ..
-        exit_code = self._handle_files()
+        self._handle_files()
         self.exit_program(exit_code)
 
     def _handle_files(self):
         """
         Main loop. Iterates over passed arguments (paths/files).
         """
-        exit_code = 0
         for arg in self.args.input_paths:
             log.info('Processing: "{!s}"'.format(arg))
 
@@ -168,7 +176,7 @@ class Autonameow(object):
             except AutonameowException as e:
                 log.critical('Analysis FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(current_file))
-                exit_code |= 1
+                set_exit_code(constants.EXIT_WARNING)
                 continue
 
             list_any = (self.args.list_datetime or self.args.list_title
@@ -193,7 +201,7 @@ class Autonameow(object):
             if self.args.prepend_datetime:
                 # TODO: Prepend datetime to filename.
                 log.warning('[UNIMPLEMENTED FEATURE] prepend_datetime')
-                self.exit_program(1)
+                self.exit_program(constants.EXIT_ERROR)
 
             if self.args.automagic:
                 # Create a name builder.
@@ -203,16 +211,19 @@ class Autonameow(object):
                     new_name = self.builder.build()
                 except NotImplementedError:
                     log.critical('TODO: [BL010] Implement NameBuilder.')
-                    exit_code |= 1
+                    set_exit_code(constants.EXIT_WARNING)
                 except NameBuilderError as e:
                     log.critical('Name assembly FAILED: {!s}'.format(e))
-                    exit_code |= 1
+                    set_exit_code(constants.EXIT_WARNING)
                     continue
                 else:
                     cli.msg('New name: "{}"'.format(new_name))
                     renamed_ok = self.do_rename(current_file.abspath, new_name,
                                                 dry_run=self.args.dry_run)
-                    exit_code |= renamed_ok
+                    if renamed_ok:
+                        set_exit_code(constants.EXIT_SUCCESS)
+                    else:
+                        set_exit_code(constants.EXIT_WARNING)
 
             elif self.args.interactive:
                 # Create a interactive interface.
@@ -221,7 +232,7 @@ class Autonameow(object):
 
         return exit_code
 
-    def exit_program(self, exit_code):
+    def exit_program(self, exit_code_):
         """
         Main program exit point.  Shuts down this autonameow instance/session.
 
@@ -230,6 +241,9 @@ class Autonameow(object):
                 Indicate success with 0, failure non-zero.
         """
         elapsed_time = time.time() - self.start_time
+
+        global exit_code
+        exit_code = max(exit_code, exit_code_)
 
         if self.args:
             if self.args.verbose:
@@ -263,12 +277,31 @@ class Autonameow(object):
                 log.error('Rename FAILED: {!s}'.format(e))
                 return 1
             else:
-                cli.msg('Renamed "{!s}" -> "{!s}"'.format(from_basename,
-                                                          dest_basename),
+                message = 'Renamed "{!s}" -> "{!s}"'
+                cli.msg(message.format(from_basename, dest_basename),
                         type='color_quoted')
                 return 0
         else:
-            cli.msg('Would have renamed "{!s}" -> "{!s}"'.format(from_basename,
-                                                                 dest_basename),
+            message = 'Would have renamed "{!s}" -> "{!s}"'
+            cli.msg(message.format(from_basename, dest_basename),
                     type='color_quoted')
             return 0
+
+
+def set_exit_code(value):
+    """
+    Updates the global program exit code value.
+
+    The exit code is only actually updated if the given value is greater
+    than the current value. This makes errors take precedence over warnings.
+
+    Args:
+        value: The new exit status as an integer, preferably one of
+        the values in 'constants.py' prefixed 'EXIT_'.
+
+    Returns:
+        The current exit code as an integer.
+    """
+    global exit_code
+    exit_code = max(exit_code, value)
+    return exit_code
