@@ -113,3 +113,8 @@ MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
 FILERULE_DEFAULT_WEIGHT = 0.5
 FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR = ' -- '
 FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR = ' '
+
+# Exit code values returned to the executing shell or parent process.
+EXIT_SUCCESS = 0    # Program finished successfully.
+EXIT_WARNING = 1    # Program execution completed but there were errors.
+EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.
