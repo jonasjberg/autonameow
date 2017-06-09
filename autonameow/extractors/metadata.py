@@ -27,6 +27,7 @@ from PyPDF2.utils import (
     PdfReadError
 )
 
+from core.exceptions import ExtractorError
 from core.util import wrap_exiftool
 from extractors.extractor import Extractor
 
@@ -52,8 +53,12 @@ class MetadataExtractor(Extractor):
         if not self._raw_metadata:
             try:
                 self._raw_metadata = self._get_raw_metadata()
-            except Exception as e:
-                log.error('Metadata query FAILED: {!s}'.format(e))
+            except ExtractorError as e:
+                log.error('MetadataExtractor query FAILED: {!s}'.format(e))
+                return False
+            except NotImplementedError as e:
+                log.debug('[WARNING] Called unimplemented code in {!s}: '
+                          '{!s}'.format(self, e))
                 return False
 
         if not field:
@@ -62,7 +67,7 @@ class MetadataExtractor(Extractor):
             return self._raw_metadata.get(field, False)
 
     def _get_raw_metadata(self):
-        raise NotImplementedError
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
 
 class ExiftoolMetadataExtractor(MetadataExtractor):
@@ -75,7 +80,10 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
         self._raw_metadata = None
 
     def _get_raw_metadata(self):
-        return self.get_exiftool_data()
+        try:
+            return self.get_exiftool_data()
+        except Exception as e:
+            raise ExtractorError(e)
 
     def get_exiftool_data(self):
         with wrap_exiftool.ExifTool() as et:
