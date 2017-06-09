@@ -31,14 +31,11 @@ from core.util import wrap_exiftool
 from extractors.extractor import Extractor
 
 
-class ExiftoolMetadataExtractor(Extractor):
-    """
-    Extracts various types of metadata using "exiftool".
-    """
+class MetadataExtractor(Extractor):
     def __init__(self, source):
-        super(ExiftoolMetadataExtractor, self).__init__(source)
+        super(MetadataExtractor, self).__init__(source)
 
-        self.__raw_metadata = None
+        self._raw_metadata = None
 
     def query(self, field=None):
         """
@@ -52,17 +49,33 @@ class ExiftoolMetadataExtractor(Extractor):
         Returns:
             The specified fields or False if the extraction fails.
         """
-        if not self.__raw_metadata:
+        if not self._raw_metadata:
             try:
-                self.__raw_metadata = self.get_exiftool_data()
+                self._raw_metadata = self._get_raw_metadata()
             except Exception as e:
-                log.error('Exiftool invocation FAILED: {!s}'.format(e))
+                log.error('Metadata query FAILED: {!s}'.format(e))
                 return False
 
         if not field:
-            return self.__raw_metadata
+            return self._raw_metadata
         else:
-            return self.__raw_metadata.get(field, False)
+            return self._raw_metadata.get(field, False)
+
+    def _get_raw_metadata(self):
+        raise NotImplementedError
+
+
+class ExiftoolMetadataExtractor(MetadataExtractor):
+    """
+    Extracts various types of metadata using "exiftool".
+    """
+    def __init__(self, source):
+        super(ExiftoolMetadataExtractor, self).__init__(source)
+
+        self._raw_metadata = None
+
+    def _get_raw_metadata(self):
+        return self.get_exiftool_data()
 
     def get_exiftool_data(self):
         with wrap_exiftool.ExifTool() as et:
