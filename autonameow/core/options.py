@@ -86,21 +86,21 @@ def init_argparser():
         '--debug',
         dest='debug',
         action='store_true',
-        help='Debug mode.'
+        help='Debug mode. Enables displaying detailed debug information.'
     )
     optgrp_output.add_argument(
         '-v', '--verbose',
         dest='verbose',
         action='store_true',
-        help='Verbose mode.',
-        default=False
+        default=False,
+        help='Verbose mode. Enables displaying additional information.'
     )
     optgrp_output.add_argument(
         '-q', '--quiet',
         dest='quiet',
         action='store_true',
-        help='Quiet mode.',
-        default=False
+        default=False,
+        help='Quiet mode. Supress all output except critical errors.'
     )
 
     # Add option group for actions to be performed.
