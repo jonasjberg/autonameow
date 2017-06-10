@@ -18,18 +18,27 @@ listing.~~
 High Priority
 -------------
 
-* Internal "API" -- data storage structures and communication between modules.
-    * Replace the old way of calling the analyzer `get_{fieldname}` methods
-      with passing the `Analysis` class method `collect_results` as a callback.
-    * Think about distinguishing between *simple "static"* data
-      (`filesystem.basename.full`) and "derived data", like a `datetime`-object
-      extracted from matched UNIX timestamp in `filesystem.basename.full`.
-        * Should the simple static information be collected in a separate run?
-        * Should the `Analysis` class `Results` instance only contain "simple
-          static" data?
-        * Use a separate container for "derived data"?
-        * Store all types of results in the `Analysis` class `Results` instance
-          but modify the `Results` class to distinguish between the types?
+### Internal "API" -- communication between modules
+
+* Replace the old way of calling the analyzer `get_{fieldname}` methods
+  with passing the `Analysis` class method `collect_results` as a callback.
+* Fully implement the idea of dynamically constructing structures and
+  interfaces from a single reference data structure at runtime.
+
+### Internal data storage
+
+* Think about distinguishing between *simple static data* and *derived data*.
+    * __"Static data":__ string `test.pdf`
+      (stored in results query field `filesystem.basename.full`)
+    * __"Derived data":__ `datetime`-object extracted from a UNIX timestamp
+      in `filesystem.basename.full`. Possibly stored as a dictionary with
+      the `datetile`-object in `data['value']`, along with `weight`, etc.
+    * Possibly additional types?
+* Should the "simple static" information be collected in a separate run?
+* Should the `Analysis` class `Results` instance only contain "simple static"
+  data? If so, use a separate container for "derived data".
+* Alternatively, store all types of results in the `Analysis` class `Results`
+  instance but modify the `Results` class to distinguish between the types?
 
 
 Medium Priority
@@ -46,6 +55,16 @@ Medium Priority
         * Means of executing the plugin.
         * Means of querying for all or a specific field.
 
+* Think about how data might need to be processed in multiple consecutive runs.
+    * In relation to future weighting and prioritizing of analysis results.
+
+* Think about how the overall "analysis" might be executed more than once.
+    * Results from an initial analysis might be passed to the second analysis.
+    * If a matched and active rule does not specify all required sources; the
+      missing sources might be filled in by a more targeted approach using data
+      gathered during the first run.
+
+
 
 Low Priority
 ------------
@@ -53,8 +72,14 @@ Low Priority
 * Add additional filetype-specific "extractors".
     * __Word Documents__
         * Extract plain text and metadata from Word documents.
-        * Probably trivially implemented by using some Python library.
-* Add support for MacOS Spotlight metadata (`mdls`)
+    * __E-books epub/mobi__
+        * Extract metadata fields. Look into using `calibre`.
+
+* Add support for extracting MacOS Spotlight metadata (`mdls`)
+
+* Add additional plugins.
+    * Plugin for querying APIs with ISBN numbers.
+      (Already implemented in `autoname_pdf.py` and `isbn_query.py`)
 
 
 Wishlist
@@ -62,16 +87,17 @@ Wishlist
 
 * Construct file rules from user-specified __template__ and __filename__.
 
-  The user specifies a expected __file name template__ and
-  a __expected file name__ for a given file;
+    The user specifies a expected __file name template__ and
+    a __expected file name__ for a given file;
 
-  ```
-  Given file:        "cats-tale.pdf"
-  Desired Template:  {datetime} {title} -- {tags}.{extension}
-  Expected Filename: "2017-06-10T224655 A Cats Taile -- gibson biography.pdf"
-  ```
+    ```
+       Given the file:  "cats-tale.pdf"
+     Desired Template:  {datetime} {title} -- {tags}.{extension}
+    Expected Filename:  "2017-06-10T224655 A Cats Taile -- gibson biography.pdf"
+    ```
 
-  The program should then figure out *which data* from *which sources*
-  should be used to construct the expected file name.
+    The program should then figure out *which data* from *which sources*
+    should be used to construct the expected file name.
 
-
+    A suitable rule that reproduces the expected result should be generated
+    and added to the user configuration.
