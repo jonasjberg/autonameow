@@ -192,16 +192,26 @@ class FilenameAnalyzer(AbstractAnalyzer):
         # Match UNIX timestamp
         dt_unix = dateandtime.match_any_unix_timestamp(fn)
         if dt_unix:
-            results.append({'value': dt_unix,
-                            'source': 'unix_timestamp',
-                            'weight': 1})
+            # results.append({'value': dt_unix,
+            #                 'source': 'unix_timestamp',
+            #                 'weight': 1})
+            # TODO: Properly integrate new callback-based results gathering.
+            self.add_results('filesystem.basename.derived_data.datetime',
+                             {'value': dt_unix,
+                              'source': 'unix_timestamp',
+                              'weight': 1})
 
         # Match screencapture-prefixed UNIX timestamp
         dt_screencapture_unix = dateandtime.match_screencapture_unixtime(fn)
         if dt_screencapture_unix:
-            results.append({'value': dt_screencapture_unix,
-                            'source': 'screencapture_unixtime',
-                            'weight': 1})
+            # results.append({'value': dt_screencapture_unix,
+            #                 'source': 'screencapture_unixtime',
+            #                 'weight': 1})
+            # TODO: Properly integrate new callback-based results gathering.
+            self.add_results('filesystem.basename.derived_data.datetime',
+                             {'value': dt_screencapture_unix,
+                              'source': 'screencapture_unixtime',
+                              'weight': 1})
 
         # 3. Generalized patternmatching and bruteforcing
         # ===============================================

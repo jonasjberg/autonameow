@@ -55,7 +55,10 @@ RESULTS_DATA_STRUCTURE = {
             'full': None,
             'prefix': None,
             'suffix': None,
-            'extension': None
+            'extension': None,
+            'derived_data': {
+                'datetime': None,
+            }
         },
         'pathname': {
             'full': None,
