@@ -234,9 +234,16 @@ def init_argparser():
 
 def parse_args(opts):
     """
-    Parse command line arguments.
-    Check combination legality, print debug info.
-    Apply selected options.
+    Parses the given option arguments.
+
+    Configures the logger format and settings.
+    Checks legality of combined options.
+
+    Args:
+        opts: The option arguments to parse as a list of strings.
+
+    Returns:
+        Parsed option arguments as type 'argparse.NameSpace'.
     """
     parser = init_argparser()
     args = parser.parse_args(args=opts)
