@@ -235,13 +235,12 @@ class Autonameow(object):
         Main program exit point.  Shuts down this autonameow instance/session.
 
         Args:
-            exit_code: Integer exit code to pass to the parent process.
+            exit_code_: Integer exit code to pass to the parent process.
                 Indicate success with 0, failure non-zero.
         """
         elapsed_time = time.time() - self.start_time
 
-        global exit_code
-        exit_code = max(exit_code, exit_code_)
+        exit_code = set_exit_code(exit_code_)
 
         if self.args:
             if self.args.verbose:
