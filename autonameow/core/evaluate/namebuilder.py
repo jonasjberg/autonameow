@@ -60,10 +60,6 @@ class NameBuilder(object):
         return self._new_name
 
     def build(self):
-        # TODO: [BL010] Implement NameBuilder.
-
-        # TODO: Format date/time-information using "datetime_format" in config.
-
         template = None
         data_sources = None
 
