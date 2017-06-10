@@ -86,9 +86,6 @@ class Autonameow(object):
         if self.args.verbose or self.args.debug:
             cli.print_start_info()
 
-        cli.msg('Word "1234-56 word" -> "1234-56 word"', type='color_quoted')
-        cli.msg('Word "gmail.pdf" -> "1234-56-78 gmail.pdf"', type='color_quoted')
-
         # Display startup banner with program version and exit.
         if self.args.show_version:
             cli.print_ascii_banner()
