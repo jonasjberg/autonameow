@@ -49,6 +49,9 @@ class FilenameAnalyzer(AbstractAnalyzer):
         if guessit and len(self.file_object.filenamepart_base) > 20:
             self.guessit_metadata = self._get_metadata_from_guessit()
 
+            if self.guessit_metadata:
+                self.add_results('plugins.guessit', self.guessit_metadata)
+
     # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
         result = []
