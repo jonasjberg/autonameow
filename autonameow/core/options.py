@@ -86,6 +86,7 @@ def init_argparser():
         '--debug',
         dest='debug',
         action='store_true',
+        default=False,
         help='Debug mode. Enables displaying detailed debug information.'
     )
     optgrp_output.add_argument(
