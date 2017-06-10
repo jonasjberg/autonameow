@@ -106,6 +106,7 @@ def init_argparser():
 
     # Add option group for actions to be performed.
     optgrp_action = parser.add_argument_group('Action options')
+    # TODO: Replace '--list-datetime' and '--list-title' with '--list {FIELD}'
     optgrp_action.add_argument(
         '--list-datetime',
         dest='list_datetime',
@@ -245,6 +246,8 @@ def parse_args(opts):
     #       levels, enabled by adding on any number of '-v' options to the
     #       command-line. For instance, verbosity levels 1 and 3 would be
     #       enabled with '-v' and '-vvv', respectively.
+
+    # TODO: Use 'core.util.cli.colorize' to colorize the below log formats.
     if args.debug:
         fmt = (Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET
                + Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET
