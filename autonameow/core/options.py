@@ -124,9 +124,10 @@ def init_argparser():
     optgrp_mode.add_argument('--automagic',
                              dest='automagic',
                              action='store_true',
-                             help='Figure out most probable new filename '
-                                  'without requiring user interaction.'
-                                  ' (development feature)')
+                             help='Perform renames without requiring any user '
+                                  'interaction. Matches the given paths against '
+                                  'the available file rules. Paths matched to '
+                                  ' a rule is renamed according to the rule.')
 
     optgrp_mode.add_argument('--interactive',
                              dest='interactive',
