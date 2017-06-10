@@ -68,8 +68,10 @@ def arg_is_readable_file(arg):
 
 def init_argparser():
     """
-    Initialize the argparser. Add all arguments/options.
-    :return: the argument parser
+    Initializes the argparser. Adds all possible arguments and options.
+
+    Returns:
+        The initialized argument parser as a instance of 'ArgumentParser'.
     """
     parser = argparse.ArgumentParser(
         prog='autonameow',
