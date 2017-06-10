@@ -214,6 +214,7 @@ class Autonameow(object):
                     set_exit_code(constants.EXIT_WARNING)
                     continue
                 else:
+                    # TODO: Respect '--quiet' option. Suppress output.
                     cli.msg('New name: "{}"'.format(new_name))
                     renamed_ok = self.do_rename(current_file.abspath, new_name,
                                                 dry_run=self.args.dry_run)
@@ -223,7 +224,7 @@ class Autonameow(object):
                         set_exit_code(constants.EXIT_WARNING)
 
             elif self.args.interactive:
-                # Create a interactive interface.
+                # TODO: Create a interactive interface.
                 # TODO: [BL013] Interactive mode in 'interactive.py'.
                 log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
