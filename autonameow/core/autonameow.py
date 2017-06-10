@@ -303,5 +303,9 @@ def set_exit_code(value):
         The current exit code as an integer.
     """
     global exit_code
-    exit_code = max(exit_code, value)
+
+    if value > exit_code:
+        log.debug('Global exit code updated: {} -> {}'.format(exit_code, value))
+        exit_code = value
+
     return exit_code
