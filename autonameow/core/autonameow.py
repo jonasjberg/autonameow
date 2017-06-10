@@ -275,17 +275,17 @@ class Autonameow(object):
                 diskutils.rename_file(from_path, dest_basename)
             except (FileNotFoundError, FileExistsError, OSError) as e:
                 log.error('Rename FAILED: {!s}'.format(e))
-                return 1
+                return False
             else:
                 message = 'Renamed "{!s}" -> "{!s}"'
                 cli.msg(message.format(from_basename, dest_basename),
                         type='color_quoted')
-                return 0
+                return True
         else:
             message = 'Would have renamed "{!s}" -> "{!s}"'
             cli.msg(message.format(from_basename, dest_basename),
                     type='color_quoted')
-            return 0
+            return True
 
 
 def set_exit_code(value):
