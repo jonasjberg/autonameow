@@ -146,7 +146,7 @@ class Autonameow(object):
         # Exit if no files are specified, for now.
         if not self.args.input_paths:
             log.warning('No input files specified ..')
-            self.exit_program(constants.EXIT_ERROR)
+            self.exit_program(constants.EXIT_SUCCESS)
 
         # Iterate over command line arguments ..
         self._handle_files()
