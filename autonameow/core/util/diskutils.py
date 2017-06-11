@@ -206,22 +206,42 @@ def path_components(path):
     return out
 
 
-# TODO: Follow symlinks?
 def get_files(search_path, recurse=False):
+    """
+    Returns all files in the specified path as a list of strings.
+
+    The specified search path is traversed non-recursively by default.
+    If the keyword argument "recurse" is set to True, the search path is
+    walked recursively.
+
+        NOTE: Does not currently handle symlinks.
+
+    Args:
+        search_path: The path from which to collect files.
+        recurse: Whether to traverse the path recursively or not.
+
+    Returns:
+        Absolute paths to files in the specified path, as a list of strings.
+    """
+    # TODO: Follow symlinks? Add option for following symlinks?
+
     out = []
 
     if not os.path.isfile(search_path) and not os.path.isdir(search_path):
         raise FileNotFoundError
 
-    if os.path.isfile(search_path):
-        out.append(search_path)
+    def traverse(path):
+        if os.path.isfile(path):
+            out.append(path)
 
-    elif os.path.isdir(search_path):
-        for entry in os.listdir(search_path):
-            entry_path = os.path.join(search_path, entry)
-            if os.path.isfile(entry_path):
-                out.append(entry_path)
-            elif recurse and os.path.isdir(entry_path):
-                get_files(entry_path, recurse)
+        elif os.path.isdir(path):
+            for entry in os.listdir(path):
+                entry_path = os.path.join(path, entry)
+                if os.path.isfile(entry_path):
+                    out.append(entry_path)
+                elif recurse and os.path.isdir(entry_path):
+                    traverse(entry_path)
+
+    traverse(search_path)
 
     return out

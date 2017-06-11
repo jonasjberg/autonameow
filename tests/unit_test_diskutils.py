@@ -254,30 +254,36 @@ def shorten_path(abs_path):
     return os.path.join(parent, basename)
 
 
+def to_abspath(path_list):
+    return [tf for tf in (unit_utils.abspath_testfile(f) for f in path_list)]
+
+
 class TestGetFiles(TestCase):
     def setUp(self):
         self.FILES_SUBDIR = [
             'subdir/file_1', 'subdir/file_2', 'subdir/file_3'
         ]
-        self.FILES_SUBSUBDIR_A= [
+        self.FILES_SUBSUBDIR_A = [
             'subdir/subsubdir_A/file_A1', 'subdir/subsubdir_A/file_A2'
         ]
-        self.FILES_SUBSUBDIR_B= [
+        self.FILES_SUBSUBDIR_B = [
             'subdir/subsubdir_B/file_A3', 'subdir/subsubdir_B/file_B1',
             'subdir/subsubdir_B/file_B2'
         ]
-        self.TEST_FILES = (self.FILES_SUBDIR + self.FILES_SUBSUBDIR_A
-                           + self.FILES_SUBSUBDIR_B)
+        self.ALL_FILES = (self.FILES_SUBDIR + self.FILES_SUBSUBDIR_A
+                          + self.FILES_SUBSUBDIR_B)
 
-        self.test_files = [tf for tf in (unit_utils.abspath_testfile(f)
-                                         for f in self.TEST_FILES)]
+        self.abspath_files_subdir = to_abspath(self.FILES_SUBDIR)
+        self.abspath_files_subsubdir_a = to_abspath(self.FILES_SUBSUBDIR_A)
+        self.abspath_files_subsubdir_b = to_abspath(self.FILES_SUBSUBDIR_B)
+        self.abspath_all_files = to_abspath(self.ALL_FILES)
 
     def test_setup(self):
-        for tf in self.test_files:
+        for tf in self.abspath_all_files:
             self.assertTrue(os.path.isfile(tf),
                             'Expected file: "{}"'.format(tf))
 
-        self.assertEqual(len(self.test_files), 8)
+        self.assertEqual(len(self.abspath_all_files), 8)
 
     def test_get_files_is_defined_and_available(self):
         self.assertIsNotNone(get_files)
@@ -310,9 +316,32 @@ class TestGetFiles(TestCase):
 
         for f in actual:
             self.assertTrue(os.path.isfile(f))
-            self.assertIn(shorten_path(f), self.FILES_SUBDIR)
-            self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_A)
-            self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_B)
+            self.assertIn(f, self.abspath_all_files)
+
+    def test_returns_expected_number_of_files_recursive_from_subsubdir_a(self):
+        actual = get_files(unit_utils.abspath_testfile('subdir/subsubdir_A'),
+                           recurse=True)
+        self.assertEqual(len(actual), 2)
+
+    def test_returns_expected_files_recursive_from_subsubdir_a(self):
+        actual = get_files(unit_utils.abspath_testfile('subdir/subsubdir_A'),
+                           recurse=True)
+
+        for f in actual:
+            self.assertTrue(os.path.isfile(f))
+            self.assertIn(f, self.abspath_files_subsubdir_a)
+            self.assertNotIn(f, self.abspath_files_subsubdir_b)
+            self.assertNotIn(f, self.abspath_files_subdir)
+
+    def test_returns_expected_files_recursive_from_subsubdir_a(self):
+        actual = get_files(unit_utils.abspath_testfile('subdir/subsubdir_B'),
+                           recurse=True)
+
+        for f in actual:
+            self.assertTrue(os.path.isfile(f))
+            self.assertIn(f, self.abspath_files_subsubdir_b)
+            self.assertNotIn(f, self.abspath_files_subsubdir_a)
+            self.assertNotIn(f, self.abspath_files_subdir)
 
 
 class TestPathAncestry(TestCase):
