@@ -38,7 +38,7 @@ TESTS_DIR = os.path.join(_PARENT_DIR + os.sep + 'test_files')
 
 def abspath_testfile(file):
     """
-    Utility method used by tests to construct a full path to individual test
+    Utility function used by tests to construct a full path to individual test
     files in the 'test_files' directory.
     
     Args:
