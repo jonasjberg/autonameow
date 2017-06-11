@@ -19,11 +19,16 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from unittest import TestCase
 
 from core.constants import MAGIC_TYPE_LOOKUP
 from core.util import diskutils
-from core.util.diskutils import sanitize_filename
+from core.util.diskutils import (
+    sanitize_filename,
+    get_files
+)
+import unit_utils
 
 
 class TestMimeTypes(TestCase):
@@ -242,4 +247,70 @@ class TestSanitizeFilename(TestCase):
         self.assertEqual(sanitize_filename('_BD_eEpuzXw', is_id=True), '_BD_eEpuzXw')
         self.assertEqual(sanitize_filename('N0Y__7-UOdI', is_id=True), 'N0Y__7-UOdI')
 
+
+def shorten_path(abs_path):
+    parent = os.path.basename(os.path.dirname(abs_path))
+    basename = os.path.basename(abs_path)
+    return os.path.join(parent, basename)
+
+
+class TestGetFiles(TestCase):
+    def setUp(self):
+        self.FILES_SUBDIR = [
+            'subdir/file_1', 'subdir/file_2', 'subdir/file_3'
+        ]
+        self.FILES_SUBSUBDIR_A= [
+            'subdir/subsubdir_A/file_A1', 'subdir/subsubdir_A/file_A2'
+        ]
+        self.FILES_SUBSUBDIR_B= [
+            'subdir/subsubdir_B/file_A3', 'subdir/subsubdir_B/file_B1',
+            'subdir/subsubdir_B/file_B2'
+        ]
+        self.TEST_FILES = (self.FILES_SUBDIR + self.FILES_SUBSUBDIR_A
+                           + self.FILES_SUBSUBDIR_B)
+
+        self.test_files = [tf for tf in (unit_utils.abspath_testfile(f)
+                                         for f in self.TEST_FILES)]
+
+    def test_setup(self):
+        for tf in self.test_files:
+            self.assertTrue(os.path.isfile(tf),
+                            'Expected file: "{}"'.format(tf))
+
+        self.assertEqual(len(self.test_files), 8)
+
+    def test_get_files_is_defined_and_available(self):
+        self.assertIsNotNone(get_files)
+
+    def test_raises_errors_for_invalid_paths(self):
+        with self.assertRaises((FileNotFoundError, TypeError)):
+            get_files(None)
+            get_files('')
+            get_files(' ')
+
+    def test_returns_expected_number_of_files_non_recursive(self):
+        actual = get_files(unit_utils.abspath_testfile('subdir'))
+        self.assertEqual(len(actual), 3)
+
+    def test_returns_expected_files_non_recursive(self):
+        actual = get_files(unit_utils.abspath_testfile('subdir'))
+
+        for f in actual:
+            self.assertTrue(os.path.isfile(f))
+            self.assertIn(shorten_path(f), self.FILES_SUBDIR)
+            self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_A)
+            self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_B)
+
+    def test_returns_expected_number_of_files_recursive(self):
+        actual = get_files(unit_utils.abspath_testfile('subdir'), recurse=True)
+        self.assertEqual(len(actual), 8)
+
+    def test_returns_expected_files_recursive(self):
+        actual = get_files(unit_utils.abspath_testfile('subdir'), recurse=True)
+
+        for f in actual:
+            self.assertTrue(os.path.isfile(f))
+            self.assertIn(shorten_path(f), self.FILES_SUBDIR)
+            self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_A)
+            self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_B)
 

@@ -146,3 +146,24 @@ def file_base(file_path):
 
 def file_basename(file_path):
     return os.path.basename(file_path)
+
+
+# TODO: Follow symlinks?
+def get_files(search_path, recurse=False):
+    out = []
+
+    if not os.path.isfile(search_path) and not os.path.isdir(search_path):
+        raise FileNotFoundError
+
+    if os.path.isfile(search_path):
+        out.append(search_path)
+
+    elif os.path.isdir(search_path):
+        for entry in os.listdir(search_path):
+            entry_path = os.path.join(search_path, entry)
+            if os.path.isfile(entry_path):
+                out.append(entry_path)
+            elif recurse and os.path.isdir(entry_path):
+                get_files(entry_path, recurse)
+
+    return out
