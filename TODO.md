@@ -18,6 +18,15 @@ listing.~~
 High Priority
 -------------
 
+### Text encoding issues
+
+* Enforce strict boundaries between all external systems and an internal text
+  data representation.
+* Add reusable translation layer that ensures proper handling of text encoding
+  of *all incoming textual data*; standard input/output/error/.., path/file
+  names, contents of text files, etc.
+* Add corresponding reusable translation layer for *all outgoing textual data*.
+
 ### Internal "API" -- communication between modules
 
 * Replace the old way of calling the analyzer `get_{fieldname}` methods
@@ -101,3 +110,5 @@ Wishlist
 
     A suitable rule that reproduces the expected result should be generated
     and added to the user configuration.
+
+* Add API for developing GUI wrappers and web frontends.
