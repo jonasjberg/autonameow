@@ -314,3 +314,63 @@ class TestGetFiles(TestCase):
             self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_A)
             self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_B)
 
+
+class TestPathAncestry(TestCase):
+    def test_ancestry_returns_expected_ancestors_for_file_paths(self):
+        PATHS_ANCESTORS = [
+            ('/a/b/c', ['/', '/a', '/a/b']),
+            ('/a/b',   ['/', '/a']),
+            ('/a',     ['/']),
+            ('/',      ['/'])
+        ]
+        for p, a in PATHS_ANCESTORS:
+            self.assertEqual(diskutils.path_ancestry(p), a)
+
+    def test_ancestry_returns_expected_ancestors_for_directory_paths(self):
+        PATHS_ANCESTORS = [
+            ('/a/b/c/', ['/', '/a', '/a/b', '/a/b/c']),
+            ('/a/b/',   ['/', '/a', '/a/b']),
+            ('/a/',     ['/', '/a']),
+            ('/',       ['/']),
+        ]
+        for p, a in PATHS_ANCESTORS:
+            self.assertEqual(diskutils.path_ancestry(p), a)
+
+    def test_ancestry_returns_expected_ancestors_for_relative_paths(self):
+        PATHS_ANCESTORS = [
+            ('a/b/c', ['a', 'a/b']),
+            ('a/b/c/', ['a', 'a/b', 'a/b/c']),
+        ]
+        for p, a in PATHS_ANCESTORS:
+            self.assertEqual(diskutils.path_ancestry(p), a)
+
+
+class TestPathComponents(TestCase):
+    def test_components_returns_expected_components_for_file_paths(self):
+        PATHS_COMPONENTS = [
+            ('/a/b/c', ['/', 'a', 'b', 'c']),
+            ('/a/b',   ['/', 'a', 'b']),
+            ('/a',     ['/', 'a']),
+            ('/',      ['/'])
+        ]
+        for p, c in PATHS_COMPONENTS:
+            self.assertEqual(diskutils.path_components(p), c)
+
+    def test_components_returns_expected_components_for_directory_paths(self):
+        PATHS_COMPONENTS = [
+            ('/a/b/c/', ['/', 'a', 'b', 'c']),
+            ('/a/b/',   ['/', 'a', 'b']),
+            ('/a/',     ['/', 'a']),
+            ('/',       ['/'])
+        ]
+        for p, c in PATHS_COMPONENTS:
+            self.assertEqual(diskutils.path_components(p), c)
+
+    def test_components_returns_expected_components_for_relative_paths(self):
+        PATHS_COMPONENTS = [
+            ('a/b/c', ['a', 'b', 'c']),
+            ('a/b',   ['a', 'b']),
+            ('a',     ['a']),
+        ]
+        for p, c in PATHS_COMPONENTS:
+            self.assertEqual(diskutils.path_components(p), c)
