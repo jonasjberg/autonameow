@@ -120,7 +120,10 @@ def has_config_file():
 
 def write_default_config():
     """
-    Writes a default template configuration file to disk in YAML format.
+    Writes a default template configuration file in YAML format to disk.
+
+    Raises:
+        FileExistsError: A file exists at the configuration file path.
     """
     _path = ConfigFilePath
 
@@ -143,6 +146,9 @@ def load_yaml_file(file_path):
     Returns:
         The contents of the yaml file at the given file as a "Python object"
         (dict).  Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
+
+    Raises:
+        ConfigReadError: The configuration file could not be read and/or loaded.
     """
     try:
         with open(file_path, 'r') as fh:
@@ -160,6 +166,9 @@ def write_yaml_file(dest_path, yaml_data):
                    *overwritten* if it already exists.
         yaml_data: Data to write as a "Python object" (dict).
                    Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
+
+    Raises:
+        ConfigWriteError: The configuration file could not be written.
     """
     if not os.access(os.path.dirname(dest_path), os.W_OK):
         raise PermissionError
