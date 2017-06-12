@@ -75,23 +75,23 @@ assert_true '( "$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -q -- "dry-run" ) >/de
 assert_true '( "$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -q -- "--interactive" ) >/dev/null' \
             "[TC013] autonameow should provide a \"--interactive\" option"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --interactive -- 2>&1 ) >/dev/null' \
-             "[TC013] autonameow should return non-zero when started with \"--interactive\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --interactive -- 2>&1 ) >/dev/null' \
+            "[TC013] autonameow should return zero when started with \"--interactive\" without specifying files"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --interactive --verbose -- 2>&1 ) >/dev/null' \
-             "[TC013] autonameow should return non-zero when started with \"--interactive\" and \"--verbose\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --interactive --verbose -- 2>&1 ) >/dev/null' \
+            "[TC013] autonameow should return zero when started with \"--interactive\" and \"--verbose\" without specifying files"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --interactive --debug -- 2>&1 ) >/dev/null' \
-             "[TC013] autonameow should return non-zero when started with \"--interactive\" and \"--debug\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --interactive --debug -- 2>&1 ) >/dev/null' \
+            "[TC013] autonameow should return zero when started with \"--interactive\" and \"--debug\" without specifying files"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --automagic -- 2>&1 ) >/dev/null' \
-             "autonameow should return non-zero when started with \"--automagic\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic -- 2>&1 ) >/dev/null' \
+            "autonameow should return zero when started with \"--automagic\" without specifying files"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --automagic --verbose -- 2>&1 ) >/dev/null' \
-             "autonameow should return non-zero when started with \"--automagic\" and \"--verbose\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --verbose -- 2>&1 ) >/dev/null' \
+            "autonameow should return zero when started with \"--automagic\" and \"--verbose\" without specifying files"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --automagic --debug -- 2>&1 ) >/dev/null' \
-             "autonameow should return non-zero when started with \"--automagic\" and \"--debug\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --debug -- 2>&1 ) >/dev/null' \
+            "autonameow should return zero when started with \"--automagic\" and \"--debug\" without specifying files"
 
 assert_false '( "$AUTONAMEOW_RUNNER" --verbose --debug -- 2>&1 ) >/dev/null' \
              "Starting with mutually exclusive options \"--verbose\" and \"--debug\" should generate an error"
