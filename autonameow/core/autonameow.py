@@ -104,7 +104,7 @@ class Autonameow(object):
                 log.debug(str(e))
                 self.exit_program(constants.EXIT_ERROR)
         else:
-            _config_path = config.config_file_path()
+            _config_path = config.ConfigFilePath
 
             if not config.has_config_file():
                 log.info('No configuration file was found. Writing default ..')
@@ -134,7 +134,7 @@ class Autonameow(object):
         self.filter = ResultFilter().configure_filter(self.args)
 
         if self.args.dump_options:
-            include_opts = {'config_file_path': config.config_file_path()}
+            include_opts = {'config_file_path': config.ConfigFilePath}
             options.prettyprint_options(self.args, include_opts)
 
         if self.args.dump_config:

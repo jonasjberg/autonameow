@@ -111,7 +111,7 @@ def has_config_file():
     Returns:
         True if a configuration file is available, else False.
     """
-    _path = config_file_path()
+    _path = ConfigFilePath
     if os.path.exists(_path) and os.path.isfile(_path):
         return True
 
@@ -122,7 +122,7 @@ def write_default_config():
     """
     Writes a default template configuration file to disk in YAML format.
     """
-    _path = config_file_path()
+    _path = ConfigFilePath
 
     if os.path.exists(_path):
         log.warning('Path exists: "{}"'.format(_path))
@@ -170,6 +170,10 @@ def write_yaml_file(dest_path, yaml_data):
                       width=160, indent=4)
     except (IOError, yaml.YAMLError) as e:
         raise ConfigWriteError(dest_path, e)
+
+
+# Variables listed here are intended for public, global use.
+ConfigFilePath = config_file_path()
 
 
 if __name__ == '__main__':
