@@ -26,6 +26,7 @@ import platform
 import yaml
 
 from core.config.default_config import DEFAULT_CONFIG
+from core import version
 from core.exceptions import (
     ConfigReadError,
     ConfigWriteError
@@ -131,7 +132,10 @@ def write_default_config():
         log.warning('Path exists: "{}"'.format(_path))
         raise FileExistsError
 
-    write_yaml_file(_path, DEFAULT_CONFIG)
+    _default_config = DEFAULT_CONFIG.copy()
+    _default_config['autonameow_version'] = version.__version__
+
+    write_yaml_file(_path, _default_config)
 
 
 def load_yaml_file(file_path):
