@@ -210,16 +210,6 @@ class Configuration(object):
                              data_sources=valid_sources)
         return file_rule
 
-    def validate_field(self, raw_file_rule, field_name):
-        for parser in self.field_parsers:
-            if field_name in parser.applies_to_field:
-                field_value = raw_file_rule.get(field_name)
-                if parser.validate(field_value):
-                    return field_value
-
-        log.critical('Config file entry not validated correctly!')
-        return False
-
     def _load_options(self):
         def _try_load_date_format_option(option):
             _value = self._data['DATETIME_FORMAT'].get(option)
