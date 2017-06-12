@@ -369,7 +369,7 @@ def parse_sources(raw_sources):
                 log.debug('Validated source: [{}]: {}'.format(field, v))
                 passed[field] = v
             else:
-                log.debug('Skipped invalid source: [{}]: {}'.format(field, v))
+                log.debug('Invalid source: [{}]: {}'.format(field, v))
 
     log.debug('First filter passed {} sources'.format(len(passed)))
 
@@ -410,6 +410,8 @@ def parse_conditions(raw_conditions):
     # TODO: ..
     out = {}
 
+    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
+
     def traverse_dict(the_dict):
         try:
             for key, value in the_dict.items():
@@ -421,8 +423,10 @@ def parse_conditions(raw_conditions):
                     if key in out:
                         log.warning('Clobbering condition: {!s}'.format(key))
                     out[key] = value
+                    log.debug('Validated condition: [{}]: {}'.format(key,
+                                                                     value))
                 else:
-                    log.critical('Config file entry not validated correctly!')
+                    log.debug('Invalid condition: [{}]: {}'.format(key, value))
         except ValueError as e:
             raise ConfigurationSyntaxError('Bad condition; ' + str(e))
 
@@ -433,6 +437,8 @@ def parse_conditions(raw_conditions):
     if 'filesystem' in raw_conditions:
         raw_contents = raw_conditions['filesystem']
         traverse_dict(raw_contents)
+
+    log.debug('First filter passed {} conditions'.format(len(out)))
 
     return out
 
