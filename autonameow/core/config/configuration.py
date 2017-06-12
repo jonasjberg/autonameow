@@ -166,6 +166,20 @@ class Configuration(object):
                 self._file_rules.append(valid_file_rule)
 
     def _validate_rule_data(self, raw_rule):
+        """
+        Validates one "raw" file rule from a configuration and returns an
+        instance of the 'FileRule' class, representing the "raw" file rule.
+
+        Args:
+            raw_rule: A single file rule entry from a confiugration.
+
+        Returns:
+            An instance of the 'FileRule' class representing the given rule.
+
+        Raises:
+            ConfigurationSyntaxError: The given file rule contains bad data,
+                making instantiating a 'FileRule' object impossible.
+        """
         if 'NAME_FORMAT' not in raw_rule:
             log.debug('File rule contains no name format data' + str(raw_rule))
             raise ConfigurationSyntaxError('Missing name template format')
