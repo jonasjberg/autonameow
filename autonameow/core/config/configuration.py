@@ -438,6 +438,25 @@ def parse_conditions(raw_conditions):
 
 
 def validate_condition(condition_field, condition_value):
+    """
+    Validates a file rule condition.
+
+    The "condition_field" must be assigned to a field parser. This parser
+    validates the "condition_value". If this validation returns True,
+    the condition is valid.
+
+    Args:
+        condition_field: Field (key/name) to validate, for example: "mime_type".
+        condition_value: Value to validate, for example: "image/jpeg".
+
+    Returns:
+        True if the given "condition_field" can be handled by one of the
+        field parser classes _AND_ the subsequent validation of the given
+        "condition_value" returns True.  Else False.
+    """
+    if not condition_value:
+        return False
+
     for parser in field_parsers:
         if condition_field in parser.applies_to_field:
             if parser.validate(condition_value):
