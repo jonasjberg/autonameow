@@ -419,6 +419,8 @@ def parse_conditions(raw_conditions):
                     if key in out:
                         log.warning('Clobbering condition: {!s}'.format(key))
                     out[key] = value
+                else:
+                    log.critical('Config file entry not validated correctly!')
         except ValueError as e:
             raise ConfigurationSyntaxError('Bad condition; ' + str(e))
 
