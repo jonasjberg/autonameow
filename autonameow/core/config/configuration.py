@@ -88,6 +88,8 @@ class FileRule(Rule):
             out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
         return 'FileRule({})'.format(', '.join(out))
 
+    # TODO: Should 'FileRule' objects be re-created for each file?
+    # TODO: Store score in a dictionary keyed by files?
     def upvote(self):
         """
         Increases the matching score of this rule.
