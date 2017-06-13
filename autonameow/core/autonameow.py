@@ -205,9 +205,6 @@ class Autonameow(object):
                     self.builder = NameBuilder(current_file, analysis.results,
                                                self.config)
                     new_name = self.builder.build()
-                except NotImplementedError:
-                    log.critical('TODO: [BL010] Implement NameBuilder.')
-                    set_exit_code(constants.EXIT_WARNING)
                 except NameBuilderError as e:
                     log.critical('Name assembly FAILED: {!s}'.format(e))
                     set_exit_code(constants.EXIT_WARNING)
