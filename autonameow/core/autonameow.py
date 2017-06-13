@@ -246,7 +246,7 @@ class Autonameow(object):
 
     def do_rename(self, from_path, new_basename, dry_run=True):
         """
-        Renames a file at the given path to a new base name.
+        Renames a file at the given path to the specified basename.
 
         Args:
             from_path: Path to the file to rename.
@@ -254,8 +254,7 @@ class Autonameow(object):
             dry_run: Controls whether the renaming is actually performed.
 
         Returns:
-            0 for success, 1 for errors
-
+            True if the rename succeeded, otherwise False.
         """
         dest_basename = diskutils.sanitize_filename(new_basename)
         from_basename = diskutils.file_basename(from_path)
