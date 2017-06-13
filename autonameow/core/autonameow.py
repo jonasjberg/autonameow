@@ -235,15 +235,13 @@ class Autonameow(object):
                 Indicate success with 0, failure non-zero.
         """
         elapsed_time = time.time() - self.start_time
-
         exit_code = set_exit_code(exit_code_)
 
-        if self.args:
-            if self.args.verbose:
-                cli.print_exit_info(exit_code, elapsed_time)
-
+        if self.args and self.args.verbose:
+            cli.print_exit_info(exit_code, elapsed_time)
         log.debug('Exiting with exit code: {}'.format(exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
+
         sys.exit(exit_code)
 
     def do_rename(self, from_path, new_basename, dry_run=True):
