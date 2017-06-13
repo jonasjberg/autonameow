@@ -155,14 +155,14 @@ class Autonameow(object):
         """
         Main loop. Iterate over input paths/files.
         """
-        for arg in self.args.input_paths:
-            log.info('Processing: "{!s}"'.format(arg))
+        for input_path in self.args.input_paths:
+            log.info('Processing: "{!s}"'.format(input_path))
 
             # Sanity checking the "input_path" is part of 'FileObject' init.
             try:
-                current_file = FileObject(arg, self.config)
+                current_file = FileObject(input_path, self.config)
             except InvalidFileArgumentError as e:
-                log.warning('{!s} - SKIPPING: "{!s}"'.format(e, arg))
+                log.warning('{!s} - SKIPPING: "{!s}"'.format(e, input_path))
                 continue
 
             # Begin analysing the file.
