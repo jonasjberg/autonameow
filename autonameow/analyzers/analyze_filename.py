@@ -45,8 +45,8 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
     # @Overrides method in AbstractAnalyzer
     def run(self):
-        # Arbitrary length check limits (very slow) calls to guessit.
-        if guessit and len(self.file_object.filenamepart_base) > 20:
+        # TODO: This test does not belong here! Handle guessit properly.
+        if guessit and self.file_object.mime_type == 'mp4':
             self.guessit_metadata = self._get_metadata_from_guessit()
 
             if self.guessit_metadata:
