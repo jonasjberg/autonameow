@@ -19,8 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
-from unittest.mock import MagicMock
+from unittest import (
+    TestCase,
+    mock
+)
 
 from core import constants
 from core.autonameow import (
@@ -32,7 +34,7 @@ from unit_utils import capture_stdout
 class TestAutonameowWithoutOptions(TestCase):
     def setUp(self):
         self.autonameow = Autonameow('')
-        self.autonameow.exit_program = MagicMock()
+        self.autonameow.exit_program = mock.MagicMock()
 
     def test_autonameow_can_be_instantiated_without_opts(self):
         self.assertIsNotNone(self.autonameow)
@@ -82,3 +84,21 @@ class TestSetAutonameowExitCode(TestCase):
         self.assertEqual(self.expected_initial, self.amw.exit_code)
         self.amw.exit_code = 'mjao'
         self.assertEqual(self.expected_initial, self.amw.exit_code)
+
+
+class TestDoRename(TestCase):
+    def setUp(self):
+        self.amw = Autonameow('')
+        self.expected_initial = constants.EXIT_SUCCESS
+
+    @mock.patch('core.util.diskutils.rename_file')
+    def test_dry_run_true_will_not_call_diskutils_rename_file(self, mockrename):
+        r = self.amw.do_rename('/tmp/dummy/path', 'mjaopath', dry_run=True)
+        mockrename.assert_not_called()
+        self.assertTrue(r)
+
+    @mock.patch('core.util.diskutils.rename_file')
+    def test_dry_run_false_calls_diskutils_rename_file(self, mockrename):
+        r = self.amw.do_rename('/tmp/dummy/path', 'mjaopath', dry_run=False)
+        mockrename.assert_called_with('/tmp/dummy/path', 'mjaopath')
+        self.assertTrue(r)
