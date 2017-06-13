@@ -374,30 +374,33 @@ def match_any_unix_timestamp(text):
     if text is None or text.strip() is None:
         return None
 
-    re_match = re.search(r'(\d{10,13})', text)
-    if re_match is None:
+    match_iter = re.finditer(r'(\d{10,13})', text)
+    if match_iter is None:
         log.debug('Probably not a UNIX timestamp -- does not contain '
                       '10-13 consecutive digits.')
         return None
-    digits = re_match.group(0)
 
-    # Example Android phone file name: 1461786010455.jpg
-    # Remove last 3 digits to be able to convert using GNU date:
-    # $ date --date ='@1461786010'
-    #   ons 27 apr 2016 21:40:10 CEST
-    if len(digits) == 13:
-        digits = digits[:10]
+    for match in match_iter:
+        digits = match.group(0)
 
-    try:
-        digits = float(digits)
-        dt = datetime.fromtimestamp(digits)
-    except TypeError as ValueError:
-        log.debug('Failed matching UNIX timestamp.')
-    else:
-        if date_is_probable(dt):
-            log.debug('Extracted date/time-info [{}] from UNIX timestamp '
-                          '"{}"'.format(dt, text))
-            return dt
+        # Example Android phone file name: 1461786010455.jpg
+        # Remove last 3 digits to be able to convert using GNU date:
+        # $ date --date ='@1461786010'
+        #   ons 27 apr 2016 21:40:10 CEST
+        if len(digits) == 13:
+            digits = digits[:10]
+
+        # TODO: Returns at first "probable" date, should test all matches.
+        try:
+            digits = float(digits)
+            dt = datetime.fromtimestamp(digits)
+        except TypeError as ValueError:
+            log.debug('Failed matching UNIX timestamp.')
+        else:
+            if date_is_probable(dt):
+                log.debug('Extracted date/time-info [{}] from UNIX timestamp '
+                              '"{}"'.format(dt, text))
+                return dt
     return None
 
 
