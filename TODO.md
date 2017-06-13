@@ -34,6 +34,31 @@ High Priority
 * Fully implement the idea of dynamically constructing structures and
   interfaces from a single reference data structure at runtime.
 
+### Suggestion for further modularization
+Think about moving to a new high-level architecture:
+
+* __All data extraction is handled by `extractor` classes__ --
+  -- `analyzer` classes do not perform any kind of data extraction.
+* __The `Analysis` class controls all extractors and analyzers__ --
+  An analysis would first call the extractors that are relevant to the current
+  file. Then the analyzers relevant to the file is called to process the data
+  returned by the extractors.
+    * Data produced by `extractor` classes is returned to a (new) separate
+      container in the `Analysis` class.
+    * Data produced by `analyzer` classes is returned to a separate
+      container in the `Analysis` class.
+    * Overall program flow could go along the lines of:
+        1. Load configuration
+        2. Run all extractors that can handle the given file
+        3. Determine which configuration rule matches the given file
+        4. Enqueue analyzers based on the rule and extracted data
+        5. Run all enqueued analyzers
+        6. Assemble new file name from all available data
+
+        Having the extractor data available when evaluating rules (3) solves
+        the problem of evaluating certain conditions, like testing if the
+        given file contains a specific line of text, etc.
+
 ### Internal data storage
 
 * Think about distinguishing between *simple static data* and *derived data*.
@@ -52,6 +77,9 @@ High Priority
 
 Medium Priority
 ---------------
+
+* Simplify installation.
+    * Add support for `pip` or similar package manager.
 
 * Implement proper plugin interface
     * Have plugins "register" themselves to a plugin handler?
