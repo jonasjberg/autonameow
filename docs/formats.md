@@ -69,7 +69,7 @@ This is the internal data structure for the conditions of a single rule;
 
 ```python
 'conditions': {
-    'filename': {
+    'filesystem': {
         'pathname': None,
         'basename': None,
         'extension': None
@@ -82,10 +82,10 @@ This is the internal data structure for the conditions of a single rule;
 
 Entries with missing values are considered equal to entries with value `None`.
 
-Here is an example of the first section; `filename`:
+Here is an example of the first section; `filesystem`:
 
 ```python
-'filename': {
+'filesystem': {
     'pathname': '(~/temp|/tmp)',
     'basename': '^\..*',
     'extension': None
@@ -118,13 +118,14 @@ Each field corresponds to a field in `name_template`.  The field values specify
 *which data* should be used to populate that field.
 
 ```python
-'data_sources': {
+'DATA_SOURCES': {
     'datetime': None,
     'description': None,
     'title': None,
     'author': None,
     'publisher': None,
-    'extension': 'filename.extension'
+    'extension': 'filename.extension',
+    'tags': None
 }
 ```
 
@@ -133,13 +134,13 @@ The following example is part of a rule that applies to `MOBI` e-books:
 
 ```python
 'data_sources': {
-    'datetime': ['metadata.MOBI.PublishDate'],
-    'description': ['metadata.MOBI.Description',
-                    'metadata.MOBI.Subject'],
-    'title': ['metadata.MOBI.BookName',
-              'metadata.MOBI.UpdatedTitle'],
-    'author': 'metadata.MOBI.Author',
-    'publisher': 'metadata.MOBI.Publisher',
+    'datetime': 'metadata.exiftool.XMP-dc:PublicationDate',
+    'description': ['metadata.exiftool.XMP-dc:Description',
+                    'metadata.exiftool.XMP-dc:Subject'],
+    'title': ['metadata.exiftool.XMP-dc:Title',
+              'metadata.exiftool.XMP-dc:UpdatedTitle'],
+    'author': 'metadata.exiftool.XMP-dc:Creator',
+    'publisher': 'metadata.exiftool.XMP-dc:Publisher',
     'extension': 'filename.extension',
     'tags': None
 }
@@ -152,7 +153,7 @@ There might be multiple sources for `extension` data, for example;
 
     ```python
     {
-        'extension': 'filename.extension'
+        'extension': 'filesystem.basename.extension'
     }
     ```
 
@@ -160,7 +161,7 @@ There might be multiple sources for `extension` data, for example;
 
     ```python
     {
-        'extension': 'contents.mime.extension'
+        'extension': 'contents.mime_type.extension'
     }
     ```
 
@@ -173,74 +174,108 @@ nested structure of dictionaries and lists.
 
 ```python
 DEFAULT_CONFIG = {
-    # File rules specify conditions that should be true for the rule to apply
-    # for a given file.
+
+    #   File Rules
+    #   ----------
+    #   File rules determine which files are handled and how they are handled.
     #
-    # If '_exact_match' is True, *all* conditions must apply for the rule to be
-    # considered a match for a given file.
-    # Otherwise, when '_exact_match' is False, the rule with the most amount of
-    # satisfied conditions is chosen.
-    # If multiple rules end up tied (same amount of satisified conditions for a
-    # given file) the '_weight' is used as a last resort to pick out a single
-    # rule to use.
-    'file_rules': [
-        {'_description': 'First Entry in the Default Configuration',
-         '_exact_match': False,
-         '_weight': None,
-         'name_template': 'default_template_name',
-         'conditions': {
-             'filename': {
-                 'pathname': None,
-                 'basename': None,
-                 'extension': None
+    #   Each rule specifies conditions that should be met for the rule to apply
+    #   to a given file.
+    #
+    #   TODO: Document all fields ..
+    #
+    #   * If 'exact_match' is True, __all__ conditions must be met,
+    #     otherwise the rule is considered to not apply to the given file.
+    #
+    #   * If 'exact_match' is False, the rule with the highest number of
+    #     satisfied conditions is used.
+    #     When multiple rules end up tied for the "best fit", I.E. they all
+    #     have an equal amount of satisfied conditions; 'weight' is used
+    #     to prioritize the candidates.
+    #
+    #   TODO: Document all fields ..
+    #
+    'FILE_RULES': [
+        {'description': 'test_files Gmail print-to-pdf',
+         'exact_match': True,
+         'weight': None,
+         'NAME_FORMAT': '{datetime} {title}.{extension}',
+         'CONDITIONS': {
+             'filesystem': {
+                 'basename': 'gmail.pdf',
+                 'extension': 'pdf',
              },
              'contents': {
-                 'mime_type': None
-             }
+                 'mime_type': 'pdf',
+             },
          },
-         'data_sources': {
-             'datetime': None,
-             'description': None,
-             'title': None,
-             'author': None,
-             'publisher': None,
-             'extension': 'filename.extension'
+         'DATA_SOURCES': {
+             'datetime': 'metadata.exiftool.PDF:CreateDate',
+             'title': 'filesystem.basename.prefix',
+             'extension': 'filesystem.basename.extension'
          }
          },
-        {'_description': 'Sample Entry for Photos with strict rules',
-         '_exact_match': True,
-         '_weight': 1,
-         'name_format': '%(datetime(%Y-%m-%dT%H%M%S))s %(description)s -- %(tags)s.%(extension)s',
-         'conditions': {
-             'filename': {
+        {'description': 'test_files smulan.jpg',
+         'exact_match': True,
+         'weight': 1,
+         'NAME_FORMAT': '{datetime} {description}.{extension}',
+         'CONDITIONS': {
+             'filesystem': {
+                 'basename': 'smulan.jpg',
+             },
+             'contents': {
+                 'mime_type': 'jpg',
+             },
+         },
+         'DATA_SOURCES': {
+             'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
+             'description': 'plugin.microsoft_vision.caption',
+             'extension': 'filesystem.basename.extension'
+         }
+         },
+        {'description': 'Sample Entry for Photos with strict rules',
+         'exact_match': True,
+         'weight': 1,
+         'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
+         'CONDITIONS': {
+             'filesystem': {
                  'pathname': '~/Pictures/incoming',
                  'basename': 'DCIM*',
-                 'extension': 'jpg'
+                 'extension': 'jpg',
+                 'date_accessed': None,
+                 'date_created': None,
+                 'date_modified': None
              },
              'contents': {
-                 'mime_type': 'image/jpeg',
-                 'metadata': 'exif.datetimeoriginal'
+                 'mime_type': 'jpg',
+             },
+             'metadata': {
+                 'exif': {
+                     # NOTE: Possibly use exiftool for all metadata?
+                     # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
+                     'datetimeoriginal': None,
+                     'camera-model': None
+                 },
              }
          },
-         'data_sources': {
-             'datetime': ['metadata.exif.datetimeoriginal',
-                          'metadata.exif.datetimedigitized',
-                          'metadata.exif.createdate'],
-             'description': 'plugin.microsoftvision.caption',
+         'DATA_SOURCES': {
+             'datetime': ['metadata.exiftool.EXIF:DateTimeOriginal',
+                          'metadata.exiftool.EXIF:DateTimeDigitized',
+                          'metadata.exiftool.EXIF:CreateDate'],
+             'description': 'plugin.microsoft_vision.caption',
              'title': None,
              'author': None,
              'publisher': None,
-             'extension': 'filename.extension',
-             'tags': 'plugin.microsoftvision.tags'
+             'extension': 'filesystem.basename.extension',
+             'tags': 'plugin.microsoft_vision.tags'
          }
          },
-        {'_description': 'Sample Entry for EPUB e-books',
-         '_exact_match': True,
-         '_weight': 1,
-         'name_format': '',
-         'name_template': 'default_ebook_name',
-         'conditions': {
-             'filename': {
+        {'description': 'Sample Entry for EPUB e-books',
+         'exact_match': True,
+         'weight': 1,
+         'NAME_FORMAT': 'default_book',
+         'CONDITIONS': {
+             'filesystem': {
                  'pathname': None,
                  'basename': None,
                  'extension': 'epub'
@@ -250,214 +285,57 @@ DEFAULT_CONFIG = {
                  'metadata': 'metadata.XMP-dc.***'
              }
          },
-         'data_sources': {
-             'datetime': ['metadata.XMP-dc.PublicationDate',
-                          'metadata.XMP-dc.Date'],
+         'DATA_SOURCES': {
+             'datetime': ['metadata.exiftool.XMP-dc:PublicationDate',
+                          'metadata.exiftool.XMP-dc:Date'],
              'description': None,
-             'title': 'metadata.XMP-dc.Title',
-             'author': ['metadata.XMP-dc.Creator',
-                        'metadata.XMP-dc.CreatorFile-as'],
-             'publisher': 'metadata.XMP-dc.Publisher',
+             'title': 'metadata.exiftool.XMP-dc:Title',
+             'author': ['metadata.exiftool.XMP-dc:Creator',
+                        'metadata.exiftool.XMP-dc:CreatorFile-as'],
+             'publisher': 'metadata.exiftool.XMP-dc:Publisher',
              'edition': None,
-             'extension': 'filename.extension',
+             'extension': 'filesystem.basename.extension',
              'tags': None
          }
          },
-        {'_description': 'Sample Entry for MOBI e-books',
-         '_exact_match': True,
-         '_weight': 1,
-         'name_format': None,
-         'name_template': 'default_ebook_name',
-         'conditions': {
-             'filename': {
-                 'pathname': None,
-                 'basename': None,
-                 'extension': ['mobi']
-             },
-             'contents': {
-                 'mime_type': 'application/x-mobipocket-ebook',
-                 'metadata': 'metadata.MOBI.***'
-             }
-         },
-         'data_sources': {
-             'datetime': ['metadata.MOBI.PublishDate'],
-             'description': ['metadata.MOBI.Description',
-                             'metadata.MOBI.Subject'],
-             'title': ['metadata.MOBI.BookName',
-                       'metadata.MOBI.UpdatedTitle'],
-             'author': 'metadata.MOBI.Author',
-             'publisher': 'metadata.MOBI.Publisher',
-             'extension': 'filename.extension',
-             'tags': None
-         }
-         }
     ],
-    # Templates used when constructing new file names.
-    # Can be reused by multiple file rules. Reference the template name
-    # in the file rule 'name_template' field.
-    'name_templates': [
-        {'_description': 'First name template in the Default Configuration',
-         '_name': 'default_template_name',
-         'name_format': '%(title)s - %(author)s %(datetime)s.%(extension)s'},
-        {'_description': 'Ebook name template in the Default Configuration',
-         '_name': 'default_ebook_name',
-         'name_format': '%(publisher)s %(title)s %(edition)s - %(author)s %(year)s.%(extension)s'}
-    ]
-}
-```
 
+    #  File Name Templates
+    #  -------------------
+    #  These file name templates can be reused by multiple file rules.
+    #  Simply add the template name to the file rule 'NAME_FORMAT' field.
+    #
+    #  NOTE: If a rule specifies both 'NAME_FORMAT' and 'NAME_TEMPLATE',
+    #        'NAME_FORMAT' will be prioritized.
+    #
+    'NAME_TEMPLATES': {
+        'default_document': '{title} - {author} {datetime}.{extension}',
+        'default_book': '{publisher} {title} {edition} - {author} {date}.{extension}',
+        'default_photo': '{datetime} {description} -- {tags}.{extension}'
+    },
 
-Legacy Formats
---------------
-These are the data structures/formats used as of autonameow version v0.3.0.
+    #  File Name Date and Time Format
+    #  ------------------------------
+    #  Specifies the format of date and time in constructed file names.
+    #  Fields are parsed with "datetime" from the Python standard library.
+    #  Refer to the "datetime" library documentation for more information;
+    #
+    #      docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+    #
+    'DATETIME_FORMAT': {
+        'date': '%Y-%m-%d',
+        'time': '%H-%M-%S',
+        'datetime': '%Y-%m-%dT%H%M%S'
+    },
 
-### Configuration File
-Legacy format of the configuration file rules, `core.config_defaults.rules`.
-
-```python
-rules = {'record_my_desktop': {'type': ['ogv', 'ogg'],
-                               'name': None,
-                               'path': None,
-                               'prefer_datetime': 'accessed',
-                               'prefer_title': None,
-                               'new_name_template': DEFAULT_NAME,
-                               'tags': []},
-         'photo_android_msg': {'type': 'jpg',
-                               'name': r'^received_\d{15,17}\.jpeg$',
-                               'path': None,
-                               'prefer_datetime': 'android_messenger',
-                               'prefer_title': None,
-                               'new_name_template': DEFAULT_NAME,
-                               'tags': []},
-         'screencapture': {'type': 'png',
-                           'name': r'^screencapture.*.png$',
-                           'path': None,
-                           'prefer_datetime': 'screencapture_unixtime',
-                           'prefer_title': None,
-                           'new_name_template': DEFAULT_NAME,
-                           'tags': ['screenshot']},
-         'document_default': {'type': 'pdf',
-                              'name': None,
-                              'path': None,
-                              'prefer_author': 'PDF:Author',
-                              'prefer_datetime': 'CreationDate',
-                              'prefer_title': None,
-                              'prefer_publisher': 'PDF:EBX_PUBLISHER',
-                              'new_name_template': DOCUMENT_NAME,
-                              'tags': []},
-         'ebook_pdf': {'type': 'pdf',
-                       'name': None,
-                       'path': None,
-                       'prefer_author': 'PDF:Author',
-                       'prefer_datetime': 'CreationDate',
-                       'prefer_title': 'PDF:Title',
-                       'prefer_publisher': 'PDF:EBX_PUBLISHER',
-                       'new_name_template': EBOOK_NAME,
-                       'tags': []},
-         }
-```
-
-### Analysis Results
-Current format of the analysis results data structure,
-`core.analyze.analysis.Analysis.results`.
-
-autonameow executed with the command;
-```bash
-/Library/Frameworks/Python.framework/Versions/3.6/bin/python3.6 /Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/autonameow/__main__.py --debug --list-all -- /Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/test_files/2010-01-31_161251.jpg
-```
-
-Produced results:
-
-```python
-results = {
-        "datetime": {
-                "ImageAnalyzer": [
-                        {
-                                "value": "datetime.datetime(2010, 1, 31, 16, 12, 51)",
-                                "source": "datetimeoriginal",
-                                "weight": 1
-                        },
-                        {
-                                "value": "datetime.datetime(2010, 1, 31, 16, 12, 51)",
-                                "source": "datetimedigitized",
-                                "weight": 1
-                        },
-                        {
-                                "value": "datetime.datetime(2010, 1, 31, 16, 12, 51)",
-                                "source": "datetime",
-                                "weight": 0.75
-                        }
-                ],
-                "FilesystemAnalyzer": [
-                        {
-                                "value": "datetime.datetime(2016, 2, 24, 15, 8, 34)",
-                                "source": "modified",
-                                "weight": 1
-                        },
-                        {
-                                "value": "datetime.datetime(2017, 5, 1, 16, 12, 40)",
-                                "source": "created",
-                                "weight": 1
-                        },
-                        {
-                                "value": "datetime.datetime(2017, 5, 5, 0, 1, 50)",
-                                "source": "accessed",
-                                "weight": 0.25
-                        }
-                ],
-                "FilenameAnalyzer": [
-                        {
-                                "value": "datetime.datetime(2010, 1, 31, 16, 12, 51)",
-                                "source": "very_special_case",
-                                "weight": 1
-                        },
-                        {
-                                "value": "datetime.datetime(2010, 1, 31, 0, 0)",
-                                "source": "regex_search",
-                                "weight": 0.25
-                        },
-                        {
-                                "value": "datetime.datetime(2010, 1, 31, 16, 12, 51)",
-                                "source": "bruteforce_search",
-                                "weight": 0.1
-                        },
-                        {
-                                "value": "datetime.datetime(2010, 1, 31, 0, 0)",
-                                "source": "bruteforce_search",
-                                "weight": 0.1
-                        },
-                        {
-                                "value": "datetime.datetime(2010, 1, 1, 0, 0)",
-                                "source": "bruteforce_search",
-                                "weight": 0.1
-                        },
-                        {
-                                "value": "datetime.datetime(2010, 1, 1, 0, 0)",
-                                "source": "bruteforce_search",
-                                "weight": 0.1
-                        }
-                ]
-        },
-        "publisher": {
-                "ImageAnalyzer": null,
-                "FilesystemAnalyzer": null,
-                "FilenameAnalyzer": null
-        },
-        "title": {
-                "ImageAnalyzer": null,
-                "FilesystemAnalyzer": null,
-                "FilenameAnalyzer": []
-        },
-        "tags": {
-                "ImageAnalyzer": null,
-                "FilesystemAnalyzer": null,
-                "FilenameAnalyzer": []
-        },
-        "author": {
-                "ImageAnalyzer": null,
-                "FilesystemAnalyzer": null,
-                "FilenameAnalyzer": null
-        }
+    #  Filetags Options
+    #  ----------------
+    #  Options for functionality related to the "filetags" workflow.
+    #
+    'FILETAGS_OPTIONS': {
+        'filename_tag_separator': ' -- ',
+        'between_tag_separator': ' '
+    }
 }
 ```
 
