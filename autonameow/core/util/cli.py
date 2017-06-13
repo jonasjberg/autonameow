@@ -179,6 +179,9 @@ def msg(message, type=None, log=False):
 
         return text
 
+    if not message:
+        return
+
     if not type:
         print_default_msg(message)
         if log:
