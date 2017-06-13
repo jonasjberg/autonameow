@@ -143,23 +143,22 @@ class Autonameow(object):
             cli.msg(str(self.config))
             self.exit_program(constants.EXIT_SUCCESS)
 
-        # Exit if no files are specified, for now.
+        # Handle any input paths/files.
         if not self.args.input_paths:
             log.warning('No input files specified ..')
             self.exit_program(constants.EXIT_SUCCESS)
 
-        # Iterate over command line arguments ..
         self._handle_files()
         self.exit_program(exit_code)
 
     def _handle_files(self):
         """
-        Main loop. Iterates over passed arguments (paths/files).
+        Main loop. Iterate over input paths/files.
         """
         for arg in self.args.input_paths:
             log.info('Processing: "{!s}"'.format(arg))
 
-            # Try to create a file object representing the current argument.
+            # Sanity checking the "input_path" is part of 'FileObject' init.
             try:
                 current_file = FileObject(arg, self.config)
             except InvalidFileArgumentError as e:
@@ -176,6 +175,7 @@ class Autonameow(object):
                 set_exit_code(constants.EXIT_WARNING)
                 continue
 
+            # Present results.
             list_any = (self.args.list_datetime or self.args.list_title
                         or self.args.list_all)
             if list_any:
@@ -195,13 +195,13 @@ class Autonameow(object):
                     log.info('Listing "title" analysis results ..')
                     cli.msg(misc.dump(analysis.results.get('title')))
 
+            # Perform actions.
             if self.args.prepend_datetime:
                 # TODO: Prepend datetime to filename.
                 log.warning('[UNIMPLEMENTED FEATURE] prepend_datetime')
                 self.exit_program(constants.EXIT_ERROR)
 
             if self.args.automagic:
-                # Create a name builder.
                 try:
                     self.builder = NameBuilder(current_file, analysis.results,
                                                self.config)
