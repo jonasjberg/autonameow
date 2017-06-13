@@ -224,8 +224,6 @@ class Autonameow(object):
                 # TODO: [BL013] Interactive mode in 'interactive.py'.
                 log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
-        return exit_code
-
     def exit_program(self, exit_code_):
         """
         Main program exit point.  Shuts down this autonameow instance/session.
