@@ -34,10 +34,9 @@ ALL_CONDITIONS_FIELDS = {
     },
     'metadata': {
         'exiftool': {
-            # NOTE: Possibly use exiftool for all metadata?
+            # NOTE:  See below for available exiftool fields.
             # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-            'datetimeoriginal': None,
-            'camera-model': None
+            None,
         },
     }
 }
@@ -120,11 +119,9 @@ DEFAULT_CONFIG = {
                  'mime_type': 'jpg',
              },
              'metadata': {
-                 'exif': {
-                     # NOTE: Possibly use exiftool for all metadata?
-                     # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-                     'datetimeoriginal': None,
-                     'camera-model': None
+                 'exiftool': {
+                     # TODO: Ensure proper validation of entry below.
+                     'EXIF:DateTimeOriginal': None,
                  },
              }
          },
