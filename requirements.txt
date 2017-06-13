@@ -1,6 +1,0 @@
-python3-colorama
-python3-pypdf2
-python3-magic
-python3-unidecode
-pytesseract
-python3-guessit
