@@ -49,9 +49,6 @@ from core.util import (
 from . import version
 
 
-exit_code = constants.EXIT_SUCCESS
-
-
 class Autonameow(object):
     """
     Main class to manage a running "autonameow" instance.
@@ -64,6 +61,8 @@ class Autonameow(object):
         Args:
             opts: Option arguments as a list of strings.
         """
+        self._exit_code = constants.EXIT_SUCCESS
+
         # Save time of startup for later calculation of total runtime.
         self.start_time = time.time()
 
@@ -149,7 +148,7 @@ class Autonameow(object):
             self.exit_program(constants.EXIT_SUCCESS)
 
         self._handle_files()
-        self.exit_program(exit_code)
+        self.exit_program(self.exit_code)
 
     def _handle_files(self):
         """
@@ -172,7 +171,7 @@ class Autonameow(object):
             except AutonameowException as e:
                 log.critical('Analysis FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(current_file))
-                set_exit_code(constants.EXIT_WARNING)
+                self.exit_code = constants.EXIT_WARNING
                 continue
 
             # Present results.
@@ -207,7 +206,7 @@ class Autonameow(object):
                     new_name = self.builder.build()
                 except NameBuilderError as e:
                     log.critical('Name assembly FAILED: {!s}'.format(e))
-                    set_exit_code(constants.EXIT_WARNING)
+                    self.exit_code = constants.EXIT_WARNING
                     continue
                 else:
                     # TODO: Respect '--quiet' option. Suppress output.
@@ -215,9 +214,9 @@ class Autonameow(object):
                     renamed_ok = self.do_rename(current_file.abspath, new_name,
                                                 dry_run=self.args.dry_run)
                     if renamed_ok:
-                        set_exit_code(constants.EXIT_SUCCESS)
+                        self.exit_code = constants.EXIT_SUCCESS
                     else:
-                        set_exit_code(constants.EXIT_WARNING)
+                        self.exit_code = constants.EXIT_WARNING
 
             elif self.args.interactive:
                 # TODO: Create a interactive interface.
@@ -233,14 +232,14 @@ class Autonameow(object):
                 Indicate success with 0, failure non-zero.
         """
         elapsed_time = time.time() - self.start_time
-        exit_code = set_exit_code(exit_code_)
+        self.exit_code = exit_code_
 
         if self.args and self.args.verbose:
-            cli.print_exit_info(exit_code, elapsed_time)
-        log.debug('Exiting with exit code: {}'.format(exit_code))
+            cli.print_exit_info(self.exit_code, elapsed_time)
+        log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
 
-        sys.exit(exit_code)
+        sys.exit(self.exit_code)
 
     def do_rename(self, from_path, new_basename, dry_run=True):
         """
@@ -275,25 +274,27 @@ class Autonameow(object):
                     type='color_quoted')
             return True
 
+    @property
+    def exit_code(self):
+        """
+        Returns:
+            The current exit code for this autonameow instance as an integer.
+        """
+        return self._exit_code
 
-def set_exit_code(value):
-    """
-    Updates the global program exit code value.
+    @exit_code.setter
+    def exit_code(self, value):
+        """
+        Updates the exit code value for this autonameow instance.
 
-    The exit code is only actually updated if the given value is greater
-    than the current value. This makes errors take precedence over warnings.
+        The exit code is only actually updated if the given value is greater
+        than the current value. This makes errors take precedence over warnings.
 
-    Args:
-        value: The new exit status as an integer, preferably one of
-        the values in 'constants.py' prefixed 'EXIT_'.
-
-    Returns:
-        The current exit code as an integer.
-    """
-    global exit_code
-
-    if value > exit_code:
-        log.debug('Global exit code updated: {} -> {}'.format(exit_code, value))
-        exit_code = value
-
-    return exit_code
+        Args:
+            value: Optional new exit status as an integer, preferably one of
+                   the values in 'constants.py' prefixed 'EXIT_'.
+        """
+        if isinstance(value, int) and value > self._exit_code:
+            log.debug('Exit code updated: {} -> {}'.format(self._exit_code,
+                                                           value))
+            self._exit_code = value
