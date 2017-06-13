@@ -47,7 +47,6 @@ class NameBuilder(object):
     resulting name. The rule also determines what analysis data to use when
     populating the name template fields.
     """
-    # TODO: [BL010] Implement NameBuilder.
     def __init__(self, file_object, analysis_results, active_config):
         self.file = file_object
         self.analysis_data = analysis_results
