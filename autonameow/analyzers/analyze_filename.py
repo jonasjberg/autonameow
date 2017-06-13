@@ -45,9 +45,12 @@ class FilenameAnalyzer(AbstractAnalyzer):
 
     # @Overrides method in AbstractAnalyzer
     def run(self):
-        # Arbitrary length check limits (very slow) calls to guessit.
-        if guessit and len(self.file_object.filenamepart_base) > 20:
+        # TODO: This test does not belong here! Handle guessit properly.
+        if guessit and self.file_object.mime_type == 'mp4':
             self.guessit_metadata = self._get_metadata_from_guessit()
+
+            if self.guessit_metadata:
+                self.add_results('plugins.guessit', self.guessit_metadata)
 
     # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
@@ -189,16 +192,26 @@ class FilenameAnalyzer(AbstractAnalyzer):
         # Match UNIX timestamp
         dt_unix = dateandtime.match_any_unix_timestamp(fn)
         if dt_unix:
-            results.append({'value': dt_unix,
-                            'source': 'unix_timestamp',
-                            'weight': 1})
+            # results.append({'value': dt_unix,
+            #                 'source': 'unix_timestamp',
+            #                 'weight': 1})
+            # TODO: Properly integrate new callback-based results gathering.
+            self.add_results('filesystem.basename.derived_data.datetime',
+                             {'value': dt_unix,
+                              'source': 'unix_timestamp',
+                              'weight': 1})
 
         # Match screencapture-prefixed UNIX timestamp
         dt_screencapture_unix = dateandtime.match_screencapture_unixtime(fn)
         if dt_screencapture_unix:
-            results.append({'value': dt_screencapture_unix,
-                            'source': 'screencapture_unixtime',
-                            'weight': 1})
+            # results.append({'value': dt_screencapture_unix,
+            #                 'source': 'screencapture_unixtime',
+            #                 'weight': 1})
+            # TODO: Properly integrate new callback-based results gathering.
+            self.add_results('filesystem.basename.derived_data.datetime',
+                             {'value': dt_screencapture_unix,
+                              'source': 'screencapture_unixtime',
+                              'weight': 1})
 
         # 3. Generalized patternmatching and bruteforcing
         # ===============================================

@@ -75,23 +75,23 @@ assert_true '( "$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -q -- "dry-run" ) >/de
 assert_true '( "$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -q -- "--interactive" ) >/dev/null' \
             "[TC013] autonameow should provide a \"--interactive\" option"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --interactive -- 2>&1 ) >/dev/null' \
-             "[TC013] autonameow should return non-zero when started with \"--interactive\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --interactive -- 2>&1 ) >/dev/null' \
+            "[TC013] autonameow should return zero when started with \"--interactive\" without specifying files"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --interactive --verbose -- 2>&1 ) >/dev/null' \
-             "[TC013] autonameow should return non-zero when started with \"--interactive\" and \"--verbose\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --interactive --verbose -- 2>&1 ) >/dev/null' \
+            "[TC013] autonameow should return zero when started with \"--interactive\" and \"--verbose\" without specifying files"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --interactive --debug -- 2>&1 ) >/dev/null' \
-             "[TC013] autonameow should return non-zero when started with \"--interactive\" and \"--debug\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --interactive --debug -- 2>&1 ) >/dev/null' \
+            "[TC013] autonameow should return zero when started with \"--interactive\" and \"--debug\" without specifying files"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --automagic -- 2>&1 ) >/dev/null' \
-             "autonameow should return non-zero when started with \"--automagic\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic -- 2>&1 ) >/dev/null' \
+            "autonameow should return zero when started with \"--automagic\" without specifying files"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --automagic --verbose -- 2>&1 ) >/dev/null' \
-             "autonameow should return non-zero when started with \"--automagic\" and \"--verbose\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --verbose -- 2>&1 ) >/dev/null' \
+            "autonameow should return zero when started with \"--automagic\" and \"--verbose\" without specifying files"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --automagic --debug -- 2>&1 ) >/dev/null' \
-             "autonameow should return non-zero when started with \"--automagic\" and \"--debug\" without specifying files"
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --debug -- 2>&1 ) >/dev/null' \
+            "autonameow should return zero when started with \"--automagic\" and \"--debug\" without specifying files"
 
 assert_false '( "$AUTONAMEOW_RUNNER" --verbose --debug -- 2>&1 ) >/dev/null' \
              "Starting with mutually exclusive options \"--verbose\" and \"--debug\" should generate an error"
@@ -183,6 +183,31 @@ SAMPLE_PDF_FILE_EXPECTED='2016-01-11T124132 gmail.pdf'
 assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 ) | col -b | grep -q -- "${SAMPLE_PDF_FILE_EXPECTED}"' \
              "Automagic mode output should include \"${SAMPLE_PDF_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
+
+EMPTY_CONFIG='/tmp/autonameow_empty_config.yaml'
+assert_true 'touch "$EMPTY_CONFIG" 2>&1 >/dev/null' \
+            "detect_empty_config Test setup should succeed"
+
+assert_false '( "$AUTONAMEOW_RUNNER" --config-path "$EMPTY_CONFIG" 2>&1 ) >/dev/null' \
+             "detect_empty_config Specifying a empty configuration file with \"--config-path\" should be handled properly"
+
+assert_true '[ -f "$EMPTY_CONFIG" ] && rm -- "$EMPTY_CONFIG" 2>&1 >/dev/null' \
+            "detect_empty_config Test teardown should succeed"
+
+assert_false '( "$AUTONAMEOW_RUNNER" --config-path /tmp/does_not_exist_surely.mjao 2>&1 ) >/dev/null' \
+             "Specifying an invalid path with \"--config-path\" should be handled properly"
+
+
+BAD_CONFIG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/bad_config.yaml" ) )"
+assert_true '[ -e "$BAD_CONFIG_FILE" ]' \
+            "A known bad configuration file exists. Add suitable test file if this test fails!"
+
+assert_false '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE" 2>&1 ) >/dev/null' \
+             "Attempting to load a invalid configuration file with \"--config-path\" should be handled properly"
+
+
+assert_true '( "$AUTONAMEOW_RUNNER" --dump-options --verbose 2>&1 ) >/dev/null' \
+            "autonameow should return zero when started with \"--dump-options\" and \"--verbose\""
 
 
 

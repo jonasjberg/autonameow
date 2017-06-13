@@ -164,14 +164,23 @@ def msg(message, type=None, log=False):
         colored_text = colorize(text)
         print(prefix + ' ' + colored_text)
 
-    def print_color_quoted(text):
-        match_iter = re.findall(r'"(.*?)"', text)
+    def colorize_quoted(text):
+        # match_iter = re.findall(r'"(.*?)"', text)
+        # TODO: Fix this! Does not work for string like;
+        #       'Would do "Word.word" -> "1234-56-78 Word.word" ..'
+        match_iter = re.findall(r'"([^"]*)"', text)
 
+        replacements = []
         for match in match_iter:
-            colored_match = colorize(match, fore='LIGHTGREEN_EX')
-            text = text.replace(match, colored_match)
+            replacements.append((match, colorize(match, fore='LIGHTGREEN_EX')))
 
-        print(text)
+        for old, new in replacements:
+            text = text.replace(old, new, 1)
+
+        return text
+
+    if not message:
+        return
 
     if not type:
         print_default_msg(message)
@@ -186,7 +195,7 @@ def msg(message, type=None, log=False):
         print_default_msg('=' * len(message))
         print_default_msg('')
     elif type == 'color_quoted':
-        print_color_quoted(message)
+        print(colorize_quoted(message))
     else:
         print_default_msg(message)
         if log:

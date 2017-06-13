@@ -55,7 +55,10 @@ RESULTS_DATA_STRUCTURE = {
             'full': None,
             'prefix': None,
             'suffix': None,
-            'extension': None
+            'extension': None,
+            'derived_data': {
+                'datetime': None,
+            }
         },
         'pathname': {
             'full': None,
@@ -83,9 +86,11 @@ RESULTS_DATA_STRUCTURE = {
     },
     'metadata': {
         'exiftool': None,
+        'pypdf': None,
     },
     'plugin': {
         'microsoft_vision': None,
+        'guessit': None,
     }
 }
 
@@ -111,3 +116,11 @@ MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
 FILERULE_DEFAULT_WEIGHT = 0.5
 FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR = ' -- '
 FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR = ' '
+
+# Exit code values returned to the executing shell or parent process.
+# Normal, successful termination should return "0" (EXIT_SUCCESS)
+# Any non-zero value is interpreted as an error. Higher values should
+# correspond to increasingly critical error conditions.
+EXIT_SUCCESS = 0    # Program finished successfully.
+EXIT_WARNING = 1    # Program execution completed but there were errors.
+EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.

@@ -32,7 +32,8 @@ from unit_utils import (
     make_temp_dir,
     make_temporary_file,
     get_mock_analyzer,
-    get_mock_fileobject
+    get_mock_fileobject,
+    capture_stdout
 )
 
 
@@ -94,3 +95,12 @@ class TestUnitUtilityGetMockFileObject(TestCase):
 
     def test_get_mock_fileobject_returns_expected_type(self):
         self.assertTrue(isinstance(get_mock_fileobject(), FileObject))
+
+
+class TestCaptureStdout(TestCase):
+    def test_capture_stdout(self):
+        with capture_stdout() as out:
+            print('should_be_captured')
+
+        self.assertEqual(out.getvalue().strip(), 'should_be_captured')
+        self.assertEqual(out.getvalue(), 'should_be_captured\n')

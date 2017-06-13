@@ -26,7 +26,12 @@ import platform
 import yaml
 
 from core.config.default_config import DEFAULT_CONFIG
-from core.exceptions import ConfigReadError, ConfigWriteError
+from core import version
+from core.exceptions import (
+    ConfigReadError,
+    ConfigWriteError
+)
+
 
 CONFDIR_MAC = '~/Library/Application Support'
 CONFDIR_UNIX_VAR = 'XDG_CONFIG_HOME'
@@ -107,7 +112,7 @@ def has_config_file():
     Returns:
         True if a configuration file is available, else False.
     """
-    _path = config_file_path()
+    _path = ConfigFilePath
     if os.path.exists(_path) and os.path.isfile(_path):
         return True
 
@@ -116,15 +121,21 @@ def has_config_file():
 
 def write_default_config():
     """
-    Writes a default template configuration file to disk in YAML format.
+    Writes a default template configuration file in YAML format to disk.
+
+    Raises:
+        FileExistsError: A file exists at the configuration file path.
     """
-    _path = config_file_path()
+    _path = ConfigFilePath
 
     if os.path.exists(_path):
         log.warning('Path exists: "{}"'.format(_path))
         raise FileExistsError
 
-    write_yaml_file(_path, DEFAULT_CONFIG)
+    _default_config = DEFAULT_CONFIG.copy()
+    _default_config['autonameow_version'] = version.__version__
+
+    write_yaml_file(_path, _default_config)
 
 
 def load_yaml_file(file_path):
@@ -139,14 +150,14 @@ def load_yaml_file(file_path):
     Returns:
         The contents of the yaml file at the given file as a "Python object"
         (dict).  Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
-    """
-    if not os.access(file_path, os.R_OK):
-        raise PermissionError
 
+    Raises:
+        ConfigReadError: The configuration file could not be read and/or loaded.
+    """
     try:
         with open(file_path, 'r') as fh:
             return yaml.safe_load(fh)
-    except (IOError, yaml.YAMLError) as e:
+    except (IOError, yaml.YAMLError, UnicodeDecodeError) as e:
         raise ConfigReadError(file_path, e)
 
 
@@ -159,6 +170,9 @@ def write_yaml_file(dest_path, yaml_data):
                    *overwritten* if it already exists.
         yaml_data: Data to write as a "Python object" (dict).
                    Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
+
+    Raises:
+        ConfigWriteError: The configuration file could not be written.
     """
     if not os.access(os.path.dirname(dest_path), os.W_OK):
         raise PermissionError
@@ -169,6 +183,10 @@ def write_yaml_file(dest_path, yaml_data):
                       width=160, indent=4)
     except (IOError, yaml.YAMLError) as e:
         raise ConfigWriteError(dest_path, e)
+
+
+# Variables listed here are intended for public, global use.
+ConfigFilePath = config_file_path()
 
 
 if __name__ == '__main__':

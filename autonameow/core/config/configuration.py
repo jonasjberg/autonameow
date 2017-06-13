@@ -34,7 +34,8 @@ from core.config.field_parsers import (
 )
 from core.exceptions import (
     ConfigurationSyntaxError,
-    ConfigError
+    ConfigError,
+    ConfigReadError
 )
 from core.util import misc
 
@@ -84,18 +85,20 @@ class FileRule(Rule):
     def __repr__(self):
         out = []
         for key in self.__dict__:
-            out.append('{}: {}'.format(key.title(), self.__dict__[key]))
-        return ', '.join(out)
+            out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
+        return 'FileRule({})'.format(', '.join(out))
 
+    # TODO: Should 'FileRule' objects be re-created for each file?
+    # TODO: Store score in a dictionary keyed by files?
     def upvote(self):
         """
-        Increases the score of this rule.
+        Increases the matching score of this rule.
         """
         self.score += 1
 
     def downvote(self):
         """
-        Decreases the score of this rule.
+        Decreases the matching score of this rule.
         """
         if self.score > 0:
             self.score -= 1
@@ -165,6 +168,20 @@ class Configuration(object):
                 self._file_rules.append(valid_file_rule)
 
     def _validate_rule_data(self, raw_rule):
+        """
+        Validates one "raw" file rule from a configuration and returns an
+        instance of the 'FileRule' class, representing the "raw" file rule.
+
+        Args:
+            raw_rule: A single file rule entry from a confiugration.
+
+        Returns:
+            An instance of the 'FileRule' class representing the given rule.
+
+        Raises:
+            ConfigurationSyntaxError: The given file rule contains bad data,
+                making instantiating a 'FileRule' object impossible.
+        """
         if 'NAME_FORMAT' not in raw_rule:
             log.debug('File rule contains no name format data' + str(raw_rule))
             raise ConfigurationSyntaxError('Missing name template format')
@@ -194,16 +211,6 @@ class Configuration(object):
                              conditions=valid_conditions,
                              data_sources=valid_sources)
         return file_rule
-
-    def validate_field(self, raw_file_rule, field_name):
-        for parser in self.field_parsers:
-            if field_name in parser.applies_to_field:
-                field_value = raw_file_rule.get(field_name)
-                if parser.validate(field_value):
-                    return field_value
-
-        log.critical('Config file entry not validated correctly!')
-        return False
 
     def _load_options(self):
         def _try_load_date_format_option(option):
@@ -278,8 +285,15 @@ class Configuration(object):
         self._load_options()
 
     def _load_from_disk(self, load_path):
-        _yaml_data = load_yaml_file(load_path)
-        self._load_from_dict(_yaml_data)
+        try:
+            _yaml_data = load_yaml_file(load_path)
+        except (OSError, ConfigReadError) as e:
+            raise ConfigError(e)
+        else:
+            if not _yaml_data:
+                raise ConfigError('Bad (empty?) config: {!s}'.format(load_path))
+
+            self._load_from_dict(_yaml_data)
 
     def write_to_disk(self, dest_path):
         if os.path.exists(dest_path):
@@ -355,7 +369,7 @@ def parse_sources(raw_sources):
                 log.debug('Validated source: [{}]: {}'.format(field, v))
                 passed[field] = v
             else:
-                log.debug('Skipped invalid source: [{}]: {}'.format(field, v))
+                log.debug('Invalid source: [{}]: {}'.format(field, v))
 
     log.debug('First filter passed {} sources'.format(len(passed)))
 
@@ -396,6 +410,8 @@ def parse_conditions(raw_conditions):
     # TODO: ..
     out = {}
 
+    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
+
     def traverse_dict(the_dict):
         try:
             for key, value in the_dict.items():
@@ -407,6 +423,10 @@ def parse_conditions(raw_conditions):
                     if key in out:
                         log.warning('Clobbering condition: {!s}'.format(key))
                     out[key] = value
+                    log.debug('Validated condition: [{}]: {}'.format(key,
+                                                                     value))
+                else:
+                    log.debug('Invalid condition: [{}]: {}'.format(key, value))
         except ValueError as e:
             raise ConfigurationSyntaxError('Bad condition; ' + str(e))
 
@@ -418,10 +438,31 @@ def parse_conditions(raw_conditions):
         raw_contents = raw_conditions['filesystem']
         traverse_dict(raw_contents)
 
+    log.debug('First filter passed {} conditions'.format(len(out)))
+
     return out
 
 
 def validate_condition(condition_field, condition_value):
+    """
+    Validates a file rule condition.
+
+    The "condition_field" must be assigned to a field parser. This parser
+    validates the "condition_value". If this validation returns True,
+    the condition is valid.
+
+    Args:
+        condition_field: Field (key/name) to validate, for example: "mime_type".
+        condition_value: Value to validate, for example: "image/jpeg".
+
+    Returns:
+        True if the given "condition_field" can be handled by one of the
+        field parser classes _AND_ the subsequent validation of the given
+        "condition_value" returns True.  Else False.
+    """
+    if not condition_value:
+        return False
+
     for parser in field_parsers:
         if condition_field in parser.applies_to_field:
             if parser.validate(condition_value):

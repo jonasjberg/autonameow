@@ -60,10 +60,6 @@ class NameBuilder(object):
         return self._new_name
 
     def build(self):
-        # TODO: [BL010] Implement NameBuilder.
-
-        # TODO: Format date/time-information using "datetime_format" in config.
-
         template = None
         data_sources = None
 
@@ -98,6 +94,8 @@ class NameBuilder(object):
 
         data_sources = active_rule.data_sources
 
+        # TODO: Future redesign should be able to handle fields not in sources.
+        # Add automatically resolving missing sources from possible candidates.
         if not all_template_fields_defined(template, data_sources):
             log.error('All name template placeholder fields must be '
                       'given a data source; Check the configuration!')

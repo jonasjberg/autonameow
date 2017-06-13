@@ -97,10 +97,19 @@ def rename_file(source_path, new_basename):
 
 def split_filename(file_path):
     """
-    Split file name of the file located in "file_path" into two components;
-    "name" and "suffix/extension".
-    :param file_path: path to the file to split
-    :return: tuple of the file "name" and "extension/suffix"
+    Splits the basename of the specified path in two parts.
+
+    Does almost the same thing as "os.path.splitext", but handles "compound"
+    file extensions, such as "foo.tar.gz" differently.
+
+      Input File Path:  "foo.tar"       Return Value:  ("foo", "tar")
+      Input File Path:  "foo.tar.gz"    Return Value:  ("foo", "tar.gz")
+
+    Args:
+        file_path:
+
+    Returns:
+
     """
     base, ext = os.path.splitext(os.path.basename(file_path))
 
@@ -118,12 +127,23 @@ def split_filename(file_path):
 
 def file_suffix(file_path, make_lowercase=True):
     """
-    Get file suffix/extension for the file located in "file_path".
-    Handles some special cases, for instance "basename.tar.gz" returns
-    the suffix "tar.gz" and not just the extension "gz".
-    :param file_path: path to the file from which to get extension.
-    :param make_lowercase: make the extension lowercase, defaults to True
-    :return: the file suffix/extension if found, else None
+    Returns the "suffix" or file extension, for a given file.
+
+    The file path can be of any type, relative, absolute, etc.
+    Compound file extensions like "basename.tar.gz" will return the (suffix)
+    "tar.gz", not just the file extension "gz".
+
+    Args:
+        file_path: Path from which to get the "suffix", I.E. the file
+            extension part of the basename, with special treatment of
+            multiple file extensions, like "repo_backup.git.tar.lzma".
+
+        make_lowercase: Whether to convert the suffix to lower case before
+            returning it. Defaults to True.
+
+    Returns:
+        The "suffix" or compound file extension for the specified path,
+            as a string. None is returned if it is not found in the given path.
     """
     _, ext = split_filename(file_path)
 
@@ -135,10 +155,19 @@ def file_suffix(file_path, make_lowercase=True):
 
 def file_base(file_path):
     """
-    Get file basename without extension/suffix for the file located in
-    "file_path".
-    :param file_path: path to the file from which to get extension.
-    :return: the file basename without extension if not empty, else None
+    Returns the basename _without_ any extension ("suffix"), for a given file.
+
+    The file path can be of any type, relative, absolute, etc.
+    Compound file extensions like ".tar.gz" are treated as a single "suffix"
+    or extension, not to be included in the output.
+
+    Args:
+        file_path: Path to the file from which to get the "prefix", I.E.
+            the basename without the extension ("suffix").
+
+    Returns:
+        The basename of the specified path, without any extension ("suffix"),
+        as a string. None is returned if it is not found in the given path.
     """
     base, _ = split_filename(file_path)
     return base if base else None
@@ -146,3 +175,102 @@ def file_base(file_path):
 
 def file_basename(file_path):
     return os.path.basename(file_path)
+
+
+def path_ancestry(path):
+    """
+    Return a list consisting of path's parent directory, its grandparent,
+    and so on. For instance:
+
+       >>> path_ancestry('/a/b/c')
+       ['/', '/a', '/a/b']
+
+    NOTE:  This function is based on code from the "beets" project.
+           Source repo: https://github.com/beetbox/beets
+           Source file: 'beets/util/__init__.py'
+           Commit hash: b38f34b2c06255f1c51e8714c8af6962e297a3c5
+    """
+    out = []
+
+    last_path = None
+    while path:
+        path = os.path.dirname(path)
+
+        if path == last_path:
+            break
+        last_path = path
+
+        if path:
+            out.insert(0, path)
+
+    return out
+
+
+def path_components(path):
+    """
+    Return a list of the path components for a given path. For instance:
+
+       >>> path_components('/a/b/c')
+       ['a', 'b', 'c']
+
+    NOTE:  This function is based on code from the "beets" project.
+           Source repo: https://github.com/beetbox/beets
+           Source file: 'beets/util/__init__.py'
+           Commit hash: b38f34b2c06255f1c51e8714c8af6962e297a3c5
+    """
+    out = []
+
+    ancestors = path_ancestry(path)
+    for anc in ancestors:
+        comp = os.path.basename(anc)
+        if comp:
+            out.append(comp)
+        else:  # root
+            out.append(anc)
+
+    last = os.path.basename(path)
+    if last:
+        out.append(last)
+
+    return out
+
+
+def get_files(search_path, recurse=False):
+    """
+    Returns all files in the specified path as a list of strings.
+
+    The specified search path is traversed non-recursively by default.
+    If the keyword argument "recurse" is set to True, the search path is
+    walked recursively.
+
+        NOTE: Does not currently handle symlinks.
+
+    Args:
+        search_path: The path from which to collect files.
+        recurse: Whether to traverse the path recursively or not.
+
+    Returns:
+        Absolute paths to files in the specified path, as a list of strings.
+    """
+    # TODO: Follow symlinks? Add option for following symlinks?
+
+    out = []
+
+    if not os.path.isfile(search_path) and not os.path.isdir(search_path):
+        raise FileNotFoundError
+
+    def traverse(path):
+        if os.path.isfile(path):
+            out.append(path)
+
+        elif os.path.isdir(path):
+            for entry in os.listdir(path):
+                entry_path = os.path.join(path, entry)
+                if os.path.isfile(entry_path):
+                    out.append(entry_path)
+                elif recurse and os.path.isdir(entry_path):
+                    traverse(entry_path)
+
+    traverse(search_path)
+
+    return out

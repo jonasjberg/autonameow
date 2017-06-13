@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
 ALL_CONDITIONS_FIELDS = {
     'filesystem': {
         'basename': None,                       # Regular expression

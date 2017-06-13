@@ -22,7 +22,11 @@
 
 
 import os
+import io
 import tempfile
+import sys
+
+from contextlib import contextmanager
 
 from analyzers.analyze_abstract import get_instantiated_analyzers
 from core.fileobject import FileObject
@@ -34,7 +38,7 @@ TESTS_DIR = os.path.join(_PARENT_DIR + os.sep + 'test_files')
 
 def abspath_testfile(file):
     """
-    Utility method used by tests to construct a full path to individual test
+    Utility function used by tests to construct a full path to individual test
     files in the 'test_files' directory.
     
     Args:
@@ -127,3 +131,30 @@ def get_named_file_object(basename):
     opts = MockOptions()
 
     return FileObject(tf, opts)
+
+
+@contextmanager
+def capture_stdout():
+    """Save stdout in a StringIO.
+
+    >>> with capture_stdout() as output:
+    ...     print('spam')
+    ...
+    >>> output.getvalue()
+    'spam'
+
+    NOTE:  This method was lifted and modified from the "beets" project.
+
+           Source repo: https://github.com/beetbox/beets
+           Source file: 'beets/test/helper.py'
+           Commit hash: 7a2bdf502f88a278da6be55f93770dad738a14e6
+    """
+    initial_state = sys.stdout
+    sys.stdout = capture = io.StringIO()
+    #if six.PY2:  # StringIO encoding attr isn't writable in python >= 3
+    #    sys.stdout.encoding = 'utf-8'
+    try:
+        yield sys.stdout
+    finally:
+        sys.stdout = initial_state
+        print(capture.getvalue())

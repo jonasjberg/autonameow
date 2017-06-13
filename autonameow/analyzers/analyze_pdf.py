@@ -21,20 +21,19 @@
 
 import logging
 import re
-import subprocess
 from datetime import datetime
-
-import PyPDF2
-from PyPDF2.utils import (
-    PyPdfError,
-    PdfReadError
-)
 
 from analyzers.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
 from core.util import textutils
-from core.util import wrap_exiftool
-from extractors.metadata import ExiftoolMetadataExtractor
+from extractors.metadata import (
+    ExiftoolMetadataExtractor,
+    PyPDFMetadataExtractor
+)
+from extractors.textual import (
+    extract_pdf_content_with_pdftotext,
+    extract_pdf_content_with_pypdf
+)
 
 
 class PdfAnalyzer(AbstractAnalyzer):
@@ -46,83 +45,106 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.applies_to_mime = 'pdf'
         self.add_results = add_results_callback
 
+        self.meta_extractor = None
+
         self.exiftool = None
-        self.exif_data = None
+        self.exiftool_data = None
 
         self.metadata = None
         self.text = None
 
     # @Overrides method in AbstractAnalyzer
     def run(self):
-        self.metadata = self._extract_pdf_metadata_with_pypdf()
-        self.add_results('metadata.pypdf', self.metadata)
+        self.meta_extractor = PyPDFMetadataExtractor(self.file_object.abspath)
+        logging.debug('Extracting metadata with {!s} '
+                      '..'.format(self.meta_extractor))
+        self.metadata = self.meta_extractor.query()
+        if self.metadata:
+            self.add_results('metadata.pypdf', self.metadata)
+
+            try:
+                number_pages = self.metadata.get('number_pages', False)
+                number_pages = int(number_pages)
+            except ValueError:
+                pass
+            else:
+                self.add_results('contents.textual.number_pages', number_pages)
+                self.add_results('contents.textual.paginated', True)
 
         self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
         logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
-        self.exif_data = self.exiftool.query()
-        self.add_results('metadata.exiftool', self.exif_data)
+        self.exiftool_data = self.exiftool.query()
+        if self.exiftool_data:
+            self.add_results('metadata.exiftool', self.exiftool_data)
 
         self.text = self._extract_pdf_content()
         self.add_results('contents.textual.raw_text', self.text)
+
+    def __collect_results(self, query_string, source_dict, source_field, weight):
+        if not source_dict:
+            return []
+
+        if source_field in source_dict:
+            value = source_dict.get(source_field)
+            return result_list_add(value, query_string, weight)
+        else:
+            return []
 
     # @Overrides method in AbstractAnalyzer
     def get_author(self):
         results = []
 
-        field = 'Author'
-        if field in self.metadata:
-            value = self.metadata[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted author from pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        possible_authors = [
+            ('metadata.exiftool.PDF:Author', self.exiftool_data,
+             'PDF:Author', 1),
+            ('metadata.exiftool.PDF:Creator', self.exiftool_data,
+             'PDF:Creator', 0.8),
+            ('metadata.exiftool.PDF:Producer', self.exiftool_data,
+             'PDF:Producer', 0.8),
+            ('metadata.exiftool.XMP:Creator', self.exiftool_data,
+             'XMP:Creator', 0.8),
+            ('metadata.pypdf.Author', self.metadata, 'Author', 1),
+            ('metadata.pypdf.Creator', self.metadata, 'Creator', 0.8),
+            ('metadata.pypdf.Producer', self.metadata, 'Producer', 0.5)]
 
-        field = 'PDF:Author'
-        if field in self.exif_data:
-            value = self.exif_data[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted author from (exiftool) pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        for query_string, source_dict, source_field, weight in possible_authors:
+            results += self.__collect_results(query_string, source_dict,
+                                              source_field, weight)
         return results
 
     # @Overrides method in AbstractAnalyzer
     def get_title(self):
         results = []
 
-        field = 'Title'
-        if field in self.metadata:
-            value = self.metadata[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted title from pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        possible_titles = [
+            ('metadata.exiftool.PDF:Title', self.exiftool_data,
+             'PDF:Title', 1),
+            ('metadata.exiftool.XMP:Title', self.exiftool_data,
+             'XMP:Title', 8),
+            ('metadata.exiftool.PDF:Subject', self.exiftool_data,
+             'PDF:Subject', 0.25),
+            ('metadata.pypdf.Title', self.metadata, 'Title', 1),
+            ('metadata.pypdf.Subject', self.metadata, 'Creator', 0.25)]
 
-        field = 'PDF:Title'
-        if field in self.exif_data:
-            value = self.exif_data[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted title from (exiftool) pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        for query_string, source_dict, source_field, weight in possible_titles:
+            results += self.__collect_results(query_string, source_dict,
+                                              source_field, weight)
+
         return results
 
     # @Overrides method in AbstractAnalyzer
     def get_datetime(self):
         results = []
 
-        metadata_datetime = self._get_metadata_datetime()
-        if metadata_datetime:
-            results += metadata_datetime
+        if self.metadata:
+            metadata_datetime = self._get_metadata_datetime()
+            if metadata_datetime:
+                results += metadata_datetime
 
-        if self.text:
-            text_timestamps = self._get_datetime_from_text()
-            if text_timestamps:
-                results += text_timestamps
+            if self.text:
+                text_timestamps = self._get_datetime_from_text()
+                if text_timestamps:
+                    results += text_timestamps
 
         return results
 
@@ -134,23 +156,17 @@ class PdfAnalyzer(AbstractAnalyzer):
     def get_publisher(self):
         results = []
 
-        field = 'PDF:EBX_PUBLISHER'
-        if field in self.metadata:
-            value = self.metadata[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted publisher from pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        possible_publishers = [
+            ('metadata.exiftool.PDF:EBX_PUBLISHER', self.exiftool_data,
+             'PDF:EBX_PUBLISHER', 1),
+            ('metadata.exiftool.XMP:EbxPublisher', self.exiftool_data,
+             'XMP:EbxPublisher', 1),
+            ('metadata.pypdf.EBX_PUBLISHER', self.metadata,
+             'EBX_PUBLISHER', 1)]
 
-        field = 'PDF:EBX_PUBLISHER'
-        if field in self.exif_data:
-            value = self.exif_data[field]
-            results.append({'value': value,
-                            'source': field,
-                            'weight': 1})
-            logging.debug('Extracted publisher from (exiftool) pdf metadata field '
-                          '"{}": "{}"'.format(field, value))
+        for query_string, source_dict, source_field, weight in possible_publishers:
+            results += self.__collect_results(query_string, source_dict,
+                                              source_field, weight)
         return results
 
     def _get_metadata_datetime(self):
@@ -171,7 +187,7 @@ class PdfAnalyzer(AbstractAnalyzer):
                     # date, time = self.pdf_metadata[field].split()
                 except KeyError:
                     logging.error('KeyError for key [{}]'.format(field))
-                    pass
+                    continue
 
             if k is None:
                 logging.warning('Null value in metadata field [%s]' % field)
@@ -232,56 +248,17 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         return results
 
-    def _extract_xmp_metadata(self):
-        # TODO: This is currently completely unused! Remove or implement.
-        #       https://pythonhosted.org/PyPDF2/XmpInformation.html
-        pass
-
-    def _extract_pdf_metadata_with_pypdf(self):
-        """
-        Extract metadata from a PDF document using "pyPdf".
-        :return: dict of PDF metadata
-        """
-        # Create empty dictionary to store PDF metadata "key:value"-pairs in.
-        result = {}
-        pdf_metadata = None
-        filename = self.file_object.abspath
-
-        # Extract PDF metadata using PyPdf, nicked from Violent Python.
-        try:
-            pdff = PyPDF2.PdfFileReader(filename, 'rb')
-            pdf_metadata = pdff.getDocumentInfo()
-            # TODO: These below variables are unused! Remove or implement.
-            # self.title = pdf_metadata.title
-            # self.author = pdf_metadata.author
-        except Exception as e:
-            logging.error('PDF metadata extraction error: "{}"'.format(e))
-
-        if pdf_metadata:
-            # Remove leading '/' from all entries and save to new dict 'result'.
-            for entry in pdf_metadata:
-                value = pdf_metadata[entry]
-                key = entry.lstrip('\/')
-                result[key] = value
-
-        return result
-
-    def _extract_pdf_metadata_with_exiftool(self):
-        with wrap_exiftool.ExifTool() as et:
-            metadata = et.get_metadata(self.file_object.abspath)
-        return metadata
-
-    # TODO: Move all text extraction to functions in 'extract_text.py'.
     def _extract_pdf_content(self):
         """
-        Extract the plain text contents of a PDF document.
-        :return: False or PDF content as strings
+        Extracts the plain text contents of a PDF document using "extractors".
+
+        Returns:
+            The textual contents of the PDF document or None.
         """
         pdf_text = None
-        i = 1
         text_extractors = [extract_pdf_content_with_pdftotext,
                            extract_pdf_content_with_pypdf]
-        for extractor in text_extractors:
+        for i, extractor in enumerate(text_extractors):
             logging.debug('Running pdf text extractor {}/{}: '
                           '{}'.format(i, len(text_extractors), str(extractor)))
             pdf_text = extractor(self.file_object.abspath)
@@ -381,80 +358,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         return results
 
 
-# TODO: Move all text extraction to functions in 'extract_text.py'.
-def extract_pdf_content_with_pdftotext(pdf_file):
-    """
-    Extract the plain text contents of a PDF document using pdftotext.
-
-    Returns:
-        False or PDF content as string
-    """
-    try:
-        pipe = subprocess.Popen(['pdftotext', '-nopgbrk', '-enc', 'UTF-8',
-                                 pdf_file, '-'], shell=False,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT)
-    except ValueError:
-        logging.warning(
-            '"subprocess.Popen" was called with invalid arguments.')
-        return False
-
-    stdout, stderr = pipe.communicate()
-    if pipe.returncode != 0:
-        logging.warning('subprocess returned [{}] - STDERROR: '
-                        '{}'.format(pipe.returncode, stderr))
-        # TODO: Raise exception instead?
-        return False
-    else:
-        return stdout.decode('utf-8', errors='replace')
-
-
-# TODO: Move all text extraction to functions in 'extract_text.py'.
-def extract_pdf_content_with_pypdf(pdf_file):
-    """
-    Extract the plain text contents of a PDF document using PyPDF2.
-
-    Returns:
-        False or PDF content as strings.
-    """
-    try:
-        pdff = PyPDF2.PdfFileReader(open(pdf_file, 'rb'))
-    except (IOError, PyPdfError):
-        logging.error('Unable to read PDF file content.')
-        # TODO:
-        return False
-
-    try:
-        num_pages = pdff.getNumPages()
-    except PdfReadError:
-        # NOTE: This now wholly determines whether a pdf is readable.
-        #       Possible to not getNumPages but still be able to read the text?
-        logging.error('PDF document might be encrypted with restrictions '
-                      'preventing reading.')
-        # TODO: Raise exception instead?
-        raise
-    else:
-        logging.debug('Number of pdf pages: {}'.format(num_pages))
-
-    # Start by extracting a limited range of pages.
-    # TODO: Relevant info is more likely to be within some range of pages?
-    logging.debug('Extracting page #1')
-    content = pdff.pages[0].extractText()
-    if len(content) == 0:
-        logging.debug('Textual content of page #1 is empty.')
-        pass
-
-    # Collect more until a preset arbitrary limit is reached.
-    for i in range(1, num_pages):
-        if len(content) > 50000:
-            logging.debug('Extraction hit content size limit.')
-            break
-        logging.debug('Extracting page {:<4} of {:<4} ..'.format(i + 1,
-                                                                 num_pages))
-        content += pdff.getPage(i).extractText()
-
-    if content:
-        return content
-    else:
-        logging.debug('Unable to extract text with PyPDF2 ..')
-        return False
+def result_list_add(value, source, weight):
+    return [{'value': value,
+             'source': source,
+             'weight': weight}]

@@ -68,148 +68,182 @@ def arg_is_readable_file(arg):
 
 def init_argparser():
     """
-    Initialize the argparser. Add all arguments/options.
-    :return: the argument parser
+    Initializes the argparser. Adds all possible arguments and options.
+
+    Returns:
+        The initialized argument parser as a instance of 'ArgumentParser'.
     """
     parser = argparse.ArgumentParser(
         prog='autonameow',
         description='Automatic renaming of files from analysis of '
                     'several sources of information.',
-        epilog='Example usage: TODO ..')
+        epilog='Example usage: TODO ..'
+    )
 
     # Add option group for controlling what is printed to stdout.
     optgrp_output = parser.add_mutually_exclusive_group()
-    optgrp_output.add_argument('--debug',
-                               dest='debug',
-                               action='store_true',
-                               help='Debug mode.')
-
-    optgrp_output.add_argument('-v', '--verbose',
-                               dest='verbose',
-                               action='store_true',
-                               help='Verbose mode.',
-                               default=False)
-
-    optgrp_output.add_argument('-q', '--quiet',
-                               dest='quiet',
-                               action='store_true',
-                               help='Quiet mode.',
-                               default=False)
+    optgrp_output.add_argument(
+        '--debug',
+        dest='debug',
+        action='store_true',
+        default=False,
+        help='Debug mode. Enables displaying detailed debug information.'
+    )
+    optgrp_output.add_argument(
+        '-v', '--verbose',
+        dest='verbose',
+        action='store_true',
+        default=False,
+        help='Verbose mode. Enables displaying additional information.'
+    )
+    optgrp_output.add_argument(
+        '-q', '--quiet',
+        dest='quiet',
+        action='store_true',
+        default=False,
+        help='Quiet mode. Supress all output except critical errors.'
+    )
 
     # Add option group for actions to be performed.
     optgrp_action = parser.add_argument_group('Action options')
-    optgrp_action.add_argument('--list-datetime',
-                               dest='list_datetime',
-                               action='store_true',
-                               help='List all found "date/time"-information.')
-
-    optgrp_action.add_argument('--list-title',
-                               dest='list_title',
-                               action='store_true',
-                               help='List all "title"-information.')
-
-    optgrp_action.add_argument('--list-all',
-                               dest='list_all',
-                               action='store_true',
-                               help='List all information found.')
-
-    optgrp_action.add_argument('--prepend-datetime',
-                               dest='prepend_datetime',
-                               action='store_true',
-                               help='Prepend most probable '
-                                    '"date/time"-information to file names.')
+    # TODO: Replace '--list-datetime' and '--list-title' with '--list {FIELD}'
+    optgrp_action.add_argument(
+        '--list-datetime',
+        dest='list_datetime',
+        action='store_true',
+        help='List all found "date/time"-information.'
+    )
+    optgrp_action.add_argument(
+        '--list-title',
+        dest='list_title',
+        action='store_true',
+        help='List all "title"-information.'
+    )
+    optgrp_action.add_argument(
+        '--list-all',
+        dest='list_all',
+        action='store_true',
+        help='List all information found.'
+    )
+    optgrp_action.add_argument(
+        '--prepend-datetime',
+        dest='prepend_datetime',
+        action='store_true',
+        help='Prepend most probable "date/time"-information to file names.'
+    )
 
     # Add option group for operating mode.
     optgrp_mode = parser.add_argument_group('Operating mode')
-    optgrp_mode.add_argument('--automagic',
-                             dest='automagic',
-                             action='store_true',
-                             help='Figure out most probable new filename '
-                                  'without requiring user interaction.'
-                                  ' (development feature)')
-
-    optgrp_mode.add_argument('--interactive',
-                             dest='interactive',
-                             action='store_true',
-                             help='(DEFAULT) Enable interactive mode. User '
-                                  'selects which of the analysis results is to '
-                                  'make up the new filename.')
+    optgrp_mode.add_argument(
+        '--automagic',
+        dest='automagic',
+        action='store_true',
+        help='Perform renames without requiring any user interaction. '
+             'Matches the given paths against the available file rules. '
+             'Paths matched to a rule is renamed in accordance with the rule.'
+    )
+    optgrp_mode.add_argument(
+        '--interactive',
+        dest='interactive',
+        action='store_true',
+        help='(DEFAULT) Enable interactive mode. User selects which of the '
+             'analysis results is to make up the new filename.'
+    )
 
     # Add option group for filter options.
     optgrp_filter = parser.add_argument_group('Processing options')
+
     ignore_to_year_default = str(dateandtime.YEAR_LOWER_LIMIT.strftime('%Y'))
-    optgrp_filter.add_argument('--ignore-to-year',
-                               metavar='YYYY',
-                               type=arg_is_year,
-                               default=ignore_to_year_default,
-                               dest='filter_ignore_to_year',
-                               action='store',
-                               help='Ignore all date/time-information for the '
-                                    'specified year and years prior. Default: '
-                                    '{}'.format(ignore_to_year_default))
+    optgrp_filter.add_argument(
+        '--ignore-to-year',
+        metavar='YYYY',
+        type=arg_is_year,
+        default=ignore_to_year_default,
+        dest='filter_ignore_to_year',
+        action='store',
+        help='Ignore all date/time-information for the specified year and '
+             'years prior. Default: {}'.format(ignore_to_year_default)
+    )
 
     ignore_from_year_default = str(dateandtime.YEAR_UPPER_LIMIT.strftime('%Y'))
-    optgrp_filter.add_argument('--ignore-from-year',
-                               metavar='YYYY',
-                               type=arg_is_year,
-                               default=ignore_from_year_default,
-                               dest='filter_ignore_from_year',
-                               action='store',
-                               help='Ignore all date/time-information following'
-                                    ' the specified year (inclusive). Default: '
-                                    '{}'.format(ignore_from_year_default))
+    optgrp_filter.add_argument(
+        '--ignore-from-year',
+        metavar='YYYY',
+        type=arg_is_year,
+        default=ignore_from_year_default,
+        dest='filter_ignore_from_year',
+        action='store',
+        help='Ignore all date/time-information following the specified year '
+             '(inclusive). Default: {}'.format(ignore_from_year_default)
+    )
+    optgrp_filter.add_argument(
+        '--ignore-years',
+        metavar='YYYY',
+        type=arg_is_year,
+        default=[],
+        nargs='+',
+        dest='filter_ignore_years',
+        action='store',
+        help='Ignore date/time-information from the year(s) specified.'
+    )
+    parser.add_argument(
+        dest='input_paths',
+        metavar='INPUT_PATH',
+        nargs='*',
+        help='Path(s) to file(s) to process.'
+    )
+    parser.add_argument(
+        '-d', '--dry-run',
+        dest='dry_run',
+        action='store_true',
+        help='Simulate what would happen but do not actually write any '
+             'changes to disk.'
+    )
+    parser.add_argument(
+        '--version',
+        dest='show_version',
+        action='store_true',
+        help='Print program version and exit.'
+    )
+    parser.add_argument(
+        '--config-path',
+        dest='config_path',
+        metavar='CONFIG_PATH',
+        type=arg_is_readable_file,
+        help='Use configuration file at CONFIG_PATH instead of the default '
+             'configuration file.'
+    )
 
-    optgrp_filter.add_argument('--ignore-years',
-                               metavar='YYYY',
-                               type=arg_is_year,
-                               default=[],
-                               nargs='+',
-                               dest='filter_ignore_years',
-                               action='store',
-                               help='Ignore date/time-information '
-                                    'from the year(s) specified.')
+    # Add option group for debugging options.
+    optgrp_debug = parser.add_argument_group('Debug/developer options')
+    optgrp_debug.add_argument(
+        '--dump-options',
+        dest='dump_options',
+        action='store_true',
+        help='Dump options to stdout.'
+    )
+    optgrp_debug.add_argument(
+        '--dump-config',
+        dest='dump_config',
+        action='store_true',
+        help='Dump active configuration to stdout.'
+    )
 
-    parser.add_argument(dest='input_paths',
-                        metavar='INPUT_PATH',
-                        nargs='*',
-                        help='Path(s) to file(s) to process.')
-
-    parser.add_argument('-d', '--dry-run',
-                        dest='dry_run',
-                        action='store_true',
-                        help='Simulate what would happen but do not '
-                             'actually write any changes to disk.')
-
-    parser.add_argument('--dump-options',
-                        dest='dump_options',
-                        action='store_true',
-                        help='[DEBUG] Dump options to stdout.')
-
-    parser.add_argument('--dump-config',
-                        dest='dump_config',
-                        action='store_true',
-                        help='[DEBUG] Dump condiguration to stdout.')
-
-    parser.add_argument('--version',
-                        dest='show_version',
-                        action='store_true',
-                        help='Print program version and exit.')
-
-    parser.add_argument('--config-path',
-                        dest='config_path',
-                        metavar='CONFIG_PATH',
-                        nargs=1,
-                        type=arg_is_readable_file,
-                        help='Use configuration file at CONFIG_PATH instead '
-                             'of the default configuration file.')
     return parser
 
 
 def parse_args(opts):
     """
-    Parse command line arguments.
-    Check combination legality, print debug info.
-    Apply selected options.
+    Parses the given option arguments.
+
+    Configures the logger format and settings.
+    Checks legality of combined options.
+
+    Args:
+        opts: The option arguments to parse as a list of strings.
+
+    Returns:
+        Parsed option arguments as type 'argparse.NameSpace'.
     """
     parser = init_argparser()
     args = parser.parse_args(args=opts)
@@ -219,6 +253,8 @@ def parse_args(opts):
     #       levels, enabled by adding on any number of '-v' options to the
     #       command-line. For instance, verbosity levels 1 and 3 would be
     #       enabled with '-v' and '-vvv', respectively.
+
+    # TODO: Use 'core.util.cli.colorize' to colorize the below log formats.
     if args.debug:
         fmt = (Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET
                + Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET
@@ -253,13 +289,17 @@ def parse_args(opts):
     return args
 
 
-def prettyprint_options(opts):
+def prettyprint_options(opts, extra_opts):
     """
     Display details on the command line options that are in effect.
     Mainly for debug purposes.
     :param opts: arguments to display
     """
     opts_dict = vars(opts)
+
+    if extra_opts:
+        opts_dict.update(extra_opts)
+
     for k, v in opts_dict.items():
         if v == 0:
             v = 'False'
