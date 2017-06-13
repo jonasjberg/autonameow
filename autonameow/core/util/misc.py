@@ -28,6 +28,8 @@ import itertools
 import collections
 import yaml
 
+import logging as log
+
 from core.exceptions import InvalidQueryStringError
 
 
@@ -41,7 +43,11 @@ def dump(obj):
     Returns:
         A human-readable representation of "obj" in YAML-format.
     """
-    return yaml.dump(obj, default_flow_style=False, width=80, indent=4)
+    try:
+        return yaml.dump(obj, default_flow_style=False, width=80, indent=4)
+    except TypeError as e:
+        log.critical('Dump FAILED: ' + str(e))
+        raise
 
 
 def dump_to_list(obj, nested_level=0, output=None):
