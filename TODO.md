@@ -38,7 +38,7 @@ High Priority
 Think about moving to a new high-level architecture:
 
 * __All data extraction is handled by `extractor` classes__ --
-  -- `analyzer` classes do not perform any kind of data extraction.
+  `analyzer` classes do not perform any kind of data extraction.
 * __The `Analysis` class controls all extractors and analyzers__ --
   An analysis would first call the extractors that are relevant to the current
   file. Then the analyzers relevant to the file is called to process the data
