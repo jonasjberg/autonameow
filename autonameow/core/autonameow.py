@@ -199,7 +199,6 @@ class Autonameow(object):
             if self.args.prepend_datetime:
                 # TODO: Prepend datetime to filename.
                 log.warning('[UNIMPLEMENTED FEATURE] prepend_datetime')
-                self.exit_program(constants.EXIT_ERROR)
 
             if self.args.automagic:
                 try:
