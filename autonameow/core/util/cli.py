@@ -179,6 +179,8 @@ def msg(message, type=None, log=False):
 
         return text
 
+    # TODO: Respect '--quiet' option. Suppress output.
+
     if not message:
         return
 
