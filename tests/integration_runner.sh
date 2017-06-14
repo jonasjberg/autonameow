@@ -36,7 +36,7 @@ then
 fi
 
 # Default configuration.
-option_skip_report='false'
+option_write_report='false'
 option_quiet='false'
 
 
@@ -49,9 +49,9 @@ print_usage_info()
   USAGE:  ${SELF} ([OPTIONS])
 
   OPTIONS:  -h   Display usage information and exit.
-            -n   Do not write HTML test reports to disk.
-                 Note: "raw" log file is always written.
             -q   Suppress output from test suites.
+            -w   Write HTML test reports to disk.
+                 Note: The "raw" log file is always written.
 
   All options are optional. Default behaviour is to export test result
   reports and print the test results to stdout/stderr in real-time.
@@ -66,11 +66,11 @@ if [ "$#" -eq "0" ]
 then
     printf "(USING DEFAULTS -- "${SELF} -h" for usage information)\n\n"
 else
-    while getopts hnq opt
+    while getopts hwq opt
     do
         case "$opt" in
             h) print_usage_info ; exit 0 ;;
-            n) option_skip_report='true' ;;
+            w) option_write_report='true' ;;
             q) option_quiet='true' ;;
         esac
     done
@@ -109,7 +109,7 @@ time_end="$(current_unix_time)"
 total_time="$((($time_end - $time_start) / 1000000))"
 logmsg "Total execution time: ${total_time} ms"
 
-if [ "$option_skip_report" != 'true' ]
+if [ ! "$option_write_report" != 'true' ]
 then
     run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
 fi
