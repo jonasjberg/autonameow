@@ -76,7 +76,7 @@ class AnalysisRunQueue(object):
         return ', '.join(out)
 
 
-class Results(object):
+class AnalysisResults(object):
     """
     Container for results gathered during an analysis of a file.
     """
@@ -195,7 +195,7 @@ class Analysis(object):
             raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
-        self.results = Results()
+        self.results = AnalysisResults()
         self.analysis_run_queue = AnalysisRunQueue()
 
     def collect_results(self, label, data):

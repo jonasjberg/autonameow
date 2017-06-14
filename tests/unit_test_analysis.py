@@ -22,7 +22,7 @@
 from unittest import TestCase
 
 from core.analysis import (
-    Results,
+    AnalysisResults,
     AnalysisRunQueue,
     Analysis
 )
@@ -66,9 +66,9 @@ class TestAnalysis(TestCase):
         self.assertEqual(_results_len, 0)
 
 
-class TestResults(TestCase):
+class TestAnalysisResults(TestCase):
     def setUp(self):
-        self.results = Results()
+        self.results = AnalysisResults()
 
     def test_results_init_contains_valid_results_fields(self):
         for field in ANALYSIS_RESULTS_FIELDS:
