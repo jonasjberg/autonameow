@@ -1,7 +1,7 @@
 Notes on possible changes to the overall architecture.
 
 
-### Module hierarchy
+## Module hierarchy
 
 - autonameow
     - analyzers
@@ -10,13 +10,13 @@ Notes on possible changes to the overall architecture.
     - plugins
 
 
-### Class hierarchy
+## Class hierarchy
 What are the advantages of multi-level inheritance?
 
 Would it be better to think about inheritance hierarchies at a later time,
 with more information on how the extractors/analyzers will actually be used?
 
-#### Analyzers
+### Analyzers
 Current inheritance:
 
 - AbstractAnalyzer
@@ -27,7 +27,7 @@ Current inheritance:
     - TextAnalyzer
     - VideoAnalyzer
 
-#### Extractors
+### Extractors
 Proposed inheritance:
 
 - Extractor
@@ -44,19 +44,19 @@ Proposed inheritance:
 
     * Provides means for getting extractors suited for a given file. 
 
-    ```python
-    for extractor in available_extractors:
-        if extractor.handles(file_mime_type):
-            enqueue(extractor)
-    queue.run()
-    ```
+        ```python
+        for extractor in available_extractors:
+            if extractor.handles(file_mime_type):
+                enqueue(extractor)
+        queue.run()
+        ```
 
-    Alternatively:
-    ```python
-    extractors = suitable_extractors(file_mime_type)
-    enqueue(extractors)
-    queue.run()
-    ```
+        Alternatively:
+        ```python
+        extractors = suitable_extractors(file_mime_type)
+        enqueue(extractors)
+        queue.run()
+        ```
 
     * Reduce duplicate code, etc..
 
@@ -79,4 +79,19 @@ For instance:
         - BillAnalyzer
 
 This kind of abstraction might not be a good solution..
+
+
+## Moving to separate analyzers and extractors
+The user could configure file rule to fetch specific extracted data fields.
+These would be fixed and only processed in the most basic way.
+
+The *file rule* would specify a *data source* like:
+`extracted_data.filesystem.basename`
+
+Alternatively, the user could set up the rule to use analyzer data, for instance:
+`analysis_results.title`
+
+This would use a "most likely" title from whatever source.
+Suitable analyzers for the given file would be enqueued and executed.
+The specific analyzer would decide which title, or list of candidates to use.
 
