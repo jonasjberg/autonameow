@@ -26,7 +26,9 @@ from analyzers.analyze_abstract import (
     get_analyzer_mime_mappings
 )
 from core import constants
-from core.exceptions import AutonameowException
+from core.exceptions import (
+    AutonameowException
+)
 from core.fileobject import FileObject
 
 
@@ -76,7 +78,7 @@ class AnalysisRunQueue(object):
         return ', '.join(out)
 
 
-class Results(object):
+class AnalysisResults(object):
     """
     Container for results gathered during an analysis of a file.
     """
@@ -87,7 +89,6 @@ class Results(object):
             self._data[field] = []
 
         # TODO: Redesign data storage structure.
-        self._fixed_data = dict(constants.RESULTS_DATA_STRUCTURE)
         self.new_data = {}
 
     def query(self, field_data_source_map):
@@ -181,12 +182,9 @@ class Analysis(object):
     The analyses in the run queue are executed and any results are
     passed back through a callback function.
     """
-    def __init__(self, file_object):
+    def __init__(self, file_object, extracted_data):
         """
-        Starts an analysis of a file. This is done once per file.
-
-        Note:
-            Run queue is populated and executed straight away at instantiation.
+        Setup an analysis of a given file. This is done once per file.
 
         Args:
             file_object: File to analyze as an instance of class 'FileObject'.
@@ -195,8 +193,12 @@ class Analysis(object):
             raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
-        self.results = Results()
+        self.results = AnalysisResults()
         self.analysis_run_queue = AnalysisRunQueue()
+
+        if extracted_data:
+            for key, value in extracted_data:
+                self.collect_results(key, value)
 
     def collect_results(self, label, data):
         """
@@ -218,20 +220,6 @@ class Analysis(object):
         log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
         self._populate_run_queue()
         log.debug('Enqueued analyzers: {!s}'.format(self.analysis_run_queue))
-
-        # Add information from 'FileObject' to results.
-        self.collect_results('filesystem.basename.full',
-                             self.file_object.filename)
-        self.collect_results('filesystem.basename.extension',
-                             self.file_object.suffix)
-        self.collect_results('filesystem.basename.suffix',
-                             self.file_object.suffix)
-        self.collect_results('filesystem.basename.prefix',
-                             self.file_object.fnbase)
-        self.collect_results('filesystem.pathname.full',
-                             self.file_object.pathname)
-        self.collect_results('filesystem.pathname.parent',
-                             self.file_object.pathparent)
 
         # Run all analyzers in the queue.
         self._execute_run_queue()

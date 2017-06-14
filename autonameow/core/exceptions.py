@@ -46,6 +46,10 @@ class AnalysisResultsFieldError(AutonameowException):
     """Attempt to query/access an invalid analyzer data field."""
 
 
+class InvalidDataSourceError(AutonameowException):
+    """Attempt to use an invalid data source."""
+
+
 class NameBuilderError(AutonameowException):
     """An error occurred while constructing a name. Unable to proceed."""
 
