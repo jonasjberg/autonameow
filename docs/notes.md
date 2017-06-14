@@ -1,18 +1,15 @@
-# `autonameow`
-## Design Document
+`autonameow`
+============
+*Copyright(c) 2016-2017 Jonas Sjöberg*  
+<https://github.com/jonasjberg>  
+<http://www.jonasjberg.com>  
 
 --------------------------------------------------------------------------------
 
 
-Miscellaneous notes
-===================
-Various notes on anything related to the 'autonameow' project.
-
-
-
-
-Reference material
+Reference Material
 ------------------
+
 
 * Wichert, A. Intelligent Big Multimedia Databases, World Scientific, 2015.
 
