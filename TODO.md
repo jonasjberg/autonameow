@@ -58,6 +58,8 @@ Think about moving to a new high-level architecture:
         Having the extractor data available when evaluating rules (3) solves
         the problem of evaluating certain conditions, like testing if the
         given file contains a specific line of text, etc.
+* Plan for optimization by not extracting more data than necessary.
+  How could this be implemented?
 
 ### Internal data storage
 
