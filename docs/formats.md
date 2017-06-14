@@ -182,8 +182,6 @@ DEFAULT_CONFIG = {
     #   Each rule specifies conditions that should be met for the rule to apply
     #   to a given file.
     #
-    #   TODO: Document all fields ..
-    #
     #   * If 'exact_match' is True, __all__ conditions must be met,
     #     otherwise the rule is considered to not apply to the given file.
     #
@@ -192,8 +190,6 @@ DEFAULT_CONFIG = {
     #     When multiple rules end up tied for the "best fit", I.E. they all
     #     have an equal amount of satisfied conditions; 'weight' is used
     #     to prioritize the candidates.
-    #
-    #   TODO: Document all fields ..
     #
     'FILE_RULES': [
         {'description': 'test_files Gmail print-to-pdf',
