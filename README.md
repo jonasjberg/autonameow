@@ -13,14 +13,36 @@ apply a strict file naming convention uniformly and consistently.
 
 
 #### PLEASE NOTE
-__This software is still undergoing heavy development and is not suited
-for use by non-developers!__
+__This software is still undergoing heavy development; NOT READY FOR USE!__
 
 
-#### Installing
-See [`install.md`](./install.md) for a *(temporary)* guide to
-installing under Linux and MacOS.
+Installing
+----------
+If you want to use `autonameow`, __please wait for the next stable release__,
+probably version `v1.0.0`.
 
+Don't feel like waiting?  See [`install.md`](./install.md) for a *(temporary)*
+guide to installing under Linux and MacOS.
+
+
+Documentation
+-------------
+The wiki is not be updated and does not reflect the current state of the
+project. I simply don't have time to keep the documentation in sync with
+frequent and non-trivial changes to the software.
+
+The project was for a period of time developed as part of the course
+"`1DV430` -- Individual Software Development Project", given at
+[Linnaeus University](https://lnu.se/en/) as part of the
+"[Software Development and Operations](https://udm-devops.se/)" programme.
+
+The course work began at version `v0.3.0`
+([commit](https://github.com/jonasjberg/autonameow/commit/cbe439104813d83ee5a6274eed0943433955b59c))
+and ended with version `v0.4.0`
+([commit](https://github.com/jonasjberg/autonameow/commit/da494350dca4f99157cc8f7541f92ca8d7f3daf1))
+
+See the [project wiki](https://github.com/jonasjberg/autonameow/wiki) for
+documentation related to this coursework.
 
 
 License
