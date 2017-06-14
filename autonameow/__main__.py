@@ -21,11 +21,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Allow user to run Autonameow as a module from a directory or zip file.
-Execute with:
+Execute autonameow by running either one of;
 
-  $ python autonameow/__main__.py (2.6)
-  $ python -m autonameow          (2.7+)
+  $ python3 autonameow/__main__.py
+  $ python3 -m autonameow
 
 """
 
