@@ -37,8 +37,9 @@ class ImageAnalyzer(AbstractAnalyzer):
 
     def __init__(self, file_object, add_results_callback):
         super(ImageAnalyzer, self).__init__(file_object, add_results_callback)
-        self.applies_to_mime = ['jpg', 'png']
         self.add_results = add_results_callback
+
+        self.applies_to_mime = ['jpg', 'png']
 
         self.exiftool = None
         self.exif_data = None
@@ -48,8 +49,8 @@ class ImageAnalyzer(AbstractAnalyzer):
     def run(self):
         self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
         logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
-        self.exif_data = self.exiftool.query()
 
+        self.exif_data = self.exiftool.query()
         if self.exif_data:
             self.add_results('metadata.exiftool', self.exif_data)
 
