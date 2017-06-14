@@ -38,8 +38,8 @@ REMOTE_TEST_RESULTS="https://github.com/1dv430/js224eh-project/blob/master/docs/
 WIKI_REPORT_RESULTS="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
 
 # Default configuration.
-option_skip_reports='false'
-option_skip_wiki='false'
+option_write_reports='false'
+option_update_wiki='false'
 option_verbose='false'
 
 
@@ -51,16 +51,14 @@ print_usage_info()
 
   USAGE:  ${SELF} ([OPTIONS])
 
-  OPTIONS:  -d   Do not write any reports.
-                 Calls unit/integration-runners with the '-n' option.
-                 NOTE: Implies '-n', will not add reports to the wiki.
-            -h   Display usage information and exit.
-            -n   Do not add test reports to project wiki.
+  OPTIONS:  -h   Display usage information and exit.
+            -u   Add test reports to the project wiki.
             -v   Enable all output from the unit/integration-runners.
                  This also increases the verbosity of this script.
+            -w   Write result reports in HTML and PDF format.
 
-  All options are optional. Default behaviour is to add test reports to
-  the project wiki and suppress output from the unit/integration-runners.
+  All options are optional. Default behaviour is to suppress output
+  from the unit/integration-runners and not write anything to disk.
 
 EOF
 }
@@ -131,13 +129,13 @@ if [ "$#" -eq "0" ]
 then
     printf "(USING DEFAULTS -- "${SELF} -h" for usage information)\n\n"
 else
-    while getopts dhnv opt
+    while getopts huvw opt
     do
         case "$opt" in
-            d) option_skip_reports='true' ; option_skip_wiki='true' ;;
             h) print_usage_info ; exit 0 ;;
-            n) option_skip_wiki='true' ;;
+            u) option_update_wiki='true' ;;
             v) option_verbose='true' ;;
+            w) option_write_reports='true' ;;
         esac
     done
 
@@ -146,8 +144,8 @@ fi
 
 [ "$option_verbose" != 'true' ] && option_quiet='true' || option_quiet='false'
 
-runner_opts='-n'
-[ "$option_skip_reports" != 'true' ] && runner_opts=''
+runner_opts=''
+[ "$option_write_reports" != 'true' ] && runner_opts='-n'
 
 count_fail=0
 run_task "$option_quiet" 'Running integration test runner' "${SELF_DIR}/integration_runner.sh ${runner_opts}"
@@ -161,7 +159,7 @@ then
 fi
 
 
-if [ "$option_skip_wiki" != 'true' ]
+if [ ! "$option_update_wiki" != 'true' ]
 then
     run_task "$option_quiet" 'Adding heading with current date to report if needed' wiki_check_add_header
     run_task "$option_quiet" 'Adding integration test log to Test Results wiki page' wiki_add_integration_link
