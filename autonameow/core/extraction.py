@@ -23,6 +23,66 @@ import logging as log
 
 from core import constants
 from core.exceptions import InvalidDataSourceError
+from core.fileobject import FileObject
+
+
+class Extraction(object):
+    """
+    Handles "extractors"; subclasses of the 'Extractor' class.
+    """
+    def __init__(self, file_object):
+        """
+        Instantiates extraction for a given file. This is done once per file.
+
+        Args:
+            file_object: File to extract data from, as a 'FileObject' instance.
+        """
+        if not isinstance(file_object, FileObject):
+            raise TypeError('Argument must be an instance of "FileObject"')
+        self.file_object = file_object
+
+        self.data = ExtractedData()
+
+    def collect_results(self, label, data):
+        """
+        Collects extracted data. Passed to extractors as a callback.
+
+        Args:
+            label: Label that identifies the data. Should be one of the string
+                defined in "constants.VALID_DATA_SOURCES".
+            data: The data to add.
+        """
+        self.data.add(label, data)
+
+    def start(self):
+        """
+        Starts the data extraction.
+        """
+        # Select extractors based on detected file type.
+        log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
+
+        # TODO: Get extractors suited for the given file.
+
+        # TODO: Use a "run queue" is in the 'Analysis' class?
+        # log.debug('Enqueued extractors: {!s}'.format(self.run_queue))
+
+        # Add information from 'FileObject' to results.
+        self.collect_results('filesystem.basename.full',
+                             self.file_object.filename)
+        self.collect_results('filesystem.basename.extension',
+                             self.file_object.suffix)
+        self.collect_results('filesystem.basename.suffix',
+                             self.file_object.suffix)
+        self.collect_results('filesystem.basename.prefix',
+                             self.file_object.fnbase)
+        self.collect_results('filesystem.pathname.full',
+                             self.file_object.pathname)
+        self.collect_results('filesystem.pathname.parent',
+                             self.file_object.pathparent)
+
+        # TODO: Execute all suitable extractors and collect results.
+        # Run all extractors in the queue.
+        # self._execute_run_queue()
 
 
 class ExtractedData(object):
