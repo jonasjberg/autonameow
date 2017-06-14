@@ -176,7 +176,7 @@ class Autonameow(object):
                 continue
 
             # Begin analysing the file.
-            analysis = Analysis(current_file)
+            analysis = Analysis(current_file, extraction.data)
             try:
                 analysis.start()
             except AutonameowException as e:

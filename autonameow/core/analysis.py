@@ -182,7 +182,7 @@ class Analysis(object):
     The analyses in the run queue are executed and any results are
     passed back through a callback function.
     """
-    def __init__(self, file_object):
+    def __init__(self, file_object, extracted_data):
         """
         Setup an analysis of a given file. This is done once per file.
 
@@ -195,6 +195,10 @@ class Analysis(object):
 
         self.results = AnalysisResults()
         self.analysis_run_queue = AnalysisRunQueue()
+
+        if extracted_data:
+            for key, value in extracted_data:
+                self.collect_results(key, value)
 
     def collect_results(self, label, data):
         """
@@ -216,20 +220,6 @@ class Analysis(object):
         log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
         self._populate_run_queue()
         log.debug('Enqueued analyzers: {!s}'.format(self.analysis_run_queue))
-
-        # Add information from 'FileObject' to results.
-        self.collect_results('filesystem.basename.full',
-                             self.file_object.filename)
-        self.collect_results('filesystem.basename.extension',
-                             self.file_object.suffix)
-        self.collect_results('filesystem.basename.suffix',
-                             self.file_object.suffix)
-        self.collect_results('filesystem.basename.prefix',
-                             self.file_object.fnbase)
-        self.collect_results('filesystem.pathname.full',
-                             self.file_object.pathname)
-        self.collect_results('filesystem.pathname.parent',
-                             self.file_object.pathparent)
 
         # Run all analyzers in the queue.
         self._execute_run_queue()

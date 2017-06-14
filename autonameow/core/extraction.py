@@ -122,6 +122,10 @@ class ExtractedData(object):
 
         return self._data.get(label, False)
 
+    def __iter__(self):
+        for k, v in self._data.items():
+            yield (k, v)
+
     def __len__(self):
         def count_dict_recursive(dictionary, count):
             for key, value in dictionary.items():
