@@ -40,6 +40,7 @@ from core.exceptions import (
     NameBuilderError,
     ConfigError
 )
+from core.extraction import Extraction
 from core.fileobject import FileObject
 from core.util import (
     cli,
@@ -162,6 +163,16 @@ class Autonameow(object):
                 current_file = FileObject(input_path, self.config)
             except InvalidFileArgumentError as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(e, input_path))
+                continue
+
+            # Extract data from the file.
+            extraction = Extraction(current_file)
+            try:
+                extraction.start()
+            except AutonameowException as e:
+                log.critical('Extraction FAILED: {!s}'.format(e))
+                log.critical('Skipping file "{}" ..'.format(current_file))
+                self.exit_code = constants.EXIT_WARNING
                 continue
 
             # Begin analysing the file.
