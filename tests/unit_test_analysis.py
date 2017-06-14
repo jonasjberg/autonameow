@@ -25,9 +25,9 @@ from core import constants
 from core.analysis import (
     AnalysisResults,
     AnalysisRunQueue,
-    Analysis,
-    ExtractedData
+    Analysis
 )
+from extractors.extractor import ExtractedData
 from core.constants import ANALYSIS_RESULTS_FIELDS
 from core.exceptions import InvalidDataSourceError
 from unit_utils import (

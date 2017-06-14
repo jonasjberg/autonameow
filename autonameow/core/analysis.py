@@ -27,8 +27,7 @@ from analyzers.analyze_abstract import (
 )
 from core import constants
 from core.exceptions import (
-    AutonameowException,
-    InvalidDataSourceError
+    AutonameowException
 )
 from core.fileobject import FileObject
 
@@ -77,61 +76,6 @@ class AnalysisRunQueue(object):
         for i, a in enumerate(self):
             out.append('{:02d}: {}'.format(i, a.__name__))
         return ', '.join(out)
-
-
-class ExtractedData(object):
-    """
-    Container for data gathered by extractors.
-    """
-    def __init__(self):
-        self._data = {}
-
-    def add(self, label, data):
-        if not data:
-            return
-        if not label or label not in constants.VALID_DATA_SOURCES:
-            raise InvalidDataSourceError('Invalid source: "{}"'.format(label))
-        else:
-            # TODO: Necessary to handle multiple adds to the same label?
-            if label in self._data:
-                t = self._data[label]
-                self._data[label] = [t] + [data]
-            else:
-                self._data[label] = data
-
-    def get(self, label):
-        """
-        Returns extracted data matching the specified label.
-
-        Args:
-            One of the strings defined in "constants.VALID_DATA_SOURCES".
-        Returns:
-            Extracted data associated with the given label, or False if the
-            data does not exist.
-        Raises:
-            InvalidDataSourceError: The label is not a valid data source.
-        """
-        if not label or label not in constants.VALID_DATA_SOURCES:
-            raise InvalidDataSourceError('Invalid label: "{}"'.format(label))
-
-        return self._data.get(label, False)
-
-    def __len__(self):
-        def count_dict_recursive(dictionary, count):
-            for key, value in dictionary.items():
-                if isinstance(value, dict):
-                    count_dict_recursive(value, count)
-                elif value:
-                    if isinstance(value, list):
-                        for v in value:
-                            if v:
-                                count += 1
-                    else:
-                        count += 1
-
-            return count
-
-        return count_dict_recursive(self._data, 0)
 
 
 class AnalysisResults(object):
