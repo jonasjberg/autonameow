@@ -145,7 +145,6 @@ class AnalysisResults(object):
             self._data[field] = []
 
         # TODO: Redesign data storage structure.
-        self._fixed_data = dict(constants.RESULTS_DATA_STRUCTURE)
         self.new_data = {}
 
     def query(self, field_data_source_map):
