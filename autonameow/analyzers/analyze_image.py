@@ -23,9 +23,8 @@ import logging
 import re
 from datetime import datetime
 
-from PIL import Image
-from PIL.ExifTags import TAGS, GPSTAGS
-from pytesseract import image_to_string
+import PIL
+import pytesseract
 
 from analyzers.analyze_abstract import AbstractAnalyzer
 from core.util import dateandtime
@@ -201,7 +200,7 @@ class ImageAnalyzer(AbstractAnalyzer):
         exif_data = None
         filename = self.file_object.abspath
         try:
-            image = Image.open(filename)
+            image = PIL.Image.open(filename)
         except IOError as e:
             logging.warning('PIL image I/O error({0}): {1}'.format(e.errno,
                                                                    e.strerror))
@@ -217,7 +216,7 @@ class ImageAnalyzer(AbstractAnalyzer):
 
         for tag, value in list(exif_data.items()):
             # Obtain a human-readable version of the tag.
-            tag_string = TAGS.get(tag, tag)
+            tag_string = PIL.ExifTags.TAGS.get(tag, tag)
 
             # Check if tag contains GPS data.
             if tag_string == 'GPSInfo':
@@ -227,7 +226,7 @@ class ImageAnalyzer(AbstractAnalyzer):
                 # Loop through the GPS information
                 for tag_gps, value_gps in list(value.items()):
                     # Obtain a human-readable version of the GPS tag.
-                    tag_string_gps = GPSTAGS.get(tag_gps, tag_gps)
+                    tag_string_gps = PIL.ExifTags.GPSTAGS.get(tag_gps, tag_gps)
 
                     if value_gps is not None:
                         result_gps[tag_string_gps] = value_gps
@@ -249,13 +248,13 @@ class ImageAnalyzer(AbstractAnalyzer):
         image_text = None
         filename = self.file_object.abspath
         try:
-            image = Image.open(filename)
+            image = PIL.Image.open(filename)
         except IOError as e:
             logging.warning('PIL image I/O error({}): {}'.format(e.errno,
                                                                  e.strerror))
         else:
             try:
-                image_text = image_to_string(image)
+                image_text = pytesseract.image_to_string(image)
             except Exception as e:
                 logging.warning('PyTesseract image OCR error({}): '
                                 '{}'.format(e.args, e.message))
