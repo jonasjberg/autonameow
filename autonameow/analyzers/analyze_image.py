@@ -54,9 +54,9 @@ class ImageAnalyzer(AbstractAnalyzer):
         if self.exif_data:
             self.add_results('metadata.exiftool', self.exif_data)
 
+        # TODO: Move image OCR to extractor class?
         self.ocr_text = self._get_text_from_ocr()
 
-        # TODO: Run OCR on the image and store any textual output.
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
 
