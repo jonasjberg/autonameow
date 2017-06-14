@@ -58,6 +58,7 @@ class Extraction(object):
         """
         Starts the data extraction.
         """
+        log.debug('Started data extraction')
         # Select extractors based on detected file type.
         log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
 
