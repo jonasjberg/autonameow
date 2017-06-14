@@ -32,7 +32,7 @@ then
 fi
 
 # Default configuration.
-option_skip_report='false'
+option_write_report='false'
 option_quiet='false'
 
 
@@ -45,8 +45,8 @@ print_usage_info()
   USAGE:  ${SELF} ([OPTIONS])
 
   OPTIONS:  -h   Display usage information and exit.
-            -n   Do not write HTML test reports to disk.
-                 Note: "raw" log file is always written.
+            -w   Write HTML test reports to disk.
+                 Note: the "raw" log file is always written.
             -q   Suppress output from test suites.
 
   All options are optional. Default behaviour is to export test result
@@ -64,11 +64,11 @@ if [ "$#" -eq "0" ]
 then
     printf "(USING DEFAULTS -- "${SELF} -h" for usage information)\n\n"
 else
-    while getopts hnq opt
+    while getopts hwq opt
     do
         case "$opt" in
             h) print_usage_info ; exit 0 ;;
-            n) option_skip_report='true' ;;
+            w) option_write_report='true' ;;
             q) option_quiet='true' ;;
         esac
     done
@@ -105,8 +105,8 @@ fi
 
 run_pytest()
 {
-    _pytest_report_opts="--self-contained-html --html="${_unittest_log}""
-    [ "$option_skip_report" != 'true' ] || _pytest_report_opts=''
+    _pytest_report_opts=''
+    [ "$option_write_report" != 'true' ] || _pytest_report_opts="--self-contained-html --html="${_unittest_log}""
     ( cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests pytest ${_pytest_report_opts} tests/unit_test_*.py )
 }
 
