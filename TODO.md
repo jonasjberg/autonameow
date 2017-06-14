@@ -34,17 +34,19 @@ High Priority
 * Fully implement the idea of dynamically constructing structures and
   interfaces from a single reference data structure at runtime.
 
-### Suggestion for further modularization
-Think about moving to a new high-level architecture:
+### New high-level architecture:
 
 * __All data extraction is handled by `extractor` classes__ --
   `analyzer` classes do not perform any kind of data extraction.
-* __The `Analysis` class controls all extractors and analyzers__ --
-  An analysis would first call the extractors that are relevant to the current
-  file. Then the analyzers relevant to the file is called to process the data
+* __The `Extraction` class controls all extractors__ --
+  The first step in the processing pipeline is calling the extractors that are
+  relevant to the current file.
+    * Data produced by `extractor` classes is returned to a new separate
+      container class `ExtractedData`.
+* __The `Analysis` class controls all analyzers__ --
+  Extracted data from `ExtractedData` is passed to the `Analysis` instance at
+  init.  Then the analyzers relevant to the file is called to process the data
   returned by the extractors.
-    * Data produced by `extractor` classes is returned to a (new) separate
-      container in the `Analysis` class.
     * Data produced by `analyzer` classes is returned to a separate
       container in the `Analysis` class.
     * Overall program flow could go along the lines of:
@@ -60,6 +62,7 @@ Think about moving to a new high-level architecture:
         given file contains a specific line of text, etc.
 * Plan for optimization by not extracting more data than necessary.
   How could this be implemented?
+* Move all existing code to the architecture described above.
 
 ### Internal data storage
 
