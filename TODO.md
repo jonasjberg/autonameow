@@ -10,10 +10,6 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` TODO-list
 ======================
 
-~~Please refer to the [Product
-Backlog](https://github.com/1dv430/js224eh-project/wiki/backlog) for a current
-listing.~~
-
 
 High Priority
 -------------
