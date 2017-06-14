@@ -184,10 +184,7 @@ class Analysis(object):
     """
     def __init__(self, file_object):
         """
-        Starts an analysis of a file. This is done once per file.
-
-        Note:
-            Run queue is populated and executed straight away at instantiation.
+        Setup an analysis of a given file. This is done once per file.
 
         Args:
             file_object: File to analyze as an instance of class 'FileObject'.
