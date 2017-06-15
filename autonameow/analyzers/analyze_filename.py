@@ -32,7 +32,7 @@ from core.util import dateandtime
 
 
 class FilenameAnalyzer(Analyzer):
-    # @Overrides attribute in AbstractAnalyzer
+    # @Overrides attribute in Analyzer
     run_queue_priority = 1
 
     def __init__(self, file_object, add_results_callback):
@@ -43,7 +43,7 @@ class FilenameAnalyzer(Analyzer):
 
         self.guessit_metadata = None
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def run(self):
         # TODO: This test does not belong here! Handle guessit properly.
         if guessit and self.file_object.mime_type == 'mp4':
@@ -52,7 +52,7 @@ class FilenameAnalyzer(Analyzer):
             if self.guessit_metadata:
                 self.add_results('plugins.guessit', self.guessit_metadata)
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_datetime(self):
         result = []
 
@@ -67,7 +67,7 @@ class FilenameAnalyzer(Analyzer):
 
         return result
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_title(self):
         titles = []
 
@@ -82,16 +82,16 @@ class FilenameAnalyzer(Analyzer):
 
         return titles
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_author(self):
         # TODO: Implement.
         pass
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_tags(self):
         return self.file_object.filenamepart_tags
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_publisher(self):
         return None
 

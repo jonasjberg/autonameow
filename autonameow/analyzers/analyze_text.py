@@ -29,7 +29,7 @@ from core.util import dateandtime
 
 
 class TextAnalyzer(Analyzer):
-    # @Overrides attribute in AbstractAnalyzer
+    # @Overrides attribute in Analyzer
     run_queue_priority = 0.5
 
     def __init__(self, file_object, add_results_callback):
@@ -39,23 +39,23 @@ class TextAnalyzer(Analyzer):
 
         self.text = None
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def run(self):
         # Extract the textual contents.
         logging.debug('Extracting text contents ..')
         self.text = self._extract_text_content()
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_author(self):
         # TODO: Implement.
         pass
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_title(self):
         # TODO: Implement.
         pass
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_datetime(self):
         result = []
         if self.text:
@@ -65,7 +65,7 @@ class TextAnalyzer(Analyzer):
 
         return result
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_tags(self):
         # TODO: Implement.
         pass

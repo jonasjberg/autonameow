@@ -53,7 +53,7 @@ def get_filename_analyzer(file_object):
     return FilenameAnalyzer(file_object, None)
 
 
-class TestAbstractAnalyzer(TestCase):
+class TestAnalyzer(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.a = Analyzer(get_mock_fileobject(), None)

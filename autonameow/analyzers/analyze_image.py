@@ -32,7 +32,7 @@ from extractors.metadata import ExiftoolMetadataExtractor
 
 
 class ImageAnalyzer(Analyzer):
-    # @Overrides attribute in AbstractAnalyzer
+    # @Overrides attribute in Analyzer
     run_queue_priority = 0.5
 
     def __init__(self, file_object, add_results_callback):
@@ -45,7 +45,7 @@ class ImageAnalyzer(Analyzer):
         self.exif_data = None
         self.ocr_text = None
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def run(self):
         self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
         logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
@@ -60,7 +60,7 @@ class ImageAnalyzer(Analyzer):
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_datetime(self):
         result = []
         exif_timestamps = self._get_exif_datetime()
@@ -74,15 +74,15 @@ class ImageAnalyzer(Analyzer):
 
         return result
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_author(self):
         raise NotImplementedError('Get "author" from ImageAnalyzer')
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_title(self):
         raise NotImplementedError('Get "title" from ImageAnalyzer')
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_tags(self):
         raise NotImplementedError('Get "tags" from ImageAnalyzer')
 

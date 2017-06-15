@@ -19,7 +19,7 @@ with more information on how the extractors/analyzers will actually be used?
 ### Analyzers
 Current inheritance:
 
-- AbstractAnalyzer
+- Analyzer
     - FilenameAnalyzer
     - FilesystemAnalyzer
     - ImageAnalyzer

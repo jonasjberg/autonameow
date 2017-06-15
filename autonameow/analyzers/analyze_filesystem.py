@@ -47,7 +47,7 @@ class FilesystemAnalyzer(Analyzer):
     http://www.freedesktop.org/wiki/CommonExtendedAttributes
     http://timgolden.me.uk/python/win32_how_do_i/get-document-summary-info.html
     """
-    # @Overrides attribute in AbstractAnalyzer
+    # @Overrides attribute in Analyzer
     run_queue_priority = 1
 
     def __init__(self, file_object, add_results_callback):
@@ -56,7 +56,7 @@ class FilesystemAnalyzer(Analyzer):
         self.applies_to_mime = 'MIME_ALL'
         self.add_results = add_results_callback
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def run(self):
         pass
 
@@ -78,7 +78,7 @@ class FilesystemAnalyzer(Analyzer):
                 'date_modified': dt_fts(mtime)
             }}
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_datetime(self):
         result = []
 
@@ -88,25 +88,25 @@ class FilesystemAnalyzer(Analyzer):
 
         return result
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_title(self):
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
         raise NotImplementedError('Get "title" from FilesystemAnalyzer')
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_author(self):
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
         raise NotImplementedError('Get "author" from FilesystemAnalyzer')
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_tags(self):
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
         raise NotImplementedError('Get "tags" from FilesystemAnalyzer')
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_publisher(self):
         raise NotImplementedError('Get "publisher" from FilesystemAnalyzer')
 
