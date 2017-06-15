@@ -21,8 +21,8 @@
 
 from unittest import TestCase
 
-from analyzers.analyze_abstract import (
-    AbstractAnalyzer,
+from analyzers.analyzer import (
+    Analyzer,
     get_analyzer_classes,
     get_analyzer_classes_basename,
     get_analyzer_mime_mappings,
@@ -56,7 +56,7 @@ def get_filename_analyzer(file_object):
 class TestAbstractAnalyzer(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.a = AbstractAnalyzer(get_mock_fileobject(), None)
+        self.a = Analyzer(get_mock_fileobject(), None)
 
     def test_run_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

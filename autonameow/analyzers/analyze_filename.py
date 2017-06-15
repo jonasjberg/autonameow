@@ -21,7 +21,7 @@
 
 import logging
 
-from .analyze_abstract import AbstractAnalyzer
+from .analyzer import Analyzer
 
 try:
     import guessit as guessit
@@ -31,7 +31,7 @@ except ImportError:
 from core.util import dateandtime
 
 
-class FilenameAnalyzer(AbstractAnalyzer):
+class FilenameAnalyzer(Analyzer):
     # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 1
 

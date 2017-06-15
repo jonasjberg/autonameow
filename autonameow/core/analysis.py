@@ -22,7 +22,7 @@
 import logging as log
 
 import plugins
-from analyzers.analyze_abstract import (
+from analyzers.analyzer import (
     get_analyzer_mime_mappings
 )
 from core import constants

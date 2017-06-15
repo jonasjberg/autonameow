@@ -36,7 +36,7 @@ def get_dummy_fileobject():
     return FileObject(_create_temp_file())
 
 
-class AbstractAnalyzer(object):
+class Analyzer(object):
     """
     Abstract Analyzer base class.
     All methods must be implemented by inheriting classes.

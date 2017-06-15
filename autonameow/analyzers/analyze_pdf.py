@@ -23,7 +23,7 @@ import logging
 import re
 from datetime import datetime
 
-from analyzers.analyze_abstract import AbstractAnalyzer
+from analyzers.analyzer import Analyzer
 from core.util import dateandtime
 from core.util import textutils
 from extractors.metadata import (
@@ -36,7 +36,7 @@ from extractors.textual import (
 )
 
 
-class PdfAnalyzer(AbstractAnalyzer):
+class PdfAnalyzer(Analyzer):
     # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 1
 

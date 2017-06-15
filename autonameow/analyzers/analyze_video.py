@@ -22,10 +22,10 @@
 import logging
 import os
 
-from analyzers.analyze_abstract import AbstractAnalyzer
+from analyzers.analyzer import Analyzer
 
 
-class VideoAnalyzer(AbstractAnalyzer):
+class VideoAnalyzer(Analyzer):
     # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 0.1
 

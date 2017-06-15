@@ -24,11 +24,11 @@ import logging
 
 from unidecode import unidecode
 
-from analyzers.analyze_abstract import AbstractAnalyzer
+from analyzers.analyzer import Analyzer
 from core.util import dateandtime
 
 
-class TextAnalyzer(AbstractAnalyzer):
+class TextAnalyzer(Analyzer):
     # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 0.5
 

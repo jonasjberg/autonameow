@@ -26,12 +26,12 @@ from datetime import datetime
 import PIL
 import pytesseract
 
-from analyzers.analyze_abstract import AbstractAnalyzer
+from analyzers.analyzer import Analyzer
 from core.util import dateandtime
 from extractors.metadata import ExiftoolMetadataExtractor
 
 
-class ImageAnalyzer(AbstractAnalyzer):
+class ImageAnalyzer(Analyzer):
     # @Overrides attribute in AbstractAnalyzer
     run_queue_priority = 0.5
 
