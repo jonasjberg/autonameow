@@ -74,7 +74,7 @@ class AnalysisRunQueue(object):
     def __str__(self):
         out = []
         for i, a in enumerate(self):
-            out.append('{:02d}: {}'.format(i, a.__name__))
+            out.append('{:02d}: {!s}'.format(i, a))
         return ', '.join(out)
 
 
@@ -263,9 +263,8 @@ class Analysis(object):
         """
         for i, analysis in enumerate(self.analysis_run_queue):
             log.debug('Executing queue item {}/{}: '
-                      '{}'.format(i + 1,
-                                  len(self.analysis_run_queue),
-                                  analysis.__name__))
+                      '{!s}'.format(i + 1,
+                                  len(self.analysis_run_queue), analysis))
             if not analysis:
                 log.critical('Got null analysis from analysis run queue.')
                 continue
@@ -275,8 +274,7 @@ class Analysis(object):
                 log.critical('Unable to start Analyzer "{!s}"'.format(analysis))
                 continue
 
-            a_name = str(a.__class__.__name__)
-            log.debug('Starting Analyzer "{!s}"'.format(a_name))
+            log.debug('Starting Analyzer "{!s}"'.format(a))
 
             # Run the analysis and collect the results.
             a.run()
@@ -285,21 +283,21 @@ class Analysis(object):
                     result = a.get(field)
                 except NotImplementedError as e:
                     log.debug('[WARNING] Called unimplemented code in {!s}: '
-                              '{!s}'.format(a_name, e))
+                              '{!s}'.format(a, e))
                     continue
 
                 if not result:
                     continue
 
                 # Add the analyzer name to the results dictionary.
-                results = include_analyzer_name(result, a_name)
+                results = include_analyzer_name(result, a)
                 self.results.add(field, results)
 
 
 def include_analyzer_name(result_list, source):
     out = []
     for result in result_list:
-        result['analyzer'] = source
+        result['analyzer'] = str(source)
         out.append(result)
 
     return out

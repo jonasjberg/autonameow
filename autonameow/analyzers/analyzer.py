@@ -106,6 +106,9 @@ class Analyzer(object):
     def get_publisher(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
+    def __str__(self):
+        return self.__class__.__name__
+
 
 def get_analyzer_classes():
     """
