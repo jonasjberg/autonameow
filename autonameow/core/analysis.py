@@ -30,16 +30,17 @@ from core.exceptions import (
     AutonameowException
 )
 from core.fileobject import FileObject
+from core.util.queue import GenericQueue
 
 
-class AnalysisRunQueue(object):
+class AnalysisRunQueue(GenericQueue):
     """
     Execution queue for analyzers.
 
     The queue order is determined by the class variable "run_queue_priority".
     """
     def __init__(self):
-        self.__queue = []
+        super().__init__()
 
     def enqueue(self, analyzers):
         """
@@ -52,8 +53,8 @@ class AnalysisRunQueue(object):
                 list of type 'type'.
         """
         def _dupe_check_append(_analyzer):
-            if _analyzer not in self.__queue:
-                self.__queue.append(_analyzer)
+            if _analyzer not in self._items:
+                self.enqueue(_analyzer)
 
         if isinstance(analyzers, list):
             for a in analyzers:
@@ -61,21 +62,9 @@ class AnalysisRunQueue(object):
         else:
             _dupe_check_append(analyzers)
 
-    def __len__(self):
-        return len(self.__queue)
-
-    def __getitem__(self, item):
-        return self.__queue[item]
-
     def __iter__(self):
-        for a in sorted(self.__queue, key=lambda x: x.run_queue_priority):
+        for a in sorted(self._items, key=lambda x: x.run_queue_priority):
             yield a
-
-    def __str__(self):
-        out = []
-        for i, a in enumerate(self):
-            out.append('{:02d}: {!s}'.format(i, a))
-        return ', '.join(out)
 
 
 class AnalysisResults(object):
