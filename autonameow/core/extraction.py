@@ -83,6 +83,9 @@ class Extraction(object):
         log.debug('Enqueued extractors: {!s}'.format(self.extractor_queue))
 
         # Add information from 'FileObject' to results.
+        # TODO: Move this to a "PlatformIndependentFilesystemExtractor"?
+        # NOTE: Move would make little sense aside from maybe being
+        #       a bit more consistent with the class hierarchy, etc.
         self.collect_results('filesystem.basename.full',
                              self.file_object.filename)
         self.collect_results('filesystem.basename.extension',
@@ -133,7 +136,9 @@ class ExtractedData(object):
     def add(self, label, data):
         if not data:
             return
+
         if not label or label not in constants.VALID_DATA_SOURCES:
+            # NOTE: Should this check really be done here? Or at all?
             raise InvalidDataSourceError('Invalid source: "{}"'.format(label))
         else:
             # TODO: Necessary to handle multiple adds to the same label?

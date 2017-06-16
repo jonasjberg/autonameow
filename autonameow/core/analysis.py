@@ -173,18 +173,20 @@ class Analysis(object):
 
         Args:
             file_object: File to analyze as an instance of class 'FileObject'.
+            extracted_data: Data from the 'Extraction' instance as an instance
+                of the 'ExtractedData' class.
         """
         if not isinstance(file_object, FileObject):
             raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
-        self.results = AnalysisResults()
-        self.analyzer_queue = AnalysisRunQueue()
-
         # TODO: Improve handling of incoming data from 'Extraction'.
         if extracted_data:
             for key, value in extracted_data:
                 self.collect_results(key, value)
+
+        self.results = AnalysisResults()
+        self.analyzer_queue = AnalysisRunQueue()
 
     def collect_results(self, label, data):
         """
@@ -193,7 +195,7 @@ class Analysis(object):
         Analyzers call this to store collected data.
 
         Args:
-            label: Arbitrary label that uniquely identifies the data.
+            label: Label that uniquely identifies the data.
             data: The data to add.
         """
         self.results.new_add(label, data)

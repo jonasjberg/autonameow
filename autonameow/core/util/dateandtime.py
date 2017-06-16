@@ -766,6 +766,18 @@ def match_screencapture_unixtime(text):
 
 
 def to_datetime(datetime_string):
+    """
+    Convert a string with date/time information to a datetime-object.
+
+    Args:
+        datetime_string: Date/time data as a string.
+
+    Returns:
+        A datetime object representing the given input if successful.
+    Raises:
+        ValueError: An error occurred during the conversion.
+        TypeError: An error occurred during the conversion.
+    """
     # TODO: Handle time zone offsets properly!
 
     if datetime_string.endswith('+00:00'):
