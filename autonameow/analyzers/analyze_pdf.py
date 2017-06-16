@@ -57,31 +57,8 @@ class PdfAnalyzer(Analyzer):
 
     # @Overrides method in Analyzer
     def run(self):
-        self.meta_extractor = PyPDFMetadataExtractor(self.file_object.abspath)
-        logging.debug('Extracting metadata with {!s} '
-                      '..'.format(self.meta_extractor))
-        self.metadata = self.meta_extractor.query()
-        if self.metadata:
-            self.add_results('metadata.pypdf', self.metadata)
-
-            try:
-                number_pages = self.metadata.get('number_pages', False)
-                number_pages = int(number_pages)
-            except ValueError:
-                pass
-            else:
-                self.add_results('contents.textual.number_pages', number_pages)
-                self.add_results('contents.textual.paginated', True)
-
-        self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
-        logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
-        self.exiftool_data = self.exiftool.query()
-        if self.exiftool_data:
-            self.add_results('metadata.exiftool', self.exiftool_data)
-
-        # TODO: Plug in data from "text extractor" below.
-        self.text = self._extract_pdf_content()
-        self.add_results('contents.textual.raw_text', self.text)
+        self.metadata = self.extracted_data.get('metadata.exiftool')
+        self.text = self.extracted_data.get('contents.textual.raw_text')
 
     def __collect_results(self, query_string, source_dict, source_field, weight):
         if not source_dict:
@@ -177,6 +154,8 @@ class PdfAnalyzer(Analyzer):
         Extract date and time information from pdf metadata.
         :return: dict of datetime-objects
         """
+
+        # TODO: This method is being moved to a function on 'metadata.py'.
 
         DATE_TAG_FIELDS = ['ModDate', 'CreationDate', 'ModDate']
 

@@ -22,10 +22,12 @@
 import logging as log
 
 import PyPDF2
+import re
 from PyPDF2.utils import (
     PyPdfError,
     PdfReadError
 )
+from datetime import datetime
 
 from core.exceptions import ExtractorError
 from core.util import wrap_exiftool
@@ -155,4 +157,69 @@ class PyPDFMetadataExtractor(MetadataExtractor):
 
                 out.update(xmp)
 
+        convert_datetime_field(out, 'CreationDate')
+        convert_datetime_field(out, 'ModDate')
+
         return out
+
+
+def convert_datetime_field(pypdf_data, field):
+    # TODO: This will be done a lot, needs refactoring!
+    if field in pypdf_data:
+        try:
+            datetime_object = to_datetime(pypdf_data[field])
+        except ValueError:
+            return
+        else:
+            pypdf_data[field] = datetime_object
+
+
+def to_datetime(pypdf_string):
+    # TODO: This will be done a lot, needs refactoring!
+    #
+    # Expected date format:           D:20121225235237 +05'30'
+    #                                   ^____________^ ^_____^
+    # Regex search matches two groups:        #1         #2
+    #
+    # 'D:20160111124132+00\\'00\\''
+    found_match = False
+
+    if "'" in pypdf_string:
+        pypdf_string = pypdf_string.replace("'", '')
+
+    re_datetime_tz = re.compile('D:(\d{14})(\+\d{2}\'\d{2}\')')
+    re_match_tz = re_datetime_tz.search(pypdf_string)
+    if re_match_tz:
+        datetime_str = re_match_tz.group(1)
+        timezone_str = re_match_tz.group(2)
+        timezone_str = timezone_str.replace("'", "")
+
+        try:
+            dt = datetime.strptime(datetime_str + timezone_str,
+                                   "%Y%m%d%H%M%S%z")
+            found_match = True
+        except ValueError:
+            pass
+
+        if not found_match:
+            try:
+                dt = datetime.strptime(datetime_str, "%Y%m%d%H%M%S")
+                found_match = True
+            except ValueError:
+                log.debug('Unable to convert to naive datetime: '
+                          '"{}"'.format(pypdf_string))
+
+    # Try matching another pattern.
+    re_datetime_no_tz = re.compile(r'D:(\d{14})')
+    re_match = re_datetime_no_tz.search(pypdf_string)
+    if re_match:
+        try:
+            dt = datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
+            found_match = True
+        except ValueError:
+            pass
+
+    if found_match:
+        return dt
+    else:
+        raise ValueError
