@@ -235,7 +235,8 @@ class Analysis(object):
 
         # Append any matches to the analyzer run queue.
         if found:
-            self.analysis_run_queue.enqueue(found)
+            for f in found:
+                self.analysis_run_queue.enqueue(f)
         else:
             raise AutonameowException('None of the analyzers applies (!)')
 
