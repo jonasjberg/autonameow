@@ -32,27 +32,27 @@ class VideoAnalyzer(Analyzer):
         self.applies_to_mime = 'mp4'
 
     def run(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
     def get_author(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
     def get_title(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
     def get_datetime(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
     def get_publisher(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
     def get_tags(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
     # NOTE: Look into using "ffprobe" to get video data.

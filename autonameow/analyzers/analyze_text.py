@@ -49,16 +49,17 @@ class TextAnalyzer(Analyzer):
 
     # @Overrides method in Analyzer
     def get_author(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
     # @Overrides method in Analyzer
     def get_title(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
     # @Overrides method in Analyzer
     def get_datetime(self):
+        # TODO: Remove, use callbacks instead.
         result = []
         if self.text:
             text_timestamps = self._get_datetime_from_text()
@@ -69,7 +70,7 @@ class TextAnalyzer(Analyzer):
 
     # @Overrides method in Analyzer
     def get_tags(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
     # TODO: Move all text extraction to functions in 'extract_text.py'.

@@ -64,6 +64,7 @@ class ImageAnalyzer(Analyzer):
 
     # @Overrides method in Analyzer
     def get_datetime(self):
+        # TODO: Remove, use callbacks instead.
         result = []
         exif_timestamps = self._get_exif_datetime()
         if exif_timestamps:
@@ -78,17 +79,21 @@ class ImageAnalyzer(Analyzer):
 
     # @Overrides method in Analyzer
     def get_author(self):
+        # TODO: Remove, use callbacks instead.
         raise NotImplementedError('Get "author" from ImageAnalyzer')
 
     # @Overrides method in Analyzer
     def get_title(self):
+        # TODO: Remove, use callbacks instead.
         raise NotImplementedError('Get "title" from ImageAnalyzer')
 
     # @Overrides method in Analyzer
     def get_tags(self):
+        # TODO: Remove, use callbacks instead.
         raise NotImplementedError('Get "tags" from ImageAnalyzer')
 
     def get_publisher(self):
+        # TODO: Remove, use callbacks instead.
         raise NotImplementedError('Get "publisher" from ImageAnalyzer')
 
     def _get_exif_datetime(self):
@@ -196,6 +201,8 @@ class ImageAnalyzer(Analyzer):
         The EXIF data is stored in a dict using human-readable keys.
         :return: Dict of EXIF data.
         """
+        # TODO: This should be handled by the 'ExiftoolMetadataExtractor'.
+
         # Create empty dictionary to store exif "key:value"-pairs in.
         result = {}
 
@@ -248,6 +255,7 @@ class ImageAnalyzer(Analyzer):
         :return: image text if found, else None (?)
         """
         # TODO: Test this!
+        # TODO: This should be handled by a "OCRTextExtractor" is similar.
         image_text = None
         filename = self.file_object.abspath
         try:

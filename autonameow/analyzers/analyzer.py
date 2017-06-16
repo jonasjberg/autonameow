@@ -35,15 +35,6 @@ class Analyzer(object):
         self.add_results = add_results_callback
         self.extracted_data = extracted_data
 
-        # TODO: Rework how analyzers store results.
-        # TODO: Add new data container?
-        #       New system should allow removing these ugly duplicate things:
-        #
-        #           results.append({'value': dt_unix,
-        #                               'source': 'unix_timestamp',
-        #                               'weight': 1})
-        # TODO: Allow querying for (cached) results, all or subsets.
-
     def run(self):
         """
         Starts the analysis performed by this analyzer.
