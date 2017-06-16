@@ -29,13 +29,15 @@ from core.analysis import (
 from core.constants import ANALYSIS_RESULTS_FIELDS
 from unit_utils import (
     get_mock_analyzer,
-    get_mock_fileobject
+    get_mock_fileobject,
+    get_mock_empty_extractor_data
 )
 
 
 class TestAnalysis(TestCase):
     def setUp(self):
-        self.a = Analysis(get_mock_fileobject())
+        self.a = Analysis(get_mock_fileobject(),
+                          get_mock_empty_extractor_data())
 
     def test_analysis_is_defined(self):
         self.assertIsNotNone(Analysis,
