@@ -28,7 +28,14 @@ class Extractor(object):
     by inheriting extractor classes.
     """
 
+    # List of MIME types that this extractor can extract information from.
+    # Example:  ['image/jpeg', 'application/pdf']
     handles_mime_types = None
+
+    # Query string label for the data returned by this extractor.
+    #    NOTE:  Must be defined in 'constants.VALID_DATA_SOURCES'!
+    # Example:  'metadata.exiftool'
+    data_query_string = None
 
     def __init__(self, source):
         """

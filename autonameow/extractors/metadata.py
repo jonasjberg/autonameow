@@ -34,6 +34,7 @@ from extractors.extractor import Extractor
 
 class MetadataExtractor(Extractor):
     handles_mime_types = []
+    data_query_string = None
 
     def __init__(self, source):
         super(MetadataExtractor, self).__init__(source)
@@ -80,12 +81,11 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """
-
     handles_mime_types = ['mp4', 'mov']
+    data_query_string = 'metadata.exiftool'
 
     def __init__(self, source):
         super(ExiftoolMetadataExtractor, self).__init__(source)
-
         self._raw_metadata = None
 
     def _get_raw_metadata(self):
@@ -104,12 +104,11 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
 
 
 class PyPDFMetadataExtractor(MetadataExtractor):
-
     handles_mime_types = ['pdf']
+    data_query_string = 'metadata.pypdf'
 
     def __init__(self, source):
         super(PyPDFMetadataExtractor, self).__init__(source)
-
         self._raw_metadata = None
 
     def _get_raw_metadata(self):
