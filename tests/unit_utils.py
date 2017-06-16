@@ -92,19 +92,31 @@ def make_temporary_file(prefix=None, suffix=None, basename=None):
                                                         suffix=suffix).name)
 
 
-def get_mock_fileobject():
+def get_mock_fileobject(mime_type=None):
     """
-    Returns: A mock FileObject built from an actual (empty) file.
+    Returns 'FileObject' instances for use by unit tests.
+
+    Args:
+        mime_type: Optional MIME type of the source file.
+
+    Returns:
+        A mock FileObject built from an actual (empty) file.
     """
+    # TODO: [hardcoded] Might break if options data structure is modified.
     class MockOptions(object):
         def __init__(self):
             self.options = {'FILETAGS_OPTIONS':
                             {'between_tag_separator': ' -- ',
                              'filename_tag_separator': ' '}}
-
     opts = MockOptions()
 
-    return FileObject(make_temporary_file(), opts)
+    if mime_type:
+        if mime_type == 'video/mp4':
+            temp_file = abspath_testfile('magic_mp4.mp4')
+    else:
+        temp_file = make_temporary_file()
+
+    return FileObject(temp_file, opts)
 
 
 def get_mock_empty_extractor_data():

@@ -96,6 +96,10 @@ class TestUnitUtilityGetMockFileObject(TestCase):
     def test_get_mock_fileobject_returns_expected_type(self):
         self.assertTrue(isinstance(get_mock_fileobject(), FileObject))
 
+    def test_get_mock_fileobject_with_mime_type(self):
+        actual = get_mock_fileobject(mime_type='video/mp4')
+        self.assertEqual(actual.mime_type, 'mp4')
+
 
 class TestCaptureStdout(TestCase):
     def test_capture_stdout(self):
