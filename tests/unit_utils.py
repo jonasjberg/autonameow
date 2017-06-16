@@ -107,6 +107,13 @@ def get_mock_fileobject():
     return FileObject(make_temporary_file(), opts)
 
 
+def get_mock_empty_extractor_data():
+    """
+    Returns: Mock extracted (empty) data from an 'Extraction' instance.
+    """
+    return {}
+
+
 def get_mock_analyzer():
     """
     Returns: A mock Analyzer class.
