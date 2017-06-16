@@ -14,6 +14,9 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* Handle case where `AnalysisResults` does not contain the data requested by
+  the name builder through the `query` method.
+
 ### Text encoding issues
 
 * Enforce strict boundaries between all external systems and an internal text

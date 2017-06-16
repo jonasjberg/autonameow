@@ -104,6 +104,10 @@ class NameBuilder(object):
         # Get a dictionary of data to pass to 'assemble_basename'.
         # Should be keyed by the placeholder fields used in the name template.
         data = self.analysis_data.query(data_sources)
+        if not data:
+            log.warning('Analysis data query did not return expected data.')
+            raise NameBuilderError('Unable to assemble basename')
+
         log.debug('Query for results fields returned:')
         log.debug(str(data))
 

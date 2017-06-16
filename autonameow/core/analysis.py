@@ -89,10 +89,17 @@ class AnalysisResults(object):
         out = {}
 
         for field, source in field_data_source_map.items():
+
             # TODO: Fix hacky word splitting to keys for dictionary access.
             if source.startswith('metadata.exiftool'):
                 key = source.lstrip('metadata.exiftool')
-                out[field] = self.new_data.get('metadata.exiftool').get(key)
+
+                # TODO: Handle querying missing data.
+                if 'metadata.exiftool' in self.new_data:
+                    out[field] = self.new_data['metadata.exiftool'].get(key)
+                else:
+                    return False
+
             elif source.startswith('plugin.'):
                 # TODO: Results should NOT be querying plugins from here!
                 # TODO: Rework processing pipeline to integrate plugins
