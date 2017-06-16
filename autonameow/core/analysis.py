@@ -112,9 +112,6 @@ class AnalysisResults(object):
 
         return out
 
-    # def __getitem__(self, key):
-    # TODO: Implement proper getter method.
-
     def new_add(self, label, data):
         # TODO: FIX ME! Should replace "old add".
         self.new_data.update({label: data})
@@ -242,9 +239,6 @@ class Analysis(object):
             self.analysis_run_queue.enqueue(found)
         else:
             raise AutonameowException('None of the analyzers applies (!)')
-
-    # def _execute_common_analyzers(self):
-    #     filesystem_analyzer = FilesystemAnalyzer()
 
     def _execute_run_queue(self):
         """
