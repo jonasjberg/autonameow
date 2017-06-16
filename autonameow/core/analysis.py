@@ -58,6 +58,12 @@ class AnalysisRunQueue(GenericQueue):
         for item in sorted(self._items, key=lambda x: x.run_queue_priority):
             yield item
 
+    def __str__(self):
+        out = []
+        for pos, item in enumerate(self):
+            out.append('{:02d}: {!s}'.format(pos, item.__name__))
+        return ', '.join(out)
+
 
 class AnalysisResults(object):
     """
