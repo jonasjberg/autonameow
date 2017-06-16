@@ -77,6 +77,7 @@ class PdfAnalyzer(Analyzer):
         if self.exiftool_data:
             self.add_results('metadata.exiftool', self.exiftool_data)
 
+        # TODO: Plug in data from "text extractor" below.
         self.text = self._extract_pdf_content()
         self.add_results('contents.textual.raw_text', self.text)
 
@@ -247,34 +248,6 @@ class PdfAnalyzer(Analyzer):
                               '"{}": "{}"'.format(field, dt))
 
         return results
-
-    def _extract_pdf_content(self):
-        """
-        Extracts the plain text contents of a PDF document using "extractors".
-
-        Returns:
-            The textual contents of the PDF document or None.
-        """
-        pdf_text = None
-        text_extractors = [extract_pdf_content_with_pdftotext,
-                           extract_pdf_content_with_pypdf]
-        for i, extractor in enumerate(text_extractors):
-            logging.debug('Running pdf text extractor {}/{}: '
-                          '{}'.format(i, len(text_extractors), str(extractor)))
-            pdf_text = extractor(self.file_object.abspath)
-            if pdf_text and len(pdf_text) > 1:
-                logging.debug('Extracted text with: '
-                              '{}'.format(extractor.__name__))
-                # Post-process text extracted from a pdf document.
-                pdf_text = textutils.sanitize_text(pdf_text)
-                break
-
-        if pdf_text:
-            logging.debug('Extracted {} bytes of text'.format(len(pdf_text)))
-            return pdf_text
-        else:
-            logging.info('Unable to extract textual content from pdf ..')
-            return None
 
     def _is_gmail(self):
         """
