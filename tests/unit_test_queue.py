@@ -84,6 +84,19 @@ class TestGenericQueue(TestCase):
         self.assertIn(item_a, items)
         self.assertIn(item_a, items)
 
+    def test_queue_iter_returns_enqueued_items_in_expected_order(self):
+        item_a = {'foo': 'bar'}
+        item_b = {'baz': 'mjao'}
+        item_c = {'abc': 'baz'}
+        self.q.enqueue(item_c)
+        self.q.enqueue(item_a)
+        self.q.enqueue(item_b)
+
+        items = list(self.q)
+        self.assertEqual(item_c, items[0])
+        self.assertEqual(item_a, items[1])
+        self.assertEqual(item_b, items[2])
+
     def test_queue_iter_returns_enqueued_items_without_dequeuing(self):
         item_a = {'foo': 'bar'}
         item_b = {'baz': 'mjao'}

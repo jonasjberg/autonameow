@@ -77,7 +77,7 @@ class GenericQueue(object):
         Returns:
             The enqueued items as an iterator.
         """
-        for item in self._items:
+        for item in reversed(self._items):
             yield item
 
     def __str__(self):
