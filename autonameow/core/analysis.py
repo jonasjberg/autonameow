@@ -185,6 +185,7 @@ class Analysis(object):
         self.results = AnalysisResults()
         self.analysis_run_queue = AnalysisRunQueue()
 
+        # TODO: Improve handling of incoming data from 'Extraction'.
         if extracted_data:
             for key, value in extracted_data:
                 self.collect_results(key, value)
