@@ -63,6 +63,7 @@ class Extraction(object):
         log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
 
         # TODO: Get extractors suited for the given file.
+        e = suitable_data_extractors_for(self.file_object)
 
         # TODO: Use a "run queue" is in the 'Analysis' class?
         # log.debug('Enqueued extractors: {!s}'.format(self.run_queue))
@@ -143,3 +144,8 @@ class ExtractedData(object):
             return count
 
         return count_dict_recursive(self._data, 0)
+
+
+def suitable_data_extractors_for(file_object):
+    # TODO: Implment ..
+    pass
