@@ -104,6 +104,7 @@ VALID_DATA_SOURCES = list(__flat_results_data_structure.keys())
 MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
                      'gif':   ['image/gif'],
                      'jpg':   ['image/jpeg'],
+                     'mov':   ['video/quicktime'],
                      'mp4':   ['video/mp4'],
                      'ogg':   ['video/ogg'],
                      'pdf':   ['application/pdf'],
