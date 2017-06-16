@@ -782,6 +782,8 @@ def to_datetime(datetime_string):
 
     if datetime_string.endswith('+00:00'):
         datetime_string = datetime_string.replace('+00:00', '')
+    elif datetime_string.endswith('+02:00'):
+        datetime_string = datetime_string.replace('+02:00', '')
 
     REGEX_FORMAT_MAP = [(r'^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$',
                          '%Y:%m:%d %H:%M:%S'), # '2010:01:31 16:12:51'
