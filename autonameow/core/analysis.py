@@ -176,6 +176,9 @@ class Analysis(object):
             extracted_data: Data from the 'Extraction' instance as an instance
                 of the 'ExtractedData' class.
         """
+        self.results = AnalysisResults()
+        self.analyzer_queue = AnalysisRunQueue()
+
         if not isinstance(file_object, FileObject):
             raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
@@ -184,9 +187,6 @@ class Analysis(object):
         if extracted_data:
             for key, value in extracted_data:
                 self.collect_results(key, value)
-
-        self.results = AnalysisResults()
-        self.analyzer_queue = AnalysisRunQueue()
 
     def collect_results(self, label, data):
         """
