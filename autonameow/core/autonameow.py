@@ -229,7 +229,7 @@ class Autonameow(object):
                     continue
                 else:
                     # TODO: Respect '--quiet' option. Suppress output.
-                    cli.msg('New name: "{}"'.format(new_name))
+                    log.info('New name: "{}"'.format(new_name))
                     renamed_ok = self.do_rename(current_file.abspath, new_name,
                                                 dry_run=self.args.dry_run)
                     if renamed_ok:
