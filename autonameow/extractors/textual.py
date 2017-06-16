@@ -93,7 +93,7 @@ class PdfTextExtractor(TextExtractor):
                            extract_pdf_content_with_pypdf]
         for i, extractor in enumerate(text_extractors):
             log.debug('Running PDF text extractor {}/{}: '
-                      '{!s}'.format(i, len(text_extractors), extractor))
+                      '{!s}'.format(i + 1, len(text_extractors), extractor))
             pdf_text = extractor(self.source)
             if pdf_text and len(pdf_text) > 1:
                 log.debug('Extracted text with: {}'.format(extractor.__name__))
