@@ -169,7 +169,7 @@ class PdfAnalyzer(Analyzer):
                     continue
 
             if k is None:
-                logging.warning('Null value in metadata field [%s]' % field)
+                logging.debug('Null value in metadata field [%s]' % field)
                 continue
 
             found_match = False
