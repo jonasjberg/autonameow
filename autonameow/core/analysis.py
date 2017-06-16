@@ -77,7 +77,7 @@ class AnalysisResults(object):
         for field in constants.ANALYSIS_RESULTS_FIELDS:
             self._data[field] = []
 
-        # TODO: Redesign data storage structure.
+        # TODO: Replace all "old style" storage with redesigned storage.
         self.new_data = {}
 
     def query(self, field_data_source_map):
