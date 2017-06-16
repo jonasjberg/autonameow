@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging as log
+import os
 
 import re
 import operator
@@ -103,6 +104,10 @@ class NameBuilder(object):
         # Get a dictionary of data to pass to 'assemble_basename'.
         # Should be keyed by the placeholder fields used in the name template.
         data = self.analysis_data.query(data_sources)
+        if not data:
+            log.warning('Analysis data query did not return expected data.')
+            raise NameBuilderError('Unable to assemble basename')
+
         log.debug('Query for results fields returned:')
         log.debug(str(data))
 
@@ -230,6 +235,25 @@ def eval_condition(condition_field, condition_value, file_object,
             return True
         return False
 
+    def eval_path(expression, match_data):
+        # TODO: [hack] Total rewrite of condition evaluation?
+        if expression.startswith('~/'):
+            try:
+                expression = os.path.expanduser(expression)
+                expression = os.path.normpath(os.path.abspath(expression))
+            except OSError as e:
+                log.error('Error while evaluating path: {!s}'.format(e))
+                log.debug('eval_path expression: "{!s}" match_data: '
+                          '"{!s}"'.format(expression, match_data))
+                return False
+        if expression == match_data:
+            return True
+        elif True:
+            # TODO: [unimplemented] Handle evaluating path conditions properly!
+            pass
+
+        return False
+
     def eval_mime_type(expression, match_data):
         if expression == match_data:
             return True
@@ -247,7 +271,7 @@ def eval_condition(condition_field, condition_value, file_object,
         return eval_regex(condition_value, file_object.suffix)
 
     elif condition_field == 'pathname':
-        return eval_regex(condition_value, file_object.abspath)
+        return eval_path(condition_value, file_object.pathname)
 
     # TODO: Fix MIME type check
     elif condition_field == 'mime_type':

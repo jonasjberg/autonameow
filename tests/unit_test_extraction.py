@@ -23,7 +23,12 @@ from unittest import TestCase
 
 from core import constants
 from core.exceptions import InvalidDataSourceError
-from core.extraction import ExtractedData
+from core.extraction import (
+    ExtractedData,
+    suitable_data_extractors_for,
+    get_extractor_classes
+)
+from unit_utils import get_mock_fileobject
 
 
 class TestExtractedData(TestCase):
@@ -101,3 +106,18 @@ class TestExtractedData(TestCase):
         actual = self.d.get(valid_label)
         self.assertIn('expected_data_a', actual)
         self.assertIn('expected_data_b', actual)
+
+
+class TestSuitableDataExtractorsFor(TestCase):
+    def setUp(self):
+        self.fo_video = get_mock_fileobject(mime_type='video/mp4')
+
+    def test_returns_expected_extractors_for_video_file(self):
+        actual = [c.__name__ for c in
+                  suitable_data_extractors_for(self.fo_video)]
+        self.assertIn('ExiftoolMetadataExtractor', actual)
+
+
+class TestGetExtractorClasses(TestCase):
+    def test_get_extractor_classes_returns_expected_type(self):
+        self.assertTrue(isinstance(get_extractor_classes(), list))

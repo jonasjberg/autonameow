@@ -30,6 +30,18 @@ from unit_utils import (
 E = ExiftoolMetadataExtractor(make_temporary_file())
 
 
+class TestExiftoolMetadataExtractor(TestCase):
+    def setUp(self):
+        self.e = E
+
+    def test_specifies_handles_mime_types(self):
+        self.assertIsNotNone(self.e.handles_mime_types)
+        self.assertTrue(isinstance(self.e.handles_mime_types, list))
+
+    def test_method_str_returns_expeeted(self):
+        self.assertEqual(str(self.e), 'ExiftoolMetadataExtractor')
+
+
 class TestExiftoolMetadataExtractorWithEmptyFile(TestCase):
     def setUp(self):
         # self.e = ExiftoolMetadataExtractor(make_temporary_file())

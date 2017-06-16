@@ -19,24 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import tempfile
-
 from core import constants
 from core.exceptions import AnalysisResultsFieldError
-from core.fileobject import FileObject
 
 
-# TODO: Remove this hack! Used for instantiating analyzers so that they are
-# included in the global namespace and seen by 'get_analyzer_classes()'.
-def get_dummy_fileobject():
-    def _create_temp_file():
-        return os.path.realpath(tempfile.NamedTemporaryFile(delete=False).name)
-
-    return FileObject(_create_temp_file())
-
-
-class AbstractAnalyzer(object):
+class Analyzer(object):
     """
     Abstract Analyzer base class.
     All methods must be implemented by inheriting classes.
@@ -106,11 +93,14 @@ class AbstractAnalyzer(object):
     def get_publisher(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
+    def __str__(self):
+        return self.__class__.__name__
+
 
 def get_analyzer_classes():
     """
     Get a list of all available analyzers as a list of "type".
-    All classes inheriting from the "AbstractAnalyzer" class are included.
+    All classes inheriting from the "Analyzer" class are included.
 
     Returns:
         All available analyzer classes as a list of type.
@@ -125,13 +115,13 @@ def get_analyzer_classes():
     from analyzers.analyze_pdf import PdfAnalyzer
     from analyzers.analyze_video import VideoAnalyzer
 
-    return [klass for klass in globals()['AbstractAnalyzer'].__subclasses__()]
+    return [klass for klass in globals()['Analyzer'].__subclasses__()]
 
 
 def get_analyzer_classes_basename():
     """
     Get a list of class base names for all available analyzers.
-    All classes inheriting from the "AbstractAnalyzer" class are included.
+    All classes inheriting from the "Analyzer" class are included.
 
     Returns:
         The base names of available analyzer classes as a list of strings.
@@ -142,10 +132,10 @@ def get_analyzer_classes_basename():
 def get_instantiated_analyzers():
     """
     Get a list of all available analyzers as instantiated class objects.
-    All classes inheriting from the "AbstractAnalyzer" class are included.
+    All classes inheriting from the "Analyzer" class are included.
 
     Returns:
-        A list of class instances, one per subclass of "AbstractAnalyzer".
+        A list of class instances, one per subclass of "Analyzer".
     """
     # NOTE: These are instantiated with a None FIleObject, which might be a
     #       problem and is surely not very pretty.

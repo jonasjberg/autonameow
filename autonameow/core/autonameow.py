@@ -154,6 +154,14 @@ class Autonameow(object):
     def _handle_files(self):
         """
         Main loop. Iterate over input paths/files.
+
+        For each file:
+        1. Create 'FileObject' representing the file.
+        2. Extract data from the file with an instance of the 'Extraction' class
+        3. Perform analysis of the file with an instance of the 'Analysis' class
+        4. Do any reporting of results to the user.
+        5. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
+        6. (automagic mode and not --dry-run) Rename the file.
         """
         for input_path in self.args.input_paths:
             log.info('Processing: "{!s}"'.format(input_path))
@@ -221,7 +229,7 @@ class Autonameow(object):
                     continue
                 else:
                     # TODO: Respect '--quiet' option. Suppress output.
-                    cli.msg('New name: "{}"'.format(new_name))
+                    log.info('New name: "{}"'.format(new_name))
                     renamed_ok = self.do_rename(current_file.abspath, new_name,
                                                 dry_run=self.args.dry_run)
                     if renamed_ok:

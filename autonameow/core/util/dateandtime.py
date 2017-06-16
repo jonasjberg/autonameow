@@ -766,10 +766,24 @@ def match_screencapture_unixtime(text):
 
 
 def to_datetime(datetime_string):
+    """
+    Convert a string with date/time information to a datetime-object.
+
+    Args:
+        datetime_string: Date/time data as a string.
+
+    Returns:
+        A datetime object representing the given input if successful.
+    Raises:
+        ValueError: An error occurred during the conversion.
+        TypeError: An error occurred during the conversion.
+    """
     # TODO: Handle time zone offsets properly!
 
     if datetime_string.endswith('+00:00'):
         datetime_string = datetime_string.replace('+00:00', '')
+    elif datetime_string.endswith('+02:00'):
+        datetime_string = datetime_string.replace('+02:00', '')
 
     REGEX_FORMAT_MAP = [(r'^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$',
                          '%Y:%m:%d %H:%M:%S'), # '2010:01:31 16:12:51'

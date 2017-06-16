@@ -22,11 +22,11 @@
 import logging
 import os
 
-from analyzers.analyze_abstract import AbstractAnalyzer
+from analyzers.analyzer import Analyzer
 
 
-class VideoAnalyzer(AbstractAnalyzer):
-    # @Overrides attribute in AbstractAnalyzer
+class VideoAnalyzer(Analyzer):
+    # @Overrides attribute in Analyzer
     run_queue_priority = 0.1
 
     def __init__(self, file_object, add_results_callback):
@@ -35,28 +35,28 @@ class VideoAnalyzer(AbstractAnalyzer):
 
         self.exif_data = None
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def run(self):
         # TODO: Implement.
         pass
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_author(self):
         # TODO: Implement.
         pass
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_title(self):
         # TODO: Implement.
         # TODO: Extract exiftool metadata field 'title'.
         pass
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_datetime(self):
         # TODO: Implement.
         pass
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_tags(self):
         # TODO: Implement.
         pass

@@ -14,6 +14,9 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* Handle case where `AnalysisResults` does not contain the data requested by
+  the name builder through the `query` method.
+
 ### Text encoding issues
 
 * Enforce strict boundaries between all external systems and an internal text
@@ -32,48 +35,24 @@ High Priority
 
 ### New high-level architecture:
 
+* Move all existing code to the architecture described below.
 * __All data extraction is handled by `extractor` classes__ --
   `analyzer` classes do not perform any kind of data extraction.
-* __The `Extraction` class controls all extractors__ --
-  The first step in the processing pipeline is calling the extractors that are
-  relevant to the current file.
-    * Data produced by `extractor` classes is returned to a new separate
-      container class `ExtractedData`.
-* __The `Analysis` class controls all analyzers__ --
-  Extracted data from `ExtractedData` is passed to the `Analysis` instance at
-  init.  Then the analyzers relevant to the file is called to process the data
-  returned by the extractors.
-    * Data produced by `analyzer` classes is returned to a separate
-      container in the `Analysis` class.
-    * Overall program flow could go along the lines of:
-        1. Load configuration
-        2. Run all extractors that can handle the given file
-        3. Determine which configuration rule matches the given file
-        4. Enqueue analyzers based on the rule and extracted data
-        5. Run all enqueued analyzers
-        6. Assemble new file name from all available data
+    * Should data produced by `analyzer` classes be returned to a separate
+      container in the `Analysis` class?
+* Modify high-level program flow to something along the lines of:
+    1. Load configuration
+    2. Run all extractors that can handle the given file
+    3. Determine which configuration rule matches the given file
+    4. Enqueue analyzers based on the rule and extracted data
+    5. Run all enqueued analyzers
+    6. Assemble new file name from all available data
 
-        Having the extractor data available when evaluating rules (3) solves
-        the problem of evaluating certain conditions, like testing if the
-        given file contains a specific line of text, etc.
+    Having the extractor data available when evaluating rules (3) solves
+    the problem of evaluating certain conditions, like testing if the
+    given file contains a specific line of text, etc.
 * Plan for optimization by not extracting more data than necessary.
   How could this be implemented?
-* Move all existing code to the architecture described above.
-
-### Internal data storage
-
-* Think about distinguishing between *simple static data* and *derived data*.
-    * __"Static data":__ string `test.pdf`
-      (stored in results query field `filesystem.basename.full`)
-    * __"Derived data":__ `datetime`-object extracted from a UNIX timestamp
-      in `filesystem.basename.full`. Possibly stored as a dictionary with
-      the `datetile`-object in `data['value']`, along with `weight`, etc.
-    * Possibly additional types?
-* Should the "simple static" information be collected in a separate run?
-* Should the `Analysis` class `Results` instance only contain "simple static"
-  data? If so, use a separate container for "derived data".
-* Alternatively, store all types of results in the `Analysis` class `Results`
-  instance but modify the `Results` class to distinguish between the types?
 
 
 Medium Priority

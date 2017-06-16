@@ -23,7 +23,7 @@ import logging
 import re
 from datetime import datetime
 
-from analyzers.analyze_abstract import AbstractAnalyzer
+from analyzers.analyzer import Analyzer
 from core.util import dateandtime
 from core.util import textutils
 from extractors.metadata import (
@@ -36,8 +36,8 @@ from extractors.textual import (
 )
 
 
-class PdfAnalyzer(AbstractAnalyzer):
-    # @Overrides attribute in AbstractAnalyzer
+class PdfAnalyzer(Analyzer):
+    # @Overrides attribute in Analyzer
     run_queue_priority = 1
 
     def __init__(self, file_object, add_results_callback):
@@ -53,7 +53,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         self.metadata = None
         self.text = None
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def run(self):
         self.meta_extractor = PyPDFMetadataExtractor(self.file_object.abspath)
         logging.debug('Extracting metadata with {!s} '
@@ -90,7 +90,7 @@ class PdfAnalyzer(AbstractAnalyzer):
         else:
             return []
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_author(self):
         results = []
 
@@ -112,7 +112,7 @@ class PdfAnalyzer(AbstractAnalyzer):
                                               source_field, weight)
         return results
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_title(self):
         results = []
 
@@ -132,7 +132,7 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         return results
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_datetime(self):
         results = []
 
@@ -148,11 +148,11 @@ class PdfAnalyzer(AbstractAnalyzer):
 
         return results
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_tags(self):
         raise NotImplementedError('Get "tags" from PdfAnalyzer')
 
-    # @Overrides method in AbstractAnalyzer
+    # @Overrides method in Analyzer
     def get_publisher(self):
         results = []
 

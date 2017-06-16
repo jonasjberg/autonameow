@@ -47,3 +47,6 @@ class TestExtractor(TestCase):
     def test_method_str_returns_type_string(self):
         self.assertTrue(isinstance(str(self.e), str))
         self.assertTrue(isinstance(str(self.e.__str__), str))
+
+    def test_method_str_returns_expeeted(self):
+        self.assertEqual(str(self.e), 'Extractor')

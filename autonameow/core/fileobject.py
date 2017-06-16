@@ -38,16 +38,7 @@ FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + '([T_ -]?' + TIME_REGEX + ')?')
 
 class FileObject(object):
     def __init__(self, path, opts):
-        if not os.path.exists(path):
-            raise InvalidFileArgumentError('Path does not exist')
-        elif os.path.isdir(path):
-            raise InvalidFileArgumentError('Safe handling of directories is '
-                                           'not implemented yet')
-        elif os.path.islink(path):
-            raise InvalidFileArgumentError('Safe handling of symbolic links is '
-                                           'not implemented yet')
-        elif not os.access(path, os.R_OK):
-            raise InvalidFileArgumentError('Not authorized to read path')
+        validate_path_argument(path)
 
         self.abspath = os.path.abspath(path)
         logging.debug('FileObject path: {}'.format(self.abspath))
@@ -192,3 +183,25 @@ def filetype_magic(file_path):
         return None
 
     return found_type.lower() if found_type else None
+
+
+def validate_path_argument(path):
+    """
+    Validates a raw path option argument.
+
+    Args:
+        path: Path option argument as a string.
+
+    Raises:
+        InvalidFileArgumentError: The given path is not considered valid.
+    """
+    if not os.path.exists(path):
+        raise InvalidFileArgumentError('Path does not exist')
+    elif os.path.isdir(path):
+        raise InvalidFileArgumentError('Safe handling of directories is '
+                                       'not implemented yet')
+    elif os.path.islink(path):
+        raise InvalidFileArgumentError('Safe handling of symbolic links is '
+                                       'not implemented yet')
+    elif not os.access(path, os.R_OK):
+        raise InvalidFileArgumentError('Not authorized to read path')

@@ -24,6 +24,18 @@ import logging as log
 from core import constants
 from core.exceptions import InvalidDataSourceError
 from core.fileobject import FileObject
+from core.util.queue import GenericQueue
+
+# TODO: [hack] Fix this! Used for instantiating extractors so that they are
+# included in the global namespace and seen by 'get_extractor_classes()'.
+from extractors.extractor import Extractor
+from extractors.metadata import MetadataExtractor
+from extractors.metadata import ExiftoolMetadataExtractor
+from extractors.metadata import PyPDFMetadataExtractor
+__dummy_a = Extractor(None)
+__dummy_b = MetadataExtractor(None)
+__dummy_c = ExiftoolMetadataExtractor(None)
+__dummy_d = PyPDFMetadataExtractor(None)
 
 
 class Extraction(object):
@@ -42,6 +54,8 @@ class Extraction(object):
         self.file_object = file_object
 
         self.data = ExtractedData()
+
+        self.extractor_queue = GenericQueue()
 
     def collect_results(self, label, data):
         """
@@ -62,12 +76,16 @@ class Extraction(object):
         # Select extractors based on detected file type.
         log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
 
-        # TODO: Get extractors suited for the given file.
-
-        # TODO: Use a "run queue" is in the 'Analysis' class?
-        # log.debug('Enqueued extractors: {!s}'.format(self.run_queue))
+        extractors = suitable_data_extractors_for(self.file_object)
+        extractor_instances = self.instantiate_extractors(extractors)
+        for e in extractor_instances:
+            self.extractor_queue.enqueue(e)
+        log.debug('Enqueued extractors: {!s}'.format(self.extractor_queue))
 
         # Add information from 'FileObject' to results.
+        # TODO: Move this to a "PlatformIndependentFilesystemExtractor"?
+        # NOTE: Move would make little sense aside from maybe being
+        #       a bit more consistent with the class hierarchy, etc.
         self.collect_results('filesystem.basename.full',
                              self.file_object.filename)
         self.collect_results('filesystem.basename.extension',
@@ -81,9 +99,31 @@ class Extraction(object):
         self.collect_results('filesystem.pathname.parent',
                              self.file_object.pathparent)
 
-        # TODO: Execute all suitable extractors and collect results.
-        # Run all extractors in the queue.
-        # self._execute_run_queue()
+        # Execute all suitable extractors and collect results.
+        self._execute_run_queue()
+
+    def instantiate_extractors(self, class_list):
+        """
+        Get a list of class instances from a given list of classes.
+
+        Args:
+            class_list: The classes to instantiate as a list of type 'class'.
+
+        Returns:
+            One instance of each of the given classes as a list of objects.
+        """
+        data_source = self.file_object.abspath
+        return [e(data_source) for e in class_list]
+
+    def _execute_run_queue(self):
+        """
+        Executes all enqueued extractors and collects the results.
+        """
+        for i, e in enumerate(self.extractor_queue):
+            log.debug('Executing queue item {}/{}: '
+                      '{!s}'.format(i + 1, len(self.extractor_queue), e))
+
+            self.collect_results(e.data_query_string, e.query())
 
 
 class ExtractedData(object):
@@ -96,7 +136,9 @@ class ExtractedData(object):
     def add(self, label, data):
         if not data:
             return
+
         if not label or label not in constants.VALID_DATA_SOURCES:
+            # NOTE: Should this check really be done here? Or at all?
             raise InvalidDataSourceError('Invalid source: "{}"'.format(label))
         else:
             # TODO: Necessary to handle multiple adds to the same label?
@@ -143,3 +185,37 @@ class ExtractedData(object):
             return count
 
         return count_dict_recursive(self._data, 0)
+
+
+def suitable_data_extractors_for(file_object):
+    """
+    Returns extractor classes that can handle the given file object.
+
+    Args:
+        file_object: File to get extractors for as an instance of 'FileObject'.
+
+    Returns:
+        A list of extractor classes that can extract data from the given file.
+    """
+    out = []
+
+    for extractor in ExtractorClasses:
+        if file_object.mime_type in extractor.handles_mime_types:
+            out.append(extractor)
+
+    return out
+
+
+def get_extractor_classes():
+    """
+    Get a list of all available extractors as a list of "type".
+    All classes inheriting from the "Extractor" class are included.
+
+    Returns:
+        All available extractor classes as a list of type.
+    """
+    # TODO: Include ALL extractors!
+    return [klass for klass in globals()['MetadataExtractor'].__subclasses__()]
+
+
+ExtractorClasses = get_extractor_classes()

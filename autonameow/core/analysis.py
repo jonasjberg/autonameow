@@ -22,7 +22,7 @@
 import logging as log
 
 import plugins
-from analyzers.analyze_abstract import (
+from analyzers.analyzer import (
     get_analyzer_mime_mappings
 )
 from core import constants
@@ -30,52 +30,33 @@ from core.exceptions import (
     AutonameowException
 )
 from core.fileobject import FileObject
+from core.util.queue import GenericQueue
 
 
-class AnalysisRunQueue(object):
+class AnalysisRunQueue(GenericQueue):
     """
     Execution queue for analyzers.
 
     The queue order is determined by the class variable "run_queue_priority".
     """
     def __init__(self):
-        self.__queue = []
+        super().__init__()
 
-    def enqueue(self, analyzers):
+    def enqueue(self, analyzer):
         """
-        Adds one or more analyzers to the queue.
+        Adds a analyzer to the queue.
 
         The queue acts as a set; duplicate analyzers are silently ignored.
 
         Args:
-            analyzers: Analyzer(s) to enqueue as either type 'type' or
-                list of type 'type'.
+            analyzer: Analyzer to enqueue as type 'type'.
         """
-        def _dupe_check_append(_analyzer):
-            if _analyzer not in self.__queue:
-                self.__queue.append(_analyzer)
-
-        if isinstance(analyzers, list):
-            for a in analyzers:
-                _dupe_check_append(a)
-        else:
-            _dupe_check_append(analyzers)
-
-    def __len__(self):
-        return len(self.__queue)
-
-    def __getitem__(self, item):
-        return self.__queue[item]
+        if analyzer not in self._items:
+            self._items.insert(0, analyzer)
 
     def __iter__(self):
-        for a in sorted(self.__queue, key=lambda x: x.run_queue_priority):
-            yield a
-
-    def __str__(self):
-        out = []
-        for i, a in enumerate(self):
-            out.append('{:02d}: {}'.format(i, a.__name__))
-        return ', '.join(out)
+        for item in sorted(self._items, key=lambda x: x.run_queue_priority):
+            yield item
 
 
 class AnalysisResults(object):
@@ -88,7 +69,7 @@ class AnalysisResults(object):
         for field in constants.ANALYSIS_RESULTS_FIELDS:
             self._data[field] = []
 
-        # TODO: Redesign data storage structure.
+        # TODO: Replace all "old style" storage with redesigned storage.
         self.new_data = {}
 
     def query(self, field_data_source_map):
@@ -108,10 +89,17 @@ class AnalysisResults(object):
         out = {}
 
         for field, source in field_data_source_map.items():
+
             # TODO: Fix hacky word splitting to keys for dictionary access.
             if source.startswith('metadata.exiftool'):
                 key = source.lstrip('metadata.exiftool')
-                out[field] = self.new_data.get('metadata.exiftool').get(key)
+
+                # TODO: Handle querying missing data.
+                if 'metadata.exiftool' in self.new_data:
+                    out[field] = self.new_data['metadata.exiftool'].get(key)
+                else:
+                    return False
+
             elif source.startswith('plugin.'):
                 # TODO: Results should NOT be querying plugins from here!
                 # TODO: Rework processing pipeline to integrate plugins
@@ -122,9 +110,6 @@ class AnalysisResults(object):
                 out[field] = self.new_data.get(source)
 
         return out
-
-    # def __getitem__(self, key):
-    # TODO: Implement proper getter method.
 
     def new_add(self, label, data):
         # TODO: FIX ME! Should replace "old add".
@@ -188,14 +173,17 @@ class Analysis(object):
 
         Args:
             file_object: File to analyze as an instance of class 'FileObject'.
+            extracted_data: Data from the 'Extraction' instance as an instance
+                of the 'ExtractedData' class.
         """
+        self.results = AnalysisResults()
+        self.analyzer_queue = AnalysisRunQueue()
+
         if not isinstance(file_object, FileObject):
             raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
-        self.results = AnalysisResults()
-        self.analysis_run_queue = AnalysisRunQueue()
-
+        # TODO: Improve handling of incoming data from 'Extraction'.
         if extracted_data:
             for key, value in extracted_data:
                 self.collect_results(key, value)
@@ -207,7 +195,7 @@ class Analysis(object):
         Analyzers call this to store collected data.
 
         Args:
-            label: Arbitrary label that uniquely identifies the data.
+            label: Label that uniquely identifies the data.
             data: The data to add.
         """
         self.results.new_add(label, data)
@@ -219,7 +207,7 @@ class Analysis(object):
         # Select analyzer based on detected file type.
         log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
         self._populate_run_queue()
-        log.debug('Enqueued analyzers: {!s}'.format(self.analysis_run_queue))
+        log.debug('Enqueued analyzers: {!s}'.format(self.analyzer_queue))
 
         # Run all analyzers in the queue.
         self._execute_run_queue()
@@ -235,6 +223,7 @@ class Analysis(object):
         found = []
 
         # Compare file mime type with entries from get_analyzer_mime_mappings().
+        # TODO: [hack] This needs refactoring!
         for azr, tpe in get_analyzer_mime_mappings().items():
             if isinstance(tpe, list):
                 for t in tpe:
@@ -248,12 +237,10 @@ class Analysis(object):
 
         # Append any matches to the analyzer run queue.
         if found:
-            self.analysis_run_queue.enqueue(found)
+            for f in found:
+                self.analyzer_queue.enqueue(f)
         else:
             raise AutonameowException('None of the analyzers applies (!)')
-
-    # def _execute_common_analyzers(self):
-    #     filesystem_analyzer = FilesystemAnalyzer()
 
     def _execute_run_queue(self):
         """
@@ -261,11 +248,9 @@ class Analysis(object):
 
         Analyzers are called sequentially, results are stored in 'self.results'.
         """
-        for i, analysis in enumerate(self.analysis_run_queue):
+        for i, analysis in enumerate(self.analyzer_queue):
             log.debug('Executing queue item {}/{}: '
-                      '{}'.format(i + 1,
-                                  len(self.analysis_run_queue),
-                                  analysis.__name__))
+                      '{!s}'.format(i + 1, len(self.analyzer_queue), analysis))
             if not analysis:
                 log.critical('Got null analysis from analysis run queue.')
                 continue
@@ -275,8 +260,7 @@ class Analysis(object):
                 log.critical('Unable to start Analyzer "{!s}"'.format(analysis))
                 continue
 
-            a_name = str(a.__class__.__name__)
-            log.debug('Starting Analyzer "{!s}"'.format(a_name))
+            log.debug('Starting Analyzer "{!s}"'.format(a))
 
             # Run the analysis and collect the results.
             a.run()
@@ -285,21 +269,21 @@ class Analysis(object):
                     result = a.get(field)
                 except NotImplementedError as e:
                     log.debug('[WARNING] Called unimplemented code in {!s}: '
-                              '{!s}'.format(a_name, e))
+                              '{!s}'.format(a, e))
                     continue
 
                 if not result:
                     continue
 
                 # Add the analyzer name to the results dictionary.
-                results = include_analyzer_name(result, a_name)
+                results = include_analyzer_name(result, a)
                 self.results.add(field, results)
 
 
 def include_analyzer_name(result_list, source):
     out = []
     for result in result_list:
-        result['analyzer'] = source
+        result['analyzer'] = str(source)
         out.append(result)
 
     return out
