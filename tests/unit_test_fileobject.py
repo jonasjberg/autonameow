@@ -23,10 +23,9 @@ import os
 from unittest import TestCase
 
 from core import fileobject
-from core.fileobject import FileObject
 from unit_utils import (
-    make_temporary_file,
-    get_named_file_object
+    get_named_file_object,
+    abspath_testfile
 )
 
 
@@ -566,17 +565,12 @@ class TestFileObjectFilenameNotInFiletagsFormat(TestCase):
 
 class TestFileTypeMagic(TestCase):
     def setUp(self):
-        os.chdir(os.path.abspath(os.path.dirname(__file__)))
-
-        self.test_files = [('magic_bmp.bmp', 'bmp'),
-                           ('magic_gif.gif', 'gif'),
-                           ('magic_jpg.jpg', 'jpg'),
-                           ('magic_mp4.mp4', 'mp4'),
-                           ('magic_pdf.pdf', 'pdf'),
-                           ('magic_png.png', 'png'),
-                           ('magic_txt', 'txt'),
-                           ('magic_txt.md', 'txt'),
-                           ('magic_txt.txt', 'txt')]
+        TEST_FILES = [('magic_bmp.bmp', 'bmp'), ('magic_gif.gif', 'gif'),
+                      ('magic_jpg.jpg', 'jpg'), ('magic_mp4.mp4', 'mp4'),
+                      ('magic_pdf.pdf', 'pdf'), ('magic_png.png', 'png'),
+                      ('magic_txt',     'txt'), ('magic_txt.md',  'txt'),
+                      ('magic_txt.txt', 'txt')]
+        self.test_files = [(abspath_testfile(f), e) for f, e in TEST_FILES]
 
     def test_test_files_defined(self):
         for fname, fmagic in self.test_files:
@@ -601,5 +595,4 @@ class TestFileTypeMagic(TestCase):
     def test_filetype_magic_with_invalid_args(self):
         self.assertIsNone(fileobject.filetype_magic(None))
         self.assertIsNone(fileobject.filetype_magic(' '))
-        self.assertIsNone(
-            fileobject.filetype_magic(os.path.dirname(__file__)))
+        self.assertIsNone(fileobject.filetype_magic(os.path.dirname(__file__)))
