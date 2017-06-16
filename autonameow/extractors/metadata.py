@@ -81,7 +81,7 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """
-    handles_mime_types = ['mp4', 'mov']
+    handles_mime_types = ['mp4', 'mov', 'pdf']
     data_query_string = 'metadata.exiftool'
 
     def __init__(self, source):
