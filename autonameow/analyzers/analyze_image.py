@@ -35,8 +35,10 @@ class ImageAnalyzer(Analyzer):
     # @Overrides attribute in Analyzer
     run_queue_priority = 0.5
 
-    def __init__(self, file_object, add_results_callback):
-        super(ImageAnalyzer, self).__init__(file_object, add_results_callback)
+    def __init__(self, file_object, add_results_callback, extracted_data):
+        super(ImageAnalyzer, self).__init__(
+            file_object, add_results_callback, extracted_data
+        )
         self.add_results = add_results_callback
 
         self.applies_to_mime = ['jpg', 'png']

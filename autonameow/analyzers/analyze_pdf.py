@@ -40,8 +40,10 @@ class PdfAnalyzer(Analyzer):
     # @Overrides attribute in Analyzer
     run_queue_priority = 1
 
-    def __init__(self, file_object, add_results_callback):
-        super(PdfAnalyzer, self).__init__(file_object, add_results_callback)
+    def __init__(self, file_object, add_results_callback, extracted_data):
+        super(PdfAnalyzer, self).__init__(
+            file_object, add_results_callback, extracted_data
+        )
         self.applies_to_mime = 'pdf'
         self.add_results = add_results_callback
 

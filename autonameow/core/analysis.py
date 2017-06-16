@@ -183,8 +183,10 @@ class Analysis(object):
             raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
-        # TODO: Improve handling of incoming data from 'Extraction'.
         if extracted_data:
+            self.extracted_data = extracted_data
+
+            # TODO: Improve handling of incoming data from 'Extraction'.
             for key, value in extracted_data:
                 self.collect_results(key, value)
 
@@ -255,7 +257,8 @@ class Analysis(object):
                 log.critical('Got null analysis from analysis run queue.')
                 continue
 
-            a = analysis(self.file_object, self.collect_results)
+            a = analysis(self.file_object, self.collect_results,
+                         self.extracted_data)
             if not a:
                 log.critical('Unable to start Analyzer "{!s}"'.format(analysis))
                 continue

@@ -26,14 +26,14 @@ from core.exceptions import AnalysisResultsFieldError
 class Analyzer(object):
     """
     Abstract Analyzer base class.
-    All methods must be implemented by inheriting classes.
     """
     run_queue_priority = None
 
-    def __init__(self, file_object, add_results_callback):
+    def __init__(self, file_object, add_results_callback, extracted_data):
         self.file_object = file_object
         self.applies_to_mime = None
         self.add_results = add_results_callback
+        self.extracted_data = extracted_data
 
         # TODO: Rework how analyzers store results.
         # TODO: Add new data container?
@@ -145,7 +145,7 @@ def get_instantiated_analyzers():
     """
     # NOTE: These are instantiated with a None FIleObject, which might be a
     #       problem and is surely not very pretty.
-    return [klass(None, None) for klass in get_analyzer_classes()]
+    return [klass(None, None, None) for klass in get_analyzer_classes()]
 
 
 def get_analyzer_mime_mappings():
