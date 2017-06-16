@@ -331,7 +331,7 @@ def evaluate_rule(file_rule, file_object, analysis_data):
             log.debug('Condition Passed rule.votes++')
             file_rule.upvote()
         else:
-            # file_rule.downvote()
+            # NOTE: file_rule.downvote()?
             # log.debug('Condition FAILED rule.votes--')
             log.debug('Condition FAILED')
 
@@ -360,7 +360,7 @@ def format_string_placeholders(format_string):
 def pre_assemble_format(data, template, config):
     out = {}
 
-    # TODO: Handle this properly and more generally
+    # TODO: This needs refactoring, badly.
 
     for key, value in data.items():
         if key == 'datetime':

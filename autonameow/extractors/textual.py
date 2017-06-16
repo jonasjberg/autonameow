@@ -41,11 +41,6 @@ class TextExtractor(Extractor):
         super(TextExtractor, self).__init__(source)
 
         self._raw_text = None
-        # self._data = {
-        #     'raw_text': None,
-        #     'paginated': False,
-        #     'number_pages': None,
-        # }
 
     def query(self, field=None):
         if not self._raw_text:
@@ -145,7 +140,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
         pdff = PyPDF2.PdfFileReader(open(pdf_file, 'rb'))
     except (IOError, PyPdfError):
         log.error('Unable to read PDF file content.')
-        # TODO:
+        # TODO: Raise exception instead?
         return False
 
     try:

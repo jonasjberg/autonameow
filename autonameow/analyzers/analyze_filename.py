@@ -32,7 +32,6 @@ from core.util import dateandtime
 
 
 class FilenameAnalyzer(Analyzer):
-    # @Overrides attribute in Analyzer
     run_queue_priority = 1
 
     def __init__(self, file_object, add_results_callback, extracted_data):
@@ -44,7 +43,6 @@ class FilenameAnalyzer(Analyzer):
 
         self.guessit_metadata = None
 
-    # @Overrides method in Analyzer
     def run(self):
         # TODO: This test does not belong here! Handle guessit properly.
         if guessit and self.file_object.mime_type == 'mp4':
@@ -53,7 +51,6 @@ class FilenameAnalyzer(Analyzer):
             if self.guessit_metadata:
                 self.add_results('plugins.guessit', self.guessit_metadata)
 
-    # @Overrides method in Analyzer
     def get_datetime(self):
         # TODO: Remove, use callbacks instead.
         result = []
@@ -69,7 +66,6 @@ class FilenameAnalyzer(Analyzer):
 
         return result
 
-    # @Overrides method in Analyzer
     def get_title(self):
         # TODO: Remove, use callbacks instead.
         titles = []
@@ -85,18 +81,14 @@ class FilenameAnalyzer(Analyzer):
 
         return titles
 
-    # @Overrides method in Analyzer
     def get_author(self):
         # TODO: Remove, use callbacks instead.
-        # TODO: Implement.
         pass
 
-    # @Overrides method in Analyzer
     def get_tags(self):
         # TODO: Remove, use callbacks instead.
         return self.file_object.filenamepart_tags
 
-    # @Overrides method in Analyzer
     def get_publisher(self):
         # TODO: Remove, use callbacks instead.
         return None

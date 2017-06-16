@@ -407,7 +407,7 @@ def is_valid_source(source_value):
 
 
 def parse_conditions(raw_conditions):
-    # TODO: ..
+    # TODO: This needs a lookover and probably at least a partial rewrite.
     out = {}
 
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))

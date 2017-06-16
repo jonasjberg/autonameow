@@ -80,7 +80,6 @@ def init_argparser():
         epilog='Example usage: TODO ..'
     )
 
-    # Add option group for controlling what is printed to stdout.
     optgrp_output = parser.add_mutually_exclusive_group()
     optgrp_output.add_argument(
         '--debug',
@@ -104,7 +103,6 @@ def init_argparser():
         help='Quiet mode. Supress all output except critical errors.'
     )
 
-    # Add option group for actions to be performed.
     optgrp_action = parser.add_argument_group('Action options')
     # TODO: Replace '--list-datetime' and '--list-title' with '--list {FIELD}'
     optgrp_action.add_argument(
@@ -132,7 +130,6 @@ def init_argparser():
         help='Prepend most probable "date/time"-information to file names.'
     )
 
-    # Add option group for operating mode.
     optgrp_mode = parser.add_argument_group('Operating mode')
     optgrp_mode.add_argument(
         '--automagic',
@@ -150,7 +147,6 @@ def init_argparser():
              'analysis results is to make up the new filename.'
     )
 
-    # Add option group for filter options.
     optgrp_filter = parser.add_argument_group('Processing options')
 
     ignore_to_year_default = str(dateandtime.YEAR_LOWER_LIMIT.strftime('%Y'))
@@ -214,7 +210,6 @@ def init_argparser():
              'configuration file.'
     )
 
-    # Add option group for debugging options.
     optgrp_debug = parser.add_argument_group('Debug/developer options')
     optgrp_debug.add_argument(
         '--dump-options',

@@ -37,7 +37,6 @@ from extractors.textual import (
 
 
 class PdfAnalyzer(Analyzer):
-    # @Overrides attribute in Analyzer
     run_queue_priority = 1
 
     def __init__(self, file_object, add_results_callback, extracted_data):
@@ -55,7 +54,6 @@ class PdfAnalyzer(Analyzer):
         self.metadata = None
         self.text = None
 
-    # @Overrides method in Analyzer
     def run(self):
         self.metadata = self.extracted_data.get('metadata.exiftool')
         self.text = self.extracted_data.get('contents.textual.raw_text')
@@ -70,7 +68,6 @@ class PdfAnalyzer(Analyzer):
         else:
             return []
 
-    # @Overrides method in Analyzer
     def get_author(self):
         # TODO: Remove, use callbacks instead.
         results = []
@@ -93,7 +90,6 @@ class PdfAnalyzer(Analyzer):
                                               source_field, weight)
         return results
 
-    # @Overrides method in Analyzer
     def get_title(self):
         # TODO: Remove, use callbacks instead.
         results = []
@@ -114,7 +110,6 @@ class PdfAnalyzer(Analyzer):
 
         return results
 
-    # @Overrides method in Analyzer
     def get_datetime(self):
         # TODO: Remove, use callbacks instead.
         results = []
@@ -131,12 +126,10 @@ class PdfAnalyzer(Analyzer):
 
         return results
 
-    # @Overrides method in Analyzer
     def get_tags(self):
         # TODO: Remove, use callbacks instead.
         raise NotImplementedError('Get "tags" from PdfAnalyzer')
 
-    # @Overrides method in Analyzer
     def get_publisher(self):
         # TODO: Remove, use callbacks instead.
         results = []
@@ -171,7 +164,6 @@ class PdfAnalyzer(Analyzer):
                 try:
                     k = self.metadata[field]
                     k = k.strip()
-                    # date, time = self.pdf_metadata[field].split()
                 except KeyError:
                     logging.error('KeyError for key [{}]'.format(field))
                     continue
@@ -188,7 +180,7 @@ class PdfAnalyzer(Analyzer):
             #                                      ^            ^ ^     ^
             #                                      '------------' '-----'
             #                                            #1         #2
-            # Which are extracted separately.
+            #
             date_pattern_with_tz = re.compile('D:(\d{14})(\+\d{2}\'\d{2}\')')
             re_match_tz = date_pattern_with_tz.search(k)
             if re_match_tz:
@@ -296,6 +288,7 @@ class PdfAnalyzer(Analyzer):
                                     'source': 'text_content_brute',
                                     'weight': 0.1})
 
+        # TODO: Fix conditional always evaluates to True ..
         # if matches == 0:
         if True:
             logging.debug('No matches. Trying with text split by whitespace')

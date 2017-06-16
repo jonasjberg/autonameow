@@ -40,14 +40,12 @@ class TestDateAndTime(TestCase):
 
 class TestMatchUnixTimestamp(TestCase):
     def test_match_unix_timestamp(self):
-        # Setup and sanity check:
         expected = datetime.strptime('20160528 201245', '%Y%m%d %H%M%S')
         expected2 = datetime.strptime('20160427 214010', '%Y%m%d %H%M%S')
         self.assertIsInstance(expected, datetime)
         self.assertIsInstance(expected2, datetime)
         self.assertNotEqual(expected, expected2)
 
-        # Tests:
         self.assertEqual(expected, match_any_unix_timestamp('1464459165'))
         self.assertEqual(expected, match_any_unix_timestamp('1464459165038'))
         self.assertEqual(expected,
@@ -74,7 +72,6 @@ class TestMatchUnixTimestamp(TestCase):
 
 class TestMatchSpecialCase(TestCase):
     def setUp(self):
-        # Setup and sanity check:
         self.expect = datetime.strptime('20160722 131730', '%Y%m%d %H%M%S')
         self.assertIsInstance(self.expect, datetime)
 
