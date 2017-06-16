@@ -179,7 +179,7 @@ class Analysis(object):
         self.file_object = file_object
 
         self.results = AnalysisResults()
-        self.analysis_run_queue = AnalysisRunQueue()
+        self.analyzer_queue = AnalysisRunQueue()
 
         # TODO: Improve handling of incoming data from 'Extraction'.
         if extracted_data:
@@ -205,7 +205,7 @@ class Analysis(object):
         # Select analyzer based on detected file type.
         log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
         self._populate_run_queue()
-        log.debug('Enqueued analyzers: {!s}'.format(self.analysis_run_queue))
+        log.debug('Enqueued analyzers: {!s}'.format(self.analyzer_queue))
 
         # Run all analyzers in the queue.
         self._execute_run_queue()
@@ -236,7 +236,7 @@ class Analysis(object):
         # Append any matches to the analyzer run queue.
         if found:
             for f in found:
-                self.analysis_run_queue.enqueue(f)
+                self.analyzer_queue.enqueue(f)
         else:
             raise AutonameowException('None of the analyzers applies (!)')
 
@@ -246,10 +246,9 @@ class Analysis(object):
 
         Analyzers are called sequentially, results are stored in 'self.results'.
         """
-        for i, analysis in enumerate(self.analysis_run_queue):
+        for i, analysis in enumerate(self.analyzer_queue):
             log.debug('Executing queue item {}/{}: '
-                      '{!s}'.format(i + 1,
-                                  len(self.analysis_run_queue), analysis))
+                      '{!s}'.format(i + 1, len(self.analyzer_queue), analysis))
             if not analysis:
                 log.critical('Got null analysis from analysis run queue.')
                 continue

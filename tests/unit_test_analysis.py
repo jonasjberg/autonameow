@@ -55,9 +55,9 @@ class TestAnalysis(TestCase):
         self.assertIsNotNone(self.a._populate_run_queue)
 
     def test_analysis__populate_run_queue_populates_queue(self):
-        self.assertEqual(len(self.a.analysis_run_queue), 0)
+        self.assertEqual(len(self.a.analyzer_queue), 0)
         self.a._populate_run_queue()
-        self.assertEqual(len(self.a.analysis_run_queue), 2)
+        self.assertEqual(len(self.a.analyzer_queue), 2)
 
     def test_analysis__execute_run_queue_method_exists(self):
         self.assertIsNotNone(self.a._execute_run_queue)
