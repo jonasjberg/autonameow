@@ -28,6 +28,8 @@ class Extractor(object):
     by inheriting extractor classes.
     """
 
+    handles_mime_types = None
+
     def __init__(self, source):
         """
         Creates a extractor instance acting on the specified source data.

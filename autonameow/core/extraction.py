@@ -25,6 +25,17 @@ from core import constants
 from core.exceptions import InvalidDataSourceError
 from core.fileobject import FileObject
 
+# TODO: [hack] Fix this! Used for instantiating extractors so that they are
+# included in the global namespace and seen by 'get_extractor_classes()'.
+from extractors.extractor import Extractor
+from extractors.metadata import MetadataExtractor
+from extractors.metadata import ExiftoolMetadataExtractor
+from extractors.metadata import PyPDFMetadataExtractor
+__dummy_a = Extractor(None)
+__dummy_b = MetadataExtractor(None)
+__dummy_c = ExiftoolMetadataExtractor(None)
+__dummy_d = PyPDFMetadataExtractor(None)
+
 
 class Extraction(object):
     """
@@ -147,5 +158,34 @@ class ExtractedData(object):
 
 
 def suitable_data_extractors_for(file_object):
-    # TODO: Implment ..
-    pass
+    """
+    Returns extractor classes that can handle the given file object.
+
+    Args:
+        file_object: File to get extractors for as an instance of 'FileObject'.
+
+    Returns:
+        A list of extractor classes that can extract data from the given file.
+    """
+    out = []
+
+    for extractor in ExtractorClasses:
+        if file_object.mime_type in extractor.handles_mime_types:
+            out.append(extractor)
+
+    return out
+
+
+def get_extractor_classes():
+    """
+    Get a list of all available extractors as a list of "type".
+    All classes inheriting from the "Extractor" class are included.
+
+    Returns:
+        All available extractor classes as a list of type.
+    """
+    # TODO: Include ALL extractors!
+    return [klass for klass in globals()['MetadataExtractor'].__subclasses__()]
+
+
+ExtractorClasses = get_extractor_classes()
