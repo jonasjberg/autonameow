@@ -40,8 +40,10 @@ class PdfAnalyzer(Analyzer):
     # @Overrides attribute in Analyzer
     run_queue_priority = 1
 
-    def __init__(self, file_object, add_results_callback):
-        super(PdfAnalyzer, self).__init__(file_object, add_results_callback)
+    def __init__(self, file_object, add_results_callback, extracted_data):
+        super(PdfAnalyzer, self).__init__(
+            file_object, add_results_callback, extracted_data
+        )
         self.applies_to_mime = 'pdf'
         self.add_results = add_results_callback
 
@@ -55,30 +57,8 @@ class PdfAnalyzer(Analyzer):
 
     # @Overrides method in Analyzer
     def run(self):
-        self.meta_extractor = PyPDFMetadataExtractor(self.file_object.abspath)
-        logging.debug('Extracting metadata with {!s} '
-                      '..'.format(self.meta_extractor))
-        self.metadata = self.meta_extractor.query()
-        if self.metadata:
-            self.add_results('metadata.pypdf', self.metadata)
-
-            try:
-                number_pages = self.metadata.get('number_pages', False)
-                number_pages = int(number_pages)
-            except ValueError:
-                pass
-            else:
-                self.add_results('contents.textual.number_pages', number_pages)
-                self.add_results('contents.textual.paginated', True)
-
-        self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
-        logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
-        self.exiftool_data = self.exiftool.query()
-        if self.exiftool_data:
-            self.add_results('metadata.exiftool', self.exiftool_data)
-
-        self.text = self._extract_pdf_content()
-        self.add_results('contents.textual.raw_text', self.text)
+        self.metadata = self.extracted_data.get('metadata.exiftool')
+        self.text = self.extracted_data.get('contents.textual.raw_text')
 
     def __collect_results(self, query_string, source_dict, source_field, weight):
         if not source_dict:
@@ -175,6 +155,8 @@ class PdfAnalyzer(Analyzer):
         :return: dict of datetime-objects
         """
 
+        # TODO: This method is being moved to a function on 'metadata.py'.
+
         DATE_TAG_FIELDS = ['ModDate', 'CreationDate', 'ModDate']
 
         results = []
@@ -247,34 +229,6 @@ class PdfAnalyzer(Analyzer):
                               '"{}": "{}"'.format(field, dt))
 
         return results
-
-    def _extract_pdf_content(self):
-        """
-        Extracts the plain text contents of a PDF document using "extractors".
-
-        Returns:
-            The textual contents of the PDF document or None.
-        """
-        pdf_text = None
-        text_extractors = [extract_pdf_content_with_pdftotext,
-                           extract_pdf_content_with_pypdf]
-        for i, extractor in enumerate(text_extractors):
-            logging.debug('Running pdf text extractor {}/{}: '
-                          '{}'.format(i, len(text_extractors), str(extractor)))
-            pdf_text = extractor(self.file_object.abspath)
-            if pdf_text and len(pdf_text) > 1:
-                logging.debug('Extracted text with: '
-                              '{}'.format(extractor.__name__))
-                # Post-process text extracted from a pdf document.
-                pdf_text = textutils.sanitize_text(pdf_text)
-                break
-
-        if pdf_text:
-            logging.debug('Extracted {} bytes of text'.format(len(pdf_text)))
-            return pdf_text
-        else:
-            logging.info('Unable to extract textual content from pdf ..')
-            return None
 
     def _is_gmail(self):
         """

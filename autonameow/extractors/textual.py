@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
+import logging as log
 import subprocess
 
 import PyPDF2
@@ -27,6 +27,89 @@ from PyPDF2.utils import (
     PyPdfError,
     PdfReadError
 )
+
+from core.exceptions import ExtractorError
+from core.util import textutils
+from extractors.extractor import Extractor
+
+
+class TextExtractor(Extractor):
+    handles_mime_types = None
+    data_query_string = None
+
+    def __init__(self, source):
+        super(TextExtractor, self).__init__(source)
+
+        self._raw_text = None
+        # self._data = {
+        #     'raw_text': None,
+        #     'paginated': False,
+        #     'number_pages': None,
+        # }
+
+    def query(self, field=None):
+        if not self._raw_text:
+            try:
+                log.debug('TextExtractor received initial query ..')
+                self._raw_text = self._get_raw_text()
+            except ExtractorError as e:
+                log.error('TextExtractor query FAILED: {!s}'.format(e))
+                return False
+            except NotImplementedError as e:
+                log.debug('[WARNING] Called unimplemented code in {!s}: '
+                          '{!s}'.format(self, e))
+                return False
+
+        if not field:
+            log.debug('TextExtractor responding to query for all fields')
+            return self._raw_text
+        else:
+            log.debug('MetadataExtractor responding to query for field: '
+                      '"{!s}"'.format(field))
+            return self._raw_text.get(field, False)
+
+    def _get_raw_text(self):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
+
+class PdfTextExtractor(TextExtractor):
+    handles_mime_types = ['pdf']
+    data_query_string = 'contents.textual.raw_text'
+
+    def __init__(self, source):
+        super(PdfTextExtractor, self).__init__(source)
+        self._raw_text = None
+        self._data = None
+
+    def _get_raw_text(self):
+        """
+        Extracts the plain text contents of a PDF document.
+
+        Returns:
+            The textual contents of the PDF document or None.
+        """
+        pdf_text = None
+        text_extractors = [extract_pdf_content_with_pdftotext,
+                           extract_pdf_content_with_pypdf]
+        for i, extractor in enumerate(text_extractors):
+            log.debug('Running PDF text extractor {}/{}: '
+                      '{!s}'.format(i + 1, len(text_extractors), extractor))
+            pdf_text = extractor(self.source)
+            if pdf_text and len(pdf_text) > 1:
+                log.debug('Extracted text with: {}'.format(extractor.__name__))
+                # TODO: Fix up post-processing extracted text.
+                pdf_text = textutils.sanitize_text(pdf_text)
+                break
+
+        if pdf_text:
+            log.debug('Extracted {} bytes of text'.format(len(pdf_text)))
+            return pdf_text
+        else:
+            log.debug('Unable to extract textual content from PDF')
+            raise ExtractorError
+
+    def _get_data(self):
+        pass
 
 
 def extract_pdf_content_with_pdftotext(pdf_file):
@@ -36,20 +119,15 @@ def extract_pdf_content_with_pdftotext(pdf_file):
     Returns:
         False or PDF content as string
     """
-    try:
-        pipe = subprocess.Popen(['pdftotext', '-nopgbrk', '-enc', 'UTF-8',
-                                 pdf_file, '-'], shell=False,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT)
-    except ValueError:
-        logging.warning(
-            '"subprocess.Popen" was called with invalid arguments.')
-        return False
+    process = subprocess.Popen(
+        ['pdftotext', '-nopgbrk', '-enc', 'UTF-8', pdf_file, '-'],
+        shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+    )
+    stdout, stderr = process.communicate()
 
-    stdout, stderr = pipe.communicate()
-    if pipe.returncode != 0:
-        logging.warning('subprocess returned [{}] - STDERROR: '
-                        '{}'.format(pipe.returncode, stderr))
+    if process.returncode != 0:
+        log.warning('pdftotext returned {!s}'.format(process.returncode))
+        log.warning('pdftotext stderr: {!s}'.format(stderr))
         # TODO: Raise exception instead?
         return False
     else:
@@ -66,7 +144,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
     try:
         pdff = PyPDF2.PdfFileReader(open(pdf_file, 'rb'))
     except (IOError, PyPdfError):
-        logging.error('Unable to read PDF file content.')
+        log.error('Unable to read PDF file content.')
         # TODO:
         return False
 
@@ -75,32 +153,32 @@ def extract_pdf_content_with_pypdf(pdf_file):
     except PdfReadError:
         # NOTE: This now wholly determines whether a pdf is readable.
         #       Possible to not getNumPages but still be able to read the text?
-        logging.error('PDF document might be encrypted with restrictions '
+        log.error('PDF document might be encrypted with restrictions '
                       'preventing reading.')
         # TODO: Raise exception instead?
         raise
     else:
-        logging.debug('Number of pdf pages: {}'.format(num_pages))
+        log.debug('Number of pdf pages: {}'.format(num_pages))
 
     # Start by extracting a limited range of pages.
     # TODO: Relevant info is more likely to be within some range of pages?
-    logging.debug('Extracting page #1')
+    log.debug('Extracting page #1')
     content = pdff.pages[0].extractText()
     if len(content) == 0:
-        logging.debug('Textual content of page #1 is empty.')
+        log.debug('Textual content of page #1 is empty.')
         pass
 
     # Collect more until a preset arbitrary limit is reached.
     for i in range(1, num_pages):
         if len(content) > 50000:
-            logging.debug('Extraction hit content size limit.')
+            log.debug('Extraction hit content size limit.')
             break
-        logging.debug('Extracting page {:<4} of {:<4} ..'.format(i + 1,
+        log.debug('Extracting page {:<4} of {:<4} ..'.format(i + 1,
                                                                  num_pages))
         content += pdff.getPage(i).extractText()
 
     if content:
         return content
     else:
-        logging.debug('Unable to extract text with PyPDF2 ..')
+        log.debug('Unable to extract text with PyPDF2 ..')
         return False

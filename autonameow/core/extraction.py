@@ -32,10 +32,14 @@ from extractors.extractor import Extractor
 from extractors.metadata import MetadataExtractor
 from extractors.metadata import ExiftoolMetadataExtractor
 from extractors.metadata import PyPDFMetadataExtractor
+from extractors.textual import TextExtractor
+from extractors.textual import PdfTextExtractor
 __dummy_a = Extractor(None)
 __dummy_b = MetadataExtractor(None)
 __dummy_c = ExiftoolMetadataExtractor(None)
 __dummy_d = PyPDFMetadataExtractor(None)
+__dummy_e = TextExtractor(None)
+__dummy_f = PdfTextExtractor(None)
 
 
 class Extraction(object):
@@ -215,7 +219,9 @@ def get_extractor_classes():
         All available extractor classes as a list of type.
     """
     # TODO: Include ALL extractors!
-    return [klass for klass in globals()['MetadataExtractor'].__subclasses__()]
+    out = ([klass for klass in globals()['MetadataExtractor'].__subclasses__()]
+           + [klass for klass in globals()['TextExtractor'].__subclasses__()])
+    return out
 
 
 ExtractorClasses = get_extractor_classes()

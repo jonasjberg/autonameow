@@ -58,6 +58,12 @@ class AnalysisRunQueue(GenericQueue):
         for item in sorted(self._items, key=lambda x: x.run_queue_priority):
             yield item
 
+    def __str__(self):
+        out = []
+        for pos, item in enumerate(self):
+            out.append('{:02d}: {!s}'.format(pos, item.__name__))
+        return ', '.join(out)
+
 
 class AnalysisResults(object):
     """
@@ -183,8 +189,10 @@ class Analysis(object):
             raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
-        # TODO: Improve handling of incoming data from 'Extraction'.
         if extracted_data:
+            self.extracted_data = extracted_data
+
+            # TODO: Improve handling of incoming data from 'Extraction'.
             for key, value in extracted_data:
                 self.collect_results(key, value)
 
@@ -255,7 +263,8 @@ class Analysis(object):
                 log.critical('Got null analysis from analysis run queue.')
                 continue
 
-            a = analysis(self.file_object, self.collect_results)
+            a = analysis(self.file_object, self.collect_results,
+                         self.extracted_data)
             if not a:
                 log.critical('Unable to start Analyzer "{!s}"'.format(analysis))
                 continue
