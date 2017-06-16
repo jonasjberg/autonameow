@@ -55,8 +55,8 @@ class AnalysisRunQueue(GenericQueue):
             self._items.insert(0, analyzer)
 
     def __iter__(self):
-        for a in sorted(self._items, key=lambda x: x.run_queue_priority):
-            yield a
+        for item in sorted(self._items, key=lambda x: x.run_queue_priority):
+            yield item
 
 
 class AnalysisResults(object):
