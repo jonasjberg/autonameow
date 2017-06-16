@@ -53,6 +53,9 @@ High Priority
     given file contains a specific line of text, etc.
 * Plan for optimization by not extracting more data than necessary.
   How could this be implemented?
+* Converting strings to `datetime` objects and similar translation of metadata
+  fields should be handled by the extractors. It is currently mostly done in
+  the analyzers.
 
 
 Medium Priority
