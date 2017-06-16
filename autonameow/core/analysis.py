@@ -185,8 +185,6 @@ class Analysis(object):
         self.results = AnalysisResults()
         self.analyzer_queue = AnalysisRunQueue()
 
-        if not isinstance(file_object, FileObject):
-            raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
         if extracted_data:

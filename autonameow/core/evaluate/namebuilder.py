@@ -305,10 +305,6 @@ def evaluate_rule(file_rule, file_object, analysis_data):
         If the rule does not require an exact match:
             True
     """
-    if not isinstance(file_object, FileObject):
-        raise TypeError('"file_object" must be instance of "FileObject"')
-    if not isinstance(file_rule, core.config.configuration.FileRule):
-        raise TypeError('"file_rule" must be instance of "FileRule"')
     if not file_rule.conditions:
         raise InvalidFileRuleError('Rule does not specify any conditions')
 

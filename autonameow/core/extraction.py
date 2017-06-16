@@ -53,12 +53,9 @@ class Extraction(object):
         Args:
             file_object: File to extract data from, as a 'FileObject' instance.
         """
-        if not isinstance(file_object, FileObject):
-            raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
         self.data = ExtractedData()
-
         self.extractor_queue = GenericQueue()
 
     def collect_results(self, label, data):
