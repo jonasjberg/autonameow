@@ -19,21 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import tempfile
-
 from core import constants
 from core.exceptions import AnalysisResultsFieldError
-from core.fileobject import FileObject
-
-
-# TODO: Remove this hack! Used for instantiating analyzers so that they are
-# included in the global namespace and seen by 'get_analyzer_classes()'.
-def get_dummy_fileobject():
-    def _create_temp_file():
-        return os.path.realpath(tempfile.NamedTemporaryFile(delete=False).name)
-
-    return FileObject(_create_temp_file())
 
 
 class Analyzer(object):
