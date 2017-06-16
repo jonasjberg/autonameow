@@ -225,6 +225,7 @@ class Analysis(object):
         found = []
 
         # Compare file mime type with entries from get_analyzer_mime_mappings().
+        # TODO: [hack] This needs refactoring!
         for azr, tpe in get_analyzer_mime_mappings().items():
             if isinstance(tpe, list):
                 for t in tpe:
