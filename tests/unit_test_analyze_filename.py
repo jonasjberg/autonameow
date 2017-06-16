@@ -31,7 +31,7 @@ from unit_utils import (
 
 
 def get_filename_analyzer(file_object):
-    return FilenameAnalyzer(file_object, None)
+    return FilenameAnalyzer(file_object, None, None)
 
 
 class TestFilenameAnalyzerWithImageFile(TestCase):

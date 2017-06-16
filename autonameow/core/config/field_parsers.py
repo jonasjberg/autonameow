@@ -24,6 +24,7 @@ from datetime import datetime
 
 from core import constants
 from core.evaluate import namebuilder
+from core.exceptions import NameTemplateSyntaxError
 
 
 class ConfigFieldParser(object):
@@ -143,8 +144,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
         try:
             namebuilder.assemble_basename(expression, **constants.DATA_FIELDS)
-        except (ValueError, TypeError, Exception):
-            # TODO: Have NameBuilder raise a custom exception?
+        except NameTemplateSyntaxError:
             return False
         else:
             return True

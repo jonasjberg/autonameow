@@ -170,8 +170,6 @@ def capture_stdout():
     """
     initial_state = sys.stdout
     sys.stdout = capture = io.StringIO()
-    #if six.PY2:  # StringIO encoding attr isn't writable in python >= 3
-    #    sys.stdout.encoding = 'utf-8'
     try:
         yield sys.stdout
     finally:

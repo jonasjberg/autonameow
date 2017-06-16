@@ -42,7 +42,7 @@ def print_ascii_banner():
     """
     Prints a "banner" with some ASCII art, program information and credits.
     """
-    # TODO: Text alignment depends on manually hardcoding spaces! FIX!
+    # TODO: [hardcoded] Text alignment depends on manually hardcoding spaces.
 
     ascii_banner = colorize(
            '''
@@ -140,7 +140,6 @@ def colorize(text, fore=None, back=None, style=None):
             buffer.append(getattr(colorama.Style, style.upper(), None))
 
         buffer.append(text)
-        # buffer = filter(None, buffer)
         buffer.append(colorama.Fore.RESET + colorama.Back.RESET + colorama.Style.RESET_ALL)
         return ''.join(buffer)
     else:
@@ -165,9 +164,7 @@ def msg(message, type=None, log=False):
         print(prefix + ' ' + colored_text)
 
     def colorize_quoted(text):
-        # match_iter = re.findall(r'"(.*?)"', text)
-        # TODO: Fix this! Does not work for string like;
-        #       'Would do "Word.word" -> "1234-56-78 Word.word" ..'
+        # TODO: Make sure this works. Add better unit tests to verify.
         match_iter = re.findall(r'"([^"]*)"', text)
 
         replacements = []

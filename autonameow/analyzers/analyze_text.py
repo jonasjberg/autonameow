@@ -29,7 +29,6 @@ from core.util import dateandtime
 
 
 class TextAnalyzer(Analyzer):
-    # @Overrides attribute in Analyzer
     run_queue_priority = 0.5
 
     def __init__(self, file_object, add_results_callback, extracted_data):
@@ -41,24 +40,20 @@ class TextAnalyzer(Analyzer):
 
         self.text = None
 
-    # @Overrides method in Analyzer
     def run(self):
-        # Extract the textual contents.
         logging.debug('Extracting text contents ..')
         self.text = self._extract_text_content()
 
-    # @Overrides method in Analyzer
     def get_author(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
-    # @Overrides method in Analyzer
     def get_title(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
-    # @Overrides method in Analyzer
     def get_datetime(self):
+        # TODO: Remove, use callbacks instead.
         result = []
         if self.text:
             text_timestamps = self._get_datetime_from_text()
@@ -67,9 +62,8 @@ class TextAnalyzer(Analyzer):
 
         return result
 
-    # @Overrides method in Analyzer
     def get_tags(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
     # TODO: Move all text extraction to functions in 'extract_text.py'.
@@ -79,9 +73,7 @@ class TextAnalyzer(Analyzer):
         :return: False or text content as strings
         """
         content = self._get_file_lines()
-        # Fix encoding and replace Swedish characters.
-        # content = content.encode('utf-8', 'ignore')
-        # content = content.replace('\xc3\xb6', 'o').replace('\xc3\xa4', 'a').replace('\xc3\xa5', 'a')
+        # NOTE: Handle encoding properly
 
         decoded_content = []
         for line in content:

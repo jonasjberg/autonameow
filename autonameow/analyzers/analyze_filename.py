@@ -32,7 +32,6 @@ from core.util import dateandtime
 
 
 class FilenameAnalyzer(Analyzer):
-    # @Overrides attribute in Analyzer
     run_queue_priority = 1
 
     def __init__(self, file_object, add_results_callback, extracted_data):
@@ -44,7 +43,6 @@ class FilenameAnalyzer(Analyzer):
 
         self.guessit_metadata = None
 
-    # @Overrides method in Analyzer
     def run(self):
         # TODO: This test does not belong here! Handle guessit properly.
         if guessit and self.file_object.mime_type == 'mp4':
@@ -53,8 +51,8 @@ class FilenameAnalyzer(Analyzer):
             if self.guessit_metadata:
                 self.add_results('plugins.guessit', self.guessit_metadata)
 
-    # @Overrides method in Analyzer
     def get_datetime(self):
+        # TODO: Remove, use callbacks instead.
         result = []
 
         fn_timestamps = self._get_datetime_from_name()
@@ -68,8 +66,8 @@ class FilenameAnalyzer(Analyzer):
 
         return result
 
-    # @Overrides method in Analyzer
     def get_title(self):
+        # TODO: Remove, use callbacks instead.
         titles = []
 
         if self.guessit_metadata:
@@ -83,17 +81,16 @@ class FilenameAnalyzer(Analyzer):
 
         return titles
 
-    # @Overrides method in Analyzer
     def get_author(self):
-        # TODO: Implement.
+        # TODO: Remove, use callbacks instead.
         pass
 
-    # @Overrides method in Analyzer
     def get_tags(self):
+        # TODO: Remove, use callbacks instead.
         return self.file_object.filenamepart_tags
 
-    # @Overrides method in Analyzer
     def get_publisher(self):
+        # TODO: Remove, use callbacks instead.
         return None
 
     def _get_title_from_filename(self):
@@ -124,6 +121,7 @@ class FilenameAnalyzer(Analyzer):
                      'weight'  : 0.75
                    }, .. ]
         """
+        # TODO: This should be handled by a (guessit) plugin.
         if self.guessit_metadata:
             if 'title' in self.guessit_metadata:
                 return [{'value': self.guessit_metadata['title'],
@@ -139,6 +137,7 @@ class FilenameAnalyzer(Analyzer):
                      'weight'  : 1
                    }, .. ]
         """
+        # TODO: This should be handled by a (guessit) plugin.
         if self.guessit_metadata:
             if 'date' in self.guessit_metadata:
                 return [{'value': self.guessit_metadata['date'],
@@ -150,6 +149,7 @@ class FilenameAnalyzer(Analyzer):
         Call external program "guessit".
         :return: dictionary of results if successful, otherwise false
         """
+        # TODO: This should be handled by a (guessit) plugin.
         guessit_matches = guessit.guessit(self.file_object.filenamepart_base, )
         return guessit_matches if guessit_matches is not None else False
 

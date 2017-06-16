@@ -56,7 +56,7 @@ def get_filename_analyzer(file_object):
 class TestAnalyzer(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.a = Analyzer(get_mock_fileobject(), None)
+        self.a = Analyzer(get_mock_fileobject(), None, None)
 
     def test_run_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

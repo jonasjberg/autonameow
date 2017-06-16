@@ -28,7 +28,7 @@ from core.fileobject import FileObject
 
 
 def get_filesystem_analyzer(file_object):
-    return FilesystemAnalyzer(file_object, None)
+    return FilesystemAnalyzer(file_object, None, None)
 
 
 

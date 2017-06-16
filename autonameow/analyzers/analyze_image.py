@@ -32,7 +32,6 @@ from extractors.metadata import ExiftoolMetadataExtractor
 
 
 class ImageAnalyzer(Analyzer):
-    # @Overrides attribute in Analyzer
     run_queue_priority = 0.5
 
     def __init__(self, file_object, add_results_callback, extracted_data):
@@ -47,7 +46,6 @@ class ImageAnalyzer(Analyzer):
         self.exif_data = None
         self.ocr_text = None
 
-    # @Overrides method in Analyzer
     def run(self):
         self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
         logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
@@ -62,8 +60,8 @@ class ImageAnalyzer(Analyzer):
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
 
-    # @Overrides method in Analyzer
     def get_datetime(self):
+        # TODO: Remove, use callbacks instead.
         result = []
         exif_timestamps = self._get_exif_datetime()
         if exif_timestamps:
@@ -76,19 +74,20 @@ class ImageAnalyzer(Analyzer):
 
         return result
 
-    # @Overrides method in Analyzer
     def get_author(self):
+        # TODO: Remove, use callbacks instead.
         raise NotImplementedError('Get "author" from ImageAnalyzer')
 
-    # @Overrides method in Analyzer
     def get_title(self):
+        # TODO: Remove, use callbacks instead.
         raise NotImplementedError('Get "title" from ImageAnalyzer')
 
-    # @Overrides method in Analyzer
     def get_tags(self):
+        # TODO: Remove, use callbacks instead.
         raise NotImplementedError('Get "tags" from ImageAnalyzer')
 
     def get_publisher(self):
+        # TODO: Remove, use callbacks instead.
         raise NotImplementedError('Get "publisher" from ImageAnalyzer')
 
     def _get_exif_datetime(self):
@@ -127,14 +126,12 @@ class ImageAnalyzer(Analyzer):
                 logging.warn('TypeError for [%s]'.format(dtstr))
             else:
                 datetime_str = re_match.group(1)
-                # logging.debug('datetime_str: %s' % datetime_str)
                 try:
                     dt = datetime.strptime(datetime_str, '%Y:%m:%d %H:%M:%S')
                 except ValueError:
                     logging.debug('Unable to parse datetime from '
                                   '[%s]'.format(field))
             if dt:
-                # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
                 results.append({'value': dt,
                                 'source': field,
                                 'weight': weight})
@@ -144,7 +141,6 @@ class ImageAnalyzer(Analyzer):
             gps_date = self.exif_data['GPSDateStamp']
             gps_time = self.exif_data['GPSTimeStamp']
         except KeyError:
-            # logging.warn('KeyError for key GPS{Date,Time}Stamp]')
             pass
         else:
             dt = None
@@ -152,8 +148,6 @@ class ImageAnalyzer(Analyzer):
             for toup in gps_time:
                 gps_time_str += str(toup[0])
 
-            # logging.debug('gps_time_str: \"%s\"' % gps_time_str)
-            # logging.debug('gps_date: \"%s\"' % gps_date)
             gps_datetime_str = gps_date + gps_time_str
             try:
                 dt = datetime.strptime(gps_datetime_str, '%Y:%m:%d%H%M%S')
@@ -161,7 +155,6 @@ class ImageAnalyzer(Analyzer):
                 logging.debug('Unable to parse GPS datetime from '
                               '[%s]'.format(gps_datetime_str))
             if dt:
-                # logging.debug('ADDED: results[%s] = [%s]' % (key, dt))
                 results.append({'value': dt,
                                 'source': 'gpsdatetime',
                                 'weight': 1})
@@ -185,7 +178,6 @@ class ImageAnalyzer(Analyzer):
                               (d.get('source') == 'DateTimeDigitized' and
                                d.get('value') != bad_exif_date)]
             except KeyError:
-                # logging.warn('KeyError for key [DateTimeDigitized]')
                 pass
 
         return results
@@ -196,10 +188,10 @@ class ImageAnalyzer(Analyzer):
         The EXIF data is stored in a dict using human-readable keys.
         :return: Dict of EXIF data.
         """
-        # Create empty dictionary to store exif "key:value"-pairs in.
+        # TODO: This should be handled by the 'ExiftoolMetadataExtractor'.
+
         result = {}
 
-        # Extract EXIF data using PIL.ExifTags.
         exif_data = None
         filename = self.file_object.abspath
         try:
@@ -226,7 +218,6 @@ class ImageAnalyzer(Analyzer):
                 logging.debug('Found GPS information')
                 result_gps = {}
 
-                # Loop through the GPS information
                 for tag_gps, value_gps in list(value.items()):
                     # Obtain a human-readable version of the GPS tag.
                     tag_string_gps = PIL.ExifTags.GPSTAGS.get(tag_gps, tag_gps)
@@ -238,7 +229,6 @@ class ImageAnalyzer(Analyzer):
                 if value is not None:
                     result[tag_string] = value
 
-        # Return result, should be empty if errors occured.
         return result
 
     def _get_text_from_ocr(self):
@@ -248,6 +238,7 @@ class ImageAnalyzer(Analyzer):
         :return: image text if found, else None (?)
         """
         # TODO: Test this!
+        # TODO: This should be handled by a "OCRTextExtractor" is similar.
         image_text = None
         filename = self.file_object.abspath
         try:
@@ -267,8 +258,6 @@ class ImageAnalyzer(Analyzer):
             image_text = image_text.strip()
             logging.debug('Extracted [{}] bytes of '
                           'text'.format(len(image_text)))
-            # print('Got image text: ')
-            # print(image_text)
             return image_text
 
     def _get_ocr_datetime(self):

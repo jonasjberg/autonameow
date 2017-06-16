@@ -64,7 +64,7 @@ class Autonameow(object):
         """
         self._exit_code = constants.EXIT_SUCCESS
 
-        # Save time of startup for later calculation of total runtime.
+        # For calculating the total runtime.
         self.start_time = time.time()
 
         self.opts = opts        # "Raw" option arguments as list of strings.

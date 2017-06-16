@@ -270,8 +270,6 @@ class Analysis(object):
                 continue
 
             log.debug('Starting Analyzer "{!s}"'.format(a))
-
-            # Run the analysis and collect the results.
             a.run()
             for field in constants.ANALYSIS_RESULTS_FIELDS:
                 try:
