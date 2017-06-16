@@ -81,6 +81,16 @@ Medium Priority
       missing sources might be filled in by a more targeted approach using data
       gathered during the first run.
 
+* Add some type of caching.
+    * Extracting text from a PDF should only have to happen once, at most.
+      Preferably not at all, unless a rule conditional tests the text content
+      or the text is needed elsewhere.
+    * Image OCR is very slow, should only be executed when needed, caching the
+      results for all accesses.
+
+* Add conditional data extraction.
+    * Extractors should not run unless needed. Related to caching, above.
+
 
 
 Low Priority
