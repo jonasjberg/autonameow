@@ -99,8 +99,8 @@ def get_mock_fileobject():
     class MockOptions(object):
         def __init__(self):
             self.options = {'FILETAGS_OPTIONS':
-                                {'between_tag_separator': ' -- ',
-                                 'filename_tag_separator': ' '}}
+                            {'between_tag_separator': ' -- ',
+                             'filename_tag_separator': ' '}}
 
     opts = MockOptions()
 
