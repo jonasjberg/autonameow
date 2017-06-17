@@ -22,7 +22,6 @@
 from unittest import TestCase
 
 from analyzers.analyzer import (
-    get_instantiated_analyzers,
     Analyzer
 )
 from core.analysis import (
@@ -34,7 +33,8 @@ from core.constants import ANALYSIS_RESULTS_FIELDS
 from unit_utils import (
     get_mock_analyzer,
     get_mock_fileobject,
-    get_mock_extractor_data
+    get_mock_extractor_data,
+    get_instantiated_analyzers
 )
 
 
