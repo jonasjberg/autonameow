@@ -23,7 +23,7 @@ import logging as log
 
 from core import constants
 from core.exceptions import InvalidDataSourceError
-from core.fileobject import FileObject
+from core.fileobject import eval_magic_glob
 from core.util.queue import GenericQueue
 
 # TODO: [hack] Fix this! Used for instantiating extractors so that they are
@@ -200,7 +200,7 @@ def suitable_data_extractors_for(file_object):
     out = []
 
     for extractor in ExtractorClasses:
-        if file_object.mime_type in extractor.handles_mime_types:
+        if eval_magic_glob(file_object.mime_type, extractor.handles_mime_types):
             out.append(extractor)
 
     return out

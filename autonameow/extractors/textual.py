@@ -68,7 +68,7 @@ class TextExtractor(Extractor):
 
 
 class PdfTextExtractor(TextExtractor):
-    handles_mime_types = ['pdf']
+    handles_mime_types = ['application/pdf']
     data_query_string = 'contents.textual.raw_text'
 
     def __init__(self, source):

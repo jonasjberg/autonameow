@@ -48,7 +48,7 @@ class FilesystemAnalyzer(Analyzer):
     http://timgolden.me.uk/python/win32_how_do_i/get-document-summary-info.html
     """
     run_queue_priority = 1
-    handles_mime_types = 'MIME_ALL'
+    handles_mime_types = ['*/*']
 
     def __init__(self, file_object, add_results_callback, extracted_data):
         super(FilesystemAnalyzer, self).__init__(

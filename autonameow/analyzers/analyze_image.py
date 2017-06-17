@@ -33,7 +33,7 @@ from extractors.metadata import ExiftoolMetadataExtractor
 
 class ImageAnalyzer(Analyzer):
     run_queue_priority = 0.5
-    handles_mime_types = ['jpg', 'png', 'gif', 'bmp']
+    handles_mime_types = ['image/*']
 
     def __init__(self, file_object, add_results_callback, extracted_data):
         super(ImageAnalyzer, self).__init__(

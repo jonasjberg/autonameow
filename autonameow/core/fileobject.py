@@ -204,3 +204,52 @@ def validate_path_argument(path):
                                        'not implemented yet')
     elif not os.access(path, os.R_OK):
         raise InvalidFileArgumentError('Not authorized to read path')
+
+
+def eval_magic_glob(mime_to_match, glob_list):
+    """
+    Tests if a given MIME type string matches any of the specified globs.
+
+    The MIME types consist of a "type" and a "subtype", separated by '/'.
+    For instance; "image/jpg" or "application/pdf".
+
+    Globs can substitute either one or both of "type" and "subtype" with an
+    asterisk to ignore that part. Examples:
+
+        mime_to_match         glob_list                 evaluates
+        'image/jpg'           ['image/jpg']             True
+        'image/png'           ['image/*']               True
+        'application/pdf'     ['*/*']                   True
+        'application/pdf'     ['image/*', '*/jpg']      False
+
+    Args:
+        mime_to_match: The MIME to match against the globs as a string.
+        glob_list: A list of globs as strings.
+
+    Returns:
+        True if the given MIME type matches any of the specified globs.
+    """
+    if not mime_to_match or not glob_list:
+        return False
+
+    mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
+
+    for glob in glob_list:
+        if glob == mime_to_match:
+            return True
+        elif '*' in glob:
+            try:
+                glob_type, glob_subtype = glob.split('/')
+            except ValueError:
+                # NOTE(jonas): Raise exception? Use sophisticated glob parser?
+                raise
+            if glob_type == '*' and glob_subtype == '*':
+                return True
+            elif glob_type == '*' and glob_subtype == mime_to_match_subtype:
+                return True
+            elif glob_type == mime_to_match_type and glob_subtype == '*':
+                return True
+            elif (glob_type == mime_to_match_type
+                  or glob_subtype == mime_to_match_subtype):
+                return True
+    return False

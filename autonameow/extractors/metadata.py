@@ -83,7 +83,7 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """
-    handles_mime_types = ['mp4', 'mov', 'pdf', 'jpg', 'png', 'gif']
+    handles_mime_types = ['video/*', 'application/pdf', 'image/*']
     data_query_string = 'metadata.exiftool'
 
     def __init__(self, source):
@@ -106,7 +106,7 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
 
 
 class PyPDFMetadataExtractor(MetadataExtractor):
-    handles_mime_types = ['pdf']
+    handles_mime_types = ['application/pdf']
     data_query_string = 'metadata.pypdf'
 
     def __init__(self, source):
