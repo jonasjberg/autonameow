@@ -104,6 +104,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         if not expression:
             return False
 
+        # TODO: Update to use MIME type globbing.
         if '/' in expression:
             for magic_value in constants.MAGIC_TYPE_LOOKUP.values():
                 if expression in magic_value:
