@@ -265,7 +265,7 @@ class Analysis(object):
             log.debug('Executing queue item {}/{}: '
                       '{!s}'.format(i + 1, len(self.analyzer_queue), a))
             if not a:
-                log.critical('Got null a from a run queue.')
+                log.critical('Got undefined analyzer from the run queue (!)')
                 continue
 
             log.debug('Starting Analyzer "{!s}"'.format(a))
