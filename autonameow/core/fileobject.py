@@ -232,6 +232,9 @@ def eval_magic_glob(mime_to_match, glob_list):
     if not mime_to_match or not glob_list:
         return False
 
+    if not isinstance(glob_list, list):
+        glob_list = [glob_list]
+
     mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
 
     for glob in glob_list:

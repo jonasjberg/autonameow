@@ -21,22 +21,17 @@
 
 import logging as log
 import os
-
 import re
 import operator
 
-import core.config.configuration
-from core.fileobject import FileObject
+from core.fileobject import eval_magic_glob
 from core.exceptions import (
     NameTemplateSyntaxError,
     InvalidFileRuleError,
     AutonameowException,
     NameBuilderError
 )
-from core.util import (
-    cli,
-    dateandtime
-)
+from core.util import dateandtime
 
 
 class NameBuilder(object):
@@ -255,7 +250,7 @@ def eval_condition(condition_field, condition_value, file_object,
         return False
 
     def eval_mime_type(expression, match_data):
-        if expression == match_data:
+        if eval_magic_glob(match_data, expression):
             return True
         return False
 
