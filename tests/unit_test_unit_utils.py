@@ -33,7 +33,8 @@ from unit_utils import (
     make_temporary_file,
     get_mock_analyzer,
     get_mock_fileobject,
-    capture_stdout
+    capture_stdout,
+    get_instantiated_analyzers
 )
 
 
@@ -108,3 +109,17 @@ class TestCaptureStdout(TestCase):
 
         self.assertEqual(out.getvalue().strip(), 'should_be_captured')
         self.assertEqual(out.getvalue(), 'should_be_captured\n')
+
+
+class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
+    def test_get_instantiated_analyzers_returns_class_objects(self):
+        analyzers = get_instantiated_analyzers()
+        for a in analyzers:
+            self.assertTrue(hasattr(a, '__class__'))
+
+    def test_get_instantiated_analyzers_returns_arbitrary_number(self):
+        # TODO: [hardcoded] Likely to break; Fix or remove!
+        self.assertGreaterEqual(len(get_instantiated_analyzers()), 6)
+
+    def test_get_instantiated_analyzers_returns_list(self):
+        self.assertTrue(isinstance(get_instantiated_analyzers(), list))

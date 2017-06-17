@@ -28,7 +28,8 @@ import sys
 
 from contextlib import contextmanager
 
-from analyzers.analyzer import get_instantiated_analyzers
+from analyzers.analyzer import get_analyzer_classes
+from core.extraction import ExtractedData
 from core.fileobject import FileObject
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -126,6 +127,19 @@ def get_mock_empty_extractor_data():
     return {}
 
 
+def get_mock_extractor_data():
+    """
+    Returns: Mock extracted data from an 'Extraction' instance.
+    """
+    data = ExtractedData()
+    data.add('filesystem.basename.extension', 'bar')
+    data.add('filesystem.basename.full', 'foo.bar')
+    data.add('filesystem.basename.prefix', 'foo')
+    data.add('filesystem.basename.suffix', 'bar')
+    data.add('metadata.exiftool', {'File:MIMEType': 'application/bar'})
+    return data
+
+
 def get_mock_analyzer():
     """
     Returns: A mock Analyzer class.
@@ -175,3 +189,16 @@ def capture_stdout():
     finally:
         sys.stdout = initial_state
         print(capture.getvalue())
+
+
+def get_instantiated_analyzers():
+    """
+    Get a list of all available analyzers as instantiated class objects.
+    All classes inheriting from the "Analyzer" class are included.
+
+    Returns:
+        A list of class instances, one per subclass of "Analyzer".
+    """
+    # NOTE: These are instantiated with a None FileObject, which might be a
+    #       problem and is surely not very pretty.
+    return [klass(None, None, None) for klass in get_analyzer_classes()]

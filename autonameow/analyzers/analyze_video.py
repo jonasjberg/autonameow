@@ -24,12 +24,12 @@ from analyzers.analyzer import Analyzer
 
 class VideoAnalyzer(Analyzer):
     run_queue_priority = 0.1
+    handles_mime_types = ['mp4']
 
     def __init__(self, file_object, add_results_callback, extracted_data):
         super(VideoAnalyzer, self).__init__(
             file_object, add_results_callback, extracted_data
         )
-        self.applies_to_mime = 'mp4'
 
     def run(self):
         # TODO: Remove, use callbacks instead.

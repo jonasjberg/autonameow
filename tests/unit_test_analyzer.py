@@ -24,9 +24,7 @@ from unittest import TestCase
 from analyzers.analyzer import (
     Analyzer,
     get_analyzer_classes,
-    get_analyzer_classes_basename,
-    get_analyzer_mime_mappings,
-    get_instantiated_analyzers
+    get_analyzer_classes_basename
 )
 from analyzers.analyze_filename import FilenameAnalyzer
 from analyzers.analyze_filesystem import FilesystemAnalyzer
@@ -129,45 +127,3 @@ class TestAnalysisUtilityFunctions(TestCase):
         for a in get_analyzer_classes_basename():
             self.assertTrue(isinstance(a, str))
 
-    def test_get_analyzer_mime_mappings(self):
-        # TODO: [hardcoded] Likely to break; fixed analyzer type mapping.
-        ANALYZER_TYPE_LOOKUP = {ImageAnalyzer: ['jpg', 'png'],
-                                PdfAnalyzer: 'pdf',
-                                TextAnalyzer: ['txt', 'md'],
-                                VideoAnalyzer: 'mp4',
-                                FilesystemAnalyzer: 'MIME_ALL',
-                                FilenameAnalyzer: 'MIME_ALL'}
-        self.assertEqual(ANALYZER_TYPE_LOOKUP, get_analyzer_mime_mappings())
-
-    def test_get_analyzer_mime_mappings_returns_expected_type(self):
-        for analyzer, mime_type in get_analyzer_mime_mappings().items():
-            self.assertEqual(type(analyzer), type)
-
-            # TODO: Do not use None mime_type to indicate "all types" ..
-            if type(mime_type) != list:
-                if type(mime_type) != str:
-                    from _pytest.compat import NoneType
-                    if not isinstance(mime_type, NoneType):
-                        self.fail('Expected type: list, str or None')
-
-
-    def test_get_instantiated_analyzers_returns_class_objects(self):
-        analyzers = get_instantiated_analyzers()
-        for a in analyzers:
-            self.assertTrue(hasattr(a, '__class__'))
-
-    def test_get_instantiated_analyzers_returns_arbitrary_number(self):
-        # TODO: [hardcoded] Likely to break; Fix or remove!
-        self.assertGreaterEqual(len(get_instantiated_analyzers()), 6)
-
-    def test_get_instantiated_analyzers_returns_list(self):
-        self.assertTrue(isinstance(get_instantiated_analyzers(), list))
-
-    #def test_get_instantiated_analyzers(self):
-        # TODO: Fix test ..
-        # _analyzers = get_instantiated_analyzers()
-        # INSTANTIATED_ANALYZERS = [ImageAnalyzer(None), PdfAnalyzer(None),
-        #                           TextAnalyzer(None), VideoAnalyzer(None),
-        #                           FilesystemAnalyzer(None),
-        #                           FilenameAnalyzer(None)]
-        # self.assertEqual(INSTANTIATED_ANALYZERS, _analyzers)

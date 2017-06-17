@@ -30,12 +30,12 @@ from core.util import dateandtime
 
 class TextAnalyzer(Analyzer):
     run_queue_priority = 0.5
+    handles_mime_types = ['txt', 'md']
 
     def __init__(self, file_object, add_results_callback, extracted_data):
         super(TextAnalyzer, self).__init__(
             file_object, add_results_callback, extracted_data
         )
-        self.applies_to_mime = ['txt', 'md']
         self.add_results = add_results_callback
 
         self.text = None

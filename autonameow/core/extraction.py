@@ -53,12 +53,9 @@ class Extraction(object):
         Args:
             file_object: File to extract data from, as a 'FileObject' instance.
         """
-        if not isinstance(file_object, FileObject):
-            raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
         self.data = ExtractedData()
-
         self.extractor_queue = GenericQueue()
 
     def collect_results(self, label, data):
@@ -77,9 +74,8 @@ class Extraction(object):
         Starts the data extraction.
         """
         log.debug('Started data extraction')
-        # Select extractors based on detected file type.
-        log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
 
+        # Select extractors based on detected file type.
         extractors = suitable_data_extractors_for(self.file_object)
         extractor_instances = self.instantiate_extractors(extractors)
         for e in extractor_instances:

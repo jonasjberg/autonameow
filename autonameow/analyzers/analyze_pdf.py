@@ -38,12 +38,12 @@ from extractors.textual import (
 
 class PdfAnalyzer(Analyzer):
     run_queue_priority = 1
+    handles_mime_types = ['pdf']
 
     def __init__(self, file_object, add_results_callback, extracted_data):
         super(PdfAnalyzer, self).__init__(
             file_object, add_results_callback, extracted_data
         )
-        self.applies_to_mime = 'pdf'
         self.add_results = add_results_callback
 
         self.meta_extractor = None
@@ -169,7 +169,7 @@ class PdfAnalyzer(Analyzer):
                     continue
 
             if k is None:
-                logging.warning('Null value in metadata field [%s]' % field)
+                logging.debug('Null value in metadata field [%s]' % field)
                 continue
 
             found_match = False
