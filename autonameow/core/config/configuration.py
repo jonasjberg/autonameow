@@ -323,6 +323,8 @@ class Configuration(object):
 
     def __str__(self):
         out = []
+        out.append('Written by autonameow version v{}\n\n'.format(self.version))
+
         for number, rule in enumerate(self.file_rules):
             out.append('File Rule {}:\n'.format(number + 1))
             out.append(misc.indent(str(rule), amount=4) + '\n')
