@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* Update `MimeTypeConfigFieldParser` to handle MIME type globbing.
+
 ### Text encoding issues
 
 * Enforce strict boundaries between all external systems and an internal text
