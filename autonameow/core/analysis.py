@@ -298,7 +298,8 @@ def suitable_analyzers_for(file_object):
     """
     out = []
 
-    for analyzer in AnalyzerClasses:
+    # NOTE: Fix for unit tests "or get_analyzer_classes()" below.
+    for analyzer in AnalyzerClasses or get_analyzer_classes():
         # if any(ext in url_string for ext in extensionsToCheck):
 
         if (file_object.mime_type in analyzer.handles_mime_types or
