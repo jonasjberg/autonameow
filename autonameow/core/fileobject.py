@@ -140,13 +140,19 @@ class FileObject(object):
 def filetype_magic(file_path):
     """
     Determine file type by reading "magic" header bytes.
-    Uses a wrapper around the 'file' command in *NIX environments.
-    :return: the file type if the magic can be determined and mapped to one of
-             the keys in "MAGIC_TYPE_LOOKUP", else None.
+
+    Should be equivalent to the 'file' command in *NIX environments.
+
+    Args:
+        file_path: The path to the file to get the MIME type of as a string.
+
+    Returns:
+        The MIME type of the file at the given path ('application/pdf')
+        or 'MIME_UNKNOWN' if the MIME type could not be determined.
     """
     def _build_magic():
         """
-        Workaround confusion around which magic library actually gets used.
+        Workaround ambiguity about which magic library is actually used.
 
         https://github.com/ahupp/python-magic
           "There are, sadly, two libraries which use the module name magic.
@@ -157,31 +163,25 @@ def filetype_magic(file_path):
         http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
           "The following code allows the rest of the script to work the same
            way with either version of 'magic'"
+
+        Returns:
+            An instance of 'magic' as type 'Magic'.
         """
         try:
-            _mymagic = magic.open(magic.MAGIC_MIME_TYPE)
-            _mymagic.load()
+            _my_magic = magic.open(magic.MAGIC_MIME_TYPE)
+            _my_magic.load()
         except AttributeError:
-            _mymagic = magic.Magic(mime=True)
-            _mymagic.file = _mymagic.from_file
-        return _mymagic
+            _my_magic = magic.Magic(mime=True)
+            _my_magic.file = _my_magic.from_file
+        return _my_magic
 
-    mymagic = _build_magic()
+    magic_instance = _build_magic()
     try:
-        mtype = mymagic.file(file_path)
-    except Exception:
-        return None
+        found_type = magic_instance.file(file_path)
+    except (magic.MagicException, TypeError):
+        found_type = 'MIME_UNKNOWN'
 
-    # http://stackoverflow.com/a/16588375
-    def find_key(input_dict, value):
-        return next((k for k, v in list(input_dict.items()) if v == value), None)
-
-    try:
-        found_type = find_key(constants.MAGIC_TYPE_LOOKUP, mtype.split()[:2])
-    except KeyError:
-        pass
-
-    return found_type.lower() if found_type else 'UNKNOWN'
+    return found_type
 
 
 def validate_path_argument(path):
