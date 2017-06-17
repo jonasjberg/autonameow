@@ -44,7 +44,7 @@ def dump(obj):
         A human-readable representation of "obj" in YAML-format.
     """
     try:
-        return yaml.dump(obj, default_flow_style=False, width=80, indent=4)
+        return yaml.dump(obj, default_flow_style=False, width=120, indent=4)
     except TypeError as e:
         log.critical('Dump FAILED: ' + str(e))
         raise
