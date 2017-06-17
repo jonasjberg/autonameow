@@ -287,6 +287,8 @@ class Analysis(object):
                 results = include_analyzer_name(result, a)
                 self.results.add(field, results)
 
+            log.debug('Finished Analyzer "{!s}"'.format(a))
+
 
 def include_analyzer_name(result_list, source):
     out = []
