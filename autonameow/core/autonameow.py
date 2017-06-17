@@ -197,13 +197,13 @@ class Autonameow(object):
             list_any = (self.args.list_datetime or self.args.list_title
                         or self.args.list_all)
             if list_any:
-                cli.msg(('File: "{}"'.format(current_file.abspath)))
+                cli.msg(('File: "{}"\n'.format(current_file.abspath)))
 
             if self.args.list_all:
                 log.info('Listing ALL analysis results ..')
-                cli.msg('Legacy Results Data', type='heading', log=True)
+                cli.msg('Analysis Results Data', type='heading', log=True)
                 cli.msg(misc.dump(analysis.results.get_all()))
-                cli.msg('Redesigned Results Data', type='heading', log=True)
+                cli.msg('Extraction Results Data', type='heading', log=True)
                 cli.msg(misc.dump(analysis.results.new_data))
             else:
                 if self.args.list_datetime:
