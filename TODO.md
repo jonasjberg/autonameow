@@ -114,6 +114,8 @@ Low Priority
 
 * Add compatibility checks when loading configuration.
 
+* Add support for UNIX-style globs in path fields in the configuration.
+
 
 Wishlist
 --------
