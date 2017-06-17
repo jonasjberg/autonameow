@@ -218,9 +218,8 @@ class Analysis(object):
         """
         Starts the analysis by populating and executing the run queue.
         """
-        self._populate_run_queue()
         log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
-        log.debug('Enqueued analyzers: {!s}'.format(self.analyzer_queue))
+        self._populate_run_queue()
 
         # Run all analyzers in the queue.
         self._execute_run_queue()
@@ -292,7 +291,6 @@ def include_analyzer_name(result_list, source):
     for result in result_list:
         result['analyzer'] = str(source)
         out.append(result)
-
     return out
 
 
