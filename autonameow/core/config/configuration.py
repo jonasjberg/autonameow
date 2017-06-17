@@ -123,6 +123,7 @@ class Configuration(object):
         self._name_templates = {}
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
+        self._version = None
 
         # Instantiate rule parsers inheriting from the 'Parser' class.
         self.field_parsers = get_instantiated_field_parsers()
@@ -132,8 +133,12 @@ class Configuration(object):
             self._load_name_templates()
             self._load_file_rules()
             self._load_options()
+            self._load_version()
         else:
             self._data = {}
+
+        # TODO: Handle configuration file compatibility between versions.
+        # TODO: Warn the user if 'self.version' != 'version.__version__'
 
     def _load_name_templates(self):
         if not self._data:
@@ -236,6 +241,20 @@ class Configuration(object):
             _try_load_filetags_option('between_tag_separator',
                                       constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR)
 
+    def _load_version(self):
+        version = self._data.get('autonameow_version', False)
+        if not version:
+            log.error('Unable to read program version from configuration')
+        else:
+            self._version = version
+
+    @property
+    def version(self):
+        """
+        Returns: The program version that wrote the configuration.
+        """
+        return self._version
+
     @property
     def options(self):
         """
@@ -283,6 +302,7 @@ class Configuration(object):
         self._load_name_templates()
         self._load_file_rules()
         self._load_options()
+        self._load_version()
 
     def _load_from_disk(self, load_path):
         try:
