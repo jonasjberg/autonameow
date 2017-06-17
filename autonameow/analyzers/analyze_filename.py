@@ -87,7 +87,9 @@ class FilenameAnalyzer(Analyzer):
 
     def get_tags(self):
         # TODO: Remove, use callbacks instead.
-        return self.file_object.filenamepart_tags
+        return [{'value': self.file_object.filenamepart_tags,
+                 'source': 'filenamepart_tags',
+                 'weight': 1}]
 
     def get_publisher(self):
         # TODO: Remove, use callbacks instead.
