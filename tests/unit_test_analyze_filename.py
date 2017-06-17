@@ -62,8 +62,9 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
     def test_get_tags_does_not_return_none(self):
         self.assertIsNotNone(self.fna.get_tags())
 
-    def test_get_tags_returns_empty_list(self):
-        self.assertEqual([], self.fna.get_tags())
+    def test_get_tags_returns_expected(self):
+        expected = [{'source': 'filenamepart_tags', 'value': [], 'weight': 1}]
+        self.assertEqual(expected, self.fna.get_tags())
 
     def test_get_title_returns_empty_list(self):
         self.assertEqual([], self.fna.get_title())
@@ -87,8 +88,9 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def test_get_tags_does_not_return_none(self):
         self.assertIsNotNone(self.fna.get_tags())
 
-    def test_get_tags_returns_empty_list(self):
-        self.assertEqual([], self.fna.get_tags())
+    def test_get_tags_returns_expected(self):
+        expected = [{'source': 'filenamepart_tags', 'value': [], 'weight': 1}]
+        self.assertEqual(expected, self.fna.get_tags())
 
     def test_get_title_does_not_return_none(self):
         self.assertIsNotNone(self.fna.get_title())
@@ -127,8 +129,11 @@ class TestFilenameAnalyzerWithTaggedFile(TestCase):
     def test_get_tags_does_not_return_none(self):
         self.assertIsNotNone(self.fna.get_tags())
 
-    def test_get_tags_return_is_valid(self):
-        self.assertEqual(['dv017a', 'dev'], self.fna.get_tags())
+    def test_get_tags_returns_expected(self):
+        expected = [{'source': 'filenamepart_tags',
+                     'value': ['dv017a', 'dev'],
+                     'weight': 1}]
+        self.assertEqual(expected, self.fna.get_tags())
 
     def test_get_title_does_not_return_none(self):
         self.assertIsNotNone(self.fna.get_title())
