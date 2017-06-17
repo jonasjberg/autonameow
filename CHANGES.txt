@@ -1,3 +1,53 @@
+2017-06-17  [autonameow v0.4.1]
+            This version marks the start of definitiely moving towards
+            a redesigned and pretty much frozen high-level architecture.
+            Includes major changes. Refer to the Git log for in depth coverage.
+
+            Additions:
+            - Improved error handling in the 'NameBuilder' class.
+            - Add support for simple globbing in MIME comparisons.
+              This is used internally and in the configuration file.
+
+                  MIME to evaluate      Glob          Evaluates
+                  ---------------------------------------------
+                  'image/jpg'           'image/jpg'        True
+                  'image/png'           'image/*'          True
+                  'application/pdf'     '*/*'              True
+                  'application/pdf'     'image/*'         False
+            - Add program version in the configuration file for future
+              compatability testing.
+            - Add 'TODO.md', which will be the primary list of stuff to do.
+              Also added 'done.md' for the completed TODO-list items.
+
+            Changes:
+            - Modified the configuration file syntax.
+              NOTE: Incompatible with older versions.
+            - Major restructuring of overall architecture.
+              Move towards separating data extracting from data analysis.
+                - Add data extraction handler class 'Extraction' that functions
+                  similar to the 'Analysis' class. Builds a queue of
+                  "extractors" suited for the given file, executes enqueued
+                  extractors and collects the results.
+                - Add "extractors" as classes inherting from 'Extractor';
+
+                    - Extractor
+                        - MetadataExtractor
+                            - ExiftoolMetadataExtractor
+                            - PyPDFMetadataExtractor
+                        - TextExtractor
+                            - PdfTextExtractor
+            - Various changes in part of moving towards new architecture.
+                - In progress moving of data extraction from "analyzers" to
+                  "extractors".
+                - Extracted data is passed to the 'Analysis' class and
+                  subsequently the "analyzers".
+
+            Fixes:
+            - Numerous fixes and corrections.
+            - Documentation, bug fixes, refactoring and cleanup.
+            - Removed a lot of hacks added in order to deliver v0.4.0 on time.
+
+
 2017-06-06  [autonameow v0.4.0]
             Final version used in the demonstration videos recorded 2017-06-06.
             Includes major changes. Refer to the Git log for in depth coverage.

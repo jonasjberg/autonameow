@@ -75,7 +75,7 @@ DEFAULT_CONFIG = {
                  'extension': 'pdf',
              },
              'contents': {
-                 'mime_type': 'pdf',
+                 'mime_type': 'application/pdf',
              },
          },
          'DATA_SOURCES': {
@@ -93,7 +93,7 @@ DEFAULT_CONFIG = {
                  'basename': 'smulan.jpg',
              },
              'contents': {
-                 'mime_type': 'jpg',
+                 'mime_type': 'image/jpeg',
              },
          },
          'DATA_SOURCES': {
@@ -116,7 +116,7 @@ DEFAULT_CONFIG = {
                  'date_modified': None
              },
              'contents': {
-                 'mime_type': 'jpg',
+                 'mime_type': 'image/jpeg',
              },
              'metadata': {
                  'exiftool': {

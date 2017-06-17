@@ -29,6 +29,7 @@ from core import constants
 from core.exceptions import (
     AutonameowException
 )
+from core.fileobject import eval_magic_glob
 from core.util.queue import GenericQueue
 
 
@@ -308,8 +309,7 @@ def suitable_analyzers_for(file_object):
 
     # NOTE: Below "or get_analyzer_classes()" is a fix for the unit tests.
     for analyzer in AnalyzerClasses or get_analyzer_classes():
-        if (file_object.mime_type in analyzer.handles_mime_types or
-                'MIME_ALL' in analyzer.handles_mime_types):
+        if eval_magic_glob(file_object.mime_type, analyzer.handles_mime_types):
             out.append(analyzer)
 
     return out

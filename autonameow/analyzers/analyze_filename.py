@@ -33,7 +33,7 @@ from core.util import dateandtime
 
 class FilenameAnalyzer(Analyzer):
     run_queue_priority = 1
-    handles_mime_types = 'MIME_ALL'
+    handles_mime_types = ['*/*']
 
     def __init__(self, file_object, add_results_callback, extracted_data):
         super(FilenameAnalyzer, self).__init__(

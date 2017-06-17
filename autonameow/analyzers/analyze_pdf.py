@@ -38,7 +38,7 @@ from extractors.textual import (
 
 class PdfAnalyzer(Analyzer):
     run_queue_priority = 1
-    handles_mime_types = ['pdf']
+    handles_mime_types = ['application/pdf']
 
     def __init__(self, file_object, add_results_callback, extracted_data):
         super(PdfAnalyzer, self).__init__(

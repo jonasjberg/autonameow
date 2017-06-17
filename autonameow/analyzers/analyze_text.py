@@ -30,7 +30,7 @@ from core.util import dateandtime
 
 class TextAnalyzer(Analyzer):
     run_queue_priority = 0.5
-    handles_mime_types = ['txt', 'md']
+    handles_mime_types = ['text/plain']
 
     def __init__(self, file_object, add_results_callback, extracted_data):
         super(TextAnalyzer, self).__init__(

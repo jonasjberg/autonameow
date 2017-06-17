@@ -14,9 +14,6 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* Handle case where `AnalysisResults` does not contain the data requested by
-  the name builder through the `query` method.
-
 ### Text encoding issues
 
 * Enforce strict boundaries between all external systems and an internal text
@@ -94,6 +91,8 @@ Medium Priority
 * Add conditional data extraction.
     * Extractors should not run unless needed. Related to caching, above.
 
+* Refactor the 'Configuration' class. Look over all of 'configuration.py'.
+
 
 
 Low Priority
@@ -110,6 +109,8 @@ Low Priority
 * Add additional plugins.
     * Plugin for querying APIs with ISBN numbers.
       (Already implemented in `autoname_pdf.py` and `isbn_query.py`)
+
+* Add compatibility checks when loading configuration.
 
 
 Wishlist

@@ -42,3 +42,11 @@ University mail: `js224eh[a]student.lnu.se`
     >   data? If so, use a separate container for "derived data".
     > * Alternatively, store all types of results in the `Analysis` class `Results`
     >   instance but modify the `Results` class to distinguish between the types?
+
+* 2017-06-17
+
+    > High Priority
+    > -------------
+    >
+    > * Handle case where `AnalysisResults` does not contain the data requested by
+    >   the name builder through the `query` method.
