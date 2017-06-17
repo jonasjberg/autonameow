@@ -57,10 +57,10 @@ class MetadataExtractor(Extractor):
         """
         if not self._raw_metadata:
             try:
-                log.debug('MetadataExtractor initial query for raw metadata ..')
+                log.debug('{!s} received initial query ..'.format(self))
                 self._raw_metadata = self._get_raw_metadata()
             except ExtractorError as e:
-                log.error('MetadataExtractor query FAILED: {!s}'.format(e))
+                log.error('{!s} query FAILED: {!s}'.format(self, e))
                 return False
             except NotImplementedError as e:
                 log.debug('[WARNING] Called unimplemented code in {!s}: '
@@ -68,11 +68,11 @@ class MetadataExtractor(Extractor):
                 return False
 
         if not field:
-            log.debug('MetadataExtractor responding to query for all fields')
+            log.debug('{!s} responding to query for all fields'.format(self))
             return self._raw_metadata
         else:
-            log.debug('MetadataExtractor responding to query for field: '
-                      '"{!s}"'.format(field))
+            log.debug('{!s} responding to query for field: '
+                      '"{!s}"'.format(self, field))
             return self._raw_metadata.get(field, False)
 
     def _get_raw_metadata(self):
