@@ -94,28 +94,18 @@ class AnalysisResults(object):
         out = {}
 
         for field, source in field_data_source_map.items():
-
-            # TODO: Fix hacky word splitting to keys for dictionary access.
-            # NOTE: The stored data should already have been pre-processed
-            #       to allow direct queries without having to modify
-            #       "field_data_source_map" here.
-            if source.startswith('metadata.exiftool'):
-                key = source.lstrip('metadata.exiftool')
-
-                # TODO: Handle querying missing data.
-                if 'metadata.exiftool' in self.new_data:
-                    out[field] = self.new_data['metadata.exiftool'].get(key)
-                else:
-                    return False
-
-            elif source.startswith('plugin.'):
+            if source.startswith('plugin.'):
                 # TODO: Results should NOT be querying plugins from here!
                 # TODO: Rework processing pipeline to integrate plugins
                 plugin_name, plugin_query = source.lstrip('plugin.').split('.')
                 result = plugins.plugin_query(plugin_name, plugin_query, None)
                 out[field] = result
             else:
-                out[field] = self.new_data.get(source)
+                if source in self.new_data:
+                    out[field] = self.new_data.get(source)
+                else:
+                    # TODO: Handle querying missing data.
+                    return False
 
         return out
 
@@ -202,20 +192,27 @@ class Analysis(object):
 
         Analyzers call this to store collected data.
 
+        If argument "data" is a dictionary, it is "flattened" here.
+        Example:
+
+          Incoming arguments:
+          LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
+
+          Would be "flattened" to:
+          LABEL: 'metadata.exiftool.a'   DATA: 'b'
+          LABEL: 'metadata.exiftool.c'   DATA: 'd'
+
         Args:
             label: Label that uniquely identifies the data.
             data: The data to add.
         """
-        # NOTE: Flatten dictionary in results here? That is, for example;
-        #
-        #       Incoming arguments:
-        #       LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
-        #
-        #       Would be "flattened" to:
-        #       LABEL: 'metadata.exiftool.a'   DATA: 'b'
-        #       LABEL: 'metadata.exiftool.c'   DATA: 'd'
-        #
-        self.results.new_add(label, data)
+        # NOTE: Handle case where "data" is a dict of dicts?
+        if isinstance(data, dict):
+            for k, v in data.items():
+                merged_label = label + '.' + str(k)
+                self.results.new_add(merged_label, v)
+        else:
+            self.results.new_add(label, data)
 
     def start(self):
         """
