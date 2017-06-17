@@ -179,9 +179,9 @@ def filetype_magic(file_path):
     try:
         found_type = find_key(constants.MAGIC_TYPE_LOOKUP, mtype.split()[:2])
     except KeyError:
-        return None
+        pass
 
-    return found_type.lower() if found_type else None
+    return found_type.lower() if found_type else 'UNKNOWN'
 
 
 def validate_path_argument(path):

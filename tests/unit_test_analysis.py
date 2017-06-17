@@ -21,6 +21,10 @@
 
 from unittest import TestCase
 
+from analyzers.analyzer import (
+    get_instantiated_analyzers,
+    Analyzer
+)
 from core.analysis import (
     AnalysisResults,
     AnalysisRunQueue,
@@ -30,14 +34,14 @@ from core.constants import ANALYSIS_RESULTS_FIELDS
 from unit_utils import (
     get_mock_analyzer,
     get_mock_fileobject,
-    get_mock_empty_extractor_data
+    get_mock_extractor_data
 )
 
 
 class TestAnalysis(TestCase):
     def setUp(self):
         self.a = Analysis(get_mock_fileobject(),
-                          get_mock_empty_extractor_data())
+                          get_mock_extractor_data())
 
     def test_analysis_is_defined(self):
         self.assertIsNotNone(Analysis,
@@ -134,5 +138,17 @@ class TestAnalysisRunQueue(TestCase):
 
         for dequeued in self.q:
             self.assertTrue(dequeued in enqueued)
+
+
+class TestGetInstantiatedAnalyzers(TestCase):
+    def test_get_instantiated_analyzers_returns_something(self):
+        self.assertIsNotNone(get_instantiated_analyzers())
+
+    def test_get_instantiated_analyzers_returns_expected_type(self):
+        actual = get_instantiated_analyzers()
+        self.assertEqual(type(actual), list)
+
+        for a in actual:
+            self.assertTrue(issubclass(a.__class__, Analyzer))
 
 

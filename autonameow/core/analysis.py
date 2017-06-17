@@ -23,13 +23,12 @@ import logging as log
 
 import plugins
 from analyzers.analyzer import (
-    get_analyzer_mime_mappings
+    get_analyzer_classes
 )
 from core import constants
 from core.exceptions import (
     AutonameowException
 )
-from core.fileobject import FileObject
 from core.util.queue import GenericQueue
 
 
@@ -61,7 +60,7 @@ class AnalysisRunQueue(GenericQueue):
     def __str__(self):
         out = []
         for pos, item in enumerate(self):
-            out.append('{:02d}: {!s}'.format(pos, item.__name__))
+            out.append('{:02d}: {!s}'.format(pos, item))
         return ', '.join(out)
 
 
@@ -220,33 +219,30 @@ class Analysis(object):
 
     def _populate_run_queue(self):
         """
-        Populate the analysis run queue with analyzers that will be executed.
-
-        Note:
-            Includes only analyzers whose MIME type ('applies_to_mime')
-            matches the MIME type of the current file object.
+        Populate the run queue with analyzers suited for the given file.
         """
-        found = []
 
-        # Compare file mime type with entries from get_analyzer_mime_mappings().
-        # TODO: [hack] This needs refactoring!
-        for azr, tpe in get_analyzer_mime_mappings().items():
-            if isinstance(tpe, list):
-                for t in tpe:
-                    if t == self.file_object.mime_type or t == 'MIME_ALL':
-                        found.append(azr)
-                        log.debug('Enqueueing "{!s}"'.format(azr))
-            else:
-                if tpe == self.file_object.mime_type or tpe == 'MIME_ALL':
-                    found.append(azr)
-                    log.debug('Enqueueing "{!s}"'.format(azr))
-
-        # Append any matches to the analyzer run queue.
-        if found:
-            for f in found:
-                self.analyzer_queue.enqueue(f)
-        else:
+        analyzers = suitable_analyzers_for(self.file_object)
+        if not analyzers:
             raise AutonameowException('None of the analyzers applies (!)')
+
+        analyzer_instances = self.instantiate_analyzers(analyzers)
+        for a in analyzer_instances:
+            self.analyzer_queue.enqueue(a)
+        log.debug('Enqueued analyzers: {!s}'.format(self.analyzer_queue))
+
+    def instantiate_analyzers(self, class_list):
+        """
+        Get a list of class instances from a given list of classes.
+
+        Args:
+            class_list: The classes to instantiate as a list of type 'class'.
+
+        Returns:
+            One instance of each of the given classes as a list of objects.
+        """
+        return [a(self.file_object, self.collect_results, self.extracted_data)
+                for a in class_list]
 
     def _execute_run_queue(self):
         """
@@ -254,21 +250,17 @@ class Analysis(object):
 
         Analyzers are called sequentially, results are stored in 'self.results'.
         """
-        for i, analysis in enumerate(self.analyzer_queue):
+        for i, a in enumerate(self.analyzer_queue):
             log.debug('Executing queue item {}/{}: '
-                      '{!s}'.format(i + 1, len(self.analyzer_queue), analysis))
-            if not analysis:
-                log.critical('Got null analysis from analysis run queue.')
-                continue
-
-            a = analysis(self.file_object, self.collect_results,
-                         self.extracted_data)
+                      '{!s}'.format(i + 1, len(self.analyzer_queue), a))
             if not a:
-                log.critical('Unable to start Analyzer "{!s}"'.format(analysis))
+                log.critical('Got null a from a run queue.')
                 continue
 
             log.debug('Starting Analyzer "{!s}"'.format(a))
             a.run()
+
+            # TODO: Remove, use callbacks instead.
             for field in constants.ANALYSIS_RESULTS_FIELDS:
                 try:
                     result = a.get(field)
@@ -292,3 +284,28 @@ def include_analyzer_name(result_list, source):
         out.append(result)
 
     return out
+
+
+def suitable_analyzers_for(file_object):
+    """
+    Returns analyzer classes that can handle the given file object.
+
+    Args:
+        file_object: File to get analyzers for as an instance of 'FileObject'.
+
+    Returns:
+        A list of analyzer classes that can analyze the given file.
+    """
+    out = []
+
+    for analyzer in AnalyzerClasses:
+        # if any(ext in url_string for ext in extensionsToCheck):
+
+        if (file_object.mime_type in analyzer.handles_mime_types or
+                'MIME_ALL' in analyzer.handles_mime_types):
+            out.append(analyzer)
+
+    return out
+
+
+AnalyzerClasses = get_analyzer_classes()

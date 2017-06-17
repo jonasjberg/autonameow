@@ -28,10 +28,10 @@ class Analyzer(object):
     Abstract Analyzer base class.
     """
     run_queue_priority = None
+    handles_mime_types = None
 
     def __init__(self, file_object, add_results_callback, extracted_data):
         self.file_object = file_object
-        self.applies_to_mime = None
         self.add_results = add_results_callback
         self.extracted_data = extracted_data
 
@@ -137,18 +137,3 @@ def get_instantiated_analyzers():
     # NOTE: These are instantiated with a None FileObject, which might be a
     #       problem and is surely not very pretty.
     return [klass(None, None, None) for klass in get_analyzer_classes()]
-
-
-def get_analyzer_mime_mappings():
-    """
-    Provides a mapping of which analyzers applies to which mime types.
-
-    Returns:
-        Dictionary of strings or list of strings.
-        The dictionary is keyed by the class names of all analyzers,
-        storing the class variable 'applies_to_mime' from each analyzer.
-    """
-    analyzer_mime_mappings = {}
-    for azr in get_instantiated_analyzers():
-        analyzer_mime_mappings[azr.__class__] = azr.applies_to_mime
-    return analyzer_mime_mappings

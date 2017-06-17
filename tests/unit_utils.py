@@ -29,6 +29,7 @@ import sys
 from contextlib import contextmanager
 
 from analyzers.analyzer import get_instantiated_analyzers
+from core.extraction import ExtractedData
 from core.fileobject import FileObject
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -124,6 +125,19 @@ def get_mock_empty_extractor_data():
     Returns: Mock extracted (empty) data from an 'Extraction' instance.
     """
     return {}
+
+
+def get_mock_extractor_data():
+    """
+    Returns: Mock extracted data from an 'Extraction' instance.
+    """
+    data = ExtractedData()
+    data.add('filesystem.basename.extension', 'bar')
+    data.add('filesystem.basename.full', 'foo.bar')
+    data.add('filesystem.basename.prefix', 'foo')
+    data.add('filesystem.basename.suffix', 'bar')
+    data.add('metadata.exiftool', {'File:MIMEType': 'application/bar'})
+    return data
 
 
 def get_mock_analyzer():
