@@ -219,11 +219,10 @@ class Analysis(object):
 
     def start(self):
         """
-        Starts the analysis.
+        Starts the analysis by populating and executing the run queue.
         """
-        # Select analyzer based on detected file type.
-        log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
         self._populate_run_queue()
+        log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
         log.debug('Enqueued analyzers: {!s}'.format(self.analyzer_queue))
 
         # Run all analyzers in the queue.
