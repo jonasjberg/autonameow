@@ -377,11 +377,11 @@ def bruteforce_str(text, return_first_match=False):
     :return: list of any datetime-objects or None if nothing was found
     """
     if text is None:
-        log.debug('Got empty text')
+        log.debug('[bruteforce_str] Got empty text')
     else:
         text = text.strip()
         if not text:
-            log.error('Got empty text!')
+            log.debug('[bruteforce_str] Got empty text')
             return None
 
     bruteforce_str.matches = bruteforce_str.matches_total = 0
