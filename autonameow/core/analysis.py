@@ -96,6 +96,9 @@ class AnalysisResults(object):
         for field, source in field_data_source_map.items():
 
             # TODO: Fix hacky word splitting to keys for dictionary access.
+            # NOTE: The stored data should already have been pre-processed
+            #       to allow direct queries without having to modify
+            #       "field_data_source_map" here.
             if source.startswith('metadata.exiftool'):
                 key = source.lstrip('metadata.exiftool')
 
@@ -203,6 +206,15 @@ class Analysis(object):
             label: Label that uniquely identifies the data.
             data: The data to add.
         """
+        # NOTE: Flatten dictionary in results here? That is, for example;
+        #
+        #       Incoming arguments:
+        #       LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
+        #
+        #       Would be "flattened" to:
+        #       LABEL: 'metadata.exiftool.a'   DATA: 'b'
+        #       LABEL: 'metadata.exiftool.c'   DATA: 'd'
+        #
         self.results.new_add(label, data)
 
     def start(self):
@@ -298,10 +310,8 @@ def suitable_analyzers_for(file_object):
     """
     out = []
 
-    # NOTE: Fix for unit tests "or get_analyzer_classes()" below.
+    # NOTE: Below "or get_analyzer_classes()" is a fix for the unit tests.
     for analyzer in AnalyzerClasses or get_analyzer_classes():
-        # if any(ext in url_string for ext in extensionsToCheck):
-
         if (file_object.mime_type in analyzer.handles_mime_types or
                 'MIME_ALL' in analyzer.handles_mime_types):
             out.append(analyzer)
