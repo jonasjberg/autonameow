@@ -618,13 +618,18 @@ class TestEvalMagicGlob(TestCase):
         self.assertFalse(eval_magic_glob('image/jpeg', ['']))
         self.assertFalse(eval_magic_glob('image/jpeg', ['application/pdf']))
         self.assertFalse(eval_magic_glob('image/jpeg', ['*/pdf']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['image/pdf']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['image/pdf',
+                                                        'application/jpeg']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['image/']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['/jpeg']))
         self.assertFalse(eval_magic_glob('image/jpeg', ['*/pdf', '*/png']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['*/pdf', '*/png',
-                                                        'application/*']))
-        self.assertFalse(eval_magic_glob('image/png', ['*/pdf', '*/jpg',
-                                                       'application/*']))
-        self.assertFalse(eval_magic_glob('image/png', ['*/pdf', '*/jpg',
-                                                       'image/jpg']))
+        self.assertFalse(eval_magic_glob('image/jpeg',
+                                         ['*/pdf', '*/png', 'application/*']))
+        self.assertFalse(eval_magic_glob('image/png',
+                                         ['*/pdf', '*/jpg', 'application/*']))
+        self.assertFalse(eval_magic_glob('image/png',
+                                         ['*/pdf', '*/jpg', 'image/jpg']))
 
     def test_eval_magic_blob_returns_true_as_expected(self):
         self.assertTrue(eval_magic_glob('image/jpeg', ['*/*']))
@@ -634,5 +639,5 @@ class TestEvalMagicGlob(TestCase):
         self.assertTrue(eval_magic_glob('image/jpeg', ['image/jpeg']))
         self.assertTrue(eval_magic_glob('image/jpeg', ['*/*', '*/jpeg']))
         self.assertTrue(eval_magic_glob('image/jpeg', ['image/*', '*/jpeg']))
-        self.assertTrue(eval_magic_glob('image/png', ['*/pdf', '*/png',
-                                                      'application/*']))
+        self.assertTrue(eval_magic_glob('image/png',
+                                        ['*/pdf', '*/png', 'application/*']))

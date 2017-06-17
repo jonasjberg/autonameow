@@ -252,7 +252,4 @@ def eval_magic_glob(mime_to_match, glob_list):
                 return True
             elif glob_type == mime_to_match_type and glob_subtype == '*':
                 return True
-            elif (glob_type == mime_to_match_type
-                  or glob_subtype == mime_to_match_subtype):
-                return True
     return False
