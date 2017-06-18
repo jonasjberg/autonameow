@@ -28,6 +28,7 @@ from core.extraction import (
     suitable_data_extractors_for,
     get_extractor_classes
 )
+from extractors.extractor import Extractor
 from unit_utils import get_mock_fileobject
 
 
@@ -121,3 +122,18 @@ class TestSuitableDataExtractorsFor(TestCase):
 class TestGetExtractorClasses(TestCase):
     def test_get_extractor_classes_returns_expected_type(self):
         self.assertTrue(isinstance(get_extractor_classes(), list))
+        for c in get_extractor_classes():
+            self.assertTrue(issubclass(c, Extractor))
+
+    # TODO: [hardcoded] Testing number of extractor classes needs fixing.
+    def test_get_extractor_classes_returns_at_least_one_extractor(self):
+        self.assertGreaterEqual(len(get_extractor_classes()), 1)
+
+    def test_get_extractor_classes_returns_at_least_two_extractors(self):
+        self.assertGreaterEqual(len(get_extractor_classes()), 2)
+
+    def test_get_extractor_classes_returns_at_least_three_extractors(self):
+        self.assertGreaterEqual(len(get_extractor_classes()), 3)
+
+    def test_get_extractor_classes_returns_at_least_four_extractors(self):
+        self.assertGreaterEqual(len(get_extractor_classes()), 4)
