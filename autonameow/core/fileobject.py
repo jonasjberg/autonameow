@@ -109,7 +109,7 @@ class FileObject(object):
         except IndexError:
             return None
 
-    # TODO: Move "filetags"-specific code to separate module. (?)
+    # NOTE: Move "filetags"-specific code to separate module. (?)
     def filetags_format_filename(self):
         """
         Returns whether the file name is in the "filetags" format.
