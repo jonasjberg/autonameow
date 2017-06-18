@@ -95,6 +95,10 @@ Medium Priority
 
 * Refactor the 'Configuration' class. Look over all of 'configuration.py'.
 
+* Allow conditionals in the configuration file rules.
+    * Test if a file rule is applicable by evaluating conditionals.
+        * Textual contents of the file matches a regular expression?
+        * Some date/time-information lies within some specific range.
 
 
 Low Priority
