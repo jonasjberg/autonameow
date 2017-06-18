@@ -27,6 +27,7 @@ import PyPDF2
 from extractors.textual import (
     extract_pdf_content_with_pdftotext,
     extract_pdf_content_with_pypdf,
+    PdfTextExtractor,
     ImageOCRTextExtractor
 )
 from unit_utils import (
@@ -87,6 +88,94 @@ class TestExtractPdfContentWithPdfTotext(TestCase):
     def test_extract_pdf_content_with_pdftotext_returns_expected_text(self):
         self.assertEqual(extract_pdf_content_with_pdftotext(pdf_file),
                          expected_text)
+
+
+class TestPdfTextExtractor(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+        image = abspath_testfile('gmail.pdf')
+        self.e = PdfTextExtractor(image)
+
+        self.EXPECT_TEXT = '''1/11/2016
+
+Gmail - Valkommen till kursen Introduktion till Linux och sma natverk!
+
+Jonas Sjoberg <jomeganas@gmail.com>
+
+Valkommen till kursen Introduktion till Linux och sma natverk!
+1 message
+Camilla Nordin <Camilla.Nordin@hig.se>
+To: Camilla Nordin <Camilla.Nordin@hig.se>
+
+Fri, Jan 8, 2016 at 3:50 PM
+
+Valkommen till Hogskolan i Gavle och kursen Introduktion till Linux och sma natverk
+7,5 hp!
+
+Ditt valkomstbrev hittar du har: http://www.hig.se/Ext/Sv/Student/Nystudent/Valkomstbrev/Kurser/
+Datateknik.html
+
+LAS DITT VALKOMSTBREV NOGGRANT!
+
+Kursen borjar den 25:e januari men ar oppen for webbregistrering via Studentportalen fran och
+med den 18:e januari, se valkomstbrevet.
+
+Atkomstkoden som i vissa fall behovs for inskrivning pa kursen i Blackboard ar: DebianMint
+
+Kursinstansen i Blackboard oppnar den 25:e januari. Observera att du ibland maste soka fram
+kursen den forsta gangen du loggar in i Blackboard. Folj instruktionerna i manualen som finns
+lankad i valkomstbrevet.
+
+Det finns bra information for nya studenter pa var hemsida: www.hig.se/nystudent
+
+Du behover inte tacka ja eller nej till kursen utan accepterar din plats genom att registrera dig
+via Studentportalen.
+
+Lycka till med studierna!
+
+Halsningar Camilla
+***************************************************************
+Camilla Nordin
+Hogskolan i Gavle
+Akademin for teknik och miljo
+https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df...
+
+1/2
+
+1/11/2016
+
+Gmail - Valkommen till kursen Introduktion till Linux och sma natverk!
+
+801 76 GAVLE
+Tel: 02664 87 46
+Fax: 02664 87 58
+email: cnn@hig.se
+Besoksadress: Kungsbacksvagen 47, rum 12:208
+
+Hogskolan i Gavle, 801 76 Gavle * 026 64 85 00 * www.hig.se
+For en hallbar livsmiljo for manniskan
+University of Gavle, SE801 76 Gavle, Sweden * +46 (0) 26 64 85 00 * www.hig.se
+
+https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df...
+
+2/2
+
+'''
+
+    def test_method_query_returns_something(self):
+        self.assertIsNotNone(self.e.query())
+
+    def test_method_query_returns_expected_type(self):
+        self.assertTrue(isinstance(self.e.query(), str))
+
+    def test_method_query_all_result_contains_expected(self):
+        actual = self.e.query()
+        self.assertEqual(self.EXPECT_TEXT, actual)
+
+    def test_method_query_arbitrary_field_result_contains_expected(self):
+        actual = self.e.query('dummy_field')
+        self.assertEqual(self.EXPECT_TEXT, actual)
 
 
 class TestImageOCRTextExtractorWithEmptyFile(TestCase):
