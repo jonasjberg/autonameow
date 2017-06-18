@@ -117,6 +117,29 @@ Low Priority
 
 * Add support for UNIX-style globs in path fields in the configuration.
 
+* Refactor unit tests.
+    * Mitigate superlinear increase in unit test execution speed.
+    * Try to rewrite tests that operate on actual files
+        * Cache results from expensive calls, avoid repeated actions.
+        * Substitute I/O-operations with some kind of mocking.
+
+* Look into filtering.
+    * Think about the concept of filtering data at a high-level.
+    * Who should be able to control filtering?
+        * The user? Through the configuration?
+        * Various parts of the program? Part of the file analysis or data
+          extraction pipeline?
+    * Redesign overall filtering.
+    * Rewrite the `ResultFilter` class or substitute with something else.
+
+* Improve "filetags" integration.
+    * For instance, the Microsoft Vision API returns *a lot* of tags,
+      too many to use in a filename without any kind of selection process.
+    * It would be very useful to be able to filter tags by getting the
+      intersection of the unfiltered tags and a whitelist.
+    * Allow specifying allowed tags in the configuration?
+    * Allow specifying mutually exclusive tags in the configuration?
+
 
 Wishlist
 --------
