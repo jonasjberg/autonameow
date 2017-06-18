@@ -42,5 +42,3 @@ class TestMetadataExtractor(TestCase):
     def test_query_returns_false_without__get_raw_metadata_implemented(self):
         self.assertFalse(self.e.query())
         self.assertFalse(self.e.query(field='some_field'))
-
-
