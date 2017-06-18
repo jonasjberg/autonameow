@@ -143,18 +143,6 @@ class TestAnalysisRunQueue(TestCase):
             self.assertTrue(dequeued in enqueued)
 
 
-class TestGetInstantiatedAnalyzers(TestCase):
-    def test_get_instantiated_analyzers_returns_something(self):
-        self.assertIsNotNone(get_instantiated_analyzers())
-
-    def test_get_instantiated_analyzers_returns_expected_type(self):
-        actual = get_instantiated_analyzers()
-        self.assertEqual(type(actual), list)
-
-        for a in actual:
-            self.assertTrue(issubclass(a.__class__, Analyzer))
-
-
 class TestGetAnalyzerClasses(TestCase):
     def test_get_analyzer_classes_returns_expected_type(self):
         self.assertTrue(isinstance(get_analyzer_classes(), list))

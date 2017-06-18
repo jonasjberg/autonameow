@@ -148,16 +148,3 @@ def get_analyzer_classes_basename():
         The base names of available analyzer classes as a list of strings.
     """
     return [c.__name__ for c in get_analyzer_classes()]
-
-
-def get_instantiated_analyzers():
-    """
-    Get a list of all available analyzers as instantiated class objects.
-    All classes inheriting from the "Analyzer" class are included.
-
-    Returns:
-        A list of class instances, one per subclass of "Analyzer".
-    """
-    # NOTE: These are instantiated with a None FileObject, which might be a
-    #       problem and is surely not very pretty.
-    return [klass(None, None, None) for klass in get_analyzer_classes()]
