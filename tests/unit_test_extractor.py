@@ -34,7 +34,6 @@ class TestExtractor(TestCase):
                 self.mime_type = 'image/jpeg'
         self.fo = DummyFileObject()
 
-
     def test_extractor_class_is_available(self):
         self.assertIsNotNone(Extractor)
 

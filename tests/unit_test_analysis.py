@@ -22,14 +22,17 @@
 from unittest import TestCase
 
 from analyzers.analyzer import (
-    Analyzer
+    Analyzer,
+    get_analyzer_classes
 )
 from core.analysis import (
     AnalysisResults,
     AnalysisRunQueue,
-    Analysis
+    Analysis,
+    suitable_analyzers_for
 )
 from core.constants import ANALYSIS_RESULTS_FIELDS
+from core.extraction import get_extractor_classes
 from unit_utils import (
     get_mock_analyzer,
     get_mock_fileobject,
@@ -152,3 +155,50 @@ class TestGetInstantiatedAnalyzers(TestCase):
             self.assertTrue(issubclass(a.__class__, Analyzer))
 
 
+class TestGetAnalyzerClasses(TestCase):
+    def test_get_analyzer_classes_returns_expected_type(self):
+        self.assertTrue(isinstance(get_analyzer_classes(), list))
+        for a in get_analyzer_classes():
+            self.assertTrue(issubclass(a, Analyzer))
+
+    # TODO: [hardcoded] Testing number of extractor classes needs fixing.
+    def test_get_analyzer_classes_returns_at_least_one_analyzer(self):
+        self.assertGreaterEqual(len(get_analyzer_classes()), 1)
+
+    def test_get_analyzer_classes_returns_at_least_two_analyzers(self):
+        self.assertGreaterEqual(len(get_analyzer_classes()), 2)
+
+    def test_get_analyzer_classes_returns_at_least_three_analyzers(self):
+        self.assertGreaterEqual(len(get_analyzer_classes()), 3)
+
+    def test_get_analyzer_classes_returns_at_least_four_analyzers(self):
+        self.assertGreaterEqual(len(get_analyzer_classes()), 4)
+
+    def test_get_analyzer_classes_returns_at_least_five_analyzers(self):
+        self.assertGreaterEqual(len(get_analyzer_classes()), 5)
+
+    def test_get_analyzer_classes_returns_at_least_six_analyzers(self):
+        self.assertGreaterEqual(len(get_analyzer_classes()), 6)
+
+
+class TestSuitableAnalyzersForFile(TestCase):
+    def test_returns_expected_analyzers_for_mp4_video_file(self):
+        self.fo = get_mock_fileobject(mime_type='video/mp4')
+        actual = [c.__name__ for c in suitable_analyzers_for(self.fo)]
+        self.assertIn('FilesystemAnalyzer', actual)
+        self.assertIn('FilenameAnalyzer', actual)
+        self.assertIn('VideoAnalyzer', actual)
+
+    def test_returns_expected_analyzers_for_png_image_file(self):
+        self.fo = get_mock_fileobject(mime_type='image/png')
+        actual = [c.__name__ for c in suitable_analyzers_for(self.fo)]
+        self.assertIn('FilenameAnalyzer', actual)
+        self.assertIn('FilesystemAnalyzer', actual)
+        self.assertIn('ImageAnalyzer', actual)
+
+    def test_returns_expected_analyzers_for_pdf_file(self):
+        self.fo = get_mock_fileobject(mime_type='application/pdf')
+        actual = [c.__name__ for c in suitable_analyzers_for(self.fo)]
+        self.assertIn('FilenameAnalyzer', actual)
+        self.assertIn('FilesystemAnalyzer', actual)
+        self.assertIn('PdfAnalyzer', actual)

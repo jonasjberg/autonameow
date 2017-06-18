@@ -21,6 +21,7 @@
 
 from core import constants
 from core.exceptions import AnalysisResultsFieldError
+from core.fileobject import eval_magic_glob
 
 
 class Analyzer(object):
@@ -89,6 +90,29 @@ class Analyzer(object):
     def get_publisher(self):
         # TODO: Remove, use callbacks instead.
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    @classmethod
+    def can_handle(cls, file_object):
+        """
+        Tests if this analyzer class can handle the given file.
+
+        The analyzer is considered to be able to handle the given file if the
+        file MIME type is listed in the class attribute 'handles_mime_types'.
+
+        Inheriting analyzer classes can override this method if they need
+        to perform additional tests in order to determine if they can handle
+        the given file object.
+
+        Args:
+            file_object: The file to test as an instance of 'FileObject'.
+
+        Returns:
+            True if the analyzer class can handle the given file, else False.
+        """
+        if eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
+            return True
+        else:
+            return False
 
     def __str__(self):
         return self.__class__.__name__

@@ -56,6 +56,11 @@ class TestAnalyzer(TestCase):
         self.maxDiff = None
         self.a = Analyzer(get_mock_fileobject(), None, None)
 
+        class DummyFileObject(object):
+            def __init__(self):
+                self.mime_type = 'image/jpeg'
+        self.dummy_fo = DummyFileObject()
+
     def test_run_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.a.run()
@@ -63,6 +68,10 @@ class TestAnalyzer(TestCase):
     def test_get_with_invalid_field_name_raises_exception(self):
         with self.assertRaises(AnalysisResultsFieldError):
             self.a.get('not_a_field')
+
+    def test_get_with_invalid_non_callable_field_name_raises_exception(self):
+        with self.assertRaises(AnalysisResultsFieldError):
+            self.a.get('__str__')
 
     def test_get_with_none_field_name_raises_exception(self):
         with self.assertRaises(AnalysisResultsFieldError):
@@ -97,6 +106,13 @@ class TestAnalyzer(TestCase):
     def test_get_publisher_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.a.get_publisher()
+
+    def test_class_method_can_handle_is_defined_and_does_not_return_none(self):
+        self.assertIsNotNone(self.a.can_handle)
+        self.assertIsNotNone(self.a.can_handle(self.dummy_fo))
+
+    def test_class_method_can_handle_returns_false(self):
+        self.assertFalse(self.a.can_handle(self.dummy_fo))
 
 
 class TestAnalysisUtilityFunctions(TestCase):
