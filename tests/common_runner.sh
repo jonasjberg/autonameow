@@ -144,8 +144,8 @@ fi
 
 [ "$option_verbose" != 'true' ] && option_quiet='true' || option_quiet='false'
 
-runner_opts=''
-[ "$option_write_reports" != 'true' ] && runner_opts='-n'
+runner_opts='-w'
+[ "$option_write_reports" != 'true' ] && runner_opts=''
 
 count_fail=0
 run_task "$option_quiet" 'Running integration test runner' "${SELF_DIR}/integration_runner.sh ${runner_opts}"
