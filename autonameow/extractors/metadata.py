@@ -157,6 +157,7 @@ class PyPDFMetadataExtractor(MetadataExtractor):
 
                 out.update(xmp)
 
+        # TODO: Convert date/time-information to 'datetime' objects.
         convert_datetime_field(out, 'CreationDate')
         convert_datetime_field(out, 'ModDate')
 

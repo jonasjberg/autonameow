@@ -141,7 +141,7 @@ def filetype_magic(file_path):
     """
     Determine file type by reading "magic" header bytes.
 
-    Should be equivalent to the 'file' command in *NIX environments.
+    Should be equivalent to the 'file --mime-type' command in *NIX environments.
 
     Args:
         file_path: The path to the file to get the MIME type of as a string.

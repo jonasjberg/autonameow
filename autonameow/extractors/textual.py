@@ -23,10 +23,12 @@ import logging as log
 import subprocess
 
 import PyPDF2
+from PIL import Image
 from PyPDF2.utils import (
     PyPdfError,
     PdfReadError
 )
+import pytesseract
 
 from core.exceptions import ExtractorError
 from core.util import textutils
@@ -43,12 +45,13 @@ class TextExtractor(Extractor):
         self._raw_text = None
 
     def query(self, field=None):
+        # TODO: Should text extractors be queried for something else than text?
         if not self._raw_text:
             try:
-                log.debug('TextExtractor received initial query ..')
+                log.debug('{!s} received initial query ..'.format(self))
                 self._raw_text = self._get_raw_text()
             except ExtractorError as e:
-                log.error('TextExtractor query FAILED: {!s}'.format(e))
+                log.error('{!s} query FAILED: {!s}'.format(self, e))
                 return False
             except NotImplementedError as e:
                 log.debug('[WARNING] Called unimplemented code in {!s}: '
@@ -56,15 +59,36 @@ class TextExtractor(Extractor):
                 return False
 
         if not field:
-            log.debug('TextExtractor responding to query for all fields')
+            # TODO: Fix this. Look over the entire 'query' method.
+            log.debug('{!s} responding to query for all fields'.format(self))
             return self._raw_text
         else:
-            log.debug('MetadataExtractor responding to query for field: '
-                      '"{!s}"'.format(field))
-            return self._raw_text.get(field, False)
+            log.debug('{!s} ignoring query for field (returning all fields):'
+                      ' "{!s}"'.format(self, field))
+            return self._raw_text
 
     def _get_raw_text(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
+
+class ImageOCRTextExtractor(TextExtractor):
+    handles_mime_types = ['image/*']
+    data_query_string = 'contents.visual.ocr_text'
+
+    def __init__(self, source):
+        super(ImageOCRTextExtractor, self).__init__(source)
+        self._raw_text = None
+
+    def _get_raw_text(self):
+        try:
+            # NOTE: Tesseract behaviour will likely need tweaking depending
+            #       on the image contents. Will need to pass "tesseract_args"
+            #       somehow. I'm starting to think image OCR does not belong
+            #       in this inheritance hierarchy ..
+            log.debug('Running image OCR with PyTesseract ..')
+            return get_text_from_ocr(self.source, tesseract_args=None)
+        except Exception as e:
+            raise ExtractorError(e)
 
 
 class PdfTextExtractor(TextExtractor):
@@ -74,7 +98,6 @@ class PdfTextExtractor(TextExtractor):
     def __init__(self, source):
         super(PdfTextExtractor, self).__init__(source)
         self._raw_text = None
-        self._data = None
 
     def _get_raw_text(self):
         """
@@ -102,9 +125,6 @@ class PdfTextExtractor(TextExtractor):
         else:
             log.debug('Unable to extract textual content from PDF')
             raise ExtractorError
-
-    def _get_data(self):
-        pass
 
 
 def extract_pdf_content_with_pdftotext(pdf_file):
@@ -177,3 +197,31 @@ def extract_pdf_content_with_pypdf(pdf_file):
     else:
         log.debug('Unable to extract text with PyPDF2 ..')
         return False
+
+
+def get_text_from_ocr(image_path, tesseract_args=None):
+    """
+    Get any textual content from the image by running OCR with tesseract
+    through the pytesseract wrapper.
+    :return: image text if found, else None (?)
+    """
+    # TODO: Test this!
+
+    try:
+        image = Image.open(image_path)
+    except IOError as e:
+        raise ExtractorError(e)
+
+    try:
+        log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
+            tesseract_args, image_path))
+        text = pytesseract.image_to_string(image, lang='swe+eng',
+                                           config=tesseract_args)
+    except pytesseract.pytesseract.TesseractError as e:
+        raise ExtractorError('PyTesseract ERROR: {}'.format(str(e)))
+    else:
+        if text:
+            text = text.strip()
+            log.debug('PyTesseract returned {} bytes of text'.format(len(text)))
+            return text
+        return ''

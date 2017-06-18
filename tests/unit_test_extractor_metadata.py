@@ -21,32 +21,24 @@
 
 from unittest import TestCase
 
-from extractors.extractor import Extractor
+from extractors.metadata import MetadataExtractor
 from unit_utils import make_temporary_file
 
 
-class TestExtractor(TestCase):
+class TestMetadataExtractor(TestCase):
     def setUp(self):
-        self.e = Extractor(make_temporary_file())
+        self.e = MetadataExtractor(make_temporary_file())
 
-    def test_extractor_class_is_available(self):
-        self.assertIsNotNone(Extractor)
+    def test_metadata_extractor_class_is_available(self):
+        self.assertIsNotNone(MetadataExtractor)
 
-    def test_extractor_class_can_be_instantiated(self):
+    def test_metadata_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
-    def test_method_query_raises_not_implemented_error(self):
+    def test_method__get_raw_metadata_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e.query()
-            self.e.query(field='some_field')
+            self.e._get_raw_metadata()
 
-    def test_method_str_is_defined_and_reachable(self):
-        self.assertIsNotNone(str(self.e))
-        self.assertIsNotNone(self.e.__str__)
-
-    def test_method_str_returns_type_string(self):
-        self.assertTrue(isinstance(str(self.e), str))
-        self.assertTrue(isinstance(str(self.e.__str__), str))
-
-    def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'Extractor')
+    def test_query_returns_false_without__get_raw_metadata_implemented(self):
+        self.assertFalse(self.e.query())
+        self.assertFalse(self.e.query(field='some_field'))

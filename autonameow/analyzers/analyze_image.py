@@ -23,12 +23,8 @@ import logging
 import re
 from datetime import datetime
 
-import PIL
-import pytesseract
-
 from analyzers.analyzer import Analyzer
 from core.util import dateandtime
-from extractors.metadata import ExiftoolMetadataExtractor
 
 
 class ImageAnalyzer(Analyzer):
@@ -46,15 +42,10 @@ class ImageAnalyzer(Analyzer):
         self.ocr_text = None
 
     def run(self):
-        self.exiftool = ExiftoolMetadataExtractor(self.file_object.abspath)
-        logging.debug('Extracting metadata with {!s} ..'.format(self.exiftool))
+        self.exif_data = self.extracted_data.get('metadata.exiftool')
 
-        self.exif_data = self.exiftool.query()
-        if self.exif_data:
-            self.add_results('metadata.exiftool', self.exif_data)
-
-        # TODO: Move image OCR to extractor class?
-        self.ocr_text = self._get_text_from_ocr()
+        # TODO: Move image OCR to extractor class.
+        self.ocr_text = self.extracted_data.get('contents.visual.ocr_text')
 
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
@@ -181,84 +172,6 @@ class ImageAnalyzer(Analyzer):
 
         return results
 
-    def _get_exif_data(self):
-        """
-        Extracts EXIF information from a image using PIL.
-        The EXIF data is stored in a dict using human-readable keys.
-        :return: Dict of EXIF data.
-        """
-        # TODO: This should be handled by the 'ExiftoolMetadataExtractor'.
-
-        result = {}
-
-        exif_data = None
-        filename = self.file_object.abspath
-        try:
-            image = PIL.Image.open(filename)
-        except IOError as e:
-            logging.warning('PIL image I/O error({0}): {1}'.format(e.errno,
-                                                                   e.strerror))
-        else:
-            try:
-                exif_data = image._getexif()
-            except Exception as e:
-                logging.debug('PIL image EXIF extraction error: '
-                              '{}'.format(e.args))
-        if not exif_data:
-            logging.debug('Unable to extract EXIF data.')
-            return None
-
-        for tag, value in list(exif_data.items()):
-            # Obtain a human-readable version of the tag.
-            tag_string = PIL.ExifTags.TAGS.get(tag, tag)
-
-            # Check if tag contains GPS data.
-            if tag_string == 'GPSInfo':
-                logging.debug('Found GPS information')
-                result_gps = {}
-
-                for tag_gps, value_gps in list(value.items()):
-                    # Obtain a human-readable version of the GPS tag.
-                    tag_string_gps = PIL.ExifTags.GPSTAGS.get(tag_gps, tag_gps)
-
-                    if value_gps is not None:
-                        result_gps[tag_string_gps] = value_gps
-
-            else:
-                if value is not None:
-                    result[tag_string] = value
-
-        return result
-
-    def _get_text_from_ocr(self):
-        """
-        Get any textual content from the image by running OCR with tesseract
-        through the pytesseract wrapper.
-        :return: image text if found, else None (?)
-        """
-        # TODO: Test this!
-        # TODO: This should be handled by a "OCRTextExtractor" is similar.
-        image_text = None
-        filename = self.file_object.abspath
-        try:
-            image = PIL.Image.open(filename)
-        except IOError as e:
-            logging.warning('PIL image I/O error({}): {}'.format(e.errno,
-                                                                 e.strerror))
-        else:
-            try:
-                image_text = pytesseract.image_to_string(image)
-            except Exception as e:
-                logging.warning('PyTesseract image OCR error({}): '
-                                '{}'.format(e.args, e.message))
-        if not image_text:
-            return None
-        else:
-            image_text = image_text.strip()
-            logging.debug('Extracted [{}] bytes of '
-                          'text'.format(len(image_text)))
-            return image_text
-
     def _get_ocr_datetime(self):
         """
         Extracts date and time information from the text produced by OCR.
@@ -268,9 +181,8 @@ class ImageAnalyzer(Analyzer):
                      'weight'  : 0.1
                    }, .. ]
         """
-        if self.ocr_text is None:
-            logging.debug('Found no text from OCR of '
-                          '"{}"'.format(self.file_object.abspath))
+        if not self.ocr_text:
+            logging.debug('Found no date/time-information in OCR text.')
             return None
 
         results = []
@@ -301,7 +213,7 @@ class ImageAnalyzer(Analyzer):
                                 'source': 'image_ocr_special',
                                 'weight': 0.25})
 
-        if len(results) == 0:
+        if not results:
             logging.debug('Found no date/time-information in OCR text.')
             return None
         else:
