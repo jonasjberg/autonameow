@@ -16,45 +16,42 @@ High Priority
 
 * Update `MimeTypeConfigFieldParser` to handle MIME type globbing.
 
-### Text encoding issues
+* __Text encoding issues__
+    * Enforce strict boundaries between all external systems and an internal
+      text data representation.
+    * Add reusable translation layer that ensures proper handling of text
+      encoding of *all incoming textual data*;
+      standard input/output/error/.., path/file names, text file contents, etc.
+    * Add corresponding reusable translation layer for
+      *all outgoing textual data*.
 
-* Enforce strict boundaries between all external systems and an internal text
-  data representation.
-* Add reusable translation layer that ensures proper handling of text encoding
-  of *all incoming textual data*; standard input/output/error/.., path/file
-  names, contents of text files, etc.
-* Add corresponding reusable translation layer for *all outgoing textual data*.
+* __Internal "API"__ -- communication between modules
+    * Replace the old way of calling the analyzer `get_{fieldname}` methods
+      with passing the `Analysis` class method `collect_results` as a callback.
+    * Fully implement the idea of dynamically constructing structures and
+      interfaces from a single reference data structure at runtime.
 
-### Internal "API" -- communication between modules
+* __New high-level architecture__ -- Move to use the redesigned architecture
+    * All data extraction is handled by `extractor` classes
+    * `analyzer` classes do not perform any kind of data extraction.
+        * Should data produced by `analyzer` classes be returned to a separate
+          container in the `Analysis` class?
+    * Modify high-level program flow to something along the lines of:
+        1. Load configuration
+        2. Run all extractors that can handle the given file
+        3. Determine which configuration rule matches the given file
+        4. Enqueue analyzers based on the rule and extracted data
+        5. Run all enqueued analyzers
+        6. Assemble new file name from all available data
 
-* Replace the old way of calling the analyzer `get_{fieldname}` methods
-  with passing the `Analysis` class method `collect_results` as a callback.
-* Fully implement the idea of dynamically constructing structures and
-  interfaces from a single reference data structure at runtime.
-
-### New high-level architecture:
-
-* Move all existing code to the architecture described below.
-* __All data extraction is handled by `extractor` classes__ --
-  `analyzer` classes do not perform any kind of data extraction.
-    * Should data produced by `analyzer` classes be returned to a separate
-      container in the `Analysis` class?
-* Modify high-level program flow to something along the lines of:
-    1. Load configuration
-    2. Run all extractors that can handle the given file
-    3. Determine which configuration rule matches the given file
-    4. Enqueue analyzers based on the rule and extracted data
-    5. Run all enqueued analyzers
-    6. Assemble new file name from all available data
-
-    Having the extractor data available when evaluating rules (3) solves
-    the problem of evaluating certain conditions, like testing if the
-    given file contains a specific line of text, etc.
-* Plan for optimization by not extracting more data than necessary.
-  How could this be implemented?
-* Converting strings to `datetime` objects and similar translation of metadata
-  fields should be handled by the extractors. It is currently mostly done in
-  the analyzers.
+        Having the extractor data available when evaluating rules (3) solves
+        the problem of evaluating certain conditions, like testing if the
+        given file contains a specific line of text, etc.
+    * Plan for optimization by not extracting more data than necessary.
+      How could this be implemented?
+    * Converting strings to `datetime` objects and similar translation of
+      metadata fields should be handled by the extractors. It is currently
+      mostly done in the analyzers.
 
 
 Medium Priority
