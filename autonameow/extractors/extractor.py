@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from core.fileobject import eval_magic_glob
+
 
 class Extractor(object):
     """
@@ -61,6 +63,30 @@ class Extractor(object):
             Else the data matching the specified field.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    @classmethod
+    def can_handle(cls, file_object):
+        """
+        Tests if this extractor class can handle the given file.
+
+        The extractor is considered to be able to handle the given file if the
+        file MIME type is listed in the class attribute 'handles_mime_types'.
+
+        Inheriting extractor classes can override this method if they need
+        to perform additional tests in order to determine if they can handle
+        the given file object.
+
+        Args:
+            file_object: The file to test as an instance of 'FileObject'.
+
+        Returns:
+            True if the extractor class can extract data from the given file,
+            else False.
+        """
+        if eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
+            return True
+        else:
+            return False
 
     def __str__(self):
         return self.__class__.__name__

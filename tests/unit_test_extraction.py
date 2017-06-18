@@ -109,14 +109,24 @@ class TestExtractedData(TestCase):
         self.assertIn('expected_data_b', actual)
 
 
-class TestSuitableDataExtractorsFor(TestCase):
-    def setUp(self):
-        self.fo_video = get_mock_fileobject(mime_type='video/mp4')
-
-    def test_returns_expected_extractors_for_video_file(self):
-        actual = [c.__name__ for c in
-                  suitable_data_extractors_for(self.fo_video)]
+class TestSuitableDataExtractorsForFile(TestCase):
+    def test_returns_expected_extractors_for_mp4_video_file(self):
+        self.fo = get_mock_fileobject(mime_type='video/mp4')
+        actual = [c.__name__ for c in suitable_data_extractors_for(self.fo)]
         self.assertIn('ExiftoolMetadataExtractor', actual)
+
+    def test_returns_expected_extractors_for_png_image_file(self):
+        self.fo = get_mock_fileobject(mime_type='image/png')
+        actual = [c.__name__ for c in suitable_data_extractors_for(self.fo)]
+        self.assertIn('ExiftoolMetadataExtractor', actual)
+        self.assertIn('ImageOCRTextExtractor', actual)
+
+    def test_returns_expected_extractors_for_pdf_file(self):
+        self.fo = get_mock_fileobject(mime_type='application/pdf')
+        actual = [c.__name__ for c in suitable_data_extractors_for(self.fo)]
+        self.assertIn('ExiftoolMetadataExtractor', actual)
+        self.assertIn('PyPDFMetadataExtractor', actual)
+        self.assertIn('PdfTextExtractor', actual)
 
 
 class TestGetExtractorClasses(TestCase):
