@@ -29,6 +29,10 @@ class ResultFilter(object):
     analysis by evaluating the results based on a set of filter rules.
     """
 
+    # TODO: This class needs a complete rewrite!
+
+    # TODO: All filtering must be (re-)designed.
+
     def __init__(self):
         self.rules = {'ignore_years': [],
                       'ignore_before_year': None,
