@@ -197,13 +197,7 @@ def suitable_data_extractors_for(file_object):
     Returns:
         A list of extractor classes that can extract data from the given file.
     """
-    out = []
-
-    for extractor in ExtractorClasses:
-        if eval_magic_glob(file_object.mime_type, extractor.handles_mime_types):
-            out.append(extractor)
-
-    return out
+    return [e for e in ExtractorClasses if e.can_handle(file_object)]
 
 
 def get_extractor_classes():

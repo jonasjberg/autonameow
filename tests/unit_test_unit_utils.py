@@ -26,6 +26,7 @@ from unittest import TestCase
 
 from analyzers.analyzer import (
     get_analyzer_classes,
+    Analyzer
 )
 from core.fileobject import FileObject
 from unit_utils import (
@@ -97,9 +98,17 @@ class TestUnitUtilityGetMockFileObject(TestCase):
     def test_get_mock_fileobject_returns_expected_type(self):
         self.assertTrue(isinstance(get_mock_fileobject(), FileObject))
 
-    def test_get_mock_fileobject_with_mime_type(self):
+    def test_get_mock_fileobject_with_mime_type_video_mp4(self):
         actual = get_mock_fileobject(mime_type='video/mp4')
         self.assertEqual(actual.mime_type, 'video/mp4')
+
+    def test_get_mock_fileobject_with_mime_type_all_types(self):
+        mime_types = ['application/pdf', 'image/gif', 'image/jpeg', 'image/png',
+                      'image/x-ms-bmp', 'text/plain', 'video/mp4']
+
+        for mt in mime_types:
+            actual = get_mock_fileobject(mime_type=mt)
+            self.assertEqual(actual.mime_type, mt)
 
 
 class TestCaptureStdout(TestCase):
@@ -112,10 +121,20 @@ class TestCaptureStdout(TestCase):
 
 
 class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
+    def test_get_instantiated_analyzers_returns_something(self):
+        self.assertIsNotNone(get_instantiated_analyzers())
+
     def test_get_instantiated_analyzers_returns_class_objects(self):
         analyzers = get_instantiated_analyzers()
         for a in analyzers:
             self.assertTrue(hasattr(a, '__class__'))
+
+    def test_get_instantiated_analyzers_returns_expected_type(self):
+        actual = get_instantiated_analyzers()
+        self.assertEqual(type(actual), list)
+
+        for a in actual:
+            self.assertTrue(issubclass(a.__class__, Analyzer))
 
     def test_get_instantiated_analyzers_returns_arbitrary_number(self):
         # TODO: [hardcoded] Likely to break; Fix or remove!

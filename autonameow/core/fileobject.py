@@ -109,7 +109,7 @@ class FileObject(object):
         except IndexError:
             return None
 
-    # TODO: Move "filetags"-specific code to separate module. (?)
+    # NOTE: Move "filetags"-specific code to separate module. (?)
     def filetags_format_filename(self):
         """
         Returns whether the file name is in the "filetags" format.
@@ -134,7 +134,12 @@ class FileObject(object):
             return False
 
     def __str__(self):
+        # TODO: Handle file name encoding before returning.
         return str(self.filename)
+
+    def __repr__(self):
+        # TODO: Handle file name encoding before returning.
+        return '<{} {}>'.format(self.__class__.__name__, str(self.abspath))
 
 
 def filetype_magic(file_path):

@@ -29,6 +29,11 @@ class TestExtractor(TestCase):
     def setUp(self):
         self.e = Extractor(make_temporary_file())
 
+        class DummyFileObject(object):
+            def __init__(self):
+                self.mime_type = 'image/jpeg'
+        self.fo = DummyFileObject()
+
     def test_extractor_class_is_available(self):
         self.assertIsNotNone(Extractor)
 
@@ -50,3 +55,10 @@ class TestExtractor(TestCase):
 
     def test_method_str_returns_expected(self):
         self.assertEqual(str(self.e), 'Extractor')
+
+    def test_class_method_can_handle_is_defined_and_does_not_return_none(self):
+        self.assertIsNotNone(self.e.can_handle)
+        self.assertIsNotNone(self.e.can_handle(self.fo))
+
+    def test_class_method_can_handle_returns_false(self):
+        self.assertFalse(self.e.can_handle(self.fo))

@@ -28,6 +28,7 @@ from core.extraction import (
     suitable_data_extractors_for,
     get_extractor_classes
 )
+from extractors.extractor import Extractor
 from unit_utils import get_mock_fileobject
 
 
@@ -108,16 +109,41 @@ class TestExtractedData(TestCase):
         self.assertIn('expected_data_b', actual)
 
 
-class TestSuitableDataExtractorsFor(TestCase):
-    def setUp(self):
-        self.fo_video = get_mock_fileobject(mime_type='video/mp4')
-
-    def test_returns_expected_extractors_for_video_file(self):
-        actual = [c.__name__ for c in
-                  suitable_data_extractors_for(self.fo_video)]
+class TestSuitableDataExtractorsForFile(TestCase):
+    def test_returns_expected_extractors_for_mp4_video_file(self):
+        self.fo = get_mock_fileobject(mime_type='video/mp4')
+        actual = [c.__name__ for c in suitable_data_extractors_for(self.fo)]
         self.assertIn('ExiftoolMetadataExtractor', actual)
+
+    def test_returns_expected_extractors_for_png_image_file(self):
+        self.fo = get_mock_fileobject(mime_type='image/png')
+        actual = [c.__name__ for c in suitable_data_extractors_for(self.fo)]
+        self.assertIn('ExiftoolMetadataExtractor', actual)
+        self.assertIn('ImageOCRTextExtractor', actual)
+
+    def test_returns_expected_extractors_for_pdf_file(self):
+        self.fo = get_mock_fileobject(mime_type='application/pdf')
+        actual = [c.__name__ for c in suitable_data_extractors_for(self.fo)]
+        self.assertIn('ExiftoolMetadataExtractor', actual)
+        self.assertIn('PyPDFMetadataExtractor', actual)
+        self.assertIn('PdfTextExtractor', actual)
 
 
 class TestGetExtractorClasses(TestCase):
     def test_get_extractor_classes_returns_expected_type(self):
         self.assertTrue(isinstance(get_extractor_classes(), list))
+        for c in get_extractor_classes():
+            self.assertTrue(issubclass(c, Extractor))
+
+    # TODO: [hardcoded] Testing number of extractor classes needs fixing.
+    def test_get_extractor_classes_returns_at_least_one_extractor(self):
+        self.assertGreaterEqual(len(get_extractor_classes()), 1)
+
+    def test_get_extractor_classes_returns_at_least_two_extractors(self):
+        self.assertGreaterEqual(len(get_extractor_classes()), 2)
+
+    def test_get_extractor_classes_returns_at_least_three_extractors(self):
+        self.assertGreaterEqual(len(get_extractor_classes()), 3)
+
+    def test_get_extractor_classes_returns_at_least_four_extractors(self):
+        self.assertGreaterEqual(len(get_extractor_classes()), 4)

@@ -305,14 +305,7 @@ def suitable_analyzers_for(file_object):
     Returns:
         A list of analyzer classes that can analyze the given file.
     """
-    out = []
-
-    # NOTE: Below "or get_analyzer_classes()" is a fix for the unit tests.
-    for analyzer in AnalyzerClasses or get_analyzer_classes():
-        if eval_magic_glob(file_object.mime_type, analyzer.handles_mime_types):
-            out.append(analyzer)
-
-    return out
+    return [a for a in AnalyzerClasses if a.can_handle(file_object)]
 
 
 AnalyzerClasses = get_analyzer_classes()
