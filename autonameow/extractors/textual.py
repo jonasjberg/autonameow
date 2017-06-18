@@ -47,10 +47,10 @@ class TextExtractor(Extractor):
     def query(self, field=None):
         if not self._raw_text:
             try:
-                log.debug('TextExtractor received initial query ..')
+                log.debug('{!s} received initial query ..'.format(self))
                 self._raw_text = self._get_raw_text()
             except ExtractorError as e:
-                log.error('TextExtractor query FAILED: {!s}'.format(e))
+                log.error('{!s} query FAILED: {!s}'.format(self, e))
                 return False
             except NotImplementedError as e:
                 log.debug('[WARNING] Called unimplemented code in {!s}: '
@@ -97,7 +97,6 @@ class PdfTextExtractor(TextExtractor):
     def __init__(self, source):
         super(PdfTextExtractor, self).__init__(source)
         self._raw_text = None
-        self._data = None
 
     def _get_raw_text(self):
         """
@@ -125,9 +124,6 @@ class PdfTextExtractor(TextExtractor):
         else:
             log.debug('Unable to extract textual content from PDF')
             raise ExtractorError
-
-    def _get_data(self):
-        pass
 
 
 def extract_pdf_content_with_pdftotext(pdf_file):
