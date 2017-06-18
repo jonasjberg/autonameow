@@ -88,7 +88,12 @@ class Extractor(object):
         else:
             return False
 
+    @classmethod
+    def __str__(cls):
+        return cls.__name__
+
     def __str__(self):
         return self.__class__.__name__
 
-
+    def __repr__(self):
+        return '<{}>'.format(self.__class__.__name__)
