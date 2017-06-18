@@ -97,9 +97,17 @@ class TestUnitUtilityGetMockFileObject(TestCase):
     def test_get_mock_fileobject_returns_expected_type(self):
         self.assertTrue(isinstance(get_mock_fileobject(), FileObject))
 
-    def test_get_mock_fileobject_with_mime_type(self):
+    def test_get_mock_fileobject_with_mime_type_video_mp4(self):
         actual = get_mock_fileobject(mime_type='video/mp4')
         self.assertEqual(actual.mime_type, 'video/mp4')
+
+    def test_get_mock_fileobject_with_mime_type_all_types(self):
+        mime_types = ['application/pdf', 'image/gif', 'image/jpeg', 'image/png',
+                      'image/x-ms-bmp', 'text/plain', 'video/mp4']
+
+        for mt in mime_types:
+            actual = get_mock_fileobject(mime_type=mt)
+            self.assertEqual(actual.mime_type, mt)
 
 
 class TestCaptureStdout(TestCase):

@@ -111,9 +111,19 @@ def get_mock_fileobject(mime_type=None):
                              'filename_tag_separator': ' '}}
     opts = MockOptions()
 
-    if mime_type:
-        if mime_type == 'video/mp4':
-            temp_file = abspath_testfile('magic_mp4.mp4')
+    MIME_TYPE_TEST_FILE_LOOKUP = {
+        'application/pdf': 'magic_pdf.pdf',
+        'image/gif': 'magic_gif.gif',
+        'image/jpeg': 'magic_jpg.jpg',
+        'image/png': 'magic_png.png',
+        'image/x-ms-bmp': 'magic_bmp.bmp',
+        'text/plain': 'magic_txt.txt',
+        'video/mp4': 'magic_mp4.mp4',
+    }
+
+    if mime_type and mime_type in MIME_TYPE_TEST_FILE_LOOKUP:
+        __test_file_basename = MIME_TYPE_TEST_FILE_LOOKUP[mime_type]
+        temp_file = abspath_testfile(__test_file_basename)
     else:
         temp_file = make_temporary_file()
 
