@@ -134,7 +134,12 @@ class FileObject(object):
             return False
 
     def __str__(self):
+        # TODO: Handle file name encoding before returning.
         return str(self.filename)
+
+    def __repr__(self):
+        # TODO: Handle file name encoding before returning.
+        return '<{} {}>'.format(self.__class__.__name__, str(self.abspath))
 
 
 def filetype_magic(file_path):
