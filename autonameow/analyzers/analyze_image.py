@@ -172,55 +172,6 @@ class ImageAnalyzer(Analyzer):
 
         return results
 
-    def _get_exif_data(self):
-        """
-        Extracts EXIF information from a image using PIL.
-        The EXIF data is stored in a dict using human-readable keys.
-        :return: Dict of EXIF data.
-        """
-        # TODO: This should be handled by the 'ExiftoolMetadataExtractor'.
-
-        result = {}
-
-        exif_data = None
-        filename = self.file_object.abspath
-        try:
-            image = PIL.Image.open(filename)
-        except IOError as e:
-            logging.warning('PIL image I/O error({0}): {1}'.format(e.errno,
-                                                                   e.strerror))
-        else:
-            try:
-                exif_data = image._getexif()
-            except Exception as e:
-                logging.debug('PIL image EXIF extraction error: '
-                              '{}'.format(e.args))
-        if not exif_data:
-            logging.debug('Unable to extract EXIF data.')
-            return None
-
-        for tag, value in list(exif_data.items()):
-            # Obtain a human-readable version of the tag.
-            tag_string = PIL.ExifTags.TAGS.get(tag, tag)
-
-            # Check if tag contains GPS data.
-            if tag_string == 'GPSInfo':
-                logging.debug('Found GPS information')
-                result_gps = {}
-
-                for tag_gps, value_gps in list(value.items()):
-                    # Obtain a human-readable version of the GPS tag.
-                    tag_string_gps = PIL.ExifTags.GPSTAGS.get(tag_gps, tag_gps)
-
-                    if value_gps is not None:
-                        result_gps[tag_string_gps] = value_gps
-
-            else:
-                if value is not None:
-                    result[tag_string] = value
-
-        return result
-
     def _get_ocr_datetime(self):
         """
         Extracts date and time information from the text produced by OCR.
