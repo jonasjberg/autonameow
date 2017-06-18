@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 
+from core.exceptions import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor
 from unit_utils import (
     make_temporary_file,
@@ -34,23 +35,44 @@ class TestExiftoolMetadataExtractor(TestCase):
     def setUp(self):
         self.e = E
 
+    def test_exiftool_metadata_extractor_class_is_available(self):
+        self.assertIsNotNone(ExiftoolMetadataExtractor)
+
+    def test_exiftool_metadata_extractor_class_can_be_instantiated(self):
+        self.assertIsNotNone(self.e)
+
     def test_specifies_handles_mime_types(self):
         self.assertIsNotNone(self.e.handles_mime_types)
         self.assertTrue(isinstance(self.e.handles_mime_types, list))
 
-    def test_method_str_returns_expeeted(self):
+    def test_method_str_returns_expected(self):
         self.assertEqual(str(self.e), 'ExiftoolMetadataExtractor')
 
+    def test__get_raw_metadata_returns_something(self):
+        self.assertIsNotNone(self.e._get_raw_metadata())
 
-class TestExiftoolMetadataExtractorWithEmptyFile(TestCase):
-    def setUp(self):
-        self.e = E
+    def test__get_raw_metadata_returns_expected_type(self):
+        self.assertTrue(isinstance(self.e._get_raw_metadata(), dict))
 
-    def test_extractor_class_is_available(self):
-        self.assertIsNotNone(ExiftoolMetadataExtractor)
+    def test__get_raw_metadata_raises_expected_exceptions(self):
+        with self.assertRaises(ExtractorError):
+            e = ExiftoolMetadataExtractor(None)
+            e._get_raw_metadata()
+            f = ExiftoolMetadataExtractor('not_a_file_surely')
+            f._get_raw_metadata()
 
-    def test_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
+    def test_get_exiftool_data_returns_something(self):
+        self.assertIsNotNone(self.e.get_exiftool_data())
+
+    def test_get_exiftool_data_returns_expected_type(self):
+        self.assertTrue(isinstance(self.e.get_exiftool_data(), dict))
+
+    def test_get_exiftool_data_raises_expected_exceptions(self):
+        with self.assertRaises((AttributeError, ValueError, TypeError)):
+            e = ExiftoolMetadataExtractor(None)
+            e.get_exiftool_data()
+            f = ExiftoolMetadataExtractor('not_a_file_surely')
+            f.get_exiftool_data()
 
     def test_method_query_returns_something(self):
         self.assertIsNotNone(self.e.query())
