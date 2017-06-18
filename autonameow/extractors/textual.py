@@ -45,6 +45,7 @@ class TextExtractor(Extractor):
         self._raw_text = None
 
     def query(self, field=None):
+        # TODO: Should text extractors be queried for something else than text?
         if not self._raw_text:
             try:
                 log.debug('{!s} received initial query ..'.format(self))
