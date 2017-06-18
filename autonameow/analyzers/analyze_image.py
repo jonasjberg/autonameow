@@ -23,9 +23,6 @@ import logging
 import re
 from datetime import datetime
 
-import PIL
-import pytesseract
-
 from analyzers.analyzer import Analyzer
 from core.util import dateandtime
 
@@ -48,7 +45,7 @@ class ImageAnalyzer(Analyzer):
         self.exif_data = self.extracted_data.get('metadata.exiftool')
 
         # TODO: Move image OCR to extractor class.
-        self.ocr_text = self._get_text_from_ocr()
+        self.ocr_text = self.extracted_data.get('contents.visual.ocr_text')
 
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
@@ -224,35 +221,6 @@ class ImageAnalyzer(Analyzer):
 
         return result
 
-    def _get_text_from_ocr(self):
-        """
-        Get any textual content from the image by running OCR with tesseract
-        through the pytesseract wrapper.
-        :return: image text if found, else None (?)
-        """
-        # TODO: Test this!
-        # TODO: This should be handled by a "OCRTextExtractor" is similar.
-        image_text = None
-        filename = self.file_object.abspath
-        try:
-            image = PIL.Image.open(filename)
-        except IOError as e:
-            logging.warning('PIL image I/O error({}): {}'.format(e.errno,
-                                                                 e.strerror))
-        else:
-            try:
-                image_text = pytesseract.image_to_string(image)
-            except Exception as e:
-                logging.warning('PyTesseract image OCR error({}): '
-                                '{}'.format(e.args, e.message))
-        if not image_text:
-            return None
-        else:
-            image_text = image_text.strip()
-            logging.debug('Extracted [{}] bytes of '
-                          'text'.format(len(image_text)))
-            return image_text
-
     def _get_ocr_datetime(self):
         """
         Extracts date and time information from the text produced by OCR.
@@ -262,9 +230,8 @@ class ImageAnalyzer(Analyzer):
                      'weight'  : 0.1
                    }, .. ]
         """
-        if self.ocr_text is None:
-            logging.debug('Found no text from OCR of '
-                          '"{}"'.format(self.file_object.abspath))
+        if not self.ocr_text:
+            logging.debug('Found no date/time-information in OCR text.')
             return None
 
         results = []
@@ -295,7 +262,7 @@ class ImageAnalyzer(Analyzer):
                                 'source': 'image_ocr_special',
                                 'weight': 0.25})
 
-        if len(results) == 0:
+        if not results:
             logging.debug('Found no date/time-information in OCR text.')
             return None
         else:
