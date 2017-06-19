@@ -97,67 +97,70 @@ class TestPdfTextExtractor(TestCase):
         image = abspath_testfile('gmail.pdf')
         self.e = PdfTextExtractor(image)
 
+        # TODO: [hardcoded] This breaks if any trailing whitespace is removed.
         self.EXPECT_TEXT = '''1/11/2016
 
-Gmail - Valkommen till kursen Introduktion till Linux och sma natverk!
+Gmail - Välkommen till kursen Introduktion till Linux och små nätverk!
 
-Jonas Sjoberg <jomeganas@gmail.com>
+Jonas Sjöberg <jomeganas@gmail.com>
 
-Valkommen till kursen Introduktion till Linux och sma natverk!
+Välkommen till kursen Introduktion till Linux och små nätverk! 
 1 message
 Camilla Nordin <Camilla.Nordin@hig.se>
 To: Camilla Nordin <Camilla.Nordin@hig.se>
 
 Fri, Jan 8, 2016 at 3:50 PM
 
-Valkommen till Hogskolan i Gavle och kursen Introduktion till Linux och sma natverk
+Välkommen till Högskolan i Gävle och kursen Introduktion till Linux och små nätverk
 7,5 hp!
-
-Ditt valkomstbrev hittar du har: http://www.hig.se/Ext/Sv/Student/Nystudent/Valkomstbrev/Kurser/
+ 
+Ditt välkomstbrev hittar du här: http://www.hig.se/Ext/Sv/Student/Ny­student/Valkomstbrev/Kurser/
 Datateknik.html
-
-LAS DITT VALKOMSTBREV NOGGRANT!
-
-Kursen borjar den 25:e januari men ar oppen for webbregistrering via Studentportalen fran och
-med den 18:e januari, se valkomstbrevet.
-
-Atkomstkoden som i vissa fall behovs for inskrivning pa kursen i Blackboard ar: DebianMint
-
-Kursinstansen i Blackboard oppnar den 25:e januari. Observera att du ibland maste soka fram
-kursen den forsta gangen du loggar in i Blackboard. Folj instruktionerna i manualen som finns
-lankad i valkomstbrevet.
-
-Det finns bra information for nya studenter pa var hemsida: www.hig.se/nystudent
-
-Du behover inte tacka ja eller nej till kursen utan accepterar din plats genom att registrera dig
+ 
+LÄS DITT VÄLKOMSTBREV NOGGRANT!
+ 
+Kursen börjar den 25:e januari men är öppen för webbregistrering via Studentportalen från och
+med den 18:e januari, se välkomstbrevet.
+ 
+Åtkomstkoden som i vissa fall behövs för inskrivning på kursen i Blackboard är: Debian­Mint
+ 
+Kursinstansen i Blackboard öppnar den 25:e januari. Observera att du ibland måste söka fram
+kursen  den första gången du loggar in i Blackboard. Följ instruktionerna i manualen som finns
+länkad i välkomstbrevet.
+ 
+Det finns bra information för nya studenter på vår hemsida: www.hig.se/nystudent
+ 
+Du behöver inte tacka ja eller nej till kursen utan accepterar din plats genom att registrera dig
 via Studentportalen.
-
+ 
 Lycka till med studierna!
+ 
 
-Halsningar Camilla
-***************************************************************
-Camilla Nordin
-Hogskolan i Gavle
-Akademin for teknik och miljo
-https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df...
+Hälsningar Camilla 
+*************************************************************** 
+Camilla Nordin 
+Högskolan i Gävle 
+Akademin för teknik och miljö 
+https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df…
 
 1/2
 
 1/11/2016
 
-Gmail - Valkommen till kursen Introduktion till Linux och sma natverk!
+Gmail - Välkommen till kursen Introduktion till Linux och små nätverk!
 
-801 76 GAVLE
-Tel: 02664 87 46
-Fax: 02664 87 58
-email: cnn@hig.se
-Besoksadress: Kungsbacksvagen 47, rum 12:208
+801 76 GÄVLE 
+Tel: 026­64 87 46 
+Fax: 026­64 87 58 
+e­mail: cnn@hig.se 
+Besöksadress: Kungsbäcksvägen 47, rum 12:208
+ 
 
-Hogskolan i Gavle, 801 76 Gavle * 026 64 85 00 * www.hig.se
-For en hallbar livsmiljo for manniskan
-University of Gavle, SE801 76 Gavle, Sweden * +46 (0) 26 64 85 00 * www.hig.se
+Högskolan i Gävle, 801 76 Gävle • 026 64 85 00 • www.hig.se
+För en hållbar livsmiljö för människan
+University of Gävle, SE­801 76 Gävle, Sweden • +46 (0) 26 64 85 00 • www.hig.se
 
-https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df...
+https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df…
 
 2/2
 
