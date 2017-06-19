@@ -34,137 +34,12 @@ from core.util.misc import flatten_dict
 from core.util.queue import GenericQueue
 
 
-class AnalysisRunQueue(GenericQueue):
-    """
-    Execution queue for analyzers.
-
-    The queue order is determined by the class variable "run_queue_priority".
-    """
-    def __init__(self):
-        super().__init__()
-
-    def enqueue(self, analyzer):
-        """
-        Adds a analyzer to the queue.
-
-        The queue acts as a set; duplicate analyzers are silently ignored.
-
-        Args:
-            analyzer: Analyzer to enqueue as type 'type'.
-        """
-        if analyzer not in self._items:
-            self._items.insert(0, analyzer)
-
-    def __iter__(self):
-        for item in sorted(self._items, key=lambda x: x.run_queue_priority):
-            yield item
-
-    def __str__(self):
-        out = []
-        for pos, item in enumerate(self):
-            out.append('{:02d}: {!s}'.format(pos, item))
-        return ', '.join(out)
-
-
-class AnalysisResults(object):
-    """
-    Container for results gathered during an analysis of a file.
-    """
-
-    def __init__(self):
-        self._data = {}
-        for field in constants.ANALYSIS_RESULTS_FIELDS:
-            self._data[field] = []
-
-        # TODO: Replace all "old style" storage with redesigned storage.
-        self.new_data = {}
-
-    def query(self, field_data_source_map):
-        """
-        Returns result data fields matching a "query string".
-
-        Args:
-            field_data_source_map: Dictionary of fields and query string.
-
-                Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
-                          'description' = 'plugin.microsoft_vision.caption'
-                          'extension'   = 'filesystem.extension'}
-
-        Returns:
-            Results data for the specified fields matching the specified query.
-        """
-        out = {}
-
-        for field, source in field_data_source_map.items():
-            if source.startswith('plugin.'):
-                # TODO: Results should NOT be querying plugins from here!
-                # TODO: Rework processing pipeline to integrate plugins
-                plugin_name, plugin_query = source.lstrip('plugin.').split('.')
-                result = plugins.plugin_query(plugin_name, plugin_query, None)
-                out[field] = result
-            else:
-                if source in self.new_data:
-                    out[field] = self.new_data.get(source)
-                else:
-                    # TODO: Handle querying missing data.
-                    return False
-
-        return out
-
-    def new_add(self, label, data):
-        # TODO: FIX ME! Should replace "old add".
-        self.new_data.update({label: data})
-
-    def add(self, field, data):
-        """
-        Adds results data for a specific field to the aggregate data.
-
-        Args:
-            field: The field type of the data to add.
-                   Must be included in "ANALYSIS_RESULTS_FIELDS".
-            data: Data to add as a list of dicts.
-
-        Raises:
-            KeyError: The specified field is not in "ANALYSIS_RESULTS_FIELDS".
-        """
-        if field not in constants.ANALYSIS_RESULTS_FIELDS:
-            raise KeyError('Invalid results field: {}'.format(field))
-
-        self._data[field] += data
-
-    def get(self, field):
-        """
-        Returns all analysis results data for the given field.
-
-        Args:
-            field: Analysis results field data to return.
-            The field must be one of those defined in "ANALYSIS_RESULTS_FIELD".
-
-        Returns:
-            All analysis results data for the given field.
-        """
-        if field not in constants.ANALYSIS_RESULTS_FIELDS:
-            raise KeyError('Invalid results field: {}'.format(field))
-
-        return self._data[field]
-
-    def get_all(self):
-        """
-        Returns all analysis results data.
-
-        Returns:
-            All analysis results data.
-        """
-        return self._data
-
-
 class Analysis(object):
     """
-    Handles the filename analyzer and analyzers specific to file content.
+    Performs high-level handling of an analysis.
 
     A run queue is populated based on which analyzers are suited for the
-    current file.
-    The analyses in the run queue are executed and any results are
+    current file.  The enqueued analyzers are executed and any results are
     passed back through a callback function.
     """
     def __init__(self, file_object, extracted_data):
@@ -294,6 +169,130 @@ def include_analyzer_name(result_list, source):
         result['analyzer'] = str(source)
         out.append(result)
     return out
+
+
+class AnalysisRunQueue(GenericQueue):
+    """
+    Execution queue for analyzers.
+
+    The queue order is determined by the class variable "run_queue_priority".
+    """
+    def __init__(self):
+        super().__init__()
+
+    def enqueue(self, analyzer):
+        """
+        Adds a analyzer to the queue.
+
+        The queue acts as a set; duplicate analyzers are silently ignored.
+
+        Args:
+            analyzer: Analyzer to enqueue as type 'type'.
+        """
+        if analyzer not in self._items:
+            self._items.insert(0, analyzer)
+
+    def __iter__(self):
+        for item in sorted(self._items, key=lambda x: x.run_queue_priority):
+            yield item
+
+    def __str__(self):
+        out = []
+        for pos, item in enumerate(self):
+            out.append('{:02d}: {!s}'.format(pos, item))
+        return ', '.join(out)
+
+
+class AnalysisResults(object):
+    """
+    Container for results gathered during an analysis of a file.
+    """
+
+    def __init__(self):
+        self._data = {}
+        for field in constants.ANALYSIS_RESULTS_FIELDS:
+            self._data[field] = []
+
+        # TODO: Replace all "old style" storage with redesigned storage.
+        self.new_data = {}
+
+    def query(self, field_data_source_map):
+        """
+        Returns result data fields matching a "query string".
+
+        Args:
+            field_data_source_map: Dictionary of fields and query string.
+
+                Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
+                          'description' = 'plugin.microsoft_vision.caption'
+                          'extension'   = 'filesystem.extension'}
+
+        Returns:
+            Results data for the specified fields matching the specified query.
+        """
+        out = {}
+
+        for field, source in field_data_source_map.items():
+            if source.startswith('plugin.'):
+                # TODO: Results should NOT be querying plugins from here!
+                # TODO: Rework processing pipeline to integrate plugins
+                plugin_name, plugin_query = source.lstrip('plugin.').split('.')
+                result = plugins.plugin_query(plugin_name, plugin_query, None)
+                out[field] = result
+            else:
+                if source in self.new_data:
+                    out[field] = self.new_data.get(source)
+                else:
+                    # TODO: Handle querying missing data.
+                    return False
+
+        return out
+
+    def new_add(self, label, data):
+        # TODO: FIX ME! Should replace "old add".
+        self.new_data.update({label: data})
+
+    def add(self, field, data):
+        """
+        Adds results data for a specific field to the aggregate data.
+
+        Args:
+            field: The field type of the data to add.
+                   Must be included in "ANALYSIS_RESULTS_FIELDS".
+            data: Data to add as a list of dicts.
+
+        Raises:
+            KeyError: The specified field is not in "ANALYSIS_RESULTS_FIELDS".
+        """
+        if field not in constants.ANALYSIS_RESULTS_FIELDS:
+            raise KeyError('Invalid results field: {}'.format(field))
+
+        self._data[field] += data
+
+    def get(self, field):
+        """
+        Returns all analysis results data for the given field.
+
+        Args:
+            field: Analysis results field data to return.
+            The field must be one of those defined in "ANALYSIS_RESULTS_FIELD".
+
+        Returns:
+            All analysis results data for the given field.
+        """
+        if field not in constants.ANALYSIS_RESULTS_FIELDS:
+            raise KeyError('Invalid results field: {}'.format(field))
+
+        return self._data[field]
+
+    def get_all(self):
+        """
+        Returns all analysis results data.
+
+        Returns:
+            All analysis results data.
+        """
+        return self._data
 
 
 def suitable_analyzers_for(file_object):

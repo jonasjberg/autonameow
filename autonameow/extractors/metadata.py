@@ -83,7 +83,8 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """
-    handles_mime_types = ['video/*', 'application/pdf', 'image/*']
+    handles_mime_types = ['video/*', 'application/pdf', 'image/*',
+                          'application/epub+zip']
     data_query_string = 'metadata.exiftool'
 
     def __init__(self, source):
@@ -92,7 +93,8 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
 
     def _get_raw_metadata(self):
         try:
-            return self.get_exiftool_data()
+            result = self.get_exiftool_data()
+            return result
         except Exception as e:
             raise ExtractorError(e)
 
@@ -183,7 +185,12 @@ def to_datetime(pypdf_string):
     # Regex search matches two groups:        #1         #2
     #
     # 'D:20160111124132+00\\'00\\''
+    if not pypdf_string:
+        raise ValueError('Got empty/None string from PyPDF')
+
     found_match = False
+
+    log.debug('to_datetime got raw PyPDF string: "{!s}"'.format(pypdf_string))
 
     if "'" in pypdf_string:
         pypdf_string = pypdf_string.replace("'", '')

@@ -171,10 +171,9 @@ class TestParseConditions(TestCase):
             'filesystem': {
                 'pathname': '~/.config',
                 'basename': '^test_[0-9]+.*',
-                'extension': None
             },
             'contents': {
-                'mime_type': 'jpg'
+                'mime_type': 'image/jpeg'
             },
             'metadata': {
                 'exif': {
@@ -192,7 +191,7 @@ class TestParseConditions(TestCase):
 
     def test_parse_condition_contents_mime_type_is_valid(self):
         actual = parse_conditions(self.raw_conditions)
-        self.assertEqual(actual.get('mime_type'), 'jpg')
+        self.assertEqual(actual.get('mime_type'), 'image/jpeg')
 
 
 class TestParseWeight(TestCase):

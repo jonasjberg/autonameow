@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging as log
 import re
 from datetime import datetime
 
@@ -104,12 +105,8 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         if not expression:
             return False
 
-        # TODO: Update to use MIME type globbing.
-        if '/' in expression:
-            for magic_value in constants.MAGIC_TYPE_LOOKUP.values():
-                if expression in magic_value:
-                    return True
-        elif expression in constants.MAGIC_TYPE_LOOKUP.keys():
+        # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
+        if re.match(r'^([a-z]+|\*)/([a-z0-9\-\+]+|\*)$', expression):
             return True
 
         return False
@@ -126,7 +123,9 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
     def is_valid_datetime(expression):
         try:
             _ = datetime.today().strftime(expression)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError) as e:
+            log.debug('Bad datetime expression: "{!s}"'.format(expression))
+            log.debug(str(e))
             return False
         else:
             return True

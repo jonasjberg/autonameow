@@ -86,7 +86,8 @@ class ImageOCRTextExtractor(TextExtractor):
             #       somehow. I'm starting to think image OCR does not belong
             #       in this inheritance hierarchy ..
             log.debug('Running image OCR with PyTesseract ..')
-            return get_text_from_ocr(self.source, tesseract_args=None)
+            result = get_text_from_ocr(self.source, tesseract_args=None)
+            return result
         except Exception as e:
             raise ExtractorError(e)
 

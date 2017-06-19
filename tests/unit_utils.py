@@ -177,7 +177,7 @@ def get_named_file_object(basename):
 
 
 @contextmanager
-def capture_stdout():
+def capture_stdout(finally_print=False):
     """Save stdout in a StringIO.
 
     >>> with capture_stdout() as output:
@@ -198,7 +198,8 @@ def capture_stdout():
         yield sys.stdout
     finally:
         sys.stdout = initial_state
-        print(capture.getvalue())
+        if finally_print:
+            print(capture.getvalue())
 
 
 def get_instantiated_analyzers():
