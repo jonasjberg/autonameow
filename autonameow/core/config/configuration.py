@@ -153,7 +153,7 @@ class Configuration(object):
             if NameFormatConfigFieldParser.is_valid_format_string(v):
                 loaded_templates[k] = v
             else:
-                msg = 'Invalid name template "{}": "{}"'.format(k, v)
+                msg = 'invalid name template "{}": "{}"'.format(k, v)
                 raise ConfigurationSyntaxError(msg)
 
         self._name_templates.update(loaded_templates)
@@ -163,13 +163,16 @@ class Configuration(object):
             raise ConfigError('Invalid state; missing "self._data" ..')
 
         # Check raw dictionary data.
-        # Create and populate "FileRule" objects with *validated* data.
         for fr in self._data['FILE_RULES']:
             try:
                 valid_file_rule = self._validate_rule_data(fr)
             except ConfigurationSyntaxError as e:
-                log.error('Bad configuration: {!s}'.format(e))
+                fr_desc = fr.get('description', False)
+                if not fr_desc:
+                    fr_desc = 'UNDESCRIBED'
+                log.error('File rule "{!s}" {!s}'.format(fr_desc, e))
             else:
+                # Create and populate "FileRule" objects with *validated* data.
                 self._file_rules.append(valid_file_rule)
 
     def _validate_rule_data(self, raw_rule):
@@ -186,10 +189,12 @@ class Configuration(object):
         Raises:
             ConfigurationSyntaxError: The given file rule contains bad data,
                 making instantiating a 'FileRule' object impossible.
+                Note that the message will be used in the following sentence:
+                "ERROR -- File Rule "x" {message}"
         """
         if 'NAME_FORMAT' not in raw_rule:
             log.debug('File rule contains no name format data' + str(raw_rule))
-            raise ConfigurationSyntaxError('Missing name template format')
+            raise ConfigurationSyntaxError('is missing name template format')
 
         # First test if the field data is a valid name template entry,
         # If it is, use the format string defined in that entry.
@@ -200,10 +205,12 @@ class Configuration(object):
         else:
             if NameFormatConfigFieldParser.is_valid_format_string(name_format):
                 valid_format = name_format
+            else:
+                valid_format = False
 
         if not valid_format:
             log.debug('File rule name format is invalid: ' + str(raw_rule))
-            raise ConfigurationSyntaxError('Invalid name template format')
+            raise ConfigurationSyntaxError('uses invalid name template format')
 
         valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
         valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
@@ -441,16 +448,20 @@ def parse_conditions(raw_conditions):
                     traverse_dict(value)
 
                 valid_condition = validate_condition(key, value)
-                if valid_condition:
-                    if key in out:
-                        log.warning('Clobbering condition: {!s}'.format(key))
-                    out[key] = value
-                    log.debug('Validated condition: [{}]: {}'.format(key,
-                                                                     value))
-                else:
-                    log.debug('Invalid condition: [{}]: {}'.format(key, value))
+                if not valid_condition:
+                    raise ConfigurationSyntaxError(
+                        'contains invalid condition [{}]: {}'.format(key, value)
+                    )
+
+                # TODO: Check if clobbering is an issue and how to fix.
+                if key in out:
+                    log.warning('Clobbering condition: {!s}'.format(key))
+                out[key] = value
+                log.debug('Validated condition: [{}]: {}'.format(key, value))
         except ValueError as e:
-            raise ConfigurationSyntaxError('Bad condition; ' + str(e))
+            raise ConfigurationSyntaxError(
+                'contains invalid condition: ' + str(e)
+            )
 
     if 'contents' in raw_conditions:
         raw_contents = raw_conditions['contents']
