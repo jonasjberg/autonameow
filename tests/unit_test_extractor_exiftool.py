@@ -28,8 +28,9 @@ from unit_utils import (
     abspath_testfile
 )
 
-E = ExiftoolMetadataExtractor(make_temporary_file())
 
+temporary_file = make_temporary_file()
+E = ExiftoolMetadataExtractor(temporary_file)
 
 class TestExiftoolMetadataExtractor(TestCase):
     def setUp(self):

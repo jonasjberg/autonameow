@@ -201,14 +201,17 @@ class TestImageOCRTextExtractorWithEmptyFile(TestCase):
         self.assertEqual(str(self.e), 'ImageOCRTextExtractor')
 
 
+# NOTE(jonas): Use a shared instance to maintain test execution speed.
+image_file = abspath_testfile('2007-04-23_12-comments.png')
+image_ocr_extractor = ImageOCRTextExtractor(image_file)
+
 class TestImageOCRTextExtractorWithImageFile(TestCase):
     def setUp(self):
         self.maxDiff = None
 
         self.EXPECT_TEXT = 'Apr 23, 2007 - 12 Comments'
-        image_file = abspath_testfile('2007-04-23_12-comments.png')
 
-        self.e = ImageOCRTextExtractor(image_file)
+        self.e = image_ocr_extractor
 
     def test_extractor_class_is_available(self):
         self.assertIsNotNone(ImageOCRTextExtractor)
@@ -216,14 +219,8 @@ class TestImageOCRTextExtractorWithImageFile(TestCase):
     def test_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
-    def test__get_raw_text_returns_something(self):
-        self.assertIsNotNone(self.e._get_raw_text())
-
     def test__get_raw_text_returns_expected_type(self):
         self.assertTrue(isinstance(self.e._get_raw_text(), str))
-
-    def test_method_query_returns_something(self):
-        self.assertIsNotNone(self.e.query())
 
     def test_method_query_returns_expected_type(self):
         self.assertTrue(isinstance(self.e.query(), str))
