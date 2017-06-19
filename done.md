@@ -50,3 +50,10 @@ University mail: `js224eh[a]student.lnu.se`
     >
     > * Handle case where `AnalysisResults` does not contain the data requested by
     >   the name builder through the `query` method.
+
+* 2017-06-19
+
+    > High Priority
+    > -------------
+    >
+    > * Update `MimeTypeConfigFieldParser` to handle MIME type globbing.
