@@ -117,8 +117,8 @@ assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "$SAMPLE_JP
             "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\", \"--debug\" and a valid file"
 
 SAMPLE_JPG_FILE_EXPECTED='2010-01-31T161251 a cat lying on a rug.jpg'
-assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>/dev/null ) | col -b | grep -q -- "2010-01-31T161251 a cat lying on a rug.jpg"' \
-             "Automagic mode output should include \"${SAMPLE_JPG_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>/dev/null ) | col -b | grep -q -- "2010-01-31T161251 a cat lying on a rug.jpg"' \
+            "Automagic mode output should include \"${SAMPLE_JPG_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
 
 
 
@@ -180,8 +180,8 @@ assert_true '( "$AUTONAMEOW_RUNNER" --list-title -- "$SAMPLE_PDF_FILE" 2>&1 ) >/
             "Expect exit code 0 when started with \"--list-title\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
 SAMPLE_PDF_FILE_EXPECTED='2016-01-11T124132 gmail.pdf'
-assert_false '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 ) | col -b | grep -q -- "${SAMPLE_PDF_FILE_EXPECTED}"' \
-             "Automagic mode output should include \"${SAMPLE_PDF_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 ) | col -b | grep -q -- "${SAMPLE_PDF_FILE_EXPECTED}"' \
+            "Automagic mode output should include \"${SAMPLE_PDF_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
 
 EMPTY_CONFIG='/tmp/autonameow_empty_config.yaml'
