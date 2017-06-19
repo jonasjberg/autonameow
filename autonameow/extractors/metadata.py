@@ -92,7 +92,8 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
 
     def _get_raw_metadata(self):
         try:
-            return self.get_exiftool_data()
+            result = self.get_exiftool_data()
+            return result
         except Exception as e:
             raise ExtractorError(e)
 
