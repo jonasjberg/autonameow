@@ -130,6 +130,11 @@ Low Priority
     * Redesign overall filtering.
     * Rewrite the `ResultFilter` class or substitute with something else.
 
+* Allow specifying known good candidates for fields.
+    * For instance, a list of known book publishers. Possibly a dictionary
+      where keys are preferred book publishers, and each key stores a
+      list of possible search strings that should be replace with the key.
+
 * Improve "filetags" integration.
     * For instance, the Microsoft Vision API returns *a lot* of tags,
       too many to use in a filename without any kind of selection process.
