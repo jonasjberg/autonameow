@@ -152,9 +152,12 @@ def filetype_magic(file_path):
         file_path: The path to the file to get the MIME type of as a string.
 
     Returns:
-        The MIME type of the file at the given path ('application/pdf')
-        or 'MIME_UNKNOWN' if the MIME type could not be determined.
+        The MIME type of the file at the given path ('application/pdf') or
+        'constants.MAGIC_TYPE_UNKNOWN' if the MIME type can not be determined.
     """
+    if not file_path:
+        return constants.MAGIC_TYPE_UNKNOWN
+
     def _build_magic():
         """
         Workaround ambiguity about which magic library is actually used.
@@ -184,7 +187,7 @@ def filetype_magic(file_path):
     try:
         found_type = magic_instance.file(file_path)
     except (magic.MagicException, TypeError):
-        found_type = 'MIME_UNKNOWN'
+        found_type = constants.MAGIC_TYPE_UNKNOWN
 
     return found_type
 

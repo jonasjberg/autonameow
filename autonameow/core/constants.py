@@ -112,6 +112,8 @@ MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
                      'txt':   ['text/plain'],
                      'empty': ['inode/x-empty']}
 
+# Default MIME type string used if the MIME type detection fails.
+MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
 
 # Default values for required configuration fields.
 FILERULE_DEFAULT_WEIGHT = 0.5

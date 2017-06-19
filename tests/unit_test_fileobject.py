@@ -22,7 +22,10 @@
 import os
 from unittest import TestCase
 
-from core import fileobject
+from core import (
+    fileobject,
+    constants
+)
 from core.fileobject import eval_magic_glob
 from unit_utils import (
     get_named_file_object,
@@ -598,7 +601,8 @@ class TestFileTypeMagic(TestCase):
             self.assertEqual(fmagic, fileobject.filetype_magic(fname))
 
     def test_filetype_magic_with_invalid_args(self):
-        self.assertEqual(fileobject.filetype_magic(None), 'MIME_UNKNOWN')
+        self.assertEqual(fileobject.filetype_magic(None),
+                         constants.MAGIC_TYPE_UNKNOWN)
 
 
 class TestEvalMagicGlob(TestCase):
