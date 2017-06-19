@@ -88,7 +88,7 @@ Medium Priority
 * Add conditional data extraction.
     * Extractors should not run unless needed. Related to caching, above.
 
-* Refactor the 'Configuration' class. Look over all of 'configuration.py'.
+* Refactor the `Configuration` class. Look over all of `configuration.py`.
 
 * Allow conditionals in the configuration file rules.
     * Test if a file rule is applicable by evaluating conditionals.
@@ -99,6 +99,26 @@ Medium Priority
   For example, why does the conditions for a file rule specify `extension`
   under `filesystem`, while the results data structure has `extension` nested
   under `filesystem.basename.extension`.
+
+* Rethink how specified sources are connected to actual sources.
+  Take for example the configuration file rule:
+
+    ```yaml
+    -   CONDITIONS:
+            contents:
+                mime_type: image/*
+            filesystem:
+                pathname: ~/Dropbox/Camera Uploads/.*
+        DATA_SOURCES:
+            extension: contents.mime_type
+    ```
+
+  This will fail, or *should fail* as MIME types on the form `image/jpeg`,
+  `image/png`, etc can't be used as a file extension without some
+  pre-processing -- converting `image/png` to `png`.
+
+* There are more cases like the above that should be thought about.
+* Possible redesign the overall handling of a "configuration".
 
 
 Low Priority
