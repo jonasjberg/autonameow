@@ -157,11 +157,11 @@ def examine_rules(rules_to_examine, file_object, analysis_data):
                                                        rule.description))
         result = evaluate_rule(rule, file_object, analysis_data)
         if rule.exact_match and result is False:
-            log.debug('Rule evaluated false, removing: '
+            log.debug('Rule evaluated FALSE, removing: '
                       '"{}"'.format(rule.description))
             continue
 
-        log.debug('Rule evaluated true: "{}"'.format(rule.description))
+        log.debug('Rule evaluated TRUE: "{}"'.format(rule.description))
         ok_rules.append(rule)
 
     return ok_rules
