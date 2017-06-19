@@ -106,7 +106,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
             return False
 
         # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
-        if re.match(r'^([a-z]+|\*)/([a-z0-9\-]+|\*)$', expression):
+        if re.match(r'^([a-z]+|\*)/([a-z0-9\-\+]+|\*)$', expression):
             return True
 
         return False
