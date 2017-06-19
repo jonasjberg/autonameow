@@ -124,7 +124,7 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         try:
             _ = datetime.today().strftime(expression)
         except (ValueError, TypeError) as e:
-            log.warning('Bad datetime expression: "{!s}"'.format(expression))
+            log.debug('Bad datetime expression: "{!s}"'.format(expression))
             log.debug(str(e))
             return False
         else:

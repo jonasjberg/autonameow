@@ -76,5 +76,4 @@ class TestFileRuleMethods(TestCase):
 
     def test_filerule_string(self):
         actual = str(self.filerule)
-        print(actual)
         self.assertTrue(isinstance(actual, str))
