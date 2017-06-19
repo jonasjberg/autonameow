@@ -111,9 +111,6 @@ DEFAULT_CONFIG = {
                  'pathname': '~/Pictures/incoming',
                  'basename': 'DCIM*',
                  'extension': 'jpg',
-                 'date_accessed': None,
-                 'date_created': None,
-                 'date_modified': None
              },
              'contents': {
                  'mime_type': 'image/jpeg',
