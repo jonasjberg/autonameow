@@ -23,6 +23,7 @@ from unittest import util
 from unittest import TestCase
 
 from core.util import cli
+from core.util.cli import colorize
 from unit_utils import capture_stdout
 
 
@@ -91,16 +92,80 @@ class TestMsg(TestCase):
                              out.getvalue().strip())
 
 
-        # TODO: Fix or remove tests below!
+class TestColorize(TestCase):
+    # NOTE:  This will likely fail on some platforms!
 
-        # with capture_stdout() as out:
-        #     cli.msg('Word "1234-56 word" -> "1234-56 word"',
-        #             type='color_quoted')
-        #
-        #    self.assertEqual('Word "\x1b[92m\x1b[92m1234-56 word\x1b[39m\x1b[49m\x1b[0m\x1b[39m\x1b[49m\x1b[0m" -> "\x1b[92m\x1b[92m1234-56 word\x1b[39m\x1b[49m\x1b[0m\x1b[39m\x1b[49m\x1b[0m"', out.getvalue().strip())
+    def test_colorize_returns_expected(self):
+        self.assertEqual(colorize('foo'), 'foo')
 
-        # with capture_stdout() as out:
-        #     cli.msg('Word "word 1234-56" -> "1234-56 word"',
-        #             type='color_quoted')
-        #
-        #    self.assertEqual('Word "\x1b[92m\x1b[92mword 1234-56\x1b[39m\x1b[49m\x1b[0m\x1b[39m\x1b[49m\x1b[0m" -> "\x1b[92m\x1b[92m1234-56 word\x1b[39m\x1b[49m\x1b[0m\x1b[39m\x1b[49m\x1b[0m"', out.getvalue().strip())
+    def test_colorize_returns_expected_with_fore_red(self):
+        self.assertEqual(colorize('foo', fore='RED'),
+                         '\x1b[31mfoo\x1b[39m')
+
+    def test_colorize_returns_expected_with_fore_green(self):
+        self.assertEqual(colorize('foo', fore='GREEN'),
+                         '\x1b[32mfoo\x1b[39m')
+
+    def test_colorize_returns_expected_with_fore_blue(self):
+        self.assertEqual(colorize('foo', fore='BLUE'),
+                         '\x1b[34mfoo\x1b[39m')
+
+    def test_colorize_returns_expected_with_back_red(self):
+        self.assertEqual(colorize('foo', back='RED'),
+                         '\x1b[41mfoo\x1b[49m')
+
+    def test_colorize_returns_expected_with_back_green(self):
+        self.assertEqual(colorize('foo', back='GREEN'),
+                         '\x1b[42mfoo\x1b[49m')
+
+    def test_colorize_returns_expected_with_back_blue(self):
+        self.assertEqual(colorize('foo', back='BLUE'),
+                         '\x1b[44mfoo\x1b[49m')
+
+    def test_colorize_returns_expected_with_style_normal(self):
+        self.assertEqual(colorize('foo', style='NORMAL'),
+                         '\x1b[22mfoo\x1b[0m')
+
+    def test_colorize_returns_expected_with_style_dim(self):
+        self.assertEqual(colorize('foo', style='DIM'),
+                         '\x1b[2mfoo\x1b[0m')
+
+    def test_colorize_returns_expected_with_style_bright(self):
+        self.assertEqual(colorize('foo', style='BRIGHT'),
+                         '\x1b[1mfoo\x1b[0m')
+
+    def test_colorize_returns_expected_with_fore_red_back_red(self):
+        self.assertEqual(colorize('foo', fore='RED', back='RED'),
+                         '\x1b[31m\x1b[41mfoo\x1b[49m\x1b[39m')
+
+    def test_colorize_returns_expected_with_fore_green_back_red(self):
+        self.assertEqual(colorize('foo', fore='GREEN', back='RED'),
+                         '\x1b[32m\x1b[41mfoo\x1b[49m\x1b[39m')
+
+    def test_colorize_returns_expected_with_fore_blue_back_red(self):
+        self.assertEqual(colorize('foo', fore='BLUE', back='RED'),
+                         '\x1b[34m\x1b[41mfoo\x1b[49m\x1b[39m')
+
+    def test_colorize_returns_expected_with_fore_red_back_green(self):
+        self.assertEqual(colorize('foo', fore='RED', back='GREEN'),
+                         '\x1b[31m\x1b[42mfoo\x1b[49m\x1b[39m')
+
+    def test_colorize_returns_expected_with_fore_green_back_green(self):
+        self.assertEqual(colorize('foo', fore='GREEN', back='GREEN'),
+                         '\x1b[32m\x1b[42mfoo\x1b[49m\x1b[39m')
+
+    def test_colorize_returns_expected_with_fore_blue_back_green(self):
+        self.assertEqual(colorize('foo', fore='BLUE', back='GREEN'),
+                         '\x1b[34m\x1b[42mfoo\x1b[49m\x1b[39m')
+
+    def test_colorize_returns_expected_with_fore_red_back_blue(self):
+        self.assertEqual(colorize('foo', fore='RED', back='BLUE'),
+                         '\x1b[31m\x1b[44mfoo\x1b[49m\x1b[39m')
+
+    def test_colorize_returns_expected_with_fore_green_back_blue(self):
+        self.assertEqual(colorize('foo', fore='GREEN', back='BLUE'),
+                         '\x1b[32m\x1b[44mfoo\x1b[49m\x1b[39m')
+
+    def test_colorize_returns_expected_with_fore_blue_back_blue(self):
+        self.assertEqual(colorize('foo', fore='BLUE', back='BLUE'),
+                         '\x1b[34m\x1b[44mfoo\x1b[49m\x1b[39m')

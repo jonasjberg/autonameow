@@ -130,20 +130,28 @@ def colorize(text, fore=None, back=None, style=None):
         If no options are specified or if "colorama" is not available, the
         text is returned as-is.
     """
-    if colorama:
-        buffer = []
-        if fore:
-            buffer.append(getattr(colorama.Fore, fore.upper(), None))
-        if back:
-            buffer.append(getattr(colorama.Back, back.upper(), None))
-        if style:
-            buffer.append(getattr(colorama.Style, style.upper(), None))
-
-        buffer.append(text)
-        buffer.append(colorama.Fore.RESET + colorama.Back.RESET + colorama.Style.RESET_ALL)
-        return ''.join(buffer)
-    else:
+    if not (fore or back or style) or not colorama:
         return text
+
+    buffer = []
+
+    if fore:
+        buffer.append(getattr(colorama.Fore, fore.upper(), None))
+    if back:
+        buffer.append(getattr(colorama.Back, back.upper(), None))
+    if style:
+        buffer.append(getattr(colorama.Style, style.upper(), None))
+
+    buffer.append(text)
+
+    if style:
+        buffer.append(colorama.Style.RESET_ALL)
+    if back:
+        buffer.append(colorama.Back.RESET)
+    if fore:
+        buffer.append(colorama.Fore.RESET)
+
+    return ''.join(buffer)
 
 
 def msg(message, type=None, log=False):
@@ -208,3 +216,28 @@ if __name__ == '__main__':
         type='info', log=True)
     msg('text printed by msg() with type="color_quoted" no "yes" no',
         type='color_quoted')
+
+    msg('Word "1234-56 word" -> "1234-56 word"', type='color_quoted')
+    msg('Word "word 1234-56" -> "1234-56 word"', type='color_quoted')
+
+    msg('A "b 123" -> A "b 123"', type='color_quoted')
+    print(colorize('foo', fore='RED'))
+    print(colorize('foo', fore='GREEN'))
+    print(colorize('foo', fore='BLUE'))
+    print(colorize('foo', back='RED'))
+    print(colorize('foo', back='GREEN'))
+    print(colorize('foo', back='BLUE'))
+
+    print(colorize('foo', style='NORMAL'))
+    print(colorize('foo', style='DIM'))
+    print(colorize('foo', style='BRIGHT'))
+
+    print(colorize('foo', fore='RED', back='RED'))
+    print(colorize('foo', fore='GREEN', back='RED'))
+    print(colorize('foo', fore='BLUE', back='RED'))
+    print(colorize('foo', fore='RED', back='GREEN'))
+    print(colorize('foo', fore='GREEN', back='GREEN'))
+    print(colorize('foo', fore='BLUE', back='GREEN'))
+    print(colorize('foo', fore='RED', back='BLUE'))
+    print(colorize('foo', fore='GREEN', back='BLUE'))
+    print(colorize('foo', fore='BLUE', back='BLUE'))
