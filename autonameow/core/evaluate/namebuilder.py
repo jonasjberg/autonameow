@@ -241,12 +241,13 @@ def eval_condition(condition_field, condition_value, file_object,
                 log.debug('eval_path expression: "{!s}" match_data: '
                           '"{!s}"'.format(expression, match_data))
                 return False
-        if expression == match_data:
-            return True
-        elif True:
-            # TODO: [unimplemented] Handle evaluating path conditions properly!
-            pass
 
+        # NOTE: Use simple UNIX-style globbing instead of regular expressions?
+        try:
+            if re.match(expression, match_data):
+                return True
+        except ValueError:
+            pass
         return False
 
     def eval_mime_type(expression, match_data):
