@@ -160,11 +160,10 @@ class AnalysisResults(object):
 
 class Analysis(object):
     """
-    Handles the filename analyzer and analyzers specific to file content.
+    Performs high-level handling of an analysis.
 
     A run queue is populated based on which analyzers are suited for the
-    current file.
-    The analyses in the run queue are executed and any results are
+    current file.  The enqueued analyzers are executed and any results are
     passed back through a callback function.
     """
     def __init__(self, file_object, extracted_data):

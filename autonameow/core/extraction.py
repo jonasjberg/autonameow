@@ -44,7 +44,11 @@ __dummy_f = PdfTextExtractor(None)
 
 class Extraction(object):
     """
-    Handles "extractors"; subclasses of the 'Extractor' class.
+    Performs high-level handling of data extraction.
+
+    A run queue is populated with extractors suited for the current file.
+    The enqueued extractors are executed and any results are passed back
+    through a callback function.
     """
     def __init__(self, file_object):
         """
