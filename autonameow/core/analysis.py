@@ -30,6 +30,7 @@ from core.exceptions import (
     AutonameowException
 )
 from core.fileobject import eval_magic_glob
+from core.util.misc import flatten_dict
 from core.util.queue import GenericQueue
 
 
@@ -207,9 +208,9 @@ class Analysis(object):
             label: Label that uniquely identifies the data.
             data: The data to add.
         """
-        # NOTE: Handle case where "data" is a dict of dicts?
         if isinstance(data, dict):
-            for k, v in data.items():
+            flat_data = flatten_dict(data)
+            for k, v in flat_data.items():
                 merged_label = label + '.' + str(k)
                 self.results.new_add(merged_label, v)
         else:

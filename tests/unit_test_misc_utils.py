@@ -109,19 +109,19 @@ class TestFlattenDict(TestCase):
         self.maxDiff = None
         self.INPUT = {
             'filesystem': {
-                'basename': None,
-                'extension': None,
-                'pathname': None,
+                'basename': 'a',
+                'extension': 'b',
+                'pathname': 'c',
             },
             'contents': {
-                'mime_type': None,
+                'mime_type': 'd',
                 'textual': {
-                    'raw_text': None,
-                    'number_pages': None,
+                    'raw_text': 'e',
+                    'number_pages': 'f',
                 },
                 'visual': {
-                    'ocr_text': None,
-                    'ocr_tags': None
+                    'ocr_text': 'g',
+                    'ocr_tags': 'h'
                 },
                 'binary': {
 
@@ -132,14 +132,14 @@ class TestFlattenDict(TestCase):
             }
         }
         self.EXPECTED = {
-            'filesystem.basename': None,
-            'filesystem.extension': None,
-            'filesystem.pathname': None,
-            'contents.mime_type': None,
-            'contents.textual.raw_text': None,
-            'contents.textual.number_pages': None,
-            'contents.visual.ocr_text': None,
-            'contents.visual.ocr_tags': None,
+            'filesystem.basename': 'a',
+            'filesystem.extension': 'b',
+            'filesystem.pathname': 'c',
+            'contents.mime_type': 'd',
+            'contents.textual.raw_text': 'e',
+            'contents.textual.number_pages': 'f',
+            'contents.visual.ocr_text': 'g',
+            'contents.visual.ocr_tags': 'h',
             'contents.binary': None,
             'metadata.exiftool': None
         }
