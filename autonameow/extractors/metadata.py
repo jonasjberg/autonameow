@@ -83,7 +83,8 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """
-    handles_mime_types = ['video/*', 'application/pdf', 'image/*']
+    handles_mime_types = ['video/*', 'application/pdf', 'image/*',
+                          'application/epub+zip']
     data_query_string = 'metadata.exiftool'
 
     def __init__(self, source):

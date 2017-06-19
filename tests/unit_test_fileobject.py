@@ -634,6 +634,12 @@ class TestEvalMagicGlob(TestCase):
                                          ['*/pdf', '*/jpg', 'application/*']))
         self.assertFalse(eval_magic_glob('image/png',
                                          ['*/pdf', '*/jpg', 'image/jpg']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                        ['*/jpg']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                        ['image/*']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                        ['image/jpeg']))
 
     def test_eval_magic_blob_returns_true_as_expected(self):
         self.assertTrue(eval_magic_glob('image/jpeg', ['*/*']))
@@ -645,3 +651,9 @@ class TestEvalMagicGlob(TestCase):
         self.assertTrue(eval_magic_glob('image/jpeg', ['image/*', '*/jpeg']))
         self.assertTrue(eval_magic_glob('image/png',
                                         ['*/pdf', '*/png', 'application/*']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['application/epub+zip']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['application/*']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['*/epub+zip']))
