@@ -32,7 +32,7 @@ from core.config.field_parsers import (
 )
 
 
-class TestRuleParserFunctions(TestCase):
+class TestFieldParserFunctions(TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -58,7 +58,7 @@ class TestRuleParserFunctions(TestCase):
             self.assertTrue(isinstance(p, str))
 
 
-class TestRuleParser(TestCase):
+class TestFieldParser(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = ConfigFieldParser()
@@ -68,7 +68,7 @@ class TestRuleParser(TestCase):
             self.p.get_validation_function()
 
 
-class TestRuleParserSubclasses(TestCase):
+class TestFieldParserSubclasses(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.parsers = get_instantiated_field_parsers()
@@ -101,7 +101,7 @@ class TestRuleParserSubclasses(TestCase):
                              'Validation function should always return boolean')
 
 
-class TestRegexRuleParser(TestCase):
+class TestRegexFieldParser(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = RegexConfigFieldParser()
@@ -117,27 +117,51 @@ class TestRegexRuleParser(TestCase):
         self.assertTrue(self.val_func('.*'))
 
 
-class TestMimeTypeRuleParser(TestCase):
+class TestMimeTypeFieldParser(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = MimeTypeConfigFieldParser()
         self.val_func = self.p.get_validation_function()
 
-    def test_validation_function_expect_fail(self):
-        self.assertFalse(self.val_func('MJAOO'))
+    def test_expect_fail_for_invalid_mime_types(self):
+        self.assertFalse(self.val_func(''))
         self.assertFalse(self.val_func(None))
-        self.assertFalse(self.val_func('imaggee'))
+        self.assertFalse(self.val_func('invalid_mime_surely'))
+
+    def test_expect_fail_for_invalid_globs(self):
         self.assertFalse(self.val_func('.*'))
         self.assertFalse(self.val_func('*'))
+        self.assertFalse(self.val_func('image/'))
+        self.assertFalse(self.val_func('/jpeg'))
+        self.assertFalse(self.val_func('image/*/*'))
 
-    def test_validation_function_expect_pass(self):
-        self.assertTrue(self.val_func('txt'))
-        self.assertTrue(self.val_func('text/plain'))
+    def test_expect_pass_for_valid_mime_types_no_globs(self):
+        self.assertTrue(self.val_func('image/x-ms-bmp'))
+        self.assertTrue(self.val_func('image/gif'))
         self.assertTrue(self.val_func('image/jpeg'))
-        self.assertTrue(self.val_func('jpg'))
+        self.assertTrue(self.val_func('video/quicktime'))
+        self.assertTrue(self.val_func('video/mp4'))
+        self.assertTrue(self.val_func('video/ogg'))
+        self.assertTrue(self.val_func('application/pdf'))
+        self.assertTrue(self.val_func('image/png'))
+        self.assertTrue(self.val_func('text/plain'))
+        self.assertTrue(self.val_func('inode/x-empty'))
+
+    def test_expect_pass_for_valid_globs(self):
+        self.assertTrue(self.val_func('*/*'))
+        self.assertTrue(self.val_func('image/*'))
+        self.assertTrue(self.val_func('*/jpeg'))
+        self.assertTrue(self.val_func('inode/*'))
+        self.assertTrue(self.val_func('*/x-empty'))
+        self.assertTrue(self.val_func('*/x-ms-bmp'))
+        self.assertTrue(self.val_func('image/*'))
+
+    def test_expect_pass_for_valid_mime_types_with_globs(self):
+        self.assertTrue(self.val_func('*/jpeg'))
+        self.assertTrue(self.val_func('image/*'))
 
 
-class TestDateTimeRuleParser(TestCase):
+class TestDateTimeFieldParser(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = DateTimeConfigFieldParser()
@@ -153,7 +177,7 @@ class TestDateTimeRuleParser(TestCase):
         self.assertTrue(self.val_func('_'))
 
 
-class TestNameFormatRuleParser(TestCase):
+class TestNameFormatFieldParser(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = NameFormatConfigFieldParser()
