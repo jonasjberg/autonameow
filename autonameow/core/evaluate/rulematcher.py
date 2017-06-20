@@ -40,8 +40,6 @@ class RuleMatcher(object):
 
         self._matched_rules = []
 
-        self.start()
-
     def start(self):
         self._evaluate_rules()
 

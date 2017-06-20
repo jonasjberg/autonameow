@@ -196,9 +196,9 @@ class Autonameow(object):
                 continue
 
             # Determine matching rule.
+            matcher = RuleMatcher(current_file, analysis.results, self.config)
             try:
-                matcher = RuleMatcher(current_file, analysis.results,
-                                      self.config)
+                matcher.start()
             except AutonameowException as e:
                 log.critical('Rule Matching FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(current_file))
