@@ -352,7 +352,7 @@ def match_any_unix_timestamp(text):
         try:
             digits = float(digits)
             dt = datetime.fromtimestamp(digits)
-        except TypeError as ValueError:
+        except (TypeError, ValueError):
             log.debug('Failed matching UNIX timestamp.')
         else:
             if date_is_probable(dt):
