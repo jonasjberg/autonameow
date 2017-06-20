@@ -25,7 +25,7 @@ import os
 
 from colorama import Fore
 
-from core.util import dateandtime
+from core.util import dateandtime, cli
 
 
 def arg_is_year(value):
@@ -286,21 +286,28 @@ def parse_args(opts):
 
 def prettyprint_options(opts, extra_opts):
     """
-    Display details on the command line options that are in effect.
+    Prints information on the command line options that are in effect.
+
     Mainly for debug purposes.
-    :param opts: arguments to display
+
+    Args:
+        opts: The parsed options returned by argparse.
+        extra_opts: Extra information to be included, as type dict.
     """
     opts_dict = vars(opts)
-
     if extra_opts:
         opts_dict.update(extra_opts)
 
+    out = []
     for k, v in opts_dict.items():
         if v == 0:
             v = 'False'
         elif v == 1:
             v = 'True'
-        print(('{:<30}'.format(str(k)) + Fore.LIGHTBLACK_EX + ' : ' +
-              Fore.RESET + '{:<40}'.format(str(v))))
+
+        out.append('{:<30} {:<40}'.format(str(k), str(v)))
+
+    cli.msg('Current Options', style='heading')
+    cli.msg('\n'.join(out) + '\n')
 
 
