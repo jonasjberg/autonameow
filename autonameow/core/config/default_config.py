@@ -46,7 +46,7 @@ ALL_CONDITIONS_FIELDS = {
 DEFAULT_CONFIG = {
 
     #   File Rules
-    #   ----------
+    #   ==========
     #   File rules determine which files are handled and how they are handled.
     #
     #   Each rule specifies conditions that should be met for the rule to apply
@@ -85,6 +85,7 @@ DEFAULT_CONFIG = {
              'extension': 'filesystem.basename.extension'
          }
          },
+        # ____________________________________________________________________
         {'description': 'test_files smulan.jpg',
          'exact_match': True,
          'weight': 1,
@@ -103,6 +104,7 @@ DEFAULT_CONFIG = {
              'extension': 'filesystem.basename.extension'
          }
          },
+        # ____________________________________________________________________
         {'description': 'Sample Entry for Photos with strict rules',
          'exact_match': True,
          'weight': 1,
@@ -135,6 +137,7 @@ DEFAULT_CONFIG = {
              'tags': 'plugin.microsoft_vision.tags'
          }
          },
+        # ____________________________________________________________________
         {'description': 'Sample Entry for EPUB e-books',
          'exact_match': True,
          'weight': 1,
@@ -166,7 +169,7 @@ DEFAULT_CONFIG = {
     ],
 
     #  File Name Templates
-    #  -------------------
+    #  ===================
     #  These file name templates can be reused by multiple file rules.
     #  Simply add the template name to the file rule 'NAME_FORMAT' field.
     #
@@ -180,7 +183,7 @@ DEFAULT_CONFIG = {
     },
 
     #  File Name Date and Time Format
-    #  ------------------------------
+    #  ==============================
     #  Specifies the format of date and time in constructed file names.
     #  Fields are parsed with "datetime" from the Python standard library.
     #  Refer to the "datetime" library documentation for more information;
@@ -194,7 +197,7 @@ DEFAULT_CONFIG = {
     },
 
     #  Filetags Options
-    #  ----------------
+    #  ================
     #  Options for functionality related to the "filetags" workflow.
     #
     'FILETAGS_OPTIONS': {

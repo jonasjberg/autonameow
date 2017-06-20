@@ -42,18 +42,6 @@ def hyphenate_date(date_str):
         return date_str
 
 
-def delta_frac(self, delta):
-    """
-    Calculate time delta between datetime objects.
-    :param self:
-    :param delta:
-    :return:
-    """
-    delta_mins, delta_secs = divmod(delta.seconds, 60)
-    delta_hours, delta_mins = divmod(delta_mins, 60)
-    return {'hours': delta_hours, 'mins': delta_mins, 'secs': delta_secs}
-
-
 def nextyear(dt):
     # http://stackoverflow.com/a/11206511
     try:
@@ -86,7 +74,7 @@ def _year_is_probable(year):
             year = int(year)
         except ValueError as ex:
             log.warning('Got unexpected type "{}". '
-                            'Casting failed: {}'.format(type(year), ex))
+                        'Casting failed: {}'.format(type(year), ex))
             return False
 
         # Check if number of digits in "year" is less than three,
@@ -102,7 +90,7 @@ def _year_is_probable(year):
             year = datetime.strptime(str(year), '%Y')
         except TypeError:
             log.warning('Failed converting "{}" '
-                            'to datetime-object.'.format(year))
+                        'to datetime-object.'.format(year))
             return False
 
     if year.year > YEAR_UPPER_LIMIT.year:
@@ -127,7 +115,7 @@ def date_is_probable(date):
     """
     if type(date) is not datetime:
         log.warning('Got unexpected type "{}" '
-                        '(expected datetime)'.format(type(date)))
+                    '(expected datetime)'.format(type(date)))
         return False
 
     if date.year > YEAR_UPPER_LIMIT.year:
@@ -263,7 +251,7 @@ def match_special_case(text):
         else:
             if date_is_probable(dt):
                 log.debug('[DATETIME] Found very special case: '
-                              '"{}"'.format(dt))
+                          '"{}"'.format(dt))
                 return dt
     return None
 
@@ -282,7 +270,7 @@ def match_special_case_no_date(text):
     else:
         if date_is_probable(dt):
             log.debug('[DATETIME] Found very special case, date only: '
-                          '"{}"'.format(dt))
+                      '"{}"'.format(dt))
             return dt
     return None
 
@@ -308,15 +296,16 @@ def match_android_messenger_filename(text):
     dt_pattern = re.compile('.*(received_)(\d{17})(\.jpe?g)?')
     for _, dt_str, _ in re.findall(dt_pattern, text):
         try:
-            ms = int(dt_str[13:])
-            dt = datetime.utcfromtimestamp(ms // 1000).replace(microsecond=ms % 1000 * 1000)
+            microsecond = int(dt_str[13:])
+            ms = microsecond % 1000 * 1000
+            dt = datetime.utcfromtimestamp(ms // 1000).replace(microsecond=ms)
         except ValueError as e:
-            log.debug('Unable to extract datetime from '
-                          '[{}] - {}'.format(dt_str, e.message))
+            log.debug('Unable to extract datetime from "{}": {}'.format(dt_str,
+                                                                        str(e)))
         else:
             if date_is_probable(dt):
                 log.debug('Extracted datetime from Android messenger file '
-                              'name text: [{}]'.format(dt.isoformat()))
+                          'name text: "{}"'.format(dt.isoformat()))
                 results.append(dt)
 
     return results
@@ -334,7 +323,7 @@ def match_any_unix_timestamp(text):
     match_iter = re.finditer(r'(\d{10,13})', text)
     if match_iter is None:
         log.debug('Probably not a UNIX timestamp -- does not contain '
-                      '10-13 consecutive digits.')
+                  '10-13 consecutive digits.')
         return None
 
     for match in match_iter:
@@ -351,12 +340,12 @@ def match_any_unix_timestamp(text):
         try:
             digits = float(digits)
             dt = datetime.fromtimestamp(digits)
-        except TypeError as ValueError:
+        except (TypeError, ValueError):
             log.debug('Failed matching UNIX timestamp.')
         else:
             if date_is_probable(dt):
                 log.debug('Extracted date/time-info [{}] from UNIX timestamp '
-                              '"{}"'.format(dt, text))
+                          '"{}"'.format(dt, text))
                 return dt
     return None
 
@@ -389,14 +378,14 @@ def bruteforce_str(text, return_first_match=False):
     # Internal function checks result, adds to list of results if OK.
     # TODO: [BL002] Include number of tries in the result to act as a weight;
     #               lower numbers more probable to be true positives.
-    def validate_result(dt):
-        if date_is_probable(dt):
-            log.debug('Extracted datetime from text: [{}]'.format(dt))
-            results.append(dt)
+    def validate_result(data):
+        if date_is_probable(data):
+            log.debug('Extracted datetime from text: [{}]'.format(data))
+            results.append(data)
             bruteforce_str.matches += 1
             bruteforce_str.matches_total += 1
             if return_first_match:
-                return dt
+                return data
 
     if len(text) < 4:
         return None
@@ -469,7 +458,7 @@ def bruteforce_str(text, return_first_match=False):
 
     if results:
         log.debug('First matcher found  {:>3} matches after {:>4} '
-                      'tries.'.format(bruteforce_str.matches, tries))
+                  'tries.'.format(bruteforce_str.matches, tries))
         return results
     else:
         log.debug('Gave up first approach after {:>4} tries.'.format(tries))
@@ -513,8 +502,8 @@ def bruteforce_str(text, return_first_match=False):
             except ValueError:
                 pass
             else:
-                # TODO: [BL002] Include number of tries in the result to act as a
-                #       weight; lower numbers more probable to be true positives.
+                # TODO: Include number of tries in the result as a weight.
+                #       Lower numbers more probable to be true positives.
                 validate_result(dt)
 
         # log.debug('Gave up after %d tries ..'.format(tries))
@@ -556,7 +545,7 @@ def bruteforce_str(text, return_first_match=False):
             digits = digits[1:]
 
     log.debug('Second matcher found {:>3} matches after {:>4} '
-                  'tries.'.format(bruteforce_str.matches_total, tries_total))
+              'tries.'.format(bruteforce_str.matches_total, tries_total))
     return results
 
 
@@ -675,7 +664,7 @@ def special_datetime_ocr_search(text):
         else:
             if date_is_probable(dt):
                 log.debug('[DATETIME] Special OCR search found {} '
-                              'matches'.format(dt))
+                          'matches'.format(dt))
                 return dt
     return None
 

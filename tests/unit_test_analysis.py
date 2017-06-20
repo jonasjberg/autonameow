@@ -32,12 +32,10 @@ from core.analysis import (
     suitable_analyzers_for
 )
 from core.constants import ANALYSIS_RESULTS_FIELDS
-from core.extraction import get_extractor_classes
 from unit_utils import (
     get_mock_analyzer,
     get_mock_fileobject,
     get_mock_extractor_data,
-    get_instantiated_analyzers
 )
 
 
@@ -47,8 +45,7 @@ class TestAnalysis(TestCase):
                           get_mock_extractor_data())
 
     def test_analysis_is_defined(self):
-        self.assertIsNotNone(Analysis,
-                             'The Analysis class should exist and be available')
+        self.assertIsNotNone(Analysis)
 
     def test_analysis_requires_file_object_argument(self):
         with self.assertRaises(TypeError):
@@ -57,6 +54,38 @@ class TestAnalysis(TestCase):
 
     def test_analysis_start_method_exists(self):
         self.assertIsNotNone(self.a.start)
+
+    def test_has_method__instantiate_analyzers(self):
+        self.assertIsNotNone(self.a._instantiate_analyzers)
+
+    def test__instantiate_analyzers_returns_expected_type(self):
+        analyzer_classes = get_analyzer_classes()
+        actual = self.a._instantiate_analyzers(analyzer_classes)
+
+        self.assertTrue(isinstance(actual, list))
+        for ac in actual:
+            self.assertTrue(issubclass(ac.__class__, Analyzer))
+
+    def test_initial_results_data_len_is_zero(self):
+        self.skipTest('Requires Results to implement "__len__"')
+        self.assertEqual(len(self.a.results), 0)
+
+    def test_collects_valid_results(self):
+        self.a.collect_results('contents.mime_type', 'image/jpeg')
+
+    def test_collecting_valid_results_increments_results_len(self):
+        self.skipTest('Requires Results to implement "__len__"')
+        self.a.collect_results('contents.mime_type', 'image/jpeg')
+        self.assertEqual(len(self.a.results), 1)
+        self.a.collect_results('filesystem.basename.extension', 'jpg')
+        self.assertEqual(len(self.a.results), 2)
+
+    def test_collecting_results_with_empty_data_does_not_increment_len(self):
+        self.skipTest('Requires Results to implement "__len__"')
+        self.a.collect_results('contents.mime_type', None)
+        self.assertEqual(len(self.a.results), 0)
+        self.a.collect_results('filesystem.basename.extension', None)
+        self.assertEqual(len(self.a.results), 0)
 
     def test_analysis__populate_run_queue_method_exists(self):
         self.assertIsNotNone(self.a._populate_run_queue)

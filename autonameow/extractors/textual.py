@@ -170,7 +170,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
         # NOTE: This now wholly determines whether a pdf is readable.
         #       Possible to not getNumPages but still be able to read the text?
         log.error('PDF document might be encrypted with restrictions '
-                      'preventing reading.')
+                  'preventing reading.')
         # TODO: Raise exception instead?
         raise
     else:
@@ -189,8 +189,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
         if len(content) > 50000:
             log.debug('Extraction hit content size limit.')
             break
-        log.debug('Extracting page {:<4} of {:<4} ..'.format(i + 1,
-                                                                 num_pages))
+        log.debug('Extracting page {:<4} of {:<4} ..'.format(i + 1, num_pages))
         content += pdff.getPage(i).extractText()
 
     if content:

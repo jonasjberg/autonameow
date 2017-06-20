@@ -193,8 +193,8 @@ if __name__ == '__main__':
     dirs = config_dirs()
 
     print('Configuration directories:')
-    for dir in dirs:
-        print('  "{!s}"'.format(dir))
+    for dir_ in dirs:
+        print('  "{!s}"'.format(dir_))
 
     __config_file_path = config_file_path()
     print('Configuration file path: "{!s}"'.format(__config_file_path))

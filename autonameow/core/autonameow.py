@@ -33,6 +33,7 @@ from core.analysis import Analysis
 from core.config.configuration import Configuration
 from core.evaluate.filter import ResultFilter
 from core.evaluate.namebuilder import NameBuilder
+from core.evaluate.rulematcher import RuleMatcher
 from core.exceptions import (
     InvalidFileArgumentError,
     ConfigurationSyntaxError,
@@ -117,11 +118,11 @@ class Autonameow(object):
                     self.exit_program(constants.EXIT_ERROR)
                 else:
                     cli.msg('A template configuration file was written to '
-                            '"{!s}"'.format(_config_path), type='info')
+                            '"{!s}"'.format(_config_path), style='info')
                     cli.msg('Use this file to configure {}. '
                             'Refer to the documentation for additional '
                             'information.'.format(version.__title__),
-                            type='info')
+                            style='info')
                     self.exit_program(constants.EXIT_SUCCESS)
             else:
                 log.info('Using configuration: "{}"'.format(_config_path))
@@ -139,7 +140,7 @@ class Autonameow(object):
 
         if self.args.dump_config:
             log.info('Dumping active configuration ..')
-            cli.msg('Active Configuration:', type='heading')
+            cli.msg('Active Configuration:', style='heading')
             cli.msg(str(self.config))
             self.exit_program(constants.EXIT_SUCCESS)
 
@@ -159,9 +160,10 @@ class Autonameow(object):
         1. Create 'FileObject' representing the file.
         2. Extract data from the file with an instance of the 'Extraction' class
         3. Perform analysis of the file with an instance of the 'Analysis' class
-        4. Do any reporting of results to the user.
-        5. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
-        6. (automagic mode and not --dry-run) Rename the file.
+        4. Determine which rules match the given file.
+        5. Do any reporting of results to the user.
+        6. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
+        7. (automagic mode and not --dry-run) Rename the file.
         """
         for input_path in self.args.input_paths:
             log.info('Processing: "{!s}"'.format(input_path))
@@ -193,6 +195,16 @@ class Autonameow(object):
                 self.exit_code = constants.EXIT_WARNING
                 continue
 
+            # Determine matching rule.
+            matcher = RuleMatcher(current_file, analysis.results, self.config)
+            try:
+                matcher.start()
+            except AutonameowException as e:
+                log.critical('Rule Matching FAILED: {!s}'.format(e))
+                log.critical('Skipping file "{}" ..'.format(current_file))
+                self.exit_code = constants.EXIT_WARNING
+                continue
+
             # Present results.
             list_any = (self.args.list_datetime or self.args.list_title
                         or self.args.list_all)
@@ -201,9 +213,9 @@ class Autonameow(object):
 
             if self.args.list_all:
                 log.info('Listing ALL analysis results ..')
-                cli.msg('Analysis Results Data', type='heading', log=True)
+                cli.msg('Analysis Results Data', style='heading', log=True)
                 cli.msg(misc.dump(analysis.results.get_all()))
-                cli.msg('Extraction Results Data', type='heading', log=True)
+                cli.msg('Extraction Results Data', style='heading', log=True)
                 cli.msg(misc.dump(analysis.results.new_data))
             else:
                 if self.args.list_datetime:
@@ -219,9 +231,16 @@ class Autonameow(object):
                 log.warning('[UNIMPLEMENTED FEATURE] prepend_datetime')
 
             if self.args.automagic:
+                if not matcher.best_match:
+                    log.info('None of the rules seem to apply')
+                    continue
+
+                log.info('Using file rule: "{!s}"'.format(
+                    matcher.best_match.description)
+                )
                 try:
                     self.builder = NameBuilder(current_file, analysis.results,
-                                               self.config)
+                                               self.config, matcher.best_match)
                     new_name = self.builder.build()
                 except NameBuilderError as e:
                     log.critical('Name assembly FAILED: {!s}'.format(e))
@@ -285,12 +304,12 @@ class Autonameow(object):
             else:
                 message = 'Renamed "{!s}" -> "{!s}"'
                 cli.msg(message.format(from_basename, dest_basename),
-                        type='color_quoted')
+                        style='color_quoted')
                 return True
         else:
             message = 'Would have renamed "{!s}" -> "{!s}"'
             cli.msg(message.format(from_basename, dest_basename),
-                    type='color_quoted')
+                    style='color_quoted')
             return True
 
     @property

@@ -29,7 +29,6 @@ from core import constants
 from core.exceptions import (
     AutonameowException
 )
-from core.fileobject import eval_magic_glob
 from core.util.misc import flatten_dict
 from core.util.queue import GenericQueue
 
@@ -110,12 +109,12 @@ class Analysis(object):
         if not analyzers:
             raise AutonameowException('None of the analyzers applies (!)')
 
-        analyzer_instances = self.instantiate_analyzers(analyzers)
+        analyzer_instances = self._instantiate_analyzers(analyzers)
         for a in analyzer_instances:
             self.analyzer_queue.enqueue(a)
         log.debug('Enqueued analyzers: {!s}'.format(self.analyzer_queue))
 
-    def instantiate_analyzers(self, class_list):
+    def _instantiate_analyzers(self, class_list):
         """
         Get a list of class instances from a given list of classes.
 

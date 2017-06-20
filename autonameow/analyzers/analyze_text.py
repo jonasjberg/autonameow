@@ -20,7 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import io
-import logging
+import logging as log
 
 from unidecode import unidecode
 
@@ -41,7 +41,7 @@ class TextAnalyzer(Analyzer):
         self.text = None
 
     def run(self):
-        logging.debug('Extracting text contents ..')
+        log.debug('Extracting text contents ..')
         self.text = self._extract_text_content()
 
     def get_author(self):
@@ -78,18 +78,18 @@ class TextAnalyzer(Analyzer):
         decoded_content = []
         for line in content:
             # Collapse whitespace.
-            # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
+            # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160)
             line = unidecode(line)
             line = " ".join(line.replace("\xa0", " ").strip().split())
             decoded_content.append(line)
 
         if decoded_content:
             # TODO: Determine what gets extracted **REALLY** ..
-            logging.debug('Extracted {} words/lines (??) of '
-                          'content'.format(len(content)))
+            log.debug('Extracted {} words/lines (??) of content'.format(
+                len(content)))
             return decoded_content
         else:
-            logging.warn('Unable to extract text contents.')
+            log.warning('Unable to extract text contents.')
             return None
 
     def _is_gmail(self):
@@ -98,7 +98,7 @@ class TextAnalyzer(Analyzer):
             text = ' '.join(text)
 
         if text.lower().find('gmail'):
-            logging.debug('Text might be a Gmail (contains "gmail")')
+            log.debug('Text might be a Gmail (contains "gmail")')
             return
 
     def _get_datetime_from_text(self):
@@ -120,14 +120,14 @@ class TextAnalyzer(Analyzer):
                                 'source': 'regex_search',
                                 'weight': 0.25})
         else:
-            logging.debug('Unable to extract date/time-information '
-                          'from text file contents using regex search.')
+            log.debug('Unable to extract date/time-information from text file '
+                      'contents using regex search.')
 
         if type(text) == list:
             text = ' '.join(text)
 
         matches_brute = 0
-        logging.debug('Try getting datetime from text split by newlines')
+        log.debug('Try getting datetime from text split by newlines')
         for t in text.split('\n'):
             dt_brute = dateandtime.bruteforce_str(t)
             if dt_brute:
@@ -137,12 +137,11 @@ class TextAnalyzer(Analyzer):
                                     'source': 'bruteforce_search',
                                     'weight': 0.1})
         if matches_brute == 0:
-            logging.debug('Unable to extract date/time-information '
-                          'from text file contents using brute force search.')
+            log.debug('Unable to extract date/time-information from text file '
+                      'contents using brute force search.')
         else:
-            logging.debug('Brute force search of text file contents for '
-                          'date/time-information returned {} '
-                          'results.'.format(matches_brute))
+            log.debug('Brute force search for date/time-information returned '
+                      '{} results.'.format(matches_brute))
 
         return results
 
@@ -152,9 +151,9 @@ class TextAnalyzer(Analyzer):
         with io.open(fn, 'r', encoding='utf8') as f:
             contents = f.read().split('\n')
             if contents:
-                logging.info('Successfully read {} lines from '
-                             '"{}"'.format(len(contents), str(fn)))
+                log.info('Successfully read {} lines from "{}"'.format(
+                    len(contents), str(fn)))
                 return contents
             else:
-                logging.error('Got empty file "{}"'.format(fn))
+                log.error('Got empty file "{}"'.format(fn))
                 return None

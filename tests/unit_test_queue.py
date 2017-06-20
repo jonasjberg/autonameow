@@ -114,6 +114,7 @@ class TestGenericQueue(TestCase):
         self.q.enqueue(item_a)
 
         i = self.q.dequeue()
+        self.assertEqual(i, item_a)
         self.assertEqual(len(self.q), 0)
 
     def test_dequeue_returns_and_removes_items(self):
@@ -124,6 +125,8 @@ class TestGenericQueue(TestCase):
 
         i = self.q.dequeue()
         j = self.q.dequeue()
+        self.assertEqual(i, item_a)
+        self.assertEqual(j, item_b)
         self.assertEqual(len(self.q), 0)
 
     def test_dequeue_returns_expected_item(self):

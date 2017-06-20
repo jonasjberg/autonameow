@@ -23,7 +23,6 @@ import logging as log
 
 from core import constants
 from core.exceptions import InvalidDataSourceError
-from core.fileobject import eval_magic_glob
 from core.util.queue import GenericQueue
 
 # TODO: [hack] Fix this! Used for instantiating extractors so that they are
@@ -81,8 +80,9 @@ class Extraction(object):
 
         # Select extractors based on detected file type.
         extractors = suitable_data_extractors_for(self.file_object)
+        extractor_instances = self._instantiate_extractors(extractors)
         log.debug('Got {} suitable extractors'.format(len(extractors)))
-        extractor_instances = self.instantiate_extractors(extractors)
+
         for e in extractor_instances:
             self.extractor_queue.enqueue(e)
         log.debug('Enqueued extractors: {!s}'.format(self.extractor_queue))
@@ -107,7 +107,7 @@ class Extraction(object):
         # Execute all suitable extractors and collect results.
         self._execute_run_queue()
 
-    def instantiate_extractors(self, class_list):
+    def _instantiate_extractors(self, class_list):
         """
         Get a list of class instances from a given list of classes.
 

@@ -90,6 +90,11 @@ Medium Priority
 
 * Refactor the `Configuration` class. Look over all of `configuration.py`.
 
+* Possibly redesign high-level handling of a "configuration".
+    * Decouple the `Configuration` instance from I/O.
+    * Think about separating validation and parsing of incoming
+      configuration data from the `Configuration` class.
+
 * Allow conditionals in the configuration file rules.
     * Test if a file rule is applicable by evaluating conditionals.
         * Textual contents of the file matches a regular expression?
@@ -104,6 +109,7 @@ Medium Priority
   Take for example the configuration file rule:
 
     ```yaml
+    FILE_RULES:
     -   CONDITIONS:
             contents:
                 mime_type: image/*
@@ -112,13 +118,52 @@ Medium Priority
         DATA_SOURCES:
             extension: contents.mime_type
     ```
-
   This will fail, or *should fail* as MIME types on the form `image/jpeg`,
   `image/png`, etc can't be used as a file extension without some
   pre-processing -- converting `image/png` to `png`.
 
 * There are more cases like the above that should be thought about.
-* Possible redesign the overall handling of a "configuration".
+  A common case is the slight modification to the current file name.
+  Original file name:
+    ```
+    2017-06-20_00-49-56 Working on autonameow.png
+    ```
+  Desired file name:
+    ```
+    2017-06-20T004956 Working on autonameow.png
+    ```
+  How should this be specified in the configuration?
+  A simple alternative is to specify the filename analyzer as the source.
+  The `DATETIME_FORMAT` makes sure that the timestamp format is changed.
+
+    ```yaml
+    FILE_RULES:
+    -   DATA_SOURCES:
+            extension: contents.basename.extension
+            datetime: analysis.filename.{?????}
+            title: filesystem.basename.prefix
+        NAME_FORMAT: "{datetime} {title}.{extension}"
+    DATETIME_FORMAT:
+        datetime: '%Y-%m-%dT%H%M%S'
+    ```
+  But this is not configurable -- how would the filename analyzer know
+  which of many possible datetime results to use?
+
+* Rework the `FilenameAnalyzer`
+    * Identify data fields in file names.
+        ```
+        screencapture-github-jonasjberg-autonameow-1497964021919.png
+        ^___________^ ^__________________________^ ^___________^
+             tag            title/description        timestamp
+        ```
+        * Use some kind of iterative evaluation; split into parts at
+          separators, assign field types to the parts and find a "best fit".
+          Might have to try several times at different separators, re-evaluting
+          partials after assuming that some part is a given type, etc.
+        * __This is a non-trivial problem__, I would rather not re-implment
+          existing solutions poorly.
+        * Look into how `guessit` does it or possibility of modifying
+          `guessit` to identify custom fields.
 
 
 Low Priority
@@ -167,6 +212,8 @@ Low Priority
       intersection of the unfiltered tags and a whitelist.
     * Allow specifying allowed tags in the configuration?
     * Allow specifying mutually exclusive tags in the configuration?
+
+* Add new name format placeholder field `{year}`.
 
 
 Wishlist

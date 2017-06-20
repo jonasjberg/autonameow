@@ -43,7 +43,7 @@ class TestMsg(TestCase):
 
     def test_msg_type_info(self):
         with capture_stdout() as out:
-            cli.msg('text printed by msg() with type="info"', type='info')
+            cli.msg('text printed by msg() with type="info"', style='info')
 
         self.assertIn('text printed by msg() with type="info"',
                       out.getvalue().strip())
@@ -51,7 +51,7 @@ class TestMsg(TestCase):
     def test_msg_type_info_log_true(self):
         with capture_stdout() as out:
             cli.msg('text printed by msg() with type="info", log=True',
-                    type='info', log=True)
+                    style='info', log=True)
 
         self.assertIn('text printed by msg() with type="info", log=True',
                       out.getvalue().strip())
@@ -59,7 +59,7 @@ class TestMsg(TestCase):
     def test_msg_type_color_quoted(self):
         with capture_stdout() as out:
             cli.msg('msg() text with type="color_quoted" no "yes" no',
-                    type='color_quoted')
+                    style='color_quoted')
 
         self.assertIn('msg() text with type=', out.getvalue().strip())
         self.assertIn('color_quoted', out.getvalue().strip())
@@ -71,36 +71,36 @@ class TestMsg(TestCase):
 
         with capture_stdout() as out:
             cli.msg('msg() text with type="color_quoted" no "yes" no',
-                    type='color_quoted')
+                    style='color_quoted')
 
             self.assertEqual('msg() text with type="\x1b[92mcolor_quoted\x1b[39m" no "\x1b[92myes\x1b[39m" no',
                              out.getvalue().strip())
 
         with capture_stdout() as out:
-            cli.msg('no "yes" no', type='color_quoted')
+            cli.msg('no "yes" no', style='color_quoted')
 
             self.assertEqual('no "\x1b[92myes\x1b[39m" no',
                              out.getvalue().strip())
 
         with capture_stdout() as out:
-            cli.msg('no "yes yes" no', type='color_quoted')
+            cli.msg('no "yes yes" no', style='color_quoted')
             self.assertEqual('no "\x1b[92myes yes\x1b[39m" no',
                              out.getvalue().strip())
 
         with capture_stdout() as out:
             cli.msg('Word "1234-56 word" -> "1234-56 word"',
-                    type='color_quoted')
+                    style='color_quoted')
             self.assertEqual('Word "\x1b[92m1234-56 word\x1b[39m" -> "\x1b[92m1234-56 word\x1b[39m"',
                              out.getvalue().strip())
 
         with capture_stdout() as out:
             cli.msg('Word "word 1234-56" -> "1234-56 word"',
-                   type='color_quoted')
+                    style='color_quoted')
             self.assertEqual('Word "\x1b[92mword 1234-56\x1b[39m" -> "\x1b[92m1234-56 word\x1b[39m"',
                              out.getvalue().strip())
 
         with capture_stdout() as out:
-            cli.msg('A "b 123" -> A "b 123"', type='color_quoted')
+            cli.msg('A "b 123" -> A "b 123"', style='color_quoted')
             self.assertEqual('A "\x1b[92mb 123\x1b[39m" -> A "\x1b[92mb 123\x1b[39m"',
                              out.getvalue().strip())
 
