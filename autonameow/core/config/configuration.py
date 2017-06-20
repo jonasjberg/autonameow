@@ -337,8 +337,7 @@ class Configuration(object):
             write_yaml_file(dest_path, self._data)
 
     def __str__(self):
-        out = []
-        out.append('Written by autonameow version v{}\n\n'.format(self.version))
+        out = ['Written by autonameow version v{}\n\n'.format(self.version)]
 
         for number, rule in enumerate(self.file_rules):
             out.append('File Rule {}:\n'.format(number + 1))
