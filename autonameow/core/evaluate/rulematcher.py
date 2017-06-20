@@ -31,6 +31,13 @@ from core.exceptions import (
 )
 
 
+class RuleMatcher(object):
+    def __init__(self, file_object, analysis_results, active_config):
+        self.file = file_object
+        self.analysis_data = analysis_results
+        self.config = active_config
+
+
 def all_template_fields_defined(template, data_sources):
     """
     Tests if all name template placeholder fields is included in the sources.

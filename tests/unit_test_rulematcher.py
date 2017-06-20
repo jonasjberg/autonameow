@@ -20,7 +20,18 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from core.evaluate.rulematcher import all_template_fields_defined
+from core.evaluate.rulematcher import (
+    all_template_fields_defined,
+    RuleMatcher
+)
+
+
+class TestRuleMatcher(TestCase):
+    def setUp(self):
+        self.rm = RuleMatcher(None, None, None)
+
+    def test_rule_matcher_can_be_instantiated(self):
+        self.assertIsNotNone(self.rm)
 
 
 class TestAllTemplateFieldsDefined(TestCase):

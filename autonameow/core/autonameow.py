@@ -33,6 +33,7 @@ from core.analysis import Analysis
 from core.config.configuration import Configuration
 from core.evaluate.filter import ResultFilter
 from core.evaluate.namebuilder import NameBuilder
+from core.evaluate.rulematcher import RuleMatcher
 from core.exceptions import (
     InvalidFileArgumentError,
     ConfigurationSyntaxError,
@@ -159,9 +160,10 @@ class Autonameow(object):
         1. Create 'FileObject' representing the file.
         2. Extract data from the file with an instance of the 'Extraction' class
         3. Perform analysis of the file with an instance of the 'Analysis' class
-        4. Do any reporting of results to the user.
-        5. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
-        6. (automagic mode and not --dry-run) Rename the file.
+        4. Determine which rules match the given file.
+        5. Do any reporting of results to the user.
+        6. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
+        7. (automagic mode and not --dry-run) Rename the file.
         """
         for input_path in self.args.input_paths:
             log.info('Processing: "{!s}"'.format(input_path))
@@ -192,6 +194,9 @@ class Autonameow(object):
                 log.critical('Skipping file "{}" ..'.format(current_file))
                 self.exit_code = constants.EXIT_WARNING
                 continue
+
+            # Determine matching rules.
+            matcher = RuleMatcher(current_file, analysis.results, self.config)
 
             # Present results.
             list_any = (self.args.list_datetime or self.args.list_title
