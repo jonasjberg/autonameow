@@ -33,6 +33,12 @@ class TestRuleMatcher(TestCase):
     def test_rule_matcher_can_be_instantiated(self):
         self.assertIsNotNone(self.rm)
 
+    def test_rule_matcher_has_property_best_match(self):
+        self.assertIsNotNone(self.rm.best_match)
+
+    def test_rule_matcher_best_match_initially_returns_false(self):
+        self.assertFalse(self.rm.best_match)
+
 
 class DummyFileRule(object):
     def __init__(self, score, weight):
