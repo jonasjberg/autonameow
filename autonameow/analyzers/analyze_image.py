@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
+import logging as log
 import re
 from datetime import datetime
 
@@ -100,7 +100,7 @@ class ImageAnalyzer(Analyzer):
                            ['EXIF:ModifyDate', 0.5],
                            ['EXIF:DateTime', 0.75]]
         results = []
-        logging.debug('Extracting date/time-information from EXIF-tags')
+        log.debug('Extracting date/time-information from EXIF-tags')
         for field, weight in DATE_TAG_FIELDS:
             dtstr = self.exif_data.get(field, None)
             if not dtstr:
@@ -113,20 +113,19 @@ class ImageAnalyzer(Analyzer):
             try:
                 re_match = date_pattern.search(dtstr)
             except TypeError:
-                logging.warn('TypeError for [%s]'.format(dtstr))
+                log.debug('TypeError while matching: "{!s}"'.format(dtstr))
             else:
                 datetime_str = re_match.group(1)
                 try:
                     dt = datetime.strptime(datetime_str, '%Y:%m:%d %H:%M:%S')
                 except ValueError:
-                    logging.debug('Unable to parse datetime from '
-                                  '[%s]'.format(field))
+                    log.debug('Unable to parse datetime: "{!s}"'.format(field))
             if dt:
                 results.append({'value': dt,
                                 'source': field,
                                 'weight': weight})
 
-        logging.debug('Searching for GPS date/time-information in EXIF-tags')
+        log.debug('Searching for GPS date/time-information in EXIF-tags')
         try:
             gps_date = self.exif_data['GPSDateStamp']
             gps_time = self.exif_data['GPSTimeStamp']
@@ -142,8 +141,8 @@ class ImageAnalyzer(Analyzer):
             try:
                 dt = datetime.strptime(gps_datetime_str, '%Y:%m:%d%H%M%S')
             except ValueError:
-                logging.debug('Unable to parse GPS datetime from '
-                              '[%s]'.format(gps_datetime_str))
+                log.debug('Unable to parse GPS datetime from: '
+                          '"{!s}"'.format(gps_datetime_str))
             if dt:
                 results.append({'value': dt,
                                 'source': 'gpsdatetime',
@@ -157,8 +156,6 @@ class ImageAnalyzer(Analyzer):
                                               '%Y%m%d_%H%M%S')
             try:
                 # if results['Exif_DateTimeDigitized'] == bad_exif_date:
-                #     logging.debug('Removing erroneous date \"%s\"' %
-                #                   str(bad_exif_date))
                 #     del results['Exif_DateTimeDigitized']
                 # http://stackoverflow.com/a/1235631
                 # TODO: FIX THIS! Currently does not pass anything if the bad
@@ -182,7 +179,7 @@ class ImageAnalyzer(Analyzer):
                    }, .. ]
         """
         if not self.ocr_text:
-            logging.debug('Found no date/time-information in OCR text.')
+            log.debug('Found no date/time-information in OCR text.')
             return None
 
         results = []
@@ -198,7 +195,7 @@ class ImageAnalyzer(Analyzer):
                                 'weight': 0.25})
 
         text_split = text.split('\n')
-        logging.debug('Try getting datetime from text split by newlines')
+        log.debug('Try getting datetime from text split by newlines')
         for t in text_split:
             dt_brute = dateandtime.bruteforce_str(t)
             if dt_brute:
@@ -214,7 +211,7 @@ class ImageAnalyzer(Analyzer):
                                 'weight': 0.25})
 
         if not results:
-            logging.debug('Found no date/time-information in OCR text.')
+            log.debug('Found no date/time-information in OCR text.')
             return None
         else:
             return results
