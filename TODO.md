@@ -51,6 +51,11 @@ High Priority
       metadata fields should be handled by the extractors. It is currently
       mostly done in the analyzers.
 
+* Refactor the `NameBuilder` class and `namebuilder.py`
+    * Separate evaluating rules from constructing file names.
+    * Recreate something similar to the old `RuleMatcher` and have it handle
+      rule evaluation?
+
 
 Medium Priority
 ---------------
