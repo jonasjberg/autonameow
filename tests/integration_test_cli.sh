@@ -117,9 +117,13 @@ assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "$SAMPLE_JP
             "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\", \"--debug\" and a valid file"
 
 SAMPLE_JPG_FILE_EXPECTED='2010-01-31T161251 a cat lying on a rug.jpg'
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>/dev/null ) | col -b | grep -q -- "2010-01-31T161251 a cat lying on a rug.jpg"' \
-            "Automagic mode output should include \"${SAMPLE_JPG_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
+# NOTE(jonas): Fix encoding issues! This PASSES on MacOS:
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>/dev/null ) | col -b | grep -q -- "2010-01-31T161251 a cat lying on a rug.jpg"' \
+            "Automagic mode output should include \"${SAMPLE_JPG_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\" (expect PASSED on MacOS)"
 
+# NOTE(jonas): Fix encoding issues! This FAILS on MacOS:
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>/dev/null ) | col -b | grep -q -- "2010-01-31T161251 a cat lying on a rug.jpg"' \
+            "Automagic mode output should include \"${SAMPLE_JPG_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\" (expect FAILED os MacOS)"
 
 
 _expected_name='/tmp/2010-01-31T161251 a cat lying on a rug.jpg'
@@ -179,9 +183,15 @@ assert_true '( "$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_P
 assert_true '( "$AUTONAMEOW_RUNNER" --list-title -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
             "Expect exit code 0 when started with \"--list-title\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
+# NOTE(jonas): Fix encoding issues! This FAILS on MacOS:
 SAMPLE_PDF_FILE_EXPECTED='2016-01-11T124132 gmail.pdf'
 assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 ) | col -b | grep -q -- "${SAMPLE_PDF_FILE_EXPECTED}"' \
-            "Automagic mode output should include \"${SAMPLE_PDF_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+            "Automagic mode output should include \"${SAMPLE_PDF_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\" (expect FAILED os MacOS)"
+
+# NOTE(jonas): Fix encoding issues! This PASSES on MacOS:
+SAMPLE_PDF_FILE_EXPECTED_MACOS='2016-01-11T124132 gmail.pdf'
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 ) | col -b | grep -q -- "${SAMPLE_PDF_FILE_EXPECTED_MACOS}"' \
+            "Automagic mode output should include \"${SAMPLE_PDF_FILE_EXPECTED_MACOS}\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\" (expect PASSED on MacOS)"
 
 
 EMPTY_CONFIG='/tmp/autonameow_empty_config.yaml'
