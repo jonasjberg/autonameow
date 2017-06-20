@@ -164,7 +164,8 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
 
 2/2
 
-'''
+'''.encode('utf-8').decode('utf-8')
+# TODO: [critical] FIX ENCODING ISSUES!
 
     def test_method_query_returns_something(self):
         self.assertIsNotNone(self.e.query())
