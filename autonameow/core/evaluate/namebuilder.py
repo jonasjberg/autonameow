@@ -55,9 +55,6 @@ class NameBuilder(object):
         return self._new_name
 
     def build(self):
-        template = None
-        data_sources = None
-
         # Check a copy of all rules.
         # Conditions are evaluated with the current file object and current
         # analysis results data.
