@@ -154,13 +154,13 @@ def colorize(text, fore=None, back=None, style=None):
     return ''.join(buffer)
 
 
-def msg(message, type=None, log=False):
+def msg(message, style=None, log=False):
     """
     Displays a message to the user using preset formatting options.
 
     Args:
         message: The raw text message to print as a string.
-        type: Optional message type.
+        style: Optional message type.
         log: Displays and logs the message if True. Defaults to False.
     """
     def print_default_msg(text):
@@ -211,19 +211,19 @@ def msg(message, type=None, log=False):
     if not message:
         return
 
-    if not type:
+    if not style:
         print_default_msg(message)
         if log:
             logging.info(message)
-    elif type == 'info':
+    elif style == 'info':
         print_info_msg(message)
         if log:
             logging.info(message)
-    elif type == 'heading':
+    elif style == 'heading':
+        print_default_msg('')
         print_default_msg(message)
         print_default_msg('=' * len(message))
-        print_default_msg('')
-    elif type == 'color_quoted':
+    elif style == 'color_quoted':
         print(colorize_quoted(message))
     else:
         print_default_msg(message)
@@ -233,16 +233,16 @@ def msg(message, type=None, log=False):
 
 if __name__ == '__main__':
     msg('text printed by msg()')
-    msg('text printed by msg() with type="info"', type='info')
+    msg('text printed by msg() with type="info"', style='info')
     msg('text printed by msg() with type="info", log=True',
-        type='info', log=True)
+        style='info', log=True)
     msg('text printed by msg() with type="color_quoted" no "yes" no',
-        type='color_quoted')
+        style='color_quoted')
 
-    msg('Word "1234-56 word" -> "1234-56 word"', type='color_quoted')
-    msg('Word "word 1234-56" -> "1234-56 word"', type='color_quoted')
+    msg('Word "1234-56 word" -> "1234-56 word"', style='color_quoted')
+    msg('Word "word 1234-56" -> "1234-56 word"', style='color_quoted')
 
-    msg('A "b 123" -> A "b 123"', type='color_quoted')
+    msg('A "b 123" -> A "b 123"', style='color_quoted')
     print(colorize('foo', fore='RED'))
     print(colorize('foo', fore='GREEN'))
     print(colorize('foo', fore='BLUE'))

@@ -117,11 +117,11 @@ class Autonameow(object):
                     self.exit_program(constants.EXIT_ERROR)
                 else:
                     cli.msg('A template configuration file was written to '
-                            '"{!s}"'.format(_config_path), type='info')
+                            '"{!s}"'.format(_config_path), style='info')
                     cli.msg('Use this file to configure {}. '
                             'Refer to the documentation for additional '
                             'information.'.format(version.__title__),
-                            type='info')
+                            style='info')
                     self.exit_program(constants.EXIT_SUCCESS)
             else:
                 log.info('Using configuration: "{}"'.format(_config_path))
@@ -139,7 +139,7 @@ class Autonameow(object):
 
         if self.args.dump_config:
             log.info('Dumping active configuration ..')
-            cli.msg('Active Configuration:', type='heading')
+            cli.msg('Active Configuration:', style='heading')
             cli.msg(str(self.config))
             self.exit_program(constants.EXIT_SUCCESS)
 
@@ -201,9 +201,9 @@ class Autonameow(object):
 
             if self.args.list_all:
                 log.info('Listing ALL analysis results ..')
-                cli.msg('Analysis Results Data', type='heading', log=True)
+                cli.msg('Analysis Results Data', style='heading', log=True)
                 cli.msg(misc.dump(analysis.results.get_all()))
-                cli.msg('Extraction Results Data', type='heading', log=True)
+                cli.msg('Extraction Results Data', style='heading', log=True)
                 cli.msg(misc.dump(analysis.results.new_data))
             else:
                 if self.args.list_datetime:
@@ -285,12 +285,12 @@ class Autonameow(object):
             else:
                 message = 'Renamed "{!s}" -> "{!s}"'
                 cli.msg(message.format(from_basename, dest_basename),
-                        type='color_quoted')
+                        style='color_quoted')
                 return True
         else:
             message = 'Would have renamed "{!s}" -> "{!s}"'
             cli.msg(message.format(from_basename, dest_basename),
-                    type='color_quoted')
+                    style='color_quoted')
             return True
 
     @property
