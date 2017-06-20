@@ -90,6 +90,11 @@ Medium Priority
 
 * Refactor the `Configuration` class. Look over all of `configuration.py`.
 
+* Possibly redesign high-level handling of a "configuration".
+    * Decouple the `Configuration` instance from I/O.
+    * Think about separating validation and parsing of incoming
+      configuration data from the `Configuration` class.
+
 * Allow conditionals in the configuration file rules.
     * Test if a file rule is applicable by evaluating conditionals.
         * Textual contents of the file matches a regular expression?
@@ -113,7 +118,6 @@ Medium Priority
         DATA_SOURCES:
             extension: contents.mime_type
     ```
-
   This will fail, or *should fail* as MIME types on the form `image/jpeg`,
   `image/png`, etc can't be used as a file extension without some
   pre-processing -- converting `image/png` to `png`.
@@ -145,8 +149,21 @@ Medium Priority
   But this is not configurable -- how would the filename analyzer know
   which of many possible datetime results to use?
 
-
-* Possible redesign the overall handling of a "configuration".
+* Rework the `FilenameAnalyzer`
+    * Identify data fields in file names.
+        ```
+        screencapture-github-jonasjberg-autonameow-1497964021919.png
+        ^___________^ ^__________________________^ ^___________^
+             tag            title/description        timestamp
+        ```
+        * Use some kind of iterative evaluation; split into parts at
+          separators, assign field types to the parts and find a "best fit".
+          Might have to try several times at different separators, re-evaluting
+          partials after assuming that some part is a given type, etc.
+        * __This is a non-trivial problem__, I would rather not re-implment
+          existing solutions poorly.
+        * Look into how `guessit` does it or possibility of modifying
+          `guessit` to identify custom fields.
 
 
 Low Priority
