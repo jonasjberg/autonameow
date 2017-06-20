@@ -58,6 +58,8 @@ class NameBuilder(object):
 
         # TODO: Future redesign should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
+        # NOTE(jonas): Move this to the rule matcher?
+        # NOTE(jonas): Make sure name builder always gets a valid rule?
         data_sources = self.active_rule.data_sources
         if not all_template_fields_defined(template, data_sources):
             log.error('All name template placeholder fields must be '
