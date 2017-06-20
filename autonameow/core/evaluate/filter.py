@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
+import logging as log
 from datetime import datetime
 
 
@@ -45,25 +45,24 @@ class ResultFilter(object):
                 try:
                     dt = datetime.strptime(str(year), '%Y')
                 except ValueError as e:
-                    logging.warning('Erroneous date format: '
-                                    '"{}"'.format(e.message))
+                    log.warning('Erroneous date format: "{!s}"'.format(e))
                 else:
                     if dt not in self.rules['ignore_years']:
                         self.rules['ignore_years'].append(dt)
 
             ignored_years = ', '.join((str(yr.year)
                                        for yr in self.rules['ignore_years']))
-            logging.debug('Using filter: ignore date/time-information for these'
-                          ' years: {}'.format(ignored_years))
+            log.debug('Using filter: ignore date/time-information for these'
+                      ' years: {}'.format(ignored_years))
 
         if opts.filter_ignore_to_year:
             try:
                 dt = datetime.strptime(str(opts.filter_ignore_to_year), '%Y')
             except ValueError as e:
-                logging.warning('Erroneous date format: {}'.format(e.message))
+                log.warning('Erroneous date format: "{!s}"'.format(e))
             else:
-                logging.debug('Using filter: ignore date/time-information that'
-                              ' predate year {}'.format(dt.year))
+                log.debug('Using filter: ignore date/time-information that'
+                          ' predate year {}'.format(dt.year))
                 self.rules['ignore_before_year'] = dt
 
         if opts.filter_ignore_from_year:
@@ -71,8 +70,8 @@ class ResultFilter(object):
                 dt = datetime.strptime(str(opts.filter_ignore_from_year),
                                        '%Y')
             except ValueError as e:
-                logging.warning('Erroneous date format: {}'.format(e.message))
+                log.warning('Erroneous date format: "{!s}"'.format(e))
             else:
-                logging.debug('Using filter: ignore date/time-information that'
-                              ' follow year {}'.format(dt.year))
+                log.debug('Using filter: ignore date/time-information that'
+                          ' follow year {}'.format(dt.year))
                 self.rules['ignore_after_year'] = dt

@@ -300,12 +300,12 @@ def match_android_messenger_filename(text):
             ms = microsecond % 1000 * 1000
             dt = datetime.utcfromtimestamp(ms // 1000).replace(microsecond=ms)
         except ValueError as e:
-            log.debug('Unable to extract datetime from '
-                      '[{}] - {}'.format(dt_str, e.message))
+            log.debug('Unable to extract datetime from "{}": {}'.format(dt_str,
+                                                                        str(e)))
         else:
             if date_is_probable(dt):
                 log.debug('Extracted datetime from Android messenger file '
-                          'name text: [{}]'.format(dt.isoformat()))
+                          'name text: "{}"'.format(dt.isoformat()))
                 results.append(dt)
 
     return results
