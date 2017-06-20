@@ -86,7 +86,7 @@ def _year_is_probable(year):
             year = int(year)
         except ValueError as ex:
             log.warning('Got unexpected type "{}". '
-                            'Casting failed: {}'.format(type(year), ex))
+                        'Casting failed: {}'.format(type(year), ex))
             return False
 
         # Check if number of digits in "year" is less than three,
@@ -102,7 +102,7 @@ def _year_is_probable(year):
             year = datetime.strptime(str(year), '%Y')
         except TypeError:
             log.warning('Failed converting "{}" '
-                            'to datetime-object.'.format(year))
+                        'to datetime-object.'.format(year))
             return False
 
     if year.year > YEAR_UPPER_LIMIT.year:
@@ -127,7 +127,7 @@ def date_is_probable(date):
     """
     if type(date) is not datetime:
         log.warning('Got unexpected type "{}" '
-                        '(expected datetime)'.format(type(date)))
+                    '(expected datetime)'.format(type(date)))
         return False
 
     if date.year > YEAR_UPPER_LIMIT.year:
@@ -263,7 +263,7 @@ def match_special_case(text):
         else:
             if date_is_probable(dt):
                 log.debug('[DATETIME] Found very special case: '
-                              '"{}"'.format(dt))
+                          '"{}"'.format(dt))
                 return dt
     return None
 
@@ -282,7 +282,7 @@ def match_special_case_no_date(text):
     else:
         if date_is_probable(dt):
             log.debug('[DATETIME] Found very special case, date only: '
-                          '"{}"'.format(dt))
+                      '"{}"'.format(dt))
             return dt
     return None
 

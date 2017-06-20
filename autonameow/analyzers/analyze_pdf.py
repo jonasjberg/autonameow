@@ -58,12 +58,12 @@ class PdfAnalyzer(Analyzer):
         self.metadata = self.extracted_data.get('metadata.exiftool')
         self.text = self.extracted_data.get('contents.textual.raw_text')
 
-    def __collect_results(self, query_string, source_dict, source_field, weight):
-        if not source_dict:
+    def __collect_results(self, query_string, src_dict, src_field, weight):
+        if not src_dict:
             return []
 
-        if source_field in source_dict:
-            value = source_dict.get(source_field)
+        if src_field in src_dict:
+            value = src_dict.get(src_field)
             return result_list_add(value, query_string, weight)
         else:
             return []
@@ -142,9 +142,9 @@ class PdfAnalyzer(Analyzer):
             ('metadata.pypdf.EBX_PUBLISHER', self.metadata,
              'EBX_PUBLISHER', 1)]
 
-        for query_string, source_dict, source_field, weight in possible_publishers:
-            results += self.__collect_results(query_string, source_dict,
-                                              source_field, weight)
+        for query_string, src_dict, src_field, weight in possible_publishers:
+            results += self.__collect_results(query_string, src_dict,
+                                              src_field, weight)
         return results
 
     def _get_metadata_datetime(self):

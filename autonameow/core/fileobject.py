@@ -54,7 +54,6 @@ class FileObject(object):
         self.BETWEEN_TAG_SEPARATOR = opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
         self.FILENAME_TAG_SEPARATOR = opts.options['FILETAGS_OPTIONS'].get('filename_tag_separator')
 
-
         # Do "filename partitioning" -- split the file name into four parts:
         #
         #   * filenamepart_ts     Date-/timestamp.

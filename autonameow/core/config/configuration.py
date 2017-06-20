@@ -247,10 +247,14 @@ class Configuration(object):
             _try_load_date_format_option('datetime')
 
         if 'FILETAGS_OPTIONS' in self._data:
-            _try_load_filetags_option('filename_tag_separator',
-                                      constants.FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR)
-            _try_load_filetags_option('between_tag_separator',
-                                      constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR)
+            _try_load_filetags_option(
+                'filename_tag_separator',
+                constants.FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR
+            )
+            _try_load_filetags_option(
+                'between_tag_separator',
+                constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR
+            )
 
     def _load_version(self):
         version = self._data.get('autonameow_version', False)

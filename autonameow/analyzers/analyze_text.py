@@ -78,7 +78,7 @@ class TextAnalyzer(Analyzer):
         decoded_content = []
         for line in content:
             # Collapse whitespace.
-            # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
+            # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160)
             line = unidecode(line)
             line = " ".join(line.replace("\xa0", " ").strip().split())
             decoded_content.append(line)
