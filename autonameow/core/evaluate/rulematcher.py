@@ -71,6 +71,17 @@ class RuleMatcher(object):
 
 
 def prioritize_rules(rules):
+    """
+    Prioritizes (sorts) a list of 'FileRule' instances.
+
+    The list is sorted first by "score" and then by "weight".
+
+    Args:
+        rules: The list of 'FileRule' instances to prioritize/sort.
+
+    Returns:
+        A sorted/prioritized list of 'FileRule' instances.
+    """
     return sorted(rules, reverse=True,
                   key=operator.attrgetter('score', 'weight'))
 
