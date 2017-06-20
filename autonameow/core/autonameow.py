@@ -235,6 +235,9 @@ class Autonameow(object):
                     log.info('None of the rules seem to apply')
                     continue
 
+                log.info('Using file rule: "{!s}"'.format(
+                    matcher.best_match.description)
+                )
                 try:
                     self.builder = NameBuilder(current_file, analysis.results,
                                                self.config, matcher.best_match)
