@@ -82,10 +82,10 @@ class NameBuilder(object):
                       rule.score, rule.weight, rule.description))
 
         active_rule = rules_sorted[0]
-        log.info('Using file rule: {}'.format(active_rule.description))
+        log.info('Using file rule: "{!s}"'.format(active_rule.description))
 
         template = active_rule.name_template
-        log.debug('Using name template: {}'.format(template))
+        log.debug('Using name template: "{}"'.format(template))
 
         data_sources = active_rule.data_sources
 
@@ -157,11 +157,11 @@ def examine_rules(rules_to_examine, file_object, analysis_data):
                                                        rule.description))
         result = evaluate_rule(rule, file_object, analysis_data)
         if rule.exact_match and result is False:
-            log.debug('Rule evaluated false, removing: '
+            log.debug('Rule evaluated FALSE, removing: '
                       '"{}"'.format(rule.description))
             continue
 
-        log.debug('Rule evaluated true: "{}"'.format(rule.description))
+        log.debug('Rule evaluated TRUE: "{}"'.format(rule.description))
         ok_rules.append(rule)
 
     return ok_rules
@@ -241,12 +241,13 @@ def eval_condition(condition_field, condition_value, file_object,
                 log.debug('eval_path expression: "{!s}" match_data: '
                           '"{!s}"'.format(expression, match_data))
                 return False
-        if expression == match_data:
-            return True
-        elif True:
-            # TODO: [unimplemented] Handle evaluating path conditions properly!
-            pass
 
+        # NOTE: Use simple UNIX-style globbing instead of regular expressions?
+        try:
+            if re.match(expression, match_data):
+                return True
+        except ValueError:
+            pass
         return False
 
     def eval_mime_type(expression, match_data):

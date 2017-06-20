@@ -31,11 +31,13 @@ def sanitize_text(text):
     if text is None or text.strip() is None:
         return False
 
-    # TODO: Make sure this below is OK.
-    try:
-        text = unidecode(text)
-    except UnicodeDecodeError:
-        pass
+    # TODO: Handle text encoding properly.
+
+    # NOTE(jonas): This strips all umlauts from 'test_files/gmail.pdf" on Linux.
+    # try:
+    #     text = unidecode(text)
+    # except UnicodeDecodeError:
+    #     pass
 
     # Collapse whitespace.
     # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).

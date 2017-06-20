@@ -26,16 +26,16 @@ from core.config.configuration import FileRule
 RULE_CONTENTS = {
     'description': 'First Entry in the Default Configuration',
     'exact_match': False,
-    'weight': None,
+    'weight': 0.5,
     'name_template': 'default_template_name',
     'conditions': {
         'filename': {
-            'pathname': None,
-            'basename': None,
-            'extension': None
+            'pathname': '~/foo',
+            'basename': 'foo.bar',
+            'extension': 'bar'
         },
         'contents': {
-            'mime_type': None
+            'mime_type': '*/*'
         }
     },
     'data_sources': {
@@ -76,5 +76,4 @@ class TestFileRuleMethods(TestCase):
 
     def test_filerule_string(self):
         actual = str(self.filerule)
-        print(actual)
         self.assertTrue(isinstance(actual, str))

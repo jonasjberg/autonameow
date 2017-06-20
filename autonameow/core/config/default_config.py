@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from core import version
 
 ALL_CONDITIONS_FIELDS = {
     'filesystem': {
@@ -202,7 +203,9 @@ DEFAULT_CONFIG = {
     'FILETAGS_OPTIONS': {
         'filename_tag_separator': ' -- ',
         'between_tag_separator': ' '
-    }
+    },
+
+    'autonameow_version': version.__version__
 }
 
 

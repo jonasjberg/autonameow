@@ -82,6 +82,8 @@ class Extraction(object):
         # Select extractors based on detected file type.
         extractors = suitable_data_extractors_for(self.file_object)
         extractor_instances = self._instantiate_extractors(extractors)
+        log.debug('Got {} suitable extractors'.format(len(extractors)))
+
         for e in extractor_instances:
             self.extractor_queue.enqueue(e)
         log.debug('Enqueued extractors: {!s}'.format(self.extractor_queue))

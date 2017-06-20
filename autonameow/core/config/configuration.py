@@ -215,9 +215,13 @@ class Configuration(object):
         valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
         valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
         valid_weight = parse_weight(raw_rule.get('weight'))
+        valid_exact_match = bool(raw_rule.get('exact_match'))
+        valid_description = raw_rule.get('description', False)
+        if not valid_description:
+            valid_description = 'UNDESCRIBED'
 
-        file_rule = FileRule(description=raw_rule.get('description'),
-                             exact_match=raw_rule.get('exact_match'),
+        file_rule = FileRule(description=valid_description,
+                             exact_match=valid_exact_match,
                              weight=valid_weight,
                              name_template=valid_format,
                              conditions=valid_conditions,

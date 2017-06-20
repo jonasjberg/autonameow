@@ -106,7 +106,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
             return False
 
         # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
-        if re.match(r'^([a-z]+|\*)/([a-z0-9\-]+|\*)$', expression):
+        if re.match(r'^([a-z]+|\*)/([a-z0-9\-\+]+|\*)$', expression):
             return True
 
         return False
@@ -124,7 +124,7 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         try:
             _ = datetime.today().strftime(expression)
         except (ValueError, TypeError) as e:
-            log.warning('Bad datetime expression: "{!s}"'.format(expression))
+            log.debug('Bad datetime expression: "{!s}"'.format(expression))
             log.debug(str(e))
             return False
         else:

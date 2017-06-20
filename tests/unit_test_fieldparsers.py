@@ -146,6 +146,7 @@ class TestMimeTypeFieldParser(TestCase):
         self.assertTrue(self.val_func('image/png'))
         self.assertTrue(self.val_func('text/plain'))
         self.assertTrue(self.val_func('inode/x-empty'))
+        self.assertTrue(self.val_func('application/epub+zip'))
 
     def test_expect_pass_for_valid_globs(self):
         self.assertTrue(self.val_func('*/*'))
@@ -155,6 +156,8 @@ class TestMimeTypeFieldParser(TestCase):
         self.assertTrue(self.val_func('*/x-empty'))
         self.assertTrue(self.val_func('*/x-ms-bmp'))
         self.assertTrue(self.val_func('image/*'))
+        self.assertTrue(self.val_func('*/epub+zip'))
+        self.assertTrue(self.val_func('application/*'))
 
     def test_expect_pass_for_valid_mime_types_with_globs(self):
         self.assertTrue(self.val_func('*/jpeg'))

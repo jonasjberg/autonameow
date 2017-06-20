@@ -88,12 +88,37 @@ Medium Priority
 * Add conditional data extraction.
     * Extractors should not run unless needed. Related to caching, above.
 
-* Refactor the 'Configuration' class. Look over all of 'configuration.py'.
+* Refactor the `Configuration` class. Look over all of `configuration.py`.
 
 * Allow conditionals in the configuration file rules.
     * Test if a file rule is applicable by evaluating conditionals.
         * Textual contents of the file matches a regular expression?
         * Some date/time-information lies within some specific range.
+
+* __Enforce consistency in the configuration syntax.__
+  For example, why does the conditions for a file rule specify `extension`
+  under `filesystem`, while the results data structure has `extension` nested
+  under `filesystem.basename.extension`.
+
+* Rethink how specified sources are connected to actual sources.
+  Take for example the configuration file rule:
+
+    ```yaml
+    -   CONDITIONS:
+            contents:
+                mime_type: image/*
+            filesystem:
+                pathname: ~/Dropbox/Camera Uploads/.*
+        DATA_SOURCES:
+            extension: contents.mime_type
+    ```
+
+  This will fail, or *should fail* as MIME types on the form `image/jpeg`,
+  `image/png`, etc can't be used as a file extension without some
+  pre-processing -- converting `image/png` to `png`.
+
+* There are more cases like the above that should be thought about.
+* Possible redesign the overall handling of a "configuration".
 
 
 Low Priority
@@ -129,6 +154,11 @@ Low Priority
           extraction pipeline?
     * Redesign overall filtering.
     * Rewrite the `ResultFilter` class or substitute with something else.
+
+* Allow specifying known good candidates for fields.
+    * For instance, a list of known book publishers. Possibly a dictionary
+      where keys are preferred book publishers, and each key stores a
+      list of possible search strings that should be replace with the key.
 
 * Improve "filetags" integration.
     * For instance, the Microsoft Vision API returns *a lot* of tags,

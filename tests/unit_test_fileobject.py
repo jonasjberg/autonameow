@@ -22,7 +22,10 @@
 import os
 from unittest import TestCase
 
-from core import fileobject
+from core import (
+    fileobject,
+    constants
+)
 from core.fileobject import eval_magic_glob
 from unit_utils import (
     get_named_file_object,
@@ -598,7 +601,8 @@ class TestFileTypeMagic(TestCase):
             self.assertEqual(fmagic, fileobject.filetype_magic(fname))
 
     def test_filetype_magic_with_invalid_args(self):
-        self.assertEqual(fileobject.filetype_magic(None), 'MIME_UNKNOWN')
+        self.assertEqual(fileobject.filetype_magic(None),
+                         constants.MAGIC_TYPE_UNKNOWN)
 
 
 class TestEvalMagicGlob(TestCase):
@@ -630,6 +634,12 @@ class TestEvalMagicGlob(TestCase):
                                          ['*/pdf', '*/jpg', 'application/*']))
         self.assertFalse(eval_magic_glob('image/png',
                                          ['*/pdf', '*/jpg', 'image/jpg']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                        ['*/jpg']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                        ['image/*']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                        ['image/jpeg']))
 
     def test_eval_magic_blob_returns_true_as_expected(self):
         self.assertTrue(eval_magic_glob('image/jpeg', ['*/*']))
@@ -641,3 +651,9 @@ class TestEvalMagicGlob(TestCase):
         self.assertTrue(eval_magic_glob('image/jpeg', ['image/*', '*/jpeg']))
         self.assertTrue(eval_magic_glob('image/png',
                                         ['*/pdf', '*/png', 'application/*']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['application/epub+zip']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['application/*']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['*/epub+zip']))
