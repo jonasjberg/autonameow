@@ -26,7 +26,8 @@ from core.exceptions import InvalidDataSourceError
 from core.extraction import (
     ExtractedData,
     suitable_data_extractors_for,
-    get_extractor_classes
+    get_extractor_classes,
+    Extraction
 )
 from extractors.extractor import Extractor
 from unit_utils import get_mock_fileobject
@@ -107,6 +108,50 @@ class TestExtractedData(TestCase):
         actual = self.d.get(valid_label)
         self.assertIn('expected_data_a', actual)
         self.assertIn('expected_data_b', actual)
+
+
+class TestExtraction(TestCase):
+    def setUp(self):
+        self.e = Extraction(get_mock_fileobject())
+
+    def test_can_be_instantiated(self):
+        self.assertIsNotNone(self.e)
+
+    def test_initial_results_data_len_is_zero(self):
+        self.assertEqual(len(self.e.data), 0)
+
+    def test_raises_exception_For_invalid_results(self):
+        with self.assertRaises(InvalidDataSourceError):
+            self.e.collect_results('not_a_valid_source_surely', 'image/jpeg')
+
+    def test_collects_valid_results(self):
+        self.e.collect_results('contents.mime_type', 'image/jpeg')
+
+    def test_collecting_valid_results_increments_data_len(self):
+        self.e.collect_results('contents.mime_type', 'image/jpeg')
+        self.assertEqual(len(self.e.data), 1)
+        self.e.collect_results('filesystem.basename.extension', 'jpg')
+        self.assertEqual(len(self.e.data), 2)
+
+    def test_collecting_results_with_empty_data_does_not_increment_len(self):
+        self.e.collect_results('contents.mime_type', None)
+        self.assertEqual(len(self.e.data), 0)
+        self.e.collect_results('filesystem.basename.extension', None)
+        self.assertEqual(len(self.e.data), 0)
+
+    def test_has_method__instantiate_extractors(self):
+        self.assertIsNotNone(self.e._instantiate_extractors)
+
+    def test__instantiate_extractors_returns_expected_type(self):
+        extractor_classes = get_extractor_classes()
+        actual = self.e._instantiate_extractors(extractor_classes)
+
+        self.assertTrue(isinstance(actual, list))
+        for ec in actual:
+            self.assertTrue(issubclass(ec.__class__, Extractor))
+
+    def test_has_method__execute_run_queue(self):
+        self.assertIsNotNone(self.e._execute_run_queue)
 
 
 class TestSuitableDataExtractorsForFile(TestCase):
