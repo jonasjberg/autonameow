@@ -58,16 +58,15 @@ class RuleMatcher(object):
             log.debug('No valid rules remain after evaluation')
 
         log.debug('Prioritizing remaining {} rules ..'.format(len(ok_rules)))
-        rules_sorted = prioritize_rules(ok_rules)
-        for i, rule in enumerate(rules_sorted):
+        ok_rules = prioritize_rules(ok_rules)
+        for i, rule in enumerate(ok_rules):
             log.debug('{}. (score: {}, weight: {}) {} '.format(
                 i + 1, rule.score, rule.weight, rule.description)
             )
 
         # A rule is chosen
-        # active_rule = rules_sorted[0]
-        # log.info('Using file rule: "{!s}"'.format(active_rule.description))
-        self._matched_rules = rules_sorted
+        # active_rule = ok_rules[0]
+        self._matched_rules = ok_rules
 
 
 def prioritize_rules(rules):
