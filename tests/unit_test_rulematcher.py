@@ -21,7 +21,6 @@
 
 from unittest import TestCase
 from core.evaluate.rulematcher import (
-    all_template_fields_defined,
     RuleMatcher
 )
 
@@ -34,19 +33,3 @@ class TestRuleMatcher(TestCase):
         self.assertIsNotNone(self.rm)
 
 
-class TestAllTemplateFieldsDefined(TestCase):
-    def setUp(self):
-        self.template = '{datetime} {title} -- tag.{extension}'
-        self.data_sources_ok = {'datetime': 'dummy',
-                                'extension': 'dummy',
-                                'title': 'dummy'}
-        self.data_sources_missing = {'datetime': 'dummy',
-                                     'extension': 'dummy'}
-
-    def test_return_false_if_sources_does_not_include_all_template_fields(self):
-        self.assertFalse(all_template_fields_defined(self.template,
-                                                     self.data_sources_missing))
-
-    def test_return_true_if_sources_contain_all_template_fields(self):
-        self.assertTrue(all_template_fields_defined(self.template,
-                                                    self.data_sources_ok))

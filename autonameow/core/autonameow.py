@@ -195,8 +195,15 @@ class Autonameow(object):
                 self.exit_code = constants.EXIT_WARNING
                 continue
 
-            # Determine matching rules.
-            matcher = RuleMatcher(current_file, analysis.results, self.config)
+            # Determine matching rule.
+            try:
+                matcher = RuleMatcher(current_file, analysis.results,
+                                      self.config)
+            except AutonameowException as e:
+                log.critical('Rule Matching FAILED: {!s}'.format(e))
+                log.critical('Skipping file "{}" ..'.format(current_file))
+                self.exit_code = constants.EXIT_WARNING
+                continue
 
             # Present results.
             list_any = (self.args.list_datetime or self.args.list_title
@@ -224,9 +231,13 @@ class Autonameow(object):
                 log.warning('[UNIMPLEMENTED FEATURE] prepend_datetime')
 
             if self.args.automagic:
+                if not matcher.best_match:
+                    log.info('None of the rules seem to apply')
+                    continue
+
                 try:
                     self.builder = NameBuilder(current_file, analysis.results,
-                                               self.config)
+                                               self.config, matcher.best_match)
                     new_name = self.builder.build()
                 except NameBuilderError as e:
                     log.critical('Name assembly FAILED: {!s}'.format(e))

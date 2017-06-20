@@ -22,12 +22,13 @@
 import logging as log
 import os
 import re
+import operator
 
 from core import fileobject
-from core.evaluate import namebuilder
 from core.exceptions import (
     AutonameowException,
-    InvalidFileRuleError
+    InvalidFileRuleError,
+    RuleMatcherError
 )
 
 
@@ -37,31 +38,50 @@ class RuleMatcher(object):
         self.analysis_data = analysis_results
         self.config = active_config
 
+        self._matched_rules = []
 
-def all_template_fields_defined(template, data_sources):
-    """
-    Tests if all name template placeholder fields is included in the sources.
+        self.start()
 
-    This tests only the keys of the sources, for instance "datetime".
-    But the value stored for the key could still be invalid.
+    def start(self):
+        self._evaluate_rules()
 
-    Args:
-        template: The name template to compare against.
-        data_sources: The sources to check.
-
-    Returns:
-        True if all placeholder fields in the template is accounted for in
-        the sources. else False.
-    """
-    format_fields = namebuilder.format_string_placeholders(template)
-    for field in format_fields:
-        if field not in data_sources.keys():
-            log.error('Field "{}" has not been assigned a source'.format(field))
+    @property
+    def best_match(self):
+        if not self._matched_rules:
             return False
-    return True
+        return self._matched_rules[0]
+
+    def _evaluate_rules(self):
+        # Check a copy of all rules.
+        rules_to_examine = list(self.config.file_rules)
+        ok_rules = examine_rules(rules_to_examine, self.file,
+                                 self.analysis_data)
+        if len(ok_rules) == 0:
+            log.debug('No valid rules remain after evaluation')
+
+        log.debug('Prioritizing remaining {} rules ..'.format(len(ok_rules)))
+        rules_sorted = prioritize_rules(ok_rules)
+        for i, rule in enumerate(rules_sorted):
+            log.debug('{}. (score: {}, weight: {}) {} '.format(
+                i + 1, rule.score, rule.weight, rule.description)
+            )
+
+        # A rule is chosen
+        # active_rule = rules_sorted[0]
+        # log.info('Using file rule: "{!s}"'.format(active_rule.description))
+        self._matched_rules = rules_sorted
+
+
+def prioritize_rules(rules):
+    return sorted(rules, reverse=True,
+                  key=operator.attrgetter('score', 'weight'))
 
 
 def examine_rules(rules_to_examine, file_object, analysis_data):
+    # Conditions are evaluated with the current file object and current
+    # analysis results data.
+    # If a rule requires an exact match, it is skipped at first failed
+    # evaluation.
     ok_rules = []
 
     for count, rule in enumerate(rules_to_examine):
@@ -78,6 +98,56 @@ def examine_rules(rules_to_examine, file_object, analysis_data):
         ok_rules.append(rule)
 
     return ok_rules
+
+
+def evaluate_rule(file_rule, file_object, analysis_data):
+    """
+    Tests if a rule applies to a given file.
+
+    Returns at first unmatched condition if the rule requires an exact match.
+    If the rule does not require an exact match, all conditions are
+    evaluated and the rule is scored through "upvote()" and "downvote()".
+
+    Args:
+        file_object: The file to test as an instance of 'FileObject'.
+        file_rule: The rule to test as an instance of 'FileRule'.
+        analysis_data: Results data from analysis of the given file.
+
+    Returns:
+        If the rule requires an exact match:
+            True if all rule conditions evaluates to True.
+            False if any rule condition evaluates to False.
+        If the rule does not require an exact match:
+            True
+    """
+    if not file_rule.conditions:
+        raise InvalidFileRuleError('Rule does not specify any conditions')
+
+    if file_rule.exact_match:
+        for cond_field, cond_value in file_rule.conditions.items():
+            log.debug('Evaluating condition "{} == {}"'.format(cond_field,
+                                                               cond_value))
+            if not eval_condition(cond_field, cond_value, file_object,
+                                  analysis_data):
+                log.debug('Condition FAILED -- Exact match impossible ..')
+                return False
+            else:
+                file_rule.upvote()
+        return True
+
+    for cond_field, cond_value in file_rule.conditions.items():
+        log.debug('Evaluating condition "{} == {}"'.format(cond_field,
+                                                           cond_value))
+        if eval_condition(cond_field, cond_value, file_object, analysis_data):
+            log.debug('Condition Passed rule.votes++')
+            file_rule.upvote()
+        else:
+            # NOTE: file_rule.downvote()?
+            # log.debug('Condition FAILED rule.votes--')
+            log.debug('Condition FAILED')
+
+    # Rule was not completely discarded but could still have failed all tests.
+    return True
 
 
 def eval_condition(condition_field, condition_value, file_object,
@@ -155,53 +225,3 @@ def eval_condition(condition_field, condition_value, file_object,
 
     else:
         raise AutonameowException('Unhandled condition check!')
-
-
-def evaluate_rule(file_rule, file_object, analysis_data):
-    """
-    Tests if a rule applies to a given file.
-
-    Returns at first unmatched condition if the rule requires an exact match.
-    If the rule does not require an exact match, all conditions are
-    evaluated and the rule is scored through "upvote()" and "downvote()".
-
-    Args:
-        file_object: The file to test as an instance of 'FileObject'.
-        file_rule: The rule to test as an instance of 'FileRule'.
-        analysis_data: Results data from analysis of the given file.
-
-    Returns:
-        If the rule requires an exact match:
-            True if all rule conditions evaluates to True.
-            False if any rule condition evaluates to False.
-        If the rule does not require an exact match:
-            True
-    """
-    if not file_rule.conditions:
-        raise InvalidFileRuleError('Rule does not specify any conditions')
-
-    if file_rule.exact_match:
-        for cond_field, cond_value in file_rule.conditions.items():
-            log.debug('Evaluating condition "{} == {}"'.format(cond_field,
-                                                               cond_value))
-            if not eval_condition(cond_field, cond_value, file_object,
-                                  analysis_data):
-                log.debug('Condition FAILED -- Exact match impossible ..')
-                return False
-            else:
-                file_rule.upvote()
-        return True
-
-    for cond_field, cond_value in file_rule.conditions.items():
-        log.debug('Evaluating condition "{} == {}"'.format(cond_field,
-                                                           cond_value))
-        if eval_condition(cond_field, cond_value, file_object, analysis_data):
-            log.debug('Condition Passed rule.votes++')
-            file_rule.upvote()
-        else:
-            # NOTE: file_rule.downvote()?
-            # log.debug('Condition FAILED rule.votes--')
-            log.debug('Condition FAILED')
-
-    # Rule was not completely discarded but could still have failed all tests.
-    return True

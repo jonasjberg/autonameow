@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging as log
-import operator
 import re
 
 from core.evaluate import rulematcher
@@ -40,10 +39,12 @@ class NameBuilder(object):
     resulting name. The rule also determines what analysis data to use when
     populating the name template fields.
     """
-    def __init__(self, file_object, analysis_results, active_config):
+    def __init__(self, file_object, analysis_results, active_config,
+                 active_rule):
         self.file = file_object
         self.analysis_data = analysis_results
         self.config = active_config
+        self.active_rule = active_rule
 
         self._new_name = None
 
@@ -52,41 +53,13 @@ class NameBuilder(object):
         return self._new_name
 
     def build(self):
-        # Check a copy of all rules.
-        # Conditions are evaluated with the current file object and current
-        # analysis results data.
-        # If a rule requires an exact match, it is skipped at first failed
-        # evaluation. After evaluating all rules, the remaining rules in
-        # "ok_rules" are sorted. The first rule in the resulting list is used.
-        rules_to_examine = list(self.config.file_rules)
-
-        ok_rules = rulematcher.examine_rules(rules_to_examine, self.file,
-                                             self.analysis_data)
-
-        if len(ok_rules) == 0:
-            log.debug('No valid rules remain after evaluation')
-            raise NameBuilderError('None of the rules seem to apply')
-
-        log.debug('Prioritizing (sorting) remaining {} rules'
-                  ' ..'.format(len(ok_rules)))
-        rules_sorted = sorted(ok_rules, reverse=True,
-                              key=operator.attrgetter('score', 'weight'))
-        for i, rule in enumerate(rules_sorted):
-            log.debug('{}. (score: {}, weight: {}) {} '.format(i + 1,
-                      rule.score, rule.weight, rule.description))
-
-        # A rule is chosen
-        active_rule = rules_sorted[0]
-        log.info('Using file rule: "{!s}"'.format(active_rule.description))
-
-        template = active_rule.name_template
+        template = self.active_rule.name_template
         log.debug('Using name template: "{}"'.format(template))
-
-        data_sources = active_rule.data_sources
 
         # TODO: Future redesign should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
-        if not rulematcher.all_template_fields_defined(template, data_sources):
+        data_sources = self.active_rule.data_sources
+        if not all_template_fields_defined(template, data_sources):
             log.error('All name template placeholder fields must be '
                       'given a data source; Check the configuration!')
             raise NameBuilderError('Some template field sources are unknown')
@@ -116,6 +89,7 @@ class NameBuilder(object):
                       'data: {!s}'.format(template, data))
             raise NameBuilderError('Unable to assemble basename')
 
+        self._new_name = result
         return result
 
 
@@ -223,3 +197,26 @@ def formatted_datetime(datetime_string, format_string):
             datetime_string))
     else:
         return datetime_object.strftime(format_string)
+
+
+def all_template_fields_defined(template, data_sources):
+    """
+    Tests if all name template placeholder fields is included in the sources.
+
+    This tests only the keys of the sources, for instance "datetime".
+    But the value stored for the key could still be invalid.
+
+    Args:
+        template: The name template to compare against.
+        data_sources: The sources to check.
+
+    Returns:
+        True if all placeholder fields in the template is accounted for in
+        the sources. else False.
+    """
+    format_fields = format_string_placeholders(template)
+    for field in format_fields:
+        if field not in data_sources.keys():
+            log.error('Field "{}" has not been assigned a source'.format(field))
+            return False
+    return True

@@ -54,6 +54,10 @@ class NameBuilderError(AutonameowException):
     """An error occurred while constructing a name. Unable to proceed."""
 
 
+class RuleMatcherError(AutonameowException):
+    """An error occurred while matching file rules. Unable to proceed."""
+
+
 class InvalidQueryStringError(ConfigError):
     """The query string format is invalid, can not be used to traverse data."""
 
