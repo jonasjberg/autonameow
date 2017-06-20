@@ -390,14 +390,14 @@ def bruteforce_str(text, return_first_match=False):
     # Internal function checks result, adds to list of results if OK.
     # TODO: [BL002] Include number of tries in the result to act as a weight;
     #               lower numbers more probable to be true positives.
-    def validate_result(dt):
-        if date_is_probable(dt):
-            log.debug('Extracted datetime from text: [{}]'.format(dt))
-            results.append(dt)
+    def validate_result(data):
+        if date_is_probable(data):
+            log.debug('Extracted datetime from text: [{}]'.format(data))
+            results.append(data)
             bruteforce_str.matches += 1
             bruteforce_str.matches_total += 1
             if return_first_match:
-                return dt
+                return data
 
     if len(text) < 4:
         return None
