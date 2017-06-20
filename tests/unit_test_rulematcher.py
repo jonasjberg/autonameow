@@ -21,7 +21,8 @@
 
 from unittest import TestCase
 from core.evaluate.rulematcher import (
-    RuleMatcher
+    RuleMatcher,
+    prioritize_rules
 )
 
 
@@ -32,4 +33,60 @@ class TestRuleMatcher(TestCase):
     def test_rule_matcher_can_be_instantiated(self):
         self.assertIsNotNone(self.rm)
 
+
+class DummyFileRule(object):
+    def __init__(self, score, weight):
+        self.score = score
+        self.weight = weight
+
+
+class TestPrioritizeRules(TestCase):
+    def test_prioritize_rules_returns_empty_list_given_empty_list(self):
+        self.assertIsNotNone(prioritize_rules([]))
+        self.assertTrue(isinstance(prioritize_rules([]), list))
+
+    def test_prioritize_rules_raises_attribute_error_given_invalid_input(self):
+        with self.assertRaises(AttributeError):
+            prioritize_rules([None, None])
+            prioritize_rules([None])
+
+    def test_prioritize_rules_returns_expected_based_on_score_same_weight(self):
+        fr_a = DummyFileRule(3, 0.5)
+        fr_b = DummyFileRule(2, 0.5)
+        expected = [fr_a, fr_b]
+        actual = prioritize_rules([fr_a, fr_b])
+        self.assertTrue(actual, expected)
+
+        fr_a = DummyFileRule(0, 0.5)
+        fr_b = DummyFileRule(3, 0.5)
+        expected = [fr_b, fr_a]
+        actual = prioritize_rules([fr_a, fr_b])
+        self.assertTrue(actual, expected)
+
+    def test_prioritize_rules_returns_expected_based_on_score_diff_weight(self):
+        fr_a = DummyFileRule(3, 1)
+        fr_b = DummyFileRule(2, 0)
+        expected = [fr_a, fr_b]
+        actual = prioritize_rules([fr_a, fr_b])
+        self.assertTrue(actual, expected)
+
+        fr_a = DummyFileRule(1, 0.1)
+        fr_b = DummyFileRule(3, 0.5)
+        expected = [fr_b, fr_a]
+        actual = prioritize_rules([fr_a, fr_b])
+        self.assertTrue(actual, expected)
+
+    def test_prioritize_rules_returns_expected_based_on_weight_same_score(self):
+        fr_a = DummyFileRule(3, 0)
+        fr_b = DummyFileRule(3, 1)
+        expected = [fr_b, fr_a]
+        actual = prioritize_rules([fr_a, fr_b])
+        self.assertTrue(actual, expected)
+
+    def test_prioritize_rules_returns_expected_based_on_weight_zero_score(self):
+        fr_a = DummyFileRule(0, 0.1)
+        fr_b = DummyFileRule(0, 0.5)
+        expected = [fr_b, fr_a]
+        actual = prioritize_rules([fr_a, fr_b])
+        self.assertTrue(actual, expected)
 
