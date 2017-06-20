@@ -23,7 +23,6 @@ import logging as log
 
 from core import constants
 from core.exceptions import InvalidDataSourceError
-from core.fileobject import eval_magic_glob
 from core.util.queue import GenericQueue
 
 # TODO: [hack] Fix this! Used for instantiating extractors so that they are

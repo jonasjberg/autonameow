@@ -32,12 +32,10 @@ from core.analysis import (
     suitable_analyzers_for
 )
 from core.constants import ANALYSIS_RESULTS_FIELDS
-from core.extraction import get_extractor_classes
 from unit_utils import (
     get_mock_analyzer,
     get_mock_fileobject,
     get_mock_extractor_data,
-    get_instantiated_analyzers
 )
 
 

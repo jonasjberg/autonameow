@@ -23,9 +23,7 @@ from datetime import datetime
 from unittest import TestCase
 
 from analyzers.analyze_filename import FilenameAnalyzer
-from core.fileobject import FileObject
 from unit_utils import (
-    make_temporary_file,
     get_named_file_object
 )
 

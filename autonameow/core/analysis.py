@@ -29,7 +29,6 @@ from core import constants
 from core.exceptions import (
     AutonameowException
 )
-from core.fileobject import eval_magic_glob
 from core.util.misc import flatten_dict
 from core.util.queue import GenericQueue
 

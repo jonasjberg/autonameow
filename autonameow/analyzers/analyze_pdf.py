@@ -25,15 +25,6 @@ from datetime import datetime
 
 from analyzers.analyzer import Analyzer
 from core.util import dateandtime
-from core.util import textutils
-from extractors.metadata import (
-    ExiftoolMetadataExtractor,
-    PyPDFMetadataExtractor
-)
-from extractors.textual import (
-    extract_pdf_content_with_pdftotext,
-    extract_pdf_content_with_pypdf
-)
 
 
 class PdfAnalyzer(Analyzer):
