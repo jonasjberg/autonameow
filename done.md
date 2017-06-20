@@ -57,3 +57,13 @@ University mail: `js224eh[a]student.lnu.se`
     > -------------
     >
     > * Update `MimeTypeConfigFieldParser` to handle MIME type globbing.
+
+* 2017-06-20
+
+    > High Priority
+    > -------------
+    >
+    > * Refactor the `NameBuilder` class and `namebuilder.py`
+    >     * Separate evaluating rules from constructing file names.
+    >     * Recreate something similar to the old `RuleMatcher` and have it handle
+    >       rule evaluation?
