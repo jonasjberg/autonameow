@@ -104,6 +104,7 @@ Medium Priority
   Take for example the configuration file rule:
 
     ```yaml
+    FILE_RULES:
     -   CONDITIONS:
             contents:
                 mime_type: image/*
@@ -118,6 +119,33 @@ Medium Priority
   pre-processing -- converting `image/png` to `png`.
 
 * There are more cases like the above that should be thought about.
+  A common case is the slight modification to the current file name.
+  Original file name:
+    ```
+    2017-06-20_00-49-56 Working on autonameow.png
+    ```
+  Desired file name:
+    ```
+    2017-06-20T004956 Working on autonameow.png
+    ```
+  How should this be specified in the configuration?
+  A simple alternative is to specify the filename analyzer as the source.
+  The `DATETIME_FORMAT` makes sure that the timestamp format is changed.
+
+    ```yaml
+    FILE_RULES:
+    -   DATA_SOURCES:
+            extension: contents.basename.extension
+            datetime: analysis.filename.{?????}
+            title: filesystem.basename.prefix
+        NAME_FORMAT: "{datetime} {title}.{extension}"
+    DATETIME_FORMAT:
+        datetime: '%Y-%m-%dT%H%M%S'
+    ```
+  But this is not configurable -- how would the filename analyzer know
+  which of many possible datetime results to use?
+
+
 * Possible redesign the overall handling of a "configuration".
 
 
@@ -167,6 +195,8 @@ Low Priority
       intersection of the unfiltered tags and a whitelist.
     * Allow specifying allowed tags in the configuration?
     * Allow specifying mutually exclusive tags in the configuration?
+
+* Add new name format placeholder field `{year}`.
 
 
 Wishlist
