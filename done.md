@@ -11,6 +11,31 @@ University mail: `js224eh[a]student.lnu.se`
 ========================================
 
 
+* 2017-06-20
+
+    > High Priority
+    > -------------
+    >
+    > * Refactor the `NameBuilder` class and `namebuilder.py`
+    >     * Separate evaluating rules from constructing file names.
+    >     * Recreate something similar to the old `RuleMatcher` and have it handle
+    >       rule evaluation?
+
+* 2017-06-19
+
+    > High Priority
+    > -------------
+    >
+    > * Update `MimeTypeConfigFieldParser` to handle MIME type globbing.
+
+* 2017-06-17
+
+    > High Priority
+    > -------------
+    >
+    > * Handle case where `AnalysisResults` does not contain the data requested by
+    >   the name builder through the `query` method.
+
 * 2017-06-16
 
     > High Priority
@@ -42,28 +67,3 @@ University mail: `js224eh[a]student.lnu.se`
     >   data? If so, use a separate container for "derived data".
     > * Alternatively, store all types of results in the `Analysis` class `Results`
     >   instance but modify the `Results` class to distinguish between the types?
-
-* 2017-06-17
-
-    > High Priority
-    > -------------
-    >
-    > * Handle case where `AnalysisResults` does not contain the data requested by
-    >   the name builder through the `query` method.
-
-* 2017-06-19
-
-    > High Priority
-    > -------------
-    >
-    > * Update `MimeTypeConfigFieldParser` to handle MIME type globbing.
-
-* 2017-06-20
-
-    > High Priority
-    > -------------
-    >
-    > * Refactor the `NameBuilder` class and `namebuilder.py`
-    >     * Separate evaluating rules from constructing file names.
-    >     * Recreate something similar to the old `RuleMatcher` and have it handle
-    >       rule evaluation?
