@@ -78,6 +78,7 @@ class NameBuilder(object):
             log.debug('{}. (score: {}, weight: {}) {} '.format(i + 1,
                       rule.score, rule.weight, rule.description))
 
+        # A rule is chosen
         active_rule = rules_sorted[0]
         log.info('Using file rule: "{!s}"'.format(active_rule.description))
 
@@ -104,13 +105,12 @@ class NameBuilder(object):
         log.debug(str(data))
 
         # Format datetime
+        # TODO: Format ALL data before assembly, not only date/time-information.
         data = pre_assemble_format(data, template, self.config)
         log.debug('After pre-assembly formatting;')
         log.debug(str(data))
 
-        # TODO: Populate "template" with entries from "self.analysis_data"
-        # TODO: as specified in "data_sources".
-
+        # Construct the new file name
         result = assemble_basename(template, **data)
         log.debug('Assembled basename: "{}"'.format(result))
 
