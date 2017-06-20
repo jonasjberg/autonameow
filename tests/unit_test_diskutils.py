@@ -333,7 +333,7 @@ class TestGetFiles(TestCase):
             self.assertNotIn(f, self.abspath_files_subsubdir_b)
             self.assertNotIn(f, self.abspath_files_subdir)
 
-    def test_returns_expected_files_recursive_from_subsubdir_a(self):
+    def test_returns_expected_files_recursive_from_subsubdir_b(self):
         actual = get_files(unit_utils.abspath_testfile('subdir/subsubdir_B'),
                            recurse=True)
 
