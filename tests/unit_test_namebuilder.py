@@ -23,8 +23,7 @@ from unittest import TestCase
 
 from core.evaluate.namebuilder import (
     assemble_basename,
-    format_string_placeholders,
-    all_template_fields_defined
+    format_string_placeholders
 )
 from core.exceptions import NameTemplateSyntaxError
 
@@ -89,21 +88,3 @@ class TestFormatStringPlaceholders(TestCase):
     def test_format_string_placeholders_duplicate_placeholders(self):
         self.assertEqual(format_string_placeholders('{foo} abc {foo}'),
                          ['foo', 'foo'])
-
-
-class TestAllTemplateFieldsDefined(TestCase):
-    def setUp(self):
-        self.template = '{datetime} {title} -- tag.{extension}'
-        self.data_sources_ok = {'datetime': 'dummy',
-                                'extension': 'dummy',
-                                'title': 'dummy'}
-        self.data_sources_missing = {'datetime': 'dummy',
-                                     'extension': 'dummy'}
-
-    def test_return_false_if_sources_does_not_include_all_template_fields(self):
-        self.assertFalse(all_template_fields_defined(self.template,
-                                                     self.data_sources_missing))
-
-    def test_return_true_if_sources_contain_all_template_fields(self):
-        self.assertTrue(all_template_fields_defined(self.template,
-                                                    self.data_sources_ok))
