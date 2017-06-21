@@ -74,7 +74,7 @@ def print_start_info():
     user = os.environ.get('USER')
     plat = ' '.join(platform.uname()[:3])
     i = colorize('Started at {d} by {u} on {p}'.format(d=date, u=user, p=plat),
-                 fore='LIGHTBLACK_EX')
+                 style='DIM')
     print(i)
 
     logging.debug('Started {} version {}'.format(version.__title__,
@@ -99,7 +99,7 @@ def print_exit_info(exit_code, elapsed_time):
 
     i = colorize('Finished at {d} after {t:.6f} seconds with exit code '
                  '{c}'.format(d=date, t=elapsed_time, c=exit_code),
-                 fore='LIGHTBLACK_EX')
+                 style='DIM')
     print(i)
 
 

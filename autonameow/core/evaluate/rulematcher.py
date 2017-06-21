@@ -52,10 +52,12 @@ class RuleMatcher(object):
     def _evaluate_rules(self):
         # Check a copy of all rules.
         rules_to_examine = list(self.config.file_rules)
+        log.debug('Examining {} rules ..'.format(len(rules_to_examine)))
         ok_rules = examine_rules(rules_to_examine, self.file,
                                  self.analysis_data)
         if len(ok_rules) == 0:
             log.debug('No valid rules remain after evaluation')
+            return
 
         log.debug('Prioritizing remaining {} rules ..'.format(len(ok_rules)))
         ok_rules = prioritize_rules(ok_rules)
@@ -64,8 +66,6 @@ class RuleMatcher(object):
                 i + 1, rule.score, rule.weight, rule.description)
             )
 
-        # A rule is chosen
-        # active_rule = ok_rules[0]
         self._matched_rules = ok_rules
 
 

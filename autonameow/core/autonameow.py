@@ -56,50 +56,50 @@ class Autonameow(object):
     Main class to manage a running "autonameow" instance.
     """
 
-    def __init__(self, opts):
+    def __init__(self, args):
         """
         Main program entry point.  Initializes a autonameow instance/session.
 
         Args:
-            opts: Option arguments as a list of strings.
+            args: Option arguments as a list of strings.
         """
         self._exit_code = constants.EXIT_SUCCESS
 
         # For calculating the total runtime.
         self.start_time = time.time()
 
-        self.opts = opts        # "Raw" option arguments as list of strings.
-        self.args = None        # Parsed options returned by argparse.
+        self.args = args        # "Raw" option arguments as list of strings.
+        self.opts = None        # Parsed options returned by argparse.
 
         self.filter = None
         self.config = Configuration()
 
     def run(self):
         # Display help/usage information if no arguments are provided.
-        if not self.opts:
+        if not self.args:
             print('Add "--help" to display usage information.')
             self.exit_program(constants.EXIT_SUCCESS)
 
-        # Handle the command line arguments.
-        self.args = options.parse_args(self.opts)
+        # Handle the command line arguments and setup logging.
+        self.opts = options.initialize(self.args)
 
         # Display various information depending on verbosity level.
-        if self.args.verbose or self.args.debug:
+        if self.opts.verbose or self.opts.debug:
             cli.print_start_info()
 
         # Display startup banner with program version and exit.
-        if self.args.show_version:
+        if self.opts.show_version:
             cli.print_ascii_banner()
             self.exit_program(constants.EXIT_SUCCESS)
 
         # Check configuration file. If no alternate config file path is
         # provided and no config file is found at default paths; copy the
         # template config and tell the user.
-        if self.args.config_path:
+        if self.opts.config_path:
             try:
                 log.info('Using configuration file: '
-                         '"{!s}"'.format(self.args.config_path))
-                self.config.load(self.args.config_path)
+                         '"{!s}"'.format(self.opts.config_path))
+                self.config.load(self.opts.config_path)
             except ConfigError as e:
                 log.critical('Failed to load configuration file!')
                 log.debug(str(e))
@@ -132,20 +132,20 @@ class Autonameow(object):
                     log.critical('Configuration syntax error: "{!s}"'.format(e))
 
         # TODO: Integrate filter settings in configuration (file).
-        self.filter = ResultFilter().configure_filter(self.args)
+        self.filter = ResultFilter().configure_filter(self.opts)
 
-        if self.args.dump_options:
+        if self.opts.dump_options:
             include_opts = {'config_file_path': config.ConfigFilePath}
-            options.prettyprint_options(self.args, include_opts)
+            options.prettyprint_options(self.opts, include_opts)
 
-        if self.args.dump_config:
+        if self.opts.dump_config:
             log.info('Dumping active configuration ..')
             cli.msg('Active Configuration:', style='heading')
             cli.msg(str(self.config))
             self.exit_program(constants.EXIT_SUCCESS)
 
         # Handle any input paths/files.
-        if not self.args.input_paths:
+        if not self.opts.input_paths:
             log.warning('No input files specified ..')
             self.exit_program(constants.EXIT_SUCCESS)
 
@@ -165,7 +165,7 @@ class Autonameow(object):
         6. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
         7. (automagic mode and not --dry-run) Rename the file.
         """
-        for input_path in self.args.input_paths:
+        for input_path in self.opts.input_paths:
             log.info('Processing: "{!s}"'.format(input_path))
 
             # Sanity checking the "input_path" is part of 'FileObject' init.
@@ -206,31 +206,31 @@ class Autonameow(object):
                 continue
 
             # Present results.
-            list_any = (self.args.list_datetime or self.args.list_title
-                        or self.args.list_all)
+            list_any = (self.opts.list_datetime or self.opts.list_title
+                        or self.opts.list_all)
             if list_any:
                 cli.msg(('File: "{}"\n'.format(current_file.abspath)))
 
-            if self.args.list_all:
+            if self.opts.list_all:
                 log.info('Listing ALL analysis results ..')
                 cli.msg('Analysis Results Data', style='heading', log=True)
                 cli.msg(misc.dump(analysis.results.get_all()))
                 cli.msg('Extraction Results Data', style='heading', log=True)
                 cli.msg(misc.dump(analysis.results.new_data))
             else:
-                if self.args.list_datetime:
+                if self.opts.list_datetime:
                     log.info('Listing "datetime" analysis results ..')
                     cli.msg(misc.dump(analysis.results.get('datetime')))
-                if self.args.list_title:
+                if self.opts.list_title:
                     log.info('Listing "title" analysis results ..')
                     cli.msg(misc.dump(analysis.results.get('title')))
 
             # Perform actions.
-            if self.args.prepend_datetime:
+            if self.opts.prepend_datetime:
                 # TODO: Prepend datetime to filename.
                 log.warning('[UNIMPLEMENTED FEATURE] prepend_datetime')
 
-            if self.args.automagic:
+            if self.opts.automagic:
                 if not matcher.best_match:
                     log.info('None of the rules seem to apply')
                     continue
@@ -250,13 +250,13 @@ class Autonameow(object):
                     # TODO: Respect '--quiet' option. Suppress output.
                     log.info('New name: "{}"'.format(new_name))
                     renamed_ok = self.do_rename(current_file.abspath, new_name,
-                                                dry_run=self.args.dry_run)
+                                                dry_run=self.opts.dry_run)
                     if renamed_ok:
                         self.exit_code = constants.EXIT_SUCCESS
                     else:
                         self.exit_code = constants.EXIT_WARNING
 
-            elif self.args.interactive:
+            elif self.opts.interactive:
                 # TODO: Create a interactive interface.
                 # TODO: [BL013] Interactive mode in 'interactive.py'.
                 log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
@@ -272,7 +272,7 @@ class Autonameow(object):
         elapsed_time = time.time() - self.start_time
         self.exit_code = exit_code_
 
-        if self.args and self.args.verbose:
+        if self.opts and self.opts.verbose:
             cli.print_exit_info(self.exit_code, elapsed_time)
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))

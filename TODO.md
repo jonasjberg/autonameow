@@ -215,6 +215,9 @@ Low Priority
 
 * Add new name format placeholder field `{year}`.
 
+* Do not include the file rule attribute `score` when listing the
+  configuration with `--dump-config`.
+
 
 Wishlist
 --------
