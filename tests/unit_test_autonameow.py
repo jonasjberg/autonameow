@@ -36,17 +36,17 @@ class TestAutonameowWithoutOptions(TestCase):
         self.autonameow = Autonameow('')
         self.autonameow.exit_program = mock.MagicMock()
 
-    def test_autonameow_can_be_instantiated_without_opts(self):
+    def test_autonameow_can_be_instantiated_without_args(self):
         self.assertIsNotNone(self.autonameow)
 
-    def test_prints_help_when_started_without_opts(self):
+    def test_prints_help_when_started_without_args(self):
         with capture_stdout() as out:
             self.autonameow.run()
 
         # NOTE: [hardcoded] Likely to break if usage help text is changed.
         self.assertIn('"--help"', out.getvalue().strip())
 
-    def test_exits_program_successfully_when_started_without_opts(self):
+    def test_exits_program_successfully_when_started_without_args(self):
         self.autonameow.run()
         self.autonameow.exit_program.assert_called_with(constants.EXIT_SUCCESS)
 
