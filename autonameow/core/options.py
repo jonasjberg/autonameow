@@ -23,9 +23,10 @@ import argparse
 import logging
 import os
 
-from colorama import Fore
-
-from core.util import dateandtime, cli
+from core.util import (
+    dateandtime,
+    cli
+)
 
 
 def arg_is_year(value):
