@@ -218,6 +218,8 @@ Low Priority
 * Do not include the file rule attribute `score` when listing the
   configuration with `--dump-config`.
 
+* Add assigning tags to GPS coordinates for tagging images with EXIF GPS data.
+
 
 Wishlist
 --------
