@@ -227,49 +227,21 @@ def init_argparser():
     return parser
 
 
-def parse_args(opts):
+def initialize(opts):
     """
-    Parses the given option arguments.
+    Handles raw option arguments and initializes logging.
 
-    Configures the logger format and settings.
-    Checks legality of combined options.
+    Configures logging and checks legality of combined options.
 
     Args:
-        opts: The option arguments to parse as a list of strings.
+        opts: The option arguments as a list of strings.
 
     Returns:
         Parsed option arguments as type 'argparse.NameSpace'.
     """
-    parser = init_argparser()
-    args = parser.parse_args(args=opts)
+    args = parse_args(opts)
 
-    # Setup logging output format.
-    # TODO: Make logging verbosity more controllable with additional logging
-    #       levels, enabled by adding on any number of '-v' options to the
-    #       command-line. For instance, verbosity levels 1 and 3 would be
-    #       enabled with '-v' and '-vvv', respectively.
-
-    # TODO: Use 'core.util.cli.colorize' to colorize the below log formats.
-    if args.debug:
-        fmt = (Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET
-               + Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET
-               + ' %(funcName)-25.25s (%(lineno)3d) ' + Fore.LIGHTBLACK_EX
-               + ' -- ' + Fore.RESET + '%(message)s')
-        logging.basicConfig(level=logging.DEBUG, format=fmt,
-                            datefmt='%Y-%m-%d %H:%M:%S')
-    elif args.verbose:
-        fmt = (Fore.LIGHTBLACK_EX + '%(asctime)s' + Fore.RESET
-               + Fore.LIGHTBLUE_EX + ' %(levelname)-8.8s' + Fore.RESET
-               + Fore.LIGHTBLACK_EX + ' -- ' + Fore.RESET
-               + '%(message)s')
-        logging.basicConfig(level=logging.INFO, format=fmt,
-                            datefmt='%Y-%m-%d %H:%M:%S')
-    elif args.quiet:
-        fmt = '%(levelname)s -- %(message)s'
-        logging.basicConfig(level=logging.CRITICAL, format=fmt)
-    else:
-        fmt = '%(levelname)s -- %(message)s'
-        logging.basicConfig(level=logging.WARNING, format=fmt)
+    init_logging(args)
 
     if args.automagic and args.interactive:
         logging.critical('Operating mode must be either one of "automagic" or '
@@ -282,6 +254,72 @@ def parse_args(opts):
         args.interactive = True
 
     return args
+
+
+def parse_args(opts):
+    """
+    Parses the given option arguments with argparse.
+
+    Args:
+        opts: The option arguments to parse as a list of strings.
+
+    Returns:
+        Parsed option arguments as type 'argparse.NameSpace'.
+    """
+
+    parser = init_argparser()
+    args = parser.parse_args(args=opts)
+    return args
+
+
+def init_logging(args):
+    """
+    Configures the log format and logging settings.
+
+    Args:
+        args: Parsed option arguments as type 'argparse.NameSpace'.
+    """
+    # NOTE(jonas): This is probably a bad idea, but seems to work good enough.
+    # TODO: [hardcoded] Remove spaces after labels, used for alignment.
+    logging.addLevelName(logging.INFO, cli.colorize(
+        '[INFO]    ', fore='GREEN'
+    ))
+    logging.addLevelName(logging.DEBUG, cli.colorize(
+        '[DEBUG]   ', fore='BLUE'
+    ))
+    logging.addLevelName(logging.WARNING, cli.colorize(
+        '[WARNING] ', fore='YELLOW', style='BRIGHT'
+    ))
+    logging.addLevelName(logging.ERROR, cli.colorize(
+        '[ERROR]   ', fore='RED', style='BRIGHT'
+    ))
+    logging.addLevelName(logging.CRITICAL, cli.colorize(
+        '[CRITICAL]', fore='LIGHTRED_EX', style='BRIGHT'
+    ))
+
+    # Setup logging output format.
+    # TODO: Make logging verbosity more controllable with additional logging
+    #       levels, enabled by adding on any number of '-v' options to the
+    #       command-line. For instance, verbosity levels 1 and 3 would be
+    #       enabled with '-v' and '-vvv', respectively.
+
+    _colored_timestamp = cli.colorize('%(asctime)s', style='DIM')
+    if args.debug:
+        fmt = (_colored_timestamp
+               + ' %(levelname)s %(funcName)-25.25s (%(lineno)3d) %(message)s')
+        logging.basicConfig(level=logging.DEBUG, format=fmt,
+                            datefmt='%Y-%m-%d %H:%M:%S')
+    elif args.verbose:
+        fmt = (_colored_timestamp
+               + ' %(levelname)s %(message)s')
+        logging.basicConfig(level=logging.INFO, format=fmt,
+                            datefmt='%Y-%m-%d %H:%M:%S')
+    elif args.quiet:
+        fmt = '%(levelname)s %(message)s'
+        logging.basicConfig(level=logging.CRITICAL, format=fmt)
+    else:
+        fmt = '%(levelname)s %(message)s'
+        logging.basicConfig(level=logging.WARNING, format=fmt)
 
 
 def prettyprint_options(opts, extra_opts):

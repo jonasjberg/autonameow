@@ -80,8 +80,8 @@ class Autonameow(object):
             print('Add "--help" to display usage information.')
             self.exit_program(constants.EXIT_SUCCESS)
 
-        # Handle the command line arguments.
-        self.args = options.parse_args(self.opts)
+        # Handle the command line arguments and setup logging.
+        self.args = options.initialize(self.opts)
 
         # Display various information depending on verbosity level.
         if self.args.verbose or self.args.debug:
