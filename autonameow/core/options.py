@@ -228,19 +228,19 @@ def init_argparser():
     return parser
 
 
-def initialize(opts):
+def initialize(raw_args):
     """
     Handles raw option arguments and initializes logging.
 
     Configures logging and checks legality of combined options.
 
     Args:
-        opts: The option arguments as a list of strings.
+        raw_args: The option arguments as a list of strings.
 
     Returns:
         Parsed option arguments as type 'argparse.NameSpace'.
     """
-    args = parse_args(opts)
+    args = parse_args(raw_args)
 
     init_logging(args)
 
@@ -257,20 +257,18 @@ def initialize(opts):
     return args
 
 
-def parse_args(opts):
+def parse_args(raw_args):
     """
     Parses the given option arguments with argparse.
 
     Args:
-        opts: The option arguments to parse as a list of strings.
+        raw_args: The option arguments to parse as a list of strings.
 
     Returns:
         Parsed option arguments as type 'argparse.NameSpace'.
     """
-
     parser = init_argparser()
-    args = parser.parse_args(args=opts)
-    return args
+    return parser.parse_args(args=raw_args)
 
 
 def init_logging(args):
