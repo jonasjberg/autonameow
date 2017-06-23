@@ -25,6 +25,7 @@ import os
 import io
 import tempfile
 import sys
+import unittest
 
 from contextlib import contextmanager
 
@@ -35,6 +36,15 @@ from core.fileobject import FileObject
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 _PARENT_DIR = os.path.normpath(_THIS_DIR + os.sep + os.pardir)
 TESTS_DIR = os.path.join(_PARENT_DIR + os.sep + 'test_files')
+
+
+class TestCase(unittest.TestCase):
+    # TODO: Use this to get rid of duplicate self.maxDiff settings, etc.
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
 
 
 def abspath_testfile(file):
