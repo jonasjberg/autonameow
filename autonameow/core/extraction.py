@@ -97,18 +97,20 @@ class Extraction(object):
         # components? If the user wants to use parts of the original file
         # name in the new name, conversion can't be lossy. Solve by storing
         # bytestring versions of these fields as well?
+
+        # TODO: [encoding] Enforce encoding boundary for extracted data.
         self.collect_results('filesystem.basename.full',
-                             self.file_object.filename)
+                             util.decode_(self.file_object.filename))
         self.collect_results('filesystem.basename.extension',
-                             self.file_object.suffix)
+                             util.decode_(self.file_object.suffix))
         self.collect_results('filesystem.basename.suffix',
-                             self.file_object.suffix)
+                             util.decode_(self.file_object.suffix))
         self.collect_results('filesystem.basename.prefix',
-                             self.file_object.fnbase)
+                             util.decode_(self.file_object.fnbase))
         self.collect_results('filesystem.pathname.full',
-                             self.file_object.pathname)
+                             util.decode_(self.file_object.pathname))
         self.collect_results('filesystem.pathname.parent',
-                             self.file_object.pathparent)
+                             util.decode_(self.file_object.pathparent))
 
         # Execute all suitable extractors and collect results.
         self._execute_run_queue()
