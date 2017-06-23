@@ -41,15 +41,22 @@ FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + b'([T_ -]?' + TIME_REGEX + b')?'
 
 class FileObject(object):
     def __init__(self, path, opts):
-        # File name encoding boundary. Convert to internal format.
         path = util.syspath(path)
-
         validate_path_argument(path)
 
-        self.abspath = util.bytestring_path(os.path.abspath(path))
-        self.filename = util.bytestring_path(os.path.basename(self.abspath))
-        self.pathname = util.bytestring_path(os.path.dirname(self.abspath))
-        self.pathparent = util.bytestring_path(os.path.basename(self.pathname))
+        # File name encoding boundary. Convert to internal format.
+        self.abspath = util.bytestring_path(
+            os.path.abspath(path)
+        )
+        self.filename = util.bytestring_path(
+            os.path.basename(os.path.abspath(path))
+        )
+        self.pathname = util.bytestring_path(
+            os.path.dirname(os.path.abspath(path))
+        )
+        self.pathparent = util.bytestring_path(
+            os.path.basename(os.path.dirname(os.path.abspath(path)))
+        )
 
         self.mime_type = filetype_magic(self.abspath)
 
