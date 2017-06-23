@@ -122,7 +122,10 @@ def split_filename(file_path):
     Returns:
 
     """
-    base, ext = os.path.splitext(os.path.basename(file_path))
+    base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
+
+    base = util.bytestring_path(base)
+    ext = util.bytestring_path(ext)
 
     # Split "base" twice to make compound suffix out of the two extensions.
     if ext.lower() in [b'.bz2', b'.gz', b'.lz', b'.lzma', b'.lzo', b'.xz',
@@ -186,7 +189,7 @@ def file_base(file_path):
 
 
 def file_basename(file_path):
-    return os.path.basename(file_path)
+    return util.syspath(os.path.basename(file_path))
 
 
 def path_ancestry(path):
