@@ -303,9 +303,7 @@ class Configuration(object):
 
         Args:
             source: The configuration to load as either a dictionary or a
-
-        Returns:
-
+                bytestring path.
         """
         if isinstance(source, dict):
             self._load_from_dict(source)

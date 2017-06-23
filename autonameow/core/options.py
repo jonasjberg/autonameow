@@ -23,6 +23,7 @@ import argparse
 import logging
 import os
 
+from core import util
 from core.util import (
     dateandtime,
     cli
@@ -62,7 +63,7 @@ def arg_is_readable_file(arg):
             and os.access(arg, os.R_OK)):
         if arg.startswith('~/'):
             arg = os.path.expanduser(arg)
-        return os.path.normpath(os.path.abspath(arg))
+        return util.normpath(arg)
 
     raise argparse.ArgumentTypeError('Invalid file: "{!s}"'.format(arg))
 
