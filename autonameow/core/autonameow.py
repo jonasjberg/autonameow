@@ -294,7 +294,8 @@ class Autonameow(object):
 
         sys.exit(self.exit_code)
 
-    def do_rename(self, from_path, new_basename, dry_run=True):
+    @staticmethod
+    def do_rename(from_path, new_basename, dry_run=True):
         """
         Renames a file at the given path to the specified basename.
 
