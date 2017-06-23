@@ -235,4 +235,7 @@ def decode_(string):
     try:
         return string.decode(_fsencoding())
     except (UnicodeError, LookupError):
-        return string.decode('utf-8')
+        try:
+            return string.decode('utf-8')
+        except (UnicodeError, LookupError):
+            return string.decode('utf-8', errors='replace')
