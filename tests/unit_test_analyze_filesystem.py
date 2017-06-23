@@ -24,7 +24,9 @@ from datetime import datetime
 from unittest import TestCase
 
 from analyzers.analyze_filesystem import FilesystemAnalyzer
+from core import util
 from core.fileobject import FileObject
+from unit_utils import abspath_testfile
 
 
 def get_filesystem_analyzer(file_object):
@@ -39,15 +41,8 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
                        'ignore_before_year': None,
                        'ignore_after_year': None}
 
-        # Go back one directory (..) from the location of this file.
-        p_this_file = os.path.abspath(os.path.dirname(__file__))
-        self.assertTrue(os.path.isdir(p_this_file))
-        p_project_root = os.path.normpath(p_this_file + os.sep + os.pardir)
-        self.assertTrue(os.path.isdir(p_project_root))
-        p_test_file = os.path.join(
-            p_project_root + os.sep + 'test_files' + os.sep + 'empty')
+        p_test_file = util.bytestring_path(abspath_testfile('empty'))
         self.assertTrue(os.path.isfile(p_test_file))
-
 
         class MockOptions(object):
             def __init__(self):

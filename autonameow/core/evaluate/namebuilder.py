@@ -22,6 +22,7 @@
 import logging as log
 import re
 
+from core import util
 from core.evaluate import rulematcher
 from core.exceptions import (
     NameTemplateSyntaxError,
@@ -84,7 +85,9 @@ class NameBuilder(object):
 
         # Construct the new file name
         result = assemble_basename(template, **data)
-        log.debug('Assembled basename: "{}"'.format(result))
+        log.debug('Assembled basename: "{}"'.format(
+            util.displayable_path(result))
+        )
 
         if not result:
             log.debug('Unable to assemble basename with template "{!s}" and '

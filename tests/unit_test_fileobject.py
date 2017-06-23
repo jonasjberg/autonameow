@@ -39,7 +39,7 @@ class TestFileObjectFilenamePartitioningLongNameNoTags(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('20160722 Descriptive name', self.fo.fnbase)
+        self.assertEqual(b'20160722 Descriptive name', self.fo.fnbase)
 
     def test__filenamepart_ts(self):
         self.assertIsNotNone(self.fo.filenamepart_ts)
@@ -67,7 +67,7 @@ class TestFileObjectFilenamePartitioningLongNameWithTags(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('19990212 Descriptive name -- firsttag tagtwo',
+        self.assertEqual(b'19990212 Descriptive name -- firsttag tagtwo',
                          self.fo.fnbase)
 
     def test__filenamepart_ts(self):
@@ -98,7 +98,7 @@ class TestFileObjectFilenamePartitioningLongNameWithTagsDashesInName(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('19920722 --Descriptive-- name -- firsttag tagtwo',
+        self.assertEqual(b'19920722 --Descriptive-- name -- firsttag tagtwo',
                          self.fo.fnbase)
 
     def test__filenamepart_ts(self):
@@ -129,7 +129,7 @@ class TestFileObjectFilenamePartitioningHiddenFileNoExtensionNoTags(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('.name', self.fo.fnbase)
+        self.assertEqual(b'.name', self.fo.fnbase)
 
     def test__filenamepart_ts(self):
         self.assertIsNone(self.fo.filenamepart_ts)
@@ -151,7 +151,7 @@ class TestFileObjectFilenamePartitioningHiddenFileNoTags(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('.name', self.fo.fnbase)
+        self.assertEqual(b'.name', self.fo.fnbase)
 
     def test__filenamepart_ts(self):
         self.assertIsNone(self.fo.filenamepart_ts)
@@ -204,7 +204,7 @@ class TestFileObjectFilenamePartitioningHiddenFileWithTags(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('.name -- firsttag 2ndtag', self.fo.fnbase)
+        self.assertEqual(b'.name -- firsttag 2ndtag', self.fo.fnbase)
 
     def test__filenamepart_ts(self):
         self.assertIsNone(self.fo.filenamepart_ts)
@@ -233,7 +233,7 @@ class TestFileObjectFilenamePartitioningHiddenFileCompoundSuffixTags(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('.name -- firsttag 2ndtag', self.fo.fnbase)
+        self.assertEqual(b'.name -- firsttag 2ndtag', self.fo.fnbase)
 
     def test__filenamepart_ts(self):
         self.assertIsNone(self.fo.filenamepart_ts)
@@ -267,7 +267,7 @@ class TestFileObjectFilenamePartitioningDifficultCombination(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('.name -- tar firsttag 2ndtag', self.fo.fnbase)
+        self.assertEqual(b'.name -- tar firsttag 2ndtag', self.fo.fnbase)
 
     def test__filenamepart_ts(self):
         self.assertIsNone(self.fo.filenamepart_ts)
@@ -302,7 +302,7 @@ class TestFileObjectFilenamePartitioningAnotherDifficultCombination(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('.tar name -- gz firsttag 2ndtag', self.fo.fnbase)
+        self.assertEqual(b'.tar name -- gz firsttag 2ndtag', self.fo.fnbase)
 
     def test__filenamepart_ts(self):
         self.assertIsNone(self.fo.filenamepart_ts)
@@ -337,7 +337,7 @@ class TestFileObjectFilenamePartitioningEvenMoreDifficultCombination(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('.tar.gz name -- gz firsttag 2ndtag', self.fo.fnbase)
+        self.assertEqual(b'.tar.gz name -- gz firsttag 2ndtag', self.fo.fnbase)
 
     def test__filenamepart_ts(self):
         self.assertIsNone(self.fo.filenamepart_ts)
@@ -372,7 +372,7 @@ class TestFileObjectFilenamePartitioningReturnValueType(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('20160722 Descriptive name -- firsttag tagtwo',
+        self.assertEqual(b'20160722 Descriptive name -- firsttag tagtwo',
                          self.fo.fnbase)
 
     def test__filenamepart_ts_returns_string_or_none(self):
@@ -394,7 +394,7 @@ class TestFileObjectFilenamePartitioningReturnValueTypeNoTags(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('20160722 Descriptive name', self.fo.fnbase)
+        self.assertEqual(b'20160722 Descriptive name', self.fo.fnbase)
 
     def test__filenamepart_ts_returns_string_or_none(self):
         self.assertIs(str, type(self.fo.filenamepart_ts))
@@ -416,7 +416,7 @@ class TestFileObjectFilenamePartitioningReturnValueTypeNoTagsNoExt(TestCase):
 
     def test_setUp(self):
         self.assertIsNotNone(self.fo)
-        self.assertEqual('20160722 Descriptive name', self.fo.fnbase)
+        self.assertEqual(b'20160722 Descriptive name', self.fo.fnbase)
 
     def test__filenamepart_ts_returns_string_or_none(self):
         self.assertIs(str, type(self.fo.filenamepart_ts))
@@ -506,7 +506,7 @@ class TestFileObjectFilenamePartitioningWithActualFilename4(TestCase):
         self.assertEqual('2010-01-31_161251', self.fo.filenamepart_ts)
 
     def test_filenamepart_base(self):
-        self.assertEqual('', self.fo.filenamepart_base)
+        self.assertIsNone(self.fo.filenamepart_base)
 
     def test_filenamepart_ext(self):
         self.assertEqual('jpg', self.fo.filenamepart_ext)

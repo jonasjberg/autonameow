@@ -25,16 +25,27 @@ import os
 import io
 import tempfile
 import sys
+import unittest
 
 from contextlib import contextmanager
 
 from analyzers.analyzer import get_analyzer_classes
 from core.extraction import ExtractedData
 from core.fileobject import FileObject
+from core import util
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-_PARENT_DIR = os.path.normpath(_THIS_DIR + os.sep + os.pardir)
+_PARENT_DIR = os.path.join(_THIS_DIR, os.pardir)
 TESTS_DIR = os.path.join(_PARENT_DIR + os.sep + 'test_files')
+
+
+class TestCase(unittest.TestCase):
+    # TODO: Use this to get rid of duplicate self.maxDiff settings, etc.
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
 
 
 def abspath_testfile(file):
@@ -79,18 +90,20 @@ def make_temporary_file(prefix=None, suffix=None, basename=None):
             Overrides "prefix" and "suffix".
 
     Returns:
-        The full absolute path of the created file as a string.
+        The full absolute path of the created file as a bytestring.
     """
     if basename:
         f = os.path.realpath(tempfile.NamedTemporaryFile(delete=False).name)
         _dest_dir = os.path.realpath(os.path.dirname(f))
-        _dest_path = os.path.join(_dest_dir, basename)
+        _dest_path = os.path.join(_dest_dir, util.syspath(basename))
         os.rename(f, _dest_path)
-        return os.path.realpath(_dest_path)
 
-    return os.path.realpath(tempfile.NamedTemporaryFile(delete=False,
-                                                        prefix=prefix,
-                                                        suffix=suffix).name)
+        out = os.path.realpath(_dest_path)
+    else:
+        out = os.path.realpath(tempfile.NamedTemporaryFile(delete=False,
+                                                           prefix=prefix,
+                                                           suffix=suffix).name)
+    return util.bytestring_path(out)
 
 
 def get_mock_fileobject(mime_type=None):
@@ -127,7 +140,7 @@ def get_mock_fileobject(mime_type=None):
     else:
         temp_file = make_temporary_file()
 
-    return FileObject(temp_file, opts)
+    return FileObject(util.normpath(temp_file), opts)
 
 
 def get_mock_empty_extractor_data():
@@ -173,7 +186,7 @@ def get_named_file_object(basename):
                                  'filename_tag_separator': ' -- '}}
     opts = MockOptions()
 
-    return FileObject(tf, opts)
+    return FileObject(util.normpath(tf), opts)
 
 
 @contextmanager

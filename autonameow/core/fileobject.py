@@ -24,26 +24,43 @@ import re
 
 import magic
 
-from core import constants
+from core import (
+    constants,
+    util
+)
 from core.exceptions import InvalidFileArgumentError
 from .util import diskutils
 
-DATE_SEP = '[:\-._ ]?'
-TIME_SEP = '[:\-._ T]?'
-DATE_REGEX = '[12]\d{3}' + DATE_SEP + '[01]\d' + DATE_SEP + '[0123]\d'
-TIME_REGEX = ('[012]\d' + TIME_SEP + '[012345]\d' + TIME_SEP
-              + '[012345]\d(.[012345]\d)?')
-FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + '([T_ -]?' + TIME_REGEX + ')?')
+DATE_SEP = b'[:\-._ ]?'
+TIME_SEP = b'[:\-._ T]?'
+DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'
+TIME_REGEX = (b'[012]\d' + TIME_SEP + b'[012345]\d' + TIME_SEP
+              + b'[012345]\d(.[012345]\d)?')
+FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + b'([T_ -]?' + TIME_REGEX + b')?')
 
 
 class FileObject(object):
     def __init__(self, path, opts):
+        """
+        Creates a new FileObject instance representing a single path/file.
+
+        Args:
+            path: The absolute normalized path to the file, as a bytestring.
+            opts: Configuration options as an instance of 'Configuration'.
+        """
+
         validate_path_argument(path)
 
-        self.abspath = os.path.abspath(path)
-        self.filename = os.path.basename(self.abspath)
-        self.pathname = os.path.dirname(self.abspath)
-        self.pathparent = os.path.basename(self.pathname)
+        self.abspath = path
+        self.filename = util.bytestring_path(
+            os.path.basename(util.syspath(path))
+        )
+        self.pathname = util.bytestring_path(
+            os.path.dirname(util.syspath(path))
+        )
+        self.pathparent = util.bytestring_path(
+            os.path.basename(os.path.dirname(util.syspath(path)))
+        )
 
         self.mime_type = filetype_magic(self.abspath)
 
@@ -51,10 +68,12 @@ class FileObject(object):
         self.fnbase = diskutils.file_base(self.abspath)
         self.suffix = diskutils.file_suffix(self.abspath)
 
-        self.BETWEEN_TAG_SEPARATOR = opts.options['FILETAGS_OPTIONS'].get(
-            'between_tag_separator')
-        self.FILENAME_TAG_SEPARATOR = opts.options['FILETAGS_OPTIONS'].get(
-            'filename_tag_separator')
+        self.BETWEEN_TAG_SEPARATOR = util.bytestring_path(
+            opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
+        )
+        self.FILENAME_TAG_SEPARATOR = util.bytestring_path(
+            opts.options['FILETAGS_OPTIONS'].get('filename_tag_separator')
+        )
 
         # Do "filename partitioning" -- split the file name into four parts:
         #
@@ -73,10 +92,34 @@ class FileObject(object):
         #       ts          base               tags       ext
         #
         # TODO: Move "filetags"-specific code to separate module. (?)
-        self.filenamepart_ts = self._filenamepart_ts()
-        self.filenamepart_base = self._filenamepart_base()
-        self.filenamepart_ext = self._filenamepart_ext()
-        self.filenamepart_tags = self._filenamepart_tags() or []
+        self._filenamepart_ts = self._filenamepart_ts()
+        self._filenamepart_base = self._filenamepart_base()
+        self._filenamepart_ext = self._filenamepart_ext()
+        self._filenamepart_tags = self._filenamepart_tags() or []
+
+    @property
+    def filenamepart_ts(self):
+        if not self._filenamepart_ts:
+            return None
+        return util.decode_(self._filenamepart_ts)
+
+    @property
+    def filenamepart_base(self):
+        if not self._filenamepart_base:
+            return None
+        return util.decode_(self._filenamepart_base)
+
+    @property
+    def filenamepart_ext(self):
+        if not self._filenamepart_ext:
+            return None
+        return util.decode_(self._filenamepart_ext)
+
+    @property
+    def filenamepart_tags(self):
+        if not self._filenamepart_tags:
+            return []
+        return [util.decode_(t) for t in self._filenamepart_tags]
 
     def _filenamepart_ts(self):
         ts = FILENAMEPART_TS_REGEX.match(self.fnbase)
@@ -86,15 +129,15 @@ class FileObject(object):
 
     def _filenamepart_base(self):
         fnbase = self.fnbase
-        if self.filenamepart_ts:
-            fnbase = self.fnbase.lstrip(self.filenamepart_ts)
+        if self._filenamepart_ts:
+            fnbase = self.fnbase.lstrip(self._filenamepart_ts)
 
         if not re.findall(self.BETWEEN_TAG_SEPARATOR, fnbase):
             return fnbase
 
         # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
         r = re.split(self.FILENAME_TAG_SEPARATOR, fnbase, 1)
-        return str(r[0].strip())
+        return r[0].strip()
 
     def _filenamepart_ext(self):
         return self.suffix
@@ -128,8 +171,8 @@ class FileObject(object):
             True if the filename is in the "filetags" format.
             Otherwise False.
         """
-        if (self.filenamepart_ts and self.filenamepart_base
-                and self.filenamepart_tags):
+        if (self._filenamepart_ts and self._filenamepart_base
+                and self._filenamepart_tags):
             return True
         else:
             return False
@@ -203,6 +246,8 @@ def validate_path_argument(path):
     Raises:
         InvalidFileArgumentError: The given path is not considered valid.
     """
+    path = util.syspath(path)
+
     if not os.path.exists(path):
         raise InvalidFileArgumentError('Path does not exist')
     elif os.path.isdir(path):

@@ -51,30 +51,30 @@ class TestUnitUtilityMakeTemporaryFile(TestCase):
         self.assertIsNotNone(make_temporary_file)
         self.assertTrue(os.path.exists(make_temporary_file()))
         self.assertTrue(os.path.isfile(make_temporary_file()))
-        self.assertTrue(isinstance(make_temporary_file(), str))
+        self.assertTrue(isinstance(make_temporary_file(), bytes))
 
     def test_make_temporary_file_with_prefix(self):
         self.assertTrue(os.path.exists(make_temporary_file(prefix='prefix_')))
         self.assertTrue(os.path.isfile(make_temporary_file(prefix='prefix_')))
-        self.assertTrue(os.path.basename(make_temporary_file(prefix='prefix_')).startswith('prefix_'))
+        self.assertTrue(os.path.basename(make_temporary_file(prefix='prefix_')).startswith(b'prefix_'))
 
     def test_make_temporary_file_with_suffix(self):
         self.assertTrue(os.path.exists(make_temporary_file(suffix='_suffix')))
         self.assertTrue(os.path.isfile(make_temporary_file(suffix='_suffix')))
-        self.assertTrue(make_temporary_file(suffix='_suffix').endswith('_suffix'))
+        self.assertTrue(make_temporary_file(suffix='_suffix').endswith(b'_suffix'))
 
     def test_make_temporary_file_with_prefix_and_suffix(self):
         self.assertTrue(os.path.exists(make_temporary_file(prefix='mjao',
                                                            suffix='.jpg')))
         self.assertTrue(os.path.isfile(make_temporary_file(prefix='mjao',
                                                            suffix='.jpg')))
-        self.assertTrue(os.path.basename(make_temporary_file(prefix='mjao', suffix='.jpg')).endswith('.jpg'))
-        self.assertTrue(os.path.basename(make_temporary_file(prefix='mjao', suffix='.jpg')).startswith('mjao'))
+        self.assertTrue(os.path.basename(make_temporary_file(prefix='mjao', suffix='.jpg')).endswith(b'.jpg'))
+        self.assertTrue(os.path.basename(make_temporary_file(prefix='mjao', suffix='.jpg')).startswith(b'mjao'))
 
     def test_make_temporary_file_with_basename(self):
         self.assertTrue(os.path.exists(make_temporary_file(basename='mjao.jpg')))
         self.assertTrue(os.path.isfile(make_temporary_file(basename='mjao.jpg')))
-        self.assertEqual(os.path.basename(make_temporary_file(basename='mjao.jpg')), 'mjao.jpg')
+        self.assertEqual(os.path.basename(make_temporary_file(basename='mjao.jpg')), B'mjao.jpg')
 
 
 class TestUnitUtilityGetMockAnalyzer(TestCase):

@@ -26,6 +26,7 @@ import platform
 import yaml
 
 from core.config.default_config import DEFAULT_CONFIG
+from core import util
 from core import version
 from core.exceptions import (
     ConfigReadError,
@@ -155,7 +156,7 @@ def load_yaml_file(file_path):
         ConfigReadError: The configuration file could not be read and/or loaded.
     """
     try:
-        with open(file_path, 'r', encoding='utf-8') as fh:
+        with open(util.syspath(file_path), 'r', encoding='utf-8') as fh:
             return yaml.safe_load(fh)
     except (IOError, yaml.YAMLError, UnicodeDecodeError) as e:
         raise ConfigReadError(file_path, e)
