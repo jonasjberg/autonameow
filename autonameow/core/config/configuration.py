@@ -333,7 +333,7 @@ class Configuration(object):
         if os.path.exists(dest_path):
             raise FileExistsError
         else:
-            write_yaml_file(dest_path, self._data)
+            config.write_yaml_file(dest_path, self._data)
 
     def __str__(self):
         out = ['Written by autonameow version v{}\n\n'.format(self.version)]
