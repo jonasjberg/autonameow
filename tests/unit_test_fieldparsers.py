@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 
+from core.config import field_parsers
 from core.config.field_parsers import (
     RegexConfigFieldParser,
     ConfigFieldParser,
@@ -196,3 +197,16 @@ class TestNameFormatFieldParser(TestCase):
         self.assertTrue(self.val_func('{datetime}'))
         self.assertTrue(self.val_func('{publisher} "abc" {tags}'))
         self.assertTrue(self.val_func('{datetime} {title}.{extension}'))
+
+
+class TestInstantiatedFieldParsers(TestCase):
+    def test_field_parsers_in_not_none(self):
+        self.assertIsNotNone(field_parsers.FieldParsers)
+
+    def test_configuration_field_parsers_subclass_of_config_field_parser(self):
+        for parser in field_parsers.FieldParsers:
+            self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
+
+    def test_configuration_field_parsers_instance_of_config_field_parser(self):
+        for parser in field_parsers.FieldParsers:
+            self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))

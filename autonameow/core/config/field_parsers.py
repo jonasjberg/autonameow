@@ -175,3 +175,6 @@ def available_field_parsers():
     return [klass.__name__ for klass in
             globals()['ConfigFieldParser'].__subclasses__()]
 
+
+# Instantiate rule parsers inheriting from the 'Parser' class.
+FieldParsers = get_instantiated_field_parsers()

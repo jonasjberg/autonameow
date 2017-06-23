@@ -35,8 +35,6 @@ from core.config.field_parsers import (
 )
 from core.util import misc
 
-field_parsers = get_instantiated_field_parsers()
-
 
 class Rule(object):
     def __init__(self):
@@ -120,9 +118,6 @@ class Configuration(object):
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
         self._version = None
-
-        # Instantiate rule parsers inheriting from the 'Parser' class.
-        self.field_parsers = get_instantiated_field_parsers()
 
         if data:
             self._data = data
@@ -507,7 +502,7 @@ def validate_condition(condition_field, condition_value):
     if not condition_value:
         return False
 
-    for parser in field_parsers:
+    for parser in FieldParsers:
         if condition_field in parser.applies_to_field:
             if parser.validate(condition_value):
                 return condition_value
