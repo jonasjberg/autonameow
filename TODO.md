@@ -17,15 +17,11 @@ High Priority
 * __Text encoding issues__
     * Enforce strict boundaries between all external systems and an internal
       text data representation.
-    * Add reusable translation layer that ensures proper handling of text
-      encoding of *all incoming textual data*;
-      standard input/output/error/.., path/file names, text file contents, etc.
-        * Decode all incoming data.
-        * Make sure the `encoding` parameter is always specified when reading
-          file contents with `open`.
-    * Add corresponding reusable translation layer for
-      *all outgoing textual data*.
-        * Encode all outgoing data.
+    * Store original filename parts as both bytestrings and the internal
+      representation?  If the user wants to use a part of the original file
+      name in the result, the conversion can not be lossy. Best way to prevent
+      issues is to store bytestrings and perform any processing on copies that
+      have been converted to the internal format?
 
 * __Internal "API"__ -- communication between modules
     * Replace the old way of calling the analyzer `get_{fieldname}` methods

@@ -11,6 +11,22 @@ University mail: `js224eh[a]student.lnu.se`
 ========================================
 
 
+* 2017-06-23
+
+    > High Priority
+    > -------------
+    >
+    > * __Text encoding issues__
+    >     * Add reusable translation layer that ensures proper handling of text
+    >       encoding of *all incoming textual data*;
+    >       standard input/output/error/.., path/file names, text file contents, etc.
+    >         * Decode all incoming data.
+    >         * Make sure the `encoding` parameter is always specified when reading
+    >           file contents with `open`.
+    >     * Add corresponding reusable translation layer for
+    >       *all outgoing textual data*.
+    >         * Encode all outgoing data.
+
 * 2017-06-20
 
     > High Priority
