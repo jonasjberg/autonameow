@@ -21,7 +21,7 @@ High Priority
       representation?  If the user wants to use a part of the original file
       name in the result, the conversion can not be lossy. Best way to prevent
       issues is to store bytestrings and perform any processing on copies that
-      have been converted to the internal format?
+      have __not__ been converted to the internal format?
 
 * __Internal "API"__ -- communication between modules
     * Replace the old way of calling the analyzer `get_{fieldname}` methods
