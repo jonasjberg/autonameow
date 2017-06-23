@@ -97,18 +97,18 @@ class Autonameow(object):
         # provided and no config file is found at default paths; copy the
         # template config and tell the user.
         if self.opts.config_path:
-            _opts_config_path = util.displayable_path(self.opts.config_path)
             try:
-                log.info('Using configuration file: '
-                         '"{!s}"'.format(_opts_config_path))
-                self.config.load(_opts_config_path)
+                log.info('Using configuration file: "{!s}"'.format(
+                    util.displayable_path(self.opts.config_path)
+                ))
+                self.config.load(self.opts.config_path)
             except ConfigError as e:
                 log.critical('Failed to load configuration file!')
                 log.debug(str(e))
                 self.exit_program(constants.EXIT_ERROR)
         else:
-            _config_path = util.displayable_path(config.ConfigFilePath)
 
+            _disp_config_path = util.displayable_path(config.ConfigFilePath)
             if not config.has_config_file():
                 log.info('No configuration file was found. Writing default ..')
 
@@ -116,20 +116,20 @@ class Autonameow(object):
                     config.write_default_config()
                 except PermissionError:
                     log.critical('Unable to write configuration file to path: '
-                                 '"{!s}"'.format(_config_path))
+                                 '"{!s}"'.format(_disp_config_path))
                     self.exit_program(constants.EXIT_ERROR)
                 else:
                     cli.msg('A template configuration file was written to '
-                            '"{!s}"'.format(_config_path), style='info')
+                            '"{!s}"'.format(_disp_config_path), style='info')
                     cli.msg('Use this file to configure {}. '
                             'Refer to the documentation for additional '
                             'information.'.format(version.__title__),
                             style='info')
                     self.exit_program(constants.EXIT_SUCCESS)
             else:
-                log.info('Using configuration: "{}"'.format(_config_path))
+                log.info('Using configuration: "{}"'.format(_disp_config_path))
                 try:
-                    self.config.load(_config_path)
+                    self.config.load(config.ConfigFilePath)
                 except ConfigurationSyntaxError as e:
                     log.critical('Configuration syntax error: "{!s}"'.format(e))
 
