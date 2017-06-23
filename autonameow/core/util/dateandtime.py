@@ -27,6 +27,7 @@ from datetime import datetime, timedelta
 
 from dateutil import parser
 
+from core import util
 from core.util import textutils
 
 
@@ -35,7 +36,7 @@ def hyphenate_date(date_str):
     Convert a date in 'YYYYMMDD' format to 'YYYY-MM-DD' format.
     This function is lifted as-is from utils.py in the "youtube-dl" project.
     """
-    match = re.match(r'^(\d\d\d\d)(\d\d)(\d\d)$', date_str)
+    match = re.match(rb'^(\d\d\d\d)(\d\d)(\d\d)$', date_str)
     if match is not None:
         return '-'.join(match.groups())
     else:
@@ -86,6 +87,7 @@ def _year_is_probable(year):
             else:
                 year += 1900
 
+        year = util.decode(year)
         try:
             year = datetime.strptime(str(year), '%Y')
         except TypeError:
@@ -154,11 +156,11 @@ def regex_search_str(text):
     if type(text) is list:
         text = ' '.join(text)
 
-    DATE_SEP = "[:\-._ \/]?"
-    TIME_SEP = "[T:\-. _]?"
-    DATE_REGEX = '[12]\d{3}' + DATE_SEP + '[01]\d' + DATE_SEP + '[0123]\d'
-    TIME_REGEX = TIME_SEP + '[012]\d' + TIME_SEP + '[012345]\d(.[012345]\d)?'
-    DATETIME_REGEX = '(' + DATE_REGEX + '(' + TIME_REGEX + ')?)'
+    DATE_SEP = b'[:\-._ \/]?'
+    TIME_SEP = b'[T:\-. _]?'
+    DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'
+    TIME_REGEX = TIME_SEP + b'[012]\d' + TIME_SEP + b'[012345]\d(.[012345]\d)?'
+    DATETIME_REGEX = b'(' + DATE_REGEX + b'(' + TIME_REGEX + b')?)'
 
     dt_pattern_1 = re.compile(DATETIME_REGEX)
 
@@ -196,7 +198,7 @@ def regex_search_str(text):
                 matches += 1
 
     # Expected date format:         2016:04:07
-    dt_pattern_2 = re.compile('(\d{4}-[01]\d-[0123]\d)')
+    dt_pattern_2 = re.compile(b'(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
     for dt_str in re.findall(dt_pattern_2, text):
         try:
@@ -210,7 +212,7 @@ def regex_search_str(text):
                 matches += 1
 
     # Matches '(C) 2014' and similar.
-    dt_pattern_3 = re.compile('\( ?[Cc] ?\) ?([12]\d{3})')
+    dt_pattern_3 = re.compile(b'\( ?[Cc] ?\) ?([12]\d{3})')
     dt_fmt_3 = '%Y'
     for dt_str in re.findall(dt_pattern_3, text):
         try:
@@ -238,6 +240,9 @@ def match_special_case(text):
     if text is None or text.strip() is None:
         return None
 
+    if isinstance(text, bytes):
+        text = text.decode('utf-8')
+
     # TODO: Allow adding custom matching patterns to the configuration file.
     match_patterns = [('%Y-%m-%d_%H%M%S', 17),
                       ('%Y-%m-%dT%H%M%S', 17),
@@ -263,6 +268,7 @@ def match_special_case_no_date(text):
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
+    text = util.decode_(text)
     try:
         dt = datetime.strptime(text[:10], '%Y-%m-%d')
     except ValueError:
@@ -293,7 +299,7 @@ def match_android_messenger_filename(text):
 
     results = []
 
-    dt_pattern = re.compile('.*(received_)(\d{17})(\.jpe?g)?')
+    dt_pattern = re.compile(b'.*(received_)(\d{17})(\.jpe?g)?')
     for _, dt_str, _ in re.findall(dt_pattern, text):
         try:
             microsecond = int(dt_str[13:])
@@ -319,6 +325,8 @@ def match_any_unix_timestamp(text):
     """
     if text is None or text.strip() is None:
         return None
+
+    text = util.decode_(text)
 
     match_iter = re.finditer(r'(\d{10,13})', text)
     if match_iter is None:
@@ -372,6 +380,8 @@ def bruteforce_str(text, return_first_match=False):
         if not text:
             log.debug('[bruteforce_str] Got empty text')
             return None
+
+    text = util.decode_(text)
 
     bruteforce_str.matches = bruteforce_str.matches_total = 0
 
@@ -675,7 +685,7 @@ def match_screencapture_unixtime(text):
     :param text: text to search for UNIX timestamp
     :return: datetime-object if a match is found, else None
     """
-    pattern = re.compile('.*(\d{13}).*')
+    pattern = re.compile(b'.*(\d{13}).*')
     for t in re.findall(pattern, text):
         dt = match_any_unix_timestamp(t)
         if dt:
@@ -698,12 +708,12 @@ def to_datetime(datetime_string):
     """
     # TODO: Handle timezone offsets properly!
 
-    if datetime_string.endswith('+00:00'):
-        datetime_string = datetime_string.replace('+00:00', '')
-    elif datetime_string.endswith('+02:00'):
-        datetime_string = datetime_string.replace('+02:00', '')
+    if datetime_string.endswith(b'+00:00'):
+        datetime_string = datetime_string.replace(b'+00:00', '')
+    elif datetime_string.endswith(b'+02:00'):
+        datetime_string = datetime_string.replace(b'+02:00', '')
 
-    REGEX_FORMAT_MAP = [(r'^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$',
+    REGEX_FORMAT_MAP = [(rb'^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$',
                          '%Y:%m:%d %H:%M:%S'), # '2010:01:31 16:12:51'
                         ]
 

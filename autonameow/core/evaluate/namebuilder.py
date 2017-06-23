@@ -22,6 +22,7 @@
 import logging as log
 import re
 
+from core import util
 from core.evaluate import rulematcher
 from core.exceptions import (
     NameTemplateSyntaxError,
@@ -122,6 +123,9 @@ def assemble_basename(name_template, **kwargs):
         name_template = name_template.replace("'", '')
     while '"' in name_template:
         name_template = name_template.replace('"', '')
+
+    # TODO: [encoding] Handle name template encoding elsewhere.
+    name_template = util.encode_(name_template)
 
     # NOTE: Used to validate name formatting strings in the configuration file.
     try:

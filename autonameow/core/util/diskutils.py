@@ -114,11 +114,12 @@ def split_filename(file_path):
     base, ext = os.path.splitext(os.path.basename(file_path))
 
     # Split "base" twice to make compound suffix out of the two extensions.
-    if ext.lower() in ['.bz2', '.gz', '.lz', '.lzma', '.lzo', '.xz', '.z']:
+    if ext.lower() in [b'.bz2', b'.gz', b'.lz', b'.lzma', b'.lzo', b'.xz',
+                       b'.z']:
         ext = os.path.splitext(base)[1] + ext
         base = os.path.splitext(base)[0]
 
-    ext = ext.lstrip('.')
+    ext = ext.lstrip(b'.')
     if ext and ext.strip():
         return base, ext
     else:

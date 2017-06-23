@@ -21,6 +21,8 @@
 
 from unidecode import unidecode
 
+from core import util
+
 
 def sanitize_text(text):
     """
@@ -41,11 +43,11 @@ def sanitize_text(text):
 
     # Collapse whitespace.
     # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
-    text = text.replace('\xa0', ' ')
+    # text = text.replace('\xa0', ' ')
 
     # text = text.decode('unicode-escape')
     # text = unicode(text, 'UTF-8')
-    return text
+    return util.encode_(text)
 
 
 def extract_digits(string):

@@ -24,20 +24,26 @@ import re
 
 import magic
 
-from core import constants
+from core import (
+    constants,
+    util
+)
 from core.exceptions import InvalidFileArgumentError
 from .util import diskutils
 
-DATE_SEP = '[:\-._ ]?'
-TIME_SEP = '[:\-._ T]?'
-DATE_REGEX = '[12]\d{3}' + DATE_SEP + '[01]\d' + DATE_SEP + '[0123]\d'
-TIME_REGEX = ('[012]\d' + TIME_SEP + '[012345]\d' + TIME_SEP
-              + '[012345]\d(.[012345]\d)?')
-FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + '([T_ -]?' + TIME_REGEX + ')?')
+DATE_SEP = b'[:\-._ ]?'
+TIME_SEP = b'[:\-._ T]?'
+DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'
+TIME_REGEX = (b'[012]\d' + TIME_SEP + b'[012345]\d' + TIME_SEP
+              + b'[012345]\d(.[012345]\d)?')
+FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + b'([T_ -]?' + TIME_REGEX + b')?')
 
 
 class FileObject(object):
     def __init__(self, path, opts):
+        # File name encoding boundary. Convert to internal format.
+        path = util.syspath(path)
+
         validate_path_argument(path)
 
         self.abspath = os.path.abspath(path)
@@ -51,10 +57,12 @@ class FileObject(object):
         self.fnbase = diskutils.file_base(self.abspath)
         self.suffix = diskutils.file_suffix(self.abspath)
 
-        self.BETWEEN_TAG_SEPARATOR = opts.options['FILETAGS_OPTIONS'].get(
-            'between_tag_separator')
-        self.FILENAME_TAG_SEPARATOR = opts.options['FILETAGS_OPTIONS'].get(
-            'filename_tag_separator')
+        self.BETWEEN_TAG_SEPARATOR = util.bytestring_path(
+            opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
+        )
+        self.FILENAME_TAG_SEPARATOR = util.bytestring_path(
+            opts.options['FILETAGS_OPTIONS'].get('filename_tag_separator')
+        )
 
         # Do "filename partitioning" -- split the file name into four parts:
         #
