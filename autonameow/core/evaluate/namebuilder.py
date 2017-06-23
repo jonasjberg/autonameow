@@ -85,7 +85,9 @@ class NameBuilder(object):
 
         # Construct the new file name
         result = assemble_basename(template, **data)
-        log.debug('Assembled basename: "{}"'.format(result))
+        log.debug('Assembled basename: "{}"'.format(
+            util.displayable_path(result))
+        )
 
         if not result:
             log.debug('Unable to assemble basename with template "{!s}" and '
@@ -123,9 +125,6 @@ def assemble_basename(name_template, **kwargs):
         name_template = name_template.replace("'", '')
     while '"' in name_template:
         name_template = name_template.replace('"', '')
-
-    # TODO: [encoding] Handle name template encoding elsewhere.
-    name_template = util.encode_(name_template)
 
     # NOTE: Used to validate name formatting strings in the configuration file.
     try:

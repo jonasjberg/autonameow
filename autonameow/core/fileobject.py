@@ -46,10 +46,10 @@ class FileObject(object):
 
         validate_path_argument(path)
 
-        self.abspath = os.path.abspath(path)
-        self.filename = os.path.basename(self.abspath)
-        self.pathname = os.path.dirname(self.abspath)
-        self.pathparent = os.path.basename(self.pathname)
+        self.abspath = util.bytestring_path(os.path.abspath(path))
+        self.filename = util.bytestring_path(os.path.basename(self.abspath))
+        self.pathname = util.bytestring_path(os.path.dirname(self.abspath))
+        self.pathparent = util.bytestring_path(os.path.basename(self.pathname))
 
         self.mime_type = filetype_magic(self.abspath)
 

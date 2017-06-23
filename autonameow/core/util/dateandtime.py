@@ -87,7 +87,7 @@ def _year_is_probable(year):
             else:
                 year += 1900
 
-        year = util.decode(year)
+        year = util.decode_(year)
         try:
             year = datetime.strptime(str(year), '%Y')
         except TypeError:
@@ -240,8 +240,7 @@ def match_special_case(text):
     if text is None or text.strip() is None:
         return None
 
-    if isinstance(text, bytes):
-        text = text.decode('utf-8')
+    text = util.decode_(text)
 
     # TODO: Allow adding custom matching patterns to the configuration file.
     match_patterns = [('%Y-%m-%d_%H%M%S', 17),
@@ -582,12 +581,13 @@ def search_gmail(text, prefix):
     :param prefix: prefix this to the resulting dictionary keys
     :return: a list of dictionaries containing datetime-objects.
     """
+    text = util.decode_(text)
     # TODO: Currently not used at all! Implement or remove.
     if type(text) is list:
         # log.debug('Converting list to string ..')
         text = ' '.join(text)
 
-    if not text.lower().find('gmail'):
+    if not text.lower().find(b'gmail'):
         # log.debug('Text does not contains "gmail", might not be a Gmail?')
         return
 
@@ -619,6 +619,7 @@ def get_datetime_from_text(text, prefix='NULL'):
         return None
     if prefix == 'NULL':
         pass
+    # text = util.decode_(text)
 
     # TODO: Improve handlng of generalized "text" from any source.
     #       (currently plain text and pdf documents)
@@ -708,12 +709,12 @@ def to_datetime(datetime_string):
     """
     # TODO: Handle timezone offsets properly!
 
-    if datetime_string.endswith(b'+00:00'):
-        datetime_string = datetime_string.replace(b'+00:00', '')
-    elif datetime_string.endswith(b'+02:00'):
-        datetime_string = datetime_string.replace(b'+02:00', '')
+    if datetime_string.endswith('+00:00'):
+        datetime_string = datetime_string.replace('+00:00', '')
+    elif datetime_string.endswith('+02:00'):
+        datetime_string = datetime_string.replace('+02:00', '')
 
-    REGEX_FORMAT_MAP = [(rb'^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$',
+    REGEX_FORMAT_MAP = [(r'^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$',
                          '%Y:%m:%d %H:%M:%S'), # '2010:01:31 16:12:51'
                         ]
 
