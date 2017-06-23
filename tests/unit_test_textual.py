@@ -64,4 +64,4 @@ class TestPdfTextExtractor(TestCase):
         self.assertIsNotNone(self.e._get_raw_text())
 
     def test__get_raw_text_returns_expected_type(self):
-        self.assertEqual(type(self.e._get_raw_text()), bytes)
+        self.assertEqual(type(self.e._get_raw_text()), str)

@@ -36,7 +36,7 @@ from core import util
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 _PARENT_DIR = os.path.join(_THIS_DIR, os.pardir)
-TESTS_DIR = os.path.join(_PARENT_DIR + os.sep + 'test_files')
+TESTS_DIR = os.path.join(_PARENT_DIR + os.sep + util.syspath('test_files'))
 
 
 class TestCase(unittest.TestCase):
@@ -60,7 +60,7 @@ def abspath_testfile(file):
     Returns:
         The full path to the specified file.
     """
-    return os.path.join(TESTS_DIR + os.sep + file)
+    return os.path.join(TESTS_DIR + os.sep + util.syspath(file))
 
 
 def make_temp_dir():

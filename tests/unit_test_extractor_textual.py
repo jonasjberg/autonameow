@@ -94,83 +94,16 @@ class TestPdfTextExtractor(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        image = abspath_testfile('gmail.pdf')
-        self.e = PdfTextExtractor(image)
+        test_file = abspath_testfile('gmail.pdf')
+        self.e = PdfTextExtractor(test_file)
 
-        # TODO: [hardcoded] This breaks if any trailing whitespace is removed.
-        self.EXPECT_TEXT = '''1/11/2016
-
-Gmail - Välkommen till kursen Introduktion till Linux och små nätverk!
-
-Jonas Sjöberg <jomeganas@gmail.com>
-
-Välkommen till kursen Introduktion till Linux och små nätverk! 
-1 message
-Camilla Nordin <Camilla.Nordin@hig.se>
-To: Camilla Nordin <Camilla.Nordin@hig.se>
-
-Fri, Jan 8, 2016 at 3:50 PM
-
-Välkommen till Högskolan i Gävle och kursen Introduktion till Linux och små nätverk
-7,5 hp!
- 
-Ditt välkomstbrev hittar du här: http://www.hig.se/Ext/Sv/Student/Ny­student/Valkomstbrev/Kurser/
-Datateknik.html
- 
-LÄS DITT VÄLKOMSTBREV NOGGRANT!
- 
-Kursen börjar den 25:e januari men är öppen för webbregistrering via Studentportalen från och
-med den 18:e januari, se välkomstbrevet.
- 
-Åtkomstkoden som i vissa fall behövs för inskrivning på kursen i Blackboard är: Debian­Mint
- 
-Kursinstansen i Blackboard öppnar den 25:e januari. Observera att du ibland måste söka fram
-kursen  den första gången du loggar in i Blackboard. Följ instruktionerna i manualen som finns
-länkad i välkomstbrevet.
- 
-Det finns bra information för nya studenter på vår hemsida: www.hig.se/nystudent
- 
-Du behöver inte tacka ja eller nej till kursen utan accepterar din plats genom att registrera dig
-via Studentportalen.
- 
-Lycka till med studierna!
- 
-
-Hälsningar Camilla 
-*************************************************************** 
-Camilla Nordin 
-Högskolan i Gävle 
-Akademin för teknik och miljö 
-https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df…
-
-1/2
-
-1/11/2016
-
-Gmail - Välkommen till kursen Introduktion till Linux och små nätverk!
-
-801 76 GÄVLE 
-Tel: 026­64 87 46 
-Fax: 026­64 87 58 
-e­mail: cnn@hig.se 
-Besöksadress: Kungsbäcksvägen 47, rum 12:208
- 
-
-Högskolan i Gävle, 801 76 Gävle • 026 64 85 00 • www.hig.se
-För en hållbar livsmiljö för människan
-University of Gävle, SE­801 76 Gävle, Sweden • +46 (0) 26 64 85 00 • www.hig.se
-
-https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df…
-
-2/2
-'''.encode('utf-8')
-# TODO: [critical] FIX ENCODING ISSUES!
+        self.EXPECT_TEXT = b'1/11/2016\n\nGmail - V\xc3\xa4lkommen till kursen Introduktion till Linux och sm\xc3\xa5 n\xc3\xa4tverk!\n\nJonas Sj\xc3\xb6berg <jomeganas@gmail.com>\n\nV\xc3\xa4lkommen till kursen Introduktion till Linux och sm\xc3\xa5 n\xc3\xa4tverk!\n1 message\nCamilla Nordin <Camilla.Nordin@hig.se>\nTo: Camilla Nordin <Camilla.Nordin@hig.se>\n\nFri, Jan 8, 2016 at 3:50 PM\n\nV\xc3\xa4lkommen till H\xc3\xb6gskolan i G\xc3\xa4vle och kursen Introduktion till Linux och sm\xc3\xa5 n\xc3\xa4tverk\n7,5 hp!\n\nDitt v\xc3\xa4lkomstbrev hittar du h\xc3\xa4r: http://www.hig.se/Ext/Sv/Student/Ny\xc2\xadstudent/Valkomstbrev/Kurser/\nDatateknik.html\n\nL\xc3\x84S DITT V\xc3\x84LKOMSTBREV NOGGRANT!\n\nKursen b\xc3\xb6rjar den 25:e januari men \xc3\xa4r \xc3\xb6ppen f\xc3\xb6r webbregistrering via Studentportalen fr\xc3\xa5n och\nmed den 18:e januari, se v\xc3\xa4lkomstbrevet.\n\n\xc3\x85tkomstkoden som i vissa fall beh\xc3\xb6vs f\xc3\xb6r inskrivning p\xc3\xa5 kursen i Blackboard \xc3\xa4r: Debian\xc2\xadMint\n\nKursinstansen i Blackboard \xc3\xb6ppnar den 25:e januari. Observera att du ibland m\xc3\xa5ste s\xc3\xb6ka fram\nkursen den f\xc3\xb6rsta g\xc3\xa5ngen du loggar in i Blackboard. F\xc3\xb6lj instruktionerna i manualen som finns\nl\xc3\xa4nkad i v\xc3\xa4lkomstbrevet.\n\nDet finns bra information f\xc3\xb6r nya studenter p\xc3\xa5 v\xc3\xa5r hemsida: www.hig.se/nystudent\n\nDu beh\xc3\xb6ver inte tacka ja eller nej till kursen utan accepterar din plats genom att registrera dig\nvia Studentportalen.\n\nLycka till med studierna!\n\nH\xc3\xa4lsningar Camilla\n***************************************************************\nCamilla Nordin\nH\xc3\xb6gskolan i G\xc3\xa4vle\nAkademin f\xc3\xb6r teknik och milj\xc3\xb6\nhttps://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df\xe2\x80\xa6\n\n1/2\n\n1/11/2016\n\nGmail - V\xc3\xa4lkommen till kursen Introduktion till Linux och sm\xc3\xa5 n\xc3\xa4tverk!\n\n801 76 G\xc3\x84VLE\nTel: 026\xc2\xad64 87 46\nFax: 026\xc2\xad64 87 58\ne\xc2\xadmail: cnn@hig.se\nBes\xc3\xb6ksadress: Kungsb\xc3\xa4cksv\xc3\xa4gen 47, rum 12:208\n\nH\xc3\xb6gskolan i G\xc3\xa4vle, 801 76 G\xc3\xa4vle \xe2\x80\xa2 026 64 85 00 \xe2\x80\xa2 www.hig.se\nF\xc3\xb6r en h\xc3\xa5llbar livsmilj\xc3\xb6 f\xc3\xb6r m\xc3\xa4nniskan\nUniversity of G\xc3\xa4vle, SE\xc2\xad801 76 G\xc3\xa4vle, Sweden \xe2\x80\xa2 +46 (0) 26 64 85 00 \xe2\x80\xa2 www.hig.se\n\nhttps://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df\xe2\x80\xa6\n\n2/2\n\n'.decode()
 
     def test_method_query_returns_something(self):
         self.assertIsNotNone(self.e.query())
 
     def test_method_query_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.query(), byte))
+        self.assertTrue(isinstance(self.e.query(), str))
 
     def test_method_query_all_result_contains_expected(self):
         actual = self.e.query()
