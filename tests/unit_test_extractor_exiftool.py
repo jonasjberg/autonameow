@@ -63,17 +63,17 @@ class TestExiftoolMetadataExtractor(TestCase):
             f._get_raw_metadata()
 
     def test_get_exiftool_data_returns_something(self):
-        self.assertIsNotNone(self.e.get_exiftool_data())
+        self.assertIsNotNone(self.e._get_exiftool_data())
 
     def test_get_exiftool_data_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.get_exiftool_data(), dict))
+        self.assertTrue(isinstance(self.e._get_exiftool_data(), dict))
 
     def test_get_exiftool_data_raises_expected_exceptions(self):
         with self.assertRaises((AttributeError, ValueError, TypeError)):
             e = ExiftoolMetadataExtractor(None)
-            e.get_exiftool_data()
+            e._get_exiftool_data()
             f = ExiftoolMetadataExtractor('not_a_file_surely')
-            f.get_exiftool_data()
+            f._get_exiftool_data()
 
     def test_method_query_returns_something(self):
         self.assertIsNotNone(self.e.query())

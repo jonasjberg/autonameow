@@ -17,11 +17,11 @@ High Priority
 * __Text encoding issues__
     * Enforce strict boundaries between all external systems and an internal
       text data representation.
-    * Add reusable translation layer that ensures proper handling of text
-      encoding of *all incoming textual data*;
-      standard input/output/error/.., path/file names, text file contents, etc.
-    * Add corresponding reusable translation layer for
-      *all outgoing textual data*.
+    * Store original filename parts as both bytestrings and the internal
+      representation?  If the user wants to use a part of the original file
+      name in the result, the conversion can not be lossy. Best way to prevent
+      issues is to store bytestrings and perform any processing on copies that
+      have __not__ been converted to the internal format?
 
 * __Internal "API"__ -- communication between modules
     * Replace the old way of calling the analyzer `get_{fieldname}` methods
@@ -34,17 +34,6 @@ High Priority
     * `analyzer` classes do not perform any kind of data extraction.
         * Should data produced by `analyzer` classes be returned to a separate
           container in the `Analysis` class?
-    * Modify high-level program flow to something along the lines of:
-        1. Load configuration
-        2. Run all extractors that can handle the given file
-        3. Determine which configuration rule matches the given file
-        4. Enqueue analyzers based on the rule and extracted data
-        5. Run all enqueued analyzers
-        6. Assemble new file name from all available data
-
-        Having the extractor data available when evaluating rules (3) solves
-        the problem of evaluating certain conditions, like testing if the
-        given file contains a specific line of text, etc.
     * Plan for optimization by not extracting more data than necessary.
       How could this be implemented?
     * Converting strings to `datetime` objects and similar translation of
@@ -217,6 +206,8 @@ Low Priority
 
 * Do not include the file rule attribute `score` when listing the
   configuration with `--dump-config`.
+
+* Add assigning tags to GPS coordinates for tagging images with EXIF GPS data.
 
 
 Wishlist

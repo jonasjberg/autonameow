@@ -27,6 +27,7 @@ from datetime import datetime, timedelta
 
 from dateutil import parser
 
+from core import util
 from core.util import textutils
 
 
@@ -86,6 +87,7 @@ def _year_is_probable(year):
             else:
                 year += 1900
 
+        year = util.decode_(year)
         try:
             year = datetime.strptime(str(year), '%Y')
         except TypeError:
@@ -151,54 +153,68 @@ def regex_search_str(text):
 
     results = []
 
+    # TODO: [cleanup] This code should be removed and/or rewritten.
+
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    text = util.decode_(text)
+
     if type(text) is list:
         text = ' '.join(text)
 
-    DATE_SEP = "[:\-._ \/]?"
-    TIME_SEP = "[T:\-. _]?"
-    DATE_REGEX = '[12]\d{3}' + DATE_SEP + '[01]\d' + DATE_SEP + '[0123]\d'
-    TIME_REGEX = TIME_SEP + '[012]\d' + TIME_SEP + '[012345]\d(.[012345]\d)?'
-    DATETIME_REGEX = '(' + DATE_REGEX + '(' + TIME_REGEX + ')?)'
+    DATE_SEP = r'[:\-._ /]?'
+    TIME_SEP = r'[T:\-. _]?'
+    DATE_REGEX = r'[12]\d{3}' + DATE_SEP + r'[01]\d' + DATE_SEP + r'[0123]\d'
+    TIME_REGEX = TIME_SEP + r'[012]\d' + TIME_SEP + r'[012345]\d(.[012345]\d)?'
+    DATETIME_REGEX = r'(' + DATE_REGEX + r'(' + TIME_REGEX + r')?)'
 
-    dt_pattern_1 = re.compile(DATETIME_REGEX)
+    try:
+        # TODO: [hack] Fix this!
+        dt_pattern_1 = re.compile(DATETIME_REGEX)
+    except Exception as e:
+        log.error(str(e))
+        dt_pattern_1 = False
 
-    matches = 0
-    for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
-        # Skip if entries doesn't contain digits.
-        m_date = textutils.extract_digits(m_date)
-        m_time = textutils.extract_digits(m_time)
-        m_time_ms = textutils.extract_digits(m_time_ms)
+    # TODO: [hack] Fix this!
+    if dt_pattern_1:
+        matches = 0
+        for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
+            # Skip if entries doesn't contain digits.
+            m_date = textutils.extract_digits(m_date)
+            m_time = textutils.extract_digits(m_time)
+            m_time_ms = textutils.extract_digits(m_time_ms)
 
-        if m_date is None or m_time is None:
-            continue
+            if m_date is None or m_time is None:
+                continue
 
-        # Check if m_date is actually m_date *AND* m_date.
-        if len(m_date) > 8 and m_date.endswith(m_time):
-            m_date = m_date.replace(m_time, '')
+            # Check if m_date is actually m_date *AND* m_date.
+            if len(m_date) > 8 and m_date.endswith(m_time):
+                m_date = m_date.replace(m_time, '')
 
-        if len(m_time) < 6:
-            pass
+            if len(m_time) < 6:
+                pass
 
-        # Skip matches with unexpected number of digits.
-        if len(m_date) != 8 or len(m_time) != 6:
-            continue
+            # Skip matches with unexpected number of digits.
+            if len(m_date) != 8 or len(m_time) != 6:
+                continue
 
-        dt_fmt_1 = '%Y%m%d_%H%M%S'
-        dt_str = (m_date + '_' + m_time).strip()
-        try:
-            dt = datetime.strptime(dt_str, dt_fmt_1)
-        except ValueError:
-            pass
-        else:
-            if date_is_probable(dt):
-                log.debug('Extracted datetime from text: "{}"'.format(dt))
-                results.append(dt)
-                matches += 1
+            dt_fmt_1 = '%Y%m%d_%H%M%S'
+            dt_str = (m_date + '_' + m_time).strip()
+            try:
+                dt = datetime.strptime(dt_str, dt_fmt_1)
+            except ValueError:
+                pass
+            else:
+                if date_is_probable(dt):
+                    log.debug('Extracted datetime from text: "{}"'.format(dt))
+                    results.append(dt)
+                    matches += 1
 
     # Expected date format:         2016:04:07
-    dt_pattern_2 = re.compile('(\d{4}-[01]\d-[0123]\d)')
+    dt_pattern_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
     for dt_str in re.findall(dt_pattern_2, text):
+        # TODO: [encoding] Enforce encoding boundary for extracted data.
+        dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_2)
         except ValueError:
@@ -210,9 +226,11 @@ def regex_search_str(text):
                 matches += 1
 
     # Matches '(C) 2014' and similar.
-    dt_pattern_3 = re.compile('\( ?[Cc] ?\) ?([12]\d{3})')
+    dt_pattern_3 = re.compile(r'\( ?[Cc] ?\) ?([12]\d{3})')
     dt_fmt_3 = '%Y'
     for dt_str in re.findall(dt_pattern_3, text):
+        # TODO: [encoding] Enforce encoding boundary for extracted data.
+        dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_3)
         except ValueError:
@@ -237,6 +255,9 @@ def match_special_case(text):
     """
     if text is None or text.strip() is None:
         return None
+
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    text = util.decode_(text)
 
     # TODO: Allow adding custom matching patterns to the configuration file.
     match_patterns = [('%Y-%m-%d_%H%M%S', 17),
@@ -263,6 +284,7 @@ def match_special_case_no_date(text):
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
+    text = util.decode_(text)
     try:
         dt = datetime.strptime(text[:10], '%Y-%m-%d')
     except ValueError:
@@ -291,9 +313,12 @@ def match_android_messenger_filename(text):
     #   2016-01-22 15:34:46+01:00
     # $ 1453473286723
 
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    text = util.decode_(text)
+
     results = []
 
-    dt_pattern = re.compile('.*(received_)(\d{17})(\.jpe?g)?')
+    dt_pattern = re.compile(r'.*(received_)(\d{17})(\.jpe?g)?')
     for _, dt_str, _ in re.findall(dt_pattern, text):
         try:
             microsecond = int(dt_str[13:])
@@ -319,6 +344,9 @@ def match_any_unix_timestamp(text):
     """
     if text is None or text.strip() is None:
         return None
+
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    text = util.decode_(text)
 
     match_iter = re.finditer(r'(\d{10,13})', text)
     if match_iter is None:
@@ -372,6 +400,8 @@ def bruteforce_str(text, return_first_match=False):
         if not text:
             log.debug('[bruteforce_str] Got empty text')
             return None
+
+    text = util.decode_(text)
 
     bruteforce_str.matches = bruteforce_str.matches_total = 0
 
@@ -572,12 +602,13 @@ def search_gmail(text, prefix):
     :param prefix: prefix this to the resulting dictionary keys
     :return: a list of dictionaries containing datetime-objects.
     """
+    text = util.decode_(text)
     # TODO: Currently not used at all! Implement or remove.
     if type(text) is list:
         # log.debug('Converting list to string ..')
         text = ' '.join(text)
 
-    if not text.lower().find('gmail'):
+    if not text.lower().find(b'gmail'):
         # log.debug('Text does not contains "gmail", might not be a Gmail?')
         return
 
@@ -585,11 +616,11 @@ def search_gmail(text, prefix):
 
     # Expected date formats:         Fri, Jan 8, 2016 at 3:50 PM
     #                                1/11/2016
-    SEP = '[, ]'
-    REGEX_GMAIL_LONG = re.compile('(\w{3,8})' + SEP + '(\w{3,10})\ (\d{1,2})'
-                                  + SEP + '([12]\d{3})' + '(\ at\ )?' +
-                                  '(\d{1,2}:\d{1,2}\ [AP]M)')
-    REGEX_GMAIL_SHORT = re.compile('\d{1,2}\/\d{2}\/[12]\d{3}')
+    SEP = r'[, ]'
+    REGEX_GMAIL_LONG = re.compile(r'(\w{3,8})' + SEP + r'(\w{3,10})\ (\d{1,2})'
+                                  + SEP + r'([12]\d{3})' + r'(\ at\ )?' +
+                                  r'(\d{1,2}:\d{1,2}\ [AP]M)')
+    REGEX_GMAIL_SHORT = re.compile(r'\d{1,2}\/\d{2}\/[12]\d{3}')
 
 
 def get_datetime_from_text(text, prefix='NULL'):
@@ -609,6 +640,7 @@ def get_datetime_from_text(text, prefix='NULL'):
         return None
     if prefix == 'NULL':
         pass
+    # text = util.decode_(text)
 
     # TODO: Improve handlng of generalized "text" from any source.
     #       (currently plain text and pdf documents)
@@ -654,7 +686,10 @@ def special_datetime_ocr_search(text):
     OCR returns result:       2016702708
     :return:
     """
-    pattern = re.compile('(\d{4}7[01]\d7[0123]\d)')
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    text = util.decode_(text)
+
+    pattern = re.compile(r'(\d{4}7[01]\d7[0123]\d)')
     dt_fmt = '%Y7%m7%d'
     for dt_str in re.findall(pattern, text):
         try:
@@ -675,7 +710,10 @@ def match_screencapture_unixtime(text):
     :param text: text to search for UNIX timestamp
     :return: datetime-object if a match is found, else None
     """
-    pattern = re.compile('.*(\d{13}).*')
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    text = util.decode_(text)
+
+    pattern = re.compile(r'.*(\d{13}).*')
     for t in re.findall(pattern, text):
         dt = match_any_unix_timestamp(t)
         if dt:

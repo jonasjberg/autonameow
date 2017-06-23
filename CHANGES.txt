@@ -1,3 +1,45 @@
+2017-06-24  [autonameow v0.4.2]
+            Includes first attempt at properly fixing encoding issues.  Also a
+            lot of cleanup and refactoring.  Refer to the Git log for details.
+
+            Additions:
+            - Add unit tests for old code.
+            - Add and rework existing unit test mocking functions.
+            - Add 'tests/README.md'.
+            - Add constant 'MAGIC_TYPE_UNKNOWN' to be used if detection fails.
+
+            Changes:
+            - Modify how extractor and analyzer classes are deemed suitable for
+              a given file.
+              Old method evaluated the given file MIME type against the MIME
+              type blobs in each of the classes attribute 'handles_mime_types'.
+              Suitability is now tested by a new class method 'can_handle' in
+              the 'Extractor' and 'Analyzer' base classes.  The internal
+              implementation is the same, but this change opens up for future
+              overriding of the 'can_handle' method in each of the inheriting
+              classes if they require additional testing.
+            - Various code/filename fefactoring and cleanup.
+            - Add initial attempt at fixing encoding issues properly.
+                - Based on the solution used in the "beets" project, described
+                  here:  http://beets.io/blog/paths.html
+                - Add reusable functions for encoding/decoding at boundaries.
+                - Start reworking code to adhere to the boundaries and keep
+                  data encoding/decoding to a minimum within the program.
+            - Fall back to a default file rule description if not provided.
+            - Rework terminal coloring and modify logging colors.
+            - Add initial refactoring of 'namebuilder.py'.
+              Move rule matching functions from 'namebuilder.py' to a new file
+              'rulematcher.py'.
+
+            Fixes:
+            - Improve the 'colorize' function and verify with unit tests.
+            - Fix the 'colorize_quoted' function and verify with unit tests.
+            - Handle case where results is a dict of dicts.
+              Results are flattened and the label is prepended to the results.
+            - Add proper handling of MIME type globs in the configuration.
+            - Trivial improvements to some of the unit tests execution speed.
+
+
 2017-06-17  [autonameow v0.4.1]
             This version marks the start of definitiely moving towards
             a redesigned and pretty much frozen high-level architecture.

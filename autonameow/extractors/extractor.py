@@ -44,7 +44,8 @@ class Extractor(object):
         Creates a extractor instance acting on the specified source data.
 
         Args:
-            source: Source of data from which to extract information.
+            source: Source of data from which to extract information as a
+                byte string path (internal path format)
         """
         self.source = source
 
@@ -53,6 +54,7 @@ class Extractor(object):
         Queries the extractor for extracted data.
 
         Argument "field" is optional. All data is returned by default.
+        If the data is text, is should be returned as Unicode strings.
 
         Args:
             field: Optional refinement of the query.

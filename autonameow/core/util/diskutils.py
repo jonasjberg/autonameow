@@ -24,6 +24,7 @@ import re
 import itertools
 import logging as log
 
+from core import util
 
 # Needed by 'sanitize_filename' for sanitizing filenames in restricted mode.
 ACCENT_CHARS = dict(zip('ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ',
@@ -78,19 +79,29 @@ def sanitize_filename(s, restricted=False, is_id=False):
 
 
 def rename_file(source_path, new_basename):
-    source_path = os.path.realpath(os.path.normpath(source_path))
-    if not os.path.exists(source_path):
+    dest_base = util.syspath(new_basename)
+    source = util.syspath(source_path)
+
+    source = os.path.realpath(os.path.normpath(source))
+    if not os.path.exists(source):
         raise FileNotFoundError('Source does not exist: "{!s}"'.format(
-            source_path))
+            util.displayable_path(source)
+        ))
 
-    dest_dir = os.path.dirname(source_path)
-    dest_path = os.path.normpath(os.path.join(dest_dir, new_basename))
-    if os.path.exists(dest_path):
-        raise FileExistsError('Destination exists: "{!s}"'.format(dest_path))
+    dest_abspath = os.path.normpath(
+        os.path.join(os.path.dirname(source), dest_base)
+    )
+    if os.path.exists(dest_abspath):
+        raise FileExistsError('Destination exists: "{!s}"'.format(
+            util.displayable_path(dest_abspath)
+        ))
 
-    log.debug('Renaming "{!s}" to "{!s}"'.format(source_path, dest_path))
+    log.debug('Renaming "{!s}" to "{!s}"'.format(
+        util.displayable_path(source),
+        util.displayable_path(dest_abspath))
+    )
     try:
-        os.rename(source_path, dest_path)
+        os.rename(source, dest_abspath)
     except OSError:
         raise
 
@@ -111,14 +122,18 @@ def split_filename(file_path):
     Returns:
 
     """
-    base, ext = os.path.splitext(os.path.basename(file_path))
+    base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
+
+    base = util.bytestring_path(base)
+    ext = util.bytestring_path(ext)
 
     # Split "base" twice to make compound suffix out of the two extensions.
-    if ext.lower() in ['.bz2', '.gz', '.lz', '.lzma', '.lzo', '.xz', '.z']:
+    if ext.lower() in [b'.bz2', b'.gz', b'.lz', b'.lzma', b'.lzo', b'.xz',
+                       b'.z']:
         ext = os.path.splitext(base)[1] + ext
         base = os.path.splitext(base)[0]
 
-    ext = ext.lstrip('.')
+    ext = ext.lstrip(b'.')
     if ext and ext.strip():
         return base, ext
     else:
@@ -174,7 +189,7 @@ def file_base(file_path):
 
 
 def file_basename(file_path):
-    return os.path.basename(file_path)
+    return util.syspath(os.path.basename(file_path))
 
 
 def path_ancestry(path):

@@ -99,6 +99,6 @@ class TestDoRename(TestCase):
 
     @mock.patch('core.util.diskutils.rename_file')
     def test_dry_run_false_calls_diskutils_rename_file(self, mockrename):
-        r = self.amw.do_rename('/tmp/dummy/path', 'mjaopath', dry_run=False)
-        mockrename.assert_called_with('/tmp/dummy/path', 'mjaopath')
+        r = self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=False)
+        mockrename.assert_called_with(b'/tmp/dummy/path', b'mjaopath')
         self.assertTrue(r)

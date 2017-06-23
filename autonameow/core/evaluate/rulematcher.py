@@ -24,11 +24,10 @@ import os
 import re
 import operator
 
-from core import fileobject
-from core.exceptions import (
-    AutonameowException,
-    InvalidFileRuleError,
-    RuleMatcherError
+from core import (
+    exceptions,
+    fileobject,
+    util
 )
 
 
@@ -129,7 +128,9 @@ def evaluate_rule(file_rule, file_object, analysis_data):
             True
     """
     if not file_rule.conditions:
-        raise InvalidFileRuleError('Rule does not specify any conditions')
+        raise exceptions.InvalidFileRuleError(
+            'Rule does not specify any conditions'
+        )
 
     if file_rule.exact_match:
         for cond_field, cond_value in file_rule.conditions.items():
@@ -186,7 +187,7 @@ def eval_condition(condition_field, condition_value, file_object,
 
     def eval_path(expression, match_data):
         # TODO: [hack] Total rewrite of condition evaluation?
-        if expression.startswith('~/'):
+        if expression.startswith(b'~/'):
             try:
                 expression = os.path.expanduser(expression)
                 expression = os.path.normpath(os.path.abspath(expression))
@@ -215,12 +216,18 @@ def eval_condition(condition_field, condition_value, file_object,
 
     # Regex Fields
     if condition_field == 'basename':
+        # TODO: [encoding] Handle configuration encoding elsewhere.
+        condition_value = util.encode_(condition_value)
         return eval_regex(condition_value, file_object.filename)
 
     elif condition_field == 'extension':
+        # TODO: [encoding] Handle configuration encoding elsewhere.
+        condition_value = util.encode_(condition_value)
         return eval_regex(condition_value, file_object.suffix)
 
     elif condition_field == 'pathname':
+        # TODO: [encoding] Handle configuration encoding elsewhere.
+        condition_value = util.encode_(condition_value)
         return eval_path(condition_value, file_object.pathname)
 
     # TODO: Fix MIME type check
@@ -232,4 +239,4 @@ def eval_condition(condition_field, condition_value, file_object,
         return eval_datetime(condition_value, None)
 
     else:
-        raise AutonameowException('Unhandled condition check!')
+        raise exceptions.AutonameowException('Unhandled condition check!')

@@ -142,6 +142,11 @@ class TestFilenameAnalyzerWithTaggedFile(TestCase):
         self.assertIsNotNone(title_fn)
 
     def test_get_title_return_is_valid(self):
-        self.assertEqual([{'source': 'filenamepart_base',
-                           'value': 'Keeping notes in Vim',
-                           'weight': 1}], self.fna.get_title())
+        expected = {'source': 'filenamepart_base',
+                    'value': 'Keeping notes in Vim',
+                    'weight': 1}
+        actual = self.fna.get_title()
+
+        for k, v in expected.items():
+            self.assertEqual(actual[0][k], v)
+        # self.assertListEqual(expected, actual)

@@ -11,6 +11,22 @@ University mail: `js224eh[a]student.lnu.se`
 ========================================
 
 
+* 2017-06-23
+
+    > High Priority
+    > -------------
+    >
+    > * __Text encoding issues__
+    >     * Add reusable translation layer that ensures proper handling of text
+    >       encoding of *all incoming textual data*;
+    >       standard input/output/error/.., path/file names, text file contents, etc.
+    >         * Decode all incoming data.
+    >         * Make sure the `encoding` parameter is always specified when reading
+    >           file contents with `open`.
+    >     * Add corresponding reusable translation layer for
+    >       *all outgoing textual data*.
+    >         * Encode all outgoing data.
+
 * 2017-06-20
 
     > High Priority
@@ -67,3 +83,21 @@ University mail: `js224eh[a]student.lnu.se`
     >   data? If so, use a separate container for "derived data".
     > * Alternatively, store all types of results in the `Analysis` class `Results`
     >   instance but modify the `Results` class to distinguish between the types?
+
+* 2016-06-14
+
+    > High Priority
+    > -------------
+    >
+    > * __New high-level architecture__ -- Move to use the redesigned architecture
+    >     * Modify high-level program flow to something along the lines of:
+    >         1. Load configuration
+    >         2. Run all extractors that can handle the given file
+    >         3. Determine which configuration rule matches the given file
+    >         4. Enqueue analyzers based on the rule and extracted data
+    >         5. Run all enqueued analyzers
+    >         6. Assemble new file name from all available data
+    >
+    >         Having the extractor data available when evaluating rules (3) solves
+    >         the problem of evaluating certain conditions, like testing if the
+    >         given file contains a specific line of text, etc.

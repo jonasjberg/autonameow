@@ -26,21 +26,16 @@ import time
 
 from core import (
     config,
-    constants
+    constants,
+    options,
+    util,
+    exceptions
 )
-from core import options
 from core.analysis import Analysis
 from core.config.configuration import Configuration
 from core.evaluate.filter import ResultFilter
 from core.evaluate.namebuilder import NameBuilder
 from core.evaluate.rulematcher import RuleMatcher
-from core.exceptions import (
-    InvalidFileArgumentError,
-    ConfigurationSyntaxError,
-    AutonameowException,
-    NameBuilderError,
-    ConfigError
-)
 from core.extraction import Extraction
 from core.fileobject import FileObject
 from core.util import (
@@ -97,16 +92,17 @@ class Autonameow(object):
         # template config and tell the user.
         if self.opts.config_path:
             try:
-                log.info('Using configuration file: '
-                         '"{!s}"'.format(self.opts.config_path))
+                log.info('Using configuration file: "{!s}"'.format(
+                    util.displayable_path(self.opts.config_path)
+                ))
                 self.config.load(self.opts.config_path)
-            except ConfigError as e:
+            except exceptions.ConfigError as e:
                 log.critical('Failed to load configuration file!')
                 log.debug(str(e))
                 self.exit_program(constants.EXIT_ERROR)
         else:
-            _config_path = config.ConfigFilePath
 
+            _disp_config_path = util.displayable_path(config.ConfigFilePath)
             if not config.has_config_file():
                 log.info('No configuration file was found. Writing default ..')
 
@@ -114,28 +110,30 @@ class Autonameow(object):
                     config.write_default_config()
                 except PermissionError:
                     log.critical('Unable to write configuration file to path: '
-                                 '"{!s}"'.format(_config_path))
+                                 '"{!s}"'.format(_disp_config_path))
                     self.exit_program(constants.EXIT_ERROR)
                 else:
                     cli.msg('A template configuration file was written to '
-                            '"{!s}"'.format(_config_path), style='info')
+                            '"{!s}"'.format(_disp_config_path), style='info')
                     cli.msg('Use this file to configure {}. '
                             'Refer to the documentation for additional '
                             'information.'.format(version.__title__),
                             style='info')
                     self.exit_program(constants.EXIT_SUCCESS)
             else:
-                log.info('Using configuration: "{}"'.format(_config_path))
+                log.info('Using configuration: "{}"'.format(_disp_config_path))
                 try:
-                    self.config.load(_config_path)
-                except ConfigurationSyntaxError as e:
+                    self.config.load(config.ConfigFilePath)
+                except exceptions.ConfigurationSyntaxError as e:
                     log.critical('Configuration syntax error: "{!s}"'.format(e))
 
         # TODO: Integrate filter settings in configuration (file).
         self.filter = ResultFilter().configure_filter(self.opts)
 
         if self.opts.dump_options:
-            include_opts = {'config_file_path': config.ConfigFilePath}
+            include_opts = {
+                'config_file_path': util.displayable_path(config.ConfigFilePath)
+            }
             options.prettyprint_options(self.opts, include_opts)
 
         if self.opts.dump_config:
@@ -166,22 +164,31 @@ class Autonameow(object):
         7. (automagic mode and not --dry-run) Rename the file.
         """
         for input_path in self.opts.input_paths:
-            log.info('Processing: "{!s}"'.format(input_path))
+
+            # File name encoding boundary. Convert to internal format.
+            input_path = util.normpath(input_path)
+            log.info('Processing: "{!s}"'.format(
+                util.displayable_path(input_path))
+            )
 
             # Sanity checking the "input_path" is part of 'FileObject' init.
             try:
                 current_file = FileObject(input_path, self.config)
-            except InvalidFileArgumentError as e:
-                log.warning('{!s} - SKIPPING: "{!s}"'.format(e, input_path))
+            except exceptions.InvalidFileArgumentError as e:
+                log.warning('{!s} - SKIPPING: "{!s}"'.format(
+                    e, util.displayable_path(input_path))
+                )
                 continue
 
             # Extract data from the file.
             extraction = Extraction(current_file)
             try:
                 extraction.start()
-            except AutonameowException as e:
+            except exceptions.AutonameowException as e:
                 log.critical('Extraction FAILED: {!s}'.format(e))
-                log.critical('Skipping file "{}" ..'.format(current_file))
+                log.critical('Skipping file "{}" ..'.format(
+                    util.displayable_path(current_file))
+                )
                 self.exit_code = constants.EXIT_WARNING
                 continue
 
@@ -189,9 +196,11 @@ class Autonameow(object):
             analysis = Analysis(current_file, extraction.data)
             try:
                 analysis.start()
-            except AutonameowException as e:
+            except exceptions.AutonameowException as e:
                 log.critical('Analysis FAILED: {!s}'.format(e))
-                log.critical('Skipping file "{}" ..'.format(current_file))
+                log.critical('Skipping file "{}" ..'.format(
+                    util.displayable_path(current_file))
+                )
                 self.exit_code = constants.EXIT_WARNING
                 continue
 
@@ -199,9 +208,11 @@ class Autonameow(object):
             matcher = RuleMatcher(current_file, analysis.results, self.config)
             try:
                 matcher.start()
-            except AutonameowException as e:
+            except exceptions.AutonameowException as e:
                 log.critical('Rule Matching FAILED: {!s}'.format(e))
-                log.critical('Skipping file "{}" ..'.format(current_file))
+                log.critical('Skipping file "{}" ..'.format(
+                    util.displayable_path(current_file))
+                )
                 self.exit_code = constants.EXIT_WARNING
                 continue
 
@@ -209,7 +220,9 @@ class Autonameow(object):
             list_any = (self.opts.list_datetime or self.opts.list_title
                         or self.opts.list_all)
             if list_any:
-                cli.msg(('File: "{}"\n'.format(current_file.abspath)))
+                cli.msg(('File: "{}"\n'.format(
+                    util.displayable_path(current_file.abspath)))
+                )
 
             if self.opts.list_all:
                 log.info('Listing ALL analysis results ..')
@@ -242,13 +255,15 @@ class Autonameow(object):
                     self.builder = NameBuilder(current_file, analysis.results,
                                                self.config, matcher.best_match)
                     new_name = self.builder.build()
-                except NameBuilderError as e:
+                except exceptions.NameBuilderError as e:
                     log.critical('Name assembly FAILED: {!s}'.format(e))
                     self.exit_code = constants.EXIT_WARNING
                     continue
                 else:
                     # TODO: Respect '--quiet' option. Suppress output.
-                    log.info('New name: "{}"'.format(new_name))
+                    log.info('New name: "{}"'.format(
+                        util.displayable_path(new_name))
+                    )
                     renamed_ok = self.do_rename(current_file.abspath, new_name,
                                                 dry_run=self.opts.dry_run)
                     if renamed_ok:
@@ -279,21 +294,28 @@ class Autonameow(object):
 
         sys.exit(self.exit_code)
 
-    def do_rename(self, from_path, new_basename, dry_run=True):
+    @staticmethod
+    def do_rename(from_path, new_basename, dry_run=True):
         """
         Renames a file at the given path to the specified basename.
 
         Args:
             from_path: Path to the file to rename.
-            new_basename: The new basename for the file.
+            new_basename: The new basename for the file as type str.
             dry_run: Controls whether the renaming is actually performed.
 
         Returns:
             True if the rename succeeded, otherwise False.
         """
         dest_basename = diskutils.sanitize_filename(new_basename)
+
+        # Encoding boundary.  Internal str --> internal filename bytestring
+        dest_basename = util.bytestring_path(dest_basename)
+
         from_basename = diskutils.file_basename(from_path)
-        log.debug('Sanitized basename: "{!s}"'.format(dest_basename))
+        log.debug('Sanitized basename: "{!s}"'.format(
+            util.displayable_path(dest_basename))
+        )
 
         if dry_run is False:
             try:
@@ -302,13 +324,15 @@ class Autonameow(object):
                 log.error('Rename FAILED: {!s}'.format(e))
                 return False
             else:
-                message = 'Renamed "{!s}" -> "{!s}"'
-                cli.msg(message.format(from_basename, dest_basename),
+                _message = 'Renamed "{!s}" -> "{!s}"'
+                cli.msg(_message.format(util.displayable_path(from_basename),
+                                        util.displayable_path(dest_basename)),
                         style='color_quoted')
                 return True
         else:
-            message = 'Would have renamed "{!s}" -> "{!s}"'
-            cli.msg(message.format(from_basename, dest_basename),
+            _message = 'Would have renamed "{!s}" -> "{!s}"'
+            cli.msg(_message.format(util.displayable_path(from_basename),
+                                    util.displayable_path(dest_basename)),
                     style='color_quoted')
             return True
 

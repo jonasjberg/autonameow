@@ -131,20 +131,6 @@ class TestConfigurationInit(TestCase):
         self.maxDiff = None
         self.configuration = Configuration(DEFAULT_CONFIG)
 
-    def test_configuration_parsers_in_not_none(self):
-        self.assertIsNotNone(self.configuration.field_parsers,
-                             'Config should have a list of field parsers.')
-
-    def test_configuration_field_parsers_subclass_of_config_field_parser(self):
-        for parser in self.configuration.field_parsers:
-            self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser),
-                            'Configuration should have a list of field parsers '
-                            'inheriting from "FieldParser".')
-
-    def test_configuration_field_parsers_instance_of_config_field_parser(self):
-        for parser in self.configuration.field_parsers:
-            self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
-
 
 class TestConfigurationDataAccess(TestCase):
     def setUp(self):

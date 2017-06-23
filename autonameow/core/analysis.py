@@ -25,9 +25,9 @@ import plugins
 from analyzers.analyzer import (
     get_analyzer_classes
 )
-from core import constants
-from core.exceptions import (
-    AutonameowException
+from core import (
+    constants,
+    exceptions
 )
 from core.util.misc import flatten_dict
 from core.util.queue import GenericQueue
@@ -107,7 +107,9 @@ class Analysis(object):
 
         analyzers = suitable_analyzers_for(self.file_object)
         if not analyzers:
-            raise AutonameowException('None of the analyzers applies (!)')
+            raise exceptions.AutonameowException(
+                'None of the analyzers applies (!)'
+            )
 
         analyzer_instances = self._instantiate_analyzers(analyzers)
         for a in analyzer_instances:

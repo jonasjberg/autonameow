@@ -30,6 +30,7 @@ from PyPDF2.utils import (
 )
 import pytesseract
 
+from core import util
 from core.exceptions import ExtractorError
 from core.util import textutils
 from extractors.extractor import Extractor
@@ -105,7 +106,9 @@ class PdfTextExtractor(TextExtractor):
         Extracts the plain text contents of a PDF document.
 
         Returns:
-            The textual contents of the PDF document or None.
+            The textual contents of the PDF document as a unicode string.
+        Raises:
+            ExtractorError: The extraction failed.
         """
         pdf_text = None
         text_extractors = [extract_pdf_content_with_pdftotext,
@@ -116,16 +119,16 @@ class PdfTextExtractor(TextExtractor):
             pdf_text = extractor(self.source)
             if pdf_text and len(pdf_text) > 1:
                 log.debug('Extracted text with: {}'.format(extractor.__name__))
+
                 # TODO: Fix up post-processing extracted text.
-                pdf_text = textutils.sanitize_text(pdf_text)
+                # pdf_text = textutils.sanitize_text(pdf_text)
                 break
 
         if pdf_text:
-            log.debug('Extracted {} bytes of text'.format(len(pdf_text)))
             return pdf_text
         else:
             log.debug('Unable to extract textual content from PDF')
-            raise ExtractorError
+            return ''
 
 
 def extract_pdf_content_with_pdftotext(pdf_file):
@@ -133,7 +136,7 @@ def extract_pdf_content_with_pdftotext(pdf_file):
     Extract the plain text contents of a PDF document using pdftotext.
 
     Returns:
-        False or PDF content as string
+        False or PDF content as a Unicode string (internal format)
     """
     process = subprocess.Popen(
         ['pdftotext', '-nopgbrk', '-enc', 'UTF-8', pdf_file, '-'],
@@ -147,7 +150,8 @@ def extract_pdf_content_with_pdftotext(pdf_file):
         # TODO: Raise exception instead?
         return False
     else:
-        return stdout.decode('utf-8', errors='replace')
+        log.debug('pdftotext returned {} bytes of text'.format(len(stdout)))
+        return util.decode_(stdout)
 
 
 def extract_pdf_content_with_pypdf(pdf_file):
@@ -155,7 +159,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
     Extract the plain text contents of a PDF document using PyPDF2.
 
     Returns:
-        False or the PDF text contents as strings.
+        False or the PDF text contents as Unicode strings (internal format)
     """
     try:
         pdff = PyPDF2.PdfFileReader(open(pdf_file, 'rb'))
@@ -203,7 +207,16 @@ def get_text_from_ocr(image_path, tesseract_args=None):
     """
     Get any textual content from the image by running OCR with tesseract
     through the pytesseract wrapper.
-    :return: image text if found, else None (?)
+
+    Args:
+        image_path: The path to the image to process.
+        tesseract_args: Optional tesseract arguments as Unicode strings.
+
+    Returns:
+        Any OCR results text as Unicode strings.
+
+    Raises:
+        ExtractorError: The extraction failed.
     """
     # TODO: Test this!
 
@@ -214,7 +227,8 @@ def get_text_from_ocr(image_path, tesseract_args=None):
 
     try:
         log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
-            tesseract_args, image_path))
+            tesseract_args, util.displayable_path(image_path)
+        ))
         text = pytesseract.image_to_string(image, lang='swe+eng',
                                            config=tesseract_args)
     except pytesseract.pytesseract.TesseractError as e:
@@ -223,5 +237,5 @@ def get_text_from_ocr(image_path, tesseract_args=None):
         if text:
             text = text.strip()
             log.debug('PyTesseract returned {} bytes of text'.format(len(text)))
-            return text
+            return util.decode_(text)
         return ''

@@ -31,6 +31,7 @@ from datetime import datetime
 
 from core.exceptions import ExtractorError
 from core.util import wrap_exiftool
+from core import util
 from extractors.extractor import Extractor
 
 
@@ -93,12 +94,16 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
 
     def _get_raw_metadata(self):
         try:
-            result = self.get_exiftool_data()
+            result = self._get_exiftool_data()
             return result
         except Exception as e:
             raise ExtractorError(e)
 
-    def get_exiftool_data(self):
+    def _get_exiftool_data(self):
+        """
+        Returns:
+            Exiftool results as a dictionary of strings/ints/floats.
+        """
         with wrap_exiftool.ExifTool() as et:
             # Raises ValueError if an ExifTool instance isn't running.
             try:
@@ -117,15 +122,16 @@ class PyPDFMetadataExtractor(MetadataExtractor):
 
     def _get_raw_metadata(self):
         try:
-            return self.get_pypdf_data()
+            return self._get_pypdf_data()
         except Exception as e:
             raise ExtractorError(e)
 
-    def get_pypdf_data(self):
+    def _get_pypdf_data(self):
         out = {}
 
         try:
-            file_reader = PyPDF2.PdfFileReader(self.source, 'rb')
+            # NOTE(jonas): [encoding] Double-check PyPDF2 docs ..
+            file_reader = PyPDF2.PdfFileReader(util.decode_(self.source), 'rb')
         except Exception:
             # TODO: Raise custom exception .. ?
             raise
