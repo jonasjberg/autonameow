@@ -99,6 +99,10 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
             raise ExtractorError(e)
 
     def get_exiftool_data(self):
+        """
+        Returns:
+            Exiftool results as a dictionary of strings/ints/floats.
+        """
         with wrap_exiftool.ExifTool() as et:
             # Raises ValueError if an ExifTool instance isn't running.
             try:

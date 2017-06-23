@@ -54,10 +54,11 @@ def abspath_testfile(file):
     files in the 'test_files' directory.
     
     Args:
-        file: The basename of a file in the 'test_files' directory.
+        file: The basename of a file in the 'test_files' directory as a
+            Unicode string (internal format)
 
-    Returns: The full path to the specified file.
-
+    Returns:
+        The full path to the specified file.
     """
     return os.path.join(TESTS_DIR + os.sep + file)
 
@@ -66,8 +67,8 @@ def make_temp_dir():
     """
     Creates and returns a temporary directory.
 
-    Returns: A new temporary directory.
-
+    Returns:
+        A new temporary directory.
     """
     return tempfile.mkdtemp()
 
