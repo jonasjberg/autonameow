@@ -96,7 +96,7 @@ class PathConversionTest(unit_utils.TestCase):
         outpath = self._windows_bytestring_path(path)
         self.assertEqual(path, outpath.decode('utf-8'))
 
-    def test_bytesting_path_windows_removes_magic_prefix(self):
+    def test_bytestring_path_windows_removes_magic_prefix(self):
         path = '\\\\?\\C:\\caf\xe9'
         outpath = self._windows_bytestring_path(path)
         self.assertEqual(outpath, 'C:\\caf\xe9'.encode('utf-8'))
