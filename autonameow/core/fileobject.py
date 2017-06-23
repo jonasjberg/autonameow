@@ -41,21 +41,25 @@ FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + b'([T_ -]?' + TIME_REGEX + b')?'
 
 class FileObject(object):
     def __init__(self, path, opts):
-        path = util.syspath(path)
+        """
+        Creates a new FileObject instance representing a single path/file.
+
+        Args:
+            path: The absolute normalized path to the file, as a bytestring.
+            opts: Configuration options as an instance of 'Configuration'.
+        """
+
         validate_path_argument(path)
 
-        # File name encoding boundary. Convert to internal format.
-        self.abspath = util.bytestring_path(
-            os.path.abspath(path)
-        )
+        self.abspath = path
         self.filename = util.bytestring_path(
-            os.path.basename(os.path.abspath(path))
+            os.path.basename(util.syspath(path))
         )
         self.pathname = util.bytestring_path(
-            os.path.dirname(os.path.abspath(path))
+            os.path.dirname(util.syspath(path))
         )
         self.pathparent = util.bytestring_path(
-            os.path.basename(os.path.dirname(os.path.abspath(path)))
+            os.path.basename(os.path.dirname(util.syspath(path)))
         )
 
         self.mime_type = filetype_magic(self.abspath)
@@ -218,6 +222,8 @@ def validate_path_argument(path):
     Raises:
         InvalidFileArgumentError: The given path is not considered valid.
     """
+    path = util.syspath(path)
+
     if not os.path.exists(path):
         raise InvalidFileArgumentError('Path does not exist')
     elif os.path.isdir(path):

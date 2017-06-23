@@ -170,7 +170,9 @@ class Autonameow(object):
         7. (automagic mode and not --dry-run) Rename the file.
         """
         for input_path in self.opts.input_paths:
-            input_path = util.bytestring_path(input_path)
+
+            # File name encoding boundary. Convert to internal format.
+            input_path = util.normpath(input_path)
             log.info('Processing: "{!s}"'.format(
                 util.displayable_path(input_path))
             )
@@ -304,13 +306,17 @@ class Autonameow(object):
 
         Args:
             from_path: Path to the file to rename.
-            new_basename: The new basename for the file.
+            new_basename: The new basename for the file as type str.
             dry_run: Controls whether the renaming is actually performed.
 
         Returns:
             True if the rename succeeded, otherwise False.
         """
         dest_basename = diskutils.sanitize_filename(new_basename)
+
+        # Encoding boundary.  Internal str --> internal filename bytestring
+        dest_basename = util.bytestring_path(dest_basename)
+
         from_basename = diskutils.file_basename(from_path)
         log.debug('Sanitized basename: "{!s}"'.format(
             util.displayable_path(dest_basename))
