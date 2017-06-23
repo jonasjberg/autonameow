@@ -92,10 +92,34 @@ class FileObject(object):
         #       ts          base               tags       ext
         #
         # TODO: Move "filetags"-specific code to separate module. (?)
-        self.filenamepart_ts = self._filenamepart_ts()
-        self.filenamepart_base = self._filenamepart_base()
-        self.filenamepart_ext = self._filenamepart_ext()
-        self.filenamepart_tags = self._filenamepart_tags() or []
+        self._filenamepart_ts = self._filenamepart_ts()
+        self._filenamepart_base = self._filenamepart_base()
+        self._filenamepart_ext = self._filenamepart_ext()
+        self._filenamepart_tags = self._filenamepart_tags() or []
+
+    @property
+    def filenamepart_ts(self):
+        if not self._filenamepart_ts:
+            return None
+        return util.decode_(self._filenamepart_ts)
+
+    @property
+    def filenamepart_base(self):
+        if not self._filenamepart_base:
+            return None
+        return util.decode_(self._filenamepart_base)
+
+    @property
+    def filenamepart_ext(self):
+        if not self._filenamepart_ext:
+            return None
+        return util.decode_(self._filenamepart_ext)
+
+    @property
+    def filenamepart_tags(self):
+        if not self._filenamepart_tags:
+            return []
+        return [util.decode_(t) for t in self._filenamepart_tags]
 
     def _filenamepart_ts(self):
         ts = FILENAMEPART_TS_REGEX.match(self.fnbase)
@@ -105,15 +129,15 @@ class FileObject(object):
 
     def _filenamepart_base(self):
         fnbase = self.fnbase
-        if self.filenamepart_ts:
-            fnbase = self.fnbase.lstrip(self.filenamepart_ts)
+        if self._filenamepart_ts:
+            fnbase = self.fnbase.lstrip(self._filenamepart_ts)
 
         if not re.findall(self.BETWEEN_TAG_SEPARATOR, fnbase):
             return fnbase
 
         # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
         r = re.split(self.FILENAME_TAG_SEPARATOR, fnbase, 1)
-        return str(r[0].strip())
+        return r[0].strip()
 
     def _filenamepart_ext(self):
         return self.suffix
@@ -147,8 +171,8 @@ class FileObject(object):
             True if the filename is in the "filetags" format.
             Otherwise False.
         """
-        if (self.filenamepart_ts and self.filenamepart_base
-                and self.filenamepart_tags):
+        if (self._filenamepart_ts and self._filenamepart_base
+                and self._filenamepart_tags):
             return True
         else:
             return False
