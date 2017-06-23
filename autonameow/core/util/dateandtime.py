@@ -36,7 +36,7 @@ def hyphenate_date(date_str):
     Convert a date in 'YYYYMMDD' format to 'YYYY-MM-DD' format.
     This function is lifted as-is from utils.py in the "youtube-dl" project.
     """
-    match = re.match(rb'^(\d\d\d\d)(\d\d)(\d\d)$', date_str)
+    match = re.match(r'^(\d\d\d\d)(\d\d)(\d\d)$', date_str)
     if match is not None:
         return '-'.join(match.groups())
     else:
@@ -153,14 +153,17 @@ def regex_search_str(text):
 
     results = []
 
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    text = util.decode_(text)
+
     if type(text) is list:
         text = ' '.join(text)
 
-    DATE_SEP = b'[:\-._ \/]?'
-    TIME_SEP = b'[T:\-. _]?'
-    DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'
-    TIME_REGEX = TIME_SEP + b'[012]\d' + TIME_SEP + b'[012345]\d(.[012345]\d)?'
-    DATETIME_REGEX = b'(' + DATE_REGEX + b'(' + TIME_REGEX + b')?)'
+    DATE_SEP = r'[:-._ /]?'
+    TIME_SEP = r'[T:-. _]?'
+    DATE_REGEX = r'[12]\d{3}' + DATE_SEP + r'[01]\d' + DATE_SEP + r'[0123]\d'
+    TIME_REGEX = TIME_SEP + r'[012]\d' + TIME_SEP + r'[012345]\d(.[012345]\d)?'
+    DATETIME_REGEX = r'(' + DATE_REGEX + r'(' + TIME_REGEX + r')?)'
 
     dt_pattern_1 = re.compile(DATETIME_REGEX)
 
@@ -198,9 +201,11 @@ def regex_search_str(text):
                 matches += 1
 
     # Expected date format:         2016:04:07
-    dt_pattern_2 = re.compile(b'(\d{4}-[01]\d-[0123]\d)')
+    dt_pattern_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
     for dt_str in re.findall(dt_pattern_2, text):
+        # TODO: [encoding] Enforce encoding boundary for extracted data.
+        dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_2)
         except ValueError:
@@ -212,9 +217,11 @@ def regex_search_str(text):
                 matches += 1
 
     # Matches '(C) 2014' and similar.
-    dt_pattern_3 = re.compile(b'\( ?[Cc] ?\) ?([12]\d{3})')
+    dt_pattern_3 = re.compile(r'\( ?[Cc] ?\) ?([12]\d{3})')
     dt_fmt_3 = '%Y'
     for dt_str in re.findall(dt_pattern_3, text):
+        # TODO: [encoding] Enforce encoding boundary for extracted data.
+        dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_3)
         except ValueError:
@@ -240,6 +247,7 @@ def match_special_case(text):
     if text is None or text.strip() is None:
         return None
 
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
     text = util.decode_(text)
 
     # TODO: Allow adding custom matching patterns to the configuration file.
@@ -296,9 +304,12 @@ def match_android_messenger_filename(text):
     #   2016-01-22 15:34:46+01:00
     # $ 1453473286723
 
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    text = util.decode_(text)
+
     results = []
 
-    dt_pattern = re.compile(b'.*(received_)(\d{17})(\.jpe?g)?')
+    dt_pattern = re.compile(r'.*(received_)(\d{17})(\.jpe?g)?')
     for _, dt_str, _ in re.findall(dt_pattern, text):
         try:
             microsecond = int(dt_str[13:])
@@ -325,6 +336,7 @@ def match_any_unix_timestamp(text):
     if text is None or text.strip() is None:
         return None
 
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
     text = util.decode_(text)
 
     match_iter = re.finditer(r'(\d{10,13})', text)
@@ -595,11 +607,11 @@ def search_gmail(text, prefix):
 
     # Expected date formats:         Fri, Jan 8, 2016 at 3:50 PM
     #                                1/11/2016
-    SEP = '[, ]'
-    REGEX_GMAIL_LONG = re.compile('(\w{3,8})' + SEP + '(\w{3,10})\ (\d{1,2})'
-                                  + SEP + '([12]\d{3})' + '(\ at\ )?' +
-                                  '(\d{1,2}:\d{1,2}\ [AP]M)')
-    REGEX_GMAIL_SHORT = re.compile('\d{1,2}\/\d{2}\/[12]\d{3}')
+    SEP = r'[, ]'
+    REGEX_GMAIL_LONG = re.compile(r'(\w{3,8})' + SEP + r'(\w{3,10})\ (\d{1,2})'
+                                  + SEP + r'([12]\d{3})' + r'(\ at\ )?' +
+                                  r'(\d{1,2}:\d{1,2}\ [AP]M)')
+    REGEX_GMAIL_SHORT = re.compile(r'\d{1,2}\/\d{2}\/[12]\d{3}')
 
 
 def get_datetime_from_text(text, prefix='NULL'):
@@ -665,7 +677,10 @@ def special_datetime_ocr_search(text):
     OCR returns result:       2016702708
     :return:
     """
-    pattern = re.compile('(\d{4}7[01]\d7[0123]\d)')
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    text = util.decode_(text)
+
+    pattern = re.compile(r'(\d{4}7[01]\d7[0123]\d)')
     dt_fmt = '%Y7%m7%d'
     for dt_str in re.findall(pattern, text):
         try:
@@ -686,7 +701,10 @@ def match_screencapture_unixtime(text):
     :param text: text to search for UNIX timestamp
     :return: datetime-object if a match is found, else None
     """
-    pattern = re.compile(b'.*(\d{13}).*')
+    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    text = util.decode_(text)
+
+    pattern = re.compile(r'.*(\d{13}).*')
     for t in re.findall(pattern, text):
         dt = match_any_unix_timestamp(t)
         if dt:
