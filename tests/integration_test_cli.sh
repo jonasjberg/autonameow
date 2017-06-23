@@ -220,6 +220,25 @@ assert_true '( "$AUTONAMEOW_RUNNER" --dump-options --verbose 2>&1 ) >/dev/null' 
             "autonameow should return zero when started with \"--dump-options\" and \"--verbose\""
 
 
+NONASCII_CONFIG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/autonam€öw.yaml" ) )"
+assert_true '[ -e "$NONASCII_CONFIG_FILE" ]' \
+            "A non-ASCII configuration file exists. Add suitable test file if this test fails!"
+
+assert_true '( "$AUTONAMEOW_RUNNER" --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
+             "Attempting to load a non-ASCII configuration file with \"--config-path\" should be handled properly"
+
+assert_true '( "$AUTONAMEOW_RUNNER" --dump-options --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
+             "Expect exit code 0 for non-ASCII configuration file and \"--dump-options\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --verbose --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
+             "Expect exit code 0 for non-ASCII configuration file and \"--verbose\", \"--dump-options\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --verbose --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
+             "Expect exit code 0 for non-ASCII configuration file and \"--debug\", \"--dump-options\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --verbose --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
+             "Expect exit code 0 for non-ASCII configuration file and \"--quiet\", \"--dump-options\""
+
 
 
 # Calculate total execution time.
