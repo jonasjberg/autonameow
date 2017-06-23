@@ -31,6 +31,7 @@ from datetime import datetime
 
 from core.exceptions import ExtractorError
 from core.util import wrap_exiftool
+from core import util
 from extractors.extractor import Extractor
 
 
@@ -129,7 +130,8 @@ class PyPDFMetadataExtractor(MetadataExtractor):
         out = {}
 
         try:
-            file_reader = PyPDF2.PdfFileReader(self.source, 'rb')
+            # NOTE(jonas): [encoding] Double-check PyPDF2 docs ..
+            file_reader = PyPDF2.PdfFileReader(util.decode_(self.source), 'rb')
         except Exception:
             # TODO: Raise custom exception .. ?
             raise
