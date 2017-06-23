@@ -62,10 +62,10 @@ class UtilTest(unittest.TestCase):
 class PathConversionTest(unit_utils.TestCase):
     def test_syspath_windows_format(self):
         with platform_windows():
-            path = os.path.join(u'a', u'b', u'c')
+            path = os.path.join('a', 'b', 'c')
             outpath = util.syspath(path)
         self.assertTrue(isinstance(outpath, str))
-        self.assertTrue(outpath.startswith(u'\\\\?\\'))
+        self.assertTrue(outpath.startswith('\\\\?\\'))
 
     def test_syspath_windows_format_unc_path(self):
         # The \\?\ prefix on Windows behaves differently with UNC
@@ -74,11 +74,11 @@ class PathConversionTest(unit_utils.TestCase):
         with platform_windows():
             outpath = util.syspath(path)
         self.assertTrue(isinstance(outpath, str))
-        self.assertEqual(outpath, u'\\\\?\\UNC\\server\\share\\file.mp3')
+        self.assertEqual(outpath, '\\\\?\\UNC\\server\\share\\file.mp3')
 
     def test_syspath_posix_unchanged(self):
         with platform_posix():
-            path = os.path.join(u'a', u'b', u'c')
+            path = os.path.join('a', 'b', 'c')
             outpath = util.syspath(path)
         self.assertEqual(path, outpath)
 
@@ -92,14 +92,14 @@ class PathConversionTest(unit_utils.TestCase):
             sys.getfilesystemencoding = old_gfse
 
     def test_bytestring_path_windows_encodes_utf8(self):
-        path = u'caf\xe9'
+        path = 'caf\xe9'
         outpath = self._windows_bytestring_path(path)
         self.assertEqual(path, outpath.decode('utf-8'))
 
     def test_bytesting_path_windows_removes_magic_prefix(self):
-        path = u'\\\\?\\C:\\caf\xe9'
+        path = '\\\\?\\C:\\caf\xe9'
         outpath = self._windows_bytestring_path(path)
-        self.assertEqual(outpath, u'C:\\caf\xe9'.encode('utf-8'))
+        self.assertEqual(outpath, 'C:\\caf\xe9'.encode('utf-8'))
 
 
 # Platform mocking.
