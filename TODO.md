@@ -34,17 +34,6 @@ High Priority
     * `analyzer` classes do not perform any kind of data extraction.
         * Should data produced by `analyzer` classes be returned to a separate
           container in the `Analysis` class?
-    * Modify high-level program flow to something along the lines of:
-        1. Load configuration
-        2. Run all extractors that can handle the given file
-        3. Determine which configuration rule matches the given file
-        4. Enqueue analyzers based on the rule and extracted data
-        5. Run all enqueued analyzers
-        6. Assemble new file name from all available data
-
-        Having the extractor data available when evaluating rules (3) solves
-        the problem of evaluating certain conditions, like testing if the
-        given file contains a specific line of text, etc.
     * Plan for optimization by not extracting more data than necessary.
       How could this be implemented?
     * Converting strings to `datetime` objects and similar translation of
