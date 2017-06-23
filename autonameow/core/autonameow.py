@@ -27,21 +27,15 @@ import time
 from core import (
     config,
     constants,
-    util
+    options,
+    util,
+    exceptions
 )
-from core import options
 from core.analysis import Analysis
 from core.config.configuration import Configuration
 from core.evaluate.filter import ResultFilter
 from core.evaluate.namebuilder import NameBuilder
 from core.evaluate.rulematcher import RuleMatcher
-from core.exceptions import (
-    InvalidFileArgumentError,
-    ConfigurationSyntaxError,
-    AutonameowException,
-    NameBuilderError,
-    ConfigError
-)
 from core.extraction import Extraction
 from core.fileobject import FileObject
 from core.util import (
@@ -102,7 +96,7 @@ class Autonameow(object):
                     util.displayable_path(self.opts.config_path)
                 ))
                 self.config.load(self.opts.config_path)
-            except ConfigError as e:
+            except exceptions.ConfigError as e:
                 log.critical('Failed to load configuration file!')
                 log.debug(str(e))
                 self.exit_program(constants.EXIT_ERROR)
@@ -130,7 +124,7 @@ class Autonameow(object):
                 log.info('Using configuration: "{}"'.format(_disp_config_path))
                 try:
                     self.config.load(config.ConfigFilePath)
-                except ConfigurationSyntaxError as e:
+                except exceptions.ConfigurationSyntaxError as e:
                     log.critical('Configuration syntax error: "{!s}"'.format(e))
 
         # TODO: Integrate filter settings in configuration (file).
@@ -180,7 +174,7 @@ class Autonameow(object):
             # Sanity checking the "input_path" is part of 'FileObject' init.
             try:
                 current_file = FileObject(input_path, self.config)
-            except InvalidFileArgumentError as e:
+            except exceptions.InvalidFileArgumentError as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
                     e, util.displayable_path(input_path))
                 )
@@ -190,7 +184,7 @@ class Autonameow(object):
             extraction = Extraction(current_file)
             try:
                 extraction.start()
-            except AutonameowException as e:
+            except exceptions.AutonameowException as e:
                 log.critical('Extraction FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(current_file))
@@ -202,7 +196,7 @@ class Autonameow(object):
             analysis = Analysis(current_file, extraction.data)
             try:
                 analysis.start()
-            except AutonameowException as e:
+            except exceptions.AutonameowException as e:
                 log.critical('Analysis FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(current_file))
@@ -214,7 +208,7 @@ class Autonameow(object):
             matcher = RuleMatcher(current_file, analysis.results, self.config)
             try:
                 matcher.start()
-            except AutonameowException as e:
+            except exceptions.AutonameowException as e:
                 log.critical('Rule Matching FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(current_file))
@@ -261,7 +255,7 @@ class Autonameow(object):
                     self.builder = NameBuilder(current_file, analysis.results,
                                                self.config, matcher.best_match)
                     new_name = self.builder.build()
-                except NameBuilderError as e:
+                except exceptions.NameBuilderError as e:
                     log.critical('Name assembly FAILED: {!s}'.format(e))
                     self.exit_code = constants.EXIT_WARNING
                     continue

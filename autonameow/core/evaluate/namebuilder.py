@@ -22,11 +22,9 @@
 import logging as log
 import re
 
-from core import util
-from core.evaluate import rulematcher
-from core.exceptions import (
-    NameTemplateSyntaxError,
-    NameBuilderError
+from core import (
+    exceptions,
+    util
 )
 from core.util import dateandtime
 
@@ -65,14 +63,16 @@ class NameBuilder(object):
         if not all_template_fields_defined(template, data_sources):
             log.error('All name template placeholder fields must be '
                       'given a data source; Check the configuration!')
-            raise NameBuilderError('Some template field sources are unknown')
+            raise exceptions.NameBuilderError(
+                'Some template field sources are unknown'
+            )
 
         # Get a dictionary of data to pass to 'assemble_basename'.
         # Should be keyed by the placeholder fields used in the name template.
         data = self.analysis_data.query(data_sources)
         if not data:
             log.warning('Analysis data query did not return expected data.')
-            raise NameBuilderError('Unable to assemble basename')
+            raise exceptions.NameBuilderError('Unable to assemble basename')
 
         log.debug('Query for results fields returned:')
         log.debug(str(data))
@@ -92,7 +92,7 @@ class NameBuilder(object):
         if not result:
             log.debug('Unable to assemble basename with template "{!s}" and '
                       'data: {!s}'.format(template, data))
-            raise NameBuilderError('Unable to assemble basename')
+            raise exceptions.NameBuilderError('Unable to assemble basename')
 
         self._new_name = result
         return result
@@ -130,7 +130,7 @@ def assemble_basename(name_template, **kwargs):
     try:
         out = name_template.format(**kwargs)
     except (TypeError, KeyError) as e:
-        raise NameTemplateSyntaxError(e)
+        raise exceptions.NameTemplateSyntaxError(e)
     else:
         return out
 

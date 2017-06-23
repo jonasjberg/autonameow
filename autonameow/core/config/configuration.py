@@ -22,20 +22,16 @@
 import logging as log
 import os
 
-from core import constants
-from core.config import (
-    load_yaml_file,
-    write_yaml_file
+from core import (
+    config,
+    constants,
+    exceptions
 )
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     get_instantiated_field_parsers,
-    DateTimeConfigFieldParser
-)
-from core.exceptions import (
-    ConfigurationSyntaxError,
-    ConfigError,
-    ConfigReadError
+    DateTimeConfigFieldParser,
+    FieldParsers
 )
 from core.util import misc
 
@@ -142,7 +138,9 @@ class Configuration(object):
 
     def _load_name_templates(self):
         if not self._data:
-            raise ConfigError('Invalid state; missing "self._data" ..')
+            raise exceptions.ConfigError(
+                'Invalid state; missing "self._data" ..'
+            )
 
         if 'NAME_TEMPLATES' not in self._data:
             log.debug('Configuration does not contain name templates')
@@ -154,19 +152,21 @@ class Configuration(object):
                 loaded_templates[k] = v
             else:
                 msg = 'invalid name template "{}": "{}"'.format(k, v)
-                raise ConfigurationSyntaxError(msg)
+                raise exceptions.ConfigurationSyntaxError(msg)
 
         self._name_templates.update(loaded_templates)
 
     def _load_file_rules(self):
         if not self._data:
-            raise ConfigError('Invalid state; missing "self._data" ..')
+            raise exceptions.ConfigError(
+                'Invalid state; missing "self._data" ..'
+            )
 
         # Check raw dictionary data.
         for fr in self._data['FILE_RULES']:
             try:
                 valid_file_rule = self._validate_rule_data(fr)
-            except ConfigurationSyntaxError as e:
+            except exceptions.ConfigurationSyntaxError as e:
                 fr_desc = fr.get('description', False)
                 if not fr_desc:
                     fr_desc = 'UNDESCRIBED'
@@ -194,7 +194,9 @@ class Configuration(object):
         """
         if 'NAME_FORMAT' not in raw_rule:
             log.debug('File rule contains no name format data' + str(raw_rule))
-            raise ConfigurationSyntaxError('is missing name template format')
+            raise exceptions.ConfigurationSyntaxError(
+                'is missing name template format'
+            )
 
         # First test if the field data is a valid name template entry,
         # If it is, use the format string defined in that entry.
@@ -210,7 +212,9 @@ class Configuration(object):
 
         if not valid_format:
             log.debug('File rule name format is invalid: ' + str(raw_rule))
-            raise ConfigurationSyntaxError('uses invalid name template format')
+            raise exceptions.ConfigurationSyntaxError(
+                'uses invalid name template format'
+            )
 
         valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
         valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
@@ -319,12 +323,14 @@ class Configuration(object):
 
     def _load_from_disk(self, load_path):
         try:
-            _yaml_data = load_yaml_file(load_path)
-        except (OSError, ConfigReadError) as e:
-            raise ConfigError(e)
+            _yaml_data = config.load_yaml_file(load_path)
+        except (OSError, exceptions.ConfigReadError) as e:
+            raise exceptions.ConfigError(e)
         else:
             if not _yaml_data:
-                raise ConfigError('Bad (empty?) config: {!s}'.format(load_path))
+                raise exceptions.ConfigError(
+                    'Bad (empty?) config: {!s}'.format(load_path)
+                )
 
             self._load_from_dict(_yaml_data)
 
@@ -372,17 +378,17 @@ def parse_weight(value):
     if value is None:
         return constants.FILERULE_DEFAULT_WEIGHT
     if not isinstance(value, (int, float)):
-        raise ConfigurationSyntaxError(ERROR_MSG)
+        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
 
     try:
         w = float(value)
     except TypeError:
-        raise ConfigurationSyntaxError(ERROR_MSG)
+        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
     else:
         if 0 <= w <= 1:
             return w
         else:
-            raise ConfigurationSyntaxError(ERROR_MSG)
+            raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
 
 
 def parse_sources(raw_sources):
@@ -454,7 +460,7 @@ def parse_conditions(raw_conditions):
 
                 valid_condition = validate_condition(key, value)
                 if not valid_condition:
-                    raise ConfigurationSyntaxError(
+                    raise exceptions.ConfigurationSyntaxError(
                         'contains invalid condition [{}]: {}'.format(key, value)
                     )
 
@@ -464,7 +470,7 @@ def parse_conditions(raw_conditions):
                 out[key] = value
                 log.debug('Validated condition: [{}]: {}'.format(key, value))
         except ValueError as e:
-            raise ConfigurationSyntaxError(
+            raise exceptions.ConfigurationSyntaxError(
                 'contains invalid condition: ' + str(e)
             )
 

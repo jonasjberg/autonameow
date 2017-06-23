@@ -251,11 +251,13 @@ def validate_path_argument(path):
     if not os.path.exists(path):
         raise InvalidFileArgumentError('Path does not exist')
     elif os.path.isdir(path):
-        raise InvalidFileArgumentError('Safe handling of directories is '
-                                       'not implemented yet')
+        raise InvalidFileArgumentError(
+            'Safe handling of directories is not implemented yet'
+        )
     elif os.path.islink(path):
-        raise InvalidFileArgumentError('Safe handling of symbolic links is '
-                                       'not implemented yet')
+        raise InvalidFileArgumentError(
+            'Safe handling of symbolic links is not implemented yet'
+        )
     elif not os.access(path, os.R_OK):
         raise InvalidFileArgumentError('Not authorized to read path')
 

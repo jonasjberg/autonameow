@@ -26,11 +26,10 @@ import platform
 import yaml
 
 from core.config.default_config import DEFAULT_CONFIG
-from core import util
-from core import version
-from core.exceptions import (
-    ConfigReadError,
-    ConfigWriteError
+from core import (
+    exceptions,
+    util,
+    version
 )
 
 
@@ -159,7 +158,7 @@ def load_yaml_file(file_path):
         with open(util.syspath(file_path), 'r', encoding='utf-8') as fh:
             return yaml.safe_load(fh)
     except (IOError, yaml.YAMLError, UnicodeDecodeError) as e:
-        raise ConfigReadError(file_path, e)
+        raise exceptions.ConfigReadError(file_path, e)
 
 
 def write_yaml_file(dest_path, yaml_data):
@@ -183,7 +182,7 @@ def write_yaml_file(dest_path, yaml_data):
             yaml.dump(yaml_data, fh, default_flow_style=False, encoding='utf-8',
                       width=160, indent=4)
     except (IOError, yaml.YAMLError) as e:
-        raise ConfigWriteError(dest_path, e)
+        raise exceptions.ConfigWriteError(dest_path, e)
 
 
 # Variables listed here are intended for public, global use.

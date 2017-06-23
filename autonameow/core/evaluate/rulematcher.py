@@ -24,11 +24,10 @@ import os
 import re
 import operator
 
-from core import fileobject, util
-from core.exceptions import (
-    AutonameowException,
-    InvalidFileRuleError,
-    RuleMatcherError
+from core import (
+    exceptions,
+    fileobject,
+    util
 )
 
 
@@ -129,7 +128,9 @@ def evaluate_rule(file_rule, file_object, analysis_data):
             True
     """
     if not file_rule.conditions:
-        raise InvalidFileRuleError('Rule does not specify any conditions')
+        raise exceptions.InvalidFileRuleError(
+            'Rule does not specify any conditions'
+        )
 
     if file_rule.exact_match:
         for cond_field, cond_value in file_rule.conditions.items():
@@ -238,4 +239,4 @@ def eval_condition(condition_field, condition_value, file_object,
         return eval_datetime(condition_value, None)
 
     else:
-        raise AutonameowException('Unhandled condition check!')
+        raise exceptions.AutonameowException('Unhandled condition check!')
