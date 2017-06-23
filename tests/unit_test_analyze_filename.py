@@ -95,7 +95,7 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
 
     def test_get_title_return_is_valid(self):
         self.assertEqual([{'source': 'filenamepart_base',
-                           'value': b'empty',
+                           'value': 'empty',
                            'weight': 0.25}], self.fna.get_title())
 
 
@@ -129,7 +129,7 @@ class TestFilenameAnalyzerWithTaggedFile(TestCase):
 
     def test_get_tags_returns_expected(self):
         expected = [{'source': 'filenamepart_tags',
-                     'value': [b'dv017a', b'dev'],
+                     'value': ['dv017a', 'dev'],
                      'weight': 1}]
         self.assertEqual(expected, self.fna.get_tags())
 
@@ -143,7 +143,7 @@ class TestFilenameAnalyzerWithTaggedFile(TestCase):
 
     def test_get_title_return_is_valid(self):
         expected = {'source': 'filenamepart_base',
-                    'value': b'Keeping notes in Vim',
+                    'value': 'Keeping notes in Vim',
                     'weight': 1}
         actual = self.fna.get_title()
 

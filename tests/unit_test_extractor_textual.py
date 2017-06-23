@@ -163,15 +163,14 @@ University of Gävle, SE­801 76 Gävle, Sweden • +46 (0) 26 64 85 00 • www.
 https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=true&search=query&th=15221b790b7df…
 
 2/2
-
-'''.encode('utf-8').decode('utf-8')
+'''.encode('utf-8')
 # TODO: [critical] FIX ENCODING ISSUES!
 
     def test_method_query_returns_something(self):
         self.assertIsNotNone(self.e.query())
 
     def test_method_query_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.query(), str))
+        self.assertTrue(isinstance(self.e.query(), byte))
 
     def test_method_query_all_result_contains_expected(self):
         actual = self.e.query()
@@ -205,6 +204,7 @@ class TestImageOCRTextExtractorWithEmptyFile(TestCase):
 # NOTE(jonas): Use a shared instance to maintain test execution speed.
 image_file = abspath_testfile('2007-04-23_12-comments.png')
 image_ocr_extractor = ImageOCRTextExtractor(image_file)
+
 
 class TestImageOCRTextExtractorWithImageFile(TestCase):
     def setUp(self):
