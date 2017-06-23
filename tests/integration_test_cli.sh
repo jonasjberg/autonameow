@@ -233,10 +233,10 @@ assert_true '( "$AUTONAMEOW_RUNNER" --dump-options --config-path "$NONASCII_CONF
 assert_true '( "$AUTONAMEOW_RUNNER" --verbose --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
              "Expect exit code 0 for non-ASCII configuration file and \"--verbose\", \"--dump-options\""
 
-assert_true '( "$AUTONAMEOW_RUNNER" --verbose --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
+assert_true '( "$AUTONAMEOW_RUNNER" --debug --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
              "Expect exit code 0 for non-ASCII configuration file and \"--debug\", \"--dump-options\""
 
-assert_true '( "$AUTONAMEOW_RUNNER" --verbose --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
+assert_true '( "$AUTONAMEOW_RUNNER" --quiet --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
              "Expect exit code 0 for non-ASCII configuration file and \"--quiet\", \"--dump-options\""
 
 
