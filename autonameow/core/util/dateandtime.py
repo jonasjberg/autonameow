@@ -153,52 +153,61 @@ def regex_search_str(text):
 
     results = []
 
+    # TODO: [cleanup] This code should be removed and/or rewritten.
+
     # TODO: [encoding] Enforce encoding boundary for extracted data.
     text = util.decode_(text)
 
     if type(text) is list:
         text = ' '.join(text)
 
-    DATE_SEP = r'[:-._ /]?'
-    TIME_SEP = r'[T:-. _]?'
+    DATE_SEP = r'[:\-._ /]?'
+    TIME_SEP = r'[T:\-. _]?'
     DATE_REGEX = r'[12]\d{3}' + DATE_SEP + r'[01]\d' + DATE_SEP + r'[0123]\d'
     TIME_REGEX = TIME_SEP + r'[012]\d' + TIME_SEP + r'[012345]\d(.[012345]\d)?'
     DATETIME_REGEX = r'(' + DATE_REGEX + r'(' + TIME_REGEX + r')?)'
 
-    dt_pattern_1 = re.compile(DATETIME_REGEX)
+    try:
+        # TODO: [hack] Fix this!
+        dt_pattern_1 = re.compile(DATETIME_REGEX)
+    except Exception as e:
+        log.error(str(e))
+        dt_pattern_1 = False
 
-    matches = 0
-    for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
-        # Skip if entries doesn't contain digits.
-        m_date = textutils.extract_digits(m_date)
-        m_time = textutils.extract_digits(m_time)
-        m_time_ms = textutils.extract_digits(m_time_ms)
+    # TODO: [hack] Fix this!
+    if dt_pattern_1:
+        matches = 0
+        for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
+            # Skip if entries doesn't contain digits.
+            m_date = textutils.extract_digits(m_date)
+            m_time = textutils.extract_digits(m_time)
+            m_time_ms = textutils.extract_digits(m_time_ms)
 
-        if m_date is None or m_time is None:
-            continue
+            if m_date is None or m_time is None:
+                continue
 
-        # Check if m_date is actually m_date *AND* m_date.
-        if len(m_date) > 8 and m_date.endswith(m_time):
-            m_date = m_date.replace(m_time, '')
+            # Check if m_date is actually m_date *AND* m_date.
+            if len(m_date) > 8 and m_date.endswith(m_time):
+                m_date = m_date.replace(m_time, '')
 
-        if len(m_time) < 6:
-            pass
+            if len(m_time) < 6:
+                pass
 
-        # Skip matches with unexpected number of digits.
-        if len(m_date) != 8 or len(m_time) != 6:
-            continue
+            # Skip matches with unexpected number of digits.
+            if len(m_date) != 8 or len(m_time) != 6:
+                continue
 
-        dt_fmt_1 = '%Y%m%d_%H%M%S'
-        dt_str = (m_date + '_' + m_time).strip()
-        try:
-            dt = datetime.strptime(dt_str, dt_fmt_1)
-        except ValueError:
-            pass
-        else:
-            if date_is_probable(dt):
-                log.debug('Extracted datetime from text: "{}"'.format(dt))
-                results.append(dt)
-                matches += 1
+            dt_fmt_1 = '%Y%m%d_%H%M%S'
+            dt_str = (m_date + '_' + m_time).strip()
+            try:
+                dt = datetime.strptime(dt_str, dt_fmt_1)
+            except ValueError:
+                pass
+            else:
+                if date_is_probable(dt):
+                    log.debug('Extracted datetime from text: "{}"'.format(dt))
+                    results.append(dt)
+                    matches += 1
 
     # Expected date format:         2016:04:07
     dt_pattern_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
