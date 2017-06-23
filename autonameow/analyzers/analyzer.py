@@ -19,8 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core import constants
-from core.exceptions import AnalysisResultsFieldError
+from core import (
+    constants,
+    exceptions
+)
 from core.fileobject import eval_magic_glob
 
 
@@ -62,7 +64,7 @@ class Analyzer(object):
         """
         # TODO: Remove, use callbacks instead.
         if field not in constants.ANALYSIS_RESULTS_FIELDS:
-            raise AnalysisResultsFieldError(field)
+            raise exceptions.AnalysisResultsFieldError(field)
 
         _func_name = 'get_{}'.format(field)
         get_func = getattr(self, _func_name, False)
