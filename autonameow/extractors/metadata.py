@@ -121,11 +121,11 @@ class PyPDFMetadataExtractor(MetadataExtractor):
 
     def _get_raw_metadata(self):
         try:
-            return self.get_pypdf_data()
+            return self._get_pypdf_data()
         except Exception as e:
             raise ExtractorError(e)
 
-    def get_pypdf_data(self):
+    def _get_pypdf_data(self):
         out = {}
 
         try:
