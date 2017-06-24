@@ -112,6 +112,9 @@ class TestAnalysisResults(TestCase):
         self.assertTrue(isinstance(self.results._data, dict))
         self.assertEqual(len(self.results._data), 0)
 
+    def test_results_len_initially_zero(self):
+        self.assertEqual(len(self.results), 0)
+
     def test_add_with_invalid_field_raises_exception(self):
         self.skipTest('TODO: to be removed ..')
         _field = 'invalid_field_surely'
@@ -123,8 +126,22 @@ class TestAnalysisResults(TestCase):
     def test_add(self):
         _field = ANALYSIS_RESULTS_FIELDS[0]
         _results = []
-
         self.results.add(_field, _results)
+
+    def test_add_increments_len(self):
+        _field = ANALYSIS_RESULTS_FIELDS[0]
+        _results = ['foo']
+        self.results.add(_field, _results)
+
+        self.assertEqual(len(self.results), 1)
+
+    def test_add_empty_does_not_increment_len(self):
+        _field = ANALYSIS_RESULTS_FIELDS[0]
+        _results = []
+        self.results.add(_field, _results)
+
+        self.assertEqual(len(self.results), 0)
+
 
 
 class TestAnalysisRunQueue(TestCase):
