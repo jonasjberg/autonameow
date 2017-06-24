@@ -96,6 +96,10 @@ class Analysis(object):
         # Run all analyzers in the queue.
         self._execute_run_queue()
 
+        log.info('Finished executing {} analyzers. Got {} results'.format(
+            len(self.analyzer_queue), len(self.results)
+        ))
+
     def _populate_run_queue(self):
         """
         Populate the run queue with analyzers suited for the given file.

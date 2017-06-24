@@ -131,6 +131,10 @@ class Extraction(object):
         # Execute all suitable extractors and collect results.
         self._execute_run_queue()
 
+        log.info('Finished executing {} extractors. Got {} results'.format(
+            len(self.extractor_queue), len(self.data)
+        ))
+
     def _instantiate_extractors(self, class_list):
         """
         Get a list of class instances from a given list of classes.
