@@ -33,7 +33,10 @@ from core.config.field_parsers import (
     DateTimeConfigFieldParser,
     FieldParsers
 )
-from core.util import misc
+from core.util import (
+    misc,
+    textutils
+)
 
 
 class Rule(object):
@@ -143,6 +146,9 @@ class Configuration(object):
 
         loaded_templates = {}
         for k, v in self._data.get('NAME_TEMPLATES').items():
+            # Remove any non-breaking spaces in the name template.
+            v = textutils.remove_nonbreaking_spaces(v)
+
             if NameFormatConfigFieldParser.is_valid_format_string(v):
                 loaded_templates[k] = v
             else:

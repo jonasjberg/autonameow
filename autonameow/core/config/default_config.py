@@ -69,7 +69,7 @@ DEFAULT_CONFIG = {
         {'description': 'test_files Gmail print-to-pdf',
          'exact_match': True,
          'weight': None,
-         'NAME_FORMAT': '{datetime} {title}.{extension}',
+         'NAME_FORMAT': '{datetime} {title}.{extension}',
          'CONDITIONS': {
              'filesystem': {
                  'basename': 'gmail.pdf',
@@ -89,7 +89,7 @@ DEFAULT_CONFIG = {
         {'description': 'test_files smulan.jpg',
          'exact_match': True,
          'weight': 1,
-         'NAME_FORMAT': '{datetime} {description}.{extension}',
+         'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
              'filesystem': {
                  'basename': 'smulan.jpg',
