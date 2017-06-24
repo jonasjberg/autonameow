@@ -251,10 +251,12 @@ def validate_path_argument(path):
     if not os.path.exists(path):
         raise InvalidFileArgumentError('Path does not exist')
     elif os.path.isdir(path):
+        # TODO: Implement traversing directories.
         raise InvalidFileArgumentError(
             'Safe handling of directories is not implemented yet'
         )
     elif os.path.islink(path):
+        # TODO: Implement handling of symlinks.
         raise InvalidFileArgumentError(
             'Safe handling of symbolic links is not implemented yet'
         )
