@@ -129,11 +129,10 @@ def bytestring_path(path):
         return path.encode('utf-8')
 
 
-def displayable_path(bpath, separator=u'; '):
+def displayable_path(bpath):
     """
     Attempts to decode a bytestring path to a unicode object for the purpose
-    of displaying it to the user. If the `path` argument is a list or a
-    tuple, the elements are joined with `separator`.
+    of displaying it to the user.
 
     Used to format error messages and log output. It does its best to decode
     the path to human-readable Unicode text, and it’s not allowed to fail --
@@ -144,14 +143,11 @@ def displayable_path(bpath, separator=u'; '):
 
     Args:
         bpath: The path of unknown encoding to be converted.
-        separator: Optional separator used to join lists or tuples.
 
     Returns:
         The given path(s) in a format suitable for displaying to the user.
     """
-    if isinstance(bpath, (list, tuple)):
-        return separator.join(displayable_path(p) for p in bpath)
-    elif isinstance(bpath, str):
+    if isinstance(bpath, str):
         return bpath
     elif not isinstance(bpath, bytes):
         # A non-string object: just get its unicode representation.
