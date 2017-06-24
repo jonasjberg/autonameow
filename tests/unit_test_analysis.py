@@ -108,22 +108,12 @@ class TestAnalysisResults(TestCase):
     def setUp(self):
         self.results = AnalysisResults()
 
-    def test_results_init_contains_valid_results_fields(self):
-        for field in ANALYSIS_RESULTS_FIELDS:
-            self.assertTrue(field in self.results._data)
-
-    def test_results_init_contains_all_valid_results_fields(self):
-        self.assertEqual(len(ANALYSIS_RESULTS_FIELDS), len(self.results._data))
-
-    def test_results_init_results_fields_are_type_list(self):
-        for field in ANALYSIS_RESULTS_FIELDS:
-            self.assertEqual(type(self.results._data[field]), list)
-
-    def test_results_init_results_fields_are_empty(self):
-        for field in ANALYSIS_RESULTS_FIELDS:
-            self.assertEqual(len(self.results._data[field]), 0)
+    def test_results_init_in_expected_state(self):
+        self.assertTrue(isinstance(self.results._data, dict))
+        self.assertEqual(len(self.results._data), 0)
 
     def test_add_with_invalid_field_raises_exception(self):
+        self.skipTest('TODO: to be removed ..')
         _field = 'invalid_field_surely'
         _results = []
 

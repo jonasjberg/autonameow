@@ -38,9 +38,10 @@ class NameBuilder(object):
     resulting name. The rule also determines what analysis data to use when
     populating the name template fields.
     """
-    def __init__(self, file_object, analysis_results, active_config,
-                 active_rule):
+    def __init__(self, file_object, extracted_data, analysis_results,
+                 active_config, active_rule):
         self.file = file_object
+        self.extracted_data = extracted_data
         self.analysis_data = analysis_results
         self.config = active_config
         self.active_rule = active_rule
@@ -72,7 +73,17 @@ class NameBuilder(object):
         data = self.analysis_data.query(data_sources)
         if not data:
             log.warning('Analysis data query did not return expected data.')
-            raise exceptions.NameBuilderError('Unable to assemble basename')
+
+            # TODO: Handle mapping specified sources to available data.
+
+            # NOTE(jonas): Mapping specified sources to extracted data and
+            # analysis results must be redesigned. Sources must be queried
+            # individually. Requires re-evaluating the configuration source
+            # description format.
+            data = self.extracted_data.query(data_sources)
+            if not data:
+                log.warning('Extracted data query did not return expected data.')
+                raise exceptions.NameBuilderError('Unable to assemble basename')
 
         log.debug('Query for results fields returned:')
         log.debug(str(data))

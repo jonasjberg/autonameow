@@ -41,6 +41,7 @@ class TestExtractedData(TestCase):
         self.assertIsNotNone(self.d)
 
     def test_add_data_with_invalid_label_raises_error(self):
+        self.skipTest('TODO: to be removed')
         with self.assertRaises(InvalidDataSourceError):
             self.d.add('not_a_label.surely', 'data')
         with self.assertRaises(InvalidDataSourceError):
@@ -80,6 +81,7 @@ class TestExtractedData(TestCase):
         self.assertEqual(len(self.d), 2)
 
     def test_get_data_with_invalid_label_raises_error(self):
+        self.skipTest('TODO: to be removed ..')
         with self.assertRaises(InvalidDataSourceError):
             self.d.get('not_a_label.surely')
         with self.assertRaises(InvalidDataSourceError):
@@ -121,6 +123,7 @@ class TestExtraction(TestCase):
         self.assertEqual(len(self.e.data), 0)
 
     def test_raises_exception_For_invalid_results(self):
+        self.skipTest('TODO: to be removed ..')
         with self.assertRaises(InvalidDataSourceError):
             self.e.collect_results('not_a_valid_source_surely', 'image/jpeg')
 

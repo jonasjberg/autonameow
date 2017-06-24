@@ -58,10 +58,6 @@ class Analysis(object):
         if extracted_data:
             self.extracted_data = extracted_data
 
-            # TODO: Improve handling of incoming data from 'Extraction'.
-            for key, value in extracted_data:
-                self.collect_results(key, value)
-
     def collect_results(self, label, data):
         """
         Collects analysis results. Passed to analyzers as a callback.
@@ -86,9 +82,9 @@ class Analysis(object):
             flat_data = flatten_dict(data)
             for k, v in flat_data.items():
                 merged_label = label + '.' + str(k)
-                self.results.new_add(merged_label, v)
+                self.results.add(merged_label, v)
         else:
-            self.results.new_add(label, data)
+            self.results.add(label, data)
 
     def start(self):
         """
@@ -210,12 +206,12 @@ class AnalysisResults(object):
     """
 
     def __init__(self):
-        self._data = {}
-        for field in constants.ANALYSIS_RESULTS_FIELDS:
-            self._data[field] = []
+        # self._data = {}
+        # for field in constants.ANALYSIS_RESULTS_FIELDS:
+        #     self._data[field] = []
 
         # TODO: Replace all "old style" storage with redesigned storage.
-        self.new_data = {}
+        self._data = {}
 
     def query(self, field_data_source_map):
         """
@@ -241,17 +237,13 @@ class AnalysisResults(object):
                 result = plugins.plugin_query(plugin_name, plugin_query, None)
                 out[field] = result
             else:
-                if source in self.new_data:
-                    out[field] = self.new_data.get(source)
+                if source in self._data:
+                    out[field] = self._data.get(source)
                 else:
                     # TODO: Handle querying missing data.
                     return False
 
         return out
-
-    def new_add(self, label, data):
-        # TODO: FIX ME! Should replace "old add".
-        self.new_data.update({label: data})
 
     def add(self, field, data):
         """
@@ -265,35 +257,30 @@ class AnalysisResults(object):
         Raises:
             KeyError: The specified field is not in "ANALYSIS_RESULTS_FIELDS".
         """
-        if field not in constants.ANALYSIS_RESULTS_FIELDS:
-            raise KeyError('Invalid results field: {}'.format(field))
+        if not field:
+            raise KeyError('Missing results field')
 
-        self._data[field] += data
+        self._data.update({field: data})
+    #    self._data[field] += data
 
-    def get(self, field):
+    def get(self, field=None):
         """
-        Returns all analysis results data for the given field.
+        Returns analysis results data, optionally for the given field.
 
         Args:
-            field: Analysis results field data to return.
+            field: Optional field of analysis results field data to return.
             The field must be one of those defined in "ANALYSIS_RESULTS_FIELD".
 
         Returns:
-            All analysis results data for the given field.
+            Analysis results data for the given field or all data.
         """
-        if field not in constants.ANALYSIS_RESULTS_FIELDS:
-            raise KeyError('Invalid results field: {}'.format(field))
-
-        return self._data[field]
-
-    def get_all(self):
-        """
-        Returns all analysis results data.
-
-        Returns:
-            All analysis results data.
-        """
-        return self._data
+        if field:
+            if field not in constants.ANALYSIS_RESULTS_FIELDS:
+                raise KeyError('Invalid results field: {}'.format(field))
+            else:
+                return self._data[field]
+        else:
+            return self._data
 
 
 def suitable_analyzers_for(file_object):

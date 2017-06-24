@@ -227,9 +227,10 @@ class Autonameow(object):
             if self.opts.list_all:
                 log.info('Listing ALL analysis results ..')
                 cli.msg('Analysis Results Data', style='heading', log=True)
-                cli.msg(misc.dump(analysis.results.get_all()))
+                cli.msg(misc.dump(analysis.results.get()))
+
                 cli.msg('Extraction Results Data', style='heading', log=True)
-                cli.msg(misc.dump(analysis.results.new_data))
+                cli.msg(misc.dump(extraction.data.get()))
             else:
                 if self.opts.list_datetime:
                     log.info('Listing "datetime" analysis results ..')
@@ -252,8 +253,10 @@ class Autonameow(object):
                     matcher.best_match.description)
                 )
                 try:
-                    self.builder = NameBuilder(current_file, analysis.results,
-                                               self.config, matcher.best_match)
+                    self.builder = NameBuilder(
+                        current_file, extraction.data, analysis.results,
+                        self.config, matcher.best_match
+                    )
                     new_name = self.builder.build()
                 except exceptions.NameBuilderError as e:
                     log.critical('Name assembly FAILED: {!s}'.format(e))
