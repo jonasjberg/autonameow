@@ -152,6 +152,12 @@ Medium Priority
         * Look into how `guessit` does it or possibility of modifying
           `guessit` to identify custom fields.
 
+* Look into merging possibly redundant methods `get` and `query` in the
+  `AnalysisResults` class.
+
+* Look into merging possibly redundant methods `get` and `query` in the
+  `ExtractedData` class.
+
 
 Low Priority
 ------------
