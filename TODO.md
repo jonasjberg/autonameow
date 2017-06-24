@@ -32,8 +32,6 @@ High Priority
 * __New high-level architecture__ -- Move to use the redesigned architecture
     * All data extraction is handled by `extractor` classes
     * `analyzer` classes do not perform any kind of data extraction.
-        * Should data produced by `analyzer` classes be returned to a separate
-          container in the `Analysis` class?
     * Plan for optimization by not extracting more data than necessary.
       How could this be implemented?
     * Converting strings to `datetime` objects and similar translation of
