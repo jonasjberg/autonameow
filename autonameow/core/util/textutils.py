@@ -66,3 +66,7 @@ def extract_digits(string):
             digits += char
 
     return digits if digits.strip() else None
+
+
+def remove_nonbreaking_spaces(text):
+    return text.replace('\xa0', ' ')
