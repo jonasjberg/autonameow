@@ -92,6 +92,9 @@ class ImageAnalyzer(Analyzer):
                      'weight'  : 1
                    }, .. ]
         """
+        if not self.exif_data:
+            return None
+
         # TODO: Recheck the weights. Should they even be defined here?
         DATE_TAG_FIELDS = [['EXIF:DateTimeOriginal', 1],
                            ['EXIF:DateTimeDigitized', 1],
