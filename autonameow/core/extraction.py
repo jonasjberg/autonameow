@@ -187,6 +187,7 @@ class ExtractedData(object):
         Raises:
             InvalidDataSourceError: The label is not a valid data source.
         """
+        # TODO: Methods 'get' and 'query' perform essentially the same task?
         if label:
             if label not in constants.VALID_DATA_SOURCES:
                 raise InvalidDataSourceError(
@@ -197,30 +198,23 @@ class ExtractedData(object):
         else:
             return self._data
 
-    def query(self, field_data_source_map):
+    def query(self, query_string):
         """
-        Returns extracted data fields matching a "query string".
+        Returns extracted data for the given "query string".
+
+        If the given query string does not map to any data, False is returned.
 
         Args:
-            field_data_source_map: Dictionary of fields and query string.
-
-                Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
-                          'description' = 'plugin.microsoft_vision.caption'
-                          'extension'   = 'filesystem.extension'}
+            query_string: The query string key for the data to return.
+                Example:  'metadata.exiftool.DateTimeOriginal'
 
         Returns:
-            Extracted data for the fields matching the specified query.
+            Extracted data for matching the specified query string or False.
         """
-        out = {}
-
-        for field, source in field_data_source_map.items():
-            if source in self._data:
-                out[field] = self._data.get(source)
-            else:
-                # TODO: Handle querying missing data.
-                return False
-
-        return out
+        # TODO: Methods 'get' and 'query' perform essentially the same task?
+        if query_string in self._data:
+            return self._data.get(query_string)
+        return False
 
     def __iter__(self):
         for k, v in self._data.items():

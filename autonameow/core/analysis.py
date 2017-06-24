@@ -206,44 +206,31 @@ class AnalysisResults(object):
     """
 
     def __init__(self):
-        # self._data = {}
-        # for field in constants.ANALYSIS_RESULTS_FIELDS:
-        #     self._data[field] = []
-
-        # TODO: Replace all "old style" storage with redesigned storage.
         self._data = {}
 
-    def query(self, field_data_source_map):
+    def query(self, query_string):
         """
-        Returns result data fields matching a "query string".
+        Returns analysis data matching the given "query string".
+
+        If the given query string does not map to any data, False is returned.
 
         Args:
-            field_data_source_map: Dictionary of fields and query string.
-
-                Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
-                          'description' = 'plugin.microsoft_vision.caption'
-                          'extension'   = 'filesystem.extension'}
+            query_string: The query string key for the data to return.
+                Example:  'metadata.exiftool.DateTimeOriginal'
 
         Returns:
             Results data for the specified fields matching the specified query.
         """
-        out = {}
-
-        for field, source in field_data_source_map.items():
-            if source.startswith('plugin.'):
-                # TODO: Results should NOT be querying plugins from here!
-                # TODO: Rework processing pipeline to integrate plugins
-                plugin_name, plugin_query = source.lstrip('plugin.').split('.')
-                result = plugins.plugin_query(plugin_name, plugin_query, None)
-                out[field] = result
-            else:
-                if source in self._data:
-                    out[field] = self._data.get(source)
-                else:
-                    # TODO: Handle querying missing data.
-                    return False
-
-        return out
+        if query_string.startswith('plugin.'):
+            # TODO: Results should NOT be querying plugins from here!
+            # TODO: Rework processing pipeline to integrate plugins
+            plugin_name, plugin_query = query_string.lstrip('plugin.').split('.')
+            result = plugins.plugin_query(plugin_name, plugin_query, None)
+            return result
+        else:
+            if query_string in self._data:
+                return self._data.get(query_string)
+        return False
 
     def add(self, field, data):
         """
@@ -261,7 +248,6 @@ class AnalysisResults(object):
             raise KeyError('Missing results field')
 
         self._data.update({field: data})
-    #    self._data[field] += data
 
     def get(self, field=None):
         """

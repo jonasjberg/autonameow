@@ -52,6 +52,41 @@ class NameBuilder(object):
     def new_name(self):
         return self._new_name
 
+    def _gather_data(self, data_sources):
+        """
+        Populates a dictionary with data fields matching a "query string".
+
+        The dictionary specifies which fields and a corresponding query string.
+        The extracted data is queried for the query string first, if the data
+        exists, it is used and the analyzer data query is skipped.
+
+        Args:
+            data_sources: Dictionary of fields and query string.
+
+                Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
+                          'description' = 'plugin.microsoft_vision.caption'
+                          'extension'   = 'filesystem.extension'}
+
+        Returns:
+            Results data for the specified fields matching the specified query.
+        """
+        out = {}
+
+        # NOTE(jonas): Mapping specified sources to extracted data and
+        # analysis results must be redesigned. Sources must be queried
+        # individually. Requires re-evaluating the configuration source
+        # description format.
+        for field, query_string in data_sources.items():
+            extracted_data = self.extracted_data.query(query_string)
+            if extracted_data:
+                out[field] = extracted_data
+            else:
+                analysis_data = self.analysis_data.query(query_string)
+                if analysis_data:
+                    out[field] = analysis_data
+
+        return out
+
     def build(self):
         template = self.active_rule.name_template
         log.debug('Using name template: "{}"'.format(template))
@@ -70,20 +105,10 @@ class NameBuilder(object):
 
         # Get a dictionary of data to pass to 'assemble_basename'.
         # Should be keyed by the placeholder fields used in the name template.
-        data = self.analysis_data.query(data_sources)
+        data = self._gather_data(data_sources)
         if not data:
-            log.warning('Analysis data query did not return expected data.')
-
-            # TODO: Handle mapping specified sources to available data.
-
-            # NOTE(jonas): Mapping specified sources to extracted data and
-            # analysis results must be redesigned. Sources must be queried
-            # individually. Requires re-evaluating the configuration source
-            # description format.
-            data = self.extracted_data.query(data_sources)
-            if not data:
-                log.warning('Extracted data query did not return expected data.')
-                raise exceptions.NameBuilderError('Unable to assemble basename')
+            log.warning('Unable to get data from specified sources')
+            raise exceptions.NameBuilderError('Unable to assemble basename')
 
         log.debug('Query for results fields returned:')
         log.debug(str(data))
