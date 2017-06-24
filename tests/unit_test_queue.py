@@ -161,3 +161,7 @@ class TestGenericQueue(TestCase):
         j = self.q.dequeue()
         self.assertNotEqual(j, item_a)
         self.assertEqual(j, item_b)
+
+    def test_queue_implements___getattr__(self):
+        self.q.reverse()
+        self.q.sort()

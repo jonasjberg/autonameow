@@ -64,6 +64,9 @@ class GenericQueue(object):
     def __len__(self):
         return len(self._items)
 
+    def __getattr__(self, item):
+        return getattr(self._items, item)
+
     def __getitem__(self, item):
         return self._items[item]
 
