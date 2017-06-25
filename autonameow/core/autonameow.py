@@ -147,10 +147,24 @@ class Autonameow(object):
             log.warning('No input files specified ..')
             self.exit_program(constants.EXIT_SUCCESS)
 
-        self._handle_files()
+        files_to_process = []
+        for path in self.opts.input_paths:
+            # Path name encoding boundary. Convert to internal format.
+            path = util.normpath(path)
+            try:
+                files_to_process += diskutils.get_files(
+                    path, recurse=self.opts.recurse_paths
+                )
+            except FileNotFoundError:
+                log.error('File not found: "{}"'.format(
+                    util.displayable_path(path))
+                )
+
+        log.info('Got {} files to process'.format(len(files_to_process)))
+        self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
 
-    def _handle_files(self):
+    def _handle_files(self, file_paths):
         """
         Main loop. Iterate over input paths/files.
 
@@ -163,20 +177,17 @@ class Autonameow(object):
         6. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
         7. (automagic mode and not --dry-run) Rename the file.
         """
-        for input_path in self.opts.input_paths:
-
-            # File name encoding boundary. Convert to internal format.
-            input_path = util.normpath(input_path)
+        for file_path in file_paths:
             log.info('Processing: "{!s}"'.format(
-                util.displayable_path(input_path))
+                util.displayable_path(file_path))
             )
 
-            # Sanity checking the "input_path" is part of 'FileObject' init.
+            # Sanity checking the "file_path" is part of 'FileObject' init.
             try:
-                current_file = FileObject(input_path, self.config)
+                current_file = FileObject(file_path, self.config)
             except exceptions.InvalidFileArgumentError as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                    e, util.displayable_path(input_path))
+                    e, util.displayable_path(file_path))
                 )
                 continue
 
