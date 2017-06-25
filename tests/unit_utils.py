@@ -60,7 +60,9 @@ def abspath_testfile(file):
     Returns:
         The full path to the specified file.
     """
-    return os.path.join(TESTS_DIR + os.sep + util.syspath(file))
+    return os.path.normpath(
+        os.path.join(TESTS_DIR + os.sep + util.syspath(file))
+    )
 
 
 def make_temp_dir():
