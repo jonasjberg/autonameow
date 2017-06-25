@@ -169,6 +169,25 @@ class TestPdfTextExtractor(TestCase):
         self.assertTrue(self.e.can_handle(self.fo_pdf))
 
 
+class TestImageOCRTextExtractor(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+        self.e = ImageOCRTextExtractor(make_temporary_file())
+
+        class DummyFileObject(object):
+            def __init__(self, mime):
+                self.mime_type = mime
+        self.fo_image = DummyFileObject(mime='image/jpeg')
+        self.fo_pdf = DummyFileObject(mime='application/pdf')
+
+    def test_class_method_can_handle_is_defined(self):
+        self.assertIsNotNone(self.e.can_handle)
+
+    def test_class_method_can_handle_returns_expected(self):
+        self.assertTrue(self.e.can_handle(self.fo_image))
+        self.assertFalse(self.e.can_handle(self.fo_pdf))
+
 
 class TestImageOCRTextExtractorWithEmptyFile(TestCase):
     def setUp(self):
