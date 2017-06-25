@@ -321,18 +321,17 @@ class Autonameow(object):
             util.displayable_path(dest_basename))
         )
 
+        success = True
         if dry_run is False:
             try:
                 diskutils.rename_file(from_path, dest_basename)
             except (FileNotFoundError, FileExistsError, OSError) as e:
                 log.error('Rename FAILED: {!s}'.format(e))
-                return False
-            else:
-                cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
-                return True
-        else:
+                success = False
+
+        if success:
             cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
-            return True
+        return success
 
     @property
     def exit_code(self):
