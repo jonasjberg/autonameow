@@ -306,7 +306,7 @@ def get_files_gen(search_path, recurse=False):
         recurse: Whether to traverse the path recursively or not.
 
     Returns:
-        Absolute paths to files in the specified path, as a list of strings.
+        Absolute paths to files in the specified path, as a generator object.
     """
     # TODO: Follow symlinks? Add option for following symlinks?
     if not search_path:
