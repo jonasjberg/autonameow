@@ -386,7 +386,7 @@ def parse_weight(value):
     except TypeError:
         raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
     else:
-        if 0 <= w <= 1:
+        if float(0) <= w <= float(1):
             return w
         else:
             raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
