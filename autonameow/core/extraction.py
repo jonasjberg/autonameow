@@ -81,6 +81,11 @@ class Extraction(object):
             label: Label that uniquely identifies the data.
             data: The data to add.
         """
+        if not label:
+            raise InvalidDataSourceError('Missing required argument "label"')
+        if not isinstance(label, str):
+            raise InvalidDataSourceError('Argument "label" must be of type str')
+
         if isinstance(data, dict):
             flat_data = flatten_dict(data)
             for k, v in flat_data.items():
@@ -192,7 +197,7 @@ class ExtractedData(object):
             InvalidDataSourceError: The label is not a valid data source.
         """
         # TODO: Methods 'get' and 'query' perform essentially the same task?
-        if label:
+        if label is not None:
             if label not in constants.VALID_DATA_SOURCES:
                 raise InvalidDataSourceError(
                     'Invalid label: "{}"'.format(label)

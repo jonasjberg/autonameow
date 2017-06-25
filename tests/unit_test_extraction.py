@@ -41,13 +41,10 @@ class TestExtractedData(TestCase):
         self.assertIsNotNone(self.d)
 
     def test_add_data_with_invalid_label_raises_error(self):
-        self.skipTest('TODO: to be removed')
-        with self.assertRaises(InvalidDataSourceError):
-            self.d.add('not_a_label.surely', 'data')
-        with self.assertRaises(InvalidDataSourceError):
-            self.d.add('', 'data')
         with self.assertRaises(InvalidDataSourceError):
             self.d.add(None, 'data')
+        with self.assertRaises(InvalidDataSourceError):
+            self.d.add('', 'data')
 
     def test_adds_data_with_valid_label(self):
         valid_labels = constants.VALID_DATA_SOURCES[:3]
@@ -81,13 +78,10 @@ class TestExtractedData(TestCase):
         self.assertEqual(len(self.d), 2)
 
     def test_get_data_with_invalid_label_raises_error(self):
-        self.skipTest('TODO: to be removed ..')
         with self.assertRaises(InvalidDataSourceError):
             self.d.get('not_a_label.surely')
         with self.assertRaises(InvalidDataSourceError):
             self.d.get('')
-        with self.assertRaises(InvalidDataSourceError):
-            self.d.get(None)
 
     def test_get_data_with_valid_label_returns_false_when_empty(self):
         valid_labels = constants.VALID_DATA_SOURCES[:3]
@@ -95,12 +89,24 @@ class TestExtractedData(TestCase):
             actual = self.d.get(valid_label)
             self.assertFalse(actual)
 
+    def test_get_all_data_returns_false_when_empty(self):
+        actual = self.d.get(None)
+        self.assertFalse(actual)
+
     def test_valid_label_returns_expected_data(self):
         valid_label = constants.VALID_DATA_SOURCES[0]
         self.d.add(valid_label, 'expected_data')
 
         actual = self.d.get(valid_label)
         self.assertEqual(actual, 'expected_data')
+
+    def test_none_label_returns_expected_data(self):
+        valid_label = constants.VALID_DATA_SOURCES[0]
+        self.d.add(valid_label, 'expected_data')
+
+        actual = self.d.get(None)
+        expect = {valid_label: 'expected_data'}
+        self.assertEqual(actual, expect)
 
     def test_valid_label_returns_expected_data_multiple_entries(self):
         valid_label = constants.VALID_DATA_SOURCES[0]
@@ -110,6 +116,18 @@ class TestExtractedData(TestCase):
         actual = self.d.get(valid_label)
         self.assertIn('expected_data_a', actual)
         self.assertIn('expected_data_b', actual)
+
+    def test_none_label_returns_expected_data_multiple_entries(self):
+        valid_label_a = constants.VALID_DATA_SOURCES[0]
+        valid_label_b = constants.VALID_DATA_SOURCES[1]
+        self.d.add(valid_label_a, 'expected_data_a')
+        self.d.add(valid_label_b, 'expected_data_b')
+
+        actual = self.d.get(None)
+        self.assertIn(valid_label_a, actual)
+        self.assertIn(valid_label_b, actual)
+        self.assertTrue(actual[valid_label_a], 'expected_data_a')
+        self.assertTrue(actual[valid_label_b], 'expected_data_b')
 
 
 class TestExtraction(TestCase):
@@ -123,9 +141,10 @@ class TestExtraction(TestCase):
         self.assertEqual(len(self.e.data), 0)
 
     def test_raises_exception_For_invalid_results(self):
-        self.skipTest('TODO: to be removed ..')
         with self.assertRaises(InvalidDataSourceError):
-            self.e.collect_results('not_a_valid_source_surely', 'image/jpeg')
+            self.e.collect_results(None, 'image/jpeg')
+            self.e.collect_results(1, 'image/jpeg')
+            self.e.collect_results(False, 'image/jpeg')
 
     def test_collects_valid_results(self):
         self.e.collect_results('contents.mime_type', 'image/jpeg')
