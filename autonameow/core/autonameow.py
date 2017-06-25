@@ -205,6 +205,7 @@ class Autonameow(object):
                 continue
 
             # Determine matching rule.
+            # TODO: Rule matching will require 'extraction.data' as well.
             matcher = RuleMatcher(current_file, analysis.results, self.config)
             try:
                 matcher.start()

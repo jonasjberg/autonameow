@@ -38,6 +38,11 @@ High Priority
       metadata fields should be handled by the extractors. It is currently
       mostly done in the analyzers.
 
+* Pass all data to the `RuleMatcher` instance. Currently, only the analysis
+  data and data stored in the `FileObject` is available when evaluating the
+  rules. This hasn't been an obvious problem due to the fact that the current
+  implementation of rule evaluation is so primitive and basic.
+
 
 Medium Priority
 ---------------
