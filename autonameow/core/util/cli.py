@@ -47,7 +47,7 @@ def print_ascii_banner():
     # TODO: [hardcoded] Text alignment depends on manually hardcoding spaces.
 
     ascii_banner = colorize(
-           '''
+        '''
    ###   ### ### ####### #####  ###  ##   ###   ##   ## ####### #####  ### ###
   #####  ### ###   ###  ### ### #### ##  #####  # # ### ####   ####### ### ###
  ### ### ### ###   ###  ### ### ####### ### ### ####### ###### ### ### #######
@@ -165,6 +165,7 @@ def msg(message, style=None, log=False):
         style: Optional message type.
         log: Displays and logs the message if True. Defaults to False.
     """
+
     def print_default_msg(text):
         print(colorize(text))
 
