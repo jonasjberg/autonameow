@@ -184,6 +184,7 @@ def init_argparser():
         action='store',
         help='Ignore date/time-information from the year(s) specified.'
     )
+
     parser.add_argument(
         dest='input_paths',
         metavar='INPUT_PATH',
@@ -210,6 +211,16 @@ def init_argparser():
         type=arg_is_readable_file,
         help='Use configuration file at CONFIG_PATH instead of the default '
              'configuration file.'
+    )
+    parser.add_argument(
+        '-r', '--recurse',
+        dest='recurse_paths',
+        action='store_true',
+        default=False,
+        help='Controls whether directory input paths are traversed '
+             'recursively. The default behaviour is to only act on the files '
+             'in the specified directory. This flag enables acting on files '
+             'in all subdirectories of the specified directory. '
     )
 
     optgrp_debug = parser.add_argument_group('Debug/developer options')
