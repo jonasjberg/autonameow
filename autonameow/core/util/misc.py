@@ -210,6 +210,10 @@ def flatten_dict(d, parent_key='', sep='.'):
                   'contents.mime_type': None,
                   'contents.textual.raw_text': None,
               }
+
+    Note that if the low-level values are empty dictionaries or lists,
+    they will be omitted from the output.
+
     Args:
         d: The dictionary to flatten.
         parent_key: Not used, required for recursion.
