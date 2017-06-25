@@ -609,7 +609,7 @@ def search_gmail(text, prefix):
         # log.debug('Converting list to string ..')
         text = ' '.join(text)
 
-    if not text.lower().find(b'gmail'):
+    if not text.lower().find('gmail'):
         # log.debug('Text does not contains "gmail", might not be a Gmail?')
         return
 
