@@ -24,7 +24,6 @@ import logging as log
 import PyPDF2
 import re
 from PyPDF2.utils import (
-    PyPdfError,
     PdfReadError
 )
 from datetime import datetime

@@ -26,7 +26,6 @@ from unittest import TestCase
 import yaml
 
 from core import constants
-from core.config import field_parsers
 from core.config.default_config import DEFAULT_CONFIG
 from core.config.configuration import (
     Configuration,

@@ -29,7 +29,6 @@ from core import (
 )
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
-    get_instantiated_field_parsers,
     DateTimeConfigFieldParser,
     FieldParsers
 )
