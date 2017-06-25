@@ -126,14 +126,15 @@ assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_
             "Automagic mode output should include \"${SAMPLE_JPG_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\" (expect FAILED os MacOS)"
 
 
-_expected_name='/tmp/2010-01-31T161251 a cat lying on a rug.jpg'
-assert_true 'cp -n -- "$SAMPLE_JPG_FILE" /tmp/smulan.jpg 2>&1 >/dev/null' \
+_temp_dir="$(mktemp -d)"
+_expected_name="${_temp_dir}/2010-01-31T161251 a cat lying on a rug.jpg"
+assert_true 'cp -n -- "$SAMPLE_JPG_FILE" ${_temp_dir}/smulan.jpg 2>&1 >/dev/null' \
             "rename_sample_jpg_file Test setup should succeed"
 
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic -- /tmp/smulan.jpg 2>&1 ) >/dev/null && [ -f "$_expected_name" ]' \
-            "rename_sample_jpg_file [TC010][TC011] \""$(basename -- "${SAMPLE_JPG_FILE}")"\" should be renamed to \"${_expected_name}\""
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic -- "${_temp_dir}/smulan.jpg" 2>&1 ) >/dev/null && [ -e "$_expected_name" ]' \
+            "rename_sample_jpg_file [TC010][TC011] \""$(basename -- "${SAMPLE_JPG_FILE}")"\" should be renamed to \""$(basename -- "${_expected_name}")"\""
 
-assert_true '[ -f "/tmp/smulan.jpg" ] && rm -- "/tmp/smulan.jpg" ; [ -f "$_expected_name" ] && rm -- "$_expected_name" || true' \
+assert_true '[ -f "${_temp_dir}/smulan.jpg" ] && rm -- "${_temp_dir}/smulan.jpg" ; [ -f "$_expected_name" ] && rm -- "$_expected_name" || true' \
             "rename_sample_jpg_file Test teardown should succeed"
 
 
