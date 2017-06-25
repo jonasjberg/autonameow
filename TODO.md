@@ -169,8 +169,6 @@ Low Priority
 
 * Implement safe handling of symbolic link input paths.
 
-* Implement handling directory input paths. Add `--recursive` option?
-
 * Add additional filetype-specific "extractors".
     * __Word Documents__
         * Extract plain text and metadata from Word documents.
