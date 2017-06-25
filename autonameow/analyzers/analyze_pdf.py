@@ -182,7 +182,7 @@ class PdfAnalyzer(Analyzer):
                 logging.debug('timezone_str: %s' % timezone_str)
 
                 try:
-                    dt = datetime.strptime(datetime_str + timezone_str,
+                    dt = datetime.strptime(str(datetime_str + timezone_str),
                                            "%Y%m%d%H%M%S%z")
                     found_match = True
                 except ValueError:
