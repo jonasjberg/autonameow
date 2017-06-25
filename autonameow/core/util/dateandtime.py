@@ -87,7 +87,8 @@ def _year_is_probable(year):
             else:
                 year += 1900
 
-        year = util.decode_(year)
+        if not isinstance(year, int):
+            year = util.decode_(year)
         try:
             year = datetime.strptime(str(year), '%Y')
         except TypeError:
