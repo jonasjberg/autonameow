@@ -154,6 +154,7 @@ class PyPDFMetadataExtractor(MetadataExtractor):
                 raise
             else:
                 out.update({'number_pages': num_pages})
+                out.update({'paginated': True})
 
             # https://pythonhosted.org/PyPDF2/XmpInformation.html
             xmp_metadata = file_reader.getXmpMetadata()
