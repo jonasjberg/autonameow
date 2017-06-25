@@ -67,21 +67,18 @@ class TestAnalysis(TestCase):
             self.assertTrue(issubclass(ac.__class__, Analyzer))
 
     def test_initial_results_data_len_is_zero(self):
-        self.skipTest('Requires Results to implement "__len__"')
         self.assertEqual(len(self.a.results), 0)
 
     def test_collects_valid_results(self):
         self.a.collect_results('contents.mime_type', 'image/jpeg')
 
     def test_collecting_valid_results_increments_results_len(self):
-        self.skipTest('Requires Results to implement "__len__"')
         self.a.collect_results('contents.mime_type', 'image/jpeg')
         self.assertEqual(len(self.a.results), 1)
         self.a.collect_results('filesystem.basename.extension', 'jpg')
         self.assertEqual(len(self.a.results), 2)
 
     def test_collecting_results_with_empty_data_does_not_increment_len(self):
-        self.skipTest('Requires Results to implement "__len__"')
         self.a.collect_results('contents.mime_type', None)
         self.assertEqual(len(self.a.results), 0)
         self.a.collect_results('filesystem.basename.extension', None)
@@ -99,7 +96,6 @@ class TestAnalysis(TestCase):
         self.assertIsNotNone(self.a._execute_run_queue)
 
     def test_analysis__execute_run_queue_increases_number_of_results(self):
-        self.skipTest('Requires Results to implement "__len__"')
         _results_len = len(self.a.results)
         self.assertEqual(_results_len, 0)
 
@@ -114,14 +110,6 @@ class TestAnalysisResults(TestCase):
 
     def test_results_len_initially_zero(self):
         self.assertEqual(len(self.results), 0)
-
-    def test_add_with_invalid_field_raises_exception(self):
-        self.skipTest('TODO: to be removed ..')
-        _field = 'invalid_field_surely'
-        _results = []
-
-        with self.assertRaises(KeyError):
-            self.results.add(_field, _results)
 
     def test_add(self):
         _field = ANALYSIS_RESULTS_FIELDS[0]
