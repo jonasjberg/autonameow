@@ -250,6 +250,17 @@ assert_true '( "$AUTONAMEOW_RUNNER" --dump-options --quiet --config-path "$NONAS
              "Expect exit code 0 for non-ASCII configuration file and \"--dump-options\", \"--quiet\""
 
 
+TEST_FILES_SUBDIR="$( ( cd "$SELF_DIR" && realpath -e "../test_files/subdir" ) )"
+assert_true '[ -d "$TEST_FILES_SUBDIR" ]' \
+            "The \"test_files/subdir\" directory exists. Add suitable test files if this test fails!"
+
+assert_true '( "$AUTONAMEOW_RUNNER" --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 ) >/dev/null' \
+            "Expect exit code 0 when running \"--recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
+
+assert_true '( "$AUTONAMEOW_RUNNER" --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 ) | col -b | grep -q ".*Got 8 files to process.*"' \
+            "Expect output to contain \"Got 8 files to process\" when running \"--verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
