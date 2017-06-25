@@ -182,3 +182,67 @@ class TestColorize(TestCase):
     def test_colorize_returns_expected_with_fore_blue_back_blue(self):
         self.assertEqual(colorize('foo', fore='BLUE', back='BLUE'),
                          '\x1b[34m\x1b[44mfoo\x1b[49m\x1b[39m')
+
+
+class TestMsgRename(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_msg_rename_is_defined(self):
+        self.assertIsNotNone(cli.msg_rename)
+
+    def test_can_be_called_with_valid_args_dry_run_true(self):
+        cli.msg_rename('smulan.jpg',
+                       '2010-0131T161251 a cat lying on a rug.jpg',
+                       dry_run=True)
+
+    def test_can_be_called_with_valid_args_dry_run_false(self):
+        cli.msg_rename('smulan.jpg',
+                       '2010-0131T161251 a cat lying on a rug.jpg',
+                       dry_run=False)
+
+    def test_can_be_called_with_valid_bytestring_args_dry_run_true(self):
+        cli.msg_rename(b'smulan.jpg',
+                       b'2010-0131T161251 a cat lying on a rug.jpg',
+                       dry_run=True)
+
+    def test_can_be_called_with_valid_bytestring_args_dry_run_false(self):
+        cli.msg_rename(b'smulan.jpg',
+                       b'2010-0131T161251 a cat lying on a rug.jpg',
+                       dry_run=False)
+
+    def test_valid_args_dry_run_true_gives_expected_output(self):
+        with capture_stdout() as out:
+            cli.msg_rename('smulan.jpg',
+                           '2010-0131T161251 a cat lying on a rug.jpg',
+                           dry_run=True)
+
+            self.assertEqual('Would have renamed "\x1b[92msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+                             out.getvalue().strip())
+
+    def test_valid_args_dry_run_false_gives_expected_output(self):
+        with capture_stdout() as out:
+            cli.msg_rename('smulan.jpg',
+                           '2010-0131T161251 a cat lying on a rug.jpg',
+                           dry_run=False)
+
+            self.assertEqual('Renamed "\x1b[92msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+                             out.getvalue().strip())
+
+    def test_valid_bytestring_args_dry_run_true_gives_expected_output(self):
+        with capture_stdout() as out:
+            cli.msg_rename(b'smulan.jpg',
+                           b'2010-0131T161251 a cat lying on a rug.jpg',
+                           dry_run=True)
+
+            self.assertEqual('Would have renamed "\x1b[92msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+                             out.getvalue().strip())
+
+    def test_valid_bytestring_args_dry_run_false_gives_expected_output(self):
+        with capture_stdout() as out:
+            cli.msg_rename(b'smulan.jpg',
+                           b'2010-0131T161251 a cat lying on a rug.jpg',
+                           dry_run=False)
+
+            self.assertEqual('Renamed "\x1b[92msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+                             out.getvalue().strip())

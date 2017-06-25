@@ -328,16 +328,10 @@ class Autonameow(object):
                 log.error('Rename FAILED: {!s}'.format(e))
                 return False
             else:
-                _message = 'Renamed "{!s}" -> "{!s}"'
-                cli.msg(_message.format(util.displayable_path(from_basename),
-                                        util.displayable_path(dest_basename)),
-                        style='color_quoted')
+                cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
                 return True
         else:
-            _message = 'Would have renamed "{!s}" -> "{!s}"'
-            cli.msg(_message.format(util.displayable_path(from_basename),
-                                    util.displayable_path(dest_basename)),
-                    style='color_quoted')
+            cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
             return True
 
     @property

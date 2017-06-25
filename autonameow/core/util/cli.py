@@ -28,13 +28,15 @@ import logging
 
 try:
     import colorama
+
     colorama.init()
 except ImportError:
     colorama = None
 
 from core import (
     version,
-    constants
+    constants,
+    util
 )
 
 
@@ -263,3 +265,22 @@ if __name__ == '__main__':
     print(colorize('foo', fore='RED', back='BLUE'))
     print(colorize('foo', fore='GREEN', back='BLUE'))
     print(colorize('foo', fore='BLUE', back='BLUE'))
+
+
+def msg_rename(from_basename, dest_basename, dry_run):
+    """
+    Displays a message about a rename operation to the user.
+
+    Args:
+        from_basename: The original basename of the file to be renamed.
+        dest_basename: The new basename of the file to be renamed.
+        dry_run: True if the operation was a "dry run"/simulation.
+    """
+    if dry_run:
+        _message = 'Would have renamed "{!s}" -> "{!s}"'
+    else:
+        _message = 'Renamed "{!s}" -> "{!s}"'
+
+    msg(_message.format(util.displayable_path(from_basename),
+                        util.displayable_path(dest_basename)),
+        style='color_quoted')
