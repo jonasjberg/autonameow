@@ -66,7 +66,7 @@ class FileObject(object):
 
         # Extract parts of the file name.
         self.fnbase = diskutils.file_base(self.abspath)
-        self.suffix = diskutils.file_suffix(self.abspath)
+        self._suffix = diskutils.file_suffix(self.abspath)
 
         self.BETWEEN_TAG_SEPARATOR = util.bytestring_path(
             opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
@@ -96,6 +96,10 @@ class FileObject(object):
         self._filenamepart_base = self._filenamepart_base()
         self._filenamepart_ext = self._filenamepart_ext()
         self._filenamepart_tags = self._filenamepart_tags() or []
+
+    @property
+    def suffix(self):
+        return self._suffix if self._suffix else ''
 
     @property
     def filenamepart_ts(self):
