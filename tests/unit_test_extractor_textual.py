@@ -28,12 +28,53 @@ from extractors.textual import (
     extract_pdf_content_with_pdftotext,
     extract_pdf_content_with_pypdf,
     PdfTextExtractor,
-    ImageOCRTextExtractor
+    ImageOCRTextExtractor,
+    TextExtractor
 )
 from unit_utils import (
     abspath_testfile,
     make_temporary_file
 )
+
+
+class TestTextExtractor(TestCase):
+    def setUp(self):
+        self.e = TextExtractor(make_temporary_file())
+
+        class DummyFileObject(object):
+            def __init__(self):
+                self.mime_type = 'image/jpeg'
+        self.fo = DummyFileObject()
+
+    def test_text_extractor_class_is_available(self):
+        self.assertIsNotNone(TextExtractor)
+
+    def test_text_extractor_class_can_be_instantiated(self):
+        self.assertIsNotNone(self.e)
+
+    def test_method_query_returns_something(self):
+        self.assertIsNotNone(self.e.query())
+        self.assertIsNotNone(self.e.query(field='some_field'))
+
+    def test_method_str_is_defined_and_reachable(self):
+        self.assertIsNotNone(str(self.e))
+        self.assertIsNotNone(self.e.__str__)
+
+    def test_method_str_returns_type_string(self):
+        self.assertTrue(isinstance(str(self.e), str))
+        self.assertTrue(isinstance(str(self.e.__str__), str))
+
+    def test_method_str_returns_expected(self):
+        self.assertEqual(str(self.e), 'TextExtractor')
+
+    def test_class_method_can_handle_is_defined(self):
+        self.assertIsNotNone(self.e.can_handle)
+
+    def test_class_method_can_handle_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            self.assertIsNotNone(self.e.can_handle(self.fo))
+            self.assertFalse(self.e.can_handle(self.fo))
+
 
 pdf_file = abspath_testfile('simplest_pdf.md.pdf')
 expected_text = '''Probably a title
