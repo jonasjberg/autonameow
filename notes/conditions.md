@@ -27,16 +27,17 @@ The `CONDITIONS` section should be redesigned.
 ### Wishlist:
 Ability to specify conditionals;
 
-* __Some metadata field is available?__  
-  *Does the file metadata contain `EXIF:DateTimeOriginal`?*
+* __Is some metadata field is available?__  
+  Example: *Does the file metadata contain `EXIF:DateTimeOriginal`?*
 
-* __Some date/time-data lies within a range?__
-  *Is `EXIF:DateTimeOriginal` more recent than 2017-05-04 and older than 2017-06-27?*
+* __Is some date/time-data within a range?__  
+  Example: *Is `EXIF:DateTimeOriginal` more recent than 2017-05-04 and older than 2017-06-27?*
 
-* __Test contents (text matches regex, etc.)?__
+* __Does the contents match some criteria? (text matches regex, etc.)?__  
+  Example: *Does the first page text match this regular expression?*
 
 
-### Proposed New Format 
+### Proposed New Format
 Possible new format for a file rule in the configuration file:
 
 ```yaml
@@ -44,7 +45,8 @@ Possible new format for a file rule in the configuration file:
         contents:
             mime_type: image/jpeg
         filesystem:
-            basename: smulan.jpg
+            basename: DCIM.*
+            extension: jpg
         metadata:
             exiftool.EXIF:DateTimeOriginal: Defined
             exiftool.EXIF:DateTimeOriginal: > 2017-05-04
@@ -54,12 +56,31 @@ Possible new format for a file rule in the configuration file:
         description: plugin.microsoft_vision.caption
         extension: filesystem.basename.extension
     NAME_FORMAT: '{datetime} {description}.{extension}'
-    description: test_files smulan.jpg
+    description: Photos taken between 2017-05-04 and 2017-06-27
     exact_match: true
     weight: 1
 ```
 
-This rule would only apply for files with base name `smulan.jpg`, the exiftool
-metadata field `EXIF:DateTimeOriginal` must be available and the date must be
-after 2017-05-04 and prior to 2017-06-27.
+This rule would only apply for files with base name `smulan.jpg`, extraction
+results must contain exiftool metadata field `EXIF:DateTimeOriginal` and this
+date must be after *2017-05-04* and prior to *2017-06-27*.
 
+
+Another hypothetical file rule using unimplemented features:
+
+```yaml
+-   CONDITIONS:
+        contents:
+            mime_type: application/pdf
+            textual.raw_text: ^Gibson[ _-]?Rules.*?$
+    DATA_SOURCES:
+        author: book_analyzer.isbn.author
+        date: [metadata.exiftool.PDF:CreateDate, book_analyzer.isbn.date]
+        description: book_analyzer.isbn.title
+        extension: pdf
+        title: book_analyzer.isbn.title
+    NAME_FORMAT: '{date} {description} - {author}.{extension}'
+    description: Engineering textbook written by Gibson
+    exact_match: true
+    weight: 1
+```
