@@ -47,23 +47,23 @@ import unittest
 from contextlib import contextmanager
 
 import unit_utils
-from core import util
+from core.util import encoding
 
 
 class UtilTest(unittest.TestCase):
     def test_convert_command_args_keeps_undecodeable_bytes(self):
         arg = b'\x82'  # non-ascii bytes
-        cmd_args = util.convert_command_args([arg])
+        cmd_args = encoding.convert_command_args([arg])
 
         self.assertEqual(cmd_args[0],
-                         arg.decode(util.arg_encoding(), 'surrogateescape'))
+                         arg.decode(encoding.arg_encoding(), 'surrogateescape'))
 
 
 class PathConversionTest(unit_utils.TestCase):
     def test_syspath_windows_format(self):
         with platform_windows():
             path = os.path.join('a', 'b', 'c')
-            outpath = util.syspath(path)
+            outpath = encoding.syspath(path)
         self.assertTrue(isinstance(outpath, str))
         self.assertTrue(outpath.startswith('\\\\?\\'))
 
@@ -72,14 +72,14 @@ class PathConversionTest(unit_utils.TestCase):
         # (network share) paths.
         path = '\\\\server\\share\\file.mp3'
         with platform_windows():
-            outpath = util.syspath(path)
+            outpath = encoding.syspath(path)
         self.assertTrue(isinstance(outpath, str))
         self.assertEqual(outpath, '\\\\?\\UNC\\server\\share\\file.mp3')
 
     def test_syspath_posix_unchanged(self):
         with platform_posix():
             path = os.path.join('a', 'b', 'c')
-            outpath = util.syspath(path)
+            outpath = encoding.syspath(path)
         self.assertEqual(path, outpath)
 
     def _windows_bytestring_path(self, path):
@@ -87,7 +87,7 @@ class PathConversionTest(unit_utils.TestCase):
         sys.getfilesystemencoding = lambda: 'mbcs'
         try:
             with platform_windows():
-                return util.bytestring_path(path)
+                return encoding.bytestring_path(path)
         finally:
             sys.getfilesystemencoding = old_gfse
 
