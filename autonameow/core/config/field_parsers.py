@@ -153,6 +153,19 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
         return self.is_valid_format_string
 
 
+class MetadataSourceConfigFieldParser(ConfigFieldParser):
+    applies_to_field = ['metadata']
+
+    @staticmethod
+    def is_valid_metadata_source(expression):
+        if not expression:
+            return False
+        # TODO: Implement validation of metadata source!
+
+    def get_validation_function(self):
+        return self.is_valid_metadata_source
+
+
 def get_instantiated_field_parsers():
     """
     Get a list of all available field parsers as instantiated class objects.
