@@ -145,6 +145,9 @@ class Configuration(object):
                 )
 
     def _load_from_dict(self, data):
+        if not data:
+            raise exceptions.ConfigError('Attempted to load empty data')
+
         self._data = data
         self._load_name_templates()
         self._load_file_rules()
@@ -171,18 +174,16 @@ class Configuration(object):
             config.write_yaml_file(dest_path, self._data)
 
     def _load_name_templates(self):
-        if not self._data:
-            raise exceptions.ConfigError(
-                'Invalid state; missing "self._data" ..'
-            )
-
-        if ('NAME_TEMPLATES' not in self._data or
-                self._data['NAME_TEMPLATES'] is None):
+        raw_templates = self._data.get('NAME_TEMPLATES', False)
+        if not raw_templates:
             log.debug('Configuration does not contain any name templates')
+            return
+        if not isinstance(raw_templates, dict):
+            log.debug('Configuration templates is not of type dict')
             return
 
         loaded_templates = {}
-        for k, v in self._data.get('NAME_TEMPLATES').items():
+        for k, v in raw_templates.items():
             # Remove any non-breaking spaces in the name template.
             v = textutils.remove_nonbreaking_spaces(v)
 
@@ -195,18 +196,14 @@ class Configuration(object):
         self._name_templates.update(loaded_templates)
 
     def _load_file_rules(self):
-        if not self._data:
-            raise exceptions.ConfigError(
-                'Invalid state; missing "self._data" ..'
-            )
-
-        if 'FILE_RULES' not in self._data or self._data['FILE_RULES'] is None:
+        raw_file_rules = self._data.get('FILE_RULES', False)
+        if not raw_file_rules:
             raise exceptions.ConfigError(
                 'The configuration file does not contain any file rules'
             )
 
         # Check raw dictionary data.
-        for fr in self._data['FILE_RULES']:
+        for fr in raw_file_rules:
             try:
                 valid_file_rule = self._validate_rule_data(fr)
             except exceptions.ConfigurationSyntaxError as e:
@@ -308,11 +305,11 @@ class Configuration(object):
         )
 
     def _load_version(self):
-        version = self._data.get('autonameow_version', False)
-        if not version:
+        raw_version = self._data.get('autonameow_version', False)
+        if not raw_version:
             log.error('Unable to read program version from configuration')
         else:
-            self._version = version
+            self._version = raw_version
 
     @property
     def version(self):
