@@ -47,14 +47,14 @@ class TestWriteConfig(TestCase):
     def setUp(self):
         self.dest_path = os.path.join(make_temp_dir(), 'test_config.yaml')
 
-        self.configuration = Configuration()
-        self.configuration._load_from_dict(DEFAULT_CONFIG)
+        self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_setup(self):
         self.assertFalse(os.path.exists(self.dest_path),
                          'Destination path should not already exist')
 
     def test_load_from_dict(self):
+        self.configuration._load_from_dict(DEFAULT_CONFIG)
         self.assertIsNotNone(self.configuration.data,
                              'Configuration data should be loaded')
 
@@ -73,8 +73,7 @@ class TestWriteConfig(TestCase):
 
 class TestDefaultConfig(TestCase):
     def setUp(self):
-        self.configuration = Configuration()
-        self.configuration._load_from_dict(DEFAULT_CONFIG)
+        self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_default_configuration_exists(self):
         self.assertIsNotNone(DEFAULT_CONFIG,
@@ -99,25 +98,20 @@ class TestWriteDefaultConfig(TestCase):
         self.dest_path = os.path.join(make_temp_dir(),
                                       'test_default_config.yaml')
 
-        self.configuration = Configuration()
+        self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_setup(self):
         self.assertFalse(os.path.exists(self.dest_path),
                          'Destination path should not already exist')
-
-    def test_load_default_config_from_dict_before_write(self):
-        self.configuration._load_from_dict(DEFAULT_CONFIG)
         self.assertIsNotNone(self.configuration.data,
                              'Configuration data should exist')
 
     def test_write_default_config_to_disk(self):
-        self.configuration._load_from_dict(DEFAULT_CONFIG)
         self.configuration.write_to_disk(self.dest_path)
         self.assertTrue(os.path.exists(self.dest_path),
                         'Default configuration file exists on disk')
 
     def test_write_default_config_to_disk_and_verify(self):
-        self.configuration._load_from_dict(DEFAULT_CONFIG)
         self.configuration.write_to_disk(self.dest_path)
 
         expected = load_yaml(self.dest_path)

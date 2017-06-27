@@ -66,7 +66,7 @@ class Autonameow(object):
         self.opts = None        # Parsed options returned by argparse.
 
         self.filter = None
-        self.config = Configuration()
+        self.config = None
 
     def run(self):
         # Display help/usage information if no arguments are provided.
@@ -94,7 +94,7 @@ class Autonameow(object):
                 log.info('Using configuration file: "{!s}"'.format(
                     util.displayable_path(self.opts.config_path)
                 ))
-                self.config.load(self.opts.config_path)
+                self.config = Configuration(self.opts.config_path)
             except exceptions.ConfigError as e:
                 log.critical('Unable to load configuration: {!s}'.format(e))
                 self.exit_program(constants.EXIT_ERROR)
@@ -121,7 +121,7 @@ class Autonameow(object):
             else:
                 log.info('Using configuration: "{}"'.format(_disp_config_path))
                 try:
-                    self.config.load(config.ConfigFilePath)
+                    self.config = Configuration(config.ConfigFilePath)
                 except exceptions.ConfigurationSyntaxError as e:
                     log.critical('Configuration syntax error: "{!s}"'.format(e))
 

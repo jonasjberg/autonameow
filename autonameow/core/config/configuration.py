@@ -106,14 +106,16 @@ class Configuration(object):
 
     Loads and validates data from a dictionary or YAML file.
     """
-    def __init__(self, data=None):
+    def __init__(self, source):
         """
         Instantiates a new Configuration object.
 
+        Loads a configuration from either a dictionary or file path.
         All parsing and loading happens at instantiation.
 
         Args:
-            data: Raw configuration data to load as a dictionary.
+            source: The configuration to load as either a dictionary or a
+                bytestring path.
         """
         self._file_rules = []
         self._name_templates = {}
@@ -121,17 +123,39 @@ class Configuration(object):
                          'FILETAGS_OPTIONS': {}}
         self._version = None
 
-        if data:
-            self._data = data
-            self._load_name_templates()
-            self._load_file_rules()
-            self._load_options()
-            self._load_version()
+        if isinstance(source, dict):
+            self._load_from_dict(source)
         else:
-            self._data = {}
+            self._load_from_disk(source)
 
         # TODO: Handle configuration file compatibility between versions.
         # TODO: Warn the user if 'self.version' != 'version.__version__'
+
+    def _load_from_dict(self, data):
+        self._data = data
+        self._load_name_templates()
+        self._load_file_rules()
+        self._load_options()
+        self._load_version()
+
+    def _load_from_disk(self, load_path):
+        try:
+            _yaml_data = config.load_yaml_file(load_path)
+        except (OSError, exceptions.ConfigReadError) as e:
+            raise exceptions.ConfigError(e)
+        else:
+            if not _yaml_data:
+                raise exceptions.ConfigError(
+                    'Bad (empty?) config: {!s}'.format(load_path)
+                )
+
+            self._load_from_dict(_yaml_data)
+
+    def write_to_disk(self, dest_path):
+        if os.path.exists(dest_path):
+            raise FileExistsError
+        else:
+            config.write_yaml_file(dest_path, self._data)
 
     def _load_name_templates(self):
         if not self._data:
@@ -313,45 +337,6 @@ class Configuration(object):
     @property
     def name_templates(self):
         return self._name_templates
-
-    def load(self, source):
-        """
-        Loads a configuration from either a dictionary or file path.
-
-        Args:
-            source: The configuration to load as either a dictionary or a
-                bytestring path.
-        """
-        if isinstance(source, dict):
-            self._load_from_dict(source)
-        else:
-            self._load_from_disk(source)
-
-    def _load_from_dict(self, data):
-        self._data = data
-        self._load_name_templates()
-        self._load_file_rules()
-        self._load_options()
-        self._load_version()
-
-    def _load_from_disk(self, load_path):
-        try:
-            _yaml_data = config.load_yaml_file(load_path)
-        except (OSError, exceptions.ConfigReadError) as e:
-            raise exceptions.ConfigError(e)
-        else:
-            if not _yaml_data:
-                raise exceptions.ConfigError(
-                    'Bad (empty?) config: {!s}'.format(load_path)
-                )
-
-            self._load_from_dict(_yaml_data)
-
-    def write_to_disk(self, dest_path):
-        if os.path.exists(dest_path):
-            raise FileExistsError
-        else:
-            config.write_yaml_file(dest_path, self._data)
 
     def __str__(self):
         out = ['Written by autonameow version v{}\n\n'.format(self.version)]
