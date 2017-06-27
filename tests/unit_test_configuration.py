@@ -155,11 +155,11 @@ class TestParseConditions(TestCase):
                 'mime_type': 'image/jpeg'
             },
             'metadata': {
-                'exif': {
+                'exiftool': {
                     # NOTE: Possibly use exiftool for all metadata?
                     # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-                    'datetimeoriginal': None,
-                    'camera-model': None
+                    'EXIF:DateTimeOriginal': None,
+                    'PDF:CreateDate': None
                 },
             }
         }
