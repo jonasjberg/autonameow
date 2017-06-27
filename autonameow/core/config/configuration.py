@@ -345,13 +345,13 @@ class Configuration(object):
 
         for number, rule in enumerate(self.file_rules):
             out.append('File Rule {}:\n'.format(number + 1))
-            out.append(misc.indent(str(rule), amount=4) + '\n')
+            out.append(textutils.indent(str(rule), amount=4) + '\n')
 
         out.append('\nName Templates:\n')
-        out.append(misc.indent(misc.dump(self.name_templates), amount=4))
+        out.append(textutils.indent(misc.dump(self.name_templates), amount=4))
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(misc.indent(misc.dump(self.options), amount=4))
+        out.append(textutils.indent(misc.dump(self.options), amount=4))
 
         return ''.join(out)
 
