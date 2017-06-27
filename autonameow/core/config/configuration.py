@@ -163,6 +163,11 @@ class Configuration(object):
                 'Invalid state; missing "self._data" ..'
             )
 
+        if 'FILE_RULES' not in self._data or self._data['FILE_RULES'] is None:
+            raise exceptions.ConfigError(
+                'The configuration file does not contain any file rules'
+            )
+
         # Check raw dictionary data.
         for fr in self._data['FILE_RULES']:
             try:
@@ -296,7 +301,10 @@ class Configuration(object):
 
     @property
     def file_rules(self):
-        return self._file_rules
+        if self._file_rules and len(self._file_rules) > 0:
+            return self._file_rules
+        else:
+            return False
 
     @property
     def name_templates(self):
