@@ -261,12 +261,28 @@ assert_true '( "$AUTONAMEOW_RUNNER" --verbose --recurse --dry-run -- "$TEST_FILE
             "Expect output to contain \"Got 8 files to process\" when running \"--verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
 
 
+set +o pipefail
 BAD_CONFIG_FILE_NO_FILE_RULES="$( ( cd "$SELF_DIR" && realpath -e "../test_files/bad_config_no_file_rules.yaml" ) )"
 assert_true '[ -e "$BAD_CONFIG_FILE_NO_FILE_RULES" ]' \
-            "A test configuration file without file rules exists. Add suitable test file if this test fails!"
+            "A configuration file without file rules exists. Add suitable test file if this test fails!"
 
-assert_false '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_NO_FILE_RULES" 2>&1 ) >/dev/null' \
-             "Attempting to load a configuration file without any file rules should be handled properly"
+assert_true '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_NO_FILE_RULES" 2>&1 ) | grep -q "Unable to load configuration"' \
+            "Attempting to load a configuration file without any file rules should be handled properly"
+
+BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS="$( ( cd "$SELF_DIR" && realpath -e "../test_files/bad_config_empty_but_sections.yaml" ) )"
+assert_true '[ -e "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" ]' \
+            "A configuration file that contains only sections without contents exists. Add suitable test file if this test fails!"
+
+assert_true '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" 2>&1 ) | grep -q "Unable to load configuration"' \
+            "Attempting to load a configuration file with just bare sections should be handled properly"
+
+BAD_CONFIG_FILE_EMPTY_BUT_VERSION="$( ( cd "$SELF_DIR" && realpath -e "../test_files/bad_config_empty_but_version.yaml" ) )"
+assert_true '[ -e "$BAD_CONFIG_FILE_EMPTY_BUT_VERSION" ]' \
+            "A configuration file that only contains the program version exists. Add suitable test file if this test fails!"
+
+assert_true '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY_BUT_VERSION" 2>&1 ) | grep -q "Unable to load configuration"' \
+            "Attempting to load a configuration file that only contains the program version should be handled properly"
+set -o pipefail
 
 
 
