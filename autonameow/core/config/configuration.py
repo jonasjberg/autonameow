@@ -203,14 +203,14 @@ class Configuration(object):
             )
 
         # Check raw dictionary data.
-        for fr in raw_file_rules:
+        for rule in raw_file_rules:
             try:
-                valid_file_rule = self._validate_rule_data(fr)
+                valid_file_rule = self._validate_rule_data(rule)
             except exceptions.ConfigurationSyntaxError as e:
-                fr_desc = fr.get('description', False)
-                if not fr_desc:
-                    fr_desc = 'UNDESCRIBED'
-                log.error('File rule "{!s}" {!s}'.format(fr_desc, e))
+                rule_description = rule.get('description', False)
+                if not rule_description:
+                    rule_description = 'UNDESCRIBED'
+                log.error('File rule "{!s}" {!s}'.format(rule_description, e))
             else:
                 # Create and populate "FileRule" objects with *validated* data.
                 self._file_rules.append(valid_file_rule)
