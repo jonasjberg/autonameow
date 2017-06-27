@@ -240,31 +240,35 @@ class Configuration(object):
 
     def _load_options(self):
         def _try_load_date_format_option(option):
-            _value = self._data['DATETIME_FORMAT'].get(option)
+            if 'DATETIME_FORMAT' in self._data:
+                _value = self._data['DATETIME_FORMAT'].get(option)
+            else:
+                _value = False
             if _value and DateTimeConfigFieldParser.is_valid_datetime(_value):
                 self._options['DATETIME_FORMAT'][option] = _value
 
         def _try_load_filetags_option(option, default):
-            _value = self._data['FILETAGS_OPTIONS'].get(option)
+            if 'FILETAGS_OPTIONS' in self._data:
+                _value = self._data['FILETAGS_OPTIONS'].get(option)
+            else:
+                _value = False
             if _value:
                 self._options['FILETAGS_OPTIONS'][option] = _value
             else:
                 self._options['FILETAGS_OPTIONS'][option] = default
 
-        if 'DATETIME_FORMAT' in self._data:
-            _try_load_date_format_option('date')
-            _try_load_date_format_option('time')
-            _try_load_date_format_option('datetime')
+        _try_load_date_format_option('date')
+        _try_load_date_format_option('time')
+        _try_load_date_format_option('datetime')
 
-        if 'FILETAGS_OPTIONS' in self._data:
-            _try_load_filetags_option(
-                'filename_tag_separator',
-                constants.FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR
-            )
-            _try_load_filetags_option(
-                'between_tag_separator',
-                constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR
-            )
+        _try_load_filetags_option(
+            'filename_tag_separator',
+            constants.FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR
+        )
+        _try_load_filetags_option(
+            'between_tag_separator',
+            constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR
+        )
 
     def _load_version(self):
         version = self._data.get('autonameow_version', False)
