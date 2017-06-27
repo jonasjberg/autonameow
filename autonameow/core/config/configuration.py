@@ -139,8 +139,9 @@ class Configuration(object):
                 'Invalid state; missing "self._data" ..'
             )
 
-        if 'NAME_TEMPLATES' not in self._data:
-            log.debug('Configuration does not contain name templates')
+        if ('NAME_TEMPLATES' not in self._data or
+                self._data['NAME_TEMPLATES'] is None):
+            log.debug('Configuration does not contain any name templates')
             return
 
         loaded_templates = {}
