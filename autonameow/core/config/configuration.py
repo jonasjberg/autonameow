@@ -202,14 +202,11 @@ class Configuration(object):
                 'The configuration file does not contain any file rules'
             )
 
-        # Check raw dictionary data.
         for rule in raw_file_rules:
             try:
                 valid_file_rule = self._validate_rule_data(rule)
             except exceptions.ConfigurationSyntaxError as e:
-                rule_description = rule.get('description', False)
-                if not rule_description:
-                    rule_description = 'UNDESCRIBED'
+                rule_description = rule.get('description', 'UNDESCRIBED')
                 log.error('File rule "{!s}" {!s}'.format(rule_description, e))
             else:
                 # Create and populate "FileRule" objects with *validated* data.
