@@ -49,8 +49,12 @@ class RuleMatcher(object):
         return self._matched_rules[0]
 
     def _evaluate_rules(self):
+        if not self.config.file_rules:
+            log.error('Configuration did not provide any rules to evaluate')
+            return
+
         # Check a copy of all rules.
-        rules_to_examine = list(self.config.file_rules)
+        rules_to_examine = self.config.file_rules
         log.debug('Examining {} rules ..'.format(len(rules_to_examine)))
         ok_rules = examine_rules(rules_to_examine, self.file,
                                  self.analysis_data)
