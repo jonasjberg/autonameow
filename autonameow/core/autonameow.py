@@ -96,8 +96,7 @@ class Autonameow(object):
                 ))
                 self.config.load(self.opts.config_path)
             except exceptions.ConfigError as e:
-                log.critical('Failed to load configuration file!')
-                log.debug(str(e))
+                log.critical('Unable to load configuration: {!s}'.format(e))
                 self.exit_program(constants.EXIT_ERROR)
         else:
 
