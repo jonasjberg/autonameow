@@ -395,11 +395,12 @@ def bruteforce_str(text, return_first_match=False):
     :return: list of any datetime-objects or None if nothing was found
     """
     if text is None:
-        log.debug('[bruteforce_str] Got empty text')
+        # log.debug('[bruteforce_str] Got empty text')
+        return None
     else:
         text = text.strip()
         if not text:
-            log.debug('[bruteforce_str] Got empty text')
+            # log.debug('[bruteforce_str] Got empty text')
             return None
 
     text = util.decode_(text)
