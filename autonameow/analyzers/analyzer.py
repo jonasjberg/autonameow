@@ -120,33 +120,3 @@ class Analyzer(object):
         return self.__class__.__name__
 
 
-def get_analyzer_classes():
-    """
-    Get a list of all available analyzers as a list of "type".
-    All classes inheriting from the "Analyzer" class are included.
-
-    Returns:
-        All available analyzer classes as a list of type.
-    """
-
-    # TODO: Fix this! Used for instantiating analyzers so that they are
-    # included in the global namespace and seen by 'get_analyzer_classes()'.
-
-    from analyzers.analyze_filename import FilenameAnalyzer
-    from analyzers.analyze_filesystem import FilesystemAnalyzer
-    from analyzers.analyze_image import ImageAnalyzer
-    from analyzers.analyze_pdf import PdfAnalyzer
-    from analyzers.analyze_video import VideoAnalyzer
-
-    return [klass for klass in globals()['Analyzer'].__subclasses__()]
-
-
-def get_analyzer_classes_basename():
-    """
-    Get a list of class base names for all available analyzers.
-    All classes inheriting from the "Analyzer" class are included.
-
-    Returns:
-        The base names of available analyzer classes as a list of strings.
-    """
-    return [c.__name__ for c in get_analyzer_classes()]

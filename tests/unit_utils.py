@@ -29,7 +29,7 @@ import unittest
 
 from contextlib import contextmanager
 
-from analyzers.analyzer import get_analyzer_classes
+from core.analysis import get_analyzer_classes
 from core.extraction import ExtractedData
 from core.fileobject import FileObject
 from core import util

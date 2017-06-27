@@ -22,15 +22,27 @@
 import logging as log
 
 import plugins
-from analyzers.analyzer import (
-    get_analyzer_classes
-)
 from core import (
     constants,
     exceptions
 )
 from core.util.misc import flatten_dict
 from core.util.queue import GenericQueue
+
+# TODO: Fix this! Used for instantiating analyzers so that they are
+# included in the global namespace and seen by 'get_analyzer_classes()'.
+from analyzers.analyzer import Analyzer
+from analyzers.analyze_filename import FilenameAnalyzer
+from analyzers.analyze_filesystem import FilesystemAnalyzer
+from analyzers.analyze_image import ImageAnalyzer
+from analyzers.analyze_pdf import PdfAnalyzer
+from analyzers.analyze_video import VideoAnalyzer
+__dummy_a = Analyzer(None, None, None)
+__dummy_b = FilenameAnalyzer(None, None, None)
+__dummy_c = FilesystemAnalyzer(None, None, None)
+__dummy_d = ImageAnalyzer(None, None, None)
+__dummy_e = PdfAnalyzer(None, None, None)
+__dummy_f = VideoAnalyzer(None, None, None)
 
 
 class Analysis(object):
@@ -301,6 +313,28 @@ def suitable_analyzers_for(file_object):
         A list of analyzer classes that can analyze the given file.
     """
     return [a for a in AnalyzerClasses if a.can_handle(file_object)]
+
+
+def get_analyzer_classes():
+    """
+    Get a list of all available analyzers as a list of "type".
+    All classes inheriting from the "Analyzer" class are included.
+
+    Returns:
+        All available analyzer classes as a list of type.
+    """
+    return [klass for klass in globals()['Analyzer'].__subclasses__()]
+
+
+def get_analyzer_classes_basename():
+    """
+    Get a list of class base names for all available analyzers.
+    All classes inheriting from the "Analyzer" class are included.
+
+    Returns:
+        The base names of available analyzer classes as a list of strings.
+    """
+    return [c.__name__ for c in get_analyzer_classes()]
 
 
 AnalyzerClasses = get_analyzer_classes()
