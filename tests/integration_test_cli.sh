@@ -261,6 +261,14 @@ assert_true '( "$AUTONAMEOW_RUNNER" --verbose --recurse --dry-run -- "$TEST_FILE
             "Expect output to contain \"Got 8 files to process\" when running \"--verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
 
 
+BAD_CONFIG_FILE_NO_FILE_RULES="$( ( cd "$SELF_DIR" && realpath -e "../test_files/bad_config_no_file_rules.yaml" ) )"
+assert_true '[ -e "$BAD_CONFIG_FILE_NO_FILE_RULES" ]' \
+            "A test configuration file without file rules exists. Add suitable test file if this test fails!"
+
+assert_false '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_NO_FILE_RULES" 2>&1 ) >/dev/null' \
+             "Attempting to load a configuration file without any file rules should be handled properly"
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
