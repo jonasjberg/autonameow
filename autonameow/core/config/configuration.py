@@ -487,6 +487,10 @@ def parse_conditions(raw_conditions):
         raw_contents = raw_conditions['filesystem']
         traverse_dict(raw_contents)
 
+    if 'metadata' in raw_conditions:
+        raw_contents = raw_conditions['metadata']
+        traverse_dict(raw_contents)
+
     log.debug('First filter passed {} conditions'.format(len(out)))
 
     return out
