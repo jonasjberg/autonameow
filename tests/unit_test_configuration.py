@@ -31,7 +31,8 @@ from core.config.configuration import (
     Configuration,
     parse_conditions,
     parse_weight,
-    is_valid_source
+    is_valid_source,
+    is_analyzer_source
 )
 from core.exceptions import ConfigurationSyntaxError
 from unit_utils import make_temp_dir
@@ -216,3 +217,24 @@ class TestIsValidSourceSpecification(TestCase):
         self.assertTrue(is_valid_source('filesystem.basename.full'))
         self.assertTrue(is_valid_source('filesystem.basename.extension'))
         self.assertTrue(is_valid_source('contents.mime_type'))
+
+
+class TestIsAnalyzerSource(TestCase):
+    def test_empty_source_returns_false(self):
+        self.assertFalse(is_analyzer_source(None))
+        self.assertFalse(is_analyzer_source(''))
+
+    def test_invalid_sources_return_false(self):
+        self.assertFalse(is_analyzer_source('not.a.valid.source.surely'))
+
+    def test_non_analyzer_sources_return_false(self):
+        self.assertFalse(is_analyzer_source('metadata.exiftool.PDF:CreateDate'))
+        self.assertFalse(is_analyzer_source('metadata.exiftool'))
+        self.assertFalse(is_analyzer_source('filesystem.basename.full'))
+        self.assertFalse(is_analyzer_source('filesystem.basename.extension'))
+        self.assertFalse(is_analyzer_source('contents.mime_type'))
+
+    def test_analyzer_sources_return_true(self):
+        self.assertTrue(is_analyzer_source('imageanalyzer.datetime'))
+        self.assertTrue(is_analyzer_source('filesystemanalyzer.title'))
+        self.assertTrue(is_analyzer_source('filenamenalyzer.title'))
