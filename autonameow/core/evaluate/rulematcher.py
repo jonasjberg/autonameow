@@ -134,7 +134,7 @@ def evaluate_rule(file_rule, file_object, analysis_data):
 
     if file_rule.exact_match:
         for cond_field, cond_value in file_rule.conditions.items():
-            log.debug('Evaluating condition "{} == {}"'.format(cond_field,
+            log.debug('Evaluating condition "{} == {}"'.format(cond_field,
                                                                cond_value))
             if not eval_condition(cond_field, cond_value, file_object,
                                   analysis_data):
@@ -145,7 +145,7 @@ def evaluate_rule(file_rule, file_object, analysis_data):
         return True
 
     for cond_field, cond_value in file_rule.conditions.items():
-        log.debug('Evaluating condition "{} == {}"'.format(cond_field,
+        log.debug('Evaluating condition "{} == {}"'.format(cond_field,
                                                            cond_value))
         if eval_condition(cond_field, cond_value, file_object, analysis_data):
             log.debug('Condition Passed rule.votes++')

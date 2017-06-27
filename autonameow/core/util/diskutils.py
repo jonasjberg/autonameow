@@ -289,3 +289,41 @@ def get_files(search_path, recurse=False):
     traverse(search_path)
 
     return out
+
+
+def get_files_gen(search_path, recurse=False):
+    """
+    Returns all files in the specified path as a list of strings.
+
+    The specified search path is traversed non-recursively by default.
+    If the keyword argument "recurse" is set to True, the search path is
+    walked recursively.
+
+        NOTE: Does not currently handle symlinks.
+
+    Args:
+        search_path: The path from which to collect files.
+        recurse: Whether to traverse the path recursively or not.
+
+    Returns:
+        Absolute paths to files in the specified path, as a generator object.
+    """
+    # TODO: Follow symlinks? Add option for following symlinks?
+    if not search_path:
+        raise FileNotFoundError
+    if not os.path.isfile(search_path) and not os.path.isdir(search_path):
+        raise FileNotFoundError
+
+    if os.path.isfile(search_path):
+        yield search_path
+    elif os.path.isdir(search_path):
+        for entry in os.listdir(search_path):
+            entry_path = os.path.join(search_path, entry)
+
+            if not os.path.isfile(entry_path) and not os.path.isdir(entry_path):
+                raise FileNotFoundError
+            elif os.path.isfile(entry_path):
+                yield entry_path
+            elif recurse and os.path.isdir(entry_path):
+                for f in get_files_gen(entry_path, recurse=recurse):
+                    yield f

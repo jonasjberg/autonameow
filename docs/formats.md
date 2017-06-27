@@ -12,22 +12,17 @@ Please see "LICENSE.txt" for licensing details.
 --------------------------------------------------------------------------------
 
 
+Configuration File
+==================
+
 Current Formats
 ---------------
-The following formats will/should/have be/been fully/partially reworked:
-
-- Results returned by analyzers, gathered by `Analysis`
-- All analyzer results, stored in `Analysis.results`
-- Configuration file
-
-
-### Configuration File
 This is the current format of the configuration file.
 Note that the format is still under heavy development and will most likely be
 changed. Manual verification of the source code is recommended.
 
 
-#### Overview
+### Overview
 The configuration file should provide means to specify how *actions are
 performed* to some subset of *files matching some criteria*.
 
@@ -51,7 +46,7 @@ the naming convention given by `name_format` with the information given by
 sources specified in `data_sources`.
 
 
-#### Conditions
+### Conditions
 The testing of the specified conditions depends on the value of `_exact_match`.
 
 * If `_exact_match` is __`True`__; all specified conditions must be met for the
@@ -111,7 +106,7 @@ The second section, `contents`; contain tests on the file contents.
 This example would match jpeg image files.
 
 
-#### Data Sources
+### Data Sources
 Next is the second main part of each rule; `data_sources`.
 
 Each field corresponds to a field in `name_template`.  The field values specify
@@ -168,19 +163,22 @@ There might be multiple sources for `extension` data, for example;
 <!-- NOTE: Field format is still not implemented and very likely to change! -->
 
 
-#### Default Configuration File
-This is the default configuration file in the most basic internal format;
-nested structure of dictionaries and lists.
+Default Configuration File
+--------------------------
+This is the default configuration file in the internal dict format as of
+version `v0.4.2`.
 
 ```python
 DEFAULT_CONFIG = {
 
     #   File Rules
-    #   ----------
+    #   ==========
     #   File rules determine which files are handled and how they are handled.
     #
     #   Each rule specifies conditions that should be met for the rule to apply
     #   to a given file.
+    #
+    #   TODO: Document all fields ..
     #
     #   * If 'exact_match' is True, __all__ conditions must be met,
     #     otherwise the rule is considered to not apply to the given file.
@@ -191,18 +189,20 @@ DEFAULT_CONFIG = {
     #     have an equal amount of satisfied conditions; 'weight' is used
     #     to prioritize the candidates.
     #
+    #   TODO: Document all fields ..
+    #
     'FILE_RULES': [
         {'description': 'test_files Gmail print-to-pdf',
          'exact_match': True,
          'weight': None,
-         'NAME_FORMAT': '{datetime} {title}.{extension}',
+         'NAME_FORMAT': '{datetime} {title}.{extension}',
          'CONDITIONS': {
              'filesystem': {
                  'basename': 'gmail.pdf',
                  'extension': 'pdf',
              },
              'contents': {
-                 'mime_type': 'pdf',
+                 'mime_type': 'application/pdf',
              },
          },
          'DATA_SOURCES': {
@@ -211,16 +211,17 @@ DEFAULT_CONFIG = {
              'extension': 'filesystem.basename.extension'
          }
          },
+        # ____________________________________________________________________
         {'description': 'test_files smulan.jpg',
          'exact_match': True,
          'weight': 1,
-         'NAME_FORMAT': '{datetime} {description}.{extension}',
+         'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
              'filesystem': {
                  'basename': 'smulan.jpg',
              },
              'contents': {
-                 'mime_type': 'jpg',
+                 'mime_type': 'image/jpeg',
              },
          },
          'DATA_SOURCES': {
@@ -229,6 +230,7 @@ DEFAULT_CONFIG = {
              'extension': 'filesystem.basename.extension'
          }
          },
+        # ____________________________________________________________________
         {'description': 'Sample Entry for Photos with strict rules',
          'exact_match': True,
          'weight': 1,
@@ -238,19 +240,14 @@ DEFAULT_CONFIG = {
                  'pathname': '~/Pictures/incoming',
                  'basename': 'DCIM*',
                  'extension': 'jpg',
-                 'date_accessed': None,
-                 'date_created': None,
-                 'date_modified': None
              },
              'contents': {
-                 'mime_type': 'jpg',
+                 'mime_type': 'image/jpeg',
              },
              'metadata': {
-                 'exif': {
-                     # NOTE: Possibly use exiftool for all metadata?
-                     # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-                     'datetimeoriginal': None,
-                     'camera-model': None
+                 'exiftool': {
+                     # TODO: Ensure proper validation of entry below.
+                     'EXIF:DateTimeOriginal': None,
                  },
              }
          },
@@ -266,6 +263,7 @@ DEFAULT_CONFIG = {
              'tags': 'plugin.microsoft_vision.tags'
          }
          },
+        # ____________________________________________________________________
         {'description': 'Sample Entry for EPUB e-books',
          'exact_match': True,
          'weight': 1,
@@ -297,7 +295,7 @@ DEFAULT_CONFIG = {
     ],
 
     #  File Name Templates
-    #  -------------------
+    #  ===================
     #  These file name templates can be reused by multiple file rules.
     #  Simply add the template name to the file rule 'NAME_FORMAT' field.
     #
@@ -311,7 +309,7 @@ DEFAULT_CONFIG = {
     },
 
     #  File Name Date and Time Format
-    #  ------------------------------
+    #  ==============================
     #  Specifies the format of date and time in constructed file names.
     #  Fields are parsed with "datetime" from the Python standard library.
     #  Refer to the "datetime" library documentation for more information;
@@ -325,13 +323,136 @@ DEFAULT_CONFIG = {
     },
 
     #  Filetags Options
-    #  ----------------
+    #  ================
     #  Options for functionality related to the "filetags" workflow.
     #
     'FILETAGS_OPTIONS': {
         'filename_tag_separator': ' -- ',
         'between_tag_separator': ' '
-    }
+    },
+
+    'autonameow_version': version.__version__
 }
 ```
 
+
+
+Internal Data Structures
+========================
+
+Extracted Data
+--------------
+
+### Nested Structure (dict)
+
+* `filesystem`
+    * `basename`
+        * `full`
+        * `prefix`
+        * `suffix`
+        * `extension`
+    * `pathname`
+        * `full`
+        * `parent`
+    * `date_accessed`
+    * `date_created`
+    * `date_modified`
+* `contents`
+    * `mime_type`
+    * `textual`
+        * `raw_text`
+        * `paginated`
+        * `number_pages`
+    * visual
+        * `ocr_text`
+        * `ocr_description`
+        * `ocr_tags`
+    * binary
+        * `placeholder_field`
+* `metadata`
+    * `exiftool`
+    * `pypdf`
+* `plugin`
+    * `microsoft_vision`
+    * `guessit`
+
+
+### Query Strings
+Extractor query strings as of version `v0.4.2`.
+
+* `contents.textual.raw_text`
+* `contents.textual.encrypted`
+* `contents.textual.number_pages`
+* `contents.textual.paginated`
+* `contents.visual.ocr_text`
+* `filesystem.basename.extension`
+* `filesystem.basename.full`
+* `filesystem.basename.prefix`
+* `filesystem.basename.suffix`
+* `filesystem.pathname.full`
+* `filesystem.pathname.parent`
+* `metadata.exiftool.[exiftool_fields]`
+* `metadata.pypdf.[PyPDF2_fields]`
+* `metadata.pypdf.number_pages`
+* `metadata.pypdf.paginated`
+
+Search the source code for currently used extractor query strings:
+
+```bash
+grep --color=always --exclude-dir={.git,.idea} --include="*.py" -rnHa -- data_query_string . | tr -s ' '
+```
+
+
+Alternative Layout
+------------------
+
+* Contents
+    * Text
+        * `pages` (list of pages)
+            * ( Page 1 )
+                * `page_number`
+                * `contents` (list of text lines)
+            * ( Page n )
+                * `page_number`
+                * `contents` (list of text lines)
+        * Number of pages
+        * EXIF Metadata
+    * Image
+        * Text
+            * `contents` (list of text lines)
+        * EXIF metadata
+    * Video
+        * ..
+        * ..
+
+
+Rule Configuration File Syntax
+==============================
+
+```
+- ExactMatch: True
+- Weight: 0.2
+- Filename
+    - Pathname: "~/today"
+    - Basename: "*screenshot*"
+    - Extension: *.png"
+- Contents
+    - Mime type: "image/png"
+```
+
+###
+
+| Description               | Current Pathname        | Current Basename             | Extension | Contents |
+|---------------------------|-------------------------|------------------------------|-----------|----------|
+| Websites printed to html  | `~/Dropbox/incoming`    | `[URL] [YYYY-MM-DD] [title]` | `pdf`     | First line of all pages matches: `4/29/2017 [title]` |
+
+
+
+### Websites saved to PDF from browsers "Print to PDF..":
+
+* Pathname: `~/Dropbox/incoming`
+* Current Basename: `[URL] [YYYY-MM-DD] [title]`
+* Extension: `pdf`
+* Contents:
+    * First line of all pages match: `4/29/2017 [\W+] [title]`
+    * Last line of all pages match: `[URL] [current_page_number]/[number_pages]`

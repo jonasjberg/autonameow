@@ -66,3 +66,28 @@ def extract_digits(string):
             digits += char
 
     return digits if digits.strip() else None
+
+
+def remove_nonbreaking_spaces(text):
+    return text.replace('\xa0', ' ')
+
+
+def indent(text, amount=4, ch=' '):
+    """
+    Indents (multi-line) text a specified amount.
+
+    Shift text right by the given "amount" (default 4) using the character
+    "ch", which default to a space if left unspecified.
+
+    Based on this post; https://stackoverflow.com/a/8348914/7802196
+
+    Args:
+        text: The text to indent. Single or multi-line.
+        amount: Optional number of columns of indentation. Default: 4
+        ch: Optional character to insert. Default: ' '
+
+    Returns:
+        An indented version of the given text.
+    """
+    padding = amount * ch
+    return ''.join(padding + line for line in text.splitlines(True))

@@ -87,7 +87,8 @@ def _year_is_probable(year):
             else:
                 year += 1900
 
-        year = util.decode_(year)
+        if not isinstance(year, int):
+            year = util.decode_(year)
         try:
             year = datetime.strptime(str(year), '%Y')
         except TypeError:
@@ -608,7 +609,7 @@ def search_gmail(text, prefix):
         # log.debug('Converting list to string ..')
         text = ' '.join(text)
 
-    if not text.lower().find(b'gmail'):
+    if not text.lower().find('gmail'):
         # log.debug('Text does not contains "gmail", might not be a Gmail?')
         return
 
@@ -617,10 +618,10 @@ def search_gmail(text, prefix):
     # Expected date formats:         Fri, Jan 8, 2016 at 3:50 PM
     #                                1/11/2016
     SEP = r'[, ]'
-    REGEX_GMAIL_LONG = re.compile(r'(\w{3,8})' + SEP + r'(\w{3,10})\ (\d{1,2})'
-                                  + SEP + r'([12]\d{3})' + r'(\ at\ )?' +
-                                  r'(\d{1,2}:\d{1,2}\ [AP]M)')
-    REGEX_GMAIL_SHORT = re.compile(r'\d{1,2}\/\d{2}\/[12]\d{3}')
+    REGEX_GMAIL_LONG = re.compile(r'(\w{3,8})' + SEP + r'(\w{3,10}) (\d{1,2})'
+                                  + SEP + r'([12]\d{3})' + r'( at )?' +
+                                  r'(\d{1,2}:\d{1,2} [AP]M)')
+    REGEX_GMAIL_SHORT = re.compile(r'\d{1,2}/\d{2}/[12]\d{3}')
 
 
 def get_datetime_from_text(text, prefix='NULL'):

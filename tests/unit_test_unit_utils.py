@@ -24,10 +24,8 @@ import os
 import types
 from unittest import TestCase
 
-from analyzers.analyzer import (
-    get_analyzer_classes,
-    Analyzer
-)
+from analyzers.analyzer import Analyzer
+from core.analysis import get_analyzer_classes
 from core.fileobject import FileObject
 from unit_utils import (
     make_temp_dir,

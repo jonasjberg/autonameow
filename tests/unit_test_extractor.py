@@ -56,9 +56,13 @@ class TestExtractor(TestCase):
     def test_method_str_returns_expected(self):
         self.assertEqual(str(self.e), 'Extractor')
 
-    def test_class_method_can_handle_is_defined_and_does_not_return_none(self):
+    def test_class_method_can_handle_is_defined(self):
         self.assertIsNotNone(self.e.can_handle)
-        self.assertIsNotNone(self.e.can_handle(self.fo))
 
-    def test_class_method_can_handle_returns_false(self):
-        self.assertFalse(self.e.can_handle(self.fo))
+    def test_class_method_can_handle_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            self.assertIsNotNone(self.e.can_handle(self.fo))
+            self.assertFalse(self.e.can_handle(self.fo))
+
+    def test_data_query_string_is_none(self):
+        self.assertIsNone(self.e.data_query_string)

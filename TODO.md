@@ -32,13 +32,16 @@ High Priority
 * __New high-level architecture__ -- Move to use the redesigned architecture
     * All data extraction is handled by `extractor` classes
     * `analyzer` classes do not perform any kind of data extraction.
-        * Should data produced by `analyzer` classes be returned to a separate
-          container in the `Analysis` class?
     * Plan for optimization by not extracting more data than necessary.
       How could this be implemented?
     * Converting strings to `datetime` objects and similar translation of
       metadata fields should be handled by the extractors. It is currently
       mostly done in the analyzers.
+
+* Pass all data to the `RuleMatcher` instance. Currently, only the analysis
+  data and data stored in the `FileObject` is available when evaluating the
+  rules. This hasn't been an obvious problem due to the fact that the current
+  implementation of rule evaluation is so primitive and basic.
 
 
 Medium Priority
@@ -154,9 +157,17 @@ Medium Priority
         * Look into how `guessit` does it or possibility of modifying
           `guessit` to identify custom fields.
 
+* Look into merging possibly redundant methods `get` and `query` in the
+  `AnalysisResults` class.
+
+* Look into merging possibly redundant methods `get` and `query` in the
+  `ExtractedData` class.
+
 
 Low Priority
 ------------
+
+* Implement safe handling of symbolic link input paths.
 
 * Add additional filetype-specific "extractors".
     * __Word Documents__

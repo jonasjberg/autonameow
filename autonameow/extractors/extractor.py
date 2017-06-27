@@ -85,6 +85,9 @@ class Extractor(object):
             True if the extractor class can extract data from the given file,
             else False.
         """
+        if cls.handles_mime_types is None:
+            raise NotImplementedError('Must be defined by inheriting classes.')
+
         if eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
             return True
         else:

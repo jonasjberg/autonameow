@@ -24,7 +24,6 @@ import logging as log
 import PyPDF2
 import re
 from PyPDF2.utils import (
-    PyPdfError,
     PdfReadError
 )
 from datetime import datetime
@@ -154,6 +153,7 @@ class PyPDFMetadataExtractor(MetadataExtractor):
                 raise
             else:
                 out.update({'number_pages': num_pages})
+                out.update({'paginated': True})
 
             # https://pythonhosted.org/PyPDF2/XmpInformation.html
             xmp_metadata = file_reader.getXmpMetadata()
@@ -209,7 +209,7 @@ def to_datetime(pypdf_string):
         timezone_str = timezone_str.replace("'", "")
 
         try:
-            dt = datetime.strptime(datetime_str + timezone_str,
+            dt = datetime.strptime(str(datetime_str + timezone_str),
                                    "%Y%m%d%H%M%S%z")
             found_match = True
         except ValueError:

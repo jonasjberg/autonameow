@@ -10,6 +10,22 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-06-25
+
+    > Low Priority
+    > ------------
+    >
+    > * Implement handling directory input paths. Add `--recursive` option?
+
+* 2017-06-24
+
+    > High Priority
+    > -------------
+    >
+    > * __New high-level architecture__ -- Move to use the redesigned architecture
+    >     * `analyzer` classes do not perform any kind of data extraction.
+    >         * Should data produced by `analyzer` classes be returned to a separate
+    >           container in the `Analysis` class?
 
 * 2017-06-23
 

@@ -182,7 +182,7 @@ class PdfAnalyzer(Analyzer):
                 logging.debug('timezone_str: %s' % timezone_str)
 
                 try:
-                    dt = datetime.strptime(datetime_str + timezone_str,
+                    dt = datetime.strptime(str(datetime_str + timezone_str),
                                            "%Y%m%d%H%M%S%z")
                     found_match = True
                 except ValueError:
@@ -198,7 +198,7 @@ class PdfAnalyzer(Analyzer):
                                       '[%s]' % field)
 
             # Try matching another pattern.
-            date_pattern_no_tz = re.compile('D:(\d{14,14})Z')
+            date_pattern_no_tz = re.compile('D:(\d{14})Z')
             re_match = date_pattern_no_tz.search(k)
             if re_match:
                 try:

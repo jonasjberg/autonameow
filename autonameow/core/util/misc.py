@@ -23,12 +23,11 @@
 Miscellaneous utility functions.
 """
 
-import itertools
-
 import collections
-import yaml
-
+import itertools
 import logging as log
+
+import yaml
 
 from core.exceptions import InvalidQueryStringError
 
@@ -105,27 +104,6 @@ def unique_identifier():
     else:
         _postfix = '0W'
     return '{}{:03d}{}'.format(_prefix, n, _postfix)
-
-
-def indent(text, amount=4, ch=' '):
-    """
-    Indents (multi-line) text a specified amount.
-
-    Shift text right by the given "amount" (default 4) using the character
-    "ch", which default to a space if left unspecified.
-
-    Based on this post; https://stackoverflow.com/a/8348914/7802196
-
-    Args:
-        text: The text to indent. Single or multi-line.
-        amount: Optional number of columns of indentation. Default: 4
-        ch: Optional character to insert. Default: ' '
-
-    Returns:
-        An indented version of the given text.
-    """
-    padding = amount * ch
-    return ''.join(padding + line for line in text.splitlines(True))
 
 
 def multiset_count(list_data):
@@ -210,6 +188,10 @@ def flatten_dict(d, parent_key='', sep='.'):
                   'contents.mime_type': None,
                   'contents.textual.raw_text': None,
               }
+
+    Note that if the low-level values are empty dictionaries or lists,
+    they will be omitted from the output.
+
     Args:
         d: The dictionary to flatten.
         parent_key: Not used, required for recursion.

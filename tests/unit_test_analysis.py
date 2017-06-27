@@ -21,15 +21,14 @@
 
 from unittest import TestCase
 
-from analyzers.analyzer import (
-    Analyzer,
-    get_analyzer_classes
-)
+from analyzers.analyzer import Analyzer
 from core.analysis import (
     AnalysisResults,
     AnalysisRunQueue,
     Analysis,
-    suitable_analyzers_for
+    suitable_analyzers_for,
+    get_analyzer_classes,
+    get_analyzer_classes_basename
 )
 from core.constants import ANALYSIS_RESULTS_FIELDS
 from unit_utils import (
@@ -67,21 +66,18 @@ class TestAnalysis(TestCase):
             self.assertTrue(issubclass(ac.__class__, Analyzer))
 
     def test_initial_results_data_len_is_zero(self):
-        self.skipTest('Requires Results to implement "__len__"')
         self.assertEqual(len(self.a.results), 0)
 
     def test_collects_valid_results(self):
         self.a.collect_results('contents.mime_type', 'image/jpeg')
 
     def test_collecting_valid_results_increments_results_len(self):
-        self.skipTest('Requires Results to implement "__len__"')
         self.a.collect_results('contents.mime_type', 'image/jpeg')
         self.assertEqual(len(self.a.results), 1)
         self.a.collect_results('filesystem.basename.extension', 'jpg')
         self.assertEqual(len(self.a.results), 2)
 
     def test_collecting_results_with_empty_data_does_not_increment_len(self):
-        self.skipTest('Requires Results to implement "__len__"')
         self.a.collect_results('contents.mime_type', None)
         self.assertEqual(len(self.a.results), 0)
         self.a.collect_results('filesystem.basename.extension', None)
@@ -99,7 +95,6 @@ class TestAnalysis(TestCase):
         self.assertIsNotNone(self.a._execute_run_queue)
 
     def test_analysis__execute_run_queue_increases_number_of_results(self):
-        self.skipTest('Requires Results to implement "__len__"')
         _results_len = len(self.a.results)
         self.assertEqual(_results_len, 0)
 
@@ -108,33 +103,31 @@ class TestAnalysisResults(TestCase):
     def setUp(self):
         self.results = AnalysisResults()
 
-    def test_results_init_contains_valid_results_fields(self):
-        for field in ANALYSIS_RESULTS_FIELDS:
-            self.assertTrue(field in self.results._data)
+    def test_results_init_in_expected_state(self):
+        self.assertTrue(isinstance(self.results._data, dict))
+        self.assertEqual(len(self.results._data), 0)
 
-    def test_results_init_contains_all_valid_results_fields(self):
-        self.assertEqual(len(ANALYSIS_RESULTS_FIELDS), len(self.results._data))
-
-    def test_results_init_results_fields_are_type_list(self):
-        for field in ANALYSIS_RESULTS_FIELDS:
-            self.assertEqual(type(self.results._data[field]), list)
-
-    def test_results_init_results_fields_are_empty(self):
-        for field in ANALYSIS_RESULTS_FIELDS:
-            self.assertEqual(len(self.results._data[field]), 0)
-
-    def test_add_with_invalid_field_raises_exception(self):
-        _field = 'invalid_field_surely'
-        _results = []
-
-        with self.assertRaises(KeyError):
-            self.results.add(_field, _results)
+    def test_results_len_initially_zero(self):
+        self.assertEqual(len(self.results), 0)
 
     def test_add(self):
         _field = ANALYSIS_RESULTS_FIELDS[0]
         _results = []
-
         self.results.add(_field, _results)
+
+    def test_add_increments_len(self):
+        _field = ANALYSIS_RESULTS_FIELDS[0]
+        _results = ['foo']
+        self.results.add(_field, _results)
+
+        self.assertEqual(len(self.results), 1)
+
+    def test_add_empty_does_not_increment_len(self):
+        _field = ANALYSIS_RESULTS_FIELDS[0]
+        _results = []
+        self.results.add(_field, _results)
+
+        self.assertEqual(len(self.results), 0)
 
 
 class TestAnalysisRunQueue(TestCase):
@@ -172,7 +165,21 @@ class TestAnalysisRunQueue(TestCase):
             self.assertTrue(dequeued in enqueued)
 
 
+# TODO: [hardcoded] Likely to break; fixed analyzer names!
+EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
+                           'analyzers.analyze_filesystem.FilesystemAnalyzer',
+                           'analyzers.analyze_filename.FilenameAnalyzer',
+                           'analyzers.analyze_video.VideoAnalyzer',
+                           'analyzers.analyze_pdf.PdfAnalyzer',
+                           'analyzers.analyze_text.TextAnalyzer']
+EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
+                                    for c in EXPECT_ANALYZER_CLASSES]
+
+
 class TestGetAnalyzerClasses(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
     def test_get_analyzer_classes_returns_expected_type(self):
         self.assertTrue(isinstance(get_analyzer_classes(), list))
         for a in get_analyzer_classes():
@@ -196,6 +203,33 @@ class TestGetAnalyzerClasses(TestCase):
 
     def test_get_analyzer_classes_returns_at_least_six_analyzers(self):
         self.assertGreaterEqual(len(get_analyzer_classes()), 6)
+
+    # TODO: [hardcoded] Likely to break; fixed analyzer names!
+    def test_get_analyzer_classes_returns_expected_count(self):
+        _classes = get_analyzer_classes()
+        self.assertEqual(len(_classes), len(EXPECT_ANALYZER_CLASSES))
+
+    def test_get_analyzer_classes_returns_class_objects(self):
+        analyzers = get_analyzer_classes()
+        for a in analyzers:
+            self.assertTrue(hasattr(a, '__class__'))
+
+
+class TestGetAnalyzerClassesBasename(TestCase):
+    def test_get_analyzer_classes_basename_returns_expected_count(self):
+        _classes = get_analyzer_classes_basename()
+        self.assertEqual(len(_classes), len(EXPECT_ANALYZER_CLASSES_BASENAME))
+
+    def test_get_analyzer_classes_basename_returns_expected_contents(self):
+        _classes = get_analyzer_classes_basename()
+        self.assertEqual(sorted(_classes),
+                         sorted(EXPECT_ANALYZER_CLASSES_BASENAME))
+
+    def test_get_analyzer_classes_basename_returns_list_of_strings(self):
+        self.assertTrue(isinstance(get_analyzer_classes_basename(), list))
+
+        for a in get_analyzer_classes_basename():
+            self.assertTrue(isinstance(a, str))
 
 
 class TestSuitableAnalyzersForFile(TestCase):

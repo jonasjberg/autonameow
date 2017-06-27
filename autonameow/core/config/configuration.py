@@ -25,15 +25,17 @@ import os
 from core import (
     config,
     constants,
-    exceptions
+    exceptions,
+    util
 )
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
-    get_instantiated_field_parsers,
     DateTimeConfigFieldParser,
     FieldParsers
 )
-from core.util import misc
+from core.util import (
+    textutils
+)
 
 
 class Rule(object):
@@ -74,7 +76,7 @@ class FileRule(Rule):
         # Also "loaded" with corresponding (reference to) a validation function.
 
     def __str__(self):
-        return misc.dump(self.__dict__)
+        return util.dump(self.__dict__)
 
     def __repr__(self):
         out = []
@@ -143,6 +145,9 @@ class Configuration(object):
 
         loaded_templates = {}
         for k, v in self._data.get('NAME_TEMPLATES').items():
+            # Remove any non-breaking spaces in the name template.
+            v = textutils.remove_nonbreaking_spaces(v)
+
             if NameFormatConfigFieldParser.is_valid_format_string(v):
                 loaded_templates[k] = v
             else:
@@ -340,13 +345,13 @@ class Configuration(object):
 
         for number, rule in enumerate(self.file_rules):
             out.append('File Rule {}:\n'.format(number + 1))
-            out.append(misc.indent(str(rule), amount=4) + '\n')
+            out.append(textutils.indent(str(rule), amount=4) + '\n')
 
         out.append('\nName Templates:\n')
-        out.append(misc.indent(misc.dump(self.name_templates), amount=4))
+        out.append(textutils.indent(util.dump(self.name_templates), amount=4))
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(misc.indent(misc.dump(self.options), amount=4))
+        out.append(textutils.indent(util.dump(self.options), amount=4))
 
         return ''.join(out)
 
@@ -380,7 +385,7 @@ def parse_weight(value):
     except TypeError:
         raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
     else:
-        if 0 <= w <= 1:
+        if float(0) <= w <= float(1):
             return w
         else:
             raise exceptions.ConfigurationSyntaxError(ERROR_MSG)

@@ -92,6 +92,9 @@ class ImageAnalyzer(Analyzer):
                      'weight'  : 1
                    }, .. ]
         """
+        if not self.exif_data:
+            return None
+
         # TODO: Recheck the weights. Should they even be defined here?
         DATE_TAG_FIELDS = [['EXIF:DateTimeOriginal', 1],
                            ['EXIF:DateTimeDigitized', 1],
@@ -109,7 +112,7 @@ class ImageAnalyzer(Analyzer):
             dt = None
             # Expected date format:         2016:04:07 18:47:30
             date_pattern = re.compile(
-                '.*(\d{4}:[01]\d:[0123]\d\ [012]\d:[012345]\d:[012345]\d).*')
+                '.*(\d{4}:[01]\d:[0123]\d [012]\d:[012345]\d:[012345]\d).*')
             try:
                 re_match = date_pattern.search(dtstr)
             except TypeError:

@@ -22,15 +22,27 @@
 import logging as log
 
 import plugins
-from analyzers.analyzer import (
-    get_analyzer_classes
-)
 from core import (
     constants,
-    exceptions
+    exceptions,
+    util
 )
-from core.util.misc import flatten_dict
 from core.util.queue import GenericQueue
+
+# TODO: Fix this! Used for instantiating analyzers so that they are
+# included in the global namespace and seen by 'get_analyzer_classes()'.
+from analyzers.analyzer import Analyzer
+from analyzers.analyze_filename import FilenameAnalyzer
+from analyzers.analyze_filesystem import FilesystemAnalyzer
+from analyzers.analyze_image import ImageAnalyzer
+from analyzers.analyze_pdf import PdfAnalyzer
+from analyzers.analyze_video import VideoAnalyzer
+__dummy_a = Analyzer(None, None, None)
+__dummy_b = FilenameAnalyzer(None, None, None)
+__dummy_c = FilesystemAnalyzer(None, None, None)
+__dummy_d = ImageAnalyzer(None, None, None)
+__dummy_e = PdfAnalyzer(None, None, None)
+__dummy_f = VideoAnalyzer(None, None, None)
 
 
 class Analysis(object):
@@ -58,10 +70,6 @@ class Analysis(object):
         if extracted_data:
             self.extracted_data = extracted_data
 
-            # TODO: Improve handling of incoming data from 'Extraction'.
-            for key, value in extracted_data:
-                self.collect_results(key, value)
-
     def collect_results(self, label, data):
         """
         Collects analysis results. Passed to analyzers as a callback.
@@ -83,12 +91,12 @@ class Analysis(object):
             data: The data to add.
         """
         if isinstance(data, dict):
-            flat_data = flatten_dict(data)
+            flat_data = util.flatten_dict(data)
             for k, v in flat_data.items():
                 merged_label = label + '.' + str(k)
-                self.results.new_add(merged_label, v)
+                self.results.add(merged_label, v)
         else:
-            self.results.new_add(label, data)
+            self.results.add(label, data)
 
     def start(self):
         """
@@ -99,6 +107,10 @@ class Analysis(object):
 
         # Run all analyzers in the queue.
         self._execute_run_queue()
+
+        log.info('Finished executing {} analyzers. Got {} results'.format(
+            len(self.analyzer_queue), len(self.results)
+        ))
 
     def _populate_run_queue(self):
         """
@@ -211,47 +223,30 @@ class AnalysisResults(object):
 
     def __init__(self):
         self._data = {}
-        for field in constants.ANALYSIS_RESULTS_FIELDS:
-            self._data[field] = []
 
-        # TODO: Replace all "old style" storage with redesigned storage.
-        self.new_data = {}
-
-    def query(self, field_data_source_map):
+    def query(self, query_string):
         """
-        Returns result data fields matching a "query string".
+        Returns analysis data matching the given "query string".
+
+        If the given query string does not map to any data, False is returned.
 
         Args:
-            field_data_source_map: Dictionary of fields and query string.
-
-                Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
-                          'description' = 'plugin.microsoft_vision.caption'
-                          'extension'   = 'filesystem.extension'}
+            query_string: The query string key for the data to return.
+                Example:  'metadata.exiftool.DateTimeOriginal'
 
         Returns:
             Results data for the specified fields matching the specified query.
         """
-        out = {}
-
-        for field, source in field_data_source_map.items():
-            if source.startswith('plugin.'):
-                # TODO: Results should NOT be querying plugins from here!
-                # TODO: Rework processing pipeline to integrate plugins
-                plugin_name, plugin_query = source.lstrip('plugin.').split('.')
-                result = plugins.plugin_query(plugin_name, plugin_query, None)
-                out[field] = result
-            else:
-                if source in self.new_data:
-                    out[field] = self.new_data.get(source)
-                else:
-                    # TODO: Handle querying missing data.
-                    return False
-
-        return out
-
-    def new_add(self, label, data):
-        # TODO: FIX ME! Should replace "old add".
-        self.new_data.update({label: data})
+        if query_string.startswith('plugin.'):
+            # TODO: Results should NOT be querying plugins from here!
+            # TODO: Rework processing pipeline to integrate plugins
+            plugin_name, plugin_query = query_string.lstrip('plugin.').split('.')
+            result = plugins.plugin_query(plugin_name, plugin_query, None)
+            return result
+        else:
+            if query_string in self._data:
+                return self._data.get(query_string)
+        return False
 
     def add(self, field, data):
         """
@@ -265,35 +260,46 @@ class AnalysisResults(object):
         Raises:
             KeyError: The specified field is not in "ANALYSIS_RESULTS_FIELDS".
         """
-        if field not in constants.ANALYSIS_RESULTS_FIELDS:
-            raise KeyError('Invalid results field: {}'.format(field))
+        if not field:
+            raise KeyError('Missing results field')
 
-        self._data[field] += data
+        self._data.update({field: data})
 
-    def get(self, field):
+    def get(self, field=None):
         """
-        Returns all analysis results data for the given field.
+        Returns analysis results data, optionally for the given field.
 
         Args:
-            field: Analysis results field data to return.
+            field: Optional field of analysis results field data to return.
             The field must be one of those defined in "ANALYSIS_RESULTS_FIELD".
 
         Returns:
-            All analysis results data for the given field.
+            Analysis results data for the given field or all data.
         """
-        if field not in constants.ANALYSIS_RESULTS_FIELDS:
-            raise KeyError('Invalid results field: {}'.format(field))
+        if field:
+            if field not in constants.ANALYSIS_RESULTS_FIELDS:
+                raise KeyError('Invalid results field: {}'.format(field))
+            else:
+                return self._data[field]
+        else:
+            return self._data
 
-        return self._data[field]
+    def __len__(self):
+        def count_dict_recursive(dictionary, count):
+            for key, value in dictionary.items():
+                if isinstance(value, dict):
+                    count_dict_recursive(value, count)
+                elif value:
+                    if isinstance(value, list):
+                        for v in value:
+                            if v:
+                                count += 1
+                    else:
+                        count += 1
 
-    def get_all(self):
-        """
-        Returns all analysis results data.
+            return count
 
-        Returns:
-            All analysis results data.
-        """
-        return self._data
+        return count_dict_recursive(self._data, 0)
 
 
 def suitable_analyzers_for(file_object):
@@ -307,6 +313,28 @@ def suitable_analyzers_for(file_object):
         A list of analyzer classes that can analyze the given file.
     """
     return [a for a in AnalyzerClasses if a.can_handle(file_object)]
+
+
+def get_analyzer_classes():
+    """
+    Get a list of all available analyzers as a list of "type".
+    All classes inheriting from the "Analyzer" class are included.
+
+    Returns:
+        All available analyzer classes as a list of type.
+    """
+    return [klass for klass in globals()['Analyzer'].__subclasses__()]
+
+
+def get_analyzer_classes_basename():
+    """
+    Get a list of class base names for all available analyzers.
+    All classes inheriting from the "Analyzer" class are included.
+
+    Returns:
+        The base names of available analyzer classes as a list of strings.
+    """
+    return [c.__name__ for c in get_analyzer_classes()]
 
 
 AnalyzerClasses = get_analyzer_classes()

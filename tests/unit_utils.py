@@ -29,7 +29,7 @@ import unittest
 
 from contextlib import contextmanager
 
-from analyzers.analyzer import get_analyzer_classes
+from core.analysis import get_analyzer_classes
 from core.extraction import ExtractedData
 from core.fileobject import FileObject
 from core import util
@@ -60,7 +60,9 @@ def abspath_testfile(file):
     Returns:
         The full path to the specified file.
     """
-    return os.path.join(TESTS_DIR + os.sep + util.syspath(file))
+    return os.path.normpath(
+        os.path.join(TESTS_DIR + os.sep + util.syspath(file))
+    )
 
 
 def make_temp_dir():

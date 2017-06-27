@@ -40,7 +40,6 @@ from core.extraction import Extraction
 from core.fileobject import FileObject
 from core.util import (
     cli,
-    misc,
     diskutils
 )
 from . import version
@@ -147,10 +146,24 @@ class Autonameow(object):
             log.warning('No input files specified ..')
             self.exit_program(constants.EXIT_SUCCESS)
 
-        self._handle_files()
+        files_to_process = []
+        for path in self.opts.input_paths:
+            # Path name encoding boundary. Convert to internal format.
+            path = util.normpath(path)
+            try:
+                files_to_process += diskutils.get_files(
+                    path, recurse=self.opts.recurse_paths
+                )
+            except FileNotFoundError:
+                log.error('File not found: "{}"'.format(
+                    util.displayable_path(path))
+                )
+
+        log.info('Got {} files to process'.format(len(files_to_process)))
+        self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
 
-    def _handle_files(self):
+    def _handle_files(self, file_paths):
         """
         Main loop. Iterate over input paths/files.
 
@@ -163,20 +176,17 @@ class Autonameow(object):
         6. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
         7. (automagic mode and not --dry-run) Rename the file.
         """
-        for input_path in self.opts.input_paths:
-
-            # File name encoding boundary. Convert to internal format.
-            input_path = util.normpath(input_path)
+        for file_path in file_paths:
             log.info('Processing: "{!s}"'.format(
-                util.displayable_path(input_path))
+                util.displayable_path(file_path))
             )
 
-            # Sanity checking the "input_path" is part of 'FileObject' init.
+            # Sanity checking the "file_path" is part of 'FileObject' init.
             try:
-                current_file = FileObject(input_path, self.config)
+                current_file = FileObject(file_path, self.config)
             except exceptions.InvalidFileArgumentError as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                    e, util.displayable_path(input_path))
+                    e, util.displayable_path(file_path))
                 )
                 continue
 
@@ -205,6 +215,7 @@ class Autonameow(object):
                 continue
 
             # Determine matching rule.
+            # TODO: Rule matching will require 'extraction.data' as well.
             matcher = RuleMatcher(current_file, analysis.results, self.config)
             try:
                 matcher.start()
@@ -227,16 +238,17 @@ class Autonameow(object):
             if self.opts.list_all:
                 log.info('Listing ALL analysis results ..')
                 cli.msg('Analysis Results Data', style='heading', log=True)
-                cli.msg(misc.dump(analysis.results.get_all()))
+                cli.msg(util.dump(analysis.results.get()))
+
                 cli.msg('Extraction Results Data', style='heading', log=True)
-                cli.msg(misc.dump(analysis.results.new_data))
+                cli.msg(util.dump(extraction.data.get()))
             else:
                 if self.opts.list_datetime:
                     log.info('Listing "datetime" analysis results ..')
-                    cli.msg(misc.dump(analysis.results.get('datetime')))
+                    cli.msg(util.dump(analysis.results.get('datetime')))
                 if self.opts.list_title:
                     log.info('Listing "title" analysis results ..')
-                    cli.msg(misc.dump(analysis.results.get('title')))
+                    cli.msg(util.dump(analysis.results.get('title')))
 
             # Perform actions.
             if self.opts.prepend_datetime:
@@ -252,8 +264,10 @@ class Autonameow(object):
                     matcher.best_match.description)
                 )
                 try:
-                    self.builder = NameBuilder(current_file, analysis.results,
-                                               self.config, matcher.best_match)
+                    self.builder = NameBuilder(
+                        current_file, extraction.data, analysis.results,
+                        self.config, matcher.best_match
+                    )
                     new_name = self.builder.build()
                 except exceptions.NameBuilderError as e:
                     log.critical('Name assembly FAILED: {!s}'.format(e))
@@ -317,24 +331,17 @@ class Autonameow(object):
             util.displayable_path(dest_basename))
         )
 
+        success = True
         if dry_run is False:
             try:
                 diskutils.rename_file(from_path, dest_basename)
             except (FileNotFoundError, FileExistsError, OSError) as e:
                 log.error('Rename FAILED: {!s}'.format(e))
-                return False
-            else:
-                _message = 'Renamed "{!s}" -> "{!s}"'
-                cli.msg(_message.format(util.displayable_path(from_basename),
-                                        util.displayable_path(dest_basename)),
-                        style='color_quoted')
-                return True
-        else:
-            _message = 'Would have renamed "{!s}" -> "{!s}"'
-            cli.msg(_message.format(util.displayable_path(from_basename),
-                                    util.displayable_path(dest_basename)),
-                    style='color_quoted')
-            return True
+                success = False
+
+        if success:
+            cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
+        return success
 
     @property
     def exit_code(self):

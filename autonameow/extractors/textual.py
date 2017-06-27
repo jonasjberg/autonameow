@@ -162,41 +162,39 @@ def extract_pdf_content_with_pypdf(pdf_file):
         False or the PDF text contents as Unicode strings (internal format)
     """
     try:
-        pdff = PyPDF2.PdfFileReader(open(pdf_file, 'rb'))
+        file_reader = PyPDF2.PdfFileReader(util.decode_(pdf_file), 'rb')
     except (IOError, PyPdfError):
         log.error('Unable to read PDF file content.')
         # TODO: Raise exception instead?
         return False
 
     try:
-        num_pages = pdff.getNumPages()
+        num_pages = file_reader.getNumPages()
     except PdfReadError:
         # NOTE: This now wholly determines whether a pdf is readable.
         #       Possible to not getNumPages but still be able to read the text?
         log.error('PDF document might be encrypted with restrictions '
                   'preventing reading.')
-        # TODO: Raise exception instead?
-        raise
-    else:
-        log.debug('Number of pdf pages: {}'.format(num_pages))
+        return False
 
-    # Start by extracting a limited range of pages.
-    # TODO: Relevant info is more likely to be within some range of pages?
-    log.debug('Extracting page #1')
-    content = pdff.pages[0].extractText()
-    if len(content) == 0:
-        log.debug('Textual content of page #1 is empty.')
-        pass
+    # NOTE(jonas): From the PyPDF2 documentation:
+    # https://pythonhosted.org/PyPDF2/PageObject.html#PyPDF2.pdf.PageObject
+    #
+    # extractText()
+    # Locate all text drawing commands, in the order they are provided in the
+    # content stream, and extract the text. This works well for some PDF files,
+    # but poorly for others, depending on the generator used. This will be
+    # refined in the future. Do not rely on the order of text coming out of
+    # this function, as it will change if this function is made more
+    # sophisticated.
+    # Returns: a unicode string object.
 
-    # Collect more until a preset arbitrary limit is reached.
+    content = file_reader.pages[0].extractText()
     for i in range(1, num_pages):
-        if len(content) > 50000:
-            log.debug('Extraction hit content size limit.')
-            break
-        log.debug('Extracting page {:<4} of {:<4} ..'.format(i + 1, num_pages))
-        content += pdff.getPage(i).extractText()
+        content += file_reader.getPage(i).extractText()
 
     if content:
+        assert(isinstance(content, str))
         return content
     else:
         log.debug('Unable to extract text with PyPDF2 ..')

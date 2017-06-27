@@ -103,7 +103,6 @@ class TestQueryStringList(TestCase):
         self.assertEqual(query_string_list('a.b'), ['a', 'b'])
 
 
-
 class TestFlattenDict(TestCase):
     def setUp(self):
         self.maxDiff = None
@@ -124,7 +123,8 @@ class TestFlattenDict(TestCase):
                     'ocr_tags': 'h'
                 },
                 'binary': {
-
+                    'boolean_true': True,
+                    'boolean_false': False
                 }
             },
             'metadata': {
@@ -140,8 +140,8 @@ class TestFlattenDict(TestCase):
             'contents.textual.number_pages': 'f',
             'contents.visual.ocr_text': 'g',
             'contents.visual.ocr_tags': 'h',
-            'contents.binary': None,
-            'metadata.exiftool': None
+            'contents.binary.boolean_true': True,
+            'contents.binary.boolean_false': False,
         }
 
     def test_raises_type_error_for_invalid_input(self):
@@ -157,11 +157,49 @@ class TestFlattenDict(TestCase):
 
     def test_returns_expected_len(self):
         actual = flatten_dict(self.INPUT)
-        self.assertEqual(len(actual), 8)
+        self.assertEqual(len(actual), 10)
 
-    def test_returns_expected(self):
+    def test_flattened_dict_contains_expected(self):
         actual = flatten_dict(self.INPUT)
 
-        for k, v in actual.items():
-            self.assertTrue(k in self.EXPECTED)
+        for k, v in self.EXPECTED.items():
+            self.assertEqual(actual[k], self.EXPECTED[k])
+
+
+class TestFlattenDictWithRawMetadata(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.INPUT = {
+            '_raw_metadata': {
+                'CreationDate': '2016-01-11',
+                'Creator': 'Chromium',
+                'ModDate': '2016-01-11 12:41:32',
+                'Producer': 'Skia/PDF',
+                'encrypted': False,
+                'number_pages': 2,
+                'paginated': True
+            }
+        }
+        self.EXPECTED = {
+            '_raw_metadata.CreationDate': '2016-01-11',
+            '_raw_metadata.Creator': 'Chromium',
+            '_raw_metadata.ModDate': '2016-01-11 12:41:32',
+            '_raw_metadata.Producer': 'Skia/PDF',
+            '_raw_metadata.encrypted': False,
+            '_raw_metadata.number_pages': 2,
+            '_raw_metadata.paginated': True,
+        }
+
+    def test_returns_expected_type(self):
+        actual = flatten_dict(self.INPUT)
+        self.assertTrue(isinstance(actual, dict))
+
+    def test_returns_expected_len(self):
+        actual = flatten_dict(self.INPUT)
+        self.assertEqual(len(actual), 7)
+
+    def test_flattened_dict_contains_expected(self):
+        actual = flatten_dict(self.INPUT)
+
+        for k, v in self.EXPECTED.items():
             self.assertEqual(actual[k], self.EXPECTED[k])

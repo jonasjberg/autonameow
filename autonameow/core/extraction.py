@@ -21,8 +21,10 @@
 
 import logging as log
 
-from core import constants
-from core import util
+from core import (
+    constants,
+    util
+)
 from core.exceptions import InvalidDataSourceError
 from core.util.queue import GenericQueue
 
@@ -66,12 +68,32 @@ class Extraction(object):
         """
         Collects extracted data. Passed to extractors as a callback.
 
+        If argument "data" is a dictionary, it is "flattened" here.
+        Example:
+
+          Incoming arguments:
+          LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
+
+          Would be "flattened" to:
+          LABEL: 'metadata.exiftool.a'   DATA: 'b'
+          LABEL: 'metadata.exiftool.c'   DATA: 'd'
+
         Args:
-            label: Label that identifies the data. Should be one of the string
-                defined in "constants.VALID_DATA_SOURCES".
+            label: Label that uniquely identifies the data.
             data: The data to add.
         """
-        self.data.add(label, data)
+        if not label:
+            raise InvalidDataSourceError('Missing required argument "label"')
+        if not isinstance(label, str):
+            raise InvalidDataSourceError('Argument "label" must be of type str')
+
+        if isinstance(data, dict):
+            flat_data = util.flatten_dict(data)
+            for k, v in flat_data.items():
+                merged_label = label + '.' + str(k)
+                self.data.add(merged_label, v)
+        else:
+            self.data.add(label, data)
 
     def start(self):
         """
@@ -115,6 +137,10 @@ class Extraction(object):
         # Execute all suitable extractors and collect results.
         self._execute_run_queue()
 
+        log.info('Finished executing {} extractors. Got {} results'.format(
+            len(self.extractor_queue), len(self.data)
+        ))
+
     def _instantiate_extractors(self, class_list):
         """
         Get a list of class instances from a given list of classes.
@@ -149,10 +175,8 @@ class ExtractedData(object):
     def add(self, label, data):
         if not data:
             return
-
-        if not label or label not in constants.VALID_DATA_SOURCES:
-            # NOTE: Should this check really be done here? Or at all?
-            raise InvalidDataSourceError('Invalid source: "{}"'.format(label))
+        if not label:
+            raise InvalidDataSourceError('Invalid source (missing label)')
         else:
             # TODO: Necessary to handle multiple adds to the same label?
             if label in self._data:
@@ -161,22 +185,46 @@ class ExtractedData(object):
             else:
                 self._data[label] = data
 
-    def get(self, label):
+    def get(self, label=None):
         """
-        Returns extracted data matching the specified label.
+        Returns extracted data, optionally matching the specified label.
 
         Args:
             One of the strings defined in "constants.VALID_DATA_SOURCES".
         Returns:
             Extracted data associated with the given label, or False if the
-            data does not exist.
+            data does not exist. If no label is specified, all data is returned.
         Raises:
             InvalidDataSourceError: The label is not a valid data source.
         """
-        if not label or label not in constants.VALID_DATA_SOURCES:
-            raise InvalidDataSourceError('Invalid label: "{}"'.format(label))
+        # TODO: Methods 'get' and 'query' perform essentially the same task?
+        if label is not None:
+            if label not in constants.VALID_DATA_SOURCES:
+                raise InvalidDataSourceError(
+                    'Invalid label: "{}"'.format(label)
+                )
+            else:
+                return self._data.get(label, False)
+        else:
+            return self._data
 
-        return self._data.get(label, False)
+    def query(self, query_string):
+        """
+        Returns extracted data for the given "query string".
+
+        If the given query string does not map to any data, False is returned.
+
+        Args:
+            query_string: The query string key for the data to return.
+                Example:  'metadata.exiftool.DateTimeOriginal'
+
+        Returns:
+            Extracted data for matching the specified query string or False.
+        """
+        # TODO: Methods 'get' and 'query' perform essentially the same task?
+        if query_string in self._data:
+            return self._data.get(query_string)
+        return False
 
     def __iter__(self):
         for k, v in self._data.items():
