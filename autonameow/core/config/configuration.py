@@ -26,7 +26,8 @@ from core import (
     config,
     constants,
     exceptions,
-    util
+    util,
+    version
 )
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
@@ -128,8 +129,20 @@ class Configuration(object):
         else:
             self._load_from_disk(source)
 
-        # TODO: Handle configuration file compatibility between versions.
-        # TODO: Warn the user if 'self.version' != 'version.__version__'
+        if self._version:
+            if self._version != version.__version__:
+                log.warning('Possible configuration compatibility mismatch!')
+                log.warning(
+                    'Loaded configuration written by program version v{} '
+                    '(running version: v{})'.format(self._version,
+                                                    version.__version__)
+                )
+                log.warning(
+                    'The current recommended procedure is to move the '
+                    'current config to a temporary location, re-run '
+                    'the program so that a new template config file is '
+                    'generated and then manually transfer rules to this file.'
+                )
 
     def _load_from_dict(self, data):
         self._data = data
