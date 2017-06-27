@@ -21,11 +21,12 @@
 
 import logging as log
 
-from core import constants
-from core import util
+from core import (
+    constants,
+    util
+)
 from core.exceptions import InvalidDataSourceError
 from core.util.queue import GenericQueue
-from core.util.misc import flatten_dict
 
 # TODO: [hack] Fix this! Used for instantiating extractors so that they are
 # included in the global namespace and seen by 'get_extractor_classes()'.
@@ -87,7 +88,7 @@ class Extraction(object):
             raise InvalidDataSourceError('Argument "label" must be of type str')
 
         if isinstance(data, dict):
-            flat_data = flatten_dict(data)
+            flat_data = util.flatten_dict(data)
             for k, v in flat_data.items():
                 merged_label = label + '.' + str(k)
                 self.data.add(merged_label, v)

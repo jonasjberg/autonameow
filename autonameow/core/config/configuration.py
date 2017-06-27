@@ -25,7 +25,8 @@ import os
 from core import (
     config,
     constants,
-    exceptions
+    exceptions,
+    util
 )
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
@@ -33,7 +34,6 @@ from core.config.field_parsers import (
     FieldParsers
 )
 from core.util import (
-    misc,
     textutils
 )
 
@@ -76,7 +76,7 @@ class FileRule(Rule):
         # Also "loaded" with corresponding (reference to) a validation function.
 
     def __str__(self):
-        return misc.dump(self.__dict__)
+        return util.dump(self.__dict__)
 
     def __repr__(self):
         out = []
@@ -348,10 +348,10 @@ class Configuration(object):
             out.append(textutils.indent(str(rule), amount=4) + '\n')
 
         out.append('\nName Templates:\n')
-        out.append(textutils.indent(misc.dump(self.name_templates), amount=4))
+        out.append(textutils.indent(util.dump(self.name_templates), amount=4))
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(textutils.indent(misc.dump(self.options), amount=4))
+        out.append(textutils.indent(util.dump(self.options), amount=4))
 
         return ''.join(out)
 

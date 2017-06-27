@@ -24,9 +24,9 @@ import logging as log
 import plugins
 from core import (
     constants,
-    exceptions
+    exceptions,
+    util
 )
-from core.util.misc import flatten_dict
 from core.util.queue import GenericQueue
 
 # TODO: Fix this! Used for instantiating analyzers so that they are
@@ -91,7 +91,7 @@ class Analysis(object):
             data: The data to add.
         """
         if isinstance(data, dict):
-            flat_data = flatten_dict(data)
+            flat_data = util.flatten_dict(data)
             for k, v in flat_data.items():
                 merged_label = label + '.' + str(k)
                 self.results.add(merged_label, v)

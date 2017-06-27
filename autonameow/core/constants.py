@@ -21,7 +21,7 @@
 
 import sys
 
-from core.util import misc
+from core import util
 
 PYTHON_VERSION = sys.version.replace('\n', '')
 
@@ -95,7 +95,7 @@ RESULTS_DATA_STRUCTURE = {
 }
 
 # Used to validate sources defined in the configuration file.
-__flat_results_data_structure = misc.flatten_dict(RESULTS_DATA_STRUCTURE)
+__flat_results_data_structure = util.flatten_dict(RESULTS_DATA_STRUCTURE)
 VALID_DATA_SOURCES = list(__flat_results_data_structure.keys())
 
 
