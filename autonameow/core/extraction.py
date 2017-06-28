@@ -248,6 +248,20 @@ class ExtractedData(object):
         return count_dict_recursive(self._data, 0)
 
 
+def get_query_strings():
+    """
+    Get the set of "query strings" for all extractor classes.
+
+    Returns:
+        Unique extractor query strings as a set.
+    """
+    out = set()
+    for e in ExtractorClasses:
+        if e.data_query_string:
+            out.add(e.data_query_string)
+    return out
+
+
 def suitable_data_extractors_for(file_object):
     """
     Returns extractor classes that can handle the given file object.
@@ -276,3 +290,4 @@ def get_extractor_classes():
 
 
 ExtractorClasses = get_extractor_classes()
+ExtractorQueryStrings = get_query_strings()
