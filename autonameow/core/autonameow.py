@@ -196,7 +196,7 @@ class Autonameow(object):
             except exceptions.AutonameowException as e:
                 log.critical('Extraction FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(
-                    util.displayable_path(current_file))
+                    util.displayable_path(file_path))
                 )
                 self.exit_code = constants.EXIT_WARNING
                 continue
@@ -208,7 +208,7 @@ class Autonameow(object):
             except exceptions.AutonameowException as e:
                 log.critical('Analysis FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(
-                    util.displayable_path(current_file))
+                    util.displayable_path(file_path))
                 )
                 self.exit_code = constants.EXIT_WARNING
                 continue
@@ -221,7 +221,7 @@ class Autonameow(object):
             except exceptions.AutonameowException as e:
                 log.critical('Rule Matching FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(
-                    util.displayable_path(current_file))
+                    util.displayable_path(file_path))
                 )
                 self.exit_code = constants.EXIT_WARNING
                 continue
