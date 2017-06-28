@@ -21,26 +21,19 @@
 
 from core import version
 
-ALL_CONDITIONS_FIELDS = {
-    'filesystem': {
-        'basename': None,                       # Regular expression
-        'extension': None,                      # Regular expression
-        'pathname': None,                       # Regular expression
-        'date_accessed': None,                  # Python "datetime" format
-        'date_created': None,                   # Python "datetime" format
-        'date_modified': None,                  # Python "datetime" format
-    },
-    'contents': {
-        'mime_type': None,                      # As per *NIX "file" command
-    },
-    'metadata': {
-        'exiftool': {
-            # NOTE:  See below for available exiftool fields.
-            # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-            None,
-        },
-    }
-}
+# ALL_CONDITIONS_FIELDS
+# =====================
+# 'filesystem.basename'        Regular expression
+# 'filesystem.extension'       Regular expression
+# 'filesystem.pathname'        Regular expression
+# 'filesystem.date_accessed'   Python "datetime" format
+# 'filesystem.date_created'    Python "datetime" format
+# 'filesystem.date_modified'   Python "datetime" format
+# 'contents.mime_type'         Supports simple "globbing" ('*/jpeg', 'image/*')
+# 'metadata.exiftool'          See note below.
+
+#   NOTE:  See this link for all available exiftool fields.
+#   http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
 
 
 DEFAULT_CONFIG = {
