@@ -204,7 +204,7 @@ class TestMetadataSourceConfigFieldParser(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.p = MetadataSourceConfigFieldParser()
-        self.val_func = self.g.get_validation_function()
+        self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):
         self.assertFalse(self.val_func(None))
