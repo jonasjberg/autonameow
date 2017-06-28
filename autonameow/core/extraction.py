@@ -262,6 +262,16 @@ def get_query_strings():
     return out
 
 
+def get_metadata_query_strings():
+    klasses = [k for k in globals()['MetadataExtractor'].__subclasses__()]
+
+    out = set()
+    for e in klasses:
+        if e.data_query_string:
+            out.add(e.data_query_string)
+    return out
+
+
 def suitable_data_extractors_for(file_object):
     """
     Returns extractor classes that can handle the given file object.
@@ -291,3 +301,4 @@ def get_extractor_classes():
 
 ExtractorClasses = get_extractor_classes()
 ExtractorQueryStrings = get_query_strings()
+MetadataExtractorQueryStrings = get_metadata_query_strings()

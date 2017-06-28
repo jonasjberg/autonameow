@@ -23,7 +23,10 @@ import logging as log
 import re
 from datetime import datetime
 
-from core import constants
+from core import (
+    constants,
+    extraction
+)
 from core.evaluate import namebuilder
 from core.exceptions import NameTemplateSyntaxError
 
@@ -158,9 +161,17 @@ class MetadataSourceConfigFieldParser(ConfigFieldParser):
 
     @staticmethod
     def is_valid_metadata_source(expression):
-        if not expression:
+        if not expression or not isinstance(expression, str):
             return False
-        # TODO: Implement validation of metadata source!
+
+        # TODO: Implement proper (?) validation of metadata source!
+        query_strings = list(extraction.MetadataExtractorQueryStrings)
+        query_strings = [qs.replace('metadata.', '') for qs in query_strings]
+
+        if expression.startswith(tuple(query_strings)):
+            return True
+
+        return False
 
     def get_validation_function(self):
         return self.is_valid_metadata_source

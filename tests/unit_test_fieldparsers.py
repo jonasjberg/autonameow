@@ -211,8 +211,11 @@ class TestMetadataSourceConfigFieldParser(TestCase):
         self.assertFalse(self.val_func(''))
 
     def test_validation_function_expect_pass(self):
-        self.assertFalse(self.val_func('exiftool.EXIF:DateTimeOriginal'))
-        self.assertFalse(self.val_func('pypdf.CreationDate'))
+        self.assertTrue(self.val_func('exiftool.EXIF:DateTimeOriginal'))
+        self.assertTrue(self.val_func('pypdf.CreationDate'))
+
+        # TODO: Implement proper (?) validation of metadata source!
+        self.assertTrue(self.val_func('exiftool'))
 
 
 class TestInstantiatedFieldParsers(TestCase):
