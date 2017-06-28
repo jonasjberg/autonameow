@@ -148,19 +148,14 @@ class TestParseConditions(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.raw_conditions = {
-            'filesystem': {
-                'pathname': '~/.config',
-                'basename': '^test_[0-9]+.*',
-            },
-            'contents': {
-                'mime_type': 'image/jpeg'
-            },
-            'metadata': {
-                # NOTE(jonas): Possibly use exiftool for all metadata?
-                # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-                'exiftool.EXIF:DateTimeOriginal': 'Defined',
-                # 'exiftool.PDF:CreateDate': 'Defined'
-            }
+            'filesystem.pathname': '~/.config',
+            'filesystem.basename': '^test_[0-9]+.*',
+            'contents.mime_type': 'image/jpeg',
+
+            # NOTE(jonas): Possibly use exiftool for all metadata?
+            # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
+            'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
+            # 'exiftool.PDF:CreateDate': 'Defined'
         }
 
     def test_parse_condition_filesystem_pathname_is_valid(self):

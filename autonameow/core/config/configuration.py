@@ -462,60 +462,47 @@ def parse_conditions(raw_conditions):
     out = {}
 
     # NOTE(jonas): The "key" in a CONDITION is a query string to content.
+    #              The condition "value" can be strings, regexps, etc.
+
     # NOTE(jonas): The "value" in a data SOURCE is a query string to content ..
 
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
-    def traverse_dict(the_dict):
-        try:
-            for key, value in the_dict.items():
-                if isinstance(value, dict):
-                    traverse_dict(value)
+    try:
+        for key, value in raw_conditions.items():
+            valid_condition = validate_condition_value(key, value)
+            if not valid_condition:
+                raise exceptions.ConfigurationSyntaxError(
+                    'contains invalid condition [{}]: {}'.format(key, value)
+                )
 
-                valid_condition = validate_condition(key, value)
-                if not valid_condition:
-                    raise exceptions.ConfigurationSyntaxError(
-                        'contains invalid condition [{}]: {}'.format(key, value)
-                    )
-
-                # TODO: Check if clobbering is an issue and how to fix.
-                if key in out:
-                    log.warning('Clobbering condition: {!s}'.format(key))
-                out[key] = value
-                log.debug('Validated condition: [{}]: {}'.format(key, value))
-        except ValueError as e:
-            raise exceptions.ConfigurationSyntaxError(
-                'contains invalid condition: ' + str(e)
-            )
-
-    if 'contents' in raw_conditions:
-        raw_contents = raw_conditions['contents']
-        traverse_dict(raw_contents)
-
-    if 'filesystem' in raw_conditions:
-        raw_contents = raw_conditions['filesystem']
-        traverse_dict(raw_contents)
-
-    if 'metadata' in raw_conditions:
-        raw_contents = raw_conditions['metadata']
-        traverse_dict(raw_contents)
+            # TODO: Check if clobbering is an issue and how to fix.
+            if key in out:
+                log.warning('Clobbering condition: {!s}'.format(key))
+            out[key] = value
+            log.debug('Validated condition: [{}]: {}'.format(key, value))
+    except ValueError as e:
+        raise exceptions.ConfigurationSyntaxError(
+            'contains invalid condition: ' + str(e)
+        )
 
     log.debug('First filter passed {} conditions'.format(len(out)))
 
     return out
 
 
-def validate_condition(condition_field, condition_value):
+def validate_condition_value(condition_field, condition_value):
     """
-    Validates a file rule condition.
+    Validates the "value part" of a file rule condition.
 
-    The "condition_field" must be assigned to a field parser. This parser
-    validates the "condition_value". If this validation returns True,
-    the condition is valid.
+    The last of part of the "condition_field" (query string) must be assigned
+    to a field parser. This parser validates the "condition_value".
+    If this validation returns True, the condition is assumed valid.
 
     Args:
-        condition_field: Field (key/name) to validate, for example: "mime_type".
-        condition_value: Value to validate, for example: "image/jpeg".
+        condition_field: Full "query string" field(/key) to validate,
+            for example; 'contents.mime_type' or 'metadata.exiftool.EXIF:Foo'.
+        condition_value: Value to validate, for example; "image/jpeg".
 
     Returns:
         True if the given "condition_field" can be handled by one of the
@@ -524,13 +511,19 @@ def validate_condition(condition_field, condition_value):
     """
 
     # NOTE(jonas): The "key" in a CONDITION is a query string to content.
+    #              The condition "value" can be strings, regexps, etc.
+
     # NOTE(jonas): The "value" in a data SOURCE is a query string to content ..
 
     if not condition_value:
         return False
 
+    # Get the last part of the field, I.E. 'mime_type' for 'contents.mime_type'.
+    field_components = util.query_string_list(condition_field)
+    field = field_components[-1:]
+
     for parser in FieldParsers:
-        if condition_field in parser.applies_to_field:
+        if field in parser.applies_to_field:
             if parser.validate(condition_value):
                 return condition_value
             else:
