@@ -1,6 +1,7 @@
 Notes on Configuration File Rule Conditions
 ===========================================
-Jonas Sjöberg, 2017-06-27.
+Jonas Sjöberg, 2017-06-27.  
+Revised 2017-06-28.
 
 
 Current format for a file rule in the configuration file:
@@ -65,6 +66,27 @@ This rule would only apply for files with base name `smulan.jpg`, extraction
 results must contain exiftool metadata field `EXIF:DateTimeOriginal` and this
 date must be after *2017-05-04* and prior to *2017-06-27*.
 
+> Alternative, "flattened" version of the above:
+>
+> ```yaml
+> -   CONDITIONS:
+>         contents.mime_type: image/jpeg
+>         filesystem.basename: DCIM.*
+>         filesystem.extension: jpg
+>         metadata.exiftool.EXIF:DateTimeOriginal: Defined
+>         metadata.exiftool.EXIF:DateTimeOriginal: > 2017-05-04
+>         metadata.exiftool.EXIF:DateTimeOriginal: < 2017-06-27
+>     DATA_SOURCES:
+>         datetime: metadata.exiftool.EXIF:DateTimeOriginal
+>         description: plugin.microsoft_vision.caption
+>         extension: filesystem.basename.extension
+>     NAME_FORMAT: '{datetime} {description}.{extension}'
+>     description: Photos taken between 2017-05-04 and 2017-06-27
+>     exact_match: true
+>     weight: 1
+> ```
+
+
 
 Another hypothetical file rule using unimplemented features:
 
@@ -84,3 +106,21 @@ Another hypothetical file rule using unimplemented features:
     exact_match: true
     weight: 1
 ```
+
+> Alternative, "flattened" version:
+>
+> ```yaml
+> -   CONDITIONS:
+>         contents.mime_type: application/pdf
+>         contents.textual.raw_text: ^Gibson[ _-]?Rules.*?$
+>     DATA_SOURCES:
+>         author: book_analyzer.isbn.author
+>         date: [metadata.exiftool.PDF:CreateDate, book_analyzer.isbn.date]
+>         description: book_analyzer.isbn.title
+>         extension: pdf
+>         title: book_analyzer.isbn.title
+>     NAME_FORMAT: '{date} {description} - {author}.{extension}'
+>     description: Engineering textbook written by Gibson
+>     exact_match: true
+>     weight: 1
+> ```
