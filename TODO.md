@@ -14,6 +14,14 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* __Implment gathering data for configuration validation at run-time__
+    * Have extractors register themselves at run-time.
+    * Collect valid extractor query strings at run-time.
+    * Have analyzers register themselves at run-time.
+    * Collect valid analyzer query strings at run-time.
+    * Rework configuration validation to use dynamically updated tests.
+    * Replace hard coded strings with gathered data.
+
 * __Text encoding issues__
     * Enforce strict boundaries between all external systems and an internal
       text data representation.
