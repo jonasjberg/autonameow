@@ -16,6 +16,7 @@ High Priority
 
 * Simplify configuration file syntax.
     * Modify the configuration file to use a "flatter" syntax.
+    * Fix `eval_condition` in `core/evaluate/rulematcher.py`.
 
 * __Implement gathering data for configuration validation at run-time__
     * Have extractors register themselves at run-time.
