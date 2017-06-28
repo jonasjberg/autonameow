@@ -142,8 +142,8 @@ DEFAULT_CONFIG = {
          'NAME_FORMAT': 'default_book',
          'CONDITIONS': {
              'filesystem': {
-                 'pathname': None,
-                 'basename': None,
+                 'pathname': '.*',
+                 'basename': '.*',
                  'extension': 'epub'
              },
              'contents': {
