@@ -64,13 +64,9 @@ DEFAULT_CONFIG = {
          'weight': None,
          'NAME_FORMAT': '{datetime} {title}.{extension}',
          'CONDITIONS': {
-             'filesystem': {
-                 'basename': 'gmail.pdf',
-                 'extension': 'pdf',
-             },
-             'contents': {
-                 'mime_type': 'application/pdf',
-             },
+             'filesystem.basename': 'gmail.pdf',
+             'filesystem.extension': 'pdf',
+             'contents.mime_type': 'application/pdf',
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.PDF:CreateDate',
@@ -84,12 +80,8 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
-             'filesystem': {
-                 'basename': 'smulan.jpg',
-             },
-             'contents': {
-                 'mime_type': 'image/jpeg',
-             },
+             'filesystem.basename': 'smulan.jpg',
+             'contents.mime_type': 'image/jpeg',
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
@@ -103,18 +95,12 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
          'CONDITIONS': {
-             'filesystem': {
-                 'pathname': '~/Pictures/incoming',
-                 'basename': 'DCIM*',
-                 'extension': 'jpg',
-             },
-             'contents': {
-                 'mime_type': 'image/jpeg',
-             },
-             'metadata': {
-                 # TODO: Ensure proper validation of entry below.
-                 'exiftool.EXIF:DateTimeOriginal': 'Defined',
-             }
+             'filesystem.pathname': '~/Pictures/incoming',
+             'filesystem.basename': 'DCIM*',
+             'filesystem.extension': 'jpg',
+             'contents.mime_type': 'image/jpeg',
+             # TODO: Ensure proper validation of entry below.
+             'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
          },
          'DATA_SOURCES': {
              'datetime': ['metadata.exiftool.EXIF:DateTimeOriginal',
@@ -134,18 +120,12 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': 'default_book',
          'CONDITIONS': {
-             'filesystem': {
-                 'pathname': '.*',
-                 'basename': '.*',
-                 'extension': 'epub'
-             },
-             'contents': {
-                 'mime_type': 'application/epub+zip',
-             },
-             'metadata': {
-                 # TODO: Ensure proper validation of entry below.
-                 'exiftool.XMP-dc:Creator': 'Defined',
-             }
+             'filesystem.pathname': '.*',
+             'filesystem.basename': '.*',
+             'filesystem.extension': 'epub',
+             'contents.mime_type': 'application/epub+zip',
+             # TODO: Ensure proper validation of entry below.
+             'metadata.exiftool.XMP-dc:Creator': 'Defined',
          },
          'DATA_SOURCES': {
              'datetime': ['metadata.exiftool.XMP-dc:PublicationDate',
