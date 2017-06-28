@@ -14,7 +14,7 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* __Implment gathering data for configuration validation at run-time__
+* __Implement gathering data for configuration validation at run-time__
     * Have extractors register themselves at run-time.
     * Collect valid extractor query strings at run-time.
     * Have analyzers register themselves at run-time.
@@ -170,6 +170,24 @@ Medium Priority
 
 * Look into merging possibly redundant methods `get` and `query` in the
   `ExtractedData` class.
+
+* Add additional option to force __non-interactive mode__ (`--batch`?)
+
+* Rework handling of unresolved operations
+    * Instead of aborting if a file rule data source is unavailable, use an
+      *interactive mode* and ask the user how to proceed.
+    * Ideally, any remaining processing should proceed in the background. The
+      user should be able to begin processing a large number of files without
+      having to worry about checking for prompts.
+    * Unresolved tasks could be enqueued and paused while waiting for the user
+      to respond. Tasks that are able to finish without user interaction should
+      keep working in the background.
+    * The option to force non-interactive mode would be used to get the current
+      behaviour; skipping files that can not be processed due to unavailable
+      sources or multiple conflicting options, etc.
+
+* Add additional option to force __interactive mode__ (`--interactive`?)
+    * This mode would require the user to confirm actions/choices (which?)
 
 
 Low Priority
