@@ -119,10 +119,8 @@ DEFAULT_CONFIG = {
                  'mime_type': 'image/jpeg',
              },
              'metadata': {
-                 'exiftool': {
-                     # TODO: Ensure proper validation of entry below.
-                     'EXIF:DateTimeOriginal': None,
-                 },
+                 # TODO: Ensure proper validation of entry below.
+                 'exiftool.EXIF:DateTimeOriginal': 'Defined',
              }
          },
          'DATA_SOURCES': {
@@ -150,7 +148,10 @@ DEFAULT_CONFIG = {
              },
              'contents': {
                  'mime_type': 'application/epub+zip',
-                 'metadata': 'metadata.XMP-dc.***'
+             },
+             'metadata': {
+                 # TODO: Ensure proper validation of entry below.
+                 'exiftool.XMP-dc:Creator': 'Defined',
              }
          },
          'DATA_SOURCES': {
