@@ -14,6 +14,9 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* Simplify configuration file syntax.
+    * Modify the configuration file to use a "flatter" syntax.
+
 * __Implement gathering data for configuration validation at run-time__
     * Have extractors register themselves at run-time.
     * Collect valid extractor query strings at run-time.
