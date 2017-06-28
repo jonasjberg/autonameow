@@ -124,6 +124,7 @@ class Configuration(object):
                          'FILETAGS_OPTIONS': {}}
         self._version = None
 
+        # NOTE(jonas): Detecting type prior to loading could be improved ..
         if isinstance(source, dict):
             self._load_from_dict(source)
         else:
@@ -460,6 +461,9 @@ def parse_conditions(raw_conditions):
     # TODO: This needs a lookover and probably at least a partial rewrite.
     out = {}
 
+    # NOTE(jonas): The "key" in a CONDITION is a query string to content.
+    # NOTE(jonas): The "value" in a data SOURCE is a query string to content ..
+
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
     def traverse_dict(the_dict):
@@ -518,6 +522,10 @@ def validate_condition(condition_field, condition_value):
         field parser classes _AND_ the subsequent validation of the given
         "condition_value" returns True.  Else False.
     """
+
+    # NOTE(jonas): The "key" in a CONDITION is a query string to content.
+    # NOTE(jonas): The "value" in a data SOURCE is a query string to content ..
+
     if not condition_value:
         return False
 
