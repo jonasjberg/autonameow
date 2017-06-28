@@ -520,7 +520,7 @@ def validate_condition_value(condition_field, condition_value):
 
     # Get the last part of the field, I.E. 'mime_type' for 'contents.mime_type'.
     field_components = util.query_string_list(condition_field)
-    field = field_components[-1:]
+    field = field_components[-1:][0]
 
     for parser in FieldParsers:
         if field in parser.applies_to_field:
