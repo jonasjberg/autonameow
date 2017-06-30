@@ -131,7 +131,7 @@ class Configuration(object):
             self._load_from_disk(source)
 
         if self._version:
-            if self._version != version.__version__:
+            if self._version != constants.PROGRAM_VERSION:
                 log.warning('Possible configuration compatibility mismatch!')
                 log.warning('Loaded configuration created by v{} (currently '
                             'running {})'.format(self._version,
