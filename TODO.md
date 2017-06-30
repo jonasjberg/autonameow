@@ -14,9 +14,15 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* Simplify configuration file syntax.
-    * Modify the configuration file to use a "flatter" syntax.
+* __Refactor the `Configuration` class__
+    * Look over all of `configuration.py`.
     * Fix `eval_condition` in `core/evaluate/rulematcher.py`.
+    * Think about adding a custom type system in order to control configuration
+      parsing, evaluating file rule conditions and overall internal handling of
+      data.
+        * Types could fall back to safe defaults, avoid countless permutations
+          of "None-checking".
+        * Type classes could implement comparison/matching methods.
 
 * __Implement gathering data for configuration validation at run-time__
     * Have extractors register themselves at run-time.
@@ -91,8 +97,6 @@ Medium Priority
 
 * Add conditional data extraction.
     * Extractors should not run unless needed. Related to caching, above.
-
-* Refactor the `Configuration` class. Look over all of `configuration.py`.
 
 * Possibly redesign high-level handling of a "configuration".
     * Decouple the `Configuration` instance from I/O.
