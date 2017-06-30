@@ -24,6 +24,15 @@ High Priority
           of "None-checking".
         * Type classes could implement comparison/matching methods.
 
+* __Add a custom type system__
+    * Add a abstract base class for all types (`BaseType`?)
+    * Wrap primitives in type classes inheriting from the base class
+      (`BaseType`?)
+    * Design type classes as to simplify upcoming query and comparison
+      operations performed while evaluating file rules; both "static"
+      conditions (basename equals this exact string/regexp) as well as
+      expressions (datetime data is within a given range)
+
 * __Implement gathering data for configuration validation at run-time__
     * Have extractors register themselves at run-time.
     * Collect valid extractor query strings at run-time.
