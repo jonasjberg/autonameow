@@ -160,11 +160,16 @@ class TestParseConditions(TestCase):
 
     def test_parse_condition_filesystem_pathname_is_valid(self):
         actual = parse_conditions(self.raw_conditions)
-        self.assertEqual(actual.get('pathname'), '~/.config')
+        self.assertEqual(actual.get('filesystem.pathname'), '~/.config')
 
     def test_parse_condition_contents_mime_type_is_valid(self):
         actual = parse_conditions(self.raw_conditions)
-        self.assertEqual(actual.get('mime_type'), 'image/jpeg')
+        self.assertEqual(actual.get('contents.mime_type'), 'image/jpeg')
+
+    def test_parse_condition_contents_metadata_is_valid(self):
+        actual = parse_conditions(self.raw_conditions)
+        self.assertEqual(actual.get('metadata.exiftool.EXIF:DateTimeOriginal'),
+                         'Defined')
 
 
 class TestParseWeight(TestCase):
