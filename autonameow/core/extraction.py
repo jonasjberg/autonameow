@@ -133,6 +133,8 @@ class Extraction(object):
                              util.decode_(self.file_object.pathname))
         self.collect_results('filesystem.pathname.parent',
                              util.decode_(self.file_object.pathparent))
+        self.collect_results('contents.mime_type',
+                             self.file_object.mime_type)
 
         # Execute all suitable extractors and collect results.
         self._execute_run_queue()
