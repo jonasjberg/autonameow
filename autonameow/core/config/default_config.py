@@ -19,28 +19,22 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core import version
+from core import constants
 
-ALL_CONDITIONS_FIELDS = {
-    'filesystem': {
-        'basename': None,                       # Regular expression
-        'extension': None,                      # Regular expression
-        'pathname': None,                       # Regular expression
-        'date_accessed': None,                  # Python "datetime" format
-        'date_created': None,                   # Python "datetime" format
-        'date_modified': None,                  # Python "datetime" format
-    },
-    'contents': {
-        'mime_type': None,                      # As per *NIX "file" command
-    },
-    'metadata': {
-        'exiftool': {
-            # NOTE:  See below for available exiftool fields.
-            # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-            None,
-        },
-    }
-}
+
+# ALL_CONDITIONS_FIELDS
+# =====================
+# 'filesystem.basename'        Regular expression
+# 'filesystem.extension'       Regular expression
+# 'filesystem.pathname'        Regular expression
+# 'filesystem.date_accessed'   Python "datetime" format
+# 'filesystem.date_created'    Python "datetime" format
+# 'filesystem.date_modified'   Python "datetime" format
+# 'contents.mime_type'         Supports simple "globbing" ('*/jpeg', 'image/*')
+# 'metadata.exiftool'          See note below.
+
+#   NOTE:  See this link for all available exiftool fields.
+#   http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
 
 
 DEFAULT_CONFIG = {
@@ -71,13 +65,9 @@ DEFAULT_CONFIG = {
          'weight': None,
          'NAME_FORMAT': '{datetime} {title}.{extension}',
          'CONDITIONS': {
-             'filesystem': {
-                 'basename': 'gmail.pdf',
-                 'extension': 'pdf',
-             },
-             'contents': {
-                 'mime_type': 'application/pdf',
-             },
+             'filesystem.basename': 'gmail.pdf',
+             'filesystem.extension': 'pdf',
+             'contents.mime_type': 'application/pdf',
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.PDF:CreateDate',
@@ -91,12 +81,8 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
-             'filesystem': {
-                 'basename': 'smulan.jpg',
-             },
-             'contents': {
-                 'mime_type': 'image/jpeg',
-             },
+             'filesystem.basename': 'smulan.jpg',
+             'contents.mime_type': 'image/jpeg',
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
@@ -110,18 +96,12 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
          'CONDITIONS': {
-             'filesystem': {
-                 'pathname': '~/Pictures/incoming',
-                 'basename': 'DCIM*',
-                 'extension': 'jpg',
-             },
-             'contents': {
-                 'mime_type': 'image/jpeg',
-             },
-             'metadata': {
-                 # TODO: Ensure proper validation of entry below.
-                 'exiftool.EXIF:DateTimeOriginal': 'Defined',
-             }
+             'filesystem.pathname': '~/Pictures/incoming',
+             'filesystem.basename': 'DCIM*',
+             'filesystem.extension': 'jpg',
+             'contents.mime_type': 'image/jpeg',
+             # TODO: Ensure proper validation of entry below.
+             'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
          },
          'DATA_SOURCES': {
              'datetime': ['metadata.exiftool.EXIF:DateTimeOriginal',
@@ -141,18 +121,12 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': 'default_book',
          'CONDITIONS': {
-             'filesystem': {
-                 'pathname': '.*',
-                 'basename': '.*',
-                 'extension': 'epub'
-             },
-             'contents': {
-                 'mime_type': 'application/epub+zip',
-             },
-             'metadata': {
-                 # TODO: Ensure proper validation of entry below.
-                 'exiftool.XMP-dc:Creator': 'Defined',
-             }
+             'filesystem.pathname': '.*',
+             'filesystem.basename': '.*',
+             'filesystem.extension': 'epub',
+             'contents.mime_type': 'application/epub+zip',
+             # TODO: Ensure proper validation of entry below.
+             'metadata.exiftool.XMP-dc:Creator': 'Defined',
          },
          'DATA_SOURCES': {
              'datetime': ['metadata.exiftool.XMP-dc:PublicationDate',
@@ -206,7 +180,7 @@ DEFAULT_CONFIG = {
         'between_tag_separator': ' '
     },
 
-    'autonameow_version': version.__version__
+    'autonameow_version': constants.PROGRAM_VERSION
 }
 
 

@@ -10,6 +10,14 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-06-30
+
+    > High Priority
+    > -------------
+    >
+    > * Simplify configuration file syntax.
+    >     * Modify the configuration file to use a "flatter" syntax.
+
 * 2017-06-25
 
     > Low Priority
