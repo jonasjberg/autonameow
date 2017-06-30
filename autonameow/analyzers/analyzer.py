@@ -28,7 +28,10 @@ from core.fileobject import eval_magic_glob
 
 class Analyzer(object):
     """
-    Abstract Analyzer base class.
+    Top-level abstract base class for all content-specific analyzer classes.
+
+    Includes common functionality and interfaces that must be implemented
+    by inheriting analyzer classes.
     """
     run_queue_priority = None
     handles_mime_types = None
