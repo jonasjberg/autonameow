@@ -216,31 +216,31 @@ def eval_condition(condition_field, condition_value, file_object,
 
     def eval_datetime(expression, match_data):
         # TODO: Implement!
-        return True
+        pass
 
     # Regex Fields
-    if condition_field == 'basename':
+    if condition_field == 'filesystem.basename':
         # TODO: [encoding] Handle configuration encoding elsewhere.
         condition_value = util.encode_(condition_value)
         return eval_regex(condition_value, file_object.filename)
 
-    elif condition_field == 'extension':
+    elif condition_field == 'filesystem.extension':
         # TODO: [encoding] Handle configuration encoding elsewhere.
         condition_value = util.encode_(condition_value)
         return eval_regex(condition_value, file_object.suffix)
 
-    elif condition_field == 'pathname':
+    elif condition_field == 'filesystem.pathname':
         # TODO: [encoding] Handle configuration encoding elsewhere.
         condition_value = util.encode_(condition_value)
         return eval_path(condition_value, file_object.pathname)
 
     # TODO: Fix MIME type check
-    elif condition_field == 'mime_type':
+    elif condition_field == 'contents.mime_type':
         return eval_mime_type(condition_value, file_object.mime_type)
 
     # TODO: Implement datetime check
-    elif condition_field == 'date_accessed':
-        return eval_datetime(condition_value, None)
+    # elif condition_field == 'date_accessed':
+    #     return eval_datetime(condition_value, None)
 
     else:
         raise exceptions.AutonameowException('Unhandled condition check!')

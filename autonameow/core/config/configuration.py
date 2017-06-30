@@ -520,6 +520,16 @@ def validate_condition_value(condition_field, condition_value):
     field_components = util.query_string_list(condition_field)
     field = field_components[-1:][0]
 
+    # TODO: [hack] Workaround for 'metadata.exiftool.EXIF:DateTimeOriginal',etc.
+    #       Above test would return 'EXIF:DateTimeOriginal' but this solution
+    #       would require testing the second to last part; 'exiftool', instead.
+    if condition_field.startswith('metadata.exiftool'):
+        # TODO: Handle expression in 'conditon_value' ('Defined', '> 2017', etc)
+        if condition_value:
+            return condition_value
+        else:
+            return False
+
     for parser in FieldParsers:
         if field in parser.applies_to_field:
             if parser.validate(condition_value):
