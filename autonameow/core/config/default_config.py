@@ -19,7 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core import version
+from core import constants
+
 
 # ALL_CONDITIONS_FIELDS
 # =====================
@@ -179,7 +180,7 @@ DEFAULT_CONFIG = {
         'between_tag_separator': ' '
     },
 
-    'autonameow_version': version.__version__
+    'autonameow_version': constants.PROGRAM_VERSION
 }
 
 

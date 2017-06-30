@@ -133,12 +133,10 @@ class Configuration(object):
         if self._version:
             if self._version != version.__version__:
                 log.warning('Possible configuration compatibility mismatch!')
-                log.warning(
-                    'Loaded configuration written by program version v{} '
-                    '(running version: v{})'.format(self._version,
-                                                    version.__version__)
-                )
-                log.warning(
+                log.warning('Loaded configuration created by v{} (currently '
+                            'running {})'.format(self._version,
+                                                 constants.PROGRAM_VERSION))
+                log.info(
                     'The current recommended procedure is to move the '
                     'current config to a temporary location, re-run '
                     'the program so that a new template config file is '
