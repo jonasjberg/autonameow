@@ -198,7 +198,7 @@ class FilenameAnalyzer(Analyzer):
             # results.append({'value': dt_unix,
             #                 'source': 'unix_timestamp',
             #                 'weight': 1})
-            # TODO: [TD0006] Properly integrate new callback results gathering.
+            # TODO: [TD0005][TD0006] Use new callback-based results gathering.
             self.add_results('filesystem.basename.derived_data.datetime',
                              {'value': dt_unix,
                               'source': 'unix_timestamp',
@@ -210,7 +210,7 @@ class FilenameAnalyzer(Analyzer):
             # results.append({'value': dt_screencapture_unix,
             #                 'source': 'screencapture_unixtime',
             #                 'weight': 1})
-            # TODO: Properly integrate new callback-based results gathering.
+            # TODO: [TD0005][TD0006] Use new callback-based results gathering.
             self.add_results('filesystem.basename.derived_data.datetime',
                              {'value': dt_screencapture_unix,
                               'source': 'screencapture_unixtime',

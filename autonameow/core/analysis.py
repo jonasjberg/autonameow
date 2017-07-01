@@ -237,6 +237,7 @@ class AnalysisResults(object):
         Returns:
             Results data for the specified fields matching the specified query.
         """
+        # TODO: [TD0021] Methods 'get' and 'query' perform the same task?
         if query_string.startswith('plugin.'):
             # TODO: [TD0009] Results should NOT be querying plugins from here!
             # TODO: [TD0009] Rework processing pipeline to integrate plugins
@@ -276,6 +277,7 @@ class AnalysisResults(object):
         Returns:
             Analysis results data for the given field or all data.
         """
+        # TODO: [TD0021] Methods 'get' and 'query' perform the same task?
         if field:
             if field not in constants.ANALYSIS_RESULTS_FIELDS:
                 raise KeyError('Invalid results field: {}'.format(field))

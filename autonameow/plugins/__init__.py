@@ -54,7 +54,7 @@ def plugin_query(plugin_name, query, data):
     """
     Hack interface to query plugins.
     """
-    # TODO: Rewrite from scratch!
+    # TODO: [TD0009] Rewrite from scratch!
 
     # ** NOTE: This is a "mock" for testing! Returns constants! **
     if plugin_name == 'microsoft_vision':

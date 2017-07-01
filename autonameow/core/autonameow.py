@@ -125,7 +125,7 @@ class Autonameow(object):
                 except exceptions.ConfigurationSyntaxError as e:
                     log.critical('Configuration syntax error: "{!s}"'.format(e))
 
-        # TODO: Integrate filter settings in configuration (file).
+        # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
 
         if self.opts.dump_options:
@@ -214,7 +214,7 @@ class Autonameow(object):
                 continue
 
             # Determine matching rule.
-            # TODO: Rule matching will require 'extraction.data' as well.
+            # TODO: [TD0007] Rule matching requires 'extraction.data' as well.
             matcher = RuleMatcher(current_file, analysis.results, self.config)
             try:
                 matcher.start()
@@ -273,7 +273,7 @@ class Autonameow(object):
                     self.exit_code = constants.EXIT_WARNING
                     continue
                 else:
-                    # TODO: Respect '--quiet' option. Suppress output.
+                    # TODO: [TD0042] Respect '--quiet' option. Suppress output.
                     log.info('New name: "{}"'.format(
                         util.displayable_path(new_name))
                     )
@@ -286,7 +286,7 @@ class Autonameow(object):
 
             elif self.opts.interactive:
                 # TODO: Create a interactive interface.
-                # TODO: [BL013] Interactive mode in 'interactive.py'.
+                # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
                 log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
     def exit_program(self, exit_code_):
