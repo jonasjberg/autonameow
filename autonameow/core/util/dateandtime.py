@@ -53,7 +53,7 @@ def nextyear(dt):
         return dt + timedelta(days=365)
 
 
-# TODO: Allow storing these in the configuration file.
+# TODO: [TD0043] Allow storing these in the configuration file.
 YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
 YEAR_UPPER_LIMIT = nextyear(datetime.today())
 
@@ -137,7 +137,7 @@ def search_standard_formats(text, prefix):
     :param prefix: prefix this to the resulting dictionary keys
     :return: a list of dictionaries containing datetime-objects.
     """
-    # TODO: Implement or remove ..
+    # TODO: [cleanup] Implement or remove ..
     pass
 
 
@@ -154,9 +154,9 @@ def regex_search_str(text):
 
     results = []
 
-    # TODO: [cleanup] This code should be removed and/or rewritten.
+    # TODO: [TD0044] This code should be removed and/or rewritten.
 
-    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    # TODO: [TD0004] Enforce encoding boundary for extracted data.
     text = util.decode_(text)
 
     if type(text) is list:
@@ -214,7 +214,7 @@ def regex_search_str(text):
     dt_pattern_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
     for dt_str in re.findall(dt_pattern_2, text):
-        # TODO: [encoding] Enforce encoding boundary for extracted data.
+        # TODO: [TD0004] Enforce encoding boundary for extracted data.
         dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_2)
@@ -230,7 +230,7 @@ def regex_search_str(text):
     dt_pattern_3 = re.compile(r'\( ?[Cc] ?\) ?([12]\d{3})')
     dt_fmt_3 = '%Y'
     for dt_str in re.findall(dt_pattern_3, text):
-        # TODO: [encoding] Enforce encoding boundary for extracted data.
+        # TODO: [TD0004] Enforce encoding boundary for extracted data.
         dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_3)
@@ -254,13 +254,14 @@ def match_special_case(text):
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
+    # TODO: [TD0043] Allow the user to tweak hardcoded settings.
     if text is None or text.strip() is None:
         return None
 
-    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    # TODO: [TD0004] Enforce encoding boundary for extracted data.
     text = util.decode_(text)
 
-    # TODO: Allow adding custom matching patterns to the configuration file.
+    # TODO: [TD0043] Allow specifying custom matching patterns in the config.
     match_patterns = [('%Y-%m-%d_%H%M%S', 17),
                       ('%Y-%m-%dT%H%M%S', 17),
                       ('%Y%m%d_%H%M%S', 15),
@@ -285,6 +286,7 @@ def match_special_case_no_date(text):
     :param text: text to extract date/time from
     :return: datetime if found otherwise None
     """
+    # TODO: [TD0043] Allow the user to tweak hardcoded settings.
     text = util.decode_(text)
     try:
         dt = datetime.strptime(text[:10], '%Y-%m-%d')
@@ -306,7 +308,7 @@ def match_android_messenger_filename(text):
     :return: list of datetime-objects if matches were found, otherwise None
     """
 
-    # TODO: Fix this! It currently does not seem to work, at all.
+    # TODO: [cleanup] Fix this! It currently does not seem to work, at all.
     # Some hints are in the Android Messenger source code:
     # .. /Messaging.git/src/com/android/messaging/datamodel/action/DownloadMmsAction.java
 
@@ -314,7 +316,7 @@ def match_android_messenger_filename(text):
     #   2016-01-22 15:34:46+01:00
     # $ 1453473286723
 
-    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    # TODO: [TD0004] Enforce encoding boundary for extracted data.
     text = util.decode_(text)
 
     results = []
@@ -346,7 +348,7 @@ def match_any_unix_timestamp(text):
     if text is None or text.strip() is None:
         return None
 
-    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    # TODO: [TD0004] Enforce encoding boundary for extracted data.
     text = util.decode_(text)
 
     match_iter = re.finditer(r'(\d{10,13})', text)
@@ -365,7 +367,7 @@ def match_any_unix_timestamp(text):
         if len(digits) == 13:
             digits = digits[:10]
 
-        # TODO: Returns at first "probable" date, should test all matches.
+        # TODO: [TD0010] Returns at first "probable" date, should test all.
         try:
             digits = float(digits)
             dt = datetime.fromtimestamp(digits)
@@ -395,11 +397,12 @@ def bruteforce_str(text, return_first_match=False):
     :return: list of any datetime-objects or None if nothing was found
     """
     if text is None:
-        log.debug('[bruteforce_str] Got empty text')
+        # log.debug('[bruteforce_str] Got empty text')
+        return None
     else:
         text = text.strip()
         if not text:
-            log.debug('[bruteforce_str] Got empty text')
+            # log.debug('[bruteforce_str] Got empty text')
             return None
 
     text = util.decode_(text)
@@ -407,8 +410,8 @@ def bruteforce_str(text, return_first_match=False):
     bruteforce_str.matches = bruteforce_str.matches_total = 0
 
     # Internal function checks result, adds to list of results if OK.
-    # TODO: [BL002] Include number of tries in the result to act as a weight;
-    #               lower numbers more probable to be true positives.
+    # TODO: [TD0010] Include number of tries in the result to act as a weight;
+    #                lower numbers more probable to be true positives.
     def validate_result(data):
         if date_is_probable(data):
             log.debug('Extracted datetime from text: [{}]'.format(data))
@@ -483,7 +486,7 @@ def bruteforce_str(text, return_first_match=False):
         except ValueError:
             pass
         else:
-            # TODO: [BL002] Include number of tries in the result to act as a
+            # TODO: [TD0010] Include number of tries in the result to act as a
             #       weight; lower numbers more probable to be true positives.
             validate_result(dt)
 
@@ -581,7 +584,7 @@ def bruteforce_str(text, return_first_match=False):
 
 
 def fuzzy_datetime(text, prefix):
-    # TODO: Currently not used at all!
+    # TODO: [cleanup] Currently not used at all!
     dt = None
     try:
         try:
@@ -604,7 +607,7 @@ def search_gmail(text, prefix):
     :return: a list of dictionaries containing datetime-objects.
     """
     text = util.decode_(text)
-    # TODO: Currently not used at all! Implement or remove.
+    # TODO: [cleanup] Currently not used at all! Implement or remove.
     if type(text) is list:
         # log.debug('Converting list to string ..')
         text = ' '.join(text)
@@ -635,7 +638,7 @@ def get_datetime_from_text(text, prefix='NULL'):
              The dictionary is keyed by search method used to extract the
              datetime-objects.
     """
-    # TODO: Should this even be used at all?
+    # TODO: [cleanup][TD0044] Should this even be used at all?
     if text is None:
         log.warning('Got NULL argument')
         return None
@@ -643,7 +646,7 @@ def get_datetime_from_text(text, prefix='NULL'):
         pass
     # text = util.decode_(text)
 
-    # TODO: Improve handlng of generalized "text" from any source.
+    # TODO: [TD0044] Improve handling of generalized "text" from any source.
     #       (currently plain text and pdf documents)
     if type(text) == list:
         text = ' '.join(text)
@@ -669,7 +672,7 @@ def get_datetime_from_text(text, prefix='NULL'):
                 results_brute.append(dt)
                 matches += 1
 
-    # TODO: Fix this here below. Looks completely broken.
+    # TODO: [cleanup] Fix this here below. Looks completely broken.
     regex_match = 0
     dt_regex = regex_search_str(text)
     if dt_regex and dt_regex is not None:
@@ -687,7 +690,8 @@ def special_datetime_ocr_search(text):
     OCR returns result:       2016702708
     :return:
     """
-    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    # TODO: [TD0004] Enforce encoding boundary for extracted data.
+    # TODO: [TD0044] Rework converting "raw data" to internal representations.
     text = util.decode_(text)
 
     pattern = re.compile(r'(\d{4}7[01]\d7[0123]\d)')
@@ -711,7 +715,7 @@ def match_screencapture_unixtime(text):
     :param text: text to search for UNIX timestamp
     :return: datetime-object if a match is found, else None
     """
-    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    # TODO: [TD0004] Enforce encoding boundary for extracted data.
     text = util.decode_(text)
 
     pattern = re.compile(r'.*(\d{13}).*')

@@ -26,7 +26,8 @@ from core import (
     config,
     constants,
     exceptions,
-    util
+    util,
+    version
 )
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
@@ -71,7 +72,7 @@ class FileRule(Rule):
         # Rules are sorted/prioritized by first the score, secondly the weight.
         self.score = 0
 
-        # TODO: Implement "conditions" field ..
+        # TODO: [TD0015] Implement "conditions" field ..
         # Possible a list of functions already "loaded" with the target value.
         # Also "loaded" with corresponding (reference to) a validation function.
 
@@ -106,14 +107,16 @@ class Configuration(object):
 
     Loads and validates data from a dictionary or YAML file.
     """
-    def __init__(self, data=None):
+    def __init__(self, source):
         """
         Instantiates a new Configuration object.
 
+        Loads a configuration from either a dictionary or file path.
         All parsing and loading happens at instantiation.
 
         Args:
-            data: Raw configuration data to load as a dictionary.
+            source: The configuration to load as either a dictionary or a
+                bytestring path.
         """
         self._file_rules = []
         self._name_templates = {}
@@ -121,30 +124,65 @@ class Configuration(object):
                          'FILETAGS_OPTIONS': {}}
         self._version = None
 
-        if data:
-            self._data = data
-            self._load_name_templates()
-            self._load_file_rules()
-            self._load_options()
-            self._load_version()
+        # NOTE(jonas): Detecting type prior to loading could be improved ..
+        if isinstance(source, dict):
+            self._load_from_dict(source)
         else:
-            self._data = {}
+            self._load_from_disk(source)
 
-        # TODO: Handle configuration file compatibility between versions.
-        # TODO: Warn the user if 'self.version' != 'version.__version__'
+        if self._version:
+            if self._version != constants.PROGRAM_VERSION:
+                log.warning('Possible configuration compatibility mismatch!')
+                log.warning('Loaded configuration created by v{} (currently '
+                            'running {})'.format(self._version,
+                                                 constants.PROGRAM_VERSION))
+                log.info(
+                    'The current recommended procedure is to move the '
+                    'current config to a temporary location, re-run '
+                    'the program so that a new template config file is '
+                    'generated and then manually transfer rules to this file.'
+                )
+
+    def _load_from_dict(self, data):
+        if not data:
+            raise exceptions.ConfigError('Attempted to load empty data')
+
+        self._data = data
+        self._load_name_templates()
+        self._load_file_rules()
+        self._load_options()
+        self._load_version()
+
+    def _load_from_disk(self, load_path):
+        try:
+            _yaml_data = config.load_yaml_file(load_path)
+        except (OSError, exceptions.ConfigReadError) as e:
+            raise exceptions.ConfigError(e)
+        else:
+            if not _yaml_data:
+                raise exceptions.ConfigError(
+                    'Bad (empty?) config: {!s}'.format(load_path)
+                )
+
+            self._load_from_dict(_yaml_data)
+
+    def write_to_disk(self, dest_path):
+        if os.path.exists(dest_path):
+            raise FileExistsError
+        else:
+            config.write_yaml_file(dest_path, self._data)
 
     def _load_name_templates(self):
-        if not self._data:
-            raise exceptions.ConfigError(
-                'Invalid state; missing "self._data" ..'
-            )
-
-        if 'NAME_TEMPLATES' not in self._data:
-            log.debug('Configuration does not contain name templates')
+        raw_templates = self._data.get('NAME_TEMPLATES', False)
+        if not raw_templates:
+            log.debug('Configuration does not contain any name templates')
+            return
+        if not isinstance(raw_templates, dict):
+            log.debug('Configuration templates is not of type dict')
             return
 
         loaded_templates = {}
-        for k, v in self._data.get('NAME_TEMPLATES').items():
+        for k, v in raw_templates.items():
             # Remove any non-breaking spaces in the name template.
             v = textutils.remove_nonbreaking_spaces(v)
 
@@ -157,20 +195,18 @@ class Configuration(object):
         self._name_templates.update(loaded_templates)
 
     def _load_file_rules(self):
-        if not self._data:
+        raw_file_rules = self._data.get('FILE_RULES', False)
+        if not raw_file_rules:
             raise exceptions.ConfigError(
-                'Invalid state; missing "self._data" ..'
+                'The configuration file does not contain any file rules'
             )
 
-        # Check raw dictionary data.
-        for fr in self._data['FILE_RULES']:
+        for rule in raw_file_rules:
             try:
-                valid_file_rule = self._validate_rule_data(fr)
+                valid_file_rule = self._validate_rule_data(rule)
             except exceptions.ConfigurationSyntaxError as e:
-                fr_desc = fr.get('description', False)
-                if not fr_desc:
-                    fr_desc = 'UNDESCRIBED'
-                log.error('File rule "{!s}" {!s}'.format(fr_desc, e))
+                rule_description = rule.get('description', 'UNDESCRIBED')
+                log.error('File rule "{!s}" {!s}'.format(rule_description, e))
             else:
                 # Create and populate "FileRule" objects with *validated* data.
                 self._file_rules.append(valid_file_rule)
@@ -234,38 +270,42 @@ class Configuration(object):
 
     def _load_options(self):
         def _try_load_date_format_option(option):
-            _value = self._data['DATETIME_FORMAT'].get(option)
+            if 'DATETIME_FORMAT' in self._data:
+                _value = self._data['DATETIME_FORMAT'].get(option)
+            else:
+                _value = False
             if _value and DateTimeConfigFieldParser.is_valid_datetime(_value):
                 self._options['DATETIME_FORMAT'][option] = _value
 
         def _try_load_filetags_option(option, default):
-            _value = self._data['FILETAGS_OPTIONS'].get(option)
+            if 'FILETAGS_OPTIONS' in self._data:
+                _value = self._data['FILETAGS_OPTIONS'].get(option)
+            else:
+                _value = False
             if _value:
                 self._options['FILETAGS_OPTIONS'][option] = _value
             else:
                 self._options['FILETAGS_OPTIONS'][option] = default
 
-        if 'DATETIME_FORMAT' in self._data:
-            _try_load_date_format_option('date')
-            _try_load_date_format_option('time')
-            _try_load_date_format_option('datetime')
+        _try_load_date_format_option('date')
+        _try_load_date_format_option('time')
+        _try_load_date_format_option('datetime')
 
-        if 'FILETAGS_OPTIONS' in self._data:
-            _try_load_filetags_option(
-                'filename_tag_separator',
-                constants.FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR
-            )
-            _try_load_filetags_option(
-                'between_tag_separator',
-                constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR
-            )
+        _try_load_filetags_option(
+            'filename_tag_separator',
+            constants.FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR
+        )
+        _try_load_filetags_option(
+            'between_tag_separator',
+            constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR
+        )
 
     def _load_version(self):
-        version = self._data.get('autonameow_version', False)
-        if not version:
+        raw_version = self._data.get('autonameow_version', False)
+        if not raw_version:
             log.error('Unable to read program version from configuration')
         else:
-            self._version = version
+            self._version = raw_version
 
     @property
     def version(self):
@@ -295,50 +335,14 @@ class Configuration(object):
 
     @property
     def file_rules(self):
-        return self._file_rules
+        if self._file_rules and len(self._file_rules) > 0:
+            return self._file_rules
+        else:
+            return False
 
     @property
     def name_templates(self):
         return self._name_templates
-
-    def load(self, source):
-        """
-        Loads a configuration from either a dictionary or file path.
-
-        Args:
-            source: The configuration to load as either a dictionary or a
-                bytestring path.
-        """
-        if isinstance(source, dict):
-            self._load_from_dict(source)
-        else:
-            self._load_from_disk(source)
-
-    def _load_from_dict(self, data):
-        self._data = data
-        self._load_name_templates()
-        self._load_file_rules()
-        self._load_options()
-        self._load_version()
-
-    def _load_from_disk(self, load_path):
-        try:
-            _yaml_data = config.load_yaml_file(load_path)
-        except (OSError, exceptions.ConfigReadError) as e:
-            raise exceptions.ConfigError(e)
-        else:
-            if not _yaml_data:
-                raise exceptions.ConfigError(
-                    'Bad (empty?) config: {!s}'.format(load_path)
-                )
-
-            self._load_from_dict(_yaml_data)
-
-    def write_to_disk(self, dest_path):
-        if os.path.exists(dest_path):
-            raise FileExistsError
-        else:
-            config.write_yaml_file(dest_path, self._data)
 
     def __str__(self):
         out = ['Written by autonameow version v{}\n\n'.format(self.version)]
@@ -438,7 +442,7 @@ def is_valid_source(source_value):
     if not source_value or not source_value.strip():
         return False
 
-    # TODO: Test if the field specified in the source is valid.
+    # TODO: [TD0001] Test if the field specified in the source is valid.
 
     if source_value.startswith(tuple(constants.VALID_DATA_SOURCES)):
         return source_value
@@ -446,69 +450,89 @@ def is_valid_source(source_value):
         return False
 
 
+def is_analyzer_source(source_value):
+    # TODO: [TD0001] Implement checking if a source specifies an analyzer.
+    pass
+
+
 def parse_conditions(raw_conditions):
-    # TODO: This needs a lookover and probably at least a partial rewrite.
+    # TODO: [TD0001] This needs to be reimplemented properly.
     out = {}
+
+    # NOTE(jonas): The "key" in a CONDITION is a query string to content.
+    #              The condition "value" can be strings, regexps, etc.
+
+    # NOTE(jonas): The "value" in a data SOURCE is a query string to content ..
 
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
-    def traverse_dict(the_dict):
-        try:
-            for key, value in the_dict.items():
-                if isinstance(value, dict):
-                    traverse_dict(value)
+    try:
+        for key, value in raw_conditions.items():
+            valid_condition = validate_condition_value(key, value)
+            if not valid_condition:
+                raise exceptions.ConfigurationSyntaxError(
+                    'contains invalid condition [{}]: {}'.format(key, value)
+                )
 
-                valid_condition = validate_condition(key, value)
-                if not valid_condition:
-                    raise exceptions.ConfigurationSyntaxError(
-                        'contains invalid condition [{}]: {}'.format(key, value)
-                    )
-
-                # TODO: Check if clobbering is an issue and how to fix.
-                if key in out:
-                    log.warning('Clobbering condition: {!s}'.format(key))
-                out[key] = value
-                log.debug('Validated condition: [{}]: {}'.format(key, value))
-        except ValueError as e:
-            raise exceptions.ConfigurationSyntaxError(
-                'contains invalid condition: ' + str(e)
-            )
-
-    if 'contents' in raw_conditions:
-        raw_contents = raw_conditions['contents']
-        traverse_dict(raw_contents)
-
-    if 'filesystem' in raw_conditions:
-        raw_contents = raw_conditions['filesystem']
-        traverse_dict(raw_contents)
+            # TODO: [TD0001] Check if clobbering is an issue and how to fix.
+            if key in out:
+                log.warning('Clobbering condition: {!s}'.format(key))
+            out[key] = value
+            log.debug('Validated condition: [{}]: {}'.format(key, value))
+    except ValueError as e:
+        raise exceptions.ConfigurationSyntaxError(
+            'contains invalid condition: ' + str(e)
+        )
 
     log.debug('First filter passed {} conditions'.format(len(out)))
 
     return out
 
 
-def validate_condition(condition_field, condition_value):
+def validate_condition_value(condition_field, condition_value):
     """
-    Validates a file rule condition.
+    Validates the "value part" of a file rule condition.
 
-    The "condition_field" must be assigned to a field parser. This parser
-    validates the "condition_value". If this validation returns True,
-    the condition is valid.
+    The last of part of the "condition_field" (query string) must be assigned
+    to a field parser. This parser validates the "condition_value".
+    If this validation returns True, the condition is assumed valid.
 
     Args:
-        condition_field: Field (key/name) to validate, for example: "mime_type".
-        condition_value: Value to validate, for example: "image/jpeg".
+        condition_field: Full "query string" field(/key) to validate,
+            for example; 'contents.mime_type' or 'metadata.exiftool.EXIF:Foo'.
+        condition_value: Value to validate, for example; "image/jpeg".
 
     Returns:
         True if the given "condition_field" can be handled by one of the
         field parser classes _AND_ the subsequent validation of the given
         "condition_value" returns True.  Else False.
     """
+
+    # NOTE(jonas): The "key" in a CONDITION is a query string to content.
+    #              The condition "value" can be strings, regexps, etc.
+
+    # NOTE(jonas): The "value" in a data SOURCE is a query string to content ..
+
     if not condition_value:
         return False
 
+    # Get the last part of the field, I.E. 'mime_type' for 'contents.mime_type'.
+    field_components = util.query_string_list(condition_field)
+    field = field_components[-1:][0]
+
+    # TODO: [TD0001] Workaround for 'metadata.exiftool.EXIF:DateTimeOriginal' ..
+    #       Above test would return 'EXIF:DateTimeOriginal' but this solution
+    #       would require testing the second to last part; 'exiftool', instead.
+    if condition_field.startswith('metadata.exiftool'):
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
+        if condition_value:
+            return condition_value
+        else:
+            return False
+
     for parser in FieldParsers:
-        if condition_field in parser.applies_to_field:
+        if field in parser.applies_to_field:
             if parser.validate(condition_value):
                 return condition_value
             else:

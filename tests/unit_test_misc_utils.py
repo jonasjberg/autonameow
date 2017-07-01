@@ -100,7 +100,40 @@ class TestQueryStringList(TestCase):
         self.assertTrue(isinstance(query_string_list('a.b'), list))
 
     def test_valid_argument_returns_expected(self):
+        self.assertEqual(query_string_list('a'), ['a'])
         self.assertEqual(query_string_list('a.b'), ['a', 'b'])
+        self.assertEqual(query_string_list('a.b.c'), ['a', 'b', 'c'])
+        self.assertEqual(query_string_list('a.b.c.a'), ['a', 'b', 'c', 'a'])
+        self.assertEqual(query_string_list('a.b.c.a.b'),
+                         ['a', 'b', 'c', 'a', 'b'])
+        self.assertEqual(query_string_list('a.b.c.a.b.c'),
+                         ['a', 'b', 'c', 'a', 'b', 'c'])
+
+    def test_valid_argument_returns_expected_for_unexpected_input(self):
+        self.assertEqual(query_string_list('a.b.'), ['a', 'b'])
+        self.assertEqual(query_string_list('a.b..'), ['a', 'b'])
+        self.assertEqual(query_string_list('.a.b'), ['a', 'b'])
+        self.assertEqual(query_string_list('..a.b'), ['a', 'b'])
+        self.assertEqual(query_string_list('a..b'), ['a', 'b'])
+        self.assertEqual(query_string_list('.a..b'), ['a', 'b'])
+        self.assertEqual(query_string_list('..a..b'), ['a', 'b'])
+        self.assertEqual(query_string_list('...a..b'), ['a', 'b'])
+        self.assertEqual(query_string_list('a..b.'), ['a', 'b'])
+        self.assertEqual(query_string_list('a..b..'), ['a', 'b'])
+        self.assertEqual(query_string_list('a..b...'), ['a', 'b'])
+        self.assertEqual(query_string_list('a...b'), ['a', 'b'])
+        self.assertEqual(query_string_list('.a...b'), ['a', 'b'])
+        self.assertEqual(query_string_list('..a...b'), ['a', 'b'])
+        self.assertEqual(query_string_list('...a...b'), ['a', 'b'])
+        self.assertEqual(query_string_list('a...b.'), ['a', 'b'])
+        self.assertEqual(query_string_list('a...b..'), ['a', 'b'])
+        self.assertEqual(query_string_list('a...b...'), ['a', 'b'])
+
+    def test_returns_expected(self):
+        self.assertEqual(query_string_list('contents.mime_type'),
+                         ['contents', 'mime_type'])
+        self.assertEqual(query_string_list('metadata.exiftool.EXIF:Foo'),
+                         ['metadata', 'exiftool', 'EXIF:Foo'])
 
 
 class TestFlattenDict(TestCase):

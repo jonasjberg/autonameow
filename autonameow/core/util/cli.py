@@ -59,8 +59,8 @@ def print_ascii_banner():
 
     colortitle = colorize(' ' + version.__title__.lower() + ' ',
                           back='BLUE', fore='BLACK')
-    toplineleft = ' {title}  version {ver}'.format(title=colortitle,
-                                                   ver=version.__version__)
+    toplineleft = ' {title}  version {v}'.format(title=colortitle,
+                                                 v=constants.PROGRAM_VERSION)
     toplineright = version.__copyright__
     print(('{:<}{:>50}'.format(toplineleft, toplineright)))
     print(('{:>78}'.format(version.__url__)))
@@ -80,7 +80,7 @@ def print_start_info():
     print(i)
 
     logging.debug('Started {} version {}'.format(version.__title__,
-                                                 version.__version__))
+                                                 constants.PROGRAM_VERSION))
     logging.debug('Running on Python {}'.format(constants.PYTHON_VERSION))
     logging.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
     logging.debug('Process ID: {}'.format(os.getpid()))
@@ -209,7 +209,7 @@ def msg(message, style=None, log=False):
 
         return out
 
-    # TODO: Respect '--quiet' option. Suppress output.
+    # TODO: [TD0042] Respect '--quiet' option. Suppress output.
 
     if not message:
         return

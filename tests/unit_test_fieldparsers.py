@@ -30,6 +30,7 @@ from core.config.field_parsers import (
     MimeTypeConfigFieldParser,
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser,
+    MetadataSourceConfigFieldParser
 )
 
 
@@ -197,6 +198,24 @@ class TestNameFormatFieldParser(TestCase):
         self.assertTrue(self.val_func('{datetime}'))
         self.assertTrue(self.val_func('{publisher} "abc" {tags}'))
         self.assertTrue(self.val_func('{datetime} {title}.{extension}'))
+
+
+class TestMetadataSourceConfigFieldParser(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.p = MetadataSourceConfigFieldParser()
+        self.val_func = self.p.get_validation_function()
+
+    def test_validation_function_expect_fail(self):
+        self.assertFalse(self.val_func(None))
+        self.assertFalse(self.val_func(''))
+
+    def test_validation_function_expect_pass(self):
+        self.assertTrue(self.val_func('exiftool.EXIF:DateTimeOriginal'))
+        self.assertTrue(self.val_func('pypdf.CreationDate'))
+
+        # TODO: Implement proper (?) validation of metadata source!
+        self.assertTrue(self.val_func('exiftool'))
 
 
 class TestInstantiatedFieldParsers(TestCase):

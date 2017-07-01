@@ -45,15 +45,15 @@ class TextAnalyzer(Analyzer):
         self.text = self._extract_text_content()
 
     def get_author(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     def get_title(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     def get_datetime(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         result = []
         if self.text:
             text_timestamps = self._get_datetime_from_text()
@@ -63,10 +63,10 @@ class TextAnalyzer(Analyzer):
         return result
 
     def get_tags(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
-    # TODO: Move all text extraction to functions in 'extract_text.py'.
+    # TODO: [TD0006] Move all text extraction to functions in 'extract_text.py'.
     def _extract_text_content(self):
         """
         Extract the plain text contents of a text file as strings.
@@ -145,7 +145,7 @@ class TextAnalyzer(Analyzer):
 
         return results
 
-    # TODO: Move all text extraction to functions in 'extract_text.py'.
+    # TODO: [TD0006] Move all text extraction to functions in 'extract_text.py'.
     def _get_file_lines(self):
         fn = self.file_object.abspath
         with io.open(fn, 'r', encoding='utf8') as f:

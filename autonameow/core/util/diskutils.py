@@ -267,7 +267,7 @@ def get_files(search_path, recurse=False):
     Returns:
         Absolute paths to files in the specified path, as a list of strings.
     """
-    # TODO: Follow symlinks? Add option for following symlinks?
+    # TODO: [TD0026] Follow symlinks? Add option for following symlinks?
 
     out = []
 
@@ -308,7 +308,7 @@ def get_files_gen(search_path, recurse=False):
     Returns:
         Absolute paths to files in the specified path, as a generator object.
     """
-    # TODO: Follow symlinks? Add option for following symlinks?
+    # TODO: [TD0026] Follow symlinks? Add option for following symlinks?
     if not search_path:
         raise FileNotFoundError
     if not os.path.isfile(search_path) and not os.path.isdir(search_path):

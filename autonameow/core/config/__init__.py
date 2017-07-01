@@ -29,7 +29,7 @@ from core.config.default_config import DEFAULT_CONFIG
 from core import (
     exceptions,
     util,
-    version
+    constants
 )
 
 
@@ -133,7 +133,7 @@ def write_default_config():
         raise FileExistsError
 
     _default_config = DEFAULT_CONFIG.copy()
-    _default_config['autonameow_version'] = version.__version__
+    _default_config['autonameow_version'] = constants.PROGRAM_VERSION
 
     write_yaml_file(_path, _default_config)
 

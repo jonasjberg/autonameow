@@ -19,5 +19,22 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Custom data types, used internally by autonameow.
+Wraps primitives to force safe defaults and extra functionality.
+"""
 
-# TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+# TODO: [TD0002] Research requirements and implement custom type system.
+
+
+class BaseType(object):
+    primitive_type = None
+
+    @property
+    def null(self):
+        return self.primitive_type()
+
+
+class Integer(BaseType):
+    primitive_type = int
+

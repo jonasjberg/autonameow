@@ -49,8 +49,12 @@ class RuleMatcher(object):
         return self._matched_rules[0]
 
     def _evaluate_rules(self):
+        if not self.config.file_rules:
+            log.error('Configuration did not provide any rules to evaluate')
+            return
+
         # Check a copy of all rules.
-        rules_to_examine = list(self.config.file_rules)
+        rules_to_examine = self.config.file_rules
         log.debug('Examining {} rules ..'.format(len(rules_to_examine)))
         ok_rules = examine_rules(rules_to_examine, self.file,
                                  self.analysis_data)
@@ -178,7 +182,7 @@ def eval_condition(condition_field, condition_value, file_object,
 
     Returns:
     """
-    # TODO: Needs a COMPLETE rewrite using some general (GOOD) method!
+    # TODO: [TD0001] Needs a COMPLETE rewrite using some general (GOOD) method!
 
     def eval_regex(expression, match_data):
         if re.match(expression, match_data):
@@ -186,7 +190,7 @@ def eval_condition(condition_field, condition_value, file_object,
         return False
 
     def eval_path(expression, match_data):
-        # TODO: [hack] Total rewrite of condition evaluation?
+        # TODO: [TD0001][hack] Total rewrite of condition evaluation?
         if expression.startswith(b'~/'):
             try:
                 expression = os.path.expanduser(expression)
@@ -211,32 +215,32 @@ def eval_condition(condition_field, condition_value, file_object,
         return False
 
     def eval_datetime(expression, match_data):
-        # TODO: Implement!
-        return True
+        # TODO: [TD0001] Implement!
+        pass
 
     # Regex Fields
-    if condition_field == 'basename':
-        # TODO: [encoding] Handle configuration encoding elsewhere.
+    if condition_field == 'filesystem.basename':
+        # TODO: [TD0004] Handle configuration encoding elsewhere.
         condition_value = util.encode_(condition_value)
         return eval_regex(condition_value, file_object.filename)
 
-    elif condition_field == 'extension':
-        # TODO: [encoding] Handle configuration encoding elsewhere.
+    elif condition_field == 'filesystem.extension':
+        # TODO: [TD0004] Handle configuration encoding elsewhere.
         condition_value = util.encode_(condition_value)
         return eval_regex(condition_value, file_object.suffix)
 
-    elif condition_field == 'pathname':
-        # TODO: [encoding] Handle configuration encoding elsewhere.
+    elif condition_field == 'filesystem.pathname':
+        # TODO: [TD0004] Handle configuration encoding elsewhere.
         condition_value = util.encode_(condition_value)
         return eval_path(condition_value, file_object.pathname)
 
-    # TODO: Fix MIME type check
-    elif condition_field == 'mime_type':
+    # Custom "MIME glob" field
+    elif condition_field == 'contents.mime_type':
         return eval_mime_type(condition_value, file_object.mime_type)
 
-    # TODO: Implement datetime check
-    elif condition_field == 'date_accessed':
-        return eval_datetime(condition_value, None)
+    # TODO: [TD0001] Implement datetime check
+    # elif condition_field == 'date_accessed':
+    #     return eval_datetime(condition_value, None)
 
     else:
         raise exceptions.AutonameowException('Unhandled condition check!')

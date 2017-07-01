@@ -31,6 +31,7 @@ from core import (
 from core.exceptions import InvalidFileArgumentError
 from .util import diskutils
 
+# TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
 DATE_SEP = b'[:\-._ ]?'
 TIME_SEP = b'[:\-._ T]?'
 DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'
@@ -91,7 +92,7 @@ class FileObject(object):
         #    |______| |______________|    |_____________| |_|
         #       ts          base               tags       ext
         #
-        # TODO: Move "filetags"-specific code to separate module. (?)
+        # TODO: [TD0037] Move "filetags"-specific code to separate module. (?)
         self._filenamepart_ts = self._filenamepart_ts()
         self._filenamepart_base = self._filenamepart_base()
         self._filenamepart_ext = self._filenamepart_ext()
@@ -182,11 +183,11 @@ class FileObject(object):
             return False
 
     def __str__(self):
-        # TODO: Handle file name encoding before returning.
+        # TODO: [TD0004] Handle file name encoding before returning.
         return str(self.filename)
 
     def __repr__(self):
-        # TODO: Handle file name encoding before returning.
+        # TODO: [TD0004] Handle file name encoding before returning.
         return '<{} {}>'.format(self.__class__.__name__, str(self.abspath))
 
 
@@ -255,12 +256,12 @@ def validate_path_argument(path):
     if not os.path.exists(path):
         raise InvalidFileArgumentError('Path does not exist')
     elif os.path.isdir(path):
-        # TODO: Implement traversing directories.
+        # TODO: [TD0045] Implement handling/renaming directories.
         raise InvalidFileArgumentError(
             'Safe handling of directories is not implemented yet'
         )
     elif os.path.islink(path):
-        # TODO: Implement handling of symlinks.
+        # TODO: [TD0026] Implement handling of symlinks.
         raise InvalidFileArgumentError(
             'Safe handling of symbolic links is not implemented yet'
         )

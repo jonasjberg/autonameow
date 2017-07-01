@@ -146,7 +146,7 @@ def query_string_list(query_string):
     Args:
         query_string: The "query string" to convert.
 
-    Returns: A list suited for traversing nested dicts.
+    Returns: The components of the given "query string" as a list.
     """
     if not isinstance(query_string, str):
         raise InvalidQueryStringError('Query string must be of type "str"')
@@ -155,19 +155,24 @@ def query_string_list(query_string):
     if not query_string:
         raise InvalidQueryStringError('Got empty query string')
 
-    if '.' not in query_string:
-        raise InvalidQueryStringError('Query string is too shallow (missing .)')
-    else:
+    if '.' in query_string:
+        # Remove any leading/trailing periods.
+        if query_string.startswith('.'):
+            query_string = query_string.lstrip('.')
+        if query_string.endswith('.'):
+            query_string = query_string.rstrip('.')
+
+        # Collapse any repeating periods.
+        while '..' in query_string:
+            query_string = query_string.replace('..', '.')
+
+        # Check if input is all periods.
         stripped_period = str(query_string).replace('.', '')
         if not stripped_period.strip():
             raise InvalidQueryStringError('Invalid query string')
 
-    # TODO: Implement tests and function!
-
     parts = query_string.split('.')
-    return parts
-
-    # TODO: Detect invalid parts
+    return [p for p in parts if p is not None]
 
 
 def flatten_dict(d, parent_key='', sep='.'):

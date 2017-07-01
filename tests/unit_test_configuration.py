@@ -31,7 +31,8 @@ from core.config.configuration import (
     Configuration,
     parse_conditions,
     parse_weight,
-    is_valid_source
+    is_valid_source,
+    is_analyzer_source
 )
 from core.exceptions import ConfigurationSyntaxError
 from unit_utils import make_temp_dir
@@ -47,14 +48,14 @@ class TestWriteConfig(TestCase):
     def setUp(self):
         self.dest_path = os.path.join(make_temp_dir(), 'test_config.yaml')
 
-        self.configuration = Configuration()
-        self.configuration._load_from_dict(DEFAULT_CONFIG)
+        self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_setup(self):
         self.assertFalse(os.path.exists(self.dest_path),
                          'Destination path should not already exist')
 
     def test_load_from_dict(self):
+        self.configuration._load_from_dict(DEFAULT_CONFIG)
         self.assertIsNotNone(self.configuration.data,
                              'Configuration data should be loaded')
 
@@ -73,8 +74,7 @@ class TestWriteConfig(TestCase):
 
 class TestDefaultConfig(TestCase):
     def setUp(self):
-        self.configuration = Configuration()
-        self.configuration._load_from_dict(DEFAULT_CONFIG)
+        self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_default_configuration_exists(self):
         self.assertIsNotNone(DEFAULT_CONFIG,
@@ -99,25 +99,20 @@ class TestWriteDefaultConfig(TestCase):
         self.dest_path = os.path.join(make_temp_dir(),
                                       'test_default_config.yaml')
 
-        self.configuration = Configuration()
+        self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_setup(self):
         self.assertFalse(os.path.exists(self.dest_path),
                          'Destination path should not already exist')
-
-    def test_load_default_config_from_dict_before_write(self):
-        self.configuration._load_from_dict(DEFAULT_CONFIG)
         self.assertIsNotNone(self.configuration.data,
                              'Configuration data should exist')
 
     def test_write_default_config_to_disk(self):
-        self.configuration._load_from_dict(DEFAULT_CONFIG)
         self.configuration.write_to_disk(self.dest_path)
         self.assertTrue(os.path.exists(self.dest_path),
                         'Default configuration file exists on disk')
 
     def test_write_default_config_to_disk_and_verify(self):
-        self.configuration._load_from_dict(DEFAULT_CONFIG)
         self.configuration.write_to_disk(self.dest_path)
 
         expected = load_yaml(self.dest_path)
@@ -153,30 +148,28 @@ class TestParseConditions(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.raw_conditions = {
-            'filesystem': {
-                'pathname': '~/.config',
-                'basename': '^test_[0-9]+.*',
-            },
-            'contents': {
-                'mime_type': 'image/jpeg'
-            },
-            'metadata': {
-                'exif': {
-                    # NOTE: Possibly use exiftool for all metadata?
-                    # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-                    'datetimeoriginal': None,
-                    'camera-model': None
-                },
-            }
+            'filesystem.pathname': '~/.config',
+            'filesystem.basename': '^test_[0-9]+.*',
+            'contents.mime_type': 'image/jpeg',
+
+            # NOTE(jonas): Possibly use exiftool for all metadata?
+            # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
+            'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
+            # 'exiftool.PDF:CreateDate': 'Defined'
         }
 
     def test_parse_condition_filesystem_pathname_is_valid(self):
         actual = parse_conditions(self.raw_conditions)
-        self.assertEqual(actual.get('pathname'), '~/.config')
+        self.assertEqual(actual.get('filesystem.pathname'), '~/.config')
 
     def test_parse_condition_contents_mime_type_is_valid(self):
         actual = parse_conditions(self.raw_conditions)
-        self.assertEqual(actual.get('mime_type'), 'image/jpeg')
+        self.assertEqual(actual.get('contents.mime_type'), 'image/jpeg')
+
+    def test_parse_condition_contents_metadata_is_valid(self):
+        actual = parse_conditions(self.raw_conditions)
+        self.assertEqual(actual.get('metadata.exiftool.EXIF:DateTimeOriginal'),
+                         'Defined')
 
 
 class TestParseWeight(TestCase):
@@ -222,3 +215,28 @@ class TestIsValidSourceSpecification(TestCase):
         self.assertTrue(is_valid_source('filesystem.basename.full'))
         self.assertTrue(is_valid_source('filesystem.basename.extension'))
         self.assertTrue(is_valid_source('contents.mime_type'))
+
+
+class TestIsAnalyzerSource(TestCase):
+    def test_empty_source_returns_false(self):
+        self.skipTest('TODO: unimplemented')
+        self.assertFalse(is_analyzer_source(None))
+        self.assertFalse(is_analyzer_source(''))
+
+    def test_invalid_sources_return_false(self):
+        self.skipTest('TODO: unimplemented')
+        self.assertFalse(is_analyzer_source('not.a.valid.source.surely'))
+
+    def test_non_analyzer_sources_return_false(self):
+        self.skipTest('TODO: unimplemented')
+        self.assertFalse(is_analyzer_source('metadata.exiftool.PDF:CreateDate'))
+        self.assertFalse(is_analyzer_source('metadata.exiftool'))
+        self.assertFalse(is_analyzer_source('filesystem.basename.full'))
+        self.assertFalse(is_analyzer_source('filesystem.basename.extension'))
+        self.assertFalse(is_analyzer_source('contents.mime_type'))
+
+    def test_analyzer_sources_return_true(self):
+        self.skipTest('TODO: unimplemented')
+        self.assertTrue(is_analyzer_source('imageanalyzer.datetime'))
+        self.assertTrue(is_analyzer_source('filesystemanalyzer.title'))
+        self.assertTrue(is_analyzer_source('filenamenalyzer.title'))

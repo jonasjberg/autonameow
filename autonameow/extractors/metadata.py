@@ -84,7 +84,7 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
     Extracts various types of metadata using "exiftool".
     """
     handles_mime_types = ['video/*', 'application/pdf', 'image/*',
-                          'application/epub+zip']
+                          'application/epub+zip', 'text/*']
     data_query_string = 'metadata.exiftool'
 
     def __init__(self, source):
@@ -165,7 +165,7 @@ class PyPDFMetadataExtractor(MetadataExtractor):
 
                 out.update(xmp)
 
-        # TODO: Convert date/time-information to 'datetime' objects.
+        # TODO: [TD0044] Convert date/time-information to 'datetime' objects.
         convert_datetime_field(out, 'CreationDate')
         convert_datetime_field(out, 'ModDate')
 
@@ -173,7 +173,7 @@ class PyPDFMetadataExtractor(MetadataExtractor):
 
 
 def convert_datetime_field(pypdf_data, field):
-    # TODO: This will be done a lot, needs refactoring!
+    # TODO: [TD0044] This will be done a lot, needs refactoring!
     if field in pypdf_data:
         try:
             datetime_object = to_datetime(pypdf_data[field])
@@ -184,7 +184,7 @@ def convert_datetime_field(pypdf_data, field):
 
 
 def to_datetime(pypdf_string):
-    # TODO: This will be done a lot, needs refactoring!
+    # TODO: [TD0044] This will be done a lot, needs refactoring!
     #
     # Expected date format:           D:20121225235237 +05'30'
     #                                   ^____________^ ^_____^

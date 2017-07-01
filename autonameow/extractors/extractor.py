@@ -24,7 +24,7 @@ from core.fileobject import eval_magic_glob
 
 class Extractor(object):
     """
-    Top-level abstract base class for all extractor classes.
+    Top-level abstract base class for all filetype-specific extractor classes.
 
     Includes common functionality and interfaces that must be implemented
     by inheriting extractor classes.

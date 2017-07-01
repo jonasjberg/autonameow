@@ -178,8 +178,6 @@ DEFAULT_CONFIG = {
     #   Each rule specifies conditions that should be met for the rule to apply
     #   to a given file.
     #
-    #   TODO: Document all fields ..
-    #
     #   * If 'exact_match' is True, __all__ conditions must be met,
     #     otherwise the rule is considered to not apply to the given file.
     #
@@ -189,21 +187,15 @@ DEFAULT_CONFIG = {
     #     have an equal amount of satisfied conditions; 'weight' is used
     #     to prioritize the candidates.
     #
-    #   TODO: Document all fields ..
-    #
     'FILE_RULES': [
         {'description': 'test_files Gmail print-to-pdf',
          'exact_match': True,
          'weight': None,
          'NAME_FORMAT': '{datetime} {title}.{extension}',
          'CONDITIONS': {
-             'filesystem': {
-                 'basename': 'gmail.pdf',
-                 'extension': 'pdf',
-             },
-             'contents': {
-                 'mime_type': 'application/pdf',
-             },
+             'filesystem.basename': 'gmail.pdf',
+             'filesystem.extension': 'pdf',
+             'contents.mime_type': 'application/pdf',
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.PDF:CreateDate',
@@ -217,12 +209,8 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
-             'filesystem': {
-                 'basename': 'smulan.jpg',
-             },
-             'contents': {
-                 'mime_type': 'image/jpeg',
-             },
+             'filesystem.basename': 'smulan.jpg',
+             'contents.mime_type': 'image/jpeg',
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
@@ -236,20 +224,11 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
          'CONDITIONS': {
-             'filesystem': {
-                 'pathname': '~/Pictures/incoming',
-                 'basename': 'DCIM*',
-                 'extension': 'jpg',
-             },
-             'contents': {
-                 'mime_type': 'image/jpeg',
-             },
-             'metadata': {
-                 'exiftool': {
-                     # TODO: Ensure proper validation of entry below.
-                     'EXIF:DateTimeOriginal': None,
-                 },
-             }
+             'filesystem.pathname': '~/Pictures/incoming',
+             'filesystem.basename': 'DCIM*',
+             'filesystem.extension': 'jpg',
+             'contents.mime_type': 'image/jpeg',
+             'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
          },
          'DATA_SOURCES': {
              'datetime': ['metadata.exiftool.EXIF:DateTimeOriginal',
@@ -269,15 +248,11 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': 'default_book',
          'CONDITIONS': {
-             'filesystem': {
-                 'pathname': None,
-                 'basename': None,
-                 'extension': 'epub'
-             },
-             'contents': {
-                 'mime_type': 'application/epub+zip',
-                 'metadata': 'metadata.XMP-dc.***'
-             }
+             'filesystem.pathname': '.*',
+             'filesystem.basename': '.*',
+             'filesystem.extension': 'epub',
+             'contents.mime_type': 'application/epub+zip',
+             'metadata.exiftool.XMP-dc:Creator': 'Defined',
          },
          'DATA_SOURCES': {
              'datetime': ['metadata.exiftool.XMP-dc:PublicationDate',
@@ -331,7 +306,7 @@ DEFAULT_CONFIG = {
         'between_tag_separator': ' '
     },
 
-    'autonameow_version': version.__version__
+    'autonameow_version': constants.PROGRAM_VERSION
 }
 ```
 

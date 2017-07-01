@@ -27,7 +27,8 @@ from core.extraction import (
     ExtractedData,
     suitable_data_extractors_for,
     get_extractor_classes,
-    Extraction
+    Extraction,
+    get_query_strings
 )
 from extractors.extractor import Extractor
 from unit_utils import get_mock_fileobject
@@ -214,3 +215,12 @@ class TestGetExtractorClasses(TestCase):
 
     def test_get_extractor_classes_returns_at_least_four_extractors(self):
         self.assertGreaterEqual(len(get_extractor_classes()), 4)
+
+
+class TestGetQueryStrings(TestCase):
+    def test_returns_expected_container_type(self):
+        self.assertTrue(isinstance(get_query_strings(), set))
+
+    def test_returns_expected_contained_types(self):
+        for q in get_query_strings():
+            self.assertTrue(isinstance(q, str))

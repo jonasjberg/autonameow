@@ -23,7 +23,10 @@ import logging as log
 import re
 from datetime import datetime
 
-from core import constants
+from core import (
+    constants,
+    extraction
+)
 from core.evaluate import namebuilder
 from core.exceptions import NameTemplateSyntaxError
 
@@ -70,7 +73,7 @@ class ConfigFieldParser(object):
         """
         return self.get_validation_function()(expression)
 
-    # TODO: Add validation and evaluation methods to parser classes?
+    # TODO: [TD0001] Add validation and evaluation methods to parser classes?
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
@@ -151,6 +154,27 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
     def get_validation_function(self):
         return self.is_valid_format_string
+
+
+class MetadataSourceConfigFieldParser(ConfigFieldParser):
+    applies_to_field = ['metadata']
+
+    @staticmethod
+    def is_valid_metadata_source(expression):
+        if not expression or not isinstance(expression, str):
+            return False
+
+        # TODO: [TD0001] Implement proper (?) validation of metadata source!
+        query_strings = list(extraction.MetadataExtractorQueryStrings)
+        query_strings = [qs.replace('metadata.', '') for qs in query_strings]
+
+        if expression.startswith(tuple(query_strings)):
+            return True
+
+        return False
+
+    def get_validation_function(self):
+        return self.is_valid_metadata_source
 
 
 def get_instantiated_field_parsers():

@@ -32,27 +32,27 @@ class VideoAnalyzer(Analyzer):
         )
 
     def run(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     def get_author(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     def get_title(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     def get_datetime(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     def get_publisher(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     def get_tags(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     # NOTE: Look into using "ffprobe" to get video data.

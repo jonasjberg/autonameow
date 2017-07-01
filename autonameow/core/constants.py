@@ -21,9 +21,13 @@
 
 import sys
 
-from core import util
+from core import (
+    util,
+    version
+)
 
 PYTHON_VERSION = sys.version.replace('\n', '')
+PROGRAM_VERSION = 'v{}'.format(version.__version__)
 
 
 # Each analyzer can be queried for these fields by calling either;

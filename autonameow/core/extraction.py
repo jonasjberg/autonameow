@@ -28,8 +28,8 @@ from core import (
 from core.exceptions import InvalidDataSourceError
 from core.util.queue import GenericQueue
 
-# TODO: [hack] Fix this! Used for instantiating extractors so that they are
-# included in the global namespace and seen by 'get_extractor_classes()'.
+# TODO: [TD0003][hack] Fix this! Used for instantiating extractors so that they
+# are included in the global namespace and seen by 'get_extractor_classes()'.
 from extractors.extractor import Extractor
 from extractors.metadata import MetadataExtractor
 from extractors.metadata import ExiftoolMetadataExtractor
@@ -120,7 +120,7 @@ class Extraction(object):
         # name in the new name, conversion can't be lossy. Solve by storing
         # bytestring versions of these fields as well?
 
-        # TODO: [encoding] Enforce encoding boundary for extracted data.
+        # TODO: [TD0004] Enforce encoding boundary for extracted data.
         self.collect_results('filesystem.basename.full',
                              util.decode_(self.file_object.filename))
         self.collect_results('filesystem.basename.extension',
@@ -133,6 +133,8 @@ class Extraction(object):
                              util.decode_(self.file_object.pathname))
         self.collect_results('filesystem.pathname.parent',
                              util.decode_(self.file_object.pathparent))
+        self.collect_results('contents.mime_type',
+                             self.file_object.mime_type)
 
         # Execute all suitable extractors and collect results.
         self._execute_run_queue()
@@ -197,7 +199,7 @@ class ExtractedData(object):
         Raises:
             InvalidDataSourceError: The label is not a valid data source.
         """
-        # TODO: Methods 'get' and 'query' perform essentially the same task?
+        # TODO: [TD0022] Methods 'get' and 'query' perform the same task?
         if label is not None:
             if label not in constants.VALID_DATA_SOURCES:
                 raise InvalidDataSourceError(
@@ -221,7 +223,7 @@ class ExtractedData(object):
         Returns:
             Extracted data for matching the specified query string or False.
         """
-        # TODO: Methods 'get' and 'query' perform essentially the same task?
+        # TODO: [TD0022] Methods 'get' and 'query' perform the same task?
         if query_string in self._data:
             return self._data.get(query_string)
         return False
@@ -248,6 +250,30 @@ class ExtractedData(object):
         return count_dict_recursive(self._data, 0)
 
 
+def get_query_strings():
+    """
+    Get the set of "query strings" for all extractor classes.
+
+    Returns:
+        Unique extractor query strings as a set.
+    """
+    out = set()
+    for e in ExtractorClasses:
+        if e.data_query_string:
+            out.add(e.data_query_string)
+    return out
+
+
+def get_metadata_query_strings():
+    klasses = [k for k in globals()['MetadataExtractor'].__subclasses__()]
+
+    out = set()
+    for e in klasses:
+        if e.data_query_string:
+            out.add(e.data_query_string)
+    return out
+
+
 def suitable_data_extractors_for(file_object):
     """
     Returns extractor classes that can handle the given file object.
@@ -269,10 +295,12 @@ def get_extractor_classes():
     Returns:
         All available extractor classes as a list of type.
     """
-    # TODO: Include ALL extractors!
+    # TODO: [TD0003] Include ALL extractors!
     out = ([klass for klass in globals()['MetadataExtractor'].__subclasses__()]
            + [klass for klass in globals()['TextExtractor'].__subclasses__()])
     return out
 
 
 ExtractorClasses = get_extractor_classes()
+ExtractorQueryStrings = get_query_strings()
+MetadataExtractorQueryStrings = get_metadata_query_strings()

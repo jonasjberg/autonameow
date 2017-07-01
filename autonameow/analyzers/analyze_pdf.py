@@ -60,7 +60,7 @@ class PdfAnalyzer(Analyzer):
             return []
 
     def get_author(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         results = []
 
         possible_authors = [
@@ -82,7 +82,7 @@ class PdfAnalyzer(Analyzer):
         return results
 
     def get_title(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         results = []
 
         possible_titles = [
@@ -102,7 +102,7 @@ class PdfAnalyzer(Analyzer):
         return results
 
     def get_datetime(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         results = []
 
         if self.metadata:
@@ -118,11 +118,11 @@ class PdfAnalyzer(Analyzer):
         return results
 
     def get_tags(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Get "tags" from PdfAnalyzer')
 
     def get_publisher(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         results = []
 
         possible_publishers = [
@@ -144,7 +144,7 @@ class PdfAnalyzer(Analyzer):
         :return: dict of datetime-objects
         """
 
-        # TODO: This method is being moved to a function in 'metadata.py'.
+        # TODO: [TD0006] This method is moved to a function in 'metadata.py' (?)
 
         DATE_TAG_FIELDS = ['ModDate', 'CreationDate', 'ModDate']
 

@@ -33,7 +33,8 @@ def sanitize_text(text):
     if text is None or text.strip() is None:
         return False
 
-    # TODO: Handle text encoding properly.
+    # TODO: [TD0004] Handle text encoding properly.
+    # TODO: [TD0044] Rework converting "raw data" to internal representations.
 
     # NOTE(jonas): This strips all umlauts from 'test_files/gmail.pdf" on Linux.
     # try:
@@ -48,7 +49,7 @@ def sanitize_text(text):
     # text = text.decode('unicode-escape')
     # text = unicode(text, 'UTF-8')
 
-    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    # TODO: [TD0004] Enforce encoding boundary for extracted data.
     return util.encode_(text)
 
 
@@ -58,7 +59,7 @@ def extract_digits(string):
     :param string: string to extract digits from
     :return: digits in string or None if string contains no digits
     """
-    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    # TODO: [TD0004] Enforce encoding boundary for extracted data.
     string = util.decode_(string)
     digits = ''
     for char in string:

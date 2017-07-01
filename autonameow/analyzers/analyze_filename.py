@@ -44,7 +44,7 @@ class FilenameAnalyzer(Analyzer):
         self.guessit_metadata = None
 
     def run(self):
-        # TODO: This test does not belong here! Handle guessit properly.
+        # TODO: [TD0009] This does not belong here! Handle guessit properly.
         if guessit and self.file_object.mime_type == 'mp4':
             self.guessit_metadata = self._get_metadata_from_guessit()
 
@@ -52,7 +52,7 @@ class FilenameAnalyzer(Analyzer):
                 self.add_results('plugins.guessit', self.guessit_metadata)
 
     def get_datetime(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         result = []
 
         fn_timestamps = self._get_datetime_from_name()
@@ -67,7 +67,7 @@ class FilenameAnalyzer(Analyzer):
         return result
 
     def get_title(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         titles = []
 
         if self.guessit_metadata:
@@ -82,17 +82,17 @@ class FilenameAnalyzer(Analyzer):
         return titles
 
     def get_author(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     def get_tags(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         return [{'value': self.file_object.filenamepart_tags,
                  'source': 'filenamepart_tags',
                  'weight': 1}]
 
     def get_publisher(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         return None
 
     def _get_title_from_filename(self):
@@ -123,7 +123,7 @@ class FilenameAnalyzer(Analyzer):
                      'weight'  : 0.75
                    }, .. ]
         """
-        # TODO: This should be handled by a (guessit) plugin.
+        # TODO: [TD0009] This should be handled by a (guessit) plugin.
         if self.guessit_metadata:
             if 'title' in self.guessit_metadata:
                 return [{'value': self.guessit_metadata['title'],
@@ -139,7 +139,7 @@ class FilenameAnalyzer(Analyzer):
                      'weight'  : 1
                    }, .. ]
         """
-        # TODO: This should be handled by a (guessit) plugin.
+        # TODO: [TD0009] This should be handled by a (guessit) plugin.
         if self.guessit_metadata:
             if 'date' in self.guessit_metadata:
                 return [{'value': self.guessit_metadata['date'],
@@ -151,7 +151,7 @@ class FilenameAnalyzer(Analyzer):
         Call external program "guessit".
         :return: dictionary of results if successful, otherwise false
         """
-        # TODO: This should be handled by a (guessit) plugin.
+        # TODO: [TD0009] This should be handled by a (guessit) plugin.
         guessit_matches = guessit.guessit(self.file_object.filenamepart_base, )
         return guessit_matches if guessit_matches is not None else False
 
@@ -198,7 +198,7 @@ class FilenameAnalyzer(Analyzer):
             # results.append({'value': dt_unix,
             #                 'source': 'unix_timestamp',
             #                 'weight': 1})
-            # TODO: Properly integrate new callback-based results gathering.
+            # TODO: [TD0005][TD0006] Use new callback-based results gathering.
             self.add_results('filesystem.basename.derived_data.datetime',
                              {'value': dt_unix,
                               'source': 'unix_timestamp',
@@ -210,7 +210,7 @@ class FilenameAnalyzer(Analyzer):
             # results.append({'value': dt_screencapture_unix,
             #                 'source': 'screencapture_unixtime',
             #                 'weight': 1})
-            # TODO: Properly integrate new callback-based results gathering.
+            # TODO: [TD0005][TD0006] Use new callback-based results gathering.
             self.add_results('filesystem.basename.derived_data.datetime',
                              {'value': dt_screencapture_unix,
                               'source': 'screencapture_unixtime',

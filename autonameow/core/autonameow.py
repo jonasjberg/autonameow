@@ -66,7 +66,7 @@ class Autonameow(object):
         self.opts = None        # Parsed options returned by argparse.
 
         self.filter = None
-        self.config = Configuration()
+        self.config = None
 
     def run(self):
         # Display help/usage information if no arguments are provided.
@@ -94,10 +94,9 @@ class Autonameow(object):
                 log.info('Using configuration file: "{!s}"'.format(
                     util.displayable_path(self.opts.config_path)
                 ))
-                self.config.load(self.opts.config_path)
+                self.config = Configuration(self.opts.config_path)
             except exceptions.ConfigError as e:
-                log.critical('Failed to load configuration file!')
-                log.debug(str(e))
+                log.critical('Unable to load configuration: {!s}'.format(e))
                 self.exit_program(constants.EXIT_ERROR)
         else:
 
@@ -122,11 +121,11 @@ class Autonameow(object):
             else:
                 log.info('Using configuration: "{}"'.format(_disp_config_path))
                 try:
-                    self.config.load(config.ConfigFilePath)
+                    self.config = Configuration(config.ConfigFilePath)
                 except exceptions.ConfigurationSyntaxError as e:
                     log.critical('Configuration syntax error: "{!s}"'.format(e))
 
-        # TODO: Integrate filter settings in configuration (file).
+        # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
 
         if self.opts.dump_options:
@@ -197,7 +196,7 @@ class Autonameow(object):
             except exceptions.AutonameowException as e:
                 log.critical('Extraction FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(
-                    util.displayable_path(current_file))
+                    util.displayable_path(file_path))
                 )
                 self.exit_code = constants.EXIT_WARNING
                 continue
@@ -209,20 +208,20 @@ class Autonameow(object):
             except exceptions.AutonameowException as e:
                 log.critical('Analysis FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(
-                    util.displayable_path(current_file))
+                    util.displayable_path(file_path))
                 )
                 self.exit_code = constants.EXIT_WARNING
                 continue
 
             # Determine matching rule.
-            # TODO: Rule matching will require 'extraction.data' as well.
+            # TODO: [TD0007] Rule matching requires 'extraction.data' as well.
             matcher = RuleMatcher(current_file, analysis.results, self.config)
             try:
                 matcher.start()
             except exceptions.AutonameowException as e:
                 log.critical('Rule Matching FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(
-                    util.displayable_path(current_file))
+                    util.displayable_path(file_path))
                 )
                 self.exit_code = constants.EXIT_WARNING
                 continue
@@ -274,7 +273,7 @@ class Autonameow(object):
                     self.exit_code = constants.EXIT_WARNING
                     continue
                 else:
-                    # TODO: Respect '--quiet' option. Suppress output.
+                    # TODO: [TD0042] Respect '--quiet' option. Suppress output.
                     log.info('New name: "{}"'.format(
                         util.displayable_path(new_name))
                     )
@@ -287,7 +286,7 @@ class Autonameow(object):
 
             elif self.opts.interactive:
                 # TODO: Create a interactive interface.
-                # TODO: [BL013] Interactive mode in 'interactive.py'.
+                # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
                 log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
     def exit_program(self, exit_code_):

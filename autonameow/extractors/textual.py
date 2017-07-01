@@ -46,7 +46,7 @@ class TextExtractor(Extractor):
         self._raw_text = None
 
     def query(self, field=None):
-        # TODO: Should text extractors be queried for something else than text?
+        # TODO: [TD0006] Will text extractors be queried for anything but text?
         if not self._raw_text:
             try:
                 log.debug('{!s} received initial query ..'.format(self))
@@ -60,7 +60,7 @@ class TextExtractor(Extractor):
                 return False
 
         if not field:
-            # TODO: Fix this. Look over the entire 'query' method.
+            # TODO: [TD0006] Fix this. Look over the entire 'query' method.
             log.debug('{!s} responding to query for all fields'.format(self))
             return self._raw_text
         else:
@@ -120,7 +120,7 @@ class PdfTextExtractor(TextExtractor):
             if pdf_text and len(pdf_text) > 1:
                 log.debug('Extracted text with: {}'.format(extractor.__name__))
 
-                # TODO: Fix up post-processing extracted text.
+                # TODO: [TD0044] Fix up post-processing extracted text.
                 # pdf_text = textutils.sanitize_text(pdf_text)
                 break
 
