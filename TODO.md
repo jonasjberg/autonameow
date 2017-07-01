@@ -287,6 +287,7 @@ Low Priority
 * `[TD0043]` Allow the user to tweak hardcoded settings using the
   configuration.
 
+* `[TD0045]` Add ability to rename directories.
 
 Wishlist
 --------
