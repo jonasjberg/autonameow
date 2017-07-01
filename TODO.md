@@ -168,6 +168,8 @@ Medium Priority
   But this is not configurable -- how would the filename analyzer know
   which of many possible datetime results to use?
 
+* `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
+
 * `[TD0019]` Rework the `FilenameAnalyzer`
     * `[TD0020]` Identify data fields in file names.
         ```
@@ -264,6 +266,10 @@ Low Priority
   configuration with `--dump-config`.
 
 * `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF GPS data.
+
+* `[TD0042]` Respect the `--quiet` option. Suppress (all but critical?) output.
+
+* `[TD0043]` Allow the user to tweak hardcoded settings using the configuration.
 
 
 Wishlist
