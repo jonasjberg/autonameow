@@ -14,7 +14,7 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* __Refactor the `Configuration` class__
+* `[TD0001]` __Refactor the `Configuration` class__
     * Look over all of `configuration.py`.
     * Fix `eval_condition` in `core/evaluate/rulematcher.py`.
     * Think about adding a custom type system in order to control configuration
@@ -24,7 +24,7 @@ High Priority
           of "None-checking".
         * Type classes could implement comparison/matching methods.
 
-* __Add a custom type system__
+* `[TD0002]` __Add a custom type system__
     * Add a abstract base class for all types (`BaseType`?)
     * Wrap primitives in type classes inheriting from the base class
       (`BaseType`?)
@@ -33,7 +33,7 @@ High Priority
       conditions (basename equals this exact string/regexp) as well as
       expressions (datetime data is within a given range)
 
-* __Implement gathering data for configuration validation at run-time__
+* `[TD0003]` __Implement gathering data for configuration validation at run-time__
     * Have extractors register themselves at run-time.
     * Collect valid extractor query strings at run-time.
     * Have analyzers register themselves at run-time.
@@ -41,7 +41,7 @@ High Priority
     * Rework configuration validation to use dynamically updated tests.
     * Replace hard coded strings with gathered data.
 
-* __Text encoding issues__
+* `[TD0004]` __Text encoding issues__
     * Enforce strict boundaries between all external systems and an internal
       text data representation.
     * Store original filename parts as both bytestrings and the internal
@@ -50,13 +50,14 @@ High Priority
       issues is to store bytestrings and perform any processing on copies that
       have __not__ been converted to the internal format?
 
-* __Internal "API"__ -- communication between modules
+* `[TD0005]` __Internal "API"__ -- communication between modules
     * Replace the old way of calling the analyzer `get_{fieldname}` methods
       with passing the `Analysis` class method `collect_results` as a callback.
     * Fully implement the idea of dynamically constructing structures and
       interfaces from a single reference data structure at runtime.
 
-* __New high-level architecture__ -- Move to use the redesigned architecture
+* `[TD0006]` __New high-level architecture__
+    * Move to use the redesigned architecture
     * All data extraction is handled by `extractor` classes
     * `analyzer` classes do not perform any kind of data extraction.
     * Plan for optimization by not extracting more data than necessary.
@@ -65,19 +66,20 @@ High Priority
       metadata fields should be handled by the extractors. It is currently
       mostly done in the analyzers.
 
-* Pass all data to the `RuleMatcher` instance. Currently, only the analysis
-  data and data stored in the `FileObject` is available when evaluating the
-  rules. This hasn't been an obvious problem due to the fact that the current
-  implementation of rule evaluation is so primitive and basic.
+* `[TD0007]` __Pass all data to the `RuleMatcher` instance.__ 
+    * Currently, only the analysis data and data stored in the `FileObject`
+      is available when evaluating the rules. This hasn't been an obvious
+      problem due to the fact that the current implementation of rule 
+      evaluation is so primitive and basic.
 
 
 Medium Priority
 ---------------
 
-* Simplify installation.
+* `[TD0008]` Simplify installation.
     * Add support for `pip` or similar package manager.
 
-* Implement proper plugin interface
+* `[TD0009]` Implement proper plugin interface
     * Have plugins "register" themselves to a plugin handler?
     * Querying plugins might need some translation layer between the
       `autonameow` field naming convention and the specific plugins naming
@@ -88,41 +90,41 @@ Medium Priority
         * Means of executing the plugin.
         * Means of querying for all or a specific field.
 
-* Think about how data might need to be processed in multiple consecutive runs.
+* `[TD0010]` Think about how data might need to be processed in multiple consecutive runs.
     * In relation to future weighting and prioritizing of analysis results.
 
-* Think about how the overall "analysis" might be executed more than once.
+* `[TD0011]` Think about how the overall "analysis" might be executed more than once.
     * Results from an initial analysis might be passed to the second analysis.
     * If a matched and active rule does not specify all required sources; the
       missing sources might be filled in by a more targeted approach using data
       gathered during the first run.
 
-* Add some type of caching.
+* `[TD0012]` Add some type of caching.
     * Extracting text from a PDF should only have to happen once, at most.
       Preferably not at all, unless a rule conditional tests the text content
       or the text is needed elsewhere.
     * Image OCR is very slow, should only be executed when needed, caching the
       results for all accesses.
 
-* Add conditional data extraction.
+* `[TD0013]` Add conditional data extraction.
     * Extractors should not run unless needed. Related to caching, above.
 
-* Possibly redesign high-level handling of a "configuration".
+* `[TD0014]` Possibly redesign high-level handling of a "configuration".
     * Decouple the `Configuration` instance from I/O.
     * Think about separating validation and parsing of incoming
       configuration data from the `Configuration` class.
 
-* Allow conditionals in the configuration file rules.
+* `[TD0015]` Allow conditionals in the configuration file rules.
     * Test if a file rule is applicable by evaluating conditionals.
         * Textual contents of the file matches a regular expression?
         * Some date/time-information lies within some specific range.
 
-* __Enforce consistency in the configuration syntax.__
+* `[TD0016]` __Enforce consistency in the configuration syntax.__
   For example, why does the conditions for a file rule specify `extension`
   under `filesystem`, while the results data structure has `extension` nested
   under `filesystem.basename.extension`.
 
-* Rethink how specified sources are connected to actual sources.
+* `[TD0017]` Rethink how specified sources are connected to actual sources.
   Take for example the configuration file rule:
 
     ```yaml
@@ -139,7 +141,7 @@ Medium Priority
   `image/png`, etc can't be used as a file extension without some
   pre-processing -- converting `image/png` to `png`.
 
-* There are more cases like the above that should be thought about.
+* `[TD0018]` There are more cases like the above that should be thought about.
   A common case is the slight modification to the current file name.
   Original file name:
     ```
@@ -166,8 +168,8 @@ Medium Priority
   But this is not configurable -- how would the filename analyzer know
   which of many possible datetime results to use?
 
-* Rework the `FilenameAnalyzer`
-    * Identify data fields in file names.
+* `[TD0019]` Rework the `FilenameAnalyzer`
+    * `[TD0020]` Identify data fields in file names.
         ```
         screencapture-github-jonasjberg-autonameow-1497964021919.png
         ^___________^ ^__________________________^ ^___________^
@@ -182,15 +184,15 @@ Medium Priority
         * Look into how `guessit` does it or possibility of modifying
           `guessit` to identify custom fields.
 
-* Look into merging possibly redundant methods `get` and `query` in the
+* `[TD0021]` Look into merging possibly redundant methods `get` and `query` in the
   `AnalysisResults` class.
 
-* Look into merging possibly redundant methods `get` and `query` in the
+* `[TD0022]` Look into merging possibly redundant methods `get` and `query` in the
   `ExtractedData` class.
 
-* Add additional option to force __non-interactive mode__ (`--batch`?)
+* `[TD0023]` Add additional option to force __non-interactive mode__ (`--batch`?)
 
-* Rework handling of unresolved operations
+* `[TD0024]` Rework handling of unresolved operations
     * Instead of aborting if a file rule data source is unavailable, use an
       *interactive mode* and ask the user how to proceed.
     * Ideally, any remaining processing should proceed in the background. The
@@ -203,32 +205,32 @@ Medium Priority
       behaviour; skipping files that can not be processed due to unavailable
       sources or multiple conflicting options, etc.
 
-* Add additional option to force __interactive mode__ (`--interactive`?)
+* `[TD0025]` Add additional option to force __interactive mode__ (`--interactive`?)
     * This mode would require the user to confirm actions/choices (which?)
 
 
 Low Priority
 ------------
 
-* Implement safe handling of symbolic link input paths.
+* `[TD0026]` Implement safe handling of symbolic link input paths.
 
 * Add additional filetype-specific "extractors".
-    * __Word Documents__
+    * `[TD0027]` __Word Documents__
         * Extract plain text and metadata from Word documents.
-    * __E-books epub/mobi__
+    * `[TD0028]` __E-books epub/mobi__
         * Extract metadata fields. Look into using `calibre`.
 
-* Add support for extracting MacOS Spotlight metadata (`mdls`)
+* `[TD0029]` Add support for extracting MacOS Spotlight metadata (`mdls`)
 
 * Add additional plugins.
-    * Plugin for querying APIs with ISBN numbers.
+    * `[TD0030]` Plugin for querying APIs with ISBN numbers.
       (Already implemented in `autoname_pdf.py` and `isbn_query.py`)
 
-* Add compatibility checks when loading configuration.
+* `[TD0031]` Add compatibility checks when loading configuration.
 
-* Add support for UNIX-style globs in path fields in the configuration.
+* `[TD0032]` Add support for UNIX-style globs in path fields in the configuration.
 
-* Refactor unit tests.
+* `[TD0033]` Refactor unit tests.
     * Mitigate superlinear increase in unit test execution speed.
     * Try to rewrite tests that operate on actual files
         * Cache results from expensive calls, avoid repeated actions.
@@ -240,15 +242,15 @@ Low Priority
         * The user? Through the configuration?
         * Various parts of the program? Part of the file analysis or data
           extraction pipeline?
-    * Redesign overall filtering.
-    * Rewrite the `ResultFilter` class or substitute with something else.
+    * `[TD0034]` Redesign overall filtering.
+    * `[TD0035]` Rewrite the `ResultFilter` class or substitute with something else.
 
-* Allow specifying known good candidates for fields.
+* `[TD0036]` Allow specifying known good candidates for fields.
     * For instance, a list of known book publishers. Possibly a dictionary
       where keys are preferred book publishers, and each key stores a
       list of possible search strings that should be replace with the key.
 
-* Improve "filetags" integration.
+* `[TD0037]` Improve "filetags" integration.
     * For instance, the Microsoft Vision API returns *a lot* of tags,
       too many to use in a filename without any kind of selection process.
     * It would be very useful to be able to filter tags by getting the
@@ -256,12 +258,12 @@ Low Priority
     * Allow specifying allowed tags in the configuration?
     * Allow specifying mutually exclusive tags in the configuration?
 
-* Add new name format placeholder field `{year}`.
+* `[TD0038]` Add new name format placeholder field `{year}`.
 
-* Do not include the file rule attribute `score` when listing the
+* `[TD0039]` Do not include the file rule attribute `score` when listing the
   configuration with `--dump-config`.
 
-* Add assigning tags to GPS coordinates for tagging images with EXIF GPS data.
+* `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF GPS data.
 
 
 Wishlist
