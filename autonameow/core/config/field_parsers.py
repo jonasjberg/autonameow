@@ -73,7 +73,7 @@ class ConfigFieldParser(object):
         """
         return self.get_validation_function()(expression)
 
-    # TODO: Add validation and evaluation methods to parser classes?
+    # TODO: [TD0001] Add validation and evaluation methods to parser classes?
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
@@ -164,7 +164,7 @@ class MetadataSourceConfigFieldParser(ConfigFieldParser):
         if not expression or not isinstance(expression, str):
             return False
 
-        # TODO: Implement proper (?) validation of metadata source!
+        # TODO: [TD0001] Implement proper (?) validation of metadata source!
         query_strings = list(extraction.MetadataExtractorQueryStrings)
         query_strings = [qs.replace('metadata.', '') for qs in query_strings]
 

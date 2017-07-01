@@ -120,7 +120,7 @@ class Extraction(object):
         # name in the new name, conversion can't be lossy. Solve by storing
         # bytestring versions of these fields as well?
 
-        # TODO: [encoding] Enforce encoding boundary for extracted data.
+        # TODO: [TD0004] Enforce encoding boundary for extracted data.
         self.collect_results('filesystem.basename.full',
                              util.decode_(self.file_object.filename))
         self.collect_results('filesystem.basename.extension',

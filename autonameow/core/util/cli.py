@@ -209,7 +209,7 @@ def msg(message, style=None, log=False):
 
         return out
 
-    # TODO: Respect '--quiet' option. Suppress output.
+    # TODO: [TD0042] Respect '--quiet' option. Suppress output.
 
     if not message:
         return

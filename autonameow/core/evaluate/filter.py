@@ -29,9 +29,9 @@ class ResultFilter(object):
     analysis by evaluating the results based on a set of filter rules.
     """
 
-    # TODO: This class needs a complete rewrite!
+    # TODO: [TD0035] This class needs a complete rewrite!
 
-    # TODO: All filtering must be (re-)designed.
+    # TODO: [TD0034] All filtering must be (re-)designed.
 
     def __init__(self):
         self.rules = {'ignore_years': [],
@@ -39,7 +39,7 @@ class ResultFilter(object):
                       'ignore_after_year': None}
 
     def configure_filter(self, opts):
-        # TODO: Fix this and overall filter handling.
+        # TODO: [TD0034][TD0035] Fix this and overall filter handling.
         if opts.filter_ignore_years:
             for year in opts.filter_ignore_years:
                 try:

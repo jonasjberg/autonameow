@@ -182,7 +182,7 @@ def eval_condition(condition_field, condition_value, file_object,
 
     Returns:
     """
-    # TODO: Needs a COMPLETE rewrite using some general (GOOD) method!
+    # TODO: [TD0001] Needs a COMPLETE rewrite using some general (GOOD) method!
 
     def eval_regex(expression, match_data):
         if re.match(expression, match_data):
@@ -190,7 +190,7 @@ def eval_condition(condition_field, condition_value, file_object,
         return False
 
     def eval_path(expression, match_data):
-        # TODO: [hack] Total rewrite of condition evaluation?
+        # TODO: [TD0001][hack] Total rewrite of condition evaluation?
         if expression.startswith(b'~/'):
             try:
                 expression = os.path.expanduser(expression)
@@ -215,22 +215,22 @@ def eval_condition(condition_field, condition_value, file_object,
         return False
 
     def eval_datetime(expression, match_data):
-        # TODO: Implement!
+        # TODO: [TD0001] Implement!
         pass
 
     # Regex Fields
     if condition_field == 'filesystem.basename':
-        # TODO: [encoding] Handle configuration encoding elsewhere.
+        # TODO: [TD0004] Handle configuration encoding elsewhere.
         condition_value = util.encode_(condition_value)
         return eval_regex(condition_value, file_object.filename)
 
     elif condition_field == 'filesystem.extension':
-        # TODO: [encoding] Handle configuration encoding elsewhere.
+        # TODO: [TD0004] Handle configuration encoding elsewhere.
         condition_value = util.encode_(condition_value)
         return eval_regex(condition_value, file_object.suffix)
 
     elif condition_field == 'filesystem.pathname':
-        # TODO: [encoding] Handle configuration encoding elsewhere.
+        # TODO: [TD0004] Handle configuration encoding elsewhere.
         condition_value = util.encode_(condition_value)
         return eval_path(condition_value, file_object.pathname)
 
@@ -238,7 +238,7 @@ def eval_condition(condition_field, condition_value, file_object,
     elif condition_field == 'contents.mime_type':
         return eval_mime_type(condition_value, file_object.mime_type)
 
-    # TODO: Implement datetime check
+    # TODO: [TD0001] Implement datetime check
     # elif condition_field == 'date_accessed':
     #     return eval_datetime(condition_value, None)
 

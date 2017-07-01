@@ -20,4 +20,4 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# TODO: [BL013] Implement Interactive mode.
+# TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.

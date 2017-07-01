@@ -43,15 +43,13 @@ class ImageAnalyzer(Analyzer):
 
     def run(self):
         self.exif_data = self.extracted_data.get('metadata.exiftool')
-
-        # TODO: Move image OCR to extractor class.
         self.ocr_text = self.extracted_data.get('contents.visual.ocr_text')
 
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
 
     def get_datetime(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         result = []
         exif_timestamps = self._get_exif_datetime()
         if exif_timestamps:
@@ -65,19 +63,19 @@ class ImageAnalyzer(Analyzer):
         return result
 
     def get_author(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Get "author" from ImageAnalyzer')
 
     def get_title(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Get "title" from ImageAnalyzer')
 
     def get_tags(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Get "tags" from ImageAnalyzer')
 
     def get_publisher(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Get "publisher" from ImageAnalyzer')
 
     def _get_exif_datetime(self):

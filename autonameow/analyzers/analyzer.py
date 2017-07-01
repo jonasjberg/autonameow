@@ -65,7 +65,7 @@ class Analyzer(object):
             AnalysisResultsFieldError: Error caused by invalid argument "field",
                 which must be included in ANALYSIS_RESULTS_FIELDS.
         """
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         if field not in constants.ANALYSIS_RESULTS_FIELDS:
             raise exceptions.AnalysisResultsFieldError(field)
 
@@ -77,23 +77,23 @@ class Analyzer(object):
             raise NotImplementedError(field)
 
     def get_datetime(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def get_title(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def get_author(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def get_tags(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def get_publisher(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod

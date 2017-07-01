@@ -78,7 +78,7 @@ class FilesystemAnalyzer(Analyzer):
             }}
 
     def get_datetime(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         result = []
 
         fs_timestamps = self._get_datetime_from_filesystem()
@@ -88,25 +88,25 @@ class FilesystemAnalyzer(Analyzer):
         return result
 
     def get_title(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
         raise NotImplementedError('Get "title" from FilesystemAnalyzer')
 
     def get_author(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
         raise NotImplementedError('Get "author" from FilesystemAnalyzer')
 
     def get_tags(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         # Currently not relevant to this analyzer.
         # Future support for reading filesystem metadata could implement this.
         raise NotImplementedError('Get "tags" from FilesystemAnalyzer')
 
     def get_publisher(self):
-        # TODO: Remove, use callbacks instead.
+        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Get "publisher" from FilesystemAnalyzer')
 
     def _get_datetime_from_filesystem(self):

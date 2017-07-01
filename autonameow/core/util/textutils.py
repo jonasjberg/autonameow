@@ -48,7 +48,7 @@ def sanitize_text(text):
     # text = text.decode('unicode-escape')
     # text = unicode(text, 'UTF-8')
 
-    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    # TODO: [TD0004] Enforce encoding boundary for extracted data.
     return util.encode_(text)
 
 
@@ -58,7 +58,7 @@ def extract_digits(string):
     :param string: string to extract digits from
     :return: digits in string or None if string contains no digits
     """
-    # TODO: [encoding] Enforce encoding boundary for extracted data.
+    # TODO: [TD0004] Enforce encoding boundary for extracted data.
     string = util.decode_(string)
     digits = ''
     for char in string:

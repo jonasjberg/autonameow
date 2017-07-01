@@ -100,7 +100,7 @@ DEFAULT_CONFIG = {
              'filesystem.basename': 'DCIM*',
              'filesystem.extension': 'jpg',
              'contents.mime_type': 'image/jpeg',
-             # TODO: Ensure proper validation of entry below.
+             # TODO: [TD0001] Ensure proper validation of entry below.
              'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
          },
          'DATA_SOURCES': {
@@ -125,7 +125,7 @@ DEFAULT_CONFIG = {
              'filesystem.basename': '.*',
              'filesystem.extension': 'epub',
              'contents.mime_type': 'application/epub+zip',
-             # TODO: Ensure proper validation of entry below.
+             # TODO: [TD0001] Ensure proper validation of entry below.
              'metadata.exiftool.XMP-dc:Creator': 'Defined',
          },
          'DATA_SOURCES': {

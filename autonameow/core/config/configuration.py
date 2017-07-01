@@ -72,7 +72,7 @@ class FileRule(Rule):
         # Rules are sorted/prioritized by first the score, secondly the weight.
         self.score = 0
 
-        # TODO: Implement "conditions" field ..
+        # TODO: [TD0015] Implement "conditions" field ..
         # Possible a list of functions already "loaded" with the target value.
         # Also "loaded" with corresponding (reference to) a validation function.
 
@@ -442,7 +442,7 @@ def is_valid_source(source_value):
     if not source_value or not source_value.strip():
         return False
 
-    # TODO: Test if the field specified in the source is valid.
+    # TODO: [TD0001] Test if the field specified in the source is valid.
 
     if source_value.startswith(tuple(constants.VALID_DATA_SOURCES)):
         return source_value
@@ -451,12 +451,12 @@ def is_valid_source(source_value):
 
 
 def is_analyzer_source(source_value):
-    # TODO: Implement checking if a source specifies an analyzer.
+    # TODO: [TD0001] Implement checking if a source specifies an analyzer.
     pass
 
 
 def parse_conditions(raw_conditions):
-    # TODO: This needs a lookover and probably at least a partial rewrite.
+    # TODO: [TD0001] This needs to be reimplemented properly.
     out = {}
 
     # NOTE(jonas): The "key" in a CONDITION is a query string to content.
@@ -474,7 +474,7 @@ def parse_conditions(raw_conditions):
                     'contains invalid condition [{}]: {}'.format(key, value)
                 )
 
-            # TODO: Check if clobbering is an issue and how to fix.
+            # TODO: [TD0001] Check if clobbering is an issue and how to fix.
             if key in out:
                 log.warning('Clobbering condition: {!s}'.format(key))
             out[key] = value
@@ -520,11 +520,12 @@ def validate_condition_value(condition_field, condition_value):
     field_components = util.query_string_list(condition_field)
     field = field_components[-1:][0]
 
-    # TODO: [hack] Workaround for 'metadata.exiftool.EXIF:DateTimeOriginal',etc.
+    # TODO: [TD0001] Workaround for 'metadata.exiftool.EXIF:DateTimeOriginal' ..
     #       Above test would return 'EXIF:DateTimeOriginal' but this solution
     #       would require testing the second to last part; 'exiftool', instead.
     if condition_field.startswith('metadata.exiftool'):
-        # TODO: Handle expression in 'conditon_value' ('Defined', '> 2017', etc)
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
         if condition_value:
             return condition_value
         else:

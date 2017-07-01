@@ -33,7 +33,7 @@ High Priority
       conditions (basename equals this exact string/regexp) as well as
       expressions (datetime data is within a given range)
 
-* `[TD0003]` __Implement gathering data for configuration validation at run-time__
+* `[TD0003]` __Implement gathering data on non-core modules at run-time__
     * Have extractors register themselves at run-time.
     * Collect valid extractor query strings at run-time.
     * Have analyzers register themselves at run-time.
@@ -62,9 +62,19 @@ High Priority
     * `analyzer` classes do not perform any kind of data extraction.
     * Plan for optimization by not extracting more data than necessary.
       How could this be implemented?
-    * Converting strings to `datetime` objects and similar translation of
-      metadata fields should be handled by the extractors. It is currently
-      mostly done in the analyzers.
+
+* `[TD0044]` __Rework converting "raw data" to internal representations__
+    * Converting raw data to internal representations is currently implemented
+      very poorly and must be reworked.
+    * Think about how to handle translation in the "general" sense; high-level,
+      abstract. Would it be wise to let data extractors convert raw data to
+      internal types? (For example; messy OCR text to `datetime` object)
+        * A "general solution" using some new entity tasked with translating
+          data *might be too "general"* considering the likely granularity of
+          operations needed to perform the conversion.  That is, if the
+          required operations differs greatly between data sources, abstracting
+          the process would mostly add yet another layer of indirection ..
+    * Think about how wrapped data types (`[TD0002]`) relates to this.
 
 * `[TD0007]` __Pass all data to the `RuleMatcher` instance.__ 
     * Currently, only the analysis data and data stored in the `FileObject`
@@ -90,10 +100,12 @@ Medium Priority
         * Means of executing the plugin.
         * Means of querying for all or a specific field.
 
-* `[TD0010]` Think about how data might need to be processed in multiple consecutive runs.
+* `[TD0010]` Think about how data might need to be processed in multiple
+  consecutive runs.
     * In relation to future weighting and prioritizing of analysis results.
 
-* `[TD0011]` Think about how the overall "analysis" might be executed more than once.
+* `[TD0011]` Think about how the overall "analysis" might be executed more than
+  once.
     * Results from an initial analysis might be passed to the second analysis.
     * If a matched and active rule does not specify all required sources; the
       missing sources might be filled in by a more targeted approach using data
@@ -186,13 +198,13 @@ Medium Priority
         * Look into how `guessit` does it or possibility of modifying
           `guessit` to identify custom fields.
 
-* `[TD0021]` Look into merging possibly redundant methods `get` and `query` in the
-  `AnalysisResults` class.
+* `[TD0021]` Look into merging possibly redundant methods `get` and `query` in
+  the `AnalysisResults` class.
 
-* `[TD0022]` Look into merging possibly redundant methods `get` and `query` in the
-  `ExtractedData` class.
+* `[TD0022]` Look into merging possibly redundant methods `get` and `query` in
+  the `ExtractedData` class.
 
-* `[TD0023]` Add additional option to force __non-interactive mode__ (`--batch`?)
+* `[TD0023]` Add additional option to force non-interactive mode (`--batch`?)
 
 * `[TD0024]` Rework handling of unresolved operations
     * Instead of aborting if a file rule data source is unavailable, use an
@@ -207,7 +219,7 @@ Medium Priority
       behaviour; skipping files that can not be processed due to unavailable
       sources or multiple conflicting options, etc.
 
-* `[TD0025]` Add additional option to force __interactive mode__ (`--interactive`?)
+* `[TD0025]` Add additional option to force interactive mode (`--interactive`?)
     * This mode would require the user to confirm actions/choices (which?)
 
 
@@ -216,7 +228,7 @@ Low Priority
 
 * `[TD0026]` Implement safe handling of symbolic link input paths.
 
-* Add additional filetype-specific "extractors".
+* __Add additional filetype-specific "extractors"__
     * `[TD0027]` __Word Documents__
         * Extract plain text and metadata from Word documents.
     * `[TD0028]` __E-books epub/mobi__
@@ -224,13 +236,14 @@ Low Priority
 
 * `[TD0029]` Add support for extracting MacOS Spotlight metadata (`mdls`)
 
-* Add additional plugins.
+* __Add additional plugins__
     * `[TD0030]` Plugin for querying APIs with ISBN numbers.
       (Already implemented in `autoname_pdf.py` and `isbn_query.py`)
 
 * `[TD0031]` Add compatibility checks when loading configuration.
 
-* `[TD0032]` Add support for UNIX-style globs in path fields in the configuration.
+* `[TD0032]` Add support for UNIX-style globs in path fields in the
+  configuration.
 
 * `[TD0033]` Refactor unit tests.
     * Mitigate superlinear increase in unit test execution speed.
@@ -238,14 +251,15 @@ Low Priority
         * Cache results from expensive calls, avoid repeated actions.
         * Substitute I/O-operations with some kind of mocking.
 
-* Look into filtering.
+* __Look into filtering__
     * Think about the concept of filtering data at a high-level.
     * Who should be able to control filtering?
         * The user? Through the configuration?
         * Various parts of the program? Part of the file analysis or data
           extraction pipeline?
     * `[TD0034]` Redesign overall filtering.
-    * `[TD0035]` Rewrite the `ResultFilter` class or substitute with something else.
+    * `[TD0035]` Rewrite the `ResultFilter` class or substitute with something
+      else.
 
 * `[TD0036]` Allow specifying known good candidates for fields.
     * For instance, a list of known book publishers. Possibly a dictionary
@@ -265,11 +279,13 @@ Low Priority
 * `[TD0039]` Do not include the file rule attribute `score` when listing the
   configuration with `--dump-config`.
 
-* `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF GPS data.
+* `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF
+  GPS data.
 
 * `[TD0042]` Respect the `--quiet` option. Suppress (all but critical?) output.
 
-* `[TD0043]` Allow the user to tweak hardcoded settings using the configuration.
+* `[TD0043]` Allow the user to tweak hardcoded settings using the
+  configuration.
 
 
 Wishlist

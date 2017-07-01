@@ -76,6 +76,7 @@ class NameBuilder(object):
         # analysis results must be redesigned. Sources must be queried
         # individually. Requires re-evaluating the configuration source
         # description format.
+        # TODO: [TD0017] Rethink source specifications relation to source data.
         for field, query_string in data_sources.items():
             extracted_data = self.extracted_data.query(query_string)
             if extracted_data:
@@ -91,7 +92,7 @@ class NameBuilder(object):
         template = self.active_rule.name_template
         log.debug('Using name template: "{}"'.format(template))
 
-        # TODO: Future redesign should be able to handle fields not in sources.
+        # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
         # NOTE(jonas): Move this to the rule matcher?
         # NOTE(jonas): Make sure name builder always gets a valid rule?
@@ -114,7 +115,8 @@ class NameBuilder(object):
         log.debug(str(data))
 
         # Format datetime
-        # TODO: Format ALL data before assembly, not only date/time-information.
+        # TODO: [TD0002][TD0017][TD0041] Format ALL data before assembly!
+        # NOTE(jonas): Currently, only the date/time-information is handled!
         data = pre_assemble_format(data, template, self.config)
         log.debug('After pre-assembly formatting;')
         log.debug(str(data))
@@ -192,7 +194,7 @@ def format_string_placeholders(format_string):
 def pre_assemble_format(data, template, config):
     out = {}
 
-    # TODO: This needs refactoring, badly.
+    # TODO: [TD0017][TD0002][TD0041] This needs refactoring, badly.
 
     for key, value in data.items():
         if key == 'datetime':
@@ -208,7 +210,7 @@ def pre_assemble_format(data, template, config):
             out['time'] = formatted_datetime(data['time'],
                                              datetime_format)
         else:
-            # TODO: Other substitutions, etc ..
+            # TODO: [TD0041] Other substitutions, etc ..
             out[key] = data[key]
 
     return out

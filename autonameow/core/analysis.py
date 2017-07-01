@@ -29,7 +29,7 @@ from core import (
 )
 from core.util.queue import GenericQueue
 
-# TODO: Fix this! Used for instantiating analyzers so that they are
+# TODO: [TD0003] Fix this! Used for instantiating analyzers so that they are
 # included in the global namespace and seen by 'get_analyzer_classes()'.
 from analyzers.analyzer import Analyzer
 from analyzers.analyze_filename import FilenameAnalyzer
@@ -157,7 +157,7 @@ class Analysis(object):
             log.debug('Starting Analyzer "{!s}"'.format(a))
             a.run()
 
-            # TODO: Remove, use callbacks instead.
+            # TODO: [TD0005] Remove, use callbacks instead.
             for field in constants.ANALYSIS_RESULTS_FIELDS:
                 try:
                     result = a.get(field)
@@ -238,8 +238,8 @@ class AnalysisResults(object):
             Results data for the specified fields matching the specified query.
         """
         if query_string.startswith('plugin.'):
-            # TODO: Results should NOT be querying plugins from here!
-            # TODO: Rework processing pipeline to integrate plugins
+            # TODO: [TD0009] Results should NOT be querying plugins from here!
+            # TODO: [TD0009] Rework processing pipeline to integrate plugins
             plugin_name, plugin_query = query_string.lstrip('plugin.').split('.')
             result = plugins.plugin_query(plugin_name, plugin_query, None)
             return result
