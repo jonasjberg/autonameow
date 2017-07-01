@@ -234,7 +234,7 @@ def eval_condition(condition_field, condition_value, file_object,
         condition_value = util.encode_(condition_value)
         return eval_path(condition_value, file_object.pathname)
 
-    # TODO: Fix MIME type check
+    # Custom "MIME glob" field
     elif condition_field == 'contents.mime_type':
         return eval_mime_type(condition_value, file_object.mime_type)
 
