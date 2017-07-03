@@ -183,6 +183,7 @@ def eval_condition(condition_field, condition_value, file_object,
     Returns:
     """
     # TODO: [TD0001] Needs a COMPLETE rewrite using some general (GOOD) method!
+    # TODO: [TD0002] Pass in wrapped types?
 
     def eval_regex(expression, match_data):
         if re.match(expression, match_data):

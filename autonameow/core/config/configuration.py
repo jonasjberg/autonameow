@@ -252,6 +252,7 @@ class Configuration(object):
                 'uses invalid name template format'
             )
 
+        # TODO: [TD0002] Build 'FileRule' instance from wrapped types?
         valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
         valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
         valid_weight = parse_weight(raw_rule.get('weight'))
