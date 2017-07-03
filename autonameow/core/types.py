@@ -26,15 +26,46 @@ Wraps primitives to force safe defaults and extra functionality.
 
 # TODO: [TD0002] Research requirements and implement custom type system.
 
+#   Requirements:
+#   * Simplify configuration parsing
+#   * Confine data extractor results data to types
+#   * Allow type-specific processing of data extractor data
+
 
 class BaseType(object):
-    primitive_type = None
+    # NOTE(jonas): Why revert to "str"? Assume BaseType won't be instantiated?
+    primitive_type = str
 
     @property
     def null(self):
         return self.primitive_type()
 
+    def normalize(self, value):
+        """
+        Processes the given value to a form suitable for serialization/storage.
+
+        Args:
+            value: The value to normalize.
+
+        Returns:
+            A "normalized" version of the given value in this class type if the
+            value can be normalized. Otherwise the class "null" value.
+        """
+        if value is None:
+            return self.null
+        else:
+            # TODO: ..
+            return value
+
 
 class Integer(BaseType):
     primitive_type = int
 
+
+class Float(BaseType):
+    primitive_type = float
+
+
+class TimeDate(BaseType):
+    # TODO: Think long and hard about this before proceeding..
+    primitive_type = None
