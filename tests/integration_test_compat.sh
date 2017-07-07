@@ -80,6 +80,19 @@ AUTONAMEOW_CONFIG_PATH="$(( "$AUTONAMEOW_RUNNER" --verbose 2>&1 ) | grep -o -- "
 assert_false '[ -z "$AUTONAMEOW_CONFIG_PATH" ]' \
              'This test script should be able to retrieve the path of the used configuration file.'
 
+# Strip quotes from configuration file path.
+AUTONAMEOW_CONFIG_PATH="${AUTONAMEOW_CONFIG_PATH//\"/}"
+
+assert_true 'grep -o -- "^autonameow_version: \d\.\d\.\d$" "$AUTONAMEOW_CONFIG_PATH" >/dev/null' \
+            "The retrieved configuration file contents should match \"^autonameow_version: X.X.X$\""
+
+CONFIG_FILE_VERSION="$(grep -o -- "^autonameow_version: \d\.\d\.\d$" "$AUTONAMEOW_CONFIG_PATH" | grep -o -- "\d\.\d\.\d")"
+assert_false '[ -z "$CONFIG_FILE_VERSION" ]' \
+             'This test script should be able to retrieve the configuration file version.'
+
+assert_true '[ "$AUTONAMEOW_VERSION" = "$CONFIG_FILE_VERSION" ]' \
+            'The configuration file version should equal the program version'
+
 
 EMPTY_CONFIG='/tmp/autonameow_empty_config.yaml'
 assert_true 'touch "$EMPTY_CONFIG" 2>&1 >/dev/null' \
