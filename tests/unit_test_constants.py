@@ -66,3 +66,7 @@ class TestConstants(TestCase):
     def test_constants_contains_results_data_structure(self):
         self.assertIsNotNone(constants.RESULTS_DATA_STRUCTURE)
         self.assertTrue(isinstance(constants.RESULTS_DATA_STRUCTURE, dict))
+
+    def test_constants_contains_legal_name_template_fields(self):
+        self.assertIsNotNone(constants.NAME_TEMPLATE_FIELDS)
+        self.assertTrue(isinstance(constants.NAME_TEMPLATE_FIELDS, list))

@@ -35,7 +35,12 @@ PROGRAM_VERSION = 'v{}'.format(version.__version__)
 ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 
 
-# All possible field names. Used for constructing file names and testing.
+# Legal name template fields are defined here.
+# These are used when constructing the file names and for unit tests.
+NAME_TEMPLATE_FIELDS = (
+    ANALYSIS_RESULTS_FIELDS + ['date', 'description', 'edition', 'extension']
+)
+
 # The dictionary is populated like this;
 #
 #   DATA_FIELDS = {'author': 'DUMMY',
