@@ -118,3 +118,19 @@ class RuleCondition(object):
             self.parser = parsers[0]
             return True
         return False
+
+    def evaluate(self, data):
+        """
+        Evaluates this condition using the given data.
+
+        Args:
+            data: The data to used during the evaluation.
+
+        Returns: The result of the evaluation if the evaluation is successful
+            with the given data, otherwise False.
+        """
+        result = self.parser.evaluate(self.expression, data)
+        if result:
+            return result
+        else:
+            return False
