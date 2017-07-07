@@ -463,16 +463,9 @@ def is_analyzer_source(source_value):
 
 
 def parse_conditions(raw_conditions):
-    # TODO: [TD0001] This needs to be reimplemented properly.
-    out = {}
-
-    # NOTE(jonas): The "key" in a CONDITION is a query string to content.
-    #              The condition "value" can be strings, regexps, etc.
-
-    # NOTE(jonas): The "value" in a data SOURCE is a query string to content ..
-
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
+    out = []
     try:
         for query_string, expression in raw_conditions.items():
             # valid_condition = validate_condition_value(key, value)
@@ -482,18 +475,14 @@ def parse_conditions(raw_conditions):
                     'contains invalid condition [{}]: {}'.format(query_string, expression)
                 )
 
-            # TODO: [TD0001] Check if clobbering is an issue and how to fix.
-            if query_string in out:
-                log.warning('Clobbering condition: {!s}'.format(query_string))
-            out[query_string] = expression
-            log.debug('Validated condition: [{}]: {}'.format(query_string, expression))
+            out.append(valid_condition)
+            log.debug('Validated condition: {!s}'.format(valid_condition))
     except ValueError as e:
         raise exceptions.ConfigurationSyntaxError(
             'contains invalid condition: ' + str(e)
         )
 
-    log.debug('First filter passed {} conditions'.format(len(out)))
-
+    log.debug('parse_conditions returned {} valid conditions'.format(len(out)))
     return out
 
 

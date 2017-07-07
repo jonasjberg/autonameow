@@ -54,7 +54,7 @@ class RuleMatcher(object):
             return
 
         # Check a copy of all rules.
-        rules_to_examine = self.config.file_rules
+        rules_to_examine = list(self.config.file_rules)
         log.debug('Examining {} rules ..'.format(len(rules_to_examine)))
         ok_rules = examine_rules(rules_to_examine, self.file,
                                  self.analysis_data)
@@ -96,9 +96,8 @@ def examine_rules(rules_to_examine, file_object, analysis_data):
     ok_rules = []
 
     for count, rule in enumerate(rules_to_examine):
-        log.debug('Evaluating rule {}/{}: "{}"'.format(count + 1,
-                                                       len(rules_to_examine),
-                                                       rule.description))
+        log.debug('Evaluating rule {}/{}: "{}"'.format(
+            count + 1, len(rules_to_examine), rule.description))
         result = evaluate_rule(rule, file_object, analysis_data)
         if rule.exact_match and result is False:
             log.debug('Rule evaluated FALSE, removing: '
@@ -137,21 +136,18 @@ def evaluate_rule(file_rule, file_object, analysis_data):
         )
 
     if file_rule.exact_match:
-        for cond_field, cond_value in file_rule.conditions.items():
-            log.debug('Evaluating condition "{} == {}"'.format(cond_field,
-                                                               cond_value))
-            if not eval_condition(cond_field, cond_value, file_object,
-                                  analysis_data):
+        for condition in file_rule.conditions:
+            log.debug('Evaluating condition "{!s}"'.format(condition))
+            if not eval_condition(condition, file_object, analysis_data):
                 log.debug('Condition FAILED -- Exact match impossible ..')
                 return False
             else:
                 file_rule.upvote()
         return True
 
-    for cond_field, cond_value in file_rule.conditions.items():
-        log.debug('Evaluating condition "{} == {}"'.format(cond_field,
-                                                           cond_value))
-        if eval_condition(cond_field, cond_value, file_object, analysis_data):
+    for condition in file_rule.conditions:
+        log.debug('Evaluating condition "{!s}"'.format(condition))
+        if eval_condition(condition, file_object, analysis_data):
             log.debug('Condition Passed rule.votes++')
             file_rule.upvote()
         else:
@@ -163,27 +159,8 @@ def evaluate_rule(file_rule, file_object, analysis_data):
     return True
 
 
-def eval_condition(condition_field, condition_value, file_object,
-                   analysis_data):
-    """
-    Evaluates a condition.
-
-    Evaluates a CONDITION, given as a condition field (like "basename") and a
-    associated condition value (like "test.jpg").
-    The evaluation process depends on the condition field.
-    The condition value ("expected") is compared with data in the file
-    object and analysis data ("actual").
-
-    Args:
-        condition_field:
-        condition_value:
-        file_object:
-        analysis_data:
-
-    Returns:
-    """
-    # TODO: [TD0001] Needs a COMPLETE rewrite using some general (GOOD) method!
-    # TODO: [TD0002] Pass in wrapped types?
+def eval_condition(condition, file_object, analysis_data):
+    # TODO: FIX THIS! Use the parser referenced in the 'RuleCondition' instance.
 
     def eval_regex(expression, match_data):
         if re.match(expression, match_data):
@@ -220,24 +197,24 @@ def eval_condition(condition_field, condition_value, file_object,
         pass
 
     # Regex Fields
-    if condition_field == 'filesystem.basename':
+    if condition.query_string == 'filesystem.basename':
         # TODO: [TD0004] Handle configuration encoding elsewhere.
-        condition_value = util.encode_(condition_value)
+        condition_value = util.encode_(condition.expression)
         return eval_regex(condition_value, file_object.filename)
 
-    elif condition_field == 'filesystem.extension':
+    elif condition.query_string == 'filesystem.extension':
         # TODO: [TD0004] Handle configuration encoding elsewhere.
-        condition_value = util.encode_(condition_value)
+        condition_value = util.encode_(condition.expression)
         return eval_regex(condition_value, file_object.suffix)
 
-    elif condition_field == 'filesystem.pathname':
+    elif condition.query_string == 'filesystem.pathname':
         # TODO: [TD0004] Handle configuration encoding elsewhere.
-        condition_value = util.encode_(condition_value)
+        condition_value = util.encode_(condition.expression)
         return eval_path(condition_value, file_object.pathname)
 
     # Custom "MIME glob" field
-    elif condition_field == 'contents.mime_type':
-        return eval_mime_type(condition_value, file_object.mime_type)
+    elif condition.query_string == 'contents.mime_type':
+        return eval_mime_type(condition.expression, file_object.mime_type)
 
     # TODO: [TD0001] Implement datetime check
     # elif condition_field == 'date_accessed':
