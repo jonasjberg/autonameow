@@ -410,12 +410,13 @@ def parse_sources(raw_sources):
         if not isinstance(query_string, list):
             query_string = [query_string]
 
-        for v in query_string:
-            if is_valid_source(v):
-                log.debug('Validated source: [{}]: {}'.format(template_field, v))
-                passed[template_field] = v
+        for qs in query_string:
+            if is_valid_source(qs):
+                log.debug('Validated source: [{}]: {}'.format(template_field,
+                                                              qs))
+                passed[template_field] = qs
             else:
-                log.debug('Invalid source: [{}]: {}'.format(template_field, v))
+                log.debug('Invalid source: [{}]: {}'.format(template_field, qs))
 
     log.debug('First filter passed {} sources'.format(len(passed)))
 
