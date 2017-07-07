@@ -158,7 +158,8 @@ def assemble_basename(name_template, **kwargs):
         raise TypeError('"name_template" must be of type "str"')
 
     if "'" or '"' in name_template:
-        log.debug('Removing single and double quotes from template')
+        log.debug('Removing single and double quotes from template: '
+                  '"{!s}"'.format(name_template))
     while "'" in name_template:
         name_template = name_template.replace("'", '')
     while '"' in name_template:
