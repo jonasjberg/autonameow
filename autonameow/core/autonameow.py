@@ -122,8 +122,12 @@ class Autonameow(object):
                 log.info('Using configuration: "{}"'.format(_disp_config_path))
                 try:
                     self.config = Configuration(config.ConfigFilePath)
-                except exceptions.ConfigurationSyntaxError as e:
-                    log.critical('Configuration syntax error: "{!s}"'.format(e))
+                except exceptions.ConfigError as e:
+                    log.critical('Configuration error: "{!s}"'.format(e))
+
+        if not self.config:
+            log.critical('Unable to load configuration -- Aborting ..')
+            self.exit_program(constants.EXIT_ERROR)
 
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
