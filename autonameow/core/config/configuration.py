@@ -401,20 +401,21 @@ def parse_sources(raw_sources):
 
     log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
 
-    for field, value in raw_sources.items():
-        if not value:
-            log.debug('Skipped empty source specification: {}'.format(field))
+    for template_field, query_string in raw_sources.items():
+        if not query_string:
+            log.debug('Skipped source with empty query string, template field: '
+                      '{}'.format(template_field))
             continue
 
-        if not isinstance(value, list):
-            value = [value]
+        if not isinstance(query_string, list):
+            query_string = [query_string]
 
-        for v in value:
+        for v in query_string:
             if is_valid_source(v):
-                log.debug('Validated source: [{}]: {}'.format(field, v))
-                passed[field] = v
+                log.debug('Validated source: [{}]: {}'.format(template_field, v))
+                passed[template_field] = v
             else:
-                log.debug('Invalid source: [{}]: {}'.format(field, v))
+                log.debug('Invalid source: [{}]: {}'.format(template_field, v))
 
     log.debug('First filter passed {} sources'.format(len(passed)))
 
