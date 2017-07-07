@@ -29,10 +29,10 @@ from core import (
     util,
     version
 )
+from core.config import field_parsers
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     DateTimeConfigFieldParser,
-    FieldParsers
 )
 from core.util import (
     textutils
@@ -533,7 +533,7 @@ def validate_condition_value(condition_field, condition_value):
         else:
             return False
 
-    for parser in FieldParsers:
+    for parser in field_parsers.FieldParsers:
         if field in parser.applies_to_field:
             if parser.validate(condition_value):
                 return condition_value
