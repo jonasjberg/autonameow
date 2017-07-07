@@ -25,7 +25,8 @@ from datetime import datetime
 
 from core import (
     constants,
-    extraction
+    extraction,
+    util
 )
 from core.evaluate import namebuilder
 from core.exceptions import NameTemplateSyntaxError
@@ -215,6 +216,27 @@ def suitable_field_parser_for(field):
         A list of instantiated field parsers that can handle the given field.
     """
     return [p for p in FieldParsers if field in p.applies_to_field]
+
+
+def suitable_parser_for_querystr(query_string):
+    """
+    Returns instances of field parser classes that can handle the given
+    query string.
+
+    Args:
+        query_string: The field to validate. Examples;
+            'metadata.exiftool.datetime', 'contents.mime_type'
+
+    Returns:
+        A list of instantiated parsers that can handle the given query string.
+    """
+
+    # Get the last part of the field; 'mime_type' for 'contents.mime_type'.
+    field_components = util.query_string_list(query_string)
+    last_component = field_components[-1:][0]
+
+    return suitable_field_parser_for(last_component)
+
 
 # Instantiate rule parsers inheriting from the 'Parser' class.
 FieldParsers = get_instantiated_field_parsers()

@@ -31,7 +31,8 @@ from core.config.field_parsers import (
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser,
     MetadataSourceConfigFieldParser,
-    suitable_field_parser_for
+    suitable_field_parser_for,
+    suitable_parser_for_querystr
 )
 
 
@@ -246,7 +247,7 @@ class TestSuitableFieldParserFor(TestCase):
         actual = suitable_field_parser_for('miiime_type')
         self.assertEqual(len(actual), 0)
 
-    def test_returns_expected_given_valid_nameformat_field(self):
+    def test_returns_expected_given_valid_name_format_field(self):
         actual = suitable_field_parser_for('NAME_FORMAT')
         self.assertEqual(len(actual), 1)
         self.assertEqual(str(actual[0]), 'NameFormatConfigFieldParser')
@@ -261,5 +262,38 @@ class TestSuitableFieldParserFor(TestCase):
     def test_regex_field_parser_handles_multiple_fields(self):
         for field in ['pathname', 'basename', 'extension', 'raw_text']:
             actual = suitable_field_parser_for(field)
+            self.assertEqual(len(actual), 1)
+            self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+
+
+class TestSuitableParserForQueryString(TestCase):
+    def test_returns_expected_type(self):
+        actual = suitable_parser_for_querystr('mime_type')
+        self.assertTrue(isinstance(actual, list))
+
+    def test_returns_expected_given_valid_mime_type_field(self):
+        actual = suitable_parser_for_querystr('contents.mime_type')
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), 'MimeTypeConfigFieldParser')
+
+    def test_returns_expected_given_invalid_mime_type_field(self):
+        actual = suitable_parser_for_querystr('miiime_type')
+        self.assertEqual(len(actual), 0)
+
+    def test_returns_expected_given_valid_name_format_field(self):
+        actual = suitable_parser_for_querystr('NAME_FORMAT')
+        self.assertEqual(len(actual), 1)
+
+    def test_datetime_field_parser_handles_multiple_fields(self):
+        for field in ['datetime', 'date_accessed',
+                      'date_created', 'date_modified']:
+            actual = suitable_parser_for_querystr(field)
+            self.assertEqual(len(actual), 1)
+            self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
+
+    def test_regex_field_parser_handles_multiple_fields(self):
+        for field in ['filesystem.pathname', 'filesystem.basename',
+                      'filesystem.extension', 'contents.textual.raw_text']:
+            actual = suitable_parser_for_querystr(field)
             self.assertEqual(len(actual), 1)
             self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
