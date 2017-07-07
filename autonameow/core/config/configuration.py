@@ -26,8 +26,7 @@ from core import (
     config,
     constants,
     exceptions,
-    util,
-    version
+    util
 )
 from core.config import field_parsers
 from core.config.field_parsers import (
