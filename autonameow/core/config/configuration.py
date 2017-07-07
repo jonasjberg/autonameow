@@ -410,14 +410,13 @@ def parse_sources(raw_sources):
                       '(query string: "{!s}")'.format(query_string))
             continue
 
-        if not isinstance(query_string, list):
-            query_string = [query_string]
-
         if not field_parsers.is_valid_template_field(template_field):
             log.error('Skipped source with invalid name template field. '
                       '(query string: "{!s}")'.format(query_string))
             continue
 
+        if not isinstance(query_string, list):
+            query_string = [query_string]
         for qs in query_string:
             if is_valid_source(qs):
                 log.debug('Validated source: [{}]: {}'.format(template_field,
