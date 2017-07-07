@@ -45,6 +45,8 @@ class RuleCondition(object):
                 condition. For example; "contents.mime_type".
             raw_expression: A expression to use when evaluating this condition.
         """
+        # TODO: Clean up setting the 'parser' attribute.
+        # NOTE(jonas): The query string determines which parser class is used.
         self.parser = None
         self.query_string = raw_query_string
         self.expression = raw_expression
