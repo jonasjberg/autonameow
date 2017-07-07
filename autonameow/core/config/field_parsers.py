@@ -239,6 +239,23 @@ def suitable_parser_for_querystr(query_string):
     return suitable_field_parser_for(last_component)
 
 
+def is_valid_template_field(template_field):
+    """
+    Checks whether the given string is a legal name template placeholder field.
+
+    Args:
+        template_field: The field to test as type str.
+
+    Returns:
+        True if the given string is a legal name template field, else False.
+    """
+    if not template_field:
+        return False
+    if template_field in constants.NAME_TEMPLATE_FIELDS:
+        return True
+    return False
+
+
 # Instantiate rule parsers inheriting from the 'Parser' class.
 FieldParsers = get_instantiated_field_parsers()
 

@@ -32,7 +32,7 @@ from core import (
 from core.config import field_parsers
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
-    DateTimeConfigFieldParser,
+    DateTimeConfigFieldParser
 )
 from core.util import (
     textutils
@@ -409,6 +409,11 @@ def parse_sources(raw_sources):
 
         if not isinstance(query_string, list):
             query_string = [query_string]
+
+        if not field_parsers.is_valid_template_field(template_field):
+            log.error('Skipped source with invalid name template field. '
+                      '(query string: "{!s}")'.format(query_string))
+            continue
 
         for qs in query_string:
             if is_valid_source(qs):
