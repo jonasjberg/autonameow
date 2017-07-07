@@ -59,10 +59,6 @@ class TestConstants(TestCase):
         self.assertIsNotNone(constants.ANALYSIS_RESULTS_FIELDS)
         self.assertTrue(isinstance(constants.ANALYSIS_RESULTS_FIELDS, list))
 
-    def test_constants_contains_data_fields(self):
-        self.assertIsNotNone(constants.DATA_FIELDS)
-        self.assertTrue(isinstance(constants.DATA_FIELDS, dict))
-
     def test_constants_contains_results_data_structure(self):
         self.assertIsNotNone(constants.RESULTS_DATA_STRUCTURE)
         self.assertTrue(isinstance(constants.RESULTS_DATA_STRUCTURE, dict))

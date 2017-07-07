@@ -297,3 +297,9 @@ class TestSuitableParserForQueryString(TestCase):
             actual = suitable_parser_for_querystr(field)
             self.assertEqual(len(actual), 1)
             self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+
+
+class TestFieldparserConstants(TestCase):
+    def test_has_dummy_data_fields_constant(self):
+        self.assertIsNotNone(field_parsers.DATA_FIELDS)
+        self.assertTrue(isinstance(field_parsers.DATA_FIELDS, dict))

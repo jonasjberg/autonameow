@@ -28,6 +28,7 @@ from core import (
     extraction,
     util
 )
+from core.constants import NAME_TEMPLATE_FIELDS
 from core.evaluate import namebuilder
 from core.exceptions import NameTemplateSyntaxError
 
@@ -151,7 +152,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
             return False
 
         try:
-            namebuilder.assemble_basename(expression, **constants.DATA_FIELDS)
+            namebuilder.assemble_basename(expression, **DATA_FIELDS)
         except NameTemplateSyntaxError:
             return False
         else:
@@ -240,3 +241,7 @@ def suitable_parser_for_querystr(query_string):
 
 # Instantiate rule parsers inheriting from the 'Parser' class.
 FieldParsers = get_instantiated_field_parsers()
+
+# This is used for validating name templates. Dict is populated like this;
+#   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
+DATA_FIELDS = dict.fromkeys(NAME_TEMPLATE_FIELDS, 'DUMMY')
