@@ -42,7 +42,6 @@ NAME_TEMPLATE_FIELDS = (
 )
 
 # The dictionary is populated like this;
-#
 #   DATA_FIELDS = {'author': 'DUMMY',
 #                  'datetime': 'DUMMY',
 #                  'description': 'DUMMY',
@@ -52,9 +51,7 @@ NAME_TEMPLATE_FIELDS = (
 #                  'tags': 'DUMMY',
 #                  'title': 'DUMMY',
 #                  'year': 'DUMMY'}
-DATA_FIELDS = dict.fromkeys(ANALYSIS_RESULTS_FIELDS +
-                            ['edition', 'date', 'description', 'extension'],
-                            'DUMMY')
+DATA_FIELDS = dict.fromkeys(NAME_TEMPLATE_FIELDS, 'DUMMY')
 
 
 # Reference analysis results data structure with all valid fields/sources.
