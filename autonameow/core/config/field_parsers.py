@@ -73,6 +73,10 @@ class ConfigFieldParser(object):
         """
         return self.get_validation_function()(expression)
 
+    def __str__(self):
+        return self.__class__.__name__
+
+
     # TODO: [TD0001] Add validation and evaluation methods to parser classes?
 
 
