@@ -26,7 +26,8 @@ from datetime import datetime
 from core import (
     constants,
     extraction,
-    util
+    util,
+    fileobject
 )
 from core.constants import NAME_TEMPLATE_FIELDS
 from core.evaluate import namebuilder
@@ -60,6 +61,9 @@ class ConfigFieldParser(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
+    def get_evaluation_function(self):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
     def validate(self, expression):
         """
         Validates a given field. Should be called through classes inheriting
@@ -75,11 +79,20 @@ class ConfigFieldParser(object):
         """
         return self.get_validation_function()(expression)
 
+    def evaluate(self, expression, data):
+        """
+        Evaluates a given expression using the specified data.
+
+        Args:
+            expression:
+            data:
+
+        Returns:
+        """
+        return self.get_evaluation_function()(expression, data)
+
     def __str__(self):
         return self.__class__.__name__
-
-
-    # TODO: [TD0001] Add validation and evaluation methods to parser classes?
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
@@ -105,6 +118,9 @@ class RegexConfigFieldParser(ConfigFieldParser):
     def get_validation_function(self):
         return self.is_valid_regex
 
+    def get_evaluation_function(self):
+        return self.evaluate_regex
+
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['mime_type']
@@ -122,6 +138,9 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
     def get_validation_function(self):
         return self.is_valid_mime_type
+
+    def get_evaluation_function(self):
+        return fileobject.eval_magic_glob
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
@@ -142,6 +161,10 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
     def get_validation_function(self):
         return self.is_valid_datetime
 
+    def get_evaluation_function(self):
+        # TODO: Implement this!
+        pass
+
 
 class NameFormatConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['NAME_FORMAT']
@@ -160,6 +183,10 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
     def get_validation_function(self):
         return self.is_valid_format_string
+
+    def get_evaluation_function(self):
+        # TODO: Implement this!
+        pass
 
 
 class MetadataSourceConfigFieldParser(ConfigFieldParser):
@@ -181,6 +208,10 @@ class MetadataSourceConfigFieldParser(ConfigFieldParser):
 
     def get_validation_function(self):
         return self.is_valid_metadata_source
+
+    def get_evaluation_function(self):
+        # TODO: Implement this!
+        pass
 
 
 def get_instantiated_field_parsers():
