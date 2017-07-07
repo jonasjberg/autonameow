@@ -25,11 +25,8 @@ from core.config.conditions import RuleCondition
 
 
 class TestRuleCondition(TestCase):
-    def setUp(self):
-        self.rc = RuleCondition(None, None)
-
     def test_rulecondition_is_defined(self):
-        self.assertIsNotNone(self.rc)
+        self.assertIsNotNone(RuleCondition)
 
 
 class TestRuleConditionFromValidInput(TestCase):

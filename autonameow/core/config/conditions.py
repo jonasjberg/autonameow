@@ -46,8 +46,8 @@ class RuleCondition(object):
                 condition. For example; "contents.mime_type".
             raw_expression: A expression to use when evaluating this condition.
         """
-        self._query_string = raw_query_string
-        self._expression = raw_expression
+        self.query_string = raw_query_string
+        self.expression = raw_expression
 
     @property
     def query_string(self):
@@ -57,7 +57,7 @@ class RuleCondition(object):
     def query_string(self, raw_query_string):
         valid_query_string = self._validate_query_string(raw_query_string)
         if valid_query_string:
-            self._query_string = valid_query_string
+            self._query_string = raw_query_string
         else:
             raise TypeError(
                 'Invalid query string: "{!s}"'.format(raw_query_string)
@@ -83,10 +83,22 @@ class RuleCondition(object):
         # The "query string" is required in order to know how the expression
         # should be evaluated. Consider the expression invalid.
         if not self.query_string:
-            return
-        parser = field_parsers.suitable_field_parser_for(self.query_string)
+            raise ValueError(
+                'A valid "query string" is required for validation.'
+            )
+
+        parsers = field_parsers.suitable_parser_for_querystr(self.query_string)
+        if not parsers:
+            raise ValueError('Found no suitable parsers for query string: '
+                             '"{!s}"'.format(self.query_string))
+        else:
+            parser = parsers[0]
         if parser.validate(raw_expression):
             self._expression = raw_expression
+        else:
+            raise ValueError(
+                'Invalid expression: "{!s}"'.format(raw_expression)
+            )
 
     @staticmethod
     def _validate_query_string(raw_query_string):
@@ -102,10 +114,6 @@ class RuleCondition(object):
             #                ('Defined', '> 2017', etc)
             return True
 
-        # Get the last part of the field; 'mime_type' for 'contents.mime_type'.
-        field_components = util.query_string_list(raw_query_string)
-        field = field_components[-1:][0]
-
-        if field_parsers.suitable_field_parser_for(field):
+        if field_parsers.suitable_parser_for_querystr(raw_query_string):
             return True
         return False
