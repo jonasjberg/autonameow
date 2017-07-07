@@ -30,7 +30,8 @@ from core.config.field_parsers import (
     MimeTypeConfigFieldParser,
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser,
-    MetadataSourceConfigFieldParser
+    MetadataSourceConfigFieldParser,
+    suitable_field_parser_for
 )
 
 
@@ -229,3 +230,36 @@ class TestInstantiatedFieldParsers(TestCase):
     def test_configuration_field_parsers_instance_of_config_field_parser(self):
         for parser in field_parsers.FieldParsers:
             self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
+
+
+class TestSuitableFieldParserFor(TestCase):
+    def test_returns_expected_type(self):
+        actual = suitable_field_parser_for('mime_type')
+        self.assertTrue(isinstance(actual, list))
+
+    def test_returns_expected_given_valid_mime_type_field(self):
+        actual = suitable_field_parser_for('mime_type')
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), 'MimeTypeConfigFieldParser')
+
+    def test_returns_expected_given_invalid_mime_type_field(self):
+        actual = suitable_field_parser_for('miiime_type')
+        self.assertEqual(len(actual), 0)
+
+    def test_returns_expected_given_valid_nameformat_field(self):
+        actual = suitable_field_parser_for('NAME_FORMAT')
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), 'NameFormatConfigFieldParser')
+
+    def test_datetime_field_parser_handles_multiple_fields(self):
+        for field in ['datetime', 'date_accessed',
+                      'date_created', 'date_modified']:
+            actual = suitable_field_parser_for(field)
+            self.assertEqual(len(actual), 1)
+            self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
+
+    def test_regex_field_parser_handles_multiple_fields(self):
+        for field in ['pathname', 'basename', 'extension', 'raw_text']:
+            actual = suitable_field_parser_for(field)
+            self.assertEqual(len(actual), 1)
+            self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')

@@ -204,5 +204,17 @@ def available_field_parsers():
             globals()['ConfigFieldParser'].__subclasses__()]
 
 
+def suitable_field_parser_for(field):
+    """
+    Returns instances of field parser classes that can handle the given field.
+
+    Args:
+        field: The field to validate. Examples: 'datetime', 'mime_type'
+
+    Returns:
+        A list of instantiated field parsers that can handle the given field.
+    """
+    return [p for p in FieldParsers if field in p.applies_to_field]
+
 # Instantiate rule parsers inheriting from the 'Parser' class.
 FieldParsers = get_instantiated_field_parsers()
