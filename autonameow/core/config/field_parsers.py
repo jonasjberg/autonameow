@@ -126,7 +126,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['datetime', 'date_accessed', 'date_created',
-                        'date_modified']
+                        'date_modified', 'DateTimeOriginal']
 
     @staticmethod
     def is_valid_datetime(expression):
