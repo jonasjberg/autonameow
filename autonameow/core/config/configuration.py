@@ -402,8 +402,12 @@ def parse_sources(raw_sources):
 
     for template_field, query_string in raw_sources.items():
         if not query_string:
-            log.debug('Skipped source with empty query string, template field: '
-                      '{}'.format(template_field))
+            log.error('Skipped source with empty query string (template field: '
+                      '"{!s}")'.format(template_field))
+            continue
+        elif not template_field:
+            log.error('Skipped source with empty name template field. '
+                      '(query string: "{!s}")'.format(query_string))
             continue
 
         if not isinstance(query_string, list):
@@ -422,7 +426,7 @@ def parse_sources(raw_sources):
             else:
                 log.debug('Invalid source: [{}]: {}'.format(template_field, qs))
 
-    log.debug('First filter passed {} sources'.format(len(passed)))
+    log.debug('parse_sources returned {} valid sources'.format(len(passed)))
 
     return passed
 
