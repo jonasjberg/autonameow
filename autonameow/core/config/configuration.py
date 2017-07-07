@@ -29,6 +29,7 @@ from core import (
     util
 )
 from core.config import field_parsers
+from core.config.conditions import RuleCondition
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     DateTimeConfigFieldParser
@@ -417,6 +418,7 @@ def parse_sources(raw_sources):
 
         if not isinstance(query_string, list):
             query_string = [query_string]
+
         for qs in query_string:
             if is_valid_source(qs):
                 log.debug('Validated source: [{}]: {}'.format(template_field,
@@ -472,18 +474,19 @@ def parse_conditions(raw_conditions):
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
     try:
-        for key, value in raw_conditions.items():
-            valid_condition = validate_condition_value(key, value)
+        for query_string, expression in raw_conditions.items():
+            # valid_condition = validate_condition_value(key, value)
+            valid_condition = get_valid_rule_condition(query_string, expression)
             if not valid_condition:
                 raise exceptions.ConfigurationSyntaxError(
-                    'contains invalid condition [{}]: {}'.format(key, value)
+                    'contains invalid condition [{}]: {}'.format(query_string, expression)
                 )
 
             # TODO: [TD0001] Check if clobbering is an issue and how to fix.
-            if key in out:
-                log.warning('Clobbering condition: {!s}'.format(key))
-            out[key] = value
-            log.debug('Validated condition: [{}]: {}'.format(key, value))
+            if query_string in out:
+                log.warning('Clobbering condition: {!s}'.format(query_string))
+            out[query_string] = expression
+            log.debug('Validated condition: [{}]: {}'.format(query_string, expression))
     except ValueError as e:
         raise exceptions.ConfigurationSyntaxError(
             'contains invalid condition: ' + str(e)
@@ -492,6 +495,16 @@ def parse_conditions(raw_conditions):
     log.debug('First filter passed {} conditions'.format(len(out)))
 
     return out
+
+
+def get_valid_rule_condition(raw_query, raw_value):
+    try:
+        condition = RuleCondition(raw_query, raw_value)
+    except TypeError as e:
+        log.critical('Invalid rule condition: {!s}'.format(e))
+        return False
+    else:
+        return condition
 
 
 def validate_condition_value(condition_field, condition_value):

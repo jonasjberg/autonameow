@@ -45,6 +45,7 @@ class RuleCondition(object):
                 condition. For example; "contents.mime_type".
             raw_expression: A expression to use when evaluating this condition.
         """
+        self.parser = None
         self.query_string = raw_query_string
         self.expression = raw_expression
 
@@ -86,21 +87,20 @@ class RuleCondition(object):
                 'A valid "query string" is required for validation.'
             )
 
-        parsers = field_parsers.suitable_parser_for_querystr(self.query_string)
-        if not parsers:
+        #parsers = field_parsers.suitable_parser_for_querystr(self.query_string)
+        #if not parsers:
+        if not self.parser:
             raise ValueError('Found no suitable parsers for query string: '
                              '"{!s}"'.format(self.query_string))
         else:
-            parser = parsers[0]
-        if parser.validate(raw_expression):
-            self._expression = raw_expression
-        else:
-            raise ValueError(
-                'Invalid expression: "{!s}"'.format(raw_expression)
-            )
+            if self.parser.validate(raw_expression):
+                self._expression = raw_expression
+            else:
+                raise ValueError(
+                    'Invalid expression: "{!s}"'.format(raw_expression)
+                )
 
-    @staticmethod
-    def _validate_query_string(raw_query_string):
+    def _validate_query_string(self, raw_query_string):
         if not raw_query_string:
             return False
 
@@ -113,6 +113,8 @@ class RuleCondition(object):
             #                ('Defined', '> 2017', etc)
             return True
 
-        if field_parsers.suitable_parser_for_querystr(raw_query_string):
+        parsers = field_parsers.suitable_parser_for_querystr(raw_query_string)
+        if parsers:
+            self.parser = parsers[0]
             return True
         return False
