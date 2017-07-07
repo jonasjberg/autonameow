@@ -44,9 +44,6 @@ logmsg "Running the Command-Line Interface test suite .."
 
 
 
-assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
-            'Should be running a target operating system'
-
 assert_true 'command -v python3 >/dev/null 2>&1' \
             "Python v3.x is available on the system"
 
@@ -195,61 +192,6 @@ assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 
             "Automagic mode output should include \"${SAMPLE_PDF_FILE_EXPECTED_MACOS}\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\" (expect PASSED on MacOS)"
 
 
-EMPTY_CONFIG='/tmp/autonameow_empty_config.yaml'
-assert_true 'touch "$EMPTY_CONFIG" 2>&1 >/dev/null' \
-            "detect_empty_config Test setup should succeed"
-
-assert_false '( "$AUTONAMEOW_RUNNER" --config-path "$EMPTY_CONFIG" 2>&1 ) >/dev/null' \
-             "detect_empty_config Specifying a empty configuration file with \"--config-path\" should be handled properly"
-
-assert_true '[ -f "$EMPTY_CONFIG" ] && rm -- "$EMPTY_CONFIG" 2>&1 >/dev/null' \
-            "detect_empty_config Test teardown should succeed"
-
-assert_false '( "$AUTONAMEOW_RUNNER" --config-path /tmp/does_not_exist_surely.mjao 2>&1 ) >/dev/null' \
-             "Specifying an invalid path with \"--config-path\" should be handled properly"
-
-
-BAD_CONFIG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/bad_config.yaml" ) )"
-assert_true '[ -e "$BAD_CONFIG_FILE" ]' \
-            "A known bad configuration file exists. Add suitable test file if this test fails!"
-
-assert_false '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE" 2>&1 ) >/dev/null' \
-             "Attempting to load a invalid configuration file with \"--config-path\" should be handled properly"
-
-
-assert_true '( "$AUTONAMEOW_RUNNER" --dump-options --verbose 2>&1 ) >/dev/null' \
-            "autonameow should return zero when started with \"--dump-options\" and \"--verbose\""
-
-
-NONASCII_CONFIG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/autonam€öw.yaml" ) )"
-assert_true '[ -e "$NONASCII_CONFIG_FILE" ]' \
-            "A non-ASCII configuration file exists. Add suitable test file if this test fails!"
-
-assert_true '( "$AUTONAMEOW_RUNNER" --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
-             "Attempting to load a non-ASCII configuration file with \"--config-path\" should be handled properly"
-
-assert_true '( "$AUTONAMEOW_RUNNER" --verbose --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--verbose\""
-
-assert_true '( "$AUTONAMEOW_RUNNER" --debug --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--debug\""
-
-assert_true '( "$AUTONAMEOW_RUNNER" --quiet --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--quiet\""
-
-assert_true '( "$AUTONAMEOW_RUNNER" --dump-options --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--dump-options\""
-
-assert_true '( "$AUTONAMEOW_RUNNER" --dump-options --verbose --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--dump-options\", \"--verbose\""
-
-assert_true '( "$AUTONAMEOW_RUNNER" --dump-options --debug --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--dump-options\", \"--debug\""
-
-assert_true '( "$AUTONAMEOW_RUNNER" --dump-options --quiet --config-path "$NONASCII_CONFIG_FILE" 2>&1 ) >/dev/null' \
-             "Expect exit code 0 for non-ASCII configuration file and \"--dump-options\", \"--quiet\""
-
-
 TEST_FILES_SUBDIR="$( ( cd "$SELF_DIR" && realpath -e "../test_files/subdir" ) )"
 assert_true '[ -d "$TEST_FILES_SUBDIR" ]' \
             "The \"test_files/subdir\" directory exists. Add suitable test files if this test fails!"
@@ -259,30 +201,6 @@ assert_true '( "$AUTONAMEOW_RUNNER" --recurse --dry-run -- "$TEST_FILES_SUBDIR" 
 
 assert_true '( "$AUTONAMEOW_RUNNER" --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 ) | col -b | grep -q ".*Got 8 files to process.*"' \
             "Expect output to contain \"Got 8 files to process\" when running \"--verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
-
-
-set +o pipefail
-BAD_CONFIG_FILE_NO_FILE_RULES="$( ( cd "$SELF_DIR" && realpath -e "../test_files/bad_config_no_file_rules.yaml" ) )"
-assert_true '[ -e "$BAD_CONFIG_FILE_NO_FILE_RULES" ]' \
-            "A configuration file without file rules exists. Add suitable test file if this test fails!"
-
-assert_true '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_NO_FILE_RULES" 2>&1 ) | grep -q "Unable to load configuration"' \
-            "Attempting to load a configuration file without any file rules should be handled properly"
-
-BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS="$( ( cd "$SELF_DIR" && realpath -e "../test_files/bad_config_empty_but_sections.yaml" ) )"
-assert_true '[ -e "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" ]' \
-            "A configuration file that contains only sections without contents exists. Add suitable test file if this test fails!"
-
-assert_true '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" 2>&1 ) | grep -q "Unable to load configuration"' \
-            "Attempting to load a configuration file with just bare sections should be handled properly"
-
-BAD_CONFIG_FILE_EMPTY_BUT_VERSION="$( ( cd "$SELF_DIR" && realpath -e "../test_files/bad_config_empty_but_version.yaml" ) )"
-assert_true '[ -e "$BAD_CONFIG_FILE_EMPTY_BUT_VERSION" ]' \
-            "A configuration file that only contains the program version exists. Add suitable test file if this test fails!"
-
-assert_true '( "$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY_BUT_VERSION" 2>&1 ) | grep -q "Unable to load configuration"' \
-            "Attempting to load a configuration file that only contains the program version should be handled properly"
-set -o pipefail
 
 
 
