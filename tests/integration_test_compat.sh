@@ -50,7 +50,7 @@ assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
 assert_true 'command -v python3 >/dev/null 2>&1' \
             "Python v3.x is available on the system"
 
-assert_true 'python3 --version | grep "Python 3.[5-9].\d" >/dev/null 2>&1' \
+assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]" >/dev/null 2>&1' \
             "Python v3.5.0 or newer is available on the system"
 
 AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../run.sh" ) )"
@@ -69,10 +69,10 @@ assert_true '( "$AUTONAMEOW_RUNNER" 2>&1 ) >/dev/null' \
 assert_true '( "$AUTONAMEOW_RUNNER" --version 2>&1 ) >/dev/null' \
             "autonameow should return zero when started with \"--version\""
 
-assert_true '( "$AUTONAMEOW_RUNNER" --version 2>&1 ) | grep -o -- "version v\d\.\d\.\d" >/dev/null' \
+assert_true '( "$AUTONAMEOW_RUNNER" --version 2>&1 ) | grep -o -- "version v[0-9]\.[0-9]\.[0-9]" >/dev/null' \
             "The output should contain a version string matching \"vX.X.X\" when started with \"--version\""
 
-AUTONAMEOW_VERSION="$(( "$AUTONAMEOW_RUNNER" --version 2>&1 ) | grep -o -- "version v\d\.\d\.\d" | grep -o -- "\d\.\d\.\d")"
+AUTONAMEOW_VERSION="$(( "$AUTONAMEOW_RUNNER" --version 2>&1 ) | grep -o -- "version v[0-9]\.[0-9]\.[0-9]" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
 assert_false '[ -z "$AUTONAMEOW_VERSION" ]' \
              'This test script should be able to retrieve the program version.'
 
@@ -86,10 +86,13 @@ assert_false '[ -z "$AUTONAMEOW_CONFIG_PATH" ]' \
 # Strip quotes from configuration file path.
 AUTONAMEOW_CONFIG_PATH="${AUTONAMEOW_CONFIG_PATH//\"/}"
 
-assert_true 'grep -o -- "^autonameow_version: \d\.\d\.\d$" "$AUTONAMEOW_CONFIG_PATH" >/dev/null' \
+assert_true '[ -f "$AUTONAMEOW_CONFIG_PATH" ]' \
+            'The path of the used configuration file should be a existing file.'
+
+assert_true 'grep -o -- "^autonameow_version: v[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH" >/dev/null' \
             "The retrieved configuration file contents should match \"^autonameow_version: X.X.X$\""
 
-CONFIG_FILE_VERSION="$(grep -o -- "^autonameow_version: \d\.\d\.\d$" "$AUTONAMEOW_CONFIG_PATH" | grep -o -- "\d\.\d\.\d")"
+CONFIG_FILE_VERSION="$(grep -o -- "^autonameow_version: v[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
 assert_false '[ -z "$CONFIG_FILE_VERSION" ]' \
              'This test script should be able to retrieve the configuration file version.'
 
