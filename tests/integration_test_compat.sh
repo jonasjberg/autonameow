@@ -53,6 +53,12 @@ assert_true 'command -v python3 >/dev/null 2>&1' \
 assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]" >/dev/null 2>&1' \
             "Python v3.5.0 or newer is available on the system"
 
+assert_true 'command -v exiftool >/dev/null 2>&1' \
+            "exiftool is available on the system"
+
+assert_true 'command -v tesseract >/dev/null 2>&1' \
+            "tesseract is available on the system"
+
 AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../run.sh" ) )"
 assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
              'Environment variable "AUTONAMEOW_RUNNER" should not be unset'
