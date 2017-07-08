@@ -476,7 +476,7 @@ def parse_conditions(raw_conditions):
                 )
 
             out.append(valid_condition)
-            log.debug('Validated condition: {!s}'.format(valid_condition))
+            log.debug('Validated condition: "{!s}"'.format(valid_condition))
     except ValueError as e:
         raise exceptions.ConfigurationSyntaxError(
             'contains invalid condition: ' + str(e)
