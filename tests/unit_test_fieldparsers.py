@@ -326,3 +326,8 @@ class TestIsValidTemplateField(TestCase):
         self.assertTrue(is_valid_template_field('publisher'))
         self.assertTrue(is_valid_template_field('tags'))
         self.assertTrue(is_valid_template_field('title'))
+
+
+class TestEvalQueryStringGlob(TestCase):
+    def test_todo(self):
+        self.fail('[TD0046]')

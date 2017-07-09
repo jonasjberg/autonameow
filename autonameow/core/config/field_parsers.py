@@ -253,17 +253,24 @@ def available_field_parsers():
             globals()['ConfigFieldParser'].__subclasses__()]
 
 
-def suitable_field_parser_for(field):
+def suitable_field_parser_for(field_components):
     """
     Returns instances of field parser classes that can handle the given field.
 
     Args:
-        field: The field to validate. Examples: 'datetime', 'mime_type'
+        field_components: Query string to match against a RuleParser class.
+            Should be type list. Example: ['filesystem', 'basename', 'full']
 
     Returns:
         A list of instantiated field parsers that can handle the given field.
     """
+    # TODO: [TD0046] Improve determining FieldParser suitability.
     return [p for p in FieldParsers if field in p.applies_to_field]
+
+
+def eval_query_string_glob(match_query_string, glob_list):
+    # TODO: [TD0046] Implement this and use in 'suitable_field_parser_for'.
+    pass
 
 
 def suitable_parser_for_querystr(query_string):
@@ -291,9 +298,9 @@ def suitable_parser_for_querystr(query_string):
 
     # Get the last part of the field; 'mime_type' for 'contents.mime_type'.
     field_components = util.query_string_list(query_string)
-    last_component = field_components[-1:][0]
+    # last_component = field_components[-1:][0]
 
-    return suitable_field_parser_for(last_component)
+    return suitable_field_parser_for(field_components)
 
 
 def is_valid_template_field(template_field):
