@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging as log
+
 from core.config import field_parsers
 
 
@@ -78,17 +80,6 @@ class RuleCondition(object):
 
     @expression.setter
     def expression(self, raw_expression):
-        # TODO: [TD0001] Implement this properly!
-        # Workaround for 'metadata.exiftool.EXIF:DateTimeOriginal' ..
-        # Above test would return 'EXIF:DateTimeOriginal' but this solution
-        # would require testing the second to last part; 'exiftool', instead.
-        if self.query_string.startswith('metadata.exiftool'):
-            # TODO: [TD0015] Handle expression in 'condition_value'
-            #                ('Defined', '> 2017', etc)
-            if raw_expression:
-                self._expression = raw_expression
-                return
-
         # The "query string" is required in order to know how the expression
         # should be evaluated. Consider the expression invalid.
         if not self.query_string:
@@ -96,37 +87,60 @@ class RuleCondition(object):
                 'A valid "query string" is required for validation.'
             )
 
-        #parsers = field_parsers.suitable_parser_for_querystr(self.query_string)
-        #if not parsers:
-        if not self._parser:
+        # TODO: [TD0001] Implement this properly!
+        # NOTE(jonas): No parser can currently handle these query strings ..
+        if self.query_string.startswith('metadata.exiftool'):
+            # TODO: [TD0015] Handle expression in 'condition_value'
+            #                ('Defined', '> 2017', etc)
+            log.warning('Handling of this condition is not yet implemented!')
+            if raw_expression:
+                self._expression = raw_expression
+                return
+
+        if not self._get_parser(self.query_string):
             raise ValueError('Found no suitable parsers for query string: '
                              '"{!s}"'.format(self.query_string))
+
+        valid_expression = self._validate_expression(raw_expression)
+        if valid_expression:
+            self._expression = raw_expression
         else:
-            if self._parser.validate(raw_expression):
-                self._expression = raw_expression
-            else:
-                raise ValueError(
-                    'Invalid expression: "{!s}"'.format(raw_expression)
-                )
+            raise ValueError(
+                'Invalid expression: "{!s}"'.format(raw_expression)
+            )
 
     def _validate_query_string(self, raw_query_string):
         if not raw_query_string:
             return False
 
         # TODO: [TD0001] Implement this properly!
-        # Workaround for 'metadata.exiftool.EXIF:DateTimeOriginal' ..
-        # Above test would return 'EXIF:DateTimeOriginal' but this solution
-        # would require testing the second to last part; 'exiftool', instead.
         if raw_query_string.startswith('metadata.exiftool'):
             # TODO: [TD0015] Handle expression in 'condition_value'
             #                ('Defined', '> 2017', etc)
             return True
 
-        parsers = field_parsers.suitable_parser_for_querystr(raw_query_string)
+        if self._get_parser(raw_query_string):
+            return True
+        else:
+            return False
+
+    def _validate_expression(self, raw_expression):
+        # TODO: [TD0001] Implement this properly!
+        if self._parser.validate(raw_expression):
+            return raw_expression
+        else:
+            return False
+
+    def _get_parser(self, query_string):
+        if self._parser:
+            return self._parser
+
+        parsers = field_parsers.suitable_parser_for_querystr(query_string)
         if parsers:
             self._parser = parsers[0]
-            return True
-        return False
+            return self._parser
+        else:
+            return False
 
     def evaluate(self, data):
         """
