@@ -149,8 +149,12 @@ class Autonameow(object):
             log.warning('No input files specified ..')
             self.exit_program(constants.EXIT_SUCCESS)
 
+
         files_to_process = []
         for path in self.opts.input_paths:
+            if not path:
+                continue
+
             # Path name encoding boundary. Convert to internal format.
             path = util.normpath(path)
             try:
