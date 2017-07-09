@@ -265,7 +265,7 @@ def suitable_field_parser_for(field_components):
         A list of instantiated field parsers that can handle the given field.
     """
     # TODO: [TD0046] Improve determining FieldParser suitability.
-    return [p for p in FieldParsers if field in p.applies_to_field]
+    return [p for p in FieldParsers if field_components in p.applies_to_field]
 
 
 def eval_query_string_glob(match_query_string, glob_list):
