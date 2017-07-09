@@ -24,6 +24,11 @@ University mail: `js224eh[a]student.lnu.se`
     >
     > * Simplify configuration file syntax.
     >     * Modify the configuration file to use a "flatter" syntax.
+    >
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0031]` Add compatibility checks when loading configuration.
 
 * 2017-06-25
 

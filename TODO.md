@@ -240,8 +240,6 @@ Low Priority
     * `[TD0030]` Plugin for querying APIs with ISBN numbers.
       (Already implemented in `autoname_pdf.py` and `isbn_query.py`)
 
-* `[TD0031]` Add compatibility checks when loading configuration.
-
 * `[TD0032]` Add support for UNIX-style globs in path fields in the
   configuration.
 
