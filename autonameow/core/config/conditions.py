@@ -52,6 +52,9 @@ class RuleCondition(object):
         # Possible a list of functions already "loaded" with the target value.
         # Also "loaded" with corresponding (reference to) a validation function.
         self._parser = None
+        self._query_string = None
+        self._expression = None
+
         self.query_string = raw_query_string
         self.expression = raw_expression
 
