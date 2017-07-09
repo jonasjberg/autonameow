@@ -40,15 +40,6 @@ class RuleMatcher(object):
         self._matched_rules = []
 
     def start(self):
-        self._evaluate_rules()
-
-    @property
-    def best_match(self):
-        if not self._matched_rules:
-            return False
-        return self._matched_rules[0]
-
-    def _evaluate_rules(self):
         if not self.config.file_rules:
             log.error('Configuration did not provide any rules to evaluate')
             return
@@ -70,6 +61,12 @@ class RuleMatcher(object):
             )
 
         self._matched_rules = ok_rules
+
+    @property
+    def best_match(self):
+        if not self._matched_rules:
+            return False
+        return self._matched_rules[0]
 
 
 def prioritize_rules(rules):
