@@ -89,6 +89,8 @@ class ConfigFieldParser(object):
 
         Returns:
         """
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
         return self.get_evaluation_function()(expression, data)
 
     def __str__(self):
@@ -119,6 +121,8 @@ class RegexConfigFieldParser(ConfigFieldParser):
         return self.is_valid_regex
 
     def get_evaluation_function(self):
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
         return self.evaluate_regex
 
 
@@ -140,6 +144,8 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         return self.is_valid_mime_type
 
     def get_evaluation_function(self):
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
         return fileobject.eval_magic_glob
 
 
@@ -163,6 +169,8 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
 
     def get_evaluation_function(self):
         # TODO: Implement this!
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
         pass
 
 
@@ -186,6 +194,8 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
     def get_evaluation_function(self):
         # TODO: Implement this!
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
         pass
 
 
@@ -211,6 +221,8 @@ class MetadataSourceConfigFieldParser(ConfigFieldParser):
 
     def get_evaluation_function(self):
         # TODO: Implement this!
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
         pass
 
 
