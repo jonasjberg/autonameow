@@ -49,7 +49,7 @@ class RuleMatcher(object):
             # files. The 'FileRule' scores were not reset between files.
             self._rules = copy.deepcopy(active_config.file_rules)
 
-        self._matched_rules = []
+        self._candidates = []
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))
@@ -58,20 +58,20 @@ class RuleMatcher(object):
             log.debug('No valid rules remain after evaluation')
             return
 
-        log.debug('Prioritizing remaining {} rules ..'.format(len(ok_rules)))
+        log.debug('Prioritizing remaining {} candidates ..'.format(len(ok_rules)))
         ok_rules = prioritize_rules(ok_rules)
         for i, rule in enumerate(ok_rules):
             log.debug('{}. (score: {}, weight: {}) {} '.format(
                 i + 1, rule.score, rule.weight, rule.description)
             )
 
-        self._matched_rules = ok_rules
+        self._candidates = ok_rules
 
     @property
     def best_match(self):
-        if not self._matched_rules:
+        if not self._candidates:
             return False
-        return self._matched_rules[0]
+        return self._candidates[0]
 
 
 def prioritize_rules(rules):
