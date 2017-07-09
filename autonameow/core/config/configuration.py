@@ -72,10 +72,6 @@ class FileRule(Rule):
         # Rules are sorted/prioritized by first the score, secondly the weight.
         self.score = 0
 
-        # TODO: [TD0015] Implement "conditions" field ..
-        # Possible a list of functions already "loaded" with the target value.
-        # Also "loaded" with corresponding (reference to) a validation function.
-
     def __str__(self):
         return util.dump(self.__dict__)
 
