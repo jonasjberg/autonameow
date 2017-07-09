@@ -47,8 +47,8 @@ class RuleMatcher(object):
         # Check a copy of all rules.
         rules_to_examine = list(self.config.file_rules)
         log.debug('Examining {} rules ..'.format(len(rules_to_examine)))
-        ok_rules = examine_rules(rules_to_examine, self.file,
-                                 self.analysis_data)
+        ok_rules = self._examine_rules(rules_to_examine, self.file,
+                                       self.analysis_data)
         if len(ok_rules) == 0:
             log.debug('No valid rules remain after evaluation')
             return
@@ -61,6 +61,27 @@ class RuleMatcher(object):
             )
 
         self._matched_rules = ok_rules
+
+    def _examine_rules(self, rules_to_examine):
+        # Conditions are evaluated with the current file object and current
+        # analysis results data.
+        # If a rule requires an exact match, it is skipped at first failed
+        # evaluation.
+        ok_rules = []
+
+        for count, rule in enumerate(rules_to_examine):
+            log.debug('Evaluating rule {}/{}: "{}"'.format(
+                count + 1, len(rules_to_examine), rule.description))
+            result = evaluate_rule(rule, self.file, self.analysis_data)
+            if rule.exact_match and result is False:
+                log.debug('Rule evaluated FALSE, removing: '
+                          '"{}"'.format(rule.description))
+                continue
+
+            log.debug('Rule evaluated TRUE: "{}"'.format(rule.description))
+            ok_rules.append(rule)
+
+        return ok_rules
 
     @property
     def best_match(self):
@@ -83,28 +104,6 @@ def prioritize_rules(rules):
     """
     return sorted(rules, reverse=True,
                   key=operator.attrgetter('score', 'weight'))
-
-
-def examine_rules(rules_to_examine, file_object, analysis_data):
-    # Conditions are evaluated with the current file object and current
-    # analysis results data.
-    # If a rule requires an exact match, it is skipped at first failed
-    # evaluation.
-    ok_rules = []
-
-    for count, rule in enumerate(rules_to_examine):
-        log.debug('Evaluating rule {}/{}: "{}"'.format(
-            count + 1, len(rules_to_examine), rule.description))
-        result = evaluate_rule(rule, file_object, analysis_data)
-        if rule.exact_match and result is False:
-            log.debug('Rule evaluated FALSE, removing: '
-                      '"{}"'.format(rule.description))
-            continue
-
-        log.debug('Rule evaluated TRUE: "{}"'.format(rule.description))
-        ok_rules.append(rule)
-
-    return ok_rules
 
 
 def evaluate_rule(file_rule, file_object, analysis_data):
