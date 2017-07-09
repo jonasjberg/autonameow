@@ -257,11 +257,21 @@ def suitable_parser_for_querystr(query_string):
 
     Args:
         query_string: The field to validate. Examples;
-            'metadata.exiftool.datetime', 'contents.mime_type'
+            'metadata.exiftool.EXIF:DateTimeOriginal', 'contents.mime_type'
 
     Returns:
         A list of instantiated parsers that can handle the given query string.
     """
+    # TODO: [TD0015] Allow conditionals in the configuration file rules.
+
+    # TODO: [TD0001] Handle complex cases properly!
+    # Handle case where the last component is a field defined by an external
+    # source (extractor/analyzer). A typical example is 'exiftool'; the
+    # incoming query string 'metadata.exiftool.EXIF:DateTimeOriginal' will
+    # result in the 'last_component' being 'EXIF:DateTimeOriginal'.
+    # Considering the many possible fields returned by extractors such as
+    # exiftool, it does not seem practical to validate by comparing against
+    # hard coded values.. Need a better method that is tolerant to changes.
 
     # Get the last part of the field; 'mime_type' for 'contents.mime_type'.
     field_components = util.query_string_list(query_string)
