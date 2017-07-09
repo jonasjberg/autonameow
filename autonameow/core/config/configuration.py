@@ -73,6 +73,8 @@ class FileRule(Rule):
         self.score = 0
 
     def __str__(self):
+        # TODO: [TD0039] Do not include the file rule attribute `score` when
+        #       listing the configuration with `--dump-config`.
         return util.dump(self.__dict__)
 
     def __repr__(self):
