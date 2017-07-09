@@ -37,21 +37,23 @@ class RuleMatcher(object):
     def __init__(self, file_object, analysis_results, active_config):
         self.file = file_object
         self.analysis_data = analysis_results
-        self.config = active_config
+
+        if not active_config or not active_config.file_rules:
+            log.error('Configuration does not contain any rules to evaluate')
+            self._rules = []
+        else:
+            # NOTE(jonas): Check a copy of all rules.
+            # Temporary fix for mutable state in the 'FileRule' instances,
+            # which are initialized *once* when the configuration is loaded.
+            # This same configuration instance is used when iterating over the
+            # files. The 'FileRule' scores were not reset between files.
+            self._rules = copy.deepcopy(active_config.file_rules)
 
         self._matched_rules = []
 
     def start(self):
-        if not self.config.file_rules:
-            log.error('Configuration did not provide any rules to evaluate')
-            return
-
-        # Check a copy of all rules.
-        rules_to_examine = copy.deepcopy(self.config.file_rules)
-
-        log.debug('Examining {} rules ..'.format(len(rules_to_examine)))
-        ok_rules = examine_rules(rules_to_examine, self.file,
-                                 self.analysis_data)
+        log.debug('Examining {} rules ..'.format(len(self._rules)))
+        ok_rules = examine_rules(self._rules, self.file, self.analysis_data)
         if len(ok_rules) == 0:
             log.debug('No valid rules remain after evaluation')
             return
