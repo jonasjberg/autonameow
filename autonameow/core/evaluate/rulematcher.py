@@ -48,6 +48,7 @@ class RuleMatcher(object):
 
         # Check a copy of all rules.
         rules_to_examine = copy.deepcopy(self.config.file_rules)
+
         log.debug('Examining {} rules ..'.format(len(rules_to_examine)))
         ok_rules = examine_rules(rules_to_examine, self.file,
                                  self.analysis_data)
