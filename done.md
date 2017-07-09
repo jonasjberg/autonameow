@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-07-09
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0046]` Make sure that `FileRule` scores aren't shared between files.
+
 * 2017-06-30
 
     > High Priority

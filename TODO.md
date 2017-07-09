@@ -86,8 +86,6 @@ High Priority
 Medium Priority
 ---------------
 
-* `[TD0046]` Make sure that `FileRule` scores aren't shared between files.
-
 * `[TD0008]` Simplify installation.
     * Add support for `pip` or similar package manager.
 
