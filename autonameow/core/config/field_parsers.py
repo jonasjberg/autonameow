@@ -111,6 +111,10 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
     @staticmethod
     def evaluate_regex(expression, test_data):
+        if not test_data:
+            return False
+
+        test_data = util.encode_(test_data)
         _match = re.match(expression, test_data)
         if _match:
             return _match

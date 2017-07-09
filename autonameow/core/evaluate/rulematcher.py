@@ -165,6 +165,7 @@ def eval_condition(condition, file_object, analysis_data):
     # TODO: FIX THIS! Use the parser referenced in the 'RuleCondition' instance.
 
     def eval_regex(expression, match_data):
+        expression = util.encode_(expression)
         if re.match(expression, match_data):
             return True
         return False
