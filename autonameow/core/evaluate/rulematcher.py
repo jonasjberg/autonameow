@@ -24,6 +24,8 @@ import os
 import re
 import operator
 
+import copy
+
 from core import (
     exceptions,
     fileobject,
@@ -45,7 +47,7 @@ class RuleMatcher(object):
             return
 
         # Check a copy of all rules.
-        rules_to_examine = list(self.config.file_rules)
+        rules_to_examine = copy.deepcopy(self.config.file_rules)
         log.debug('Examining {} rules ..'.format(len(rules_to_examine)))
         ok_rules = examine_rules(rules_to_examine, self.file,
                                  self.analysis_data)
