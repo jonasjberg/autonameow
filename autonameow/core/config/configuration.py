@@ -29,7 +29,7 @@ from core import (
     util
 )
 from core.config import field_parsers
-from core.config.conditions import RuleCondition
+from core.config.rules import RuleCondition
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     DateTimeConfigFieldParser

@@ -21,7 +21,7 @@
 
 from unittest import TestCase
 
-from core.config.conditions import RuleCondition
+from core.config.rules import RuleCondition
 
 
 class TestRuleCondition(TestCase):
