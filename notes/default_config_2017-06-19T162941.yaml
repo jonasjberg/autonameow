@@ -1,0 +1,107 @@
+DATETIME_FORMAT:
+    date: '%Y-%m-%d'
+    datetime: '%Y-%m-%dT%H%M%S'
+    time: '%H-%M-%S'
+FILETAGS_OPTIONS:
+    between_tag_separator: ' '
+    filename_tag_separator: ' -- '
+FILE_RULES:
+-   CONDITIONS:
+        contents:
+            mime_type: video/*
+        filesystem:
+            pathname: ~/Desktop
+            extension: mov
+  #            basename: Untitled
+    DATA_SOURCES:
+        datetime: metadata.exiftool.QuickTime:CreationDate
+        extension: filesystem.basename.extension
+        title: filesystem.basename.prefix
+    NAME_FORMAT: "{datetime} {title} -- screenshot macbookpro.{extension}"
+    description: MacOS Screen Recording
+    exact_match: true
+-   CONDITIONS:
+        contents:
+            mime_type: application/pdf
+        filesystem:
+            basename: gmail.pdf
+            extension: pdf
+    DATA_SOURCES:
+        datetime: metadata.exiftool.PDF:CreateDate
+        extension: filesystem.basename.extension
+        title: filesystem.basename.prefix
+    NAME_FORMAT: "{datetime}\_{title}.{extension}"
+    description: test_files Gmail print-to-pdf
+    exact_match: true
+    weight: null
+-   CONDITIONS:
+        contents:
+            mime_type: image/jpeg
+        filesystem:
+            basename: smulan.jpg
+    DATA_SOURCES:
+        datetime: metadata.exiftool.EXIF:DateTimeOriginal
+        description: plugin.microsoft_vision.caption
+        extension: filesystem.basename.extension
+    NAME_FORMAT: "{datetime}\_{description}.{extension}"
+    description: test_files smulan.jpg
+    exact_match: true
+    weight: 1
+-   CONDITIONS:
+        contents:
+            mime_type: image/jpeg
+        filesystem:
+            basename: DCIM*
+            date_accessed: null
+            date_created: null
+            date_modified: null
+            extension: jpg
+            pathname: ~/Pictures/incoming
+        metadata:
+            exiftool:
+                EXIF:DateTimeOriginal: null
+    DATA_SOURCES:
+        author: null
+        datetime:
+        - metadata.exiftool.EXIF:DateTimeOriginal
+        - metadata.exiftool.EXIF:DateTimeDigitized
+        - metadata.exiftool.EXIF:CreateDate
+        description: plugin.microsoft_vision.caption
+        extension: filesystem.basename.extension
+        publisher: null
+        tags: plugin.microsoft_vision.tags
+        title: null
+    NAME_FORMAT: '{datetime} {description} -- {tags}.{extension}'
+    description: Sample Entry for Photos with strict rules
+    exact_match: true
+    weight: 1
+-   CONDITIONS:
+        contents:
+            metadata: metadata.XMP-dc.***
+            mime_type: application/epub+zip
+        filesystem:
+            basename: null
+            extension: epub
+            pathname: null
+    DATA_SOURCES:
+        author:
+        - metadata.exiftool.XMP-dc:Creator
+        - metadata.exiftool.XMP-dc:CreatorFile-as
+        datetime:
+        - metadata.exiftool.XMP-dc:PublicationDate
+        - metadata.exiftool.XMP-dc:Date
+        description: null
+        edition: null
+        extension: filesystem.basename.extension
+        publisher: metadata.exiftool.XMP-dc:Publisher
+        tags: null
+        title: metadata.exiftool.XMP-dc:Title
+    NAME_FORMAT: default_book
+    description: Sample Entry for EPUB e-books
+    exact_match: true
+    weight: 1
+NAME_TEMPLATES:
+    default_book: '{publisher} {title} {edition} - {author} {date}.{extension}'
+    default_document: '{title} - {author} {datetime}.{extension}'
+    default_photo: '{datetime} {description} -- {tags}.{extension}'
+autonameow_version: 0.4.0
