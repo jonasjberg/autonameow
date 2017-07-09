@@ -47,7 +47,7 @@ class RuleCondition(object):
         """
         # TODO: Clean up setting the 'parser' attribute.
         # NOTE(jonas): The query string determines which parser class is used.
-        self.parser = None
+        self._parser = None
         self.query_string = raw_query_string
         self.expression = raw_expression
 
@@ -91,11 +91,11 @@ class RuleCondition(object):
 
         #parsers = field_parsers.suitable_parser_for_querystr(self.query_string)
         #if not parsers:
-        if not self.parser:
+        if not self._parser:
             raise ValueError('Found no suitable parsers for query string: '
                              '"{!s}"'.format(self.query_string))
         else:
-            if self.parser.validate(raw_expression):
+            if self._parser.validate(raw_expression):
                 self._expression = raw_expression
             else:
                 raise ValueError(
@@ -117,7 +117,7 @@ class RuleCondition(object):
 
         parsers = field_parsers.suitable_parser_for_querystr(raw_query_string)
         if parsers:
-            self.parser = parsers[0]
+            self._parser = parsers[0]
             return True
         return False
 
@@ -131,7 +131,7 @@ class RuleCondition(object):
         Returns: The result of the evaluation if the evaluation is successful
             with the given data, otherwise False.
         """
-        result = self.parser.evaluate(self.expression, data)
+        result = self._parser.evaluate(self.expression, data)
         if result:
             return result
         else:
