@@ -47,6 +47,10 @@ class RuleCondition(object):
         """
         # TODO: Clean up setting the 'parser' attribute.
         # NOTE(jonas): The query string determines which parser class is used.
+
+        # TODO: [TD0015] Allow conditionals in the configuration file rules.
+        # Possible a list of functions already "loaded" with the target value.
+        # Also "loaded" with corresponding (reference to) a validation function.
         self._parser = None
         self.query_string = raw_query_string
         self.expression = raw_expression

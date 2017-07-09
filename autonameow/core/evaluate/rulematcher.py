@@ -24,6 +24,8 @@ import os
 import re
 import operator
 
+import copy
+
 from core import (
     exceptions,
     fileobject,
@@ -35,41 +37,41 @@ class RuleMatcher(object):
     def __init__(self, file_object, analysis_results, active_config):
         self.file = file_object
         self.analysis_data = analysis_results
-        self.config = active_config
 
-        self._matched_rules = []
+        if not active_config or not active_config.file_rules:
+            log.error('Configuration does not contain any rules to evaluate')
+            self._rules = []
+        else:
+            # NOTE(jonas): Check a copy of all rules.
+            # Temporary fix for mutable state in the 'FileRule' instances,
+            # which are initialized *once* when the configuration is loaded.
+            # This same configuration instance is used when iterating over the
+            # files. The 'FileRule' scores were not reset between files.
+            self._rules = copy.deepcopy(active_config.file_rules)
+
+        self._candidates = []
 
     def start(self):
-        self._evaluate_rules()
-
-    @property
-    def best_match(self):
-        if not self._matched_rules:
-            return False
-        return self._matched_rules[0]
-
-    def _evaluate_rules(self):
-        if not self.config.file_rules:
-            log.error('Configuration did not provide any rules to evaluate')
-            return
-
-        # Check a copy of all rules.
-        rules_to_examine = list(self.config.file_rules)
-        log.debug('Examining {} rules ..'.format(len(rules_to_examine)))
-        ok_rules = examine_rules(rules_to_examine, self.file,
-                                 self.analysis_data)
+        log.debug('Examining {} rules ..'.format(len(self._rules)))
+        ok_rules = examine_rules(self._rules, self.file, self.analysis_data)
         if len(ok_rules) == 0:
             log.debug('No valid rules remain after evaluation')
             return
 
-        log.debug('Prioritizing remaining {} rules ..'.format(len(ok_rules)))
+        log.debug('Prioritizing remaining {} candidates ..'.format(len(ok_rules)))
         ok_rules = prioritize_rules(ok_rules)
         for i, rule in enumerate(ok_rules):
             log.debug('{}. (score: {}, weight: {}) {} '.format(
                 i + 1, rule.score, rule.weight, rule.description)
             )
 
-        self._matched_rules = ok_rules
+        self._candidates = ok_rules
+
+    @property
+    def best_match(self):
+        if not self._candidates:
+            return False
+        return self._candidates[0]
 
 
 def prioritize_rules(rules):

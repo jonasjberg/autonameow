@@ -72,10 +72,6 @@ class FileRule(Rule):
         # Rules are sorted/prioritized by first the score, secondly the weight.
         self.score = 0
 
-        # TODO: [TD0015] Implement "conditions" field ..
-        # Possible a list of functions already "loaded" with the target value.
-        # Also "loaded" with corresponding (reference to) a validation function.
-
     def __str__(self):
         return util.dump(self.__dict__)
 
@@ -85,6 +81,7 @@ class FileRule(Rule):
             out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
         return 'FileRule({})'.format(', '.join(out))
 
+    # TODO: [TD0046] Make sure `FileRule` scores aren't shared between files.
     # TODO: Should 'FileRule' objects be re-created for each file?
     # TODO: Store score in a dictionary keyed by files?
     def upvote(self):
