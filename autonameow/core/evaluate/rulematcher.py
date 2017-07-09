@@ -24,6 +24,8 @@ import os
 import re
 import operator
 
+import collections
+
 from core import (
     exceptions,
     fileobject,
@@ -38,6 +40,7 @@ class RuleMatcher(object):
         self.config = active_config
 
         self._matched_rules = []
+        self._scored_rules = collections.Counter()
 
     def start(self):
         if not self.config.file_rules:
@@ -53,7 +56,7 @@ class RuleMatcher(object):
             return
 
         log.debug('Prioritizing remaining {} rules ..'.format(len(ok_rules)))
-        ok_rules = prioritize_rules(ok_rules)
+        ok_rules = self.prioritize_rules(ok_rules)
         for i, rule in enumerate(ok_rules):
             log.debug('{}. (score: {}, weight: {}) {} '.format(
                 i + 1, rule.score, rule.weight, rule.description)
@@ -70,7 +73,8 @@ class RuleMatcher(object):
 
         for count, rule in enumerate(rules_to_examine):
             log.debug('Evaluating rule {}/{}: "{}"'.format(
-                count + 1, len(rules_to_examine), rule.description))
+                count + 1, len(rules_to_examine), rule.description)
+            )
             result = self._evaluate_rule(rule)
             if rule.exact_match and result is False:
                 log.debug('Rule evaluated FALSE, removing: '
@@ -81,6 +85,23 @@ class RuleMatcher(object):
             ok_rules.append(rule)
 
         return ok_rules
+
+    def prioritize_rules(self, rules):
+        """
+        Prioritizes (sorts) a list of 'FileRule' instances.
+
+        The list is sorted first by "score" and then by "weight".
+
+        Args:
+            rules: The list of 'FileRule' instances to prioritize/sort.
+
+        Returns:
+            A sorted/prioritized list of 'FileRule' instances.
+        """
+        # by_weight = sort_rules_by_weight(rules)
+        # TODO: Sort rules in 'rules', first by keys in 'self._scored_rules',
+        #       then by the weights if necessary.
+        return None
 
     def _evaluate_rule(self, file_rule):
         """
@@ -112,14 +133,16 @@ class RuleMatcher(object):
                     log.debug('Condition FAILED -- Exact match impossible ..')
                     return False
                 else:
-                    file_rule.upvote()
+                    # file_rule.upvote()
+                    self._scored_rules[file_rule] += 1
             return True
 
         for condition in file_rule.conditions:
             log.debug('Evaluating condition "{!s}"'.format(condition))
             if eval_condition(condition, self.file, self.analysis_data):
                 log.debug('Condition Passed rule.votes++')
-                file_rule.upvote()
+                # file_rule.upvote()
+                self._scored_rules[file_rule] += 1
             else:
                 # NOTE: file_rule.downvote()?
                 # log.debug('Condition FAILED rule.votes--')
@@ -135,20 +158,17 @@ class RuleMatcher(object):
         return self._matched_rules[0]
 
 
-def prioritize_rules(rules):
+def sort_rules_by_weight(rules):
     """
-    Prioritizes (sorts) a list of 'FileRule' instances.
-
-    The list is sorted first by "score" and then by "weight".
+    Sorts a list of 'FileRule' instances by "weight".
 
     Args:
-        rules: The list of 'FileRule' instances to prioritize/sort.
+        rules: The list of 'FileRule' instances to sort.
 
     Returns:
-        A sorted/prioritized list of 'FileRule' instances.
+        A sorted list of 'FileRule' instances.
     """
-    return sorted(rules, reverse=True,
-                  key=operator.attrgetter('score', 'weight'))
+    return sorted(rules, reverse=True, key=operator.attrgetter('weight'))
 
 
 def eval_condition(condition, file_object, analysis_data):
