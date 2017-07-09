@@ -34,9 +34,9 @@ from core import (
 
 
 class RuleMatcher(object):
-    def __init__(self, file_object, analysis_results, active_config):
-        self.file = file_object
+    def __init__(self, analysis_results, extracted_data, active_config):
         self.analysis_data = analysis_results
+        self.extraction_data = extracted_data
 
         if not active_config or not active_config.file_rules:
             log.error('Configuration does not contain any rules to evaluate')
@@ -51,9 +51,13 @@ class RuleMatcher(object):
 
         self._candidates = []
 
+    def query_data(self, query_string):
+        out = self.extraction_data.query(query_string)
+        return out if out else self.analysis_data.query(query_string)
+
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))
-        ok_rules = examine_rules(self._rules, self.file, self.analysis_data)
+        ok_rules = examine_rules(self._rules, self.query_data)
         if len(ok_rules) == 0:
             log.debug('No valid rules remain after evaluation')
             return
@@ -90,7 +94,7 @@ def prioritize_rules(rules):
                   key=operator.attrgetter('score', 'weight'))
 
 
-def examine_rules(rules_to_examine, file_object, analysis_data):
+def examine_rules(rules_to_examine, query_data):
     # Conditions are evaluated with the current file object and current
     # analysis results data.
     # If a rule requires an exact match, it is skipped at first failed
@@ -100,7 +104,7 @@ def examine_rules(rules_to_examine, file_object, analysis_data):
     for count, rule in enumerate(rules_to_examine):
         log.debug('Evaluating rule {}/{}: "{}"'.format(
             count + 1, len(rules_to_examine), rule.description))
-        result = evaluate_rule(rule, file_object, analysis_data)
+        result = evaluate_rule(rule, query_data)
         if rule.exact_match and result is False:
             log.debug('Rule evaluated FALSE, removing: '
                       '"{}"'.format(rule.description))
@@ -112,7 +116,7 @@ def examine_rules(rules_to_examine, file_object, analysis_data):
     return ok_rules
 
 
-def evaluate_rule(file_rule, file_object, analysis_data):
+def evaluate_rule(file_rule, query_data):
     """
     Tests if a rule applies to a given file.
 
@@ -121,9 +125,8 @@ def evaluate_rule(file_rule, file_object, analysis_data):
     evaluated and the rule is scored through "upvote()" and "downvote()".
 
     Args:
-        file_object: The file to test as an instance of 'FileObject'.
         file_rule: The rule to test as an instance of 'FileRule'.
-        analysis_data: Results data from analysis of the given file.
+        query_data: Callback function used to query available data.
 
     Returns:
         If the rule requires an exact match:
@@ -140,7 +143,7 @@ def evaluate_rule(file_rule, file_object, analysis_data):
     if file_rule.exact_match:
         for condition in file_rule.conditions:
             log.debug('Evaluating condition "{!s}"'.format(condition))
-            if not eval_condition(condition, file_object, analysis_data):
+            if not eval_condition(condition, query_data):
                 log.debug('Condition FAILED -- Exact match impossible ..')
                 return False
             else:
@@ -149,7 +152,7 @@ def evaluate_rule(file_rule, file_object, analysis_data):
 
     for condition in file_rule.conditions:
         log.debug('Evaluating condition "{!s}"'.format(condition))
-        if eval_condition(condition, file_object, analysis_data):
+        if eval_condition(condition, query_data):
             log.debug('Condition Passed rule.votes++')
             file_rule.upvote()
         else:
@@ -161,67 +164,7 @@ def evaluate_rule(file_rule, file_object, analysis_data):
     return True
 
 
-def eval_condition(condition, file_object, analysis_data):
-    # TODO: FIX THIS! Use the parser referenced in the 'RuleCondition' instance.
-
-    def eval_regex(expression, match_data):
-        expression = util.encode_(expression)
-        if re.match(expression, match_data):
-            return True
-        return False
-
-    def eval_path(expression, match_data):
-        # TODO: [TD0001][hack] Total rewrite of condition evaluation?
-        if expression.startswith(b'~/'):
-            try:
-                expression = os.path.expanduser(expression)
-                expression = os.path.normpath(os.path.abspath(expression))
-            except OSError as e:
-                log.error('Error while evaluating path: {!s}'.format(e))
-                log.debug('eval_path expression: "{!s}" match_data: '
-                          '"{!s}"'.format(expression, match_data))
-                return False
-
-        # NOTE: Use simple UNIX-style globbing instead of regular expressions?
-        try:
-            if re.match(expression, match_data):
-                return True
-        except ValueError:
-            pass
-        return False
-
-    def eval_mime_type(expression, match_data):
-        if fileobject.eval_magic_glob(match_data, expression):
-            return True
-        return False
-
-    def eval_datetime(expression, match_data):
-        # TODO: [TD0001] Implement!
-        pass
-
-    # Regex Fields
-    if condition.query_string == 'filesystem.basename':
-        # TODO: [TD0004] Handle configuration encoding elsewhere.
-        condition_value = util.encode_(condition.expression)
-        return eval_regex(condition_value, file_object.filename)
-
-    elif condition.query_string == 'filesystem.extension':
-        # TODO: [TD0004] Handle configuration encoding elsewhere.
-        condition_value = util.encode_(condition.expression)
-        return eval_regex(condition_value, file_object.suffix)
-
-    elif condition.query_string == 'filesystem.pathname':
-        # TODO: [TD0004] Handle configuration encoding elsewhere.
-        condition_value = util.encode_(condition.expression)
-        return eval_path(condition_value, file_object.pathname)
-
-    # Custom "MIME glob" field
-    elif condition.query_string == 'contents.mime_type':
-        return eval_mime_type(condition.expression, file_object.mime_type)
-
-    # TODO: [TD0001] Implement datetime check
-    # elif condition_field == 'date_accessed':
-    #     return eval_datetime(condition_value, None)
-
-    else:
-        raise exceptions.AutonameowException('Unhandled condition check!')
+def eval_condition(condition, query_data):
+    query_string = condition.query_string
+    data = query_data(query_string)
+    return condition.evaluate(data)
