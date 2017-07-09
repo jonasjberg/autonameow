@@ -136,11 +136,6 @@ Medium Priority
         * Textual contents of the file matches a regular expression?
         * Some date/time-information lies within some specific range.
 
-* `[TD0016]` __Enforce consistency in the configuration syntax.__
-  For example, why does the conditions for a file rule specify `extension`
-  under `filesystem`, while the results data structure has `extension` nested
-  under `filesystem.basename.extension`.
-
 * `[TD0017]` Rethink how specified sources are connected to actual sources.
   Take for example the configuration file rule:
 

@@ -149,9 +149,9 @@ class TestParseConditions(TestCase):
         self.maxDiff = None
 
     def test_parse_condition_filesystem_pathname_is_valid(self):
-        raw_conditions = {'filesystem.pathname': '~/.config'}
+        raw_conditions = {'filesystem.pathname.full': '~/.config'}
         actual = parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].query_string, 'filesystem.pathname')
+        self.assertEqual(actual[0].query_string, 'filesystem.pathname.full')
         self.assertEqual(actual[0].expression, '~/.config')
 
     def test_parse_condition_contents_mime_type_is_valid(self):

@@ -65,7 +65,7 @@ class NameBuilder(object):
 
                 Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
                           'description' = 'plugin.microsoft_vision.caption'
-                          'extension'   = 'filesystem.extension'}
+                          'extension'   = 'filesystem.basename.extension'}
 
         Returns:
             Results data for the specified fields matching the specified query.

@@ -35,11 +35,11 @@ class TestRuleConditionFromValidInput(TestCase):
         self.assertIsNotNone(self.rc)
 
     def test_filesystem_basename_condition(self):
-        self.rc = RuleCondition('filesystem.basename', 'gmail.pdf')
+        self.rc = RuleCondition('filesystem.basename.full', 'gmail.pdf')
         self.assertIsNotNone(self.rc)
 
     def test_filesystem_extension_condition(self):
-        self.rc = RuleCondition('filesystem.extension', 'pdf')
+        self.rc = RuleCondition('filesystem.basename.extension', 'pdf')
         self.assertIsNotNone(self.rc)
 
 
@@ -50,8 +50,8 @@ class TestRuleConditionFromInvalidInput(TestCase):
 
     def test_invalid_filesystem_basename_condition(self):
         with self.assertRaises(ValueError):
-            self.rc = RuleCondition('filesystem.basename', None)
+            self.rc = RuleCondition('filesystem.basename.full', None)
 
     def test_invalid_filesystem_extension_condition(self):
         with self.assertRaises(ValueError):
-            self.rc = RuleCondition('filesystem.extension', None)
+            self.rc = RuleCondition('filesystem.basename.extension', None)

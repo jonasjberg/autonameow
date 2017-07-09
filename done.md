@@ -16,6 +16,11 @@ University mail: `js224eh[a]student.lnu.se`
     > ---------------
     >
     > * `[TD0046]` Make sure that `FileRule` scores aren't shared between files.
+    >
+    > * `[TD0016]` __Enforce consistency in the configuration syntax.__
+    >   For example, why does the conditions for a file rule specify `extension`
+    >   under `filesystem`, while the results data structure has `extension` nested
+    >   under `filesystem.basename.extension`.
 
 * 2017-06-30
 

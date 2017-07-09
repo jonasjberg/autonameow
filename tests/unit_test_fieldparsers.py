@@ -236,15 +236,17 @@ class TestInstantiatedFieldParsers(TestCase):
 
 class TestSuitableFieldParserFor(TestCase):
     def test_returns_expected_type(self):
-        actual = suitable_field_parser_for('mime_type')
+        actual = suitable_field_parser_for('contents.mime_type')
         self.assertTrue(isinstance(actual, list))
 
     def test_returns_expected_given_valid_mime_type_field(self):
-        actual = suitable_field_parser_for('mime_type')
+        actual = suitable_field_parser_for('contents.mime_type')
         self.assertEqual(len(actual), 1)
         self.assertEqual(str(actual[0]), 'MimeTypeConfigFieldParser')
 
     def test_returns_expected_given_invalid_mime_type_field(self):
+        actual = suitable_field_parser_for('contents.miiime_type')
+        self.assertEqual(len(actual), 0)
         actual = suitable_field_parser_for('miiime_type')
         self.assertEqual(len(actual), 0)
 
@@ -293,8 +295,10 @@ class TestSuitableParserForQueryString(TestCase):
             self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
 
     def test_regex_field_parser_handles_multiple_fields(self):
-        for field in ['filesystem.pathname', 'filesystem.basename',
-                      'filesystem.extension', 'contents.textual.raw_text']:
+        for field in ['filesystem.pathname.full',
+                      'filesystem.basename.full',
+                      'filesystem.basename.extension',
+                      'contents.textual.raw_text']:
             actual = suitable_parser_for_querystr(field)
             self.assertEqual(len(actual), 1)
             self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
