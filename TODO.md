@@ -14,7 +14,7 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0046]` __Improve determining `FieldParser` suitability__
+* `[TD0047]` __Improve determining `FieldParser` suitability__
     * Add something similar to the "MIME type globbing" in
       `fileobject.eval_magic_glob` for more flexible queries for
       suitable `FieldParser` classes.
