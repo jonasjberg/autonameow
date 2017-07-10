@@ -14,21 +14,6 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0047]` __Improve determining `FieldParser` suitability__
-    * Add something similar to the "MIME type globbing" in
-      `fileobject.eval_magic_glob` for more flexible queries for
-      suitable `FieldParser` classes.
-
-* `[TD0001]` __Refactor the `Configuration` class__
-    * Look over all of `configuration.py`.
-    * Fix `eval_condition` in `core/evaluate/rulematcher.py`.
-    * Think about adding a custom type system in order to control configuration
-      parsing, evaluating file rule conditions and overall internal handling of
-      data.
-        * Types could fall back to safe defaults, avoid countless permutations
-          of "None-checking".
-        * Type classes could implement comparison/matching methods.
-
 * `[TD0002]` __Add a custom type system__
     * Add a abstract base class for all types (`BaseType`?)
     * Wrap primitives in type classes inheriting from the base class
@@ -80,12 +65,6 @@ High Priority
           required operations differs greatly between data sources, abstracting
           the process would mostly add yet another layer of indirection ..
     * Think about how wrapped data types (`[TD0002]`) relates to this.
-
-* `[TD0007]` __Pass all data to the `RuleMatcher` instance.__ 
-    * Currently, only the analysis data and data stored in the `FileObject`
-      is available when evaluating the rules. This hasn't been an obvious
-      problem due to the fact that the current implementation of rule 
-      evaluation is so primitive and basic.
 
 
 Medium Priority

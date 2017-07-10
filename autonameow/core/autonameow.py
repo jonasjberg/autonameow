@@ -222,7 +222,6 @@ class Autonameow(object):
                 continue
 
             # Determine matching rule.
-            # TODO: [TD0007] Rule matching requires 'extraction.data' as well.
             matcher = RuleMatcher(analysis.results, extraction.data,
                                   self.config)
             try:

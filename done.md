@@ -10,6 +10,27 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-07-10
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0047]` __Improve determining `FieldParser` suitability__
+    >     * Add something similar to the "MIME type globbing" in
+    >       `fileobject.eval_magic_glob` for more flexible queries for
+    >       suitable `FieldParser` classes.
+    >
+    > * `[TD0001]` __Refactor the `Configuration` class__
+    >     * Look over all of `configuration.py`.
+    >     * Fix `eval_condition` in `core/evaluate/rulematcher.py`.
+    >     * Think about adding a custom type system in order to control configuration
+    >       parsing, evaluating file rule conditions and overall internal handling of
+    >       data.
+    >         * Types could fall back to safe defaults, avoid countless permutations
+    >           of "None-checking".
+    >         * Type classes could implement comparison/matching methods.
+
+
 * 2017-07-09
 
     > Medium Priority
@@ -21,6 +42,15 @@ University mail: `js224eh[a]student.lnu.se`
     >   For example, why does the conditions for a file rule specify `extension`
     >   under `filesystem`, while the results data structure has `extension` nested
     >   under `filesystem.basename.extension`.
+    >
+    > High Priority
+    > -------------
+    >
+    > * `[TD0007]` __Pass all data to the `RuleMatcher` instance.__
+    >     * Currently, only the analysis data and data stored in the `FileObject`
+    >       is available when evaluating the rules. This hasn't been an obvious
+    >       problem due to the fact that the current implementation of rule
+    >       evaluation is so primitive and basic.
 
 * 2017-06-30
 
