@@ -269,10 +269,12 @@ def get_files(search_path, recurse=False):
     """
     # TODO: [TD0026] Follow symlinks? Add option for following symlinks?
 
-    out = []
-
+    if not search_path:
+        raise FileNotFoundError
     if not os.path.isfile(search_path) and not os.path.isdir(search_path):
         raise FileNotFoundError
+
+    out = []
 
     def traverse(path):
         if os.path.isfile(path):

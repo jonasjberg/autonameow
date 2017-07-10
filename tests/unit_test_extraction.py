@@ -218,9 +218,26 @@ class TestGetExtractorClasses(TestCase):
 
 
 class TestGetQueryStrings(TestCase):
+    def setUp(self):
+        self.actual = get_query_strings()
+
     def test_returns_expected_container_type(self):
-        self.assertTrue(isinstance(get_query_strings(), set))
+        self.assertTrue(isinstance(self.actual, set))
 
     def test_returns_expected_contained_types(self):
-        for q in get_query_strings():
+        for q in self.actual:
             self.assertTrue(isinstance(q, str))
+
+    def test_contains_expected_metadata_query_strings(self):
+        self.assertIn('metadata.exiftool', self.actual)
+        self.assertIn('metadata.pypdf', self.actual)
+
+    def test_contains_expected_contents_query_strings(self):
+        self.assertIn('contents.visual.ocr_text', self.actual)
+        self.assertIn('contents.textual.raw_text', self.actual)
+
+    def test_does_not_contain_unexpected_query_strings(self):
+        self.assertNotIn('foo.bar', self.actual)
+        self.assertNotIn('.', self.actual)
+        self.assertNotIn('', self.actual)
+        self.assertNotIn(None, self.actual)

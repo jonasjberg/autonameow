@@ -24,14 +24,14 @@ from core import constants
 
 # ALL_CONDITIONS_FIELDS
 # =====================
-# 'filesystem.basename'        Regular expression
-# 'filesystem.extension'       Regular expression
-# 'filesystem.pathname'        Regular expression
-# 'filesystem.date_accessed'   Python "datetime" format
-# 'filesystem.date_created'    Python "datetime" format
-# 'filesystem.date_modified'   Python "datetime" format
-# 'contents.mime_type'         Supports simple "globbing" ('*/jpeg', 'image/*')
-# 'metadata.exiftool'          See note below.
+# 'filesystem.basename.full'        Regular expression
+# 'filesystem.basename.extension'   Regular expression
+# 'filesystem.pathname.full'        Regular expression
+# 'filesystem.date_accessed'        Python "datetime" format
+# 'filesystem.date_created'         Python "datetime" format
+# 'filesystem.date_modified'        Python "datetime" format
+# 'contents.mime_type'              Supports simple "globbing" ('*/jpeg', 'image/*')
+# 'metadata.exiftool'               See note below.
 
 #   NOTE:  See this link for all available exiftool fields.
 #   http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
@@ -65,8 +65,8 @@ DEFAULT_CONFIG = {
          'weight': None,
          'NAME_FORMAT': '{datetime} {title}.{extension}',
          'CONDITIONS': {
-             'filesystem.basename': 'gmail.pdf',
-             'filesystem.extension': 'pdf',
+             'filesystem.basename.full': 'gmail.pdf',
+             'filesystem.basename.extension': 'pdf',
              'contents.mime_type': 'application/pdf',
          },
          'DATA_SOURCES': {
@@ -81,7 +81,7 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
-             'filesystem.basename': 'smulan.jpg',
+             'filesystem.basename.full': 'smulan.jpg',
              'contents.mime_type': 'image/jpeg',
          },
          'DATA_SOURCES': {
@@ -96,11 +96,11 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
          'CONDITIONS': {
-             'filesystem.pathname': '~/Pictures/incoming',
-             'filesystem.basename': 'DCIM*',
-             'filesystem.extension': 'jpg',
+             'filesystem.pathname.full': '~/Pictures/incoming',
+             'filesystem.basename.full': 'DCIM*',
+             'filesystem.basename.extension': 'jpg',
              'contents.mime_type': 'image/jpeg',
-             # TODO: [TD0001] Ensure proper validation of entry below.
+             # TODO: [TD0015] Ensure proper validation of entry below.
              'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
          },
          'DATA_SOURCES': {
@@ -121,11 +121,11 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': 'default_book',
          'CONDITIONS': {
-             'filesystem.pathname': '.*',
-             'filesystem.basename': '.*',
-             'filesystem.extension': 'epub',
+             'filesystem.pathname.full': '.*',
+             'filesystem.basename.full': '.*',
+             'filesystem.basename.extension': 'epub',
              'contents.mime_type': 'application/epub+zip',
-             # TODO: [TD0001] Ensure proper validation of entry below.
+             # TODO: [TD0015] Ensure proper validation of entry below.
              'metadata.exiftool.XMP-dc:Creator': 'Defined',
          },
          'DATA_SOURCES': {

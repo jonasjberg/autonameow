@@ -26,13 +26,13 @@ from core import (
     config,
     constants,
     exceptions,
-    util,
-    version
+    util
 )
+from core.config import field_parsers
+from core.config.rules import RuleCondition
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
-    DateTimeConfigFieldParser,
-    FieldParsers
+    DateTimeConfigFieldParser
 )
 from core.util import (
     textutils
@@ -72,11 +72,9 @@ class FileRule(Rule):
         # Rules are sorted/prioritized by first the score, secondly the weight.
         self.score = 0
 
-        # TODO: [TD0015] Implement "conditions" field ..
-        # Possible a list of functions already "loaded" with the target value.
-        # Also "loaded" with corresponding (reference to) a validation function.
-
     def __str__(self):
+        # TODO: [TD0039] Do not include the file rule attribute `score` when
+        #       listing the configuration with `--dump-config`.
         return util.dump(self.__dict__)
 
     def __repr__(self):
@@ -85,8 +83,6 @@ class FileRule(Rule):
             out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
         return 'FileRule({})'.format(', '.join(out))
 
-    # TODO: Should 'FileRule' objects be re-created for each file?
-    # TODO: Store score in a dictionary keyed by files?
     def upvote(self):
         """
         Increases the matching score of this rule.
@@ -252,6 +248,7 @@ class Configuration(object):
                 'uses invalid name template format'
             )
 
+        # TODO: [TD0002] Build 'FileRule' instance from wrapped types?
         valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
         valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
         valid_weight = parse_weight(raw_rule.get('weight'))
@@ -400,22 +397,33 @@ def parse_sources(raw_sources):
 
     log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
 
-    for field, value in raw_sources.items():
-        if not value:
-            log.debug('Skipped empty source specification: {}'.format(field))
+    for template_field, query_string in raw_sources.items():
+        if not query_string:
+            log.warning('Skipped source with empty query string '
+                        '(template field: "{!s}")'.format(template_field))
+            continue
+        elif not template_field:
+            log.warning('Skipped source with empty name template field '
+                        '(query string: "{!s}")'.format(query_string))
             continue
 
-        if not isinstance(value, list):
-            value = [value]
+        if not field_parsers.is_valid_template_field(template_field):
+            log.warning('Skipped source with invalid name template field '
+                        '(query string: "{!s}")'.format(query_string))
+            continue
 
-        for v in value:
-            if is_valid_source(v):
-                log.debug('Validated source: [{}]: {}'.format(field, v))
-                passed[field] = v
+        if not isinstance(query_string, list):
+            query_string = [query_string]
+
+        for qs in query_string:
+            if is_valid_source(qs):
+                log.debug('Validated source: [{}]: {}'.format(template_field,
+                                                              qs))
+                passed[template_field] = qs
             else:
-                log.debug('Invalid source: [{}]: {}'.format(field, v))
+                log.debug('Invalid source: [{}]: {}'.format(template_field, qs))
 
-    log.debug('First filter passed {} sources'.format(len(passed)))
+    log.debug('parse_sources returned {} valid sources'.format(len(passed)))
 
     return passed
 
@@ -430,9 +438,6 @@ def is_valid_source(source_value):
     For example, that the source value "metadata.exiftool.PDF:CreateDate" is
     considered valid because "metadata.exiftool" is listed as a valid source.
 
-    NOTE:
-        The field could still be invalid! The result query might fail!
-
     Args:
         source_value: The source to test as a text string.
 
@@ -442,8 +447,6 @@ def is_valid_source(source_value):
     if not source_value or not source_value.strip():
         return False
 
-    # TODO: [TD0001] Test if the field specified in the source is valid.
-
     if source_value.startswith(tuple(constants.VALID_DATA_SOURCES)):
         return source_value
     else:
@@ -451,42 +454,42 @@ def is_valid_source(source_value):
 
 
 def is_analyzer_source(source_value):
-    # TODO: [TD0001] Implement checking if a source specifies an analyzer.
+    # TODO: [TD0013] Implement checking if a source specifies an analyzer.
     pass
 
 
 def parse_conditions(raw_conditions):
-    # TODO: [TD0001] This needs to be reimplemented properly.
-    out = {}
-
-    # NOTE(jonas): The "key" in a CONDITION is a query string to content.
-    #              The condition "value" can be strings, regexps, etc.
-
-    # NOTE(jonas): The "value" in a data SOURCE is a query string to content ..
-
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
+    out = []
     try:
-        for key, value in raw_conditions.items():
-            valid_condition = validate_condition_value(key, value)
+        for query_string, expression in raw_conditions.items():
+            # valid_condition = validate_condition_value(key, value)
+            valid_condition = get_valid_rule_condition(query_string, expression)
             if not valid_condition:
                 raise exceptions.ConfigurationSyntaxError(
-                    'contains invalid condition [{}]: {}'.format(key, value)
+                    'contains invalid condition [{}]: {}'.format(query_string, expression)
                 )
 
-            # TODO: [TD0001] Check if clobbering is an issue and how to fix.
-            if key in out:
-                log.warning('Clobbering condition: {!s}'.format(key))
-            out[key] = value
-            log.debug('Validated condition: [{}]: {}'.format(key, value))
+            out.append(valid_condition)
+            log.debug('Validated condition: "{!s}"'.format(valid_condition))
     except ValueError as e:
         raise exceptions.ConfigurationSyntaxError(
             'contains invalid condition: ' + str(e)
         )
 
-    log.debug('First filter passed {} conditions'.format(len(out)))
-
+    log.debug('parse_conditions returned {} valid conditions'.format(len(out)))
     return out
+
+
+def get_valid_rule_condition(raw_query, raw_value):
+    try:
+        condition = RuleCondition(raw_query, raw_value)
+    except TypeError as e:
+        log.critical('Invalid rule condition: {!s}'.format(e))
+        return False
+    else:
+        return condition
 
 
 def validate_condition_value(condition_field, condition_value):
@@ -520,7 +523,7 @@ def validate_condition_value(condition_field, condition_value):
     field_components = util.query_string_list(condition_field)
     field = field_components[-1:][0]
 
-    # TODO: [TD0001] Workaround for 'metadata.exiftool.EXIF:DateTimeOriginal' ..
+    # NOTE(jonas): Workaround for 'metadata.exiftool.EXIF:DateTimeOriginal' ..
     #       Above test would return 'EXIF:DateTimeOriginal' but this solution
     #       would require testing the second to last part; 'exiftool', instead.
     if condition_field.startswith('metadata.exiftool'):
@@ -531,7 +534,7 @@ def validate_condition_value(condition_field, condition_value):
         else:
             return False
 
-    for parser in FieldParsers:
+    for parser in field_parsers.FieldParsers:
         if field in parser.applies_to_field:
             if parser.validate(condition_value):
                 return condition_value

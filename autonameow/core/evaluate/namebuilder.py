@@ -65,7 +65,7 @@ class NameBuilder(object):
 
                 Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
                           'description' = 'plugin.microsoft_vision.caption'
-                          'extension'   = 'filesystem.extension'}
+                          'extension'   = 'filesystem.basename.extension'}
 
         Returns:
             Results data for the specified fields matching the specified query.
@@ -158,7 +158,8 @@ def assemble_basename(name_template, **kwargs):
         raise TypeError('"name_template" must be of type "str"')
 
     if "'" or '"' in name_template:
-        log.debug('Removing single and double quotes from template')
+        log.debug('Removing single and double quotes from template: '
+                  '"{!s}"'.format(name_template))
     while "'" in name_template:
         name_template = name_template.replace("'", '')
     while '"' in name_template:

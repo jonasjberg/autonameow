@@ -20,15 +20,21 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+
+from core.config.configuration import Configuration
+from core.config.default_config import DEFAULT_CONFIG
 from core.evaluate.rulematcher import (
     RuleMatcher,
     prioritize_rules
 )
 
 
+dummy_config = Configuration(DEFAULT_CONFIG)
+
+
 class TestRuleMatcher(TestCase):
     def setUp(self):
-        self.rm = RuleMatcher(None, None, None)
+        self.rm = RuleMatcher(None, None, dummy_config)
 
     def test_rule_matcher_can_be_instantiated(self):
         self.assertIsNotNone(self.rm)

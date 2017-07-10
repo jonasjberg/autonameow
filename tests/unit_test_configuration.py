@@ -147,29 +147,27 @@ class TestConfigurationDataAccess(TestCase):
 class TestParseConditions(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.raw_conditions = {
-            'filesystem.pathname': '~/.config',
-            'filesystem.basename': '^test_[0-9]+.*',
-            'contents.mime_type': 'image/jpeg',
-
-            # NOTE(jonas): Possibly use exiftool for all metadata?
-            # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-            'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
-            # 'exiftool.PDF:CreateDate': 'Defined'
-        }
 
     def test_parse_condition_filesystem_pathname_is_valid(self):
-        actual = parse_conditions(self.raw_conditions)
-        self.assertEqual(actual.get('filesystem.pathname'), '~/.config')
+        raw_conditions = {'filesystem.pathname.full': '~/.config'}
+        actual = parse_conditions(raw_conditions)
+        self.assertEqual(actual[0].query_string, 'filesystem.pathname.full')
+        self.assertEqual(actual[0].expression, '~/.config')
 
     def test_parse_condition_contents_mime_type_is_valid(self):
-        actual = parse_conditions(self.raw_conditions)
-        self.assertEqual(actual.get('contents.mime_type'), 'image/jpeg')
+        raw_conditions = {'contents.mime_type': 'image/jpeg'}
+        actual = parse_conditions(raw_conditions)
+        self.assertEqual(actual[0].query_string, 'contents.mime_type')
+        self.assertEqual(actual[0].expression, 'image/jpeg')
 
     def test_parse_condition_contents_metadata_is_valid(self):
-        actual = parse_conditions(self.raw_conditions)
-        self.assertEqual(actual.get('metadata.exiftool.EXIF:DateTimeOriginal'),
-                         'Defined')
+        raw_conditions = {
+            'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
+        }
+        actual = parse_conditions(raw_conditions)
+        self.assertEqual(actual[0].query_string,
+                         'metadata.exiftool.EXIF:DateTimeOriginal')
+        self.assertEqual(actual[0].expression, 'Defined')
 
 
 class TestParseWeight(TestCase):

@@ -122,8 +122,12 @@ class Autonameow(object):
                 log.info('Using configuration: "{}"'.format(_disp_config_path))
                 try:
                     self.config = Configuration(config.ConfigFilePath)
-                except exceptions.ConfigurationSyntaxError as e:
-                    log.critical('Configuration syntax error: "{!s}"'.format(e))
+                except exceptions.ConfigError as e:
+                    log.critical('Configuration error: "{!s}"'.format(e))
+
+        if not self.config:
+            log.critical('Unable to load configuration -- Aborting ..')
+            self.exit_program(constants.EXIT_ERROR)
 
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
@@ -145,8 +149,12 @@ class Autonameow(object):
             log.warning('No input files specified ..')
             self.exit_program(constants.EXIT_SUCCESS)
 
+
         files_to_process = []
         for path in self.opts.input_paths:
+            if not path:
+                continue
+
             # Path name encoding boundary. Convert to internal format.
             path = util.normpath(path)
             try:
@@ -214,8 +222,8 @@ class Autonameow(object):
                 continue
 
             # Determine matching rule.
-            # TODO: [TD0007] Rule matching requires 'extraction.data' as well.
-            matcher = RuleMatcher(current_file, analysis.results, self.config)
+            matcher = RuleMatcher(analysis.results, extraction.data,
+                                  self.config)
             try:
                 matcher.start()
             except exceptions.AutonameowException as e:

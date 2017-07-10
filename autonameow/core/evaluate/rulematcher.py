@@ -24,6 +24,8 @@ import os
 import re
 import operator
 
+import copy
+
 from core import (
     exceptions,
     fileobject,
@@ -32,44 +34,48 @@ from core import (
 
 
 class RuleMatcher(object):
-    def __init__(self, file_object, analysis_results, active_config):
-        self.file = file_object
+    def __init__(self, analysis_results, extracted_data, active_config):
         self.analysis_data = analysis_results
-        self.config = active_config
+        self.extraction_data = extracted_data
 
-        self._matched_rules = []
+        if not active_config or not active_config.file_rules:
+            log.error('Configuration does not contain any rules to evaluate')
+            self._rules = []
+        else:
+            # NOTE(jonas): Check a copy of all rules.
+            # Temporary fix for mutable state in the 'FileRule' instances,
+            # which are initialized *once* when the configuration is loaded.
+            # This same configuration instance is used when iterating over the
+            # files. The 'FileRule' scores were not reset between files.
+            self._rules = copy.deepcopy(active_config.file_rules)
+
+        self._candidates = []
+
+    def query_data(self, query_string):
+        out = self.extraction_data.query(query_string)
+        return out if out else self.analysis_data.query(query_string)
 
     def start(self):
-        self._evaluate_rules()
-
-    @property
-    def best_match(self):
-        if not self._matched_rules:
-            return False
-        return self._matched_rules[0]
-
-    def _evaluate_rules(self):
-        if not self.config.file_rules:
-            log.error('Configuration did not provide any rules to evaluate')
-            return
-
-        # Check a copy of all rules.
-        rules_to_examine = self.config.file_rules
-        log.debug('Examining {} rules ..'.format(len(rules_to_examine)))
-        ok_rules = examine_rules(rules_to_examine, self.file,
-                                 self.analysis_data)
+        log.debug('Examining {} rules ..'.format(len(self._rules)))
+        ok_rules = examine_rules(self._rules, self.query_data)
         if len(ok_rules) == 0:
             log.debug('No valid rules remain after evaluation')
             return
 
-        log.debug('Prioritizing remaining {} rules ..'.format(len(ok_rules)))
+        log.debug('Prioritizing remaining {} candidates ..'.format(len(ok_rules)))
         ok_rules = prioritize_rules(ok_rules)
         for i, rule in enumerate(ok_rules):
             log.debug('{}. (score: {}, weight: {}) {} '.format(
                 i + 1, rule.score, rule.weight, rule.description)
             )
 
-        self._matched_rules = ok_rules
+        self._candidates = ok_rules
+
+    @property
+    def best_match(self):
+        if not self._candidates:
+            return False
+        return self._candidates[0]
 
 
 def prioritize_rules(rules):
@@ -88,7 +94,7 @@ def prioritize_rules(rules):
                   key=operator.attrgetter('score', 'weight'))
 
 
-def examine_rules(rules_to_examine, file_object, analysis_data):
+def examine_rules(rules_to_examine, query_data):
     # Conditions are evaluated with the current file object and current
     # analysis results data.
     # If a rule requires an exact match, it is skipped at first failed
@@ -96,10 +102,9 @@ def examine_rules(rules_to_examine, file_object, analysis_data):
     ok_rules = []
 
     for count, rule in enumerate(rules_to_examine):
-        log.debug('Evaluating rule {}/{}: "{}"'.format(count + 1,
-                                                       len(rules_to_examine),
-                                                       rule.description))
-        result = evaluate_rule(rule, file_object, analysis_data)
+        log.debug('Evaluating rule {}/{}: "{}"'.format(
+            count + 1, len(rules_to_examine), rule.description))
+        result = evaluate_rule(rule, query_data)
         if rule.exact_match and result is False:
             log.debug('Rule evaluated FALSE, removing: '
                       '"{}"'.format(rule.description))
@@ -111,7 +116,7 @@ def examine_rules(rules_to_examine, file_object, analysis_data):
     return ok_rules
 
 
-def evaluate_rule(file_rule, file_object, analysis_data):
+def evaluate_rule(file_rule, query_data):
     """
     Tests if a rule applies to a given file.
 
@@ -120,9 +125,8 @@ def evaluate_rule(file_rule, file_object, analysis_data):
     evaluated and the rule is scored through "upvote()" and "downvote()".
 
     Args:
-        file_object: The file to test as an instance of 'FileObject'.
         file_rule: The rule to test as an instance of 'FileRule'.
-        analysis_data: Results data from analysis of the given file.
+        query_data: Callback function used to query available data.
 
     Returns:
         If the rule requires an exact match:
@@ -137,21 +141,18 @@ def evaluate_rule(file_rule, file_object, analysis_data):
         )
 
     if file_rule.exact_match:
-        for cond_field, cond_value in file_rule.conditions.items():
-            log.debug('Evaluating condition "{} == {}"'.format(cond_field,
-                                                               cond_value))
-            if not eval_condition(cond_field, cond_value, file_object,
-                                  analysis_data):
+        for condition in file_rule.conditions:
+            log.debug('Evaluating condition "{!s}"'.format(condition))
+            if not eval_condition(condition, query_data):
                 log.debug('Condition FAILED -- Exact match impossible ..')
                 return False
             else:
                 file_rule.upvote()
         return True
 
-    for cond_field, cond_value in file_rule.conditions.items():
-        log.debug('Evaluating condition "{} == {}"'.format(cond_field,
-                                                           cond_value))
-        if eval_condition(cond_field, cond_value, file_object, analysis_data):
+    for condition in file_rule.conditions:
+        log.debug('Evaluating condition "{!s}"'.format(condition))
+        if eval_condition(condition, query_data):
             log.debug('Condition Passed rule.votes++')
             file_rule.upvote()
         else:
@@ -163,84 +164,7 @@ def evaluate_rule(file_rule, file_object, analysis_data):
     return True
 
 
-def eval_condition(condition_field, condition_value, file_object,
-                   analysis_data):
-    """
-    Evaluates a condition.
-
-    Evaluates a CONDITION, given as a condition field (like "basename") and a
-    associated condition value (like "test.jpg").
-    The evaluation process depends on the condition field.
-    The condition value ("expected") is compared with data in the file
-    object and analysis data ("actual").
-
-    Args:
-        condition_field:
-        condition_value:
-        file_object:
-        analysis_data:
-
-    Returns:
-    """
-    # TODO: [TD0001] Needs a COMPLETE rewrite using some general (GOOD) method!
-
-    def eval_regex(expression, match_data):
-        if re.match(expression, match_data):
-            return True
-        return False
-
-    def eval_path(expression, match_data):
-        # TODO: [TD0001][hack] Total rewrite of condition evaluation?
-        if expression.startswith(b'~/'):
-            try:
-                expression = os.path.expanduser(expression)
-                expression = os.path.normpath(os.path.abspath(expression))
-            except OSError as e:
-                log.error('Error while evaluating path: {!s}'.format(e))
-                log.debug('eval_path expression: "{!s}" match_data: '
-                          '"{!s}"'.format(expression, match_data))
-                return False
-
-        # NOTE: Use simple UNIX-style globbing instead of regular expressions?
-        try:
-            if re.match(expression, match_data):
-                return True
-        except ValueError:
-            pass
-        return False
-
-    def eval_mime_type(expression, match_data):
-        if fileobject.eval_magic_glob(match_data, expression):
-            return True
-        return False
-
-    def eval_datetime(expression, match_data):
-        # TODO: [TD0001] Implement!
-        pass
-
-    # Regex Fields
-    if condition_field == 'filesystem.basename':
-        # TODO: [TD0004] Handle configuration encoding elsewhere.
-        condition_value = util.encode_(condition_value)
-        return eval_regex(condition_value, file_object.filename)
-
-    elif condition_field == 'filesystem.extension':
-        # TODO: [TD0004] Handle configuration encoding elsewhere.
-        condition_value = util.encode_(condition_value)
-        return eval_regex(condition_value, file_object.suffix)
-
-    elif condition_field == 'filesystem.pathname':
-        # TODO: [TD0004] Handle configuration encoding elsewhere.
-        condition_value = util.encode_(condition_value)
-        return eval_path(condition_value, file_object.pathname)
-
-    # Custom "MIME glob" field
-    elif condition_field == 'contents.mime_type':
-        return eval_mime_type(condition_value, file_object.mime_type)
-
-    # TODO: [TD0001] Implement datetime check
-    # elif condition_field == 'date_accessed':
-    #     return eval_datetime(condition_value, None)
-
-    else:
-        raise exceptions.AutonameowException('Unhandled condition check!')
+def eval_condition(condition, query_data):
+    query_string = condition.query_string
+    data = query_data(query_string)
+    return condition.evaluate(data)

@@ -66,6 +66,9 @@ def normpath(path):
     """Provide the canonical form of the path suitable for storing in
     the database.
     """
+    if not path:
+        raise ValueError('path must not be empty')
+
     path = syspath(path, prefix=False)
     path = os.path.normpath(os.path.abspath(os.path.expanduser(path)))
     return bytestring_path(path)

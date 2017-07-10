@@ -141,9 +141,13 @@ class TestFlattenDict(TestCase):
         self.maxDiff = None
         self.INPUT = {
             'filesystem': {
-                'basename': 'a',
-                'extension': 'b',
-                'pathname': 'c',
+                'basename': {
+                    'full': 'a',
+                    'extension': 'b'
+                },
+                'pathname': {
+                    'full': 'c',
+                }
             },
             'contents': {
                 'mime_type': 'd',
@@ -165,9 +169,9 @@ class TestFlattenDict(TestCase):
             }
         }
         self.EXPECTED = {
-            'filesystem.basename': 'a',
-            'filesystem.extension': 'b',
-            'filesystem.pathname': 'c',
+            'filesystem.basename.full': 'a',
+            'filesystem.basename.extension': 'b',
+            'filesystem.pathname.full': 'c',
             'contents.mime_type': 'd',
             'contents.textual.raw_text': 'e',
             'contents.textual.number_pages': 'f',

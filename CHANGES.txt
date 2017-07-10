@@ -1,3 +1,51 @@
+2017-07-10  [autonameow v0.4.3]
+            Mostly refactoring of and improvements of the internals.
+            Include changes of the configuration file syntax.
+
+            Additions:
+            - Add compatability checking the configuration file.
+              The program version used to write the file is stored in the
+              configuration, this is compared against the version of the
+              running program.
+            - Add testing 'FieldParser' class suitability with wildcards or
+              "globs", similar to the "MIME type globs" used in the 'Extractor'
+              classes and for evaluating MIME type conditions in the
+              configuration file rules.
+            - Add a new "--recursive" option for recursively collecting files
+              from all subdirectories of a given path.
+            - Add additional integration and unit tests.
+
+            Changes:
+            - Modify the configuration file syntax.
+              The configuration now uses a "flatter" structure. Example;
+
+              Previous, old syntax:
+
+                    -   CONDITIONS:
+                        contents:
+                            mime_type: image/jpeg
+                        filesystem:
+                            basename: DCIM.*
+                            extension: jpg
+
+              New, "flattened" syntax:
+
+                    -   CONDITIONS:
+                        contents.mime_type: image/jpeg
+                        filesystem.basename: DCIM.*
+                        filesystem.extension: jpg
+            - Refactor and cleanup the 'Configuration' class.
+            - Rework rule evaluation, now uses the 'FieldParser' classes to
+              evaluate conditions. Still a work in progress.
+            - Various bugfixes and refactoring.
+            - Move towards the "new" high-level architecture, separating the
+              "core" from "analyzers" and "extractors".
+
+            Fixes:
+            - Fix 'FileRule' scores was not reset properly after each file.
+            - Fix inconsistencies in the configuration file syntax.
+            - Various improvements to handling encoding.
+
 2017-06-24  [autonameow v0.4.2]
             Includes first attempt at properly fixing encoding issues.  Also a
             lot of cleanup and refactoring.  Refer to the Git log for details.

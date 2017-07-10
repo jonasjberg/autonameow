@@ -30,7 +30,11 @@ from core.config.field_parsers import (
     MimeTypeConfigFieldParser,
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser,
-    MetadataSourceConfigFieldParser
+    MetadataSourceConfigFieldParser,
+    suitable_field_parser_for,
+    suitable_parser_for_querystr,
+    is_valid_template_field,
+    eval_query_string_glob
 )
 
 
@@ -229,3 +233,214 @@ class TestInstantiatedFieldParsers(TestCase):
     def test_configuration_field_parsers_instance_of_config_field_parser(self):
         for parser in field_parsers.FieldParsers:
             self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
+
+
+class TestSuitableFieldParserFor(TestCase):
+    def test_returns_expected_type(self):
+        actual = suitable_field_parser_for('contents.mime_type')
+        self.assertTrue(isinstance(actual, list))
+
+    def test_returns_expected_given_valid_mime_type_field(self):
+        actual = suitable_field_parser_for('contents.mime_type')
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), 'MimeTypeConfigFieldParser')
+
+    def test_returns_expected_given_invalid_mime_type_field(self):
+        actual = suitable_field_parser_for('contents.miiime_type')
+        self.assertEqual(len(actual), 0)
+        actual = suitable_field_parser_for('miiime_type')
+        self.assertEqual(len(actual), 0)
+
+    def test_returns_expected_given_valid_name_format_field(self):
+        actual = suitable_field_parser_for('NAME_FORMAT')
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), 'NameFormatConfigFieldParser')
+
+    def test_datetime_field_parser_handles_multiple_fields(self):
+        for field in ['datetime', 'date_accessed',
+                      'date_created', 'date_modified']:
+            actual = suitable_field_parser_for(field)
+            self.assertEqual(len(actual), 1)
+            self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
+
+    def test_datetime_field_parser_handles_field_datetime(self):
+            actual = suitable_field_parser_for('datetime')
+            self.assertEqual(len(actual), 1)
+            self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
+
+    def test_datetime_field_parser_handles_field_date_accessed(self):
+        actual = suitable_field_parser_for('date_accessed')
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
+
+    def test_regex_field_parser_handles_multiple_fields(self):
+        for field in ['filesystem.pathname.full',
+                      'filesystem.basename.full',
+                      'filesystem.basename.extension',
+                      'contents.textual.raw_text']:
+            actual = suitable_field_parser_for(field)
+            self.assertEqual(len(actual), 1)
+            self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+
+    def __get_parser_for(self, arg):
+        actual = suitable_field_parser_for(arg)
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+
+    def test_regex_field_parser_handles_field_1(self):
+        self.__get_parser_for('filesystem.pathname.full')
+
+    def test_regex_field_parser_handles_field_2(self):
+        self.__get_parser_for('filesystem.basename.full')
+
+    def test_regex_field_parser_handles_field_3(self):
+        self.__get_parser_for('filesystem.basename.extension')
+
+    def test_regex_field_parser_handles_field_4(self):
+        self.__get_parser_for('contents.textual.raw_text')
+
+
+class TestSuitableParserForQueryString(TestCase):
+    def test_returns_expected_type(self):
+        actual = suitable_parser_for_querystr('mime_type')
+        self.assertTrue(isinstance(actual, list))
+
+    def test_returns_expected_given_valid_mime_type_field(self):
+        actual = suitable_parser_for_querystr('contents.mime_type')
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), 'MimeTypeConfigFieldParser')
+
+    def test_returns_expected_given_invalid_mime_type_field(self):
+        actual = suitable_parser_for_querystr('miiime_type')
+        self.assertEqual(len(actual), 0)
+
+    def test_returns_expected_given_valid_name_format_field(self):
+        actual = suitable_parser_for_querystr('NAME_FORMAT')
+        self.assertEqual(len(actual), 1)
+
+    def test_datetime_field_parser_handles_multiple_fields(self):
+        for field in ['datetime', 'date_accessed',
+                      'date_created', 'date_modified']:
+            actual = suitable_parser_for_querystr(field)
+            self.assertEqual(len(actual), 1)
+            self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
+
+    def __get_parser_for(self, field):
+        actual = suitable_parser_for_querystr(field)
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+
+    def test_regex_field_parser_handles_multiple_fields(self):
+        for field in ['filesystem.pathname.full',
+                      'filesystem.basename.full',
+                      'filesystem.basename.extension',
+                      'contents.textual.raw_text']:
+            self.__get_parser_for(field)
+
+
+class TestFieldparserConstants(TestCase):
+    def test_has_dummy_data_fields_constant(self):
+        self.assertIsNotNone(field_parsers.DATA_FIELDS)
+        self.assertTrue(isinstance(field_parsers.DATA_FIELDS, dict))
+
+
+class TestIsValidTemplateField(TestCase):
+    def test_invalid_fields_returns_false(self):
+        self.assertFalse(is_valid_template_field(None))
+        self.assertFalse(is_valid_template_field(''))
+        self.assertFalse(is_valid_template_field('foo'))
+
+    def test_valid_fields_return_true(self):
+        self.assertTrue(is_valid_template_field('author'))
+        self.assertTrue(is_valid_template_field('date'))
+        self.assertTrue(is_valid_template_field('datetime'))
+        self.assertTrue(is_valid_template_field('description'))
+        self.assertTrue(is_valid_template_field('edition'))
+        self.assertTrue(is_valid_template_field('extension'))
+        self.assertTrue(is_valid_template_field('publisher'))
+        self.assertTrue(is_valid_template_field('tags'))
+        self.assertTrue(is_valid_template_field('title'))
+
+
+class TestEvalQueryStringGlob(TestCase):
+    def test_eval_query_string_blob_is_defined(self):
+        self.assertIsNotNone(eval_query_string_glob)
+
+    def test_eval_query_string_blob_returns_false_given_bad_arguments(self):
+        self.assertIsNotNone(eval_query_string_glob(None, None))
+        self.assertFalse(eval_query_string_glob(None, None))
+
+    def test_eval_query_string_blob_returns_false_as_expected(self):
+        self.assertFalse(eval_query_string_glob(
+            'contents.mime_type', ['filesystem.*']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'contents.mime_type', ['filesystem.pathname.*']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'contents.mime_type', ['filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'contents.mime_type', ['filesystem.*',
+                                   'filesystem.pathname.*',
+                                   'filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'filesystem.pathname.extension', ['*.basename.*',
+                                              '*.basename.extension',
+                                              'filesystem.basename.extension']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'filesystem.pathname.parent', ['*.pathname.full',
+                                           'filesystem.*.full']
+        ))
+
+    def test_eval_query_string_blob_returns_true_as_expected(self):
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['*']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['filesystem.*']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['filesystem.pathname.*']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['filesystem.*',
+                                         'filesystem.pathname.*',
+                                         'filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['*',
+                                         'filesystem.*',
+                                         'filesystem.pathname.*',
+                                         'filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.basename.extension', ['*.basename.*',
+                                              '*.basename.extension',
+                                              'filesystem.basename.extension']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.basename.extension', ['*',
+                                              '*.basename.*',
+                                              '*.basename.extension',
+                                              'filesystem.basename.extension']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.basename.extension', ['*.extension']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.basename.extension', ['*',
+                                              '*.extension']
+        ))
+
+    def test_eval_query_string_blob_returns_as_expected(self):
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.basename.full', ['*.pathname.*',
+                                         '*.basename.*',
+                                         '*.raw_text']
+        ))

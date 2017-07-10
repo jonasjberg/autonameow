@@ -102,6 +102,22 @@ class PathConversionTest(unit_utils.TestCase):
         self.assertEqual(outpath, 'C:\\caf\xe9'.encode('utf-8'))
 
 
+class TestByteStringPathWithInvalidInput(unit_utils.TestCase):
+    def test_bytestring_path_returns_expected_for_empty_input(self):
+        self.assertEqual(b'', encoding.bytestring_path(''))
+
+
+class TestNormPath(unit_utils.TestCase):
+    def test_normpath_returns_expected_for_valid_input(self):
+        self.assertNotEqual('/', encoding.normpath('/'))
+        self.assertNotEqual('/tmp', encoding.normpath('/tmp/'))
+
+    def test_normpath_raises_value_error_for_empty_input(self):
+        with self.assertRaises(ValueError):
+            encoding.normpath('')
+            self.assertNotEqual(b'', encoding.normpath(''))
+
+
 # Platform mocking.
 
 @contextmanager
