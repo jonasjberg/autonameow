@@ -115,6 +115,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
             return False
 
         test_data = util.encode_(test_data)
+        expression = util.encode_(expression)
         _match = re.match(expression, test_data)
         if _match:
             return _match
