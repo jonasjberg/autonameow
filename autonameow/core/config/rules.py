@@ -87,7 +87,6 @@ class RuleCondition(object):
                 'A valid "query string" is required for validation.'
             )
 
-        # TODO: [TD0001] Implement this properly!
         # NOTE(jonas): No parser can currently handle these query strings ..
         if self.query_string.startswith('metadata.exiftool'):
             # TODO: [TD0015] Handle expression in 'condition_value'
@@ -113,7 +112,6 @@ class RuleCondition(object):
         if not raw_query_string:
             return False
 
-        # TODO: [TD0001] Implement this properly!
         if raw_query_string.startswith('metadata.exiftool'):
             # TODO: [TD0015] Handle expression in 'condition_value'
             #                ('Defined', '> 2017', etc)
@@ -125,7 +123,6 @@ class RuleCondition(object):
             return False
 
     def _validate_expression(self, raw_expression):
-        # TODO: [TD0001] Implement this properly!
         if self._parser.validate(raw_expression):
             return raw_expression
         else:

@@ -212,7 +212,7 @@ class MetadataSourceConfigFieldParser(ConfigFieldParser):
         if not expression or not isinstance(expression, str):
             return False
 
-        # TODO: [TD0001] Implement proper (?) validation of metadata source!
+        # TODO: [TD0015] Implement proper (?) validation of metadata source!
         query_strings = list(extraction.MetadataExtractorQueryStrings)
         query_strings = [qs.replace('metadata.', '') for qs in query_strings]
 
@@ -337,7 +337,7 @@ def suitable_parser_for_querystr(query_string):
     """
     # TODO: [TD0015] Allow conditionals in the configuration file rules.
 
-    # TODO: [TD0001] Handle complex cases properly!
+    # TODO: [TD0015] Handle complex cases properly!
     # Handle case where the last component is a field defined by an external
     # source (extractor/analyzer). A typical example is 'exiftool'; the
     # incoming query string 'metadata.exiftool.EXIF:DateTimeOriginal' will

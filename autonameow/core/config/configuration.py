@@ -523,7 +523,7 @@ def validate_condition_value(condition_field, condition_value):
     field_components = util.query_string_list(condition_field)
     field = field_components[-1:][0]
 
-    # TODO: [TD0001] Workaround for 'metadata.exiftool.EXIF:DateTimeOriginal' ..
+    # NOTE(jonas): Workaround for 'metadata.exiftool.EXIF:DateTimeOriginal' ..
     #       Above test would return 'EXIF:DateTimeOriginal' but this solution
     #       would require testing the second to last part; 'exiftool', instead.
     if condition_field.startswith('metadata.exiftool'):
