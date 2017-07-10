@@ -33,7 +33,8 @@ from core.config.field_parsers import (
     MetadataSourceConfigFieldParser,
     suitable_field_parser_for,
     suitable_parser_for_querystr,
-    is_valid_template_field
+    is_valid_template_field,
+    eval_query_string_glob
 )
 
 
@@ -329,5 +330,77 @@ class TestIsValidTemplateField(TestCase):
 
 
 class TestEvalQueryStringGlob(TestCase):
-    def test_todo(self):
-        self.fail('[TD0046]')
+    def test_eval_query_string_blob_is_defined(self):
+        self.assertIsNotNone(eval_query_string_glob)
+
+    def test_eval_query_string_blob_returns_false_given_bad_arguments(self):
+        self.assertIsNotNone(eval_query_string_glob(None, None))
+        self.assertFalse(eval_query_string_glob(None, None))
+
+    def test_eval_query_string_blob_returns_false_as_expected(self):
+        self.assertFalse(eval_query_string_glob(
+            'contents.mime_type', ['filesystem.*']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'contents.mime_type', ['filesystem.pathname.*']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'contents.mime_type', ['filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'contents.mime_type', ['filesystem.*',
+                                   'filesystem.pathname.*',
+                                   'filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'filesystem.pathname.extension', ['*.basename.*',
+                                              '*.basename.extension',
+                                              'filesystem.basename.extension']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'filesystem.pathname.parent', ['*.pathname.full',
+                                           'filesystem.*.full']
+        ))
+
+    def test_eval_query_string_blob_returns_true_as_expected(self):
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['*']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['filesystem.*']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['filesystem.pathname.*']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['filesystem.*',
+                                         'filesystem.pathname.*',
+                                         'filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['*',
+                                         'filesystem.*',
+                                         'filesystem.pathname.*',
+                                         'filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.basename.extension', ['*.basename.*',
+                                              '*.basename.extension',
+                                              'filesystem.basename.extension']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.basename.extension', ['*',
+                                              '*.basename.*',
+                                              '*.basename.extension',
+                                              'filesystem.basename.extension']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.basename.extension', ['*.extension']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.basename.extension', ['*',
+                                              '*.extension']
+        ))

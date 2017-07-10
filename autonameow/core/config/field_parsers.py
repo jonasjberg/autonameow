@@ -268,9 +268,57 @@ def suitable_field_parser_for(field_components):
     return [p for p in FieldParsers if field_components in p.applies_to_field]
 
 
-def eval_query_string_glob(match_query_string, glob_list):
-    # TODO: [TD0046] Implement this and use in 'suitable_field_parser_for'.
-    pass
+def eval_query_string_glob(query_string, glob_list):
+    """
+    Evaluates a given "query string" against a list of "globs".
+
+    The "query string" matching any of the given globs evaluates true.
+
+    The "query string" consist of a lower case words, separated by periods.
+    For instance; "contents.mime_type" or "filesystem.basename.extension".
+
+    Globs substitute any of the lower case words with an asterisk,
+    which means that part is ignored during the comparison. Examples:
+
+        match_query_string          glob_list                   evaluates
+        'contents.mime_type'        ['contents.mime_type']      True
+        'contents.foo'              ['contents.*']              True
+        'foo.bar'                   ['*.*']                     True
+        'filesystem.basename.full'  ['filesystem.*', '*.full']  False
+
+    Args:
+        query_string: The "query string" to match as a string.
+        glob_list: A list of globs as strings.
+
+    Returns:
+        True if the given "query string" matches any of the specified globs.
+    """
+    if not query_string or not glob_list:
+        return False
+
+    for glob in glob_list:
+        if glob == query_string:
+            return True
+
+        glob_parts = glob.split('.')
+        # All wildcards match anything.
+        if all(gp == '*' for gp in glob_parts):
+            return True
+
+        # No wildcards, do direct comparison.
+        if '*' not in glob_parts:
+            query_string_parts = util.query_string_list(query_string)
+            if glob_parts == query_string_parts:
+                return True
+            else:
+                return False
+
+        # Convert to regular expression to match wildcards. Simplest solution.
+        re_glob = re.compile(glob.replace('.', '\.').replace('*', '.*'))
+        if re_glob.match(query_string):
+            return True
+
+        return False
 
 
 def suitable_parser_for_querystr(query_string):
