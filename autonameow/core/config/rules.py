@@ -149,6 +149,18 @@ class RuleCondition(object):
         Returns: The result of the evaluation if the evaluation is successful
             with the given data, otherwise False.
         """
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
+
+        # NOTE(jonas): For unhandled cases like
+        # 'metadata.exiftool.EXIF:DateTimeOriginal, 'self._parser' is None
+        # and below methid call will fail.
+        if not self._parser:
+            log.critical('Unimplemented condition evaluation -- query_string: '
+                         '"{!s}" expression: "{!s}"'.format(self.query_string,
+                                                            self.expression))
+            return False
+
         result = self._parser.evaluate(self.expression, data)
         if result:
             return result
