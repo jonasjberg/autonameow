@@ -98,7 +98,7 @@ class ConfigFieldParser(object):
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['pathname', 'basename', 'extension', 'raw_text']
+    applies_to_field = ['*.pathname.*', '*.basename.*', '*.raw_text']
 
     @staticmethod
     def is_valid_regex(expression):
@@ -131,7 +131,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['mime_type']
+    applies_to_field = ['contents.mime_type']
 
     @staticmethod
     def is_valid_mime_type(expression):
@@ -155,7 +155,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['datetime', 'date_accessed', 'date_created',
-                        'date_modified', 'DateTimeOriginal']
+                        'date_modified', '*.DateTimeOriginal']
 
     @staticmethod
     def is_valid_datetime(expression):
@@ -204,7 +204,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
 
 class MetadataSourceConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['metadata']
+    applies_to_field = ['metadata.*']
 
     @staticmethod
     def is_valid_metadata_source(expression):
