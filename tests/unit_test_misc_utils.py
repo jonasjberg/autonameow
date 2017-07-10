@@ -141,9 +141,13 @@ class TestFlattenDict(TestCase):
         self.maxDiff = None
         self.INPUT = {
             'filesystem': {
-                'basename': 'a',
-                'extension': 'b',
-                'pathname': 'c',
+                'basename': {
+                    'full': 'a',
+                    'extension': 'b'
+                },
+                'pathname': {
+                    'full': 'c',
+                }
             },
             'contents': {
                 'mime_type': 'd',
