@@ -296,10 +296,10 @@ def eval_query_string_glob(query_string, glob_list):
     if not query_string or not glob_list:
         return False
 
-    for glob in glob_list:
-        if glob == query_string:
-            return True
+    if query_string in glob_list:
+        return True
 
+    for glob in glob_list:
         glob_parts = glob.split('.')
         # All wildcards match anything.
         if all(gp == '*' for gp in glob_parts):
@@ -311,14 +311,14 @@ def eval_query_string_glob(query_string, glob_list):
             if glob_parts == query_string_parts:
                 return True
             else:
-                return False
+                continue
 
         # Convert to regular expression to match wildcards. Simplest solution.
-        re_glob = re.compile(glob.replace('.', '\.').replace('*', '.*'))
+        re_glob = re.compile(glob.replace('*', '.*'))
         if re_glob.match(query_string):
             return True
 
-        return False
+    return False
 
 
 def suitable_parser_for_querystr(query_string):
