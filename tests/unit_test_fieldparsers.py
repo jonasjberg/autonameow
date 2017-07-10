@@ -273,7 +273,6 @@ class TestSuitableFieldParserFor(TestCase):
         self.assertEqual(len(actual), 1)
         self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
 
-    # TODO: Refactor below ..
     def test_regex_field_parser_handles_multiple_fields(self):
         for field in ['filesystem.pathname.full',
                       'filesystem.basename.full',
@@ -283,25 +282,23 @@ class TestSuitableFieldParserFor(TestCase):
             self.assertEqual(len(actual), 1)
             self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
 
+    def __get_parser_for(self, arg):
+        actual = suitable_field_parser_for(arg)
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+
     def test_regex_field_parser_handles_field_1(self):
-            actual = suitable_field_parser_for('filesystem.pathname.full')
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+        self.__get_parser_for('filesystem.pathname.full')
 
     def test_regex_field_parser_handles_field_2(self):
-        actual = suitable_field_parser_for('filesystem.basename.full')
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+        self.__get_parser_for('filesystem.basename.full')
 
     def test_regex_field_parser_handles_field_3(self):
-        actual = suitable_field_parser_for('filesystem.basename.extension')
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+        self.__get_parser_for('filesystem.basename.extension')
 
     def test_regex_field_parser_handles_field_4(self):
-        actual = suitable_field_parser_for('contents.textual.raw_text')
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+        self.__get_parser_for('contents.textual.raw_text')
+
 
 class TestSuitableParserForQueryString(TestCase):
     def test_returns_expected_type(self):
@@ -328,15 +325,17 @@ class TestSuitableParserForQueryString(TestCase):
             self.assertEqual(len(actual), 1)
             self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
 
-    # TODO: Refactor below ..
+    def __get_parser_for(self, field):
+        actual = suitable_parser_for_querystr(field)
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+
     def test_regex_field_parser_handles_multiple_fields(self):
         for field in ['filesystem.pathname.full',
                       'filesystem.basename.full',
                       'filesystem.basename.extension',
                       'contents.textual.raw_text']:
-            actual = suitable_parser_for_querystr(field)
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+            self.__get_parser_for(field)
 
 
 class TestFieldparserConstants(TestCase):
