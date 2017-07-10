@@ -135,7 +135,7 @@ class RuleCondition(object):
         if self._parser:
             return self._parser
 
-        parsers = field_parsers.suitable_parser_for_querystr(query_string)
+        parsers = field_parsers.suitable_field_parser_for(query_string)
         if parsers:
             self._parser = parsers[0]
             return self._parser
