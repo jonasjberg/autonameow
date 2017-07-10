@@ -99,7 +99,7 @@ University mail: `js224eh[a]student.lnu.se`
     > -------------
     >
     > ### New high-level architecture:
-    > 
+    >
     > * __The `Extraction` class controls all extractors__ --
     >   The first step in the processing pipeline is calling the extractors that are
     >   relevant to the current file.
@@ -111,7 +111,7 @@ University mail: `js224eh[a]student.lnu.se`
     >   returned by the extractors.
     >
     > ### Internal data storage
-    > 
+    >
     > * Think about distinguishing between *simple static data* and *derived data*.
     >     * __"Static data":__ string `test.pdf`
     >       (stored in results query field `filesystem.basename.full`)
