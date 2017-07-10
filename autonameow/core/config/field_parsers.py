@@ -347,10 +347,10 @@ def suitable_parser_for_querystr(query_string):
     # hard coded values.. Need a better method that is tolerant to changes.
 
     # Get the last part of the field; 'mime_type' for 'contents.mime_type'.
-    field_components = util.query_string_list(query_string)
+    # field_components = util.query_string_list(query_string)
     # last_component = field_components[-1:][0]
 
-    return suitable_field_parser_for(field_components)
+    return suitable_field_parser_for(query_string)
 
 
 def is_valid_template_field(template_field):
