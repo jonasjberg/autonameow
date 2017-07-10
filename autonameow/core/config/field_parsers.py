@@ -253,19 +253,21 @@ def available_field_parsers():
             globals()['ConfigFieldParser'].__subclasses__()]
 
 
-def suitable_field_parser_for(field_components):
+def suitable_field_parser_for(query_string):
     """
-    Returns instances of field parser classes that can handle the given field.
+    Returns instances of field parser classes that can handle the given query.
+
+    The "query string" can be a "glob", I.E. contain wildcards.
 
     Args:
-        field_components: Query string to match against a RuleParser class.
-            Should be type list. Example: ['filesystem', 'basename', 'full']
+        query_string: Query string to match against a RuleParser class.
 
     Returns:
-        A list of instantiated field parsers that can handle the given field.
+        A list of instantiated field parsers suited for the given query string.
     """
     # TODO: [TD0046] Improve determining FieldParser suitability.
-    return [p for p in FieldParsers if field_components in p.applies_to_field]
+    return [p for p in FieldParsers
+            if eval_query_string_glob(query_string, p.applies_to_field)]
 
 
 def eval_query_string_glob(query_string, glob_list):
