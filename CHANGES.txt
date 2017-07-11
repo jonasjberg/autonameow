@@ -1,6 +1,10 @@
 2017-07-10  [autonameow v0.4.3]
-            Mostly refactoring of and improvements of the internals.
-            Include changes of the configuration file syntax.
+            Mostly refactoring and improvements of the internals; parts that
+            handle evaluation of rules and validating the configuration are
+            rewritten and greatly improved.
+            Includes changes to the configuration file syntax, as well as
+            compatability tests that alerts that user of this and upcoming
+            changes.
 
             Additions:
             - Add compatability checking the configuration file.
@@ -14,29 +18,40 @@
             - Add a new "--recursive" option for recursively collecting files
               from all subdirectories of a given path.
             - Add additional integration and unit tests.
+            - Add new "Compatibility" integration test suite.
+              Some of the tests from the "Command-Line Interface" test suite
+              were moved to this new file. New tests were added as well.
+			- Add a new 'RuleCondition' class.
+			  Represents a single condition contained in a configuration file
+			  rule.  Performs validation of incoming arguments and packages a
+              condition to facilitate evaluation.
+            - Add unique identifiers to TODOs in the code and the TODO-list.
 
             Changes:
             - Modify the configuration file syntax.
-              The configuration now uses a "flatter" structure. Example;
+              The configuration now uses a "flatter" structure as follows;
 
               Previous, old syntax:
-
-                    -   CONDITIONS:
-                        contents:
-                            mime_type: image/jpeg
-                        filesystem:
-                            basename: DCIM.*
-                            extension: jpg
+                  -   CONDITIONS:
+                      contents:
+                          mime_type: image/jpeg
+                      filesystem:
+                          basename: DCIM.*
+                          extension: jpg
 
               New, "flattened" syntax:
+                  -   CONDITIONS:
+                      contents.mime_type: image/jpeg
+                      filesystem.basename: DCIM.*
+                      filesystem.extension: jpg
 
-                    -   CONDITIONS:
-                        contents.mime_type: image/jpeg
-                        filesystem.basename: DCIM.*
-                        filesystem.extension: jpg
             - Refactor and cleanup the 'Configuration' class.
             - Rework rule evaluation, now uses the 'FieldParser' classes to
               evaluate conditions. Still a work in progress.
+			  The "rule matcher" uses the 'RuleCondition' class method
+			  'evaluate' to evaluating conditions.  The method delegates the
+			  evaluation to a referenced 'FieldParser' class, that is chosen
+              based on the "query string".
             - Various bugfixes and refactoring.
             - Move towards the "new" high-level architecture, separating the
               "core" from "analyzers" and "extractors".
@@ -45,6 +60,7 @@
             - Fix 'FileRule' scores was not reset properly after each file.
             - Fix inconsistencies in the configuration file syntax.
             - Various improvements to handling encoding.
+            - Fix broken integration and unit tests.
 
 2017-06-24  [autonameow v0.4.2]
             Includes first attempt at properly fixing encoding issues.  Also a
@@ -104,6 +120,7 @@
                   'image/png'           'image/*'          True
                   'application/pdf'     '*/*'              True
                   'application/pdf'     'image/*'         False
+
             - Add program version in the configuration file for future
               compatability testing.
             - Add 'TODO.md', which will be the primary list of stuff to do.
