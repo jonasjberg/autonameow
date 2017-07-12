@@ -72,6 +72,21 @@ class TestFieldParser(TestCase):
         with self.assertRaises(NotImplementedError):
             self.p.get_validation_function()
 
+    def test_get_evaluation_function_should_raise_error_if_unimplemented(self):
+        with self.assertRaises(NotImplementedError):
+            self.p.get_evaluation_function()
+
+    def test_validate_function_should_raise_error_if_unimplemented(self):
+        with self.assertRaises(NotImplementedError):
+            self.p.validate(None)
+
+    def test_evaluate_function_should_raise_error_if_unimplemented(self):
+        with self.assertRaises(NotImplementedError):
+            self.p.evaluate(None, None)
+
+    def test_str_returns_expected_expected_type(self):
+        self.assertTrue(isinstance(str(self.p), str))
+
 
 class TestFieldParserSubclasses(TestCase):
     def setUp(self):
