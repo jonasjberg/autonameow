@@ -235,14 +235,14 @@ class TestInstantiatedFieldParsers(TestCase):
 
 
 class TestSuitableFieldParserFor(TestCase):
-    def test_returns_expected_type(self):
+    def __get_parser_for(self, arg, expected_parser):
+        actual = suitable_field_parser_for(arg)
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), expected_parser)
+
+    def test_returns_expected_type_list(self):
         actual = suitable_field_parser_for('contents.mime_type')
         self.assertTrue(isinstance(actual, list))
-
-    def test_returns_expected_given_valid_mime_type_field(self):
-        actual = suitable_field_parser_for('contents.mime_type')
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'MimeTypeConfigFieldParser')
 
     def test_returns_expected_given_invalid_mime_type_field(self):
         actual = suitable_field_parser_for('contents.miiime_type')
@@ -250,32 +250,14 @@ class TestSuitableFieldParserFor(TestCase):
         actual = suitable_field_parser_for('miiime_type')
         self.assertEqual(len(actual), 0)
 
-    def test_returns_expected_given_valid_name_format_field(self):
-        actual = suitable_field_parser_for('NAME_FORMAT')
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'NameFormatConfigFieldParser')
+    def test_expect_name_format_field_parser(self):
+        self.__get_parser_for('NAME_FORMAT', 'NameFormatConfigFieldParser')
 
-    def test_datetime_field_parser_handles_multiple_fields(self):
-        for field in ['datetime', 'date_accessed',
-                      'date_created', 'date_modified']:
-            actual = suitable_field_parser_for(field)
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
-
-    def test_datetime_field_parser_handles_field_datetime(self):
-            actual = suitable_field_parser_for('datetime')
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
-
-    def test_datetime_field_parser_handles_field_date_accessed(self):
-        actual = suitable_field_parser_for('date_accessed')
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
-
-    def __get_parser_for(self, arg, expected_parser):
-        actual = suitable_field_parser_for(arg)
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), expected_parser)
+    def test_expect_datetime_field_parser(self):
+        self.__get_parser_for('datetime', 'DateTimeConfigFieldParser')
+        self.__get_parser_for('date_accessed', 'DateTimeConfigFieldParser')
+        self.__get_parser_for('date_created', 'DateTimeConfigFieldParser')
+        self.__get_parser_for('date_modified', 'DateTimeConfigFieldParser')
 
     def test_expect_regex_field_parser(self):
         self.__get_parser_for('filesystem.pathname.full',
