@@ -120,6 +120,14 @@ class TestFieldParserSubclasses(TestCase):
             self.assertEqual(type(result), bool,
                              'Validation function should always return boolean')
 
+    def test_get_evaluation_function_should_not_return_none(self):
+        for p in self.parsers:
+            self.assertIsNotNone(p.get_evaluation_function())
+
+    def test_get_evaluation_function_should_return_function(self):
+        for p in self.parsers:
+            self.assertTrue(hasattr(p.get_evaluation_function(), '__call__'))
+
 
 class TestRegexFieldParser(TestCase):
     def setUp(self):
