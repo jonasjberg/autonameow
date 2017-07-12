@@ -50,16 +50,13 @@ class BaseType(object):
     def __call__(cls, raw_value=None):
         if raw_value is None:
             return cls.null
-        else:
-            parsed = cls._parse(raw_value)
-            if parsed:
-                return parsed
-            else:
-                return cls.null
+
+        parsed = cls._parse(raw_value)
+        return parsed if parsed else cls.null
 
     @property
     def null(self):
-        return self.primitive_type()
+        return self.primitive_type(None)
 
     def normalize(self, value):
         """
@@ -99,6 +96,11 @@ class BaseType(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+
+class Boolean(BaseType):
+    # TODO: [TD0002] Research requirements and implement custom type system.
+    primitive_type = bool
 
 
 class Integer(BaseType):

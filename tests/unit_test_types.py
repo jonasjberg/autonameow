@@ -26,11 +26,24 @@ from core import types
 
 
 class TestBaseType(TestCase):
+    def setUp(self):
+        self.base_type = types.BaseType()
+
     def test_null(self):
-        self.assertEqual(types.BaseType(None), types.BaseType.null)
+        self.assertEqual(self.base_type(None), types.BaseType.null)
 
     def test_normalize(self):
         self.skipTest('TODO: Implement')
+
+
+class TestBooleanType(TestCase):
+    def test_type_null_is_defined(self):
+        expected = types.Boolean.null
+        self.assertIsNotNone(expected)
+
+    def test_type_null_is_expected_type(self):
+        actual = types.Boolean.null
+        self.assertTrue(isinstance(actual, bool))
 
 
 class TestIntegerType(TestCase):
