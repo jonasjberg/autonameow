@@ -27,11 +27,10 @@ from core import (
     constants,
     extraction,
     util,
-    fileobject
+    fileobject,
+    exceptions
 )
-from core.constants import NAME_TEMPLATE_FIELDS
 from core.evaluate import namebuilder
-from core.exceptions import NameTemplateSyntaxError
 
 
 class ConfigFieldParser(object):
@@ -210,7 +209,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
         try:
             namebuilder.assemble_basename(expression, **DATA_FIELDS)
-        except NameTemplateSyntaxError:
+        except exceptions.NameTemplateSyntaxError:
             return False
         else:
             return True
@@ -367,4 +366,4 @@ FieldParsers = get_instantiated_field_parsers()
 
 # This is used for validating name templates. Dict is populated like this;
 #   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
-DATA_FIELDS = dict.fromkeys(NAME_TEMPLATE_FIELDS, 'DUMMY')
+DATA_FIELDS = dict.fromkeys(constants.NAME_TEMPLATE_FIELDS, 'DUMMY')
