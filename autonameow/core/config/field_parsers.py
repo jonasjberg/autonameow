@@ -323,36 +323,6 @@ def eval_query_string_glob(query_string, glob_list):
     return False
 
 
-def suitable_parser_for_querystr(query_string):
-    """
-    Returns instances of field parser classes that can handle the given
-    query string.
-
-    Args:
-        query_string: The field to validate. Examples;
-            'metadata.exiftool.EXIF:DateTimeOriginal', 'contents.mime_type'
-
-    Returns:
-        A list of instantiated parsers that can handle the given query string.
-    """
-    # TODO: [TD0015] Allow conditionals in the configuration file rules.
-
-    # TODO: [TD0015] Handle complex cases properly!
-    # Handle case where the last component is a field defined by an external
-    # source (extractor/analyzer). A typical example is 'exiftool'; the
-    # incoming query string 'metadata.exiftool.EXIF:DateTimeOriginal' will
-    # result in the 'last_component' being 'EXIF:DateTimeOriginal'.
-    # Considering the many possible fields returned by extractors such as
-    # exiftool, it does not seem practical to validate by comparing against
-    # hard coded values.. Need a better method that is tolerant to changes.
-
-    # Get the last part of the field; 'mime_type' for 'contents.mime_type'.
-    # field_components = util.query_string_list(query_string)
-    # last_component = field_components[-1:][0]
-
-    return suitable_field_parser_for(query_string)
-
-
 def is_valid_template_field(template_field):
     """
     Checks whether the given string is a legal name template placeholder field.

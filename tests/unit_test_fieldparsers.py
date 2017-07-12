@@ -32,7 +32,6 @@ from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     MetadataSourceConfigFieldParser,
     suitable_field_parser_for,
-    suitable_parser_for_querystr,
     is_valid_template_field,
     eval_query_string_glob
 )
@@ -298,44 +297,6 @@ class TestSuitableFieldParserFor(TestCase):
 
     def test_regex_field_parser_handles_field_4(self):
         self.__get_parser_for('contents.textual.raw_text')
-
-
-class TestSuitableParserForQueryString(TestCase):
-    def test_returns_expected_type(self):
-        actual = suitable_parser_for_querystr('mime_type')
-        self.assertTrue(isinstance(actual, list))
-
-    def test_returns_expected_given_valid_mime_type_field(self):
-        actual = suitable_parser_for_querystr('contents.mime_type')
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'MimeTypeConfigFieldParser')
-
-    def test_returns_expected_given_invalid_mime_type_field(self):
-        actual = suitable_parser_for_querystr('miiime_type')
-        self.assertEqual(len(actual), 0)
-
-    def test_returns_expected_given_valid_name_format_field(self):
-        actual = suitable_parser_for_querystr('NAME_FORMAT')
-        self.assertEqual(len(actual), 1)
-
-    def test_datetime_field_parser_handles_multiple_fields(self):
-        for field in ['datetime', 'date_accessed',
-                      'date_created', 'date_modified']:
-            actual = suitable_parser_for_querystr(field)
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
-
-    def __get_parser_for(self, field):
-        actual = suitable_parser_for_querystr(field)
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
-
-    def test_regex_field_parser_handles_multiple_fields(self):
-        for field in ['filesystem.pathname.full',
-                      'filesystem.basename.full',
-                      'filesystem.basename.extension',
-                      'contents.textual.raw_text']:
-            self.__get_parser_for(field)
 
 
 class TestFieldparserConstants(TestCase):
