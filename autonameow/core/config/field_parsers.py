@@ -196,7 +196,7 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        pass
+        return lambda *_: True
 
 
 class NameFormatConfigFieldParser(ConfigFieldParser):
@@ -221,7 +221,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        pass
+        return lambda *_: True
 
 
 class MetadataSourceConfigFieldParser(ConfigFieldParser):
@@ -249,7 +249,7 @@ class MetadataSourceConfigFieldParser(ConfigFieldParser):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        pass
+        return lambda *_: True
 
 
 def get_instantiated_field_parsers():
