@@ -284,9 +284,9 @@ def eval_query_string_glob(query_string, glob_list):
 
         match_query_string          glob_list                   evaluates
         'contents.mime_type'        ['contents.mime_type']      True
-        'contents.foo'              ['contents.*']              True
+        'contents.foo'              ['foo.*', 'contents.*']     True
         'foo.bar'                   ['*.*']                     True
-        'filesystem.basename.full'  ['filesystem.*', '*.full']  False
+        'filesystem.basename.full'  ['contents.*', '*.parent']  False
 
     Args:
         query_string: The "query string" to match as a string.
