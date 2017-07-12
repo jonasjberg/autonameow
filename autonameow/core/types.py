@@ -31,10 +31,16 @@ Wraps primitives to force safe defaults and extra functionality.
 #   * Confine data extractor results data to types
 #   * Allow type-specific processing of data extractor data
 
+from datetime import datetime
+
 
 class BaseType(object):
     # NOTE(jonas): Why revert to "str"? Assume BaseType won't be instantiated?
+    # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
+
+    def __init__(self):
+        self._value = None
 
     @property
     def null(self):
@@ -57,15 +63,66 @@ class BaseType(object):
             # TODO: ..
             return value
 
+    def _parse(self, raw_value):
+        if not self.primitive_type:
+            raise NotImplementedError('Must be implemented by subclass')
+        else:
+            try:
+                value = self.primitive_type(raw_value)
+            except ValueError:
+                return self.null
+            else:
+                return value
+
+    def __repr__(self):
+        return self.__class__.__name__
+
+    # def __eq__(self, other):
+    #     return (isinstance(other, self.__class__)
+    #             and self.__dict__ == other.__dict__)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class Integer(BaseType):
+    # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = int
+
+    def __init__(self):
+        super().__init__()
 
 
 class Float(BaseType):
+    # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = float
+
+    def __init__(self):
+        super().__init__()
 
 
 class TimeDate(BaseType):
     # TODO: Think long and hard about this before proceeding..
+    # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = None
+
+    def __init__(self):
+        super().__init__()
+
+    def _parse(self, raw_value):
+        try:
+            dt = datetime.strptime(raw_value, '%Y-%m-%dT%H:%M:%S.%f')
+        except (ValueError, TypeError):
+            return self.null
+        else:
+            return dt
+
+    def __call__(self, raw_value):
+        self._value = self._parse(raw_value)
+        return self._value
+
+    def __repr__(self):
+        return self._value
+
+    def __str__(self):
+        return self._value.isoformat()
