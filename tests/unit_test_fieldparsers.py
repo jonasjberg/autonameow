@@ -299,7 +299,7 @@ class TestSuitableFieldParserFor(TestCase):
     def test_expect_metadata_source_field_parser(self):
         # TODO: [TD0048] Fix "conflict" with 'DateTimeConfigFieldParser'.
         self.__expect_parser_for('MetadataSourceConfigFieldParser',
-                                 'metadata.exiftool')
+                                 'metadata.exiftool.PDF:CreateDate')
         self.__expect_parser_for('MetadataSourceConfigFieldParser',
                                  'metadata.exiftool.EXIF:DateTimeOriginal')
 
