@@ -95,6 +95,7 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
         try:
             result = self._get_exiftool_data()
             # TODO: [TD0044] Rework converting "raw data" to an internal format.
+            # TODO: [TD0002] Wrap values in custom types.
 
             return result
         except Exception as e:
@@ -168,6 +169,7 @@ class PyPDFMetadataExtractor(MetadataExtractor):
                 out.update(xmp)
 
         # TODO: [TD0044] Convert date/time-information to 'datetime' objects.
+        # TODO: [TD0002] Wrap values in custom types.
         convert_datetime_field(out, 'CreationDate')
         convert_datetime_field(out, 'ModDate')
 
