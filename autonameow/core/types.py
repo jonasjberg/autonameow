@@ -35,6 +35,10 @@ from datetime import datetime
 
 
 class BaseType(object):
+    """
+    Base class for all custom types. Provides type coercion and known defaults.
+    """
+
     # NOTE(jonas): Why revert to "str"? Assume BaseType won't be instantiated?
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
