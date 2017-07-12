@@ -235,7 +235,7 @@ class TestInstantiatedFieldParsers(TestCase):
 
 
 class TestSuitableFieldParserFor(TestCase):
-    def __get_parser_for(self, arg, expected_parser):
+    def __expect_parser_for(self, expected_parser, arg):
         actual = suitable_field_parser_for(arg)
         self.assertEqual(len(actual), 1)
         self.assertEqual(str(actual[0]), expected_parser)
@@ -251,27 +251,27 @@ class TestSuitableFieldParserFor(TestCase):
         self.assertEqual(len(actual), 0)
 
     def test_expect_name_format_field_parser(self):
-        self.__get_parser_for('NAME_FORMAT', 'NameFormatConfigFieldParser')
+        self.__expect_parser_for('NameFormatConfigFieldParser', 'NAME_FORMAT')
 
     def test_expect_datetime_field_parser(self):
-        self.__get_parser_for('datetime', 'DateTimeConfigFieldParser')
-        self.__get_parser_for('date_accessed', 'DateTimeConfigFieldParser')
-        self.__get_parser_for('date_created', 'DateTimeConfigFieldParser')
-        self.__get_parser_for('date_modified', 'DateTimeConfigFieldParser')
+        self.__expect_parser_for('DateTimeConfigFieldParser', 'datetime')
+        self.__expect_parser_for('DateTimeConfigFieldParser', 'date_accessed')
+        self.__expect_parser_for('DateTimeConfigFieldParser', 'date_created')
+        self.__expect_parser_for('DateTimeConfigFieldParser', 'date_modified')
 
     def test_expect_regex_field_parser(self):
-        self.__get_parser_for('filesystem.pathname.full',
-                              'RegexConfigFieldParser')
-        self.__get_parser_for('filesystem.basename.full',
-                              'RegexConfigFieldParser')
-        self.__get_parser_for('filesystem.basename.extension',
-                              'RegexConfigFieldParser')
-        self.__get_parser_for('contents.textual.raw_text',
-                              'RegexConfigFieldParser')
+        self.__expect_parser_for('RegexConfigFieldParser',
+                                 'filesystem.pathname.full')
+        self.__expect_parser_for('RegexConfigFieldParser',
+                                 'filesystem.basename.full')
+        self.__expect_parser_for('RegexConfigFieldParser',
+                                 'filesystem.basename.extension')
+        self.__expect_parser_for('RegexConfigFieldParser',
+                                 'contents.textual.raw_text')
 
     def test_expect_mime_type_field_parser(self):
-        self.__get_parser_for('contents.mime_type',
-                              'MimeTypeConfigFieldParser')
+        self.__expect_parser_for('MimeTypeConfigFieldParser',
+                                 'contents.mime_type')
 
 
 class TestFieldparserConstants(TestCase):
