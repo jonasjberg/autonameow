@@ -87,6 +87,15 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
                           'application/epub+zip', 'text/*']
     data_query_string = 'metadata.exiftool'
 
+    # TODO: [TD0002] Wrap values in custom types.
+    # TODO: [TD0044] Rework converting "raw data" to an internal format.
+    #tagname_type_lookup = {
+    #    'CreateDate': types.TimeDate,
+    #    'DateTimeDigitized': types.TimeDate,
+    #    'DateTimeOriginal': types.TimeDate,
+    #    'ModifyDate': types.TimeDate,
+    #}
+
     def __init__(self, source):
         super(ExiftoolMetadataExtractor, self).__init__(source)
         self._raw_metadata = None
@@ -95,7 +104,7 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
         try:
             result = self._get_exiftool_data()
             # TODO: [TD0044] Rework converting "raw data" to an internal format.
-            # TODO: [TD0002] Wrap values in custom types.
+            # TODO: [TD0002] Wrap values in custom types; "tagname_type_lookup".
 
             return result
         except Exception as e:
@@ -117,6 +126,15 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
 class PyPDFMetadataExtractor(MetadataExtractor):
     handles_mime_types = ['application/pdf']
     data_query_string = 'metadata.pypdf'
+
+    # TODO: [TD0002] Wrap values in custom types.
+    # TODO: [TD0044] Rework converting "raw data" to an internal format.
+    #tagname_type_lookup = {
+    #    'CreationDate': types.TimeDate,
+    #    'ModDate': types.TimeDate,
+    #    'isEncrypted': types.Boolean,
+    #    'num_pages': types.Integer,
+    #}
 
     def __init__(self, source):
         super(PyPDFMetadataExtractor, self).__init__(source)
@@ -181,10 +199,12 @@ def convert_datetime_field(pypdf_data, field):
     if field in pypdf_data:
         try:
             datetime_object = to_datetime(pypdf_data[field])
+            # wrapped = types.TimeDate(pypdf_data[field])
         except ValueError:
             return
         else:
             pypdf_data[field] = datetime_object
+            # pypdf_data[field] = wrapped
 
 
 def to_datetime(pypdf_string):
