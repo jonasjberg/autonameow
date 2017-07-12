@@ -281,22 +281,30 @@ class TestSuitableFieldParserFor(TestCase):
             self.assertEqual(len(actual), 1)
             self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
 
-    def __get_parser_for(self, arg):
+    def __get_parser_for(self, arg, expected_parser):
         actual = suitable_field_parser_for(arg)
         self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
+        self.assertEqual(str(actual[0]), expected_parser)
 
     def test_regex_field_parser_handles_field_1(self):
-        self.__get_parser_for('filesystem.pathname.full')
+        self.__get_parser_for('filesystem.pathname.full',
+                              'RegexConfigFieldParser')
 
     def test_regex_field_parser_handles_field_2(self):
-        self.__get_parser_for('filesystem.basename.full')
+        self.__get_parser_for('filesystem.basename.full',
+                              'RegexConfigFieldParser')
 
     def test_regex_field_parser_handles_field_3(self):
-        self.__get_parser_for('filesystem.basename.extension')
+        self.__get_parser_for('filesystem.basename.extension',
+                              'RegexConfigFieldParser')
 
     def test_regex_field_parser_handles_field_4(self):
-        self.__get_parser_for('contents.textual.raw_text')
+        self.__get_parser_for('contents.textual.raw_text',
+                              'RegexConfigFieldParser')
+
+    def test_regex_field_parser_handles_field_5(self):
+        self.__get_parser_for('contents.mime_type',
+                              'MimeTypeConfigFieldParser')
 
 
 class TestFieldparserConstants(TestCase):
