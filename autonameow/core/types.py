@@ -43,8 +43,19 @@ class BaseType(object):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
 
-    def __init__(self):
-        self._value = None
+    # def __init__(self, raw_value):
+    #     self._value = self._parse(raw_value)
+
+    @classmethod
+    def __call__(cls, raw_value=None):
+        if raw_value is None:
+            return cls.null
+        else:
+            parsed = cls._parse(raw_value)
+            if parsed:
+                return parsed
+            else:
+                return cls.null
 
     @property
     def null(self):
@@ -67,14 +78,15 @@ class BaseType(object):
             # TODO: ..
             return value
 
-    def _parse(self, raw_value):
-        if not self.primitive_type:
-            raise NotImplementedError('Must be implemented by subclass')
+    @classmethod
+    def _parse(cls, raw_value):
+        if not cls.primitive_type:
+            raise NotImplementedError('Must be implemented by inheriting class')
         else:
             try:
-                value = self.primitive_type(raw_value)
+                value = cls.primitive_type(raw_value)
             except ValueError:
-                return self.null
+                return cls.null
             else:
                 return value
 
@@ -93,25 +105,16 @@ class Integer(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = int
 
-    def __init__(self):
-        super().__init__()
-
 
 class Float(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = float
-
-    def __init__(self):
-        super().__init__()
 
 
 class TimeDate(BaseType):
     # TODO: Think long and hard about this before proceeding..
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = None
-
-    def __init__(self):
-        super().__init__()
 
     def _parse(self, raw_value):
         try:
