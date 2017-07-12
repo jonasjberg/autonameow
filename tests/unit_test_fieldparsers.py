@@ -273,6 +273,13 @@ class TestSuitableFieldParserFor(TestCase):
         self.__expect_parser_for('MimeTypeConfigFieldParser',
                                  'contents.mime_type')
 
+    def test_expect_metadata_source_field_parser(self):
+        # TODO: [TD0048] Fix "conflict" with 'DateTimeConfigFieldParser'.
+        self.__expect_parser_for('MetadataSourceConfigFieldParser',
+                                 'metadata.exiftool')
+        self.__expect_parser_for('MetadataSourceConfigFieldParser',
+                                 'metadata.exiftool.EXIF:DateTimeOriginal')
+
 
 class TestFieldparserConstants(TestCase):
     def test_has_dummy_data_fields_constant(self):

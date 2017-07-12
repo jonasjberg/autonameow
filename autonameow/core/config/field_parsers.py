@@ -175,6 +175,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0048] Fix "conflict" with the 'DateTimeConfigFieldParser' class.
     applies_to_field = ['datetime', 'date_accessed', 'date_created',
                         'date_modified', '*.DateTimeOriginal']
 
@@ -225,6 +226,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
 
 class MetadataSourceConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0048] Fix "conflict" with the 'DateTimeConfigFieldParser' class.
     applies_to_field = ['metadata.*']
 
     @staticmethod
