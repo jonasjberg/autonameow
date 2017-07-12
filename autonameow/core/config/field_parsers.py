@@ -41,6 +41,17 @@ class ConfigFieldParser(object):
     Provides common functionality and interfaces that must be implemented
     by inheriting rule parser classes.
     """
+
+    # List of "query strings" (or configuration "keys"/"fields") used to
+    # determine if the class is suited to handle the expression or data.
+    #
+    # The "query string" consist of a lower case words, separated by periods.
+    # For instance; "contents.mime_type" or "filesystem.basename.extension".
+    # The "query string" can contain "globs" as wildcards. Globs substitute
+    # any of the lower case words with an asterisk, effectively ignoring that
+    # part during comparison.
+    #
+    # Example:  ['filesystem.basename.*', 'filesystem.*.extension]
     applies_to_field = []
 
     def __init__(self):
@@ -62,6 +73,13 @@ class ConfigFieldParser(object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def get_evaluation_function(self):
+        """
+        Returns a function that can evaluate a given expression using some
+        specified data. The returned function must accept two arguments.
+
+        Returns:
+            A function that evaluates "expression" using "data".
+        """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def validate(self, expression):
@@ -75,19 +93,21 @@ class ConfigFieldParser(object):
 
         Returns:
             True if expression is valid, else False.
-
         """
         return self.get_validation_function()(expression)
 
     def evaluate(self, expression, data):
         """
-        Evaluates a given expression using the specified data.
+        Evaluates a given expression using the specified data by passing the
+        arguments to the function returned by 'get_evaluation_function'.
 
         Args:
-            expression:
-            data:
+            expression: The expression to evaluate.
+            data: The data to use during the evaluation.
 
         Returns:
+            True if the evaluation was successful, otherwise False.
+            # TODO: Verify actual return values ..
         """
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
