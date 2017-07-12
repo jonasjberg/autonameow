@@ -94,6 +94,8 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
     def _get_raw_metadata(self):
         try:
             result = self._get_exiftool_data()
+            # TODO: [TD0044] Rework converting "raw data" to an internal format.
+
             return result
         except Exception as e:
             raise ExtractorError(e)
