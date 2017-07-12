@@ -29,21 +29,30 @@ performed* to some subset of *files matching some criteria*.
 The configuration file contains a list of __rules__.
 Each rule consists of two main parts;
 
-1. `conditions` -- __which files__ that the rule should be applied to
-2. `data_sources` -- __what data__ should be used to construct the new name
-3. `name_format`/`name_template` -- __format__ of the new file name
+1. `conditions` -- statements that are evaluated to determine __which files__
+   that the rule applies to
+2. `data_sources` -- determine __what data__ should be used to construct the
+   new name. Specifies sources for each of the name template placeholder fields
+3. `name_format`/`name_template` -- __format__ of the new file name, uses
+   constants and special "placeholder fields" to be populated
 
 In the current state, the only possible *action* is constructing new file names
 and optionally also renaming the file to this new file name.
 
 Thus, the configuration specifies how the construction of file names should be
-performed.
+performed and which format to use for the final file; only for the files that
+match some criteria, I.E. conditions evaluate true.
 
 
 __In short;__
 Files that match the `conditions` of a given rule will be renamed by populating
 the naming convention given by `name_format` with the information given by
 sources specified in `data_sources`.
+
+#### Internals
+Each rule is represented as an instance of the `FileRule` class. These are
+instantiated when the `Configuration` class instance is created; which happens
+each time the program is executed, before files are processed.
 
 
 ### Conditions
@@ -59,31 +68,28 @@ The testing of the specified conditions depends on the value of `_exact_match`.
       in order to pick out a single rule that applies to the file.
 <!-- NOTE: What happens if this still fails to produce a single "winner"? -->
 
-
-This is the internal data structure for the conditions of a single rule;
+This is an example of conditions from a single rule in the default configuration;
 
 ```python
-'conditions': {
-    'filesystem': {
-        'pathname': None,
-        'basename': None,
-        'extension': None
-    },
-    'contents': {
-        'mime_type': None
-    }
+'CONDITIONS': {
+    'filesystem.pathname.full': None,
+    'filesystem.basename.full': None,
+    'filesystem.basename.extension': None,
+    'contents.mime_type': None
 },
 ```
 
-Entries with missing values are considered equal to entries with value `None`.
+Entries with missing values are considered equal to entries with value `None`
+and are skipped.
 
-Here is an example of the first section; `filesystem`:
+
+The first three conditions has to do with the file name;
 
 ```python
-'filesystem': {
-    'pathname': '(~/temp|/tmp)',
-    'basename': '^\..*',
-    'extension': None
+'CONDITIONS': {
+    'filesystem.pathname.full': '(~/temp|/tmp)',
+    'filesystem.basename.full': '^\..*',
+    'filesystem.basename.extension': None
 },
 ```
 
@@ -94,31 +100,41 @@ This example should match hidden files (basename starts with a period) located
 in either `~/temp` or `/tmp` with any file extension.
 
 
-
-The second section, `contents`; contain tests on the file contents.
+The last condition tests the file MIME type.
 
 ```python
-'contents': {
-    'mime_type': 'image/jpeg'
+'CONDITIONS': {
+    'contents.mime_type': 'image/*'
 }
 ```
 
-This example would match jpeg image files.
+This example would match any kind of image file.
+
+
+#### Internals
+Each `FileRule` instance stores a list of conditions that are evaluated by a
+`RuleMatcher`. The conditions are encapsulated in instances of the
+`RuleCondition` class.
+
+The `RuleCondition` class validates the condition at instantiation. It also
+stores a reference to a `FieldParser` class that is suited to evaluate the
+condition.
+
 
 
 ### Data Sources
-Next is the second main part of each rule; `data_sources`.
+Next is the second main part of each rule; `DATA_SOURCES`.
 
-Each field corresponds to a field in `name_template`.  The field values specify
-*which data* should be used to populate that field.
+Each field corresponds to a "placeholder field" in `name_template`.
+The field values specify *which data* should be used to populate that field.
 
 ```python
 'DATA_SOURCES': {
-    'datetime': None,
+    'datetime': metadata.exiftool.PDF:CreateDate,
     'description': None,
-    'title': None,
-    'author': None,
-    'publisher': None,
+    'title': metadata.exiftool.XMP-dc:Title,
+    'author': metadata.exiftool.XMP-dc:Creator,
+    'publisher': metadata.exiftool.XMP-dc:Publisher,
     'extension': 'filename.extension',
     'tags': None
 }
@@ -166,7 +182,7 @@ There might be multiple sources for `extension` data, for example;
 Default Configuration File
 --------------------------
 This is the default configuration file in the internal dict format as of
-version `v0.4.2`.
+version `v0.4.3`.
 
 ```python
 DEFAULT_CONFIG = {
@@ -193,8 +209,8 @@ DEFAULT_CONFIG = {
          'weight': None,
          'NAME_FORMAT': '{datetime} {title}.{extension}',
          'CONDITIONS': {
-             'filesystem.basename': 'gmail.pdf',
-             'filesystem.extension': 'pdf',
+             'filesystem.basename.full': 'gmail.pdf',
+             'filesystem.basename.extension': 'pdf',
              'contents.mime_type': 'application/pdf',
          },
          'DATA_SOURCES': {
@@ -209,7 +225,7 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
-             'filesystem.basename': 'smulan.jpg',
+             'filesystem.basename.full': 'smulan.jpg',
              'contents.mime_type': 'image/jpeg',
          },
          'DATA_SOURCES': {
@@ -224,9 +240,9 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
          'CONDITIONS': {
-             'filesystem.pathname': '~/Pictures/incoming',
-             'filesystem.basename': 'DCIM*',
-             'filesystem.extension': 'jpg',
+             'filesystem.pathname.full': '~/Pictures/incoming',
+             'filesystem.basename.full': 'DCIM*',
+             'filesystem.basename.extension': 'jpg',
              'contents.mime_type': 'image/jpeg',
              'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
          },
@@ -248,9 +264,9 @@ DEFAULT_CONFIG = {
          'weight': 1,
          'NAME_FORMAT': 'default_book',
          'CONDITIONS': {
-             'filesystem.pathname': '.*',
-             'filesystem.basename': '.*',
-             'filesystem.extension': 'epub',
+             'filesystem.pathname.full': '.*',
+             'filesystem.basename.full': '.*',
+             'filesystem.basename.extension': 'epub',
              'contents.mime_type': 'application/epub+zip',
              'metadata.exiftool.XMP-dc:Creator': 'Defined',
          },
