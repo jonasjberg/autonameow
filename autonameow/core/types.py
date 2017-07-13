@@ -90,6 +90,17 @@ class BaseType(object):
             else:
                 return value
 
+    def format(self, value, formatter=None):
+        if value is None:
+            value = self.null
+        if value is None:
+            # Case where 'self.null' is None.
+            value = ''
+        if isinstance(value, bytes):
+            value = value.decode('utf-8', 'ignore')
+
+        return str(value)
+
     def __repr__(self):
         return self.__class__.__name__
 
@@ -121,6 +132,12 @@ class Integer(BaseType):
 class Float(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = float
+
+    def format(self, value, formatter=None):
+        if not formatter:
+            return '{0:.1f}'.format(value or 0.0)
+        else:
+            return formatter.format(value or 0.0)
 
 
 class String(BaseType):
