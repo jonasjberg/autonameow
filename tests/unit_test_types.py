@@ -88,9 +88,6 @@ class TestFloatType(TestCase):
 
 
 class TestTimeDateType(TestCase):
-    def setUp(self):
-        self.t = types.TimeDate()
-
     def test_null(self):
         # TODO: [TD0050] Figure out how to represent null for datetime objects.
         self.assertEqual(types.AW_TIMEDATE(None), 'INVALID DATE')
@@ -99,16 +96,11 @@ class TestTimeDateType(TestCase):
         self.fail('TODO')
 
     def test_call_with_none(self):
-        self.t(None)
+        self.fail('TODO')
 
-    def test_call_with_iso_format_string(self):
-        self.t('2017-07-12T20:50:15.641659')
-
-    def test_call_with_iso_format_string_sets_expected_value(self):
-        isodate_str = '2017-07-12T20:50:15.641659'
-        self.t(isodate_str)
-        self.assertTrue(isinstance(self.t, types.TimeDate))
-        self.assertEqual(str(self.t), isodate_str)
+    def test_call_with_valid_iso_format_string_returns_expected_type(self):
+        actual = types.AW_TIMEDATE('2017-07-12T20:50:15.641659')
+        self.assertTrue(isinstance(actual, datetime))
 
 
 class TestTimeDateTypeParsing(TestCase):
