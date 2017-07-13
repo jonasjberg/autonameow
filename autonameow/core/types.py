@@ -39,31 +39,19 @@ from core import util
 class BaseType(object):
     """
     Base class for all custom types. Provides type coercion and known defaults.
+    Does not store values -- intended to act as filters.
     """
 
     # NOTE(jonas): Why revert to "str"? Assume BaseType won't be instantiated?
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
 
-    def __init__(self, raw_value):
-        self._value = None
-        self.value = raw_value
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, raw_value):
-        self._value = self._parse(raw_value)
-
-    @classmethod
-    def __call__(cls, raw_value=None):
+    def __call__(self, raw_value=None):
         if raw_value is None:
-            return cls.null
+            return self.null
 
-        parsed = cls._parse(raw_value)
-        return parsed if parsed else cls.null
+        parsed = self._parse(raw_value)
+        return parsed if parsed else self.null
 
     @property
     def null(self):
@@ -72,11 +60,8 @@ class BaseType(object):
         else:
             return self.primitive_type()
 
-    @property
-    def normalized(self):
-        return self.normalize(self.value)
-
-    def normalize(self, value):
+    @classmethod
+    def normalize(cls, value):
         """
         Processes the given value to a form suitable for serialization/storage.
 
@@ -84,46 +69,40 @@ class BaseType(object):
             value: The value to normalize.
 
         Returns:
-            A "normalized" version of the given value in this class type if the
-            value can be normalized. Otherwise the class "null" value.
+            A "normalized" version of the given value in this class type if
+            the value can be normalized, otherwise the class "null" value.
         """
         if value is None:
-            return self.null
+            return cls.null
         else:
-            # TODO: ..
+            # TODO: Implement or make sure that inheriting classes does ..
             return value
 
-    def _parse(self, raw_value):
-        if not self.primitive_type:
+    @classmethod
+    def _parse(cls, raw_value):
+        if not cls.primitive_type:
             raise NotImplementedError('Must be implemented by subclass')
         else:
             try:
-                value = self.primitive_type(raw_value)
+                value = cls.primitive_type(raw_value)
             except (ValueError, TypeError):
-                return self.null
+                return cls.null
             else:
                 return value
 
     def __repr__(self):
         return self.__class__.__name__
 
-    def __str__(self):
-        return str(self.value)
-
     def __eq__(self, other):
-        return (isinstance(other, self.__class__)
-                and self.normalized == other.normalized)
+        return isinstance(other, self.__class__)
 
-    # def __ne__(self, other):
-    #     return not self.__eq__(other)
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class Path(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
-
-    def __init__(self, value):
-        super().__init__(value)
 
     def __str__(self):
         return util.displayable_path(self.value)
@@ -133,32 +112,20 @@ class Boolean(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = bool
 
-    def __init__(self, value):
-        super().__init__(value)
-
 
 class Integer(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = int
-
-    def __init__(self, value):
-        super().__init__(value)
 
 
 class Float(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = float
 
-    def __init__(self, value):
-        super().__init__(value)
-
 
 class String(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
-
-    def __init__(self, value):
-        super().__init__(value)
 
 
 class TimeDate(BaseType):
@@ -166,10 +133,8 @@ class TimeDate(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = None
 
-    def __init__(self, value):
-        super().__init__(value)
-
-    def _parse(self, raw_value):
+    @classmethod
+    def _parse(cls, raw_value):
         date_formats = ['%Y-%m-%dT%H:%M:%S.%f',  # %f: Microseconds
                         '%Y-%m-%d %H:%M:%S %z']  # %z: UTC offset
 
@@ -177,29 +142,27 @@ class TimeDate(BaseType):
             try:
                 dt = datetime.strptime(raw_value, date_format)
             except (ValueError, TypeError):
-                return self.null
+                return cls.null
             else:
                 return dt
 
-    def __call__(self, raw_value):
-        self._value = self._parse(raw_value)
-        return self._value
-
-    def __str__(self):
-        return str(self.value.isoformat())
-
 
 class ExifToolTimeDate(TimeDate):
-    def __init__(self, value):
-        super().__init__(value)
+    primitive_type = None
 
-    def _parse(self, raw_value):
+    @classmethod
+    def _parse(cls, raw_value):
         try:
             dt = datetime.strptime(raw_value, '%Y-%m-%d %H:%M:%S+%z')
         except (ValueError, TypeError):
-            return self.null
+            return cls.null
         else:
             return dt
 
-    def __str__(self):
-        return str(self.value.isoformat())
+
+AW_PATH = Path()
+AW_INTEGER = Integer()
+AW_FLOAT = Float()
+AW_STRING = String()
+AW_TIMEDATE = TimeDate()
+AW_EXIFTOOLTIMEDATE = ExifToolTimeDate()
