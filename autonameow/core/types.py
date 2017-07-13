@@ -33,6 +33,8 @@ Wraps primitives to force safe defaults and extra functionality.
 
 from datetime import datetime
 
+from core import util
+
 
 class BaseType(object):
     """
@@ -63,8 +65,12 @@ class BaseType(object):
         parsed = cls._parse(raw_value)
         return parsed if parsed else cls.null
 
+    @property
     def null(self):
-        return self.primitive_type()
+        if not self.primitive_type:
+            raise NotImplementedError('Must be implemented by subclass')
+        else:
+            return self.primitive_type()
 
     @property
     def normalized(self):
@@ -101,9 +107,12 @@ class BaseType(object):
     def __repr__(self):
         return self.__class__.__name__
 
-    # def __eq__(self, other):
-    #     return (isinstance(other, self.__class__)
-    #             and self.normalized == other.normalized)
+    def __str__(self):
+        return str(self.value)
+
+    def __eq__(self, other):
+        return (isinstance(other, self.__class__)
+                and self.normalized == other.normalized)
 
     # def __ne__(self, other):
     #     return not self.__eq__(other)
@@ -115,6 +124,9 @@ class Path(BaseType):
 
     def __init__(self, value):
         super().__init__(value)
+
+    def __str__(self):
+        return util.displayable_path(self.value)
 
 
 class Boolean(BaseType):
@@ -173,11 +185,8 @@ class TimeDate(BaseType):
         self._value = self._parse(raw_value)
         return self._value
 
-    def __repr__(self):
-        return self._value
-
     def __str__(self):
-        return self._value.isoformat()
+        return str(self.value.isoformat())
 
 
 class ExifToolTimeDate(TimeDate):
@@ -191,3 +200,6 @@ class ExifToolTimeDate(TimeDate):
             return self.null
         else:
             return dt
+
+    def __str__(self):
+        return str(self.value.isoformat())

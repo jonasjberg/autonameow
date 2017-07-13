@@ -30,7 +30,7 @@ class TestBaseType(TestCase):
         self.t = types.BaseType(None)
 
     def test_null(self):
-        self.assertEqual(self.t.primitive_type(''), self.t.null)
+        self.assertEqual(self.t, self.t.null)
 
     def test_normalize(self):
         self.assertEqual(self.t.null, self.t.normalize(None))
