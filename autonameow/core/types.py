@@ -41,9 +41,8 @@ class BaseType(object):
     Base class for all custom types. Provides type coercion and known defaults.
     Does not store values -- intended to act as filters.
     """
-
+    # Underlying primitive type. Used to define 'null' and coerce values.
     # NOTE(jonas): Why revert to "str"? Assume BaseType won't be instantiated?
-    # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
 
     def __call__(self, raw_value=None):
@@ -56,7 +55,8 @@ class BaseType(object):
     @property
     def null(cls):
         if not cls.primitive_type:
-            raise NotImplementedError('Must be implemented by subclass')
+            raise NotImplementedError('Class does not specify "primitive_type"'
+                                      ' -- must override "_parse"')
         else:
             return cls.primitive_type()
 
@@ -81,7 +81,8 @@ class BaseType(object):
     @classmethod
     def _parse(cls, raw_value):
         if not cls.primitive_type:
-            raise NotImplementedError('Must be implemented by subclass')
+            raise NotImplementedError('Class does not specify "primitive_type"'
+                                      ' -- must override "_parse"')
         else:
             try:
                 value = cls.primitive_type(raw_value)
@@ -99,7 +100,8 @@ class BaseType(object):
         if isinstance(value, bytes):
             value = value.decode('utf-8', 'ignore')
 
-        return str(value)
+        parsed = self._parse(value)
+        return str(parsed)
 
     def __repr__(self):
         return self.__class__.__name__
@@ -158,10 +160,34 @@ class Integer(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = int
 
+    @classmethod
+    def _parse(cls, value):
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            return 0
+        else:
+            return parsed
+
+    def format(self, value, formatter=None):
+        if not formatter:
+            return '{}'.format(value or 0)
+        else:
+            return formatter.format(value or 0)
+
 
 class Float(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = float
+
+    @classmethod
+    def _parse(cls, value):
+        try:
+            parsed = float(value)
+        except (TypeError, ValueError):
+            return 0.0
+        else:
+            return parsed
 
     def format(self, value, formatter=None):
         if not formatter:
