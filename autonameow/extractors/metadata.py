@@ -30,18 +30,23 @@ from datetime import datetime
 
 from core.exceptions import ExtractorError
 from core.util import wrap_exiftool
-from core import util
+from core import (
+    util,
+    types
+)
 from extractors.extractor import Extractor
 
 
 class MetadataExtractor(Extractor):
     handles_mime_types = []
     data_query_string = None
+    tagname_type_lookup = {}
 
     def __init__(self, source):
         super(MetadataExtractor, self).__init__(source)
 
         self._raw_metadata = None
+        self.metadata = None
 
     def query(self, field=None):
         """
@@ -55,7 +60,7 @@ class MetadataExtractor(Extractor):
         Returns:
             The specified fields or False if the extraction fails.
         """
-        if not self._raw_metadata:
+        if not self.metadata:
             try:
                 log.debug('{!s} received initial query ..'.format(self))
                 self._raw_metadata = self._get_raw_metadata()
@@ -67,13 +72,29 @@ class MetadataExtractor(Extractor):
                           '{!s}'.format(self, e))
                 return False
 
+        self.metadata = self._to_internal_format(self._raw_metadata)
+
         if not field:
             log.debug('{!s} responding to query for all fields'.format(self))
-            return self._raw_metadata
+            return self.metadata
         else:
             log.debug('{!s} responding to query for field: '
                       '"{!s}"'.format(self, field))
-            return self._raw_metadata.get(field, False)
+            return self.metadata.get(field, False)
+
+    def _to_internal_format(self, raw_metadata):
+        out = {}
+        for tag_name, value in raw_metadata.items():
+            out[tag_name] = self._wrap_raw(tag_name, value)
+        return out
+
+    def _wrap_raw(self, tag_name, value):
+        if tag_name in self.tagname_type_lookup:
+            return self.tagname_type_lookup[tag_name](value)
+        else:
+            log.critical('Unhandled wrapping of tag name "{}" '
+                         '(value: "{}")'.format(tag_name, value))
+            return value
 
     def _get_raw_metadata(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
@@ -89,12 +110,35 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
 
     # TODO: [TD0002] Wrap values in custom types.
     # TODO: [TD0044] Rework converting "raw data" to an internal format.
-    #tagname_type_lookup = {
-    #    'CreateDate': types.TimeDate,
-    #    'DateTimeDigitized': types.TimeDate,
-    #    'DateTimeOriginal': types.TimeDate,
-    #    'ModifyDate': types.TimeDate,
-    #}
+    tagname_type_lookup = {
+        'EXIF:CreateDate': types.ExifToolTimeDate,
+        'EXIF:DateTimeDigitized': types.ExifToolTimeDate,
+        'EXIF:DateTimeOriginal': types.ExifToolTimeDate,
+        'EXIF:ImageDescription': types.String,
+        'EXIF:ModifyDate': types.ExifToolTimeDate,
+        'ExifTool:Error': types.String,
+        'ExifTool:ExifToolVersion': types.Float,
+        'File:Directory': types.Path,
+        'File:FileAccessDate': types.ExifToolTimeDate,
+        'File:FileInodeChangeDate': types.ExifToolTimeDate,
+        'File:FileModifyDate': types.ExifToolTimeDate,
+        'File:FileName': types.Path,
+        'File:FilePermissions': types.Integer,
+        'File:FileSize': types.Integer,
+        'File:FileType': types.String,
+        'File:FileTypeExtension': types.Path,
+        'File:ImageHeight': types.Integer,
+        'File:ImageWidth': types.Integer,
+        'File:MIMEType': types.String,
+        'PDF:CreateDate': types.ExifToolTimeDate,
+        'PDF:Creator': types.String,
+        'PDF:Linearized': types.Boolean,
+        'PDF:ModifyDate': types.ExifToolTimeDate,
+        'PDF:PDFVersion': types.Float,
+        'PDF:PageCount': types.Integer,
+        'PDF:Producer': types.String,
+        'SourceFile': types.Path,
+    }
 
     def __init__(self, source):
         super(ExiftoolMetadataExtractor, self).__init__(source)
@@ -103,12 +147,10 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
     def _get_raw_metadata(self):
         try:
             result = self._get_exiftool_data()
-            # TODO: [TD0044] Rework converting "raw data" to an internal format.
-            # TODO: [TD0002] Wrap values in custom types; "tagname_type_lookup".
-
-            return result
         except Exception as e:
             raise ExtractorError(e)
+        else:
+            return result
 
     def _get_exiftool_data(self):
         """
@@ -129,12 +171,15 @@ class PyPDFMetadataExtractor(MetadataExtractor):
 
     # TODO: [TD0002] Wrap values in custom types.
     # TODO: [TD0044] Rework converting "raw data" to an internal format.
-    #tagname_type_lookup = {
-    #    'CreationDate': types.TimeDate,
-    #    'ModDate': types.TimeDate,
-    #    'isEncrypted': types.Boolean,
-    #    'num_pages': types.Integer,
-    #}
+    tagname_type_lookup = {
+        'Creator': types.String,
+        'CreationDate': types.TimeDate,
+        'Encrypted': types.Boolean,
+        'ModDate': types.TimeDate,
+        'NumberPages': types.Integer,
+        'Paginated': types.Boolean,
+        'Producer': types.String,
+    }
 
     def __init__(self, source):
         super(PyPDFMetadataExtractor, self).__init__(source)
@@ -164,7 +209,7 @@ class PyPDFMetadataExtractor(MetadataExtractor):
                 # Convert PyPDF values of type 'PyPDF2.generic.TextStringObject'
                 out = {k: str(v) for k, v in out.items()}
 
-            out.update({'encrypted': file_reader.isEncrypted})
+            out.update({'Encrypted': file_reader.isEncrypted})
 
             try:
                 num_pages = file_reader.getNumPages()
@@ -173,8 +218,8 @@ class PyPDFMetadataExtractor(MetadataExtractor):
                 # TODO: Raise custom exception .. ?
                 raise
             else:
-                out.update({'number_pages': num_pages})
-                out.update({'paginated': True})
+                out.update({'NumberPages': num_pages})
+                out.update({'Paginated': True})
 
             # https://pythonhosted.org/PyPDF2/XmpInformation.html
             xmp_metadata = file_reader.getXmpMetadata()
