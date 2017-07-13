@@ -63,9 +63,12 @@ class BaseType(object):
         parsed = cls._parse(raw_value)
         return parsed if parsed else cls.null
 
-    @property
     def null(self):
         return self.primitive_type()
+
+    @property
+    def normalized(self):
+        return self.normalize(self.value)
 
     def normalize(self, value):
         """
