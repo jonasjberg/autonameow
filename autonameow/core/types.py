@@ -106,6 +106,14 @@ class BaseType(object):
     #     return not self.__eq__(other)
 
 
+class Path(BaseType):
+    # TODO: [TD0002] Research requirements and implement custom type system.
+    primitive_type = str
+
+    def __init__(self, value):
+        super().__init__(value)
+
+
 class Boolean(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = bool
@@ -125,6 +133,14 @@ class Integer(BaseType):
 class Float(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = float
+
+    def __init__(self, value):
+        super().__init__(value)
+
+
+class String(BaseType):
+    # TODO: [TD0002] Research requirements and implement custom type system.
+    primitive_type = str
 
     def __init__(self, value):
         super().__init__(value)
