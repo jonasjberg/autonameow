@@ -75,6 +75,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0050]` Figure out how to represent "null" for `datetime` types.
+
 * `[TD0049]` __Think about defining legal "placeholder fields".__
   Might be helpful to define all legal fields (such as `title`, `datetime`,
   `author`, etc.) somewhere and keep references to type coercion wrappers,

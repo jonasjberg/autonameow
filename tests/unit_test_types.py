@@ -92,7 +92,8 @@ class TestTimeDateType(TestCase):
         self.t = types.TimeDate()
 
     def test_null(self):
-        self.fail('TODO')
+        # TODO: [TD0050] Figure out how to represent null for datetime objects.
+        self.assertEqual(types.AW_TIMEDATE(None), 'INVALID DATE')
 
     def test_normalize(self):
         self.fail('TODO')

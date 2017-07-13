@@ -133,6 +133,11 @@ class TimeDate(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = None
 
+    @property
+    def null(self):
+        # TODO: [TD0050] Figure out how to represent null for datetime objects.
+        return 'INVALID DATE'
+
     @classmethod
     def _parse(cls, raw_value):
         date_formats = ['%Y-%m-%dT%H:%M:%S.%f',  # %f: Microseconds
