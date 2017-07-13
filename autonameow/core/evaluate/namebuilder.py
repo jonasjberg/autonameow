@@ -196,6 +196,7 @@ def pre_assemble_format(data, template, config):
     out = {}
 
     # TODO: [TD0017][TD0002][TD0041] This needs refactoring, badly.
+    # TODO: [TD0002] Pass in wrapped types here to simplify formatting.
 
     for key, value in data.items():
         if key == 'datetime':
