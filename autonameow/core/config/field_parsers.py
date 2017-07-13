@@ -62,7 +62,8 @@ class ConfigFieldParser(object):
         # Possibly implemented by inheriting classes.
         pass
 
-    def get_validation_function(self):
+    @classmethod
+    def get_validation_function(cls):
         """
         Used to check that the syntax and content of a subset of fields.
 
@@ -73,7 +74,8 @@ class ConfigFieldParser(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
         """
         Returns a function that can evaluate a given expression using some
         specified data. The returned function must accept two arguments.
@@ -144,13 +146,15 @@ class RegexConfigFieldParser(ConfigFieldParser):
         else:
             return False
 
-    def get_validation_function(self):
-        return self.is_valid_regex
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_regex
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        return self.evaluate_regex
+        return cls.evaluate_regex
 
     @staticmethod
     def _normalize(unicode_string):
@@ -190,10 +194,12 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
         return False
 
-    def get_validation_function(self):
-        return self.is_valid_mime_type
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_mime_type
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
         return fileobject.eval_magic_glob
@@ -215,10 +221,12 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         else:
             return True
 
-    def get_validation_function(self):
-        return self.is_valid_datetime
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_datetime
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
@@ -240,10 +248,12 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
         else:
             return True
 
-    def get_validation_function(self):
-        return self.is_valid_format_string
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_format_string
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
@@ -268,10 +278,12 @@ class MetadataSourceConfigFieldParser(ConfigFieldParser):
 
         return False
 
-    def get_validation_function(self):
-        return self.is_valid_metadata_source
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_metadata_source
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
