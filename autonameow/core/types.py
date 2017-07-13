@@ -39,8 +39,17 @@ class BaseType(object):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
 
-    def __init__(self):
+    def __init__(self, raw_value):
         self._value = None
+        self.value = raw_value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, raw_value):
+        self._value = self._parse(raw_value)
 
     @property
     def null(self):
@@ -69,7 +78,7 @@ class BaseType(object):
         else:
             try:
                 value = self.primitive_type(raw_value)
-            except ValueError:
+            except (ValueError, TypeError):
                 return self.null
             else:
                 return value
@@ -89,16 +98,16 @@ class Integer(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = int
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, value):
+        super().__init__(value)
 
 
 class Float(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = float
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, value):
+        super().__init__(value)
 
 
 class TimeDate(BaseType):
@@ -106,8 +115,8 @@ class TimeDate(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = None
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, value):
+        super().__init__(value)
 
     def _parse(self, raw_value):
         try:

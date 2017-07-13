@@ -27,7 +27,7 @@ from core import types
 
 class TestBaseType(TestCase):
     def setUp(self):
-        self.t = types.BaseType()
+        self.t = types.BaseType(None)
 
     def test_null(self):
         self.assertEqual(self.t.primitive_type(''), self.t.null)
@@ -39,10 +39,11 @@ class TestBaseType(TestCase):
 
 class TestIntegerType(TestCase):
     def setUp(self):
-        self.t = types.Integer()
+        self.t = types.Integer(None)
 
     def test_null(self):
         self.assertEqual(self.t.null, 0)
+        self.assertNotEqual(self.t.null, None)
         self.assertNotEqual(self.t.null, -1)
 
     def test_normalize(self):
@@ -53,12 +54,9 @@ class TestIntegerType(TestCase):
 
 
 class TestFloatType(TestCase):
-    def setUp(self):
-        self.t = types.Float()
-
     def test_null(self):
-        self.assertEqual(self.t.null, 0)
-        self.assertNotEqual(self.t.null, -1)
+        self.assertEqual(types.Float.null, types.Float(None))
+        self.assertNotEqual(self.t.null, None)
 
     def test_normalize(self):
         self.assertEqual(self.t.normalize(None), self.t.null)
