@@ -100,10 +100,10 @@ class BaseType(object):
 
     # def __eq__(self, other):
     #     return (isinstance(other, self.__class__)
-    #             and self.__dict__ == other.__dict__)
+    #             and self.normalized == other.normalized)
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
+    # def __ne__(self, other):
+    #     return not self.__eq__(other)
 
 
 class Boolean(BaseType):
@@ -112,6 +112,7 @@ class Boolean(BaseType):
 
     def __init__(self, value):
         super().__init__(value)
+
 
 class Integer(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
