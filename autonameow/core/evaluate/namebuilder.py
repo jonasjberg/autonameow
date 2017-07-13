@@ -26,7 +26,6 @@ from core import (
     exceptions,
     util
 )
-from core.util import dateandtime
 
 
 class NameBuilder(object):
@@ -220,7 +219,7 @@ def pre_assemble_format(data, template, config):
     return out
 
 
-def formatted_datetime(datetime_string, format_string):
+def formatted_datetime(datetime_object, format_string):
     """
     Takes a date/time string, converts it to a datetime object and
     returns a formatted version on the form specified with "format_string".
@@ -229,21 +228,15 @@ def formatted_datetime(datetime_string, format_string):
     TODO: Handle the [raw data] -> [formatted datetime] conversion better!
 
     Args:
-        datetime_string: Date/time information as a string.
+        datetime_object: Date/time information as a datetime object.
         format_string: The format string to use for the output. Refer to:
             https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
 
     Returns:
         A string in the specified format with the data from the given string.
     """
-
-    try:
-        datetime_object = dateandtime.to_datetime(datetime_string)
-    except (TypeError, ValueError) as e:
-        log.error('Unable to format datetime string: "{!s}"'.format(
-            datetime_string))
-    else:
-        return datetime_object.strftime(format_string)
+    # TODO: Make sure this works! Strongly suspect it doesn't.
+    return datetime_object.value().strftime(format_string)
 
 
 def all_template_fields_defined(template, data_sources):
