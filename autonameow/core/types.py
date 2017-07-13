@@ -90,7 +90,7 @@ class BaseType(object):
         else:
             try:
                 value = self.primitive_type(raw_value)
-            except ValueError:
+            except (ValueError, TypeError):
                 return self.null
             else:
                 return value
