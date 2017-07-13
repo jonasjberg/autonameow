@@ -144,6 +144,10 @@ class TestRegexFieldParser(TestCase):
         self.assertTrue(self.val_func('[A-Za-z]+'))
         self.assertTrue(self.val_func('.*'))
 
+    def test__normalize_returns_expected(self):
+        self.assertEqual(self.p._normalize('foo'), 'foo')
+        self.assertEqual(self.p._normalize('ö'), 'ö')
+
 
 class TestMimeTypeFieldParser(TestCase):
     def setUp(self):
