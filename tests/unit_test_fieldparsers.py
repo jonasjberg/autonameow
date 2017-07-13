@@ -60,7 +60,11 @@ class TestFieldParserFunctions(TestCase):
         self.assertTrue(isinstance(available_field_parsers(), list))
 
         for p in available_field_parsers():
-            self.assertTrue(isinstance(p, str))
+            self.assertTrue(isinstance(p, type))
+
+    def test_get_available_parsers_returns_arbitrary_number(self):
+        # TODO: [hardcoded] Likely to break; Fix or remove!
+        self.assertGreaterEqual(len(available_field_parsers()), 5)
 
 
 class TestFieldParser(TestCase):

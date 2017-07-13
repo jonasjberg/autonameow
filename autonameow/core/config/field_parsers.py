@@ -303,13 +303,13 @@ def get_instantiated_field_parsers():
 
 def available_field_parsers():
     """
-    Get a list of all available field parsers, I.E. the names of all classes
-    that inherit from "ConfigFieldParser".
+    Get a list of all available field parser classes, I.E. all classes
+    that inherit from the 'ConfigFieldParser' class.
 
     Returns:
-        The names of available field parsers as strings.
+        A list of all field parser classes.
     """
-    return [klass.__name__ for klass in
+    return [klass for klass in
             globals()['ConfigFieldParser'].__subclasses__()]
 
 
