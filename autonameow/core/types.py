@@ -171,3 +171,16 @@ class TimeDate(BaseType):
 
     def __str__(self):
         return self._value.isoformat()
+
+
+class ExifToolTimeDate(TimeDate):
+    def __init__(self, value):
+        super().__init__(value)
+
+    def _parse(self, raw_value):
+        try:
+            dt = datetime.strptime(raw_value, '%Y-%m-%d %H:%M:%S+%z')
+        except (ValueError, TypeError):
+            return self.null
+        else:
+            return dt
