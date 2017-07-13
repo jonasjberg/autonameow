@@ -40,6 +40,8 @@ from extractors.extractor import Extractor
 class MetadataExtractor(Extractor):
     handles_mime_types = []
     data_query_string = None
+
+    # Lookup table that maps extractor-specific field names to wrapper classes.
     tagname_type_lookup = {}
 
     def __init__(self, source):
@@ -72,6 +74,7 @@ class MetadataExtractor(Extractor):
                           '{!s}'.format(self, e))
                 return False
 
+        # Internal data format boundary.  Wrap "raw" data with type classes.
         self.metadata = self._to_internal_format(self._raw_metadata)
 
         if not field:
