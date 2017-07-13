@@ -325,7 +325,7 @@ def suitable_field_parser_for(query_string):
     Returns:
         A list of instantiated field parsers suited for the given query string.
     """
-    return [p for p in FieldParsers
+    return [p for p in FieldParserInstances
             if eval_query_string_glob(query_string, p.applies_to_field)]
 
 
@@ -400,7 +400,7 @@ def is_valid_template_field(template_field):
 
 
 # Instantiate rule parsers inheriting from the 'Parser' class.
-FieldParsers = get_instantiated_field_parsers()
+FieldParserInstances = get_instantiated_field_parsers()
 
 # This is used for validating name templates. Dict is populated like this;
 #   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}

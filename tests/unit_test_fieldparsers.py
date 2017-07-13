@@ -254,14 +254,14 @@ class TestMetadataSourceConfigFieldParser(TestCase):
 
 class TestInstantiatedFieldParsers(TestCase):
     def test_field_parsers_in_not_none(self):
-        self.assertIsNotNone(field_parsers.FieldParsers)
+        self.assertIsNotNone(field_parsers.FieldParserInstances)
 
     def test_configuration_field_parsers_subclass_of_config_field_parser(self):
-        for parser in field_parsers.FieldParsers:
+        for parser in field_parsers.FieldParserInstances:
             self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
 
     def test_configuration_field_parsers_instance_of_config_field_parser(self):
-        for parser in field_parsers.FieldParsers:
+        for parser in field_parsers.FieldParserInstances:
             self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
 
 

@@ -534,7 +534,7 @@ def validate_condition_value(condition_field, condition_value):
         else:
             return False
 
-    for parser in field_parsers.FieldParsers:
+    for parser in field_parsers.FieldParserInstances:
         if field in parser.applies_to_field:
             if parser.validate(condition_value):
                 return condition_value
