@@ -158,12 +158,16 @@ class TimeDate(BaseType):
         super().__init__(value)
 
     def _parse(self, raw_value):
-        try:
-            dt = datetime.strptime(raw_value, '%Y-%m-%dT%H:%M:%S.%f')
-        except (ValueError, TypeError):
-            return self.null
-        else:
-            return dt
+        date_formats = ['%Y-%m-%dT%H:%M:%S.%f',  # %f: Microseconds
+                        '%Y-%m-%d %H:%M:%S %z']  # %z: UTC offset
+
+        for date_format in date_formats:
+            try:
+                dt = datetime.strptime(raw_value, date_format)
+            except (ValueError, TypeError):
+                return self.null
+            else:
+                return dt
 
     def __call__(self, raw_value):
         self._value = self._parse(raw_value)
