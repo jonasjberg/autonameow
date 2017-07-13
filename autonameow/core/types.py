@@ -43,8 +43,17 @@ class BaseType(object):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
 
-    # def __init__(self, raw_value):
-    #     self._value = self._parse(raw_value)
+    def __init__(self, raw_value):
+        self._value = None
+        self.value = raw_value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, raw_value):
+        self._value = self._parse(raw_value)
 
     @classmethod
     def __call__(cls, raw_value=None):
@@ -56,7 +65,7 @@ class BaseType(object):
 
     @property
     def null(self):
-        return self.primitive_type(None)
+        return self.primitive_type()
 
     def normalize(self, value):
         """
@@ -75,15 +84,14 @@ class BaseType(object):
             # TODO: ..
             return value
 
-    @classmethod
-    def _parse(cls, raw_value):
-        if not cls.primitive_type:
-            raise NotImplementedError('Must be implemented by inheriting class')
+    def _parse(self, raw_value):
+        if not self.primitive_type:
+            raise NotImplementedError('Must be implemented by subclass')
         else:
             try:
-                value = cls.primitive_type(raw_value)
+                value = self.primitive_type(raw_value)
             except ValueError:
-                return cls.null
+                return self.null
             else:
                 return value
 
@@ -102,21 +110,32 @@ class Boolean(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = bool
 
+    def __init__(self, value):
+        super().__init__(value)
 
 class Integer(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = int
+
+    def __init__(self, value):
+        super().__init__(value)
 
 
 class Float(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = float
 
+    def __init__(self, value):
+        super().__init__(value)
+
 
 class TimeDate(BaseType):
     # TODO: Think long and hard about this before proceeding..
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = None
+
+    def __init__(self, value):
+        super().__init__(value)
 
     def _parse(self, raw_value):
         try:

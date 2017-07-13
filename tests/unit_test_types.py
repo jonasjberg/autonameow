@@ -27,32 +27,24 @@ from core import types
 
 class TestBaseType(TestCase):
     def setUp(self):
-        self.base_type = types.BaseType()
+        self.t = types.BaseType(None)
 
     def test_null(self):
-        self.assertEqual(self.base_type(None), types.BaseType.null)
+        self.assertEqual(self.t.primitive_type(''), self.t.null)
 
     def test_normalize(self):
-        self.skipTest('TODO: Implement')
-
-
-class TestBooleanType(TestCase):
-    def test_type_null_is_defined(self):
-        expected = types.Boolean.null
-        self.assertIsNotNone(expected)
-
-    def test_type_null_is_expected_type(self):
-        actual = types.Boolean.null
-        self.assertTrue(isinstance(actual, bool))
+        self.assertEqual(self.t.null, self.t.normalize(None))
+        self.assertEqual('foo', self.t.normalize('foo'))
 
 
 class TestIntegerType(TestCase):
     def setUp(self):
-        self.t = types.Integer()
+        self.t = types.Integer(None)
 
     def test_null(self):
-        self.assertEqual(types.Integer.null, None)
-        # self.assertNotEqual(types.Integer.null, -1)
+        self.assertEqual(self.t.null, 0)
+        self.assertNotEqual(self.t.null, None)
+        self.assertNotEqual(self.t.null, -1)
 
     def test_normalize(self):
         self.assertEqual(self.t.normalize(None), self.t.null)
@@ -66,8 +58,8 @@ class TestFloatType(TestCase):
         self.t = types.Float()
 
     def test_null(self):
-        self.assertEqual(self.t.null, 0)
-        self.assertNotEqual(self.t.null, -1)
+        self.assertEqual(types.Float.null, types.Float(None))
+        self.assertNotEqual(self.t.null, None)
 
     def test_normalize(self):
         self.assertEqual(self.t.normalize(None), self.t.null)
