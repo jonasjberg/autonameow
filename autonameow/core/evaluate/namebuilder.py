@@ -197,6 +197,8 @@ def pre_assemble_format(data, template, config):
 
     # TODO: [TD0017][TD0002][TD0041] This needs refactoring, badly.
     # TODO: [TD0002] Pass in wrapped types here to simplify formatting.
+    # [TD0049] Think about defining legal "placeholder fields".
+    #          .. Instead of passing wrapped types, pass wrapped fields?
 
     for key, value in data.items():
         if key == 'datetime':
