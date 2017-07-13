@@ -53,6 +53,26 @@ class TestIntegerType(TestCase):
         self.assertEqual(self.t.normalize(1), 1)
 
 
+class TestIntegerTypeWrapsValidValues(TestCase):
+    def __wrap_integer(self, value):
+        return types.Integer(value)
+
+    def test_wraps_zero(self):
+        wi = self.__wrap_integer(0)
+        self.assertIsNotNone(wi)
+        self.assertEqual(wi, 0)
+
+    def test_wraps_positive_integers(self):
+        wi = self.__wrap_integer(1)
+        self.assertIsNotNone(wi)
+        self.assertEqual(wi, 1)
+
+    def test_wraps_negative_integers(self):
+        wi = self.__wrap_integer(-1)
+        self.assertIsNotNone(wi)
+        self.assertEqual(wi, -1)
+
+
 class TestFloatType(TestCase):
     def setUp(self):
         self.t = types.Float()
