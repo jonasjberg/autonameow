@@ -54,11 +54,11 @@ class BaseType(object):
         return parsed if parsed else self.null
 
     @property
-    def null(self):
-        if not self.primitive_type:
+    def null(cls):
+        if not cls.primitive_type:
             raise NotImplementedError('Must be implemented by subclass')
         else:
-            return self.primitive_type()
+            return cls.primitive_type()
 
     @classmethod
     def normalize(cls, value):
@@ -123,6 +123,36 @@ class Boolean(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = bool
 
+    @staticmethod
+    def string_to_bool(string_value):
+        value = string_value.lower().strip()
+        if value in ('yes', 'true'):
+            return True
+        elif value in ('no', 'false'):
+            return False
+        else:
+            return False
+
+    @classmethod
+    def _parse(cls, value):
+        if value is None:
+            return False
+        if isinstance(value, bool):
+            return bool(value)
+        elif isinstance(value, str):
+            return cls.string_to_bool(value)
+        else:
+            return False
+
+    @classmethod
+    def normalize(cls, value):
+        if value is None:
+            return False
+        if isinstance(value, bool):
+            return bool(value)
+        else:
+            return False
+
 
 class Integer(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
@@ -168,6 +198,14 @@ class TimeDate(BaseType):
             else:
                 return dt
 
+    def normalize(cls, value):
+        if not value:
+            return cls.null
+        try:
+            return datetime(value).replace(microsecond=0)
+        except (TypeError, ValueError):
+            return cls.null
+
 
 class ExifToolTimeDate(TimeDate):
     primitive_type = None
@@ -182,6 +220,7 @@ class ExifToolTimeDate(TimeDate):
             return dt
 
 
+AW_BOOLEAN = Boolean()
 AW_PATH = Path()
 AW_INTEGER = Integer()
 AW_FLOAT = Float()

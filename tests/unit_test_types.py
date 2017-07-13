@@ -36,7 +36,56 @@ class TestBaseType(TestCase):
         self.assertEqual('foo', self.t.normalize('foo'))
 
 
-class TestIntegerType(TestCase):
+class TestTypeBoolean(TestCase):
+    def test_wraps_expected_primitive(self):
+        self.assertEqual(type(types.AW_BOOLEAN(None)), bool)
+
+    def test_null(self):
+        self.assertEqual(types.AW_BOOLEAN(None),
+                         types.AW_BOOLEAN.null)
+
+    def test_normalize(self):
+        self.assertEqual(types.AW_BOOLEAN.normalize(True), True)
+        self.assertEqual(types.AW_BOOLEAN.normalize(False), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize(-1), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize(0), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize(1), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize('true'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize('True'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize('yes'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize('Yes'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize('no'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize('No'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize('false'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize('False'), False)
+
+    def test_call_with_none(self):
+        self.assertEqual(types.AW_BOOLEAN(None), False)
+
+    def test_call_with_coercible_data(self):
+        self.assertEqual(types.AW_BOOLEAN(True), True)
+        self.assertEqual(types.AW_BOOLEAN(False), False)
+        self.assertEqual(types.AW_BOOLEAN(-1), False)
+        self.assertEqual(types.AW_BOOLEAN(0), False)
+        self.assertEqual(types.AW_BOOLEAN(1), False)
+        self.assertEqual(types.AW_BOOLEAN('true'), True)
+        self.assertEqual(types.AW_BOOLEAN('True'), True)
+        self.assertEqual(types.AW_BOOLEAN('yes'), True)
+        self.assertEqual(types.AW_BOOLEAN('Yes'), True)
+        self.assertEqual(types.AW_BOOLEAN('no'), False)
+        self.assertEqual(types.AW_BOOLEAN('No'), False)
+        self.assertEqual(types.AW_BOOLEAN('false'), False)
+        self.assertEqual(types.AW_BOOLEAN('False'), False)
+
+    def test_call_with_noncoercible_data(self):
+        self.assertEqual(types.AW_BOOLEAN('foo'), types.AW_BOOLEAN.null)
+        self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.null)
+
+
+class TestTypeInteger(TestCase):
+    def test_wraps_expected_primitive(self):
+        self.assertEqual(type(types.AW_INTEGER(None)), int)
+
     def test_null(self):
         self.assertEqual(types.AW_INTEGER(None), 0)
         self.assertNotEqual(types.AW_INTEGER(None), None)
@@ -49,28 +98,19 @@ class TestIntegerType(TestCase):
         self.assertEqual(types.AW_INTEGER.normalize(0), 0)
         self.assertEqual(types.AW_INTEGER.normalize(1), 1)
 
+    def test_call_with_none(self):
+        self.assertEqual(types.AW_INTEGER(None),
+                         types.AW_INTEGER.null)
 
-class TestIntegerTypeWrapsValidValues(TestCase):
-    def __wrap_integer(self, value):
-        return types.AW_INTEGER(value)
+    def test_call_with_coercible_data(self):
+        self.assertEqual(types.AW_INTEGER(-1), -1)
+        # self.assertEqual(types.AW_INTEGER(-1), -1)
 
-    def test_wraps_zero(self):
-        wi = self.__wrap_integer(0)
-        self.assertIsNotNone(wi)
-        self.assertEqual(wi, 0)
-
-    def test_wraps_positive_integers(self):
-        wi = self.__wrap_integer(1)
-        self.assertIsNotNone(wi)
-        self.assertEqual(wi, 1)
-
-    def test_wraps_negative_integers(self):
-        wi = self.__wrap_integer(-1)
-        self.assertIsNotNone(wi)
-        self.assertEqual(wi, -1)
+    def test_call_with_noncoercible_data(self):
+        self.assertEqual(types.AW_INTEGER('foo'), types.AW_INTEGER.null)
 
 
-class TestFloatType(TestCase):
+class TestTypeFloat(TestCase):
     def test_wraps_expected_primitive(self):
         self.assertEqual(type(types.AW_FLOAT(None)), float)
 
@@ -86,8 +126,22 @@ class TestFloatType(TestCase):
         self.assertEqual(types.AW_FLOAT.normalize(0), 0)
         self.assertEqual(types.AW_FLOAT.normalize(1), 1)
 
+    def test_call_with_none(self):
+        self.assertEqual(types.AW_FLOAT(None),
+                         types.AW_FLOAT.null)
 
-class TestTimeDateType(TestCase):
+    def test_call_with_coercible_data(self):
+        self.fail('TODO')
+
+    def test_call_with_noncoercible_data(self):
+        self.fail('TODO')
+
+
+class TestTypeTimeDate(TestCase):
+    def test_wraps_expected_primitive(self):
+        # TODO: [TD0050] Figure out how to represent null for datetime objects.
+        self.assertEqual(type(types.AW_TIMEDATE(None)), str)
+
     def test_null(self):
         # TODO: [TD0050] Figure out how to represent null for datetime objects.
         self.assertEqual(types.AW_TIMEDATE(None), 'INVALID DATE')
@@ -96,18 +150,39 @@ class TestTimeDateType(TestCase):
         self.fail('TODO')
 
     def test_call_with_none(self):
-        self.fail('TODO')
+        self.assertEqual(types.AW_TIMEDATE(None),
+                         types.AW_TIMEDATE.null)
 
     def test_call_with_valid_iso_format_string_returns_expected_type(self):
         actual = types.AW_TIMEDATE('2017-07-12T20:50:15.641659')
         self.assertTrue(isinstance(actual, datetime))
 
+    def test_call_with_coercible_data(self):
+        self.fail('TODO')
 
-class TestTimeDateTypeParsing(TestCase):
-    def test_parse_value_none(self):
-        self.assertEqual(types.TimeDate(None), types.TimeDate.null)
+    def test_call_with_noncoercible_data(self):
+        self.fail('TODO')
 
-    def test_parse_value_iso_format_string(self):
-        isodate_str = '2017-07-12T20:50:15.641659'
-        expected = datetime.strptime(isodate_str, '%Y-%m-%dT%H:%M:%S.%f')
-        self.assertEqual(types.TimeDate(isodate_str), expected)
+
+class TestTypeExiftoolTimeDate(TestCase):
+    def test_wraps_expected_primitive(self):
+        # TODO: [TD0050] Figure out how to represent null for datetime objects.
+        self.assertEqual(type(types.AW_EXIFTOOLTIMEDATE(None)), str)
+
+    def test_null(self):
+        # TODO: [TD0050] Figure out how to represent null for datetime objects.
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE(None), 'INVALID DATE')
+
+    def test_call_with_none(self):
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE(None),
+                         types.AW_EXIFTOOLTIMEDATE.null)
+
+    def test_call_with_coercible_data(self):
+        self.fail('TODO')
+
+    def test_call_with_noncoercible_data(self):
+        self.fail('TODO')
+
+    def test_call_with_valid_exiftool_string_returns_expected_type(self):
+        actual = types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0000')
+        self.assertTrue(isinstance(actual, datetime))
