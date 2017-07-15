@@ -49,14 +49,14 @@ class BaseType(object):
         if raw_value is None:
             return self.null
 
-        parsed = self._parse(raw_value)
+        parsed = self.parse(raw_value)
         return parsed if parsed else self.null
 
     @property
     def null(cls):
         if not cls.primitive_type:
             raise NotImplementedError('Class does not specify "primitive_type"'
-                                      ' -- must override "_parse"')
+                                      ' -- must override "parse"')
         else:
             return cls.primitive_type()
 
@@ -79,10 +79,10 @@ class BaseType(object):
             return value
 
     @classmethod
-    def _parse(cls, raw_value):
+    def parse(cls, raw_value):
         if not cls.primitive_type:
             raise NotImplementedError('Class does not specify "primitive_type"'
-                                      ' -- must override "_parse"')
+                                      ' -- must override "parse"')
         else:
             try:
                 value = cls.primitive_type(raw_value)
@@ -100,7 +100,7 @@ class BaseType(object):
         if isinstance(value, bytes):
             value = value.decode('utf-8', 'ignore')
 
-        parsed = self._parse(value)
+        parsed = self.parse(value)
         return str(parsed)
 
     def __repr__(self):
@@ -124,7 +124,7 @@ class Path(BaseType):
         return 'INVALID PATH'
 
     @classmethod
-    def _parse(cls, raw_value):
+    def parse(cls, raw_value):
         try:
             value = util.normpath(raw_value)
         except (ValueError, TypeError):
@@ -133,7 +133,7 @@ class Path(BaseType):
             return value
 
     def format(self, value, formatter=None):
-        parsed = self._parse(value)
+        parsed = self.parse(value)
         return util.displayable_path(parsed)
 
 
@@ -152,7 +152,7 @@ class Boolean(BaseType):
             return False
 
     @classmethod
-    def _parse(cls, value):
+    def parse(cls, value):
         if value is None:
             return False
         if isinstance(value, bool):
@@ -177,7 +177,7 @@ class Integer(BaseType):
     primitive_type = int
 
     @classmethod
-    def _parse(cls, value):
+    def parse(cls, value):
         try:
             parsed = int(value)
         except (TypeError, ValueError):
@@ -197,7 +197,7 @@ class Float(BaseType):
     primitive_type = float
 
     @classmethod
-    def _parse(cls, value):
+    def parse(cls, value):
         try:
             parsed = float(value)
         except (TypeError, ValueError):
@@ -228,7 +228,7 @@ class TimeDate(BaseType):
         return 'INVALID DATE'
 
     @classmethod
-    def _parse(cls, raw_value):
+    def parse(cls, raw_value):
         if not raw_value:
             return cls.null
 
@@ -253,7 +253,7 @@ class TimeDate(BaseType):
         if not value:
             return cls.null
         try:
-            parsed = cls._parse(value)
+            parsed = cls.parse(value)
             if isinstance(parsed, datetime):
                 return parsed.replace(microsecond=0)
             else:
@@ -266,7 +266,7 @@ class ExifToolTimeDate(TimeDate):
     primitive_type = None
 
     @classmethod
-    def _parse(cls, raw_value):
+    def parse(cls, raw_value):
         try:
             dt = datetime.strptime(raw_value, '%Y-%m-%d %H:%M:%S+%z')
         except (ValueError, TypeError):
