@@ -118,6 +118,15 @@ class Path(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
 
+    def __call__(self, raw_value=None):
+        if not raw_value:
+            return self.null
+        elif isinstance(raw_value, (list, tuple)):
+            return self.null
+
+        parsed = self.parse(raw_value)
+        return parsed if parsed else self.null
+
     @property
     def null(self):
         # TODO: Figure out how to represent null for Paths.
