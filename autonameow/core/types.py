@@ -228,7 +228,8 @@ class TimeDate(BaseType):
         if not value:
             return cls.null
         try:
-            return datetime(value).replace(microsecond=0)
+            parsed = cls._parse(value)
+            return datetime(parsed).replace(microsecond=0)
         except (TypeError, ValueError):
             return cls.null
 
