@@ -26,6 +26,10 @@ class AutonameowException(Exception):
     """Base exception. All custom exceptions should subclass this."""
 
 
+class AWTypeError(AutonameowException):
+    """Like "TypeError" for the internal, custom types."""
+
+
 class InvalidFileArgumentError(AutonameowException):
     """The argument (file) is not suited for processing."""
 
