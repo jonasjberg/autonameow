@@ -52,6 +52,7 @@ class BaseType(object):
         parsed = self._parse(raw_value)
         return parsed if parsed else self.null
 
+    @property
     def null(cls):
         if not cls.primitive_type:
             raise NotImplementedError('Class does not specify "primitive_type"'
