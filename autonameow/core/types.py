@@ -91,16 +91,17 @@ class BaseType(object):
             else:
                 return value
 
-    def format(self, value, formatter=None):
+    @classmethod
+    def format(cls, value, formatter=None):
         if value is None:
-            value = self.null
+            value = cls.null
         if value is None:
             # Case where 'self.null' is None.
             value = ''
         if isinstance(value, bytes):
             value = value.decode('utf-8', 'ignore')
 
-        parsed = self.parse(value)
+        parsed = cls.parse(value)
         return str(parsed)
 
     def __repr__(self):
@@ -132,8 +133,9 @@ class Path(BaseType):
         else:
             return value
 
-    def format(self, value, formatter=None):
-        parsed = self.parse(value)
+    @classmethod
+    def format(cls, value, formatter=None):
+        parsed = cls.parse(value)
         return util.displayable_path(parsed)
 
 
@@ -185,7 +187,8 @@ class Integer(BaseType):
         else:
             return parsed
 
-    def format(self, value, formatter=None):
+    @classmethod
+    def format(cls, value, formatter=None):
         if not formatter:
             return '{}'.format(value or 0)
         else:
@@ -205,7 +208,8 @@ class Float(BaseType):
         else:
             return parsed
 
-    def format(self, value, formatter=None):
+    @classmethod
+    def format(cls, value, formatter=None):
         if not formatter:
             return '{0:.1f}'.format(value or 0.0)
         else:
@@ -222,8 +226,17 @@ class TimeDate(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = None
 
+    def __call__(self, raw_value=None):
+        if not raw_value:
+            return self.null
+        elif isinstance(raw_value, (list, tuple)):
+            return self.null
+
+        parsed = self.parse(raw_value)
+        return parsed if parsed else self.null
+
     @property
-    def null(self):
+    def null(cls):
         # TODO: [TD0050] Figure out how to represent null for datetime objects.
         return 'INVALID DATE'
 

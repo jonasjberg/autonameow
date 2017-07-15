@@ -143,8 +143,7 @@ class TestTypeFloat(TestCase):
         self.assertEqual(types.AW_FLOAT.normalize(1), 1)
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_FLOAT(None),
-                         types.AW_FLOAT.null)
+        self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.null)
 
     def test_call_with_coercible_data(self):
         self.assertEqual(types.AW_FLOAT(-1), -1.0)
@@ -181,7 +180,9 @@ class TestTypeTimeDate(TestCase):
                                   '%Y-%m-%dT%H:%M:%S.%f')
         expected = datetime.strptime('2017-07-12T20:50:15',
                                      '%Y-%m-%dT%H:%M:%S')
-        self.assertEqual(types.AW_TIMEDATE.normalize('2017-07-12T20:50:15.641659'), expected)
+        self.assertEqual(
+            types.AW_TIMEDATE.normalize('2017-07-12T20:50:15.641659'), expected
+        )
 
     def test_compare_normalized(self):
         with_usecs = types.AW_TIMEDATE.normalize('2017-07-12T20:50:15.641659')
@@ -193,8 +194,7 @@ class TestTypeTimeDate(TestCase):
         self.assertNotEqual(without_usecs, another_day)
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_TIMEDATE(None),
-                         types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_TIMEDATE(None), types.AW_TIMEDATE.null)
 
     def test_call_with_coercible_data(self):
         expected = datetime.strptime('2017-07-12T20:50:15', '%Y-%m-%dT%H:%M:%S')
