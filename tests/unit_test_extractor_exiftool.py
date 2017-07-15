@@ -32,6 +32,7 @@ from unit_utils import (
 temporary_file = make_temporary_file()
 E = ExiftoolMetadataExtractor(temporary_file)
 
+
 class TestExiftoolMetadataExtractor(TestCase):
     def setUp(self):
         self.e = E
