@@ -117,8 +117,24 @@ class Path(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
 
-    def __str__(self):
-        return util.displayable_path(self.value)
+    @property
+    def null(self):
+        # TODO: Figure out how to represent null for Paths.
+        raise NotImplementedError('Got NULL path')
+        return 'INVALID PATH'
+
+    @classmethod
+    def _parse(cls, raw_value):
+        try:
+            value = util.normpath(raw_value)
+        except (ValueError, TypeError):
+            return cls.null
+        else:
+            return value
+
+    def format(self, value, formatter=None):
+        parsed = self._parse(value)
+        return util.displayable_path(parsed)
 
 
 class Boolean(BaseType):
