@@ -177,7 +177,11 @@ class TestTypeTimeDate(TestCase):
         self.assertEqual(types.AW_TIMEDATE(None), 'INVALID DATE')
 
     def test_normalize(self):
-        self.fail('TODO')
+        prior = datetime.strptime('2017-07-12T20:50:15.641659',
+                                  '%Y-%m-%dT%H:%M:%S.%f')
+        expected = datetime.strptime('2017-07-12T20:50:15',
+                                     '%Y-%m-%dT%H:%M:%S')
+        self.assertEqual(types.AW_TIMEDATE.normalize('2017-07-12T20:50:15.641659'), expected)
 
     def test_call_with_none(self):
         self.assertEqual(types.AW_TIMEDATE(None),
