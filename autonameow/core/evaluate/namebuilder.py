@@ -236,7 +236,7 @@ def formatted_datetime(datetime_object, format_string):
         A string in the specified format with the data from the given string.
     """
     # TODO: Make sure this works! Strongly suspect it doesn't.
-    return datetime_object.value().strftime(format_string)
+    return datetime_object.strftime(format_string)
 
 
 def all_template_fields_defined(template, data_sources):
