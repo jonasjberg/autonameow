@@ -242,26 +242,16 @@ class TimeDate(BaseType):
 
     @classmethod
     def parse(cls, raw_value):
-        if not raw_value:
-            return cls.null
-
         if isinstance(raw_value, datetime):
             return raw_value
+        try:
+            dt = try_parse_full_datetime(raw_value)
+        except ValueError as e:
+            return cls.null
+        else:
+            return dt
 
-        date_formats = ['%Y-%m-%dT%H:%M:%S',
-                        '%Y-%m-%dT%H:%M:%S.%f',  # %f: Microseconds
-                        '%Y-%m-%d %H:%M:%S %z']  # %z: UTC offset
-
-        for date_format in date_formats:
-            try:
-                dt = datetime.strptime(raw_value, date_format)
-            except (ValueError, TypeError):
-                continue
-            else:
-                return dt
-
-        return cls.null
-
+    @classmethod
     def normalize(cls, value):
         if not value:
             return cls.null
@@ -280,12 +270,39 @@ class ExifToolTimeDate(TimeDate):
 
     @classmethod
     def parse(cls, raw_value):
+        if isinstance(raw_value, datetime):
+            return raw_value
         try:
-            dt = datetime.strptime(raw_value, '%Y-%m-%d %H:%M:%S+%z')
+            dt = datetime.strptime(raw_value, '%Y-%m-%d %H:%M:%S%z')
         except (ValueError, TypeError):
             return cls.null
         else:
             return dt
+
+
+def try_parse_full_datetime(string):
+    _error_msg = 'Unable parse to datetime: "{!s}"'
+
+    if not string:
+        raise ValueError(_error_msg.format(string))
+    if not isinstance(string, str):
+        raise ValueError(_error_msg.format(string))
+
+    date_formats = ['%Y-%m-%dT%H:%M:%S',
+                    '%Y-%m-%dT%H:%M:%S.%f',  # %f: Microseconds
+                    '%Y-%m-%d %H:%M:%S %z',  # %z: UTC offset
+                    '%Y-%m-%d %H:%M:%S%z']
+
+    for date_format in date_formats:
+        try:
+            dt = datetime.strptime(string, date_format)
+        except (ValueError, TypeError):
+            continue
+        else:
+            return dt
+
+    raise ValueError(_error_msg.format(string))
+
 
 
 AW_BOOLEAN = Boolean()

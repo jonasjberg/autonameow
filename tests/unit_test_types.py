@@ -223,11 +223,24 @@ class TestTypeExiftoolTimeDate(TestCase):
                          types.AW_EXIFTOOLTIMEDATE.null)
 
     def test_call_with_coercible_data(self):
-        self.fail('TODO')
+        expected = datetime.strptime('2017-07-12T20:50:15+0200',
+                                     '%Y-%m-%dT%H:%M:%S%z')
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE(expected), expected)
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200'),
+                         expected)
 
     def test_call_with_noncoercible_data(self):
-        self.fail('TODO')
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE(None),
+                         types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE(''),
+                         types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE([]),
+                         types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE(['']),
+                         types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE([None]),
+                         types.AW_TIMEDATE.null)
 
     def test_call_with_valid_exiftool_string_returns_expected_type(self):
-        actual = types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0000')
+        actual = types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200')
         self.assertTrue(isinstance(actual, datetime))
