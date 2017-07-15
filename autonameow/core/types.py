@@ -52,7 +52,6 @@ class BaseType(object):
         parsed = self._parse(raw_value)
         return parsed if parsed else self.null
 
-    @property
     def null(cls):
         if not cls.primitive_type:
             raise NotImplementedError('Class does not specify "primitive_type"'
@@ -229,23 +228,35 @@ class TimeDate(BaseType):
 
     @classmethod
     def _parse(cls, raw_value):
-        date_formats = ['%Y-%m-%dT%H:%M:%S.%f',  # %f: Microseconds
+        if not raw_value:
+            return cls.null
+
+        if isinstance(raw_value, datetime):
+            return raw_value
+
+        date_formats = ['%Y-%m-%dT%H:%M:%S',
+                        '%Y-%m-%dT%H:%M:%S.%f',  # %f: Microseconds
                         '%Y-%m-%d %H:%M:%S %z']  # %z: UTC offset
 
         for date_format in date_formats:
             try:
                 dt = datetime.strptime(raw_value, date_format)
             except (ValueError, TypeError):
-                return cls.null
+                continue
             else:
                 return dt
+
+        return cls.null
 
     def normalize(cls, value):
         if not value:
             return cls.null
         try:
             parsed = cls._parse(value)
-            return datetime(parsed).replace(microsecond=0)
+            if isinstance(parsed, datetime):
+                return parsed.replace(microsecond=0)
+            else:
+                return cls.null
         except (TypeError, ValueError):
             return cls.null
 

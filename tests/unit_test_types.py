@@ -183,19 +183,30 @@ class TestTypeTimeDate(TestCase):
                                      '%Y-%m-%dT%H:%M:%S')
         self.assertEqual(types.AW_TIMEDATE.normalize('2017-07-12T20:50:15.641659'), expected)
 
+    def test_compare_normalized(self):
+        with_usecs = types.AW_TIMEDATE.normalize('2017-07-12T20:50:15.641659')
+        without_usecs = types.AW_TIMEDATE.normalize('2017-07-12T20:50:15')
+        self.assertEqual(with_usecs, without_usecs)
+
+        another_day = types.AW_TIMEDATE.normalize('2017-07-11T20:50:15')
+        self.assertNotEqual(with_usecs, another_day)
+        self.assertNotEqual(without_usecs, another_day)
+
     def test_call_with_none(self):
         self.assertEqual(types.AW_TIMEDATE(None),
                          types.AW_TIMEDATE.null)
 
-    def test_call_with_valid_iso_format_string_returns_expected_type(self):
-        actual = types.AW_TIMEDATE('2017-07-12T20:50:15.641659')
-        self.assertTrue(isinstance(actual, datetime))
-
     def test_call_with_coercible_data(self):
-        self.fail('TODO')
+        expected = datetime.strptime('2017-07-12T20:50:15', '%Y-%m-%dT%H:%M:%S')
+        self.assertEqual(types.AW_TIMEDATE(expected), expected)
+        self.assertEqual(types.AW_TIMEDATE('2017-07-12T20:50:15'), expected)
 
     def test_call_with_noncoercible_data(self):
-        self.fail('TODO')
+        self.assertEqual(types.AW_TIMEDATE(None), types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_TIMEDATE(''), types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_TIMEDATE([]), types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_TIMEDATE(['']), types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_TIMEDATE([None]), types.AW_TIMEDATE.null)
 
 
 class TestTypeExiftoolTimeDate(TestCase):
