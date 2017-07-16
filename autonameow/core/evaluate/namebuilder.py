@@ -21,6 +21,7 @@
 
 import logging as log
 import re
+from datetime import datetime
 
 from core import (
     exceptions,
@@ -235,7 +236,7 @@ def formatted_datetime(datetime_object, format_string):
     Returns:
         A string in the specified format with the data from the given string.
     """
-    # TODO: Make sure this works! Strongly suspect it doesn't.
+    assert(isinstance(datetime_object, datetime))
     return datetime_object.strftime(format_string)
 
 
