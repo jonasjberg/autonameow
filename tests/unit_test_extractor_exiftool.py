@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from datetime import datetime
 from unittest import TestCase
 
 from core.exceptions import ExtractorError
@@ -95,13 +96,16 @@ class TestExiftoolMetadataExtractor(TestCase):
 
 
 class TestExiftoolMetadataExtractorWithImage(TestCase):
+    def _to_datetime(self, value):
+        return datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+
     def setUp(self):
         image = abspath_testfile('smulan.jpg')
         self.e = ExiftoolMetadataExtractor(image)
 
         self.EXPECT_FIELD_VALUE = [
-            ('EXIF:CreateDate', '2010:01:31 16:12:51'),
-            ('EXIF:DateTimeOriginal', '2010:01:31 16:12:51'),
+            ('EXIF:CreateDate', self._to_datetime('2010-01-31 16:12:51')),
+            ('EXIF:DateTimeOriginal', self._to_datetime('2010-01-31 16:12:51')),
             ('EXIF:ExifImageHeight', 1944),
             ('EXIF:ExifImageWidth', 2592)
         ]

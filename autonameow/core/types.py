@@ -33,6 +33,8 @@ Wraps primitives to force safe defaults and extra functionality.
 
 from datetime import datetime
 
+import re
+
 from core import (
     util,
     exceptions
@@ -91,7 +93,7 @@ class BaseType(object):
             the value can be normalized, otherwise the class "null" value.
         """
         if value is None:
-            return self.null
+            return self._null()
         else:
             # TODO: Implement or make sure that inheriting classes does ..
             return value
@@ -261,57 +263,63 @@ class TimeDate(BaseType):
     # TODO: Think long and hard about this before proceeding..
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = None
+    coercible_types = (str, bytes, int, float)
+    equivalent_types = (str, datetime)
+
+    # TODO: [TD0050] Figure out how to represent null for datetime objects.
+    null = 'INVALID DATE'
 
     def __call__(self, raw_value=None):
         if not raw_value:
-            return self.null
+            return self._null()
         elif isinstance(raw_value, (list, tuple)):
-            return self.null
+            return self._null()
 
         parsed = self.coerce(raw_value)
-        return parsed if parsed else self.null
+        return parsed if parsed else self._null()
 
-    @property
-    def null(cls):
-        # TODO: [TD0050] Figure out how to represent null for datetime objects.
-        return 'INVALID DATE'
-
-    @classmethod
-    def coerce(cls, raw_value):
+    def coerce(self, raw_value):
         if isinstance(raw_value, datetime):
             return raw_value
         try:
             dt = try_parse_full_datetime(raw_value)
         except ValueError as e:
-            return cls.null
+            return self._null()
         else:
             return dt
 
-    @classmethod
-    def normalize(cls, value):
+    def normalize(self, value):
         if not value:
-            return cls.null
+            return self._null()
         try:
-            parsed = cls.coerce(value)
+            parsed = self.coerce(value)
             if isinstance(parsed, datetime):
                 return parsed.replace(microsecond=0)
             else:
-                return cls.null
+                return self._null()
         except (TypeError, ValueError):
-            return cls.null
+            return self._null()
 
 
 class ExifToolTimeDate(TimeDate):
     primitive_type = None
 
-    @classmethod
-    def coerce(cls, raw_value):
+    def coerce(self, raw_value):
         if isinstance(raw_value, datetime):
             return raw_value
+
+        if re.match(r'.*\+\d\d:\d\d$', raw_value):
+            raw_value = re.sub(r'\+(\d\d):(\d\d)$', r'+\1\2', raw_value)
         try:
-            dt = datetime.strptime(raw_value, '%Y-%m-%d %H:%M:%S%z')
-        except (ValueError, TypeError):
-            return cls.null
+            # TODO: Fix matching dates with timezone. Below is not working.
+            dt = datetime.strptime(raw_value, '%Y:%m:%d %H:%M:%S%z')
+        except (ValueError, TypeError) as e:
+            try:
+                dt = try_parse_full_datetime(raw_value)
+            except ValueError:
+                return self._null()
+            else:
+                return dt
         else:
             return dt
 
@@ -324,8 +332,14 @@ def try_parse_full_datetime(string):
     if not isinstance(string, str):
         raise ValueError(_error_msg.format(string))
 
-    date_formats = ['%Y-%m-%dT%H:%M:%S',
-                    '%Y-%m-%dT%H:%M:%S.%f',  # %f: Microseconds
+    string = re.sub(
+        r'(\d{4})[:-](\d{2})[:-](\d{2})[T ](\d{2})[:-](\d{2})[:-](\d{2})',
+        r'\1-\2-\3 \4:\5:\6',
+        string
+    )
+
+    date_formats = ['%Y-%m-%d %H:%M:%S',
+                    '%Y-%m-%d %H:%M:%S.%f',  # %f: Microseconds
                     '%Y-%m-%d %H:%M:%S %z',  # %z: UTC offset
                     '%Y-%m-%d %H:%M:%S%z']
 
