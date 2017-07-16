@@ -95,9 +95,13 @@ class MetadataExtractor(Extractor):
         if tag_name in self.tagname_type_lookup:
             return self.tagname_type_lookup[tag_name](value)
         else:
-            log.critical('Unhandled wrapping of tag name "{}" '
-                         '(value: "{}")'.format(tag_name, value))
-            return value
+            wrapped = types.try_wrap(value)
+            if wrapped is not None:
+                return wrapped
+            else:
+                log.critical('Unhandled wrapping of tag name "{}" '
+                             '(value: "{}")'.format(tag_name, value))
+                return value
 
     def _get_raw_metadata(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
