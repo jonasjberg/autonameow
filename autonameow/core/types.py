@@ -22,14 +22,13 @@
 """
 Custom data types, used internally by autonameow.
 Wraps primitives to force safe defaults and extra functionality.
+
+Requirements:
+* Simplify configuration parsing
+* Confine data extractor results data to types
+* Allow type-specific processing of data extractor data
 """
 
-# TODO: [TD0002] Research requirements and implement custom type system.
-
-#   Requirements:
-#   * Simplify configuration parsing
-#   * Confine data extractor results data to types
-#   * Allow type-specific processing of data extractor data
 
 from datetime import datetime
 
@@ -124,7 +123,6 @@ class BaseType(object):
 
 
 class Path(BaseType):
-    # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
     coercible_types = (str, bytes)
     equivalent_types = ()
@@ -156,7 +154,6 @@ class Path(BaseType):
 
 
 class Boolean(BaseType):
-    # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = bool
     coercible_types = (str, bytes)
     equivalent_types = (bool,)
@@ -195,7 +192,6 @@ class Boolean(BaseType):
 
 
 class Integer(BaseType):
-    # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = int
     coercible_types = (str, float)
     equivalent_types = (int,)
@@ -219,7 +215,6 @@ class Integer(BaseType):
 
 
 class Float(BaseType):
-    # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = float
     coercible_types = (str, int)
     equivalent_types = (float,)
@@ -241,7 +236,6 @@ class Float(BaseType):
 
 
 class String(BaseType):
-    # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
     coercible_types = (str, bytes, int, float)
     equivalent_types = (str,)
@@ -260,8 +254,6 @@ class String(BaseType):
 
 
 class TimeDate(BaseType):
-    # TODO: Think long and hard about this before proceeding..
-    # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = None
     coercible_types = (str, bytes, int, float)
     equivalent_types = (str, datetime)
@@ -324,6 +316,64 @@ class ExifToolTimeDate(TimeDate):
             return dt
 
 
+class PyPDFTimeDate(TimeDate):
+    primitive_type = None
+
+    def coerce(self, raw_value):
+        if not raw_value:
+            raise ValueError('Got empty/None string from PyPDF')
+        if isinstance(raw_value, datetime):
+            return raw_value
+
+        # Expected date format:           D:20121225235237 +05'30'
+        #                                   ^____________^ ^_____^
+        # Regex search matches two groups:        #1         #2
+        #
+        # 'D:20160111124132+00\\'00\\''
+
+        if "'" in raw_value:
+            raw_value = raw_value.replace("'", '')
+
+        dt = None
+        found_match = False
+        re_datetime_tz = re.compile('D:(\d{14})(\+\d{2}\'\d{2}\')')
+        re_match_tz = re_datetime_tz.search(raw_value)
+        if re_match_tz:
+            datetime_str = re_match_tz.group(1)
+            timezone_str = re_match_tz.group(2)
+            timezone_str = timezone_str.replace("'", "")
+
+            try:
+                dt = datetime.strptime(
+                    str(datetime_str + timezone_str), "%Y%m%d%H%M%S%z"
+                )
+                found_match = True
+            except ValueError:
+                pass
+
+            if not found_match:
+                try:
+                    dt = datetime.strptime(datetime_str, "%Y%m%d%H%M%S")
+                    found_match = True
+                except ValueError:
+                    pass
+
+        # Try matching another pattern.
+        re_datetime_no_tz = re.compile(r'D:(\d{14})')
+        re_match = re_datetime_no_tz.search(raw_value)
+        if re_match:
+            try:
+                dt = datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
+                found_match = True
+            except ValueError:
+                pass
+
+        if found_match:
+            return dt
+        else:
+            raise ValueError
+
+
 def try_parse_full_datetime(string):
     _error_msg = 'Unable parse to datetime: "{!s}"'
 
@@ -370,6 +420,7 @@ AW_FLOAT = Float()
 AW_STRING = String()
 AW_TIMEDATE = TimeDate()
 AW_EXIFTOOLTIMEDATE = ExifToolTimeDate()
+AW_PYPDFTIMEDATE = PyPDFTimeDate()
 
 
 PRIMITIVE_AW_TYPE_MAP = {
