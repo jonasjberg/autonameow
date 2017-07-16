@@ -20,11 +20,9 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from datetime import datetime
 
 from extractors.metadata import (
     MetadataExtractor,
-    to_datetime
 )
 from unit_utils import make_temporary_file
 
@@ -46,36 +44,3 @@ class TestMetadataExtractor(TestCase):
     def test_query_returns_false_without__get_raw_metadata_implemented(self):
         self.assertFalse(self.e.query())
         self.assertFalse(self.e.query(field='some_field'))
-
-
-class TestToDatetime(TestCase):
-    def test_to_datetime_is_defined_and_reachable(self):
-        self.assertIsNotNone(to_datetime)
-
-    def test_to_datetime_raises_exception_given_bad_input(self):
-        with self.assertRaises(ValueError):
-            to_datetime(None)
-            to_datetime('')
-
-    def test_to_datetime_raises_exception_for_invalid_datetime_strings(self):
-        with self.assertRaises(ValueError):
-            to_datetime('foo bar')
-            to_datetime('foo 123 bar')
-
-    def test_to_datetime_returns_datetime_objects_given_valid_input(self):
-        self.assertTrue(isinstance(to_datetime("D:20121225235237 +05'30'"),
-                                   datetime))
-        self.assertTrue(isinstance(to_datetime("D:20160111124132+00'00'"),
-                                   datetime))
-
-    def test_to_datetime_returns_expected_given_valid_input(self):
-        DT_FMT = '%Y-%m-%dT%H:%M:%S'
-        input_output = [
-            ("D:20121225235237 +05'30'",
-             datetime.strptime('2012-12-25T23:52:37', DT_FMT)),
-            ("D:20160111124132+00'00'",
-             datetime.strptime('2016-01-11T12:41:32', DT_FMT))
-        ]
-
-        for input_value, expected_output in input_output:
-            self.assertEqual(to_datetime(input_value), expected_output)

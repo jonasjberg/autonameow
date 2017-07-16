@@ -32,7 +32,6 @@ from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     MetadataSourceConfigFieldParser,
     suitable_field_parser_for,
-    suitable_parser_for_querystr,
     is_valid_template_field,
     eval_query_string_glob
 )
@@ -61,7 +60,11 @@ class TestFieldParserFunctions(TestCase):
         self.assertTrue(isinstance(available_field_parsers(), list))
 
         for p in available_field_parsers():
-            self.assertTrue(isinstance(p, str))
+            self.assertTrue(isinstance(p, type))
+
+    def test_get_available_parsers_returns_arbitrary_number(self):
+        # TODO: [hardcoded] Likely to break; Fix or remove!
+        self.assertGreaterEqual(len(available_field_parsers()), 5)
 
 
 class TestFieldParser(TestCase):
@@ -72,6 +75,21 @@ class TestFieldParser(TestCase):
     def test_get_validation_function_should_raise_error_if_unimplemented(self):
         with self.assertRaises(NotImplementedError):
             self.p.get_validation_function()
+
+    def test_get_evaluation_function_should_raise_error_if_unimplemented(self):
+        with self.assertRaises(NotImplementedError):
+            self.p.get_evaluation_function()
+
+    def test_validate_function_should_raise_error_if_unimplemented(self):
+        with self.assertRaises(NotImplementedError):
+            self.p.validate(None)
+
+    def test_evaluate_function_should_raise_error_if_unimplemented(self):
+        with self.assertRaises(NotImplementedError):
+            self.p.evaluate(None, None)
+
+    def test_str_returns_expected_expected_type(self):
+        self.assertTrue(isinstance(str(self.p), str))
 
 
 class TestFieldParserSubclasses(TestCase):
@@ -106,6 +124,14 @@ class TestFieldParserSubclasses(TestCase):
             self.assertEqual(type(result), bool,
                              'Validation function should always return boolean')
 
+    def test_get_evaluation_function_should_not_return_none(self):
+        for p in self.parsers:
+            self.assertIsNotNone(p.get_evaluation_function())
+
+    def test_get_evaluation_function_should_return_function(self):
+        for p in self.parsers:
+            self.assertTrue(hasattr(p.get_evaluation_function(), '__call__'))
+
 
 class TestRegexFieldParser(TestCase):
     def setUp(self):
@@ -121,6 +147,10 @@ class TestRegexFieldParser(TestCase):
     def test_validation_function_expect_pass(self):
         self.assertTrue(self.val_func('[A-Za-z]+'))
         self.assertTrue(self.val_func('.*'))
+
+    def test__normalize_returns_expected(self):
+        self.assertEqual(self.p._normalize('foo'), 'foo')
+        self.assertEqual(self.p._normalize('ö'), 'ö')
 
 
 class TestMimeTypeFieldParser(TestCase):
@@ -224,26 +254,26 @@ class TestMetadataSourceConfigFieldParser(TestCase):
 
 class TestInstantiatedFieldParsers(TestCase):
     def test_field_parsers_in_not_none(self):
-        self.assertIsNotNone(field_parsers.FieldParsers)
+        self.assertIsNotNone(field_parsers.FieldParserInstances)
 
     def test_configuration_field_parsers_subclass_of_config_field_parser(self):
-        for parser in field_parsers.FieldParsers:
+        for parser in field_parsers.FieldParserInstances:
             self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
 
     def test_configuration_field_parsers_instance_of_config_field_parser(self):
-        for parser in field_parsers.FieldParsers:
+        for parser in field_parsers.FieldParserInstances:
             self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
 
 
 class TestSuitableFieldParserFor(TestCase):
-    def test_returns_expected_type(self):
+    def __expect_parser_for(self, expected_parser, arg):
+        actual = suitable_field_parser_for(arg)
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(str(actual[0]), expected_parser)
+
+    def test_returns_expected_type_list(self):
         actual = suitable_field_parser_for('contents.mime_type')
         self.assertTrue(isinstance(actual, list))
-
-    def test_returns_expected_given_valid_mime_type_field(self):
-        actual = suitable_field_parser_for('contents.mime_type')
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'MimeTypeConfigFieldParser')
 
     def test_returns_expected_given_invalid_mime_type_field(self):
         actual = suitable_field_parser_for('contents.miiime_type')
@@ -251,91 +281,35 @@ class TestSuitableFieldParserFor(TestCase):
         actual = suitable_field_parser_for('miiime_type')
         self.assertEqual(len(actual), 0)
 
-    def test_returns_expected_given_valid_name_format_field(self):
-        actual = suitable_field_parser_for('NAME_FORMAT')
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'NameFormatConfigFieldParser')
+    def test_expect_name_format_field_parser(self):
+        self.__expect_parser_for('NameFormatConfigFieldParser', 'NAME_FORMAT')
 
-    def test_datetime_field_parser_handles_multiple_fields(self):
-        for field in ['datetime', 'date_accessed',
-                      'date_created', 'date_modified']:
-            actual = suitable_field_parser_for(field)
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
+    def test_expect_datetime_field_parser(self):
+        self.__expect_parser_for('DateTimeConfigFieldParser', 'datetime')
+        self.__expect_parser_for('DateTimeConfigFieldParser', 'date_accessed')
+        self.__expect_parser_for('DateTimeConfigFieldParser', 'date_created')
+        self.__expect_parser_for('DateTimeConfigFieldParser', 'date_modified')
 
-    def test_datetime_field_parser_handles_field_datetime(self):
-            actual = suitable_field_parser_for('datetime')
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
+    def test_expect_regex_field_parser(self):
+        self.__expect_parser_for('RegexConfigFieldParser',
+                                 'filesystem.pathname.full')
+        self.__expect_parser_for('RegexConfigFieldParser',
+                                 'filesystem.basename.full')
+        self.__expect_parser_for('RegexConfigFieldParser',
+                                 'filesystem.basename.extension')
+        self.__expect_parser_for('RegexConfigFieldParser',
+                                 'contents.textual.raw_text')
 
-    def test_datetime_field_parser_handles_field_date_accessed(self):
-        actual = suitable_field_parser_for('date_accessed')
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
+    def test_expect_mime_type_field_parser(self):
+        self.__expect_parser_for('MimeTypeConfigFieldParser',
+                                 'contents.mime_type')
 
-    def test_regex_field_parser_handles_multiple_fields(self):
-        for field in ['filesystem.pathname.full',
-                      'filesystem.basename.full',
-                      'filesystem.basename.extension',
-                      'contents.textual.raw_text']:
-            actual = suitable_field_parser_for(field)
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
-
-    def __get_parser_for(self, arg):
-        actual = suitable_field_parser_for(arg)
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
-
-    def test_regex_field_parser_handles_field_1(self):
-        self.__get_parser_for('filesystem.pathname.full')
-
-    def test_regex_field_parser_handles_field_2(self):
-        self.__get_parser_for('filesystem.basename.full')
-
-    def test_regex_field_parser_handles_field_3(self):
-        self.__get_parser_for('filesystem.basename.extension')
-
-    def test_regex_field_parser_handles_field_4(self):
-        self.__get_parser_for('contents.textual.raw_text')
-
-
-class TestSuitableParserForQueryString(TestCase):
-    def test_returns_expected_type(self):
-        actual = suitable_parser_for_querystr('mime_type')
-        self.assertTrue(isinstance(actual, list))
-
-    def test_returns_expected_given_valid_mime_type_field(self):
-        actual = suitable_parser_for_querystr('contents.mime_type')
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'MimeTypeConfigFieldParser')
-
-    def test_returns_expected_given_invalid_mime_type_field(self):
-        actual = suitable_parser_for_querystr('miiime_type')
-        self.assertEqual(len(actual), 0)
-
-    def test_returns_expected_given_valid_name_format_field(self):
-        actual = suitable_parser_for_querystr('NAME_FORMAT')
-        self.assertEqual(len(actual), 1)
-
-    def test_datetime_field_parser_handles_multiple_fields(self):
-        for field in ['datetime', 'date_accessed',
-                      'date_created', 'date_modified']:
-            actual = suitable_parser_for_querystr(field)
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(str(actual[0]), 'DateTimeConfigFieldParser')
-
-    def __get_parser_for(self, field):
-        actual = suitable_parser_for_querystr(field)
-        self.assertEqual(len(actual), 1)
-        self.assertEqual(str(actual[0]), 'RegexConfigFieldParser')
-
-    def test_regex_field_parser_handles_multiple_fields(self):
-        for field in ['filesystem.pathname.full',
-                      'filesystem.basename.full',
-                      'filesystem.basename.extension',
-                      'contents.textual.raw_text']:
-            self.__get_parser_for(field)
+    def test_expect_metadata_source_field_parser(self):
+        # TODO: [TD0048] Fix "conflict" with 'DateTimeConfigFieldParser'.
+        self.__expect_parser_for('MetadataSourceConfigFieldParser',
+                                 'metadata.exiftool.PDF:CreateDate')
+        self.__expect_parser_for('MetadataSourceConfigFieldParser',
+                                 'metadata.exiftool.EXIF:DateTimeOriginal')
 
 
 class TestFieldparserConstants(TestCase):

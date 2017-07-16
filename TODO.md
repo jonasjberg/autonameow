@@ -14,15 +14,6 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0002]` __Add a custom type system__
-    * Add a abstract base class for all types (`BaseType`?)
-    * Wrap primitives in type classes inheriting from the base class
-      (`BaseType`?)
-    * Design type classes as to simplify upcoming query and comparison
-      operations performed while evaluating file rules; both "static"
-      conditions (basename equals this exact string/regexp) as well as
-      expressions (datetime data is within a given range)
-
 * `[TD0003]` __Implement gathering data on non-core modules at run-time__
     * Have extractors register themselves at run-time.
     * Collect valid extractor query strings at run-time.
@@ -66,9 +57,21 @@ High Priority
           the process would mostly add yet another layer of indirection ..
     * Think about how wrapped data types (`[TD0002]`) relates to this.
 
+* `[TD0048]` Look into conflicting field parsers returned for metadata fields.
+  Especially the `DateTimeConfigFieldParser` and
+  `MetadataSourceConfigFieldParser` classes both want to handle some exiftool
+  fields.
+
 
 Medium Priority
 ---------------
+
+* `[TD0050]` Figure out how to represent "null" for `datetime` types.
+
+* `[TD0049]` __Think about defining legal "placeholder fields".__
+  Might be helpful to define all legal fields (such as `title`, `datetime`,
+  `author`, etc.) somewhere and keep references to type coercion wrappers,
+  maybe validation and/or formatting functionality; in the field definitions.
 
 * `[TD0008]` Simplify installation.
     * Add support for `pip` or similar package manager.

@@ -23,15 +23,16 @@ import logging as log
 import re
 from datetime import datetime
 
+import unicodedata
+
 from core import (
     constants,
     extraction,
     util,
-    fileobject
+    fileobject,
+    exceptions
 )
-from core.constants import NAME_TEMPLATE_FIELDS
 from core.evaluate import namebuilder
-from core.exceptions import NameTemplateSyntaxError
 
 
 class ConfigFieldParser(object):
@@ -41,6 +42,17 @@ class ConfigFieldParser(object):
     Provides common functionality and interfaces that must be implemented
     by inheriting rule parser classes.
     """
+
+    # List of "query strings" (or configuration "keys"/"fields") used to
+    # determine if the class is suited to handle the expression or data.
+    #
+    # The "query string" consist of a lower case words, separated by periods.
+    # For instance; "contents.mime_type" or "filesystem.basename.extension".
+    # The "query string" can contain "globs" as wildcards. Globs substitute
+    # any of the lower case words with an asterisk, effectively ignoring that
+    # part during comparison.
+    #
+    # Example:  ['filesystem.basename.*', 'filesystem.*.extension]
     applies_to_field = []
 
     def __init__(self):
@@ -50,7 +62,8 @@ class ConfigFieldParser(object):
         # Possibly implemented by inheriting classes.
         pass
 
-    def get_validation_function(self):
+    @classmethod
+    def get_validation_function(cls):
         """
         Used to check that the syntax and content of a subset of fields.
 
@@ -61,7 +74,15 @@ class ConfigFieldParser(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
+        """
+        Returns a function that can evaluate a given expression using some
+        specified data. The returned function must accept two arguments.
+
+        Returns:
+            A function that evaluates "expression" using "data".
+        """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def validate(self, expression):
@@ -75,19 +96,21 @@ class ConfigFieldParser(object):
 
         Returns:
             True if expression is valid, else False.
-
         """
         return self.get_validation_function()(expression)
 
     def evaluate(self, expression, data):
         """
-        Evaluates a given expression using the specified data.
+        Evaluates a given expression using the specified data by passing the
+        arguments to the function returned by 'get_evaluation_function'.
 
         Args:
-            expression:
-            data:
+            expression: The expression to evaluate.
+            data: The data to use during the evaluation.
 
         Returns:
+            True if the evaluation was successful, otherwise False.
+            # TODO: Verify actual return values ..
         """
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
@@ -114,6 +137,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
         if not test_data:
             return False
 
+        # test_data = _normalize(test_data)
         test_data = util.encode_(test_data)
         expression = util.encode_(expression)
         _match = re.match(expression, test_data)
@@ -122,13 +146,38 @@ class RegexConfigFieldParser(ConfigFieldParser):
         else:
             return False
 
-    def get_validation_function(self):
-        return self.is_valid_regex
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_regex
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        return self.evaluate_regex
+        return cls.evaluate_regex
+
+    @staticmethod
+    def _normalize(unicode_string):
+        """
+        Normalizes unwieldy text, (hopefully) making matching more intuitive.
+
+            Return the normal form form for the Unicode string unistr.
+
+            For each character, there are two normal forms: normal form C and
+            normal form D. Normal form D (NFD) is also known as canonical
+            decomposition, and translates each character into its decomposed
+            form. Normal form C (NFC) first applies a canonical decomposition,
+            then composes pre-combined characters again.
+
+            Source:  https://docs.python.org/3.5/library/unicodedata.html
+
+        Args:
+            unicode_string: The unicode string to normalize.
+
+        Returns:
+            A normalized version of the given string.
+        """
+        return unicodedata.normalize('NFC', unicode_string)
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
@@ -145,18 +194,21 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
         return False
 
-    def get_validation_function(self):
-        return self.is_valid_mime_type
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_mime_type
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
         return fileobject.eval_magic_glob
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0048] Fix "conflict" with the 'DateTimeConfigFieldParser' class.
     applies_to_field = ['datetime', 'date_accessed', 'date_created',
-                        'date_modified', '*.DateTimeOriginal']
+                        'date_modified']
 
     @staticmethod
     def is_valid_datetime(expression):
@@ -169,14 +221,16 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         else:
             return True
 
-    def get_validation_function(self):
-        return self.is_valid_datetime
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_datetime
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        pass
+        return lambda *_: True
 
 
 class NameFormatConfigFieldParser(ConfigFieldParser):
@@ -189,22 +243,25 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
         try:
             namebuilder.assemble_basename(expression, **DATA_FIELDS)
-        except NameTemplateSyntaxError:
+        except exceptions.NameTemplateSyntaxError:
             return False
         else:
             return True
 
-    def get_validation_function(self):
-        return self.is_valid_format_string
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_format_string
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        pass
+        return lambda *_: True
 
 
 class MetadataSourceConfigFieldParser(ConfigFieldParser):
+    # TODO: [TD0048] Fix "conflict" with the 'DateTimeConfigFieldParser' class.
     applies_to_field = ['metadata.*']
 
     @staticmethod
@@ -221,14 +278,16 @@ class MetadataSourceConfigFieldParser(ConfigFieldParser):
 
         return False
 
-    def get_validation_function(self):
-        return self.is_valid_metadata_source
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_metadata_source
 
-    def get_evaluation_function(self):
+    @classmethod
+    def get_evaluation_function(cls):
         # TODO: Implement this!
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-        pass
+        return lambda *_: True
 
 
 def get_instantiated_field_parsers():
@@ -244,13 +303,13 @@ def get_instantiated_field_parsers():
 
 def available_field_parsers():
     """
-    Get a list of all available field parsers, I.E. the names of all classes
-    that inherit from "ConfigFieldParser".
+    Get a list of all available field parser classes, I.E. all classes
+    that inherit from the 'ConfigFieldParser' class.
 
     Returns:
-        The names of available field parsers as strings.
+        A list of all field parser classes.
     """
-    return [klass.__name__ for klass in
+    return [klass for klass in
             globals()['ConfigFieldParser'].__subclasses__()]
 
 
@@ -266,7 +325,7 @@ def suitable_field_parser_for(query_string):
     Returns:
         A list of instantiated field parsers suited for the given query string.
     """
-    return [p for p in FieldParsers
+    return [p for p in FieldParserInstances
             if eval_query_string_glob(query_string, p.applies_to_field)]
 
 
@@ -284,9 +343,9 @@ def eval_query_string_glob(query_string, glob_list):
 
         match_query_string          glob_list                   evaluates
         'contents.mime_type'        ['contents.mime_type']      True
-        'contents.foo'              ['contents.*']              True
+        'contents.foo'              ['foo.*', 'contents.*']     True
         'foo.bar'                   ['*.*']                     True
-        'filesystem.basename.full'  ['filesystem.*', '*.full']  False
+        'filesystem.basename.full'  ['contents.*', '*.parent']  False
 
     Args:
         query_string: The "query string" to match as a string.
@@ -323,36 +382,6 @@ def eval_query_string_glob(query_string, glob_list):
     return False
 
 
-def suitable_parser_for_querystr(query_string):
-    """
-    Returns instances of field parser classes that can handle the given
-    query string.
-
-    Args:
-        query_string: The field to validate. Examples;
-            'metadata.exiftool.EXIF:DateTimeOriginal', 'contents.mime_type'
-
-    Returns:
-        A list of instantiated parsers that can handle the given query string.
-    """
-    # TODO: [TD0015] Allow conditionals in the configuration file rules.
-
-    # TODO: [TD0015] Handle complex cases properly!
-    # Handle case where the last component is a field defined by an external
-    # source (extractor/analyzer). A typical example is 'exiftool'; the
-    # incoming query string 'metadata.exiftool.EXIF:DateTimeOriginal' will
-    # result in the 'last_component' being 'EXIF:DateTimeOriginal'.
-    # Considering the many possible fields returned by extractors such as
-    # exiftool, it does not seem practical to validate by comparing against
-    # hard coded values.. Need a better method that is tolerant to changes.
-
-    # Get the last part of the field; 'mime_type' for 'contents.mime_type'.
-    # field_components = util.query_string_list(query_string)
-    # last_component = field_components[-1:][0]
-
-    return suitable_field_parser_for(query_string)
-
-
 def is_valid_template_field(template_field):
     """
     Checks whether the given string is a legal name template placeholder field.
@@ -371,8 +400,8 @@ def is_valid_template_field(template_field):
 
 
 # Instantiate rule parsers inheriting from the 'Parser' class.
-FieldParsers = get_instantiated_field_parsers()
+FieldParserInstances = get_instantiated_field_parsers()
 
 # This is used for validating name templates. Dict is populated like this;
 #   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
-DATA_FIELDS = dict.fromkeys(NAME_TEMPLATE_FIELDS, 'DUMMY')
+DATA_FIELDS = dict.fromkeys(constants.NAME_TEMPLATE_FIELDS, 'DUMMY')

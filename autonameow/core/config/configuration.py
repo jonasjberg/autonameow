@@ -248,7 +248,6 @@ class Configuration(object):
                 'uses invalid name template format'
             )
 
-        # TODO: [TD0002] Build 'FileRule' instance from wrapped types?
         valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
         valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
         valid_weight = parse_weight(raw_rule.get('weight'))
@@ -468,9 +467,9 @@ def parse_conditions(raw_conditions):
             valid_condition = get_valid_rule_condition(query_string, expression)
             if not valid_condition:
                 raise exceptions.ConfigurationSyntaxError(
-                    'contains invalid condition [{}]: {}'.format(query_string, expression)
+                    'contains invalid condition [{}]: {}'.format(query_string,
+                                                                 expression)
                 )
-
             out.append(valid_condition)
             log.debug('Validated condition: "{!s}"'.format(valid_condition))
     except ValueError as e:
@@ -534,7 +533,7 @@ def validate_condition_value(condition_field, condition_value):
         else:
             return False
 
-    for parser in field_parsers.FieldParsers:
+    for parser in field_parsers.FieldParserInstances:
         if field in parser.applies_to_field:
             if parser.validate(condition_value):
                 return condition_value

@@ -30,7 +30,10 @@ from datetime import datetime
 
 from core.exceptions import ExtractorError
 from core.util import wrap_exiftool
-from core import util
+from core import (
+    util,
+    types
+)
 from extractors.extractor import Extractor
 
 
@@ -38,10 +41,14 @@ class MetadataExtractor(Extractor):
     handles_mime_types = []
     data_query_string = None
 
+    # Lookup table that maps extractor-specific field names to wrapper classes.
+    tagname_type_lookup = {}
+
     def __init__(self, source):
         super(MetadataExtractor, self).__init__(source)
 
         self._raw_metadata = None
+        self.metadata = None
 
     def query(self, field=None):
         """
@@ -55,7 +62,7 @@ class MetadataExtractor(Extractor):
         Returns:
             The specified fields or False if the extraction fails.
         """
-        if not self._raw_metadata:
+        if not self.metadata:
             try:
                 log.debug('{!s} received initial query ..'.format(self))
                 self._raw_metadata = self._get_raw_metadata()
@@ -67,13 +74,36 @@ class MetadataExtractor(Extractor):
                           '{!s}'.format(self, e))
                 return False
 
+        # Internal data format boundary.  Wrap "raw" data with type classes.
+        self.metadata = self._to_internal_format(self._raw_metadata)
+
         if not field:
             log.debug('{!s} responding to query for all fields'.format(self))
-            return self._raw_metadata
+            return self.metadata
         else:
             log.debug('{!s} responding to query for field: '
                       '"{!s}"'.format(self, field))
-            return self._raw_metadata.get(field, False)
+            return self.metadata.get(field, False)
+
+    def _to_internal_format(self, raw_metadata):
+        out = {}
+        for tag_name, value in raw_metadata.items():
+            out[tag_name] = self._wrap_raw(tag_name, value)
+        return out
+
+    def _wrap_raw(self, tag_name, value):
+        if tag_name in self.tagname_type_lookup:
+            # First check the lookup table.
+            return self.tagname_type_lookup[tag_name](value)
+        else:
+            # Fall back automatic type detection if not found in lookup table.
+            wrapped = types.try_wrap(value)
+            if wrapped is not None:
+                return wrapped
+            else:
+                log.critical('Unhandled wrapping of tag name "{}" '
+                             '(value: "{}")'.format(tag_name, value))
+                return value
 
     def _get_raw_metadata(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
@@ -87,6 +117,45 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
                           'application/epub+zip', 'text/*']
     data_query_string = 'metadata.exiftool'
 
+    # TODO: [TD0044] Rework converting "raw data" to an internal format.
+    tagname_type_lookup = {
+        'Composite:Aperture': types.AW_FLOAT,
+        'Composite:ImageSize': types.AW_STRING,
+        'Composite:HyperfocalDistance': types.AW_FLOAT,
+        'EXIF:CreateDate': types.AW_EXIFTOOLTIMEDATE,
+        'EXIF:DateTimeDigitized': types.AW_EXIFTOOLTIMEDATE,
+        'EXIF:DateTimeOriginal': types.AW_EXIFTOOLTIMEDATE,
+        'EXIF:ExifVersion': types.AW_INTEGER,
+        'EXIF:GainControl': types.AW_INTEGER,
+        'EXIF:ImageDescription': types.AW_STRING,
+        'EXIF:Make': types.AW_STRING,
+        'EXIF:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
+        'EXIF:Software': types.AW_STRING,
+        'EXIF:UserComment': types.AW_STRING,
+        'ExifTool:Error': types.AW_STRING,
+        'ExifTool:ExifToolVersion': types.AW_FLOAT,
+        'File:Directory': types.AW_PATH,
+        'File:FileAccessDate': types.AW_EXIFTOOLTIMEDATE,
+        'File:FileInodeChangeDate': types.AW_EXIFTOOLTIMEDATE,
+        'File:FileModifyDate': types.AW_EXIFTOOLTIMEDATE,
+        'File:FileName': types.AW_PATH,
+        'File:FilePermissions': types.AW_INTEGER,
+        'File:FileSize': types.AW_INTEGER,
+        'File:FileType': types.AW_STRING,
+        'File:FileTypeExtension': types.AW_PATH,
+        'File:ImageHeight': types.AW_INTEGER,
+        'File:ImageWidth': types.AW_INTEGER,
+        'File:MIMEType': types.AW_STRING,
+        'PDF:CreateDate': types.AW_EXIFTOOLTIMEDATE,
+        'PDF:Creator': types.AW_STRING,
+        'PDF:Linearized': types.AW_BOOLEAN,
+        'PDF:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
+        'PDF:PDFVersion': types.AW_FLOAT,
+        'PDF:PageCount': types.AW_INTEGER,
+        'PDF:Producer': types.AW_STRING,
+        'SourceFile': types.AW_PATH,
+    }
+
     def __init__(self, source):
         super(ExiftoolMetadataExtractor, self).__init__(source)
         self._raw_metadata = None
@@ -94,9 +163,10 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
     def _get_raw_metadata(self):
         try:
             result = self._get_exiftool_data()
-            return result
         except Exception as e:
             raise ExtractorError(e)
+        else:
+            return result
 
     def _get_exiftool_data(self):
         """
@@ -114,6 +184,16 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
 class PyPDFMetadataExtractor(MetadataExtractor):
     handles_mime_types = ['application/pdf']
     data_query_string = 'metadata.pypdf'
+
+    tagname_type_lookup = {
+        'Creator': types.AW_STRING,
+        'CreationDate': types.AW_PYPDFTIMEDATE,
+        'Encrypted': types.AW_BOOLEAN,
+        'ModDate': types.AW_PYPDFTIMEDATE,
+        'NumberPages': types.AW_INTEGER,
+        'Paginated': types.AW_BOOLEAN,
+        'Producer': types.AW_STRING,
+    }
 
     def __init__(self, source):
         super(PyPDFMetadataExtractor, self).__init__(source)
@@ -143,7 +223,7 @@ class PyPDFMetadataExtractor(MetadataExtractor):
                 # Convert PyPDF values of type 'PyPDF2.generic.TextStringObject'
                 out = {k: str(v) for k, v in out.items()}
 
-            out.update({'encrypted': file_reader.isEncrypted})
+            out.update({'Encrypted': file_reader.isEncrypted})
 
             try:
                 num_pages = file_reader.getNumPages()
@@ -152,8 +232,8 @@ class PyPDFMetadataExtractor(MetadataExtractor):
                 # TODO: Raise custom exception .. ?
                 raise
             else:
-                out.update({'number_pages': num_pages})
-                out.update({'paginated': True})
+                out.update({'NumberPages': num_pages})
+                out.update({'Paginated': True})
 
             # https://pythonhosted.org/PyPDF2/XmpInformation.html
             xmp_metadata = file_reader.getXmpMetadata()
@@ -165,75 +245,4 @@ class PyPDFMetadataExtractor(MetadataExtractor):
 
                 out.update(xmp)
 
-        # TODO: [TD0044] Convert date/time-information to 'datetime' objects.
-        convert_datetime_field(out, 'CreationDate')
-        convert_datetime_field(out, 'ModDate')
-
         return out
-
-
-def convert_datetime_field(pypdf_data, field):
-    # TODO: [TD0044] This will be done a lot, needs refactoring!
-    if field in pypdf_data:
-        try:
-            datetime_object = to_datetime(pypdf_data[field])
-        except ValueError:
-            return
-        else:
-            pypdf_data[field] = datetime_object
-
-
-def to_datetime(pypdf_string):
-    # TODO: [TD0044] This will be done a lot, needs refactoring!
-    #
-    # Expected date format:           D:20121225235237 +05'30'
-    #                                   ^____________^ ^_____^
-    # Regex search matches two groups:        #1         #2
-    #
-    # 'D:20160111124132+00\\'00\\''
-    if not pypdf_string:
-        raise ValueError('Got empty/None string from PyPDF')
-
-    found_match = False
-
-    log.debug('to_datetime got raw PyPDF string: "{!s}"'.format(pypdf_string))
-
-    if "'" in pypdf_string:
-        pypdf_string = pypdf_string.replace("'", '')
-
-    re_datetime_tz = re.compile('D:(\d{14})(\+\d{2}\'\d{2}\')')
-    re_match_tz = re_datetime_tz.search(pypdf_string)
-    if re_match_tz:
-        datetime_str = re_match_tz.group(1)
-        timezone_str = re_match_tz.group(2)
-        timezone_str = timezone_str.replace("'", "")
-
-        try:
-            dt = datetime.strptime(str(datetime_str + timezone_str),
-                                   "%Y%m%d%H%M%S%z")
-            found_match = True
-        except ValueError:
-            pass
-
-        if not found_match:
-            try:
-                dt = datetime.strptime(datetime_str, "%Y%m%d%H%M%S")
-                found_match = True
-            except ValueError:
-                log.debug('Unable to convert to naive datetime: '
-                          '"{}"'.format(pypdf_string))
-
-    # Try matching another pattern.
-    re_datetime_no_tz = re.compile(r'D:(\d{14})')
-    re_match = re_datetime_no_tz.search(pypdf_string)
-    if re_match:
-        try:
-            dt = datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
-            found_match = True
-        except ValueError:
-            pass
-
-    if found_match:
-        return dt
-    else:
-        raise ValueError

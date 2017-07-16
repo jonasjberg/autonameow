@@ -31,8 +31,10 @@ class Extractor(object):
     """
 
     # List of MIME types that this extractor can extract information from.
-    # Example:  ['image/jpeg', 'application/pdf']
+    # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
     handles_mime_types = None
+
+    # TODO: [TD0003] Implement gathering data on non-core modules at run-time
 
     # Query string label for the data returned by this extractor.
     #    NOTE:  Must be defined in 'constants.VALID_DATA_SOURCES'!

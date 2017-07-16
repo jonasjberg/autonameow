@@ -161,6 +161,8 @@ class TestParseConditions(TestCase):
         self.assertEqual(actual[0].expression, 'image/jpeg')
 
     def test_parse_condition_contents_metadata_is_valid(self):
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
         raw_conditions = {
             'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
         }

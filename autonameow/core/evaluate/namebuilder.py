@@ -21,12 +21,12 @@
 
 import logging as log
 import re
+from datetime import datetime
 
 from core import (
     exceptions,
     util
 )
-from core.util import dateandtime
 
 
 class NameBuilder(object):
@@ -115,7 +115,7 @@ class NameBuilder(object):
         log.debug(str(data))
 
         # Format datetime
-        # TODO: [TD0002][TD0017][TD0041] Format ALL data before assembly!
+        # TODO: [TD0017][TD0041] Format ALL data before assembly!
         # NOTE(jonas): Currently, only the date/time-information is handled!
         data = pre_assemble_format(data, template, self.config)
         log.debug('After pre-assembly formatting;')
@@ -195,7 +195,9 @@ def format_string_placeholders(format_string):
 def pre_assemble_format(data, template, config):
     out = {}
 
-    # TODO: [TD0017][TD0002][TD0041] This needs refactoring, badly.
+    # TODO: [TD0017][TD0041] This needs refactoring, badly.
+    # [TD0049] Think about defining legal "placeholder fields".
+    #          .. Instead of passing wrapped types, pass wrapped fields?
 
     for key, value in data.items():
         if key == 'datetime':
@@ -217,7 +219,7 @@ def pre_assemble_format(data, template, config):
     return out
 
 
-def formatted_datetime(datetime_string, format_string):
+def formatted_datetime(datetime_object, format_string):
     """
     Takes a date/time string, converts it to a datetime object and
     returns a formatted version on the form specified with "format_string".
@@ -226,21 +228,15 @@ def formatted_datetime(datetime_string, format_string):
     TODO: Handle the [raw data] -> [formatted datetime] conversion better!
 
     Args:
-        datetime_string: Date/time information as a string.
+        datetime_object: Date/time information as a datetime object.
         format_string: The format string to use for the output. Refer to:
             https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
 
     Returns:
         A string in the specified format with the data from the given string.
     """
-
-    try:
-        datetime_object = dateandtime.to_datetime(datetime_string)
-    except (TypeError, ValueError) as e:
-        log.error('Unable to format datetime string: "{!s}"'.format(
-            datetime_string))
-    else:
-        return datetime_object.strftime(format_string)
+    assert(isinstance(datetime_object, datetime))
+    return datetime_object.strftime(format_string)
 
 
 def all_template_fields_defined(template, data_sources):
