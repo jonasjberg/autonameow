@@ -115,7 +115,7 @@ class NameBuilder(object):
         log.debug(str(data))
 
         # Format datetime
-        # TODO: [TD0002][TD0017][TD0041] Format ALL data before assembly!
+        # TODO: [TD0017][TD0041] Format ALL data before assembly!
         # NOTE(jonas): Currently, only the date/time-information is handled!
         data = pre_assemble_format(data, template, self.config)
         log.debug('After pre-assembly formatting;')
@@ -195,8 +195,7 @@ def format_string_placeholders(format_string):
 def pre_assemble_format(data, template, config):
     out = {}
 
-    # TODO: [TD0017][TD0002][TD0041] This needs refactoring, badly.
-    # TODO: [TD0002] Pass in wrapped types here to simplify formatting.
+    # TODO: [TD0017][TD0041] This needs refactoring, badly.
     # [TD0049] Think about defining legal "placeholder fields".
     #          .. Instead of passing wrapped types, pass wrapped fields?
 

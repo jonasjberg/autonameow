@@ -14,15 +14,6 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0002]` __Add a custom type system__
-    * Add a abstract base class for all types (`BaseType`?)
-    * Wrap primitives in type classes inheriting from the base class
-      (`BaseType`?)
-    * Design type classes as to simplify upcoming query and comparison
-      operations performed while evaluating file rules; both "static"
-      conditions (basename equals this exact string/regexp) as well as
-      expressions (datetime data is within a given range)
-
 * `[TD0003]` __Implement gathering data on non-core modules at run-time__
     * Have extractors register themselves at run-time.
     * Collect valid extractor query strings at run-time.
