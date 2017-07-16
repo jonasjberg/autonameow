@@ -468,9 +468,9 @@ def parse_conditions(raw_conditions):
             valid_condition = get_valid_rule_condition(query_string, expression)
             if not valid_condition:
                 raise exceptions.ConfigurationSyntaxError(
-                    'contains invalid condition [{}]: {}'.format(query_string, expression)
+                    'contains invalid condition [{}]: {}'.format(query_string,
+                                                                 expression)
                 )
-
             out.append(valid_condition)
             log.debug('Validated condition: "{!s}"'.format(valid_condition))
     except ValueError as e:
