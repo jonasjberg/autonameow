@@ -323,8 +323,8 @@ class TestTypePyPDFTimeDate(TestCase):
         self.assertEqual(types.AW_PYPDFTIMEDATE([None]),
                          types.AW_TIMEDATE.null)
 
-    def test_call_with_valid_exiftool_string_returns_expected_type(self):
-        actual = types.AW_PYPDFTIMEDATE('2017-07-12 20:50:15+0200')
+    def test_call_with_valid_pypdf_string_returns_expected_type(self):
+        actual = types.AW_PYPDFTIMEDATE("D:20160111124132+00'00'")
         self.assertTrue(isinstance(actual, datetime))
 
 
