@@ -117,7 +117,6 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
                           'application/epub+zip', 'text/*']
     data_query_string = 'metadata.exiftool'
 
-    # TODO: [TD0002] Wrap values in custom types.
     # TODO: [TD0044] Rework converting "raw data" to an internal format.
     tagname_type_lookup = {
         'Composite:Aperture': types.AW_FLOAT,
@@ -186,13 +185,11 @@ class PyPDFMetadataExtractor(MetadataExtractor):
     handles_mime_types = ['application/pdf']
     data_query_string = 'metadata.pypdf'
 
-    # TODO: [TD0002] Wrap values in custom types.
-    # TODO: [TD0044] Rework converting "raw data" to an internal format.
     tagname_type_lookup = {
         'Creator': types.AW_STRING,
-        'CreationDate': types.AW_TIMEDATE,
+        'CreationDate': types.AW_PYPDFTIMEDATE,
         'Encrypted': types.AW_BOOLEAN,
-        'ModDate': types.AW_TIMEDATE,
+        'ModDate': types.AW_PYPDFTIMEDATE,
         'NumberPages': types.AW_INTEGER,
         'Paginated': types.AW_BOOLEAN,
         'Producer': types.AW_STRING,
@@ -248,78 +245,4 @@ class PyPDFMetadataExtractor(MetadataExtractor):
 
                 out.update(xmp)
 
-        # TODO: [TD0044] Convert date/time-information to 'datetime' objects.
-        # TODO: [TD0002] Wrap values in custom types.
-        convert_datetime_field(out, 'CreationDate')
-        convert_datetime_field(out, 'ModDate')
-
         return out
-
-
-def convert_datetime_field(pypdf_data, field):
-    # TODO: [TD0044] This will be done a lot, needs refactoring!
-    if field in pypdf_data:
-        try:
-            datetime_object = to_datetime(pypdf_data[field])
-            # wrapped = types.TimeDate(pypdf_data[field])
-        except ValueError:
-            return
-        else:
-            pypdf_data[field] = datetime_object
-            # pypdf_data[field] = wrapped
-
-
-def to_datetime(pypdf_string):
-    # TODO: [TD0044] This will be done a lot, needs refactoring!
-    #
-    # Expected date format:           D:20121225235237 +05'30'
-    #                                   ^____________^ ^_____^
-    # Regex search matches two groups:        #1         #2
-    #
-    # 'D:20160111124132+00\\'00\\''
-    if not pypdf_string:
-        raise ValueError('Got empty/None string from PyPDF')
-
-    found_match = False
-
-    log.debug('to_datetime got raw PyPDF string: "{!s}"'.format(pypdf_string))
-
-    if "'" in pypdf_string:
-        pypdf_string = pypdf_string.replace("'", '')
-
-    re_datetime_tz = re.compile('D:(\d{14})(\+\d{2}\'\d{2}\')')
-    re_match_tz = re_datetime_tz.search(pypdf_string)
-    if re_match_tz:
-        datetime_str = re_match_tz.group(1)
-        timezone_str = re_match_tz.group(2)
-        timezone_str = timezone_str.replace("'", "")
-
-        try:
-            dt = datetime.strptime(str(datetime_str + timezone_str),
-                                   "%Y%m%d%H%M%S%z")
-            found_match = True
-        except ValueError:
-            pass
-
-        if not found_match:
-            try:
-                dt = datetime.strptime(datetime_str, "%Y%m%d%H%M%S")
-                found_match = True
-            except ValueError:
-                log.debug('Unable to convert to naive datetime: '
-                          '"{}"'.format(pypdf_string))
-
-    # Try matching another pattern.
-    re_datetime_no_tz = re.compile(r'D:(\d{14})')
-    re_match = re_datetime_no_tz.search(pypdf_string)
-    if re_match:
-        try:
-            dt = datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
-            found_match = True
-        except ValueError:
-            pass
-
-    if found_match:
-        return dt
-    else:
-        raise ValueError

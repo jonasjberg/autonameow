@@ -282,6 +282,52 @@ class TestTypeExiftoolTimeDate(TestCase):
         self.assertTrue(isinstance(actual, datetime))
 
 
+class TestTypePyPDFTimeDate(TestCase):
+    def test_wraps_expected_primitive(self):
+        # TODO: [TD0050] Figure out how to represent null for datetime objects.
+        self.assertEqual(type(types.AW_PYPDFTIMEDATE(None)), str)
+
+    def test_null(self):
+        # TODO: [TD0050] Figure out how to represent null for datetime objects.
+        self.assertEqual(types.AW_PYPDFTIMEDATE(None), 'INVALID DATE')
+
+    def test_call_with_none(self):
+        self.assertEqual(types.AW_PYPDFTIMEDATE(None),
+                         types.AW_PYPDFTIMEDATE.null)
+
+    def test_call_with_coercible_data(self):
+        expected = datetime.strptime('2012-12-25T23:52:37+0530',
+                                     '%Y-%m-%dT%H:%M:%S%z')
+        self.assertEqual(types.AW_PYPDFTIMEDATE(expected),
+                         expected)
+        self.assertEqual(types.AW_PYPDFTIMEDATE("D:20121225235237 +05'30'"),
+                         expected)
+
+    def test_call_with_coercible_data_2(self):
+        expected = datetime.strptime('2016-01-11T12:41:32+0000',
+                                     '%Y-%m-%dT%H:%M:%S%z')
+        self.assertEqual(types.AW_PYPDFTIMEDATE(expected),
+                         expected)
+        self.assertEqual(types.AW_PYPDFTIMEDATE("D:20160111124132+00'00'"),
+                         expected)
+
+    def test_call_with_noncoercible_data(self):
+        self.assertEqual(types.AW_PYPDFTIMEDATE(None),
+                         types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_PYPDFTIMEDATE(''),
+                         types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_PYPDFTIMEDATE([]),
+                         types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_PYPDFTIMEDATE(['']),
+                         types.AW_TIMEDATE.null)
+        self.assertEqual(types.AW_PYPDFTIMEDATE([None]),
+                         types.AW_TIMEDATE.null)
+
+    def test_call_with_valid_exiftool_string_returns_expected_type(self):
+        actual = types.AW_PYPDFTIMEDATE('2017-07-12 20:50:15+0200')
+        self.assertTrue(isinstance(actual, datetime))
+
+
 class TestTypePath(TestCase):
     def test_wraps_expected_primitive(self):
         with self.assertRaises(exceptions.AWTypeError):
