@@ -280,3 +280,26 @@ class TestTypeExiftoolTimeDate(TestCase):
     def test_call_with_valid_exiftool_string_returns_expected_type(self):
         actual = types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200')
         self.assertTrue(isinstance(actual, datetime))
+
+
+class TestTypePath(TestCase):
+    def test_wraps_expected_primitive(self):
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(type(types.AW_PATH(None)), None)
+
+    def test_normalize(self):
+        self.skipTest('TODO: ..')
+        self.assertEqual(types.AW_PATH.normalize('~/temp'), '/Users/USER/temp')
+
+    def test_call_with_none(self):
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(types.AW_PATH(None), types.AW_PATH.null)
+
+    def test_call_with_coercible_data(self):
+        self.assertEqual(types.AW_PATH('/tmp'), b'/tmp')
+
+    def test_call_with_noncoercible_data(self):
+        with self.assertRaises(exceptions.AWTypeError):
+            types.AW_PATH(datetime.now())
+            types.AW_PATH(0)
+            types.AW_PATH(None)

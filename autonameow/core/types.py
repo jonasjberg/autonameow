@@ -130,6 +130,16 @@ class Path(BaseType):
     # TODO: Figure out how to represent null for Paths.
     null = None
 
+    def __call__(self, raw_value=None):
+        if raw_value and isinstance(raw_value, self.coercible_types):
+            # Type can be coerced, test after coercion to make sure.
+            value = self.coerce(raw_value)
+            return value
+        else:
+            raise exceptions.AWTypeError(
+                'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+            )
+
     def coerce(self, raw_value):
         try:
             value = util.normpath(raw_value)
