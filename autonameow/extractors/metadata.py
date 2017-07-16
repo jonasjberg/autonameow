@@ -93,8 +93,10 @@ class MetadataExtractor(Extractor):
 
     def _wrap_raw(self, tag_name, value):
         if tag_name in self.tagname_type_lookup:
+            # First check the lookup table.
             return self.tagname_type_lookup[tag_name](value)
         else:
+            # Fall back automatic type detection if not found in lookup table.
             wrapped = types.try_wrap(value)
             if wrapped is not None:
                 return wrapped
