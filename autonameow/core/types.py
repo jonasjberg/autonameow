@@ -340,6 +340,14 @@ def try_parse_full_datetime(string):
     raise ValueError(_error_msg.format(string))
 
 
+def try_wrap(value):
+    wrapper = PRIMITIVE_AW_TYPE_MAP.get(type(value), False)
+    if wrapper:
+        return wrapper(value)
+    else:
+        return None
+
+
 # Singletons for actual use.
 AW_BOOLEAN = Boolean()
 AW_PATH = Path()
@@ -348,3 +356,13 @@ AW_FLOAT = Float()
 AW_STRING = String()
 AW_TIMEDATE = TimeDate()
 AW_EXIFTOOLTIMEDATE = ExifToolTimeDate()
+
+
+PRIMITIVE_AW_TYPE_MAP = {
+    bool: AW_BOOLEAN,
+    datetime: AW_TIMEDATE,
+    int: AW_INTEGER,
+    float: AW_FLOAT,
+    str: AW_STRING,
+    bytes: AW_STRING
+}

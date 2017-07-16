@@ -303,3 +303,41 @@ class TestTypePath(TestCase):
             types.AW_PATH(datetime.now())
             types.AW_PATH(0)
             types.AW_PATH(None)
+
+
+class TestTryWrap(TestCase):
+    def test_try_wrap_primitive_bool(self):
+        self.assertEqual(types.try_wrap(False), False)
+        self.assertEqual(types.try_wrap(True), True)
+        self.assertTrue(isinstance(types.try_wrap(False), bool))
+        self.assertTrue(isinstance(types.try_wrap(True), bool))
+
+    def test_try_wrap_primitive_int(self):
+        self.assertEqual(types.try_wrap(1), 1)
+        self.assertEqual(types.try_wrap(0), 0)
+        self.assertTrue(isinstance(types.try_wrap(1), int))
+        self.assertTrue(isinstance(types.try_wrap(0), int))
+
+    def test_try_wrap_primitive_float(self):
+        self.assertEqual(types.try_wrap(1.0), 1.0)
+        self.assertEqual(types.try_wrap(0.0), 0.0)
+        self.assertTrue(isinstance(types.try_wrap(1.0), float))
+        self.assertTrue(isinstance(types.try_wrap(0.0), float))
+
+    def test_try_wrap_primitive_str(self):
+        self.assertEqual(types.try_wrap('foo'), 'foo')
+        self.assertEqual(types.try_wrap(''), '')
+        self.assertTrue(isinstance(types.try_wrap('foo'), str))
+        self.assertTrue(isinstance(types.try_wrap(''), str))
+
+    def test_try_wrap_primitive_bytes(self):
+        self.assertEqual(types.try_wrap(b'foo'), 'foo')
+        self.assertEqual(types.try_wrap(b''), '')
+        self.assertTrue(isinstance(types.try_wrap(b'foo'), str))
+        self.assertTrue(isinstance(types.try_wrap(b''), str))
+
+    def test_try_wrap_datetime(self):
+        dt = datetime.now()
+        self.assertEqual(types.try_wrap(dt), dt)
+        self.assertTrue(isinstance(types.try_wrap(dt), datetime))
+        self.assertTrue(isinstance(types.try_wrap(datetime.now()), datetime))
