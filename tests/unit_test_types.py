@@ -22,7 +22,10 @@
 from unittest import TestCase
 from datetime import datetime
 
-from core import types
+from core import (
+    types,
+    exceptions
+)
 
 
 class TestBaseType(TestCase):
@@ -58,6 +61,14 @@ class TestTypeBoolean(TestCase):
         self.assertEqual(types.AW_BOOLEAN.normalize('No'), False)
         self.assertEqual(types.AW_BOOLEAN.normalize('false'), False)
         self.assertEqual(types.AW_BOOLEAN.normalize('False'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize(b'true'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize(b'True'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize(b'yes'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize(b'Yes'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize(b'no'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize(b'No'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize(b'false'), False)
+        self.assertEqual(types.AW_BOOLEAN.normalize(b'False'), False)
 
     def test_call_with_none(self):
         self.assertEqual(types.AW_BOOLEAN(None), False)
@@ -65,10 +76,8 @@ class TestTypeBoolean(TestCase):
     def test_call_with_coercible_data(self):
         self.assertEqual(types.AW_BOOLEAN(True), True)
         self.assertEqual(types.AW_BOOLEAN(False), False)
-        self.assertEqual(types.AW_BOOLEAN(-1), False)
-        self.assertEqual(types.AW_BOOLEAN(0), False)
-        self.assertEqual(types.AW_BOOLEAN(1), False)
         self.assertEqual(types.AW_BOOLEAN('true'), True)
+        self.assertEqual(types.AW_BOOLEAN('True'), True)
         self.assertEqual(types.AW_BOOLEAN('True'), True)
         self.assertEqual(types.AW_BOOLEAN('yes'), True)
         self.assertEqual(types.AW_BOOLEAN('Yes'), True)
@@ -76,8 +85,22 @@ class TestTypeBoolean(TestCase):
         self.assertEqual(types.AW_BOOLEAN('No'), False)
         self.assertEqual(types.AW_BOOLEAN('false'), False)
         self.assertEqual(types.AW_BOOLEAN('False'), False)
+        self.assertEqual(types.AW_BOOLEAN(b'true'), True)
+        self.assertEqual(types.AW_BOOLEAN(b'True'), True)
+        self.assertEqual(types.AW_BOOLEAN(b'True'), True)
+        self.assertEqual(types.AW_BOOLEAN(b'yes'), True)
+        self.assertEqual(types.AW_BOOLEAN(b'Yes'), True)
+        self.assertEqual(types.AW_BOOLEAN(b'no'), False)
+        self.assertEqual(types.AW_BOOLEAN(b'No'), False)
+        self.assertEqual(types.AW_BOOLEAN(b'false'), False)
+        self.assertEqual(types.AW_BOOLEAN(b'False'), False)
 
     def test_call_with_noncoercible_data(self):
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(types.AW_BOOLEAN(-1), False)
+            self.assertEqual(types.AW_BOOLEAN(0), False)
+            self.assertEqual(types.AW_BOOLEAN(1), False)
+
         self.assertEqual(types.AW_BOOLEAN('foo'), types.AW_BOOLEAN.null)
         self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.null)
 
@@ -87,6 +110,12 @@ class TestTypeBoolean(TestCase):
         self.assertEqual(types.AW_BOOLEAN.format(True), 'True')
         self.assertEqual(types.AW_BOOLEAN.format('false'), 'False')
         self.assertEqual(types.AW_BOOLEAN.format('true'), 'True')
+        self.assertEqual(types.AW_BOOLEAN.format('False'), 'False')
+        self.assertEqual(types.AW_BOOLEAN.format('True'), 'True')
+        self.assertEqual(types.AW_BOOLEAN.format(b'false'), 'False')
+        self.assertEqual(types.AW_BOOLEAN.format(b'true'), 'True')
+        self.assertEqual(types.AW_BOOLEAN.format(b'False'), 'False')
+        self.assertEqual(types.AW_BOOLEAN.format(b'True'), 'True')
 
 
 class TestTypeInteger(TestCase):
@@ -120,9 +149,14 @@ class TestTypeInteger(TestCase):
     def test_call_with_noncoercible_data(self):
         self.assertEqual(types.AW_INTEGER(None), types.AW_INTEGER.null)
         self.assertEqual(types.AW_INTEGER('foo'), types.AW_INTEGER.null)
-        self.assertEqual(types.AW_INTEGER([]), types.AW_INTEGER.null)
-        self.assertEqual(types.AW_INTEGER([1, 2]), types.AW_INTEGER.null)
-        self.assertEqual(types.AW_INTEGER(['a', 'b']), types.AW_INTEGER.null)
+
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(types.AW_INTEGER([]),
+                             types.AW_INTEGER.null)
+            self.assertEqual(types.AW_INTEGER([1, 2]),
+                             types.AW_INTEGER.null)
+            self.assertEqual(types.AW_INTEGER(['a', 'b']),
+                             types.AW_INTEGER.null)
 
         # TODO: Fix 'cls.null' returning "property object at 0x*" (?).
         self.assertEqual(types.AW_INTEGER('-1.5'), 0)
@@ -161,9 +195,11 @@ class TestTypeFloat(TestCase):
         self.assertEqual(types.AW_FLOAT('1.5'), 1.5)
 
     def test_call_with_noncoercible_data(self):
-        # TODO: Fix 'cls.null' returning "property object at 0x*" (?).
         self.assertEqual(types.AW_FLOAT('foo'), 0.0)
         self.assertEqual(types.AW_FLOAT(None), 0.0)
+
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(types.AW_FLOAT(datetime.now()), 0.0)
 
 
 class TestTypeTimeDate(TestCase):

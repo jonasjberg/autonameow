@@ -33,7 +33,10 @@ Wraps primitives to force safe defaults and extra functionality.
 
 from datetime import datetime
 
-from core import util
+from core import (
+    util,
+    exceptions
+)
 
 
 class BaseType(object):
@@ -41,27 +44,42 @@ class BaseType(object):
     Base class for all custom types. Provides type coercion and known defaults.
     Does not store values -- intended to act as filters.
     """
-    # Underlying primitive type. Used to define 'null' and coerce values.
+    # Underlying primitive type.
     # NOTE(jonas): Why revert to "str"? Assume BaseType won't be instantiated?
     primitive_type = str
 
+    # Default "None" value to fall back to.
+    null = None
+
+    # Types that can be coerced with the "parse" method.
+    coercible_types = (str,)
+
+    # Types that are "equivalent", does not require coercion.
+    equivalent_types = (str,)
+
     def __call__(self, raw_value=None):
         if raw_value is None:
-            return self.null
+            return self._null()
+        elif self.test(raw_value):
+            # Pass through if type is "equivalent" without coercion.
+            return raw_value
+        elif isinstance(raw_value, self.coercible_types):
+            # Type can be coerced, test after coercion to make sure.
+            value = self.coerce(raw_value)
+            if self.test(value):
+                return value
 
-        parsed = self.parse(raw_value)
-        return parsed if parsed else self.null
+        raise exceptions.AWTypeError(
+            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        )
 
-    @property
-    def null(cls):
-        if not cls.primitive_type:
-            raise NotImplementedError('Class does not specify "primitive_type"'
-                                      ' -- must override "parse"')
-        else:
-            return cls.primitive_type()
+    def _null(self):
+        return self.null
 
-    @classmethod
-    def normalize(cls, value):
+    def test(self, value):
+        return isinstance(value, self.equivalent_types)
+
+    def normalize(self, value):
         """
         Processes the given value to a form suitable for serialization/storage.
 
@@ -73,35 +91,24 @@ class BaseType(object):
             the value can be normalized, otherwise the class "null" value.
         """
         if value is None:
-            return cls.null
+            return self.null
         else:
             # TODO: Implement or make sure that inheriting classes does ..
             return value
 
-    @classmethod
-    def parse(cls, raw_value):
-        if not cls.primitive_type:
-            raise NotImplementedError('Class does not specify "primitive_type"'
-                                      ' -- must override "parse"')
-        else:
-            try:
-                value = cls.primitive_type(raw_value)
-            except (ValueError, TypeError):
-                return cls.null
-            else:
-                return value
+    def coerce(self, raw_value):
+        return raw_value
 
-    @classmethod
-    def format(cls, value, formatter=None):
+    def format(self, value, formatter=None):
         if value is None:
-            value = cls.null
+            value = self._null()
         if value is None:
             # Case where 'self.null' is None.
             value = ''
         if isinstance(value, bytes):
             value = value.decode('utf-8', 'ignore')
 
-        parsed = cls.parse(value)
+        parsed = self.coerce(value)
         return str(parsed)
 
     def __repr__(self):
@@ -117,40 +124,31 @@ class BaseType(object):
 class Path(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
+    coercible_types = (str, bytes)
+    equivalent_types = ()
 
-    def __call__(self, raw_value=None):
-        if not raw_value:
-            return self.null
-        elif isinstance(raw_value, (list, tuple)):
-            return self.null
+    # TODO: Figure out how to represent null for Paths.
+    null = None
 
-        parsed = self.parse(raw_value)
-        return parsed if parsed else self.null
-
-    @property
-    def null(self):
-        # TODO: Figure out how to represent null for Paths.
-        raise NotImplementedError('Got NULL path')
-        return 'INVALID PATH'
-
-    @classmethod
-    def parse(cls, raw_value):
+    def coerce(self, raw_value):
         try:
             value = util.normpath(raw_value)
         except (ValueError, TypeError):
-            return cls.null
+            return self._null()
         else:
             return value
 
-    @classmethod
-    def format(cls, value, formatter=None):
-        parsed = cls.parse(value)
+    def format(self, value, formatter=None):
+        parsed = self.coerce(value)
         return util.displayable_path(parsed)
 
 
 class Boolean(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = bool
+    coercible_types = (str, bytes)
+    equivalent_types = (bool,)
+    null = False
 
     @staticmethod
     def string_to_bool(string_value):
@@ -162,19 +160,20 @@ class Boolean(BaseType):
         else:
             return False
 
-    @classmethod
-    def parse(cls, value):
+    def coerce(self, value):
         if value is None:
             return False
         if isinstance(value, bool):
             return bool(value)
         elif isinstance(value, str):
-            return cls.string_to_bool(value)
+            return self.string_to_bool(value)
+        elif isinstance(value, bytes):
+            decoded = util.decode_(value)
+            return self.string_to_bool(decoded)
         else:
             return False
 
-    @classmethod
-    def normalize(cls, value):
+    def normalize(self, value):
         if value is None:
             return False
         if isinstance(value, bool):
@@ -186,9 +185,12 @@ class Boolean(BaseType):
 class Integer(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = int
+    coercible_types = (str, float)
+    equivalent_types = (int,)
+    null = 0
 
     @classmethod
-    def parse(cls, value):
+    def coerce(cls, value):
         try:
             parsed = int(value)
         except (TypeError, ValueError):
@@ -207,27 +209,42 @@ class Integer(BaseType):
 class Float(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = float
+    coercible_types = (str, int)
+    equivalent_types = (float,)
+    null = 0.0
 
-    @classmethod
-    def parse(cls, value):
+    def coerce(self, value):
         try:
             parsed = float(value)
         except (TypeError, ValueError):
-            return 0.0
+            return self._null()
         else:
             return parsed
 
-    @classmethod
-    def format(cls, value, formatter=None):
+    def format(self, value, formatter=None):
         if not formatter:
-            return '{0:.1f}'.format(value or 0.0)
+            return '{0:.1f}'.format(value or self._null())
         else:
-            return formatter.format(value or 0.0)
+            return formatter.format(value or self._null())
 
 
 class String(BaseType):
     # TODO: [TD0002] Research requirements and implement custom type system.
     primitive_type = str
+    coercible_types = (str, bytes, int, float)
+    equivalent_types = (str,)
+    null = ''
+
+    def coerce(self, value):
+        if isinstance(value, bytes):
+            try:
+                decoded = util.decode_(value)
+            except Exception:
+                return self._null()
+            else:
+                return decoded
+        if isinstance(value, (int, float)):
+            return str(value)
 
 
 class TimeDate(BaseType):
@@ -241,7 +258,7 @@ class TimeDate(BaseType):
         elif isinstance(raw_value, (list, tuple)):
             return self.null
 
-        parsed = self.parse(raw_value)
+        parsed = self.coerce(raw_value)
         return parsed if parsed else self.null
 
     @property
@@ -250,7 +267,7 @@ class TimeDate(BaseType):
         return 'INVALID DATE'
 
     @classmethod
-    def parse(cls, raw_value):
+    def coerce(cls, raw_value):
         if isinstance(raw_value, datetime):
             return raw_value
         try:
@@ -265,7 +282,7 @@ class TimeDate(BaseType):
         if not value:
             return cls.null
         try:
-            parsed = cls.parse(value)
+            parsed = cls.coerce(value)
             if isinstance(parsed, datetime):
                 return parsed.replace(microsecond=0)
             else:
@@ -278,7 +295,7 @@ class ExifToolTimeDate(TimeDate):
     primitive_type = None
 
     @classmethod
-    def parse(cls, raw_value):
+    def coerce(cls, raw_value):
         if isinstance(raw_value, datetime):
             return raw_value
         try:
@@ -313,7 +330,7 @@ def try_parse_full_datetime(string):
     raise ValueError(_error_msg.format(string))
 
 
-
+# Singletons for actual use.
 AW_BOOLEAN = Boolean()
 AW_PATH = Path()
 AW_INTEGER = Integer()
