@@ -57,11 +57,6 @@ High Priority
           the process would mostly add yet another layer of indirection ..
     * Think about how wrapped data types (`[TD0002]`) relates to this.
 
-* `[TD0048]` Look into conflicting field parsers returned for metadata fields.
-  Especially the `DateTimeConfigFieldParser` and
-  `MetadataSourceConfigFieldParser` classes both want to handle some exiftool
-  fields.
-
 
 Medium Priority
 ---------------

@@ -10,6 +10,16 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-07-18
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0048]` Look into conflicting field parsers returned for metadata fields.
+    >   Especially the `DateTimeConfigFieldParser` and
+    >   `MetadataSourceConfigFieldParser` classes both want to handle some exiftool
+    >   fields.
+
 * 2017-07-16
 
     > High Priority

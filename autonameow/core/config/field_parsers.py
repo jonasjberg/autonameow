@@ -27,7 +27,6 @@ import unicodedata
 
 from core import (
     constants,
-    extraction,
     util,
     fileobject,
     exceptions
@@ -206,9 +205,9 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
-    # TODO: [TD0048] Fix "conflict" with the 'DateTimeConfigFieldParser' class.
     applies_to_field = ['datetime', 'date_accessed', 'date_created',
-                        'date_modified']
+                        'date_modified', 'metadata.exiftool.PDF:CreateDate',
+                        'metadata.exiftool.EXIF:DateTimeOriginal']
 
     @staticmethod
     def is_valid_datetime(expression):
@@ -251,36 +250,6 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
     @classmethod
     def get_validation_function(cls):
         return cls.is_valid_format_string
-
-    @classmethod
-    def get_evaluation_function(cls):
-        # TODO: Implement this!
-        # TODO: [TD0015] Handle expression in 'condition_value'
-        #                ('Defined', '> 2017', etc)
-        return lambda *_: True
-
-
-class MetadataSourceConfigFieldParser(ConfigFieldParser):
-    # TODO: [TD0048] Fix "conflict" with the 'DateTimeConfigFieldParser' class.
-    applies_to_field = ['metadata.*']
-
-    @staticmethod
-    def is_valid_metadata_source(expression):
-        if not expression or not isinstance(expression, str):
-            return False
-
-        # TODO: [TD0015] Implement proper (?) validation of metadata source!
-        query_strings = list(extraction.MetadataExtractorQueryStrings)
-        query_strings = [qs.replace('metadata.', '') for qs in query_strings]
-
-        if expression.startswith(tuple(query_strings)):
-            return True
-
-        return False
-
-    @classmethod
-    def get_validation_function(cls):
-        return cls.is_valid_metadata_source
 
     @classmethod
     def get_evaluation_function(cls):
