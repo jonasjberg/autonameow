@@ -312,7 +312,7 @@ class TestSuitableFieldParserFor(TestCase):
                                  'metadata.exiftool.EXIF:DateTimeOriginal')
 
 
-class TestFieldparserConstants(TestCase):
+class TestFieldParserConstants(TestCase):
     def test_has_dummy_data_fields_constant(self):
         self.assertIsNotNone(field_parsers.DATA_FIELDS)
         self.assertTrue(isinstance(field_parsers.DATA_FIELDS, dict))
