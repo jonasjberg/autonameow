@@ -482,6 +482,20 @@ def parse_conditions(raw_conditions):
 
 
 def get_valid_rule_condition(raw_query, raw_value):
+    """
+    Tries to create and return a 'RuleCondition' instance.
+
+    Validation of the "raw" arguments are performed as part of the
+    'RuleCondition' initialization. In case of failure, False is returned.
+
+    Args:
+        raw_query: The "query string" specifying *some data* for the condition.
+        raw_value: The expression or value that describes the condition.
+
+    Returns:
+        An instance of the 'RuleCondition' class if the given arguments are
+        valid, otherwise False.
+    """
     try:
         condition = RuleCondition(raw_query, raw_value)
     except TypeError as e:
