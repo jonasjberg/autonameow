@@ -463,7 +463,6 @@ def parse_conditions(raw_conditions):
     out = []
     try:
         for query_string, expression in raw_conditions.items():
-            # valid_condition = validate_condition_value(key, value)
             valid_condition = get_valid_rule_condition(query_string, expression)
             if not valid_condition:
                 raise exceptions.ConfigurationSyntaxError(
@@ -489,53 +488,3 @@ def get_valid_rule_condition(raw_query, raw_value):
         return False
     else:
         return condition
-
-
-def validate_condition_value(condition_field, condition_value):
-    """
-    Validates the "value part" of a file rule condition.
-
-    The last of part of the "condition_field" (query string) must be assigned
-    to a field parser. This parser validates the "condition_value".
-    If this validation returns True, the condition is assumed valid.
-
-    Args:
-        condition_field: Full "query string" field(/key) to validate,
-            for example; 'contents.mime_type' or 'metadata.exiftool.EXIF:Foo'.
-        condition_value: Value to validate, for example; "image/jpeg".
-
-    Returns:
-        True if the given "condition_field" can be handled by one of the
-        field parser classes _AND_ the subsequent validation of the given
-        "condition_value" returns True.  Else False.
-    """
-
-    # NOTE(jonas): The "key" in a CONDITION is a query string to content.
-    #              The condition "value" can be strings, regexps, etc.
-
-    # NOTE(jonas): The "value" in a data SOURCE is a query string to content ..
-
-    if not condition_value:
-        return False
-
-    # Get the last part of the field, I.E. 'mime_type' for 'contents.mime_type'.
-    field_components = util.query_string_list(condition_field)
-    field = field_components[-1:][0]
-
-    # NOTE(jonas): Workaround for 'metadata.exiftool.EXIF:DateTimeOriginal' ..
-    #       Above test would return 'EXIF:DateTimeOriginal' but this solution
-    #       would require testing the second to last part; 'exiftool', instead.
-    if condition_field.startswith('metadata.exiftool'):
-        # TODO: [TD0015] Handle expression in 'condition_value'
-        #                ('Defined', '> 2017', etc)
-        if condition_value:
-            return condition_value
-        else:
-            return False
-
-    for parser in field_parsers.FieldParserInstances:
-        if field in parser.applies_to_field:
-            if parser.validate(condition_value):
-                return condition_value
-            else:
-                return False
