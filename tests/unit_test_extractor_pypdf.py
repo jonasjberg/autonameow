@@ -28,15 +28,15 @@ from unit_utils import abspath_testfile
 
 class TestPyPDFMetadataExtractor(TestCase):
     def _to_datetime(self, value):
-        return datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        return datetime.strptime(value, '%Y-%m-%d %H:%M:%S%z')
 
     def setUp(self):
         image = abspath_testfile('gmail.pdf')
         self.e = PyPDFMetadataExtractor(image)
 
         self.EXPECT_FIELD_VALUE = [
-            ('CreationDate', self._to_datetime('2016-01-11 12:41:32')),
-            ('ModDate', self._to_datetime('2016-01-11 12:41:32')),
+            ('CreationDate', self._to_datetime('2016-01-11 12:41:32+0000')),
+            ('ModDate', self._to_datetime('2016-01-11 12:41:32+0000')),
             ('Creator', 'Chromium'),
             ('Producer', 'Skia/PDF'),
             ('NumberPages', 2),
