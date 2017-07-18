@@ -33,6 +33,35 @@ from unit_utils import (
 )
 
 
+class TestFileObjectTypes(TestCase):
+    def setUp(self):
+        self.fo = get_named_file_object('20160722 Descriptive name.txt')
+
+    def test_internal_bytestring_path_type_abspath(self):
+        self.assertTrue(isinstance(self.fo.abspath, bytes))
+
+    def test_internal_bytestring_path_type_suffix(self):
+        self.assertTrue(isinstance(self.fo.suffix, bytes))
+
+    def test_internal_bytestring_path_type_filename(self):
+        self.assertTrue(isinstance(self.fo.filename, bytes))
+
+    def test_internal_bytestring_path_type_fnbase(self):
+        self.assertTrue(isinstance(self.fo.fnbase, bytes))
+
+    def test_internal_bytestring_path_type_pathname(self):
+        self.assertTrue(isinstance(self.fo.pathname, bytes))
+
+    def test_internal_bytestring_path_type_pathparent(self):
+        self.assertTrue(isinstance(self.fo.pathparent, bytes))
+
+    def test_internal_type_mime_type(self):
+        self.assertTrue(isinstance(self.fo.mime_type, str))
+
+    def test_internal_type_str(self):
+        self.assertTrue(isinstance(str(self.fo), str))
+
+
 class TestFileObjectFilenamePartitioningLongNameNoTags(TestCase):
     def setUp(self):
         self.fo = get_named_file_object('20160722 Descriptive name.txt')
