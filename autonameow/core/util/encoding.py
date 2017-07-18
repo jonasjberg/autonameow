@@ -238,7 +238,3 @@ def decode_(string):
             return string.decode('utf-8')
         except (UnicodeError, LookupError):
             return string.decode('utf-8', errors='replace')
-
-
-def am_i_reachable():
-    pass
