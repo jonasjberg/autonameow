@@ -25,6 +25,7 @@ import re
 import string
 from datetime import datetime, timedelta
 
+import pytz
 from dateutil import parser
 
 from core import util
@@ -762,3 +763,30 @@ def to_datetime(datetime_string):
         raise TypeError
     else:
         return datetime_object
+
+
+def timezone_aware_to_naive(aware_datetime):
+    """
+    Removes timezone information from a datetime object to make it "naive".
+
+    Args:
+        aware_datetime: A "aware" datetime object with timezone-information.
+
+    Returns:
+        A new datetime object without timezone information.
+    """
+    return aware_datetime.replace(tzinfo=None)
+
+
+def naive_to_timezone_aware(naive_datetime):
+    """
+    Adds timezone information to a "naive" datetime to make it timezone-aware.
+
+    Args:
+        naive_datetime: A "naive" datetime object.
+
+    Returns:
+        A new datetime object with localized timezone information.
+    """
+    # Reference:  https://stackoverflow.com/a/7065242/7802196
+    return pytz.utc.localize(naive_datetime)

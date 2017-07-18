@@ -27,7 +27,9 @@ from core.util.dateandtime import (
     hyphenate_date,
     match_any_unix_timestamp,
     match_special_case,
-    to_datetime
+    to_datetime,
+    naive_to_timezone_aware,
+    timezone_aware_to_naive
 )
 
 
@@ -113,3 +115,32 @@ class TestToDatetime(TestCase):
         for given, expected in self.TEST_DATA:
             self.assertEqual(str(to_datetime(given)), expected)
 
+
+class TestNaiveToTimezoneAware(TestCase):
+    def setUp(self):
+        self.unaware = datetime.strptime('2016-01-11T12:41:32',
+                                         '%Y-%m-%dT%H:%M:%S')
+        self.aware = datetime.strptime('2016-01-11T12:41:32+0000',
+                                       '%Y-%m-%dT%H:%M:%S%z')
+
+    def test_setup(self):
+        self.assertIsNotNone(self.unaware)
+        self.assertIsNotNone(self.aware)
+
+    def test_naive_dt_should_equal_aware_dt(self):
+        self.assertEqual(naive_to_timezone_aware(self.unaware), self.aware)
+
+
+class TestTimezoneAwareToNaive(TestCase):
+    def setUp(self):
+        self.unaware = datetime.strptime('2016-01-11T12:41:32',
+                                         '%Y-%m-%dT%H:%M:%S')
+        self.aware = datetime.strptime('2016-01-11T12:41:32+0000',
+                                       '%Y-%m-%dT%H:%M:%S%z')
+
+    def test_setup(self):
+        self.assertIsNotNone(self.unaware)
+        self.assertIsNotNone(self.aware)
+
+    def test_aware_dt_should_forget_timezone_and_equal_unaware_dt(self):
+        self.assertEqual(timezone_aware_to_naive(self.aware), self.unaware)
