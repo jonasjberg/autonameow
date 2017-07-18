@@ -446,6 +446,7 @@ def is_valid_source(source_value):
     if not source_value or not source_value.strip():
         return False
 
+    # TODO: [TD0003] Implement gathering data on non-core modules at run-time
     if source_value.startswith(tuple(constants.VALID_DATA_SOURCES)):
         return source_value
     else:
