@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 
+from core import util
 from extractors.textual import (
     TextExtractor,
     PdfTextExtractor
@@ -52,7 +53,8 @@ class TestTextExtractor(TestCase):
 
 class TestPdfTextExtractor(TestCase):
     def setUp(self):
-        self.e = PdfTextExtractor(abspath_testfile('gmail.pdf'))
+        test_file = util.normpath(abspath_testfile('gmail.pdf'))
+        self.e = PdfTextExtractor(test_file)
 
     def test_pdf_text_extractor_class_is_available(self):
         self.assertIsNotNone(PdfTextExtractor)

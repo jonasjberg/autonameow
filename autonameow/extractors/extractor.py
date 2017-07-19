@@ -49,6 +49,10 @@ class Extractor(object):
             source: Source of data from which to extract information as a
                 byte string path (internal path format)
         """
+        # Make sure the 'source' paths are in the "internal bytestring" format.
+        # The is-None-check below is for unit tests that pass a None 'source'.
+        if source is not None:
+            assert(isinstance(source, bytes))
         self.source = source
 
     def query(self, field=None):

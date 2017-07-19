@@ -24,6 +24,7 @@ from unittest import TestCase
 
 import PyPDF2
 
+from core import util
 from extractors.textual import (
     extract_pdf_content_with_pdftotext,
     extract_pdf_content_with_pypdf,
@@ -136,7 +137,7 @@ class TestPdfTextExtractor(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        test_file = abspath_testfile('gmail.pdf')
+        test_file = util.normpath(abspath_testfile('gmail.pdf'))
         self.e = PdfTextExtractor(test_file)
 
         class DummyFileObject(object):
@@ -278,7 +279,7 @@ class TestImageOCRTextExtractorWithEmptyFile(TestCase):
 
 
 # NOTE(jonas): Use a shared instance to maintain test execution speed.
-image_file = abspath_testfile('2007-04-23_12-comments.png')
+image_file = util.normpath(abspath_testfile('2007-04-23_12-comments.png'))
 image_ocr_extractor = ImageOCRTextExtractor(image_file)
 
 

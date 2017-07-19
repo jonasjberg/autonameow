@@ -22,6 +22,7 @@
 from datetime import datetime
 from unittest import TestCase
 
+from core import util
 from core.exceptions import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor
 from unit_utils import (
@@ -100,7 +101,7 @@ class TestExiftoolMetadataExtractorWithImage(TestCase):
         return datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
 
     def setUp(self):
-        image = abspath_testfile('smulan.jpg')
+        image = util.normpath(abspath_testfile('smulan.jpg'))
         self.e = ExiftoolMetadataExtractor(image)
 
         self.EXPECT_FIELD_VALUE = [

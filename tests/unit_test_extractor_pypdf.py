@@ -22,6 +22,7 @@
 from datetime import datetime
 from unittest import TestCase
 
+from core import util
 from extractors.metadata import PyPDFMetadataExtractor
 from unit_utils import abspath_testfile
 
@@ -31,7 +32,7 @@ class TestPyPDFMetadataExtractor(TestCase):
         return datetime.strptime(value, '%Y-%m-%d %H:%M:%S%z')
 
     def setUp(self):
-        image = abspath_testfile('gmail.pdf')
+        image = util.normpath(abspath_testfile('gmail.pdf'))
         self.e = PyPDFMetadataExtractor(image)
 
         self.EXPECT_FIELD_VALUE = [
