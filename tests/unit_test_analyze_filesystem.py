@@ -26,12 +26,11 @@ from unittest import TestCase
 from analyzers.analyze_filesystem import FilesystemAnalyzer
 from core import util
 from core.fileobject import FileObject
-from unit_utils import abspath_testfile
+import unit_utils as uu
 
 
 def get_filesystem_analyzer(file_object):
     return FilesystemAnalyzer(file_object, None, None)
-
 
 
 class TestFilesystemAnalyzerWithEmptyFile(TestCase):
@@ -41,7 +40,7 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
                        'ignore_before_year': None,
                        'ignore_after_year': None}
 
-        p_test_file = util.bytestring_path(abspath_testfile('empty'))
+        p_test_file = util.bytestring_path(uu.abspath_testfile('empty'))
         self.assertTrue(os.path.isfile(p_test_file))
 
         class MockOptions(object):

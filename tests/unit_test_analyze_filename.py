@@ -19,13 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
 from unittest import TestCase
+import unit_utils as uu
+
+from datetime import datetime
 
 from analyzers.analyze_filename import FilenameAnalyzer
-from unit_utils import (
-    get_named_file_object
-)
 
 
 def get_filename_analyzer(file_object):
@@ -34,7 +33,7 @@ def get_filename_analyzer(file_object):
 
 class TestFilenameAnalyzerWithImageFile(TestCase):
     def setUp(self):
-        self.fo = get_named_file_object('2010-01-31_161251.jpg')
+        self.fo = uu.get_named_file_object('2010-01-31_161251.jpg')
         self.fna = get_filename_analyzer(self.fo)
 
     def test_setup(self):
@@ -70,7 +69,7 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
 
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def setUp(self):
-        self.fo = get_named_file_object('empty')
+        self.fo = uu.get_named_file_object('empty')
         self.fna = get_filename_analyzer(self.fo)
 
     def test_setup(self):
@@ -101,7 +100,9 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
 
 class TestFilenameAnalyzerWithTaggedFile(TestCase):
     def setUp(self):
-        self.fo = get_named_file_object('2015-07-03_163838 Keeping notes in Vim -- dv017a dev.ogv')
+        self.fo = uu.get_named_file_object(
+            '2015-07-03_163838 Keeping notes in Vim -- dv017a dev.ogv'
+        )
         self.fna = get_filename_analyzer(self.fo)
 
     def test_setup(self):

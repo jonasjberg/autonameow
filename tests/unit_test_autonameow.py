@@ -23,12 +23,12 @@ from unittest import (
     TestCase,
     mock
 )
+import unit_utils as uu
 
 from core import constants
 from core.autonameow import (
     Autonameow,
 )
-from unit_utils import capture_stdout
 
 
 class TestAutonameowWithoutOptions(TestCase):
@@ -40,7 +40,7 @@ class TestAutonameowWithoutOptions(TestCase):
         self.assertIsNotNone(self.autonameow)
 
     def test_prints_help_when_started_without_args(self):
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             self.autonameow.run()
 
         # NOTE: [hardcoded] Likely to break if usage help text is changed.

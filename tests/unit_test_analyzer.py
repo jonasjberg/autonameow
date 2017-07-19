@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+import unit_utils as uu
 
 from analyzers.analyzer import (
     Analyzer
@@ -32,7 +33,6 @@ from analyzers.analyze_text import TextAnalyzer
 from analyzers.analyze_video import VideoAnalyzer
 from core.constants import ANALYSIS_RESULTS_FIELDS
 from core.exceptions import AnalysisResultsFieldError
-from unit_utils import get_mock_fileobject
 
 
 def get_filename_analyzer(file_object):
@@ -42,7 +42,7 @@ def get_filename_analyzer(file_object):
 class TestAnalyzer(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.a = Analyzer(get_mock_fileobject(), None, None)
+        self.a = Analyzer(uu.get_mock_fileobject(), None, None)
 
         class DummyFileObject(object):
             def __init__(self):

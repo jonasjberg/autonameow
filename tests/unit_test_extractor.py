@@ -20,14 +20,14 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+import unit_utils as uu
 
 from extractors.extractor import Extractor
-from unit_utils import make_temporary_file
 
 
 class TestExtractor(TestCase):
     def setUp(self):
-        self.e = Extractor(make_temporary_file())
+        self.e = Extractor(uu.make_temporary_file())
 
         class DummyFileObject(object):
             def __init__(self):

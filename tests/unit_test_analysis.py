@@ -20,33 +20,27 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+import unit_utils as uu
 
 import analyzers
-from core.analysis import (
-    AnalysisResults,
-    AnalysisRunQueue,
-    Analysis,
-)
-from core.constants import ANALYSIS_RESULTS_FIELDS
-from unit_utils import (
-    get_mock_analyzer,
-    get_mock_fileobject,
-    get_mock_extractor_data,
+from core import (
+    analysis,
+    constants
 )
 
 
 class TestAnalysis(TestCase):
     def setUp(self):
-        self.a = Analysis(get_mock_fileobject(),
-                          get_mock_extractor_data())
+        self.a = analysis.Analysis(uu.get_mock_fileobject(),
+                                   uu.get_mock_extractor_data())
 
     def test_analysis_is_defined(self):
-        self.assertIsNotNone(Analysis)
+        self.assertIsNotNone(analysis.Analysis)
 
     def test_analysis_requires_file_object_argument(self):
         with self.assertRaises(TypeError):
-            a = Analysis(None)
-            a = Analysis('  ')
+            a = analysis.Analysis(None)
+            a = analysis.Analysis('  ')
 
     def test_analysis_start_method_exists(self):
         self.assertIsNotNone(self.a.start)
@@ -98,7 +92,7 @@ class TestAnalysis(TestCase):
 
 class TestAnalysisResults(TestCase):
     def setUp(self):
-        self.results = AnalysisResults()
+        self.results = analysis.AnalysisResults()
 
     def test_results_init_in_expected_state(self):
         self.assertTrue(isinstance(self.results._data, dict))
@@ -108,19 +102,19 @@ class TestAnalysisResults(TestCase):
         self.assertEqual(len(self.results), 0)
 
     def test_add(self):
-        _field = ANALYSIS_RESULTS_FIELDS[0]
+        _field = constants.ANALYSIS_RESULTS_FIELDS[0]
         _results = []
         self.results.add(_field, _results)
 
     def test_add_increments_len(self):
-        _field = ANALYSIS_RESULTS_FIELDS[0]
+        _field = constants.ANALYSIS_RESULTS_FIELDS[0]
         _results = ['foo']
         self.results.add(_field, _results)
 
         self.assertEqual(len(self.results), 1)
 
     def test_add_empty_does_not_increment_len(self):
-        _field = ANALYSIS_RESULTS_FIELDS[0]
+        _field = constants.ANALYSIS_RESULTS_FIELDS[0]
         _results = []
         self.results.add(_field, _results)
 
@@ -130,7 +124,7 @@ class TestAnalysisResults(TestCase):
 class TestAnalysisRunQueue(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.q = AnalysisRunQueue()
+        self.q = analysis.AnalysisRunQueue()
 
     def test_init(self):
         self.assertIsNotNone(self.q)
@@ -139,13 +133,13 @@ class TestAnalysisRunQueue(TestCase):
         self.assertEqual(len(self.q), 0)
 
     def test_len_after_enqueueing_analyzer(self):
-        self.q.enqueue(get_mock_analyzer())
+        self.q.enqueue(uu.get_mock_analyzer())
         self.assertEqual(len(self.q), 1)
-        self.q.enqueue(get_mock_analyzer())
+        self.q.enqueue(uu.get_mock_analyzer())
         self.assertEqual(len(self.q), 2)
 
     def test_enqueue_single_analyzer(self):
-        ma = next(get_mock_analyzer())
+        ma = next(uu.get_mock_analyzer())
         self.q.enqueue(ma)
 
         for a in self.q:
@@ -154,11 +148,9 @@ class TestAnalysisRunQueue(TestCase):
     def test_enqueue_multiple_analyzers(self):
         enqueued = []
 
-        for ma in get_mock_analyzer():
+        for ma in uu.get_mock_analyzer():
             enqueued.append(ma)
             self.q.enqueue(ma)
 
         for dequeued in self.q:
             self.assertTrue(dequeued in enqueued)
-
-

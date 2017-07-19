@@ -32,15 +32,12 @@ from extractors.textual import (
     ImageOCRTextExtractor,
     TextExtractor
 )
-from unit_utils import (
-    abspath_testfile,
-    make_temporary_file
-)
+import unit_utils as uu
 
 
 class TestTextExtractor(TestCase):
     def setUp(self):
-        self.e = TextExtractor(make_temporary_file())
+        self.e = TextExtractor(uu.make_temporary_file())
 
         class DummyFileObject(object):
             def __init__(self):
@@ -77,7 +74,7 @@ class TestTextExtractor(TestCase):
             self.assertFalse(self.e.can_handle(self.fo))
 
 
-pdf_file = abspath_testfile('simplest_pdf.md.pdf')
+pdf_file = uu.abspath_testfile('simplest_pdf.md.pdf')
 expected_text = '''Probably a title
 Text following the title, probably.
 
@@ -137,7 +134,7 @@ class TestPdfTextExtractor(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        test_file = util.normpath(abspath_testfile('gmail.pdf'))
+        test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
         self.e = PdfTextExtractor(test_file)
 
         class DummyFileObject(object):
@@ -242,7 +239,7 @@ class TestImageOCRTextExtractor(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.e = ImageOCRTextExtractor(make_temporary_file())
+        self.e = ImageOCRTextExtractor(uu.make_temporary_file())
 
         class DummyFileObject(object):
             def __init__(self, mime):
@@ -262,7 +259,7 @@ class TestImageOCRTextExtractorWithEmptyFile(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.e = ImageOCRTextExtractor(make_temporary_file())
+        self.e = ImageOCRTextExtractor(uu.make_temporary_file())
 
     def test_extractor_class_is_available(self):
         self.assertIsNotNone(ImageOCRTextExtractor)
@@ -279,7 +276,7 @@ class TestImageOCRTextExtractorWithEmptyFile(TestCase):
 
 
 # NOTE(jonas): Use a shared instance to maintain test execution speed.
-image_file = util.normpath(abspath_testfile('2007-04-23_12-comments.png'))
+image_file = util.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
 image_ocr_extractor = ImageOCRTextExtractor(image_file)
 
 

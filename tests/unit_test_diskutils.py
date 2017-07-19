@@ -29,7 +29,7 @@ from core.util.diskutils import (
     get_files,
     get_files_gen
 )
-import unit_utils
+import unit_utils as uu
 
 
 class TestMimeTypes(TestCase):
@@ -275,7 +275,7 @@ def shorten_path(abs_path):
 
 
 def to_abspath(path_list):
-    return [tf for tf in (unit_utils.abspath_testfile(f) for f in path_list)]
+    return [tf for tf in (uu.abspath_testfile(f) for f in path_list)]
 
 
 class TestGetFiles(TestCase):
@@ -315,11 +315,11 @@ class TestGetFiles(TestCase):
             get_files(' ')
 
     def test_returns_expected_number_of_files_non_recursive(self):
-        actual = get_files(unit_utils.abspath_testfile('subdir'))
+        actual = get_files(uu.abspath_testfile('subdir'))
         self.assertEqual(len(actual), 3)
 
     def test_returns_expected_files_non_recursive(self):
-        actual = get_files(unit_utils.abspath_testfile('subdir'))
+        actual = get_files(uu.abspath_testfile('subdir'))
 
         for f in actual:
             self.assertTrue(os.path.isfile(f))
@@ -328,23 +328,23 @@ class TestGetFiles(TestCase):
             self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_B)
 
     def test_returns_expected_number_of_files_recursive(self):
-        actual = get_files(unit_utils.abspath_testfile('subdir'), recurse=True)
+        actual = get_files(uu.abspath_testfile('subdir'), recurse=True)
         self.assertEqual(len(actual), 8)
 
     def test_returns_expected_files_recursive(self):
-        actual = get_files(unit_utils.abspath_testfile('subdir'), recurse=True)
+        actual = get_files(uu.abspath_testfile('subdir'), recurse=True)
 
         for f in actual:
             self.assertTrue(os.path.isfile(f))
             self.assertIn(f, self.abspath_all_files)
 
     def test_returns_expected_number_of_files_recursive_from_subsubdir_a(self):
-        actual = get_files(unit_utils.abspath_testfile('subdir/subsubdir_A'),
+        actual = get_files(uu.abspath_testfile('subdir/subsubdir_A'),
                            recurse=True)
         self.assertEqual(len(actual), 2)
 
     def test_returns_expected_files_recursive_from_subsubdir_a(self):
-        actual = get_files(unit_utils.abspath_testfile('subdir/subsubdir_A'),
+        actual = get_files(uu.abspath_testfile('subdir/subsubdir_A'),
                            recurse=True)
 
         for f in actual:
@@ -354,7 +354,7 @@ class TestGetFiles(TestCase):
             self.assertNotIn(f, self.abspath_files_subdir)
 
     def test_returns_expected_files_recursive_from_subsubdir_b(self):
-        actual = get_files(unit_utils.abspath_testfile('subdir/subsubdir_B'),
+        actual = get_files(uu.abspath_testfile('subdir/subsubdir_B'),
                            recurse=True)
 
         for f in actual:
@@ -404,11 +404,11 @@ class TestGetFilesGen(TestCase):
             list(get_files_gen(' '))
 
     def test_returns_expected_number_of_files_non_recursive(self):
-        actual = list(get_files_gen(unit_utils.abspath_testfile('subdir')))
+        actual = list(get_files_gen(uu.abspath_testfile('subdir')))
         self.assertEqual(len(actual), 3)
 
     def test_returns_expected_files_non_recursive(self):
-        actual = list(get_files_gen(unit_utils.abspath_testfile('subdir')))
+        actual = list(get_files_gen(uu.abspath_testfile('subdir')))
 
         for f in actual:
             self.assertTrue(os.path.isfile(f))
@@ -417,23 +417,23 @@ class TestGetFilesGen(TestCase):
             self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_B)
 
     def test_returns_expected_number_of_files_recursive(self):
-        actual = list(get_files_gen(unit_utils.abspath_testfile('subdir'), recurse=True))
+        actual = list(get_files_gen(uu.abspath_testfile('subdir'), recurse=True))
         self.assertEqual(len(actual), 8)
 
     def test_returns_expected_files_recursive(self):
-        actual = list(get_files_gen(unit_utils.abspath_testfile('subdir'), recurse=True))
+        actual = list(get_files_gen(uu.abspath_testfile('subdir'), recurse=True))
 
         for f in actual:
             self.assertTrue(os.path.isfile(f))
             self.assertIn(f, self.abspath_all_files)
 
     def test_returns_expected_number_of_files_recursive_from_subsubdir_a(self):
-        actual = list(get_files_gen(unit_utils.abspath_testfile('subdir/subsubdir_A'),
+        actual = list(get_files_gen(uu.abspath_testfile('subdir/subsubdir_A'),
                            recurse=True))
         self.assertEqual(len(actual), 2)
 
     def test_returns_expected_files_recursive_from_subsubdir_a(self):
-        actual = list(get_files_gen(unit_utils.abspath_testfile('subdir/subsubdir_A'),
+        actual = list(get_files_gen(uu.abspath_testfile('subdir/subsubdir_A'),
                            recurse=True))
 
         for f in actual:
@@ -443,7 +443,7 @@ class TestGetFilesGen(TestCase):
             self.assertNotIn(f, self.abspath_files_subdir)
 
     def test_returns_expected_files_recursive_from_subsubdir_b(self):
-        actual = list(get_files_gen(unit_utils.abspath_testfile('subdir/subsubdir_B'),
+        actual = list(get_files_gen(uu.abspath_testfile('subdir/subsubdir_B'),
                            recurse=True))
 
         for f in actual:

@@ -20,21 +20,18 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+import unit_utils as uu
 
 from core import util
 from extractors.textual import (
     TextExtractor,
     PdfTextExtractor
 )
-from unit_utils import (
-    make_temporary_file,
-    abspath_testfile
-)
 
 
 class TestTextExtractor(TestCase):
     def setUp(self):
-        self.e = TextExtractor(make_temporary_file())
+        self.e = TextExtractor(uu.make_temporary_file())
 
     def test_text_extractor_class_is_available(self):
         self.assertIsNotNone(TextExtractor)
@@ -53,7 +50,7 @@ class TestTextExtractor(TestCase):
 
 class TestPdfTextExtractor(TestCase):
     def setUp(self):
-        test_file = util.normpath(abspath_testfile('gmail.pdf'))
+        test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
         self.e = PdfTextExtractor(test_file)
 
     def test_pdf_text_extractor_class_is_available(self):

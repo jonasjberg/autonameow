@@ -20,16 +20,16 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+import unit_utils as uu
 
 from extractors.metadata import (
     MetadataExtractor,
 )
-from unit_utils import make_temporary_file
 
 
 class TestMetadataExtractor(TestCase):
     def setUp(self):
-        self.e = MetadataExtractor(make_temporary_file())
+        self.e = MetadataExtractor(uu.make_temporary_file())
 
     def test_metadata_extractor_class_is_available(self):
         self.assertIsNotNone(MetadataExtractor)
