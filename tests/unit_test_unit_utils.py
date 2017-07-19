@@ -24,8 +24,8 @@ import os
 import types
 from unittest import TestCase
 
+import analyzers
 from analyzers.analyzer import Analyzer
-from core.analysis import get_analyzer_classes
 from core.fileobject import FileObject
 from unit_utils import (
     make_temp_dir,
@@ -85,7 +85,7 @@ class TestUnitUtilityGetMockAnalyzer(TestCase):
 
     def test_get_mock_analyzer_returns_analyzers(self):
         for a in get_mock_analyzer():
-            self.assertIn(type(a), get_analyzer_classes())
+            self.assertIn(type(a), analyzers.get_analyzer_classes())
 
 
 class TestUnitUtilityGetMockFileObject(TestCase):
