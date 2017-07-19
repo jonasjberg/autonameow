@@ -21,17 +21,14 @@
 
 from unittest import TestCase
 
+import extractors
 from core import constants
 from core.exceptions import InvalidDataSourceError
 from core.extraction import (
     ExtractedData,
-    suitable_data_extractors_for,
-    get_extractor_classes,
     Extraction,
-    get_query_strings
 )
-from extractors.extractor import Extractor
-from unit_utils import get_mock_fileobject
+import unit_utils as uu
 
 
 class TestExtractedData(TestCase):
@@ -133,7 +130,7 @@ class TestExtractedData(TestCase):
 
 class TestExtraction(TestCase):
     def setUp(self):
-        self.e = Extraction(get_mock_fileobject())
+        self.e = Extraction(uu.get_mock_fileobject())
 
     def test_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
@@ -166,78 +163,13 @@ class TestExtraction(TestCase):
         self.assertIsNotNone(self.e._instantiate_extractors)
 
     def test__instantiate_extractors_returns_expected_type(self):
-        extractor_classes = get_extractor_classes()
+        extractor_classes = extractors.get_extractor_classes()
         actual = self.e._instantiate_extractors(extractor_classes)
 
         self.assertTrue(isinstance(actual, list))
         for ec in actual:
-            self.assertTrue(issubclass(ec.__class__, Extractor))
+            self.assertTrue(issubclass(ec.__class__, extractors.Extractor))
 
     def test_has_method__execute_run_queue(self):
         self.assertIsNotNone(self.e._execute_run_queue)
 
-
-class TestSuitableDataExtractorsForFile(TestCase):
-    def test_returns_expected_extractors_for_mp4_video_file(self):
-        self.fo = get_mock_fileobject(mime_type='video/mp4')
-        actual = [c.__name__ for c in suitable_data_extractors_for(self.fo)]
-        self.assertIn('ExiftoolMetadataExtractor', actual)
-
-    def test_returns_expected_extractors_for_png_image_file(self):
-        self.fo = get_mock_fileobject(mime_type='image/png')
-        actual = [c.__name__ for c in suitable_data_extractors_for(self.fo)]
-        self.assertIn('ExiftoolMetadataExtractor', actual)
-        self.assertIn('ImageOCRTextExtractor', actual)
-
-    def test_returns_expected_extractors_for_pdf_file(self):
-        self.fo = get_mock_fileobject(mime_type='application/pdf')
-        actual = [c.__name__ for c in suitable_data_extractors_for(self.fo)]
-        self.assertIn('ExiftoolMetadataExtractor', actual)
-        self.assertIn('PyPDFMetadataExtractor', actual)
-        self.assertIn('PdfTextExtractor', actual)
-
-
-class TestGetExtractorClasses(TestCase):
-    def test_get_extractor_classes_returns_expected_type(self):
-        self.assertTrue(isinstance(get_extractor_classes(), list))
-        for c in get_extractor_classes():
-            self.assertTrue(issubclass(c, Extractor))
-
-    # TODO: [hardcoded] Testing number of extractor classes needs fixing.
-    def test_get_extractor_classes_returns_at_least_one_extractor(self):
-        self.assertGreaterEqual(len(get_extractor_classes()), 1)
-
-    def test_get_extractor_classes_returns_at_least_two_extractors(self):
-        self.assertGreaterEqual(len(get_extractor_classes()), 2)
-
-    def test_get_extractor_classes_returns_at_least_three_extractors(self):
-        self.assertGreaterEqual(len(get_extractor_classes()), 3)
-
-    def test_get_extractor_classes_returns_at_least_four_extractors(self):
-        self.assertGreaterEqual(len(get_extractor_classes()), 4)
-
-
-class TestGetQueryStrings(TestCase):
-    def setUp(self):
-        self.actual = get_query_strings()
-
-    def test_returns_expected_container_type(self):
-        self.assertTrue(isinstance(self.actual, set))
-
-    def test_returns_expected_contained_types(self):
-        for q in self.actual:
-            self.assertTrue(isinstance(q, str))
-
-    def test_contains_expected_metadata_query_strings(self):
-        self.assertIn('metadata.exiftool', self.actual)
-        self.assertIn('metadata.pypdf', self.actual)
-
-    def test_contains_expected_contents_query_strings(self):
-        self.assertIn('contents.visual.ocr_text', self.actual)
-        self.assertIn('contents.textual.raw_text', self.actual)
-
-    def test_does_not_contain_unexpected_query_strings(self):
-        self.assertNotIn('foo.bar', self.actual)
-        self.assertNotIn('.', self.actual)
-        self.assertNotIn('', self.actual)
-        self.assertNotIn(None, self.actual)

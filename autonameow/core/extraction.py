@@ -21,6 +21,7 @@
 
 import logging as log
 
+import extractors
 from core import (
     constants,
     util,
@@ -28,21 +29,6 @@ from core import (
 )
 from core.exceptions import InvalidDataSourceError
 from core.util.queue import GenericQueue
-
-# TODO: [TD0003][hack] Fix this! Used for instantiating extractors so that they
-# are included in the global namespace and seen by 'get_extractor_classes()'.
-from extractors.extractor import Extractor
-from extractors.metadata import MetadataExtractor
-from extractors.metadata import ExiftoolMetadataExtractor
-from extractors.metadata import PyPDFMetadataExtractor
-from extractors.textual import TextExtractor
-from extractors.textual import PdfTextExtractor
-__dummy_a = Extractor(None)
-__dummy_b = MetadataExtractor(None)
-__dummy_c = ExiftoolMetadataExtractor(None)
-__dummy_d = PyPDFMetadataExtractor(None)
-__dummy_e = TextExtractor(None)
-__dummy_f = PdfTextExtractor(None)
 
 
 class Extraction(object):
@@ -103,11 +89,11 @@ class Extraction(object):
         log.debug('Started data extraction')
 
         # Select extractors based on detected file type.
-        extractors = suitable_data_extractors_for(self.file_object)
-        extractor_instances = self._instantiate_extractors(extractors)
-        log.debug('Got {} suitable extractors'.format(len(extractors)))
+        classes = extractors.suitable_data_extractors_for(self.file_object)
+        instances = self._instantiate_extractors(classes)
+        log.debug('Got {} suitable extractors'.format(len(classes)))
 
-        for e in extractor_instances:
+        for e in instances:
             self.extractor_queue.enqueue(e)
         log.debug('Enqueued extractors: {!s}'.format(self.extractor_queue))
 
@@ -250,57 +236,3 @@ class ExtractedData(object):
         return count_dict_recursive(self._data, 0)
 
 
-def get_query_strings():
-    """
-    Get the set of "query strings" for all extractor classes.
-
-    Returns:
-        Unique extractor query strings as a set.
-    """
-    out = set()
-    for e in ExtractorClasses:
-        if e.data_query_string:
-            out.add(e.data_query_string)
-    return out
-
-
-def get_metadata_query_strings():
-    klasses = [k for k in globals()['MetadataExtractor'].__subclasses__()]
-
-    out = set()
-    for e in klasses:
-        if e.data_query_string:
-            out.add(e.data_query_string)
-    return out
-
-
-def suitable_data_extractors_for(file_object):
-    """
-    Returns extractor classes that can handle the given file object.
-
-    Args:
-        file_object: File to get extractors for as an instance of 'FileObject'.
-
-    Returns:
-        A list of extractor classes that can extract data from the given file.
-    """
-    return [e for e in ExtractorClasses if e.can_handle(file_object)]
-
-
-def get_extractor_classes():
-    """
-    Get a list of all available extractors as a list of "type".
-    All classes inheriting from the "Extractor" class are included.
-
-    Returns:
-        All available extractor classes as a list of type.
-    """
-    # TODO: [TD0003] Include ALL extractors!
-    out = ([klass for klass in globals()['MetadataExtractor'].__subclasses__()]
-           + [klass for klass in globals()['TextExtractor'].__subclasses__()])
-    return out
-
-
-ExtractorClasses = get_extractor_classes()
-ExtractorQueryStrings = get_query_strings()
-MetadataExtractorQueryStrings = get_metadata_query_strings()
