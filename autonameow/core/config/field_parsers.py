@@ -40,6 +40,13 @@ class ConfigFieldParser(object):
 
     Provides common functionality and interfaces that must be implemented
     by inheriting rule parser classes.
+
+    The field parser classes handle the "keys" in the "key-value pairs" that
+    make up the configuration rules. The "key" is a "query string" that
+    represent the location of some data and the "value" is some kind of
+    expression.
+
+    The "query string" (key) determines which parser class is to be used.
     """
 
     # List of "query strings" (or configuration "keys"/"fields") used to
