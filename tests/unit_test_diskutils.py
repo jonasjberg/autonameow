@@ -143,31 +143,43 @@ class TestFileBase(TestCase):
         self.assertEqual(b'.hidden file', diskutils.file_base('.hidden file'))
 
     def test_file_base_file_has_one_extension(self):
-        self.assertEqual(b'filename', diskutils.file_base('filename.jpg'))
-        self.assertEqual(b'filename', diskutils.file_base('filename.JPG'))
+        def __check_expected_for(test_input):
+            self.assertEqual(b'filename', diskutils.file_base(test_input))
+
+        __check_expected_for('filename.jpg')
+        __check_expected_for('filename.JPG')
 
     def test_file_base_from_hidden_file(self):
-        self.assertEqual(b'.hiddenfile', diskutils.file_base('.hiddenfile.jpg'))
-        self.assertEqual(b'.hiddenfile', diskutils.file_base('.hiddenfile.JPG'))
-        self.assertEqual(b'.hiddenfile', diskutils.file_base('.hiddenfile.JPG'))
+        def __check_expected_for(test_input):
+            self.assertEqual(b'.hiddenfile', diskutils.file_base(test_input))
+
+        __check_expected_for('.hiddenfile.jpg')
+        __check_expected_for('.hiddenfile.JPG')
+        __check_expected_for('.hiddenfile.JPG')
 
     def test_file_base_file_has_many_suffixes(self):
-        self.assertEqual(b'filename', diskutils.file_base('filename.tar'))
-        self.assertEqual(b'filename', diskutils.file_base('filename.gz'))
-        self.assertEqual(b'filename', diskutils.file_base('filename.tar.gz'))
-        self.assertEqual(b'filename', diskutils.file_base('filename.tar.z'))
-        self.assertEqual(b'filename', diskutils.file_base('filename.tar.lz'))
-        self.assertEqual(b'filename', diskutils.file_base('filename.tar.lzma'))
-        self.assertEqual(b'filename', diskutils.file_base('filename.tar.lzo'))
+        def __check_expected_for(test_input):
+            self.assertEqual(b'filename', diskutils.file_base(test_input))
+
+        __check_expected_for('filename.tar')
+        __check_expected_for('filename.gz')
+        __check_expected_for('filename.tar.gz')
+        __check_expected_for('filename.tar.z')
+        __check_expected_for('filename.tar.lz')
+        __check_expected_for('filename.tar.lzma')
+        __check_expected_for('filename.tar.lzo')
 
     def test_file_base_from_hidden_file_many_suffixes(self):
-        self.assertEqual(b'.filename', diskutils.file_base('.filename.tar'))
-        self.assertEqual(b'.filename', diskutils.file_base('.filename.gz'))
-        self.assertEqual(b'.filename', diskutils.file_base('.filename.tar.gz'))
-        self.assertEqual(b'.filename', diskutils.file_base('.filename.tar.z'))
-        self.assertEqual(b'.filename', diskutils.file_base('.filename.tar.lz'))
-        self.assertEqual(b'.filename', diskutils.file_base('.filename.tar.lzma'))
-        self.assertEqual(b'.filename', diskutils.file_base('.filename.tar.lzo'))
+        def __check_expected_for(test_input):
+            self.assertEqual(b'.filename', diskutils.file_base(test_input))
+
+        __check_expected_for('.filename.tar')
+        __check_expected_for('.filename.gz')
+        __check_expected_for('.filename.tar.gz')
+        __check_expected_for('.filename.tar.z')
+        __check_expected_for('.filename.tar.lz')
+        __check_expected_for('.filename.tar.lzma')
+        __check_expected_for('.filename.tar.lzo')
 
 
 class TestSanitizeFilename(TestCase):
