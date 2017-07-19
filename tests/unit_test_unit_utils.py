@@ -22,82 +22,84 @@
 
 import os
 import types
+
 from unittest import TestCase
+import unit_utils as uu
 
 import analyzers
 from analyzers.analyzer import Analyzer
 from core.fileobject import FileObject
-from unit_utils import (
-    make_temp_dir,
-    make_temporary_file,
-    get_mock_analyzer,
-    get_mock_fileobject,
-    capture_stdout,
-    get_instantiated_analyzers
-)
 
 
 class TestUnitUtilityMakeTempDir(TestCase):
     def test_make_temp_dir(self):
-        self.assertIsNotNone(make_temp_dir())
-        self.assertTrue(os.path.exists(make_temp_dir()))
-        self.assertTrue(os.path.isdir(make_temp_dir()))
+        self.assertIsNotNone(uu.make_temp_dir())
+        self.assertTrue(os.path.exists(uu.make_temp_dir()))
+        self.assertTrue(os.path.isdir(uu.make_temp_dir()))
 
 
 class TestUnitUtilityMakeTemporaryFile(TestCase):
     def test_make_temporary_file(self):
-        self.assertIsNotNone(make_temporary_file)
-        self.assertTrue(os.path.exists(make_temporary_file()))
-        self.assertTrue(os.path.isfile(make_temporary_file()))
-        self.assertTrue(isinstance(make_temporary_file(), bytes))
+        self.assertIsNotNone(uu.make_temporary_file)
+        self.assertTrue(os.path.exists(uu.make_temporary_file()))
+        self.assertTrue(os.path.isfile(uu.make_temporary_file()))
+        self.assertTrue(isinstance(uu.make_temporary_file(), bytes))
 
     def test_make_temporary_file_with_prefix(self):
-        self.assertTrue(os.path.exists(make_temporary_file(prefix='prefix_')))
-        self.assertTrue(os.path.isfile(make_temporary_file(prefix='prefix_')))
-        self.assertTrue(os.path.basename(make_temporary_file(prefix='prefix_')).startswith(b'prefix_'))
+        actual = uu.make_temporary_file(prefix='prefix_')
+        self.assertTrue(os.path.exists(actual))
+        self.assertTrue(os.path.isfile(actual))
+
+        actual_basename = os.path.basename(actual)
+        self.assertTrue(actual_basename.startswith(b'prefix_'))
 
     def test_make_temporary_file_with_suffix(self):
-        self.assertTrue(os.path.exists(make_temporary_file(suffix='_suffix')))
-        self.assertTrue(os.path.isfile(make_temporary_file(suffix='_suffix')))
-        self.assertTrue(make_temporary_file(suffix='_suffix').endswith(b'_suffix'))
+        actual = uu.make_temporary_file(suffix='_suffix')
+        self.assertTrue(os.path.exists(actual))
+        self.assertTrue(os.path.isfile(actual))
+        self.assertTrue(actual.endswith(b'_suffix'))
 
     def test_make_temporary_file_with_prefix_and_suffix(self):
-        self.assertTrue(os.path.exists(make_temporary_file(prefix='mjao',
-                                                           suffix='.jpg')))
-        self.assertTrue(os.path.isfile(make_temporary_file(prefix='mjao',
-                                                           suffix='.jpg')))
-        self.assertTrue(os.path.basename(make_temporary_file(prefix='mjao', suffix='.jpg')).endswith(b'.jpg'))
-        self.assertTrue(os.path.basename(make_temporary_file(prefix='mjao', suffix='.jpg')).startswith(b'mjao'))
+        actual = uu.make_temporary_file(prefix='mjao', suffix='.jpg')
+        self.assertTrue(os.path.exists(actual))
+        self.assertTrue(os.path.isfile(actual))
+
+        actual_basename = os.path.basename(actual)
+        self.assertTrue(actual_basename.endswith(b'.jpg'))
+        self.assertTrue(actual_basename.startswith(b'mjao'))
 
     def test_make_temporary_file_with_basename(self):
-        self.assertTrue(os.path.exists(make_temporary_file(basename='mjao.jpg')))
-        self.assertTrue(os.path.isfile(make_temporary_file(basename='mjao.jpg')))
-        self.assertEqual(os.path.basename(make_temporary_file(basename='mjao.jpg')), B'mjao.jpg')
+        actual = uu.make_temporary_file(basename='mjao.jpg')
+        self.assertTrue(os.path.exists(actual))
+        self.assertTrue(os.path.isfile(actual))
+
+        actual_basename = os.path.basename(actual)
+        self.assertEqual(actual_basename, B'mjao.jpg')
 
 
 class TestUnitUtilityGetMockAnalyzer(TestCase):
     def test_get_mock_analyzer_is_defined(self):
-        self.assertIsNotNone(get_mock_analyzer)
-        self.assertIsNotNone(get_mock_analyzer())
+        self.assertIsNotNone(uu.get_mock_analyzer)
+        self.assertIsNotNone(uu.get_mock_analyzer())
 
     def test_get_mock_analyzer_is_generator(self):
-        self.assertTrue(isinstance(get_mock_analyzer(), types.GeneratorType))
+        self.assertTrue(isinstance(uu.get_mock_analyzer(), types.GeneratorType))
 
     def test_get_mock_analyzer_returns_analyzers(self):
-        for a in get_mock_analyzer():
+        for a in uu.get_mock_analyzer():
             self.assertIn(type(a), analyzers.get_analyzer_classes())
 
 
 class TestUnitUtilityGetMockFileObject(TestCase):
     def test_get_mock_fileobject_is_defined(self):
-        self.assertIsNotNone(get_mock_fileobject)
-        self.assertIsNotNone(get_mock_fileobject())
+        self.assertIsNotNone(uu.get_mock_fileobject)
+        self.assertIsNotNone(uu.get_mock_fileobject())
 
     def test_get_mock_fileobject_returns_expected_type(self):
-        self.assertTrue(isinstance(get_mock_fileobject(), FileObject))
+        self.assertTrue(isinstance(uu.get_mock_fileobject(), FileObject))
 
     def test_get_mock_fileobject_with_mime_type_video_mp4(self):
-        actual = get_mock_fileobject(mime_type='video/mp4')
+        actual = uu.get_mock_fileobject(mime_type='video/mp4')
         self.assertEqual(actual.mime_type, 'video/mp4')
 
     def test_get_mock_fileobject_with_mime_type_all_types(self):
@@ -105,13 +107,13 @@ class TestUnitUtilityGetMockFileObject(TestCase):
                       'image/x-ms-bmp', 'text/plain', 'video/mp4']
 
         for mt in mime_types:
-            actual = get_mock_fileobject(mime_type=mt)
+            actual = uu.get_mock_fileobject(mime_type=mt)
             self.assertEqual(actual.mime_type, mt)
 
 
 class TestCaptureStdout(TestCase):
     def test_capture_stdout(self):
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             print('should_be_captured')
 
         self.assertEqual(out.getvalue().strip(), 'should_be_captured')
@@ -120,23 +122,23 @@ class TestCaptureStdout(TestCase):
 
 class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
     def test_get_instantiated_analyzers_returns_something(self):
-        self.assertIsNotNone(get_instantiated_analyzers())
+        self.assertIsNotNone(uu.get_instantiated_analyzers())
 
     def test_get_instantiated_analyzers_returns_class_objects(self):
-        analyzers = get_instantiated_analyzers()
-        for a in analyzers:
-            self.assertTrue(hasattr(a, '__class__'))
+        instances = uu.get_instantiated_analyzers()
+        for analyzer_instance in instances:
+            self.assertTrue(hasattr(analyzer_instance, '__class__'))
 
     def test_get_instantiated_analyzers_returns_expected_type(self):
-        actual = get_instantiated_analyzers()
-        self.assertEqual(type(actual), list)
+        instances = uu.get_instantiated_analyzers()
+        self.assertEqual(type(instances), list)
 
-        for a in actual:
-            self.assertTrue(issubclass(a.__class__, Analyzer))
+        for analyzer_instance in instances:
+            self.assertTrue(issubclass(analyzer_instance.__class__, Analyzer))
 
     def test_get_instantiated_analyzers_returns_arbitrary_number(self):
         # TODO: [hardcoded] Likely to break; Fix or remove!
-        self.assertGreaterEqual(len(get_instantiated_analyzers()), 6)
+        self.assertGreaterEqual(len(uu.get_instantiated_analyzers()), 6)
 
     def test_get_instantiated_analyzers_returns_list(self):
-        self.assertTrue(isinstance(get_instantiated_analyzers(), list))
+        self.assertTrue(isinstance(uu.get_instantiated_analyzers(), list))
