@@ -49,6 +49,7 @@ class FileObject(object):
             path: The absolute normalized path to the file, as a bytestring.
             opts: Configuration options as an instance of 'Configuration'.
         """
+        assert(isinstance(path, bytes))
 
         validate_path_argument(path)
 
@@ -183,12 +184,11 @@ class FileObject(object):
             return False
 
     def __str__(self):
-        # TODO: [TD0004] Handle file name encoding before returning.
-        return str(self.filename)
+        return util.displayable_path(self.filename)
 
     def __repr__(self):
-        # TODO: [TD0004] Handle file name encoding before returning.
-        return '<{} {}>'.format(self.__class__.__name__, str(self.abspath))
+        return '<{} {}>'.format(self.__class__.__name__,
+                                util.displayable_path(self.abspath))
 
 
 # TODO: [TD0049]` Think about defining legal "placeholder fields".

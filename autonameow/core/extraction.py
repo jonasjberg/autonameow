@@ -23,7 +23,8 @@ import logging as log
 
 from core import (
     constants,
-    util
+    util,
+    types
 )
 from core.exceptions import InvalidDataSourceError
 from core.util.queue import GenericQueue
@@ -120,19 +121,18 @@ class Extraction(object):
         # name in the new name, conversion can't be lossy. Solve by storing
         # bytestring versions of these fields as well?
 
-        # TODO: [TD0004] Enforce encoding boundary for extracted data.
         self.collect_results('filesystem.basename.full',
-                             util.decode_(self.file_object.filename))
+                             types.AW_PATH(self.file_object.filename))
         self.collect_results('filesystem.basename.extension',
-                             util.decode_(self.file_object.suffix))
+                             types.AW_PATH(self.file_object.suffix))
         self.collect_results('filesystem.basename.suffix',
-                             util.decode_(self.file_object.suffix))
+                             types.AW_PATH(self.file_object.suffix))
         self.collect_results('filesystem.basename.prefix',
-                             util.decode_(self.file_object.fnbase))
+                             types.AW_PATH(self.file_object.fnbase))
         self.collect_results('filesystem.pathname.full',
-                             util.decode_(self.file_object.pathname))
+                             types.AW_PATH(self.file_object.pathname))
         self.collect_results('filesystem.pathname.parent',
-                             util.decode_(self.file_object.pathparent))
+                             types.AW_PATH(self.file_object.pathparent))
         self.collect_results('contents.mime_type',
                              self.file_object.mime_type)
 

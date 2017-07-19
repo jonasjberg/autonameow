@@ -127,11 +127,11 @@ class Path(BaseType):
     coercible_types = (str, bytes)
     equivalent_types = ()
 
-    # TODO: Figure out how to represent null for Paths.
-    null = None
+    null = ''
 
     def __call__(self, raw_value=None):
-        if raw_value and isinstance(raw_value, self.coercible_types):
+        if (raw_value is not None
+                and isinstance(raw_value, self.coercible_types)):
             # Type can be coerced, test after coercion to make sure.
             value = self.coerce(raw_value)
             return value
@@ -141,8 +141,11 @@ class Path(BaseType):
             )
 
     def coerce(self, raw_value):
+        if raw_value is None:
+            return self._null()
+
         try:
-            value = util.normpath(raw_value)
+            value = util.bytestring_path(raw_value)
         except (ValueError, TypeError):
             return self._null()
         else:

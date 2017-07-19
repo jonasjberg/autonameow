@@ -114,9 +114,8 @@ class NameBuilder(object):
         log.debug('Query for results fields returned:')
         log.debug(str(data))
 
-        # Format datetime
         # TODO: [TD0017][TD0041] Format ALL data before assembly!
-        # NOTE(jonas): Currently, only the date/time-information is handled!
+        # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
         data = pre_assemble_format(data, template, self.config)
         log.debug('After pre-assembly formatting;')
         log.debug(str(data))
@@ -214,7 +213,13 @@ def pre_assemble_format(data, template, config):
                                              datetime_format)
         else:
             # TODO: [TD0041] Other substitutions, etc ..
-            out[key] = data[key]
+            # TODO: [TD0044] Rework converting "raw data" to an internal format.
+            # TODO: [TD0004] Take a look at this ad-hoc encoding boundary.
+            if isinstance(value, bytes):
+                value = util.decode_(value)
+                out[key] = value
+            else:
+                out[key] = data[key]
 
     return out
 
