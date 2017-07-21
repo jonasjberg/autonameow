@@ -39,24 +39,69 @@ class TestExtractorsConstants(TestCase):
         self.assertTrue(extractors.AUTONAMEOW_EXTRACTOR_PATH.endswith(_top))
 
 
+class TestFindExtractorSourceFiles(TestCase):
+    def test_find_extractor_files_is_defined(self):
+        self.assertIsNotNone(extractors.find_extractor_files)
+
+    def test_find_extractor_files_returns_expected_type(self):
+        actual = extractors.find_extractor_files()
+        self.assertTrue(isinstance(actual, list))
+
+    def test_find_extractor_files_returns_expected_files(self):
+        actual = extractors.find_extractor_files()
+
+        # TODO: [hardcoded] Likely to break; requires manual updates.
+        self.assertIn('textual.py', actual)
+        self.assertIn('metadata.py', actual)
+
+
 class TestGetExtractorClasses(TestCase):
+    def setUp(self):
+        self.sources = ['textual.py', 'metadata.py']
+
     def test_get_extractor_classes_returns_expected_type(self):
-        self.assertTrue(isinstance(extractors.get_extractor_classes(), list))
-        for c in extractors.get_extractor_classes():
+        actual = extractors.get_extractor_classes(self.sources)
+
+        self.assertTrue(isinstance(actual, list))
+        for c in actual:
             self.assertTrue(issubclass(c, extractors.Extractor))
 
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.
     def test_get_extractor_classes_returns_at_least_one_extractor(self):
-        self.assertGreaterEqual(len(extractors.get_extractor_classes()), 1)
+        actual = extractors.get_extractor_classes(self.sources)
+        self.assertGreaterEqual(len(actual), 1)
 
     def test_get_extractor_classes_returns_at_least_two_extractors(self):
-        self.assertGreaterEqual(len(extractors.get_extractor_classes()), 2)
+        actual = extractors.get_extractor_classes(self.sources)
+        self.assertGreaterEqual(len(actual), 2)
 
     def test_get_extractor_classes_returns_at_least_three_extractors(self):
-        self.assertGreaterEqual(len(extractors.get_extractor_classes()), 3)
+        actual = extractors.get_extractor_classes(self.sources)
+        self.assertGreaterEqual(len(actual), 3)
 
     def test_get_extractor_classes_returns_at_least_four_extractors(self):
-        self.assertGreaterEqual(len(extractors.get_extractor_classes()), 4)
+        actual = extractors.get_extractor_classes(self.sources)
+        self.assertGreaterEqual(len(actual), 4)
+
+
+class TestNumberOfAvailableExtractorClasses(TestCase):
+    def setUp(self):
+        self.sources = ['textual.py', 'metadata.py']
+        self.actual = extractors.get_extractor_classes(self.sources)
+
+    # TODO: [hardcoded] Testing number of extractor classes needs fixing.
+    def test_get_extractor_classes_returns_at_least_one_extractor(self):
+        self.assertGreaterEqual(len(self.actual), 1)
+
+    def test_get_extractor_classes_returns_at_least_two_extractors(self):
+        self.assertGreaterEqual(len(self.actual), 2)
+
+    def test_get_extractor_classes_returns_at_least_three_extractors(self):
+        self.assertGreaterEqual(len(self.actual), 3)
+
+    def test_get_extractor_classes_returns_at_least_four_extractors(self):
+        self.assertGreaterEqual(len(self.actual), 4)
+
 
 
 class TestGetQueryStrings(TestCase):

@@ -19,7 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import inspect
 import os
+import sys
+
+from extractors import extractor
 
 # TODO: [TD0003][hack] Fix this! Used for instantiating extractors so that they
 # are included in the global namespace and seen by 'get_extractor_classes()'.
@@ -40,6 +44,45 @@ __dummy_f = PdfTextExtractor(None)
 
 # Extractors are assumed to be located in the same directory as this file.
 AUTONAMEOW_EXTRACTOR_PATH = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, AUTONAMEOW_EXTRACTOR_PATH)
+
+
+def find_extractor_files():
+    """
+    Finds and imports Python source files assumed to be autonameow extractors.
+
+    Returns: List of found extractor source files basenames.
+    """
+    extractor_files = [x for x in os.listdir(AUTONAMEOW_EXTRACTOR_PATH)
+                       if x.endswith('.py')
+                       and x != 'extractor.py'
+                       and x != '__init__.py']
+    return extractor_files
+
+
+def get_extractor_classes(extractor_files):
+    # Strip extensions.
+    _to_import = [f[:-3] for f in extractor_files]
+
+    _classes = []
+    for extractor_file in _to_import:
+        # namespace = __import__(extractor_file, None, None)
+        __import__(extractor_file, None, None)
+
+        namespace = inspect.getmembers(sys.modules[extractor_file],
+                                       inspect.isclass)
+
+        print(namespace)
+
+        for _obj_name, _obj_type in namespace:
+            if _obj_name == 'Extractor':
+                continue
+            if not issubclass(_obj_type, Extractor):
+                continue
+
+            _classes.append(_obj_type)
+
+    return _classes
 
 
 def suitable_data_extractors_for(file_object):
@@ -55,7 +98,7 @@ def suitable_data_extractors_for(file_object):
     return [e for e in ExtractorClasses if e.can_handle(file_object)]
 
 
-def get_extractor_classes():
+def get_extractor_classes_():
     """
     Get a list of all available extractors as a list of "type".
     All classes inheriting from the "Extractor" class are included.
@@ -64,6 +107,8 @@ def get_extractor_classes():
         All available extractor classes as a list of type.
     """
     # TODO: [TD0003] Include ALL extractors!
+    # out = find_extractors()
+    # find_extractors()
     out = ([klass for klass in globals()['MetadataExtractor'].__subclasses__()]
            + [klass for klass in globals()['TextExtractor'].__subclasses__()])
     return out
@@ -93,6 +138,6 @@ def get_metadata_query_strings():
     return out
 
 
-ExtractorClasses = get_extractor_classes()
+ExtractorClasses = get_extractor_classes(find_extractor_files())
 ExtractorQueryStrings = get_query_strings()
 MetadataExtractorQueryStrings = get_metadata_query_strings()
