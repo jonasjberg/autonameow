@@ -19,10 +19,24 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from unittest import TestCase
 
 import extractors
 import unit_utils as uu
+
+
+class TestExtractorsConstants(TestCase):
+    def test_autonameow_extractor_path_is_defined(self):
+        self.assertIsNotNone(extractors.AUTONAMEOW_EXTRACTOR_PATH)
+
+    def test_extractor_path_is_an_existing_directory(self):
+        self.assertTrue(os.path.exists(extractors.AUTONAMEOW_EXTRACTOR_PATH))
+        self.assertTrue(os.path.isdir(extractors.AUTONAMEOW_EXTRACTOR_PATH))
+
+    def test_extractor_path_contains_expected_top_level_directory(self):
+        _top = 'extractors'
+        self.assertTrue(extractors.AUTONAMEOW_EXTRACTOR_PATH.endswith(_top))
 
 
 class TestGetExtractorClasses(TestCase):

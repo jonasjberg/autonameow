@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 # TODO: [TD0003][hack] Fix this! Used for instantiating extractors so that they
 # are included in the global namespace and seen by 'get_extractor_classes()'.
 from extractors.extractor import Extractor
@@ -34,6 +36,10 @@ __dummy_c = ExiftoolMetadataExtractor(None)
 __dummy_d = PyPDFMetadataExtractor(None)
 __dummy_e = TextExtractor(None)
 __dummy_f = PdfTextExtractor(None)
+
+
+# Extractors are assumed to be located in the same directory as this file.
+AUTONAMEOW_EXTRACTOR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
 def suitable_data_extractors_for(file_object):
