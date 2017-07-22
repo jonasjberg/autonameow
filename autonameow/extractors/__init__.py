@@ -127,13 +127,6 @@ from extractors.metadata import PyPDFMetadataExtractor
 from extractors.textual import PdfTextExtractor
 from extractors.textual import AbstractTextExtractor
 
-__dummy_a = BaseExtractor(None)
-__dummy_b = AbstractMetadataExtractor(None)
-__dummy_c = ExiftoolMetadataExtractor(None)
-__dummy_d = PyPDFMetadataExtractor(None)
-__dummy_e = AbstractTextExtractor(None)
-__dummy_f = PdfTextExtractor(None)
-
 
 def find_extractor_files():
     """
@@ -153,9 +146,7 @@ def get_extractor_classes(extractor_files):
 
     _classes = []
     for extractor_file in _to_import:
-        # namespace = __import__(extractor_file, None, None)
         __import__(extractor_file, None, None)
-
         namespace = inspect.getmembers(sys.modules[extractor_file],
                                        inspect.isclass)
         for _obj_name, _obj_type in namespace:
