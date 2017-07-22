@@ -131,6 +131,7 @@ class TestExtractedData(TestCase):
 class TestExtraction(TestCase):
     def setUp(self):
         self.e = Extraction(uu.get_mock_fileobject())
+        self.sources = ['textual.py', 'metadata.py']
 
     def test_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
@@ -163,7 +164,7 @@ class TestExtraction(TestCase):
         self.assertIsNotNone(self.e._instantiate_extractors)
 
     def test__instantiate_extractors_returns_expected_type(self):
-        extractor_classes = extractors.get_extractor_classes()
+        extractor_classes = extractors.get_extractor_classes(self.sources)
         actual = self.e._instantiate_extractors(extractor_classes)
 
         self.assertTrue(isinstance(actual, list))
