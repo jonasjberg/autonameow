@@ -213,7 +213,8 @@ def get_query_strings():
 
 
 def get_metadata_query_strings():
-    klasses = [k for k in globals()['AbstractMetadataExtractor'].__subclasses__()]
+    klasses = [k for k in
+               globals()['AbstractMetadataExtractor'].__subclasses__()]
 
     out = set()
     for e in klasses:
