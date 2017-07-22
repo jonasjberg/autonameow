@@ -37,7 +37,7 @@ from core import (
 from extractors import BaseExtractor
 
 
-class MetadataExtractor(BaseExtractor):
+class AbstractMetadataExtractor(BaseExtractor):
     handles_mime_types = None
     data_query_string = None
 
@@ -45,7 +45,7 @@ class MetadataExtractor(BaseExtractor):
     tagname_type_lookup = {}
 
     def __init__(self, source):
-        super(MetadataExtractor, self).__init__(source)
+        super(AbstractMetadataExtractor, self).__init__(source)
 
         self._raw_metadata = None
         self.metadata = None
@@ -109,7 +109,7 @@ class MetadataExtractor(BaseExtractor):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
 
-class ExiftoolMetadataExtractor(MetadataExtractor):
+class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """
@@ -181,7 +181,7 @@ class ExiftoolMetadataExtractor(MetadataExtractor):
                 raise
 
 
-class PyPDFMetadataExtractor(MetadataExtractor):
+class PyPDFMetadataExtractor(AbstractMetadataExtractor):
     handles_mime_types = ['application/pdf']
     data_query_string = 'metadata.pypdf'
 

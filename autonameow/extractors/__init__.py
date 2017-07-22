@@ -122,13 +122,13 @@ class BaseExtractor(object):
 # TODO: [TD0003][hack] Fix this! Used for instantiating extractors so that they
 # are included in the global namespace and seen by 'get_extractor_classes()'.
 from extractors.metadata import ExiftoolMetadataExtractor
-from extractors.metadata import MetadataExtractor
+from extractors.metadata import AbstractMetadataExtractor
 from extractors.metadata import PyPDFMetadataExtractor
 from extractors.textual import PdfTextExtractor
 from extractors.textual import AbstractTextExtractor
 
 __dummy_a = BaseExtractor(None)
-__dummy_b = MetadataExtractor(None)
+__dummy_b = AbstractMetadataExtractor(None)
 __dummy_c = ExiftoolMetadataExtractor(None)
 __dummy_d = PyPDFMetadataExtractor(None)
 __dummy_e = AbstractTextExtractor(None)
@@ -213,7 +213,7 @@ def get_query_strings():
 
 
 def get_metadata_query_strings():
-    klasses = [k for k in globals()['MetadataExtractor'].__subclasses__()]
+    klasses = [k for k in globals()['AbstractMetadataExtractor'].__subclasses__()]
 
     out = set()
     for e in klasses:

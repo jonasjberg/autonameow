@@ -23,18 +23,18 @@ from unittest import TestCase
 import unit_utils as uu
 
 from extractors.metadata import (
-    MetadataExtractor,
+    AbstractMetadataExtractor,
 )
 
 
-class TestMetadataExtractor(TestCase):
+class TestAbstractMetadataExtractor(TestCase):
     def setUp(self):
-        self.e = MetadataExtractor(uu.make_temporary_file())
+        self.e = AbstractMetadataExtractor(uu.make_temporary_file())
 
-    def test_metadata_extractor_class_is_available(self):
-        self.assertIsNotNone(MetadataExtractor)
+    def test_abstract_metadata_extractor_class_is_available(self):
+        self.assertIsNotNone(AbstractMetadataExtractor)
 
-    def test_metadata_extractor_class_can_be_instantiated(self):
+    def test_abstract_metadata_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
     def test_method__get_raw_metadata_raises_not_implemented_error(self):
