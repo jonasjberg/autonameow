@@ -103,7 +103,6 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
         self.assertGreaterEqual(len(self.actual), 4)
 
 
-
 class TestGetQueryStrings(TestCase):
     def setUp(self):
         self.actual = extractors.get_query_strings()
