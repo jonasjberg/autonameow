@@ -75,7 +75,7 @@ def get_extractor_classes(extractor_files):
         print(namespace)
 
         for _obj_name, _obj_type in namespace:
-            if _obj_name == 'Extractor':
+            if _obj_name == 'Extractor' or _obj_name.startswith('Abstract'):
                 continue
             if not issubclass(_obj_type, Extractor):
                 continue
