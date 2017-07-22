@@ -44,3 +44,9 @@ class TestMetadataExtractor(TestCase):
     def test_query_returns_false_without__get_raw_metadata_implemented(self):
         self.assertFalse(self.e.query())
         self.assertFalse(self.e.query(field='some_field'))
+
+    def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
+        self.assertIsNone(self.e.handles_mime_types)
+
+    def test_abstract_class_does_not_specify_data_query_string(self):
+        self.assertIsNone(self.e.data_query_string)

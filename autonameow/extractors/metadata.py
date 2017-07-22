@@ -38,7 +38,7 @@ from extractors import BaseExtractor
 
 
 class MetadataExtractor(BaseExtractor):
-    handles_mime_types = []
+    handles_mime_types = None
     data_query_string = None
 
     # Lookup table that maps extractor-specific field names to wrapper classes.
