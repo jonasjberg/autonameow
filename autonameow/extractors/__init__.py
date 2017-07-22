@@ -71,9 +71,6 @@ def get_extractor_classes(extractor_files):
 
         namespace = inspect.getmembers(sys.modules[extractor_file],
                                        inspect.isclass)
-
-        print(namespace)
-
         for _obj_name, _obj_type in namespace:
             if _obj_name == 'Extractor' or _obj_name.startswith('Abstract'):
                 continue
