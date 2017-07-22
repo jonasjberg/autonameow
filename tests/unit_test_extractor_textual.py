@@ -30,24 +30,24 @@ from extractors.textual import (
     extract_pdf_content_with_pypdf,
     PdfTextExtractor,
     ImageOCRTextExtractor,
-    TextExtractor
+    AbstractTextExtractor
 )
 import unit_utils as uu
 
 
-class TestTextExtractor(TestCase):
+class TestAbstractTextExtractor(TestCase):
     def setUp(self):
-        self.e = TextExtractor(uu.make_temporary_file())
+        self.e = AbstractTextExtractor(uu.make_temporary_file())
 
         class DummyFileObject(object):
             def __init__(self):
                 self.mime_type = 'image/jpeg'
         self.fo = DummyFileObject()
 
-    def test_text_extractor_class_is_available(self):
-        self.assertIsNotNone(TextExtractor)
+    def test_abstract_text_extractor_class_is_available(self):
+        self.assertIsNotNone(AbstractTextExtractor)
 
-    def test_text_extractor_class_can_be_instantiated(self):
+    def test_abstract_text_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
     def test_method_query_returns_something(self):
@@ -63,7 +63,7 @@ class TestTextExtractor(TestCase):
         self.assertTrue(isinstance(str(self.e.__str__), str))
 
     def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'TextExtractor')
+        self.assertEqual(str(self.e), 'AbstractTextExtractor')
 
     def test_class_method_can_handle_is_defined(self):
         self.assertIsNotNone(self.e.can_handle)

@@ -24,17 +24,17 @@ import unit_utils as uu
 
 from core import util
 from extractors.textual import (
-    TextExtractor,
+    AbstractTextExtractor,
     PdfTextExtractor
 )
 
 
 class TestTextExtractor(TestCase):
     def setUp(self):
-        self.e = TextExtractor(uu.make_temporary_file())
+        self.e = AbstractTextExtractor(uu.make_temporary_file())
 
     def test_text_extractor_class_is_available(self):
-        self.assertIsNotNone(TextExtractor)
+        self.assertIsNotNone(AbstractTextExtractor)
 
     def test_text_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)

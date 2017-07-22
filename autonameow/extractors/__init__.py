@@ -32,13 +32,13 @@ from extractors.metadata import ExiftoolMetadataExtractor
 from extractors.metadata import MetadataExtractor
 from extractors.metadata import PyPDFMetadataExtractor
 from extractors.textual import PdfTextExtractor
-from extractors.textual import TextExtractor
+from extractors.textual import AbstractTextExtractor
 
 __dummy_a = Extractor(None)
 __dummy_b = MetadataExtractor(None)
 __dummy_c = ExiftoolMetadataExtractor(None)
 __dummy_d = PyPDFMetadataExtractor(None)
-__dummy_e = TextExtractor(None)
+__dummy_e = AbstractTextExtractor(None)
 __dummy_f = PdfTextExtractor(None)
 
 

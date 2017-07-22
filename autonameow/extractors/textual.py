@@ -36,12 +36,12 @@ from core.util import textutils
 from extractors.extractor import Extractor
 
 
-class TextExtractor(Extractor):
+class AbstractTextExtractor(Extractor):
     handles_mime_types = None
     data_query_string = None
 
     def __init__(self, source):
-        super(TextExtractor, self).__init__(source)
+        super(AbstractTextExtractor, self).__init__(source)
 
         self._raw_text = None
 
@@ -72,7 +72,7 @@ class TextExtractor(Extractor):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
 
-class ImageOCRTextExtractor(TextExtractor):
+class ImageOCRTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['image/*']
     data_query_string = 'contents.visual.ocr_text'
 
@@ -93,7 +93,7 @@ class ImageOCRTextExtractor(TextExtractor):
             raise ExtractorError(e)
 
 
-class PdfTextExtractor(TextExtractor):
+class PdfTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['application/pdf']
     data_query_string = 'contents.textual.raw_text'
 
