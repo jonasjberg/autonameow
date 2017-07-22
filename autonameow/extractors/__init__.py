@@ -173,22 +173,6 @@ def suitable_data_extractors_for(file_object):
     return [e for e in ExtractorClasses if e.can_handle(file_object)]
 
 
-def get_extractor_classes_():
-    """
-    Get a list of all available extractors as a list of "type".
-    All classes inheriting from the "Extractor" class are included.
-
-    Returns:
-        All available extractor classes as a list of type.
-    """
-    # TODO: [TD0003] Include ALL extractors!
-    # out = find_extractors()
-    # find_extractors()
-    out = ([klass for klass in globals()['MetadataExtractor'].__subclasses__()]
-           + [klass for klass in globals()['TextExtractor'].__subclasses__()])
-    return out
-
-
 def get_query_strings():
     """
     Get the set of "query strings" for all extractor classes.
