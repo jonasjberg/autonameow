@@ -37,6 +37,31 @@ class BaseExtractor(object):
 
     Includes common functionality and interfaces that must be implemented
     by inheriting extractor classes.
+
+    All "extractors" must inherit from the 'BaseExtractor' class. This class
+    is never used directly -- it is an abstract class that defines interfaces
+    that must be implemented by inheriting classes.
+
+    Currently, there is also an additional layer of abstraction/inheritance/
+    (indirection..) between the 'BaseExtractor' and the *actual *REAL**
+    extractor classes that are used at runtime.
+
+    Current inheritance hierarchy:
+
+        (abstract)  @ BaseExtractor
+                    |
+        (abstract)  +--* AbstractTextExtractor
+                    |  |
+                    |  +--* ImageOCRTextExtractor
+                    |  '--* PdfTextExtractor
+                    |
+        (abstract)  '--* AbstractMetadataExtractor
+                       |
+                       +--* ExiftoolMetadataExtractor
+                       '--* PyPDFMetadataExtractor
+
+    The abstract extractors defines additional interfaces, extending the base.
+    It is pretty messy and should be redesigned and simplified at some point ..
     """
 
     # List of MIME types that this extractor can extract information from.
