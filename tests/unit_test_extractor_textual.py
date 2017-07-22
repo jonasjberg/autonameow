@@ -73,6 +73,12 @@ class TestAbstractTextExtractor(TestCase):
             self.assertIsNotNone(self.e.can_handle(self.fo))
             self.assertFalse(self.e.can_handle(self.fo))
 
+    def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
+        self.assertIsNone(self.e.handles_mime_types)
+
+    def test_abstract_class_does_not_specify_data_query_string(self):
+        self.assertIsNone(self.e.data_query_string)
+
 
 pdf_file = uu.abspath_testfile('simplest_pdf.md.pdf')
 expected_text = '''Probably a title
