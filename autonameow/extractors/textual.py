@@ -33,7 +33,7 @@ import pytesseract
 from core import util
 from core.exceptions import ExtractorError
 from core.util import textutils
-from extractors.extractor import BaseExtractor
+from extractors.base_extractor import BaseExtractor
 
 
 class AbstractTextExtractor(BaseExtractor):

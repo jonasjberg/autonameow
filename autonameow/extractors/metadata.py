@@ -34,7 +34,7 @@ from core import (
     util,
     types
 )
-from extractors.extractor import BaseExtractor
+from extractors.base_extractor import BaseExtractor
 
 
 class MetadataExtractor(BaseExtractor):

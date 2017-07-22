@@ -23,11 +23,11 @@ import inspect
 import os
 import sys
 
-from extractors import extractor
+from extractors import base_extractor
 
 # TODO: [TD0003][hack] Fix this! Used for instantiating extractors so that they
 # are included in the global namespace and seen by 'get_extractor_classes()'.
-from extractors.extractor import BaseExtractor
+from extractors.base_extractor import BaseExtractor
 from extractors.metadata import ExiftoolMetadataExtractor
 from extractors.metadata import MetadataExtractor
 from extractors.metadata import PyPDFMetadataExtractor
@@ -55,7 +55,7 @@ def find_extractor_files():
     """
     extractor_files = [x for x in os.listdir(AUTONAMEOW_EXTRACTOR_PATH)
                        if x.endswith('.py')
-                       and x != 'extractor.py'
+                       and x != 'base_extractor.py'
                        and x != '__init__.py']
     return extractor_files
 
@@ -72,7 +72,7 @@ def get_extractor_classes(extractor_files):
         namespace = inspect.getmembers(sys.modules[extractor_file],
                                        inspect.isclass)
         for _obj_name, _obj_type in namespace:
-            if _obj_name == 'Extractor' or _obj_name.startswith('Abstract'):
+            if _obj_name == 'BaseExtractor' or _obj_name.startswith('Abstract'):
                 continue
             if not issubclass(_obj_type, BaseExtractor):
                 continue

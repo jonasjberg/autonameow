@@ -22,7 +22,7 @@
 from unittest import TestCase
 import unit_utils as uu
 
-from extractors.extractor import BaseExtractor
+from extractors.base_extractor import BaseExtractor
 
 
 class TestBaseExtractor(TestCase):
@@ -54,7 +54,7 @@ class TestBaseExtractor(TestCase):
         self.assertTrue(isinstance(str(self.e.__str__), str))
 
     def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'Extractor')
+        self.assertEqual(str(self.e), 'BaseExtractor')
 
     def test_class_method_can_handle_is_defined(self):
         self.assertIsNotNone(self.e.can_handle)
