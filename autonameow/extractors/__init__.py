@@ -27,14 +27,14 @@ from extractors import extractor
 
 # TODO: [TD0003][hack] Fix this! Used for instantiating extractors so that they
 # are included in the global namespace and seen by 'get_extractor_classes()'.
-from extractors.extractor import Extractor
+from extractors.extractor import BaseExtractor
 from extractors.metadata import ExiftoolMetadataExtractor
 from extractors.metadata import MetadataExtractor
 from extractors.metadata import PyPDFMetadataExtractor
 from extractors.textual import PdfTextExtractor
 from extractors.textual import AbstractTextExtractor
 
-__dummy_a = Extractor(None)
+__dummy_a = BaseExtractor(None)
 __dummy_b = MetadataExtractor(None)
 __dummy_c = ExiftoolMetadataExtractor(None)
 __dummy_d = PyPDFMetadataExtractor(None)
@@ -77,7 +77,7 @@ def get_extractor_classes(extractor_files):
         for _obj_name, _obj_type in namespace:
             if _obj_name == 'Extractor' or _obj_name.startswith('Abstract'):
                 continue
-            if not issubclass(_obj_type, Extractor):
+            if not issubclass(_obj_type, BaseExtractor):
                 continue
 
             _classes.append(_obj_type)

@@ -34,10 +34,10 @@ from core import (
     util,
     types
 )
-from extractors.extractor import Extractor
+from extractors.extractor import BaseExtractor
 
 
-class MetadataExtractor(Extractor):
+class MetadataExtractor(BaseExtractor):
     handles_mime_types = []
     data_query_string = None
 

@@ -64,7 +64,7 @@ class TestGetExtractorClasses(TestCase):
 
         self.assertTrue(isinstance(actual, list))
         for c in actual:
-            self.assertTrue(issubclass(c, extractors.Extractor))
+            self.assertTrue(issubclass(c, extractors.BaseExtractor))
 
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.
     def test_get_extractor_classes_returns_at_least_one_extractor(self):

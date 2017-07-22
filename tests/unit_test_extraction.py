@@ -169,7 +169,7 @@ class TestExtraction(TestCase):
 
         self.assertTrue(isinstance(actual, list))
         for ec in actual:
-            self.assertTrue(issubclass(ec.__class__, extractors.Extractor))
+            self.assertTrue(issubclass(ec.__class__, extractors.BaseExtractor))
 
     def test_has_method__execute_run_queue(self):
         self.assertIsNotNone(self.e._execute_run_queue)

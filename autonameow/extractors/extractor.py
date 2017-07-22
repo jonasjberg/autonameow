@@ -22,7 +22,7 @@
 from core.fileobject import eval_magic_glob
 
 
-class Extractor(object):
+class BaseExtractor(object):
     """
     Top-level abstract base class for all filetype-specific extractor classes.
 

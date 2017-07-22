@@ -33,10 +33,10 @@ import pytesseract
 from core import util
 from core.exceptions import ExtractorError
 from core.util import textutils
-from extractors.extractor import Extractor
+from extractors.extractor import BaseExtractor
 
 
-class AbstractTextExtractor(Extractor):
+class AbstractTextExtractor(BaseExtractor):
     handles_mime_types = None
     data_query_string = None
 

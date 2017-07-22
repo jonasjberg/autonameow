@@ -22,22 +22,22 @@
 from unittest import TestCase
 import unit_utils as uu
 
-from extractors.extractor import Extractor
+from extractors.extractor import BaseExtractor
 
 
-class TestExtractor(TestCase):
+class TestBaseExtractor(TestCase):
     def setUp(self):
-        self.e = Extractor(uu.make_temporary_file())
+        self.e = BaseExtractor(uu.make_temporary_file())
 
         class DummyFileObject(object):
             def __init__(self):
                 self.mime_type = 'image/jpeg'
         self.fo = DummyFileObject()
 
-    def test_extractor_class_is_available(self):
-        self.assertIsNotNone(Extractor)
+    def test_base_extractor_class_is_available(self):
+        self.assertIsNotNone(BaseExtractor)
 
-    def test_extractor_class_can_be_instantiated(self):
+    def test_base_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
     def test_method_query_raises_not_implemented_error(self):
@@ -64,5 +64,8 @@ class TestExtractor(TestCase):
             self.assertIsNotNone(self.e.can_handle(self.fo))
             self.assertFalse(self.e.can_handle(self.fo))
 
-    def test_data_query_string_is_none(self):
+    def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
+        self.assertIsNone(self.e.handles_mime_types)
+
+    def test_abstract_class_does_not_specify_data_query_string(self):
         self.assertIsNone(self.e.data_query_string)
