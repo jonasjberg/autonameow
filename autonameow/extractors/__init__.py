@@ -165,24 +165,35 @@ def find_extractor_files():
     return extractor_files
 
 
-def get_extractor_classes(extractor_files):
+def _get_extractor_classes(extractor_files):
     # Strip extensions.
     _to_import = [f[:-3] for f in extractor_files]
 
-    _classes = []
+    _extractor_classes = []
+    _abstract_extractor_classes = []
     for extractor_file in _to_import:
         __import__(extractor_file, None, None)
         namespace = inspect.getmembers(sys.modules[extractor_file],
                                        inspect.isclass)
         for _obj_name, _obj_type in namespace:
-            if _obj_name == 'BaseExtractor' or _obj_name.startswith('Abstract'):
-                continue
             if not issubclass(_obj_type, BaseExtractor):
                 continue
+            if _obj_name.startswith('Abstract'):
+                _abstract_extractor_classes.append(_obj_type)
+            else:
+                _extractor_classes.append(_obj_type)
 
-            _classes.append(_obj_type)
+    return _abstract_extractor_classes, _extractor_classes
 
-    return _classes
+
+def get_abstract_extractor_classes(extractor_files):
+    _abstract, _implemented = _get_extractor_classes(extractor_files)
+    return _abstract
+
+
+def get_extractor_classes(extractor_files):
+    _abstract, _implemented = _get_extractor_classes(extractor_files)
+    return _implemented
 
 
 def suitable_data_extractors_for(file_object):
@@ -213,8 +224,16 @@ def get_query_strings():
 
 
 def get_metadata_query_strings():
-    klasses = [k for k in
-               globals()['AbstractMetadataExtractor'].__subclasses__()]
+    _abstract_classes = get_abstract_extractor_classes(find_extractor_files())
+    print(_abstract_classes)
+
+    klasses = False
+    for klass in _abstract_classes:
+        if klass == 'AbstractMetadataExtractor':
+            klasses = [k for k in klass.__subclasses__()]
+
+    if not klasses:
+        return None
 
     out = set()
     for e in klasses:

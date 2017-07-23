@@ -102,16 +102,38 @@ class TestFindExtractorSourceFiles(TestCase):
         self.assertIn('metadata.py', actual)
 
 
-class TestGetExtractorClasses(TestCase):
+class TestGetAllExtractorClasses(TestCase):
     def setUp(self):
         self.sources = ['textual.py', 'metadata.py']
 
     def test_get_extractor_classes_returns_expected_type(self):
-        actual = extractors.get_extractor_classes(self.sources)
+        actual = extractors._get_extractor_classes(self.sources)
+        self.assertTrue(isinstance(actual, tuple))
 
-        self.assertTrue(isinstance(actual, list))
-        for c in actual:
-            self.assertTrue(issubclass(c, extractors.BaseExtractor))
+    def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
+        def __subclasses_base_extractor(klass):
+            self.assertTrue(issubclass(klass, extractors.BaseExtractor))
+
+        actual = extractors._get_extractor_classes(self.sources)
+
+        actual_abstract, _ = actual
+        for _abstract in actual_abstract:
+            __subclasses_base_extractor(_abstract)
+
+        _, actual_implemented = actual
+        for _implemented in actual_implemented:
+            __subclasses_base_extractor(_implemented)
+
+    def test_get_extractor_classes_does_not_include_base_extractor(self):
+        abstract, implemented = extractors._get_extractor_classes(self.sources)
+        self.assertNotIn('extractors.BaseExtractor', abstract)
+        self.assertNotIn('extractors.BaseExtractor', implemented)
+
+
+class TestGetExtractorClasses(TestCase):
+    def setUp(self):
+        self.sources = ['textual.py', 'metadata.py']
+        self.actual = extractors.get_extractor_classes(self.sources)
 
 
 class TestNumberOfAvailableExtractorClasses(TestCase):
