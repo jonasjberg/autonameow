@@ -227,7 +227,6 @@ def get_query_strings():
 
 def get_metadata_query_strings():
     _abstract_classes = get_abstract_extractor_classes(find_extractor_files())
-    print(_abstract_classes)
 
     klasses = False
     for klass in _abstract_classes:
