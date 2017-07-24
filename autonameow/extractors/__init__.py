@@ -144,15 +144,6 @@ class BaseExtractor(object):
         return '<{}>'.format(self.__class__.__name__)
 
 
-# TODO: [TD0003][hack] Fix this! Used for instantiating extractors so that they
-# are included in the global namespace and seen by 'get_extractor_classes()'.
-from extractors.metadata import ExiftoolMetadataExtractor
-from extractors.metadata import AbstractMetadataExtractor
-from extractors.metadata import PyPDFMetadataExtractor
-from extractors.textual import PdfTextExtractor
-from extractors.textual import AbstractTextExtractor
-
-
 def find_extractor_files():
     """
     Finds and imports Python source files assumed to be autonameow extractors.
