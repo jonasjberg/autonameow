@@ -178,6 +178,8 @@ def _get_extractor_classes(extractor_files):
         for _obj_name, _obj_type in namespace:
             if not issubclass(_obj_type, BaseExtractor):
                 continue
+            if _obj_type == BaseExtractor:
+                continue
             if _obj_name.startswith('Abstract'):
                 _abstract_extractor_classes.append(_obj_type)
             else:
