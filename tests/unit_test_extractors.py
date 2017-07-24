@@ -145,6 +145,10 @@ class TestGetImplementedExtractorClasses(TestCase):
     def test_get_extractor_classes_does_not_include_base_extractor(self):
         self.assertNotIn(BaseExtractor, self.actual)
 
+    def test_get_extractor_classes_does_not_include_abstract_extractors(self):
+        self.assertNotIn(extractors.AbstractMetadataExtractor, self.actual)
+        self.assertNotIn(extractors.AbstractTextExtractor, self.actual)
+
 
 class TestNumberOfAvailableExtractorClasses(TestCase):
     def setUp(self):
