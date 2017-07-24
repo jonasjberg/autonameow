@@ -107,14 +107,14 @@ class TestGetAllExtractorClasses(TestCase):
         self.sources = ['textual.py', 'metadata.py']
 
     def test_get_extractor_classes_returns_expected_type(self):
-        actual = extractors._get_extractor_classes(self.sources)
+        actual = extractors._get_all_extractor_classes(self.sources)
         self.assertTrue(isinstance(actual, tuple))
 
     def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
         def __subclasses_base_extractor(klass):
             self.assertTrue(issubclass(klass, extractors.BaseExtractor))
 
-        actual = extractors._get_extractor_classes(self.sources)
+        actual = extractors._get_all_extractor_classes(self.sources)
 
         actual_abstract, _ = actual
         for _abstract in actual_abstract:
@@ -125,7 +125,7 @@ class TestGetAllExtractorClasses(TestCase):
             __subclasses_base_extractor(_implemented)
 
     def test_get_extractor_classes_does_not_include_base_extractor(self):
-        abstract, implemented = extractors._get_extractor_classes(self.sources)
+        abstract, implemented = extractors._get_all_extractor_classes(self.sources)
         self.assertNotIn('extractors.BaseExtractor', abstract)
         self.assertNotIn('extractors.BaseExtractor', implemented)
 

@@ -165,7 +165,7 @@ def find_extractor_files():
     return extractor_files
 
 
-def _get_extractor_classes(extractor_files):
+def _get_all_extractor_classes(extractor_files):
     # Strip extensions.
     _to_import = [f[:-3] for f in extractor_files]
 
@@ -189,12 +189,12 @@ def _get_extractor_classes(extractor_files):
 
 
 def get_abstract_extractor_classes(extractor_files):
-    _abstract, _implemented = _get_extractor_classes(extractor_files)
+    _abstract, _implemented = _get_all_extractor_classes(extractor_files)
     return _abstract
 
 
 def get_extractor_classes(extractor_files):
-    _abstract, _implemented = _get_extractor_classes(extractor_files)
+    _abstract, _implemented = _get_all_extractor_classes(extractor_files)
     return _implemented
 
 
