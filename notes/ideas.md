@@ -9,7 +9,7 @@
 
 Ideas and Notes
 ===============
-Various ideas and possible features.
+Various ideas on possible upcoming features and changes to `autonameow`.
 
 
 Field Candidates
@@ -51,37 +51,65 @@ files.
 
 * Another possible variant of specifying sources:
 
-```python
-'DATA_SOURCES': {
-    'datetime': { 
-        # List of sources ordered by priority.
-        'source': [metadata.exiftool.PDF:CreateDate,
-                   metadata.exiftool.PDF:ModifyDate]
-    }
-    'title': [
-        # Raw text source is evaluated against two possible candidates.
-        # If any expression evaluates true, "override" is used as the title.
-        { 'source': 'contents.textual.raw_text',
-          'candidates': [
-            { 'expression': ['The Tale of Tail', 'The .* of .*', '^.* Tale .*$'],
-              'override': 'The Tale of Tail' },
-            { 'expression': ['Catriarchy', 'Tuna Activism'],
-              'override': 'Gibson is Lord' }
-          ]
-        },
-        # If the file basename (without extension) matches any of the two
-        # expressions, "The Tale of Tail" is used as the title.
-        { 'source': 'filesystem.basename.prefix',
-          'candidates': [
-            { 'expression': ['The-Tale-of-Tail', 'The-Tale-.*'],
-              'override': 'The Tale of Tail' },
-          ]
+    ```python
+    'DATA_SOURCES': {
+        'datetime': { 
+            # List of sources ordered by priority.
+            'source': [metadata.exiftool.PDF:CreateDate,
+                       metadata.exiftool.PDF:ModifyDate]
         }
-    ]
-    'author': metadata.exiftool.XMP-dc:Creator,
-    'publisher': metadata.exiftool.XMP-dc:Publisher,
-    'extension': 'filename.extension',
-    'tags': None
-}
-```
+        'title': [
+            # Raw text source is evaluated against two possible candidates.
+            # If any expression evaluates true, "override" is used as the title.
+            { 'source': 'contents.textual.raw_text',
+              'candidates': [
+                { 'expression': ['The Tale of Tail', 'The .* of .*', '^.* Tale .*$'],
+                  'override': 'The Tale of Tail' },
+                { 'expression': ['Catriarchy', 'Tuna Activism'],
+                  'override': 'Gibson is Lord' }
+              ]
+            },
+            # If the file basename (without extension) matches any of the two
+            # expressions, "The Tale of Tail" is used as the title.
+            { 'source': 'filesystem.basename.prefix',
+              'candidates': [
+                { 'expression': ['The-Tale-of-Tail', 'The-Tale-.*'],
+                  'override': 'The Tale of Tail' },
+              ]
+            }
+        ]
+    }
+    ```
 
+    Here, the source specification of the `datetime` field is a simple list of
+    two sources without any additional qualifier or expression.
+
+    The `title` field can use any of two possible sources; the first source is
+    the raw document text, that must match any of the given regular
+    expressions.
+    The second is the file basename without extension, that also must match one
+    two expressions. In the case of a match, a hardcoded "`override`" is used
+    as for the `title` field.
+
+* Yet another way of configuring sources:
+
+    ```python
+    'DATA_SOURCES': {
+        'title': {
+            # Text from any of these two sources is to be considered.
+            'source': [contents.textual.raw_text,
+                       contents.textual.ocr_text],
+            # Text from sources is searched for "match" and if found,
+            # the text at "replace" is used for the title.
+            'candidates': [
+                {'match': 'The .* of .*',
+                 'replace': 'The Tale of Tail'},
+                {'match': '^Regex for Kittens ([1-9]+(st|nd|rd|th) [eE]dition)?$',
+                 'replace': 'Regular Expressions for Kittens'}
+            ]
+        }
+    }
+    ```
+
+    This way separates the sources from the candidates. The expressions in
+    `match` could also be given as a list of expressions.
