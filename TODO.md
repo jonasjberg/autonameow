@@ -176,9 +176,6 @@ Medium Priority
 * `[TD0021]` Look into merging possibly redundant methods `get` and `query` in
   the `AnalysisResults` class.
 
-* `[TD0022]` Look into merging possibly redundant methods `get` and `query` in
-  the `ExtractedData` class.
-
 * `[TD0023]` Add additional option to force non-interactive mode (`--batch`?)
 
 * `[TD0024]` Rework handling of unresolved operations

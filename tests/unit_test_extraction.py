@@ -75,11 +75,9 @@ class TestExtractedData(TestCase):
         self.d.add(second_valid_label, 'data')
         self.assertEqual(len(self.d), 2)
 
-    def test_get_data_with_invalid_label_raises_error(self):
-        with self.assertRaises(InvalidDataSourceError):
-            self.d.get('not_a_label.surely')
-        with self.assertRaises(InvalidDataSourceError):
-            self.d.get('')
+    def test_get_data_with_invalid_label_returns_false(self):
+        self.assertFalse(self.d.get('not_a_label.surely'))
+        self.assertFalse(self.d.get(''))
 
     def test_get_data_with_valid_label_returns_false_when_empty(self):
         valid_labels = constants.VALID_DATA_SOURCES[:3]

@@ -186,34 +186,14 @@ class ExtractedData(object):
         Raises:
             InvalidDataSourceError: The label is not a valid data source.
         """
-        # TODO: [TD0022] Methods 'get' and 'query' perform the same task?
         if label is not None:
             if label not in constants.VALID_DATA_SOURCES:
-                raise InvalidDataSourceError(
-                    'Invalid label: "{}"'.format(label)
+                log.critical(
+                    'ExtractedData.get() got bad label: "{}"'.format(label)
                 )
-            else:
-                return self._data.get(label, False)
+            return self._data.get(label, False)
         else:
             return self._data
-
-    def query(self, query_string):
-        """
-        Returns extracted data for the given "query string".
-
-        If the given query string does not map to any data, False is returned.
-
-        Args:
-            query_string: The query string key for the data to return.
-                Example:  'metadata.exiftool.DateTimeOriginal'
-
-        Returns:
-            Extracted data for matching the specified query string or False.
-        """
-        # TODO: [TD0022] Methods 'get' and 'query' perform the same task?
-        if query_string in self._data:
-            return self._data.get(query_string)
-        return False
 
     def __iter__(self):
         for k, v in self._data.items():

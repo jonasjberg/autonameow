@@ -78,7 +78,7 @@ class NameBuilder(object):
         # description format.
         # TODO: [TD0017] Rethink source specifications relation to source data.
         for field, query_string in data_sources.items():
-            extracted_data = self.extracted_data.query(query_string)
+            extracted_data = self.extracted_data.get(query_string)
             if extracted_data:
                 out[field] = extracted_data
             else:

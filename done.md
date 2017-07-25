@@ -22,6 +22,12 @@ University mail: `js224eh[a]student.lnu.se`
     >     * Collect valid analyzer query strings at run-time.
     >     * Rework configuration validation to use dynamically updated tests.
     >     * Replace hard coded strings with gathered data.
+    >
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0022]` Look into merging possibly redundant methods `get` and `query` in
+    >   the `ExtractedData` class.
 
 * 2017-07-18
 
