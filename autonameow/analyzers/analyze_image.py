@@ -23,7 +23,7 @@ import logging as log
 import re
 from datetime import datetime
 
-from analyzers.analyzer import Analyzer
+from analyzers import Analyzer
 from core.util import dateandtime
 
 

@@ -27,7 +27,7 @@ from unittest import TestCase
 import unit_utils as uu
 
 import analyzers
-from analyzers.analyzer import Analyzer
+from analyzers import Analyzer
 from core.fileobject import FileObject
 
 

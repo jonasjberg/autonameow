@@ -22,9 +22,7 @@
 from unittest import TestCase
 import unit_utils as uu
 
-from analyzers.analyzer import (
-    Analyzer
-)
+from analyzers import Analyzer
 from analyzers.analyze_filename import FilenameAnalyzer
 from analyzers.analyze_filesystem import FilesystemAnalyzer
 from analyzers.analyze_image import ImageAnalyzer

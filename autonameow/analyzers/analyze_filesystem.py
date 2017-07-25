@@ -24,7 +24,7 @@ import logging
 import os
 from datetime import datetime
 
-from analyzers.analyzer import Analyzer
+from analyzers import Analyzer
 
 
 class FilesystemAnalyzer(Analyzer):

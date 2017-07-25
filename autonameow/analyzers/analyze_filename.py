@@ -21,7 +21,7 @@
 
 import logging
 
-from analyzers.analyzer import Analyzer
+from analyzers import Analyzer
 
 try:
     import guessit as guessit
