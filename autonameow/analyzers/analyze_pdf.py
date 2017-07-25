@@ -23,11 +23,11 @@ import logging
 import re
 from datetime import datetime
 
-from analyzers.analyzer import Analyzer
+from analyzers import BaseAnalyzer
 from core.util import dateandtime
 
 
-class PdfAnalyzer(Analyzer):
+class PdfAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['application/pdf']
 

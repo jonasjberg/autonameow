@@ -21,7 +21,9 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+
 from unittest import TestCase
+import unit_utils as uu
 
 import yaml
 
@@ -35,7 +37,6 @@ from core.config.configuration import (
     is_analyzer_source
 )
 from core.exceptions import ConfigurationSyntaxError
-from unit_utils import make_temp_dir
 
 
 def load_yaml(path):
@@ -46,7 +47,7 @@ def load_yaml(path):
 
 class TestWriteConfig(TestCase):
     def setUp(self):
-        self.dest_path = os.path.join(make_temp_dir(), 'test_config.yaml')
+        self.dest_path = os.path.join(uu.make_temp_dir(), 'test_config.yaml')
 
         self.configuration = Configuration(DEFAULT_CONFIG)
 
@@ -96,7 +97,7 @@ class TestWriteDefaultConfig(TestCase):
     # cat "$(find /var/folders -type f -name "test_default_config.yaml" -exec stat -f %m %N {} \; 2>/dev/null | sort -n | cut -f2 -d  | tail -n 1)"
 
     def setUp(self):
-        self.dest_path = os.path.join(make_temp_dir(),
+        self.dest_path = os.path.join(uu.make_temp_dir(),
                                       'test_default_config.yaml')
 
         self.configuration = Configuration(DEFAULT_CONFIG)

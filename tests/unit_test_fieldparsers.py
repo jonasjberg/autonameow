@@ -30,7 +30,6 @@ from core.config.field_parsers import (
     MimeTypeConfigFieldParser,
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser,
-    MetadataSourceConfigFieldParser,
     suitable_field_parser_for,
     is_valid_template_field,
     eval_query_string_glob
@@ -64,7 +63,7 @@ class TestFieldParserFunctions(TestCase):
 
     def test_get_available_parsers_returns_arbitrary_number(self):
         # TODO: [hardcoded] Likely to break; Fix or remove!
-        self.assertGreaterEqual(len(available_field_parsers()), 5)
+        self.assertGreaterEqual(len(available_field_parsers()), 4)
 
 
 class TestFieldParser(TestCase):
@@ -234,24 +233,6 @@ class TestNameFormatFieldParser(TestCase):
         self.assertTrue(self.val_func('{datetime} {title}.{extension}'))
 
 
-class TestMetadataSourceConfigFieldParser(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.p = MetadataSourceConfigFieldParser()
-        self.val_func = self.p.get_validation_function()
-
-    def test_validation_function_expect_fail(self):
-        self.assertFalse(self.val_func(None))
-        self.assertFalse(self.val_func(''))
-
-    def test_validation_function_expect_pass(self):
-        self.assertTrue(self.val_func('exiftool.EXIF:DateTimeOriginal'))
-        self.assertTrue(self.val_func('pypdf.CreationDate'))
-
-        # TODO: Implement proper (?) validation of metadata source!
-        self.assertTrue(self.val_func('exiftool'))
-
-
 class TestInstantiatedFieldParsers(TestCase):
     def test_field_parsers_in_not_none(self):
         self.assertIsNotNone(field_parsers.FieldParserInstances)
@@ -289,6 +270,10 @@ class TestSuitableFieldParserFor(TestCase):
         self.__expect_parser_for('DateTimeConfigFieldParser', 'date_accessed')
         self.__expect_parser_for('DateTimeConfigFieldParser', 'date_created')
         self.__expect_parser_for('DateTimeConfigFieldParser', 'date_modified')
+        self.__expect_parser_for('DateTimeConfigFieldParser',
+                                 'metadata.exiftool.PDF:CreateDate')
+        self.__expect_parser_for('DateTimeConfigFieldParser',
+                                 'metadata.exiftool.EXIF:DateTimeOriginal')
 
     def test_expect_regex_field_parser(self):
         self.__expect_parser_for('RegexConfigFieldParser',
@@ -304,15 +289,8 @@ class TestSuitableFieldParserFor(TestCase):
         self.__expect_parser_for('MimeTypeConfigFieldParser',
                                  'contents.mime_type')
 
-    def test_expect_metadata_source_field_parser(self):
-        # TODO: [TD0048] Fix "conflict" with 'DateTimeConfigFieldParser'.
-        self.__expect_parser_for('MetadataSourceConfigFieldParser',
-                                 'metadata.exiftool.PDF:CreateDate')
-        self.__expect_parser_for('MetadataSourceConfigFieldParser',
-                                 'metadata.exiftool.EXIF:DateTimeOriginal')
 
-
-class TestFieldparserConstants(TestCase):
+class TestFieldParserConstants(TestCase):
     def test_has_dummy_data_fields_constant(self):
         self.assertIsNotNone(field_parsers.DATA_FIELDS)
         self.assertTrue(isinstance(field_parsers.DATA_FIELDS, dict))

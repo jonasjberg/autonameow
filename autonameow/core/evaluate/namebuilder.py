@@ -78,7 +78,7 @@ class NameBuilder(object):
         # description format.
         # TODO: [TD0017] Rethink source specifications relation to source data.
         for field, query_string in data_sources.items():
-            extracted_data = self.extracted_data.query(query_string)
+            extracted_data = self.extracted_data.get(query_string)
             if extracted_data:
                 out[field] = extracted_data
             else:
@@ -114,10 +114,9 @@ class NameBuilder(object):
         log.debug('Query for results fields returned:')
         log.debug(str(data))
 
-        # Format datetime
         # TODO: [TD0017][TD0041] Format ALL data before assembly!
-        # NOTE(jonas): Currently, only the date/time-information is handled!
-        data = pre_assemble_format(data, template, self.config)
+        # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
+        data = pre_assemble_format(data, self.config)
         log.debug('After pre-assembly formatting;')
         log.debug(str(data))
 
@@ -192,7 +191,7 @@ def format_string_placeholders(format_string):
     return re.findall(r'{(\w+)}', format_string)
 
 
-def pre_assemble_format(data, template, config):
+def pre_assemble_format(data, config):
     out = {}
 
     # TODO: [TD0017][TD0041] This needs refactoring, badly.
@@ -214,7 +213,13 @@ def pre_assemble_format(data, template, config):
                                              datetime_format)
         else:
             # TODO: [TD0041] Other substitutions, etc ..
-            out[key] = data[key]
+            # TODO: [TD0044] Rework converting "raw data" to an internal format.
+            # TODO: [TD0004] Take a look at this ad-hoc encoding boundary.
+            if isinstance(value, bytes):
+                value = util.decode_(value)
+                out[key] = value
+            else:
+                out[key] = data[key]
 
     return out
 

@@ -127,11 +127,11 @@ class Path(BaseType):
     coercible_types = (str, bytes)
     equivalent_types = ()
 
-    # TODO: Figure out how to represent null for Paths.
-    null = None
+    null = ''
 
     def __call__(self, raw_value=None):
-        if raw_value and isinstance(raw_value, self.coercible_types):
+        if (raw_value is not None
+                and isinstance(raw_value, self.coercible_types)):
             # Type can be coerced, test after coercion to make sure.
             value = self.coerce(raw_value)
             return value
@@ -141,8 +141,11 @@ class Path(BaseType):
             )
 
     def coerce(self, raw_value):
+        if raw_value is None:
+            return self._null()
+
         try:
-            value = util.normpath(raw_value)
+            value = util.bytestring_path(raw_value)
         except (ValueError, TypeError):
             return self._null()
         else:
@@ -325,18 +328,13 @@ class PyPDFTimeDate(TimeDate):
         if isinstance(raw_value, datetime):
             return raw_value
 
-        # Expected date format:           D:20121225235237 +05'30'
-        #                                   ^____________^ ^_____^
-        # Regex search matches two groups:        #1         #2
-        #
-        # 'D:20160111124132+00\\'00\\''
-
         if "'" in raw_value:
             raw_value = raw_value.replace("'", '')
 
-        dt = None
-        found_match = False
-        re_datetime_tz = re.compile('D:(\d{14})(\+\d{2}\'\d{2}\')')
+        # Expected date format:           D:20121225235237 +05'30'
+        #                                   ^____________^ ^_____^
+        # Regex search matches two groups:        #1         #2
+        re_datetime_tz = re.compile(r'D:(\d{14}) ?(\+\d{2}\'?\d{2}\'?)')
         re_match_tz = re_datetime_tz.search(raw_value)
         if re_match_tz:
             datetime_str = re_match_tz.group(1)
@@ -344,34 +342,27 @@ class PyPDFTimeDate(TimeDate):
             timezone_str = timezone_str.replace("'", "")
 
             try:
-                dt = datetime.strptime(
-                    str(datetime_str + timezone_str), "%Y%m%d%H%M%S%z"
-                )
-                found_match = True
+                # With timezone ('%z')
+                return datetime.strptime(str(datetime_str + timezone_str),
+                                         '%Y%m%d%H%M%S%z')
             except ValueError:
                 pass
-
-            if not found_match:
-                try:
-                    dt = datetime.strptime(datetime_str, "%Y%m%d%H%M%S")
-                    found_match = True
-                except ValueError:
-                    pass
+            try:
+                # Without timezone
+                return datetime.strptime(datetime_str, '%Y%m%d%H%M%S')
+            except ValueError:
+                pass
 
         # Try matching another pattern.
         re_datetime_no_tz = re.compile(r'D:(\d{14})')
         re_match = re_datetime_no_tz.search(raw_value)
         if re_match:
             try:
-                dt = datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
-                found_match = True
+                return datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
             except ValueError:
                 pass
 
-        if found_match:
-            return dt
-        else:
-            raise ValueError
+        raise ValueError
 
 
 def try_parse_full_datetime(string):

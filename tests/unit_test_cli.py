@@ -24,7 +24,7 @@ from unittest import TestCase
 
 from core.util import cli
 from core.util.cli import colorize
-from unit_utils import capture_stdout
+import unit_utils as uu
 
 
 class TestMsg(TestCase):
@@ -36,20 +36,20 @@ class TestMsg(TestCase):
         self.assertIsNotNone(cli.msg)
 
     def test_msg_no_keyword_arguments(self):
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg('text printed by msg()')
 
         self.assertIn('text printed by msg()', out.getvalue().strip())
 
     def test_msg_type_info(self):
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg('text printed by msg() with type="info"', style='info')
 
         self.assertIn('text printed by msg() with type="info"',
                       out.getvalue().strip())
 
     def test_msg_type_info_log_true(self):
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg('text printed by msg() with type="info", log=True',
                     style='info', log=True)
 
@@ -57,7 +57,7 @@ class TestMsg(TestCase):
                       out.getvalue().strip())
 
     def test_msg_type_color_quoted(self):
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg('msg() text with type="color_quoted" no "yes" no',
                     style='color_quoted')
 
@@ -69,37 +69,37 @@ class TestMsg(TestCase):
     def test_msg_type_color_quoted_including_escape_sequences(self):
         # NOTE:  This will likely fail on some platforms!
 
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg('msg() text with type="color_quoted" no "yes" no',
                     style='color_quoted')
 
             self.assertEqual('msg() text with type="\x1b[92mcolor_quoted\x1b[39m" no "\x1b[92myes\x1b[39m" no',
                              out.getvalue().strip())
 
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg('no "yes" no', style='color_quoted')
 
             self.assertEqual('no "\x1b[92myes\x1b[39m" no',
                              out.getvalue().strip())
 
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg('no "yes yes" no', style='color_quoted')
             self.assertEqual('no "\x1b[92myes yes\x1b[39m" no',
                              out.getvalue().strip())
 
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg('Word "1234-56 word" -> "1234-56 word"',
                     style='color_quoted')
             self.assertEqual('Word "\x1b[92m1234-56 word\x1b[39m" -> "\x1b[92m1234-56 word\x1b[39m"',
                              out.getvalue().strip())
 
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg('Word "word 1234-56" -> "1234-56 word"',
                     style='color_quoted')
             self.assertEqual('Word "\x1b[92mword 1234-56\x1b[39m" -> "\x1b[92m1234-56 word\x1b[39m"',
                              out.getvalue().strip())
 
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg('A "b 123" -> A "b 123"', style='color_quoted')
             self.assertEqual('A "\x1b[92mb 123\x1b[39m" -> A "\x1b[92mb 123\x1b[39m"',
                              out.getvalue().strip())
@@ -212,7 +212,7 @@ class TestMsgRename(TestCase):
                        dry_run=False)
 
     def test_valid_args_dry_run_true_gives_expected_output(self):
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg_rename('smulan.jpg',
                            '2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=True)
@@ -221,7 +221,7 @@ class TestMsgRename(TestCase):
                              out.getvalue().strip())
 
     def test_valid_args_dry_run_false_gives_expected_output(self):
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg_rename('smulan.jpg',
                            '2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=False)
@@ -230,7 +230,7 @@ class TestMsgRename(TestCase):
                              out.getvalue().strip())
 
     def test_valid_bytestring_args_dry_run_true_gives_expected_output(self):
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg_rename(b'smulan.jpg',
                            b'2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=True)
@@ -239,7 +239,7 @@ class TestMsgRename(TestCase):
                              out.getvalue().strip())
 
     def test_valid_bytestring_args_dry_run_false_gives_expected_output(self):
-        with capture_stdout() as out:
+        with uu.capture_stdout() as out:
             cli.msg_rename(b'smulan.jpg',
                            b'2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=False)

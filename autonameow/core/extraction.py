@@ -21,27 +21,14 @@
 
 import logging as log
 
+import extractors
 from core import (
     constants,
-    util
+    util,
+    types
 )
 from core.exceptions import InvalidDataSourceError
 from core.util.queue import GenericQueue
-
-# TODO: [TD0003][hack] Fix this! Used for instantiating extractors so that they
-# are included in the global namespace and seen by 'get_extractor_classes()'.
-from extractors.extractor import Extractor
-from extractors.metadata import MetadataExtractor
-from extractors.metadata import ExiftoolMetadataExtractor
-from extractors.metadata import PyPDFMetadataExtractor
-from extractors.textual import TextExtractor
-from extractors.textual import PdfTextExtractor
-__dummy_a = Extractor(None)
-__dummy_b = MetadataExtractor(None)
-__dummy_c = ExiftoolMetadataExtractor(None)
-__dummy_d = PyPDFMetadataExtractor(None)
-__dummy_e = TextExtractor(None)
-__dummy_f = PdfTextExtractor(None)
 
 
 class Extraction(object):
@@ -102,15 +89,17 @@ class Extraction(object):
         log.debug('Started data extraction')
 
         # Select extractors based on detected file type.
-        extractors = suitable_data_extractors_for(self.file_object)
-        extractor_instances = self._instantiate_extractors(extractors)
-        log.debug('Got {} suitable extractors'.format(len(extractors)))
+        classes = extractors.suitable_data_extractors_for(self.file_object)
+        instances = self._instantiate_extractors(classes)
+        log.debug('Got {} suitable extractors'.format(len(classes)))
 
-        for e in extractor_instances:
+        for e in instances:
             self.extractor_queue.enqueue(e)
         log.debug('Enqueued extractors: {!s}'.format(self.extractor_queue))
 
         # Add information from 'FileObject' to results.
+        # TODO: [TD0053] Fix special case of collecting data from 'FileObject'.
+
         # TODO: Move this to a "PlatformIndependentFilesystemExtractor"?
         # NOTE: Move would make little sense aside from maybe being
         #       a bit more consistent with the class hierarchy, etc.
@@ -119,20 +108,18 @@ class Extraction(object):
         # components? If the user wants to use parts of the original file
         # name in the new name, conversion can't be lossy. Solve by storing
         # bytestring versions of these fields as well?
-
-        # TODO: [TD0004] Enforce encoding boundary for extracted data.
         self.collect_results('filesystem.basename.full',
-                             util.decode_(self.file_object.filename))
+                             types.AW_PATH(self.file_object.filename))
         self.collect_results('filesystem.basename.extension',
-                             util.decode_(self.file_object.suffix))
+                             types.AW_PATH(self.file_object.suffix))
         self.collect_results('filesystem.basename.suffix',
-                             util.decode_(self.file_object.suffix))
+                             types.AW_PATH(self.file_object.suffix))
         self.collect_results('filesystem.basename.prefix',
-                             util.decode_(self.file_object.fnbase))
+                             types.AW_PATH(self.file_object.fnbase))
         self.collect_results('filesystem.pathname.full',
-                             util.decode_(self.file_object.pathname))
+                             types.AW_PATH(self.file_object.pathname))
         self.collect_results('filesystem.pathname.parent',
-                             util.decode_(self.file_object.pathparent))
+                             types.AW_PATH(self.file_object.pathparent))
         self.collect_results('contents.mime_type',
                              self.file_object.mime_type)
 
@@ -199,34 +186,14 @@ class ExtractedData(object):
         Raises:
             InvalidDataSourceError: The label is not a valid data source.
         """
-        # TODO: [TD0022] Methods 'get' and 'query' perform the same task?
         if label is not None:
             if label not in constants.VALID_DATA_SOURCES:
-                raise InvalidDataSourceError(
-                    'Invalid label: "{}"'.format(label)
+                log.critical(
+                    'ExtractedData.get() got bad label: "{}"'.format(label)
                 )
-            else:
-                return self._data.get(label, False)
+            return self._data.get(label, False)
         else:
             return self._data
-
-    def query(self, query_string):
-        """
-        Returns extracted data for the given "query string".
-
-        If the given query string does not map to any data, False is returned.
-
-        Args:
-            query_string: The query string key for the data to return.
-                Example:  'metadata.exiftool.DateTimeOriginal'
-
-        Returns:
-            Extracted data for matching the specified query string or False.
-        """
-        # TODO: [TD0022] Methods 'get' and 'query' perform the same task?
-        if query_string in self._data:
-            return self._data.get(query_string)
-        return False
 
     def __iter__(self):
         for k, v in self._data.items():
@@ -250,57 +217,3 @@ class ExtractedData(object):
         return count_dict_recursive(self._data, 0)
 
 
-def get_query_strings():
-    """
-    Get the set of "query strings" for all extractor classes.
-
-    Returns:
-        Unique extractor query strings as a set.
-    """
-    out = set()
-    for e in ExtractorClasses:
-        if e.data_query_string:
-            out.add(e.data_query_string)
-    return out
-
-
-def get_metadata_query_strings():
-    klasses = [k for k in globals()['MetadataExtractor'].__subclasses__()]
-
-    out = set()
-    for e in klasses:
-        if e.data_query_string:
-            out.add(e.data_query_string)
-    return out
-
-
-def suitable_data_extractors_for(file_object):
-    """
-    Returns extractor classes that can handle the given file object.
-
-    Args:
-        file_object: File to get extractors for as an instance of 'FileObject'.
-
-    Returns:
-        A list of extractor classes that can extract data from the given file.
-    """
-    return [e for e in ExtractorClasses if e.can_handle(file_object)]
-
-
-def get_extractor_classes():
-    """
-    Get a list of all available extractors as a list of "type".
-    All classes inheriting from the "Extractor" class are included.
-
-    Returns:
-        All available extractor classes as a list of type.
-    """
-    # TODO: [TD0003] Include ALL extractors!
-    out = ([klass for klass in globals()['MetadataExtractor'].__subclasses__()]
-           + [klass for klass in globals()['TextExtractor'].__subclasses__()])
-    return out
-
-
-ExtractorClasses = get_extractor_classes()
-ExtractorQueryStrings = get_query_strings()
-MetadataExtractorQueryStrings = get_metadata_query_strings()

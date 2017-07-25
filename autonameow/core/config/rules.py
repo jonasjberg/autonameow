@@ -109,11 +109,7 @@ class RuleCondition(object):
         if not raw_query_string:
             return False
 
-        if raw_query_string.startswith('metadata.exiftool'):
-            # TODO: [TD0015] Handle expression in 'condition_value'
-            #                ('Defined', '> 2017', etc)
-            return True
-
+        # Consider the query string valid if any parser can handle it.
         if self._get_parser(raw_query_string):
             return True
         else:

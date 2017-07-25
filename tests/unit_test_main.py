@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #   Copyright(c) 2016-2017 Jonas Sjöberg
@@ -19,28 +20,24 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 from unittest import TestCase
-
-from extractors.metadata import (
-    MetadataExtractor,
-)
-from unit_utils import make_temporary_file
+import unit_utils as uu
 
 
-class TestMetadataExtractor(TestCase):
+class TestMainFileExistsAndIsExecutable(TestCase):
     def setUp(self):
-        self.e = MetadataExtractor(make_temporary_file())
+        self.main_file = os.path.join(uu.AUTONAMEOW_SRCROOT_DIR, '__main__.py')
 
-    def test_metadata_extractor_class_is_available(self):
-        self.assertIsNotNone(MetadataExtractor)
+    def test_assumed_main_source_file_exists(self):
+        self.assertTrue(os.path.exists(self.main_file))
 
-    def test_metadata_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
+    def test_assumed_main_source_file_is_a_file(self):
+        self.assertTrue(os.path.isfile(self.main_file))
 
-    def test_method__get_raw_metadata_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
-            self.e._get_raw_metadata()
+    def test_assumed_main_source_file_is_readable(self):
+        self.assertTrue(os.access(self.main_file, os.R_OK))
 
-    def test_query_returns_false_without__get_raw_metadata_implemented(self):
-        self.assertFalse(self.e.query())
-        self.assertFalse(self.e.query(field='some_field'))
+    def test_assumed_main_source_file_is_executable(self):
+        self.assertTrue(os.access(self.main_file, os.X_OK))

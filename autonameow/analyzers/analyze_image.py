@@ -23,11 +23,11 @@ import logging as log
 import re
 from datetime import datetime
 
-from analyzers.analyzer import Analyzer
+from analyzers import BaseAnalyzer
 from core.util import dateandtime
 
 
-class ImageAnalyzer(Analyzer):
+class ImageAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     handles_mime_types = ['image/*']
 

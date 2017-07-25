@@ -14,14 +14,6 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0003]` __Implement gathering data on non-core modules at run-time__
-    * Have extractors register themselves at run-time.
-    * Collect valid extractor query strings at run-time.
-    * Have analyzers register themselves at run-time.
-    * Collect valid analyzer query strings at run-time.
-    * Rework configuration validation to use dynamically updated tests.
-    * Replace hard coded strings with gathered data.
-
 * `[TD0004]` __Text encoding issues__
     * Enforce strict boundaries between all external systems and an internal
       text data representation.
@@ -57,14 +49,15 @@ High Priority
           the process would mostly add yet another layer of indirection ..
     * Think about how wrapped data types (`[TD0002]`) relates to this.
 
-* `[TD0048]` Look into conflicting field parsers returned for metadata fields.
-  Especially the `DateTimeConfigFieldParser` and
-  `MetadataSourceConfigFieldParser` classes both want to handle some exiftool
-  fields.
-
 
 Medium Priority
 ---------------
+
+* `[TD0053]` Fix special case of collecting data from the `FileObject`.
+
+* `[TD0052]` Analyzer classes should provide their respective "query strings".
+
+* `[TD0051]` Implement or remove the `CommonFileSystemExtractor` class.
 
 * `[TD0050]` Figure out how to represent "null" for `datetime` types.
 
@@ -179,12 +172,6 @@ Medium Priority
           existing solutions poorly.
         * Look into how `guessit` does it or possibility of modifying
           `guessit` to identify custom fields.
-
-* `[TD0021]` Look into merging possibly redundant methods `get` and `query` in
-  the `AnalysisResults` class.
-
-* `[TD0022]` Look into merging possibly redundant methods `get` and `query` in
-  the `ExtractedData` class.
 
 * `[TD0023]` Add additional option to force non-interactive mode (`--batch`?)
 

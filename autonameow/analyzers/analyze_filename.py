@@ -21,7 +21,7 @@
 
 import logging
 
-from .analyzer import Analyzer
+from analyzers import BaseAnalyzer
 
 try:
     import guessit as guessit
@@ -31,7 +31,7 @@ except ImportError:
 from core.util import dateandtime
 
 
-class FilenameAnalyzer(Analyzer):
+class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['*/*']
 

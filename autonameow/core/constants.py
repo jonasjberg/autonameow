@@ -42,7 +42,6 @@ NAME_TEMPLATE_FIELDS = (
 )
 
 
-
 # Reference analysis results data structure with all valid fields/sources.
 RESULTS_DATA_STRUCTURE = {
     'filesystem': {

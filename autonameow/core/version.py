@@ -27,7 +27,7 @@
 # Source: http://stackoverflow.com/a/16084844
 
 __title__ = 'autonameow'
-__version__ = '0.4.3'
+__version__ = '0.4.4'
 __author__ = 'Jonas Sjöberg'
 __email__ = 'jomeganas[at]gmail.com'
 __url__ = 'www.jonasjberg.com'

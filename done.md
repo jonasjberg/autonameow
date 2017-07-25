@@ -10,6 +10,38 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-07-25
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0003]` __Implement gathering data on non-core modules at run-time__
+    >     * Have extractors register themselves at run-time.
+    >     * Collect valid extractor query strings at run-time.
+    >     * Have analyzers register themselves at run-time.
+    >     * Collect valid analyzer query strings at run-time.
+    >     * Rework configuration validation to use dynamically updated tests.
+    >     * Replace hard coded strings with gathered data.
+    >
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0022]` Look into merging possibly redundant methods `get` and `query` in
+    >   the `ExtractedData` class.
+    >
+    > * `[TD0021]` Look into merging possibly redundant methods `get` and `query` in
+    >   the `AnalysisResults` class.
+
+* 2017-07-18
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0048]` Look into conflicting field parsers returned for metadata fields.
+    >   Especially the `DateTimeConfigFieldParser` and
+    >   `MetadataSourceConfigFieldParser` classes both want to handle some exiftool
+    >   fields.
+
 * 2017-07-16
 
     > High Priority

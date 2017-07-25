@@ -52,8 +52,8 @@ class RuleMatcher(object):
         self._candidates = []
 
     def query_data(self, query_string):
-        out = self.extraction_data.query(query_string)
-        return out if out else self.analysis_data.query(query_string)
+        out = self.extraction_data.get(query_string)
+        return out if out else self.analysis_data.get(query_string)
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))

@@ -29,7 +29,7 @@ import unittest
 
 from contextlib import contextmanager
 
-from core.analysis import get_analyzer_classes
+import analyzers
 from core.extraction import ExtractedData
 from core.fileobject import FileObject
 from core import util
@@ -37,6 +37,9 @@ from core import util
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 _PARENT_DIR = os.path.join(_THIS_DIR, os.pardir)
 TESTS_DIR = os.path.join(_PARENT_DIR + os.sep + util.syspath('test_files'))
+AUTONAMEOW_SRCROOT_DIR = os.path.join(
+    _PARENT_DIR + os.sep + util.syspath('autonameow')
+)
 
 
 class TestCase(unittest.TestCase):
@@ -228,4 +231,5 @@ def get_instantiated_analyzers():
     """
     # NOTE: These are instantiated with a None FileObject, which might be a
     #       problem and is surely not very pretty.
-    return [klass(None, None, None) for klass in get_analyzer_classes()]
+    return [klass(None, None, None) for klass in
+            analyzers.get_analyzer_classes()]

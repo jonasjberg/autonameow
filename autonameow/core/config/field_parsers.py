@@ -27,7 +27,6 @@ import unicodedata
 
 from core import (
     constants,
-    extraction,
     util,
     fileobject,
     exceptions
@@ -41,6 +40,13 @@ class ConfigFieldParser(object):
 
     Provides common functionality and interfaces that must be implemented
     by inheriting rule parser classes.
+
+    The field parser classes handle the "keys" in the "key-value pairs" that
+    make up the configuration rules. The "key" is a "query string" that
+    represent the location of some data and the "value" is some kind of
+    expression.
+
+    The "query string" (key) determines which parser class is to be used.
     """
 
     # List of "query strings" (or configuration "keys"/"fields") used to
@@ -140,6 +146,11 @@ class RegexConfigFieldParser(ConfigFieldParser):
         # test_data = _normalize(test_data)
         test_data = util.encode_(test_data)
         expression = util.encode_(expression)
+
+        log.debug('test_data: "{!s}" ({})"'.format(test_data,
+                                                   type(test_data)))
+        log.debug('expression: "{!s}" ({})"'.format(expression,
+                                                    type(expression)))
         _match = re.match(expression, test_data)
         if _match:
             return _match
@@ -206,9 +217,9 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
-    # TODO: [TD0048] Fix "conflict" with the 'DateTimeConfigFieldParser' class.
     applies_to_field = ['datetime', 'date_accessed', 'date_created',
-                        'date_modified']
+                        'date_modified', 'metadata.exiftool.PDF:CreateDate',
+                        'metadata.exiftool.EXIF:DateTimeOriginal']
 
     @staticmethod
     def is_valid_datetime(expression):
@@ -251,36 +262,6 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
     @classmethod
     def get_validation_function(cls):
         return cls.is_valid_format_string
-
-    @classmethod
-    def get_evaluation_function(cls):
-        # TODO: Implement this!
-        # TODO: [TD0015] Handle expression in 'condition_value'
-        #                ('Defined', '> 2017', etc)
-        return lambda *_: True
-
-
-class MetadataSourceConfigFieldParser(ConfigFieldParser):
-    # TODO: [TD0048] Fix "conflict" with the 'DateTimeConfigFieldParser' class.
-    applies_to_field = ['metadata.*']
-
-    @staticmethod
-    def is_valid_metadata_source(expression):
-        if not expression or not isinstance(expression, str):
-            return False
-
-        # TODO: [TD0015] Implement proper (?) validation of metadata source!
-        query_strings = list(extraction.MetadataExtractorQueryStrings)
-        query_strings = [qs.replace('metadata.', '') for qs in query_strings]
-
-        if expression.startswith(tuple(query_strings)):
-            return True
-
-        return False
-
-    @classmethod
-    def get_validation_function(cls):
-        return cls.is_valid_metadata_source
 
     @classmethod
     def get_evaluation_function(cls):

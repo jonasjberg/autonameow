@@ -26,12 +26,11 @@ from unittest import TestCase
 from analyzers.analyze_filesystem import FilesystemAnalyzer
 from core import util
 from core.fileobject import FileObject
-from unit_utils import abspath_testfile
+import unit_utils as uu
 
 
 def get_filesystem_analyzer(file_object):
     return FilesystemAnalyzer(file_object, None, None)
-
 
 
 class TestFilesystemAnalyzerWithEmptyFile(TestCase):
@@ -41,7 +40,7 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
                        'ignore_before_year': None,
                        'ignore_after_year': None}
 
-        p_test_file = util.bytestring_path(abspath_testfile('empty'))
+        p_test_file = util.bytestring_path(uu.abspath_testfile('empty'))
         self.assertTrue(os.path.isfile(p_test_file))
 
         class MockOptions(object):
@@ -115,6 +114,11 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
     def test_get_tags_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.assertIsNone(self.fsa.get_tags())
+
+    def test__get_datetime_from_filesystem_returns_expected_type(self):
+        actual = self.fsa._get_datetime_from_filesystem()
+        for entry in actual:
+            self.assertTrue(isinstance(entry.get('value'), datetime))
 
     def test__get_datetime_from_filesystem(self):
         self.skipTest('Create and access time might have changed. Should be '

@@ -144,11 +144,10 @@ class Autonameow(object):
             cli.msg(str(self.config))
             self.exit_program(constants.EXIT_SUCCESS)
 
-        # Handle any input paths/files.
+        # Handle any input paths/files. Abort early if input paths are missing.
         if not self.opts.input_paths:
             log.warning('No input files specified ..')
             self.exit_program(constants.EXIT_SUCCESS)
-
 
         files_to_process = []
         for path in self.opts.input_paths:
@@ -245,17 +244,17 @@ class Autonameow(object):
             if self.opts.list_all:
                 log.info('Listing ALL analysis results ..')
                 cli.msg('Analysis Results Data', style='heading', log=True)
-                cli.msg(util.dump(analysis.results.get()))
+                cli.msg(util.dump(analysis.results.query()))
 
                 cli.msg('Extraction Results Data', style='heading', log=True)
                 cli.msg(util.dump(extraction.data.get()))
             else:
                 if self.opts.list_datetime:
                     log.info('Listing "datetime" analysis results ..')
-                    cli.msg(util.dump(analysis.results.get('datetime')))
+                    cli.msg(util.dump(analysis.results.query('datetime')))
                 if self.opts.list_title:
                     log.info('Listing "title" analysis results ..')
-                    cli.msg(util.dump(analysis.results.get('title')))
+                    cli.msg(util.dump(analysis.results.query('title')))
 
             # Perform actions.
             if self.opts.prepend_datetime:

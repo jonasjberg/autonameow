@@ -24,32 +24,30 @@ from unittest import TestCase
 
 import PyPDF2
 
+from core import util
 from extractors.textual import (
     extract_pdf_content_with_pdftotext,
     extract_pdf_content_with_pypdf,
     PdfTextExtractor,
     ImageOCRTextExtractor,
-    TextExtractor
+    AbstractTextExtractor
 )
-from unit_utils import (
-    abspath_testfile,
-    make_temporary_file
-)
+import unit_utils as uu
 
 
-class TestTextExtractor(TestCase):
+class TestAbstractTextExtractor(TestCase):
     def setUp(self):
-        self.e = TextExtractor(make_temporary_file())
+        self.e = AbstractTextExtractor(uu.make_temporary_file())
 
         class DummyFileObject(object):
             def __init__(self):
                 self.mime_type = 'image/jpeg'
         self.fo = DummyFileObject()
 
-    def test_text_extractor_class_is_available(self):
-        self.assertIsNotNone(TextExtractor)
+    def test_abstract_text_extractor_class_is_available(self):
+        self.assertIsNotNone(AbstractTextExtractor)
 
-    def test_text_extractor_class_can_be_instantiated(self):
+    def test_abstract_text_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
     def test_method_query_returns_something(self):
@@ -65,7 +63,7 @@ class TestTextExtractor(TestCase):
         self.assertTrue(isinstance(str(self.e.__str__), str))
 
     def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'TextExtractor')
+        self.assertEqual(str(self.e), 'AbstractTextExtractor')
 
     def test_class_method_can_handle_is_defined(self):
         self.assertIsNotNone(self.e.can_handle)
@@ -75,8 +73,14 @@ class TestTextExtractor(TestCase):
             self.assertIsNotNone(self.e.can_handle(self.fo))
             self.assertFalse(self.e.can_handle(self.fo))
 
+    def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
+        self.assertIsNone(self.e.handles_mime_types)
 
-pdf_file = abspath_testfile('simplest_pdf.md.pdf')
+    def test_abstract_class_does_not_specify_data_query_string(self):
+        self.assertIsNone(self.e.data_query_string)
+
+
+pdf_file = uu.abspath_testfile('simplest_pdf.md.pdf')
 expected_text = '''Probably a title
 Text following the title, probably.
 
@@ -136,7 +140,7 @@ class TestPdfTextExtractor(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        test_file = abspath_testfile('gmail.pdf')
+        test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
         self.e = PdfTextExtractor(test_file)
 
         class DummyFileObject(object):
@@ -241,7 +245,7 @@ class TestImageOCRTextExtractor(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.e = ImageOCRTextExtractor(make_temporary_file())
+        self.e = ImageOCRTextExtractor(uu.make_temporary_file())
 
         class DummyFileObject(object):
             def __init__(self, mime):
@@ -261,7 +265,7 @@ class TestImageOCRTextExtractorWithEmptyFile(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.e = ImageOCRTextExtractor(make_temporary_file())
+        self.e = ImageOCRTextExtractor(uu.make_temporary_file())
 
     def test_extractor_class_is_available(self):
         self.assertIsNotNone(ImageOCRTextExtractor)
@@ -278,7 +282,7 @@ class TestImageOCRTextExtractorWithEmptyFile(TestCase):
 
 
 # NOTE(jonas): Use a shared instance to maintain test execution speed.
-image_file = abspath_testfile('2007-04-23_12-comments.png')
+image_file = util.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
 image_ocr_extractor = ImageOCRTextExtractor(image_file)
 
 

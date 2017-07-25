@@ -298,16 +298,16 @@ class TestTypePyPDFTimeDate(TestCase):
     def test_call_with_coercible_data(self):
         expected = datetime.strptime('2012-12-25T23:52:37+0530',
                                      '%Y-%m-%dT%H:%M:%S%z')
-        self.assertEqual(types.AW_PYPDFTIMEDATE(expected),
-                         expected)
+        self.assertEqual(types.AW_PYPDFTIMEDATE(expected), expected,
+                         'datetime objects should be passed through as-is')
         self.assertEqual(types.AW_PYPDFTIMEDATE("D:20121225235237 +05'30'"),
                          expected)
 
     def test_call_with_coercible_data_2(self):
         expected = datetime.strptime('2016-01-11T12:41:32+0000',
                                      '%Y-%m-%dT%H:%M:%S%z')
-        self.assertEqual(types.AW_PYPDFTIMEDATE(expected),
-                         expected)
+        self.assertEqual(types.AW_PYPDFTIMEDATE(expected), expected,
+                         'datetime objects should be passed through as-is')
         self.assertEqual(types.AW_PYPDFTIMEDATE("D:20160111124132+00'00'"),
                          expected)
 

@@ -46,7 +46,7 @@ import sys
 import unittest
 from contextlib import contextmanager
 
-import unit_utils
+import unit_utils as uu
 from core.util import encoding
 
 
@@ -59,7 +59,7 @@ class UtilTest(unittest.TestCase):
                          arg.decode(encoding.arg_encoding(), 'surrogateescape'))
 
 
-class PathConversionTest(unit_utils.TestCase):
+class PathConversionTest(uu.TestCase):
     def test_syspath_windows_format(self):
         with platform_windows():
             path = os.path.join('a', 'b', 'c')
@@ -102,12 +102,12 @@ class PathConversionTest(unit_utils.TestCase):
         self.assertEqual(outpath, 'C:\\caf\xe9'.encode('utf-8'))
 
 
-class TestByteStringPathWithInvalidInput(unit_utils.TestCase):
+class TestByteStringPathWithInvalidInput(uu.TestCase):
     def test_bytestring_path_returns_expected_for_empty_input(self):
         self.assertEqual(b'', encoding.bytestring_path(''))
 
 
-class TestNormPath(unit_utils.TestCase):
+class TestNormPath(uu.TestCase):
     def test_normpath_returns_expected_for_valid_input(self):
         self.assertNotEqual('/', encoding.normpath('/'))
         self.assertNotEqual('/tmp', encoding.normpath('/tmp/'))

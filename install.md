@@ -32,6 +32,7 @@ Install these Python modules:
 * `PyPDF2`
 * `pytesseract`
 * `python-magic`
+* `pytz`
 
 
 ### Instructions for MacOS
@@ -51,7 +52,7 @@ Install the dependencies by running the following commands in a terminal:
 
 ```bash
 brew install libmagic exiftool tesseract
-pip3 install colorama python-dateutil unidecode PyPDF2 pytesseract python-magic
+pip3 install colorama python-dateutil unidecode PyPDF2 pytesseract python-magic pytz
 ```
 
 ### Instructions for Linux
@@ -70,7 +71,7 @@ Install the dependencies by running the following commands in a terminal:
 
 ```bash
 apt install exiftool tesseract-ocr
-pip3 install colorama python-dateutil unidecode PyPDF2 pytesseract python-magic
+pip3 install colorama python-dateutil unidecode PyPDF2 pytesseract python-magic pytz
 ```
 
 Alternatively, search the repositories for the packages with `apt-search`.
