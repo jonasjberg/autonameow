@@ -29,7 +29,7 @@ from extractors import BaseExtractor
 
 class CommonFileSystemExtractor(BaseExtractor):
     # TODO: [TD0051] Implement or remove this class.
-    handles_mime_types = ['*/*']
+    handles_mime_types = ['NONE/NONE']
     data_query_string = 'filesystem.common'
 
     def __init__(self, source):
