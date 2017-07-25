@@ -116,7 +116,7 @@ class NameBuilder(object):
 
         # TODO: [TD0017][TD0041] Format ALL data before assembly!
         # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
-        data = pre_assemble_format(data, template, self.config)
+        data = pre_assemble_format(data, self.config)
         log.debug('After pre-assembly formatting;')
         log.debug(str(data))
 
@@ -191,7 +191,7 @@ def format_string_placeholders(format_string):
     return re.findall(r'{(\w+)}', format_string)
 
 
-def pre_assemble_format(data, template, config):
+def pre_assemble_format(data, config):
     out = {}
 
     # TODO: [TD0017][TD0041] This needs refactoring, badly.
