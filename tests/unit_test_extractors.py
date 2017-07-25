@@ -127,8 +127,8 @@ class TestGetAllExtractorClasses(TestCase):
 
     def test_get_extractor_classes_does_not_include_base_extractor(self):
         abstract, implemented = extractors._get_all_extractor_classes(self.sources)
-        self.assertNotIn('extractors.BaseExtractor', abstract)
-        self.assertNotIn('extractors.BaseExtractor', implemented)
+        self.assertNotIn(extractors.BaseExtractor, abstract)
+        self.assertNotIn(extractors.BaseExtractor, implemented)
 
 
 class TestGetImplementedExtractorClasses(TestCase):
