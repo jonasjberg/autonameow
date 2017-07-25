@@ -235,5 +235,5 @@ def get_metadata_query_strings():
 
 
 ExtractorClasses = get_extractor_classes(find_extractor_files())
-ExtractorQueryStrings = get_query_strings()
+QueryStrings = get_query_strings()
 MetadataExtractorQueryStrings = get_metadata_query_strings()

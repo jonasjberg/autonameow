@@ -202,4 +202,20 @@ def get_analyzer_classes_basename():
     return [c.__name__ for c in get_analyzer_classes()]
 
 
+def get_query_strings():
+    """
+    Get the set of "query strings" for all analyzer classes.
+
+    Returns:
+        Unique analyzer query strings as a set.
+    """
+    out = set()
+    # TODO: [TD0003] Implement gathering data on non-core modules at run-time
+    # for a in AnalyzerClasses:
+    #     if a.data_query_string:
+    #         out.add(a.data_query_string)
+    return out
+
+
 AnalyzerClasses = get_analyzer_classes()
+QueryStrings = get_query_strings()
