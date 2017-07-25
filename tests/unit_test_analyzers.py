@@ -85,46 +85,47 @@ class TestSuitableAnalyzersForFile(TestCase):
 class TestGetAnalyzerClasses(TestCase):
     def setUp(self):
         self.maxDiff = None
+        self.klasses = analyzers.get_analyzer_classes()
 
     def test_get_analyzer_classes_returns_expected_type(self):
-        actual = analyzers.get_analyzer_classes()
-        self.assertTrue(isinstance(actual, list))
-        for klass in actual:
+        self.assertTrue(isinstance(self.klasses, list))
+        for klass in self.klasses:
             self.assertTrue(issubclass(klass, analyzers.Analyzer))
 
     def test_get_analyzer_classes_does_not_include_abstract_classes(self):
-        actual = analyzers.get_analyzer_classes()
-        self.assertNotIn(analyzers.Analyzer, actual)
+        self.assertNotIn(analyzers.Analyzer, self.klasses)
 
+    def test_get_analyzer_classes_returns_class_objects(self):
+        for klass in self.klasses:
+            self.assertTrue(hasattr(klass, '__class__'))
+
+
+class TestNumberOfAvailableAnalyzerClasses(TestCase):
+    def setUp(self):
+        self.actual = analyzers.get_analyzer_classes()
 
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.
     def test_get_analyzer_classes_returns_at_least_one_analyzer(self):
-        self.assertGreaterEqual(len(analyzers.get_analyzer_classes()), 1)
+        self.assertGreaterEqual(len(self.actual), 1)
 
     def test_get_analyzer_classes_returns_at_least_two_analyzers(self):
-        self.assertGreaterEqual(len(analyzers.get_analyzer_classes()), 2)
+        self.assertGreaterEqual(len(self.actual), 2)
 
     def test_get_analyzer_classes_returns_at_least_three_analyzers(self):
-        self.assertGreaterEqual(len(analyzers.get_analyzer_classes()), 3)
+        self.assertGreaterEqual(len(self.actual), 3)
 
     def test_get_analyzer_classes_returns_at_least_four_analyzers(self):
-        self.assertGreaterEqual(len(analyzers.get_analyzer_classes()), 4)
+        self.assertGreaterEqual(len(self.actual), 4)
 
     def test_get_analyzer_classes_returns_at_least_five_analyzers(self):
-        self.assertGreaterEqual(len(analyzers.get_analyzer_classes()), 5)
+        self.assertGreaterEqual(len(self.actual), 5)
 
     def test_get_analyzer_classes_returns_at_least_six_analyzers(self):
-        self.assertGreaterEqual(len(analyzers.get_analyzer_classes()), 6)
+        self.assertGreaterEqual(len(self.actual), 6)
 
     # TODO: [hardcoded] Likely to break; fixed analyzer names!
     def test_get_analyzer_classes_returns_expected_count(self):
-        _classes = analyzers.get_analyzer_classes()
-        self.assertEqual(len(_classes), len(EXPECT_ANALYZER_CLASSES))
-
-    def test_get_analyzer_classes_returns_class_objects(self):
-        _classes = analyzers.get_analyzer_classes()
-        for a in _classes:
-            self.assertTrue(hasattr(a, '__class__'))
+        self.assertEqual(len(self.actual), len(EXPECT_ANALYZER_CLASSES))
 
 
 class TestGetAnalyzerClassesBasename(TestCase):
