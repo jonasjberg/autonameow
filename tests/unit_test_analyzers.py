@@ -36,6 +36,26 @@ EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
                                     for c in EXPECT_ANALYZER_CLASSES]
 
 
+class TestFindAnalyzerSourceFiles(TestCase):
+    def test_find_analyzer_files_is_defined(self):
+        self.assertIsNotNone(analyzers.find_analyzer_files)
+
+    def test_find_analyzer_files_returns_expected_type(self):
+        actual = analyzers.find_analyzer_files()
+        self.assertTrue(isinstance(actual, list))
+
+    def test_find_analyzer_files_returns_expected_files(self):
+        actual = analyzers.find_analyzer_files()
+
+        # TODO: [hardcoded] Likely to break; requires manual updates.
+        self.assertIn('analyze_filename.py', actual)
+        self.assertIn('analyze_filesystem.py', actual)
+        self.assertIn('analyze_image.py', actual)
+        self.assertIn('analyze_pdf.py', actual)
+        self.assertIn('analyze_text.py', actual)
+        self.assertIn('analyze_video.py', actual)
+
+
 class TestSuitableAnalyzersForFile(TestCase):
     def test_returns_expected_analyzers_for_mp4_video_file(self):
         self.fo = uu.get_mock_fileobject(mime_type='video/mp4')
@@ -67,9 +87,15 @@ class TestGetAnalyzerClasses(TestCase):
         self.maxDiff = None
 
     def test_get_analyzer_classes_returns_expected_type(self):
-        self.assertTrue(isinstance(analyzers.get_analyzer_classes(), list))
-        for a in analyzers.get_analyzer_classes():
-            self.assertTrue(issubclass(a, analyzers.Analyzer))
+        actual = analyzers.get_analyzer_classes()
+        self.assertTrue(isinstance(actual, list))
+        for klass in actual:
+            self.assertTrue(issubclass(klass, analyzers.Analyzer))
+
+    def test_get_analyzer_classes_does_not_include_abstract_classes(self):
+        actual = analyzers.get_analyzer_classes()
+        self.assertNotIn(analyzers.Analyzer, actual)
+
 
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.
     def test_get_analyzer_classes_returns_at_least_one_analyzer(self):

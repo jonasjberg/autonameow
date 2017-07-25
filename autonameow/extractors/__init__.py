@@ -146,7 +146,7 @@ class BaseExtractor(object):
 
 def find_extractor_files():
     """
-    Finds and imports Python source files assumed to be autonameow extractors.
+    Finds Python source files assumed to be autonameow extractors.
 
     Returns: List of found extractor source files basenames.
     """
