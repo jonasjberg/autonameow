@@ -31,6 +31,38 @@ from analyzers import BaseAnalyzer
 from core.fileobject import FileObject
 
 
+class TestUnitUtilityConstants(TestCase):
+    def test_tests_dir_is_defined(self):
+        self.assertIsNotNone(uu.TESTS_DIR)
+
+    def test_tests_dir_exists(self):
+        self.assertTrue(os.path.exists(uu.TESTS_DIR))
+
+    def test_tests_dir_is_a_directory(self):
+        self.assertTrue(os.path.isdir(uu.TESTS_DIR))
+
+    def test_tests_dir_is_readable(self):
+        self.assertTrue(os.access(uu.TESTS_DIR, os.R_OK))
+
+    def test_tests_dir_is_executable(self):
+        self.assertTrue(os.access(uu.TESTS_DIR, os.X_OK))
+
+    def test_autonameow_srcroot_dir_is_defined(self):
+        self.assertIsNotNone(uu.AUTONAMEOW_SRCROOT_DIR)
+
+    def test_autonameow_srcroot_dir_exists(self):
+        self.assertTrue(os.path.exists(uu.AUTONAMEOW_SRCROOT_DIR))
+
+    def test_autonameow_srcroot_dir_is_a_directory(self):
+        self.assertTrue(os.path.isdir(uu.AUTONAMEOW_SRCROOT_DIR))
+
+    def test_autonameow_srcroot_dir_is_readable(self):
+        self.assertTrue(os.access(uu.AUTONAMEOW_SRCROOT_DIR, os.R_OK))
+
+    def test_autonameow_srcroot_dir_is_executable(self):
+        self.assertTrue(os.access(uu.AUTONAMEOW_SRCROOT_DIR, os.X_OK))
+
+
 class TestUnitUtilityMakeTempDir(TestCase):
     def test_make_temp_dir(self):
         self.assertIsNotNone(uu.make_temp_dir())
