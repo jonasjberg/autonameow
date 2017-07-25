@@ -98,6 +98,8 @@ class Extraction(object):
         log.debug('Enqueued extractors: {!s}'.format(self.extractor_queue))
 
         # Add information from 'FileObject' to results.
+        # TODO: [TD0053] Fix special case of collecting data from 'FileObject'.
+
         # TODO: Move this to a "PlatformIndependentFilesystemExtractor"?
         # NOTE: Move would make little sense aside from maybe being
         #       a bit more consistent with the class hierarchy, etc.
@@ -106,7 +108,6 @@ class Extraction(object):
         # components? If the user wants to use parts of the original file
         # name in the new name, conversion can't be lossy. Solve by storing
         # bytestring versions of these fields as well?
-
         self.collect_results('filesystem.basename.full',
                              types.AW_PATH(self.file_object.filename))
         self.collect_results('filesystem.basename.extension',

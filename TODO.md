@@ -53,6 +53,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0053]` Fix special case of collecting data from the `FileObject`.
+
 * `[TD0052]` Analyzer classes should provide their respective "query strings".
 
 * `[TD0051]` Implement or remove the `CommonFileSystemExtractor` class.

@@ -213,6 +213,15 @@ def get_query_strings():
     for e in ExtractorClasses:
         if e.data_query_string:
             out.add(e.data_query_string)
+
+    # TODO: [TD0053] Fix special case of collecting data from 'FileObject'.
+    out.add('filesystem.basename.full')
+    out.add('filesystem.basename.extension')
+    out.add('filesystem.basename.suffix')
+    out.add('filesystem.basename.prefix')
+    out.add('filesystem.pathname.full')
+    out.add('filesystem.pathname.parent')
+    out.add('contents.mime_type')
     return out
 
 
