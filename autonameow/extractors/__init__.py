@@ -23,8 +23,10 @@ import inspect
 import os
 import sys
 
-from core.fileobject import eval_magic_glob
-
+from core.fileobject import (
+    eval_magic_glob,
+    FileObject
+)
 
 # Extractors are assumed to be located in the same directory as this file.
 AUTONAMEOW_EXTRACTOR_PATH = os.path.dirname(os.path.realpath(__file__))
