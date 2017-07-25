@@ -115,6 +115,11 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         with self.assertRaises(NotImplementedError):
             self.assertIsNone(self.fsa.get_tags())
 
+    def test__get_datetime_from_filesystem_returns_expected_type(self):
+        actual = self.fsa._get_datetime_from_filesystem()
+        for entry in actual:
+            self.assertTrue(isinstance(entry.get('value'), datetime))
+
     def test__get_datetime_from_filesystem(self):
         self.skipTest('Create and access time might have changed. Should be '
                       'set to a known state as part of the tests setup.')
