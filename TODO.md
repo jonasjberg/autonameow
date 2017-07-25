@@ -61,6 +61,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0052]` Analyzer classes should provide their respective "query strings".
+
 * `[TD0051]` Implement or remove the `CommonFileSystemExtractor` class.
 
 * `[TD0050]` Figure out how to represent "null" for `datetime` types.

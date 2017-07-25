@@ -210,7 +210,7 @@ def get_query_strings():
         Unique analyzer query strings as a set.
     """
     out = set()
-    # TODO: [TD0003] Implement gathering data on non-core modules at run-time
+    # TODO: [TD0052] Implement gathering data on non-core modules at run-time
     # for a in AnalyzerClasses:
     #     if a.data_query_string:
     #         out.add(a.data_query_string)

@@ -448,10 +448,9 @@ def is_valid_source(source_value):
     if not source_value or not source_value.strip():
         return False
 
-    # TODO: Include 'analyzers.QueryStrings' with the valid sources.
+    # TODO: [TD0052] Include 'analyzers.QueryStrings' with the valid sources.
     valid_sources = extractors.QueryStrings
 
-    # TODO: [TD0003] Implement gathering data on non-core modules at run-time
     if source_value.startswith(tuple(valid_sources)):
         return source_value
     else:
