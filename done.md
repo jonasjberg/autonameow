@@ -28,6 +28,9 @@ University mail: `js224eh[a]student.lnu.se`
     >
     > * `[TD0022]` Look into merging possibly redundant methods `get` and `query` in
     >   the `ExtractedData` class.
+    >
+    > * `[TD0021]` Look into merging possibly redundant methods `get` and `query` in
+    >   the `AnalysisResults` class.
 
 * 2017-07-18
 

@@ -210,7 +210,7 @@ class AnalysisResults(object):
     def __init__(self):
         self._data = {}
 
-    def query(self, query_string):
+    def query(self, query_string=None):
         """
         Returns analysis data matching the given "query string".
 
@@ -223,7 +223,9 @@ class AnalysisResults(object):
         Returns:
             Results data for the specified fields matching the specified query.
         """
-        # TODO: [TD0021] Methods 'get' and 'query' perform the same task?
+        if not query_string:
+            return self._data
+
         if query_string.startswith('plugin.'):
             # TODO: [TD0009] Results should NOT be querying plugins from here!
             # TODO: [TD0009] Rework processing pipeline to integrate plugins
@@ -251,26 +253,6 @@ class AnalysisResults(object):
             raise KeyError('Missing results field')
 
         self._data.update({field: data})
-
-    def get(self, field=None):
-        """
-        Returns analysis results data, optionally for the given field.
-
-        Args:
-            field: Optional field of analysis results field data to return.
-            The field must be one of those defined in "ANALYSIS_RESULTS_FIELD".
-
-        Returns:
-            Analysis results data for the given field or all data.
-        """
-        # TODO: [TD0021] Methods 'get' and 'query' perform the same task?
-        if field:
-            if field not in constants.ANALYSIS_RESULTS_FIELDS:
-                raise KeyError('Invalid results field: {}'.format(field))
-            else:
-                return self._data[field]
-        else:
-            return self._data
 
     def __len__(self):
         def count_dict_recursive(dictionary, count):
