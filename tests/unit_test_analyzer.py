@@ -22,7 +22,7 @@
 from unittest import TestCase
 import unit_utils as uu
 
-from analyzers import Analyzer
+from analyzers import BaseAnalyzer
 from analyzers.analyze_filename import FilenameAnalyzer
 from analyzers.analyze_filesystem import FilesystemAnalyzer
 from analyzers.analyze_image import ImageAnalyzer
@@ -37,10 +37,10 @@ def get_filename_analyzer(file_object):
     return FilenameAnalyzer(file_object, None)
 
 
-class TestAnalyzer(TestCase):
+class TestBaseAnalyzer(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.a = Analyzer(uu.get_mock_fileobject(), None, None)
+        self.a = BaseAnalyzer(uu.get_mock_fileobject(), None, None)
 
         class DummyFileObject(object):
             def __init__(self):

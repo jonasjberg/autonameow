@@ -27,7 +27,7 @@ from unittest import TestCase
 import unit_utils as uu
 
 import analyzers
-from analyzers import Analyzer
+from analyzers import BaseAnalyzer
 from core.fileobject import FileObject
 
 
@@ -134,7 +134,7 @@ class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
         self.assertEqual(type(instances), list)
 
         for analyzer_instance in instances:
-            self.assertTrue(issubclass(analyzer_instance.__class__, Analyzer))
+            self.assertTrue(issubclass(analyzer_instance.__class__, BaseAnalyzer))
 
     def test_get_instantiated_analyzers_returns_arbitrary_number(self):
         # TODO: [hardcoded] Likely to break; Fix or remove!

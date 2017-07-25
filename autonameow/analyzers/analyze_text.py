@@ -24,11 +24,11 @@ import logging as log
 
 from unidecode import unidecode
 
-from analyzers import Analyzer
+from analyzers import BaseAnalyzer
 from core.util import dateandtime
 
 
-class TextAnalyzer(Analyzer):
+class TextAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     handles_mime_types = ['text/plain']
 

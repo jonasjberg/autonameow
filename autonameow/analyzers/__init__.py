@@ -35,7 +35,7 @@ AUTONAMEOW_ANALYZER_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_ANALYZER_PATH)
 
 
-class Analyzer(object):
+class BaseAnalyzer(object):
     """
     Top-level abstract base class for all content-specific analyzer classes.
 
@@ -167,9 +167,9 @@ def _get_implemented_analyzer_classes(analyzer_files):
         namespace = inspect.getmembers(sys.modules[analyzer_file],
                                        inspect.isclass)
         for _obj_name, _obj_type in namespace:
-            if not issubclass(_obj_type, Analyzer):
+            if not issubclass(_obj_type, BaseAnalyzer):
                 continue
-            elif _obj_type == Analyzer:
+            elif _obj_type == BaseAnalyzer:
                 continue
             else:
                 _analyzer_classes.append(_obj_type)

@@ -24,10 +24,10 @@ import logging
 import os
 from datetime import datetime
 
-from analyzers import Analyzer
+from analyzers import BaseAnalyzer
 
 
-class FilesystemAnalyzer(Analyzer):
+class FilesystemAnalyzer(BaseAnalyzer):
     """
     FilesystemAnalyzer -- Gets information about files from the filesystem.
 

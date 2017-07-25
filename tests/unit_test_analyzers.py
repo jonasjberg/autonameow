@@ -90,10 +90,10 @@ class TestGetAnalyzerClasses(TestCase):
     def test_get_analyzer_classes_returns_expected_type(self):
         self.assertTrue(isinstance(self.klasses, list))
         for klass in self.klasses:
-            self.assertTrue(issubclass(klass, analyzers.Analyzer))
+            self.assertTrue(issubclass(klass, analyzers.BaseAnalyzer))
 
     def test_get_analyzer_classes_does_not_include_abstract_classes(self):
-        self.assertNotIn(analyzers.Analyzer, self.klasses)
+        self.assertNotIn(analyzers.BaseAnalyzer, self.klasses)
 
     def test_get_analyzer_classes_returns_class_objects(self):
         for klass in self.klasses:
