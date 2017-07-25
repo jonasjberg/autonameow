@@ -1,3 +1,79 @@
+2017-07-25  [autonameow v0.4.4]
+            Mostly non-functional improvements and refactoring.
+            Rework of the internals for improved robustness and new features.
+
+            Additions:
+            - Adds a new script 'devscripts/next_todo_id.py'.
+              Returns the next free TODO-list identifier that hasn't been used
+              in either the TODO-list ('TODO.md') or "done" list ('done.md').
+            - Add missing unit tests.
+            - First implementation of internal custom type system.
+              Custom type "wrapper" classes are used to coerce data into
+              certain types. Classes are instantiated and re-used as "filters",
+              the data is simply passed through and not contained within the
+              custom type classes.
+            - Add a method '_normalize' to the 'RegexConfigFieldParser' class.
+              To be used for normalizing "unwieldy" text which might hopefully
+              make matching more intuitive when dealing with text that "should"
+              match but doesn't due to Unicode symbols looking very similar..
+              NOTE: Currently completely unused.
+            - Add passing extractor results data through the 'Path' type.
+              Also adds modifications to the 'FileObject' class to match these
+              changes. The 'FileObject' fields that are used in the changed
+              lines should already be in the "internal bytestring" format, and
+              so passing the data through the 'Path' type class returns them
+              as-is.
+              However, the idea is that this is part of a overarching change in
+              how types are handled throughout the program and this specific
+              case might be revisited and simplified at some later stage.
+            - Add a partial implementation of handling "raw" data safer.
+              Data extracted by 'MetadataExtractor' classes is wrapped in type
+              classes that provide validation and type coercion.
+              This *might* be a viable way to convert unknown "raw" data to a
+              internal representation with greater certainties regarding the
+              data types and contents.
+              This might also solve formatting and other related issues.
+            - Add mapping type wrappers to "raw" data with
+              'tagname_type_lookup' in Extractor classes.
+            - Add function 'try_wrap' that attempts to wrap values.
+              Uses a lookup table dict 'PRIMITIVE_AW_TYPE_MAP' to map the type
+              of the given value to internal type wrapper classes.
+
+            Changes:
+            - Refactor and cleanup the 'Configuration' class.
+            - Rework how parsers are mapped to "query strings".
+            - Various refactoring of unit tests.
+            - Modify fields for 'DateTimeConfigFieldParser'.
+            - Add returning dummy, false-positive "True" incomplete parsers.
+              Results in unimplemented field parser evaluation functions will
+              always evaluate a condition to True. Uses lambda-functions.
+            - Various changes to the 'FieldParser' classes and their mapping.
+            - Removs the 'MetadataSourceConfigFieldParser' class.
+              This field parser class does not follow the intended abstraction
+              model where the parser classes are mapped to expected data types
+              based on the "query string". The "metadata fields" could contain
+              any type of data, and so this class does not work well with the
+              rest of the current implementation.
+            - Move functions related to extractors.
+              Moves functions and module attributes to 'extractors/__init__.py'
+            - Move functions related to analyzers.
+              Moves functions and module attributes to 'analyzers/__init__.py'
+            - Rename extractor classes to indicate use and type.
+              Prepend 'Abstract' to abstract classes, 'Base' to base classes.
+            - Adds getting valid query strings at run-time instead of constant.
+              Part of moving towards collecting information about valid query
+              strings at run-time instead of using predetermined constants.
+            - Remove redundant methods in "results" container classes.
+
+            Fixes:
+            - Add handling unimplemented evaluation.
+            - Improvements to condition validation and configuration parsing.
+            - Fixed comparing 'datetime' object with/without timezones.
+            - Fix hack import and instantiation of extractors.
+              New functions for finding and importing extractor classes from
+              suitable python source files helped eliminate ad-hoc imports.
+
+
 2017-07-10  [autonameow v0.4.3]
             Mostly refactoring and improvements of the internals; parts that
             handle evaluation of rules and validating the configuration are
@@ -21,9 +97,9 @@
             - Add new "Compatibility" integration test suite.
               Some of the tests from the "Command-Line Interface" test suite
               were moved to this new file. New tests were added as well.
-			- Add a new 'RuleCondition' class.
-			  Represents a single condition contained in a configuration file
-			  rule.  Performs validation of incoming arguments and packages a
+            - Add a new 'RuleCondition' class.
+              Represents a single condition contained in a configuration file
+              rule.  Performs validation of incoming arguments and packages a
               condition to facilitate evaluation.
             - Add unique identifiers to TODOs in the code and the TODO-list.
 
@@ -48,9 +124,9 @@
             - Refactor and cleanup the 'Configuration' class.
             - Rework rule evaluation, now uses the 'FieldParser' classes to
               evaluate conditions. Still a work in progress.
-			  The "rule matcher" uses the 'RuleCondition' class method
-			  'evaluate' to evaluating conditions.  The method delegates the
-			  evaluation to a referenced 'FieldParser' class, that is chosen
+              The "rule matcher" uses the 'RuleCondition' class method
+              'evaluate' to evaluating conditions.  The method delegates the
+              evaluation to a referenced 'FieldParser' class, that is chosen
               based on the "query string".
             - Various bugfixes and refactoring.
             - Move towards the "new" high-level architecture, separating the
@@ -61,6 +137,7 @@
             - Fix inconsistencies in the configuration file syntax.
             - Various improvements to handling encoding.
             - Fix broken integration and unit tests.
+
 
 2017-06-24  [autonameow v0.4.2]
             Includes first attempt at properly fixing encoding issues.  Also a
