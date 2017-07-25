@@ -144,11 +144,10 @@ class Autonameow(object):
             cli.msg(str(self.config))
             self.exit_program(constants.EXIT_SUCCESS)
 
-        # Handle any input paths/files.
+        # Handle any input paths/files. Abort early if input paths are missing.
         if not self.opts.input_paths:
             log.warning('No input files specified ..')
             self.exit_program(constants.EXIT_SUCCESS)
-
 
         files_to_process = []
         for path in self.opts.input_paths:
