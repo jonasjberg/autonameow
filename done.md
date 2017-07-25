@@ -10,6 +10,19 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-07-25
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0003]` __Implement gathering data on non-core modules at run-time__
+    >     * Have extractors register themselves at run-time.
+    >     * Collect valid extractor query strings at run-time.
+    >     * Have analyzers register themselves at run-time.
+    >     * Collect valid analyzer query strings at run-time.
+    >     * Rework configuration validation to use dynamically updated tests.
+    >     * Replace hard coded strings with gathered data.
+
 * 2017-07-18
 
     > High Priority

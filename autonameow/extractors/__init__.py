@@ -68,8 +68,6 @@ class BaseExtractor(object):
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
     handles_mime_types = None
 
-    # TODO: [TD0003] Implement gathering data on non-core modules at run-time
-
     # Query string label for the data returned by this extractor.
     #    NOTE:  Must be defined in 'constants.VALID_DATA_SOURCES'!
     # Example:  'metadata.exiftool'
