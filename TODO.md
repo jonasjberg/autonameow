@@ -53,6 +53,9 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time
+  to UTC and convert to local time as a final step before presentation or use.
+
 * `[TD0053]` Fix special case of collecting data from the `FileObject`.
 
 * `[TD0052]` Analyzer classes should provide their respective "query strings".
