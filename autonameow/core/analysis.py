@@ -146,21 +146,21 @@ class Analysis(object):
             log.debug('Starting Analyzer "{!s}"'.format(a))
             a.run()
 
-            # TODO: [TD0005] Remove, use callbacks instead.
-            for field in constants.ANALYSIS_RESULTS_FIELDS:
-                try:
-                    result = a.get(field)
-                except NotImplementedError as e:
-                    log.debug('[WARNING] Called unimplemented code in {!s}: '
-                              '{!s}'.format(a, e))
-                    continue
+            # # TODO: [TD0005] Remove, use callbacks instead.
+            # for field in constants.ANALYSIS_RESULTS_FIELDS:
+            #     try:
+            #         result = a.get(field)
+            #     except NotImplementedError as e:
+            #         log.debug('[WARNING] Called unimplemented code in {!s}: '
+            #                   '{!s}'.format(a, e))
+            #         continue
 
-                if not result:
-                    continue
+            #     if not result:
+            #         continue
 
-                # Add the analyzer name to the results dictionary.
-                results = include_analyzer_name(result, a)
-                self.results.add(field, results)
+            #     # Add the analyzer name to the results dictionary.
+            #     results = include_analyzer_name(result, a)
+            #     self.results.add(field, results)
 
             log.debug('Finished Analyzer "{!s}"'.format(a))
 
