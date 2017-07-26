@@ -59,7 +59,7 @@ class FilesystemAnalyzer(BaseAnalyzer):
     def run(self):
         pass
 
-    def results(self):
+    def __results(self):
         def dt_fts(t):
             return datetime.fromtimestamp(t).replace(microsecond=0)
 
