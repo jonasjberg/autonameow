@@ -182,9 +182,7 @@ class PdfAnalyzer(BaseAnalyzer):
                                     'source': 'text_content_brute',
                                     'weight': 0.1})
 
-        # TODO: Fix conditional always evaluates to True ..
-        # if matches == 0:
-        if True:
+        if matches == 0:
             logging.debug('No matches. Trying with text split by whitespace')
             text_split = text.split()
             for t in text_split:
