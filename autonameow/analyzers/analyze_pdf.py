@@ -20,8 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import re
-from datetime import datetime
 
 from analyzers import BaseAnalyzer
 from core.util import dateandtime
