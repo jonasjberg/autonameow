@@ -237,3 +237,38 @@ def get_text_from_ocr(image_path, tesseract_args=None):
             log.debug('PyTesseract returned {} bytes of text'.format(len(text)))
             return util.decode_(text)
         return ''
+
+
+class PlainTextExtractor(AbstractTextExtractor):
+    handles_mime_types = ['text/plain']
+    data_query_string = 'contents.textual.raw_text'
+
+    def __init__(self, source):
+        super(PlainTextExtractor, self).__init__(source)
+        self._raw_text = None
+
+    def _get_raw_text(self):
+        try:
+            log.debug('Extracting raw text from plain text file ..')
+            result = read_entire_text_file(self.source)
+            return result
+        except Exception as e:
+            raise ExtractorError(e)
+
+
+def read_entire_text_file(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf8') as fh:
+            contents = fh.read().split('\n')
+    except FileNotFoundError as e:
+        log.debug('!s'.format(e))
+        return None
+
+    if contents:
+        log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
+                                                                  file_path))
+        # TODO: [TD0044][TD0004] Cleanup/normalize and ensure text encoding.
+        return contents
+    else:
+        log.debug('Read NOTHING from file "{!s}"'.format(file_path))
+        return None
