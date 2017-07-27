@@ -85,26 +85,6 @@ class BaseAnalyzer(object):
         else:
             raise NotImplementedError(field)
 
-    def get_datetime(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def get_title(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def get_author(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def get_tags(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def get_publisher(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
     @classmethod
     def can_handle(cls, file_object):
         """
