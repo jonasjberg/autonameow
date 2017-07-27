@@ -77,7 +77,6 @@ class Analysis(object):
             data: The data to add.
         """
         assert label is not None and isinstance(label, str)
-        assert data is not None
 
         if isinstance(data, dict):
             flat_data = util.flatten_dict(data)
