@@ -38,7 +38,7 @@ class PdfAnalyzer(BaseAnalyzer):
         self.text = None
 
     def _add_results(self, label, data):
-        query_string = 'analysis.pdfanalyzer.{}'.format(label)
+        query_string = 'analysis.pdf_analyzer.{}'.format(label)
         logging.debug('{} passed "{}" to "add_results" callback'.format(
             self, query_string)
         )
@@ -103,7 +103,6 @@ class PdfAnalyzer(BaseAnalyzer):
         return results
 
     def get_tags(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
         raise NotImplementedError('Get "tags" from PdfAnalyzer')
 
     def get_publisher(self):
