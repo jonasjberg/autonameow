@@ -74,13 +74,12 @@ class BaseAnalyzer(object):
             AnalysisResultsFieldError: Error caused by invalid argument "field",
                 which must be included in ANALYSIS_RESULTS_FIELDS.
         """
-        # TODO: [TD0005] Remove, use callbacks instead.
         if field not in constants.ANALYSIS_RESULTS_FIELDS:
             raise exceptions.AnalysisResultsFieldError(field)
 
         _func_name = 'get_{}'.format(field)
         get_func = getattr(self, _func_name, False)
-        if callable(get_func):
+        if get_func and callable(get_func):
             return get_func()
         else:
             raise NotImplementedError(field)
