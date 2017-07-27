@@ -69,9 +69,9 @@ class TestAnalysis(TestCase):
         self.assertEqual(len(self.a.results), 2)
 
     def test_collecting_results_with_empty_data_does_not_increment_len(self):
-        self.a.collect_results('contents.mime_type', None)
+        self.a.collect_results('contents.mime_type', '')
         self.assertEqual(len(self.a.results), 0)
-        self.a.collect_results('filesystem.basename.extension', None)
+        self.a.collect_results('filesystem.basename.extension', '')
         self.assertEqual(len(self.a.results), 0)
 
     def test_analysis__populate_run_queue_method_exists(self):
