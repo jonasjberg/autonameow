@@ -19,10 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import io
 import logging as log
-
-from unidecode import unidecode
 
 from analyzers import BaseAnalyzer
 from core.util import dateandtime
@@ -48,7 +45,7 @@ class TextAnalyzer(BaseAnalyzer):
         self.add_results(query_string, data)
 
     def run(self):
-        self.text = self._extract_text_content()
+        self.text = self.extracted_data.get('contents.textual.raw_text')
 
         # Pass results through callback function provided by the 'Analysis'.
         self._add_results('author', self.get_author())
@@ -72,32 +69,6 @@ class TextAnalyzer(BaseAnalyzer):
 
     def get_tags(self):
         pass
-
-    # TODO: [TD0006] Move all text extraction to functions in 'extract_text.py'.
-    def _extract_text_content(self):
-        """
-        Extract the plain text contents of a text file as strings.
-        :return: False or text content as strings
-        """
-        content = self._get_file_lines()
-        # NOTE: Handle encoding properly
-
-        decoded_content = []
-        for line in content:
-            # Collapse whitespace.
-            # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160)
-            line = unidecode(line)
-            line = " ".join(line.replace("\xa0", " ").strip().split())
-            decoded_content.append(line)
-
-        if decoded_content:
-            # TODO: Determine what gets extracted **REALLY** ..
-            log.debug('Extracted {} words/lines (??) of content'.format(
-                len(content)))
-            return decoded_content
-        else:
-            log.warning('Unable to extract text contents.')
-            return None
 
     def _is_gmail(self):
         text = self.text
@@ -151,16 +122,3 @@ class TextAnalyzer(BaseAnalyzer):
                       '{} results.'.format(matches_brute))
 
         return results
-
-    # TODO: [TD0006] Move all text extraction to functions in 'extract_text.py'.
-    def _get_file_lines(self):
-        fn = self.file_object.abspath
-        with io.open(fn, 'r', encoding='utf8') as f:
-            contents = f.read().split('\n')
-            if contents:
-                log.info('Successfully read {} lines from "{}"'.format(
-                    len(contents), str(fn)))
-                return contents
-            else:
-                log.error('Got empty file "{}"'.format(fn))
-                return None
