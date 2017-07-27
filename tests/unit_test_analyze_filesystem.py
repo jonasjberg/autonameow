@@ -35,7 +35,7 @@ def get_filesystem_analyzer(file_object):
 
 class TestFilesystemAnalyzerWithEmptyFile(TestCase):
     def setUp(self):
-        # TODO: Fix the filtering! Not completed as-is.
+        # TODO: [TD0034][TD0035] Fix the filtering! Not completed as-is.
         self.filter = {'ignore_years': [],
                        'ignore_before_year': None,
                        'ignore_after_year': None}
