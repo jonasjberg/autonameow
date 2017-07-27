@@ -104,15 +104,15 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         self.assertEqual(expected, dt_accessed.get('value'))
 
     def test_get_title_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(AttributeError):
             self.assertIsNone(self.fsa.get_title())
 
     def test_get_author_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(AttributeError):
             self.assertIsNone(self.fsa.get_author())
 
     def test_get_tags_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(AttributeError):
             self.assertIsNone(self.fsa.get_tags())
 
     def test__get_datetime_from_filesystem_returns_expected_type(self):
