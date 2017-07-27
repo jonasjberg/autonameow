@@ -198,6 +198,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0055]` Fully implement the `VideoAnalyzer` class.
+
 * `[TD0026]` Implement safe handling of symbolic link input paths.
 
 * __Add additional filetype-specific "extractors"__
