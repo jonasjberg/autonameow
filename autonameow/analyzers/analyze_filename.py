@@ -43,6 +43,13 @@ class FilenameAnalyzer(BaseAnalyzer):
 
         self.guessit_metadata = None
 
+    def _add_results(self, label, data):
+        query_string = 'analysis.filename_analyzer.{}'.format(label)
+        logging.debug('{} passed "{}" to "add_results" callback'.format(
+            self, query_string)
+        )
+        self.add_results(query_string, data)
+
     def run(self):
         # TODO: [TD0009] This does not belong here! Handle guessit properly.
         if guessit and self.file_object.mime_type == 'mp4':
@@ -51,8 +58,12 @@ class FilenameAnalyzer(BaseAnalyzer):
             if self.guessit_metadata:
                 self.add_results('plugins.guessit', self.guessit_metadata)
 
+        # Pass results through callback function provided by the 'Analysis'.
+        self._add_results('datetime', self.get_datetime())
+        self._add_results('title', self.get_title())
+        self._add_results('tags', self.get_tags())
+
     def get_datetime(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
         result = []
 
         fn_timestamps = self._get_datetime_from_name()
@@ -67,7 +78,6 @@ class FilenameAnalyzer(BaseAnalyzer):
         return result
 
     def get_title(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
         titles = []
 
         if self.guessit_metadata:
@@ -81,19 +91,10 @@ class FilenameAnalyzer(BaseAnalyzer):
 
         return titles
 
-    def get_author(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        pass
-
     def get_tags(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
         return [{'value': self.file_object.filenamepart_tags,
                  'source': 'filenamepart_tags',
                  'weight': 1}]
-
-    def get_publisher(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        return None
 
     def _get_title_from_filename(self):
         fnp_tags = self.file_object.filenamepart_tags or None
@@ -185,7 +186,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         # 2. Common patterns
         # ==================
         # Try more common patterns, starting with the most common.
-        # TODO: This is not the way to do it!
+        # TODO: [TD0006][TD0044] This is not the way to do it!
         dt_android = dateandtime.match_android_messenger_filename(fn)
         if dt_android:
             results.append({'value': dt_android,
@@ -198,11 +199,11 @@ class FilenameAnalyzer(BaseAnalyzer):
             # results.append({'value': dt_unix,
             #                 'source': 'unix_timestamp',
             #                 'weight': 1})
-            # TODO: [TD0005][TD0006] Use new callback-based results gathering.
-            self.add_results('filesystem.basename.derived_data.datetime',
-                             {'value': dt_unix,
-                              'source': 'unix_timestamp',
-                              'weight': 1})
+            # TODO: [TD0006][TD0044] Look at how results are stored and named.
+            self._add_results('datetime',
+                         {'value': dt_unix,
+                          'source': 'filesystem.basename.prefix.unix_timestamp',
+                          'weight': 1})
 
         # Match screencapture-prefixed UNIX timestamp
         dt_screencapture_unix = dateandtime.match_screencapture_unixtime(fn)
@@ -210,7 +211,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             # results.append({'value': dt_screencapture_unix,
             #                 'source': 'screencapture_unixtime',
             #                 'weight': 1})
-            # TODO: [TD0005][TD0006] Use new callback-based results gathering.
+            # TODO: [TD0006][TD0044] Look at how results are stored and named.
             self.add_results('filesystem.basename.derived_data.datetime',
                              {'value': dt_screencapture_unix,
                               'source': 'screencapture_unixtime',

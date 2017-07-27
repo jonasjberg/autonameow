@@ -56,10 +56,18 @@ class FilesystemAnalyzer(BaseAnalyzer):
         )
         self.add_results = add_results_callback
 
-    def run(self):
-        pass
+    def _add_results(self, label, data):
+        query_string = 'analysis.filesystem_analyzer.{}'.format(label)
+        logging.debug('{} passed "{}" to "add_results" callback'.format(
+            self, query_string)
+        )
+        self.add_results(query_string, data)
 
-    def results(self):
+    def run(self):
+        # Pass results through callback function provided by the 'Analysis'.
+        self._add_results('datetime', self.get_datetime())
+
+    def __results(self):
         def dt_fts(t):
             return datetime.fromtimestamp(t).replace(microsecond=0)
 
@@ -78,7 +86,6 @@ class FilesystemAnalyzer(BaseAnalyzer):
             }}
 
     def get_datetime(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
         result = []
 
         fs_timestamps = self._get_datetime_from_filesystem()
@@ -86,28 +93,6 @@ class FilesystemAnalyzer(BaseAnalyzer):
             result += fs_timestamps
 
         return result
-
-    def get_title(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        # Currently not relevant to this analyzer.
-        # Future support for reading filesystem metadata could implement this.
-        raise NotImplementedError('Get "title" from FilesystemAnalyzer')
-
-    def get_author(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        # Currently not relevant to this analyzer.
-        # Future support for reading filesystem metadata could implement this.
-        raise NotImplementedError('Get "author" from FilesystemAnalyzer')
-
-    def get_tags(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        # Currently not relevant to this analyzer.
-        # Future support for reading filesystem metadata could implement this.
-        raise NotImplementedError('Get "tags" from FilesystemAnalyzer')
-
-    def get_publisher(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        raise NotImplementedError('Get "publisher" from FilesystemAnalyzer')
 
     def _get_datetime_from_filesystem(self):
         """

@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging as log
+
 from analyzers import BaseAnalyzer
 
 
@@ -30,29 +32,41 @@ class VideoAnalyzer(BaseAnalyzer):
         super(VideoAnalyzer, self).__init__(
             file_object, add_results_callback, extracted_data
         )
+        self.add_results = add_results_callback
+
+    def _add_results(self, label, data):
+        query_string = 'analysis.video_analyzer.{}'.format(label)
+        log.debug('{} passed "{}" to "add_results" callback'.format(
+            self, query_string)
+        )
+        self.add_results(query_string, data)
 
     def run(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        pass
+        # Pass results through callback function provided by the 'Analysis'.
+        self._add_results('author', self.get_author())
+        self._add_results('title', self.get_title())
+        self._add_results('datetime', self.get_datetime())
+        self._add_results('publisher', self.get_publisher())
+        self._add_results('tags', self.get_tags())
 
     def get_author(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
+        # TODO: [TD0055] Implement the video analyzer.
         pass
 
     def get_title(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
+        # TODO: [TD0055] Implement the video analyzer.
         pass
 
     def get_datetime(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
+        # TODO: [TD0055] Implement the video analyzer.
         pass
 
     def get_publisher(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
+        # TODO: [TD0055] Implement the video analyzer.
         pass
 
     def get_tags(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
+        # TODO: [TD0055] Implement the video analyzer.
         pass
 
     # NOTE: Look into using "ffprobe" to get video data.

@@ -23,12 +23,6 @@ High Priority
       issues is to store bytestrings and perform any processing on copies that
       have __not__ been converted to the internal format?
 
-* `[TD0005]` __Internal "API"__ -- communication between modules
-    * Replace the old way of calling the analyzer `get_{fieldname}` methods
-      with passing the `Analysis` class method `collect_results` as a callback.
-    * Fully implement the idea of dynamically constructing structures and
-      interfaces from a single reference data structure at runtime.
-
 * `[TD0006]` __New high-level architecture__
     * Move to use the redesigned architecture
     * All data extraction is handled by `extractor` classes
@@ -197,6 +191,8 @@ Medium Priority
 
 Low Priority
 ------------
+
+* `[TD0055]` Fully implement the `VideoAnalyzer` class.
 
 * `[TD0026]` Implement safe handling of symbolic link input paths.
 

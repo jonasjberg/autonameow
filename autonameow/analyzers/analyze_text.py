@@ -40,20 +40,28 @@ class TextAnalyzer(BaseAnalyzer):
 
         self.text = None
 
+    def _add_results(self, label, data):
+        query_string = 'analysis.text_analyzer.{}'.format(label)
+        log.debug('{} passed "{}" to "add_results" callback'.format(
+            self, query_string)
+        )
+        self.add_results(query_string, data)
+
     def run(self):
-        log.debug('Extracting text contents ..')
         self.text = self._extract_text_content()
 
+        # Pass results through callback function provided by the 'Analysis'.
+        self._add_results('author', self.get_author())
+        self._add_results('title', self.get_title())
+        self._add_results('datetime', self.get_datetime())
+
     def get_author(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     def get_title(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     def get_datetime(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
         result = []
         if self.text:
             text_timestamps = self._get_datetime_from_text()
@@ -63,7 +71,6 @@ class TextAnalyzer(BaseAnalyzer):
         return result
 
     def get_tags(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
         pass
 
     # TODO: [TD0006] Move all text extraction to functions in 'extract_text.py'.

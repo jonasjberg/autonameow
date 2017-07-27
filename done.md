@@ -10,6 +10,17 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-07-27
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0005]` __Internal "API"__ -- communication between modules
+    >     * Replace the old way of calling the analyzer `get_{fieldname}` methods
+    >       with passing the `Analysis` class method `collect_results` as a callback.
+    >     * Fully implement the idea of dynamically constructing structures and
+    >       interfaces from a single reference data structure at runtime.
+
 * 2017-07-25
 
     > High Priority
