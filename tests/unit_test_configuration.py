@@ -34,7 +34,6 @@ from core.config.configuration import (
     parse_conditions,
     parse_weight,
     is_valid_source,
-    is_analyzer_source
 )
 from core.exceptions import ConfigurationSyntaxError
 
