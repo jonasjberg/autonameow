@@ -46,7 +46,7 @@ class AbstractTextExtractor(BaseExtractor):
         self._raw_text = None
 
     def query(self, field=None):
-        # TODO: [TD0006] Will text extractors be queried for anything but text?
+        # TODO: [TD0057] Will text extractors be queried for anything but text?
         if not self._raw_text:
             try:
                 log.debug('{!s} received initial query ..'.format(self))
@@ -60,7 +60,7 @@ class AbstractTextExtractor(BaseExtractor):
                 return False
 
         if not field:
-            # TODO: [TD0006] Fix this. Look over the entire 'query' method.
+            # TODO: [TD0057] Fix this. Look over the entire 'query' method.
             log.debug('{!s} responding to query for all fields'.format(self))
             return self._raw_text
         else:

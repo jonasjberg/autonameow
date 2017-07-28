@@ -23,13 +23,6 @@ High Priority
       issues is to store bytestrings and perform any processing on copies that
       have __not__ been converted to the internal format?
 
-* `[TD0006]` __New high-level architecture__
-    * Move to use the redesigned architecture
-    * All data extraction is handled by `extractor` classes
-    * `analyzer` classes do not perform any kind of data extraction.
-    * Plan for optimization by not extracting more data than necessary.
-      How could this be implemented?
-
 * `[TD0044]` __Rework converting "raw data" to internal representations__
     * Converting raw data to internal representations is currently implemented
       very poorly and must be reworked.
@@ -46,6 +39,12 @@ High Priority
 
 Medium Priority
 ---------------
+
+* `[TD0057]` __Look at the optional `field` argument in the `query` method.__  
+  The extractor classes `query` method takes an optional argument `field` that
+  seems to be unused. Some classes, like the text extractors will probably not
+  return anything but text. Look into possibly removing the optional argument
+  or rework how the extractor classes are queried.
 
 * `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time
   to UTC and convert to local time as a final step before presentation or use.

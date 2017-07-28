@@ -12,6 +12,16 @@ University mail: `js224eh[a]student.lnu.se`
 
 * 2017-07-28
 
+    > High Priority
+    > -------------
+    >
+    > * `[TD0006]` __New high-level architecture__
+    >     * Move to use the redesigned architecture
+    >     * All data extraction is handled by `extractor` classes
+    >     * `analyzer` classes do not perform any kind of data extraction.
+    >     * Plan for optimization by not extracting more data than necessary.
+    >       How could this be implemented?
+    >
     > Medium Priority
     > ---------------
     >
