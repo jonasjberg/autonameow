@@ -46,7 +46,21 @@ class ConfigFieldParser(object):
     represent the location of some data and the "value" is some kind of
     expression.
 
-    The "query string" (key) determines which parser class is to be used.
+    The "query string" (key) determines which parser class is to be used by
+    matching the "query string" against class variables 'applies_to_field'
+    using "globs"/wildcards. Classes whose 'applies_to_field' evaluates True
+    for a given "query string" is used to parse that configuration field.
+
+    * The 'validate' methods
+      The 'Configuration' class uses the field parser classes primarily for
+      validating the configuration file. This uses the 'validate' methods,
+      which accepts an expression and returns either True or False.
+
+    * The 'evaluate' methods
+      The 'evaluate' method is very similar, but accepts both an expression
+      and some data and returns False if the evaluation of "expression" on
+      "data" was unsuccessful. Otherwise, some "truthy" value is returned.
+      For example, the 'RegexConfigFieldParser' would return the matched part.
     """
 
     # List of "query strings" (or configuration "keys"/"fields") used to
@@ -71,29 +85,31 @@ class ConfigFieldParser(object):
     @classmethod
     def get_validation_function(cls):
         """
-        Used to check that the syntax and content of a subset of fields.
+        Used to check that the syntax of a configuration field expression.
 
         Returns:
-            A function that validates configuration fields, specified
-            by "applies_to_field".
-            This function returns True if the field is valid, otherwise False.
+            A class-specific function for validating a configuration field.
+            The returned function accepts a single 'expression' argument.
+            The function returns True if the field is valid, otherwise False.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
     def get_evaluation_function(cls):
         """
-        Returns a function that can evaluate a given expression using some
-        specified data. The returned function must accept two arguments.
+        Returns a function that evaluates a given expression using some
+        given data. The function takes two arguments; 'expression' and 'data'.
 
         Returns:
-            A function that evaluates "expression" using "data".
+            A function that evaluates an "expression" using some "data".
+            The function returns False if the evaluation is unsuccessful.
+            If the evaluation is successful, some "truthy" value is returned.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def validate(self, expression):
         """
-        Validates a given field. Should be called through classes inheriting
+        Validates a given expression. To be called through classes inheriting
         from "ConfigFieldParser", which will validate the expression depending
         on which class is used.  Can NOT be called as a class method.
 
@@ -107,7 +123,7 @@ class ConfigFieldParser(object):
 
     def evaluate(self, expression, data):
         """
-        Evaluates a given expression using the specified data by passing the
+        Evaluates a given 'expression' using the given 'data' by passing the
         arguments to the function returned by 'get_evaluation_function'.
 
         Args:
@@ -115,8 +131,8 @@ class ConfigFieldParser(object):
             data: The data to use during the evaluation.
 
         Returns:
-            True if the evaluation was successful, otherwise False.
-            # TODO: Verify actual return values ..
+            False if the evaluation was unsuccessful. Otherwise, the return
+            type is some "truthy" value whose type depends on the field parser.
         """
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
@@ -163,6 +179,9 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
     @classmethod
     def get_evaluation_function(cls):
+        """
+        Returns: A function that in turn returns False or the matched data.
+        """
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
         return cls.evaluate_regex
@@ -211,6 +230,9 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
     @classmethod
     def get_evaluation_function(cls):
+        """
+        Returns: A function that in turn returns either True or False.
+        """
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
         return fileobject.eval_magic_glob
