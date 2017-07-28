@@ -27,6 +27,8 @@ University mail: `js224eh[a]student.lnu.se`
     >
     > * `[TD0013]` Add conditional data extraction.
     >     * Extractors should not run unless needed. Related to caching, above.
+    >
+    > * `[TD0050]` Figure out how to represent "null" for `datetime` types.
 
 * 2017-07-27
 

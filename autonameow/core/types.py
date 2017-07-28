@@ -274,19 +274,21 @@ class TimeDate(BaseType):
     coercible_types = (str, bytes, int, float)
     equivalent_types = (str, datetime)
 
-    # TODO: [TD0050] Figure out how to represent null for datetime objects.
+    # Make sure to never return "null" -- raise a 'AWTypeError' exception.
     null = 'INVALID DATE'
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
 
     def __call__(self, raw_value=None):
-        if not raw_value:
-            return self._null()
-        elif isinstance(raw_value, (list, tuple)):
-            return self._null()
+        # Overrides the 'BaseType' __call__ method as to never return 'null'.
+        if raw_value and not isinstance(raw_value, (list, tuple)):
+            parsed = self.coerce(raw_value)
+            if parsed:
+                return parsed
 
-        parsed = self.coerce(raw_value)
-        return parsed if parsed else self._null()
+        raise exceptions.AWTypeError(
+            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        )
 
     def coerce(self, raw_value):
         if isinstance(raw_value, datetime):

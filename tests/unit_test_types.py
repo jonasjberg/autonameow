@@ -211,12 +211,11 @@ class TestTypeFloat(TestCase):
 
 class TestTypeTimeDate(TestCase):
     def test_wraps_expected_primitive(self):
-        # TODO: [TD0050] Figure out how to represent null for datetime objects.
-        self.assertEqual(type(types.AW_TIMEDATE(None)), str)
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(type(types.AW_TIMEDATE(None)), str)
 
     def test_null(self):
-        # TODO: [TD0050] Figure out how to represent null for datetime objects.
-        self.assertEqual(types.AW_TIMEDATE(None), 'INVALID DATE')
+        self.assertEqual(types.AW_TIMEDATE.null, 'INVALID DATE')
 
     def test_normalize(self):
         prior = datetime.strptime('2017-07-12T20:50:15.641659',
@@ -237,7 +236,8 @@ class TestTypeTimeDate(TestCase):
         self.assertNotEqual(without_usecs, another_day)
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_TIMEDATE(None), types.AW_TIMEDATE.null)
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(types.AW_TIMEDATE(None), types.AW_TIMEDATE.null)
 
     def test_call_with_coercible_data(self):
         expected = datetime.strptime('2017-07-12T20:50:15', '%Y-%m-%dT%H:%M:%S')
@@ -245,25 +245,26 @@ class TestTypeTimeDate(TestCase):
         self.assertEqual(types.AW_TIMEDATE('2017-07-12T20:50:15'), expected)
 
     def test_call_with_noncoercible_data(self):
-        self.assertEqual(types.AW_TIMEDATE(None), types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_TIMEDATE(''), types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_TIMEDATE([]), types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_TIMEDATE(['']), types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_TIMEDATE([None]), types.AW_TIMEDATE.null)
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(types.AW_TIMEDATE(None), types.AW_TIMEDATE.null)
+            self.assertEqual(types.AW_TIMEDATE(''), types.AW_TIMEDATE.null)
+            self.assertEqual(types.AW_TIMEDATE([]), types.AW_TIMEDATE.null)
+            self.assertEqual(types.AW_TIMEDATE(['']), types.AW_TIMEDATE.null)
+            self.assertEqual(types.AW_TIMEDATE([None]), types.AW_TIMEDATE.null)
 
 
 class TestTypeExiftoolTimeDate(TestCase):
     def test_wraps_expected_primitive(self):
-        # TODO: [TD0050] Figure out how to represent null for datetime objects.
-        self.assertEqual(type(types.AW_EXIFTOOLTIMEDATE(None)), str)
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(type(types.AW_EXIFTOOLTIMEDATE(None)), str)
 
     def test_null(self):
-        # TODO: [TD0050] Figure out how to represent null for datetime objects.
-        self.assertEqual(types.AW_EXIFTOOLTIMEDATE(None), 'INVALID DATE')
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE.null, 'INVALID DATE')
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_EXIFTOOLTIMEDATE(None),
-                         types.AW_EXIFTOOLTIMEDATE.null)
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(types.AW_EXIFTOOLTIMEDATE(None),
+                             types.AW_EXIFTOOLTIMEDATE.null)
 
     def test_call_with_coercible_data(self):
         expected = datetime.strptime('2017-07-12T20:50:15+0200',
@@ -273,16 +274,12 @@ class TestTypeExiftoolTimeDate(TestCase):
                          expected)
 
     def test_call_with_noncoercible_data(self):
-        self.assertEqual(types.AW_EXIFTOOLTIMEDATE(None),
-                         types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_EXIFTOOLTIMEDATE(''),
-                         types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_EXIFTOOLTIMEDATE([]),
-                         types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_EXIFTOOLTIMEDATE(['']),
-                         types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_EXIFTOOLTIMEDATE([None]),
-                         types.AW_TIMEDATE.null)
+        with self.assertRaises(exceptions.AWTypeError):
+            types.AW_EXIFTOOLTIMEDATE(None)
+            types.AW_EXIFTOOLTIMEDATE('')
+            types.AW_EXIFTOOLTIMEDATE([])
+            types.AW_EXIFTOOLTIMEDATE([''])
+            types.AW_EXIFTOOLTIMEDATE([None])
 
     def test_call_with_valid_exiftool_string_returns_expected_type(self):
         actual = types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200')
@@ -291,16 +288,16 @@ class TestTypeExiftoolTimeDate(TestCase):
 
 class TestTypePyPDFTimeDate(TestCase):
     def test_wraps_expected_primitive(self):
-        # TODO: [TD0050] Figure out how to represent null for datetime objects.
-        self.assertEqual(type(types.AW_PYPDFTIMEDATE(None)), str)
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(type(types.AW_PYPDFTIMEDATE(None)), str)
 
     def test_null(self):
-        # TODO: [TD0050] Figure out how to represent null for datetime objects.
-        self.assertEqual(types.AW_PYPDFTIMEDATE(None), 'INVALID DATE')
+        self.assertEqual(types.AW_PYPDFTIMEDATE.null, 'INVALID DATE')
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_PYPDFTIMEDATE(None),
-                         types.AW_PYPDFTIMEDATE.null)
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(types.AW_PYPDFTIMEDATE(None),
+                             types.AW_PYPDFTIMEDATE.null)
 
     def test_call_with_coercible_data(self):
         expected = datetime.strptime('2012-12-25T23:52:37+0530',
@@ -319,16 +316,12 @@ class TestTypePyPDFTimeDate(TestCase):
                          expected)
 
     def test_call_with_noncoercible_data(self):
-        self.assertEqual(types.AW_PYPDFTIMEDATE(None),
-                         types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_PYPDFTIMEDATE(''),
-                         types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_PYPDFTIMEDATE([]),
-                         types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_PYPDFTIMEDATE(['']),
-                         types.AW_TIMEDATE.null)
-        self.assertEqual(types.AW_PYPDFTIMEDATE([None]),
-                         types.AW_TIMEDATE.null)
+        with self.assertRaises(exceptions.AWTypeError):
+            types.AW_PYPDFTIMEDATE(None)
+            types.AW_PYPDFTIMEDATE('')
+            types.AW_PYPDFTIMEDATE([])
+            types.AW_PYPDFTIMEDATE([''])
+            types.AW_PYPDFTIMEDATE([None])
 
     def test_call_with_valid_pypdf_string_returns_expected_type(self):
         actual = types.AW_PYPDFTIMEDATE("D:20160111124132+00'00'")
