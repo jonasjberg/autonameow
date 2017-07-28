@@ -30,31 +30,78 @@ class TestRuleCondition(TestCase):
 
 
 class TestRuleConditionFromValidInput(TestCase):
-    def test_contents_mime_type_condition(self):
-        self.rc = rules.RuleCondition('contents.mime_type', 'text/rtf')
-        self.assertIsNotNone(self.rc)
+    def _assert_valid(self, query, data):
+        actual = rules.RuleCondition(query, data)
+        self.assertIsNotNone(actual)
+        self.assertTrue(isinstance(actual, rules.RuleCondition))
 
-    def test_filesystem_basename_condition(self):
-        self.rc = rules.RuleCondition('filesystem.basename.full', 'gmail.pdf')
-        self.assertIsNotNone(self.rc)
+    def test_condition_contents_mime_type(self):
+        self._assert_valid('contents.mime_type', 'text/rtf')
+        self._assert_valid('contents.mime_type', 'text/*')
+        self._assert_valid('contents.mime_type', '*/application')
+        self._assert_valid('contents.mime_type', '*/*')
 
-    def test_filesystem_extension_condition(self):
-        self.rc = rules.RuleCondition('filesystem.basename.extension', 'pdf')
-        self.assertIsNotNone(self.rc)
+    def test_condition_filesystem_basename_full(self):
+        self._assert_valid('filesystem.basename.full', 'foo.tar.gz')
+        self._assert_valid('filesystem.basename.full', 'foo.*')
+        self._assert_valid('filesystem.basename.full', '.*foo.*')
+        self._assert_valid('filesystem.basename.full', '.*')
+
+    def test_condition_filesystem_basename_prefix(self):
+        self._assert_valid('filesystem.basename.prefix', 'foo')
+        self._assert_valid('filesystem.basename.prefix', '.*')
+        self._assert_valid('filesystem.basename.prefix', 'foo(bar)?')
+
+    def test_condition_filesystem_basename_suffix(self):
+        self._assert_valid('filesystem.basename.suffix', 'tar.gz')
+        self._assert_valid('filesystem.basename.suffix', 'tar.*')
+
+    def test_condition_filesystem_extension(self):
+        self._assert_valid('filesystem.basename.extension', 'pdf')
+        self._assert_valid('filesystem.basename.extension', '.*')
+        self._assert_valid('filesystem.basename.extension', '.?')
+        self._assert_valid('filesystem.basename.extension', 'pdf?')
+
+    def test_condition_metadata_exiftool(self):
+        self._assert_valid('metadata.exiftool.PDF:CreateDate', '1996')
+        self._assert_valid('metadata.exiftool.PDF:Creator', 'foo')
+        self._assert_valid('metadata.exiftool.PDF:ModifyDate', '1996-01-20')
+        self._assert_valid('metadata.exiftool.PDF:Producer', 'foo')
+        self._assert_valid('metadata.exiftool.XMP-dc:Creator', 'foo')
+        self._assert_valid('metadata.exiftool.XMP-dc:Publisher', 'foo')
+        self._assert_valid('metadata.exiftool.XMP-dc:Title', 'foo')
 
 
 class TestRuleConditionFromInvalidInput(TestCase):
-    def test_invalid_contents_mime_type_condition(self):
-        with self.assertRaises(ValueError):
-            self.rc = rules.RuleCondition('contents.mime_type', '/')
+    def _assert_invalid(self, query, data):
+        # with self.assertRaises((ValueError, TypeError)):
+        #     actual = rules.get_valid_rule_condition(query, data)
+        actual = rules.get_valid_rule_condition(query, data)
+        self.assertFalse(actual)
 
-    def test_invalid_filesystem_basename_condition(self):
-        with self.assertRaises(ValueError):
-            self.rc = rules.RuleCondition('filesystem.basename.full', None)
+    def test_invalid_condition_contents_mime_type(self):
+        self._assert_invalid('contents.mime_type', None)
+        self._assert_invalid('contents.mime_type', '')
+        self._assert_invalid('contents.mime_type', '/')
+        self._assert_invalid('contents.mime_type', 'application/*//pdf')
+        self._assert_invalid('contents.mime_type', 'application///pdf')
+        self._assert_invalid('contents.mime_type', 'text/')
 
-    def test_invalid_filesystem_extension_condition(self):
-        with self.assertRaises(ValueError):
-            self.rc = rules.RuleCondition('filesystem.basename.extension', None)
+    def test_invalid_condition_filesystem_basename_full(self):
+        self._assert_invalid('filesystem.basename.full', None)
+        self._assert_invalid('filesystem.basename.full', '')
+
+    def test_invalid_condition_filesystem_basename_prefix(self):
+        self._assert_invalid('filesystem.basename.prefix', None)
+        self._assert_invalid('filesystem.basename.prefix', '')
+
+    def test_invalid_condition_filesystem_basename_suffix(self):
+        self._assert_invalid('filesystem.basename.suffix', None)
+        self._assert_invalid('filesystem.basename.suffix', '')
+
+    def test_invalid_condition_filesystem_extension(self):
+        self._assert_invalid('filesystem.basename.extension', None)
+        self._assert_invalid('filesystem.basename.extension', '')
 
 
 RULE_CONTENTS = {
