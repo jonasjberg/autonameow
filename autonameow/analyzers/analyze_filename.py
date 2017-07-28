@@ -186,7 +186,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         # 2. Common patterns
         # ==================
         # Try more common patterns, starting with the most common.
-        # TODO: [TD0006][TD0044] This is not the way to do it!
+        # TODO: [TD0019][TD0044] This is not the way to do it!
         dt_android = dateandtime.match_android_messenger_filename(fn)
         if dt_android:
             results.append({'value': dt_android,
@@ -199,7 +199,8 @@ class FilenameAnalyzer(BaseAnalyzer):
             # results.append({'value': dt_unix,
             #                 'source': 'unix_timestamp',
             #                 'weight': 1})
-            # TODO: [TD0006][TD0044] Look at how results are stored and named.
+            # TODO: [TD0044] Look at how results are stored and named.
+            # TODO: [TD0019] Rework The FilenameAnalyzer class.
             self._add_results('datetime',
                          {'value': dt_unix,
                           'source': 'filesystem.basename.prefix.unix_timestamp',
@@ -211,7 +212,8 @@ class FilenameAnalyzer(BaseAnalyzer):
             # results.append({'value': dt_screencapture_unix,
             #                 'source': 'screencapture_unixtime',
             #                 'weight': 1})
-            # TODO: [TD0006][TD0044] Look at how results are stored and named.
+            # TODO: [TD0044] Look at how results are stored and named.
+            # TODO: [TD0019] Rework The FilenameAnalyzer class.
             self.add_results('filesystem.basename.derived_data.datetime',
                              {'value': dt_screencapture_unix,
                               'source': 'screencapture_unixtime',
