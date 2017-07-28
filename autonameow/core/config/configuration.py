@@ -412,7 +412,8 @@ def parse_conditions(raw_conditions):
     out = []
     try:
         for query_string, expression in raw_conditions.items():
-            valid_condition = get_valid_rule_condition(query_string, expression)
+            valid_condition = rules.get_valid_rule_condition(query_string,
+                                                             expression)
             if not valid_condition:
                 raise exceptions.ConfigurationSyntaxError(
                     'contains invalid condition [{}]: {}'.format(query_string,
@@ -429,25 +430,3 @@ def parse_conditions(raw_conditions):
     return out
 
 
-def get_valid_rule_condition(raw_query, raw_value):
-    """
-    Tries to create and return a 'RuleCondition' instance.
-
-    Validation of the "raw" arguments are performed as part of the
-    'RuleCondition' initialization. In case of failure, False is returned.
-
-    Args:
-        raw_query: The "query string" specifying *some data* for the condition.
-        raw_value: The expression or value that describes the condition.
-
-    Returns:
-        An instance of the 'RuleCondition' class if the given arguments are
-        valid, otherwise False.
-    """
-    try:
-        condition = rules.RuleCondition(raw_query, raw_value)
-    except TypeError as e:
-        log.critical('Invalid rule condition: {!s}'.format(e))
-        return False
-    else:
-        return condition
