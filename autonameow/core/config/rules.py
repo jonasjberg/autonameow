@@ -243,7 +243,7 @@ def get_valid_rule_condition(raw_query, raw_value):
     """
     try:
         condition = RuleCondition(raw_query, raw_value)
-    except TypeError as e:
+    except (TypeError, ValueError) as e:
         log.critical('Invalid rule condition: {!s}'.format(e))
         return False
     else:
