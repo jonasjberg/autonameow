@@ -365,8 +365,8 @@ def parse_sources(raw_sources):
             else:
                 log.debug('Invalid source: [{}]: {}'.format(template_field, qs))
 
-    log.debug('parse_sources returned {} valid sources'.format(len(passed)))
-
+    log.debug('Returning {} (out of {}) valid sources'.format(len(passed),
+                                                              len(raw_sources)))
     return passed
 
 

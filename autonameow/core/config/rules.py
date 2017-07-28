@@ -95,7 +95,8 @@ class RuleCondition(object):
         if self.query_string.startswith('metadata.exiftool'):
             # TODO: [TD0015] Handle expression in 'condition_value'
             #                ('Defined', '> 2017', etc)
-            log.warning('Validation of this condition is not yet implemented!')
+            log.warning('Validation of this condition is not yet implemented!'
+                        ' (starts with "metadata.exiftool")')
 
         if not self._get_parser(self.query_string):
             raise ValueError('Found no suitable parsers for query string: '
