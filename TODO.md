@@ -95,9 +95,6 @@ Medium Priority
     * Image OCR is very slow, should only be executed when needed, caching the
       results for all accesses.
 
-* `[TD0013]` Add conditional data extraction.
-    * Extractors should not run unless needed. Related to caching, above.
-
 * `[TD0056]` __Determine which extractors should be used for each input.__  
   In order to add conditional data extraction, a list of relevant extractors
   must be produced for each input path that will be processed. This should

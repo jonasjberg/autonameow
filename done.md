@@ -10,6 +10,14 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-07-28
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0013]` Add conditional data extraction.
+    >     * Extractors should not run unless needed. Related to caching, above.
+
 * 2017-07-27
 
     > High Priority

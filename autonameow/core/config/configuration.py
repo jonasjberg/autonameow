@@ -401,11 +401,6 @@ def is_valid_source(source_value):
         return False
 
 
-def is_analyzer_source(source_value):
-    # TODO: [TD0013] Implement checking if a source specifies an analyzer.
-    pass
-
-
 def parse_conditions(raw_conditions):
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
