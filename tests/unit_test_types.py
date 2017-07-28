@@ -133,8 +133,8 @@ class TestTypeInteger(TestCase):
         self.assertEqual(types.AW_INTEGER(None), types.AW_INTEGER.null)
 
     def test_normalize(self):
-        # self.assertEqual(types.AW_INTEGER.normalize(None),
-        #                  types.AW_INTEGER.null)
+        self.assertEqual(types.AW_INTEGER.normalize(None),
+                         types.AW_INTEGER.null)
         self.assertEqual(types.AW_INTEGER.normalize(-1), -1)
         self.assertEqual(types.AW_INTEGER.normalize(0), 0)
         self.assertEqual(types.AW_INTEGER.normalize(1), 1)
