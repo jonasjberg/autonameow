@@ -154,15 +154,17 @@ class Path(BaseType):
         )
 
     def coerce(self, raw_value):
-        if raw_value is None:
-            return self._null()
+        if raw_value:
+            try:
+                value = util.bytestring_path(raw_value)
+            except (ValueError, TypeError):
+                pass
+            else:
+                return value
 
-        try:
-            value = util.bytestring_path(raw_value)
-        except (ValueError, TypeError):
-            return self._null()
-        else:
-            return value
+        raise exceptions.AWTypeError(
+            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        )
 
     def format(self, value, formatter=None):
         parsed = self.coerce(value)
