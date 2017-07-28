@@ -363,6 +363,9 @@ def eval_query_string_glob(query_string, glob_list):
     if query_string in glob_list:
         return True
 
+    # Split the "query string" by periods to a list of strings.
+    query_string_parts = util.query_string_list(query_string)
+
     for glob in glob_list:
         glob_parts = glob.split('.')
         # All wildcards match anything.
@@ -371,7 +374,6 @@ def eval_query_string_glob(query_string, glob_list):
 
         # No wildcards, do direct comparison.
         if '*' not in glob_parts:
-            query_string_parts = util.query_string_list(query_string)
             if glob_parts == query_string_parts:
                 return True
             else:
