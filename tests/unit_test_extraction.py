@@ -22,8 +22,11 @@
 from unittest import TestCase
 
 import extractors
-from core import constants
-from core.exceptions import InvalidDataSourceError
+from core import (
+    constants,
+    extraction,
+    exceptions
+)
 from core.extraction import (
     ExtractedData,
     Extraction,
@@ -39,9 +42,9 @@ class TestExtractedData(TestCase):
         self.assertIsNotNone(self.d)
 
     def test_add_data_with_invalid_label_raises_error(self):
-        with self.assertRaises(InvalidDataSourceError):
+        with self.assertRaises(exceptions.InvalidDataSourceError):
             self.d.add(None, 'data')
-        with self.assertRaises(InvalidDataSourceError):
+        with self.assertRaises(exceptions.InvalidDataSourceError):
             self.d.add('', 'data')
 
     def test_adds_data_with_valid_label(self):
@@ -138,7 +141,7 @@ class TestExtraction(TestCase):
         self.assertEqual(len(self.e.data), 0)
 
     def test_raises_exception_For_invalid_results(self):
-        with self.assertRaises(InvalidDataSourceError):
+        with self.assertRaises(exceptions.InvalidDataSourceError):
             self.e.collect_results(None, 'image/jpeg')
             self.e.collect_results(1, 'image/jpeg')
             self.e.collect_results(False, 'image/jpeg')
@@ -172,3 +175,66 @@ class TestExtraction(TestCase):
     def test_has_method__execute_run_queue(self):
         self.assertIsNotNone(self.e._execute_run_queue)
 
+
+class _DummyExtractor(object):
+    is_slow = False
+
+
+class _DummySlowExtractor(object):
+    is_slow = True
+
+
+class TestKeepSlowExtractorsIfRequiredWithSlowExtractor(TestCase):
+    def setUp(self):
+        self.fast = _DummyExtractor
+        self.slow = _DummySlowExtractor
+
+        self.input = [self.fast, self.fast, self.slow]
+
+    def test_keep_slow_extractors_if_required_is_defined(self):
+        self.assertIsNotNone(extraction.keep_slow_extractors_if_required)
+
+    def test_slow_extractor_are_excluded_if_not_required(self):
+        actual = extraction.keep_slow_extractors_if_required(self.input, [])
+
+        self.assertNotIn(self.slow, actual,
+                         'Slow extractor class should be excluded')
+        self.assertNotEqual(len(self.input), len(actual),
+                            'Expect one less extractor class in the output')
+
+    def test_slow_extractor_are_included_if_required(self):
+        required = [self.slow]
+        actual = extraction.keep_slow_extractors_if_required(self.input,
+                                                             required)
+        self.assertIn(self.slow, actual,
+                      'Slow extractor class is kept when required')
+        self.assertEqual(len(self.input), len(actual),
+                         'Expect the same number of extractor classes')
+
+
+class TestKeepSlowExtractorsIfRequired(TestCase):
+    def setUp(self):
+        self.fast = _DummyExtractor
+        self.slow = _DummySlowExtractor
+
+        self.input = [self.fast, self.fast, self.fast]
+
+    def test_keep_slow_extractors_if_required_is_defined(self):
+        self.assertIsNotNone(extraction.keep_slow_extractors_if_required)
+
+    def test_slow_extractor_are_excluded_if_not_required(self):
+        actual = extraction.keep_slow_extractors_if_required(self.input, [])
+
+        self.assertNotIn(self.slow, actual,
+                         'Slow extractor class should be excluded')
+        self.assertEqual(len(self.input), len(actual),
+                         'Expect the same number of extractor classes')
+
+    def test_slow_extractor_are_included_if_required(self):
+        required = [self.slow]
+        actual = extraction.keep_slow_extractors_if_required(self.input,
+                                                             required)
+        self.assertNotIn(self.slow, actual,
+                         'There was no slow extractor class to start with')
+        self.assertEqual(len(self.input), len(actual),
+                         'Expect the same number of extractor classes')
