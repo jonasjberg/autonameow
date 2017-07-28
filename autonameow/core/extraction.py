@@ -82,14 +82,16 @@ class Extraction(object):
         else:
             self.data.add(label, data)
 
-    def start(self):
+    def start(self, require_extractors=None):
         """
         Starts the data extraction.
         """
         log.debug('Started data extraction')
 
-        # TODO: [TD0056] Determine which extractors should be used.
-        required_extractors = []
+        if require_extractors:
+            required_extractors = require_extractors
+        else:
+            required_extractors = []
 
         # Select extractors based on detected file type.
         classes = extractors.suitable_data_extractors_for(self.file_object)
@@ -99,9 +101,6 @@ class Extraction(object):
 
         log.debug('Got {} suitable extractors'.format(len(classes)))
         instances = self._instantiate_extractors(classes)
-
-        # TODO: [TD0013] Add conditional extraction.
-        # TODO: [TD0056] Add conditional extraction.
 
         for e in instances:
             self.extractor_queue.enqueue(e)
