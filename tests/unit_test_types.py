@@ -340,22 +340,48 @@ class TestTypePath(TestCase):
         with self.assertRaises(exceptions.AWTypeError):
             self.assertEqual(type(types.AW_PATH(None)), None)
 
-    def test_normalize(self):
-        self.skipTest('TODO: ..')
-        self.assertEqual(types.AW_PATH.normalize('~/temp'), '/Users/USER/temp')
+    def test_null(self):
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(types.AW_PATH(None), 'INVALID PATH')
 
-    def test_call_with_none(self):
         with self.assertRaises(exceptions.AWTypeError):
             self.assertEqual(types.AW_PATH(None), types.AW_PATH.null)
 
+    def test_normalize(self):
+        user_home = os.path.expanduser('~')
+        self.assertEqual(types.AW_PATH.normalize('~'),
+                         util.encode_(user_home))
+        self.assertEqual(types.AW_PATH.normalize('~/'),
+                         util.encode_(user_home))
+
+        expected = os.path.normpath(os.path.join(user_home, 'foo'))
+        self.assertEqual(types.AW_PATH.normalize('~/foo'),
+                         util.encode_(expected))
+
+    def test_normalize_invalid_value(self):
+        with self.assertRaises(exceptions.AWTypeError):
+            types.AW_PATH.normalize('')
+
     def test_call_with_coercible_data(self):
         self.assertEqual(types.AW_PATH('/tmp'), b'/tmp')
+        self.assertEqual(types.AW_PATH('/tmp/foo'), b'/tmp/foo')
+        self.assertEqual(types.AW_PATH('/tmp/foo.bar'), b'/tmp/foo.bar')
+        self.assertEqual(types.AW_PATH('~'), b'~')
+        self.assertEqual(types.AW_PATH('~/foo'), b'~/foo')
+        self.assertEqual(types.AW_PATH('~/foo.bar'), b'~/foo.bar')
+        self.assertEqual(types.AW_PATH(b'/tmp'), b'/tmp')
+        self.assertEqual(types.AW_PATH(b'/tmp/foo'), b'/tmp/foo')
+        self.assertEqual(types.AW_PATH(b'/tmp/foo.bar'), b'/tmp/foo.bar')
+        self.assertEqual(types.AW_PATH(b'~'), b'~')
+        self.assertEqual(types.AW_PATH(b'~/foo'), b'~/foo')
+        self.assertEqual(types.AW_PATH(b'~/foo.bar'), b'~/foo.bar')
 
     def test_call_with_noncoercible_data(self):
         with self.assertRaises(exceptions.AWTypeError):
             types.AW_PATH(datetime.now())
             types.AW_PATH(0)
             types.AW_PATH(None)
+            types.AW_PATH('')
 
 
 class TestTryWrap(TestCase):

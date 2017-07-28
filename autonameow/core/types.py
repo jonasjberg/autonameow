@@ -125,20 +125,33 @@ class BaseType(object):
 class Path(BaseType):
     primitive_type = str
     coercible_types = (str, bytes)
+
+    # Always force coercion so that all incoming data is properly normalized.
     equivalent_types = ()
 
-    null = ''
+    # Make sure to never return "null" -- raise a 'AWTypeError' exception.
+    null = 'INVALID PATH'
 
     def __call__(self, raw_value=None):
+        # Overrides the 'BaseType' __call__ method as to not perform the test
+        # after the the value coercion. This is because the path could be a
+        # byte string and still not be properly normalized.
         if (raw_value is not None
                 and isinstance(raw_value, self.coercible_types)):
-            # Type can be coerced, test after coercion to make sure.
-            value = self.coerce(raw_value)
-            return value
-        else:
-            raise exceptions.AWTypeError(
-                'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
-            )
+            if raw_value.strip() is not None:
+                value = self.coerce(raw_value)
+                return value
+        raise exceptions.AWTypeError(
+            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        )
+
+    def normalize(self, value):
+        coerced = self.coerce(value)
+        if coerced:
+            return util.normpath(coerced)
+        raise exceptions.AWTypeError(
+            'Unable to normalize "{!s}" into {!r}'.format(value, self)
+        )
 
     def coerce(self, raw_value):
         if raw_value is None:
