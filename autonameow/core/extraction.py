@@ -93,9 +93,12 @@ class Extraction(object):
 
         # Select extractors based on detected file type.
         classes = extractors.suitable_data_extractors_for(self.file_object)
+
+        # Exclude "slow" extractors if they are not explicitly required.
         classes = include_slow_if_required(classes, required_extractors)
-        instances = self._instantiate_extractors(classes)
+
         log.debug('Got {} suitable extractors'.format(len(classes)))
+        instances = self._instantiate_extractors(classes)
 
         # TODO: [TD0013] Add conditional extraction.
         # TODO: [TD0056] Add conditional extraction.
