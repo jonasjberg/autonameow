@@ -35,7 +35,7 @@ def get_filesystem_analyzer(file_object):
 
 class TestFilesystemAnalyzerWithEmptyFile(TestCase):
     def setUp(self):
-        # TODO: Fix the filtering! Not completed as-is.
+        # TODO: [TD0034][TD0035] Fix the filtering! Not completed as-is.
         self.filter = {'ignore_years': [],
                        'ignore_before_year': None,
                        'ignore_after_year': None}
@@ -104,15 +104,15 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
         self.assertEqual(expected, dt_accessed.get('value'))
 
     def test_get_title_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(AttributeError):
             self.assertIsNone(self.fsa.get_title())
 
     def test_get_author_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(AttributeError):
             self.assertIsNone(self.fsa.get_author())
 
     def test_get_tags_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(AttributeError):
             self.assertIsNone(self.fsa.get_tags())
 
     def test__get_datetime_from_filesystem_returns_expected_type(self):

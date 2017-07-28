@@ -41,6 +41,13 @@ class ImageAnalyzer(BaseAnalyzer):
         self.exif_data = None
         self.ocr_text = None
 
+    def _add_results(self, label, data):
+        query_string = 'analysis.image_analyzer.{}'.format(label)
+        log.debug('{} passed "{}" to "add_results" callback'.format(
+            self, query_string)
+        )
+        self.add_results(query_string, data)
+
     def run(self):
         self.exif_data = self.extracted_data.get('metadata.exiftool')
         self.ocr_text = self.extracted_data.get('contents.visual.ocr_text')
@@ -48,8 +55,14 @@ class ImageAnalyzer(BaseAnalyzer):
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
 
+        # Pass results through callback function provided by the 'Analysis'.
+        self._add_results('datetime', self.get_datetime())
+        self._add_results('author', self.get_author())
+        self._add_results('title', self.get_title())
+        self._add_results('tags', self.get_tags())
+        self._add_results('publisher', self.get_publisher())
+
     def get_datetime(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
         result = []
         exif_timestamps = self._get_exif_datetime()
         if exif_timestamps:
@@ -63,20 +76,16 @@ class ImageAnalyzer(BaseAnalyzer):
         return result
 
     def get_author(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        raise NotImplementedError('Get "author" from ImageAnalyzer')
+        pass
 
     def get_title(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        raise NotImplementedError('Get "title" from ImageAnalyzer')
+        pass
 
     def get_tags(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        raise NotImplementedError('Get "tags" from ImageAnalyzer')
+        pass
 
     def get_publisher(self):
-        # TODO: [TD0005] Remove, use callbacks instead.
-        raise NotImplementedError('Get "publisher" from ImageAnalyzer')
+        pass
 
     def _get_exif_datetime(self):
         """

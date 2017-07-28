@@ -71,9 +71,15 @@ class BaseExtractor(object):
     handles_mime_types = None
 
     # Query string label for the data returned by this extractor.
-    #    NOTE:  Must be defined in 'constants.VALID_DATA_SOURCES'!
+
     # Example:  'metadata.exiftool'
     data_query_string = None
+
+    # Controls whether the extractor is enabled and used by default.
+    # Used to exclude slow running extractors from always being executed.
+    # If the extractor is not enabled by the default, it must be explicitly
+    # specified in order to be enqueued in the extractor run queue.
+    is_slow = False
 
     def __init__(self, source):
         """

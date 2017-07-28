@@ -153,15 +153,15 @@ def regex_search_str(text):
     :return: list of any datetime-objects or None if nothing was found
     """
 
+    if isinstance(text, list):
+        text = ' '.join(text)
+
     results = []
 
     # TODO: [TD0044] This code should be removed and/or rewritten.
 
     # TODO: [TD0004] Enforce encoding boundary for extracted data.
     text = util.decode_(text)
-
-    if type(text) is list:
-        text = ' '.join(text)
 
     DATE_SEP = r'[:\-._ /]?'
     TIME_SEP = r'[T:\-. _]?'

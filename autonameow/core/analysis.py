@@ -76,6 +76,8 @@ class Analysis(object):
             label: Label that uniquely identifies the data.
             data: The data to add.
         """
+        assert label is not None and isinstance(label, str)
+
         if isinstance(data, dict):
             flat_data = util.flatten_dict(data)
             for k, v in flat_data.items():
@@ -140,26 +142,9 @@ class Analysis(object):
                 log.critical('Got undefined analyzer from the run queue (!)')
                 continue
 
-            log.debug('Starting Analyzer "{!s}"'.format(a))
+            log.debug('Running Analyzer "{!s}"'.format(a))
             a.run()
-
-            # TODO: [TD0005] Remove, use callbacks instead.
-            for field in constants.ANALYSIS_RESULTS_FIELDS:
-                try:
-                    result = a.get(field)
-                except NotImplementedError as e:
-                    log.debug('[WARNING] Called unimplemented code in {!s}: '
-                              '{!s}'.format(a, e))
-                    continue
-
-                if not result:
-                    continue
-
-                # Add the analyzer name to the results dictionary.
-                results = include_analyzer_name(result, a)
-                self.results.add(field, results)
-
-            log.debug('Finished Analyzer "{!s}"'.format(a))
+            log.debug('Finished running "{!s}"'.format(a))
 
 
 def include_analyzer_name(result_list, source):

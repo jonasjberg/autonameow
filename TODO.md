@@ -23,12 +23,6 @@ High Priority
       issues is to store bytestrings and perform any processing on copies that
       have __not__ been converted to the internal format?
 
-* `[TD0005]` __Internal "API"__ -- communication between modules
-    * Replace the old way of calling the analyzer `get_{fieldname}` methods
-      with passing the `Analysis` class method `collect_results` as a callback.
-    * Fully implement the idea of dynamically constructing structures and
-      interfaces from a single reference data structure at runtime.
-
 * `[TD0006]` __New high-level architecture__
     * Move to use the redesigned architecture
     * All data extraction is handled by `extractor` classes
@@ -52,6 +46,9 @@ High Priority
 
 Medium Priority
 ---------------
+
+* `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time
+  to UTC and convert to local time as a final step before presentation or use.
 
 * `[TD0053]` Fix special case of collecting data from the `FileObject`.
 
@@ -98,8 +95,12 @@ Medium Priority
     * Image OCR is very slow, should only be executed when needed, caching the
       results for all accesses.
 
-* `[TD0013]` Add conditional data extraction.
-    * Extractors should not run unless needed. Related to caching, above.
+* `[TD0056]` __Determine which extractors should be used for each input.__  
+  In order to add conditional data extraction, a list of relevant extractors
+  must be produced for each input path that will be processed. This should
+  probably be collected during configuration parsing and rule matching; if a
+  file rule needs some information to be evaluated, the relevant extractor must
+  be enqueued and executed.
 
 * `[TD0014]` Possibly redesign high-level handling of a "configuration".
     * Decouple the `Configuration` instance from I/O.
@@ -194,6 +195,8 @@ Medium Priority
 
 Low Priority
 ------------
+
+* `[TD0055]` Fully implement the `VideoAnalyzer` class.
 
 * `[TD0026]` Implement safe handling of symbolic link input paths.
 

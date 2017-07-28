@@ -82,16 +82,27 @@ class Extraction(object):
         else:
             self.data.add(label, data)
 
-    def start(self):
+    def start(self, require_extractors=None, require_all_extractors=False):
         """
         Starts the data extraction.
         """
         log.debug('Started data extraction')
 
+        if require_extractors:
+            required_extractors = require_extractors
+        else:
+            required_extractors = []
+
         # Select extractors based on detected file type.
         classes = extractors.suitable_data_extractors_for(self.file_object)
-        instances = self._instantiate_extractors(classes)
+
+        if not require_all_extractors:
+            # Exclude "slow" extractors if they are not explicitly required.
+            classes = keep_slow_extractors_if_required(classes,
+                                                       required_extractors)
+
         log.debug('Got {} suitable extractors'.format(len(classes)))
+        instances = self._instantiate_extractors(classes)
 
         for e in instances:
             self.extractor_queue.enqueue(e)
@@ -217,3 +228,34 @@ class ExtractedData(object):
         return count_dict_recursive(self._data, 0)
 
 
+def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
+    """
+    Filters out "slow" extractor classes if they are not explicitly required.
+
+    If the extractor class variable 'is_slow' is True, the extractor is
+    excluded if the same class is not specified in 'required_extractors'.
+
+    Args:
+        extractor_klasses: List of extractor classes to filter.
+        required_extractors: List of required extractor classes.
+
+    Returns:
+        A list of extractor classes, including "slow" classes only if required.
+    """
+    out = []
+
+    for klass in extractor_klasses:
+        if klass.is_slow is True:
+            if klass in required_extractors:
+                out.append(klass)
+                log.debug(
+                    'Included required slow extractor "{!s}"'.format(klass)
+                )
+            else:
+                log.debug(
+                    'Excluded slow extractor "{!s}"'.format(klass)
+                )
+        else:
+            out.append(klass)
+
+    return out

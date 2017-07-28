@@ -264,6 +264,8 @@ class TimeDate(BaseType):
     # TODO: [TD0050] Figure out how to represent null for datetime objects.
     null = 'INVALID DATE'
 
+    # TODO: [TD0054] Represent datetime as UTC within autonameow.
+
     def __call__(self, raw_value=None):
         if not raw_value:
             return self._null()

@@ -21,6 +21,10 @@
 
 import logging as log
 
+from core import (
+    constants,
+    util
+)
 from core.config import field_parsers
 
 
@@ -91,7 +95,8 @@ class RuleCondition(object):
         if self.query_string.startswith('metadata.exiftool'):
             # TODO: [TD0015] Handle expression in 'condition_value'
             #                ('Defined', '> 2017', etc)
-            log.warning('Validation of this condition is not yet implemented!')
+            log.warning('Validation of this condition is not yet implemented!'
+                        ' (starts with "metadata.exiftool")')
 
         if not self._get_parser(self.query_string):
             raise ValueError('Found no suitable parsers for query string: '
@@ -162,3 +167,85 @@ class RuleCondition(object):
 
     def __str__(self):
         return '{!s}: {!s}'.format(self.query_string, self.expression)
+
+
+class Rule(object):
+    def __init__(self):
+        pass
+
+
+class FileRule(Rule):
+    """
+    Represents a single file rule entry in a loaded configuration.
+
+    This class is a container; assumes all data in "kwargs" is valid.
+    All data validation should be performed outside of this class.
+
+    File rules are prioritized and sorted by both "score" and "weight".
+
+      - score  Represents how well suited a rule is for a given file.
+               This value is changed at run-time.
+      - weight If multiple rules end up with an equal score, weights are
+               used to further prioritize as to get a single "winning" rule.
+               This value is specified in the active configuration.
+    """
+    def __init__(self, **kwargs):
+        super().__init__()
+
+        self.description = str(kwargs.get('description'))
+        self.exact_match = bool(kwargs.get('exact_match'))
+        self.weight = kwargs.get('weight', constants.FILERULE_DEFAULT_WEIGHT)
+        self.name_template = kwargs.get('name_template')
+        self.conditions = kwargs.get('conditions', False)
+        self.data_sources = kwargs.get('data_sources', False)
+
+        # Rules are sorted/prioritized by first the score, secondly the weight.
+        self.score = 0
+
+    def __str__(self):
+        # TODO: [TD0039] Do not include the file rule attribute `score` when
+        #       listing the configuration with `--dump-config`.
+        return util.dump(self.__dict__)
+
+    def __repr__(self):
+        out = []
+        for key in self.__dict__:
+            out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
+        return 'FileRule({})'.format(', '.join(out))
+
+    def upvote(self):
+        """
+        Increases the matching score of this rule.
+        """
+        self.score += 1
+
+    def downvote(self):
+        """
+        Decreases the matching score of this rule.
+        """
+        if self.score > 0:
+            self.score -= 1
+
+
+def get_valid_rule_condition(raw_query, raw_value):
+    """
+    Tries to create and return a 'RuleCondition' instance.
+
+    Validation of the "raw" arguments are performed as part of the
+    'RuleCondition' initialization. In case of failure, False is returned.
+
+    Args:
+        raw_query: The "query string" specifying *some data* for the condition.
+        raw_value: The expression or value that describes the condition.
+
+    Returns:
+        An instance of the 'RuleCondition' class if the given arguments are
+        valid, otherwise False.
+    """
+    try:
+        condition = RuleCondition(raw_query, raw_value)
+    except (TypeError, ValueError) as e:
+        log.critical('Invalid rule condition: {!s}'.format(e))
+        return False
+    else:
+        return condition

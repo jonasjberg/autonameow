@@ -22,7 +22,6 @@
 import logging as log
 import os
 
-import analyzers
 import extractors
 from core import (
     config,
@@ -30,73 +29,15 @@ from core import (
     exceptions,
     util
 )
-from core.config import field_parsers
-from core.config.rules import RuleCondition
+from core.config import (
+    field_parsers,
+    rules
+)
 from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     DateTimeConfigFieldParser
 )
-from core.util import (
-    textutils
-)
-
-
-class Rule(object):
-    def __init__(self):
-        pass
-
-
-class FileRule(Rule):
-    """
-    Represents a single file rule entry in a loaded configuration.
-
-    This class is a container; assumes all data in "kwargs" is valid.
-    All data validation should be performed outside of this class.
-
-    File rules are prioritized and sorted by both "score" and "weight".
-
-      - score  Represents how well suited a rule is for a given file.
-               This value is changed at run-time.
-      - weight If multiple rules end up with an equal score, weights are
-               used to further prioritize as to get a single "winning" rule.
-               This value is specified in the active configuration.
-    """
-    def __init__(self, **kwargs):
-        super().__init__()
-
-        self.description = str(kwargs.get('description'))
-        self.exact_match = bool(kwargs.get('exact_match'))
-        self.weight = kwargs.get('weight', constants.FILERULE_DEFAULT_WEIGHT)
-        self.name_template = kwargs.get('name_template')
-        self.conditions = kwargs.get('conditions', False)
-        self.data_sources = kwargs.get('data_sources', False)
-
-        # Rules are sorted/prioritized by first the score, secondly the weight.
-        self.score = 0
-
-    def __str__(self):
-        # TODO: [TD0039] Do not include the file rule attribute `score` when
-        #       listing the configuration with `--dump-config`.
-        return util.dump(self.__dict__)
-
-    def __repr__(self):
-        out = []
-        for key in self.__dict__:
-            out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
-        return 'FileRule({})'.format(', '.join(out))
-
-    def upvote(self):
-        """
-        Increases the matching score of this rule.
-        """
-        self.score += 1
-
-    def downvote(self):
-        """
-        Decreases the matching score of this rule.
-        """
-        if self.score > 0:
-            self.score -= 1
+from core.util import textutils
 
 
 class Configuration(object):
@@ -258,12 +199,12 @@ class Configuration(object):
         if not valid_description:
             valid_description = 'UNDESCRIBED'
 
-        file_rule = FileRule(description=valid_description,
-                             exact_match=valid_exact_match,
-                             weight=valid_weight,
-                             name_template=valid_format,
-                             conditions=valid_conditions,
-                             data_sources=valid_sources)
+        file_rule = rules.FileRule(description=valid_description,
+                                   exact_match=valid_exact_match,
+                                   weight=valid_weight,
+                                   name_template=valid_format,
+                                   conditions=valid_conditions,
+                                   data_sources=valid_sources)
         return file_rule
 
     def _load_options(self):
@@ -424,8 +365,8 @@ def parse_sources(raw_sources):
             else:
                 log.debug('Invalid source: [{}]: {}'.format(template_field, qs))
 
-    log.debug('parse_sources returned {} valid sources'.format(len(passed)))
-
+    log.debug('Returning {} (out of {}) valid sources'.format(len(passed),
+                                                              len(raw_sources)))
     return passed
 
 
@@ -460,18 +401,14 @@ def is_valid_source(source_value):
         return False
 
 
-def is_analyzer_source(source_value):
-    # TODO: [TD0013] Implement checking if a source specifies an analyzer.
-    pass
-
-
 def parse_conditions(raw_conditions):
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
     out = []
     try:
         for query_string, expression in raw_conditions.items():
-            valid_condition = get_valid_rule_condition(query_string, expression)
+            valid_condition = rules.get_valid_rule_condition(query_string,
+                                                             expression)
             if not valid_condition:
                 raise exceptions.ConfigurationSyntaxError(
                     'contains invalid condition [{}]: {}'.format(query_string,
@@ -488,25 +425,3 @@ def parse_conditions(raw_conditions):
     return out
 
 
-def get_valid_rule_condition(raw_query, raw_value):
-    """
-    Tries to create and return a 'RuleCondition' instance.
-
-    Validation of the "raw" arguments are performed as part of the
-    'RuleCondition' initialization. In case of failure, False is returned.
-
-    Args:
-        raw_query: The "query string" specifying *some data* for the condition.
-        raw_value: The expression or value that describes the condition.
-
-    Returns:
-        An instance of the 'RuleCondition' class if the given arguments are
-        valid, otherwise False.
-    """
-    try:
-        condition = RuleCondition(raw_query, raw_value)
-    except TypeError as e:
-        log.critical('Invalid rule condition: {!s}'.format(e))
-        return False
-    else:
-        return condition
