@@ -95,7 +95,7 @@ class Extraction(object):
         classes = extractors.suitable_data_extractors_for(self.file_object)
 
         # Exclude "slow" extractors if they are not explicitly required.
-        classes = include_slow_if_required(classes, required_extractors)
+        classes = keep_slow_extractors_if_required(classes, required_extractors)
 
         log.debug('Got {} suitable extractors'.format(len(classes)))
         instances = self._instantiate_extractors(classes)
@@ -227,7 +227,7 @@ class ExtractedData(object):
         return count_dict_recursive(self._data, 0)
 
 
-def include_slow_if_required(extractor_klasses, required_extractors):
+def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
     """
     Filters out "slow" extractor classes if they are not explicitly required.
 
