@@ -21,6 +21,10 @@
 
 import logging as log
 
+from core import (
+    constants,
+    util
+)
 from core.config import field_parsers
 
 
@@ -162,3 +166,61 @@ class RuleCondition(object):
 
     def __str__(self):
         return '{!s}: {!s}'.format(self.query_string, self.expression)
+
+
+class Rule(object):
+    def __init__(self):
+        pass
+
+
+class FileRule(Rule):
+    """
+    Represents a single file rule entry in a loaded configuration.
+
+    This class is a container; assumes all data in "kwargs" is valid.
+    All data validation should be performed outside of this class.
+
+    File rules are prioritized and sorted by both "score" and "weight".
+
+      - score  Represents how well suited a rule is for a given file.
+               This value is changed at run-time.
+      - weight If multiple rules end up with an equal score, weights are
+               used to further prioritize as to get a single "winning" rule.
+               This value is specified in the active configuration.
+    """
+    def __init__(self, **kwargs):
+        super().__init__()
+
+        self.description = str(kwargs.get('description'))
+        self.exact_match = bool(kwargs.get('exact_match'))
+        self.weight = kwargs.get('weight', constants.FILERULE_DEFAULT_WEIGHT)
+        self.name_template = kwargs.get('name_template')
+        self.conditions = kwargs.get('conditions', False)
+        self.data_sources = kwargs.get('data_sources', False)
+
+        # Rules are sorted/prioritized by first the score, secondly the weight.
+        self.score = 0
+
+    def __str__(self):
+        # TODO: [TD0039] Do not include the file rule attribute `score` when
+        #       listing the configuration with `--dump-config`.
+        return util.dump(self.__dict__)
+
+    def __repr__(self):
+        out = []
+        for key in self.__dict__:
+            out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
+        return 'FileRule({})'.format(', '.join(out))
+
+    def upvote(self):
+        """
+        Increases the matching score of this rule.
+        """
+        self.score += 1
+
+    def downvote(self):
+        """
+        Decreases the matching score of this rule.
+        """
+        if self.score > 0:
+            self.score -= 1

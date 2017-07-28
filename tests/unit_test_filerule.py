@@ -21,7 +21,7 @@
 
 from unittest import TestCase
 
-from core.config.configuration import FileRule
+from core.config.rules import FileRule
 
 RULE_CONTENTS = {
     'description': 'First Entry in the Default Configuration',
