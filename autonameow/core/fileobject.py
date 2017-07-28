@@ -320,9 +320,12 @@ def eval_magic_glob(mime_to_match, glob_list):
                 # NOTE(jonas): Raise exception? Use sophisticated glob parser?
                 raise
             if glob_type == '*' and glob_subtype == '*':
+                # Matches everything.
                 return True
             elif glob_type == '*' and glob_subtype == mime_to_match_subtype:
+                # Matches any type. Tests subtype equality.
                 return True
             elif glob_type == mime_to_match_type and glob_subtype == '*':
+                # Checks type equality. Matches any subtype.
                 return True
     return False

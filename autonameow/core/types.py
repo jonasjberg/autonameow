@@ -50,7 +50,7 @@ class BaseType(object):
     primitive_type = str
 
     # Default "None" value to fall back to.
-    null = None
+    null = 'NULL'
 
     # Types that can be coerced with the "parse" method.
     coercible_types = (str,)
@@ -125,31 +125,46 @@ class BaseType(object):
 class Path(BaseType):
     primitive_type = str
     coercible_types = (str, bytes)
+
+    # Always force coercion so that all incoming data is properly normalized.
     equivalent_types = ()
 
-    null = ''
+    # Make sure to never return "null" -- raise a 'AWTypeError' exception.
+    null = 'INVALID PATH'
 
     def __call__(self, raw_value=None):
+        # Overrides the 'BaseType' __call__ method as to not perform the test
+        # after the the value coercion. This is because the path could be a
+        # byte string and still not be properly normalized.
         if (raw_value is not None
                 and isinstance(raw_value, self.coercible_types)):
-            # Type can be coerced, test after coercion to make sure.
-            value = self.coerce(raw_value)
-            return value
-        else:
-            raise exceptions.AWTypeError(
-                'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
-            )
+            if raw_value.strip() is not None:
+                value = self.coerce(raw_value)
+                return value
+        raise exceptions.AWTypeError(
+            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        )
+
+    def normalize(self, value):
+        coerced = self.coerce(value)
+        if coerced:
+            return util.normpath(coerced)
+        raise exceptions.AWTypeError(
+            'Unable to normalize "{!s}" into {!r}'.format(value, self)
+        )
 
     def coerce(self, raw_value):
-        if raw_value is None:
-            return self._null()
+        if raw_value:
+            try:
+                value = util.bytestring_path(raw_value)
+            except (ValueError, TypeError):
+                pass
+            else:
+                return value
 
-        try:
-            value = util.bytestring_path(raw_value)
-        except (ValueError, TypeError):
-            return self._null()
-        else:
-            return value
+        raise exceptions.AWTypeError(
+            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        )
 
     def format(self, value, formatter=None):
         parsed = self.coerce(value)
@@ -261,19 +276,21 @@ class TimeDate(BaseType):
     coercible_types = (str, bytes, int, float)
     equivalent_types = (str, datetime)
 
-    # TODO: [TD0050] Figure out how to represent null for datetime objects.
+    # Make sure to never return "null" -- raise a 'AWTypeError' exception.
     null = 'INVALID DATE'
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
 
     def __call__(self, raw_value=None):
-        if not raw_value:
-            return self._null()
-        elif isinstance(raw_value, (list, tuple)):
-            return self._null()
+        # Overrides the 'BaseType' __call__ method as to never return 'null'.
+        if raw_value and not isinstance(raw_value, (list, tuple)):
+            parsed = self.coerce(raw_value)
+            if parsed:
+                return parsed
 
-        parsed = self.coerce(raw_value)
-        return parsed if parsed else self._null()
+        raise exceptions.AWTypeError(
+            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        )
 
     def coerce(self, raw_value):
         if isinstance(raw_value, datetime):
