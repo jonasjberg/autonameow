@@ -50,7 +50,7 @@ class BaseType(object):
     primitive_type = str
 
     # Default "None" value to fall back to.
-    null = None
+    null = 'NULL'
 
     # Types that can be coerced with the "parse" method.
     coercible_types = (str,)

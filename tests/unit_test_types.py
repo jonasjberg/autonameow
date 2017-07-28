@@ -19,24 +19,31 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from unittest import TestCase
 from datetime import datetime
 
 from core import (
     types,
-    exceptions
+    exceptions,
+    util
 )
 
 
 class TestBaseType(TestCase):
+    def setUp(self):
+        self.base_type = types.BaseType()
+
     def test_null(self):
-        self.skipTest('TODO: ..')
-        self.assertEqual(types.BaseType(''), types.BaseType.null)
+        self.assertEqual(self.base_type(None), self.base_type.null)
 
     def test_normalize(self):
-        self.skipTest('TODO: ..')
-        self.assertEqual(self.t.null, self.t.normalize(None))
-        self.assertEqual('foo', self.t.normalize('foo'))
+        self.assertEqual(self.base_type.normalize(None), self.base_type.null)
+        self.assertEqual(self.base_type.normalize('foo'), 'foo')
+
+    def test_base_type_call(self):
+        self.assertEqual(self.base_type('foo'), 'foo')
+        self.assertEqual(self.base_type(None), 'NULL')
 
 
 class TestTypeBoolean(TestCase):
