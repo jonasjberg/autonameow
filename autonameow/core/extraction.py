@@ -82,7 +82,7 @@ class Extraction(object):
         else:
             self.data.add(label, data)
 
-    def start(self, require_extractors=None):
+    def start(self, require_extractors=None, require_all_extractors=False):
         """
         Starts the data extraction.
         """
@@ -96,8 +96,10 @@ class Extraction(object):
         # Select extractors based on detected file type.
         classes = extractors.suitable_data_extractors_for(self.file_object)
 
-        # Exclude "slow" extractors if they are not explicitly required.
-        classes = keep_slow_extractors_if_required(classes, required_extractors)
+        if not require_all_extractors:
+            # Exclude "slow" extractors if they are not explicitly required.
+            classes = keep_slow_extractors_if_required(classes,
+                                                       required_extractors)
 
         log.debug('Got {} suitable extractors'.format(len(classes)))
         instances = self._instantiate_extractors(classes)

@@ -196,10 +196,13 @@ class Autonameow(object):
                 )
                 continue
 
+            list_any = (self.opts.list_datetime or self.opts.list_title
+                        or self.opts.list_all)
+
             # Extract data from the file.
             extraction = Extraction(current_file)
             try:
-                extraction.start()
+                extraction.start(require_all_extractors=list_any is True)
             except exceptions.AutonameowException as e:
                 log.critical('Extraction FAILED: {!s}'.format(e))
                 log.critical('Skipping file "{}" ..'.format(
@@ -234,8 +237,6 @@ class Autonameow(object):
                 continue
 
             # Present results.
-            list_any = (self.opts.list_datetime or self.opts.list_title
-                        or self.opts.list_all)
             if list_any:
                 cli.msg(('File: "{}"\n'.format(
                     util.displayable_path(current_file.abspath)))
