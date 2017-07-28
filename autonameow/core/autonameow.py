@@ -203,6 +203,7 @@ class Autonameow(object):
             # Extract data from the file.
             extraction = Extraction(current_file)
             try:
+                # TODO: [TD0056] Determine required extractors for current file.
                 extraction.start(
                     require_all_extractors=should_list_any_results is True
                 )
