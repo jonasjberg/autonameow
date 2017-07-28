@@ -21,37 +21,94 @@
 
 from unittest import TestCase
 
-from core.config.rules import RuleCondition
+from core.config import rules
 
 
 class TestRuleCondition(TestCase):
     def test_rulecondition_is_defined(self):
-        self.assertIsNotNone(RuleCondition)
+        self.assertIsNotNone(rules.RuleCondition)
 
 
 class TestRuleConditionFromValidInput(TestCase):
     def test_contents_mime_type_condition(self):
-        self.rc = RuleCondition('contents.mime_type', 'text/rtf')
+        self.rc = rules.RuleCondition('contents.mime_type', 'text/rtf')
         self.assertIsNotNone(self.rc)
 
     def test_filesystem_basename_condition(self):
-        self.rc = RuleCondition('filesystem.basename.full', 'gmail.pdf')
+        self.rc = rules.RuleCondition('filesystem.basename.full', 'gmail.pdf')
         self.assertIsNotNone(self.rc)
 
     def test_filesystem_extension_condition(self):
-        self.rc = RuleCondition('filesystem.basename.extension', 'pdf')
+        self.rc = rules.RuleCondition('filesystem.basename.extension', 'pdf')
         self.assertIsNotNone(self.rc)
 
 
 class TestRuleConditionFromInvalidInput(TestCase):
     def test_invalid_contents_mime_type_condition(self):
         with self.assertRaises(ValueError):
-            self.rc = RuleCondition('contents.mime_type', '/')
+            self.rc = rules.RuleCondition('contents.mime_type', '/')
 
     def test_invalid_filesystem_basename_condition(self):
         with self.assertRaises(ValueError):
-            self.rc = RuleCondition('filesystem.basename.full', None)
+            self.rc = rules.RuleCondition('filesystem.basename.full', None)
 
     def test_invalid_filesystem_extension_condition(self):
         with self.assertRaises(ValueError):
-            self.rc = RuleCondition('filesystem.basename.extension', None)
+            self.rc = rules.RuleCondition('filesystem.basename.extension', None)
+
+
+RULE_CONTENTS = {
+    'description': 'First Entry in the Default Configuration',
+    'exact_match': False,
+    'weight': 0.5,
+    'name_template': 'default_template_name',
+    'conditions': {
+        'filename': {
+            'pathname': '~/foo',
+            'basename': 'foo.bar',
+            'extension': 'bar'
+        },
+        'contents': {
+            'mime_type': '*/*'
+        }
+    },
+    'data_sources': {
+        'datetime': None,
+        'description': None,
+        'title': None,
+        'author': None,
+        'publisher': None,
+        'extension': 'filename.extension'
+    }
+}
+
+
+class TestFileRuleInstantiation(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+        self.filerule = rules.FileRule()
+
+    def test_init_description_is_str_or_none(self):
+        self.assertTrue(isinstance(self.filerule.description, str) or
+                        self.filerule.description is None,
+                        'FileRule description should be of type string or None')
+
+    def test_init_exact_match_is_boolean(self):
+        self.assertTrue(isinstance(self.filerule.exact_match, bool),
+                        'FileRule exact_match should be a boolean')
+
+
+class TestFileRuleMethods(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.filerule = rules.FileRule(description='dummy',
+                                       exact_match=False,
+                                       weight=0.5,
+                                       name_template='dummy',
+                                       conditions='dummy',
+                                       data_sources='dummy')
+
+    def test_filerule_string(self):
+        actual = str(self.filerule)
+        self.assertTrue(isinstance(actual, str))
