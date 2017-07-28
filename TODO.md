@@ -98,6 +98,13 @@ Medium Priority
 * `[TD0013]` Add conditional data extraction.
     * Extractors should not run unless needed. Related to caching, above.
 
+* `[TD0056]` __Determine which extractors should be used for each input.__  
+  In order to add conditional data extraction, a list of relevant extractors
+  must be produced for each input path that will be processed. This should
+  probably be collected during configuration parsing and rule matching; if a
+  file rule needs some information to be evaluated, the relevant extractor must
+  be enqueued and executed.
+
 * `[TD0014]` Possibly redesign high-level handling of a "configuration".
     * Decouple the `Configuration` instance from I/O.
     * Think about separating validation and parsing of incoming
