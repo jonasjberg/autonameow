@@ -346,6 +346,12 @@ class TestEvalQueryStringGlob(TestCase):
             'filesystem.pathname.parent', ['*.pathname.full',
                                            'filesystem.*.full']
         ))
+        self.assertFalse(eval_query_string_glob(
+            'metadata.exiftool.PDF:Creator',
+            ['datetime', 'date_accessed', 'date_created', 'date_modified',
+             '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
+             '*.EXIF:ModifyDate']
+        ))
 
     def test_eval_query_string_blob_returns_true_as_expected(self):
         self.assertTrue(eval_query_string_glob(
@@ -388,6 +394,22 @@ class TestEvalQueryStringGlob(TestCase):
         self.assertTrue(eval_query_string_glob(
             'filesystem.basename.extension', ['*',
                                               '*.extension']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'metadata.exiftool.PDF:CreateDate',
+            ['metadata.exiftool.PDF:CreateDate']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'metadata.exiftool.PDF:CreateDate', ['metadata.exiftool.*']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'metadata.exiftool.PDF:CreateDate', ['metadata.*']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'metadata.exiftool.PDF:CreateDate',
+            ['datetime', 'date_accessed', 'date_created', 'date_modified',
+             '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
+             '*.EXIF:ModifyDate']
         ))
 
     def test_eval_query_string_blob_returns_as_expected(self):

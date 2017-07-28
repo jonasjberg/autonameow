@@ -143,7 +143,9 @@ class ConfigFieldParser(object):
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['*.pathname.*', '*.basename.*', '*.raw_text']
+    applies_to_field = ['*.pathname.*', '*.basename.*', '*.raw_text',
+                        '*.:Title', '*.:Creator', '*.:Publisher',
+                        '*.:Producer']
 
     @staticmethod
     def is_valid_regex(expression):
@@ -240,8 +242,8 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['datetime', 'date_accessed', 'date_created',
-                        'date_modified', 'metadata.exiftool.PDF:CreateDate',
-                        'metadata.exiftool.EXIF:DateTimeOriginal']
+                        'date_modified', '*.PDF:CreateDate', '*.PDF:ModifyDate',
+                        '*.EXIF:DateTimeOriginal', '*.EXIF:ModifyDate']
 
     @staticmethod
     def is_valid_datetime(expression):
