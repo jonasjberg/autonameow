@@ -75,6 +75,7 @@ class AbstractTextExtractor(BaseExtractor):
 class ImageOCRTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['image/*']
     data_query_string = 'contents.visual.ocr_text'
+    is_slow = True
 
     def __init__(self, source):
         super(ImageOCRTextExtractor, self).__init__(source)

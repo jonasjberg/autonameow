@@ -93,6 +93,7 @@ class Extraction(object):
 
         # Select extractors based on detected file type.
         classes = extractors.suitable_data_extractors_for(self.file_object)
+        classes = include_slow_if_required(classes, required_extractors)
         instances = self._instantiate_extractors(classes)
         log.debug('Got {} suitable extractors'.format(len(classes)))
 
@@ -223,3 +224,34 @@ class ExtractedData(object):
         return count_dict_recursive(self._data, 0)
 
 
+def include_slow_if_required(extractor_klasses, required_extractors):
+    """
+    Filters out "slow" extractor classes if they are not explicitly required.
+
+    If the extractor class variable 'is_slow' is True, the extractor is
+    excluded if the same class is not specified in 'required_extractors'.
+
+    Args:
+        extractor_klasses: List of extractor classes to filter.
+        required_extractors: List of required extractor classes.
+
+    Returns:
+        A list of extractor classes, including "slow" classes only if required.
+    """
+    out = []
+
+    for klass in extractor_klasses:
+        if klass.is_slow is True:
+            if klass in required_extractors:
+                out.append(klass)
+                log.debug(
+                    'Included required slow extractor "{!s}"'.format(klass)
+                )
+            else:
+                log.debug(
+                    'Excluded slow extractor "{!s}"'.format(klass)
+                )
+        else:
+            out.append(klass)
+
+    return out
