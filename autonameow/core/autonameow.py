@@ -204,6 +204,9 @@ class Autonameow(object):
             extraction = Extraction(current_file)
             try:
                 # TODO: [TD0056] Determine required extractors for current file.
+
+                # Assume slower execution speed is tolerable when the user
+                # wants to display any results, also for completeness. Run all.
                 extraction.start(
                     require_all_extractors=should_list_any_results is True
                 )
