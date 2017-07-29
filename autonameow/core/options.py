@@ -125,12 +125,6 @@ def init_argparser():
         action='store_true',
         help='List all information found.'
     )
-    optgrp_action.add_argument(
-        '--prepend-datetime',
-        dest='prepend_datetime',
-        action='store_true',
-        help='Prepend most probable "date/time"-information to file names.'
-    )
 
     optgrp_mode = parser.add_argument_group('Operating mode')
     optgrp_mode.add_argument(

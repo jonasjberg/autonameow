@@ -265,10 +265,6 @@ class Autonameow(object):
                     cli.msg(util.dump(analysis.results.query('title')))
 
             # Perform actions.
-            if self.opts.prepend_datetime:
-                # TODO: Prepend datetime to filename.
-                log.warning('[UNIMPLEMENTED FEATURE] prepend_datetime')
-
             if self.opts.automagic:
                 if not matcher.best_match:
                     log.info('None of the rules seem to apply')

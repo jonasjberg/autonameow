@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-07-29
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0058]` Remove old unimplemented feature `--prepend-datetime`.
+
 * 2017-07-28
 
     > High Priority
