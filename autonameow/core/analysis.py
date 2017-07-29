@@ -195,7 +195,7 @@ class AnalysisResults(object):
     def __init__(self):
         self._data = {}
 
-    def query(self, query_string=None):
+    def get(self, query_string=None):
         """
         Returns analysis data matching the given "query string".
 
