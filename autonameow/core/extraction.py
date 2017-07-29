@@ -163,7 +163,7 @@ class Extraction(object):
             log.debug('Executing queue item {}/{}: '
                       '{!s}'.format(i + 1, len(self.extractor_queue), e))
 
-            self.collect_results(e.data_query_string, e.get())
+            self.collect_results(e.data_query_string, e.query())
 
 
 class ExtractedData(object):
