@@ -90,6 +90,7 @@ class Extraction(object):
 
         if require_extractors:
             required_extractors = require_extractors
+            log.debug('Required extractors: {!s}'.format(required_extractors))
         else:
             required_extractors = []
 
