@@ -100,21 +100,21 @@ def init_argparser():
         dest='debug',
         action='store_true',
         default=False,
-        help='Debug mode. Enables displaying detailed debug information.'
+        help='Enables debug mode, prints detailed debug information.'
     )
     optgrp_output.add_argument(
         '-v', '--verbose',
         dest='verbose',
         action='store_true',
         default=False,
-        help='Verbose mode. Enables displaying additional information.'
+        help='Enables verbose mode, prints additional information.'
     )
     optgrp_output.add_argument(
         '-q', '--quiet',
         dest='quiet',
         action='store_true',
         default=False,
-        help='Quiet mode. Supress all output except critical errors.'
+        help='Enables quiet mode, suppress all but critical errors.'
     )
 
     optgrp_action = parser.add_argument_group('Action options')
