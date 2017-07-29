@@ -40,8 +40,8 @@ High Priority
 Medium Priority
 ---------------
 
-* `[TD0057]` __Look at the optional `field` argument in the `query` method.__  
-  The extractor classes `query` method takes an optional argument `field` that
+* `[TD0057]` __Look at the optional `field` parameter of the `query` method.__  
+  The extractor classes `query` method takes an optional parameter `field` that
   seems to be unused. Some classes, like the text extractors will probably not
   return anything but text. Look into possibly removing the optional argument
   or rework how the extractor classes are queried.
