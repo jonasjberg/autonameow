@@ -274,12 +274,15 @@ class TestTypeExiftoolTimeDate(TestCase):
                          expected)
 
     def test_call_with_noncoercible_data(self):
-        with self.assertRaises(exceptions.AWTypeError):
-            types.AW_EXIFTOOLTIMEDATE(None)
-            types.AW_EXIFTOOLTIMEDATE('')
-            types.AW_EXIFTOOLTIMEDATE([])
-            types.AW_EXIFTOOLTIMEDATE([''])
-            types.AW_EXIFTOOLTIMEDATE([None])
+        def _assert_raises(input_data):
+            with self.assertRaises(exceptions.AWTypeError):
+                types.AW_EXIFTOOLTIMEDATE(input_data)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises([])
+        _assert_raises([''])
+        _assert_raises([None])
 
     def test_call_with_valid_exiftool_string_returns_expected_type(self):
         actual = types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200')
@@ -370,6 +373,14 @@ class TestTypePath(TestCase):
         self.assertEqual(types.AW_PATH(b'~/foo.bar'), b'~/foo.bar')
 
     def test_call_with_noncoercible_data(self):
+        def _assert_raises(input_data):
+            with self.assertRaises(exceptions.AWTypeError):
+                types.AW_PATH(input_data)
+
+        _assert_raises(datetime.now())
+        _assert_raises(0)
+        _assert_raises(None)
+        _assert_raises('')
 
 
 class TestTypePathComponent(TestCase):
