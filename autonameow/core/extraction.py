@@ -121,13 +121,13 @@ class Extraction(object):
         # name in the new name, conversion can't be lossy. Solve by storing
         # bytestring versions of these fields as well?
         self.collect_results('filesystem.basename.full',
-                             types.AW_PATH(self.file_object.filename))
+                             types.AW_PATHCOMPONENT(self.file_object.filename))
         self.collect_results('filesystem.basename.extension',
-                             types.AW_PATH(self.file_object.suffix))
+                             types.AW_PATHCOMPONENT(self.file_object.suffix))
         self.collect_results('filesystem.basename.suffix',
-                             types.AW_PATH(self.file_object.suffix))
+                             types.AW_PATHCOMPONENT(self.file_object.suffix))
         self.collect_results('filesystem.basename.prefix',
-                             types.AW_PATH(self.file_object.fnbase))
+                             types.AW_PATHCOMPONENT(self.file_object.fnbase))
         self.collect_results('filesystem.pathname.full',
                              types.AW_PATH(self.file_object.pathname))
         self.collect_results('filesystem.pathname.parent',
