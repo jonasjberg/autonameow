@@ -90,6 +90,7 @@ class Extraction(object):
 
         if require_extractors:
             required_extractors = require_extractors
+            log.debug('Required extractors: {!s}'.format(required_extractors))
         else:
             required_extractors = []
 
@@ -120,13 +121,13 @@ class Extraction(object):
         # name in the new name, conversion can't be lossy. Solve by storing
         # bytestring versions of these fields as well?
         self.collect_results('filesystem.basename.full',
-                             types.AW_PATH(self.file_object.filename))
+                             types.AW_PATHCOMPONENT(self.file_object.filename))
         self.collect_results('filesystem.basename.extension',
-                             types.AW_PATH(self.file_object.suffix))
+                             types.AW_PATHCOMPONENT(self.file_object.suffix))
         self.collect_results('filesystem.basename.suffix',
-                             types.AW_PATH(self.file_object.suffix))
+                             types.AW_PATHCOMPONENT(self.file_object.suffix))
         self.collect_results('filesystem.basename.prefix',
-                             types.AW_PATH(self.file_object.fnbase))
+                             types.AW_PATHCOMPONENT(self.file_object.fnbase))
         self.collect_results('filesystem.pathname.full',
                              types.AW_PATH(self.file_object.pathname))
         self.collect_results('filesystem.pathname.parent',
@@ -211,21 +212,7 @@ class ExtractedData(object):
             yield (k, v)
 
     def __len__(self):
-        def count_dict_recursive(dictionary, count):
-            for key, value in dictionary.items():
-                if isinstance(value, dict):
-                    count_dict_recursive(value, count)
-                elif value:
-                    if isinstance(value, list):
-                        for v in value:
-                            if v:
-                                count += 1
-                    else:
-                        count += 1
-
-            return count
-
-        return count_dict_recursive(self._data, 0)
+        return util.count_dict_recursive(self._data)
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):

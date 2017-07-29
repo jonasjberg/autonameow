@@ -50,10 +50,13 @@ class RuleMatcher(object):
             self._rules = copy.deepcopy(active_config.file_rules)
 
         self._candidates = []
+        self._data_sources = [self.extraction_data, self.analysis_data]
 
     def query_data(self, query_string):
-        out = self.extraction_data.get(query_string)
-        return out if out else self.analysis_data.get(query_string)
+        for source in self._data_sources:
+            data = source.get(query_string)
+            if data:
+                return data
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))

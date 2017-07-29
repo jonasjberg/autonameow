@@ -106,12 +106,36 @@ class TestAnalysisResults(TestCase):
         _results = []
         self.results.add(_field, _results)
 
-    def test_add_increments_len(self):
+    def test_adding_one_result_increments_len_once(self):
         _field = constants.ANALYSIS_RESULTS_FIELDS[0]
         _results = ['foo']
         self.results.add(_field, _results)
 
         self.assertEqual(len(self.results), 1)
+
+    def test_adding_two_results_increments_len_twice(self):
+        _field_one = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _field_two = constants.ANALYSIS_RESULTS_FIELDS[1]
+        _result_one = ['foo']
+        _result_two = ['bar']
+        self.results.add(_field_one, _result_one)
+        self.results.add(_field_two, _result_two)
+
+        self.assertEqual(len(self.results), 2)
+
+    def test_adding_list_of_two_results_increments_len_twice(self):
+        _field_one = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _result_one = ['foo', 'bar']
+        self.results.add(_field_one, _result_one)
+
+        self.assertEqual(len(self.results), 2)
+
+    def test_adding_dict_of_two_results_increments_len_twice(self):
+        _field_one = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _result_one = {'baz': ['foo', 'bar']}
+        self.results.add(_field_one, _result_one)
+
+        self.assertEqual(len(self.results), 2)
 
     def test_add_empty_does_not_increment_len(self):
         _field = constants.ANALYSIS_RESULTS_FIELDS[0]
@@ -119,6 +143,9 @@ class TestAnalysisResults(TestCase):
         self.results.add(_field, _results)
 
         self.assertEqual(len(self.results), 0)
+
+    def test_method_get_is_defined(self):
+        self.assertIsNotNone(self.results.get)
 
 
 class TestAnalysisRunQueue(TestCase):

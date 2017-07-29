@@ -32,6 +32,7 @@ Requirements:
 
 from datetime import datetime
 
+import os
 import re
 
 from core import (
@@ -165,6 +166,37 @@ class Path(BaseType):
         raise exceptions.AWTypeError(
             'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
         )
+
+    def format(self, value, formatter=None):
+        parsed = self.coerce(value)
+        return util.displayable_path(parsed)
+
+
+class PathComponent(BaseType):
+    primitive_type = str
+    coercible_types = (str, bytes)
+    equivalent_types = (bytes,)
+
+    null = b''
+
+    def normalize(self, value):
+        coerced = self.coerce(value)
+        if coerced:
+            # Expand user home directory if present.
+            return os.path.normpath(os.path.expanduser(util.syspath(coerced)))
+        raise exceptions.AWTypeError(
+            'Unable to normalize "{!s}" into {!r}'.format(value, self)
+        )
+
+    def coerce(self, raw_value):
+        try:
+            value = util.bytestring_path(raw_value)
+        except (ValueError, TypeError):
+            raise exceptions.AWTypeError(
+                'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+            )
+        else:
+            return value
 
     def format(self, value, formatter=None):
         parsed = self.coerce(value)
@@ -425,6 +457,7 @@ def try_wrap(value):
 # Singletons for actual use.
 AW_BOOLEAN = Boolean()
 AW_PATH = Path()
+AW_PATHCOMPONENT = PathComponent()
 AW_INTEGER = Integer()
 AW_FLOAT = Float()
 AW_STRING = String()

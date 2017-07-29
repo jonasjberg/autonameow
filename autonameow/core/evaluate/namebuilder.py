@@ -82,7 +82,7 @@ class NameBuilder(object):
             if extracted_data:
                 out[field] = extracted_data
             else:
-                analysis_data = self.analysis_data.query(query_string)
+                analysis_data = self.analysis_data.get(query_string)
                 if analysis_data:
                     out[field] = analysis_data
 
