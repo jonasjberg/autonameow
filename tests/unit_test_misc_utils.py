@@ -22,6 +22,7 @@
 
 from unittest import TestCase
 
+from core import util
 from core.exceptions import InvalidQueryStringError
 from core.util.misc import (
     unique_identifier,
@@ -240,3 +241,59 @@ class TestFlattenDictWithRawMetadata(TestCase):
 
         for k, v in self.EXPECTED.items():
             self.assertEqual(actual[k], self.EXPECTED[k])
+
+
+class TestCountDictRecursive(TestCase):
+    def test_count_dict_recursive_function_is_defined(self):
+        self.assertIsNotNone(util.count_dict_recursive)
+
+    def test_raises_exception_for_invalid_input(self):
+        with self.assertRaises(TypeError):
+            util.count_dict_recursive([])
+            util.count_dict_recursive([{}])
+            util.count_dict_recursive([{'foo': []}])
+
+    def test_returns_zero_given_none_or_false(self):
+        self.assertEqual(util.count_dict_recursive(None), 0)
+        self.assertEqual(util.count_dict_recursive(False), 0)
+
+    def test_returns_zero_given_empty_dictionary(self):
+        self.assertEqual(util.count_dict_recursive({}), 0)
+        self.assertEqual(util.count_dict_recursive({'foo': {}}), 0)
+        self.assertEqual(util.count_dict_recursive({'foo': {'bar': {}}}), 0)
+
+    def test_returns_zero_given_empty_containers(self):
+        def _assert_zero(test_data):
+            self.assertEqual(util.count_dict_recursive(test_data), 0)
+
+        _assert_zero({'a': []})
+        _assert_zero({'a': [[]]})
+        _assert_zero({'a': [None]})
+        _assert_zero({'a': [None, None]})
+        _assert_zero({'a': {'b': []}})
+        _assert_zero({'a': {'b': [[]]}})
+        _assert_zero({'a': {'b': [None]}})
+        _assert_zero({'a': {'b': [None, None]}})
+        _assert_zero({'a': {'b': {'c': []}}})
+        _assert_zero({'a': {'b': {'c': [[]]}}})
+        _assert_zero({'a': {'b': {'c': [None]}}})
+        _assert_zero({'a': {'b': {'c': [None, None]}}})
+
+    def test_returns_expected_count(self):
+        def _assert_count(test_data, expect_count):
+            self.assertEqual(util.count_dict_recursive(test_data), expect_count)
+
+        _assert_count({'a': 'foo'}, 1)
+        _assert_count({'a': 'foo', 'b': None}, 1)
+        _assert_count({'a': 'foo', 'b': []}, 1)
+        _assert_count({'a': 'foo', 'b': 'bar'}, 2)
+        _assert_count({'a': 'foo', 'b': ['bar']}, 2)
+        _assert_count({'a': 'foo', 'b': ['c', 'd']}, 3)
+        _assert_count({'a': 'foo', 'b': ['c', 'd', None]}, 3)
+        _assert_count({'a': 'foo', 'b': ['c', 'd', []]}, 3)
+        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e']}, 4)
+        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': None}, 4)
+        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': []}, 4)
+        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['']}, 4)
+        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g']}, 5)
+        _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g', 'h']}, 6)

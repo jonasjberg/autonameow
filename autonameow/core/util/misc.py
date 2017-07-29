@@ -219,3 +219,37 @@ def flatten_dict(d, parent_key='', sep='.'):
             items.append((new_key, v))
 
     return dict(items)
+
+
+def count_dict_recursive(dictionary, count=0):
+    """
+    Counts non-"empty" items in a nested dictionary structure.
+
+    The dictionaries are traversed recursively and items not None, empty
+    or False are summed and returned.
+
+    Args:
+        dictionary: The dictionary structure in which to count items.
+        count: Required to keep track of the count during recursion.
+
+    Returns:
+        The number of non-"empty" items contained in the given dictionary.
+    """
+    if not dictionary:
+        return 0
+    if not isinstance(dictionary, dict):
+        raise TypeError('Argument "dictionary" must be of type dict')
+
+    for key, value in dictionary.items():
+        if isinstance(value, dict):
+            count += count_dict_recursive(value, count)
+        elif value:
+            if isinstance(value, list):
+                for v in value:
+                    if v:
+                        count += 1
+            else:
+                count += 1
+
+    return count
+

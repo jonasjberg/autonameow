@@ -211,21 +211,7 @@ class ExtractedData(object):
             yield (k, v)
 
     def __len__(self):
-        def count_dict_recursive(dictionary, count):
-            for key, value in dictionary.items():
-                if isinstance(value, dict):
-                    count_dict_recursive(value, count)
-                elif value:
-                    if isinstance(value, list):
-                        for v in value:
-                            if v:
-                                count += 1
-                    else:
-                        count += 1
-
-            return count
-
-        return count_dict_recursive(self._data, 0)
+        return util.count_dict_recursive(self._data)
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
