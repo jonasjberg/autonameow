@@ -370,11 +370,64 @@ class TestTypePath(TestCase):
         self.assertEqual(types.AW_PATH(b'~/foo.bar'), b'~/foo.bar')
 
     def test_call_with_noncoercible_data(self):
+
+
+class TestTypePathComponent(TestCase):
+    def test_wraps_expected_primitive(self):
+        self.assertEqual(type(types.AW_PATHCOMPONENT(None)), bytes)
+
+    def test_null(self):
+        self.assertEqual(types.AW_PATHCOMPONENT(None), b'')
+        self.assertEqual(types.AW_PATHCOMPONENT(None),
+                         types.AW_PATHCOMPONENT.null)
+
+    def test_normalize_path_with_user_home(self):
+        user_home = os.path.expanduser('~')
+        self.assertEqual(types.AW_PATHCOMPONENT.normalize('~'),
+                         util.encode_(user_home))
+        self.assertEqual(types.AW_PATHCOMPONENT.normalize('~/'),
+                         util.encode_(user_home))
+
+        expected = os.path.normpath(os.path.join(user_home, 'foo'))
+        self.assertEqual(types.AW_PATHCOMPONENT.normalize('~/foo'),
+                         util.encode_(expected))
+
+    def test_normalize_path_components(self):
+        self.assertEqual(types.AW_PATHCOMPONENT.normalize('/'), b'/')
+        self.assertEqual(types.AW_PATHCOMPONENT.normalize('/foo'), b'/foo')
+        self.assertEqual(types.AW_PATHCOMPONENT.normalize('/foo/'), b'/foo')
+        self.assertEqual(types.AW_PATHCOMPONENT.normalize('foo'), b'foo')
+        self.assertEqual(types.AW_PATHCOMPONENT.normalize('a.pdf'), b'a.pdf')
+
+    def test_normalize_invalid_value(self):
         with self.assertRaises(exceptions.AWTypeError):
-            types.AW_PATH(datetime.now())
-            types.AW_PATH(0)
-            types.AW_PATH(None)
-            types.AW_PATH('')
+            types.AW_PATHCOMPONENT.normalize('')
+
+    def test_call_with_coercible_data(self):
+        self.assertEqual(types.AW_PATHCOMPONENT(''), b'')
+        self.assertEqual(types.AW_PATHCOMPONENT(None), b'')
+        self.assertEqual(types.AW_PATHCOMPONENT('/tmp'), b'/tmp')
+        self.assertEqual(types.AW_PATHCOMPONENT('/tmp/foo'), b'/tmp/foo')
+        self.assertEqual(types.AW_PATHCOMPONENT('/tmp/f.e'), b'/tmp/f.e')
+        self.assertEqual(types.AW_PATHCOMPONENT(b'/tmp'), b'/tmp')
+        self.assertEqual(types.AW_PATHCOMPONENT(b'/tmp/foo'), b'/tmp/foo')
+        self.assertEqual(types.AW_PATHCOMPONENT(b'/tmp/f.e'), b'/tmp/f.e')
+
+    def test_call_with_coercible_data_including_user_home(self):
+        self.assertEqual(types.AW_PATHCOMPONENT(b'~'), b'~')
+        self.assertEqual(types.AW_PATHCOMPONENT(b'~/foo'), b'~/foo')
+        self.assertEqual(types.AW_PATHCOMPONENT(b'~/foo.bar'), b'~/foo.bar')
+        self.assertEqual(types.AW_PATHCOMPONENT('~'), b'~')
+        self.assertEqual(types.AW_PATHCOMPONENT('~/foo'), b'~/foo')
+        self.assertEqual(types.AW_PATHCOMPONENT('~/foo.bar'), b'~/foo.bar')
+
+    def test_call_with_noncoercible_data(self):
+        def _assert_raises(input_data):
+            with self.assertRaises(exceptions.AWTypeError):
+                types.AW_PATHCOMPONENT(input_data)
+
+        _assert_raises(0)
+        _assert_raises(datetime.now())
 
 
 class TestTryWrap(TestCase):
