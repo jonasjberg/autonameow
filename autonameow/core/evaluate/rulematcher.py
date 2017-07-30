@@ -91,7 +91,7 @@ def prioritize_rules(rules):
                   key=operator.attrgetter('score', 'weight'))
 
 
-def examine_rules(rules_to_examine, query_data):
+def examine_rules(rules_to_examine, data_query_function):
     # Conditions are evaluated with the current file object and current
     # analysis results data.
     # If a rule requires an exact match, it is skipped at first failed
@@ -100,11 +100,14 @@ def examine_rules(rules_to_examine, query_data):
 
     for count, rule in enumerate(rules_to_examine):
         log.debug('Evaluating rule {}/{}: "{}"'.format(
-            count + 1, len(rules_to_examine), rule.description))
-        result = evaluate_rule(rule, query_data)
+            count + 1, len(rules_to_examine), rule.description)
+        )
+
+        result = evaluate_rule(rule, data_query_function)
         if rule.exact_match and result is False:
-            log.debug('Rule evaluated FALSE, removing: '
-                      '"{}"'.format(rule.description))
+            log.debug(
+                'Rule evaluated FALSE, removing: "{}"'.format(rule.description)
+            )
             continue
 
         log.debug('Rule evaluated TRUE: "{}"'.format(rule.description))
@@ -113,7 +116,7 @@ def examine_rules(rules_to_examine, query_data):
     return ok_rules
 
 
-def evaluate_rule(file_rule, query_data):
+def evaluate_rule(file_rule, data_query_function):
     """
     Tests if a rule applies to a given file.
 
@@ -123,7 +126,7 @@ def evaluate_rule(file_rule, query_data):
 
     Args:
         file_rule: The rule to test as an instance of 'FileRule'.
-        query_data: Callback function used to query available data.
+        data_query_function: Callback function used to query available data.
 
     Returns:
         If the rule requires an exact match:
@@ -140,7 +143,7 @@ def evaluate_rule(file_rule, query_data):
     if file_rule.exact_match:
         for condition in file_rule.conditions:
             log.debug('Evaluating condition "{!s}"'.format(condition))
-            if not eval_condition(condition, query_data):
+            if not eval_condition(condition, data_query_function):
                 log.debug('Condition FAILED -- Exact match impossible ..')
                 return False
             else:
@@ -149,7 +152,7 @@ def evaluate_rule(file_rule, query_data):
 
     for condition in file_rule.conditions:
         log.debug('Evaluating condition "{!s}"'.format(condition))
-        if eval_condition(condition, query_data):
+        if eval_condition(condition, data_query_function):
             log.debug('Condition Passed rule.votes++')
             file_rule.upvote()
         else:
@@ -161,7 +164,7 @@ def evaluate_rule(file_rule, query_data):
     return True
 
 
-def eval_condition(condition, query_data):
+def eval_condition(condition, data_query_function):
     query_string = condition.query_string
-    data = query_data(query_string)
+    data = data_query_function(query_string)
     return condition.evaluate(data)
