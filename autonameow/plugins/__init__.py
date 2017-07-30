@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import inspect
 import os
 import logging as log
 
@@ -98,6 +99,52 @@ def plugin_query(plugin_name, query, data):
     #         tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
     #         log.debug('Returning tags: {}'.format(tags_pretty))
     #         return tags
+
+
+class BasePlugin(object):
+    def query(self, field=None):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def __str__(self):
+        return self.__class__.__name__
+
+
+def find_plugin_files():
+    """
+    Finds Python source files assumed to be autonameow plugins.
+
+    Returns: List of the basenames of any found plugin source files.
+    """
+    found_files = [x for x in os.listdir(AUTONAMEOW_PLUGIN_PATH)
+                   if x.endswith('.py') and x != '__init__.py']
+    return found_files
+
+
+plugin_source_files = find_plugin_files()
+
+
+def get_plugin_classes():
+    # Strip extensions.
+    _to_import = [f[:-3] for f in plugin_source_files]
+
+    _plugin_classes = []
+    for plugin_file in _to_import:
+        __import__(plugin_file, None, None)
+        namespace = inspect.getmembers(sys.modules[plugin_file],
+                                       inspect.isclass)
+        for _obj_name, _obj_type in namespace:
+            if not issubclass(_obj_type, BasePlugin):
+                continue
+            elif _obj_type == BasePlugin:
+                continue
+            else:
+                _plugin_classes.append(_obj_type)
+                break
+
+        log.debug('Imported plugin source file "{!s}" but no plugins were'
+                  ' loaded ..'.format(plugin_file))
+
+    return _plugin_classes
 
 
 if __name__ == '__main__':
