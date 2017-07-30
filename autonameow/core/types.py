@@ -100,7 +100,15 @@ class BaseType(object):
             return value
 
     def coerce(self, raw_value):
-        return raw_value
+        try:
+            value = self.primitive_type(raw_value)
+        except ValueError:
+            raise exceptions.AWTypeError(
+                'Coercion default failed for: "{!s}" to primitive'
+                ' {!r}'.format(raw_value, self.primitive_type)
+            )
+        else:
+            return value
 
     def format(self, value, formatter=None):
         if value is None:
