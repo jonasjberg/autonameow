@@ -61,6 +61,8 @@ initialize_logging()
 
     AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/integration_log_${AUTONAMEOW_TEST_TIMESTAMP}.raw"
     export AUTONAMEOW_INTEGRATION_LOG
+
+    logmsg "Logging to file: \"${AUTONAMEOW_INTEGRATION_LOG}\""
 }
 
 # Print message to stdout and append message to AUTONAMEOW_INTEGRATION_LOG.
