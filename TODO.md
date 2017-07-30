@@ -193,6 +193,9 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0059]` Replace `--list-datetime`, `--list-title` and `--list-all`
+  with something more flexible like `--list {FIELD}`.
+
 * `[TD0055]` Fully implement the `VideoAnalyzer` class.
 
 * `[TD0026]` Implement safe handling of symbolic link input paths.

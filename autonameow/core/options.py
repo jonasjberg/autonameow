@@ -118,7 +118,8 @@ def init_argparser():
     )
 
     optgrp_action = parser.add_argument_group('Action options')
-    # TODO: Replace '--list-datetime' and '--list-title' with '--list {FIELD}'
+    # TODO: [TD0059] Replace '--list-*' options with something more flexible.
+    #       I.E. '--list-datetime' and '--list-title' could be '--list {FIELD}'
     optgrp_action.add_argument(
         '--list-datetime',
         dest='list_datetime',
