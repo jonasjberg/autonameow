@@ -224,9 +224,7 @@ class Boolean(BaseType):
     def coerce(self, value):
         if value is None:
             return False
-        if isinstance(value, bool):
-            return bool(value)
-        elif isinstance(value, str):
+        if isinstance(value, str):
             return self.string_to_bool(value)
         elif isinstance(value, bytes):
             decoded = util.decode_(value)
