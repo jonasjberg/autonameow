@@ -63,7 +63,7 @@ assert_true '( "$AUTONAMEOW_RUNNER" 2>&1 ) >/dev/null' \
 assert_true '( "$AUTONAMEOW_RUNNER" 2>&1 | grep -q -- "--help" ) >/dev/null' \
             "[TC005] autonameow should print how to get help when started with no arguments"
 
-assert_true '( "$AUTONAMEOW_RUNNER" --help -- 2>&1 | head -n 1 | grep -q -- "usage" ) >/dev/null' \
+assert_true '( "$AUTONAMEOW_RUNNER" --help -- 2>&1 | head -n 1 | grep -q -- "Usage" ) >/dev/null' \
             "[TC005] autonameow should display usage information when started with \"--help\""
 
 assert_true '( "$AUTONAMEOW_RUNNER" --help -- 2>&1 | grep -q -- "dry-run" ) >/dev/null' \
