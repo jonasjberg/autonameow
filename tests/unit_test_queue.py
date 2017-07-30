@@ -22,12 +22,12 @@
 
 from unittest import TestCase
 
-from core.util.queue import GenericQueue
+from core import util
 
 
 class TestGenericQueue(TestCase):
     def setUp(self):
-        self.q = GenericQueue()
+        self.q = util.GenericQueue()
 
     def test_generic_queue_can_be_instantiated(self):
         self.assertIsNotNone(self.q)

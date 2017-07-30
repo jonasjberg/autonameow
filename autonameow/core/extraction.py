@@ -28,7 +28,6 @@ from core import (
     types
 )
 from core.exceptions import InvalidDataSourceError
-from core.util.queue import GenericQueue
 
 
 class Extraction(object):
@@ -49,7 +48,7 @@ class Extraction(object):
         self.file_object = file_object
 
         self.data = ExtractedData()
-        self.extractor_queue = GenericQueue()
+        self.extractor_queue = util.GenericQueue()
 
     def collect_results(self, label, data):
         """

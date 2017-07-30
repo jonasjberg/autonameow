@@ -27,7 +27,6 @@ from core import (
     exceptions,
     util
 )
-from core.util.queue import GenericQueue
 
 
 class Analysis(object):
@@ -154,7 +153,7 @@ def include_analyzer_name(result_list, source):
     return out
 
 
-class AnalysisRunQueue(GenericQueue):
+class AnalysisRunQueue(util.GenericQueue):
     """
     Execution queue for analyzers.
 
