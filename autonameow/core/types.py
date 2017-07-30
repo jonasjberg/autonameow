@@ -252,8 +252,7 @@ class Integer(BaseType):
     equivalent_types = (int,)
     null = 0
 
-    @classmethod
-    def coerce(cls, value):
+    def coerce(self, value):
         try:
             parsed = int(value)
         except (TypeError, ValueError):
@@ -261,8 +260,7 @@ class Integer(BaseType):
         else:
             return parsed
 
-    @classmethod
-    def format(cls, value, formatter=None):
+    def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
         if not formatter:
             return '{}'.format(value or 0)

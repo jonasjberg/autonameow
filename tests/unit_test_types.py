@@ -45,6 +45,16 @@ class TestBaseType(TestCase):
         self.assertEqual(self.base_type('foo'), 'foo')
         self.assertEqual(self.base_type(None), 'NULL')
 
+    def test_inheriting_classes_must_implement_format(self):
+        with self.assertRaises(NotImplementedError):
+            self.base_type.format(None)
+
+    def test_testing_equivalency(self):
+        self.assertTrue(self.base_type.test('foo'))
+        self.assertFalse(self.base_type.test(b'foo'))
+        self.assertFalse(self.base_type.test(False))
+        self.assertFalse(self.base_type.test(1))
+
 
 class TestTypeBoolean(TestCase):
     def test_wraps_expected_primitive(self):
