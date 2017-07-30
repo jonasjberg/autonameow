@@ -94,8 +94,16 @@ class NameBuilder(object):
 
         # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
+
+        # TODO: [TD0062] Move test for name template fields mapping to sources.
         # NOTE(jonas): Move this to the rule matcher?
+        # Or maybe to when reading the configuration, which would give a
+        # heads-up on that switching to the "interactive mode" would be
+        # required in order to complete the rename. This would be useful to
+        # implement the feature to force non-interactive mode, see [TD0023].
+
         # NOTE(jonas): Make sure name builder always gets a valid rule?
+
         data_sources = self.active_rule.data_sources
         if not all_template_fields_defined(template, data_sources):
             log.error('All name template placeholder fields must be '

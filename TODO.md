@@ -42,6 +42,10 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0062]` Look at testing that all name template fields are mapped to data
+  sources. This could be done when reading the configuration, instead of later
+  on in the name builder.
+
 * `[TD0057]` __Look at the optional `field` parameter of the `query` method.__  
   The extractor classes `query` method takes an optional parameter `field` that
   seems to be unused. Some classes, like the text extractors will probably not
