@@ -28,6 +28,11 @@ from core.exceptions import AutonameowPluginError
 from plugins import microsoft_vision
 
 
+# Plugins are assumed to be located in the same directory as this file.
+AUTONAMEOW_PLUGIN_PATH = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, AUTONAMEOW_PLUGIN_PATH)
+
+
 # 'microsoft_vision.py'
 # =====================
 # Queries the Microsoft Vision API with images for information about visual
