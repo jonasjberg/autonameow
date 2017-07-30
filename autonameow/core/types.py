@@ -23,10 +23,11 @@
 Custom data types, used internally by autonameow.
 Wraps primitives to force safe defaults and extra functionality.
 
-Requirements:
-* Simplify configuration parsing
-* Confine data extractor results data to types
-* Allow type-specific processing of data extractor data
+Use by passing through the singletons defined at the bottom of this file.
+The values are "passed through" the type classes and returned as primitive or
+standard library types (E.G. "datetime").
+These classes are meant to be used as "filters" for coercing values to known
+types, they are shared and should not retain any kind of state.
 """
 
 
