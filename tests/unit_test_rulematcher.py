@@ -18,11 +18,12 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
-
+import datetime
 from unittest import TestCase
 
+from core.analysis import AnalysisResults
 from core.config.configuration import Configuration
-from core.config.default_config import DEFAULT_CONFIG
+from core.config import DEFAULT_CONFIG
 from core.evaluate.rulematcher import (
     RuleMatcher,
     prioritize_rules
@@ -44,6 +45,47 @@ class TestRuleMatcher(TestCase):
 
     def test_rule_matcher_best_match_initially_returns_false(self):
         self.assertFalse(self.rm.best_match)
+
+
+def get_dummy_analysis_results_empty():
+    results = AnalysisResults()
+    results.add({'analysis.filename_analyzer.datetime': []})
+    results.add({'analysis.filename_analyzer.tags': []})
+    results.add({'analysis.filename_analyzer.title': []})
+    results.add({'analysis.filesystem_analyzer.datetime': []})
+    results.add({'analysis.filesystem_analyzer.tags': []})
+    results.add({'analysis.filesystem_analyzer.title': []})
+    return results
+
+
+def get_dummy_analysis_results():
+    results = AnalysisResults()
+    results.add('analysis.filename_analyzer.tags', [{'source': 'filenamepart_tags', 'value': [], 'weight': 1}])
+    results.add('analysis.filename_analyzer.title', [{'source': 'filenamepart_base', 'value': 'gmail', 'weight': 0.25}])
+    results.add('analysis.filesystem_analyzer.datetime', [{'source': 'modified', 'value': datetime.datetime(2017, 6, 12, 22, 38, 34), 'weight': 1}, {'source': 'created', 'value': datetime.datetime(2017, 6, 12, 22, 38, 34), 'weight': 1}, {'source': 'accessed', 'value': datetime.datetime(2017, 6, 12, 22, 38, 34), 'weight': 0.25}])
+    return results
+
+
+def get_dummy_extraction_results():
+    # TODO: Implement!
+    results = None
+
+
+class TestRuleMatcherDataQuery(TestCase):
+    def setUp(self):
+        analysis_results = get_dummy_analysis_results()
+
+        # TODO: Pass dummy extracted data to the rule matcher.
+        self.rm = RuleMatcher(analysis_results, None, dummy_config)
+
+    def test_query_data_is_defined(self):
+        self.assertIsNotNone(self.rm.query_data)
+
+    def test_query_data_returns_expected_type(self):
+        self.assertTrue(
+            isinstance(self.rm.query_data('analysis.filename_analyzer.tags'),
+                       dict)
+        )
 
 
 class DummyFileRule(object):
