@@ -103,24 +103,37 @@ class TestTypeBoolean(TestCase):
         self.assertEqual(types.AW_BOOLEAN(b'False'), False)
 
     def test_call_with_noncoercible_data(self):
-        with self.assertRaises(exceptions.AWTypeError):
-            self.assertEqual(types.AW_BOOLEAN(-1), False)
-            self.assertEqual(types.AW_BOOLEAN(0), False)
-            self.assertEqual(types.AW_BOOLEAN(1), False)
+        def _assert_raises(input_data):
+            with self.assertRaises(exceptions.AWTypeError):
+                types.AW_BOOLEAN(input_data)
+
+        _assert_raises(-1)
+        _assert_raises(0)
+        _assert_raises(1)
+        _assert_raises(-1.5)
+        _assert_raises(-1.0)
+        _assert_raises(-0.05)
+        _assert_raises(-0.0)
+        _assert_raises(1.0)
+        _assert_raises(1.0001)
+        _assert_raises(1.5)
 
         self.assertEqual(types.AW_BOOLEAN('foo'), types.AW_BOOLEAN.null)
         self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.null)
 
     def test_format(self):
         self.assertIsNotNone(types.AW_BOOLEAN.format)
+        self.assertEqual(types.AW_BOOLEAN.format(None), 'False')
         self.assertEqual(types.AW_BOOLEAN.format(False), 'False')
         self.assertEqual(types.AW_BOOLEAN.format(True), 'True')
         self.assertEqual(types.AW_BOOLEAN.format('false'), 'False')
         self.assertEqual(types.AW_BOOLEAN.format('true'), 'True')
+        self.assertEqual(types.AW_BOOLEAN.format('None'), 'False')
         self.assertEqual(types.AW_BOOLEAN.format('False'), 'False')
         self.assertEqual(types.AW_BOOLEAN.format('True'), 'True')
         self.assertEqual(types.AW_BOOLEAN.format(b'false'), 'False')
         self.assertEqual(types.AW_BOOLEAN.format(b'true'), 'True')
+        self.assertEqual(types.AW_BOOLEAN.format(b'None'), 'False')
         self.assertEqual(types.AW_BOOLEAN.format(b'False'), 'False')
         self.assertEqual(types.AW_BOOLEAN.format(b'True'), 'True')
 
