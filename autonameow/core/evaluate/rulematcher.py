@@ -20,17 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging as log
-import os
-import re
 import operator
 
 import copy
 
-from core import (
-    exceptions,
-    fileobject,
-    util
-)
+from core import exceptions
 
 
 class RuleMatcher(object):

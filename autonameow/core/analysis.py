@@ -24,7 +24,6 @@ import logging as log
 import analyzers
 import plugins
 from core import (
-    constants,
     exceptions,
     util
 )

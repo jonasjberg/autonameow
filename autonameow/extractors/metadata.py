@@ -22,11 +22,9 @@
 import logging as log
 
 import PyPDF2
-import re
 from PyPDF2.utils import (
     PdfReadError
 )
-from datetime import datetime
 
 from core.exceptions import ExtractorError
 from core.util import wrap_exiftool
