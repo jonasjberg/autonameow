@@ -28,7 +28,7 @@ from core.evaluate.rulematcher import (
     RuleMatcher,
     prioritize_rules
 )
-
+from core.extraction import ExtractedData
 
 dummy_config = Configuration(DEFAULT_CONFIG)
 
@@ -60,32 +60,73 @@ def get_dummy_analysis_results_empty():
 
 def get_dummy_analysis_results():
     results = AnalysisResults()
-    results.add('analysis.filename_analyzer.tags', [{'source': 'filenamepart_tags', 'value': [], 'weight': 1}])
-    results.add('analysis.filename_analyzer.title', [{'source': 'filenamepart_base', 'value': 'gmail', 'weight': 0.25}])
-    results.add('analysis.filesystem_analyzer.datetime', [{'source': 'modified', 'value': datetime.datetime(2017, 6, 12, 22, 38, 34), 'weight': 1}, {'source': 'created', 'value': datetime.datetime(2017, 6, 12, 22, 38, 34), 'weight': 1}, {'source': 'accessed', 'value': datetime.datetime(2017, 6, 12, 22, 38, 34), 'weight': 0.25}])
+    results.add('analysis.filename_analyzer.tags',
+                [{'source': 'filenamepart_tags',
+                  'value': ['tagfoo', 'tagbar'],
+                  'weight': 1}])
+    results.add('analysis.filename_analyzer.title',
+                [{'source': 'filenamepart_base',
+                  'value': 'gmail',
+                  'weight': 0.25}])
+    results.add('analysis.filesystem_analyzer.datetime',
+                [{'source': 'modified',
+                  'value': datetime.datetime(2017, 6, 12, 22, 38, 34),
+                  'weight': 1},
+                 {'source': 'created',
+                  'value': datetime.datetime(2017, 6, 12, 22, 38, 34),
+                  'weight': 1},
+                 {'source': 'accessed',
+                  'value': datetime.datetime(2017, 6, 12, 22, 38, 34),
+                  'weight': 0.25}])
     return results
 
 
 def get_dummy_extraction_results():
-    # TODO: Implement!
-    results = None
+    results = ExtractedData()
+    results.add('filesystem.basename.full', b'gmail.pdf')
+    results.add('filesystem.basename.extension', b'pdf.pdf')
+    results.add('filesystem.basename.suffix', b'pdf.pdf')
+    results.add('filesystem.pathname.parent', b'test_files')
+    results.add('contents.mime_type', 'application/pdf')
+    results.add('metadata.exiftool.PDF:Creator', 'Chromium')
+    return results
 
 
 class TestRuleMatcherDataQuery(TestCase):
     def setUp(self):
         analysis_results = get_dummy_analysis_results()
+        extraction_results = get_dummy_extraction_results()
 
         # TODO: Pass dummy extracted data to the rule matcher.
-        self.rm = RuleMatcher(analysis_results, None, dummy_config)
+        self.rm = RuleMatcher(analysis_results, extraction_results,
+                              dummy_config)
 
     def test_query_data_is_defined(self):
         self.assertIsNotNone(self.rm.query_data)
 
+    def test_query_data_returns_something(self):
+        self.assertIsNotNone(
+            self.rm.query_data('analysis.filename_analyzer.tags')
+        )
+        self.assertIsNotNone(
+            self.rm.query_data('contents.mime_type')
+        )
+
     def test_query_data_returns_expected_type(self):
         self.assertTrue(
             isinstance(self.rm.query_data('analysis.filename_analyzer.tags'),
-                       dict)
+                       list)
         )
+        self.assertTrue(
+            isinstance(self.rm.query_data('contents.mime_type'),
+                       str)
+        )
+
+    def test_query_data_returns_expected(self):
+        self.assertEqual(self.rm.query_data('analysis.filename_analyzer.tags'),
+                         ['tagfoo', 'tagbar'])
+        self.assertEqual(self.rm.query_data('contents.mime_type'),
+                         'application/pdf')
 
 
 class DummyFileRule(object):
@@ -143,4 +184,3 @@ class TestPrioritizeRules(TestCase):
         expected = [fr_b, fr_a]
         actual = prioritize_rules([fr_a, fr_b])
         self.assertTrue(actual, expected)
-
