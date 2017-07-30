@@ -178,7 +178,6 @@ class TestTypeInteger(TestCase):
             self.assertEqual(types.AW_INTEGER(['a', 'b']),
                              types.AW_INTEGER.null)
 
-        # TODO: Fix 'cls.null' returning "property object at 0x*" (?).
         self.assertEqual(types.AW_INTEGER('-1.5'), 0)
         self.assertEqual(types.AW_INTEGER('1.0'), 0)
         self.assertEqual(types.AW_INTEGER('1.5'), 0)
