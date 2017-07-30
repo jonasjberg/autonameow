@@ -288,11 +288,14 @@ class Float(BaseType):
 
 class String(BaseType):
     primitive_type = str
-    coercible_types = (str, bytes, int, float)
+    coercible_types = (str, bytes, int, float, bool)
     equivalent_types = (str,)
     null = ''
 
     def coerce(self, value):
+        if value is None:
+            return self._null()
+
         if isinstance(value, bytes):
             try:
                 decoded = util.decode_(value)
@@ -300,8 +303,11 @@ class String(BaseType):
                 return self._null()
             else:
                 return decoded
-        if isinstance(value, (int, float)):
-            return str(value)
+
+        return str(value)
+
+    def normalize(self, value):
+        return self.__call__(value).strip()
 
 
 class TimeDate(BaseType):

@@ -441,6 +441,70 @@ class TestTypePathComponent(TestCase):
         _assert_raises(datetime.now())
 
 
+class TestTypeString(TestCase):
+    def test_wraps_expected_primitive(self):
+        self.assertEqual(type(types.AW_STRING(None)), str)
+
+    def test_null(self):
+        self.assertEqual(types.AW_STRING.null, '')
+
+    def test_normalize(self):
+        self.assertEqual(types.AW_STRING.normalize(None), '')
+        self.assertEqual(types.AW_STRING.normalize(''), '')
+        self.assertEqual(types.AW_STRING.normalize(' '), '')
+        self.assertEqual(types.AW_STRING.normalize('  '), '')
+        self.assertEqual(types.AW_STRING.normalize('foo'), 'foo')
+        self.assertEqual(types.AW_STRING.normalize('foo '), 'foo')
+        self.assertEqual(types.AW_STRING.normalize(' foo'), 'foo')
+        self.assertEqual(types.AW_STRING.normalize(' foo '), 'foo')
+        self.assertEqual(types.AW_STRING.normalize('f foo '), 'f foo')
+        self.assertEqual(types.AW_STRING.normalize(b'foo'), 'foo')
+        self.assertEqual(types.AW_STRING.normalize(b'foo '), 'foo')
+        self.assertEqual(types.AW_STRING.normalize(b' foo '), 'foo')
+        self.assertEqual(types.AW_STRING.normalize(b'f foo '), 'f foo')
+
+    def test_call_with_none(self):
+        self.assertEqual(types.AW_STRING(None), types.AW_STRING.null)
+
+    def test_call_with_coercible_data(self):
+        self.assertEqual(types.AW_STRING(-1), '-1')
+        self.assertEqual(types.AW_STRING(0), '0')
+        self.assertEqual(types.AW_STRING(1), '1')
+        self.assertEqual(types.AW_STRING(-1.5), '-1.5')
+        self.assertEqual(types.AW_STRING(-1.0), '-1.0')
+        self.assertEqual(types.AW_STRING(1.0), '1.0')
+        self.assertEqual(types.AW_STRING(1.5), '1.5')
+        self.assertEqual(types.AW_STRING('-1'), '-1')
+        self.assertEqual(types.AW_STRING('-1.0'), '-1.0')
+        self.assertEqual(types.AW_STRING('0'), '0')
+        self.assertEqual(types.AW_STRING('1'), '1')
+        self.assertEqual(types.AW_STRING('foo'), 'foo')
+        self.assertEqual(types.AW_STRING(None), '')
+        self.assertEqual(types.AW_STRING(False), 'False')
+        self.assertEqual(types.AW_STRING(True), 'True')
+
+    def test_call_with_noncoercible_data(self):
+        with self.assertRaises(exceptions.AWTypeError):
+            types.AW_STRING(datetime.now())
+
+    def test_coerce_with_coercible_data(self):
+        self.assertEqual(types.AW_STRING.coerce(-1), '-1')
+        self.assertEqual(types.AW_STRING.coerce(0), '0')
+        self.assertEqual(types.AW_STRING.coerce(1), '1')
+        self.assertEqual(types.AW_STRING.coerce(-1.5), '-1.5')
+        self.assertEqual(types.AW_STRING.coerce(-1.0), '-1.0')
+        self.assertEqual(types.AW_STRING.coerce(1.0), '1.0')
+        self.assertEqual(types.AW_STRING.coerce(1.5), '1.5')
+        self.assertEqual(types.AW_STRING.coerce('-1'), '-1')
+        self.assertEqual(types.AW_STRING.coerce('-1.0'), '-1.0')
+        self.assertEqual(types.AW_STRING.coerce('0'), '0')
+        self.assertEqual(types.AW_STRING.coerce('1'), '1')
+        self.assertEqual(types.AW_STRING.coerce('foo'), 'foo')
+        self.assertEqual(types.AW_STRING.coerce(None), '')
+        self.assertEqual(types.AW_STRING.coerce(False), 'False')
+        self.assertEqual(types.AW_STRING.coerce(True), 'True')
+
+
 class TestTryWrap(TestCase):
     def test_try_wrap_primitive_bool(self):
         self.assertEqual(types.try_wrap(False), False)
