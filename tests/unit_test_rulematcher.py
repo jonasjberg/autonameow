@@ -92,14 +92,11 @@ def get_dummy_extraction_results():
     return results
 
 
-class TestRuleMatcherDataQuery(TestCase):
+class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
     def setUp(self):
-        analysis_results = get_dummy_analysis_results()
-        extraction_results = get_dummy_extraction_results()
-
-        # TODO: Pass dummy extracted data to the rule matcher.
-        self.rm = RuleMatcher(analysis_results, extraction_results,
-                              dummy_config)
+        analysis_data = get_dummy_analysis_results()
+        extraction_data = get_dummy_extraction_results()
+        self.rm = RuleMatcher(analysis_data, extraction_data, dummy_config)
 
     def test_query_data_is_defined(self):
         self.assertIsNotNone(self.rm.query_data)
@@ -112,7 +109,7 @@ class TestRuleMatcherDataQuery(TestCase):
             self.rm.query_data('contents.mime_type')
         )
 
-    def test_query_data_returns_expected_type(self):
+    def test_querying_available_data_returns_expected_type(self):
         self.assertTrue(
             isinstance(self.rm.query_data('analysis.filename_analyzer.tags'),
                        list)
@@ -122,11 +119,43 @@ class TestRuleMatcherDataQuery(TestCase):
                        str)
         )
 
-    def test_query_data_returns_expected(self):
+    def test_querying_available_data_returns_expected(self):
+        actual_tags = self.rm.query_data('analysis.filename_analyzer.tags')
+        expected_tags = ['tagfoo', 'tagbar']
+        self.assertEqual(expected_tags, actual_tags)
+        self.assertEqual(self.rm.query_data('contents.mime_type'),
+                         'application/pdf')
+
+
+class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
+    def setUp(self):
+        analysis_data = get_dummy_analysis_results_empty()
+        extraction_data = get_dummy_extraction_results()
+        self.rm = RuleMatcher(analysis_data, extraction_data, dummy_config)
+
+    def test_query_data_returns_something(self):
+        self.assertIsNotNone(
+            self.rm.query_data('analysis.filename_analyzer.tags')
+        )
+
+    def test_querying_available_data_returns_expected_type(self):
+        self.assertTrue(
+            isinstance(self.rm.query_data('analysis.filename_analyzer.tags'),
+                       list)
+        )
+        self.assertTrue(
+            isinstance(self.rm.query_data('contents.mime_type'),
+                       str)
+        )
+
+    def test_querying_available_data_returns_expected(self):
         self.assertEqual(self.rm.query_data('analysis.filename_analyzer.tags'),
                          ['tagfoo', 'tagbar'])
         self.assertEqual(self.rm.query_data('contents.mime_type'),
                          'application/pdf')
+
+    def test_querying_missing_data_does_something(self):
+        self.assertEqual(None, None)
 
 
 class DummyFileRule(object):
