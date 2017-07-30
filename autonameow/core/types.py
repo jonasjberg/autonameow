@@ -111,16 +111,7 @@ class BaseType(object):
             return value
 
     def format(self, value, formatter=None):
-        if value is None:
-            value = self._null()
-        if value is None:
-            # Case where 'self.null' is None.
-            value = ''
-        if isinstance(value, bytes):
-            value = value.decode('utf-8', 'ignore')
-
-        parsed = self.coerce(value)
-        return str(parsed)
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __repr__(self):
         return self.__class__.__name__
@@ -177,6 +168,7 @@ class Path(BaseType):
         )
 
     def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
         parsed = self.coerce(value)
         return util.displayable_path(parsed)
 
@@ -208,6 +200,7 @@ class PathComponent(BaseType):
             return value
 
     def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
         parsed = self.coerce(value)
         return util.displayable_path(parsed)
 
@@ -249,6 +242,11 @@ class Boolean(BaseType):
         else:
             return False
 
+    def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
+        value = self.__call__(value)
+        return str(value)
+
 
 class Integer(BaseType):
     primitive_type = int
@@ -267,6 +265,7 @@ class Integer(BaseType):
 
     @classmethod
     def format(cls, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
         if not formatter:
             return '{}'.format(value or 0)
         else:
@@ -288,6 +287,7 @@ class Float(BaseType):
             return parsed
 
     def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
         if not formatter:
             return '{0:.1f}'.format(value or self._null())
         else:

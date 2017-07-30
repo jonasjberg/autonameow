@@ -193,6 +193,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0060]` Implement or remove the type wrapper classes `format` method.
+
 * `[TD0059]` Replace `--list-datetime`, `--list-title` and `--list-all`
   with something more flexible like `--list {FIELD}`.
 
