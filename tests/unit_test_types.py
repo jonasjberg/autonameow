@@ -196,6 +196,11 @@ class TestTypeInteger(TestCase):
         self.assertEqual(types.AW_INTEGER('1.0'), 0)
         self.assertEqual(types.AW_INTEGER('1.5'), 0)
 
+    def test_format(self):
+        # TODO: Add additional tests.
+        self.assertIsNotNone(types.AW_INTEGER.format)
+        self.assertEqual(types.AW_INTEGER.format(None), '0')
+
 
 class TestTypeFloat(TestCase):
     def test_wraps_expected_primitive(self):
@@ -235,6 +240,11 @@ class TestTypeFloat(TestCase):
 
         with self.assertRaises(exceptions.AWTypeError):
             self.assertEqual(types.AW_FLOAT(datetime.now()), 0.0)
+
+    def test_format(self):
+        # TODO: Add additional tests.
+        self.assertIsNotNone(types.AW_FLOAT.format)
+        self.assertEqual(types.AW_FLOAT.format(None), '0.0')
 
 
 class TestTypeTimeDate(TestCase):
@@ -288,6 +298,10 @@ class TestTypeTimeDate(TestCase):
         _assert_raises([None])
         # TODO: Add testing additional input data.
 
+    def test_format(self):
+        # TODO: Add additional tests.
+        self.assertIsNotNone(types.AW_TIMEDATE.format)
+
 
 class TestTypeExiftoolTimeDate(TestCase):
     def test_wraps_expected_primitive(self):
@@ -327,6 +341,10 @@ class TestTypeExiftoolTimeDate(TestCase):
     def test_call_with_valid_exiftool_string_returns_expected_type(self):
         actual = types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200')
         self.assertTrue(isinstance(actual, datetime))
+
+    def test_format(self):
+        # TODO: Add additional tests.
+        self.assertIsNotNone(types.AW_EXIFTOOLTIMEDATE.format)
 
 
 class TestTypePyPDFTimeDate(TestCase):
@@ -373,6 +391,10 @@ class TestTypePyPDFTimeDate(TestCase):
     def test_call_with_valid_pypdf_string_returns_expected_type(self):
         actual = types.AW_PYPDFTIMEDATE("D:20160111124132+00'00'")
         self.assertTrue(isinstance(actual, datetime))
+
+    def test_format(self):
+        # TODO: Add additional tests.
+        self.assertIsNotNone(types.AW_PYPDFTIMEDATE.format)
 
 
 class TestTypePath(TestCase):
@@ -429,6 +451,10 @@ class TestTypePath(TestCase):
         _assert_raises(0)
         _assert_raises(None)
         _assert_raises('')
+
+    def test_format(self):
+        # TODO: Add additional tests.
+        self.assertIsNotNone(types.AW_PATH.format)
 
 
 class TestTypePathComponent(TestCase):
@@ -490,6 +516,10 @@ class TestTypePathComponent(TestCase):
 
         _assert_raises(0)
         _assert_raises(datetime.now())
+
+    def test_format(self):
+        # TODO: Add additional tests.
+        self.assertIsNotNone(types.AW_PATHCOMPONENT.format)
 
 
 class TestTypeString(TestCase):
@@ -557,6 +587,10 @@ class TestTypeString(TestCase):
         self.assertEqual(types.AW_STRING.coerce(None), '')
         self.assertEqual(types.AW_STRING.coerce(False), 'False')
         self.assertEqual(types.AW_STRING.coerce(True), 'True')
+
+    def test_format(self):
+        # TODO: Add additional tests.
+        self.assertIsNotNone(types.AW_STRING.format)
 
 
 class TestTryWrap(TestCase):
