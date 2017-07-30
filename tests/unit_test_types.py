@@ -218,8 +218,6 @@ class TestTypeTimeDate(TestCase):
         self.assertEqual(types.AW_TIMEDATE.null, 'INVALID DATE')
 
     def test_normalize(self):
-        prior = datetime.strptime('2017-07-12T20:50:15.641659',
-                                  '%Y-%m-%dT%H:%M:%S.%f')
         expected = datetime.strptime('2017-07-12T20:50:15',
                                      '%Y-%m-%dT%H:%M:%S')
         self.assertEqual(
@@ -243,14 +241,20 @@ class TestTypeTimeDate(TestCase):
         expected = datetime.strptime('2017-07-12T20:50:15', '%Y-%m-%dT%H:%M:%S')
         self.assertEqual(types.AW_TIMEDATE(expected), expected)
         self.assertEqual(types.AW_TIMEDATE('2017-07-12T20:50:15'), expected)
+        self.assertEqual(types.AW_TIMEDATE('foo'), types.AW_TIMEDATE.null)
+        # TODO: Add testing additional input data.
 
     def test_call_with_noncoercible_data(self):
-        with self.assertRaises(exceptions.AWTypeError):
-            self.assertEqual(types.AW_TIMEDATE(None), types.AW_TIMEDATE.null)
-            self.assertEqual(types.AW_TIMEDATE(''), types.AW_TIMEDATE.null)
-            self.assertEqual(types.AW_TIMEDATE([]), types.AW_TIMEDATE.null)
-            self.assertEqual(types.AW_TIMEDATE(['']), types.AW_TIMEDATE.null)
-            self.assertEqual(types.AW_TIMEDATE([None]), types.AW_TIMEDATE.null)
+        def _assert_raises(input_data):
+            with self.assertRaises(exceptions.AWTypeError):
+                types.AW_TIMEDATE(input_data)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises([])
+        _assert_raises([''])
+        _assert_raises([None])
+        # TODO: Add testing additional input data.
 
 
 class TestTypeExiftoolTimeDate(TestCase):
