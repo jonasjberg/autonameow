@@ -37,7 +37,6 @@ def plugin_query(plugin_name, query, data):
     Hack interface to query plugins.
     """
     # TODO: [TD0009] Rewrite from scratch!
-    # ** NOTE: Actual query code below! Comment the mock and uncomment this **
     if plugin_name == 'microsoft_vision':
         # NOTE: Expecting "data" to be a valid path to an image file.
 
@@ -96,3 +95,13 @@ def get_plugin_classes():
                   ' loaded ..'.format(plugin_file))
 
     return _plugin_classes
+
+
+def _plugin_class_instance_dict():
+    klasses = get_plugin_classes()
+    if klasses:
+        out = {str(klass): klass for klass in klasses}
+        return out
+
+
+Plugins = _plugin_class_instance_dict()

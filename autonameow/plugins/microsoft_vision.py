@@ -48,7 +48,6 @@ if sys.version_info[0] == 3:
     from urllib.parse import urlencode
     import http.client as httplib
 
-from plugins import BasePlugin
 
 PROGRAM_NAME = os.path.basename(__file__)
 IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg']
@@ -233,57 +232,57 @@ def main(paths, api_key, dump_response=False, print_caption=True):
         sys.exit('Received Keyboard Interrupt; Exiting ..')
 
 
-class MicrosoftVisionPlugin(BasePlugin):
-    """
-    'microsoft_vision.py'
-    =====================
-    Queries the Microsoft Vision API with images for information about visual
-    content found in the image.
-
-    Requires a Microsoft Visual API key, available for free at:
-      <https://www.microsoft.com/cognitive-services/en-us/sign-up>
-
-    Add your API key to the file 'microsoft_vision.key' in this directory,
-    or modify the line below to point to the file containing your API key.
-    """
-
-    def __init__(self, source):
-        super().__init__(source)
-
-        api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
-                                    'microsoft_vision.key')
-        try:
-            with open(api_key_path, mode='r', encoding='utf8') as f:
-                self.API_KEY = f.read()
-                self.API_KEY = self.API_KEY.strip()
-        except FileNotFoundError as e:
-            # log.critical('Unable to find "microsoft_vision.py" API key!')
-            self.API_KEY = ''
-
-    def query(self, field=None):
-        # TODO: [TD0061] Re-implement basic queries to this script.
-        # NOTE: Expecting "data" to be a valid path to an image file.
-        if not self.API_KEY:
-            raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
-
-        if field == 'caption' or field == 'tags':
-            response = query_api(self.source, self.API_KEY)
-            if not response:
-                log.error('[plugin.microsoft_vision] Unable to query to API')
-                raise AutonameowPluginError('Did not receive a valid response')
-            else:
-                log.debug('Received microsoft_vision API query response')
-
-            if field == 'caption':
-                caption = get_caption_text(response)
-                log.debug('Returning caption: "{!s}"'.format(caption))
-                return str(caption)
-
-            elif field == 'tags':
-                tags = get_tags(response, 5)
-                tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
-                log.debug('Returning tags: {}'.format(tags_pretty))
-                return tags
+# class MicrosoftVisionPlugin(BasePlugin):
+#     """
+#     'microsoft_vision.py'
+#     =====================
+#     Queries the Microsoft Vision API with images for information about visual
+#     content found in the image.
+#
+#     Requires a Microsoft Visual API key, available for free at:
+#       <https://www.microsoft.com/cognitive-services/en-us/sign-up>
+#
+#     Add your API key to the file 'microsoft_vision.key' in this directory,
+#     or modify the line below to point to the file containing your API key.
+#     """
+#
+#     def __init__(self, source):
+#         super().__init__(source)
+#
+#         api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
+#                                     'microsoft_vision.key')
+#         try:
+#             with open(api_key_path, mode='r', encoding='utf8') as f:
+#                 self.API_KEY = f.read()
+#                 self.API_KEY = self.API_KEY.strip()
+#         except FileNotFoundError as e:
+#             # log.critical('Unable to find "microsoft_vision.py" API key!')
+#             self.API_KEY = ''
+#
+#     def query(self, field=None):
+#         # TODO: [TD0061] Re-implement basic queries to this script.
+#         # NOTE: Expecting "data" to be a valid path to an image file.
+#         if not self.API_KEY:
+#             raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
+#
+#         if field == 'caption' or field == 'tags':
+#             response = query_api(self.source, self.API_KEY)
+#             if not response:
+#                 log.error('[plugin.microsoft_vision] Unable to query to API')
+#                 raise AutonameowPluginError('Did not receive a valid response')
+#             else:
+#                 log.debug('Received microsoft_vision API query response')
+#
+#             if field == 'caption':
+#                 caption = get_caption_text(response)
+#                 log.debug('Returning caption: "{!s}"'.format(caption))
+#                 return str(caption)
+#
+#             elif field == 'tags':
+#                 tags = get_tags(response, 5)
+#                 tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
+#                 log.debug('Returning tags: {}'.format(tags_pretty))
+#                 return tags
 
 
 if __name__ == '__main__':
