@@ -221,22 +221,22 @@ class AnalysisResults(DataContainerBase):
                 return self._data.get(query_string)
         return False
 
-    def add(self, field, data):
+    def add(self, query_string, data):
         """
         Adds results data for a specific field to the aggregate data.
 
         Args:
-            field: The field type of the data to add.
+            query_string: The field type of the data to add.
                    Must be included in "ANALYSIS_RESULTS_FIELDS".
             data: Data to add as a list of dicts.
 
         Raises:
             KeyError: The specified field is not in "ANALYSIS_RESULTS_FIELDS".
         """
-        if not field:
+        if not query_string:
             raise KeyError('Missing results field')
 
-        self._data.update({field: data})
+        self._data.update({query_string: data})
 
     def __len__(self):
         return util.count_dict_recursive(self._data)

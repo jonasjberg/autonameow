@@ -26,9 +26,9 @@ class DataContainerBase(object):
     def __init__(self):
         self._data = {}
 
-    def add(self, destination, data):
+    def add(self, query_string, data):
         """
-        Adds data for later retrieval through "destination".
+        Adds data for later retrieval through "query string".
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 

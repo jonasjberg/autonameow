@@ -173,25 +173,25 @@ class ExtractedData(DataContainerBase):
     def __init__(self):
         super(ExtractedData, self).__init__()
 
-    def add(self, label, data):
+    def add(self, query_string, data):
         if not data:
             return
-        if not label:
+        if not query_string:
             raise InvalidDataSourceError('Invalid source (missing label)')
         else:
             # TODO: Necessary to handle multiple adds to the same label?
-            if label in self._data:
-                t = self._data[label]
-                self._data[label] = [t] + [data]
+            if query_string in self._data:
+                t = self._data[query_string]
+                self._data[query_string] = [t] + [data]
             else:
-                self._data[label] = data
+                self._data[query_string] = data
 
     def get(self, query_string=None):
         """
         Returns all contained data, or data matching a specified "query string".
 
         Args:
-            One of the strings defined in "constants.VALID_DATA_SOURCES".
+            query_string: Any string defined in "constants.VALID_DATA_SOURCES".
         Returns:
             Extracted data associated with the given query string, or False if
             the data does not exist.
@@ -201,7 +201,7 @@ class ExtractedData(DataContainerBase):
         """
         if query_string is not None:
             if query_string not in constants.VALID_DATA_SOURCES:
-                log.critical('ExtractedData.get() got bad label:'
+                log.critical('ExtractedData.get() got bad query_string:'
                              ' "{}"'.format(query_string))
             return self._data.get(query_string, False)
         else:
