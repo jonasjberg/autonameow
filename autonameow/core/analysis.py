@@ -210,15 +210,9 @@ class AnalysisResults(DataContainerBase):
         if not query_string:
             return self._data
 
-        if query_string.startswith('plugin.'):
-            # TODO: [TD0009] Results should NOT be querying plugins from here!
-            # TODO: [TD0009] Rework processing pipeline to integrate plugins
-            plugin_name, plugin_query = query_string.lstrip('plugin.').split('.')
-            result = plugins.plugin_query(plugin_name, plugin_query, None)
-            return result
-        else:
-            if query_string in self._data:
-                return self._data.get(query_string)
+        if query_string in self._data:
+            return self._data.get(query_string)
+
         return False
 
     def add(self, query_string, data):
