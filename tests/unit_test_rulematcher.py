@@ -49,12 +49,12 @@ class TestRuleMatcher(TestCase):
 
 def get_dummy_analysis_results_empty():
     results = AnalysisResults()
-    results.add({'analysis.filename_analyzer.datetime': []})
-    results.add({'analysis.filename_analyzer.tags': []})
-    results.add({'analysis.filename_analyzer.title': []})
-    results.add({'analysis.filesystem_analyzer.datetime': []})
-    results.add({'analysis.filesystem_analyzer.tags': []})
-    results.add({'analysis.filesystem_analyzer.title': []})
+    results.add('analysis.filename_analyzer.datetime', [])
+    results.add('analysis.filename_analyzer.tags', [])
+    results.add('analysis.filename_analyzer.title', [])
+    results.add('analysis.filesystem_analyzer.datetime', [])
+    results.add('analysis.filesystem_analyzer.tags', [])
+    results.add('analysis.filesystem_analyzer.title', [])
     return results
 
 
@@ -120,9 +120,11 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
         )
 
     def test_querying_available_data_returns_expected(self):
-        actual_tags = self.rm.query_data('analysis.filename_analyzer.tags')
+        actual_result = self.rm.query_data('analysis.filename_analyzer.tags')
+        actual_tags = actual_result[0].get('value', [])
         expected_tags = ['tagfoo', 'tagbar']
         self.assertEqual(expected_tags, actual_tags)
+
         self.assertEqual(self.rm.query_data('contents.mime_type'),
                          'application/pdf')
 
@@ -134,6 +136,7 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
         self.rm = RuleMatcher(analysis_data, extraction_data, dummy_config)
 
     def test_query_data_returns_something(self):
+        # TODO: Fix this!
         self.assertIsNotNone(
             self.rm.query_data('analysis.filename_analyzer.tags')
         )
@@ -149,12 +152,17 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
         )
 
     def test_querying_available_data_returns_expected(self):
-        self.assertEqual(self.rm.query_data('analysis.filename_analyzer.tags'),
-                         ['tagfoo', 'tagbar'])
+        # TODO: Fix this!
+        actual_result = self.rm.query_data('analysis.filename_analyzer.tags')
+        actual_tags = actual_result[0].get('value', [])
+        expected_tags = ['tagfoo', 'tagbar']
+        self.assertEqual(expected_tags, actual_tags)
+
         self.assertEqual(self.rm.query_data('contents.mime_type'),
                          'application/pdf')
 
     def test_querying_missing_data_does_something(self):
+        # TODO: Fix this!
         self.assertEqual(None, None)
 
 
