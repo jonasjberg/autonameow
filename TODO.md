@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0063]` Fix crash when a data source is mapped but data itself is missing.
+
 * `[TD0004]` __Text encoding issues__
     * Enforce strict boundaries between all external systems and an internal
       text data representation.
