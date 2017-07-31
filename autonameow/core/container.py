@@ -32,9 +32,9 @@ class DataContainerBase(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def get(self, query=None):
+    def get(self, query_string=None):
         """
-        Returns all contained data, or data matching a specified query.
+        Returns all contained data, or data matching a specified "query string".
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 

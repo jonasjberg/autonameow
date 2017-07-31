@@ -27,6 +27,7 @@ from core import (
     util,
     types
 )
+from core.container import DataContainerBase
 from core.exceptions import InvalidDataSourceError
 
 
@@ -165,12 +166,12 @@ class Extraction(object):
             self.collect_results(e.data_query_string, e.query())
 
 
-class ExtractedData(object):
+class ExtractedData(DataContainerBase):
     """
     Container for data gathered by extractors.
     """
     def __init__(self):
-        self._data = {}
+        super(ExtractedData, self).__init__()
 
     def add(self, label, data):
         if not data:
@@ -185,33 +186,26 @@ class ExtractedData(object):
             else:
                 self._data[label] = data
 
-    def get(self, label=None):
+    def get(self, query_string=None):
         """
-        Returns extracted data, optionally matching the specified label.
+        Returns all contained data, or data matching a specified "query string".
 
         Args:
             One of the strings defined in "constants.VALID_DATA_SOURCES".
         Returns:
-            Extracted data associated with the given label, or False if the
-            data does not exist. If no label is specified, all data is returned.
+            Extracted data associated with the given query string, or False if
+            the data does not exist.
+            If no query string is specified, all data is returned.
         Raises:
-            InvalidDataSourceError: The label is not a valid data source.
+            InvalidDataSourceError: The query string is not a valid data source.
         """
-        if label is not None:
-            if label not in constants.VALID_DATA_SOURCES:
-                log.critical(
-                    'ExtractedData.get() got bad label: "{}"'.format(label)
-                )
-            return self._data.get(label, False)
+        if query_string is not None:
+            if query_string not in constants.VALID_DATA_SOURCES:
+                log.critical('ExtractedData.get() got bad label:'
+                             ' "{}"'.format(query_string))
+            return self._data.get(query_string, False)
         else:
             return self._data
-
-    def __iter__(self):
-        for k, v in self._data.items():
-            yield (k, v)
-
-    def __len__(self):
-        return util.count_dict_recursive(self._data)
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):

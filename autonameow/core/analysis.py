@@ -27,6 +27,7 @@ from core import (
     exceptions,
     util
 )
+from core.container import DataContainerBase
 
 
 class Analysis(object):
@@ -185,13 +186,13 @@ class AnalysisRunQueue(util.GenericQueue):
         return ', '.join(out)
 
 
-class AnalysisResults(object):
+class AnalysisResults(DataContainerBase):
     """
     Container for results gathered during an analysis of a file.
     """
 
     def __init__(self):
-        self._data = {}
+        super(AnalysisResults, self).__init__()
 
     def get(self, query_string=None):
         """
