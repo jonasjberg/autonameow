@@ -122,6 +122,11 @@ class NameBuilder(object):
         log.debug('Query for results fields returned:')
         log.debug(str(data))
 
+        # Check that all name template fields can be populated.
+        if not has_data_for_placeholder_fields(template, data):
+            log.warning('Unable to populate name. Missing field data.')
+            raise exceptions.NameBuilderError('Unable to assemble basename')
+
         # TODO: [TD0017][TD0041] Format ALL data before assembly!
         # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
         data = pre_assemble_format(data, self.config)
@@ -280,3 +285,13 @@ def all_template_fields_defined(template, data_sources):
             log.error('Field "{}" has not been assigned a source'.format(field))
             return False
     return True
+
+
+def has_data_for_placeholder_fields(template, data):
+    placeholder_fields = format_string_placeholders(template)
+    result = True
+    for field in placeholder_fields:
+        if field not in data.keys():
+            log.error('Missing data for placeholder field "{}"'.format(field))
+            result = False
+    return result
