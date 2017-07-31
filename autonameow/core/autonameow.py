@@ -234,8 +234,9 @@ class Autonameow(object):
                 continue
 
             # Determine matching rule.
-            matcher = RuleMatcher(analysis.results, extraction.data,
-                                  self.config)
+            matcher = RuleMatcher(analysis_results=analysis.results,
+                                  extracted_data=extraction.data,
+                                  active_config=self.config)
             try:
                 matcher.start()
             except exceptions.AutonameowException as e:
