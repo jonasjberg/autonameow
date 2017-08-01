@@ -22,7 +22,7 @@
 import inspect
 import os
 import sys
-import logging as log
+# import logging as log
 
 
 # Plugins are assumed to be located in the same directory as this file.
@@ -89,8 +89,8 @@ def get_plugin_classes():
                 _plugin_classes.append(_obj_type)
                 break
 
-        log.debug('Imported plugin source file "{!s}" but no plugins were'
-                  ' loaded ..'.format(plugin_file))
+        # log.debug('Imported plugin source file "{!s}" but no plugins were'
+        #           ' loaded ..'.format(plugin_file))
 
     return _plugin_classes
 

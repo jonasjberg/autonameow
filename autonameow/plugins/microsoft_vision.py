@@ -33,7 +33,7 @@ import os
 import json
 import urllib
 import argparse
-import logging
+# import logging
 import requests
 
 from plugins import BasePlugin
@@ -112,7 +112,7 @@ def query_api(image_file, api_key):
     :return: The API JSON data response.
     """
     if not api_key:
-        log.error('Unable to continue without an API key!')
+        # log.error('Unable to continue without an API key!')
         return False
 
     headers = {
@@ -136,9 +136,9 @@ def query_api(image_file, api_key):
         return json_data
 
     except Exception as e:
-        log.error('[ERROR] Caught exception when querying the API;')
-        if e:
-            log.error(str(e))
+        # log.error('[ERROR] Caught exception when querying the API;')
+        # if e:
+        #     log.error(str(e))
         return False
 
 
@@ -152,7 +152,8 @@ def get_caption_text(json_data):
     try:
         caption = json_data['description']['captions'][0]['text']
     except KeyError as e:
-        log.error('[ERROR] Unable to get caption text: ', str(e))
+        # log.error('[ERROR] Unable to get caption text: ', str(e))
+        pass
     else:
         return caption
 
@@ -182,7 +183,8 @@ def get_tags(json_data, count=None):
     try:
         tags = json_data['description']['tags']
     except KeyError as e:
-        log.error('[ERROR] Unable to get tags: ', str(e))
+        # log.error('[ERROR] Unable to get tags: ', str(e))
+        pass
     else:
         if count and len(tags) > count:
             return tags[:count]
@@ -201,23 +203,23 @@ def main(paths, api_key, dump_response=False, print_caption=True):
     :param print_caption: True if the image caption should be printed.
     """
     images = get_images(paths)
-    log.debug('Got images:')
-    for number, image in enumerate(images):
-        log.debug('[{:03d}] "{}"'.format(number, str(image)))
+    # log.debug('Got images:')
+    # for number, image in enumerate(images):
+    #     log.debug('[{:03d}] "{}"'.format(number, str(image)))
 
     try:
-        log.debug('Start of processing; querying the Microsoft API ..')
+        # log.debug('Start of processing; querying the Microsoft API ..')
 
         for image in images:
-            log.info('Querying API with image: "{}"'.format(str(image)))
+            # log.info('Querying API with image: "{}"'.format(str(image)))
 
             response = query_api(image, api_key)
 
             if not response:
-                log.error('Unable to query to API')
+                # log.error('Unable to query to API')
                 sys.exit(1)
 
-            log.info('Received query response')
+            # log.info('Received query response')
 
             _image_basename = os.path.basename(image)
             if dump_response:
@@ -270,20 +272,21 @@ class MicrosoftVisionPlugin(BasePlugin):
         if field == 'caption' or field == 'tags':
             response = query_api(self.source, self.API_KEY)
             if not response:
-                log.error('[plugin.microsoft_vision] Unable to query to API')
+                # log.error('[plugin.microsoft_vision] Unable to query to API')
                 raise AutonameowPluginError('Did not receive a valid response')
             else:
-                log.debug('Received microsoft_vision API query response')
+                # log.debug('Received microsoft_vision API query response')
+                pass
 
             if field == 'caption':
                 caption = get_caption_text(response)
-                log.debug('Returning caption: "{!s}"'.format(caption))
+                # log.debug('Returning caption: "{!s}"'.format(caption))
                 return str(caption)
 
             elif field == 'tags':
                 tags = get_tags(response, 5)
                 tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
-                log.debug('Returning tags: {}'.format(tags_pretty))
+                # log.debug('Returning tags: {}'.format(tags_pretty))
                 return tags
 
 
@@ -334,21 +337,21 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if args.verbose:
-        log_format = '{} %(asctime)s %(levelname)-8.8s %(funcName)-25.25s' \
-                     '(%(lineno)3d) %(message)s'.format(PROGRAM_NAME)
-        logging.basicConfig(level=logging.DEBUG, format=log_format,
-                            datefmt='%Y-%m-%d %H:%M:%S')
-    else:
-        log_format = '{} %(asctime)s %(levelname)-8.8s' \
-                     ' %(message)s'.format(PROGRAM_NAME)
-        logging.basicConfig(level=logging.WARN, format=log_format,
-                            datefmt='%Y-%m-%d %H:%M:%S')
+    # if args.verbose:
+    #     log_format = '{} %(asctime)s %(levelname)-8.8s %(funcName)-25.25s' \
+    #                  '(%(lineno)3d) %(message)s'.format(PROGRAM_NAME)
+    #     logging.basicConfig(level=logging.DEBUG, format=log_format,
+    #                         datefmt='%Y-%m-%d %H:%M:%S')
+    # else:
+    #     log_format = '{} %(asctime)s %(levelname)-8.8s' \
+    #                  ' %(message)s'.format(PROGRAM_NAME)
+    #     logging.basicConfig(level=logging.WARN, format=log_format,
+    #                         datefmt='%Y-%m-%d %H:%M:%S')
 
-    log = logging.getLogger()
+    # log = logging.getLogger()
 
     if not args.input_files_or_dir:
-        log.info('No images specified. Use "--help" for usage information')
+        # log.info('No images specified. Use "--help" for usage information')
         sys.exit(0)
 
     main(args.input_files_or_dir, args.api_key, args.dump, args.dump_caption)
