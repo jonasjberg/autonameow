@@ -32,6 +32,84 @@ then
 fi
 
 
+# A sample file is copied to a temporary directory, autonameow is then started
+# with the "--automagic" option, which should rename the temporary file.
+# After running the program, the temporary directory should contain the
+# expected base name.  Finally, the used files are deleted.
+# Arguments:
+# 1. A name for this group of tests.
+# 2. Full path to the sample file to be copied to a temporary directory.
+# 3. The expected basename of the file after having been renamed.
+test_automagic_rename()
+{
+    local _test_name="RENAME ${1}"
+    local _sample_file="$2"
+    local _expected_basename="$3"
+
+    local _sample_file_basename="$(basename -- "${_sample_file}")"
+    local _temp_dir="$(mktemp -d)"
+    local _expected_name="${_temp_dir}/${_expected_basename}"
+    local _temp_file="${_temp_dir}/${_sample_file_basename}"
+
+    assert_true 'cp -n -- "${_sample_file}" "${_temp_file}" 2>&1 >/dev/null' \
+                "(${_test_name}) Test setup should succeed in copying the sample file to a temporary directory"
+
+    assert_true '[ -f "${_temp_file}" ]' \
+                "(${_test_name}) A copy of the sample file must exit in the temporary directory"
+
+    if ! [ -f "${_temp_file}" ]
+    then
+        assert_true '[ "1" -eq "0" ]' \
+        "(${_test_name}) Test setup FAILED. Unable to continue. Skipping remaining tests .."
+        return -1
+    fi
+
+    assert_true '( "$AUTONAMEOW_RUNNER" --automagic -- "${_temp_file}" 2>&1 ) >/dev/null && [ -e "$_expected_name" ]' \
+                "(${_test_name}) Should be renamed to \"${_expected_basename}\""
+
+    assert_true '[ -f "${_temp_file}" ] && rm -- "${_temp_file}" ; [ -f "$_expected_name" ] && rm -- "$_expected_name" || true' \
+                "(${_test_name}) Test teardown should succeed in deleting temporary files"
+}
+
+# Tests autonameow using command-line options "--automagic --dry-run".
+# The program output is searched for the expected file name.
+# The given sample file should NOT be renamed.
+# Arguments:
+# 1. A name for this group of tests.
+# 2. Full path to the sample file to be copied to a temporary directory.
+# 3. The expected basename of the file after having been renamed.
+test_automagic_dryrun()
+{
+    local _test_name="DRY-RUN ${1}"
+    local _sample_file="$2"
+    local _expected_basename="$3"
+
+    if ! [ -f "${_sample_file}" ]
+    then
+        assert_true '[ "1" -eq "0" ]' \
+        "(${_test_name}) Test setup FAILED. Unable to continue. Skipping remaining tests .."
+        return -1
+    fi
+
+    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "${_sample_file}" 2>&1 ) >/dev/null' \
+                "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run\""
+
+    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "${_sample_file}" 2>&1 ) >/dev/null' \
+                "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run --verbose\""
+
+    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "${_sample_file}" 2>&1 ) >/dev/null' \
+                "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run --debug\""
+
+    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "${_sample_file}" 2>/dev/null ) | col -b | grep -q -- "${_expected_basename}"' \
+                "(${_test_name}) Expect output to include \"${_expected_basename}\" when started with \"--dry-run\""
+
+    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null ) | col -b | grep -q -- "${_expected_basename}"' \
+                "(${_test_name}) Expect output to include \"${_expected_basename}\" when started with \"--dry-run --verbose\""
+
+    assert_true '[ -f "${_sample_file}" ]' \
+                "(${_test_name}) The sample file should not be renamed."
+}
+
 
 # Test Cases
 # ____________________________________________________________________________
@@ -44,16 +122,36 @@ logmsg "Running the Rename Files test suite .."
 
 
 
-_temp_dir="$(mktemp -d)"
-_expected_name="${_temp_dir}/2010-01-31T161251 a cat lying on a rug.jpg"
-assert_true 'cp -n -- "$SAMPLE_JPG_FILE" ${_temp_dir}/smulan.jpg 2>&1 >/dev/null' \
-            "rename_sample_jpg_file Test setup should succeed"
+assert_true 'command -v python3 >/dev/null 2>&1' \
+            "Python v3.x is available on the system"
 
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic -- "${_temp_dir}/smulan.jpg" 2>&1 ) >/dev/null && [ -e "$_expected_name" ]' \
-            "rename_sample_jpg_file [TC010][TC011] \""$(basename -- "${SAMPLE_JPG_FILE}")"\" should be renamed to \""$(basename -- "${_expected_name}")"\""
+AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../run.sh" ) )"
+assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
+             'Environment variable "AUTONAMEOW_RUNNER" should not be unset'
 
-assert_true '[ -f "${_temp_dir}/smulan.jpg" ] && rm -- "${_temp_dir}/smulan.jpg" ; [ -f "$_expected_name" ] && rm -- "$_expected_name" || true' \
-            "rename_sample_jpg_file Test teardown should succeed"
+assert_true '[ -e "$AUTONAMEOW_RUNNER" ]' \
+            "The autonameow launcher script \""$(basename -- "$AUTONAMEOW_RUNNER")"\" exists"
+
+assert_true '[ -x "$AUTONAMEOW_RUNNER" ]' \
+            "The autonameow launcher script has executable permission"
+
+
+SAMPLE_JPG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/smulan.jpg" ) )"
+SAMPLE_JPG_FILE_EXPECTED='2010-01-31T161251 a cat lying on a rug.jpg'
+assert_true '[ -e "$SAMPLE_JPG_FILE" ]' \
+            "Sample file \"${SAMPLE_JPG_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+
+test_automagic_rename 'test_files smulan.jpg' "$SAMPLE_JPG_FILE" "$SAMPLE_JPG_FILE_EXPECTED"
+test_automagic_dryrun 'test_files smulan.jpg' "$SAMPLE_JPG_FILE" "$SAMPLE_JPG_FILE_EXPECTED"
+
+
+SAMPLE_PDF_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/gmail.pdf" ) )"
+SAMPLE_PDF_FILE_EXPECTED='2016-01-11T124132 gmail.pdf'
+assert_true '[ -e "$SAMPLE_PDF_FILE" ]' \
+            "Sample file \"${SAMPLE_PDF_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+
+test_automagic_rename 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
+test_automagic_dryrun 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
 
 
 

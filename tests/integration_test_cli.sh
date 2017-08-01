@@ -112,22 +112,18 @@ assert_false '( "$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- ":root:" ) >/dev/nul
              "Output should not contain \":root:\" when starting with \"--debug\""
 
 
-SAMPLE_JPG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/smulan.jpg" ) )"
-assert_true '[ -e "$SAMPLE_JPG_FILE" ]' \
+SAMPLE_EMPTY_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/empty" ) )"
+assert_true '[ -e "$SAMPLE_EMPTY_FILE" ]' \
             "The test sample jpg file exists. Add suitable test file if this test fails!"
 
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_JPG_FILE" 2>&1 ) >/dev/null' \
-            "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\" and a valid file"
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_EMPTY_FILE" 2>&1 ) >/dev/null' \
+            "Expect exit status zero when started with \"--automagic\", \"--dry-run\" and an empty file"
 
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>&1 ) >/dev/null' \
-            "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\", \"--verbose\" and a valid file"
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_EMPTY_FILE" 2>&1 ) >/dev/null' \
+            "Expect exit status zero when started with \"--automagic\", \"--dry-run\", \"--verbose\" and an empty file"
 
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "$SAMPLE_JPG_FILE" 2>&1 ) >/dev/null' \
-            "[TC011][TC001] autonameow should return zero when started with \"--automagic\", \"--dry-run\", \"--debug\" and a valid file"
-
-SAMPLE_JPG_FILE_EXPECTED='2010-01-31T161251 a cat lying on a rug.jpg'
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>/dev/null ) | col -b | grep -q -- "2010-01-31T161251 a cat lying on a rug.jpg"' \
-            "Automagic mode output should include \"${SAMPLE_JPG_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
+assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "$SAMPLE_EMPTY_FILE" 2>&1 ) >/dev/null' \
+            "Expect exit status zero when started with \"--automagic\", \"--dry-run\", \"--debug\" and an empty file"
 
 
 assert_true '( "$AUTONAMEOW_RUNNER" --version 2>&1 ) >/dev/null' \
@@ -146,6 +142,10 @@ assert_true '( "$AUTONAMEOW_RUNNER" --version --quiet 2>&1 ) >/dev/null' \
 SAMPLE_PDF_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/gmail.pdf" ) )"
 assert_true '[ -e "$SAMPLE_PDF_FILE" ]' \
             "The test sample pdf file exists. Add suitable test file if this test fails!"
+
+SAMPLE_JPG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/smulan.jpg" ) )"
+assert_true '[ -e "$SAMPLE_JPG_FILE" ]' \
+            "Sample file \"${SAMPLE_JPG_FILE}\" exists. Substitute a suitable sample file if this test fails!"
 
 set +o pipefail
 assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -q -- "Using file rule: \"test_files Gmail print-to-pdf\"" ) >/dev/null' \
@@ -175,10 +175,6 @@ assert_true '( "$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_P
 
 assert_true '( "$AUTONAMEOW_RUNNER" --list-title -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
             "Expect exit code 0 when started with \"--list-title\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
-
-SAMPLE_PDF_FILE_EXPECTED='2016-01-11T124132 gmail.pdf'
-assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "$SAMPLE_PDF_FILE" 2>&1 ) | col -b | grep -- "${SAMPLE_PDF_FILE_EXPECTED}" >/dev/null' \
-            "Automagic mode output should include \"${SAMPLE_PDF_FILE_EXPECTED}\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
 
 TEST_FILES_SUBDIR="$( ( cd "$SELF_DIR" && realpath -e "../test_files/subdir" ) )"
