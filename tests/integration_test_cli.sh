@@ -102,8 +102,14 @@ assert_false '( "$AUTONAMEOW_RUNNER" --debug --quiet -- 2>&1 ) >/dev/null' \
 assert_false '( "$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- " :root:" ) >/dev/null' \
              "Output should not contain \" :root:\" when starting with \"--verbose\""
 
+assert_false '( "$AUTONAMEOW_RUNNER" --verbose 2>&1 | grep -- ":root:" ) >/dev/null' \
+             "Output should not contain \":root:\" when starting with \"--verbose\""
+
 assert_false '( "$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- " :root:" ) >/dev/null' \
              "Output should not contain \" :root:\" when starting with \"--debug\""
+
+assert_false '( "$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- ":root:" ) >/dev/null' \
+             "Output should not contain \":root:\" when starting with \"--debug\""
 
 
 SAMPLE_JPG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/smulan.jpg" ) )"
