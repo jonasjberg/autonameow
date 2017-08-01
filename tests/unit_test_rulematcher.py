@@ -135,9 +135,9 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
         extraction_data = get_dummy_extraction_results()
         self.rm = RuleMatcher(analysis_data, extraction_data, dummy_config)
 
-    def test_query_data_returns_something(self):
-        # TODO: Fix this!
-        self.assertIsNotNone(
+    def test_query_data_returns_none(self):
+        # TODO: Fix this! Raise some kind of "DataNotFound" exception.
+        self.assertIsNone(
             self.rm.query_data('analysis.filename_analyzer.tags')
         )
 
