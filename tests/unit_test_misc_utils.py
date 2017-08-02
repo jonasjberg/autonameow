@@ -30,7 +30,6 @@ from core.util.misc import (
     query_string_list,
     flatten_dict,
     expand_query_string_data_dict,
-    dict_lookup,
     nested_dict_get,
     nested_dict_set
 )
@@ -347,39 +346,6 @@ class TestExpandQueryStringDataDict(TestCase):
         self.assertIn('textual', actual_contents)
         self.assertIn('visual', actual_contents)
         self.assertIn('binary', actual_contents)
-
-
-class TestDictLookup(TestCase):
-    def test_passing_none_argument_returns_none(self):
-        d = {'a': 5}
-        actual = dict_lookup(d, None)
-        self.assertIsNone(actual)
-
-    def test_lookup_missing_key_returns_none(self):
-        d = {'a': 5}
-        actual = dict_lookup(d, 'b')
-        self.assertIsNone(actual)
-
-    def test_lookup_single_argument_returns_expected(self):
-        d = {'a': 5}
-        actual = dict_lookup(d, 'a')
-        self.assertEqual(actual, 5)
-
-    def test_nested_lookup_multiple_arguments_returns_expected(self):
-        d = {'a': {'b': {'c': 5}}}
-        actual = dict_lookup(d, 'a', 'b', 'c')
-        self.assertEqual(actual, 5)
-
-        arguments_expected = [((d, 'a', 'b', 'c'), 5),
-                              ((d, 'a', 'b'),      {'c': 5}),
-                              ((d, 'a'),           {'b': {'c': 5}})]
-        for arguments, expected in arguments_expected:
-            self.assertEqual(dict_lookup(*arguments), expected)
-
-    def test_nested_lookup_argument_list_returns_expected(self):
-        d = {'a': {'b': {'c': 5}}}
-        actual = dict_lookup(d, *['a', 'b', 'c'])
-        self.assertEqual(actual, 5)
 
 
 class TestNestedDictGet(TestCase):

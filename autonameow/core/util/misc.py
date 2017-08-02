@@ -279,27 +279,6 @@ def expand_query_string_data_dict(query_string_dict):
     return out
 
 
-def dict_lookup(dictionary, key, *list_of_keys):
-    """
-    Gets a value from the given dictionary by either a single key or a list
-    of keys for retrieval from multiple nested dictionaries.
-
-    Based on this post:  https://stackoverflow.com/a/11701539/7802196
-
-    Args:
-        dictionary: The dictionary from which to retrieve a value.
-        key: Key to the value.
-        *list_of_keys: Any number of keys for nested dictionaries.
-
-    Returns:
-        The dictionary value if present, otherwise None.
-    """
-    if list_of_keys:
-        return dict_lookup(dictionary.get(key, {}), *list_of_keys)
-
-    return dictionary.get(key)
-
-
 def nested_dict_get(dictionary, list_of_keys):
     """
     Retrieves a value from a given nested dictionary structure.
