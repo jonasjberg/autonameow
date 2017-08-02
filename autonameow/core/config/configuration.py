@@ -426,7 +426,10 @@ def parse_conditions(raw_conditions):
             'contains invalid condition: ' + str(e)
         )
 
-    log.debug('parse_conditions returned {} valid conditions'.format(len(out)))
+    log.debug(
+        'Returning {} (out of {}) valid conditions'.format(len(out),
+                                                           len(raw_conditions))
+    )
     return out
 
 
