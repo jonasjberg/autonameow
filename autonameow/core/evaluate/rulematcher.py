@@ -52,6 +52,9 @@ class RuleMatcher(object):
             if data:
                 return data
 
+        log.warning('Got no data for query: "{!s}"'.format(query_string))
+        return False
+
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))
         ok_rules = examine_rules(self._rules, self.query_data)
@@ -170,6 +173,10 @@ def eval_condition(condition, data_query_function):
 
     # Fetch data at "query_string" using the provided "data_query_function".
     data = data_query_function(query_string)
+    if not data:
+        log.warning('Unable to evaluate condition due to missing data:'
+                    ' "{!s}"'.format(condition))
+        return False
 
     # Evaluate the condition using actual data.
     return condition.evaluate(data)
