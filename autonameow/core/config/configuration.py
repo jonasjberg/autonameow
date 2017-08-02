@@ -72,7 +72,7 @@ class Configuration(object):
         if self._version:
             if self._version != constants.PROGRAM_VERSION:
                 log.warning('Possible configuration compatibility mismatch!')
-                log.warning('Loaded configuration created by v{} (currently '
+                log.warning('Loaded configuration created by {} (currently '
                             'running {})'.format(self._version,
                                                  constants.PROGRAM_VERSION))
                 log.info(
