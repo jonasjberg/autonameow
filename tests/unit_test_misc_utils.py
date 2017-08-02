@@ -29,6 +29,7 @@ from core.util.misc import (
     multiset_count,
     query_string_list,
     flatten_dict
+    dict_lookup
 )
 
 
@@ -297,3 +298,36 @@ class TestCountDictRecursive(TestCase):
         _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['']}, 4)
         _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g']}, 5)
         _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g', 'h']}, 6)
+
+
+class TestDictLookup(TestCase):
+    def test_passing_none_argument_returns_none(self):
+        d = {'a': 5}
+        actual = dict_lookup(d, None)
+        self.assertIsNone(actual)
+
+    def test_lookup_missing_key_returns_none(self):
+        d = {'a': 5}
+        actual = dict_lookup(d, 'b')
+        self.assertIsNone(actual)
+
+    def test_lookup_single_argument_returns_expected(self):
+        d = {'a': 5}
+        actual = dict_lookup(d, 'a')
+        self.assertEqual(actual, 5)
+
+    def test_nested_lookup_multiple_arguments_returns_expected(self):
+        d = {'a': {'b': {'c': 5}}}
+        actual = dict_lookup(d, 'a', 'b', 'c')
+        self.assertEqual(actual, 5)
+
+        arguments_expected = [((d, 'a', 'b', 'c'), 5),
+                              ((d, 'a', 'b'),      {'c': 5}),
+                              ((d, 'a'),           {'b': {'c': 5}})]
+        for arguments, expected in arguments_expected:
+            self.assertEqual(dict_lookup(*arguments), expected)
+
+    def test_nested_lookup_argument_list_returns_expected(self):
+        d = {'a': {'b': {'c': 5}}}
+        actual = dict_lookup(d, *['a', 'b', 'c'])
+        self.assertEqual(actual, 5)
