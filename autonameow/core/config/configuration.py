@@ -410,7 +410,7 @@ def is_valid_source(source_value):
 def parse_conditions(raw_conditions):
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
-    out = []
+    passed = []
     try:
         for query_string, expression in raw_conditions.items():
             valid_condition = rules.get_valid_rule_condition(query_string,
@@ -420,7 +420,7 @@ def parse_conditions(raw_conditions):
                     'contains invalid condition [{}]: {}'.format(query_string,
                                                                  expression)
                 )
-            out.append(valid_condition)
+            passed.append(valid_condition)
             log.debug('Validated condition: "{!s}"'.format(valid_condition))
     except ValueError as e:
         raise exceptions.ConfigurationSyntaxError(
@@ -428,9 +428,9 @@ def parse_conditions(raw_conditions):
         )
 
     log.debug(
-        'Returning {} (out of {}) valid conditions'.format(len(out),
+        'Returning {} (out of {}) valid conditions'.format(len(passed),
                                                            len(raw_conditions))
     )
-    return out
+    return passed
 
 
