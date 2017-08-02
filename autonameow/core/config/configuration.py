@@ -167,6 +167,13 @@ class Configuration(object):
                 Note that the message will be used in the following sentence:
                 "ERROR -- File Rule "x" {message}"
         """
+        # Get a description for referring to the rule in any log messages.
+        valid_description = raw_rule.get('description', False)
+        if not valid_description:
+            valid_description = 'UNDESCRIBED'
+
+        log.debug('Validating file rule "{!s}" ..'.format(valid_description))
+
         if 'NAME_FORMAT' not in raw_rule:
             log.debug('File rule contains no name format data' + str(raw_rule))
             raise exceptions.ConfigurationSyntaxError(
@@ -195,9 +202,6 @@ class Configuration(object):
         valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
         valid_weight = parse_weight(raw_rule.get('weight'))
         valid_exact_match = bool(raw_rule.get('exact_match'))
-        valid_description = raw_rule.get('description', False)
-        if not valid_description:
-            valid_description = 'UNDESCRIBED'
 
         file_rule = rules.FileRule(description=valid_description,
                                    exact_match=valid_exact_match,
@@ -205,6 +209,7 @@ class Configuration(object):
                                    name_template=valid_format,
                                    conditions=valid_conditions,
                                    data_sources=valid_sources)
+        log.debug('Validated file rule "{!s}" .. OK!'.format(valid_description))
         return file_rule
 
     def _load_options(self):
