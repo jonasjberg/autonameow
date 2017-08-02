@@ -156,7 +156,7 @@ class Configuration(object):
         instance of the 'FileRule' class, representing the "raw" file rule.
 
         Args:
-            raw_rule: A single file rule entry from a confiugration.
+            raw_rule: A single file rule entry from a configuration.
 
         Returns:
             An instance of the 'FileRule' class representing the given rule.
