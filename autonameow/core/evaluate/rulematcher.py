@@ -52,7 +52,7 @@ class RuleMatcher(object):
             if data:
                 return data
 
-        log.warning('Got no data for query: "{!s}"'.format(query_string))
+        log.warning('No data available for query: "{!s}"'.format(query_string))
         return False
 
     def start(self):
