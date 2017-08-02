@@ -375,8 +375,9 @@ class TestNestedDictGet(TestCase):
             self.assertEqual(actual, expected)
 
     def test_missing_keys_raises_key_error(self):
+        d = {'a': {'b': {'c': 5}}}
+
         def _assert_raises(key_list):
-            d = {'a': {'b': {'c': 5}}}
             with self.assertRaises(KeyError):
                 nested_dict_get(d, key_list)
 
@@ -388,8 +389,9 @@ class TestNestedDictGet(TestCase):
         _assert_raises(['a', 'b', 'c', 'q'])
 
     def test_passing_no_keys_raises_type_error(self):
+        d = {'a': {'b': {'c': 5}}}
+
         def _assert_raises(key_list):
-            d = {'a': {'b': {'c': 5}}}
             with self.assertRaises(TypeError):
                 nested_dict_get(d, key_list)
 
@@ -432,8 +434,9 @@ class TestNestedDictSet(TestCase):
             nested_dict_set(actual, ['a', 'b'], 5)
 
     def test_passing_no_keys_raises_type_error(self):
+        d = {'a': 1}
+
         def _assert_raises(key_list):
-            d = {'a': 1}
             with self.assertRaises(TypeError):
                 nested_dict_set(d, key_list, 2)
 
@@ -441,8 +444,9 @@ class TestNestedDictSet(TestCase):
         _assert_raises(None)
 
     def test_passing_empty_list_raises_value_error(self):
+        d = {'a': 1}
+
         def _assert_raises(key_list):
-            d = {'a': 1}
             with self.assertRaises(ValueError):
                 nested_dict_set(d, key_list, 2)
 
