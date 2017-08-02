@@ -399,6 +399,7 @@ def is_valid_source(source_value):
 
     # TODO: [TD0009] Implement proper plugin interface
     valid_sources.add('plugin.microsoft_vision.caption')
+    assert(isinstance(valid_sources, set))
 
     if source_value.startswith(tuple(valid_sources)):
         return source_value
