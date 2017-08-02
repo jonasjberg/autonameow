@@ -79,8 +79,30 @@ RESULTS_DATA_STRUCTURE = {
         }
     },
     'metadata': {
-        'exiftool': None,
-        'pypdf': None,
+        'exiftool': {
+            'EXIF:DateTimeOriginal': None,
+            'PDF:Author': None,
+            'PDF:CreateDate': None,
+            'PDF:Creator': None,
+            'PDF:EBX_PUBLISHER': None,
+            'PDF:Producer': None,
+            'PDF:Subject': None,
+            'PDF:Title': None,
+            'XMP:Creator': None,
+            'XMP:EbxPublisher': None,
+            'XMP:Title': None,
+            'XMP-dc:Creator': None,
+            'XMP-dc:EbxPublisher': None,
+            'XMP-dc:Title': None,
+        },
+        'pypdf': {
+            'Author': None,
+            'Creator': None,
+            'Producer': None,
+            'Subject': None,
+            'Title': None,
+            'EBX_PUBLISHER': None,
+        }
     },
     'plugin': {
         'microsoft_vision': None,
