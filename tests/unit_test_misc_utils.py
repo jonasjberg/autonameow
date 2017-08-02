@@ -28,9 +28,54 @@ from core.util.misc import (
     unique_identifier,
     multiset_count,
     query_string_list,
-    flatten_dict
-    dict_lookup
+    flatten_dict,
+    expand_query_string_dict,
+    dict_lookup,
+    nested_dict_get
 )
+
+
+DUMMY_RESULTS_DICT = {
+    'filesystem': {
+        'basename': {
+            'full': 'a',
+            'extension': 'b'
+        },
+        'pathname': {
+            'full': 'c',
+        }
+    },
+    'contents': {
+        'mime_type': 'd',
+        'textual': {
+            'raw_text': 'e',
+            'number_pages': 'f',
+        },
+        'visual': {
+            'ocr_text': 'g',
+            'ocr_tags': 'h'},
+        'binary': {
+            'boolean_true': True,
+            'boolean_false': False
+        }
+    },
+    'metadata': {
+        'exiftool': {}
+    }
+}
+
+DUMMY_FLATTENED_RESULTS_DICT = {
+    'filesystem.basename.full': 'a',
+    'filesystem.basename.extension': 'b',
+    'filesystem.pathname.full': 'c',
+    'contents.mime_type': 'd',
+    'contents.textual.raw_text': 'e',
+    'contents.textual.number_pages': 'f',
+    'contents.visual.ocr_text': 'g',
+    'contents.visual.ocr_tags': 'h',
+    'contents.binary.boolean_true': True,
+    'contents.binary.boolean_false': False,
+}
 
 
 class TestUniqueIdentifier(TestCase):
@@ -141,47 +186,8 @@ class TestQueryStringList(TestCase):
 class TestFlattenDict(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.INPUT = {
-            'filesystem': {
-                'basename': {
-                    'full': 'a',
-                    'extension': 'b'
-                },
-                'pathname': {
-                    'full': 'c',
-                }
-            },
-            'contents': {
-                'mime_type': 'd',
-                'textual': {
-                    'raw_text': 'e',
-                    'number_pages': 'f',
-                },
-                'visual': {
-                    'ocr_text': 'g',
-                    'ocr_tags': 'h'
-                },
-                'binary': {
-                    'boolean_true': True,
-                    'boolean_false': False
-                }
-            },
-            'metadata': {
-                'exiftool': {}
-            }
-        }
-        self.EXPECTED = {
-            'filesystem.basename.full': 'a',
-            'filesystem.basename.extension': 'b',
-            'filesystem.pathname.full': 'c',
-            'contents.mime_type': 'd',
-            'contents.textual.raw_text': 'e',
-            'contents.textual.number_pages': 'f',
-            'contents.visual.ocr_text': 'g',
-            'contents.visual.ocr_tags': 'h',
-            'contents.binary.boolean_true': True,
-            'contents.binary.boolean_false': False,
-        }
+        self.INPUT = DUMMY_RESULTS_DICT
+        self.EXPECTED = DUMMY_FLATTENED_RESULTS_DICT
 
     def test_raises_type_error_for_invalid_input(self):
         with self.assertRaises(TypeError):
@@ -331,3 +337,52 @@ class TestDictLookup(TestCase):
         d = {'a': {'b': {'c': 5}}}
         actual = dict_lookup(d, *['a', 'b', 'c'])
         self.assertEqual(actual, 5)
+
+
+class TestNestedDictGet(TestCase):
+    def test_nested_dict_get_is_defined(self):
+        self.assertIsNotNone(nested_dict_get)
+
+    def test_get_nested_value_returns_expected(self):
+        key_list = ['contents', 'mime_type']
+        actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)
+        self.assertEqual(actual, 'd')
+
+    def test_get_nested_values_returns_expected(self):
+        keys_expected = [(['contents', 'mime_type'], 'd'),
+                         (['filesystem', 'basename', 'full'], 'a'),
+                         (['filesystem', 'basename', 'extension'], 'b'),
+                         (['filesystem', 'pathname', 'full'], 'c'),
+                         (['contents', 'mime_type'], 'd'),
+                         (['contents', 'textual', 'raw_text'], 'e'),
+                         (['contents', 'textual', 'number_pages'], 'f'),
+                         (['contents', 'visual', 'ocr_text'], 'g'),
+                         (['contents', 'visual', 'ocr_tags'], 'h'),
+                         (['contents', 'binary', 'boolean_true'], True),
+                         (['contents', 'binary', 'boolean_false'], False)]
+
+        for key_list, expected in keys_expected:
+            actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)
+            self.assertEqual(actual, expected)
+
+    def test_missing_keys_raises_key_error(self):
+        def _assert_raises(key_list):
+            d = {'a': {'b': {'c': 5}}}
+            with self.assertRaises(KeyError):
+                nested_dict_get(d, key_list)
+
+        _assert_raises([None])
+        _assert_raises([''])
+        _assert_raises(['q'])
+        _assert_raises(['a', 'q'])
+        _assert_raises(['a', 'b', 'q'])
+        _assert_raises(['a', 'b', 'c', 'q'])
+
+    def test_passing_no_keys_raises_type_error(self):
+        def _assert_raises(key_list):
+            d = {'a': {'b': {'c': 5}}}
+            with self.assertRaises(TypeError):
+                nested_dict_get(d, key_list)
+
+        _assert_raises('')
+        _assert_raises(None)

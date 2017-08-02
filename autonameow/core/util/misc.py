@@ -273,3 +273,15 @@ def dict_lookup(dictionary, key, *list_of_keys):
         return dict_lookup(dictionary.get(key, {}), *list_of_keys)
 
     return dictionary.get(key)
+
+
+def nested_dict_get(dictionary, list_of_keys):
+    if not list_of_keys or not isinstance(list_of_keys, list):
+        raise TypeError('Expected "list_of_keys" to be a list of strings')
+
+    for k in list_of_keys:
+        try:
+            dictionary = dictionary[k]
+        except TypeError:
+            raise KeyError('Thing is not subscriptable (traversed too deep?)')
+    return dictionary
