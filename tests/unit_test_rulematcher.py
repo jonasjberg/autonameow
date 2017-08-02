@@ -135,32 +135,20 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
         extraction_data = get_dummy_extraction_results()
         self.rm = RuleMatcher(analysis_data, extraction_data, dummy_config)
 
-    def test_query_data_returns_none(self):
-        # TODO: Fix this! Raise some kind of "DataNotFound" exception.
-        self.assertIsNone(
+    def test_querying_unavailable_data_returns_false(self):
+        self.assertFalse(
             self.rm.query_data('analysis.filename_analyzer.tags')
         )
 
-    def test_querying_unavailable_data_returns_expected_type(self):
-        # TODO: Fix this!
+    def test_querying_available_data_returns_expected_type(self):
         self.assertTrue(
-            isinstance(self.rm.query_data('analysis.filename_analyzer.tags'),
-                       list)
+            isinstance(self.rm.query_data('contents.mime_type'),
+                       str)
         )
 
-    def test_querying_unavailable_data_returns_expected(self):
-        # TODO: Fix this!
-        actual_result = self.rm.query_data('analysis.filename_analyzer.tags')
-        actual_tags = actual_result[0].get('value', [])
-        expected_tags = ['tagfoo', 'tagbar']
-        self.assertEqual(expected_tags, actual_tags)
-
-        self.assertEqual(self.rm.query_data('contents.mime_type'),
-                         'application/pdf')
-
-    def test_querying_missing_data_does_something(self):
-        # TODO: Fix this!
-        self.assertEqual(None, None)
+    def test_querying_available_data_returns_expected(self):
+        actual = self.rm.query_data('contents.mime_type')
+        self.assertEqual(actual, 'application/pdf')
 
 
 class DummyFileRule(object):
