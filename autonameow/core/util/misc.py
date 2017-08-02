@@ -276,6 +276,24 @@ def dict_lookup(dictionary, key, *list_of_keys):
 
 
 def nested_dict_get(dictionary, list_of_keys):
+    """
+    Retrieves a value from a given nested dictionary structure.
+
+    The structure is traversed by accessing each key in the given list of keys
+    in order.
+
+    Based on this post:  https://stackoverflow.com/a/37704379/7802196
+
+    Args:
+        dictionary: The dictionary structure to traverse.
+        list_of_keys: List of keys to use during the traversal.
+
+    Returns:
+        The value in the nested structure, if successful.
+
+    Raises:
+        KeyError: Failed to retrieve any value with the given list of keys.
+    """
     if not list_of_keys or not isinstance(list_of_keys, list):
         raise TypeError('Expected "list_of_keys" to be a list of strings')
 
@@ -285,3 +303,35 @@ def nested_dict_get(dictionary, list_of_keys):
         except TypeError:
             raise KeyError('Thing is not subscriptable (traversed too deep?)')
     return dictionary
+
+
+def nested_dict_set(dictionary, list_of_keys, value):
+    """
+    Sets a value in a nested dictionary structure.
+
+    The structure is traversed using the given list of keys and the destination
+    dictionary is set to the given value, unless the traversal fails by
+    attempting to overwrite an already existing value with a new dictionary
+    entry.
+
+    Note that the dictionary is modified IN PLACE.
+
+    Based on this post:  https://stackoverflow.com/a/37704379/7802196
+
+    Args:
+        dictionary: The dictionary from which to retrieve a value.
+        list_of_keys: List of keys to the value to set.
+        value: The new value that will be set.
+    """
+    if not list_of_keys or not isinstance(list_of_keys, list):
+        raise TypeError('Expected "list_of_keys" to be a list of strings')
+    elif all(not k for k in list_of_keys):
+        raise ValueError('Expected "list_of_keys" not to be all None/empty')
+
+    for key in list_of_keys[:-1]:
+        dictionary = dictionary.setdefault(key, {})
+
+    try:
+        dictionary[list_of_keys[-1]] = value
+    except TypeError:
+        raise KeyError('Caught TypeError (would have clobbered existing value)')

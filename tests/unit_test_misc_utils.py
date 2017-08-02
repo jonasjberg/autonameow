@@ -31,7 +31,8 @@ from core.util.misc import (
     flatten_dict,
     expand_query_string_dict,
     dict_lookup,
-    nested_dict_get
+    nested_dict_get,
+    nested_dict_set
 )
 
 
@@ -386,3 +387,56 @@ class TestNestedDictGet(TestCase):
 
         _assert_raises('')
         _assert_raises(None)
+
+
+class TestNestedDictSet(TestCase):
+    def test_nested_dict_set_is_defined(self):
+        self.assertIsNotNone(nested_dict_set)
+
+    def test_set_single_value_in_empty_dictionary(self):
+        d = {}
+        nested_dict_set(d, ['a'], 2)
+        expected = {'a': 2}
+        self.assertEqual(d, expected)
+
+    def test_set_single_value_modifies_dictionary_in_place(self):
+        actual = {'a': 1}
+        nested_dict_set(actual, ['a'], 2)
+        expected = {'a': 2}
+        self.assertEqual(actual, expected)
+
+    def test_set_nested_value_modifies_dictionary_in_place(self):
+        actual = {'a': 1}
+        nested_dict_set(actual, ['b', 'c'], 4)
+        expected = {'a': 1, 'b': {'c': 4}}
+        self.assertEqual(actual, expected)
+
+    def test_set_nested_values_modifies_dictionary_in_place(self):
+        actual = {'a': 1}
+        nested_dict_set(actual, ['b', 'c'], 4)
+        nested_dict_set(actual, ['b', 'd'], 5)
+        expected = {'a': 1, 'b': {'c': 4, 'd': 5}}
+        self.assertEqual(actual, expected)
+
+    def test_attempting_to_set_occupied_value_raises_key_error(self):
+        actual = {'a': 1}
+        with self.assertRaises(KeyError):
+            nested_dict_set(actual, ['a', 'b'], 5)
+
+    def test_passing_no_keys_raises_type_error(self):
+        def _assert_raises(key_list):
+            d = {'a': 1}
+            with self.assertRaises(TypeError):
+                nested_dict_set(d, key_list, 2)
+
+        _assert_raises('')
+        _assert_raises(None)
+
+    def test_passing_empty_list_raises_value_error(self):
+        def _assert_raises(key_list):
+            d = {'a': 1}
+            with self.assertRaises(ValueError):
+                nested_dict_set(d, key_list, 2)
+
+        _assert_raises([''])
+        _assert_raises([None])
