@@ -152,7 +152,7 @@ class RuleCondition(object):
 
         # NOTE(jonas): For unhandled cases like
         # 'metadata.exiftool.EXIF:DateTimeOriginal, 'self._parser' is None
-        # and below methid call will fail.
+        # and below method call will fail.
         if not self._parser:
             log.critical('Unimplemented condition evaluation -- query_string: '
                          '"{!s}" expression: "{!s}"'.format(self.query_string,
