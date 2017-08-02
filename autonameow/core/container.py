@@ -49,6 +49,7 @@ class DataContainerBase(object):
         out = {}
 
         for key, value in self._data.items():
+            # TODO: [TD0066] Handle all encoding properly.
             if isinstance(value, bytes):
                 out[key] = util.displayable_path(value)
             else:
