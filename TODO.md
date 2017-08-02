@@ -215,6 +215,8 @@ Low Priority
         * Extract plain text and metadata from Word documents.
     * `[TD0028]` __E-books epub/mobi__
         * Extract metadata fields. Look into using `calibre`.
+    * `[TD0064]` __E-books DjVu__
+        * Extract plain text with `djvutxt`
 
 * `[TD0029]` Add support for extracting MacOS Spotlight metadata (`mdls`)
 
