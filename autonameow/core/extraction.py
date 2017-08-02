@@ -201,7 +201,7 @@ class ExtractedData(DataContainerBase):
         """
         if query_string is not None:
             if query_string not in constants.VALID_DATA_SOURCES:
-                log.critical('ExtractedData.get() got bad query_string:'
+                log.critical('ExtractedData.get() got "invalid" query_string:'
                              ' "{}"'.format(query_string))
             return self._data.get(query_string, False)
         else:
