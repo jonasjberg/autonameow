@@ -14,6 +14,11 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
+  When listing results with any of the `--list-*` options, paths are not
+  displayed properly due to them not being handled properly before being passed
+  to `yaml.dump` which performs the formatting of the results dict.
+
 * `[TD0063]` Fix crash when a data source is mapped but data itself is missing.
 
 * `[TD0004]` __Text encoding issues__

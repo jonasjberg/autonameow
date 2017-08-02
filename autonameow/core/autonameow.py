@@ -256,6 +256,7 @@ class Autonameow(object):
             if self.opts.list_all:
                 log.info('Listing ALL analysis results ..')
                 cli.msg('Analysis Results Data', style='heading', log=True)
+                # TODO: [TD0066] Handle path encoding properly before dumping.
                 cli.msg(util.dump(analysis.results.get()))
 
                 cli.msg('Extraction Results Data', style='heading', log=True)

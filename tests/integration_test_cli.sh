@@ -176,6 +176,9 @@ assert_true '( "$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_P
 assert_true '( "$AUTONAMEOW_RUNNER" --list-title -- "$SAMPLE_PDF_FILE" 2>&1 ) >/dev/null' \
             "Expect exit code 0 when started with \"--list-title\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
+assert_false '( "$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>/dev/null | col -b | grep -q -- " !!binary " 2>&1 ) >/dev/null' \
+             "Output should not contain \" !!binary \" when running with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
+
 
 TEST_FILES_SUBDIR="$( ( cd "$SELF_DIR" && realpath -e "../test_files/subdir" ) )"
 assert_true '[ -d "$TEST_FILES_SUBDIR" ]' \
