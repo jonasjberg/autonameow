@@ -256,17 +256,18 @@ class Autonameow(object):
             if self.opts.list_all:
                 log.info('Listing ALL analysis results ..')
                 cli.msg('Analysis Results Data', style='heading', log=True)
-                # TODO: [TD0066] Handle path encoding properly before dumping.
-                cli.msg(util.dump(analysis.results.get()))
+                cli.msg(str(analysis.results))
 
                 cli.msg('Extraction Results Data', style='heading', log=True)
-                cli.msg(util.dump(extraction.data.get()))
+                cli.msg(str(extraction.data))
             else:
                 if self.opts.list_datetime:
                     log.info('Listing "datetime" analysis results ..')
+                    # TODO: [TD0066] Handle all encoding properly.
                     cli.msg(util.dump(analysis.results.get('datetime')))
                 if self.opts.list_title:
                     log.info('Listing "title" analysis results ..')
+                    # TODO: [TD0066] Handle all encoding properly.
                     cli.msg(util.dump(analysis.results.get('title')))
 
             # Perform actions.

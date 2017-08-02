@@ -29,7 +29,7 @@ from core.util.misc import (
     multiset_count,
     query_string_list,
     flatten_dict,
-    expand_query_string_dict,
+    expand_query_string_data_dict,
     dict_lookup,
     nested_dict_get,
     nested_dict_set
@@ -60,9 +60,6 @@ DUMMY_RESULTS_DICT = {
             'boolean_false': False
         }
     },
-    'metadata': {
-        'exiftool': {}
-    }
 }
 
 DUMMY_FLATTENED_RESULTS_DICT = {
@@ -305,6 +302,51 @@ class TestCountDictRecursive(TestCase):
         _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['']}, 4)
         _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g']}, 5)
         _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g', 'h']}, 6)
+
+
+class TestExpandQueryStringDataDict(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.EXPECTED = DUMMY_RESULTS_DICT
+        self.INPUT = DUMMY_FLATTENED_RESULTS_DICT
+
+    def test_raises_type_error_for_invalid_input(self):
+        with self.assertRaises(TypeError):
+            expand_query_string_data_dict(None)
+            expand_query_string_data_dict([])
+            expand_query_string_data_dict('')
+
+    def test_returns_expected_type(self):
+        actual = expand_query_string_data_dict(self.INPUT)
+
+        self.assertTrue(isinstance(actual, dict))
+
+    def test_returns_expected_len(self):
+        actual = len(expand_query_string_data_dict(self.INPUT))
+        expected = len(self.EXPECTED)
+
+        self.assertEqual(actual, expected)
+
+    def test_expanded_dict_contains_all_expected(self):
+        actual = expand_query_string_data_dict(self.INPUT)
+        self.assertDictEqual(actual, self.EXPECTED)
+
+    def test_expanded_dict_contain_expected_first_level(self):
+        actual = expand_query_string_data_dict(self.INPUT)
+        self.assertIn('filesystem', actual)
+        self.assertIn('contents', actual)
+
+    def test_expanded_dict_contain_expected_second_level(self):
+        actual = expand_query_string_data_dict(self.INPUT)
+        actual_filesystem = actual.get('filesystem')
+        actual_contents = actual.get('contents')
+
+        self.assertIn('basename', actual_filesystem)
+        self.assertIn('pathname', actual_filesystem)
+        self.assertIn('mime_type', actual_contents)
+        self.assertIn('textual', actual_contents)
+        self.assertIn('visual', actual_contents)
+        self.assertIn('binary', actual_contents)
 
 
 class TestDictLookup(TestCase):

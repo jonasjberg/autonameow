@@ -254,6 +254,31 @@ def count_dict_recursive(dictionary, count=0):
     return count
 
 
+def expand_query_string_data_dict(query_string_dict):
+    """
+    Performs the reverse operation of that of 'flatten_dict'.
+
+    A dictionary with "query strings" as keys storing data in each value is
+    expanded by splitting the query strings by periods and creating a
+    nested ditionary.
+
+    Args:
+        query_string_dict: Dictionary keyed by "query strings".
+
+    Returns:
+        An "expanded" or "unflattened" version of the given dictionary.
+    """
+    if not query_string_dict or not isinstance(query_string_dict, dict):
+        raise TypeError
+
+    out = {}
+    for key, value in query_string_dict.items():
+        key_parts = key.split('.')
+        nested_dict_set(out, key_parts, value)
+
+    return out
+
+
 def dict_lookup(dictionary, key, *list_of_keys):
     """
     Gets a value from the given dictionary by either a single key or a list

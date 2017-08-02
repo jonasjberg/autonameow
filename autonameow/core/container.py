@@ -44,3 +44,15 @@ class DataContainerBase(object):
 
     def __len__(self):
         return util.count_dict_recursive(self._data)
+
+    def __str__(self):
+        out = {}
+
+        for key, value in self._data.items():
+            if isinstance(value, bytes):
+                out[key] = util.displayable_path(value)
+            else:
+                out[key] = value
+
+        expanded = util.expand_query_string_data_dict(out)
+        return util.dump(expanded)
