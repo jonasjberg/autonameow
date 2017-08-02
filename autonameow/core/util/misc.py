@@ -260,7 +260,7 @@ def expand_query_string_data_dict(query_string_dict):
 
     A dictionary with "query strings" as keys storing data in each value is
     expanded by splitting the query strings by periods and creating a
-    nested ditionary.
+    nested dictionary.
 
     Args:
         query_string_dict: Dictionary keyed by "query strings".
