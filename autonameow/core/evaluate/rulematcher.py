@@ -168,7 +168,7 @@ def evaluate_rule(file_rule, data_query_function):
 
 
 def eval_condition(condition, data_query_function):
-    # This condition provides a valid query string.
+    # The condition must provide a valid query string.
     query_string = condition.query_string
 
     # Fetch data at "query_string" using the provided "data_query_function".
