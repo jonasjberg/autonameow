@@ -141,17 +141,13 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
             self.rm.query_data('analysis.filename_analyzer.tags')
         )
 
-    def test_querying_available_data_returns_expected_type(self):
+    def test_querying_unavailable_data_returns_expected_type(self):
         self.assertTrue(
             isinstance(self.rm.query_data('analysis.filename_analyzer.tags'),
                        list)
         )
-        self.assertTrue(
-            isinstance(self.rm.query_data('contents.mime_type'),
-                       str)
-        )
 
-    def test_querying_available_data_returns_expected(self):
+    def test_querying_unavailable_data_returns_expected(self):
         # TODO: Fix this!
         actual_result = self.rm.query_data('analysis.filename_analyzer.tags')
         actual_tags = actual_result[0].get('value', [])
