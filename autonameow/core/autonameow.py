@@ -344,8 +344,6 @@ class Autonameow(object):
 
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = util.bytestring_path(dest_basename)
-
-        from_basename = diskutils.file_basename(from_path)
         log.debug('Sanitized basename: "{!s}"'.format(
             util.displayable_path(dest_basename))
         )
@@ -360,6 +358,7 @@ class Autonameow(object):
                 success = False
 
         if success:
+            from_basename = diskutils.file_basename(from_path)
             cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
         return success
 
