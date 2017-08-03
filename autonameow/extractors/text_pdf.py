@@ -29,7 +29,7 @@ from PyPDF2.utils import (
 )
 
 from core import util
-from extractors.textual import AbstractTextExtractor
+from extractors.text import AbstractTextExtractor
 
 
 class PdfTextExtractor(AbstractTextExtractor):

@@ -21,7 +21,7 @@
 
 from unittest import TestCase
 
-from extractors.textual import (
+from extractors.text import (
     AbstractTextExtractor
 )
 

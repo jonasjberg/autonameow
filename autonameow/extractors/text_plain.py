@@ -22,7 +22,7 @@
 import logging as log
 
 from core.exceptions import ExtractorError
-from extractors.textual import AbstractTextExtractor
+from extractors.text import AbstractTextExtractor
 
 
 class PlainTextExtractor(AbstractTextExtractor):

@@ -25,7 +25,7 @@ from unittest import TestCase
 import unit_utils as uu
 import extractors
 from extractors.metadata import AbstractMetadataExtractor
-from extractors.textual import AbstractTextExtractor
+from extractors.text import AbstractTextExtractor
 
 
 class TestExtractorsConstants(TestCase):
@@ -99,13 +99,13 @@ class TestFindExtractorSourceFiles(TestCase):
         actual = extractors.find_extractor_files()
 
         # TODO: [hardcoded] Likely to break; requires manual updates.
-        self.assertIn('textual.py', actual)
+        self.assertIn('text.py', actual)
         self.assertIn('metadata.py', actual)
 
 
 class TestGetAllExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['textual.py', 'metadata.py']
+        self.sources = ['text.py', 'metadata.py']
 
     def test_get_extractor_classes_returns_expected_type(self):
         actual = extractors._get_all_extractor_classes(self.sources)
@@ -133,7 +133,7 @@ class TestGetAllExtractorClasses(TestCase):
 
 class TestGetImplementedExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['textual.py', 'metadata.py']
+        self.sources = ['text.py', 'metadata.py']
         self.actual = extractors.get_extractor_classes(self.sources)
 
     def test_get_extractor_classes_returns_expected_type(self):

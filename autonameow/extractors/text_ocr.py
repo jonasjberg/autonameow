@@ -26,7 +26,7 @@ import pytesseract
 
 from core import util
 from core.exceptions import ExtractorError
-from extractors.textual import AbstractTextExtractor
+from extractors.text import AbstractTextExtractor
 
 
 class ImageOCRTextExtractor(AbstractTextExtractor):
