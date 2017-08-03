@@ -262,7 +262,7 @@ def read_entire_text_file(file_path):
         with open(file_path, 'r', encoding='utf8') as fh:
             contents = fh.read().split('\n')
     except FileNotFoundError as e:
-        log.debug('!s'.format(e))
+        log.debug('{!s}'.format(e))
         return None
 
     if contents:
