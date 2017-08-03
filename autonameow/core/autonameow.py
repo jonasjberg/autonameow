@@ -289,17 +289,17 @@ class Autonameow(object):
                     log.critical('Name assembly FAILED: {!s}'.format(e))
                     self.exit_code = constants.EXIT_WARNING
                     continue
+
+                # TODO: [TD0042] Respect '--quiet' option. Suppress output.
+                log.info('New name: "{}"'.format(
+                    util.displayable_path(new_name))
+                )
+                renamed_ok = self.do_rename(current_file.abspath, new_name,
+                                            dry_run=self.opts.dry_run)
+                if renamed_ok:
+                    self.exit_code = constants.EXIT_SUCCESS
                 else:
-                    # TODO: [TD0042] Respect '--quiet' option. Suppress output.
-                    log.info('New name: "{}"'.format(
-                        util.displayable_path(new_name))
-                    )
-                    renamed_ok = self.do_rename(current_file.abspath, new_name,
-                                                dry_run=self.opts.dry_run)
-                    if renamed_ok:
-                        self.exit_code = constants.EXIT_SUCCESS
-                    else:
-                        self.exit_code = constants.EXIT_WARNING
+                    self.exit_code = constants.EXIT_WARNING
 
             elif self.opts.interactive:
                 # TODO: Create a interactive interface.
