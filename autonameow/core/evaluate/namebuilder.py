@@ -141,18 +141,17 @@ class NameBuilder(object):
         # 'assemble_basename'.
 
         # Construct the new file name
-        result = assemble_basename(template, **data)
-        log.debug('Assembled basename: "{}"'.format(
-            util.displayable_path(result))
-        )
+        new_name = assemble_basename(template, **data)
+        log.debug('Assembled basename: "{!s}"'.format(new_name))
+        assert(isinstance(new_name, str))
 
-        if not result:
+        if not new_name:
             log.debug('Unable to assemble basename with template "{!s}" and '
                       'data: {!s}'.format(template, data))
             raise exceptions.NameBuilderError('Unable to assemble basename')
 
-        self._new_name = result
-        return result
+        self._new_name = new_name
+        return new_name
 
 
 def assemble_basename(name_template, **kwargs):
