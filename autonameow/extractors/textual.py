@@ -47,7 +47,7 @@ class AbstractTextExtractor(BaseExtractor):
         if not self._raw_text:
             try:
                 log.debug('{!s} received initial query ..'.format(self))
-                self._raw_text = self._get_raw_text()
+                self._perform_initial_extraction()
             except ExtractorError as e:
                 log.error('{!s} query FAILED; Error: {!s}'.format(self, e))
                 return False
@@ -64,6 +64,9 @@ class AbstractTextExtractor(BaseExtractor):
             log.debug('{!s} ignoring query for field (returning all fields):'
                       ' "{!s}"'.format(self, field))
             return self._raw_text
+
+    def _perform_initial_extraction(self):
+        self._raw_text = self._get_raw_text()
 
     def _get_raw_text(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')

@@ -83,6 +83,10 @@ class TestAbstractTextExtractor(TestCase):
         with self.assertRaises(NotImplementedError):
             self.e._get_raw_text()
 
+    def test__perform_initial_extraction_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            self.e._perform_initial_extraction()
+
 
 pdf_file = uu.abspath_testfile('simplest_pdf.md.pdf')
 expected_text = '''Probably a title

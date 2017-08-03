@@ -63,7 +63,7 @@ class AbstractMetadataExtractor(BaseExtractor):
         if not self.metadata:
             try:
                 log.debug('{!s} received initial query ..'.format(self))
-                self._raw_metadata = self._get_raw_metadata()
+                self._perform_initial_extraction()
             except ExtractorError as e:
                 log.error('{!s} query FAILED: {!s}'.format(self, e))
                 return False
@@ -82,6 +82,9 @@ class AbstractMetadataExtractor(BaseExtractor):
             log.debug('{!s} responding to query for field: '
                       '"{!s}"'.format(self, field))
             return self.metadata.get(field, False)
+
+    def _perform_initial_extraction(self):
+        self._raw_metadata = self._get_raw_metadata()
 
     def _to_internal_format(self, raw_metadata):
         out = {}
