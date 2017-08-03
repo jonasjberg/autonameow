@@ -329,3 +329,26 @@ def get_files_gen(search_path, recurse=False):
             elif recurse and os.path.isdir(entry_path):
                 for f in get_files_gen(entry_path, recurse=recurse):
                     yield f
+
+
+def compare_basenames(basename_one, basename_two):
+    """
+    Compares to file basenames in the "internal byte string" format.
+
+    Args:
+        basename_one: The first basename to compare.
+        basename_two: The second basename to compare.
+
+    Returns:
+        True if the basenames are equal, otherwise False.
+    """
+    if not basename_one or not basename_two:
+        raise ValueError('Expected two non-empty arguments')
+    if (not isinstance(basename_one, bytes) or
+            not isinstance(basename_two, bytes)):
+        raise TypeError('Expected arguments to be "internal" byte strings')
+
+    if basename_one == basename_two:
+        return True
+    else:
+        return False
