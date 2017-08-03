@@ -223,6 +223,7 @@ def get_text_from_ocr(image_path, tesseract_args=None):
         log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
             tesseract_args, util.displayable_path(image_path)
         ))
+        # TODO: [TD0068] Let the user configure which languages to use with OCR.
         text = pytesseract.image_to_string(image, lang='swe+eng',
                                            config=tesseract_args)
     except pytesseract.pytesseract.TesseractError as e:
