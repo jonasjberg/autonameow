@@ -22,10 +22,8 @@
 from unittest import TestCase
 import unit_utils as uu
 
-from core import util
 from extractors.textual import (
-    AbstractTextExtractor,
-    PdfTextExtractor
+    AbstractTextExtractor
 )
 
 
@@ -48,19 +46,3 @@ class TestTextExtractor(TestCase):
         self.assertFalse(self.e.query(field='some_field'))
 
 
-class TestPdfTextExtractor(TestCase):
-    def setUp(self):
-        test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
-        self.e = PdfTextExtractor(test_file)
-
-    def test_pdf_text_extractor_class_is_available(self):
-        self.assertIsNotNone(PdfTextExtractor)
-
-    def test_pdf_text_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test__get_raw_text_returns_something(self):
-        self.assertIsNotNone(self.e._get_raw_text())
-
-    def test__get_raw_text_returns_expected_type(self):
-        self.assertEqual(type(self.e._get_raw_text()), str)
