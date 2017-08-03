@@ -159,12 +159,11 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         self._raw_metadata = None
 
     def _get_raw_metadata(self):
-        try:
-            result = self._get_exiftool_data()
-        except Exception as e:
-            raise ExtractorError(e)
-        else:
+        result = self._get_exiftool_data()
+        if result:
             return result
+        else:
+            return {}
 
     def _get_exiftool_data(self):
         """
@@ -172,11 +171,11 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             Exiftool results as a dictionary of strings/ints/floats.
         """
         with wrap_exiftool.ExifTool() as et:
-            # Raises ValueError if an ExifTool instance isn't running.
             try:
                 return et.get_metadata(self.source)
-            except (AttributeError, ValueError, TypeError):
-                raise
+            except (AttributeError, ValueError, TypeError) as e:
+                # Raises ValueError if an ExifTool instance isn't running.
+                raise ExtractorError(e)
 
 
 class PyPDFMetadataExtractor(AbstractMetadataExtractor):
