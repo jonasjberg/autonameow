@@ -215,8 +215,8 @@ class TestEvaluateRuleConditions(TestCase):
     def setUp(self):
         self.rules_to_examine = uu.get_dummy_rules_to_examine()
 
-        # TODO: FIX THIS!
-        self.dummy_query_function = lambda *_: True
+        # NOTE: Simulates no data available, no rules should pass evaluation.
+        self.dummy_query_function = lambda *_: False
 
     def test_evaluate_rule_conditions_is_defined(self):
         self.assertIsNotNone(evaluate_rule_conditions)
@@ -225,3 +225,8 @@ class TestEvaluateRuleConditions(TestCase):
         actual = evaluate_rule_conditions(self.rules_to_examine,
                                           self.dummy_query_function)
         self.assertTrue(isinstance(actual, list))
+
+    def test_no_valid_rules_pass_with_dummy_query_function(self):
+        actual = evaluate_rule_conditions(self.rules_to_examine,
+                                          self.dummy_query_function)
+        self.assertEqual(len(actual), 0)
