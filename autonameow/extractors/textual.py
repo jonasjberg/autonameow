@@ -207,7 +207,7 @@ def get_text_from_ocr(image_path, tesseract_args=None):
         tesseract_args: Optional tesseract arguments as Unicode strings.
 
     Returns:
-        Any OCR results text as Unicode strings.
+        Any OCR results text or empty as Unicode strings.
 
     Raises:
         ExtractorError: The extraction failed.
