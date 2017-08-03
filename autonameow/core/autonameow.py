@@ -329,13 +329,16 @@ class Autonameow(object):
         """
         Renames a file at the given path to the specified basename.
 
+        If the basenames of the file at "from_path" and "new_basename" are
+        equal, the renaming operation is skipped and True is returned.
+
         Args:
             from_path: Path to the file to rename as an "internal" byte string.
             new_basename: The new basename for the file as a Unicode string.
             dry_run: Controls whether the renaming is actually performed.
 
         Returns:
-            True if the rename succeeded, otherwise False.
+            True if the rename succeeded or would be a NO-OP, otherwise False.
         """
         assert(isinstance(from_path, bytes))
         assert(isinstance(new_basename, str))
@@ -348,19 +351,25 @@ class Autonameow(object):
             util.displayable_path(dest_basename))
         )
 
-        success = True
+        from_basename = diskutils.file_basename(from_path)
+        if diskutils.compare_basenames(from_basename, dest_basename):
+            _msg = 'Skipped "{!s}" because the current name is the same as ' \
+                   'the new name'.format(util.displayable_path(from_basename),
+                                         util.displayable_path(dest_basename))
+            log.debug(_msg)
+            cli.msg(_msg, style='color_quoted')
+            return True
+
         if dry_run is False:
             # TODO: [TD0067] Fix "destination exists" when new name == old name.
             try:
                 diskutils.rename_file(from_path, dest_basename)
             except (FileNotFoundError, FileExistsError, OSError) as e:
                 log.error('Rename FAILED: {!s}'.format(e))
-                success = False
+                return False
 
-        if success:
-            from_basename = diskutils.file_basename(from_path)
-            cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
-        return success
+        cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
+        return True
 
     @property
     def exit_code(self):

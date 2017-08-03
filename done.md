@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-08-03
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0067]` __Fix "destination exists" error when new name is same as old.__
+
 * 2017-07-29
 
     > High Priority
