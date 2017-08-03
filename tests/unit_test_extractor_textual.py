@@ -79,6 +79,10 @@ class TestAbstractTextExtractor(TestCase):
     def test_abstract_class_does_not_specify_data_query_string(self):
         self.assertIsNone(self.e.data_query_string)
 
+    def test__get_raw_text_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            self.e._get_raw_text()
+
 
 pdf_file = uu.abspath_testfile('simplest_pdf.md.pdf')
 expected_text = '''Probably a title
