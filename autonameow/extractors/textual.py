@@ -78,16 +78,13 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
         super(ImageOCRTextExtractor, self).__init__(source)
 
     def _get_raw_text(self):
-        try:
-            # NOTE: Tesseract behaviour will likely need tweaking depending
-            #       on the image contents. Will need to pass "tesseract_args"
-            #       somehow. I'm starting to think image OCR does not belong
-            #       in this inheritance hierarchy ..
-            log.debug('Running image OCR with PyTesseract ..')
-            result = get_text_from_ocr(self.source, tesseract_args=None)
-            return result
-        except Exception as e:
-            raise ExtractorError(e)
+        # NOTE: Tesseract behaviour will likely need tweaking depending
+        #       on the image contents. Will need to pass "tesseract_args"
+        #       somehow. I'm starting to think image OCR does not belong
+        #       in this inheritance hierarchy ..
+        log.debug('Running image OCR with PyTesseract ..')
+        result = get_text_from_ocr(self.source, tesseract_args=None)
+        return result
 
 
 class PdfTextExtractor(AbstractTextExtractor):
