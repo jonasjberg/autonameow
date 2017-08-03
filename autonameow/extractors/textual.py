@@ -241,12 +241,9 @@ class PlainTextExtractor(AbstractTextExtractor):
         super(PlainTextExtractor, self).__init__(source)
 
     def _get_raw_text(self):
-        try:
-            log.debug('Extracting raw text from plain text file ..')
-            result = read_entire_text_file(self.source)
-            return result
-        except Exception as e:
-            raise ExtractorError(e)
+        log.debug('Extracting raw text from plain text file ..')
+        result = read_entire_text_file(self.source)
+        return result
 
 
 def read_entire_text_file(file_path):
@@ -255,7 +252,7 @@ def read_entire_text_file(file_path):
             contents = fh.read().split('\n')
     except FileNotFoundError as e:
         log.debug('{!s}'.format(e))
-        return None
+        raise ExtractorError(e)
 
     if contents:
         log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
@@ -264,4 +261,4 @@ def read_entire_text_file(file_path):
         return contents
     else:
         log.debug('Read NOTHING from file "{!s}"'.format(file_path))
-        return None
+        return ''
