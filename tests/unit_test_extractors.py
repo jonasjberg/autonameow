@@ -153,7 +153,8 @@ class TestGetImplementedExtractorClasses(TestCase):
 
 class TestNumberOfAvailableExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['text_ocr.py', 'text_pdf.py', 'metadata.py']
+        self.sources = ['text_ocr.py', 'text_pdf.py', 'text_plain.py',
+                        'metadata_exiftool.py', 'metadata_pypdf.py']
         self.actual = extractors.get_extractor_classes(self.sources)
 
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.
