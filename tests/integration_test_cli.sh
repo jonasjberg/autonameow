@@ -112,7 +112,7 @@ assert_false '( "$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- ":root:" ) >/dev/nul
              "Output should not contain \":root:\" when starting with \"--debug\""
 
 
-SAMPLE_EMPTY_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/empty" ) )"
+SAMPLE_EMPTY_FILE="$(abspath_testfile "empty")"
 assert_true '[ -e "$SAMPLE_EMPTY_FILE" ]' \
             "The test sample jpg file exists. Add suitable test file if this test fails!"
 
@@ -139,11 +139,11 @@ assert_true '( "$AUTONAMEOW_RUNNER" --version --quiet 2>&1 ) >/dev/null' \
             "autonameow should return zero when started with \"--version\" and \"--quiet\""
 
 
-SAMPLE_PDF_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/gmail.pdf" ) )"
+SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
 assert_true '[ -e "$SAMPLE_PDF_FILE" ]' \
             "The test sample pdf file exists. Add suitable test file if this test fails!"
 
-SAMPLE_JPG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/smulan.jpg" ) )"
+SAMPLE_JPG_FILE="$(abspath_testfile "smulan.jpg")"
 assert_true '[ -e "$SAMPLE_JPG_FILE" ]' \
             "Sample file \"${SAMPLE_JPG_FILE}\" exists. Substitute a suitable sample file if this test fails!"
 
@@ -180,7 +180,7 @@ assert_false '( "$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_
              "Output should not contain \" !!binary \" when running with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
 
-TEST_FILES_SUBDIR="$( ( cd "$SELF_DIR" && realpath -e "../test_files/subdir" ) )"
+TEST_FILES_SUBDIR="$(abspath_testfile "subdir")"
 assert_true '[ -d "$TEST_FILES_SUBDIR" ]' \
             "The \"test_files/subdir\" directory exists. Add suitable test files if this test fails!"
 
