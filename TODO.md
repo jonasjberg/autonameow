@@ -19,6 +19,8 @@ High Priority
   displayed properly due to them not being handled properly before being passed
   to `yaml.dump` which performs the formatting of the results dict.
 
+* `[TD0067]` __Fix "destination exists" error when new name is same as old.__  
+
 * `[TD0063]` Fix crash when a data source is mapped but data itself is missing.
 
 * `[TD0004]` __Text encoding issues__
