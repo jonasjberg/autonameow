@@ -26,12 +26,11 @@ from PyPDF2.utils import (
     PdfReadError
 )
 
-from core.exceptions import ExtractorError
-from core.util import wrap_exiftool
 from core import (
     util,
     types
 )
+from core.exceptions import ExtractorError
 from extractors import BaseExtractor
 
 
@@ -108,77 +107,6 @@ class AbstractMetadataExtractor(BaseExtractor):
 
     def _get_raw_metadata(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
-
-
-class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
-    """
-    Extracts various types of metadata using "exiftool".
-    """
-    handles_mime_types = ['video/*', 'application/pdf', 'image/*',
-                          'application/epub+zip', 'text/*']
-    data_query_string = 'metadata.exiftool'
-
-    # TODO: [TD0044] Rework converting "raw data" to an internal format.
-    tagname_type_lookup = {
-        'Composite:Aperture': types.AW_FLOAT,
-        'Composite:ImageSize': types.AW_STRING,
-        'Composite:HyperfocalDistance': types.AW_FLOAT,
-        'EXIF:CreateDate': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:DateTimeDigitized': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:DateTimeOriginal': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:ExifVersion': types.AW_INTEGER,
-        'EXIF:GainControl': types.AW_INTEGER,
-        'EXIF:ImageDescription': types.AW_STRING,
-        'EXIF:Make': types.AW_STRING,
-        'EXIF:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:Software': types.AW_STRING,
-        'EXIF:UserComment': types.AW_STRING,
-        'ExifTool:Error': types.AW_STRING,
-        'ExifTool:ExifToolVersion': types.AW_FLOAT,
-        'File:Directory': types.AW_PATH,
-        'File:FileAccessDate': types.AW_EXIFTOOLTIMEDATE,
-        'File:FileInodeChangeDate': types.AW_EXIFTOOLTIMEDATE,
-        'File:FileModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'File:FileName': types.AW_PATH,
-        'File:FilePermissions': types.AW_INTEGER,
-        'File:FileSize': types.AW_INTEGER,
-        'File:FileType': types.AW_STRING,
-        'File:FileTypeExtension': types.AW_PATH,
-        'File:ImageHeight': types.AW_INTEGER,
-        'File:ImageWidth': types.AW_INTEGER,
-        'File:MIMEType': types.AW_STRING,
-        'PDF:CreateDate': types.AW_EXIFTOOLTIMEDATE,
-        'PDF:Creator': types.AW_STRING,
-        'PDF:Linearized': types.AW_BOOLEAN,
-        'PDF:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'PDF:PDFVersion': types.AW_FLOAT,
-        'PDF:PageCount': types.AW_INTEGER,
-        'PDF:Producer': types.AW_STRING,
-        'SourceFile': types.AW_PATH,
-    }
-
-    def __init__(self, source):
-        super(ExiftoolMetadataExtractor, self).__init__(source)
-        self._raw_metadata = None
-
-    def _get_raw_metadata(self):
-        result = self._get_exiftool_data()
-        if result:
-            return result
-        else:
-            return {}
-
-    def _get_exiftool_data(self):
-        """
-        Returns:
-            Exiftool results as a dictionary of strings/ints/floats.
-        """
-        with wrap_exiftool.ExifTool() as et:
-            try:
-                return et.get_metadata(self.source)
-            except (AttributeError, ValueError, TypeError) as e:
-                # Raises ValueError if an ExifTool instance isn't running.
-                raise ExtractorError(e)
 
 
 class PyPDFMetadataExtractor(AbstractMetadataExtractor):

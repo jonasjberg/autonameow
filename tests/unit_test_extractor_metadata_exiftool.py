@@ -24,7 +24,7 @@ from unittest import TestCase
 
 from core import util
 from core.exceptions import ExtractorError
-from extractors.metadata import ExiftoolMetadataExtractor
+from extractors.metadata_exiftool import ExiftoolMetadataExtractor
 import unit_utils as uu
 
 
