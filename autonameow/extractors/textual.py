@@ -49,7 +49,7 @@ class AbstractTextExtractor(BaseExtractor):
                 log.debug('{!s} received initial query ..'.format(self))
                 self._raw_text = self._get_raw_text()
             except ExtractorError as e:
-                log.error('{!s} query FAILED: {!s}'.format(self, e))
+                log.error('{!s} query FAILED; Error: {!s}'.format(self, e))
                 return False
             except NotImplementedError as e:
                 log.debug('[WARNING] Called unimplemented code in {!s}: '
