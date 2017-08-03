@@ -337,6 +337,9 @@ class Autonameow(object):
         Returns:
             True if the rename succeeded, otherwise False.
         """
+        assert(isinstance(from_path, bytes))
+        assert(isinstance(new_basename, str))
+
         dest_basename = diskutils.sanitize_filename(new_basename)
 
         # Encoding boundary.  Internal str --> internal filename bytestring
