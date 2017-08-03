@@ -154,6 +154,15 @@ test_automagic_rename 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPL
 test_automagic_dryrun 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
 
 
+SAMPLE_SIMPLESTPDF_FILE="$(abspath_testfile "simplest_pdf.md.pdf")"
+SAMPLE_SIMPLESTPDF_FILE_EXPECTED='simplest_pdf.md.pdf'
+assert_true '[ -e "$SAMPLE_SIMPLESTPDF_FILE" ]' \
+            "Sample file \"${SAMPLE_SIMPLESTPDF_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+
+test_automagic_rename 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
+test_automagic_dryrun 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
