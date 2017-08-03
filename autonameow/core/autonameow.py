@@ -330,8 +330,8 @@ class Autonameow(object):
         Renames a file at the given path to the specified basename.
 
         Args:
-            from_path: Path to the file to rename.
-            new_basename: The new basename for the file as type str.
+            from_path: Path to the file to rename as an "internal" byte string.
+            new_basename: The new basename for the file as a Unicode string.
             dry_run: Controls whether the renaming is actually performed.
 
         Returns:
