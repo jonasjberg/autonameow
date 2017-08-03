@@ -120,6 +120,16 @@ assert_false '[ -n "$(get_timestamp_from_basename "abc")" ]' \
 assert_true 'get_timestamp_from_basename "unittest_log_2017-05-15T134801.html" | grep -qE -- "^2017-05-15 13:48:01$"' \
             '"get_timestamp_from_basename" returns "2017-05-15 13:48:01" given "unittest_log_2017-05-15T134801.html"'
 
+_abspath_testfile_empty="$(abspath_test_file "empty")"
+assert_false '[ -z "${_abspath_testfile_empty}" ]' \
+             'abspath_test_file "empty" should return something'
+
+assert_true '[ -e "${_abspath_testfile_empty}" ]' \
+            'abspath_test_file "empty" should an existing path'
+
+assert_true '[ -f "${_abspath_testfile_empty}" ]' \
+            'abspath_test_file "empty" should the path to an existing file'
+
 
 
 # Calculate total execution time.
