@@ -102,6 +102,12 @@ class BaseExtractor(object):
         Argument "field" is optional. All data is returned by default.
         If the data is text, is should be returned as Unicode strings.
 
+        Implementing classes should make sure to catch all exceptions and
+        re-raise an "ExtractorError", passing any valuable information along.
+        Only raise the "ExtractorError" exception for any irrecoverable errors.
+        Otherwise, implementers should strive to return empty values of the
+        same type as that of the expected, valid data.
+
         Args:
             field: Optional refinement of the query.
                 Expect format and type is defined by the extractor class.
@@ -109,6 +115,9 @@ class BaseExtractor(object):
         Returns:
             All data gathered by the extractor if no field is specified.
             Else the data matching the specified field.
+
+        Raises:
+            ExtractorError: The extraction could not be completed successfully.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
