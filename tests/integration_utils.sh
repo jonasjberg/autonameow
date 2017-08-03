@@ -228,7 +228,7 @@ grep_todos()
 
 # Get the absolute path to a file in the "$SRCROOT/test_files" directory.
 # Expects the first and only argument to be the basename of the desired file.
-abspath_test_file()
+abspath_testfile()
 {
     ( cd "$SELF_DIR" && realpath -e "../test_files/${1}" )
 }
