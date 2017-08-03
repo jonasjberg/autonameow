@@ -59,34 +59,3 @@ class AbstractTextExtractor(BaseExtractor):
 
     def _get_raw_text(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
-
-
-class PlainTextExtractor(AbstractTextExtractor):
-    handles_mime_types = ['text/plain']
-    data_query_string = 'contents.textual.raw_text'
-
-    def __init__(self, source):
-        super(PlainTextExtractor, self).__init__(source)
-
-    def _get_raw_text(self):
-        log.debug('Extracting raw text from plain text file ..')
-        result = read_entire_text_file(self.source)
-        return result
-
-
-def read_entire_text_file(file_path):
-    try:
-        with open(file_path, 'r', encoding='utf8') as fh:
-            contents = fh.read().split('\n')
-    except FileNotFoundError as e:
-        log.debug('{!s}'.format(e))
-        raise ExtractorError(e)
-
-    if contents:
-        log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
-                                                                  file_path))
-        # TODO: [TD0044][TD0004] Cleanup/normalize and ensure text encoding.
-        return contents
-    else:
-        log.debug('Read NOTHING from file "{!s}"'.format(file_path))
-        return ''
