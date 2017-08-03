@@ -284,6 +284,7 @@ class Autonameow(object):
                         current_file, extraction.data, analysis.results,
                         self.config, matcher.best_match
                     )
+                    # TODO: Do not return anything from 'build()', use property.
                     new_name = self.builder.build()
                 except exceptions.NameBuilderError as e:
                     log.critical('Name assembly FAILED: {!s}'.format(e))
