@@ -23,12 +23,10 @@ import logging as log
 import subprocess
 
 import PyPDF2
-from PIL import Image
 from PyPDF2.utils import (
     PyPdfError,
     PdfReadError
 )
-import pytesseract
 
 from core import util
 from core.exceptions import ExtractorError
@@ -70,24 +68,6 @@ class AbstractTextExtractor(BaseExtractor):
 
     def _get_raw_text(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
-
-
-class ImageOCRTextExtractor(AbstractTextExtractor):
-    handles_mime_types = ['image/*']
-    data_query_string = 'contents.visual.ocr_text'
-    is_slow = True
-
-    def __init__(self, source):
-        super(ImageOCRTextExtractor, self).__init__(source)
-
-    def _get_raw_text(self):
-        # NOTE: Tesseract behaviour will likely need tweaking depending
-        #       on the image contents. Will need to pass "tesseract_args"
-        #       somehow. I'm starting to think image OCR does not belong
-        #       in this inheritance hierarchy ..
-        log.debug('Running image OCR with PyTesseract ..')
-        result = get_text_from_ocr(self.source, tesseract_args=None)
-        return result
 
 
 class PdfTextExtractor(AbstractTextExtractor):
@@ -195,45 +175,6 @@ def extract_pdf_content_with_pypdf(pdf_file):
     else:
         log.debug('Unable to extract text with PyPDF2 ..')
         return False
-
-
-def get_text_from_ocr(image_path, tesseract_args=None):
-    """
-    Get any textual content from the image by running OCR with tesseract
-    through the pytesseract wrapper.
-
-    Args:
-        image_path: The path to the image to process.
-        tesseract_args: Optional tesseract arguments as Unicode strings.
-
-    Returns:
-        Any OCR results text or empty as Unicode strings.
-
-    Raises:
-        ExtractorError: The extraction failed.
-    """
-    # TODO: Test this!
-
-    try:
-        image = Image.open(image_path)
-    except IOError as e:
-        raise ExtractorError(e)
-
-    log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
-        tesseract_args, util.displayable_path(image_path)
-    ))
-    try:
-        # TODO: [TD0068] Let the user configure which languages to use with OCR.
-        text = pytesseract.image_to_string(image, lang='swe+eng',
-                                           config=tesseract_args)
-    except pytesseract.pytesseract.TesseractError as e:
-        raise ExtractorError('PyTesseract ERROR: {}'.format(str(e)))
-    else:
-        if text:
-            text = text.strip()
-            log.debug('PyTesseract returned {} bytes of text'.format(len(text)))
-            return util.decode_(text)
-        return ''
 
 
 class PlainTextExtractor(AbstractTextExtractor):
