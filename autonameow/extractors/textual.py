@@ -37,9 +37,6 @@ from extractors import BaseExtractor
 
 
 class AbstractTextExtractor(BaseExtractor):
-    handles_mime_types = None
-    data_query_string = None
-
     def __init__(self, source):
         super(AbstractTextExtractor, self).__init__(source)
 
@@ -79,7 +76,6 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
 
     def __init__(self, source):
         super(ImageOCRTextExtractor, self).__init__(source)
-        self._raw_text = None
 
     def _get_raw_text(self):
         try:
@@ -100,7 +96,6 @@ class PdfTextExtractor(AbstractTextExtractor):
 
     def __init__(self, source):
         super(PdfTextExtractor, self).__init__(source)
-        self._raw_text = None
 
     def _get_raw_text(self):
         """
@@ -246,7 +241,6 @@ class PlainTextExtractor(AbstractTextExtractor):
 
     def __init__(self, source):
         super(PlainTextExtractor, self).__init__(source)
-        self._raw_text = None
 
     def _get_raw_text(self):
         try:
