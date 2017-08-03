@@ -21,11 +21,9 @@
 
 from unittest import TestCase
 
-from core import util
 from extractors.textual import (
     AbstractTextExtractor
 )
-from extractors.text_pdf import PdfTextExtractor
 
 import unit_utils as uu
 
@@ -48,6 +46,10 @@ class TestAbstractTextExtractor(TestCase):
     def test_method_query_returns_something(self):
         self.assertIsNotNone(self.e.query())
         self.assertIsNotNone(self.e.query(field='some_field'))
+
+    def test_query_returns_false_without__get_raw_text_implemented(self):
+        self.assertFalse(self.e.query())
+        self.assertFalse(self.e.query(field='some_field'))
 
     def test_method_str_is_defined_and_reachable(self):
         self.assertIsNotNone(str(self.e))
@@ -81,5 +83,3 @@ class TestAbstractTextExtractor(TestCase):
     def test__perform_initial_extraction_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.e._perform_initial_extraction()
-
-
