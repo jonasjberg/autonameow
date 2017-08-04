@@ -40,6 +40,6 @@ class PluginResults(DataContainerBase):
 
     def add(self, destination, data):
         if not destination:
-            raise KeyError('Missing results field')
+            raise KeyError('Expected non-empty "destination"')
 
-        self._data.update({field: data})
+        self._data.update({destination: data})
