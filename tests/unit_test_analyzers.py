@@ -217,5 +217,3 @@ class TestGetAnalyzerClassesBasename(TestCase):
 
         for a in analyzers.get_analyzer_classes_basename():
             self.assertTrue(isinstance(a, str))
-
-
