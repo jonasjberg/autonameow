@@ -19,13 +19,6 @@ High Priority
   displayed properly due to them not being handled properly before being passed
   to `yaml.dump` which performs the formatting of the results dict.
 
-* `[TD0065]` __Perform analysis after matching rules.__  
-  Instead of first performing data extraction, running the analyzers and then
-  matching rules to the current file using a `RuleMatcher`, assume that the
-  rule conditions will not need to access data produced by analyzers. Re-order
-  the sequence of events so that rule matching is done after data extraction,
-  and running analyzers comes last.
-
 * `[TD0063]` Fix crash when a data source is mapped but data itself is missing.
 
 * `[TD0004]` __Text encoding issues__
