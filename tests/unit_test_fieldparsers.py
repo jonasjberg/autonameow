@@ -34,6 +34,7 @@ from core.config.field_parsers import (
     is_valid_template_field,
     eval_query_string_glob
 )
+import unit_utils as uu
 
 
 class TestFieldParserFunctions(TestCase):
@@ -55,11 +56,12 @@ class TestFieldParserFunctions(TestCase):
     def test_get_available_parsers(self):
         self.assertIsNotNone(available_field_parsers())
 
-    def test_get_available_parsers_returns_list_of_strings(self):
-        self.assertTrue(isinstance(available_field_parsers(), list))
+    def test_get_available_parsers_returns_expected_type(self):
+        actual = available_field_parsers()
+        self.assertTrue(isinstance(actual, list))
 
-        for p in available_field_parsers():
-            self.assertTrue(isinstance(p, type))
+        for p in actual:
+            self.assertTrue(uu.is_class(p))
 
     def test_get_available_parsers_returns_arbitrary_number(self):
         # TODO: [hardcoded] Likely to break; Fix or remove!
@@ -237,13 +239,15 @@ class TestInstantiatedFieldParsers(TestCase):
     def test_field_parsers_in_not_none(self):
         self.assertIsNotNone(field_parsers.FieldParserInstances)
 
-    def test_configuration_field_parsers_subclass_of_config_field_parser(self):
+    def test_field_parsers_subclass_config_field_parser(self):
         for parser in field_parsers.FieldParserInstances:
             self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
+            self.assertTrue(issubclass(parser.__class__,
+                                       field_parsers.ConfigFieldParser))
 
-    def test_configuration_field_parsers_instance_of_config_field_parser(self):
+    def test_field_parsers_are_instantiated_classes(self):
         for parser in field_parsers.FieldParserInstances:
-            self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
+            self.assertTrue(uu.is_class_instance(parser))
 
 
 class TestSuitableFieldParserFor(TestCase):

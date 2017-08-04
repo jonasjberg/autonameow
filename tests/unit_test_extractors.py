@@ -113,6 +113,7 @@ class TestGetAllExtractorClasses(TestCase):
 
     def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
         def __subclasses_base_extractor(klass):
+            self.assertTrue(uu.is_class(klass))
             self.assertTrue(issubclass(klass, extractors.BaseExtractor))
 
         actual = extractors._get_all_extractor_classes(self.sources)
@@ -141,6 +142,7 @@ class TestGetImplementedExtractorClasses(TestCase):
 
     def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
         for klass in self.actual:
+            self.assertTrue(uu.is_class(klass))
             self.assertTrue(issubclass(klass, extractors.BaseExtractor))
 
     def test_get_extractor_classes_does_not_include_base_extractor(self):

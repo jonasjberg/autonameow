@@ -153,27 +153,31 @@ class TestCaptureStdout(TestCase):
 
 
 class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
+    def setUp(self):
+        self.instances = uu.get_instantiated_analyzers()
+
     def test_get_instantiated_analyzers_returns_something(self):
         self.assertIsNotNone(uu.get_instantiated_analyzers())
 
-    def test_get_instantiated_analyzers_returns_class_objects(self):
-        instances = uu.get_instantiated_analyzers()
-        for analyzer_instance in instances:
-            self.assertTrue(hasattr(analyzer_instance, '__class__'))
-
     def test_get_instantiated_analyzers_returns_expected_type(self):
-        instances = uu.get_instantiated_analyzers()
-        self.assertEqual(type(instances), list)
+        self.assertEqual(type(self.instances), list)
 
-        for analyzer_instance in instances:
-            self.assertTrue(issubclass(analyzer_instance.__class__, BaseAnalyzer))
+        for analyzer_instance in self.instances:
+            self.assertTrue(
+                issubclass(analyzer_instance.__class__, BaseAnalyzer)
+            )
+
+    def test_get_analyzer_classes_does_not_return_classes(self):
+        for instance in self.instances:
+            self.assertFalse(uu.is_class(instance))
+
+    def test_get_analyzer_classes_returns_class_instances(self):
+        for instance in self.instances:
+            self.assertTrue(uu.is_class_instance(instance))
 
     def test_get_instantiated_analyzers_returns_arbitrary_number(self):
         # TODO: [hardcoded] Likely to break; Fix or remove!
-        self.assertGreaterEqual(len(uu.get_instantiated_analyzers()), 6)
-
-    def test_get_instantiated_analyzers_returns_list(self):
-        self.assertTrue(isinstance(uu.get_instantiated_analyzers(), list))
+        self.assertGreaterEqual(len(self.instances), 6)
 
 
 class _DummyClass(object):

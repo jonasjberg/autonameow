@@ -54,6 +54,7 @@ class TestAnalysis(TestCase):
 
         self.assertTrue(isinstance(actual, list))
         for ac in actual:
+            self.assertTrue(uu.is_class_instance(ac))
             self.assertTrue(issubclass(ac.__class__, analyzers.BaseAnalyzer))
 
     def test_initial_results_data_len_is_zero(self):

@@ -166,7 +166,11 @@ class TestGetAnalyzerClasses(TestCase):
 
     def test_get_analyzer_classes_returns_class_objects(self):
         for klass in self.klasses:
-            self.assertTrue(hasattr(klass, '__class__'))
+            self.assertTrue(uu.is_class(klass))
+
+    def test_get_analyzer_classes_does_not_return_class_instances(self):
+        for klass in self.klasses:
+            self.assertFalse(uu.is_class_instance(klass))
 
 
 class TestNumberOfAvailableAnalyzerClasses(TestCase):
