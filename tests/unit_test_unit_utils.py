@@ -174,3 +174,86 @@ class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
 
     def test_get_instantiated_analyzers_returns_list(self):
         self.assertTrue(isinstance(uu.get_instantiated_analyzers(), list))
+
+
+class _DummyClass(object):
+    pass
+
+
+class TestIsClass(TestCase):
+    def test_is_class_is_defined(self):
+        self.assertIsNotNone(uu.is_class)
+
+    def _assert_not_class(self, thing):
+        actual = uu.is_class(thing)
+        self.assertFalse(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def _assert_is_class(self, thing):
+        actual = uu.is_class(thing)
+        self.assertTrue(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def test_returns_true_for_classes(self):
+        self._assert_is_class(_DummyClass)
+
+    def test_returns_false_for_class_instances(self):
+        self._assert_not_class(_DummyClass())
+
+    def test_returns_false_for_none_or_empty(self):
+        self._assert_not_class(None)
+        self._assert_not_class('')
+        self._assert_not_class([])
+        self._assert_not_class([''])
+        self._assert_not_class((None, None))
+
+    def test_returns_false_for_primitive_types(self):
+        self._assert_not_class(False)
+        self._assert_not_class(True)
+        self._assert_not_class(' ')
+        self._assert_not_class([' '])
+        self._assert_not_class(set())
+        self._assert_not_class((None, None))
+        self._assert_not_class(('foo', 'bar'))
+        self._assert_not_class(1)
+        self._assert_not_class(1.0)
+
+
+class TestIsClassInstance(TestCase):
+    def test_is_class_instance_is_defined(self):
+        self.assertIsNotNone(uu.is_class_instance)
+
+    def _assert_not_class_instance(self, klass):
+        actual = uu.is_class_instance(klass)
+        self.assertFalse(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def _assert_is_class_instance(self, thing):
+        actual = uu.is_class_instance(thing)
+        self.assertTrue(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def test_returns_false_for_classes(self):
+        self._assert_not_class_instance(_DummyClass)
+
+    def test_returns_true_for_class_instances(self):
+        instance = _DummyClass()
+        self._assert_is_class_instance(instance)
+        self._assert_is_class_instance(_DummyClass())
+
+    def test_returns_false_for_none_or_empty(self):
+        self._assert_not_class_instance(None)
+        self._assert_not_class_instance('')
+        self._assert_not_class_instance([])
+        self._assert_not_class_instance([''])
+        self._assert_not_class_instance((None, None))
+
+    def test_returns_false_for_primitive_types(self):
+        self._assert_not_class_instance(False)
+        self._assert_not_class_instance(True)
+        self._assert_not_class_instance(' ')
+        self._assert_not_class_instance([' '])
+        self._assert_not_class_instance(set())
+        self._assert_not_class_instance(('foo', 'bar'))
+        self._assert_not_class_instance(1)
+        self._assert_not_class_instance(1.0)

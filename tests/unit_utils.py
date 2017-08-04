@@ -20,7 +20,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
+import inspect
 import os
 import io
 import tempfile
@@ -233,3 +233,40 @@ def get_instantiated_analyzers():
     #       problem and is surely not very pretty.
     return [klass(None, None, None) for klass in
             analyzers.get_analyzer_classes()]
+
+
+def is_class_instance(thing):
+    """
+    Tests whether a given object is a instance of a class.
+
+    Args:
+        thing: The object to test.
+
+    Returns:
+        True if the given object is an instance of a class, otherwise False.
+    """
+    if not thing:
+        return False
+    if isinstance(thing,
+                  (type, bool, str, bytes, int, float, list, set, tuple)):
+        return False
+
+    if hasattr(thing, '__class__'):
+        return True
+
+    # Make sure to always return boolean. Catches case where "thing" is a
+    # built-in/primitive not included in the messy "isinstance"-check ..
+    return False
+
+
+def is_class(thing):
+    """
+    Tests whether a given object is an (uninstantiated) class.
+
+    Args:
+        thing: The object to test.
+
+    Returns:
+        True if the given object is a class, otherwise False.
+    """
+    return inspect.isclass(thing)
