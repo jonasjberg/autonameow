@@ -18,15 +18,18 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
+
 import datetime
 from unittest import TestCase
 
+import unit_utils as uu
 from core.analysis import AnalysisResults
 from core.config.configuration import Configuration
 from core.config import DEFAULT_CONFIG
 from core.evaluate.rulematcher import (
     RuleMatcher,
-    prioritize_rules
+    prioritize_rules,
+    evaluate_rule_conditions
 )
 from core.extraction import ExtractedData
 
@@ -206,3 +209,24 @@ class TestPrioritizeRules(TestCase):
         expected = [fr_b, fr_a]
         actual = prioritize_rules([fr_a, fr_b])
         self.assertTrue(actual, expected)
+
+
+class TestEvaluateRuleConditions(TestCase):
+    def setUp(self):
+        self.rules_to_examine = uu.get_dummy_rules_to_examine()
+
+        # NOTE: Simulates no data available, no rules should pass evaluation.
+        self.dummy_query_function = lambda *_: False
+
+    def test_evaluate_rule_conditions_is_defined(self):
+        self.assertIsNotNone(evaluate_rule_conditions)
+
+    def test_returns_expected_type(self):
+        actual = evaluate_rule_conditions(self.rules_to_examine,
+                                          self.dummy_query_function)
+        self.assertTrue(isinstance(actual, list))
+
+    def test_no_valid_rules_pass_with_dummy_query_function(self):
+        actual = evaluate_rule_conditions(self.rules_to_examine,
+                                          self.dummy_query_function)
+        self.assertEqual(len(actual), 0)

@@ -136,7 +136,7 @@ assert_true '[ -x "$AUTONAMEOW_RUNNER" ]' \
             "The autonameow launcher script has executable permission"
 
 
-SAMPLE_JPG_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/smulan.jpg" ) )"
+SAMPLE_JPG_FILE="$(abspath_testfile "smulan.jpg")"
 SAMPLE_JPG_FILE_EXPECTED='2010-01-31T161251 a cat lying on a rug.jpg'
 assert_true '[ -e "$SAMPLE_JPG_FILE" ]' \
             "Sample file \"${SAMPLE_JPG_FILE}\" exists. Substitute a suitable sample file if this test fails!"
@@ -145,13 +145,22 @@ test_automagic_rename 'test_files smulan.jpg' "$SAMPLE_JPG_FILE" "$SAMPLE_JPG_FI
 test_automagic_dryrun 'test_files smulan.jpg' "$SAMPLE_JPG_FILE" "$SAMPLE_JPG_FILE_EXPECTED"
 
 
-SAMPLE_PDF_FILE="$( ( cd "$SELF_DIR" && realpath -e "../test_files/gmail.pdf" ) )"
+SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
 SAMPLE_PDF_FILE_EXPECTED='2016-01-11T124132 gmail.pdf'
 assert_true '[ -e "$SAMPLE_PDF_FILE" ]' \
             "Sample file \"${SAMPLE_PDF_FILE}\" exists. Substitute a suitable sample file if this test fails!"
 
 test_automagic_rename 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
 test_automagic_dryrun 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
+
+
+SAMPLE_SIMPLESTPDF_FILE="$(abspath_testfile "simplest_pdf.md.pdf")"
+SAMPLE_SIMPLESTPDF_FILE_EXPECTED='simplest_pdf.md.pdf'
+assert_true '[ -e "$SAMPLE_SIMPLESTPDF_FILE" ]' \
+            "Sample file \"${SAMPLE_SIMPLESTPDF_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+
+test_automagic_rename 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
+test_automagic_dryrun 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
 
 
 

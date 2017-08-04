@@ -132,7 +132,7 @@ class TestExtractedData(TestCase):
 class TestExtraction(TestCase):
     def setUp(self):
         self.e = Extraction(uu.get_mock_fileobject())
-        self.sources = ['textual.py', 'metadata.py']
+        self.sources = ['text.py', 'metadata.py']
 
     def test_can_be_instantiated(self):
         self.assertIsNotNone(self.e)

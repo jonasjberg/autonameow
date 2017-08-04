@@ -23,75 +23,13 @@ import logging as log
 import subprocess
 
 import PyPDF2
-from PIL import Image
 from PyPDF2.utils import (
     PyPdfError,
     PdfReadError
 )
-import pytesseract
 
 from core import util
-from core.exceptions import ExtractorError
-from core.util import textutils
-from extractors import BaseExtractor
-
-
-class AbstractTextExtractor(BaseExtractor):
-    handles_mime_types = None
-    data_query_string = None
-
-    def __init__(self, source):
-        super(AbstractTextExtractor, self).__init__(source)
-
-        self._raw_text = None
-
-    def query(self, field=None):
-        # TODO: [TD0057] Will text extractors be queried for anything but text?
-        if not self._raw_text:
-            try:
-                log.debug('{!s} received initial query ..'.format(self))
-                self._raw_text = self._get_raw_text()
-            except ExtractorError as e:
-                log.error('{!s} query FAILED: {!s}'.format(self, e))
-                return False
-            except NotImplementedError as e:
-                log.debug('[WARNING] Called unimplemented code in {!s}: '
-                          '{!s}'.format(self, e))
-                return False
-
-        if not field:
-            # TODO: [TD0057] Fix this. Look over the entire 'query' method.
-            log.debug('{!s} responding to query for all fields'.format(self))
-            return self._raw_text
-        else:
-            log.debug('{!s} ignoring query for field (returning all fields):'
-                      ' "{!s}"'.format(self, field))
-            return self._raw_text
-
-    def _get_raw_text(self):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-
-class ImageOCRTextExtractor(AbstractTextExtractor):
-    handles_mime_types = ['image/*']
-    data_query_string = 'contents.visual.ocr_text'
-    is_slow = True
-
-    def __init__(self, source):
-        super(ImageOCRTextExtractor, self).__init__(source)
-        self._raw_text = None
-
-    def _get_raw_text(self):
-        try:
-            # NOTE: Tesseract behaviour will likely need tweaking depending
-            #       on the image contents. Will need to pass "tesseract_args"
-            #       somehow. I'm starting to think image OCR does not belong
-            #       in this inheritance hierarchy ..
-            log.debug('Running image OCR with PyTesseract ..')
-            result = get_text_from_ocr(self.source, tesseract_args=None)
-            return result
-        except Exception as e:
-            raise ExtractorError(e)
+from extractors.text import AbstractTextExtractor
 
 
 class PdfTextExtractor(AbstractTextExtractor):
@@ -100,7 +38,6 @@ class PdfTextExtractor(AbstractTextExtractor):
 
     def __init__(self, source):
         super(PdfTextExtractor, self).__init__(source)
-        self._raw_text = None
 
     def _get_raw_text(self):
         """
@@ -200,76 +137,3 @@ def extract_pdf_content_with_pypdf(pdf_file):
     else:
         log.debug('Unable to extract text with PyPDF2 ..')
         return False
-
-
-def get_text_from_ocr(image_path, tesseract_args=None):
-    """
-    Get any textual content from the image by running OCR with tesseract
-    through the pytesseract wrapper.
-
-    Args:
-        image_path: The path to the image to process.
-        tesseract_args: Optional tesseract arguments as Unicode strings.
-
-    Returns:
-        Any OCR results text as Unicode strings.
-
-    Raises:
-        ExtractorError: The extraction failed.
-    """
-    # TODO: Test this!
-
-    try:
-        image = Image.open(image_path)
-    except IOError as e:
-        raise ExtractorError(e)
-
-    try:
-        log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
-            tesseract_args, util.displayable_path(image_path)
-        ))
-        text = pytesseract.image_to_string(image, lang='swe+eng',
-                                           config=tesseract_args)
-    except pytesseract.pytesseract.TesseractError as e:
-        raise ExtractorError('PyTesseract ERROR: {}'.format(str(e)))
-    else:
-        if text:
-            text = text.strip()
-            log.debug('PyTesseract returned {} bytes of text'.format(len(text)))
-            return util.decode_(text)
-        return ''
-
-
-class PlainTextExtractor(AbstractTextExtractor):
-    handles_mime_types = ['text/plain']
-    data_query_string = 'contents.textual.raw_text'
-
-    def __init__(self, source):
-        super(PlainTextExtractor, self).__init__(source)
-        self._raw_text = None
-
-    def _get_raw_text(self):
-        try:
-            log.debug('Extracting raw text from plain text file ..')
-            result = read_entire_text_file(self.source)
-            return result
-        except Exception as e:
-            raise ExtractorError(e)
-
-
-def read_entire_text_file(file_path):
-    try:
-        with open(file_path, 'r', encoding='utf8') as fh:
-            contents = fh.read().split('\n')
-    except FileNotFoundError as e:
-        log.debug('!s'.format(e))
-        return None
-
-    if contents:
-        log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
-                                                                  file_path))
-        # TODO: [TD0044][TD0004] Cleanup/normalize and ensure text encoding.
-        return contents
-    else:
-        log.debug('Read NOTHING from file "{!s}"'.format(file_path))
-        return None

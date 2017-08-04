@@ -57,7 +57,7 @@ class RuleMatcher(object):
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))
-        ok_rules = examine_rules(self._rules, self.query_data)
+        ok_rules = evaluate_rule_conditions(self._rules, self.query_data)
         if len(ok_rules) == 0:
             log.debug('No valid rules remain after evaluation')
             return
@@ -94,7 +94,7 @@ def prioritize_rules(rules):
                   key=operator.attrgetter('score', 'weight'))
 
 
-def examine_rules(rules_to_examine, data_query_function):
+def evaluate_rule_conditions(rules_to_examine, data_query_function):
     # Conditions are evaluated with the current file object and current
     # analysis results data.
     # If a rule requires an exact match, it is skipped at first failed

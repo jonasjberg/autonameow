@@ -226,6 +226,13 @@ grep_todos()
     grep -q "\(TODO\|FIXME\|XXX\).*" -- "$1"
 }
 
+# Get the absolute path to a file in the "$SRCROOT/test_files" directory.
+# Expects the first and only argument to be the basename of the desired file.
+abspath_testfile()
+{
+    ( cd "$SELF_DIR" && realpath -e "../test_files/${1}" )
+}
+
 
 
 # Test Cases

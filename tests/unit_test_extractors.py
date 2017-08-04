@@ -25,7 +25,7 @@ from unittest import TestCase
 import unit_utils as uu
 import extractors
 from extractors.metadata import AbstractMetadataExtractor
-from extractors.textual import AbstractTextExtractor
+from extractors.text import AbstractTextExtractor
 
 
 class TestExtractorsConstants(TestCase):
@@ -98,14 +98,22 @@ class TestFindExtractorSourceFiles(TestCase):
     def test_find_extractor_files_returns_expected_files(self):
         actual = extractors.find_extractor_files()
 
+        self.assertNotIn('__init__.py', actual)
+
         # TODO: [hardcoded] Likely to break; requires manual updates.
-        self.assertIn('textual.py', actual)
         self.assertIn('metadata.py', actual)
+        self.assertIn('metadata_exiftool.py', actual)
+        self.assertIn('metadata_pypdf.py', actual)
+        self.assertIn('text.py', actual)
+        self.assertIn('text_ocr.py', actual)
+        self.assertIn('text_pdf.py', actual)
+        self.assertIn('text_plain.py', actual)
 
 
 class TestGetAllExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['textual.py', 'metadata.py']
+        self.sources = ['text_ocr.py', 'text_pdf.py', 'text_plain.py',
+                        'metadata_exiftool.py', 'metadata_pypdf.py']
 
     def test_get_extractor_classes_returns_expected_type(self):
         actual = extractors._get_all_extractor_classes(self.sources)
@@ -134,7 +142,8 @@ class TestGetAllExtractorClasses(TestCase):
 
 class TestGetImplementedExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['textual.py', 'metadata.py']
+        self.sources = ['text_ocr.py', 'text_pdf.py', 'text_plain.py',
+                        'metadata_exiftool.py', 'metadata_pypdf.py']
         self.actual = extractors.get_extractor_classes(self.sources)
 
     def test_get_extractor_classes_returns_expected_type(self):
@@ -155,7 +164,8 @@ class TestGetImplementedExtractorClasses(TestCase):
 
 class TestNumberOfAvailableExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['textual.py', 'metadata.py']
+        self.sources = ['text_ocr.py', 'text_pdf.py', 'text_plain.py',
+                        'metadata_exiftool.py', 'metadata_pypdf.py']
         self.actual = extractors.get_extractor_classes(self.sources)
 
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.

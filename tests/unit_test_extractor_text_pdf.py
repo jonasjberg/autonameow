@@ -24,60 +24,26 @@ from unittest import TestCase
 
 import PyPDF2
 
-from core import util
-from extractors.textual import (
-    extract_pdf_content_with_pdftotext,
-    extract_pdf_content_with_pypdf,
-    PdfTextExtractor,
-    ImageOCRTextExtractor,
-    AbstractTextExtractor
-)
 import unit_utils as uu
+from core import util
+from extractors.text_pdf import (
+    PdfTextExtractor,
+    extract_pdf_content_with_pdftotext,
+    extract_pdf_content_with_pypdf
+)
 
 
-class TestAbstractTextExtractor(TestCase):
+class TestExtractPdfContentWithPdfTotext(TestCase):
     def setUp(self):
-        self.e = AbstractTextExtractor(uu.make_temporary_file())
+        self.maxDiff = None
 
-        class DummyFileObject(object):
-            def __init__(self):
-                self.mime_type = 'image/jpeg'
-        self.fo = DummyFileObject()
+    def test_extract_pdf_content_with_pdftotext_returns_expected_type(self):
+        self.assertEqual(type(extract_pdf_content_with_pdftotext(pdf_file)),
+                         str)
 
-    def test_abstract_text_extractor_class_is_available(self):
-        self.assertIsNotNone(AbstractTextExtractor)
-
-    def test_abstract_text_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test_method_query_returns_something(self):
-        self.assertIsNotNone(self.e.query())
-        self.assertIsNotNone(self.e.query(field='some_field'))
-
-    def test_method_str_is_defined_and_reachable(self):
-        self.assertIsNotNone(str(self.e))
-        self.assertIsNotNone(self.e.__str__)
-
-    def test_method_str_returns_type_string(self):
-        self.assertTrue(isinstance(str(self.e), str))
-        self.assertTrue(isinstance(str(self.e.__str__), str))
-
-    def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'AbstractTextExtractor')
-
-    def test_class_method_can_handle_is_defined(self):
-        self.assertIsNotNone(self.e.can_handle)
-
-    def test_class_method_can_handle_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
-            self.assertIsNotNone(self.e.can_handle(self.fo))
-            self.assertFalse(self.e.can_handle(self.fo))
-
-    def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
-        self.assertIsNone(self.e.handles_mime_types)
-
-    def test_abstract_class_does_not_specify_data_query_string(self):
-        self.assertIsNone(self.e.data_query_string)
+    def test_extract_pdf_content_with_pdftotext_returns_expected_text(self):
+        self.assertEqual(extract_pdf_content_with_pdftotext(pdf_file),
+                         expected_text)
 
 
 pdf_file = uu.abspath_testfile('simplest_pdf.md.pdf')
@@ -120,19 +86,6 @@ class TestExtractPdfContentWithPyPdf(TestCase):
         self.skipTest('PyPDF strips all whitespace for some reason. '
                       'Will use pdftotext instead.')
         self.assertEqual(extract_pdf_content_with_pypdf(pdf_file),
-                         expected_text)
-
-
-class TestExtractPdfContentWithPdfTotext(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-    def test_extract_pdf_content_with_pdftotext_returns_expected_type(self):
-        self.assertEqual(type(extract_pdf_content_with_pdftotext(pdf_file)),
-                         str)
-
-    def test_extract_pdf_content_with_pdftotext_returns_expected_text(self):
-        self.assertEqual(extract_pdf_content_with_pdftotext(pdf_file),
                          expected_text)
 
 
@@ -217,6 +170,18 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
 
 '''
 
+    def test_pdf_text_extractor_class_is_available(self):
+        self.assertIsNotNone(PdfTextExtractor)
+
+    def test_pdf_text_extractor_class_can_be_instantiated(self):
+        self.assertIsNotNone(self.e)
+
+    def test__get_raw_text_returns_something(self):
+        self.assertIsNotNone(self.e._get_raw_text())
+
+    def test__get_raw_text_returns_expected_type(self):
+        self.assertEqual(type(self.e._get_raw_text()), str)
+
     def test_method_query_returns_something(self):
         self.assertIsNotNone(self.e.query())
 
@@ -239,81 +204,3 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
     def test_class_method_can_handle_returns_expected(self):
         self.assertFalse(self.e.can_handle(self.fo_image))
         self.assertTrue(self.e.can_handle(self.fo_pdf))
-
-
-class TestImageOCRTextExtractor(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-        self.e = ImageOCRTextExtractor(uu.make_temporary_file())
-
-        class DummyFileObject(object):
-            def __init__(self, mime):
-                self.mime_type = mime
-        self.fo_image = DummyFileObject(mime='image/jpeg')
-        self.fo_pdf = DummyFileObject(mime='application/pdf')
-
-    def test_class_method_can_handle_is_defined(self):
-        self.assertIsNotNone(self.e.can_handle)
-
-    def test_class_method_can_handle_returns_expected(self):
-        self.assertTrue(self.e.can_handle(self.fo_image))
-        self.assertFalse(self.e.can_handle(self.fo_pdf))
-
-
-class TestImageOCRTextExtractorWithEmptyFile(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-        self.e = ImageOCRTextExtractor(uu.make_temporary_file())
-
-    def test_extractor_class_is_available(self):
-        self.assertIsNotNone(ImageOCRTextExtractor)
-
-    def test_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test_specifies_handles_mime_types(self):
-        self.assertIsNotNone(self.e.handles_mime_types)
-        self.assertTrue(isinstance(self.e.handles_mime_types, list))
-
-    def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'ImageOCRTextExtractor')
-
-
-# NOTE(jonas): Use a shared instance to maintain test execution speed.
-image_file = util.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
-image_ocr_extractor = ImageOCRTextExtractor(image_file)
-
-
-class TestImageOCRTextExtractorWithImageFile(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-        self.EXPECT_TEXT = 'Apr 23, 2007 - 12 Comments'
-
-        self.e = image_ocr_extractor
-
-    def test_extractor_class_is_available(self):
-        self.assertIsNotNone(ImageOCRTextExtractor)
-
-    def test_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test__get_raw_text_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e._get_raw_text(), str))
-
-    def test_method_query_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.query(), str))
-
-    def test_method_query_all_result_contains_expected(self):
-        self.skipTest(
-            "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'")
-        actual = self.e.query()
-        self.assertEqual(self.EXPECT_TEXT, actual)
-
-    def test_method_query_arbitrary_field_result_contains_expected(self):
-        self.skipTest(
-            "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'")
-        actual = self.e.query('dummy_field')
-        self.assertEqual(self.EXPECT_TEXT, actual)

@@ -284,22 +284,23 @@ class Autonameow(object):
                         current_file, extraction.data, analysis.results,
                         self.config, matcher.best_match
                     )
+                    # TODO: Do not return anything from 'build()', use property.
                     new_name = self.builder.build()
                 except exceptions.NameBuilderError as e:
                     log.critical('Name assembly FAILED: {!s}'.format(e))
                     self.exit_code = constants.EXIT_WARNING
                     continue
+
+                # TODO: [TD0042] Respect '--quiet' option. Suppress output.
+                log.info('New name: "{}"'.format(
+                    util.displayable_path(new_name))
+                )
+                renamed_ok = self.do_rename(current_file.abspath, new_name,
+                                            dry_run=self.opts.dry_run)
+                if renamed_ok:
+                    self.exit_code = constants.EXIT_SUCCESS
                 else:
-                    # TODO: [TD0042] Respect '--quiet' option. Suppress output.
-                    log.info('New name: "{}"'.format(
-                        util.displayable_path(new_name))
-                    )
-                    renamed_ok = self.do_rename(current_file.abspath, new_name,
-                                                dry_run=self.opts.dry_run)
-                    if renamed_ok:
-                        self.exit_code = constants.EXIT_SUCCESS
-                    else:
-                        self.exit_code = constants.EXIT_WARNING
+                    self.exit_code = constants.EXIT_WARNING
 
             elif self.opts.interactive:
                 # TODO: Create a interactive interface.
@@ -329,35 +330,47 @@ class Autonameow(object):
         """
         Renames a file at the given path to the specified basename.
 
+        If the basenames of the file at "from_path" and "new_basename" are
+        equal, the renaming operation is skipped and True is returned.
+
         Args:
-            from_path: Path to the file to rename.
-            new_basename: The new basename for the file as type str.
+            from_path: Path to the file to rename as an "internal" byte string.
+            new_basename: The new basename for the file as a Unicode string.
             dry_run: Controls whether the renaming is actually performed.
 
         Returns:
-            True if the rename succeeded, otherwise False.
+            True if the rename succeeded or would be a NO-OP, otherwise False.
         """
+        assert(isinstance(from_path, bytes))
+        assert(isinstance(new_basename, str))
+
         dest_basename = diskutils.sanitize_filename(new_basename)
 
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = util.bytestring_path(dest_basename)
-
-        from_basename = diskutils.file_basename(from_path)
         log.debug('Sanitized basename: "{!s}"'.format(
             util.displayable_path(dest_basename))
         )
 
-        success = True
+        from_basename = diskutils.file_basename(from_path)
+        if diskutils.compare_basenames(from_basename, dest_basename):
+            _msg = 'Skipped "{!s}" because the current name is the same as ' \
+                   'the new name'.format(util.displayable_path(from_basename),
+                                         util.displayable_path(dest_basename))
+            log.debug(_msg)
+            cli.msg(_msg, style='color_quoted')
+            return True
+
         if dry_run is False:
+            # TODO: [TD0067] Fix "destination exists" when new name == old name.
             try:
                 diskutils.rename_file(from_path, dest_basename)
             except (FileNotFoundError, FileExistsError, OSError) as e:
                 log.error('Rename FAILED: {!s}'.format(e))
-                success = False
+                return False
 
-        if success:
-            cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
-        return success
+        cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
+        return True
 
     @property
     def exit_code(self):

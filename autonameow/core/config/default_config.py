@@ -91,6 +91,18 @@ DEFAULT_CONFIG = {
          }
          },
         # ____________________________________________________________________
+        {'description': 'test_files simplest_pdf.md.pdf',
+         'exact_match': True,
+         'weight': 1,
+         'NAME_FORMAT': 'simplest_pdf.md.{extension}',
+         'CONDITIONS': {
+             'filesystem.basename.full': 'simplest_pdf.md.pdf',
+         },
+         'DATA_SOURCES': {
+             'extension': 'filesystem.basename.extension'
+         }
+         },
+        # ____________________________________________________________________
         {'description': 'Sample Entry for Photos with strict rules',
          'exact_match': True,
          'weight': 1,

@@ -30,6 +30,7 @@ import unittest
 from contextlib import contextmanager
 
 import analyzers
+from core.config import rules
 from core.extraction import ExtractedData
 from core.fileobject import FileObject
 from core import util
@@ -233,6 +234,87 @@ def get_instantiated_analyzers():
     #       problem and is surely not very pretty.
     return [klass(None, None, None) for klass in
             analyzers.get_analyzer_classes()]
+
+
+def get_dummy_rules_to_examine():
+    out = []
+
+    dummy_conditions = [
+        [rules.RuleCondition('contents.mime_type', 'application/pdf'),
+         rules.RuleCondition('filesystem.basename.extension', 'pdf'),
+         rules.RuleCondition('filesystem.basename.full', 'gmail.pdf')],
+
+        [rules.RuleCondition('contents.mime_type', 'image/jpeg'),
+         rules.RuleCondition('filesystem.basename.full', 'smulan.jpg')],
+
+        [rules.RuleCondition('contents.mime_type', 'image/jpeg'),
+         rules.RuleCondition('filesystem.basename.extension', 'jpg'),
+         rules.RuleCondition('filesystem.basename.full', 'DCIM*'),
+         rules.RuleCondition('filesystem.pathname.full', '~/Pictures/incoming'),
+         rules.RuleCondition('metadata.exiftool.EXIF:DateTimeOriginal',
+                             'Defined')],
+
+        [rules.RuleCondition('contents.mime_type', 'application/epub+zip'),
+         rules.RuleCondition('filesystem.basename.extension', 'epub'),
+         rules.RuleCondition('filesystem.basename.full', '.*'),
+         rules.RuleCondition('filesystem.pathname.full', '.*'),
+         rules.RuleCondition('metadata.exiftool.XMP-dc:Creator', 'Defined')],
+    ]
+
+    dummy_sources = [
+        {'datetime': 'metadata.exiftool.PDF:CreateDate',
+         'extension': 'filesystem.basename.extension',
+         'title': 'filesystem.basename.prefix'},
+
+        {'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
+         'description': 'plugin.microsoft_vision.caption',
+         'extension': 'filesystem.basename.extension'},
+
+        {'datetime': 'metadata.exiftool.EXIF:CreateDate',
+         'description': 'plugin.microsoft_vision.caption',
+         'extension': 'filesystem.basename.extension'},
+
+        {'author': 'metadata.exiftool.XMP-dc:CreatorFile-as',
+         'datetime': 'metadata.exiftool.XMP-dc:Date',
+         'extension': 'filesystem.basename.extension',
+         'publisher': 'metadata.exiftool.XMP-dc:Publisher',
+         'title': 'metadata.exiftool.XMP-dc:Title'},
+    ]
+
+    out.append(rules.FileRule(
+        description='test_files Gmail print-to-pdf',
+        exact_match=True,
+        weight=0.5,
+        name_template='{datetime} {title}.{extension}',
+        conditions=dummy_conditions[0],
+        data_sources=dummy_sources[0]
+    ))
+    out.append(rules.FileRule(
+        description='test_files smulan.jpg',
+        exact_match=True,
+        weight=1.0,
+        name_template='{datetime} {description}.{extension}',
+        conditions=dummy_conditions[1],
+        data_sources=dummy_sources[1]
+    ))
+    out.append(rules.FileRule(
+        description='Sample Entry for Photos with strict rules',
+        exact_match=True,
+        weight=1.0,
+        name_template='{datetime} {description} -- {tags}.{extension}',
+        conditions=dummy_conditions[1],
+        data_sources=dummy_sources[1]
+    ))
+    out.append(rules.FileRule(
+        description='Sample Entry for EPUB e-books',
+        exact_match=True,
+        weight=1.0,
+        name_template='{publisher} {title} {edition} - {author} {date}.{extension}',
+        conditions=dummy_conditions[1],
+        data_sources=dummy_sources[1]
+    ))
+
+    return out
 
 
 def is_class_instance(thing):
