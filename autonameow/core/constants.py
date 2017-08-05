@@ -132,9 +132,9 @@ MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
 MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
 
 # Default values for required configuration fields.
-FILERULE_DEFAULT_WEIGHT = 0.5
-FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR = ' -- '
-FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR = ' '
+DEFAULT_FILERULE_WEIGHT = 0.5
+DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR = ' -- '
+DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR = ' '
 
 # Exit code values returned to the executing shell or parent process.
 # Normal, successful termination should return "0" (EXIT_SUCCESS)

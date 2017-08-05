@@ -192,7 +192,7 @@ class TestParseWeight(TestCase):
             parse_weight(object())
 
     def test_none_value_returns_default_weight(self):
-        self.assertEqual(parse_weight(None), constants.FILERULE_DEFAULT_WEIGHT)
+        self.assertEqual(parse_weight(None), constants.DEFAULT_FILERULE_WEIGHT)
 
     def test_value_within_range_zero_to_one_returns_value(self):
         VALUES = [0, 0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 1]

@@ -194,7 +194,7 @@ class FileRule(Rule):
 
         self.description = str(kwargs.get('description'))
         self.exact_match = bool(kwargs.get('exact_match'))
-        self.weight = kwargs.get('weight', constants.FILERULE_DEFAULT_WEIGHT)
+        self.weight = kwargs.get('weight', constants.DEFAULT_FILERULE_WEIGHT)
         self.name_template = kwargs.get('name_template')
         self.conditions = kwargs.get('conditions', False)
         self.data_sources = kwargs.get('data_sources', False)

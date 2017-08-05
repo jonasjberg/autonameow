@@ -237,11 +237,11 @@ class Configuration(object):
 
         _try_load_filetags_option(
             'filename_tag_separator',
-            constants.FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR
+            constants.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR
         )
         _try_load_filetags_option(
             'between_tag_separator',
-            constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR
+            constants.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
         )
 
     def _load_version(self):
@@ -324,7 +324,7 @@ def parse_weight(value):
     ERROR_MSG = 'Expected float in range 0-1. Got: "{}"'.format(value)
 
     if value is None:
-        return constants.FILERULE_DEFAULT_WEIGHT
+        return constants.DEFAULT_FILERULE_WEIGHT
     if not isinstance(value, (int, float)):
         raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
 
