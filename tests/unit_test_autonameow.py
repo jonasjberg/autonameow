@@ -25,10 +25,11 @@ from unittest import (
 )
 import unit_utils as uu
 
-from core import constants
-from core.autonameow import (
-    Autonameow,
+from core import (
+    constants,
+    config
 )
+from core.autonameow import Autonameow
 
 
 class TestAutonameowWithoutOptions(TestCase):
@@ -89,6 +90,8 @@ class TestSetAutonameowExitCode(TestCase):
 class TestDoRename(TestCase):
     def setUp(self):
         self.amw = Autonameow('')
+        self.assertIsNotNone(self.amw)
+        self.amw.load_config(config.DEFAULT_CONFIG)
 
     @mock.patch('core.util.diskutils.rename_file')
     def test_dry_run_true_will_not_call_diskutils_rename_file(self, mockrename):
