@@ -190,7 +190,7 @@ assert_true '[ -d "$TEST_FILES_SUBDIR" ]' \
 assert_true '( "$AUTONAMEOW_RUNNER" --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 ) >/dev/null' \
             "Expect exit code 0 when running \"--recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
 
-assert_true '( "$AUTONAMEOW_RUNNER" --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 ) | grep -q ".*Got 8 files to process.*"' \
+assert_true '( "$AUTONAMEOW_RUNNER" --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 | grep -- ".*Got 8 files to process.*" 2>&1 ) >/dev/null' \
             "Expect output to contain \"Got 8 files to process\" when running \"--verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
 
 
