@@ -325,8 +325,7 @@ class Autonameow(object):
 
         sys.exit(self.exit_code)
 
-    @staticmethod
-    def do_rename(from_path, new_basename, dry_run=True):
+    def do_rename(self, from_path, new_basename, dry_run=True):
         """
         Renames a file at the given path to the specified basename.
 
@@ -344,11 +343,24 @@ class Autonameow(object):
         assert(isinstance(from_path, bytes))
         assert(isinstance(new_basename, str))
 
-        dest_basename = diskutils.sanitize_filename(new_basename)
+        if self.config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
+            if self.config.get(['FILESYSTEM_OPTIONS', 'sanitize_strict']):
+                log.debug('Sanitizing filename (restricted=True)')
+                new_basename = diskutils.sanitize_filename(new_basename,
+                                                           restricted=True)
+            else:
+                log.debug('Sanitizing filename')
+                new_basename = diskutils.sanitize_filename(new_basename)
+
+            log.debug('Sanitized basename (unicode): "{!s}"'.format(
+                util.displayable_path(new_basename))
+            )
+        else:
+            log.debug('Skipped sanitizing filename')
 
         # Encoding boundary.  Internal str --> internal filename bytestring
-        dest_basename = util.bytestring_path(dest_basename)
-        log.debug('Sanitized basename: "{!s}"'.format(
+        dest_basename = util.bytestring_path(new_basename)
+        log.debug('Destination basename (bytestring): "{!s}"'.format(
             util.displayable_path(dest_basename))
         )
 

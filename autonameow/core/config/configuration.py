@@ -217,16 +217,17 @@ class Configuration(object):
             if 'DATETIME_FORMAT' in self._data:
                 _value = self._data['DATETIME_FORMAT'].get(option)
             else:
-                _value = False
-            if _value and DateTimeConfigFieldParser.is_valid_datetime(_value):
+                _value = None
+            if (_value is not None and
+                    DateTimeConfigFieldParser.is_valid_datetime(_value)):
                 self._options['DATETIME_FORMAT'][option] = _value
 
         def _try_load_filetags_option(option, default):
             if 'FILETAGS_OPTIONS' in self._data:
                 _value = self._data['FILETAGS_OPTIONS'].get(option)
             else:
-                _value = False
-            if _value:
+                _value = None
+            if _value is not None:
                 self._options['FILETAGS_OPTIONS'][option] = _value
             else:
                 self._options['FILETAGS_OPTIONS'][option] = default
@@ -236,7 +237,7 @@ class Configuration(object):
                 _value = self._data['FILESYSTEM_OPTIONS'].get(option)
             else:
                 _value = None
-            if _value:
+            if _value is not None:
                 util.nested_dict_set(
                     self._options, ['FILESYSTEM_OPTIONS', option], _value
                 )
@@ -272,6 +273,9 @@ class Configuration(object):
             log.error('Unable to read program version from configuration')
         else:
             self._version = raw_version
+
+    def get(self, key_list):
+        return util.nested_dict_get(self._options, key_list)
 
     @property
     def version(self):
