@@ -179,6 +179,9 @@ assert_true '( "$AUTONAMEOW_RUNNER" --list-title -- "$SAMPLE_PDF_FILE" 2>&1 ) >/
 assert_false '( "$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>/dev/null | col -b | grep -q -- " !!binary " 2>&1 ) >/dev/null' \
              "Output should not contain \" !!binary \" when running with \"--list-all\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
+assert_false '( "$AUTONAMEOW_RUNNER" --dump-config 2>&1 | grep -q -- " \!\!python/object:" 2>&1 ) >/dev/null' \
+             "Output should not contain \" !!python/object:\" when running with \"--dump-config\""
+
 
 TEST_FILES_SUBDIR="$(abspath_testfile "subdir")"
 assert_true '[ -d "$TEST_FILES_SUBDIR" ]' \
