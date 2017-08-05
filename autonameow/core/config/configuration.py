@@ -231,6 +231,20 @@ class Configuration(object):
             else:
                 self._options['FILETAGS_OPTIONS'][option] = default
 
+        def _try_load_filesystem_option(option, default):
+            if 'FILESYSTEM_OPTIONS' in self._data:
+                _value = self._data['FILESYSTEM_OPTIONS'].get(option)
+            else:
+                _value = None
+            if _value:
+                util.nested_dict_set(
+                    self._options, ['FILESYSTEM_OPTIONS', option], _value
+                )
+            else:
+                util.nested_dict_set(
+                    self._options, ['FILESYSTEM_OPTIONS', option], default
+                )
+
         _try_load_date_format_option('date')
         _try_load_date_format_option('time')
         _try_load_date_format_option('datetime')
@@ -242,6 +256,14 @@ class Configuration(object):
         _try_load_filetags_option(
             'between_tag_separator',
             constants.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
+        )
+        _try_load_filesystem_option(
+            'sanitize_filename',
+            constants.DEFAULT_FILESYSTEM_SANITIZE_FILENAME
+        )
+        _try_load_filesystem_option(
+            'sanitize_strict',
+            constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
 
     def _load_version(self):

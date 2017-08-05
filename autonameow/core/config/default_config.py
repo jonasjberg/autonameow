@@ -183,6 +183,15 @@ DEFAULT_CONFIG = {
         'datetime': '%Y-%m-%dT%H%M%S'
     },
 
+    #  Filesystem Options
+    #  ==================
+    #  Options for how filenames are written do disk. Allowed/blacklisted
+    #  characters and potentially custom replacements, etc.
+    'FILESYSTEM_OPTIONS': {
+        'sanitize_filename': True,
+        'sanitize_strict': False
+    },
+
     #  Filetags Options
     #  ================
     #  Options for functionality related to the "filetags" workflow.
