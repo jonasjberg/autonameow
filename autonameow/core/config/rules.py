@@ -133,7 +133,7 @@ class RuleCondition(object):
         parsers = field_parsers.suitable_field_parser_for(query_string)
         if parsers:
             # Assume only one parser can handle a query string for now.
-            assert(len(parsers) == 0)
+            assert(len(parsers) == 1)
             self._parser = parsers[0]
             return self._parser
         else:
