@@ -202,6 +202,8 @@ class FileRule(Rule):
         self.data_sources = kwargs.get('data_sources', False)
 
         # Rules are sorted/prioritized by first the score, secondly the weight.
+        # TODO: [TD0069] Store scores as normalized floats.
+        # Calculate scores as;  SCORE = conditions_met / number_of_conditions
         self.score = 0
 
     def __str__(self):
@@ -219,12 +221,16 @@ class FileRule(Rule):
         """
         Increases the matching score of this rule.
         """
+        # TODO: [TD0069] Store scores as normalized floats.
+        # Calculate scores as;  SCORE = conditions_met / number_of_conditions
         self.score += 1
 
     def downvote(self):
         """
         Decreases the matching score of this rule.
         """
+        # TODO: [TD0069] Store scores as normalized floats.
+        # Calculate scores as;  SCORE = conditions_met / number_of_conditions
         if self.score > 0:
             self.score -= 1
 
