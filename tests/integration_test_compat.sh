@@ -48,16 +48,16 @@ logmsg "Running the "$TESTSUITE_NAME" test suite .."
 assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
 
-assert_true 'command -v python3 >/dev/null 2>&1' \
+assert_true 'command -v python3' \
             "Python v3.x is available on the system"
 
-assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]" >/dev/null 2>&1' \
+assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
             "Python v3.5.0 or newer is available on the system"
 
-assert_true 'command -v exiftool >/dev/null 2>&1' \
+assert_true 'command -v exiftool' \
             "exiftool is available on the system"
 
-assert_true 'command -v tesseract >/dev/null 2>&1' \
+assert_true 'command -v tesseract' \
             "tesseract is available on the system"
 
 AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../run.sh" ) )"

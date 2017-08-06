@@ -99,10 +99,10 @@ assert_true '[ -e "${SELF_DIR}/unit_runner.sh" ]' \
 assert_true '[ -x "${SELF_DIR}/unit_runner.sh" ]' \
             'The unit test runner is executable'
 
-assert_true 'command -v "aha" >/dev/null 2>&1' \
+assert_true 'command -v "aha"' \
             'The executable "aha" is available on the system'
 
-assert_true 'command -v "pytest" >/dev/null 2>&1' \
+assert_true 'command -v "pytest"' \
             'The executable "pytest" is available on the system'
 
 _pytesthelp="$(pytest --help 2>&1)"

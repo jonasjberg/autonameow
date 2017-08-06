@@ -45,7 +45,7 @@ logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 
 
-assert_true 'command -v python3 >/dev/null 2>&1' \
+assert_true 'command -v python3' \
             "Python v3.x is available on the system"
 
 AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../run.sh" ) )"
