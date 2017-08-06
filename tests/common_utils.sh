@@ -104,14 +104,13 @@ run_task()
     [ "$_opt_quiet" = 'true' ] && local FMT='%s ..' || local FMT='%s ..\n'
     printf "$FMT" "$_msg"
 
+    # Run task and check exit status.
     if [ "$_opt_quiet" != 'true' ]
     then
         eval "${_cmd}"
     else
         eval "${_cmd}" 2>&1 >/dev/null
     fi
-
-    # Run task and check exit status.
     local _retcode="$?"
     if [ "$_retcode" -ne '0' ]
     then
