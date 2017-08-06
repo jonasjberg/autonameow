@@ -38,8 +38,8 @@ then
 fi
 
 
-# Initialize counter variables every time this script is sourced, which means
-# these count numbers for each test suite.  Used in 'calculate_statistics'.
+# Initialize counter variables every time this script is sourced
+# by each of the test suites. Used in 'log_test_suite_results_summary'.
 tests_total=0
 tests_passed=0
 tests_failed=0
