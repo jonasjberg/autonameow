@@ -43,3 +43,16 @@ class PluginResults(DataContainerBase):
             raise KeyError('Expected non-empty "destination"')
 
         self._data.update({destination: data})
+
+
+class PluginHandler(object):
+    def __init__(self):
+        self.results = PluginResults()
+
+    def query(self, query_string):
+        if query_string.startswith('plugin.'):
+            plugin_name, plugin_query = query_string.lstrip('plugin.').split('.')
+            result = plugins.plugin_query(plugin_name, plugin_query, None)
+            return result
+        else:
+            return False
