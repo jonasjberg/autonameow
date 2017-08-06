@@ -81,9 +81,11 @@ logmsg()
 # Prints out a summary of test results for the currently sourcing script.
 log_test_suite_results_summary()
 {
+    local _name="$1"
+    local _execution_time="$2"
     local _highlight_red=''
 
-    logmsg "----------------------------------------------------------------------"
+    logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     if [ "$tests_failed" -eq "0" ]
     then
         logmsg "${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"

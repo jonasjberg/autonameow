@@ -189,7 +189,6 @@ set -o pipefail
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
-total_time="$((($time_end - $time_start) / 1000000))"
+total_time="$(calculate_execution_time "$time_start" "$time_end")"
 
-log_test_suite_results_summary
-logmsg "Completed the Compatibility test suite tests in ${total_time} ms"
+log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
