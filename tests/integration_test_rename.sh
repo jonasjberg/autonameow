@@ -52,7 +52,7 @@ test_automagic_rename()
     local _expected_name="${_temp_dir}/${_expected_basename}"
     local _temp_file="${_temp_dir}/${_sample_file_basename}"
 
-    assert_true 'cp -n -- "${_sample_file}" "${_temp_file}" 2>&1 >/dev/null' \
+    assert_true 'cp -n -- "${_sample_file}" "${_temp_file}"' \
                 "(${_test_name}) Test setup should succeed in copying the sample file to a temporary directory"
 
     assert_true '[ -f "${_temp_file}" ]' \
@@ -65,7 +65,7 @@ test_automagic_rename()
         return -1
     fi
 
-    assert_true '( "$AUTONAMEOW_RUNNER" --automagic -- "${_temp_file}" 2>&1 ) >/dev/null && [ -e "$_expected_name" ]' \
+    assert_true '"$AUTONAMEOW_RUNNER" --automagic -- "${_temp_file}" && [ -e "$_expected_name" ]' \
                 "(${_test_name}) Should be renamed to \"${_expected_basename}\""
 
     assert_true '[ -f "${_temp_file}" ] && rm -- "${_temp_file}" ; [ -f "$_expected_name" ] && rm -- "$_expected_name" || true' \
@@ -92,19 +92,19 @@ test_automagic_dryrun()
         return -1
     fi
 
-    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "${_sample_file}" 2>&1 ) >/dev/null' \
+    assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run -- "${_sample_file}"' \
                 "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run\""
 
-    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "${_sample_file}" 2>&1 ) >/dev/null' \
+    assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "${_sample_file}"' \
                 "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run --verbose\""
 
-    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "${_sample_file}" 2>&1 ) >/dev/null' \
+    assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "${_sample_file}"' \
                 "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run --debug\""
 
-    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "${_sample_file}" 2>/dev/null ) | grep -- "${_expected_basename}" 2>&1 >/dev/null' \
+    assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run -- "${_sample_file}" | grep -- "${_expected_basename}"' \
                 "(${_test_name}) Expect output to include \"${_expected_basename}\" when started with \"--dry-run\""
 
-    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null ) | grep -- "${_expected_basename}" 2>&1 >/dev/null' \
+    assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null | grep -- "${_expected_basename}"' \
                 "(${_test_name}) Expect output to include \"${_expected_basename}\" when started with \"--dry-run --verbose\""
 
     assert_true '[ -f "${_sample_file}" ]' \

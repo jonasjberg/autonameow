@@ -112,7 +112,7 @@ assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
 assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
 
-assert_true 'type -t get_timestamp_from_basename >/dev/null' \
+assert_true 'type -t get_timestamp_from_basename' \
             '"get_timestamp_from_basename" is a function'
 
 assert_false '[ -n "$(get_timestamp_from_basename "abc")" ]' \
@@ -141,7 +141,7 @@ assert_true '[ -e "${_abspath_testfile_subdir}" ]' \
 assert_true '[ -d "${_abspath_testfile_subdir}" ]' \
             'abspath_testfile "subdir" should the path to an existing directory'
 
-assert_true 'type -t calculate_execution_time >/dev/null' \
+assert_true 'type -t calculate_execution_time' \
             '"calculate_execution_time" is a function'
 
 assert_true '[ "$(calculate_execution_time 1501987087187088013 1501987087942286968)" -eq "755" ]' \
