@@ -45,6 +45,16 @@ def plugin_query(plugin_name, query, data):
         # TODO: [TD0061] Return any query response data.
         pass
 
+        # if query == 'caption':
+        #     caption = 'a cat lying on a rug'
+        #     # log.debug('Returning caption: "{!s}"'.format(caption))
+        #     return str(caption)
+        # elif query == 'tags':
+        #     tags = ['cat', 'black', 'indoor', 'laying', 'white']
+        #     tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
+        #     # log.debug('Returning tags: {}'.format(tags_pretty))
+        #     return tags
+
 
 class BasePlugin(object):
     def __init__(self, source):
