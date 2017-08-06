@@ -94,7 +94,18 @@ log_test_suite_results_summary()
 
     logmsg "$(printf "Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$tests_total" "$tests_passed" "$tests_failed")"
+    logmsg "Completed the "$_name" test suite tests in ${_execution_time} ms"
     logmsg "======================================================================"
+}
+
+# Calculates the execution time by taking the difference of two unix
+# timestamps.  The expected arguments are start and end times.
+# Returns the time delta in milliseconds.
+calculate_execution_time()
+{
+    local _time_start="$1"
+    local _time_end="$2"
+    echo "$(((${_time_end} - ${_time_start}) / 1000000))"
 }
 
 # Logs a test failure message and increments counters.
