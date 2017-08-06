@@ -23,6 +23,7 @@ set -o noclobber -o nounset -o pipefail
 
 SELF="$(basename "$0")"
 SELF_DIR="$(dirname "$0")"
+TESTSUITE_NAME='Rename Files'
 
 # Source 'integration_utils.sh', which in turn sources 'common_utils.sh'.
 if ! source "${SELF_DIR}/integration_utils.sh"
@@ -118,7 +119,7 @@ test_automagic_dryrun()
 time_start="$(current_unix_time)"
 
 logmsg "Started \"${SELF}\""
-logmsg "Running the Rename Files test suite .."
+logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 
 
