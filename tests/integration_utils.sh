@@ -81,15 +81,20 @@ logmsg()
 # Prints out a summary of test results for the currently sourcing script.
 calculate_statistics()
 {
+    local _highlight_red=''
+
     if [ "$tests_failed" -eq "0" ]
     then
         logmsg "${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
     else
         logmsg "${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
+        _highlight_red="${C_RED}"
     fi
 
-    logmsg "$(printf "Summary:  %d total, %d passed, %d failed" \
+    logmsg "----------------------------------------------------------------------"
+    logmsg "$(printf "Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$tests_total" "$tests_passed" "$tests_failed")"
+    logmsg "======================================================================"
 }
 
 # Logs a test failure message and increments counters.
