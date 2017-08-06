@@ -245,3 +245,8 @@ class FilenameAnalyzer(BaseAnalyzer):
                           'from file name using brute force search.')
 
         return results
+
+
+def _find_datetime_isodate(text_line):
+    # TODO: [TD0070] Implement arbitrary basic personal use case.
+    pass

@@ -169,6 +169,8 @@ Medium Priority
   But this is not configurable -- how would the filename analyzer know
   which of many possible datetime results to use?
 
+* `[TD0070]` Implement arbitrary common personal use case.
+
 * `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
 
 * `[TD0019]` Rework the `FilenameAnalyzer`

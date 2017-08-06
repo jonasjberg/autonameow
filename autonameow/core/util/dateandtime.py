@@ -790,3 +790,17 @@ def naive_to_timezone_aware(naive_datetime):
     """
     # Reference:  https://stackoverflow.com/a/7065242/7802196
     return pytz.utc.localize(naive_datetime)
+
+
+def find_isodate_like(unicode_text):
+    # TODO: [TD0070] Implement arbitrary basic personal use case.
+    if not unicode_text:
+        raise ValueError('Got None/empty argument')
+
+    string_digits = textutils.extract_digits(unicode_text)
+    try:
+        dt = datetime.strptime(string_digits, '%Y%m%d%H%M%S')
+    except ValueError:
+        return None
+    else:
+        return dt

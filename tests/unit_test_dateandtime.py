@@ -22,14 +22,14 @@
 from datetime import datetime
 from unittest import TestCase
 
-
 from core.util.dateandtime import (
     hyphenate_date,
     match_any_unix_timestamp,
     match_special_case,
     to_datetime,
     naive_to_timezone_aware,
-    timezone_aware_to_naive
+    timezone_aware_to_naive,
+    find_isodate_like
 )
 
 
@@ -144,3 +144,38 @@ class TestTimezoneAwareToNaive(TestCase):
 
     def test_aware_dt_should_forget_timezone_and_equal_unaware_dt(self):
         self.assertEqual(timezone_aware_to_naive(self.aware), self.unaware)
+
+
+def _str_to_datetime(yyyy_mm_ddthhmmss):
+    return datetime.strptime(yyyy_mm_ddthhmmss, '%Y-%m-%d %H%M%S')
+
+
+class FindIsoDateLike(TestCase):
+    def setUp(self):
+        self.expected = _str_to_datetime('2016-07-22 131730')
+        self.assertIsInstance(self.expected, datetime)
+
+    def test_invalid_argument_raises_value_error(self):
+        def _assert_raises(test_data):
+            with self.assertRaises(ValueError):
+                find_isodate_like(test_data)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises(' ')
+        _assert_raises('abc')
+
+    def test_match_special_case_1st_variation(self):
+        self.assertEqual(self.expected, find_isodate_like('2016-07-22_131730'))
+
+    def test_match_special_case_2nd_variation(self):
+        self.assertIsNotNone(match_special_case('2016-07-22T131730'))
+        self.assertEqual(self.expected, find_isodate_like('2016-07-22T131730'))
+
+    def test_match_special_case_3rd_variation(self):
+        self.assertIsNotNone(match_special_case('20160722_131730'))
+        self.assertEqual(self.expected, find_isodate_like('20160722_131730'))
+
+    def test_match_special_case_4th_variation(self):
+        self.assertIsNotNone(match_special_case('20160722T131730'))
+        self.assertEqual(self.expected, find_isodate_like('20160722T131730'))
