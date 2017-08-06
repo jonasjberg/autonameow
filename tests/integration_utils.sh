@@ -83,6 +83,7 @@ calculate_statistics()
 {
     local _highlight_red=''
 
+    logmsg "----------------------------------------------------------------------"
     if [ "$tests_failed" -eq "0" ]
     then
         logmsg "${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
@@ -91,8 +92,7 @@ calculate_statistics()
         _highlight_red="${C_RED}"
     fi
 
-    logmsg "----------------------------------------------------------------------"
-    logmsg "$(printf "Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
+    logmsg "$(printf "Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$tests_total" "$tests_passed" "$tests_failed")"
     logmsg "======================================================================"
 }
