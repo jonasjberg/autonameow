@@ -100,10 +100,10 @@ test_automagic_dryrun()
     assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "${_sample_file}" 2>&1 ) >/dev/null' \
                 "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run --debug\""
 
-    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "${_sample_file}" 2>/dev/null ) | grep -q -- "${_expected_basename}"' \
+    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run -- "${_sample_file}" 2>/dev/null ) | grep -- "${_expected_basename}" 2>&1 >/dev/null' \
                 "(${_test_name}) Expect output to include \"${_expected_basename}\" when started with \"--dry-run\""
 
-    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null ) | grep -q -- "${_expected_basename}"' \
+    assert_true '( "$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null ) | grep -- "${_expected_basename}" 2>&1 >/dev/null' \
                 "(${_test_name}) Expect output to include \"${_expected_basename}\" when started with \"--dry-run --verbose\""
 
     assert_true '[ -f "${_sample_file}" ]' \
