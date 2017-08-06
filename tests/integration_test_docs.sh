@@ -110,5 +110,5 @@ assert_true '[ "${_count_untracked_in_doc}" -eq "0" ]' \
 time_end="$(current_unix_time)"
 total_time="$((($time_end - $time_start) / 1000000))"
 
-calculate_statistics
+log_test_suite_results_summary
 logmsg "Completed the Documentation test suite tests in ${total_time} ms"

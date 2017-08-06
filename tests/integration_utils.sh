@@ -79,7 +79,7 @@ logmsg()
 }
 
 # Prints out a summary of test results for the currently sourcing script.
-calculate_statistics()
+log_test_suite_results_summary()
 {
     local _highlight_red=''
 
