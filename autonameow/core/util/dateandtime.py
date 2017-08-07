@@ -793,7 +793,6 @@ def naive_to_timezone_aware(naive_datetime):
 
 
 def find_isodate_like(unicode_text):
-    # TODO: [TD0070] Implement arbitrary basic personal use case.
     if not unicode_text:
         raise ValueError('Got None/empty argument')
 
