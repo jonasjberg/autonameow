@@ -214,21 +214,12 @@ class Autonameow(object):
 
                 # Begin analysing the file.
                 analysis = self._run_analysis(current_file, extraction.data)
-            except exceptions.AutonameowException:
-                log.critical('Skipping file "{}" ..'.format(
-                    util.displayable_path(file_path))
-                )
-                self.exit_code = constants.EXIT_WARNING
-                continue
 
-            # Determine matching rule.
-            matcher = RuleMatcher(analysis_results=analysis.results,
-                                  extracted_data=extraction.data,
-                                  active_config=self.config)
-            try:
-                matcher.start()
-            except exceptions.AutonameowException as e:
-                log.critical('Rule Matching FAILED: {!s}'.format(e))
+                # Determine matching rule.
+                matcher = self._run_rule_matcher(extracted_data=extraction.data,
+                                                 analysis_data=analysis.results,
+                                                 active_config=self.config)
+            except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(file_path))
                 )
@@ -320,6 +311,16 @@ class Autonameow(object):
             raise
         else:
             return analysis
+
+    def _run_rule_matcher(self, extracted_data, analysis_data, active_config):
+        matcher = RuleMatcher(analysis_data, extracted_data, active_config)
+        try:
+            matcher.start()
+        except exceptions.AutonameowException as e:
+            log.critical('Rule Matching FAILED: {!s}'.format(e))
+            raise
+        else:
+            return matcher
 
     def exit_program(self, exit_code_):
         """
