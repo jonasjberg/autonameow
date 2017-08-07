@@ -213,7 +213,7 @@ class Autonameow(object):
                 )
 
                 # Begin analysing the file.
-                analysis = self._run_analysis(current_file, extraction.data)
+                analysis = _run_analysis(current_file, extraction.data)
 
                 # Determine matching rule.
                 matcher = self._run_rule_matcher(extracted_data=extraction.data,
@@ -285,16 +285,6 @@ class Autonameow(object):
                 # TODO: Create a interactive interface.
                 # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
                 log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
-
-    def _run_analysis(self, file_object, extracted_data):
-        analysis = Analysis(file_object, extracted_data)
-        try:
-            analysis.start()
-        except exceptions.AutonameowException as e:
-            log.critical('Analysis FAILED: {!s}'.format(e))
-            raise
-        else:
-            return analysis
 
     def _run_rule_matcher(self, extracted_data, analysis_data, active_config):
         matcher = RuleMatcher(analysis_data, extracted_data, active_config)
@@ -436,3 +426,26 @@ def _run_extraction(file_object, run_all_extractors=False):
         raise
     else:
         return extraction
+
+
+def _run_analysis(file_object, extracted_data):
+    """
+    Instantiates, executes and returns an 'Analysis' instance.
+
+    Args:
+        file_object: The file object to analyze.
+        extracted_data: Extracted data provided by an 'Extraction' instance.
+
+    Returns:
+        An instance of the 'Analysis' class that has executed successfully.
+    Raises:
+        AutonameowException: An unrecoverable error occurred during analysis.
+    """
+    analysis = Analysis(file_object, extracted_data)
+    try:
+        analysis.start()
+    except exceptions.AutonameowException as e:
+        log.critical('Analysis FAILED: {!s}'.format(e))
+        raise
+    else:
+        return analysis
