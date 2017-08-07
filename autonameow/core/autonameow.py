@@ -208,7 +208,7 @@ class Autonameow(object):
 
             try:
                 # Extract data from the file.
-                extraction = self._run_extraction(
+                extraction = _run_extraction(
                     current_file, run_all_extractors=should_list_any_results
                 )
 
@@ -285,22 +285,6 @@ class Autonameow(object):
                 # TODO: Create a interactive interface.
                 # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
                 log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
-
-    def _run_extraction(self, file_object, run_all_extractors=False):
-        extraction = Extraction(file_object)
-        try:
-            # TODO: [TD0056] Determine required extractors for current file.
-
-            # Assume slower execution speed is tolerable when the user
-            # wants to display any results, also for completeness. Run all.
-            extraction.start(
-                require_all_extractors=run_all_extractors is True
-            )
-        except exceptions.AutonameowException as e:
-            log.critical('Extraction FAILED: {!s}'.format(e))
-            raise
-        else:
-            return extraction
 
     def _run_analysis(self, file_object, extracted_data):
         analysis = Analysis(file_object, extracted_data)
@@ -423,3 +407,32 @@ class Autonameow(object):
             log.debug('Exit code updated: {} -> {}'.format(self._exit_code,
                                                            value))
             self._exit_code = value
+
+
+def _run_extraction(file_object, run_all_extractors=False):
+    """
+    Instantiates, executes and returns an 'Extraction' instance.
+
+    Args:
+        file_object: The file object to extract data from.
+        run_all_extractors: Whether all data extractors should be included.
+
+    Returns:
+        An instance of the 'Extraction' class that has executed successfully.
+    Raises:
+        AutonameowException: An unrecoverable error occurred during extraction.
+    """
+    extraction = Extraction(file_object)
+    try:
+        # TODO: [TD0056] Determine required extractors for current file.
+
+        # Assume slower execution speed is tolerable when the user
+        # wants to display any results, also for completeness. Run all.
+        extraction.start(
+            require_all_extractors=run_all_extractors is True
+        )
+    except exceptions.AutonameowException as e:
+        log.critical('Extraction FAILED: {!s}'.format(e))
+        raise
+    else:
+        return extraction
