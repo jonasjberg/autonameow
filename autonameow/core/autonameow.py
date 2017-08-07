@@ -206,18 +206,12 @@ class Autonameow(object):
                                        or self.opts.list_title
                                        or self.opts.list_all)
 
-            # Extract data from the file.
-            extraction = Extraction(current_file)
             try:
-                # TODO: [TD0056] Determine required extractors for current file.
-
-                # Assume slower execution speed is tolerable when the user
-                # wants to display any results, also for completeness. Run all.
-                extraction.start(
-                    require_all_extractors=should_list_any_results is True
+                # Extract data from the file.
+                extraction = self._run_extraction(
+                    current_file, run_all_extractors=should_list_any_results
                 )
-            except exceptions.AutonameowException as e:
-                log.critical('Extraction FAILED: {!s}'.format(e))
+            except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(file_path))
                 )
@@ -309,6 +303,22 @@ class Autonameow(object):
                 # TODO: Create a interactive interface.
                 # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
                 log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
+
+    def _run_extraction(self, file_object, run_all_extractors=False):
+        extraction = Extraction(file_object)
+        try:
+            # TODO: [TD0056] Determine required extractors for current file.
+
+            # Assume slower execution speed is tolerable when the user
+            # wants to display any results, also for completeness. Run all.
+            extraction.start(
+                require_all_extractors=run_all_extractors is True
+            )
+        except exceptions.AutonameowException as e:
+            log.critical('Extraction FAILED: {!s}'.format(e))
+            raise
+        else:
+            return extraction
 
     def exit_program(self, exit_code_):
         """
