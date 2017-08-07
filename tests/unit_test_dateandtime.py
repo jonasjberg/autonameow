@@ -163,10 +163,38 @@ class FindIsoDateLike(TestCase):
         _assert_raises(None)
         _assert_raises('')
         _assert_raises(' ')
-        _assert_raises('abc')
+        _assert_raises('  ')
+
+    def _assert_none(self, test_data):
+        self.assertIsNone(find_isodate_like(test_data))
+
+    def test_returns_none_for_no_possible_matches(self):
+        def _assert_none(test_data):
+            self.assertIsNone(find_isodate_like(test_data))
+
+        self._assert_none('abc')
+        self._assert_none(' a ')
+        self._assert_none(' 1 ')
+        self._assert_none('1')
+        self._assert_none('12')
+        self._assert_none('123')
+        self._assert_none('1234')
+        self._assert_none('12345678912345')
+
+    def test_returns_none_for_out_of_range_date_or_time(self):
+        self._assert_none('0000-07-22_131730')
+        self._assert_none('2016-07-22_131799')
+        self._assert_none('2016-13-22_131730')
+        self._assert_none('2016-07-99_131730')
+        self._assert_none('2016-07-22_251730')
+        self._assert_none('2016-07-22_136130')
+        self._assert_none('2016-07-22_131761')
 
     def test_match_special_case_1st_variation(self):
         self.assertEqual(self.expected, find_isodate_like('2016-07-22_131730'))
+
+        datetime9999 = _str_to_datetime('9999-07-22 131730')
+        self.assertEqual(datetime9999, find_isodate_like('9999-07-22_131730'))
 
     def test_match_special_case_2nd_variation(self):
         self.assertIsNotNone(match_special_case('2016-07-22T131730'))

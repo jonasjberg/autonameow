@@ -797,10 +797,14 @@ def find_isodate_like(unicode_text):
     if not unicode_text:
         raise ValueError('Got None/empty argument')
 
+    unicode_text = unicode_text.strip()
+    if not unicode_text:
+        raise ValueError('Got empty string argument')
+
     string_digits = textutils.extract_digits(unicode_text)
     try:
         dt = datetime.strptime(string_digits, '%Y%m%d%H%M%S')
-    except ValueError:
+    except (ValueError, TypeError):
         return None
     else:
         return dt
