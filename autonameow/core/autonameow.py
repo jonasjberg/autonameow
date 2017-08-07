@@ -211,19 +211,10 @@ class Autonameow(object):
                 extraction = self._run_extraction(
                     current_file, run_all_extractors=should_list_any_results
                 )
-            except exceptions.AutonameowException:
-                log.critical('Skipping file "{}" ..'.format(
-                    util.displayable_path(file_path))
-                )
-                self.exit_code = constants.EXIT_WARNING
-                continue
 
-            # Begin analysing the file.
-            analysis = Analysis(current_file, extraction.data)
-            try:
-                analysis.start()
-            except exceptions.AutonameowException as e:
-                log.critical('Analysis FAILED: {!s}'.format(e))
+                # Begin analysing the file.
+                analysis = self._run_analysis(current_file, extraction.data)
+            except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(file_path))
                 )
@@ -319,6 +310,16 @@ class Autonameow(object):
             raise
         else:
             return extraction
+
+    def _run_analysis(self, file_object, extracted_data):
+        analysis = Analysis(file_object, extracted_data)
+        try:
+            analysis.start()
+        except exceptions.AutonameowException as e:
+            log.critical('Analysis FAILED: {!s}'.format(e))
+            raise
+        else:
+            return analysis
 
     def exit_program(self, exit_code_):
         """
