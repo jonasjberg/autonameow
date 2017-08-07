@@ -217,9 +217,9 @@ class Autonameow(object):
                                          extracted_data=extraction.data)
 
                 # Determine matching rule.
-                matcher = self._run_rule_matcher(extracted_data=extraction.data,
-                                                 analysis_data=analysis.results,
-                                                 active_config=self.config)
+                matcher = _run_rule_matcher(extracted_data=extraction.data,
+                                            analysis_data=analysis.results,
+                                            active_config=self.config)
             except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(file_path))
@@ -286,16 +286,6 @@ class Autonameow(object):
                 # TODO: Create a interactive interface.
                 # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
                 log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
-
-    def _run_rule_matcher(self, extracted_data, analysis_data, active_config):
-        matcher = RuleMatcher(analysis_data, extracted_data, active_config)
-        try:
-            matcher.start()
-        except exceptions.AutonameowException as e:
-            log.critical('Rule Matching FAILED: {!s}'.format(e))
-            raise
-        else:
-            return matcher
 
     def exit_program(self, exit_code_):
         """
@@ -450,3 +440,27 @@ def _run_analysis(file_object, extracted_data):
         raise
     else:
         return analysis
+
+
+def _run_rule_matcher(extracted_data, analysis_data, active_config):
+    """
+    Instantiates, executes and returns a 'RuleMatcher' instance.
+
+    Args:
+        extracted_data: Extracted data provided by an 'Extraction' instance.
+        analysis_data: Analysis results data provided by an 'Analysis' instance.
+        active_config: An instance of the 'Configuration' class.
+
+    Returns:
+        An instance of the 'RuleMatcher' class that has executed successfully.
+    Raises:
+        AutonameowException: An unrecoverable error occurred during execution.
+    """
+    matcher = RuleMatcher(analysis_data, extracted_data, active_config)
+    try:
+        matcher.start()
+    except exceptions.AutonameowException as e:
+        log.critical('Rule Matching FAILED: {!s}'.format(e))
+        raise
+    else:
+        return matcher
