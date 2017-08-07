@@ -213,7 +213,8 @@ class Autonameow(object):
                 )
 
                 # Begin analysing the file.
-                analysis = _run_analysis(current_file, extraction.data)
+                analysis = _run_analysis(current_file,
+                                         extracted_data=extraction.data)
 
                 # Determine matching rule.
                 matcher = self._run_rule_matcher(extracted_data=extraction.data,
