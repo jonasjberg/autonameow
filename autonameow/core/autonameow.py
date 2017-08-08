@@ -68,9 +68,6 @@ class Autonameow(object):
         self.filter = None
         self.active_config = None
 
-    def load_config(self, dict_or_yaml):
-        self.active_config = Configuration(dict_or_yaml)
-
     def run(self):
         # Display help/usage information if no arguments are provided.
         if not self.args:
@@ -140,6 +137,9 @@ class Autonameow(object):
         log.info('Got {} files to process'.format(len(files_to_process)))
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
+
+    def load_config(self, dict_or_yaml):
+        self.active_config = Configuration(dict_or_yaml)
 
     def _dump_active_config_and_exit(self):
         log.info('Dumping active configuration ..')
