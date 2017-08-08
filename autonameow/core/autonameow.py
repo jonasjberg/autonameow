@@ -193,7 +193,7 @@ class Autonameow(object):
         6. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
         7. (automagic mode and not --dry-run) Rename the file.
 
-        Assume all state is reset for each loop iteration.
+        Assume all state is setup and completely reset for each loop iteration.
         It is not currently possible to share "information" between runs.
         """
         for file_path in file_paths:
