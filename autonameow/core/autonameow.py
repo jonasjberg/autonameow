@@ -254,15 +254,12 @@ class Autonameow(object):
                     matcher.best_match.description)
                 )
                 try:
-                    self.builder = NameBuilder(current_file,
+                    new_name = _build_new_name(current_file,
                                                extracted_data=extraction.data,
                                                analysis_data=analysis.results,
                                                active_config=self.config,
                                                active_rule=matcher.best_match)
-                    # TODO: Do not return anything from 'build()', use property.
-                    new_name = self.builder.build()
-                except exceptions.NameBuilderError as e:
-                    log.critical('Name assembly FAILED: {!s}'.format(e))
+                except exceptions.AutonameowException:
                     self.exit_code = constants.EXIT_WARNING
                     continue
 
@@ -382,6 +379,21 @@ class Autonameow(object):
             log.debug('Exit code updated: {} -> {}'.format(self._exit_code,
                                                            value))
             self._exit_code = value
+
+
+def _build_new_name(file_object, extracted_data, analysis_data, active_config,
+                    active_rule):
+    try:
+        builder = NameBuilder(file_object, extracted_data, analysis_data,
+                              active_config, active_rule)
+
+        # TODO: Do not return anything from 'build()', use property.
+        new_name = builder.build()
+    except exceptions.NameBuilderError as e:
+        log.critical('Name assembly FAILED: {!s}'.format(e))
+        raise exceptions.AutonameowException
+    else:
+        return new_name
 
 
 def _run_extraction(file_object, run_all_extractors=False):
