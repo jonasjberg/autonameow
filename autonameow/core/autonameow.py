@@ -240,13 +240,9 @@ class Autonameow(object):
                 _list_all_extracted_data(extraction)
             else:
                 if self.opts.list_datetime:
-                    log.info('Listing "datetime" analysis results ..')
-                    # TODO: [TD0066] Handle all encoding properly.
-                    cli.msg(util.dump(analysis.results.get('datetime')))
+                    _list_analysis_results_field('datetime')
                 if self.opts.list_title:
-                    log.info('Listing "title" analysis results ..')
-                    # TODO: [TD0066] Handle all encoding properly.
-                    cli.msg(util.dump(analysis.results.get('title')))
+                    _list_analysis_results_field('title')
 
             # Perform actions.
             if self.opts.automagic:
@@ -474,3 +470,9 @@ def _list_all_analysis_results(analysis):
     log.info('Listing ALL analysis results ..')
     cli.msg('Analysis Results Data', style='heading', log=True)
     cli.msg(str(analysis.results))
+
+
+def _list_analysis_results_field(analysis, results_field):
+    log.info('Listing "{}" analysis results ..'.format(results_field))
+    # TODO: [TD0066] Handle all encoding properly.
+    cli.msg(util.dump(analysis.results.get(results_field)))
