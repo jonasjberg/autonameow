@@ -349,7 +349,6 @@ class Autonameow(object):
             return True
 
         if dry_run is False:
-            # TODO: [TD0067] Fix "destination exists" when new name == old name.
             try:
                 diskutils.rename_file(from_path, dest_basename)
             except (FileNotFoundError, FileExistsError, OSError) as e:
