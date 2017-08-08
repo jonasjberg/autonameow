@@ -96,7 +96,7 @@ class Autonameow(object):
             self._load_config_from_alternate_path()
         else:
             if not config.has_config_file():
-                self._write_default_config_and_exit()
+                self._write_template_config_to_default_path_and_exit()
             else:
                 self._load_config_from_default_path()
 
@@ -152,7 +152,7 @@ class Autonameow(object):
         except exceptions.ConfigError as e:
             log.critical('Configuration error: "{!s}"'.format(e))
 
-    def _write_default_config_and_exit(self):
+    def _write_template_config_to_default_path_and_exit(self):
         log.info('No configuration file was found. Writing default ..')
         _displayable_config_path = util.displayable_path(config.ConfigFilePath)
         try:
