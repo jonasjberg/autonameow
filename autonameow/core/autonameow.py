@@ -118,7 +118,16 @@ class Autonameow(object):
             log.warning('No input files specified ..')
             self.exit_program(constants.EXIT_SUCCESS)
 
-        files_to_process = []
+        # Path name encoding boundary. Returns list of paths in internal format.
+        files_to_process = self._get_files_to_process()
+        log.info('Got {} files to process'.format(len(files_to_process)))
+
+        self._handle_files(files_to_process)
+        self.exit_program(self.exit_code)
+
+    def _get_files_to_process(self):
+        file_list = []
+
         for path in self.opts.input_paths:
             if not path:
                 continue
@@ -126,17 +135,15 @@ class Autonameow(object):
             # Path name encoding boundary. Convert to internal format.
             path = util.normpath(path)
             try:
-                files_to_process += diskutils.get_files(
+                file_list += diskutils.get_files(
                     path, recurse=self.opts.recurse_paths
                 )
             except FileNotFoundError:
-                log.error('File not found: "{}"'.format(
+                log.error('File(s) not found: "{}"'.format(
                     util.displayable_path(path))
                 )
 
-        log.info('Got {} files to process'.format(len(files_to_process)))
-        self._handle_files(files_to_process)
-        self.exit_program(self.exit_code)
+        return file_list
 
     def load_config(self, dict_or_yaml):
         self.active_config = Configuration(dict_or_yaml)
