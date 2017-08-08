@@ -66,10 +66,10 @@ class Autonameow(object):
         self.opts = None        # Parsed options returned by argparse.
 
         self.filter = None
-        self.config = None
+        self.active_config = None
 
     def load_config(self, dict_or_yaml):
-        self.config = Configuration(dict_or_yaml)
+        self.active_config = Configuration(dict_or_yaml)
 
     def run(self):
         # Display help/usage information if no arguments are provided.
@@ -100,7 +100,7 @@ class Autonameow(object):
             else:
                 self._load_config_from_default_path()
 
-        if not self.config:
+        if not self.active_config:
             log.critical('Unable to load configuration -- Aborting ..')
             self.exit_program(constants.EXIT_ERROR)
 
@@ -116,7 +116,7 @@ class Autonameow(object):
         if self.opts.dump_config:
             log.info('Dumping active configuration ..')
             cli.msg('Active Configuration:', style='heading')
-            cli.msg(str(self.config))
+            cli.msg(str(self.active_config))
             self.exit_program(constants.EXIT_SUCCESS)
 
         # Handle any input paths/files. Abort early if input paths are missing.
@@ -203,7 +203,7 @@ class Autonameow(object):
 
             # Sanity checking the "file_path" is part of 'FileObject' init.
             try:
-                current_file = FileObject(file_path, self.config)
+                current_file = FileObject(file_path, self.active_config)
             except exceptions.InvalidFileArgumentError as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
                     e, util.displayable_path(file_path))
@@ -229,7 +229,7 @@ class Autonameow(object):
                 # Determine matching rule.
                 matcher = _run_rule_matcher(extracted_data=extraction.data,
                                             analysis_data=analysis.results,
-                                            active_config=self.config)
+                                            active_config=self.active_config)
             except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(file_path))
@@ -265,7 +265,7 @@ class Autonameow(object):
                     new_name = _build_new_name(current_file,
                                                extracted_data=extraction.data,
                                                analysis_data=analysis.results,
-                                               active_config=self.config,
+                                               active_config=self.active_config,
                                                active_rule=matcher.best_match)
                 except exceptions.AutonameowException:
                     self.exit_code = constants.EXIT_WARNING
@@ -323,8 +323,8 @@ class Autonameow(object):
         assert(isinstance(from_path, bytes))
         assert(isinstance(new_basename, str))
 
-        if self.config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
-            if self.config.get(['FILESYSTEM_OPTIONS', 'sanitize_strict']):
+        if self.active_config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
+            if self.active_config.get(['FILESYSTEM_OPTIONS', 'sanitize_strict']):
                 log.debug('Sanitizing filename (restricted=True)')
                 new_basename = diskutils.sanitize_filename(new_basename,
                                                            restricted=True)
