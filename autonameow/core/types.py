@@ -252,12 +252,26 @@ class Integer(BaseType):
     null = 0
 
     def coerce(self, value):
+        # If casting to int directly fails, try first converting to float,
+        # then from float to int. Casting string to int handles "1.5" but
+        # "-1.5" fails. The two step approach fixes the negative numbers.
         try:
-            parsed = int(value)
-        except (TypeError, ValueError):
-            return 0
-        else:
-            return parsed
+            return int(value)
+        except (ValueError, TypeError):
+            try:
+                float_value = float(value)
+            except (ValueError, TypeError):
+                pass
+            else:
+                try:
+                    return int(float_value)
+                except (ValueError, TypeError):
+                    pass
+
+        raise exceptions.AWTypeError(
+            'Coercion default failed for: "{!s}" to primitive'
+            ' {!r}'.format(value, self.primitive_type)
+        )
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.

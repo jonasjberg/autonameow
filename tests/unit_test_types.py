@@ -170,36 +170,45 @@ class TestTypeInteger(TestCase):
         self.assertEqual(types.AW_INTEGER(None), 0)
 
     def test_call_with_coercible_data(self):
+        self.assertEqual(types.AW_INTEGER(None), 0)
         self.assertEqual(types.AW_INTEGER(-1), -1)
         self.assertEqual(types.AW_INTEGER(0), 0)
         self.assertEqual(types.AW_INTEGER(1), 1)
+        self.assertEqual(types.AW_INTEGER(-1), -1)
         self.assertEqual(types.AW_INTEGER(-1.5), -1)
         self.assertEqual(types.AW_INTEGER(-1.0), -1)
         self.assertEqual(types.AW_INTEGER(1.0), 1)
         self.assertEqual(types.AW_INTEGER(1.5), 1)
-        self.assertEqual(types.AW_INTEGER('-1'), -1)
+        self.assertEqual(types.AW_INTEGER('0'), 0)
         self.assertEqual(types.AW_INTEGER('1'), 1)
+        self.assertEqual(types.AW_INTEGER('-1'), -1)
+        self.assertEqual(types.AW_INTEGER('-1.5'), -1)
+        self.assertEqual(types.AW_INTEGER('-1.0'), -1)
+        self.assertEqual(types.AW_INTEGER('1.0'), 1)
+        self.assertEqual(types.AW_INTEGER('1.5'), 1)
 
     def test_call_with_noncoercible_data(self):
-        self.assertEqual(types.AW_INTEGER(None), types.AW_INTEGER.null)
-        self.assertEqual(types.AW_INTEGER('foo'), types.AW_INTEGER.null)
+        def _assert_raises(input_data):
+            with self.assertRaises(exceptions.AWTypeError):
+                types.AW_INTEGER(input_data)
 
-        with self.assertRaises(exceptions.AWTypeError):
-            self.assertEqual(types.AW_INTEGER([]),
-                             types.AW_INTEGER.null)
-            self.assertEqual(types.AW_INTEGER([1, 2]),
-                             types.AW_INTEGER.null)
-            self.assertEqual(types.AW_INTEGER(['a', 'b']),
-                             types.AW_INTEGER.null)
-
-        self.assertEqual(types.AW_INTEGER('-1.5'), 0)
-        self.assertEqual(types.AW_INTEGER('1.0'), 0)
-        self.assertEqual(types.AW_INTEGER('1.5'), 0)
+        _assert_raises([])
+        _assert_raises([1, 2])
+        _assert_raises(['a', 'b'])
+        _assert_raises('')
+        _assert_raises(' ')
+        _assert_raises('foo')
 
     def test_format(self):
         # TODO: Add additional tests.
         self.assertIsNotNone(types.AW_INTEGER.format)
-        self.assertEqual(types.AW_INTEGER.format(None), '0')
+
+    def test_format_noncoercible_data(self):
+        def _assert_raises(input_data):
+            with self.assertRaises(exceptions.AWTypeError):
+                types.AW_INTEGER.format(input_data)
+
+        _assert_raises(None)
 
 
 class TestTypeFloat(TestCase):
