@@ -93,14 +93,7 @@ class Autonameow(object):
         # provided and no config file is found at default paths; copy the
         # template config and tell the user.
         if self.opts.config_path:
-            try:
-                log.info('Using configuration file: "{!s}"'.format(
-                    util.displayable_path(self.opts.config_path)
-                ))
-                self.load_config(self.opts.config_path)
-            except exceptions.ConfigError as e:
-                log.critical('Unable to load configuration: {!s}'.format(e))
-                self.exit_program(constants.EXIT_ERROR)
+            self._load_alternate_config_path()
         else:
 
             _disp_config_path = util.displayable_path(config.ConfigFilePath)
@@ -171,6 +164,16 @@ class Autonameow(object):
         log.info('Got {} files to process'.format(len(files_to_process)))
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
+
+    def _load_alternate_config_path(self):
+        try:
+            log.info('Using configuration file: "{!s}"'.format(
+                util.displayable_path(self.opts.config_path)
+            ))
+            self.load_config(self.opts.config_path)
+        except exceptions.ConfigError as e:
+            log.critical('Unable to load configuration: {!s}'.format(e))
+            self.exit_program(constants.EXIT_ERROR)
 
     def _handle_files(self, file_paths):
         """
