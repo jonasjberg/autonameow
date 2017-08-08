@@ -331,6 +331,7 @@ class Autonameow(object):
         assert(isinstance(from_path, bytes))
         assert(isinstance(new_basename, str))
 
+        # TODO: [TD0071] Move "sanitation" to the 'NameBuilder' or elsewhere.
         if self.active_config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
             if self.active_config.get(['FILESYSTEM_OPTIONS', 'sanitize_strict']):
                 log.debug('Sanitizing filename (restricted=True)')

@@ -52,6 +52,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0071]` Move file name "sanitation" to the `NameBuilder` or elsewhere.
+
 * `[TD0062]` Look at testing that all name template fields are mapped to data
   sources. This could be done when reading the configuration, instead of later
   on in the name builder.
