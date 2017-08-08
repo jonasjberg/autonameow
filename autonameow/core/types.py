@@ -224,11 +224,10 @@ class Boolean(BaseType):
     def coerce(self, value):
         if value is None:
             return False
+        if isinstance(value, bytes):
+            value = util.decode_(value)
         if isinstance(value, str):
             return self.string_to_bool(value)
-        elif isinstance(value, bytes):
-            decoded = util.decode_(value)
-            return self.string_to_bool(decoded)
         else:
             return False
 
