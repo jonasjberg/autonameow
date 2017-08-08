@@ -213,26 +213,8 @@ class Autonameow(object):
                 )
                 continue
 
-            should_list_any_results = (self.opts.list_datetime
-                                       or self.opts.list_title
-                                       or self.opts.list_all)
-
             try:
-                # Extract data from the file.
-                extraction = _run_extraction(
-                    # Run all extractors so that all possible data is included
-                    # when listing any (all) results later on.
-                    current_file, run_all_extractors=should_list_any_results
-                )
-
-                # Begin analysing the file.
-                analysis = _run_analysis(current_file,
-                                         extracted_data=extraction.data)
-
-                # Determine matching rule.
-                matcher = _run_rule_matcher(extracted_data=extraction.data,
-                                            analysis_data=analysis.results,
-                                            active_config=self.active_config)
+                self._handle_file(current_file)
             except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(file_path))
@@ -240,55 +222,69 @@ class Autonameow(object):
                 self.exit_code = constants.EXIT_WARNING
                 continue
 
-            # Present results.
-            if should_list_any_results:
-                cli.msg(('File: "{}"\n'.format(
-                    util.displayable_path(current_file.abspath)))
-                )
+    def _handle_file(self, current_file):
+        should_list_any_results = (self.opts.list_datetime
+                                   or self.opts.list_title
+                                   or self.opts.list_all)
 
-            if self.opts.list_all:
-                _list_all_analysis_results(analysis)
-                _list_all_extracted_data(extraction)
-            else:
-                if self.opts.list_datetime:
-                    _list_analysis_results_field(analysis, 'datetime')
-                if self.opts.list_title:
-                    _list_analysis_results_field(analysis, 'title')
+        # Extract data from the file.
+        # Run all extractors so that all possible data is included
+        # when listing any (all) results later on.
+        extraction = _run_extraction(current_file,
+                                     run_all_extractors=should_list_any_results)
 
-            # Perform actions.
-            if self.opts.automagic:
-                if not matcher.best_match:
-                    log.info('None of the rules seem to apply')
-                    continue
+        # Begin analysing the file.
+        analysis = _run_analysis(current_file,
+                                 extracted_data=extraction.data)
 
-                log.info('Using file rule: "{!s}"'.format(
-                    matcher.best_match.description)
-                )
-                try:
-                    new_name = _build_new_name(current_file,
-                                               extracted_data=extraction.data,
-                                               analysis_data=analysis.results,
-                                               active_config=self.active_config,
-                                               active_rule=matcher.best_match)
-                except exceptions.AutonameowException:
-                    self.exit_code = constants.EXIT_WARNING
-                    continue
+        # Determine matching rule.
+        matcher = _run_rule_matcher(extracted_data=extraction.data,
+                                    analysis_data=analysis.results,
+                                    active_config=self.active_config)
 
-                # TODO: [TD0042] Respect '--quiet' option. Suppress output.
-                log.info('New name: "{}"'.format(
-                    util.displayable_path(new_name))
-                )
-                renamed_ok = self.do_rename(current_file.abspath, new_name,
-                                            dry_run=self.opts.dry_run)
-                if renamed_ok:
-                    self.exit_code = constants.EXIT_SUCCESS
-                else:
-                    self.exit_code = constants.EXIT_WARNING
+        # Present results.
+        if should_list_any_results:
+            cli.msg(('File: "{}"\n'.format(
+                util.displayable_path(current_file.abspath)))
+            )
 
-            elif self.opts.interactive:
-                # TODO: Create a interactive interface.
-                # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
-                log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
+        if self.opts.list_all:
+            _list_all_analysis_results(analysis)
+            _list_all_extracted_data(extraction)
+        else:
+            if self.opts.list_datetime:
+                _list_analysis_results_field(analysis, 'datetime')
+            if self.opts.list_title:
+                _list_analysis_results_field(analysis, 'title')
+
+        # Perform actions.
+        if self.opts.automagic:
+            if not matcher.best_match:
+                log.info('None of the rules seem to apply')
+                return
+
+            log.info('Using file rule: "{!s}"'.format(
+                matcher.best_match.description)
+            )
+            new_name = _build_new_name(current_file,
+                                       extracted_data=extraction.data,
+                                       analysis_data=analysis.results,
+                                       active_config=self.active_config,
+                                       active_rule=matcher.best_match)
+
+            # TODO: [TD0042] Respect '--quiet' option. Suppress output.
+            log.info('New name: "{}"'.format(
+                util.displayable_path(new_name))
+            )
+
+            self.do_rename(from_path=current_file.abspath,
+                           new_basename=new_name,
+                           dry_run=self.opts.dry_run)
+
+        elif self.opts.interactive:
+            # TODO: Create a interactive interface.
+            # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
+            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
     def exit_program(self, exit_code_):
         """
@@ -354,17 +350,15 @@ class Autonameow(object):
                                          util.displayable_path(dest_basename))
             log.debug(_msg)
             cli.msg(_msg, style='color_quoted')
-            return True
+        else:
+            if dry_run is False:
+                try:
+                    diskutils.rename_file(from_path, dest_basename)
+                except (FileNotFoundError, FileExistsError, OSError) as e:
+                    log.error('Rename FAILED: {!s}'.format(e))
+                    raise exceptions.AutonameowException
 
-        if dry_run is False:
-            try:
-                diskutils.rename_file(from_path, dest_basename)
-            except (FileNotFoundError, FileExistsError, OSError) as e:
-                log.error('Rename FAILED: {!s}'.format(e))
-                return False
-
-        cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
-        return True
+            cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
 
     @property
     def exit_code(self):
