@@ -22,9 +22,9 @@
 import logging as log
 
 from core import (
-    types
+    types,
+    exceptions
 )
-from core.exceptions import ExtractorError
 from extractors import BaseExtractor
 
 
@@ -57,7 +57,7 @@ class AbstractMetadataExtractor(BaseExtractor):
             try:
                 log.debug('{!s} received initial query ..'.format(self))
                 self._perform_initial_extraction()
-            except ExtractorError as e:
+            except exceptions.ExtractorError as e:
                 log.error('{!s} query FAILED: {!s}'.format(self, e))
                 return False
             except NotImplementedError as e:
@@ -82,7 +82,11 @@ class AbstractMetadataExtractor(BaseExtractor):
     def _to_internal_format(self, raw_metadata):
         out = {}
         for tag_name, value in raw_metadata.items():
-            out[tag_name] = self._wrap_raw(tag_name, value)
+            try:
+                out[tag_name] = self._wrap_raw(tag_name, value)
+            except exceptions.AWTypeError as e:
+                log.warning(str(e))
+                continue
         return out
 
     def _wrap_raw(self, tag_name, value):
