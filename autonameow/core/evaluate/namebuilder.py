@@ -38,11 +38,11 @@ class NameBuilder(object):
     resulting name. The rule also determines what analysis data to use when
     populating the name template fields.
     """
-    def __init__(self, file_object, extracted_data, analysis_results,
+    def __init__(self, file_object, extracted_data, analysis_data,
                  active_config, active_rule):
         self.file = file_object
         self.extracted_data = extracted_data
-        self.analysis_data = analysis_results
+        self.analysis_data = analysis_data
         self.config = active_config
         self.active_rule = active_rule
 
