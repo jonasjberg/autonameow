@@ -95,26 +95,10 @@ class Autonameow(object):
         if self.opts.config_path:
             self._load_alternate_config_path()
         else:
-
-            _disp_config_path = util.displayable_path(config.ConfigFilePath)
             if not config.has_config_file():
-                log.info('No configuration file was found. Writing default ..')
-
-                try:
-                    config.write_default_config()
-                except PermissionError:
-                    log.critical('Unable to write configuration file to path: '
-                                 '"{!s}"'.format(_disp_config_path))
-                    self.exit_program(constants.EXIT_ERROR)
-                else:
-                    cli.msg('A template configuration file was written to '
-                            '"{!s}"'.format(_disp_config_path), style='info')
-                    cli.msg('Use this file to configure {}. '
-                            'Refer to the documentation for additional '
-                            'information.'.format(version.__title__),
-                            style='info')
-                    self.exit_program(constants.EXIT_SUCCESS)
+                self._write_default_config_and_exit()
             else:
+                _disp_config_path = util.displayable_path(config.ConfigFilePath)
                 log.info('Using configuration: "{}"'.format(_disp_config_path))
                 try:
                     self.load_config(config.ConfigFilePath)
@@ -164,6 +148,24 @@ class Autonameow(object):
         log.info('Got {} files to process'.format(len(files_to_process)))
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
+
+    def _write_default_config_and_exit(self):
+        log.info('No configuration file was found. Writing default ..')
+        _displayable_config_path = util.displayable_path(config.ConfigFilePath)
+        try:
+            config.write_default_config()
+        except PermissionError:
+            log.critical('Unable to write configuration file to path: '
+                         '"{!s}"'.format(_displayable_config_path))
+            self.exit_program(constants.EXIT_ERROR)
+        else:
+            cli.msg('A template configuration file was written to '
+                    '"{!s}"'.format(_displayable_config_path), style='info')
+            cli.msg('Use this file to configure {}. '
+                    'Refer to the documentation for additional '
+                    'information.'.format(version.__title__),
+                    style='info')
+            self.exit_program(constants.EXIT_SUCCESS)
 
     def _load_alternate_config_path(self):
         try:
