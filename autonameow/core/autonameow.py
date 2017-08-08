@@ -236,12 +236,8 @@ class Autonameow(object):
                 )
 
             if self.opts.list_all:
-                log.info('Listing ALL analysis results ..')
-                cli.msg('Analysis Results Data', style='heading', log=True)
-                cli.msg(str(analysis.results))
-
-                cli.msg('Extraction Results Data', style='heading', log=True)
-                cli.msg(str(extraction.data))
+                _list_all_analysis_results(analysis)
+                _list_all_extracted_data(extraction)
             else:
                 if self.opts.list_datetime:
                     log.info('Listing "datetime" analysis results ..')
@@ -466,3 +462,15 @@ def _run_rule_matcher(extracted_data, analysis_data, active_config):
         raise
     else:
         return matcher
+
+
+def _list_all_extracted_data(extraction):
+    log.info('Listing ALL extraction results ..')
+    cli.msg('Extraction Results Data', style='heading', log=True)
+    cli.msg(str(extraction.data))
+
+
+def _list_all_analysis_results(analysis):
+    log.info('Listing ALL analysis results ..')
+    cli.msg('Analysis Results Data', style='heading', log=True)
+    cli.msg(str(analysis.results))
