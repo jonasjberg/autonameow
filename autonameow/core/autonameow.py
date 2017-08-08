@@ -148,8 +148,8 @@ class Autonameow(object):
         self.exit_program(constants.EXIT_SUCCESS)
 
     def _load_config_from_default_path(self):
-        _disp_config_path = util.displayable_path(config.ConfigFilePath)
-        log.info('Using configuration: "{}"'.format(_disp_config_path))
+        _displayable_config_path = util.displayable_path(config.ConfigFilePath)
+        log.info('Using configuration: "{}"'.format(_displayable_config_path))
         try:
             self.load_config(config.ConfigFilePath)
         except exceptions.ConfigError as e:
