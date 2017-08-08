@@ -114,10 +114,7 @@ class Autonameow(object):
             options.prettyprint_options(self.opts, include_opts)
 
         if self.opts.dump_config:
-            log.info('Dumping active configuration ..')
-            cli.msg('Active Configuration:', style='heading')
-            cli.msg(str(self.active_config))
-            self.exit_program(constants.EXIT_SUCCESS)
+            self._dump_active_config_and_exit()
 
         # Handle any input paths/files. Abort early if input paths are missing.
         if not self.opts.input_paths:
@@ -143,6 +140,12 @@ class Autonameow(object):
         log.info('Got {} files to process'.format(len(files_to_process)))
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
+
+    def _dump_active_config_and_exit(self):
+        log.info('Dumping active configuration ..')
+        cli.msg('Active Configuration:', style='heading')
+        cli.msg(str(self.active_config))
+        self.exit_program(constants.EXIT_SUCCESS)
 
     def _load_config_from_default_path(self):
         _disp_config_path = util.displayable_path(config.ConfigFilePath)
