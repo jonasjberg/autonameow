@@ -209,6 +209,8 @@ class Autonameow(object):
             try:
                 # Extract data from the file.
                 extraction = _run_extraction(
+                    # Run all extractors so that all possible data is included
+                    # when listing any (all) results later on.
                     current_file, run_all_extractors=should_list_any_results
                 )
 
