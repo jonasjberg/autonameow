@@ -177,7 +177,6 @@ class PathComponent(BaseType):
     primitive_type = str
     coercible_types = (str, bytes)
     equivalent_types = (bytes, )
-
     null = b''
 
     def normalize(self, value):
@@ -371,7 +370,6 @@ class ExifToolTimeDate(TimeDate):
         if re.match(r'.*\+\d\d:\d\d$', raw_value):
             raw_value = re.sub(r'\+(\d\d):(\d\d)$', r'+\1\2', raw_value)
 
-        e = None
         try:
             # TODO: Fix matching dates with timezone. Below is not working.
             dt = datetime.strptime(raw_value, '%Y:%m:%d %H:%M:%S%z')
@@ -449,7 +447,6 @@ def try_parse_full_datetime(string):
                     '%Y-%m-%d %H:%M:%S.%f',  # %f: Microseconds
                     '%Y-%m-%d %H:%M:%S %z',  # %z: UTC offset
                     '%Y-%m-%d %H:%M:%S%z']
-
     for date_format in date_formats:
         try:
             dt = datetime.strptime(string, date_format)
