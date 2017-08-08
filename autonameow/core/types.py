@@ -443,6 +443,10 @@ def try_parse_full_datetime(string):
         string
     )
 
+    # Handles malformed dates produced by "Mac OS X 10.11.5 Quartz PDFContext".
+    if string.endswith('Z'):
+        string = string[:-1]
+
     date_formats = ['%Y-%m-%d %H:%M:%S',
                     '%Y-%m-%d %H:%M:%S.%f',  # %f: Microseconds
                     '%Y-%m-%d %H:%M:%S %z',  # %z: UTC offset

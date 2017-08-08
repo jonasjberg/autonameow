@@ -29,6 +29,8 @@ from core import (
     util
 )
 
+import unit_utils as uu
+
 
 class TestBaseType(TestCase):
     def setUp(self):
@@ -335,8 +337,11 @@ class TestTypeExiftoolTimeDate(TestCase):
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE(expected), expected)
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200'),
                          expected)
-        self.assertEqual(types.AW_EXIFTOOLTIMEDATE('2017:07:12 20:50:15Z'),
-                         expected)
+
+    def test_call_with_malformed_date_trailing_z(self):
+        actual = types.AW_EXIFTOOLTIMEDATE('2017:07:12 20:50:15Z')
+        expected = uu.str_to_datetime('2017-07-12 205015')
+        self.assertEqual(actual, expected)
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(input_data):
