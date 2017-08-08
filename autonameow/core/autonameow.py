@@ -98,12 +98,7 @@ class Autonameow(object):
             if not config.has_config_file():
                 self._write_default_config_and_exit()
             else:
-                _disp_config_path = util.displayable_path(config.ConfigFilePath)
-                log.info('Using configuration: "{}"'.format(_disp_config_path))
-                try:
-                    self.load_config(config.ConfigFilePath)
-                except exceptions.ConfigError as e:
-                    log.critical('Configuration error: "{!s}"'.format(e))
+                self._load_config_from_default_path()
 
         if not self.config:
             log.critical('Unable to load configuration -- Aborting ..')
@@ -148,6 +143,14 @@ class Autonameow(object):
         log.info('Got {} files to process'.format(len(files_to_process)))
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
+
+    def _load_config_from_default_path(self):
+        _disp_config_path = util.displayable_path(config.ConfigFilePath)
+        log.info('Using configuration: "{}"'.format(_disp_config_path))
+        try:
+            self.load_config(config.ConfigFilePath)
+        except exceptions.ConfigError as e:
+            log.critical('Configuration error: "{!s}"'.format(e))
 
     def _write_default_config_and_exit(self):
         log.info('No configuration file was found. Writing default ..')
