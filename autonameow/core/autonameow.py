@@ -93,7 +93,7 @@ class Autonameow(object):
         # provided and no config file is found at default paths; copy the
         # template config and tell the user.
         if self.opts.config_path:
-            self._load_alternate_config_path()
+            self._load_config_from_alternate_path()
         else:
             if not config.has_config_file():
                 self._write_default_config_and_exit()
@@ -170,7 +170,7 @@ class Autonameow(object):
                     style='info')
             self.exit_program(constants.EXIT_SUCCESS)
 
-    def _load_alternate_config_path(self):
+    def _load_config_from_alternate_path(self):
         try:
             log.info('Using configuration file: "{!s}"'.format(
                 util.displayable_path(self.opts.config_path)
