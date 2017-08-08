@@ -266,32 +266,34 @@ class Autonameow(object):
 
         # Perform actions.
         if self.opts.automagic:
-            if not matcher.best_match:
-                log.info('None of the rules seem to apply')
-                return
-
-            log.info('Using file rule: "{!s}"'.format(
-                matcher.best_match.description)
-            )
-            new_name = _build_new_name(current_file,
-                                       extracted_data=extraction.data,
-                                       analysis_data=analysis.results,
-                                       active_config=self.active_config,
-                                       active_rule=matcher.best_match)
-
-            # TODO: [TD0042] Respect '--quiet' option. Suppress output.
-            log.info('New name: "{}"'.format(
-                util.displayable_path(new_name))
-            )
-
-            self.do_rename(from_path=current_file.abspath,
-                           new_basename=new_name,
-                           dry_run=self.opts.dry_run)
-
+            self._perform_automagic_actions(current_file, extraction, analysis,
+                                            matcher)
         elif self.opts.interactive:
             # TODO: Create a interactive interface.
             # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
+
+    def _perform_automagic_actions(self, current_file, extraction, analysis,
+                                   matcher):
+        if not matcher.best_match:
+            log.info('None of the rules seem to apply')
+            return
+
+        log.info('Using file rule: "{!s}"'.format(
+            matcher.best_match.description)
+        )
+        new_name = _build_new_name(current_file,
+                                   extracted_data=extraction.data,
+                                   analysis_data=analysis.results,
+                                   active_config=self.active_config,
+                                   active_rule=matcher.best_match)
+        # TODO: [TD0042] Respect '--quiet' option. Suppress output.
+        log.info('New name: "{}"'.format(
+            util.displayable_path(new_name))
+        )
+        self.do_rename(from_path=current_file.abspath,
+                       new_basename=new_name,
+                       dry_run=self.opts.dry_run)
 
     def exit_program(self, exit_code_):
         """
