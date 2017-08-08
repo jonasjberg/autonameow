@@ -240,9 +240,9 @@ class Autonameow(object):
                 _list_all_extracted_data(extraction)
             else:
                 if self.opts.list_datetime:
-                    _list_analysis_results_field('datetime')
+                    _list_analysis_results_field(analysis, 'datetime')
                 if self.opts.list_title:
-                    _list_analysis_results_field('title')
+                    _list_analysis_results_field(analysis, 'title')
 
             # Perform actions.
             if self.opts.automagic:
