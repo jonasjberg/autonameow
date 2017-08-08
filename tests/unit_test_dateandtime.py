@@ -31,6 +31,7 @@ from core.util.dateandtime import (
     timezone_aware_to_naive,
     find_isodate_like
 )
+import unit_utils as uu
 
 
 class TestDateAndTime(TestCase):
@@ -146,13 +147,9 @@ class TestTimezoneAwareToNaive(TestCase):
         self.assertEqual(timezone_aware_to_naive(self.aware), self.unaware)
 
 
-def _str_to_datetime(yyyy_mm_ddthhmmss):
-    return datetime.strptime(yyyy_mm_ddthhmmss, '%Y-%m-%d %H%M%S')
-
-
 class FindIsoDateLike(TestCase):
     def setUp(self):
-        self.expected = _str_to_datetime('2016-07-22 131730')
+        self.expected = uu.str_to_datetime('2016-07-22 131730')
         self.assertIsInstance(self.expected, datetime)
 
     def test_invalid_argument_raises_value_error(self):
@@ -193,7 +190,7 @@ class FindIsoDateLike(TestCase):
     def test_match_special_case_1st_variation(self):
         self.assertEqual(self.expected, find_isodate_like('2016-07-22_131730'))
 
-        datetime9999 = _str_to_datetime('9999-07-22 131730')
+        datetime9999 = uu.str_to_datetime('9999-07-22 131730')
         self.assertEqual(datetime9999, find_isodate_like('9999-07-22_131730'))
 
     def test_match_special_case_2nd_variation(self):

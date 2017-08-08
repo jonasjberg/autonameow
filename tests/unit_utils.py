@@ -28,6 +28,7 @@ import sys
 import unittest
 
 from contextlib import contextmanager
+from datetime import datetime
 
 import analyzers
 from core.config import rules
@@ -352,3 +353,18 @@ def is_class(thing):
         True if the given object is a class, otherwise False.
     """
     return inspect.isclass(thing)
+
+
+def str_to_datetime(yyyy_mm_ddthhmmss):
+    """
+    Converts a string on the form "YYYY-MM-DD HHMMSS" to a 'datetime' object.
+
+    Args:
+        yyyy_mm_ddthhmmss: String to convert.
+
+    Returns:
+        A 'datetime' object if the conversion was successful.
+    Raises:
+        ValueError: The string could not be converted.
+    """
+    return datetime.strptime(yyyy_mm_ddthhmmss, '%Y-%m-%d %H%M%S')
