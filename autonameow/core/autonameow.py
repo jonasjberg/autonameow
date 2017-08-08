@@ -254,10 +254,11 @@ class Autonameow(object):
                     matcher.best_match.description)
                 )
                 try:
-                    self.builder = NameBuilder(
-                        current_file, extraction.data, analysis.results,
-                        self.config, matcher.best_match
-                    )
+                    self.builder = NameBuilder(current_file,
+                                               extracted_data=extraction.data,
+                                               analysis_data=analysis.results,
+                                               active_config=self.config,
+                                               active_rule=matcher.best_match)
                     # TODO: Do not return anything from 'build()', use property.
                     new_name = self.builder.build()
                 except exceptions.NameBuilderError as e:
