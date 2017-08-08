@@ -55,10 +55,10 @@ class BaseType(object):
     null = 'NULL'
 
     # Types that can be coerced with the "parse" method.
-    coercible_types = (str,)
+    coercible_types = (str, )
 
     # Types that are "equivalent", does not require coercion.
-    equivalent_types = (str,)
+    equivalent_types = (str, )
 
     def __call__(self, raw_value=None):
         if raw_value is None:
@@ -102,7 +102,7 @@ class BaseType(object):
     def coerce(self, raw_value):
         try:
             value = self.primitive_type(raw_value)
-        except ValueError:
+        except (ValueError, TypeError):
             raise exceptions.AWTypeError(
                 'Coercion default failed for: "{!s}" to primitive'
                 ' {!r}'.format(raw_value, self.primitive_type)
@@ -176,7 +176,7 @@ class Path(BaseType):
 class PathComponent(BaseType):
     primitive_type = str
     coercible_types = (str, bytes)
-    equivalent_types = (bytes,)
+    equivalent_types = (bytes, )
 
     null = b''
 
@@ -208,7 +208,7 @@ class PathComponent(BaseType):
 class Boolean(BaseType):
     primitive_type = bool
     coercible_types = (str, bytes)
-    equivalent_types = (bool,)
+    equivalent_types = (bool, )
     null = False
 
     @staticmethod
@@ -248,7 +248,7 @@ class Boolean(BaseType):
 class Integer(BaseType):
     primitive_type = int
     coercible_types = (str, float)
-    equivalent_types = (int,)
+    equivalent_types = (int, )
     null = 0
 
     def coerce(self, value):
@@ -270,7 +270,7 @@ class Integer(BaseType):
 class Float(BaseType):
     primitive_type = float
     coercible_types = (str, int)
-    equivalent_types = (float,)
+    equivalent_types = (float, )
     null = 0.0
 
     def coerce(self, value):
