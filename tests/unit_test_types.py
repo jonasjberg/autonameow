@@ -283,7 +283,6 @@ class TestTypeTimeDate(TestCase):
         expected = datetime.strptime('2017-07-12T20:50:15', '%Y-%m-%dT%H:%M:%S')
         self.assertEqual(types.AW_TIMEDATE(expected), expected)
         self.assertEqual(types.AW_TIMEDATE('2017-07-12T20:50:15'), expected)
-        self.assertEqual(types.AW_TIMEDATE('foo'), types.AW_TIMEDATE.null)
         # TODO: Add testing additional input data.
 
     def test_call_with_noncoercible_data(self):
@@ -293,6 +292,7 @@ class TestTypeTimeDate(TestCase):
 
         _assert_raises(None)
         _assert_raises('')
+        _assert_raises('foo')
         _assert_raises([])
         _assert_raises([''])
         _assert_raises([None])
@@ -326,6 +326,8 @@ class TestTypeExiftoolTimeDate(TestCase):
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE(expected), expected)
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200'),
                          expected)
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE('2017:07:12 20:50:15Z'),
+                         expected)
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(input_data):
@@ -334,6 +336,7 @@ class TestTypeExiftoolTimeDate(TestCase):
 
         _assert_raises(None)
         _assert_raises('')
+        _assert_raises('foo')
         _assert_raises([])
         _assert_raises([''])
         _assert_raises([None])
@@ -384,6 +387,7 @@ class TestTypePyPDFTimeDate(TestCase):
         with self.assertRaises(exceptions.AWTypeError):
             types.AW_PYPDFTIMEDATE(None)
             types.AW_PYPDFTIMEDATE('')
+            types.AW_PYPDFTIMEDATE('foo')
             types.AW_PYPDFTIMEDATE([])
             types.AW_PYPDFTIMEDATE([''])
             types.AW_PYPDFTIMEDATE([None])
