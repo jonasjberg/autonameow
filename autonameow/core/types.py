@@ -274,10 +274,11 @@ class Integer(BaseType):
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
+        coerced = self.coerce(value)
         if not formatter:
-            return '{}'.format(value or 0)
+            return '{}'.format(coerced)
         else:
-            return formatter.format(value or 0)
+            return formatter.format(coerced)
 
 
 class Float(BaseType):
