@@ -315,7 +315,16 @@ class String(BaseType):
                 return self._null()
             else:
                 return decoded
-
+        if isinstance(value, self.coercible_types):
+            try:
+                value = self.primitive_type(value)
+            except (ValueError, TypeError):
+                raise exceptions.AWTypeError(
+                    'Coercion default failed for: "{!s}" to primitive'
+                    ' {!r}'.format(value, self.primitive_type)
+                )
+            else:
+                return value
         return str(value)
 
     def normalize(self, value):
