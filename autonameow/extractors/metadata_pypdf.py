@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging as log
+
 import PyPDF2
 from PyPDF2.utils import PdfReadError
 
@@ -80,7 +82,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
                 # Skip entries starting with "IndirectObject(" ..
                 # TODO: Cleanup this filtering.
                 out = {k.lstrip('\/'): v for k, v in doc_info.items()
-                       if not v.startswith('IndirectObject(')}
+                       if not is_indirectobject(v)}
 
                 # Convert PyPDF values of type 'PyPDF2.generic.TextStringObject'
                 out = {k: str(v) for k, v in out.items()}
@@ -114,17 +116,38 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
                 xmp = {}
                 for k, v in xmp_metadata.items():
                     if v:
-                        xmp[k] = v
+                        xmp[k] = types.try_wrap(v)
 
                 out.update(xmp)
 
         return out
 
 
+def is_indirectobject(pypdf_data):
+    # TODO: Fix any performance/untidyness issues.
+    from PyPDF2.generic import IndirectObject
+    return isinstance(pypdf_data, IndirectObject)
+
+
+def is_textstringobject(pypdf_data):
+    # TODO: Fix any performance/untidyness issues.
+    from PyPDF2.generic import TextStringObject
+    return isinstance(pypdf_data, TextStringObject)
+
+
 def _wrap_pypdf_string(out_dict, out_key, pypdf_data):
+    if pypdf_data is None:
+        return
+    if is_indirectobject(pypdf_data):
+        return
+    if is_textstringobject(pypdf_data):
+        pypdf_data = str(pypdf_data)
+
     try:
         wrapped = types.AW_STRING(pypdf_data)
     except exceptions.AWTypeError:
-        return out_dict
+        log.warning('_wrap_pypdf_string raised a AWTypeError for "{!s}" ({})'.format(pypdf_data, type(pypdf_data)))
+        return
     else:
+        log.warning('_wrap_pypdf_string wrapped "{!s}" ({}) into "{!s}" ({})'.format(pypdf_data, type(pypdf_data), wrapped, type(wrapped)))
         out_dict[out_key] = wrapped
