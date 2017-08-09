@@ -231,6 +231,7 @@ class TestTypeFloat(TestCase):
         self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.null)
 
     def test_call_with_coercible_data(self):
+        self.assertEqual(types.AW_FLOAT(None), 0.0)
         self.assertEqual(types.AW_FLOAT(-1), -1.0)
         self.assertEqual(types.AW_FLOAT(0), 0.0)
         self.assertEqual(types.AW_FLOAT(1), 1.0)
@@ -246,11 +247,12 @@ class TestTypeFloat(TestCase):
         self.assertEqual(types.AW_FLOAT('1.5'), 1.5)
 
     def test_call_with_noncoercible_data(self):
-        self.assertEqual(types.AW_FLOAT('foo'), 0.0)
-        self.assertEqual(types.AW_FLOAT(None), 0.0)
+        def _assert_raises(input_data):
+            with self.assertRaises(exceptions.AWTypeError):
+                types.AW_FLOAT(input_data)
 
-        with self.assertRaises(exceptions.AWTypeError):
-            self.assertEqual(types.AW_FLOAT(datetime.now()), 0.0)
+        _assert_raises('foo')
+        _assert_raises(datetime.now())
 
     def test_format(self):
         # TODO: Add additional tests.
