@@ -37,6 +37,20 @@ then
 fi
 
 
+# Check if running on a supported/target operating system.
+case $OSTYPE in
+    darwin*) ;;
+     linux*) ;;
+          *) cat >&2 <<EOF
+
+[WARNING] Running on unsupported operating system "$OSTYPE"
+          autonameow has NOT been thoroughly tested on this OS!
+
+EOF
+;;
+esac
+
+
 # Get the absolute path of the main module.
 #
 # NOTE: The version of readlink shipped with MacOS does not have the '-f'
