@@ -31,8 +31,8 @@
 # Make sure that Python 3 is available.
 if ! command -v python3 >/dev/null 2>&1
 then
-    echo "[ERROR] This program requires Python v3.x to run."
-    echo "        Please install python3 and make sure it is executable."
+    echo "[ERROR] This program requires Python v3.x to run." >&2
+    echo "        Please install python3 and make sure it is executable." >&2
     exit 1
 fi
 
