@@ -117,7 +117,10 @@ def init_argparser():
         help='Enables quiet mode, suppress all but critical errors.'
     )
 
-    optgrp_action = parser.add_argument_group('Action options')
+    optgrp_action = parser.add_argument_group(
+        'Action options',
+        #description='Enable ACTIONS to perform for any matched files.'
+    )
     # TODO: [TD0059] Replace '--list-*' options with something more flexible.
     #       I.E. '--list-datetime' and '--list-title' could be '--list {FIELD}'
     optgrp_action.add_argument(
@@ -139,7 +142,10 @@ def init_argparser():
         help='List all information found.'
     )
 
-    optgrp_mode = parser.add_argument_group('Operating mode')
+    optgrp_mode = parser.add_argument_group(
+        'Operating mode',
+        #description='Select program operating mode. Manual or fully automatic.'
+    )
     optgrp_mode.add_argument(
         '--automagic',
         dest='automagic',
