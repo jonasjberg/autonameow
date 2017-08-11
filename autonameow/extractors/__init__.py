@@ -71,7 +71,6 @@ class BaseExtractor(object):
     handles_mime_types = None
 
     # Query string label for the data returned by this extractor.
-
     # Example:  'metadata.exiftool'
     data_query_string = None
 
