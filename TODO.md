@@ -48,6 +48,14 @@ High Priority
 * `[TD0069]` Calculate file rule scores as `score = conditions_met /
   number_of_conditions`, I.E. use normalized floats.
 
+* `[TD0072]` __Think about adding a central "data pool" or manager.__  
+  Different components need to access data from other components, analyzer need
+  extracted data, plugins might need specific data to run. This is getting to
+  be pretty messy and difficult to handle. A possible solution might be to add
+  some kind of central handler or "repository" that store all data and state
+  for the current input path. This "data pool" or handler would be reset and
+  recreated for each of the processed input paths.
+
 
 Medium Priority
 ---------------
