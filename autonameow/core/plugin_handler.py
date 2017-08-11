@@ -46,7 +46,13 @@ class PluginResults(DataContainerBase):
 
 
 class PluginHandler(object):
-    def __init__(self):
+    def __init__(self, extracted_data, active_config):
+        self.extracted_data = extracted_data
+        self.config = active_config
+
+        self.plugins = plugins.Plugins
+        assert(isinstance(self.plugins, dict))
+
         self.results = PluginResults()
 
     def query(self, query_string):
