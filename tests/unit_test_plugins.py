@@ -51,14 +51,17 @@ class TestGetPluginClasses(TestCase):
 
     def test_get_plugin_classes_returns_expected_type(self):
         self.assertTrue(isinstance(self.klasses, list))
+
+    def test_get_plugin_classes_returns_class_objects(self):
+        for klass in self.klasses:
+            self.assertTrue(hasattr(klass, '__class__'))
+            self.assertTrue(uu.is_class(klass))
+
+    def test_get_plugin_classes_returns_subclasses_of_baseplugin(self):
         for klass in self.klasses:
             self.assertTrue(uu.is_class(klass))
             self.assertTrue(issubclass(klass, plugins.BasePlugin))
 
     def test_get_plugin_classes_does_not_include_abstract_classes(self):
         self.assertNotIn(plugins.BasePlugin, self.klasses)
-
-    def test_get_plugin_classes_returns_class_objects(self):
-        for klass in self.klasses:
-            self.assertTrue(hasattr(klass, '__class__'))
 
