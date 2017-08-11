@@ -69,3 +69,9 @@ class DataContainerBase(object):
                 out[key] = value
 
         return out
+
+
+class SessionDataPool(object):
+    def __init__(self):
+        # TODO: [TD0072] Maybe add some kind of central data repository.
+        pass
