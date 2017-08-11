@@ -23,7 +23,10 @@
 from unittest import TestCase
 
 import unit_utils as uu
-from plugins.guessit_plugin import GuessitPlugin
+from plugins.guessit_plugin import (
+    GuessitPlugin,
+    run_guessit
+)
 
 
 class TestGuessitPlugin(TestCase):
@@ -39,3 +42,39 @@ class TestGuessitPlugin(TestCase):
             self.assertTrue(plugin_instance.test_init())
         else:
             self.assertFalse(plugin_instance.test_init())
+
+
+class TestRunGuessit(TestCase):
+    def test_run_guessit_is_defined(self):
+        self.assertIsNotNone(run_guessit)
+
+    def test_run_guessit_no_options_returns_expected_type(self):
+        actual = run_guessit('foo', options=[])
+        self.assertTrue(isinstance(actual, dict))
+
+    def test_run_guessit_using_default_options_returns_expected_type(self):
+        actual = run_guessit('foo')
+        self.assertTrue(isinstance(actual, dict))
+
+
+class TestRunGuessitWithDummyData(TestCase):
+    def setUp(self):
+        # NOTE: Below file name was copied from the guessit tests.
+        self.data = 'Fear.and.Loathing.in.Las.Vegas.FRENCH.ENGLISH.720p.HDDVD.DTS.x264-ESiR.mkv'
+
+    def test_run_guessit_no_options_returns_expected(self):
+        actual = run_guessit(self.data, options=[])
+
+        field_expected = [('title', 'Fear and Loathing in Las Vegas'),
+                          ('type', 'movie'),
+                          ('language', ['fr', 'en']),
+                          ('screen_size', '720p'),
+                          ('format', 'HD-DVD'),
+                          ('audio_codec', 'DTS'),
+                          ('video_codec', 'h264'),
+                          ('release_group', 'ESiR'),
+                          ('container', 'mkv'),
+                          ('mimetype', 'video/x-matroska')]
+
+        for _field, _expected in field_expected:
+            self.assertEqual(_expected, actual.get(_field))

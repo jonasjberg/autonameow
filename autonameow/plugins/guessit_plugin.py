@@ -87,9 +87,14 @@ class GuessitPlugin(BasePlugin):
     #                      'weight': 0.75}]
 
 
-def run_guessit(input_data):
+def run_guessit(input_data, options=None):
+    if options:
+        guessit_options = options
+    else:
+        guessit_options = ['no-embedded-config', 'name_only']
+
     if guessit:
-        result = guessit.guessit(input_data, )
+        result = guessit.guessit(input_data, guessit_options)
         return result
     return None
 
