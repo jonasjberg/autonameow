@@ -57,14 +57,20 @@ def plugin_query(plugin_name, query, data):
 
 
 class BasePlugin(object):
-    def __init__(self, source):
-        self.source = source
+    def __init__(self, display_name=None):
+        if display_name:
+            self.display_name = display_name
+        else:
+            self.display_name = self.__class__.__name__
+
+    def test_init(self):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def query(self, field=None):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):
-        return self.__class__.__name__
+        return self.display_name
 
 
 def find_plugin_files():
@@ -106,10 +112,17 @@ def get_plugin_classes():
 
 
 def _plugin_class_instance_dict():
+    out = {}
+
     klasses = get_plugin_classes()
-    if klasses:
-        out = {str(klass): klass for klass in klasses}
-        return out
+    for klass in klasses:
+        plugin_class_instance = klass()
+        if plugin_class_instance.test_init():
+            # Make sure that plugin-specific prerequisites/dependencies are met.
+            key = str(plugin_class_instance)
+            out[key] = plugin_class_instance
+
+    return out
 
 
 Plugins = _plugin_class_instance_dict()

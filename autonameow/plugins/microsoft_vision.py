@@ -236,6 +236,18 @@ def main(paths, api_key, dump_response=False, print_caption=True):
         sys.exit('Received Keyboard Interrupt; Exiting ..')
 
 
+def _read_api_key_from_file(file_path):
+    try:
+        with open(file_path, mode='r', encoding='utf8') as f:
+            api_key = f.read()
+            api_key = api_key.strip()
+    except FileNotFoundError as e:
+        # log.critical('Unable to find "microsoft_vision.py" API key!')
+        return None
+    else:
+        return api_key
+
+
 class MicrosoftVisionPlugin(BasePlugin):
     """
     'microsoft_vision.py'
@@ -250,18 +262,15 @@ class MicrosoftVisionPlugin(BasePlugin):
     or modify the line below to point to the file containing your API key.
     """
 
-    def __init__(self, source):
-        super(MicrosoftVisionPlugin, self).__init__(source)
+    def __init__(self):
+        super(MicrosoftVisionPlugin, self).__init__(display_name='MicrosoftVision')
 
         api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
                                     'microsoft_vision.key')
-        try:
-            with open(api_key_path, mode='r', encoding='utf8') as f:
-                self.API_KEY = f.read()
-                self.API_KEY = self.API_KEY.strip()
-        except FileNotFoundError as e:
-            # log.critical('Unable to find "microsoft_vision.py" API key!')
-            self.API_KEY = ''
+        self.API_KEY = _read_api_key_from_file(api_key_path)
+
+    def test_init(self):
+        return self.API_KEY is not None
 
     def query(self, field=None):
         # TODO: [TD0061] Re-implement basic queries to this script.
