@@ -23,11 +23,6 @@ import logging
 
 from analyzers import BaseAnalyzer
 
-try:
-    import guessit as guessit
-except ImportError:
-    guessit = False
-
 from core.util import dateandtime
 
 
@@ -41,8 +36,6 @@ class FilenameAnalyzer(BaseAnalyzer):
         )
         self.add_results = add_results_callback
 
-        self.guessit_metadata = None
-
     def _add_results(self, label, data):
         query_string = 'analysis.filename_analyzer.{}'.format(label)
         logging.debug('{} passed "{}" to "add_results" callback'.format(
@@ -51,13 +44,6 @@ class FilenameAnalyzer(BaseAnalyzer):
         self.add_results(query_string, data)
 
     def run(self):
-        # TODO: [TD0009] This does not belong here! Handle guessit properly.
-        if guessit and self.file_object.mime_type == 'mp4':
-            self.guessit_metadata = self._get_metadata_from_guessit()
-
-            if self.guessit_metadata:
-                self.add_results('plugins.guessit', self.guessit_metadata)
-
         # Pass results through callback function provided by the 'Analysis'.
         self._add_results('datetime', self.get_datetime())
         self._add_results('title', self.get_title())
@@ -69,21 +55,10 @@ class FilenameAnalyzer(BaseAnalyzer):
         fn_timestamps = self._get_datetime_from_name()
         if fn_timestamps:
             result += fn_timestamps
-
-        if self.guessit_metadata:
-            guessit_timestamps = self._get_datetime_from_guessit_metadata()
-            if guessit_timestamps:
-                result += guessit_timestamps
-
         return result
 
     def get_title(self):
         titles = []
-
-        if self.guessit_metadata:
-            guessit_title = self._get_title_from_guessit_metadata()
-            if guessit_title:
-                titles += guessit_title
 
         fn_title = self._get_title_from_filename()
         if fn_title:
@@ -114,47 +89,6 @@ class FilenameAnalyzer(BaseAnalyzer):
                      'weight': weight}]
         else:
             return None
-
-    def _get_title_from_guessit_metadata(self):
-        """
-        Get the title from the results returned by "guessit".
-        :return: a list of dictionaries (actually just one) on the form:
-                 [ { 'title': "The Cats Meouw,
-                     'source' : "guessit",
-                     'weight'  : 0.75
-                   }, .. ]
-        """
-        # TODO: [TD0009] This should be handled by a (guessit) plugin.
-        if self.guessit_metadata:
-            if 'title' in self.guessit_metadata:
-                return [{'value': self.guessit_metadata['title'],
-                         'source': 'guessit',
-                         'weight': 0.75}]
-
-    def _get_datetime_from_guessit_metadata(self):
-        """
-        Get date/time-information from the results returned by "guessit".
-        :return: a list of dictionaries (actually just one) on the form:
-                 [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
-                     'source' : "Create date",
-                     'weight'  : 1
-                   }, .. ]
-        """
-        # TODO: [TD0009] This should be handled by a (guessit) plugin.
-        if self.guessit_metadata:
-            if 'date' in self.guessit_metadata:
-                return [{'value': self.guessit_metadata['date'],
-                         'source': 'guessit',
-                         'weight': 0.75}]
-
-    def _get_metadata_from_guessit(self):
-        """
-        Call external program "guessit".
-        :return: dictionary of results if successful, otherwise false
-        """
-        # TODO: [TD0009] This should be handled by a (guessit) plugin.
-        guessit_matches = guessit.guessit(self.file_object.filenamepart_base, )
-        return guessit_matches if guessit_matches is not None else False
 
     def _get_datetime_from_name(self):
         """
