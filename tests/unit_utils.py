@@ -368,3 +368,17 @@ def str_to_datetime(yyyy_mm_ddthhmmss):
         ValueError: The string could not be converted.
     """
     return datetime.strptime(yyyy_mm_ddthhmmss, '%Y-%m-%d %H%M%S')
+
+
+def is_importable(module_name):
+    """
+    Tests if a given module can be imported without raising an exception.
+
+    Returns: True if the module was successfully imported, otherwise False.
+    """
+    try:
+        _ = __import__(module_name, None, None)
+    except (TypeError, ValueError, ImportError):
+        return False
+    else:
+        return True

@@ -283,3 +283,21 @@ class TestStrToDatetime(TestCase):
         _assert_raises('2017-08-09T001225')
         _assert_raises('2017-0809 001225')
         _assert_raises('201708-09 001225')
+
+
+class TestIsImportable(TestCase):
+    def test_is_importable_returns_booleans(self):
+        expect_false = uu.is_importable(None)
+        self.assertTrue(isinstance(expect_false, bool))
+
+        expect_true = uu.is_importable('datetime')
+        self.assertTrue(isinstance(expect_true, bool))
+
+    def test_is_importable_returns_false_as_expected(self):
+        self.assertFalse(uu.is_importable(None))
+        self.assertFalse(uu.is_importable(''))
+        self.assertFalse(uu.is_importable(' '))
+        self.assertFalse(uu.is_importable('foo'))
+
+    def test_is_importable_returns_true_as_expected(self):
+        self.assertTrue(uu.is_importable('datetime'))
