@@ -178,17 +178,20 @@ class ExtractedData(DataContainerBase):
         super(ExtractedData, self).__init__()
 
     def add(self, query_string, data):
-        if not data:
-            return
         if not query_string:
             raise InvalidDataSourceError('Invalid source (missing label)')
+
+        if data is None:
+            log.warning('ExtractedData got None data for query string'
+                        ' "{!s}"'.format(query_string))
+            return
+
+        # TODO: Necessary to handle multiple adds to the same label?
+        if query_string in self._data:
+            t = self._data[query_string]
+            self._data[query_string] = [t] + [data]
         else:
-            # TODO: Necessary to handle multiple adds to the same label?
-            if query_string in self._data:
-                t = self._data[query_string]
-                self._data[query_string] = [t] + [data]
-            else:
-                self._data[query_string] = data
+            self._data[query_string] = data
 
     def get(self, query_string=None):
         """
