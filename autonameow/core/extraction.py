@@ -74,6 +74,10 @@ class Extraction(object):
         if not isinstance(label, str):
             raise InvalidDataSourceError('Argument "label" must be of type str')
 
+        if data is None:
+            log.warning('Attempt to collect results with None data for query'
+                        ' string "{!s}"'.format(label))
+
         if isinstance(data, dict):
             flat_data = util.flatten_dict(data)
             for k, v in flat_data.items():
