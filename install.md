@@ -16,26 +16,34 @@ running __in its current state__.
 Simplifying the installation procedure for both users and developers is a
 critical `TODO`-list item.
 
-### TL;DR
-Install these executables:
+TL;DR
+-----
 
-* `python3` (3.x)
-* `libmagic`
-* `exiftool`
-* `tesseract`
+1. Install these executables:
 
-Install these Python modules:
+    * `python3` (3.x)
+    * `libmagic`
+    * `exiftool`
+    * `tesseract`
 
-* `colorama`
-* `python-dateutil`
-* `unidecode`
-* `PyPDF2`
-* `pytesseract`
-* `python-magic`
-* `pytz`
+2. Install these Python modules:
+
+    * `colorama`
+    * `python-dateutil`
+    * `unidecode`
+    * `PyPDF2`
+    * `pytesseract`
+    * `python-magic`
+    * `pytz`
 
 
-### Instructions for MacOS
+3. Optionally, install additional 3rd party software ("plugins"):
+
+    * `guessit`
+
+
+Instructions for MacOS
+----------------------
 First install `python3`, I prefer using `homebrew` but either way is fine as
 long as this command prints "`OK`":
 
@@ -47,7 +55,7 @@ Next, make sure you can execute `pip3`; the package manager that will be used
 to install the project dependencies. Also note that `homebrew` is used to
 install the non-Python dependencies.
 
-#### Installing the Dependencies
+### Installing the Dependencies
 Install the dependencies by running the following commands in a terminal:
 
 ```bash
@@ -55,7 +63,16 @@ brew install libmagic exiftool tesseract
 pip3 install colorama python-dateutil unidecode PyPDF2 pytesseract python-magic pytz
 ```
 
-### Instructions for Linux
+### Installing __optional__ third-party software
+You might want to install additional __optional__ third-party components:
+
+```bash
+pip3 install guessit
+```
+
+
+Instructions for Linux
+----------------------
 First make sure `python3` is installed. Most distributions ship with Python 3.x
 by default. Assuming you use `apt` for package management, run the following
 command to check and install if missing:
@@ -66,7 +83,7 @@ which python3 || sudo apt-get install python3
 
 *(If you use something else then `apt`, you probably already know what to do..)*
 
-#### Installing the Dependencies
+### Installing the Dependencies
 Install the dependencies by running the following commands in a terminal:
 
 ```bash
@@ -78,7 +95,16 @@ Alternatively, search the repositories for the packages with `apt-search`.
 Make sure to install the `python3-PACKAGE_NAME` versions, most packages are
 available for both `python2` and `python3`.
 
-### Instructions for Windows
+### Installing __optional__ third-party software
+You might want to install additional __optional__ third-party components:
+
+```bash
+pip3 install guessit
+```
+
+
+Instructions for Windows
+------------------------
 The `autonameow` project does not target any version of Windows.  Getting it
 running should not be all too difficult, the core `autonameow` code should run
 just fine on Windows.
