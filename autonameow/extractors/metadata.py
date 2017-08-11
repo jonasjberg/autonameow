@@ -54,19 +54,15 @@ class AbstractMetadataExtractor(BaseExtractor):
             The specified fields or False if the extraction fails.
         """
         if not self.metadata:
-            try:
-                log.debug('{!s} received initial query ..'.format(self))
-                self._perform_initial_extraction()
-            except exceptions.ExtractorError as e:
-                log.error('{!s} query FAILED: {!s}'.format(self, e))
-                return False
-            except NotImplementedError as e:
-                log.debug('[WARNING] Called unimplemented code in {!s}: '
-                          '{!s}'.format(self, e))
-                return False
+            log.debug('{!s} received initial query ..'.format(self))
+            self._raw_metadata = self._perform_initial_extraction()
 
-        # Internal data format boundary.  Wrap "raw" data with type classes.
-        self.metadata = self._to_internal_format(self._raw_metadata)
+            if not self._raw_metadata:
+                log.error('{!s}: Query FAILED'.format(self))
+                return None
+
+            # Internal data format boundary.  Wrap "raw" data with type classes.
+            self.metadata = self._to_internal_format(self._raw_metadata)
 
         if not field:
             log.debug('{!s} responding to query for all fields'.format(self))
@@ -77,7 +73,18 @@ class AbstractMetadataExtractor(BaseExtractor):
             return self.metadata.get(field, False)
 
     def _perform_initial_extraction(self):
-        self._raw_metadata = self._get_raw_metadata()
+        try:
+            _raw_metadata = self._get_raw_metadata()
+            return _raw_metadata
+        except exceptions.ExtractorError as e:
+            log.error('{!s}: Initial extraction FAILED: {!s}'.format(self, e))
+            pass
+        except NotImplementedError as e:
+            log.debug('[WARNING] Called unimplemented code in {!s}: '
+                      '{!s}'.format(self, e))
+            pass
+
+        return None
 
     def _to_internal_format(self, raw_metadata):
         out = {}
