@@ -91,7 +91,7 @@ def run_guessit(input_data, options=None):
     if options:
         guessit_options = options
     else:
-        guessit_options = ['no-embedded-config', 'name_only']
+        guessit_options = {'no-embedded-config': True, 'name_only': True}
 
     if guessit:
         result = guessit.guessit(input_data, guessit_options)

@@ -49,7 +49,7 @@ class TestRunGuessit(TestCase):
         self.assertIsNotNone(run_guessit)
 
     def test_run_guessit_no_options_returns_expected_type(self):
-        actual = run_guessit('foo', options=[])
+        actual = run_guessit('foo', options=None)
         self.assertTrue(isinstance(actual, dict))
 
     def test_run_guessit_using_default_options_returns_expected_type(self):
@@ -63,7 +63,7 @@ class TestRunGuessitWithDummyData(TestCase):
         self.data = 'Fear.and.Loathing.in.Las.Vegas.FRENCH.ENGLISH.720p.HDDVD.DTS.x264-ESiR.mkv'
 
     def test_run_guessit_no_options_returns_expected(self):
-        actual = run_guessit(self.data, options=[])
+        actual = run_guessit(self.data, options=None)
 
         field_expected = [('title', 'Fear and Loathing in Las Vegas'),
                           ('type', 'movie'),

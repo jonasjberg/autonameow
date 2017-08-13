@@ -201,7 +201,13 @@ class Autonameow(object):
         util.nested_dict_set(self.session_data, [file_object, label], data)
 
     def request_data(self, file_object, label):
-        return util.nested_dict_get(self.session_data, [file_object, label])
+        try:
+            d = util.nested_dict_get(self.session_data, [file_object, label])
+        except KeyError as e:
+            log.debug('Data pool request raised KeyError: {!s}'.format(e))
+            return None
+        else:
+            return d
 
     def _handle_files(self, file_paths):
         """

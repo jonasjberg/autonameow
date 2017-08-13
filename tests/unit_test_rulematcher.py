@@ -49,11 +49,8 @@ class TestRuleMatcher(TestCase):
 
 class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
     def setUp(self):
-        # TODO: [TD0075] Consolidate/remove data container classes.
         fo = uu.get_mock_fileobject()
-        analysis_data = uu.mock_session_data_pool_with_analysis_data(fo)
-        extraction_data = uu.mock_session_data_pool(fo)
-        self.rm = RuleMatcher(analysis_data, extraction_data, dummy_config)
+        self.rm = RuleMatcher(fo, dummy_config, uu.mock_request_data_callback)
 
     def test_query_data_is_defined(self):
         self.assertIsNotNone(self.rm.query_data)
@@ -88,15 +85,12 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
 
 class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
     def setUp(self):
-        # TODO: [TD0075] Consolidate/remove data container classes.
         fo = uu.get_mock_fileobject()
-        analysis_data = uu.mock_session_data_pool_empty_analysis_data(fo)
-        extraction_data = uu.mock_session_data_pool(fo)
-        self.rm = RuleMatcher(analysis_data, extraction_data, dummy_config)
+        self.rm = RuleMatcher(fo, dummy_config, uu.mock_request_data_callback)
 
     def test_querying_unavailable_data_returns_false(self):
         self.assertFalse(
-            self.rm.query_data('analysis.filename_analyzer.tags')
+            self.rm.query_data('analysis.filename_analyzer.publisher')
         )
 
     def test_querying_available_data_returns_expected_type(self):
