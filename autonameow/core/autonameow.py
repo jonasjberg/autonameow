@@ -256,6 +256,7 @@ class Autonameow(object):
 
         # Begin analysing the file.
         analysis = _run_analysis(current_file,
+                                 add_pool_data_callback=_collect_file_data,
                                  extracted_data=extraction.data)
 
         # Determine matching rule.
@@ -432,7 +433,7 @@ def _run_extraction(file_object, add_pool_data_callback,
 
     Args:
         file_object: The file object to extract data from.
-        add_pool_data_callback: Callback function used to pass back extracted data.
+        add_pool_data_callback: Callback function for storing data.
         run_all_extractors: Whether all data extractors should be included.
 
     Returns:
@@ -456,20 +457,21 @@ def _run_extraction(file_object, add_pool_data_callback,
         return extraction
 
 
-def _run_analysis(file_object, extracted_data):
+def _run_analysis(file_object, add_pool_data_callback, pool_data):
     """
     Instantiates, executes and returns an 'Analysis' instance.
 
     Args:
         file_object: The file object to analyze.
-        extracted_data: Extracted data provided by an 'Extraction' instance.
+        add_pool_data_callback: Callback function for storing data.
+        pool_data: Shared "session pool" data.
 
     Returns:
         An instance of the 'Analysis' class that has executed successfully.
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
-    analysis = Analysis(file_object, extracted_data)
+    analysis = Analysis(file_object, add_pool_data_callback, pool_data)
     try:
         analysis.start()
     except exceptions.AutonameowException as e:

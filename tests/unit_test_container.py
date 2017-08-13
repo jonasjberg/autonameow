@@ -37,6 +37,10 @@ class TestSessionDataPool(TestCase):
     def test_extracted_data_can_be_instantiated(self):
         self.assertIsNotNone(self.d)
 
+    def test_results_init_in_expected_state(self):
+        self.assertTrue(isinstance(self.d._data, dict))
+        self.assertEqual(len(self.d), 0)
+
     def test_add_data_with_invalid_label_raises_error(self):
         with self.assertRaises(exceptions.InvalidDataSourceError):
             self.d.add(self.file_object, None, 'data')
@@ -47,9 +51,6 @@ class TestSessionDataPool(TestCase):
         valid_labels = constants.VALID_DATA_SOURCES[:3]
         for valid_label in valid_labels:
             self.d.add(self.file_object, valid_label, 'data')
-
-    def test_initial_len_returns_expected(self):
-        self.assertEqual(len(self.d), 0)
 
     def test_adding_data_increments_len(self):
         valid_label = constants.VALID_DATA_SOURCES[0]
@@ -90,9 +91,9 @@ class TestSessionDataPool(TestCase):
 
     def test_valid_label_returns_expected_data(self):
         valid_label = constants.VALID_DATA_SOURCES[0]
-        self.d.add(valid_label, 'expected_data')
+        self.d.add(self.file_object, valid_label, 'expected_data')
 
-        actual = self.d.get(valid_label)
+        actual = self.d.get(self.file_object).get(valid_label)
         self.assertEqual(actual, 'expected_data')
 
     def test_none_label_returns_expected_data(self):
@@ -100,7 +101,7 @@ class TestSessionDataPool(TestCase):
         self.d.add(self.file_object, valid_label, 'expected_data')
 
         actual = self.d.get(None)
-        expect = {valid_label: 'expected_data'}
+        expect = {self.file_object: {valid_label: 'expected_data'}}
         self.assertEqual(actual, expect)
 
     def test_valid_label_returns_expected_data_multiple_entries(self):
@@ -108,7 +109,7 @@ class TestSessionDataPool(TestCase):
         self.d.add(self.file_object, valid_label, 'expected_data_a')
         self.d.add(self.file_object, valid_label, 'expected_data_b')
 
-        actual = self.d.get(valid_label)
+        actual = self.d.get(self.file_object).get(valid_label)
         self.assertIn('expected_data_a', actual)
         self.assertIn('expected_data_b', actual)
 
@@ -119,7 +120,52 @@ class TestSessionDataPool(TestCase):
         self.d.add(self.file_object, valid_label_b, 'expected_data_b')
 
         actual = self.d.get(None)
-        self.assertIn(valid_label_a, actual)
-        self.assertIn(valid_label_b, actual)
-        self.assertTrue(actual[valid_label_a], 'expected_data_a')
-        self.assertTrue(actual[valid_label_b], 'expected_data_b')
+        self.assertIn(valid_label_a, actual[self.file_object])
+        self.assertIn(valid_label_b, actual[self.file_object])
+        self.assertTrue(actual[self.file_object][valid_label_a],
+                        'expected_data_a')
+        self.assertTrue(actual[self.file_object][valid_label_b],
+                        'expected_data_b')
+
+    def test_add(self):
+        _field = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _results = []
+        self.d.add(self.file_object, _field, _results)
+
+    def test_adding_one_result_increments_len_once(self):
+        _field = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _results = ['foo']
+        self.d.add(self.file_object, _field, _results)
+
+        self.assertEqual(len(self.d), 1)
+
+    def test_adding_two_results_increments_len_twice(self):
+        _field_one = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _field_two = constants.ANALYSIS_RESULTS_FIELDS[1]
+        _result_one = ['foo']
+        _result_two = ['bar']
+        self.d.add(self.file_object, _field_one, _result_one)
+        self.d.add(self.file_object, _field_two, _result_two)
+
+        self.assertEqual(len(self.d), 2)
+
+    def test_adding_list_of_two_results_increments_len_twice(self):
+        _field_one = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _result_one = ['foo', 'bar']
+        self.d.add(self.file_object, _field_one, _result_one)
+
+        self.assertEqual(len(self.d), 2)
+
+    def test_adding_dict_of_two_results_increments_len_twice(self):
+        _field_one = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _result_one = {'baz': ['foo', 'bar']}
+        self.d.add(self.file_object, _field_one, _result_one)
+
+        self.assertEqual(len(self.d), 2)
+
+    def test_add_empty_does_not_increment_len(self):
+        _field = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _results = []
+        self.d.add(self.file_object, _field, _results)
+
+        self.assertEqual(len(self.d), 0)

@@ -20,6 +20,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
 import inspect
 import os
 import io
@@ -160,18 +161,55 @@ def get_mock_empty_extractor_data():
     return {}
 
 
-def mock_session_data_pool():
+def mock_session_data_pool(file_object):
     """
     Returns: Mock session data pool with typical extractor data.
     """
     data = container.SessionDataPool()
-    data.add('filesystem.basename.full', b'gmail.pdf')
-    data.add('filesystem.basename.extension', b'pdf.pdf')
-    data.add('filesystem.basename.suffix', b'pdf.pdf')
-    data.add('filesystem.pathname.parent', b'test_files')
-    data.add('contents.mime_type', 'application/pdf')
-    data.add('metadata.exiftool.PDF:Creator', 'Chromium')
-    data.add('metadata.exiftool', {'File:MIMEType': 'application/bar'})
+    data.add(file_object, 'filesystem.basename.full', b'gmail.pdf')
+    data.add(file_object, 'filesystem.basename.extension', b'pdf.pdf')
+    data.add(file_object, 'filesystem.basename.suffix', b'pdf.pdf')
+    data.add(file_object, 'filesystem.pathname.parent', b'test_files')
+    data.add(file_object, 'contents.mime_type', 'application/pdf')
+    data.add(file_object, 'metadata.exiftool.PDF:Creator', 'Chromium')
+    data.add(file_object, 'metadata.exiftool', {'File:MIMEType': 'application/bar'})
+    return data
+
+
+def mock_session_data_pool_empty_analysis_data(file_object):
+    data = container.SessionDataPool()
+    data.add(file_object, 'analysis.filename_analyzer.datetime', [])
+    data.add(file_object, 'analysis.filename_analyzer.tags', [])
+    data.add(file_object, 'analysis.filename_analyzer.title', [])
+    data.add(file_object, 'analysis.filesystem_analyzer.datetime', [])
+    data.add(file_object, 'analysis.filesystem_analyzer.tags', [])
+    data.add(file_object, 'analysis.filesystem_analyzer.title', [])
+    return data
+
+
+def mock_session_data_pool_with_analysis_data(file_object):
+    data = container.SessionDataPool()
+    data.add(file_object,
+             'analysis.filename_analyzer.tags',
+             [{'source': 'filenamepart_tags',
+               'value': ['tagfoo', 'tagbar'],
+               'weight': 1}])
+    data.add(file_object,
+             'analysis.filename_analyzer.title',
+             [{'source': 'filenamepart_base',
+               'value': 'gmail',
+               'weight': 0.25}])
+    data.add(file_object,
+             'analysis.filesystem_analyzer.datetime',
+             [{'source': 'modified',
+               'value': datetime.datetime(2017, 6, 12, 22, 38, 34),
+               'weight': 1},
+              {'source': 'created',
+               'value': datetime.datetime(2017, 6, 12, 22, 38, 34),
+               'weight': 1},
+              {'source': 'accessed',
+               'value': datetime.datetime(2017, 6, 12, 22, 38, 34),
+               'weight': 0.25}])
     return data
 
 
