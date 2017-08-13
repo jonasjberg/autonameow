@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0073]` __Fix or remove the `SessionDataPool` class.__
+
 * `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
   When listing results with any of the `--list-*` options, paths are not
   displayed properly due to them not being handled properly before being passed

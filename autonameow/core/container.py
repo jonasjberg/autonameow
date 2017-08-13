@@ -71,7 +71,46 @@ class DataContainerBase(object):
         return out
 
 
-class SessionDataPool(object):
+class SessionDataPool(DataContainerBase):
+    # TODO: [TD0073] Fix or remove the 'SessionDataPool' class.
     def __init__(self):
-        # TODO: [TD0072] Maybe add some kind of central data repository.
-        pass
+        super(SessionDataPool, self).__init__()
+
+    def add(self, file_object, query_string, data):
+        if not query_string:
+            raise InvalidDataSourceError('Invalid source (missing label)')
+
+        if data is None:
+            log.warning('Attempted to add None data with query string'
+                        ' "{!s}"'.format(query_string))
+            return
+
+        if file_object not in self._data:
+            self._data[file_object] = {}
+
+        if query_string in self._data[file_object]:
+            t = self._data[file_object][query_string]
+            self._data[file_object][query_string] = [t] + [data]
+        else:
+            self._data[file_object][query_string] = data
+
+    def get(self, query_string=None):
+        """
+        Returns all contained data, or data matching a specified "query string".
+
+        Args:
+            query_string: Any string defined in "constants.VALID_DATA_SOURCES".
+        Returns:
+            Data associated with the given query string, or False if the data
+            does not exist.
+            If no query string is specified, all data is returned.
+        Raises:
+            InvalidDataSourceError: The query string is not a valid data source.
+        """
+        if query_string is not None:
+            if query_string not in constants.VALID_DATA_SOURCES:
+                log.critical('Attempted to retrieve data using "invalid"'
+                             'query_string: "{}"'.format(query_string))
+            return self._data.get(query_string, False)
+        else:
+            return self._data
