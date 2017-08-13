@@ -32,9 +32,11 @@ from datetime import datetime
 
 import analyzers
 from core.config import rules
-from core.extraction import ExtractedData
 from core.fileobject import FileObject
-from core import util
+from core import (
+    util,
+    container
+)
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 _PARENT_DIR = os.path.join(_THIS_DIR, os.pardir)
@@ -158,11 +160,11 @@ def get_mock_empty_extractor_data():
     return {}
 
 
-def get_mock_extractor_data():
+def mock_session_data_pool():
     """
     Returns: Mock extracted data from an 'Extraction' instance.
     """
-    data = ExtractedData()
+    data = container.SessionDataPool()
     data.add('filesystem.basename.extension', 'bar')
     data.add('filesystem.basename.full', 'foo.bar')
     data.add('filesystem.basename.prefix', 'foo')

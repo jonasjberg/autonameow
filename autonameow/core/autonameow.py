@@ -29,7 +29,8 @@ from core import (
     constants,
     options,
     util,
-    exceptions
+    exceptions,
+    container
 )
 from core.analysis import Analysis
 from core.config.configuration import Configuration
@@ -67,6 +68,12 @@ class Autonameow(object):
 
         self.filter = None
         self.active_config = None
+
+        # TODO: [TD0073] Fix or remove the 'SessionDataPool' class.
+        # self.session_data = container.SessionDataPool()
+
+        # TODO: [TD0072] Implement a central data repository.
+        self.session_data = {}
 
     def run(self):
         # Display help/usage information if no arguments are provided.
@@ -190,6 +197,9 @@ class Autonameow(object):
             log.critical('Unable to load configuration: {!s}'.format(e))
             self.exit_program(constants.EXIT_ERROR)
 
+    def collect_data(self, file_object, label, data):
+        util.nested_dict_set(self.session_data, [file_object, label], data)
+
     def _handle_files(self, file_paths):
         """
         Main loop. Iterate over input paths/files.
@@ -230,6 +240,9 @@ class Autonameow(object):
                 continue
 
     def _handle_file(self, current_file):
+        def _collect_file_data(label, data):
+            self.collect_data(current_file, label, data)
+
         should_list_any_results = (self.opts.list_datetime
                                    or self.opts.list_title
                                    or self.opts.list_all)
@@ -238,6 +251,7 @@ class Autonameow(object):
         # Run all extractors so that all possible data is included
         # when listing any (all) results later on.
         extraction = _run_extraction(current_file,
+                                     add_pool_data_callback=_collect_file_data,
                                      run_all_extractors=should_list_any_results)
 
         # Begin analysing the file.
@@ -411,12 +425,14 @@ def _build_new_name(file_object, extracted_data, analysis_data, active_config,
         return new_name
 
 
-def _run_extraction(file_object, run_all_extractors=False):
+def _run_extraction(file_object, add_pool_data_callback,
+                    run_all_extractors=False):
     """
     Instantiates, executes and returns an 'Extraction' instance.
 
     Args:
         file_object: The file object to extract data from.
+        add_pool_data_callback: Callback function used to pass back extracted data.
         run_all_extractors: Whether all data extractors should be included.
 
     Returns:
@@ -424,7 +440,7 @@ def _run_extraction(file_object, run_all_extractors=False):
     Raises:
         AutonameowException: An unrecoverable error occurred during extraction.
     """
-    extraction = Extraction(file_object)
+    extraction = Extraction(file_object, add_pool_data_callback)
     try:
         # TODO: [TD0056] Determine required extractors for current file.
 
@@ -490,7 +506,8 @@ def _run_rule_matcher(extracted_data, analysis_data, active_config):
 def _list_all_extracted_data(extraction):
     log.info('Listing ALL extraction results ..')
     cli.msg('Extraction Results Data', style='heading', log=True)
-    cli.msg(str(extraction.data))
+    cli.msg('TODO: Re-implement this after moving to shared data pool storage.')
+    # cli.msg(str(extraction.data))
 
 
 def _list_all_analysis_results(analysis):
