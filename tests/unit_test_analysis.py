@@ -31,8 +31,9 @@ from core import (
 
 class TestAnalysis(TestCase):
     def setUp(self):
-        self.a = analysis.Analysis(uu.get_mock_fileobject(),
-                                   uu.get_mock_extractor_data())
+        # TODO: [TD0074] Provide means of accessing the shared session data.
+        # TODO: Pass dummy "data pool".
+        self.a = analysis.Analysis(uu.get_mock_fileobject(), None)
 
     def test_analysis_is_defined(self):
         self.assertIsNotNone(analysis.Analysis)
@@ -92,6 +93,7 @@ class TestAnalysis(TestCase):
 
 
 class TestAnalysisResults(TestCase):
+    # TODO: [TD0075] Consolidate/remove data container classes.
     def setUp(self):
         self.results = analysis.AnalysisResults()
 

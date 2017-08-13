@@ -62,6 +62,7 @@ def get_dummy_analysis_results_empty():
 
 
 def get_dummy_analysis_results():
+    # TODO: [TD0075] Consolidate/remove data container classes.
     results = AnalysisResults()
     results.add('analysis.filename_analyzer.tags',
                 [{'source': 'filenamepart_tags',
@@ -85,6 +86,7 @@ def get_dummy_analysis_results():
 
 
 def get_dummy_extraction_results():
+    # TODO: [TD0075] Consolidate/remove data container classes.
     results = ExtractedData()
     results.add('filesystem.basename.full', b'gmail.pdf')
     results.add('filesystem.basename.extension', b'pdf.pdf')
@@ -97,6 +99,7 @@ def get_dummy_extraction_results():
 
 class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
     def setUp(self):
+        # TODO: [TD0075] Consolidate/remove data container classes.
         analysis_data = get_dummy_analysis_results()
         extraction_data = get_dummy_extraction_results()
         self.rm = RuleMatcher(analysis_data, extraction_data, dummy_config)
@@ -134,6 +137,7 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
 
 class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
     def setUp(self):
+        # TODO: [TD0075] Consolidate/remove data container classes.
         analysis_data = get_dummy_analysis_results_empty()
         extraction_data = get_dummy_extraction_results()
         self.rm = RuleMatcher(analysis_data, extraction_data, dummy_config)

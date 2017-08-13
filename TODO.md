@@ -14,6 +14,18 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0075]` __Consolidate data container classes.__  
+   Strive to simplify data structures, especially those that are passed across
+   program boundaries; between the "core" and extractors/analyzers/plugins,
+   etc. Reduce unnecessarily complex indirection and encapsulation, prefer
+   native data structures. Compared to plain dictionaries, the container
+   classes handle logging and error checking. But this could be just as well
+   be delegated to callers and accessors, and/or functions at boundaries.
+    * Remove/consolidate the `AnalysisResults` class.
+    * Remove/consolidate the `ExtractedData` class.
+
+* `[TD0074]` Implement means for components to access the shared session data.
+
 * `[TD0073]` __Fix or remove the `SessionDataPool` class.__
 
 * `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  

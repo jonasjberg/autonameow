@@ -38,22 +38,22 @@ class Analysis(object):
     current file.  The enqueued analyzers are executed and any results are
     passed back through a callback function.
     """
-    def __init__(self, file_object, extracted_data):
+    def __init__(self, file_object, data_pool):
         """
         Setup an analysis of a given file. This is done once per file.
 
         Args:
             file_object: File to analyze as an instance of class 'FileObject'.
-            extracted_data: Data from the 'Extraction' instance as an instance
-                of the 'ExtractedData' class.
+            data_pool:
         """
+        # TODO: [TD0075] Consolidate/remove data container classes.
         self.results = AnalysisResults()
         self.analyzer_queue = AnalysisRunQueue()
 
         self.file_object = file_object
 
-        if extracted_data:
-            self.extracted_data = extracted_data
+        # TODO: [TD0074] Provide means of accessing the shared session data.
+        self.data_pool = data_pool
 
     def collect_results(self, label, data):
         """
@@ -77,6 +77,8 @@ class Analysis(object):
         """
         assert label is not None and isinstance(label, str)
 
+        # TODO: [TD0074] Provide means of accessing the shared session data.
+        # TODO: [TD0075] Consolidate/remove data container classes.
         if isinstance(data, dict):
             flat_data = util.flatten_dict(data)
             for k, v in flat_data.items():
@@ -95,9 +97,10 @@ class Analysis(object):
         # Run all analyzers in the queue.
         self._execute_run_queue()
 
-        log.info('Finished executing {} analyzers. Got {} results'.format(
-            len(self.analyzer_queue), len(self.results)
-        ))
+        # TODO: Fix or remove result count tally.
+        # log.info('Finished executing {} analyzers. Got {} results'.format(
+        #     len(self.analyzer_queue), len(self.results)
+        # ))
 
     def _populate_run_queue(self):
         """
@@ -125,6 +128,7 @@ class Analysis(object):
         Returns:
             One instance of each of the given classes as a list of objects.
         """
+        # TODO: [TD0074] Provide means of accessing the shared session data.
         return [a(self.file_object, self.collect_results, self.extracted_data)
                 for a in class_list]
 
@@ -190,6 +194,7 @@ class AnalysisResults(DataContainerBase):
     """
     Container for results gathered during an analysis of a file.
     """
+    # TODO: [TD0075] Consolidate/remove data container classes.
 
     def __init__(self):
         super(AnalysisResults, self).__init__()

@@ -19,28 +19,50 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core import util
+import logging as log
+
+from core import (
+    util,
+    constants
+)
+from core.exceptions import InvalidDataSourceError
 
 
 class DataContainerBase(object):
+    # TODO: [TD0075] Consolidate/remove data container classes.
     def __init__(self):
         self._data = {}
 
-    def add(self, query_string, data):
+    def add(self, file_object, query_string, data):
         """
-        Adds data for later retrieval through "query string".
+        Adds data related to a given 'file_object', at a storage location
+        defined by the given 'query string'.
+
+            STORAGE = {
+                'file_object_A': {
+                    'query_string_a': [1, 2]
+                    'query_string_b': ['foo']
+                }
+                'file_object_B': {
+                    'query_string_a': ['bar']
+                    'query_string_b': [2, 1]
+                }
+            }
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def get(self, query_string=None):
+    def get(self, file_object=None, query_string=None):
         """
-        Returns all contained data, or data matching a specified "query string".
+        Returns all contained data if neither optional argument is given.
+        If 'file_object' is specified, return only data related to that object.
+        If 'query_string' is specified, data matching the query is returned.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def __iter__(self):
-        for k, v in self._data.items():
-            yield (k, v)
+    # TODO: Now encapsulated by outer dict keyed by 'FileObject' instances.
+    # def __iter__(self):
+    #     for k, v in self._data.items():
+    #         yield (k, v)
 
     def __len__(self):
         return util.count_dict_recursive(self._data)
@@ -73,6 +95,7 @@ class DataContainerBase(object):
 
 class SessionDataPool(DataContainerBase):
     # TODO: [TD0073] Fix or remove the 'SessionDataPool' class.
+    # TODO: [TD0075] Consolidate/remove data container classes.
     def __init__(self):
         super(SessionDataPool, self).__init__()
 
