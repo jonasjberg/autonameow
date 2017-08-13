@@ -30,11 +30,11 @@ class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['*/*']
 
-    def __init__(self, file_object, add_results_callback, extracted_data):
+    def __init__(self, file_object, add_results_callback,
+                 request_data_callback):
         super(FilenameAnalyzer, self).__init__(
-            file_object, add_results_callback, extracted_data
+            file_object, add_results_callback, request_data_callback
         )
-        self.add_results = add_results_callback
 
     def _add_results(self, label, data):
         query_string = 'analysis.filename_analyzer.{}'.format(label)

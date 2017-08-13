@@ -36,22 +36,23 @@ class Analysis(object):
     current file.  The enqueued analyzers are executed and any results are
     passed back through a callback function.
     """
-    def __init__(self, file_object, add_pool_data_callback, pool_data):
+    def __init__(self, file_object, add_pool_data_callback,
+                 request_data_callback):
         """
         Setup an analysis of a given file. This is done once per file.
 
         Args:
             file_object: File to analyze as an instance of class 'FileObject'.
             add_pool_data_callback: Callback function for storing data.
-            pool_data: Shared "session pool" data.
+            request_data_callback: Callback function for accessing data.
         """
-        # TODO: [TD0075] Consolidate/remove data container classes.
         self.analyzer_queue = AnalysisRunQueue()
 
         self.file_object = file_object
 
         # TODO: [TD0074] Provide means of accessing the shared session data.
         self.add_pool_data_callback = add_pool_data_callback
+        self.request_data = request_data_callback
 
     def collect_results(self, label, data):
         """
@@ -129,8 +130,7 @@ class Analysis(object):
         Returns:
             One instance of each of the given classes as a list of objects.
         """
-        # TODO: [TD0074] Provide means of accessing the shared session data.
-        return [a(self.file_object, self.collect_results, self.extracted_data)
+        return [a(self.file_object, self.collect_results, self.request_data)
                 for a in class_list]
 
     def _execute_run_queue(self):

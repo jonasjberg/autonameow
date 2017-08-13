@@ -200,6 +200,9 @@ class Autonameow(object):
     def collect_data(self, file_object, label, data):
         util.nested_dict_set(self.session_data, [file_object, label], data)
 
+    def request_data(self, file_object, label):
+        return util.nested_dict_get(self.session_data, [file_object, label])
+
     def _handle_files(self, file_paths):
         """
         Main loop. Iterate over input paths/files.
@@ -257,12 +260,12 @@ class Autonameow(object):
         # Begin analysing the file.
         analysis = _run_analysis(current_file,
                                  add_pool_data_callback=_collect_file_data,
-                                 extracted_data=extraction.data)
+                                 request_data_callback=self.request_data)
 
         # Determine matching rule.
-        matcher = _run_rule_matcher(extracted_data=extraction.data,
-                                    analysis_data=analysis.results,
-                                    active_config=self.active_config)
+        matcher = _run_rule_matcher(current_file,
+                                    active_config=self.active_config,
+                                    request_data_callback=self.request_data)
 
         # Present results.
         if should_list_any_results:
@@ -281,27 +284,24 @@ class Autonameow(object):
 
         # Perform actions.
         if self.opts.automagic:
-            self._perform_automagic_actions(current_file, extraction, analysis,
-                                            matcher)
+            self._perform_automagic_actions(current_file, matcher)
         elif self.opts.interactive:
             # TODO: Create a interactive interface.
             # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
-    def _perform_automagic_actions(self, current_file, extraction, analysis,
-                                   matcher):
-        if not matcher.best_match:
+    def _perform_automagic_actions(self, current_file, rule_matcher):
+        if not rule_matcher.best_match:
             log.info('None of the rules seem to apply')
             return
 
         log.info('Using file rule: "{!s}"'.format(
-            matcher.best_match.description)
+            rule_matcher.best_match.description)
         )
         new_name = _build_new_name(current_file,
-                                   extracted_data=extraction.data,
-                                   analysis_data=analysis.results,
                                    active_config=self.active_config,
-                                   active_rule=matcher.best_match)
+                                   active_rule=rule_matcher.best_match,
+                                   request_data_callback=self.request_data)
         # TODO: [TD0042] Respect '--quiet' option. Suppress output.
         log.info('New name: "{}"'.format(
             util.displayable_path(new_name))
@@ -411,11 +411,11 @@ class Autonameow(object):
             self._exit_code = value
 
 
-def _build_new_name(file_object, extracted_data, analysis_data, active_config,
-                    active_rule):
+def _build_new_name(file_object, active_config, active_rule,
+                    request_data_callback):
     try:
-        builder = NameBuilder(file_object, extracted_data, analysis_data,
-                              active_config, active_rule)
+        builder = NameBuilder(file_object, active_config, active_rule,
+                              request_data_callback)
 
         # TODO: Do not return anything from 'build()', use property.
         new_name = builder.build()
@@ -457,21 +457,22 @@ def _run_extraction(file_object, add_pool_data_callback,
         return extraction
 
 
-def _run_analysis(file_object, add_pool_data_callback, pool_data):
+def _run_analysis(file_object, add_pool_data_callback, request_data_callback):
     """
     Instantiates, executes and returns an 'Analysis' instance.
 
     Args:
         file_object: The file object to analyze.
         add_pool_data_callback: Callback function for storing data.
-        pool_data: Shared "session pool" data.
+        request_data_callback: Callback function for accessing "session" data.
 
     Returns:
         An instance of the 'Analysis' class that has executed successfully.
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
-    analysis = Analysis(file_object, add_pool_data_callback, pool_data)
+    analysis = Analysis(file_object, add_pool_data_callback,
+                        request_data_callback)
     try:
         analysis.start()
     except exceptions.AutonameowException as e:
@@ -481,21 +482,20 @@ def _run_analysis(file_object, add_pool_data_callback, pool_data):
         return analysis
 
 
-def _run_rule_matcher(extracted_data, analysis_data, active_config):
+def _run_rule_matcher(file_object, active_config, request_data_callback):
     """
     Instantiates, executes and returns a 'RuleMatcher' instance.
 
     Args:
-        extracted_data: Extracted data provided by an 'Extraction' instance.
-        analysis_data: Analysis results data provided by an 'Analysis' instance.
         active_config: An instance of the 'Configuration' class.
+        request_data_callback: Callback function for accessing "session" data.
 
     Returns:
         An instance of the 'RuleMatcher' class that has executed successfully.
     Raises:
         AutonameowException: An unrecoverable error occurred during execution.
     """
-    matcher = RuleMatcher(analysis_data, extracted_data, active_config)
+    matcher = RuleMatcher(file_object, active_config, request_data_callback)
     try:
         matcher.start()
     except exceptions.AutonameowException as e:
@@ -515,10 +515,13 @@ def _list_all_extracted_data(extraction):
 def _list_all_analysis_results(analysis):
     log.info('Listing ALL analysis results ..')
     cli.msg('Analysis Results Data', style='heading', log=True)
-    cli.msg(str(analysis.results))
+    cli.msg('TODO: Re-implement this after moving to shared data pool storage.')
+    # cli.msg(str(analysis.results))
 
 
 def _list_analysis_results_field(analysis, results_field):
     log.info('Listing "{}" analysis results ..'.format(results_field))
     # TODO: [TD0066] Handle all encoding properly.
-    cli.msg(util.dump(analysis.results.get(results_field)))
+
+    cli.msg('TODO: Re-implement this after moving to shared data pool storage.')
+    # cli.msg(util.dump(analysis.results.get(results_field)))

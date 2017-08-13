@@ -306,6 +306,8 @@ def nested_dict_get(dictionary, list_of_keys):
             dictionary = dictionary[k]
         except TypeError:
             raise KeyError('Thing is not subscriptable (traversed too deep?)')
+        except KeyError:
+            return None
     return dictionary
 
 
