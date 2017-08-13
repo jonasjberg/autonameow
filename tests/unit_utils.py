@@ -162,13 +162,15 @@ def get_mock_empty_extractor_data():
 
 def mock_session_data_pool():
     """
-    Returns: Mock extracted data from an 'Extraction' instance.
+    Returns: Mock session data pool with typical extractor data.
     """
     data = container.SessionDataPool()
-    data.add('filesystem.basename.extension', 'bar')
-    data.add('filesystem.basename.full', 'foo.bar')
-    data.add('filesystem.basename.prefix', 'foo')
-    data.add('filesystem.basename.suffix', 'bar')
+    data.add('filesystem.basename.full', b'gmail.pdf')
+    data.add('filesystem.basename.extension', b'pdf.pdf')
+    data.add('filesystem.basename.suffix', b'pdf.pdf')
+    data.add('filesystem.pathname.parent', b'test_files')
+    data.add('contents.mime_type', 'application/pdf')
+    data.add('metadata.exiftool.PDF:Creator', 'Chromium')
     data.add('metadata.exiftool', {'File:MIMEType': 'application/bar'})
     return data
 
