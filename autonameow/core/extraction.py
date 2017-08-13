@@ -45,7 +45,7 @@ class Extraction(object):
             file_object: File to extract data from, as a 'FileObject' instance.
         """
         self.file_object = file_object
-        self.add_pool_data_callback = add_pool_data_callback
+        self.add_pool_data = add_pool_data_callback
 
         self.extractor_queue = util.GenericQueue()
 
@@ -85,7 +85,7 @@ class Extraction(object):
             self.collect_data(label, data)
 
     def collect_data(self, label, data):
-        self.add_pool_data_callback(label, data)
+        self.add_pool_data(self.file_object, label, data)
 
     def start(self, require_extractors=None, require_all_extractors=False):
         """

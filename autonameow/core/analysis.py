@@ -50,8 +50,7 @@ class Analysis(object):
 
         self.file_object = file_object
 
-        # TODO: [TD0074] Provide means of accessing the shared session data.
-        self.add_pool_data_callback = add_pool_data_callback
+        self.add_pool_data = add_pool_data_callback
         self.request_data = request_data_callback
 
     def collect_results(self, label, data):
@@ -76,8 +75,6 @@ class Analysis(object):
         """
         assert label is not None and isinstance(label, str)
 
-        # TODO: [TD0074] Provide means of accessing the shared session data.
-        # TODO: [TD0075] Consolidate/remove data container classes.
         if isinstance(data, dict):
             flat_data = util.flatten_dict(data)
             for k, v in flat_data.items():
@@ -87,7 +84,7 @@ class Analysis(object):
             self.collect_data(label, data)
 
     def collect_data(self, label, data):
-        self.add_pool_data_callback(label, data)
+        self.add_pool_data(self.file_object, label, data)
 
     def start(self):
         """

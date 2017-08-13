@@ -243,9 +243,6 @@ class Autonameow(object):
                 continue
 
     def _handle_file(self, current_file):
-        def _collect_file_data(label, data):
-            self.collect_data(current_file, label, data)
-
         should_list_any_results = (self.opts.list_datetime
                                    or self.opts.list_title
                                    or self.opts.list_all)
@@ -254,12 +251,12 @@ class Autonameow(object):
         # Run all extractors so that all possible data is included
         # when listing any (all) results later on.
         extraction = _run_extraction(current_file,
-                                     add_pool_data_callback=_collect_file_data,
+                                     add_pool_data_callback=self.collect_data,
                                      run_all_extractors=should_list_any_results)
 
         # Begin analysing the file.
         analysis = _run_analysis(current_file,
-                                 add_pool_data_callback=_collect_file_data,
+                                 add_pool_data_callback=self.collect_data,
                                  request_data_callback=self.request_data)
 
         # Determine matching rule.

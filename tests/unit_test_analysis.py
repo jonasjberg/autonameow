@@ -33,7 +33,7 @@ class TestAnalysis(TestCase):
     def setUp(self):
         # TODO: [TD0074] Provide means of accessing the shared session data.
         # TODO: Pass dummy "data pool".
-        self.a = analysis.Analysis(uu.get_mock_fileobject(), None)
+        self.a = analysis.Analysis(uu.get_mock_fileobject(), None, None)
 
     def test_analysis_is_defined(self):
         self.assertIsNotNone(analysis.Analysis)
@@ -88,6 +88,7 @@ class TestAnalysis(TestCase):
         self.assertIsNotNone(self.a._execute_run_queue)
 
     def test_analysis__execute_run_queue_increases_number_of_results(self):
+        self.skipTest('TODO: Fix or remove result count tally.')
         _results_len = len(self.a.results)
         self.assertEqual(_results_len, 0)
 
