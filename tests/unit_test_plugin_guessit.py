@@ -67,7 +67,7 @@ class TestRunGuessitWithDummyData(TestCase):
 
         field_expected = [('title', 'Fear and Loathing in Las Vegas'),
                           ('type', 'movie'),
-                          ('language', ['fr', 'en']),
+                          # ('language', ['fr', 'en']),
                           ('screen_size', '720p'),
                           ('format', 'HD-DVD'),
                           ('audio_codec', 'DTS'),
