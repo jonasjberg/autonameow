@@ -14,18 +14,6 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0075]` __Consolidate data container classes.__  
-   Strive to simplify data structures, especially those that are passed across
-   program boundaries; between the "core" and extractors/analyzers/plugins,
-   etc. Reduce unnecessarily complex indirection and encapsulation, prefer
-   native data structures. Compared to plain dictionaries, the container
-   classes handle logging and error checking. But this could be just as well
-   be delegated to callers and accessors, and/or functions at boundaries.
-    * Remove/consolidate the `AnalysisResults` class.
-    * Remove/consolidate the `ExtractedData` class.
-
-* `[TD0074]` Implement means for components to access the shared session data.
-
 * `[TD0073]` __Fix or remove the `SessionDataPool` class.__
 
 * `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
@@ -61,14 +49,6 @@ High Priority
 
 * `[TD0069]` Calculate file rule scores as `score = conditions_met /
   number_of_conditions`, I.E. use normalized floats.
-
-* `[TD0072]` __Think about adding a central "data pool" or manager.__  
-  Different components need to access data from other components, analyzer need
-  extracted data, plugins might need specific data to run. This is getting to
-  be pretty messy and difficult to handle. A possible solution might be to add
-  some kind of central handler or "repository" that store all data and state
-  for the current input path. This "data pool" or handler would be reset and
-  recreated for each of the processed input paths.
 
 
 Medium Priority

@@ -29,7 +29,7 @@ from core.exceptions import InvalidDataSourceError
 
 
 class DataContainerBase(object):
-    # TODO: [TD0075] Consolidate/remove data container classes.
+    # TODO: [TD0073] Fix or remove the 'SessionDataPool' class.
     def __init__(self):
         self._data = {}
 
@@ -95,7 +95,6 @@ class DataContainerBase(object):
 
 class SessionDataPool(DataContainerBase):
     # TODO: [TD0073] Fix or remove the 'SessionDataPool' class.
-    # TODO: [TD0075] Consolidate/remove data container classes.
     def __init__(self):
         super(SessionDataPool, self).__init__()
 

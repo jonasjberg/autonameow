@@ -71,8 +71,6 @@ class Autonameow(object):
 
         # TODO: [TD0073] Fix or remove the 'SessionDataPool' class.
         # self.session_data = container.SessionDataPool()
-
-        # TODO: [TD0072] Implement a central data repository.
         self.session_data = {}
 
     def run(self):
