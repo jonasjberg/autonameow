@@ -32,9 +32,11 @@ from datetime import datetime
 
 import analyzers
 from core.config import rules
-from core.extraction import ExtractedData
 from core.fileobject import FileObject
-from core import util
+from core import (
+    util,
+    container
+)
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 _PARENT_DIR = os.path.join(_THIS_DIR, os.pardir)
@@ -158,16 +160,133 @@ def get_mock_empty_extractor_data():
     return {}
 
 
-def get_mock_extractor_data():
+def mock_request_data_callback(file_object, label):
+    data = mock_session_data_pool_with_extractor_and_analysis_data(file_object)
+    try:
+        d = util.nested_dict_get(data, [file_object, label])
+    except KeyError:
+        return None
+    else:
+        return d
+
+
+def mock_session_data_pool(file_object):
     """
-    Returns: Mock extracted data from an 'Extraction' instance.
+    Returns: Mock session data pool with typical extractor data.
     """
-    data = ExtractedData()
-    data.add('filesystem.basename.extension', 'bar')
-    data.add('filesystem.basename.full', 'foo.bar')
-    data.add('filesystem.basename.prefix', 'foo')
-    data.add('filesystem.basename.suffix', 'bar')
-    data.add('metadata.exiftool', {'File:MIMEType': 'application/bar'})
+    # data = container.SessionDataPool()
+    # data.add(file_object, 'filesystem.basename.full', b'gmail.pdf')
+    # data.add(file_object, 'filesystem.basename.extension', b'pdf.pdf')
+    # data.add(file_object, 'filesystem.basename.suffix', b'pdf.pdf')
+    # data.add(file_object, 'filesystem.pathname.parent', b'test_files')
+    # data.add(file_object, 'contents.mime_type', 'application/pdf')
+    # data.add(file_object, 'metadata.exiftool.PDF:Creator', 'Chromium')
+    # data.add(file_object, 'metadata.exiftool', {'File:MIMEType': 'application/bar'})
+
+    data = {}
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.full'], b'gmail.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.extension'], b'pdf.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.suffix'], b'pdf.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.pathname.parent'], b'test_files')
+    util.nested_dict_set(data, [file_object, 'contents.mime_type'], 'application/pdf')
+    util.nested_dict_set(data, [file_object, 'metadata.exiftool.PDF:Creator'], 'Chromium')
+    util.nested_dict_set(data, [file_object, 'metadata.exiftool'], {'File:MIMEType': 'application/bar'})
+
+    return data
+
+
+def mock_session_data_pool_empty_analysis_data(file_object):
+    # data = container.SessionDataPool()
+    # data.add(file_object, 'analysis.filename_analyzer.datetime', [])
+    # data.add(file_object, 'analysis.filename_analyzer.tags', [])
+    # data.add(file_object, 'analysis.filename_analyzer.title', [])
+    # data.add(file_object, 'analysis.filesystem_analyzer.datetime', [])
+    # data.add(file_object, 'analysis.filesystem_analyzer.tags', [])
+    # data.add(file_object, 'analysis.filesystem_analyzer.title', [])
+
+    data = {}
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.datetime'], [])
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.tags'], [])
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.title'], [])
+    util.nested_dict_set(data, [file_object, 'analysis.filesystem_analyzer.datetime'], [])
+    util.nested_dict_set(data, [file_object, 'analysis.filesystem_analyzer.tags'], [])
+    util.nested_dict_set(data, [file_object, 'analysis.filesystem_analyzer.title'], [])
+    return data
+
+
+def mock_session_data_pool_with_analysis_data(file_object):
+    # data = container.SessionDataPool()
+    # data.add(file_object,
+    #          'analysis.filename_analyzer.tags',
+    #          [{'source': 'filenamepart_tags',
+    #            'value': ['tagfoo', 'tagbar'],
+    #            'weight': 1}])
+    # data.add(file_object,
+    #          'analysis.filename_analyzer.title',
+    #          [{'source': 'filenamepart_base',
+    #            'value': 'gmail',
+    #            'weight': 0.25}])
+    # data.add(file_object,
+    #          'analysis.filesystem_analyzer.datetime',
+    #          [{'source': 'modified',
+    #            'value': datetime(2017, 6, 12, 22, 38, 34),
+    #            'weight': 1},
+    #           {'source': 'created',
+    #            'value': datetime(2017, 6, 12, 22, 38, 34),
+    #            'weight': 1},
+    #           {'source': 'accessed',
+    #            'value': datetime(2017, 6, 12, 22, 38, 34),
+    #            'weight': 0.25}])
+
+    data = {}
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.tags'],
+             [{'source': 'filenamepart_tags',
+               'value': ['tagfoo', 'tagbar'],
+               'weight': 1}])
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.title'],
+             [{'source': 'filenamepart_base',
+               'value': 'gmail',
+               'weight': 0.25}])
+    util.nested_dict_set(data, [file_object, 'analysis.filesystem_analyzer.datetime'],
+             [{'source': 'modified',
+               'value': datetime(2017, 6, 12, 22, 38, 34),
+               'weight': 1},
+              {'source': 'created',
+               'value': datetime(2017, 6, 12, 22, 38, 34),
+               'weight': 1},
+              {'source': 'accessed',
+               'value': datetime(2017, 6, 12, 22, 38, 34),
+               'weight': 0.25}])
+    return data
+
+
+def mock_session_data_pool_with_extractor_and_analysis_data(file_object):
+    data = {}
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.full'], b'gmail.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.extension'], b'pdf.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.suffix'], b'pdf.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.pathname.parent'], b'test_files')
+    util.nested_dict_set(data, [file_object, 'contents.mime_type'], 'application/pdf')
+    util.nested_dict_set(data, [file_object, 'metadata.exiftool.PDF:Creator'], 'Chromium')
+    util.nested_dict_set(data, [file_object, 'metadata.exiftool'], {'File:MIMEType': 'application/bar'})
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.tags'],
+                         [{'source': 'filenamepart_tags',
+                           'value': ['tagfoo', 'tagbar'],
+                           'weight': 1}])
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.title'],
+                         [{'source': 'filenamepart_base',
+                           'value': 'gmail',
+                           'weight': 0.25}])
+    util.nested_dict_set(data, [file_object, 'analysis.filesystem_analyzer.datetime'],
+                         [{'source': 'modified',
+                           'value': datetime(2017, 6, 12, 22, 38, 34),
+                           'weight': 1},
+                          {'source': 'created',
+                           'value': datetime(2017, 6, 12, 22, 38, 34),
+                           'weight': 1},
+                          {'source': 'accessed',
+                           'value': datetime(2017, 6, 12, 22, 38, 34),
+                           'weight': 0.25}])
     return data
 
 

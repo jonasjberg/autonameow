@@ -190,6 +190,21 @@ class FileObject(object):
         return '<{} {}>'.format(self.__class__.__name__,
                                 util.displayable_path(self.abspath))
 
+    def __hash__(self):
+        # NOTE(jonas): Might need to use a more robust method to avoid
+        #              collisions. Use "proper" cryptographic checksum?
+        return hash((self.abspath, self.mime_type))
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        else:
+            return (self.abspath, self.mime_type) == (other.abspath,
+                                                      other.mime_type)
+
+    def __ne__(self, other):
+        return not (self == other)
+
 
 # TODO: [TD0049]` Think about defining legal "placeholder fields".
 # Might be helpful to define all legal fields (such as `title`, `datetime`,

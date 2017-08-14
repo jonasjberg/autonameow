@@ -19,11 +19,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import datetime
 from unittest import TestCase
 
 import unit_utils as uu
-from core.analysis import AnalysisResults
 from core.config.configuration import Configuration
 from core.config import DEFAULT_CONFIG
 from core.evaluate.rulematcher import (
@@ -31,7 +29,6 @@ from core.evaluate.rulematcher import (
     prioritize_rules,
     evaluate_rule_conditions
 )
-from core.extraction import ExtractedData
 
 dummy_config = Configuration(DEFAULT_CONFIG)
 
@@ -50,56 +47,10 @@ class TestRuleMatcher(TestCase):
         self.assertFalse(self.rm.best_match)
 
 
-def get_dummy_analysis_results_empty():
-    results = AnalysisResults()
-    results.add('analysis.filename_analyzer.datetime', [])
-    results.add('analysis.filename_analyzer.tags', [])
-    results.add('analysis.filename_analyzer.title', [])
-    results.add('analysis.filesystem_analyzer.datetime', [])
-    results.add('analysis.filesystem_analyzer.tags', [])
-    results.add('analysis.filesystem_analyzer.title', [])
-    return results
-
-
-def get_dummy_analysis_results():
-    results = AnalysisResults()
-    results.add('analysis.filename_analyzer.tags',
-                [{'source': 'filenamepart_tags',
-                  'value': ['tagfoo', 'tagbar'],
-                  'weight': 1}])
-    results.add('analysis.filename_analyzer.title',
-                [{'source': 'filenamepart_base',
-                  'value': 'gmail',
-                  'weight': 0.25}])
-    results.add('analysis.filesystem_analyzer.datetime',
-                [{'source': 'modified',
-                  'value': datetime.datetime(2017, 6, 12, 22, 38, 34),
-                  'weight': 1},
-                 {'source': 'created',
-                  'value': datetime.datetime(2017, 6, 12, 22, 38, 34),
-                  'weight': 1},
-                 {'source': 'accessed',
-                  'value': datetime.datetime(2017, 6, 12, 22, 38, 34),
-                  'weight': 0.25}])
-    return results
-
-
-def get_dummy_extraction_results():
-    results = ExtractedData()
-    results.add('filesystem.basename.full', b'gmail.pdf')
-    results.add('filesystem.basename.extension', b'pdf.pdf')
-    results.add('filesystem.basename.suffix', b'pdf.pdf')
-    results.add('filesystem.pathname.parent', b'test_files')
-    results.add('contents.mime_type', 'application/pdf')
-    results.add('metadata.exiftool.PDF:Creator', 'Chromium')
-    return results
-
-
 class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
     def setUp(self):
-        analysis_data = get_dummy_analysis_results()
-        extraction_data = get_dummy_extraction_results()
-        self.rm = RuleMatcher(analysis_data, extraction_data, dummy_config)
+        fo = uu.get_mock_fileobject()
+        self.rm = RuleMatcher(fo, dummy_config, uu.mock_request_data_callback)
 
     def test_query_data_is_defined(self):
         self.assertIsNotNone(self.rm.query_data)
@@ -134,13 +85,12 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
 
 class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
     def setUp(self):
-        analysis_data = get_dummy_analysis_results_empty()
-        extraction_data = get_dummy_extraction_results()
-        self.rm = RuleMatcher(analysis_data, extraction_data, dummy_config)
+        fo = uu.get_mock_fileobject()
+        self.rm = RuleMatcher(fo, dummy_config, uu.mock_request_data_callback)
 
     def test_querying_unavailable_data_returns_false(self):
         self.assertFalse(
-            self.rm.query_data('analysis.filename_analyzer.tags')
+            self.rm.query_data('analysis.filename_analyzer.publisher')
         )
 
     def test_querying_available_data_returns_expected_type(self):

@@ -38,13 +38,12 @@ class NameBuilder(object):
     resulting name. The rule also determines what analysis data to use when
     populating the name template fields.
     """
-    def __init__(self, file_object, extracted_data, analysis_data,
-                 active_config, active_rule):
+    def __init__(self, file_object, active_config, active_rule,
+                 request_data_callback):
         self.file = file_object
-        self.extracted_data = extracted_data
-        self.analysis_data = analysis_data
         self.config = active_config
         self.active_rule = active_rule
+        self.request_data = request_data_callback
 
         self._new_name = None
 
@@ -52,7 +51,7 @@ class NameBuilder(object):
     def new_name(self):
         return self._new_name
 
-    def _gather_data(self, data_sources):
+    def _gather_data(self, field_querystring_map):
         """
         Populates a dictionary with data fields matching a "query string".
 
@@ -61,7 +60,7 @@ class NameBuilder(object):
         exists, it is used and the analyzer data query is skipped.
 
         Args:
-            data_sources: Dictionary of fields and query string.
+            field_querystring_map: Dictionary of fields and query string.
 
                 Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
                           'description' = 'plugin.microsoft_vision.caption'
@@ -77,14 +76,15 @@ class NameBuilder(object):
         # individually. Requires re-evaluating the configuration source
         # description format.
         # TODO: [TD0017] Rethink source specifications relation to source data.
-        for field, query_string in data_sources.items():
-            extracted_data = self.extracted_data.get(query_string)
-            if extracted_data:
-                out[field] = extracted_data
-            else:
-                analysis_data = self.analysis_data.get(query_string)
-                if analysis_data:
-                    out[field] = analysis_data
+        for field, query_string in field_querystring_map.items():
+            _data = self.request_data(self.file, query_string)
+            if _data:
+                out[field] = _data
+            # else:
+            #     analysis_data = self.analysis_data.get(query_string)
+            #     if analysis_data:
+            #         out[field] = analysis_data
+            # TODO: Or else what.. ?
 
         return out
 

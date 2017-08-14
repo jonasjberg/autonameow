@@ -28,9 +28,10 @@ class VideoAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.1
     handles_mime_types = ['video/*']
 
-    def __init__(self, file_object, add_results_callback, extracted_data):
+    def __init__(self, file_object, add_results_callback,
+                 request_data_callback):
         super(VideoAnalyzer, self).__init__(
-            file_object, add_results_callback, extracted_data
+            file_object, add_results_callback, request_data_callback
         )
         self.add_results = add_results_callback
 

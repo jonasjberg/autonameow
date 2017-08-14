@@ -28,9 +28,9 @@ from core import exceptions
 
 
 class RuleMatcher(object):
-    def __init__(self, analysis_results, extracted_data, active_config):
-        self.analysis_data = analysis_results
-        self.extraction_data = extracted_data
+    def __init__(self, file_object, active_config, request_data_callback):
+        self.file_object = file_object
+        self.request_data = request_data_callback
 
         if not active_config or not active_config.file_rules:
             log.error('Configuration does not contain any rules to evaluate')
@@ -44,16 +44,11 @@ class RuleMatcher(object):
             self._rules = copy.deepcopy(active_config.file_rules)
 
         self._candidates = []
-        self._data_sources = [self.extraction_data, self.analysis_data]
 
     def query_data(self, query_string):
-        for source in self._data_sources:
-            data = source.get(query_string)
-            if data:
-                return data
-
-        log.warning('No data available for query: "{!s}"'.format(query_string))
-        return False
+        # Functions that use this does not have access to the 'file_object'.
+        # This method, which calls a callback, is itself passed as a callback..
+        return self.request_data(self.file_object, query_string)
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))

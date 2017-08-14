@@ -23,11 +23,9 @@ import logging as log
 
 import extractors
 from core import (
-    constants,
     util,
     types
 )
-from core.container import DataContainerBase
 from core.exceptions import InvalidDataSourceError
 
 
@@ -39,7 +37,7 @@ class Extraction(object):
     The enqueued extractors are executed and any results are passed back
     through a callback function.
     """
-    def __init__(self, file_object):
+    def __init__(self, file_object, add_pool_data_callback):
         """
         Instantiates extraction for a given file. This is done once per file.
 
@@ -47,8 +45,8 @@ class Extraction(object):
             file_object: File to extract data from, as a 'FileObject' instance.
         """
         self.file_object = file_object
+        self.add_pool_data = add_pool_data_callback
 
-        self.data = ExtractedData()
         self.extractor_queue = util.GenericQueue()
 
     def collect_results(self, label, data):
@@ -82,9 +80,12 @@ class Extraction(object):
             flat_data = util.flatten_dict(data)
             for k, v in flat_data.items():
                 merged_label = label + '.' + str(k)
-                self.data.add(merged_label, v)
+                self.collect_data(merged_label, v)
         else:
-            self.data.add(label, data)
+            self.collect_data(label, data)
+
+    def collect_data(self, label, data):
+        self.add_pool_data(self.file_object, label, data)
 
     def start(self, require_extractors=None, require_all_extractors=False):
         """
@@ -142,9 +143,10 @@ class Extraction(object):
         # Execute all suitable extractors and collect results.
         self._execute_run_queue()
 
-        log.info('Finished executing {} extractors. Got {} results'.format(
-            len(self.extractor_queue), len(self.data)
-        ))
+        # TODO: Fix or remove result count tally.
+        # log.info('Finished executing {} extractors. Got {} results'.format(
+        #     len(self.extractor_queue), len(self.data)
+        # ))
 
     def _instantiate_extractors(self, class_list):
         """
@@ -168,51 +170,6 @@ class Extraction(object):
                       '{!s}'.format(i + 1, len(self.extractor_queue), e))
 
             self.collect_results(e.data_query_string, e.query())
-
-
-class ExtractedData(DataContainerBase):
-    """
-    Container for data gathered by extractors.
-    """
-    def __init__(self):
-        super(ExtractedData, self).__init__()
-
-    def add(self, query_string, data):
-        if not query_string:
-            raise InvalidDataSourceError('Invalid source (missing label)')
-
-        if data is None:
-            log.warning('ExtractedData got None data for query string'
-                        ' "{!s}"'.format(query_string))
-            return
-
-        # TODO: Necessary to handle multiple adds to the same label?
-        if query_string in self._data:
-            t = self._data[query_string]
-            self._data[query_string] = [t] + [data]
-        else:
-            self._data[query_string] = data
-
-    def get(self, query_string=None):
-        """
-        Returns all contained data, or data matching a specified "query string".
-
-        Args:
-            query_string: Any string defined in "constants.VALID_DATA_SOURCES".
-        Returns:
-            Extracted data associated with the given query string, or False if
-            the data does not exist.
-            If no query string is specified, all data is returned.
-        Raises:
-            InvalidDataSourceError: The query string is not a valid data source.
-        """
-        if query_string is not None:
-            if query_string not in constants.VALID_DATA_SOURCES:
-                log.critical('ExtractedData.get() got "invalid" query_string:'
-                             ' "{}"'.format(query_string))
-            return self._data.get(query_string, False)
-        else:
-            return self._data
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):

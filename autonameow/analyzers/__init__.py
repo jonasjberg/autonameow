@@ -45,10 +45,11 @@ class BaseAnalyzer(object):
     run_queue_priority = None
     handles_mime_types = None
 
-    def __init__(self, file_object, add_results_callback, extracted_data):
+    def __init__(self, file_object, add_results_callback,
+                 request_data_callback):
         self.file_object = file_object
         self.add_results = add_results_callback
-        self.extracted_data = extracted_data
+        self.request_data = request_data_callback
 
     def run(self):
         """

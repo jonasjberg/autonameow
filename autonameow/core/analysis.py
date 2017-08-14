@@ -22,12 +22,10 @@
 import logging as log
 
 import analyzers
-import plugins
 from core import (
     exceptions,
     util
 )
-from core.container import DataContainerBase
 
 
 class Analysis(object):
@@ -38,22 +36,22 @@ class Analysis(object):
     current file.  The enqueued analyzers are executed and any results are
     passed back through a callback function.
     """
-    def __init__(self, file_object, extracted_data):
+    def __init__(self, file_object, add_pool_data_callback,
+                 request_data_callback):
         """
         Setup an analysis of a given file. This is done once per file.
 
         Args:
             file_object: File to analyze as an instance of class 'FileObject'.
-            extracted_data: Data from the 'Extraction' instance as an instance
-                of the 'ExtractedData' class.
+            add_pool_data_callback: Callback function for storing data.
+            request_data_callback: Callback function for accessing data.
         """
-        self.results = AnalysisResults()
         self.analyzer_queue = AnalysisRunQueue()
 
         self.file_object = file_object
 
-        if extracted_data:
-            self.extracted_data = extracted_data
+        self.add_pool_data = add_pool_data_callback
+        self.request_data = request_data_callback
 
     def collect_results(self, label, data):
         """
@@ -81,9 +79,12 @@ class Analysis(object):
             flat_data = util.flatten_dict(data)
             for k, v in flat_data.items():
                 merged_label = label + '.' + str(k)
-                self.results.add(merged_label, v)
+                self.collect_data(merged_label, v)
         else:
-            self.results.add(label, data)
+            self.collect_data(label, data)
+
+    def collect_data(self, label, data):
+        self.add_pool_data(self.file_object, label, data)
 
     def start(self):
         """
@@ -95,9 +96,10 @@ class Analysis(object):
         # Run all analyzers in the queue.
         self._execute_run_queue()
 
-        log.info('Finished executing {} analyzers. Got {} results'.format(
-            len(self.analyzer_queue), len(self.results)
-        ))
+        # TODO: Fix or remove result count tally.
+        # log.info('Finished executing {} analyzers. Got {} results'.format(
+        #     len(self.analyzer_queue), len(self.results)
+        # ))
 
     def _populate_run_queue(self):
         """
@@ -125,14 +127,12 @@ class Analysis(object):
         Returns:
             One instance of each of the given classes as a list of objects.
         """
-        return [a(self.file_object, self.collect_results, self.extracted_data)
+        return [a(self.file_object, self.collect_results, self.request_data)
                 for a in class_list]
 
     def _execute_run_queue(self):
         """
         Executes analyzers in the analyzer run queue.
-
-        Analyzers are called sequentially, results are stored in 'self.results'.
         """
         for i, a in enumerate(self.analyzer_queue):
             log.debug('Executing queue item {}/{}: '
@@ -184,53 +184,3 @@ class AnalysisRunQueue(util.GenericQueue):
         for pos, item in enumerate(self):
             out.append('{:02d}: {!s}'.format(pos, item))
         return ', '.join(out)
-
-
-class AnalysisResults(DataContainerBase):
-    """
-    Container for results gathered during an analysis of a file.
-    """
-
-    def __init__(self):
-        super(AnalysisResults, self).__init__()
-
-    def get(self, query_string=None):
-        """
-        Returns analysis data matching the given "query string".
-
-        If the given query string does not map to any data, False is returned.
-
-        Args:
-            query_string: The query string key for the data to return.
-                Example:  'metadata.exiftool.DateTimeOriginal'
-
-        Returns:
-            Results data for the specified fields matching the specified query.
-        """
-        if not query_string:
-            return self._data
-
-        if query_string in self._data:
-            return self._data.get(query_string)
-
-        return False
-
-    def add(self, query_string, data):
-        """
-        Adds results data for a specific field to the aggregate data.
-
-        Args:
-            query_string: The field type of the data to add.
-                   Must be included in "ANALYSIS_RESULTS_FIELDS".
-            data: Data to add as a list of dicts.
-
-        Raises:
-            KeyError: The specified field is not in "ANALYSIS_RESULTS_FIELDS".
-        """
-        if not query_string:
-            raise KeyError('Missing results field')
-
-        self._data.update({query_string: data})
-
-    def __len__(self):
-        return util.count_dict_recursive(self._data)
