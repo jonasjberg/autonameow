@@ -49,10 +49,10 @@ class ImageAnalyzer(BaseAnalyzer):
         self.add_results(query_string, data)
 
     def run(self):
-        self.exif_data = self.request_data.get(self.file_object,
-                                               'metadata.exiftool')
-        self.ocr_text = self.request_data.get(self.file_object,
-                                              'contents.visual.ocr_text')
+        self.exif_data = self.request_data(self.file_object,
+                                           'metadata.exiftool')
+        self.ocr_text = self.request_data(self.file_object,
+                                          'contents.visual.ocr_text')
 
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
