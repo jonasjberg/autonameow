@@ -120,9 +120,6 @@ DEFAULT_CONFIG = {
                           'metadata.exiftool.EXIF:DateTimeDigitized',
                           'metadata.exiftool.EXIF:CreateDate'],
              'description': 'plugin.microsoft_vision.caption',
-             'title': None,
-             'author': None,
-             'publisher': None,
              'extension': 'filesystem.basename.extension',
              'tags': 'plugin.microsoft_vision.tags'
          }
@@ -143,14 +140,12 @@ DEFAULT_CONFIG = {
          'DATA_SOURCES': {
              'datetime': ['metadata.exiftool.XMP-dc:PublicationDate',
                           'metadata.exiftool.XMP-dc:Date'],
-             'description': None,
              'title': 'metadata.exiftool.XMP-dc:Title',
              'author': ['metadata.exiftool.XMP-dc:Creator',
                         'metadata.exiftool.XMP-dc:CreatorFile-as'],
              'publisher': 'metadata.exiftool.XMP-dc:Publisher',
              'edition': None,
              'extension': 'filesystem.basename.extension',
-             'tags': None
          }
          },
     ],
