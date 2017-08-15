@@ -25,10 +25,9 @@ import sys
 
 from core import (
     constants,
-    exceptions
+    exceptions,
+    util
 )
-from core.fileobject import eval_magic_glob
-
 
 # Analyzers are assumed to be located in the same directory as this file.
 AUTONAMEOW_ANALYZER_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -103,7 +102,7 @@ class BaseAnalyzer(object):
         Returns:
             True if the analyzer class can handle the given file, else False.
         """
-        if eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
+        if util.eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
             return True
         else:
             return False

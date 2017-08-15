@@ -24,6 +24,7 @@ from unittest import TestCase
 
 from core import util
 from core.exceptions import InvalidQueryStringError
+from core.util import eval_magic_glob
 from core.util.misc import (
     unique_identifier,
     multiset_count,
@@ -452,3 +453,57 @@ class TestNestedDictSet(TestCase):
 
         _assert_raises([''])
         _assert_raises([None])
+
+
+class TestEvalMagicGlob(TestCase):
+    def test_eval_magic_blob_is_defined(self):
+        self.assertIsNotNone(eval_magic_glob)
+
+    def test_eval_magic_blob_returns_false_given_bad_arguments(self):
+        self.assertIsNotNone(eval_magic_glob(None, None))
+        self.assertFalse(eval_magic_glob(None, None))
+
+    def test_eval_magic_blob_raises_exception_given_bad_arguments(self):
+        with self.assertRaises(ValueError):
+            self.assertTrue(eval_magic_glob('image/jpeg', ['*/*/jpeg']))
+
+    def test_eval_magic_blob_returns_false_as_expected(self):
+        self.assertFalse(eval_magic_glob('image/jpeg', []))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['application/pdf']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['*/pdf']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['image/pdf']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['image/pdf',
+                                                        'application/jpeg']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['image/']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['/jpeg']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['*/pdf', '*/png']))
+        self.assertFalse(eval_magic_glob('image/jpeg',
+                                         ['*/pdf', '*/png', 'application/*']))
+        self.assertFalse(eval_magic_glob('image/png',
+                                         ['*/pdf', '*/jpg', 'application/*']))
+        self.assertFalse(eval_magic_glob('image/png',
+                                         ['*/pdf', '*/jpg', 'image/jpg']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                         ['*/jpg']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                         ['image/*']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                         ['image/jpeg']))
+
+    def test_eval_magic_blob_returns_true_as_expected(self):
+        self.assertTrue(eval_magic_glob('image/jpeg', ['*/*']))
+        self.assertTrue(eval_magic_glob('image/jpeg', ['*/jpeg']))
+        self.assertTrue(eval_magic_glob('image/jpeg', ['image/*']))
+        self.assertTrue(eval_magic_glob('image/png', ['image/*']))
+        self.assertTrue(eval_magic_glob('image/jpeg', ['image/jpeg']))
+        self.assertTrue(eval_magic_glob('image/jpeg', ['*/*', '*/jpeg']))
+        self.assertTrue(eval_magic_glob('image/jpeg', ['image/*', '*/jpeg']))
+        self.assertTrue(eval_magic_glob('image/png',
+                                        ['*/pdf', '*/png', 'application/*']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['application/epub+zip']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['application/*']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['*/epub+zip']))

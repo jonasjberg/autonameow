@@ -28,7 +28,6 @@ import unicodedata
 from core import (
     constants,
     util,
-    fileobject,
     exceptions
 )
 from core.evaluate import namebuilder
@@ -240,7 +239,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
         # True is returned if any of the given expressions evaluates true.
         for expr in expression:
-            evaluates_true = fileobject.eval_magic_glob(mime_to_match, expr)
+            evaluates_true = util.eval_magic_glob(mime_to_match, expr)
             if evaluates_true:
                 return True
         return False

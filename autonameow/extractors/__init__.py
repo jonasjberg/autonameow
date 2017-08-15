@@ -23,8 +23,8 @@ import inspect
 import os
 import sys
 
+from core import util
 from core.fileobject import (
-    eval_magic_glob,
     FileObject
 )
 
@@ -142,7 +142,7 @@ class BaseExtractor(object):
         if cls.handles_mime_types is None:
             raise NotImplementedError('Must be defined by inheriting classes.')
 
-        if eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
+        if util.eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
             return True
         else:
             return False
