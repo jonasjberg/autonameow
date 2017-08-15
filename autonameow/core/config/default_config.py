@@ -160,7 +160,7 @@ DEFAULT_CONFIG = {
     #
     'NAME_TEMPLATES': {
         'default_document': '{title} - {author} {datetime}.{extension}',
-        'default_book': '{publisher} {title} {edition} - {author} {date}.{extension}',
+        'default_book': '{publisher} {title} {edition} - {author} {datetime}.{extension}',
         'default_photo': '{datetime} {description} -- {tags}.{extension}'
     },
 
