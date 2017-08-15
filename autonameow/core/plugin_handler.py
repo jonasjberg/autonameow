@@ -20,29 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import plugins
-from core.container import DataContainerBase
-
-
-class PluginResults(DataContainerBase):
-    def __init__(self):
-        super(PluginResults, self).__init__()
-
-    def get(self, query_string=None):
-        if not query_string:
-            return self._data
-
-        if query_string.startswith('plugin.'):
-            plugin_name, plugin_query = query_string.lstrip('plugin.').split('.')
-            result = plugins.plugin_query(plugin_name, plugin_query, None)
-            return result
-        else:
-            return False
-
-    def add(self, destination, data):
-        if not destination:
-            raise KeyError('Expected non-empty "destination"')
-
-        self._data.update({destination: data})
 
 
 class PluginHandler(object):
@@ -52,8 +29,6 @@ class PluginHandler(object):
 
         self.plugins = plugins.Plugins
         assert(isinstance(self.plugins, dict))
-
-        self.results = PluginResults()
 
     def query(self, query_string):
         if query_string.startswith('plugin.'):
