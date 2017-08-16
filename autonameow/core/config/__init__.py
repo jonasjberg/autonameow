@@ -187,18 +187,3 @@ def write_yaml_file(dest_path, yaml_data):
 
 # Variables listed here are intended for public, global use.
 ConfigFilePath = config_file_path()
-
-
-if __name__ == '__main__':
-    dirs = config_dirs()
-
-    print('Configuration directories:')
-    for dir_ in dirs:
-        print('  "{!s}"'.format(dir_))
-
-    __config_file_path = config_file_path()
-    print('Configuration file path: "{!s}"'.format(__config_file_path))
-
-    __has_config = has_config_file()
-    print('Has config file?: "{!s}"'.format(__has_config))
-
