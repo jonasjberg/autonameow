@@ -70,8 +70,6 @@ class Autonameow(object):
         self.filter = None
         self.active_config = None
 
-        # TODO: [TD0073] Fix or remove the 'SessionDataPool' class.
-        # self.session_data = container.SessionDataPool()
         self.session_data = {}
 
     def run(self):
