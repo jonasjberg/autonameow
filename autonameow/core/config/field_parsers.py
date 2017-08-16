@@ -212,7 +212,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['contents.mime_type']
+    applies_to_field = ['*.mime_type']
 
     @staticmethod
     def is_valid_mime_type(expression):

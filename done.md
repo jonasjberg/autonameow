@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-08-16
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0051]` Implement or remove the `CommonFileSystemExtractor` class.
+
 * 2017-08-14
 
     > High Priority

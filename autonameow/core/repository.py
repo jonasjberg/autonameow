@@ -41,19 +41,22 @@ class Repository(object):
         self.resolvable_query_strings = set()
 
     def initialize(self):
-        self.map_query_strings_to_sources()
+        self._create_query_string_source_mapping()
         self.resolvable_query_strings = self._get_resolvable_query_strings()
 
-    def map_query_strings_to_sources(self):
-        # self._query_string_source_map['extractor'] = extractors.QueryStrings
-        self._query_string_source_map['extractors'] = \
-            extractors.QueryStringExtractorClassMap
-        # self._query_string_source_map['analyzer'] = analyzers.QueryStrings
-        self._query_string_source_map['analyzers'] = \
-            analyzers.QueryStringAnalyzerClassMap
-        # self._query_string_source_map['plugin'] = plugins.QueryStrings
-        self._query_string_source_map['plugins'] = \
-            plugins.QueryStringPluginClassMap
+    def _create_query_string_source_mapping(self):
+        self._query_string_source_map['extractors'] = extractors.QueryStringExtractorClassMap
+        self._query_string_source_map['analyzers'] = analyzers.QueryStringAnalyzerClassMap
+        self._query_string_source_map['plugins'] = plugins.QueryStringPluginClassMap
+
+    def _get_resolvable_query_strings(self):
+        out = set()
+
+        for key in ['extractors', 'analyzers', 'plugins']:
+            for query_string, _ in self._query_string_source_map[key].items():
+                out.add(query_string)
+
+        return out
 
     def store(self, file_object, label, data):
         util.nested_dict_set(self.data, [file_object, label], data)

@@ -92,8 +92,6 @@ Medium Priority
 
 * `[TD0052]` Analyzer classes should provide their respective "query strings".
 
-* `[TD0051]` Implement or remove the `CommonFileSystemExtractor` class.
-
 * `[TD0049]` __Think about defining legal "placeholder fields".__
   Might be helpful to define all legal fields (such as `title`, `datetime`,
   `author`, etc.) somewhere and keep references to type coercion wrappers,
