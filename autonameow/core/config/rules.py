@@ -70,6 +70,7 @@ class RuleCondition(object):
 
     @query_string.setter
     def query_string(self, raw_query_string):
+        # The query string is considered valid if a field parser can handle it.
         valid_query_string = self._validate_query_string(raw_query_string)
         if valid_query_string:
             self._query_string = raw_query_string
