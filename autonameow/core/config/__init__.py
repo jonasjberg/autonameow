@@ -95,14 +95,18 @@ def config_file_path():
     actually exist.
 
     Returns:
-        The absolute path to the autonameow configuration file.
+        The absolute path to the autonameow configuration file as a string
+        in the "internal bytestring" encoding.
+    Raises:
+        ConfigError: No config path candidates could be found.
     """
-    directories = config_dirs()
-    if not directories:
+    dirs = config_dirs()
+    if not dirs:
         raise exceptions.ConfigError('No configurations paths were found')
 
-    out = os.path.normpath(os.path.join(directories[0], CONFIG_BASENAME))
-    return str(out)
+    # Path name encoding boundary. Convert to internal bytestring format.
+    config_path = os.path.normpath(os.path.join(dirs[0], CONFIG_BASENAME))
+    return util.normpath(config_path)
 
 
 def has_config_file():

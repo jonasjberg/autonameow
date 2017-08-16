@@ -28,7 +28,10 @@ from mock import (
     MagicMock
 )
 
-from core import config
+from core import (
+    config,
+    util
+)
 
 
 class TestConfigDirs(TestCase):
@@ -69,3 +72,46 @@ class TestConfigDirs(TestCase):
             self.assertIsNotNone(dirs)
             self._assert_unicode_encoding(dirs)
             self.assertIn(os.path.expanduser('~/.config'), dirs)
+
+
+class TestConfigFilePath(TestCase):
+    def _assert_expected_basename(self, config_path):
+        actual_basename = os.path.basename(config_path)
+        expect_basename = util.encode_(config.CONFIG_BASENAME)
+        self.assertEqual(expect_basename, actual_basename)
+
+    def _assert_expected_encoding(self, config_path):
+        self.assertTrue(isinstance(config_path, bytes))
+
+    def test_config_dirs_on_mac(self):
+        with patch('platform.system', MagicMock(return_value='Darwin')):
+            config_path = config.config_file_path()
+
+            self.assertIsNotNone(config_path)
+            self._assert_expected_encoding(config_path)
+            self._assert_expected_basename(config_path)
+
+    def test_config_dirs_on_windows(self):
+        # TODO: Mock expanding "~" to "C:/Users/whatever" ..
+        with patch('platform.system', MagicMock(return_value='Windows')):
+            config_path = config.config_file_path()
+
+            self.assertIsNotNone(config_path)
+            self._assert_expected_encoding(config_path)
+            self._assert_expected_basename(config_path)
+
+    def test_config_dirs_on_linux(self):
+        with patch('platform.system', MagicMock(return_value='Linux')):
+            config_path = config.config_file_path()
+
+            self.assertIsNotNone(config_path)
+            self._assert_expected_encoding(config_path)
+            self._assert_expected_basename(config_path)
+
+    def test_config_dirs_on_dummy_system_defaults_to_unix(self):
+        with patch('platform.system', MagicMock(return_value='dummy')):
+            config_path = config.config_file_path()
+
+            self.assertIsNotNone(config_path)
+            self._assert_expected_encoding(config_path)
+            self._assert_expected_basename(config_path)
