@@ -107,6 +107,7 @@ class Autonameow(object):
             log.critical('Unable to load configuration -- Aborting ..')
             self.exit_program(constants.EXIT_ERROR)
 
+        # TODO: [TD0076] Register non-core components at startup.
         _referenced_qs = sorted(self.active_config.referenced_query_strings)
         for _query_string in _referenced_qs:
             log.debug('Configuration file rule referenced query string'
@@ -441,7 +442,7 @@ def _run_extraction(file_object, run_all_extractors=False):
     """
     extraction = Extraction(file_object)
     try:
-        # TODO: [TD0056] Determine required extractors for current file.
+        # TODO: [TD0056][TD0076] Determine required extractors for current file.
 
         # Assume slower execution speed is tolerable when the user
         # wants to display any results, also for completeness. Run all.
