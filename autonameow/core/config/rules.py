@@ -234,6 +234,24 @@ class FileRule(Rule):
         if self.score > 0:
             self.score -= 1
 
+    def referenced_query_strings(self):
+        """
+        Get all query strings referenced by this file rule.
+
+        The query string can be part of either a condition or a data source.
+
+        Returns: The set of all query strings referenced by this file rule.
+        """
+        unique_query_strings = set()
+
+        for condition in self.conditions:
+            unique_query_strings.add(condition.query_string)
+
+        for _, query_string in self.data_sources.items():
+            unique_query_strings.add(query_string)
+
+        return unique_query_strings
+
 
 def get_valid_rule_condition(raw_query, raw_value):
     """

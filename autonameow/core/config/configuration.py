@@ -62,6 +62,7 @@ class Configuration(object):
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
         self._version = None
+        self.referenced_query_strings = set()
 
         # NOTE(jonas): Detecting type prior to loading could be improved ..
         if isinstance(source, dict):
@@ -152,6 +153,11 @@ class Configuration(object):
             else:
                 # Create and populate "FileRule" objects with *validated* data.
                 self._file_rules.append(valid_file_rule)
+
+                # Keep track of all "query strings" referenced by file rules.
+                self.referenced_query_strings.update(
+                    valid_file_rule.referenced_query_strings()
+                )
 
     def _validate_rule_data(self, raw_rule):
         """
