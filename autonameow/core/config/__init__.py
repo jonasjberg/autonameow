@@ -99,7 +99,7 @@ def config_file_path():
     """
     directories = config_dirs()
     if not directories:
-        return False
+        raise exceptions.ConfigError('No configurations paths were found')
 
     out = os.path.normpath(os.path.join(directories[0], CONFIG_BASENAME))
     return str(out)
