@@ -24,7 +24,10 @@ import logging as log
 import analyzers
 import extractors
 import plugins
-from core import exceptions
+from core import (
+    exceptions,
+    util
+)
 
 
 # TODO: [TD0077] Implement a "repository" to handle "query string" queries.
@@ -35,11 +38,11 @@ class Repository(object):
     def __init__(self):
         self.data = {}
         self._query_string_source_map = {}
-        self._resolvable_query_strings = set()
+        self.resolvable_query_strings = set()
 
     def initialize(self):
         self.map_query_strings_to_sources()
-        self._resolvable_query_strings = self._get_resolvable_query_strings()
+        self.resolvable_query_strings = self._get_resolvable_query_strings()
 
     def map_query_strings_to_sources(self):
         # self._query_string_source_map['extractor'] = extractors.QueryStrings
@@ -52,14 +55,22 @@ class Repository(object):
         self._query_string_source_map['plugins'] = \
             plugins.QueryStringPluginClassMap
 
+    def store(self, file_object, label, data):
+        util.nested_dict_set(self.data, [file_object, label], data)
+
     def resolve(self, file_object, query_string):
         if not query_string:
             raise exceptions.InvalidDataSourceError(
                 'Unable to resolve empty query string'
             )
 
-        # TODO: ..
-        pass
+        try:
+            d = util.nested_dict_get(self.data, [file_object, query_string])
+        except KeyError as e:
+            log.debug('Repository request raised KeyError: {!s}'.format(e))
+            return None
+        else:
+            return d
 
     def _get_resolvable_query_strings(self):
         out = set()
@@ -79,7 +90,7 @@ class Repository(object):
         if not query_string:
             return False
 
-        resolvable = list(self._resolvable_query_strings)
+        resolvable = list(self.resolvable_query_strings)
         if any([query_string.startswith(r) for r in resolvable]):
             return True
         return False

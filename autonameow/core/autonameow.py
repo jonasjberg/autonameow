@@ -30,6 +30,7 @@ from core import (
     options,
     util,
     exceptions,
+    repository
 )
 from core.analysis import Analysis
 from core.config.configuration import Configuration
@@ -39,7 +40,6 @@ from core.evaluate.rulematcher import RuleMatcher
 from core.extraction import Extraction
 from core.fileobject import FileObject
 from core.plugin_handler import PluginHandler
-from core.repository import Repository
 from core.util import (
     cli,
     diskutils
@@ -106,6 +106,11 @@ class Autonameow(object):
         if not self.active_config:
             log.critical('Unable to load configuration -- Aborting ..')
             self.exit_program(constants.EXIT_ERROR)
+
+        _referenced_qs = sorted(self.active_config.referenced_query_strings)
+        for _query_string in _referenced_qs:
+            log.debug('Configuration file rule referenced query string'
+                      ' "{!s}"'.format(_query_string))
 
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
@@ -251,23 +256,31 @@ class Autonameow(object):
         # Extract data from the file.
         # Run all extractors so that all possible data is included
         # when listing any (all) results later on.
-        extraction = _run_extraction(current_file,
-                                     add_pool_data_callback=self.collect_data,
-                                     run_all_extractors=should_list_any_results)
+        extraction = _run_extraction(
+            current_file,
+            add_pool_data_callback=repository.SessionRepository.store,
+            run_all_extractors=should_list_any_results
+        )
 
         # Begin analysing the file.
-        analysis = _run_analysis(current_file,
-                                 add_pool_data_callback=self.collect_data,
-                                 request_data_callback=self.request_data)
+        analysis = _run_analysis(
+            current_file,
+            add_pool_data_callback=repository.SessionRepository.store,
+            request_data_callback=repository.SessionRepository.resolve
+        )
 
-        plugin_handler = _run_plugins(current_file,
-                                      add_pool_data_callback=self.collect_data,
-                                      request_data_callback=self.request_data)
+        plugin_handler = _run_plugins(
+            current_file,
+            add_pool_data_callback=repository.SessionRepository.store,
+            request_data_callback=repository.SessionRepository.resolve
+        )
 
         # Determine matching rule.
-        matcher = _run_rule_matcher(current_file,
-                                    active_config=self.active_config,
-                                    request_data_callback=self.request_data)
+        matcher = _run_rule_matcher(
+            current_file,
+            active_config=self.active_config,
+            request_data_callback=repository.SessionRepository.resolve
+        )
 
         # Present results.
         if should_list_any_results:

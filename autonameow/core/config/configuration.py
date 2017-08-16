@@ -22,12 +22,12 @@
 import logging as log
 import os
 
-import extractors
 from core import (
     config,
     constants,
     exceptions,
-    util
+    util,
+    repository
 )
 from core.config import (
     field_parsers,
@@ -429,18 +429,22 @@ def is_valid_source(source_value):
     if not source_value or not source_value.strip():
         return False
 
+    if repository.SessionRepository.resolvable(source_value):
+        return True
+    return False
+
     # TODO: [TD0052] Include 'analyzers.QueryStrings' with the valid sources.
     # TODO: [TD0077] Implement a "repository" to handle "query string" queries.
-    valid_sources = extractors.QueryStrings
+    # valid_sources = set()
 
-    # TODO: [TD0009] Implement proper plugin interface
-    valid_sources.add('plugin.microsoft_vision.caption')
-    assert(isinstance(valid_sources, set))
+    # # TODO: [TD0009] Implement proper plugin interface
+    # valid_sources.add('plugin.microsoft_vision.caption')
+    # assert(isinstance(valid_sources, set))
 
-    if source_value.startswith(tuple(valid_sources)):
-        return source_value
-    else:
-        return False
+    # if source_value.startswith(tuple(valid_sources)):
+    #     return source_value
+    # else:
+    #     return False
 
 
 def parse_conditions(raw_conditions):
