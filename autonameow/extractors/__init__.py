@@ -239,24 +239,5 @@ def get_query_strings():
     return out
 
 
-def get_metadata_query_strings():
-    _abstract_classes = get_abstract_extractor_classes(find_extractor_files())
-
-    klasses = False
-    for klass in _abstract_classes:
-        if klass == 'AbstractMetadataExtractor':
-            klasses = [k for k in klass.__subclasses__()]
-
-    if not klasses:
-        return None
-
-    out = set()
-    for e in klasses:
-        if e.data_query_string:
-            out.add(e.data_query_string)
-    return out
-
-
 ExtractorClasses = get_extractor_classes(find_extractor_files())
 QueryStrings = get_query_strings()
-MetadataExtractorQueryStrings = get_metadata_query_strings()
