@@ -48,8 +48,6 @@ class TestRepositoryMethodResolvable(TestCase):
     def test_good_query_string_returns_true(self):
         self.assertTrue(self.r.resolvable('metadata.exiftool.PDF:CreateDate'))
         self.assertTrue(self.r.resolvable('metadata.exiftool'))
-
-        # TODO: [TD0053] Fix special case of collecting data from 'FileObject'.
-        # self.assertTrue(self.r.resolvable('filesystem.basename.full'))
-        # self.assertTrue(self.r.resolvable('filesystem.basename.extension'))
-        # self.assertTrue(self.r.resolvable('contents.mime_type'))
+        self.assertTrue(self.r.resolvable('filesystem.basename.full'))
+        self.assertTrue(self.r.resolvable('filesystem.basename.extension'))
+        self.assertTrue(self.r.resolvable('filesystem.contents.mime_type'))

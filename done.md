@@ -16,6 +16,8 @@ University mail: `js224eh[a]student.lnu.se`
     > ---------------
     >
     > * `[TD0051]` Implement or remove the `CommonFileSystemExtractor` class.
+    >
+    > * `[TD0053]` Fix special case of collecting data from the `FileObject`.
 
 * 2017-08-14
 
