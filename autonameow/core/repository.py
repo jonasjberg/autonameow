@@ -30,10 +30,6 @@ from core import (
 )
 
 
-# TODO: [TD0077] Implement a "repository" to handle "query string" queries.
-# TODO: [TD0076] Have all non-core components register themselves at run-time.
-
-
 class Repository(object):
     def __init__(self):
         self.data = {}
@@ -45,6 +41,9 @@ class Repository(object):
         self.resolvable_query_strings = self._get_resolvable_query_strings()
 
     def _create_query_string_source_mapping(self):
+        # Module attributes store all available non-core components in dicts,
+        # with keys being the "query strings" that the components store data
+        # under and the contained values are lists of classes.
         self._query_string_source_map['extractors'] = extractors.QueryStringExtractorClassMap
         self._query_string_source_map['analyzers'] = analyzers.QueryStringAnalyzerClassMap
         self._query_string_source_map['plugins'] = plugins.QueryStringPluginClassMap
@@ -75,20 +74,6 @@ class Repository(object):
         else:
             return d
 
-    def _get_resolvable_query_strings(self):
-        out = set()
-
-        for query_string, _ in self._query_string_source_map['extractors'].items():
-            out.add(query_string)
-
-        for query_string, _ in self._query_string_source_map['analyzers'].items():
-            out.add(query_string)
-
-        for query_string, _ in self._query_string_source_map['plugins'].items():
-            out.add(query_string)
-
-        return out
-
     def resolvable(self, query_string):
         if not query_string:
             return False
@@ -97,12 +82,6 @@ class Repository(object):
         if any([query_string.startswith(r) for r in resolvable]):
             return True
         return False
-
-        # return [qs.startswith(query_string) for qs in self._resolvable_query_strings]
-        # if query_string in self._resolvable_query_strings:
-        #     return True
-        # return False
-
 
 SessionRepository = Repository()
 SessionRepository.initialize()

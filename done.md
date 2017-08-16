@@ -16,6 +16,8 @@ University mail: `js224eh[a]student.lnu.se`
     > ---------------
     >
     > * `[TD0052]` Analyzer classes should provide their respective "query strings"
+    >
+    > * `[TD0077]` __Implement a "repository" to handle "query string" queries__
 
 * 2017-08-16
 

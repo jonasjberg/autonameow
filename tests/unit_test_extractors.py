@@ -182,32 +182,6 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
         self.assertGreaterEqual(len(self.actual), 4)
 
 
-class TestGetQueryStrings(TestCase):
-    def setUp(self):
-        self.actual = extractors.get_query_strings()
-
-    def test_returns_expected_container_type(self):
-        self.assertTrue(isinstance(self.actual, set))
-
-    def test_returns_expected_contained_types(self):
-        for q in self.actual:
-            self.assertTrue(isinstance(q, str))
-
-    def test_contains_expected_metadata_query_strings(self):
-        self.assertIn('metadata.exiftool', self.actual)
-        self.assertIn('metadata.pypdf', self.actual)
-
-    def test_contains_expected_contents_query_strings(self):
-        self.assertIn('contents.visual.ocr_text', self.actual)
-        self.assertIn('contents.textual.raw_text', self.actual)
-
-    def test_does_not_contain_unexpected_query_strings(self):
-        self.assertNotIn('foo.bar', self.actual)
-        self.assertNotIn('.', self.actual)
-        self.assertNotIn('', self.actual)
-        self.assertNotIn(None, self.actual)
-
-
 class TestSuitableDataExtractorsForFile(TestCase):
     def test_returns_expected_extractors_for_mp4_video_file(self):
         self.fo = uu.get_mock_fileobject(mime_type='video/mp4')

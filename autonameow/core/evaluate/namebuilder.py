@@ -25,7 +25,8 @@ from datetime import datetime
 
 from core import (
     exceptions,
-    util
+    util,
+    repository
 )
 
 
@@ -38,12 +39,12 @@ class NameBuilder(object):
     resulting name. The rule also determines what analysis data to use when
     populating the name template fields.
     """
-    def __init__(self, file_object, active_config, active_rule,
-                 request_data_callback):
+    def __init__(self, file_object, active_config, active_rule):
         self.file = file_object
         self.config = active_config
         self.active_rule = active_rule
-        self.request_data = request_data_callback
+
+        self.request_data = repository.SessionRepository.resolve
 
         self._new_name = None
 

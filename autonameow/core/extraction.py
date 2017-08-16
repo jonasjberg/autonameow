@@ -24,9 +24,9 @@ import logging as log
 import extractors
 from core import (
     util,
-    types
+    exceptions,
+    repository
 )
-from core.exceptions import InvalidDataSourceError
 
 
 class Extraction(object):
@@ -37,7 +37,7 @@ class Extraction(object):
     The enqueued extractors are executed and any results are passed back
     through a callback function.
     """
-    def __init__(self, file_object, add_pool_data_callback):
+    def __init__(self, file_object):
         """
         Instantiates extraction for a given file. This is done once per file.
 
@@ -45,7 +45,7 @@ class Extraction(object):
             file_object: File to extract data from, as a 'FileObject' instance.
         """
         self.file_object = file_object
-        self.add_pool_data = add_pool_data_callback
+        self.add_pool_data = repository.SessionRepository.store
 
         self.extractor_queue = util.GenericQueue()
 
@@ -68,9 +68,13 @@ class Extraction(object):
             data: The data to add.
         """
         if not label:
-            raise InvalidDataSourceError('Missing required argument "label"')
+            raise exceptions.InvalidDataSourceError(
+                'Missing required argument "label"'
+            )
         if not isinstance(label, str):
-            raise InvalidDataSourceError('Argument "label" must be of type str')
+            raise exceptions.InvalidDataSourceError(
+                'Argument "label" must be of type str'
+            )
 
         if data is None:
             log.warning('Attempt to collect results with None data for query'

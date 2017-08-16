@@ -31,8 +31,6 @@ High Priority
       use this information to selectively run only components that are
       required.
 
-* `[TD0077]` __Implement a "repository" to handle "query string" queries__
-
 * `[TD0073]` __Fix or remove the `SessionDataPool` class.__
 
 * `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  

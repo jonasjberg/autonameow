@@ -24,8 +24,10 @@ import logging as log
 import analyzers
 from core import (
     exceptions,
-    util
+    util,
+    repository
 )
+from core.fileobject import FileObject
 
 
 class Analysis(object):
@@ -36,22 +38,21 @@ class Analysis(object):
     current file.  The enqueued analyzers are executed and any results are
     passed back through a callback function.
     """
-    def __init__(self, file_object, add_pool_data_callback,
-                 request_data_callback):
+    def __init__(self, file_object):
         """
         Setup an analysis of a given file. This is done once per file.
 
         Args:
             file_object: File to analyze as an instance of class 'FileObject'.
-            add_pool_data_callback: Callback function for storing data.
-            request_data_callback: Callback function for accessing data.
         """
-        self.analyzer_queue = AnalysisRunQueue()
-
+        if not isinstance(file_object, FileObject):
+            raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
-        self.add_pool_data = add_pool_data_callback
-        self.request_data = request_data_callback
+        self.add_pool_data = repository.SessionRepository.store
+        self.request_data = repository.SessionRepository.resolve
+
+        self.analyzer_queue = AnalysisRunQueue()
 
     def collect_results(self, label, data):
         """

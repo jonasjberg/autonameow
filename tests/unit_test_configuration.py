@@ -214,4 +214,4 @@ class TestIsValidSourceSpecification(TestCase):
         self.assertTrue(is_valid_source('metadata.exiftool'))
         self.assertTrue(is_valid_source('filesystem.basename.full'))
         self.assertTrue(is_valid_source('filesystem.basename.extension'))
-        self.assertTrue(is_valid_source('contents.mime_type'))
+        self.assertTrue(is_valid_source('filesystem.contents.mime_type'))
