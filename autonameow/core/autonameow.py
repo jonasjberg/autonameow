@@ -172,8 +172,8 @@ class Autonameow(object):
         _displayable_config_path = util.displayable_path(config.ConfigFilePath)
         try:
             config.write_default_config()
-        except PermissionError:
-            log.critical('Unable to write configuration file to path: '
+        except exceptions.ConfigError:
+            log.critical('Unable to write template configuration file to path: '
                          '"{!s}"'.format(_displayable_config_path))
             self.exit_program(constants.EXIT_ERROR)
         else:
@@ -186,10 +186,10 @@ class Autonameow(object):
             self.exit_program(constants.EXIT_SUCCESS)
 
     def _load_config_from_alternate_path(self):
+        log.info('Using configuration file: "{!s}"'.format(
+            util.displayable_path(self.opts.config_path)
+        ))
         try:
-            log.info('Using configuration file: "{!s}"'.format(
-                util.displayable_path(self.opts.config_path)
-            ))
             self.load_config(self.opts.config_path)
         except exceptions.ConfigError as e:
             log.critical('Unable to load configuration: {!s}'.format(e))

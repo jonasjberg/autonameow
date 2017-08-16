@@ -67,6 +67,7 @@ class Configuration(object):
         if isinstance(source, dict):
             self._load_from_dict(source)
         else:
+            assert(isinstance(source, bytes))
             self._load_from_disk(source)
 
         if self._version:
@@ -95,7 +96,7 @@ class Configuration(object):
     def _load_from_disk(self, load_path):
         try:
             _yaml_data = config.load_yaml_file(load_path)
-        except (OSError, exceptions.ConfigReadError) as e:
+        except exceptions.ConfigReadError as e:
             raise exceptions.ConfigError(e)
         else:
             if not _yaml_data:

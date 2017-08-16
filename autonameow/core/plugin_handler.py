@@ -85,5 +85,5 @@ class PluginHandler(object):
         for klass in self.plugin_classes:
             plugin_instance = klass(add_results_callback=self.collect_results,
                                     request_data_callback=self._request_data)
-            if plugin_instance.can_handle(self.file_object):
+            if plugin_instance.can_handle():
                 plugin_instance.run()
