@@ -30,8 +30,16 @@ from plugins.guessit_plugin import (
 
 
 class TestGuessitPlugin(TestCase):
+    def setUp(self):
+        def dummy_collect_data(file_object, label, data):
+            pass
+
+        self.dummy_request_data = uu.mock_request_data_callback
+        self.dummy_collect_data = dummy_collect_data
+
     def test_guessit_plugin_class_can_be_instantiated(self):
-        plugin_instance = GuessitPlugin()
+        plugin_instance = GuessitPlugin(self.dummy_collect_data,
+                                        self.dummy_request_data)
         self.assertIsNotNone(plugin_instance)
 
     def test_test_init_returns_true_if_guessit_is_available(self):

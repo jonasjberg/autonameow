@@ -30,7 +30,6 @@ from core import (
     options,
     util,
     exceptions,
-    container
 )
 from core.analysis import Analysis
 from core.config.configuration import Configuration
@@ -39,6 +38,7 @@ from core.evaluate.namebuilder import NameBuilder
 from core.evaluate.rulematcher import RuleMatcher
 from core.extraction import Extraction
 from core.fileobject import FileObject
+from core.plugin_handler import PluginHandler
 from core.util import (
     cli,
     diskutils
@@ -263,6 +263,10 @@ class Autonameow(object):
                                  add_pool_data_callback=self.collect_data,
                                  request_data_callback=self.request_data)
 
+        plugin_handler = _run_plugins(current_file,
+                                      add_pool_data_callback=self.collect_data,
+                                      request_data_callback=self.request_data)
+
         # Determine matching rule.
         matcher = _run_rule_matcher(current_file,
                                     active_config=self.active_config,
@@ -456,6 +460,31 @@ def _run_extraction(file_object, add_pool_data_callback,
         raise
     else:
         return extraction
+
+
+def _run_plugins(file_object, add_pool_data_callback, request_data_callback):
+    """
+    Instantiates, executes and returns a 'PluginHandler' instance.
+
+    Args:
+        file_object: The current file object to pass to plugins.
+        add_pool_data_callback: Callback function for storing data.
+        request_data_callback: Callback function for accessing "session" data.
+
+    Returns:
+        An instance of the 'PluginHandler' class that has executed successfully.
+    Raises:
+        AutonameowException: An unrecoverable error occurred during analysis.
+    """
+    plugin_handler = PluginHandler(file_object, add_pool_data_callback,
+                                   request_data_callback)
+    try:
+        plugin_handler.start()
+    except exceptions.AutonameowPluginError as e:
+        log.critical('Analysis FAILED: {!s}'.format(e))
+        raise exceptions.AutonameowException(e)
+    else:
+        return plugin_handler
 
 
 def _run_analysis(file_object, add_pool_data_callback, request_data_callback):

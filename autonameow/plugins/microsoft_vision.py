@@ -262,21 +262,25 @@ class MicrosoftVisionPlugin(BasePlugin):
     or modify the line below to point to the file containing your API key.
     """
 
-    def __init__(self):
-        super(MicrosoftVisionPlugin, self).__init__(display_name='MicrosoftVision')
+    api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
+                                'microsoft_vision.key')
+    API_KEY = _read_api_key_from_file(api_key_path)
 
-        api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
-                                    'microsoft_vision.key')
-        self.API_KEY = _read_api_key_from_file(api_key_path)
+    def __init__(self, add_results_callback, request_data_callback):
+        super(MicrosoftVisionPlugin, self).__init__(
+            add_results_callback, request_data_callback,
+            display_name='MicrosoftVision'
+        )
 
-    def test_init(self):
-        return self.API_KEY is not None
+    @classmethod
+    def test_init(cls):
+        return cls.API_KEY is not None
 
     def query(self, field=None):
         # TODO: [TD0061] Re-implement basic queries to this script.
         # NOTE: Expecting "data" to be a valid path to an image file.
-        if not self.API_KEY:
-            raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
+        # if not cls.API_KEY:
+        #     raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
 
         if field == 'caption' or field == 'tags':
             response = query_api(self.source, self.API_KEY)

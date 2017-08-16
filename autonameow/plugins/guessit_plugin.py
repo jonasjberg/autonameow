@@ -19,6 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from core import (
+    exceptions,
+    types,
+    util
+)
 from plugins import BasePlugin
 
 try:
@@ -28,63 +33,49 @@ except ImportError:
 
 
 class GuessitPlugin(BasePlugin):
-    def __init__(self):
-        super(GuessitPlugin, self).__init__(display_name='Guessit')
+    def __init__(self, add_results_callback, request_data_callback,
+                 display_name=None):
+        super(GuessitPlugin, self).__init__(
+            add_results_callback, request_data_callback, display_name='Guessit'
+        )
 
         self.guessit_results = {}
 
-    def test_init(self):
+    @classmethod
+    def test_init(cls):
         return guessit is not False
 
-    def query(self, field=None):
+    def run(self):
         if not self.guessit_results:
             # TODO: Pass input data (basename of current file) to guessit ..
-            # self.guessit_results = run_guessit(file_object.filenamepart_base)
-            pass
+            self.guessit_results = self._perform_initial_query()
 
-    # def _get_datetime(self):
-    #     result = []
-    #     if self.guessit_results:
-    #         guessit_timestamps = self._get_datetime_from_guessit_results()
-    #         if guessit_timestamps:
-    #             result += guessit_timestamps
-    #
-    # def _run(self):
-    #     if guessit and self.file_object.mime_type == 'mp4':
-    #         self.guessit_results = self._get_metadata_from_guessit()
-    #
-    #         if self.guessit_results:
-    #             self.add_results('plugins.guessit', self.guessit_results)
-    #
-    # def _get_datetime_from_guessit_results(self):
-    #     """
-    #     Get date/time-information from the results returned by "guessit".
-    #     :return: a list of dictionaries (actually just one) on the form:
-    #              [ { 'value': datetime.datetime(2016, 6, 5, 16, ..),
-    #                  'source' : "Create date",
-    #                  'weight'  : 1
-    #                }, .. ]
-    #     """
-    #     if self.guessit_results:
-    #         if 'date' in self.guessit_results:
-    #             return [{'value': self.guessit_results['date'],
-    #                      'source': 'guessit',
-    #                      'weight': 0.75}]
-    #
-    # def _get_title_from_guessit_results(self):
-    #     """
-    #     Get the title from the results returned by "guessit".
-    #     :return: a list of dictionaries (actually just one) on the form:
-    #              [ { 'title': "The Cats Meouw,
-    #                  'source' : "guessit",
-    #                  'weight'  : 0.75
-    #                }, .. ]
-    #     """
-    #     if self.guessit_results:
-    #         if 'title' in self.guessit_results:
-    #             return [{'value': self.guessit_results['title'],
-    #                      'source': 'guessit',
-    #                      'weight': 0.75}]
+        if not self.guessit_results:
+            raise exceptions.AutonameowPluginError('TODO: ..')
+
+        if 'date' in self.guessit_results:
+            wrapped_date = types.AW_TIMEDATE(self.guessit_results['date'])
+            if wrapped_date:
+                print('Wrapped guessit_results[date]: {}'.format(wrapped_date))
+                self.add_results('plugin.guessit.datetime', wrapped_date)
+
+        if 'title' in self.guessit_results:
+            wrapped_title = types.AW_STRING(self.guessit_results['title'])
+            if wrapped_title:
+                print('Wrapped guessit_results[title]: {}'.format(wrapped_title))
+                self.add_results('plugin.guessit.title', wrapped_title)
+
+    def can_handle(self):
+        _mime_type = self.request_data('contents.mime_type')
+        return util.eval_magic_glob(_mime_type, 'video/*')
+
+    def _perform_initial_query(self):
+        _file_basename = self.request_data('filesystem.basename.full')
+        if not _file_basename:
+            raise exceptions.AutonameowPluginError('Required data unavailable')
+
+        results = run_guessit(_file_basename)
+        return results
 
 
 def run_guessit(input_data, options=None):

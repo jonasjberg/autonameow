@@ -30,43 +30,35 @@ AUTONAMEOW_PLUGIN_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_PLUGIN_PATH)
 
 
-def plugin_query(plugin_name, query, data):
-    """
-    Hack interface to query plugins.
-    """
-    # TODO: [TD0009] Rewrite from scratch!
-    if plugin_name == 'microsoft_vision':
-        # NOTE: Expecting "data" to be a valid path to an image file.
-
-        # TODO: [TD0061] Fetch an instance of the requested plugin.
-
-        # TODO: [TD0061] Query the plugin instance.
-
-        # TODO: [TD0061] Return any query response data.
-        pass
-
-        # if query == 'caption':
-        #     caption = 'a cat lying on a rug'
-        #     # log.debug('Returning caption: "{!s}"'.format(caption))
-        #     return str(caption)
-        # elif query == 'tags':
-        #     tags = ['cat', 'black', 'indoor', 'laying', 'white']
-        #     tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
-        #     # log.debug('Returning tags: {}'.format(tags_pretty))
-        #     return tags
-
-
+# TODO: [TD0009] Implement a proper plugin interface.
 class BasePlugin(object):
-    def __init__(self, display_name=None):
+    def __init__(self, add_results_callback, request_data_callback,
+                 display_name=None):
         if display_name:
             self.display_name = display_name
         else:
             self.display_name = self.__class__.__name__
 
-    def test_init(self):
+        self.add_results = add_results_callback
+        self.request_data = request_data_callback
+
+    @classmethod
+    def test_init(cls):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def query(self, field=None):
+    def run(self):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def can_handle(self, file_object):
+        """
+        Tests if this plugin class can handle the given file object.
+
+        Args:
+            file_object: The file to test as an instance of 'FileObject'.
+
+        Returns:
+            True if the plugin class can handle the given file, else False.
+        """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):
@@ -111,18 +103,39 @@ def get_plugin_classes():
     return _plugin_classes
 
 
-def _plugin_class_instance_dict():
-    out = {}
-
-    klasses = get_plugin_classes()
-    for klass in klasses:
-        plugin_class_instance = klass()
-        if plugin_class_instance.test_init():
-            # Make sure that plugin-specific prerequisites/dependencies are met.
-            key = str(plugin_class_instance)
-            out[key] = plugin_class_instance
-
-    return out
+def get_usable_plugin_classes():
+    return [k for k in get_plugin_classes() if k.test_init()]
 
 
-Plugins = _plugin_class_instance_dict()
+# def _plugin_class_instance_dict():
+#     out = {}
+#
+#     klasses = get_plugin_classes()
+#     for klass in klasses:
+#         plugin_class_instance = klass()
+#         if plugin_class_instance.test_init():
+#             # Make sure that plugin-specific prerequisites/dependencies are met.
+#             key = str(plugin_class_instance)
+#             out[key] = plugin_class_instance
+#         else:
+#             print('Plugin [{!s}] failed initialization test'.format(
+#                 plugin_class_instance))
+#
+#     return out
+
+
+def suitable_plugins_for(file_object):
+    """
+    Returns plugin classes that can handle the given file object.
+
+    Args:
+        file_object: File to get plugins for as an instance of 'FileObject'.
+
+    Returns:
+        A list of plugin classes that can handle the given file.
+    """
+    return [p for p in UsablePlugins if p.can_handle(file_object)]
+
+
+# Plugins = _plugin_class_instance_dict()
+UsablePlugins = get_usable_plugin_classes()

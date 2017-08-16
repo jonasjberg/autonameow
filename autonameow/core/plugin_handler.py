@@ -20,15 +20,58 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import plugins
+from core import util
 
 
+# TODO: [TD0009] Implement a proper plugin interface.
 class PluginHandler(object):
-    def __init__(self, extracted_data, active_config):
-        self.extracted_data = extracted_data
-        self.config = active_config
+    def __init__(self, file_object, add_pool_data_callback,
+                 request_data_callback):
+        self.file_object = file_object
 
-        self.plugins = plugins.Plugins
-        assert(isinstance(self.plugins, dict))
+        # Callbacks to the shared "data pool".
+        self.request_data = request_data_callback
+        self.add_pool_data = add_pool_data_callback
+
+        # Get instantiated and validated plugins.
+        self.plugin_classes = plugins.UsablePlugins
+        assert(isinstance(self.plugin_classes, list))
+
+    def collect_results(self, label, data):
+        """
+        Collects plugin results. Passed to plugins as a callback.
+
+        Plugins call this to store collected data.
+
+        If argument "data" is a dictionary, it is "flattened" here.
+        Example:
+
+          Incoming arguments:
+          LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
+
+          Would be "flattened" to:
+          LABEL: 'metadata.exiftool.a'   DATA: 'b'
+          LABEL: 'metadata.exiftool.c'   DATA: 'd'
+
+        Args:
+            label: Label that uniquely identifies the data.
+            data: The data to add.
+        """
+        assert label is not None and isinstance(label, str)
+
+        if isinstance(data, dict):
+            flat_data = util.flatten_dict(data)
+            for k, v in flat_data.items():
+                merged_label = label + '.' + str(k)
+                self.collect_data(merged_label, v)
+        else:
+            self.collect_data(label, data)
+
+    def collect_data(self, label, data):
+        self.add_pool_data(self.file_object, label, data)
+
+    def _request_data(self, query_string):
+        return self.request_data(self.file_object, query_string)
 
     def query(self, query_string):
         if query_string.startswith('plugin.'):
@@ -37,3 +80,10 @@ class PluginHandler(object):
             return result
         else:
             return False
+
+    def start(self):
+        for klass in self.plugin_classes:
+            plugin_instance = klass(add_results_callback=self.collect_results,
+                                    request_data_callback=self._request_data)
+            if plugin_instance.can_handle(self.file_object):
+                plugin_instance.run()
