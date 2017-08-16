@@ -430,6 +430,7 @@ def is_valid_source(source_value):
         return False
 
     # TODO: [TD0052] Include 'analyzers.QueryStrings' with the valid sources.
+    # TODO: [TD0077] Implement a "repository" to handle "query string" queries.
     valid_sources = extractors.QueryStrings
 
     # TODO: [TD0009] Implement proper plugin interface

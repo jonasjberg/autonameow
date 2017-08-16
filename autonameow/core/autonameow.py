@@ -39,6 +39,7 @@ from core.evaluate.rulematcher import RuleMatcher
 from core.extraction import Extraction
 from core.fileobject import FileObject
 from core.plugin_handler import PluginHandler
+from core.repository import Repository
 from core.util import (
     cli,
     diskutils
@@ -73,6 +74,8 @@ class Autonameow(object):
         # self.session_data = container.SessionDataPool()
         self.session_data = {}
 
+        self.repository = Repository()
+
     def run(self):
         # Display help/usage information if no arguments are provided.
         if not self.args:
@@ -90,6 +93,8 @@ class Autonameow(object):
         if self.opts.show_version:
             cli.print_ascii_banner()
             self.exit_program(constants.EXIT_SUCCESS)
+
+        self.repository.initialize()
 
         # Check configuration file. If no alternate config file path is
         # provided and no config file is found at default paths; copy the
