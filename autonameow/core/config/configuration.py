@@ -433,19 +433,6 @@ def is_valid_source(source_value):
         return True
     return False
 
-    # TODO: [TD0052] Include 'analyzers.QueryStrings' with the valid sources.
-    # TODO: [TD0077] Implement a "repository" to handle "query string" queries.
-    # valid_sources = set()
-
-    # # TODO: [TD0009] Implement proper plugin interface
-    # valid_sources.add('plugin.microsoft_vision.caption')
-    # assert(isinstance(valid_sources, set))
-
-    # if source_value.startswith(tuple(valid_sources)):
-    #     return source_value
-    # else:
-    #     return False
-
 
 def parse_conditions(raw_conditions):
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))

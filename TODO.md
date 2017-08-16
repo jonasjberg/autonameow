@@ -88,8 +88,6 @@ Medium Priority
 * `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time
   to UTC and convert to local time as a final step before presentation or use.
 
-* `[TD0052]` Analyzer classes should provide their respective "query strings".
-
 * `[TD0049]` __Think about defining legal "placeholder fields".__
   Might be helpful to define all legal fields (such as `title`, `datetime`,
   `author`, etc.) somewhere and keep references to type coercion wrappers,

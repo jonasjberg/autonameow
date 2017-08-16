@@ -49,7 +49,6 @@ class BaseAnalyzer(object):
 
     # Query string label for the data returned by this extractor.
     # Example:  'analysis.filesystem'
-    # TODO: [TD0052] Analyzer classes should provide "query strings" ..?
     data_query_string = None
 
     def __init__(self, file_object, add_results_callback,
@@ -193,21 +192,6 @@ def get_analyzer_classes_basename():
     return [c.__name__ for c in get_analyzer_classes()]
 
 
-def get_query_strings():
-    """
-    Get the set of "query strings" for all analyzer classes.
-
-    Returns:
-        Unique analyzer query strings as a set.
-    """
-    out = set()
-    # TODO: [TD0052] Implement gathering data on non-core modules at run-time
-    # for a in AnalyzerClasses:
-    #     if a.data_query_string:
-    #         out.add(a.data_query_string)
-    return out
-
-
 def map_query_string_to_analyzers():
     """
     Returns a mapping of the analyzer classes "query strings" and classes.
@@ -235,5 +219,4 @@ def map_query_string_to_analyzers():
 
 
 AnalyzerClasses = get_analyzer_classes()
-QueryStrings = get_query_strings()
 QueryStringAnalyzerClassMap = map_query_string_to_analyzers()

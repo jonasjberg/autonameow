@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-08-17
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0052]` Analyzer classes should provide their respective "query strings"
+
 * 2017-08-16
 
     > Medium Priority
