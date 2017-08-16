@@ -57,8 +57,33 @@ class Repository(object):
 
         return out
 
-    def store(self, file_object, label, data):
-        util.nested_dict_set(self.data, [file_object, label], data)
+    def store(self, file_object, query_string, data):
+        """
+        Adds data related to a given 'file_object', at a storage location
+        defined by the given 'query_string'.
+
+            STORAGE = {
+                'file_object_A': {
+                    'query_string_a': [1, 2]
+                    'query_string_b': ['foo']
+                }
+                'file_object_B': {
+                    'query_string_a': ['bar']
+                    'query_string_b': [2, 1]
+                }
+            }
+        """
+        if not query_string:
+            raise exceptions.InvalidDataSourceError(
+                'Invalid source (missing label)'
+            )
+
+        if data is None:
+            log.warning('Attempted to add None data with query string'
+                        ' "{!s}"'.format(query_string))
+            return
+
+        util.nested_dict_set(self.data, [file_object, query_string], data)
 
     def resolve(self, file_object, query_string):
         if not query_string:
@@ -82,6 +107,34 @@ class Repository(object):
         if any([query_string.startswith(r) for r in resolvable]):
             return True
         return False
+
+    def __len__(self):
+        return util.count_dict_recursive(self.data)
+
+    def __str__(self):
+        out = {}
+
+        for key, value in self.data.items():
+            # TODO: [TD0066] Handle all encoding properly.
+            if isinstance(value, bytes):
+                out[key] = util.displayable_path(value)
+            else:
+                out[key] = value
+
+        expanded = util.expand_query_string_data_dict(out)
+        return util.dump(expanded)
+
+    def __repr__(self):
+        out = {}
+
+        for key, value in self.data.items():
+            # TODO: [TD0066] Handle all encoding properly.
+            if isinstance(value, bytes):
+                out[key] = util.displayable_path(value)
+            else:
+                out[key] = value
+
+        return out
 
 SessionRepository = Repository()
 SessionRepository.initialize()
