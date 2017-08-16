@@ -239,5 +239,33 @@ def get_query_strings():
     return out
 
 
+def map_query_string_to_extractors():
+    """
+    Returns a mapping of the extractor "query strings" and extractor classes.
+
+    Each extractor class defines 'data_query_string' which is used as the
+    first part of all data returned by the extractor.
+    Multiple extractors can use the same 'data_query_string'; for instance,
+    the 'PdfTextExtractor' and 'PlainTextExtractor' classes both define the
+    same query string, 'contents.textual.raw_text'.
+
+    Returns: A dictionary where the keys are "query strings" and the values
+        are lists of extractor classes.
+    """
+    out = {}
+
+    for klass in ExtractorClasses:
+        if not klass.data_query_string:
+            # print('Extractor class "{!s}" did not provide a "data_query_string"'.format(klass))
+            continue
+
+        if klass.data_query_string in out:
+            out[klass.data_query_string].append(klass)
+        else:
+            out[klass.data_query_string] = [klass]
+
+    return out
+
 ExtractorClasses = get_extractor_classes(find_extractor_files())
 QueryStrings = get_query_strings()
+QueryStringExtractorClassMap = map_query_string_to_extractors()

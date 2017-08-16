@@ -110,6 +110,10 @@ class TestFindExtractorSourceFiles(TestCase):
         self.assertIn('text_plain.py', actual)
 
 
+def subclasses_base_extractor(klass):
+    return uu.is_class(klass) and issubclass(klass, extractors.BaseExtractor)
+
+
 class TestGetAllExtractorClasses(TestCase):
     def setUp(self):
         self.sources = ['text_ocr.py', 'text_pdf.py', 'text_plain.py',
@@ -120,19 +124,15 @@ class TestGetAllExtractorClasses(TestCase):
         self.assertTrue(isinstance(actual, tuple))
 
     def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
-        def __subclasses_base_extractor(klass):
-            self.assertTrue(uu.is_class(klass))
-            self.assertTrue(issubclass(klass, extractors.BaseExtractor))
-
         actual = extractors._get_all_extractor_classes(self.sources)
 
         actual_abstract, _ = actual
         for _abstract in actual_abstract:
-            __subclasses_base_extractor(_abstract)
+            self.assertTrue(subclasses_base_extractor(_abstract))
 
         _, actual_implemented = actual
         for _implemented in actual_implemented:
-            __subclasses_base_extractor(_implemented)
+            self.assertTrue(subclasses_base_extractor(_implemented))
 
     def test_get_extractor_classes_does_not_include_base_extractor(self):
         abstract, implemented = extractors._get_all_extractor_classes(self.sources)
@@ -229,3 +229,17 @@ class TestSuitableDataExtractorsForFile(TestCase):
         self.assertIn('ExiftoolMetadataExtractor', actual)
         self.assertIn('PyPDFMetadataExtractor', actual)
         self.assertIn('PdfTextExtractor', actual)
+
+
+class TestMapQueryStringToExtractors(TestCase):
+    def setUp(self):
+        self.actual = extractors.map_query_string_to_extractors()
+
+    def test_returns_expected_type(self):
+        self.assertIsNotNone(self.actual)
+        self.assertTrue(isinstance(self.actual, dict))
+
+        for key, value in self.actual.items():
+            self.assertTrue(isinstance(key, str))
+            for v in value:
+                self.assertTrue(subclasses_base_extractor(v))
