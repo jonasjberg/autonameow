@@ -63,8 +63,19 @@ def convert_command_args(args):
 
 
 def normpath(path):
-    """Provide the canonical form of the path suitable for storing in
-    the database.
+    """
+    Provide the canonical form of a given path.
+
+    This function should be used as the primary means of converting paths of
+    unknown origins to the "internal bytestring" format.
+
+    Any "~" is expanded to the user home directory, and symbolic links are
+    untangled. The full full absolute, normalized path is returned.
+
+    Args:
+        path: The path to expand, normalize and encode to the internal format.
+    Returns:
+        A normalized version of the given path encoded to the "internal" format.
     """
     if not path:
         raise ValueError('path must not be empty')
@@ -75,7 +86,8 @@ def normpath(path):
 
 
 def arg_encoding():
-    """Get the encoding for command-line arguments (and other OS
+    """
+    Gets the encoding for command-line arguments (and other OS
     locale-sensitive strings).
     """
     try:
@@ -87,8 +99,9 @@ def arg_encoding():
 
 
 def _fsencoding():
-    """Get the system's filesystem encoding. On Windows, this is always
-    UTF-8 (not MBCS).
+    """
+    Gets the filesystem encoding of the system.
+    On Windows, this is always UTF-8 (not MBCS).
     """
     encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
     if encoding == 'mbcs':
@@ -103,17 +116,18 @@ def _fsencoding():
 
 def bytestring_path(path):
     """
-    Given a path, which is either a bytes or a unicode, returns a str path
+    Given a path, which is either a bytes or unicode string, returns a str path
     (ensuring that we never deal with Unicode pathnames).
 
-    Incoming paths should be passed to this to convert to the internal format.
+    Incoming paths should be passed through this to convert to the
+    "internal bytestring" format.
 
     Args:
-        path: The path coming in through the "boundary", to be converted
-            to the internal format.
+        path: The path coming in through the "encoding boundary", to be
+            converted to the internal format.
 
     Returns:
-        The given path in an encoding used for internal processing.
+        The given path, encoded in the "internal bytestring" format.
     """
     # Pass through bytestrings.
     if isinstance(path, bytes):
