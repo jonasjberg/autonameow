@@ -14,6 +14,23 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0076]` __Have all non-core components register themselves at startup.__  
+  A lot of the problems with implementing a plugin-interface, handling queries
+  from components to a centralized "data pool", only running the required
+  plugins/extractors/analyzers for performance, etc; might possibly be solved
+  by implementing a more sophisticated method of keeping track of available
+  components.
+    * Enumerate all available extractors, analyzers and plugins at startup.
+        * Check that dependencies are available; external executables, etc.
+        * Have the components "register" their query strings. If the component
+          could return data with query string
+          `metadata.exiftool.PDF:CreateDate`, register the first part:
+          `metadata.exiftool`.
+    * Read the configuration file and get a list of all referenced query strings.
+    * Find out which components could produce the referenced query strings and
+      use this information to selectively run only components that are
+      required.
+
 * `[TD0073]` __Fix or remove the `SessionDataPool` class.__
 
 * `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
