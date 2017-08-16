@@ -108,6 +108,7 @@ class Configuration(object):
         ))
 
     def write_to_disk(self, dest_path):
+        # TODO: This method is currently unused. Remove?
         if os.path.exists(dest_path):
             raise FileExistsError
         else:
