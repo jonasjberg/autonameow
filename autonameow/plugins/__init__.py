@@ -32,6 +32,10 @@ sys.path.insert(0, AUTONAMEOW_PLUGIN_PATH)
 
 # TODO: [TD0009] Implement a proper plugin interface.
 class BasePlugin(object):
+    # Query string label for the data returned by this plugin.
+    # Example:  'plugin.guessit'
+    data_query_string = None
+
     def __init__(self, add_results_callback, request_data_callback,
                  display_name=None):
         if display_name:
@@ -137,5 +141,46 @@ def suitable_plugins_for(file_object):
     return [p for p in UsablePlugins if p.can_handle(file_object)]
 
 
+def get_query_strings():
+    """
+    Get the set of "query strings" for all plugin classes.
+
+    Returns:
+        Unique plugin query strings as a set.
+    """
+    out = set()
+    for p in UsablePlugins:
+        if p.data_query_string:
+            out.add(p.data_query_string)
+    return out
+
+
+def map_query_string_to_plugins():
+    """
+    Returns a mapping of the plugin classes "query strings" and actual classes.
+
+    Each plugin class defines 'data_query_string' which is used as the
+    first part of all data returned by the plugin.
+
+    Returns: A dictionary where the keys are "query strings" and the values
+        are lists of analyzer classes.
+    """
+    out = {}
+
+    for klass in UsablePlugins:
+        data_query_string = klass.data_query_string
+        if not data_query_string:
+            continue
+
+        if data_query_string in out:
+            out[data_query_string].append(klass)
+        else:
+            out[data_query_string] = [klass]
+
+    return out
+
+
 # Plugins = _plugin_class_instance_dict()
 UsablePlugins = get_usable_plugin_classes()
+QueryStrings = get_query_strings()
+QueryStringPluginClassMap = map_query_string_to_plugins()

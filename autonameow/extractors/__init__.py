@@ -254,6 +254,7 @@ def map_query_string_to_extractors():
     """
     out = {}
 
+    # TODO: [TD0053] Fix special case of collecting data from 'FileObject'.
     for klass in ExtractorClasses:
         if not klass.data_query_string:
             # print('Extractor class "{!s}" did not provide a "data_query_string"'.format(klass))

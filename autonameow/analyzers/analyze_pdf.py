@@ -28,6 +28,7 @@ from core.util import dateandtime
 class PdfAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['application/pdf']
+    data_query_string = 'analysis.pdf'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):

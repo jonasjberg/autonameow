@@ -21,7 +21,11 @@
 
 import logging as log
 
+import analyzers
+import extractors
+import plugins
 from core import exceptions
+
 
 # TODO: [TD0077] Implement a "repository" to handle "query string" queries.
 # TODO: [TD0076] Have all non-core components register themselves at run-time.
@@ -30,12 +34,25 @@ from core import exceptions
 class Repository(object):
     def __init__(self):
         self.data = {}
+        self._query_string_source_map = {}
         self._resolvable_query_strings = set()
 
     def initialize(self):
-        extractor_query_strings = extraction
+        self.map_query_strings_to_sources()
+        self._resolvable_query_strings = self._get_resolvable_query_strings()
 
-    def resolve(self, query_string):
+    def map_query_strings_to_sources(self):
+        # self._query_string_source_map['extractor'] = extractors.QueryStrings
+        self._query_string_source_map['extractors'] = \
+            extractors.QueryStringExtractorClassMap
+        # self._query_string_source_map['analyzer'] = analyzers.QueryStrings
+        self._query_string_source_map['analyzers'] = \
+            analyzers.QueryStringAnalyzerClassMap
+        # self._query_string_source_map['plugin'] = plugins.QueryStrings
+        self._query_string_source_map['plugins'] = \
+            plugins.QueryStringPluginClassMap
+
+    def resolve(self, file_object, query_string):
         if not query_string:
             raise exceptions.InvalidDataSourceError(
                 'Unable to resolve empty query string'
@@ -44,9 +61,34 @@ class Repository(object):
         # TODO: ..
         pass
 
+    def _get_resolvable_query_strings(self):
+        out = set()
+
+        for query_string, _ in self._query_string_source_map['extractors'].items():
+            out.add(query_string)
+
+        for query_string, _ in self._query_string_source_map['analyzers'].items():
+            out.add(query_string)
+
+        for query_string, _ in self._query_string_source_map['plugins'].items():
+            out.add(query_string)
+
+        return out
+
     def resolvable(self, query_string):
         if not query_string:
             return False
 
-        # TODO: ..
-        pass
+        resolvable = list(self._resolvable_query_strings)
+        if any([query_string.startswith(r) for r in resolvable]):
+            return True
+        return False
+
+        # return [qs.startswith(query_string) for qs in self._resolvable_query_strings]
+        # if query_string in self._resolvable_query_strings:
+        #     return True
+        # return False
+
+
+SessionRepository = Repository()
+SessionRepository.initialize()

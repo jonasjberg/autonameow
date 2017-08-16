@@ -30,6 +30,7 @@ from core.util import dateandtime
 class ImageAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     handles_mime_types = ['image/*']
+    data_query_string = 'analysis.image'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
