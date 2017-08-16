@@ -151,7 +151,10 @@ class Autonameow(object):
         return file_list
 
     def load_config(self, dict_or_yaml):
-        self.active_config = Configuration(dict_or_yaml)
+        try:
+            self.active_config = Configuration(dict_or_yaml)
+        except exceptions.ConfigError as e:
+            log.critical('Unable to load configuration: {!s}'.format(e))
 
     def _dump_active_config_and_exit(self):
         log.info('Dumping active configuration ..')
@@ -162,10 +165,7 @@ class Autonameow(object):
     def _load_config_from_default_path(self):
         _displayable_config_path = util.displayable_path(config.ConfigFilePath)
         log.info('Using configuration: "{}"'.format(_displayable_config_path))
-        try:
-            self.load_config(config.ConfigFilePath)
-        except exceptions.ConfigError as e:
-            log.critical('Configuration error: "{!s}"'.format(e))
+        self.load_config(config.ConfigFilePath)
 
     def _write_template_config_to_default_path_and_exit(self):
         log.info('No configuration file was found. Writing default ..')
@@ -189,11 +189,7 @@ class Autonameow(object):
         log.info('Using configuration file: "{!s}"'.format(
             util.displayable_path(self.opts.config_path)
         ))
-        try:
-            self.load_config(self.opts.config_path)
-        except exceptions.ConfigError as e:
-            log.critical('Unable to load configuration: {!s}'.format(e))
-            self.exit_program(constants.EXIT_ERROR)
+        self.load_config(self.opts.config_path)
 
     def collect_data(self, file_object, label, data):
         util.nested_dict_set(self.session_data, [file_object, label], data)

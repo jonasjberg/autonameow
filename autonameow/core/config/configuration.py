@@ -99,12 +99,13 @@ class Configuration(object):
         except exceptions.ConfigReadError as e:
             raise exceptions.ConfigError(e)
         else:
-            if not _yaml_data:
-                raise exceptions.ConfigError(
-                    'Bad (empty?) config: {!s}'.format(load_path)
-                )
+            if _yaml_data:
+                self._load_from_dict(_yaml_data)
+                return
 
-            self._load_from_dict(_yaml_data)
+        raise exceptions.ConfigError('Bad (empty?) config: "{!s}"'.format(
+            util.displayable_path(load_path)
+        ))
 
     def write_to_disk(self, dest_path):
         if os.path.exists(dest_path):
