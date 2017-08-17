@@ -49,6 +49,7 @@ class FilesystemAnalyzer(BaseAnalyzer):
     """
     run_queue_priority = 1
     handles_mime_types = ['*/*']
+    data_query_string = 'analysis.filesystem'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):

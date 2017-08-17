@@ -10,6 +10,29 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-08-17
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0073]` __Fix or remove the `SessionDataPool` class.__
+    >
+    > * `[TD0077]` __Implement a "repository" to handle "query string" queries__
+    >
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0052]` Analyzer classes should provide their respective "query strings"
+
+* 2017-08-16
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0051]` Implement or remove the `CommonFileSystemExtractor` class.
+    >
+    > * `[TD0053]` Fix special case of collecting data from the `FileObject`.
+
 * 2017-08-14
 
     > High Priority

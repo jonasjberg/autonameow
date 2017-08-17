@@ -20,18 +20,19 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import plugins
-from core import util
+from core import (
+    util,
+    repository
+)
 
 
 # TODO: [TD0009] Implement a proper plugin interface.
 class PluginHandler(object):
-    def __init__(self, file_object, add_pool_data_callback,
-                 request_data_callback):
+    def __init__(self, file_object):
         self.file_object = file_object
 
-        # Callbacks to the shared "data pool".
-        self.request_data = request_data_callback
-        self.add_pool_data = add_pool_data_callback
+        self.request_data = repository.SessionRepository.resolve
+        self.add_pool_data = repository.SessionRepository.store
 
         # Get instantiated and validated plugins.
         self.plugin_classes = plugins.UsablePlugins

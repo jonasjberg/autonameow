@@ -42,7 +42,14 @@ class BaseAnalyzer(object):
     by inheriting analyzer classes.
     """
     run_queue_priority = None
+
+    # List of MIME types that this analyzer can handle.
+    # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
     handles_mime_types = None
+
+    # Query string label for the data returned by this extractor.
+    # Example:  'analysis.filesystem'
+    data_query_string = None
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -106,6 +113,10 @@ class BaseAnalyzer(object):
             return True
         else:
             return False
+
+    # @classmethod
+    # def data_query_string(cls):
+    #     return cls.__name__.lower()
 
     def __str__(self):
         return self.__class__.__name__
@@ -181,20 +192,31 @@ def get_analyzer_classes_basename():
     return [c.__name__ for c in get_analyzer_classes()]
 
 
-def get_query_strings():
+def map_query_string_to_analyzers():
     """
-    Get the set of "query strings" for all analyzer classes.
+    Returns a mapping of the analyzer classes "query strings" and classes.
 
-    Returns:
-        Unique analyzer query strings as a set.
+    Each analyzer class defines 'data_query_string' which is used as the
+    first part of all data returned by the analyzer.
+
+    Returns: A dictionary where the keys are "query strings" and the values
+        are lists of analyzer classes.
     """
-    out = set()
-    # TODO: [TD0052] Implement gathering data on non-core modules at run-time
-    # for a in AnalyzerClasses:
-    #     if a.data_query_string:
-    #         out.add(a.data_query_string)
+    out = {}
+
+    for klass in AnalyzerClasses:
+        # data_query_string = klass.data_query_string()
+        data_query_string = klass.data_query_string
+        if not data_query_string:
+            continue
+
+        if data_query_string in out:
+            out[data_query_string].append(klass)
+        else:
+            out[data_query_string] = [klass]
+
     return out
 
 
 AnalyzerClasses = get_analyzer_classes()
-QueryStrings = get_query_strings()
+QueryStringAnalyzerClassMap = map_query_string_to_analyzers()

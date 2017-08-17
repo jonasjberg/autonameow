@@ -33,10 +33,7 @@ from datetime import datetime
 import analyzers
 from core.config import rules
 from core.fileobject import FileObject
-from core import (
-    util,
-    container
-)
+from core import util
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 _PARENT_DIR = os.path.join(_THIS_DIR, os.pardir)
@@ -174,15 +171,6 @@ def mock_session_data_pool(file_object):
     """
     Returns: Mock session data pool with typical extractor data.
     """
-    # data = container.SessionDataPool()
-    # data.add(file_object, 'filesystem.basename.full', b'gmail.pdf')
-    # data.add(file_object, 'filesystem.basename.extension', b'pdf.pdf')
-    # data.add(file_object, 'filesystem.basename.suffix', b'pdf.pdf')
-    # data.add(file_object, 'filesystem.pathname.parent', b'test_files')
-    # data.add(file_object, 'contents.mime_type', 'application/pdf')
-    # data.add(file_object, 'metadata.exiftool.PDF:Creator', 'Chromium')
-    # data.add(file_object, 'metadata.exiftool', {'File:MIMEType': 'application/bar'})
-
     data = {}
     util.nested_dict_set(data, [file_object, 'filesystem.basename.full'], b'gmail.pdf')
     util.nested_dict_set(data, [file_object, 'filesystem.basename.extension'], b'pdf.pdf')
@@ -196,14 +184,6 @@ def mock_session_data_pool(file_object):
 
 
 def mock_session_data_pool_empty_analysis_data(file_object):
-    # data = container.SessionDataPool()
-    # data.add(file_object, 'analysis.filename_analyzer.datetime', [])
-    # data.add(file_object, 'analysis.filename_analyzer.tags', [])
-    # data.add(file_object, 'analysis.filename_analyzer.title', [])
-    # data.add(file_object, 'analysis.filesystem_analyzer.datetime', [])
-    # data.add(file_object, 'analysis.filesystem_analyzer.tags', [])
-    # data.add(file_object, 'analysis.filesystem_analyzer.title', [])
-
     data = {}
     util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.datetime'], [])
     util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.tags'], [])
@@ -215,29 +195,6 @@ def mock_session_data_pool_empty_analysis_data(file_object):
 
 
 def mock_session_data_pool_with_analysis_data(file_object):
-    # data = container.SessionDataPool()
-    # data.add(file_object,
-    #          'analysis.filename_analyzer.tags',
-    #          [{'source': 'filenamepart_tags',
-    #            'value': ['tagfoo', 'tagbar'],
-    #            'weight': 1}])
-    # data.add(file_object,
-    #          'analysis.filename_analyzer.title',
-    #          [{'source': 'filenamepart_base',
-    #            'value': 'gmail',
-    #            'weight': 0.25}])
-    # data.add(file_object,
-    #          'analysis.filesystem_analyzer.datetime',
-    #          [{'source': 'modified',
-    #            'value': datetime(2017, 6, 12, 22, 38, 34),
-    #            'weight': 1},
-    #           {'source': 'created',
-    #            'value': datetime(2017, 6, 12, 22, 38, 34),
-    #            'weight': 1},
-    #           {'source': 'accessed',
-    #            'value': datetime(2017, 6, 12, 22, 38, 34),
-    #            'weight': 0.25}])
-
     data = {}
     util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.tags'],
              [{'source': 'filenamepart_tags',

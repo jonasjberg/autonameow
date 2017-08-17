@@ -24,13 +24,16 @@ import operator
 
 import copy
 
-from core import exceptions
+from core import (
+    exceptions,
+    repository
+)
 
 
 class RuleMatcher(object):
-    def __init__(self, file_object, active_config, request_data_callback):
+    def __init__(self, file_object, active_config):
         self.file_object = file_object
-        self.request_data = request_data_callback
+        self.request_data = repository.SessionRepository.resolve
 
         if not active_config or not active_config.file_rules:
             log.error('Configuration does not contain any rules to evaluate')

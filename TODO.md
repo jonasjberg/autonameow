@@ -31,8 +31,6 @@ High Priority
       use this information to selectively run only components that are
       required.
 
-* `[TD0073]` __Fix or remove the `SessionDataPool` class.__
-
 * `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
   When listing results with any of the `--list-*` options, paths are not
   displayed properly due to them not being handled properly before being passed
@@ -85,12 +83,6 @@ Medium Priority
 
 * `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time
   to UTC and convert to local time as a final step before presentation or use.
-
-* `[TD0053]` Fix special case of collecting data from the `FileObject`.
-
-* `[TD0052]` Analyzer classes should provide their respective "query strings".
-
-* `[TD0051]` Implement or remove the `CommonFileSystemExtractor` class.
 
 * `[TD0049]` __Think about defining legal "placeholder fields".__
   Might be helpful to define all legal fields (such as `title`, `datetime`,

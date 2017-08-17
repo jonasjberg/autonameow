@@ -24,9 +24,9 @@ import logging as log
 import extractors
 from core import (
     util,
-    types
+    exceptions,
+    repository
 )
-from core.exceptions import InvalidDataSourceError
 
 
 class Extraction(object):
@@ -37,7 +37,7 @@ class Extraction(object):
     The enqueued extractors are executed and any results are passed back
     through a callback function.
     """
-    def __init__(self, file_object, add_pool_data_callback):
+    def __init__(self, file_object):
         """
         Instantiates extraction for a given file. This is done once per file.
 
@@ -45,7 +45,7 @@ class Extraction(object):
             file_object: File to extract data from, as a 'FileObject' instance.
         """
         self.file_object = file_object
-        self.add_pool_data = add_pool_data_callback
+        self.add_pool_data = repository.SessionRepository.store
 
         self.extractor_queue = util.GenericQueue()
 
@@ -68,9 +68,13 @@ class Extraction(object):
             data: The data to add.
         """
         if not label:
-            raise InvalidDataSourceError('Missing required argument "label"')
+            raise exceptions.InvalidDataSourceError(
+                'Missing required argument "label"'
+            )
         if not isinstance(label, str):
-            raise InvalidDataSourceError('Argument "label" must be of type str')
+            raise exceptions.InvalidDataSourceError(
+                'Argument "label" must be of type str'
+            )
 
         if data is None:
             log.warning('Attempt to collect results with None data for query'
@@ -114,32 +118,6 @@ class Extraction(object):
             self.extractor_queue.enqueue(e)
         log.debug('Enqueued extractors: {!s}'.format(self.extractor_queue))
 
-        # Add information from 'FileObject' to results.
-        # TODO: [TD0053] Fix special case of collecting data from 'FileObject'.
-
-        # TODO: Move this to a "PlatformIndependentFilesystemExtractor"?
-        # NOTE: Move would make little sense aside from maybe being
-        #       a bit more consistent with the class hierarchy, etc.
-
-        # NOTE(jonas): Store bytestring versions of original file name
-        # components? If the user wants to use parts of the original file
-        # name in the new name, conversion can't be lossy. Solve by storing
-        # bytestring versions of these fields as well?
-        self.collect_results('filesystem.basename.full',
-                             types.AW_PATHCOMPONENT(self.file_object.filename))
-        self.collect_results('filesystem.basename.extension',
-                             types.AW_PATHCOMPONENT(self.file_object.suffix))
-        self.collect_results('filesystem.basename.suffix',
-                             types.AW_PATHCOMPONENT(self.file_object.suffix))
-        self.collect_results('filesystem.basename.prefix',
-                             types.AW_PATHCOMPONENT(self.file_object.fnbase))
-        self.collect_results('filesystem.pathname.full',
-                             types.AW_PATH(self.file_object.pathname))
-        self.collect_results('filesystem.pathname.parent',
-                             types.AW_PATH(self.file_object.pathparent))
-        self.collect_results('contents.mime_type',
-                             self.file_object.mime_type)
-
         # Execute all suitable extractors and collect results.
         self._execute_run_queue()
 
@@ -158,8 +136,16 @@ class Extraction(object):
         Returns:
             One instance of each of the given classes as a list of objects.
         """
-        data_source = self.file_object.abspath
-        return [e(data_source) for e in class_list]
+        instances = []
+
+        for klass in class_list:
+            if klass.__name__ == 'CommonFileSystemExtractor':
+                # Special case where the source should be a 'FileObject'.
+                instances.append(klass(self.file_object))
+            else:
+                instances.append(klass(self.file_object.abspath))
+
+        return instances
 
     def _execute_run_queue(self):
         """

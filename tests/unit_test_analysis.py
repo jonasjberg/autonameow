@@ -37,8 +37,7 @@ class TestAnalysis(TestCase):
         def dummy_request_data(file_object, label):
             pass
 
-        self.a = analysis.Analysis(uu.get_mock_fileobject(), dummy_collect_data,
-                                   dummy_request_data)
+        self.a = analysis.Analysis(uu.get_mock_fileobject())
 
     def test_analysis_is_defined(self):
         self.assertIsNotNone(analysis.Analysis)

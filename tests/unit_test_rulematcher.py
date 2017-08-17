@@ -35,7 +35,7 @@ dummy_config = Configuration(DEFAULT_CONFIG)
 
 class TestRuleMatcher(TestCase):
     def setUp(self):
-        self.rm = RuleMatcher(None, None, dummy_config)
+        self.rm = RuleMatcher(None, dummy_config)
 
     def test_rule_matcher_can_be_instantiated(self):
         self.assertIsNotNone(self.rm)
@@ -50,7 +50,7 @@ class TestRuleMatcher(TestCase):
 class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
     def setUp(self):
         fo = uu.get_mock_fileobject()
-        self.rm = RuleMatcher(fo, dummy_config, uu.mock_request_data_callback)
+        self.rm = RuleMatcher(fo, dummy_config)
 
     def test_query_data_is_defined(self):
         self.assertIsNotNone(self.rm.query_data)
@@ -86,7 +86,7 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
 class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
     def setUp(self):
         fo = uu.get_mock_fileobject()
-        self.rm = RuleMatcher(fo, dummy_config, uu.mock_request_data_callback)
+        self.rm = RuleMatcher(fo, dummy_config)
 
     def test_querying_unavailable_data_returns_false(self):
         self.assertFalse(

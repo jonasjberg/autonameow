@@ -29,6 +29,7 @@ from core.util import dateandtime
 class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['*/*']
+    data_query_string = 'analysis.filename_analyzer'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):

@@ -30,6 +30,7 @@ from core import (
     options,
     util,
     exceptions,
+    repository
 )
 from core.analysis import Analysis
 from core.config.configuration import Configuration
@@ -69,8 +70,6 @@ class Autonameow(object):
         self.filter = None
         self.active_config = None
 
-        # TODO: [TD0073] Fix or remove the 'SessionDataPool' class.
-        # self.session_data = container.SessionDataPool()
         self.session_data = {}
 
     def run(self):
@@ -105,6 +104,12 @@ class Autonameow(object):
         if not self.active_config:
             log.critical('Unable to load configuration -- Aborting ..')
             self.exit_program(constants.EXIT_ERROR)
+
+        # TODO: [TD0076] Register non-core components at startup.
+        _referenced_qs = sorted(self.active_config.referenced_query_strings)
+        for _query_string in _referenced_qs:
+            log.debug('Configuration file rule referenced query string'
+                      ' "{!s}"'.format(_query_string))
 
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
@@ -191,9 +196,6 @@ class Autonameow(object):
         ))
         self.load_config(self.opts.config_path)
 
-    def collect_data(self, file_object, label, data):
-        util.nested_dict_set(self.session_data, [file_object, label], data)
-
     def request_data(self, file_object, label):
         try:
             d = util.nested_dict_get(self.session_data, [file_object, label])
@@ -250,23 +252,15 @@ class Autonameow(object):
         # Extract data from the file.
         # Run all extractors so that all possible data is included
         # when listing any (all) results later on.
-        extraction = _run_extraction(current_file,
-                                     add_pool_data_callback=self.collect_data,
-                                     run_all_extractors=should_list_any_results)
+        extraction = _run_extraction(current_file)
 
         # Begin analysing the file.
-        analysis = _run_analysis(current_file,
-                                 add_pool_data_callback=self.collect_data,
-                                 request_data_callback=self.request_data)
+        analysis = _run_analysis(current_file)
 
-        plugin_handler = _run_plugins(current_file,
-                                      add_pool_data_callback=self.collect_data,
-                                      request_data_callback=self.request_data)
+        plugin_handler = _run_plugins(current_file)
 
         # Determine matching rule.
-        matcher = _run_rule_matcher(current_file,
-                                    active_config=self.active_config,
-                                    request_data_callback=self.request_data)
+        matcher = _run_rule_matcher(current_file, self.active_config)
 
         # Present results.
         if should_list_any_results:
@@ -299,10 +293,12 @@ class Autonameow(object):
         log.info('Using file rule: "{!s}"'.format(
             rule_matcher.best_match.description)
         )
-        new_name = _build_new_name(current_file,
-                                   active_config=self.active_config,
-                                   active_rule=rule_matcher.best_match,
-                                   request_data_callback=self.request_data)
+        new_name = _build_new_name(
+            current_file,
+            active_config=self.active_config,
+            active_rule=rule_matcher.best_match,
+        )
+
         # TODO: [TD0042] Respect '--quiet' option. Suppress output.
         log.info('New name: "{}"'.format(
             util.displayable_path(new_name))
@@ -412,11 +408,9 @@ class Autonameow(object):
             self._exit_code = value
 
 
-def _build_new_name(file_object, active_config, active_rule,
-                    request_data_callback):
+def _build_new_name(file_object, active_config, active_rule):
     try:
-        builder = NameBuilder(file_object, active_config, active_rule,
-                              request_data_callback)
+        builder = NameBuilder(file_object, active_config, active_rule)
 
         # TODO: Do not return anything from 'build()', use property.
         new_name = builder.build()
@@ -427,14 +421,12 @@ def _build_new_name(file_object, active_config, active_rule,
         return new_name
 
 
-def _run_extraction(file_object, add_pool_data_callback,
-                    run_all_extractors=False):
+def _run_extraction(file_object, run_all_extractors=False):
     """
     Instantiates, executes and returns an 'Extraction' instance.
 
     Args:
         file_object: The file object to extract data from.
-        add_pool_data_callback: Callback function for storing data.
         run_all_extractors: Whether all data extractors should be included.
 
     Returns:
@@ -442,9 +434,9 @@ def _run_extraction(file_object, add_pool_data_callback,
     Raises:
         AutonameowException: An unrecoverable error occurred during extraction.
     """
-    extraction = Extraction(file_object, add_pool_data_callback)
+    extraction = Extraction(file_object)
     try:
-        # TODO: [TD0056] Determine required extractors for current file.
+        # TODO: [TD0056][TD0076] Determine required extractors for current file.
 
         # Assume slower execution speed is tolerable when the user
         # wants to display any results, also for completeness. Run all.
@@ -458,22 +450,19 @@ def _run_extraction(file_object, add_pool_data_callback,
         return extraction
 
 
-def _run_plugins(file_object, add_pool_data_callback, request_data_callback):
+def _run_plugins(file_object):
     """
     Instantiates, executes and returns a 'PluginHandler' instance.
 
     Args:
         file_object: The current file object to pass to plugins.
-        add_pool_data_callback: Callback function for storing data.
-        request_data_callback: Callback function for accessing "session" data.
 
     Returns:
         An instance of the 'PluginHandler' class that has executed successfully.
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
-    plugin_handler = PluginHandler(file_object, add_pool_data_callback,
-                                   request_data_callback)
+    plugin_handler = PluginHandler(file_object)
     try:
         plugin_handler.start()
     except exceptions.AutonameowPluginError as e:
@@ -483,22 +472,19 @@ def _run_plugins(file_object, add_pool_data_callback, request_data_callback):
         return plugin_handler
 
 
-def _run_analysis(file_object, add_pool_data_callback, request_data_callback):
+def _run_analysis(file_object):
     """
     Instantiates, executes and returns an 'Analysis' instance.
 
     Args:
         file_object: The file object to analyze.
-        add_pool_data_callback: Callback function for storing data.
-        request_data_callback: Callback function for accessing "session" data.
 
     Returns:
         An instance of the 'Analysis' class that has executed successfully.
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
-    analysis = Analysis(file_object, add_pool_data_callback,
-                        request_data_callback)
+    analysis = Analysis(file_object)
     try:
         analysis.start()
     except exceptions.AutonameowException as e:
@@ -508,20 +494,19 @@ def _run_analysis(file_object, add_pool_data_callback, request_data_callback):
         return analysis
 
 
-def _run_rule_matcher(file_object, active_config, request_data_callback):
+def _run_rule_matcher(file_object, active_config):
     """
     Instantiates, executes and returns a 'RuleMatcher' instance.
 
     Args:
         active_config: An instance of the 'Configuration' class.
-        request_data_callback: Callback function for accessing "session" data.
 
     Returns:
         An instance of the 'RuleMatcher' class that has executed successfully.
     Raises:
         AutonameowException: An unrecoverable error occurred during execution.
     """
-    matcher = RuleMatcher(file_object, active_config, request_data_callback)
+    matcher = RuleMatcher(file_object, active_config)
     try:
         matcher.start()
     except exceptions.AutonameowException as e:

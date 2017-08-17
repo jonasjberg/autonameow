@@ -32,6 +32,10 @@ sys.path.insert(0, AUTONAMEOW_PLUGIN_PATH)
 
 # TODO: [TD0009] Implement a proper plugin interface.
 class BasePlugin(object):
+    # Query string label for the data returned by this plugin.
+    # Example:  'plugin.guessit'
+    data_query_string = None
+
     def __init__(self, add_results_callback, request_data_callback,
                  display_name=None):
         if display_name:
@@ -107,23 +111,6 @@ def get_usable_plugin_classes():
     return [k for k in get_plugin_classes() if k.test_init()]
 
 
-# def _plugin_class_instance_dict():
-#     out = {}
-#
-#     klasses = get_plugin_classes()
-#     for klass in klasses:
-#         plugin_class_instance = klass()
-#         if plugin_class_instance.test_init():
-#             # Make sure that plugin-specific prerequisites/dependencies are met.
-#             key = str(plugin_class_instance)
-#             out[key] = plugin_class_instance
-#         else:
-#             print('Plugin [{!s}] failed initialization test'.format(
-#                 plugin_class_instance))
-#
-#     return out
-
-
 def suitable_plugins_for(file_object):
     """
     Returns plugin classes that can handle the given file object.
@@ -137,5 +124,30 @@ def suitable_plugins_for(file_object):
     return [p for p in UsablePlugins if p.can_handle(file_object)]
 
 
-# Plugins = _plugin_class_instance_dict()
+def map_query_string_to_plugins():
+    """
+    Returns a mapping of the plugin classes "query strings" and actual classes.
+
+    Each plugin class defines 'data_query_string' which is used as the
+    first part of all data returned by the plugin.
+
+    Returns: A dictionary where the keys are "query strings" and the values
+        are lists of analyzer classes.
+    """
+    out = {}
+
+    for klass in UsablePlugins:
+        data_query_string = klass.data_query_string
+        if not data_query_string:
+            continue
+
+        if data_query_string in out:
+            out[data_query_string].append(klass)
+        else:
+            out[data_query_string] = [klass]
+
+    return out
+
+
 UsablePlugins = get_usable_plugin_classes()
+QueryStringPluginClassMap = map_query_string_to_plugins()

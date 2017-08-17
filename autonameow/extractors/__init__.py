@@ -216,29 +216,6 @@ def suitable_data_extractors_for(file_object):
     return [e for e in ExtractorClasses if e.can_handle(file_object)]
 
 
-def get_query_strings():
-    """
-    Get the set of "query strings" for all extractor classes.
-
-    Returns:
-        Unique extractor query strings as a set.
-    """
-    out = set()
-    for e in ExtractorClasses:
-        if e.data_query_string:
-            out.add(e.data_query_string)
-
-    # TODO: [TD0053] Fix special case of collecting data from 'FileObject'.
-    out.add('filesystem.basename.full')
-    out.add('filesystem.basename.extension')
-    out.add('filesystem.basename.suffix')
-    out.add('filesystem.basename.prefix')
-    out.add('filesystem.pathname.full')
-    out.add('filesystem.pathname.parent')
-    out.add('contents.mime_type')
-    return out
-
-
 def map_query_string_to_extractors():
     """
     Returns a mapping of the extractor "query strings" and extractor classes.
@@ -267,5 +244,4 @@ def map_query_string_to_extractors():
     return out
 
 ExtractorClasses = get_extractor_classes(find_extractor_files())
-QueryStrings = get_query_strings()
 QueryStringExtractorClassMap = map_query_string_to_extractors()

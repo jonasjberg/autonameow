@@ -33,6 +33,8 @@ except ImportError:
 
 
 class GuessitPlugin(BasePlugin):
+    data_query_string = 'plugin.guessit'
+
     def __init__(self, add_results_callback, request_data_callback,
                  display_name=None):
         super(GuessitPlugin, self).__init__(

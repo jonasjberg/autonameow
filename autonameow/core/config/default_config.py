@@ -30,7 +30,7 @@ from core import constants
 # 'filesystem.date_accessed'        Python "datetime" format
 # 'filesystem.date_created'         Python "datetime" format
 # 'filesystem.date_modified'        Python "datetime" format
-# 'contents.mime_type'              Supports simple "globbing" ('*/jpeg', 'image/*')
+# 'filesystem.contents.mime_type'   Supports simple "globbing" ('*/jpeg')
 # 'metadata.exiftool'               See note below.
 
 #   NOTE:  See this link for all available exiftool fields.
@@ -67,7 +67,7 @@ DEFAULT_CONFIG = {
          'CONDITIONS': {
              'filesystem.basename.full': 'gmail.pdf',
              'filesystem.basename.extension': 'pdf',
-             'contents.mime_type': 'application/pdf',
+             'filesystem.contents.mime_type': 'application/pdf',
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.PDF:CreateDate',
@@ -82,7 +82,7 @@ DEFAULT_CONFIG = {
          'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
              'filesystem.basename.full': 'smulan.jpg',
-             'contents.mime_type': 'image/jpeg',
+             'filesystem.contents.mime_type': 'image/jpeg',
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
@@ -111,7 +111,7 @@ DEFAULT_CONFIG = {
              'filesystem.pathname.full': '~/Pictures/incoming',
              'filesystem.basename.full': 'DCIM*',
              'filesystem.basename.extension': 'jpg',
-             'contents.mime_type': 'image/jpeg',
+             'filesystem.contents.mime_type': 'image/jpeg',
              # TODO: [TD0015] Ensure proper validation of entry below.
              'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
          },
@@ -133,7 +133,7 @@ DEFAULT_CONFIG = {
              'filesystem.pathname.full': '.*',
              'filesystem.basename.full': '.*',
              'filesystem.basename.extension': 'epub',
-             'contents.mime_type': 'application/epub+zip',
+             'filesystem.contents.mime_type': 'application/epub+zip',
              # TODO: [TD0015] Ensure proper validation of entry below.
              'metadata.exiftool.XMP-dc:Creator': 'Defined',
          },
