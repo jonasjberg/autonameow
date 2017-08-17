@@ -169,12 +169,7 @@ class RuleCondition(object):
         return '{!s}: {!s}'.format(self.query_string, self.expression)
 
 
-class Rule(object):
-    def __init__(self):
-        pass
-
-
-class FileRule(Rule):
+class FileRule(object):
     """
     Represents a single file rule entry in a loaded configuration.
 
@@ -194,8 +189,6 @@ class FileRule(Rule):
     Which produces a "normalized" decimal number between 0 and 1.
     """
     def __init__(self, **kwargs):
-        super().__init__()
-
         self.description = str(kwargs.get('description'))
         self.exact_match = bool(kwargs.get('exact_match'))
         self.weight = kwargs.get('weight', constants.DEFAULT_FILERULE_WEIGHT)
