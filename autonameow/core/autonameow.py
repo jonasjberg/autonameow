@@ -260,11 +260,7 @@ class Autonameow(object):
         plugin_handler = _run_plugins(current_file)
 
         # Determine matching rule.
-        matcher = _run_rule_matcher(
-            current_file,
-            active_config=self.active_config,
-            request_data_callback=repository.SessionRepository.resolve
-        )
+        matcher = _run_rule_matcher(current_file, self.active_config)
 
         # Present results.
         if should_list_any_results:
