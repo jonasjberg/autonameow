@@ -87,7 +87,9 @@ def run_guessit(input_data, options=None):
         guessit_options = {'no-embedded-config': True, 'name_only': True}
 
     if guessit:
-        result = guessit.guessit(input_data, guessit_options)
-        return result
-    return None
-
+        try:
+            result = guessit.guessit(input_data, guessit_options)
+        except guessit.api.GuessitException as e:
+            raise exceptions.AutonameowPluginError(e)
+        else:
+            return result

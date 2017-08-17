@@ -22,7 +22,8 @@
 import plugins
 from core import (
     util,
-    repository
+    repository,
+    exceptions
 )
 
 
@@ -87,4 +88,9 @@ class PluginHandler(object):
             plugin_instance = klass(add_results_callback=self.collect_results,
                                     request_data_callback=self._request_data)
             if plugin_instance.can_handle():
-                plugin_instance.run()
+                try:
+                    plugin_instance.run()
+                except exceptions.AutonameowPluginError:
+                    # log.critical('Plugin instance "{!s}" execution '
+                    #              'FAILED'.format(plugin_instance))
+                    raise
