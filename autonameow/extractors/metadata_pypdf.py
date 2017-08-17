@@ -146,8 +146,14 @@ def _wrap_pypdf_string(out_dict, out_key, pypdf_data):
     try:
         wrapped = types.AW_STRING(pypdf_data)
     except exceptions.AWTypeError:
-        log.warning('_wrap_pypdf_string raised a AWTypeError for "{!s}" ({})'.format(pypdf_data, type(pypdf_data)))
+        log.warning(
+            '_wrap_pypdf_string raised a AWTypeError for "{!s}" ({})'.format(
+                pypdf_data, type(pypdf_data))
+        )
         return
     else:
-        log.warning('_wrap_pypdf_string wrapped "{!s}" ({}) into "{!s}" ({})'.format(pypdf_data, type(pypdf_data), wrapped, type(wrapped)))
+        log.debug(
+            '_wrap_pypdf_string wrapped "{!s}" ({}) into "{!s}" ({})'.format(
+                pypdf_data, type(pypdf_data), wrapped, type(wrapped))
+        )
         out_dict[out_key] = wrapped
