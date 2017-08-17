@@ -68,66 +68,83 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
             file_reader = PyPDF2.PdfFileReader(util.decode_(self.source), 'rb')
         except (OSError, PyPdfError) as e:
             raise exceptions.ExtractorError(e)
+
+        # Notes on 'getDocumentInfo' from the PyPDF2 source documentation:
+        #
+        # All text properties of the document metadata have *two*
+        # properties, eg. author and author_raw. The non-raw property will
+        # always return a ``TextStringObject``, making it ideal for a case
+        # where the metadata is being displayed. The raw property can
+        # sometimes return a ``ByteStringObject``, if PyPDF2 was unable to
+        # decode the string's text encoding; this requires additional
+        # safety in the caller and therefore is not as commonly accessed.
+        doc_info = file_reader.getDocumentInfo()
+        if doc_info:
+            # Remove any leading '/' from all dict keys.
+            # Skip entries starting with "IndirectObject(" ..
+            # TODO: Cleanup this filtering.
+            out = {k.lstrip('\/'): v for k, v in doc_info.items()
+                   if not is_indirectobject(v)}
+
+            # Convert PyPDF values of type 'PyPDF2.generic.TextStringObject'
+            out = {k: str(v) for k, v in out.items()}
+
+            _wrap_pypdf_data(out, 'author',
+                             doc_info.author, types.AW_STRING)
+            _wrap_pypdf_data(out, 'creator',
+                             doc_info.creator, types.AW_STRING)
+            _wrap_pypdf_data(out, 'producer',
+                             doc_info.producer, types.AW_STRING)
+            _wrap_pypdf_data(out, 'subject',
+                             doc_info.subject, types.AW_STRING)
+            _wrap_pypdf_data(out, 'title',
+                             doc_info.title, types.AW_STRING)
+            _wrap_pypdf_data(out, 'author_raw',
+                             doc_info.author_raw, types.AW_STRING)
+            _wrap_pypdf_data(out, 'creator_raw',
+                             doc_info.creator_raw, types.AW_STRING)
+            _wrap_pypdf_data(out, 'producer_raw',
+                             doc_info.producer_raw, types.AW_STRING)
+            _wrap_pypdf_data(out, 'subject_raw',
+                             doc_info.subject_raw, types.AW_STRING)
+            _wrap_pypdf_data(out, 'title_raw',
+                             doc_info.title_raw, types.AW_STRING)
+
+        out.update({'Encrypted': file_reader.isEncrypted})
+
+        try:
+            num_pages = file_reader.getNumPages()
+        except PdfReadError as e:
+            # NOTE: This now wholly determines whether a pdf is readable.
+            # Can getNumPages fail although the text is actually readable?
+            log.warning(
+                'PDF document might be encrypted and/or has restrictions'
+                ' that prevent reading'
+            )
+            raise exceptions.ExtractorError(
+                'PyPDF2.PdfReadError: "{!s}"'.format(e)
+            )
         else:
+            out.update({'NumberPages': num_pages})
+            out.update({'Paginated': True})
 
-            # Notes on 'getDocumentInfo' from the PyPDF2 source documentation:
-            #
-            # All text properties of the document metadata have *two*
-            # properties, eg. author and author_raw. The non-raw property will
-            # always return a ``TextStringObject``, making it ideal for a case
-            # where the metadata is being displayed. The raw property can
-            # sometimes return a ``ByteStringObject``, if PyPDF2 was unable to
-            # decode the string's text encoding; this requires additional
-            # safety in the caller and therefore is not as commonly accessed.
-            doc_info = file_reader.getDocumentInfo()
-            if doc_info:
-                # Remove any leading '/' from all dict keys.
-                # Skip entries starting with "IndirectObject(" ..
-                # TODO: Cleanup this filtering.
-                out = {k.lstrip('\/'): v for k, v in doc_info.items()
-                       if not is_indirectobject(v)}
-
-                # Convert PyPDF values of type 'PyPDF2.generic.TextStringObject'
-                out = {k: str(v) for k, v in out.items()}
-
-                _wrap_pypdf_string(out, 'author', doc_info.author)
-                _wrap_pypdf_string(out, 'creator', doc_info.creator)
-                _wrap_pypdf_string(out, 'producer', doc_info.producer)
-                _wrap_pypdf_string(out, 'subject', doc_info.subject)
-                _wrap_pypdf_string(out, 'title', doc_info.title)
-                _wrap_pypdf_string(out, 'author_raw', doc_info.author_raw)
-                _wrap_pypdf_string(out, 'creator_raw', doc_info.creator_raw)
-                _wrap_pypdf_string(out, 'producer_raw', doc_info.producer_raw)
-                _wrap_pypdf_string(out, 'subject_raw', doc_info.subject_raw)
-                _wrap_pypdf_string(out, 'title_raw', doc_info.title_raw)
-
-            out.update({'Encrypted': file_reader.isEncrypted})
-
-            try:
-                num_pages = file_reader.getNumPages()
-            except PdfReadError as e:
-                # NOTE: This now wholly determines whether a pdf is readable.
-                # Can getNumPages fail although the text is actually readable?
-                log.warning(
-                    'PDF document might be encrypted and/or has restrictions'
-                    ' that prevent reading'
-                )
-                raise exceptions.ExtractorError(
-                    'PyPDF2.PdfReadError: "{!s}"'.format(e)
-                )
-            else:
-                out.update({'NumberPages': num_pages})
-                out.update({'Paginated': True})
-
-            # https://pythonhosted.org/PyPDF2/XmpInformation.html
-            xmp_metadata = file_reader.getXmpMetadata()
-            if xmp_metadata:
-                xmp = {}
-                for k, v in xmp_metadata.items():
-                    if v:
-                        xmp[k] = types.try_wrap(v)
-
-                out.update(xmp)
+        # https://pythonhosted.org/PyPDF2/XmpInformation.html
+        xmp_metadata = file_reader.getXmpMetadata()
+        if xmp_metadata:
+            _wrap_pypdf_data(out, 'xmp_createDate',
+                             xmp_metadata.xmp_createDate, types.AW_TIMEDATE)
+            _wrap_pypdf_data(out, 'xmp_creatorTool',
+                             xmp_metadata.xmp_creatorTool, types.AW_STRING)
+            _wrap_pypdf_data(out, 'xmp_metadataDate',
+                             xmp_metadata.xmp_metadataDate, types.AW_TIMEDATE)
+            _wrap_pypdf_data(out, 'xmp_modifyDate',
+                             xmp_metadata.xmp_modifyDate, types.AW_TIMEDATE)
+            _wrap_pypdf_data(out, 'pdf_keywords',
+                             xmp_metadata.pdf_keywords, types.AW_STRING)
+            _wrap_pypdf_data(out, 'pdf_producer',
+                             xmp_metadata.pdf_producer, types.AW_STRING)
+            _wrap_pypdf_data(out, 'pdf_title',
+                             xmp_metadata.pdf_producer, types.AW_STRING)
 
         return out
 
@@ -144,7 +161,7 @@ def is_textstringobject(pypdf_data):
     return isinstance(pypdf_data, TextStringObject)
 
 
-def _wrap_pypdf_string(out_dict, out_key, pypdf_data):
+def _wrap_pypdf_data(out_dict, out_key, pypdf_data, wrapper):
     if pypdf_data is None:
         return
     if is_indirectobject(pypdf_data):
@@ -153,7 +170,7 @@ def _wrap_pypdf_string(out_dict, out_key, pypdf_data):
         pypdf_data = str(pypdf_data)
 
     try:
-        wrapped = types.AW_STRING(pypdf_data)
+        wrapped = wrapper(pypdf_data)
     except exceptions.AWTypeError:
         log.warning(
             '_wrap_pypdf_string raised a AWTypeError for "{!s}" ({})'.format(
