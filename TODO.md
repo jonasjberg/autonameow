@@ -14,6 +14,30 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0076]` __Have all non-core components register themselves at startup.__  
+  A lot of the problems with implementing a plugin-interface, handling queries
+  from components to a centralized "data pool", only running the required
+  plugins/extractors/analyzers for performance, etc; might possibly be solved
+  by implementing a more sophisticated method of keeping track of available
+  components.
+    * Enumerate all available extractors, analyzers and plugins at startup.
+        * Check that dependencies are available; external executables, etc.
+        * Have the components "register" their query strings. If the component
+          could return data with query string
+          `metadata.exiftool.PDF:CreateDate`, register the first part:
+          `metadata.exiftool`.
+    * Read the configuration file and get a list of all referenced query strings.
+    * Find out which components could produce the referenced query strings and
+      use this information to selectively run only components that are
+      required.
+
+* `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
+  When listing results with any of the `--list-*` options, paths are not
+  displayed properly due to them not being handled properly before being passed
+  to `yaml.dump` which performs the formatting of the results dict.
+
+* `[TD0063]` Fix crash when a data source is mapped but data itself is missing.
+
 * `[TD0004]` __Text encoding issues__
     * Enforce strict boundaries between all external systems and an internal
       text data representation.
@@ -36,24 +60,26 @@ High Priority
           the process would mostly add yet another layer of indirection ..
     * Think about how wrapped data types (`[TD0002]`) relates to this.
 
+* `[TD0061]` Re-implement basic queries to the "microsoft vision" plugin.
+
 
 Medium Priority
 ---------------
 
-* `[TD0057]` __Look at the optional `field` argument in the `query` method.__  
-  The extractor classes `query` method takes an optional argument `field` that
+* `[TD0071]` Move file name "sanitation" to the `NameBuilder` or elsewhere.
+
+* `[TD0062]` Look at testing that all name template fields are mapped to data
+  sources. This could be done when reading the configuration, instead of later
+  on in the name builder.
+
+* `[TD0057]` __Look at the optional `field` parameter of the `query` method.__  
+  The extractor classes `query` method takes an optional parameter `field` that
   seems to be unused. Some classes, like the text extractors will probably not
   return anything but text. Look into possibly removing the optional argument
   or rework how the extractor classes are queried.
 
 * `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time
   to UTC and convert to local time as a final step before presentation or use.
-
-* `[TD0053]` Fix special case of collecting data from the `FileObject`.
-
-* `[TD0052]` Analyzer classes should provide their respective "query strings".
-
-* `[TD0051]` Implement or remove the `CommonFileSystemExtractor` class.
 
 * `[TD0049]` __Think about defining legal "placeholder fields".__
   Might be helpful to define all legal fields (such as `title`, `datetime`,
@@ -153,6 +179,8 @@ Medium Priority
   But this is not configurable -- how would the filename analyzer know
   which of many possible datetime results to use?
 
+* `[TD0070]` Implement arbitrary common personal use case.
+
 * `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
 
 * `[TD0019]` Rework the `FilenameAnalyzer`
@@ -193,6 +221,13 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0068]` Let the user specify which languages to use for OCR.
+
+* `[TD0060]` Implement or remove the type wrapper classes `format` method.
+
+* `[TD0059]` Replace `--list-datetime`, `--list-title` and `--list-all`
+  with something more flexible like `--list {FIELD}`.
+
 * `[TD0055]` Fully implement the `VideoAnalyzer` class.
 
 * `[TD0026]` Implement safe handling of symbolic link input paths.
@@ -202,6 +237,8 @@ Low Priority
         * Extract plain text and metadata from Word documents.
     * `[TD0028]` __E-books epub/mobi__
         * Extract metadata fields. Look into using `calibre`.
+    * `[TD0064]` __E-books DjVu__
+        * Extract plain text with `djvutxt`
 
 * `[TD0029]` Add support for extracting MacOS Spotlight metadata (`mdls`)
 

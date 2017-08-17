@@ -19,108 +19,135 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import inspect
 import os
-import logging as log
-
 import sys
-
-from core.exceptions import AutonameowPluginError
-from plugins import microsoft_vision
+# import logging as log
 
 
-# 'microsoft_vision.py'
-# =====================
-# Queries the Microsoft Vision API with images for information about visual
-# content found in the image.
-#
-# Requires a Microsoft Visual API key, available for free at:
-#   <https://www.microsoft.com/cognitive-services/en-us/sign-up>
-#
-# Add your API key to the file 'microsoft_vision.key' in this directory,
-# or modify the line below to point to the file containing your API key.
-#
-api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
-                            'microsoft_vision.key')
-try:
-    with open(api_key_path, mode='r', encoding='utf8') as f:
-        API_KEY = f.read()
-        API_KEY = API_KEY.strip()
-except FileNotFoundError as e:
-    # log.critical('Unable to find "microsoft_vision.py" API key!')
-    API_KEY = False
+# Plugins are assumed to be located in the same directory as this file.
+AUTONAMEOW_PLUGIN_PATH = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, AUTONAMEOW_PLUGIN_PATH)
 
 
-def plugin_query(plugin_name, query, data):
+# TODO: [TD0009] Implement a proper plugin interface.
+class BasePlugin(object):
+    # Query string label for the data returned by this plugin.
+    # Example:  'plugin.guessit'
+    data_query_string = None
+
+    def __init__(self, add_results_callback, request_data_callback,
+                 display_name=None):
+        if display_name:
+            self.display_name = display_name
+        else:
+            self.display_name = self.__class__.__name__
+
+        self.add_results = add_results_callback
+        self.request_data = request_data_callback
+
+    @classmethod
+    def test_init(cls):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def run(self):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def can_handle(self, file_object):
+        """
+        Tests if this plugin class can handle the given file object.
+
+        Args:
+            file_object: The file to test as an instance of 'FileObject'.
+
+        Returns:
+            True if the plugin class can handle the given file, else False.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def __str__(self):
+        return self.display_name
+
+
+def find_plugin_files():
     """
-    Hack interface to query plugins.
+    Finds Python source files assumed to be autonameow plugins.
+
+    Returns: List of the basenames of any found plugin source files.
     """
-    # TODO: [TD0009] Rewrite from scratch!
-
-    # ** NOTE: This is a "mock" for testing! Returns constants! **
-    if plugin_name == 'microsoft_vision':
-        if query == 'caption':
-            caption = 'a cat lying on a rug'
-            log.debug('Returning caption: "{!s}"'.format(caption))
-            return str(caption)
-
-        elif query == 'tags':
-            tags = ['cat', 'black', 'indoor', 'laying', 'white']
-            tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
-            log.debug('Returning tags: {}'.format(tags_pretty))
-            return tags
-
-    # ** NOTE: Actual query code below! Comment the mock and uncomment this **
-    # if plugin_name == 'microsoft_vision':
-    #     # NOTE: Expecting "data" to be a valid path to an image file.
-    #     if not API_KEY:
-    #         raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
-    #
-    #     if query == 'caption' or query == 'tags':
-    #         response = microsoft_vision.query_api(data, API_KEY)
-    #         if not response:
-    #             log.error('[plugin.microsoft_vision] Unable to query to API')
-    #             raise AutonameowPluginError('Did not receive a valid response')
-    #         else:
-    #             log.debug('Received microsoft_vision API query response')
-    #
-    #     if query == 'caption':
-    #         caption = microsoft_vision.get_caption_text(response)
-    #         log.debug('Returning caption: "{!s}"'.format(caption))
-    #         return str(caption)
-    #
-    #     elif query == 'tags':
-    #         tags = microsoft_vision.get_tags(response, 5)
-    #         tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
-    #         log.debug('Returning tags: {}'.format(tags_pretty))
-    #         return tags
+    found_files = [x for x in os.listdir(AUTONAMEOW_PLUGIN_PATH)
+                   if x.endswith('.py') and x != '__init__.py']
+    return found_files
 
 
-if __name__ == '__main__':
-    TEST_IMAGE = '~/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/test_files/smulan.jpg'
-    image_path = os.path.realpath(os.path.expanduser(TEST_IMAGE))
-
-    if not os.path.isfile(image_path):
-        sys.exit('Not a file: "{}"'.format(image_path))
-
-    response_caption = plugin_query('microsoft_vision', 'caption', image_path)
-    response_tags = plugin_query('microsoft_vision', 'tags', image_path)
-
-    print('Microsoft vision API test')
-    print('-------------------------')
-    print('Using image: "{}"'.format(str(image_path)))
-    print('')
-    print('Caption: {}'.format(response_caption))
-    print('   Tags: {}'.format(response_tags))
+plugin_source_files = find_plugin_files()
 
 
-# Expected output:
-# ================
-# (Current working directory is "$SRCROOT/autonameow")
-#
-#   $ PYTHONPATH=. python3 plugins/__init__.py
-#   Microsoft vision API test
-#   -------------------------
-#   Using image: "/Users/jonas/Dropbox/LNU/1DV430_IndividuelltProjekt/src/js224eh-project.git/test_files/smulan.jpg"
-#
-#   Caption: a cat lying on a rug
-#      Tags: ['cat', 'black', 'indoor', 'laying', 'white']
+def get_plugin_classes():
+    # Strip extensions.
+    _to_import = [f[:-3] for f in plugin_source_files]
+
+    _plugin_classes = []
+    for plugin_file in _to_import:
+        __import__(plugin_file, None, None)
+        namespace = inspect.getmembers(sys.modules[plugin_file],
+                                       inspect.isclass)
+        for _obj_name, _obj_type in namespace:
+            if not issubclass(_obj_type, BasePlugin):
+                continue
+            elif _obj_type == BasePlugin:
+                continue
+            else:
+                _plugin_classes.append(_obj_type)
+                break
+
+        # log.debug('Imported plugin source file "{!s}" but no plugins were'
+        #           ' loaded ..'.format(plugin_file))
+
+    return _plugin_classes
+
+
+def get_usable_plugin_classes():
+    return [k for k in get_plugin_classes() if k.test_init()]
+
+
+def suitable_plugins_for(file_object):
+    """
+    Returns plugin classes that can handle the given file object.
+
+    Args:
+        file_object: File to get plugins for as an instance of 'FileObject'.
+
+    Returns:
+        A list of plugin classes that can handle the given file.
+    """
+    return [p for p in UsablePlugins if p.can_handle(file_object)]
+
+
+def map_query_string_to_plugins():
+    """
+    Returns a mapping of the plugin classes "query strings" and actual classes.
+
+    Each plugin class defines 'data_query_string' which is used as the
+    first part of all data returned by the plugin.
+
+    Returns: A dictionary where the keys are "query strings" and the values
+        are lists of analyzer classes.
+    """
+    out = {}
+
+    for klass in UsablePlugins:
+        data_query_string = klass.data_query_string
+        if not data_query_string:
+            continue
+
+        if data_query_string in out:
+            out[data_query_string].append(klass)
+        else:
+            out[data_query_string] = [klass]
+
+    return out
+
+
+UsablePlugins = get_usable_plugin_classes()
+QueryStringClassMap = map_query_string_to_plugins()

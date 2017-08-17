@@ -28,9 +28,8 @@ from extractors import BaseExtractor
 
 
 class CommonFileSystemExtractor(BaseExtractor):
-    # TODO: [TD0051] Implement or remove this class.
-    handles_mime_types = ['NONE/NONE']
-    data_query_string = 'filesystem.common'
+    handles_mime_types = ['*/*']
+    data_query_string = 'filesystem'
 
     def __init__(self, source):
         super(CommonFileSystemExtractor, self).__init__(source)
@@ -43,7 +42,7 @@ class CommonFileSystemExtractor(BaseExtractor):
                 self.data = self._get_data(self.source)
             except ExtractorError as e:
                 log.error('{!s} query FAILED: {!s}'.format(self, e))
-                return False
+                raise
 
         if not field:
             log.debug('{!s} responding to query for all fields'.format(self))
@@ -59,12 +58,12 @@ class CommonFileSystemExtractor(BaseExtractor):
             raise ExtractorError('Expected source to be "FileObject" instance')
 
         out = {
-            'filesystem.basename.full': types.AW_PATH(file_object.filename),
-            'filesystem.basename.extension': types.AW_PATH(file_object.suffix),
-            'filesystem.basename.suffix': types.AW_PATH(file_object.suffix),
-            'filesystem.basename.prefix': types.AW_PATH(file_object.fnbase),
-            'filesystem.pathname.full': types.AW_PATH(file_object.pathname),
-            'filesystem.pathname.parent': types.AW_PATH(file_object.pathparent),
+            'basename.full': types.AW_PATHCOMPONENT(file_object.filename),
+            'basename.extension': types.AW_PATHCOMPONENT(file_object.suffix),
+            'basename.suffix': types.AW_PATHCOMPONENT(file_object.suffix),
+            'basename.prefix': types.AW_PATHCOMPONENT(file_object.fnbase),
+            'pathname.full': types.AW_PATH(file_object.pathname),
+            'pathname.parent': types.AW_PATH(file_object.pathparent),
             'contents.mime_type': file_object.mime_type
         }
         return out

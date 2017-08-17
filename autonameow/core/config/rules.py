@@ -23,7 +23,8 @@ import logging as log
 
 from core import (
     constants,
-    util
+    util,
+    exceptions
 )
 from core.config import field_parsers
 
@@ -70,6 +71,7 @@ class RuleCondition(object):
 
     @query_string.setter
     def query_string(self, raw_query_string):
+        # The query string is considered valid if a field parser can handle it.
         valid_query_string = self._validate_query_string(raw_query_string)
         if valid_query_string:
             self._query_string = raw_query_string
@@ -132,6 +134,8 @@ class RuleCondition(object):
 
         parsers = field_parsers.suitable_field_parser_for(query_string)
         if parsers:
+            # Assume only one parser can handle a query string for now.
+            assert(len(parsers) == 1)
             self._parser = parsers[0]
             return self._parser
         else:
@@ -152,7 +156,7 @@ class RuleCondition(object):
 
         # NOTE(jonas): For unhandled cases like
         # 'metadata.exiftool.EXIF:DateTimeOriginal, 'self._parser' is None
-        # and below methid call will fail.
+        # and below method call will fail.
         if not self._parser:
             log.critical('Unimplemented condition evaluation -- query_string: '
                          '"{!s}" expression: "{!s}"'.format(self.query_string,
@@ -188,19 +192,118 @@ class FileRule(Rule):
       - weight If multiple rules end up with an equal score, weights are
                used to further prioritize as to get a single "winning" rule.
                This value is specified in the active configuration.
+
+    Rules are sorted/prioritized by first the score, secondly the weight.
+    Calculate scores as;  SCORE = conditions_met / number_of_conditions
+    Which produces a "normalized" decimal number between 0 and 1.
     """
     def __init__(self, **kwargs):
         super().__init__()
 
         self.description = str(kwargs.get('description'))
         self.exact_match = bool(kwargs.get('exact_match'))
-        self.weight = kwargs.get('weight', constants.FILERULE_DEFAULT_WEIGHT)
+        self.weight = kwargs.get('weight', constants.DEFAULT_FILERULE_WEIGHT)
         self.name_template = kwargs.get('name_template')
-        self.conditions = kwargs.get('conditions', False)
-        self.data_sources = kwargs.get('data_sources', False)
+        self.conditions = kwargs.get('conditions', [])
+        self.data_sources = kwargs.get('data_sources', [])
 
-        # Rules are sorted/prioritized by first the score, secondly the weight.
-        self.score = 0
+        self._count_met_conditions = 0
+
+    @property
+    def score(self):
+        # Calculate scores as;  SCORE = conditions_met / number_of_conditions
+        # Number of conditions is clamped at 1 to prevent division by 0.
+        score = self._count_met_conditions / max(1, len(self.conditions))
+        assert(0 <= score <= 1)
+        return score
+
+    def upvote(self):
+        """
+        Increases the matching score of this rule.
+        """
+        self._count_met_conditions += 1
+
+    def downvote(self):
+        """
+        Decreases the matching score of this rule.
+        """
+        self._count_met_conditions -= 1
+        self._count_met_conditions = max(0, self._count_met_conditions)
+
+    def referenced_query_strings(self):
+        """
+        Get all query strings referenced by this file rule.
+
+        The query string can be part of either a condition or a data source.
+
+        Returns: The set of all query strings referenced by this file rule.
+        """
+        unique_query_strings = set()
+
+        for condition in self.conditions:
+            unique_query_strings.add(condition.query_string)
+
+        for _, query_string in self.data_sources.items():
+            unique_query_strings.add(query_string)
+
+        return unique_query_strings
+
+    def evaluate(self, data_query_function):
+        """
+        Tests if a rule applies to a given file.
+
+        Returns at first unmatched condition if the rule requires an exact
+        match. If the rule does not require an exact match, all conditions are
+        evaluated and the rule is scored through 'upvote' and 'downvote'.
+
+        Args:
+            data_query_function: Callback for retrieving the data to evaluate.
+
+        Returns:
+            If the rule requires an exact match:
+                True if all rule conditions evaluates to True.
+                False if any rule condition evaluates to False.
+            If the rule does not require an exact match:
+                True
+        """
+        if not self.conditions:
+            raise exceptions.InvalidFileRuleError(
+                'FileRule does not specify any conditions: "{!s}"'.format(self)
+            )
+
+        if self.exact_match:
+            for condition in self.conditions:
+                log.debug('Evaluating condition "{!s}"'.format(condition))
+                if not self._evaluate_condition(condition, data_query_function):
+                    log.debug('Condition FAILED -- Exact match impossible ..')
+                    return False
+                else:
+                    self.upvote()
+            return True
+
+        for condition in self.conditions:
+            log.debug('Evaluating condition "{!s}"'.format(condition))
+            if self._evaluate_condition(condition, data_query_function):
+                log.debug('Condition Passed rule.votes++')
+                self.upvote()
+            else:
+                # NOTE: file_rule.downvote()?
+                # log.debug('Condition FAILED rule.votes--')
+                log.debug('Condition FAILED')
+
+        # Rule was not discarded but could still have failed all tests.
+        return True
+
+    def _evaluate_condition(self, condition, data_query_function):
+        # Fetch data at "query_string" using the provided "data_query_function".
+        data = data_query_function(condition.query_string)
+        if data is None:
+            log.warning('Unable to evaluate condition due to missing data:'
+                        ' "{!s}"'.format(condition))
+            return False
+
+        # Evaluate the condition using actual data.
+        return condition.evaluate(data)
 
     def __str__(self):
         # TODO: [TD0039] Do not include the file rule attribute `score` when
@@ -212,19 +315,6 @@ class FileRule(Rule):
         for key in self.__dict__:
             out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
         return 'FileRule({})'.format(', '.join(out))
-
-    def upvote(self):
-        """
-        Increases the matching score of this rule.
-        """
-        self.score += 1
-
-    def downvote(self):
-        """
-        Decreases the matching score of this rule.
-        """
-        if self.score > 0:
-            self.score -= 1
 
 
 def get_valid_rule_condition(raw_query, raw_value):
@@ -241,11 +331,18 @@ def get_valid_rule_condition(raw_query, raw_value):
     Returns:
         An instance of the 'RuleCondition' class if the given arguments are
         valid, otherwise False.
+    Raises:
+        InvalidFileRuleError: The 'RuleCondition' instance could not be created.
     """
     try:
         condition = RuleCondition(raw_query, raw_value)
     except (TypeError, ValueError) as e:
-        log.critical('Invalid rule condition: {!s}'.format(e))
-        return False
+        # Add information and then pass the exception up the chain so that the
+        # error can be displayed with additional contextual information.
+        raise exceptions.InvalidFileRuleError(
+            'Invalid rule condition ("{!s}": "{!s}"); {!s}'.format(
+                raw_query, raw_value, e
+            )
+        )
     else:
         return condition

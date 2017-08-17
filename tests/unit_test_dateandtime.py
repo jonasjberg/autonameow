@@ -22,15 +22,16 @@
 from datetime import datetime
 from unittest import TestCase
 
-
 from core.util.dateandtime import (
     hyphenate_date,
     match_any_unix_timestamp,
     match_special_case,
     to_datetime,
     naive_to_timezone_aware,
-    timezone_aware_to_naive
+    timezone_aware_to_naive,
+    find_isodate_like
 )
+import unit_utils as uu
 
 
 class TestDateAndTime(TestCase):
@@ -144,3 +145,62 @@ class TestTimezoneAwareToNaive(TestCase):
 
     def test_aware_dt_should_forget_timezone_and_equal_unaware_dt(self):
         self.assertEqual(timezone_aware_to_naive(self.aware), self.unaware)
+
+
+class FindIsoDateLike(TestCase):
+    def setUp(self):
+        self.expected = uu.str_to_datetime('2016-07-22 131730')
+        self.assertIsInstance(self.expected, datetime)
+
+    def test_invalid_argument_raises_value_error(self):
+        def _assert_raises(test_data):
+            with self.assertRaises(ValueError):
+                find_isodate_like(test_data)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises(' ')
+        _assert_raises('  ')
+
+    def _assert_none(self, test_data):
+        self.assertIsNone(find_isodate_like(test_data))
+
+    def test_returns_none_for_no_possible_matches(self):
+        def _assert_none(test_data):
+            self.assertIsNone(find_isodate_like(test_data))
+
+        self._assert_none('abc')
+        self._assert_none(' a ')
+        self._assert_none(' 1 ')
+        self._assert_none('1')
+        self._assert_none('12')
+        self._assert_none('123')
+        self._assert_none('1234')
+        self._assert_none('12345678912345')
+
+    def test_returns_none_for_out_of_range_date_or_time(self):
+        self._assert_none('0000-07-22_131730')
+        self._assert_none('2016-07-22_131799')
+        self._assert_none('2016-13-22_131730')
+        self._assert_none('2016-07-99_131730')
+        self._assert_none('2016-07-22_251730')
+        self._assert_none('2016-07-22_136130')
+        self._assert_none('2016-07-22_131761')
+
+    def test_match_special_case_1st_variation(self):
+        self.assertEqual(self.expected, find_isodate_like('2016-07-22_131730'))
+
+        datetime9999 = uu.str_to_datetime('9999-07-22 131730')
+        self.assertEqual(datetime9999, find_isodate_like('9999-07-22_131730'))
+
+    def test_match_special_case_2nd_variation(self):
+        self.assertIsNotNone(match_special_case('2016-07-22T131730'))
+        self.assertEqual(self.expected, find_isodate_like('2016-07-22T131730'))
+
+    def test_match_special_case_3rd_variation(self):
+        self.assertIsNotNone(match_special_case('20160722_131730'))
+        self.assertEqual(self.expected, find_isodate_like('20160722_131730'))
+
+    def test_match_special_case_4th_variation(self):
+        self.assertIsNotNone(match_special_case('20160722T131730'))
+        self.assertEqual(self.expected, find_isodate_like('20160722T131730'))

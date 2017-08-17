@@ -25,7 +25,8 @@ from datetime import datetime
 
 from core import (
     exceptions,
-    util
+    util,
+    repository
 )
 
 
@@ -38,13 +39,12 @@ class NameBuilder(object):
     resulting name. The rule also determines what analysis data to use when
     populating the name template fields.
     """
-    def __init__(self, file_object, extracted_data, analysis_results,
-                 active_config, active_rule):
+    def __init__(self, file_object, active_config, active_rule):
         self.file = file_object
-        self.extracted_data = extracted_data
-        self.analysis_data = analysis_results
         self.config = active_config
         self.active_rule = active_rule
+
+        self.request_data = repository.SessionRepository.resolve
 
         self._new_name = None
 
@@ -52,7 +52,7 @@ class NameBuilder(object):
     def new_name(self):
         return self._new_name
 
-    def _gather_data(self, data_sources):
+    def _gather_data(self, field_querystring_map):
         """
         Populates a dictionary with data fields matching a "query string".
 
@@ -61,7 +61,7 @@ class NameBuilder(object):
         exists, it is used and the analyzer data query is skipped.
 
         Args:
-            data_sources: Dictionary of fields and query string.
+            field_querystring_map: Dictionary of fields and query string.
 
                 Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
                           'description' = 'plugin.microsoft_vision.caption'
@@ -77,14 +77,15 @@ class NameBuilder(object):
         # individually. Requires re-evaluating the configuration source
         # description format.
         # TODO: [TD0017] Rethink source specifications relation to source data.
-        for field, query_string in data_sources.items():
-            extracted_data = self.extracted_data.get(query_string)
-            if extracted_data:
-                out[field] = extracted_data
-            else:
-                analysis_data = self.analysis_data.get(query_string)
-                if analysis_data:
-                    out[field] = analysis_data
+        for field, query_string in field_querystring_map.items():
+            _data = self.request_data(self.file, query_string)
+            if _data:
+                out[field] = _data
+            # else:
+            #     analysis_data = self.analysis_data.get(query_string)
+            #     if analysis_data:
+            #         out[field] = analysis_data
+            # TODO: Or else what.. ?
 
         return out
 
@@ -94,8 +95,16 @@ class NameBuilder(object):
 
         # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
+
+        # TODO: [TD0062] Move test for name template fields mapping to sources.
         # NOTE(jonas): Move this to the rule matcher?
+        # Or maybe to when reading the configuration, which would give a
+        # heads-up on that switching to the "interactive mode" would be
+        # required in order to complete the rename. This would be useful to
+        # implement the feature to force non-interactive mode, see [TD0023].
+
         # NOTE(jonas): Make sure name builder always gets a valid rule?
+
         data_sources = self.active_rule.data_sources
         if not all_template_fields_defined(template, data_sources):
             log.error('All name template placeholder fields must be '
@@ -114,28 +123,39 @@ class NameBuilder(object):
         log.debug('Query for results fields returned:')
         log.debug(str(data))
 
+        # Check that all name template fields can be populated.
+        if not has_data_for_placeholder_fields(template, data):
+            log.warning('Unable to populate name. Missing field data.')
+            raise exceptions.NameBuilderError('Unable to assemble basename')
+
         # TODO: [TD0017][TD0041] Format ALL data before assembly!
         # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
         data = pre_assemble_format(data, self.config)
         log.debug('After pre-assembly formatting;')
         log.debug(str(data))
 
-        # Construct the new file name
-        result = assemble_basename(template, **data)
-        log.debug('Assembled basename: "{}"'.format(
-            util.displayable_path(result))
-        )
+        # TODO: [TD0063] Fix crashing when missing description.
+        # Running with 'smulan.jpg' that wants to fetch data for the
+        # "description' name template field from currently non-functional
+        # 'plugin.microsoft_vision.caption' returns None (?) and causes a crash
+        # due to an unhandled 'NameTemplateSyntaxError' exception raised in
+        # 'assemble_basename'.
 
-        if not result:
+        # Construct the new file name
+        new_name = populate_name_template(template, **data)
+        log.debug('Assembled basename: "{!s}"'.format(new_name))
+        assert(isinstance(new_name, str))
+
+        if not new_name:
             log.debug('Unable to assemble basename with template "{!s}" and '
                       'data: {!s}'.format(template, data))
             raise exceptions.NameBuilderError('Unable to assemble basename')
 
-        self._new_name = result
-        return result
+        self._new_name = new_name
+        return new_name
 
 
-def assemble_basename(name_template, **kwargs):
+def populate_name_template(name_template, **kwargs):
     """
     Assembles a basename string from a given "name_template" format string
     that is populated with an arbitrary number of keyword arguments.
@@ -183,8 +203,7 @@ def format_string_placeholders(format_string):
         format_string: Format string to get placeholders from.
 
     Returns:
-        Format string placeholder fields in the text as a list of strings.
-
+        Any format string placeholder fields as a list of unicode strings.
     """
     if not format_string:
         return []
@@ -265,3 +284,13 @@ def all_template_fields_defined(template, data_sources):
             log.error('Field "{}" has not been assigned a source'.format(field))
             return False
     return True
+
+
+def has_data_for_placeholder_fields(template, data):
+    placeholder_fields = format_string_placeholders(template)
+    result = True
+    for field in placeholder_fields:
+        if field not in data.keys():
+            log.error('Missing data for placeholder field "{}"'.format(field))
+            result = False
+    return result

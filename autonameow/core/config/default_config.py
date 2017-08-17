@@ -30,7 +30,7 @@ from core import constants
 # 'filesystem.date_accessed'        Python "datetime" format
 # 'filesystem.date_created'         Python "datetime" format
 # 'filesystem.date_modified'        Python "datetime" format
-# 'contents.mime_type'              Supports simple "globbing" ('*/jpeg', 'image/*')
+# 'filesystem.contents.mime_type'   Supports simple "globbing" ('*/jpeg')
 # 'metadata.exiftool'               See note below.
 
 #   NOTE:  See this link for all available exiftool fields.
@@ -67,7 +67,7 @@ DEFAULT_CONFIG = {
          'CONDITIONS': {
              'filesystem.basename.full': 'gmail.pdf',
              'filesystem.basename.extension': 'pdf',
-             'contents.mime_type': 'application/pdf',
+             'filesystem.contents.mime_type': 'application/pdf',
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.PDF:CreateDate',
@@ -82,11 +82,23 @@ DEFAULT_CONFIG = {
          'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
              'filesystem.basename.full': 'smulan.jpg',
-             'contents.mime_type': 'image/jpeg',
+             'filesystem.contents.mime_type': 'image/jpeg',
          },
          'DATA_SOURCES': {
              'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
              'description': 'plugin.microsoft_vision.caption',
+             'extension': 'filesystem.basename.extension'
+         }
+         },
+        # ____________________________________________________________________
+        {'description': 'test_files simplest_pdf.md.pdf',
+         'exact_match': True,
+         'weight': 1,
+         'NAME_FORMAT': 'simplest_pdf.md.{extension}',
+         'CONDITIONS': {
+             'filesystem.basename.full': 'simplest_pdf.md.pdf',
+         },
+         'DATA_SOURCES': {
              'extension': 'filesystem.basename.extension'
          }
          },
@@ -99,7 +111,7 @@ DEFAULT_CONFIG = {
              'filesystem.pathname.full': '~/Pictures/incoming',
              'filesystem.basename.full': 'DCIM*',
              'filesystem.basename.extension': 'jpg',
-             'contents.mime_type': 'image/jpeg',
+             'filesystem.contents.mime_type': 'image/jpeg',
              # TODO: [TD0015] Ensure proper validation of entry below.
              'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
          },
@@ -108,9 +120,6 @@ DEFAULT_CONFIG = {
                           'metadata.exiftool.EXIF:DateTimeDigitized',
                           'metadata.exiftool.EXIF:CreateDate'],
              'description': 'plugin.microsoft_vision.caption',
-             'title': None,
-             'author': None,
-             'publisher': None,
              'extension': 'filesystem.basename.extension',
              'tags': 'plugin.microsoft_vision.tags'
          }
@@ -124,21 +133,19 @@ DEFAULT_CONFIG = {
              'filesystem.pathname.full': '.*',
              'filesystem.basename.full': '.*',
              'filesystem.basename.extension': 'epub',
-             'contents.mime_type': 'application/epub+zip',
+             'filesystem.contents.mime_type': 'application/epub+zip',
              # TODO: [TD0015] Ensure proper validation of entry below.
              'metadata.exiftool.XMP-dc:Creator': 'Defined',
          },
          'DATA_SOURCES': {
              'datetime': ['metadata.exiftool.XMP-dc:PublicationDate',
                           'metadata.exiftool.XMP-dc:Date'],
-             'description': None,
              'title': 'metadata.exiftool.XMP-dc:Title',
              'author': ['metadata.exiftool.XMP-dc:Creator',
                         'metadata.exiftool.XMP-dc:CreatorFile-as'],
              'publisher': 'metadata.exiftool.XMP-dc:Publisher',
              'edition': None,
              'extension': 'filesystem.basename.extension',
-             'tags': None
          }
          },
     ],
@@ -153,7 +160,7 @@ DEFAULT_CONFIG = {
     #
     'NAME_TEMPLATES': {
         'default_document': '{title} - {author} {datetime}.{extension}',
-        'default_book': '{publisher} {title} {edition} - {author} {date}.{extension}',
+        'default_book': '{publisher} {title} {edition} - {author} {datetime}.{extension}',
         'default_photo': '{datetime} {description} -- {tags}.{extension}'
     },
 
@@ -169,6 +176,15 @@ DEFAULT_CONFIG = {
         'date': '%Y-%m-%d',
         'time': '%H-%M-%S',
         'datetime': '%Y-%m-%dT%H%M%S'
+    },
+
+    #  Filesystem Options
+    #  ==================
+    #  Options for how filenames are written do disk. Allowed/blacklisted
+    #  characters and potentially custom replacements, etc.
+    'FILESYSTEM_OPTIONS': {
+        'sanitize_filename': True,
+        'sanitize_strict': False
     },
 
     #  Filetags Options

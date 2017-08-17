@@ -22,13 +22,12 @@
 import logging as log
 
 import analyzers
-import plugins
 from core import (
-    constants,
     exceptions,
-    util
+    util,
+    repository
 )
-from core.util.queue import GenericQueue
+from core.fileobject import FileObject
 
 
 class Analysis(object):
@@ -39,52 +38,33 @@ class Analysis(object):
     current file.  The enqueued analyzers are executed and any results are
     passed back through a callback function.
     """
-    def __init__(self, file_object, extracted_data):
+    def __init__(self, file_object):
         """
         Setup an analysis of a given file. This is done once per file.
 
         Args:
             file_object: File to analyze as an instance of class 'FileObject'.
-            extracted_data: Data from the 'Extraction' instance as an instance
-                of the 'ExtractedData' class.
         """
-        self.results = AnalysisResults()
-        self.analyzer_queue = AnalysisRunQueue()
-
+        if not isinstance(file_object, FileObject):
+            raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
-        if extracted_data:
-            self.extracted_data = extracted_data
+        self.add_to_global_data = repository.SessionRepository.store
+        self.request_global_data = repository.SessionRepository.resolve
+
+        self.analyzer_queue = AnalysisRunQueue()
 
     def collect_results(self, label, data):
         """
         Collects analysis results. Passed to analyzers as a callback.
 
-        Analyzers call this to store collected data.
-
-        If argument "data" is a dictionary, it is "flattened" here.
-        Example:
-
-          Incoming arguments:
-          LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
-
-          Would be "flattened" to:
-          LABEL: 'metadata.exiftool.a'   DATA: 'b'
-          LABEL: 'metadata.exiftool.c'   DATA: 'd'
+        Analyzers call this to pass collected data to the session repository.
 
         Args:
             label: Label that uniquely identifies the data.
             data: The data to add.
         """
-        assert label is not None and isinstance(label, str)
-
-        if isinstance(data, dict):
-            flat_data = util.flatten_dict(data)
-            for k, v in flat_data.items():
-                merged_label = label + '.' + str(k)
-                self.results.add(merged_label, v)
-        else:
-            self.results.add(label, data)
+        self.add_to_global_data(self.file_object, label, data)
 
     def start(self):
         """
@@ -96,9 +76,10 @@ class Analysis(object):
         # Run all analyzers in the queue.
         self._execute_run_queue()
 
-        log.info('Finished executing {} analyzers. Got {} results'.format(
-            len(self.analyzer_queue), len(self.results)
-        ))
+        # TODO: Fix or remove result count tally.
+        # log.info('Finished executing {} analyzers. Got {} results'.format(
+        #     len(self.analyzer_queue), len(self.results)
+        # ))
 
     def _populate_run_queue(self):
         """
@@ -126,14 +107,12 @@ class Analysis(object):
         Returns:
             One instance of each of the given classes as a list of objects.
         """
-        return [a(self.file_object, self.collect_results, self.extracted_data)
+        return [a(self.file_object, self.collect_results, self.request_global_data)
                 for a in class_list]
 
     def _execute_run_queue(self):
         """
         Executes analyzers in the analyzer run queue.
-
-        Analyzers are called sequentially, results are stored in 'self.results'.
         """
         for i, a in enumerate(self.analyzer_queue):
             log.debug('Executing queue item {}/{}: '
@@ -147,15 +126,7 @@ class Analysis(object):
             log.debug('Finished running "{!s}"'.format(a))
 
 
-def include_analyzer_name(result_list, source):
-    out = []
-    for result in result_list:
-        result['analyzer'] = str(source)
-        out.append(result)
-    return out
-
-
-class AnalysisRunQueue(GenericQueue):
+class AnalysisRunQueue(util.GenericQueue):
     """
     Execution queue for analyzers.
 
@@ -185,59 +156,3 @@ class AnalysisRunQueue(GenericQueue):
         for pos, item in enumerate(self):
             out.append('{:02d}: {!s}'.format(pos, item))
         return ', '.join(out)
-
-
-class AnalysisResults(object):
-    """
-    Container for results gathered during an analysis of a file.
-    """
-
-    def __init__(self):
-        self._data = {}
-
-    def get(self, query_string=None):
-        """
-        Returns analysis data matching the given "query string".
-
-        If the given query string does not map to any data, False is returned.
-
-        Args:
-            query_string: The query string key for the data to return.
-                Example:  'metadata.exiftool.DateTimeOriginal'
-
-        Returns:
-            Results data for the specified fields matching the specified query.
-        """
-        if not query_string:
-            return self._data
-
-        if query_string.startswith('plugin.'):
-            # TODO: [TD0009] Results should NOT be querying plugins from here!
-            # TODO: [TD0009] Rework processing pipeline to integrate plugins
-            plugin_name, plugin_query = query_string.lstrip('plugin.').split('.')
-            result = plugins.plugin_query(plugin_name, plugin_query, None)
-            return result
-        else:
-            if query_string in self._data:
-                return self._data.get(query_string)
-        return False
-
-    def add(self, field, data):
-        """
-        Adds results data for a specific field to the aggregate data.
-
-        Args:
-            field: The field type of the data to add.
-                   Must be included in "ANALYSIS_RESULTS_FIELDS".
-            data: Data to add as a list of dicts.
-
-        Raises:
-            KeyError: The specified field is not in "ANALYSIS_RESULTS_FIELDS".
-        """
-        if not field:
-            raise KeyError('Missing results field')
-
-        self._data.update({field: data})
-
-    def __len__(self):
-        return util.count_dict_recursive(self._data)

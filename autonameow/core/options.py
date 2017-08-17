@@ -79,7 +79,19 @@ def init_argparser():
         prog='autonameow',
         description='Automatic renaming of files from analysis of '
                     'several sources of information.',
-        epilog='Example usage: TODO ..'
+        epilog='',
+        formatter_class=CapitalisedHelpFormatter,
+        add_help=False
+    )
+    # Iffy, ill-advised manipulation of internals. Likely to break!
+    parser._positionals.title = 'Positional arguments'
+    parser._optionals.title = 'Optional arguments'
+
+    # Add back the default '-h'/'--help' but with proper capitalization.
+    parser.add_argument(
+        '-h', '--help', action='help',
+        default=argparse.SUPPRESS,
+        help='Show this help message and exit.'
     )
 
     optgrp_output = parser.add_mutually_exclusive_group()
@@ -88,25 +100,29 @@ def init_argparser():
         dest='debug',
         action='store_true',
         default=False,
-        help='Debug mode. Enables displaying detailed debug information.'
+        help='Enables debug mode, prints detailed debug information.'
     )
     optgrp_output.add_argument(
         '-v', '--verbose',
         dest='verbose',
         action='store_true',
         default=False,
-        help='Verbose mode. Enables displaying additional information.'
+        help='Enables verbose mode, prints additional information.'
     )
     optgrp_output.add_argument(
         '-q', '--quiet',
         dest='quiet',
         action='store_true',
         default=False,
-        help='Quiet mode. Supress all output except critical errors.'
+        help='Enables quiet mode, suppress all but critical errors.'
     )
 
-    optgrp_action = parser.add_argument_group('Action options')
-    # TODO: Replace '--list-datetime' and '--list-title' with '--list {FIELD}'
+    optgrp_action = parser.add_argument_group(
+        'Action options',
+        #description='Enable ACTIONS to perform for any matched files.'
+    )
+    # TODO: [TD0059] Replace '--list-*' options with something more flexible.
+    #       I.E. '--list-datetime' and '--list-title' could be '--list {FIELD}'
     optgrp_action.add_argument(
         '--list-datetime',
         dest='list_datetime',
@@ -125,14 +141,11 @@ def init_argparser():
         action='store_true',
         help='List all information found.'
     )
-    optgrp_action.add_argument(
-        '--prepend-datetime',
-        dest='prepend_datetime',
-        action='store_true',
-        help='Prepend most probable "date/time"-information to file names.'
-    )
 
-    optgrp_mode = parser.add_argument_group('Operating mode')
+    optgrp_mode = parser.add_argument_group(
+        'Operating mode',
+        #description='Select program operating mode. Manual or fully automatic.'
+    )
     optgrp_mode.add_argument(
         '--automagic',
         dest='automagic',
@@ -360,3 +373,16 @@ def prettyprint_options(opts, extra_opts):
     cli.msg('\n'.join(out) + '\n')
 
 
+class CapitalisedHelpFormatter(argparse.HelpFormatter):
+    """
+    Fix for capitalization of the usage help text.
+
+    Based on the following post:
+    https://stackoverflow.com/a/35848313
+    https://stackoverflow.com/questions/35847084/customize-argparse-help-message
+    """
+    def add_usage(self, usage, actions, groups, prefix=None):
+        if prefix is None:
+            prefix = 'Usage: '
+        return super(CapitalisedHelpFormatter, self).add_usage(
+            usage, actions, groups, prefix)

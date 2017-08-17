@@ -23,12 +23,10 @@ import logging as log
 
 import extractors
 from core import (
-    constants,
     util,
-    types
+    exceptions,
+    repository
 )
-from core.exceptions import InvalidDataSourceError
-from core.util.queue import GenericQueue
 
 
 class Extraction(object):
@@ -36,8 +34,6 @@ class Extraction(object):
     Performs high-level handling of data extraction.
 
     A run queue is populated with extractors suited for the current file.
-    The enqueued extractors are executed and any results are passed back
-    through a callback function.
     """
     def __init__(self, file_object):
         """
@@ -47,40 +43,19 @@ class Extraction(object):
             file_object: File to extract data from, as a 'FileObject' instance.
         """
         self.file_object = file_object
+        self.add_to_global_data = repository.SessionRepository.store
 
-        self.data = ExtractedData()
-        self.extractor_queue = GenericQueue()
+        self.extractor_queue = util.GenericQueue()
 
     def collect_results(self, label, data):
         """
-        Collects extracted data. Passed to extractors as a callback.
-
-        If argument "data" is a dictionary, it is "flattened" here.
-        Example:
-
-          Incoming arguments:
-          LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
-
-          Would be "flattened" to:
-          LABEL: 'metadata.exiftool.a'   DATA: 'b'
-          LABEL: 'metadata.exiftool.c'   DATA: 'd'
+        Collects extractor data, passes it the the session repository.
 
         Args:
             label: Label that uniquely identifies the data.
             data: The data to add.
         """
-        if not label:
-            raise InvalidDataSourceError('Missing required argument "label"')
-        if not isinstance(label, str):
-            raise InvalidDataSourceError('Argument "label" must be of type str')
-
-        if isinstance(data, dict):
-            flat_data = util.flatten_dict(data)
-            for k, v in flat_data.items():
-                merged_label = label + '.' + str(k)
-                self.data.add(merged_label, v)
-        else:
-            self.data.add(label, data)
+        self.add_to_global_data(self.file_object, label, data)
 
     def start(self, require_extractors=None, require_all_extractors=False):
         """
@@ -94,8 +69,9 @@ class Extraction(object):
         else:
             required_extractors = []
 
-        # Select extractors based on detected file type.
+        # Get all extractors that can handle the current file.
         classes = extractors.suitable_data_extractors_for(self.file_object)
+        log.debug('Extractors able to handle the file: {}'.format(len(classes)))
 
         if not require_all_extractors:
             # Exclude "slow" extractors if they are not explicitly required.
@@ -103,44 +79,18 @@ class Extraction(object):
                                                        required_extractors)
 
         log.debug('Got {} suitable extractors'.format(len(classes)))
-        instances = self._instantiate_extractors(classes)
 
-        for e in instances:
-            self.extractor_queue.enqueue(e)
+        for instance in self._instantiate_extractors(classes):
+            self.extractor_queue.enqueue(instance)
         log.debug('Enqueued extractors: {!s}'.format(self.extractor_queue))
-
-        # Add information from 'FileObject' to results.
-        # TODO: [TD0053] Fix special case of collecting data from 'FileObject'.
-
-        # TODO: Move this to a "PlatformIndependentFilesystemExtractor"?
-        # NOTE: Move would make little sense aside from maybe being
-        #       a bit more consistent with the class hierarchy, etc.
-
-        # NOTE(jonas): Store bytestring versions of original file name
-        # components? If the user wants to use parts of the original file
-        # name in the new name, conversion can't be lossy. Solve by storing
-        # bytestring versions of these fields as well?
-        self.collect_results('filesystem.basename.full',
-                             types.AW_PATHCOMPONENT(self.file_object.filename))
-        self.collect_results('filesystem.basename.extension',
-                             types.AW_PATHCOMPONENT(self.file_object.suffix))
-        self.collect_results('filesystem.basename.suffix',
-                             types.AW_PATHCOMPONENT(self.file_object.suffix))
-        self.collect_results('filesystem.basename.prefix',
-                             types.AW_PATHCOMPONENT(self.file_object.fnbase))
-        self.collect_results('filesystem.pathname.full',
-                             types.AW_PATH(self.file_object.pathname))
-        self.collect_results('filesystem.pathname.parent',
-                             types.AW_PATH(self.file_object.pathparent))
-        self.collect_results('contents.mime_type',
-                             self.file_object.mime_type)
 
         # Execute all suitable extractors and collect results.
         self._execute_run_queue()
 
-        log.info('Finished executing {} extractors. Got {} results'.format(
-            len(self.extractor_queue), len(self.data)
-        ))
+        # TODO: Fix or remove result count tally.
+        # log.info('Finished executing {} extractors. Got {} results'.format(
+        #     len(self.extractor_queue), len(self.data)
+        # ))
 
     def _instantiate_extractors(self, class_list):
         """
@@ -152,8 +102,16 @@ class Extraction(object):
         Returns:
             One instance of each of the given classes as a list of objects.
         """
-        data_source = self.file_object.abspath
-        return [e(data_source) for e in class_list]
+        instances = []
+
+        for klass in class_list:
+            if klass.__name__ == 'CommonFileSystemExtractor':
+                # Special case where the source should be a 'FileObject'.
+                instances.append(klass(self.file_object))
+            else:
+                instances.append(klass(self.file_object.abspath))
+
+        return instances
 
     def _execute_run_queue(self):
         """
@@ -164,55 +122,6 @@ class Extraction(object):
                       '{!s}'.format(i + 1, len(self.extractor_queue), e))
 
             self.collect_results(e.data_query_string, e.query())
-
-
-class ExtractedData(object):
-    """
-    Container for data gathered by extractors.
-    """
-    def __init__(self):
-        self._data = {}
-
-    def add(self, label, data):
-        if not data:
-            return
-        if not label:
-            raise InvalidDataSourceError('Invalid source (missing label)')
-        else:
-            # TODO: Necessary to handle multiple adds to the same label?
-            if label in self._data:
-                t = self._data[label]
-                self._data[label] = [t] + [data]
-            else:
-                self._data[label] = data
-
-    def get(self, label=None):
-        """
-        Returns extracted data, optionally matching the specified label.
-
-        Args:
-            One of the strings defined in "constants.VALID_DATA_SOURCES".
-        Returns:
-            Extracted data associated with the given label, or False if the
-            data does not exist. If no label is specified, all data is returned.
-        Raises:
-            InvalidDataSourceError: The label is not a valid data source.
-        """
-        if label is not None:
-            if label not in constants.VALID_DATA_SOURCES:
-                log.critical(
-                    'ExtractedData.get() got bad label: "{}"'.format(label)
-                )
-            return self._data.get(label, False)
-        else:
-            return self._data
-
-    def __iter__(self):
-        for k, v in self._data.items():
-            yield (k, v)
-
-    def __len__(self):
-        return util.count_dict_recursive(self._data)
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):

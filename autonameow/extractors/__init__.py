@@ -23,8 +23,8 @@ import inspect
 import os
 import sys
 
+from core import util
 from core.fileobject import (
-    eval_magic_glob,
     FileObject
 )
 
@@ -71,7 +71,6 @@ class BaseExtractor(object):
     handles_mime_types = None
 
     # Query string label for the data returned by this extractor.
-
     # Example:  'metadata.exiftool'
     data_query_string = None
 
@@ -102,6 +101,12 @@ class BaseExtractor(object):
         Argument "field" is optional. All data is returned by default.
         If the data is text, is should be returned as Unicode strings.
 
+        Implementing classes should make sure to catch all exceptions and
+        re-raise an "ExtractorError", passing any valuable information along.
+        Only raise the "ExtractorError" exception for any irrecoverable errors.
+        Otherwise, implementers should strive to return empty values of the
+        same type as that of the expected, valid data.
+
         Args:
             field: Optional refinement of the query.
                 Expect format and type is defined by the extractor class.
@@ -109,6 +114,9 @@ class BaseExtractor(object):
         Returns:
             All data gathered by the extractor if no field is specified.
             Else the data matching the specified field.
+
+        Raises:
+            ExtractorError: The extraction could not be completed successfully.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
@@ -134,7 +142,7 @@ class BaseExtractor(object):
         if cls.handles_mime_types is None:
             raise NotImplementedError('Must be defined by inheriting classes.')
 
-        if eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
+        if util.eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
             return True
         else:
             return False
@@ -208,47 +216,32 @@ def suitable_data_extractors_for(file_object):
     return [e for e in ExtractorClasses if e.can_handle(file_object)]
 
 
-def get_query_strings():
+def map_query_string_to_extractors():
     """
-    Get the set of "query strings" for all extractor classes.
+    Returns a mapping of the extractor "query strings" and extractor classes.
 
-    Returns:
-        Unique extractor query strings as a set.
+    Each extractor class defines 'data_query_string' which is used as the
+    first part of all data returned by the extractor.
+    Multiple extractors can use the same 'data_query_string'; for instance,
+    the 'PdfTextExtractor' and 'PlainTextExtractor' classes both define the
+    same query string, 'contents.textual.raw_text'.
+
+    Returns: A dictionary where the keys are "query strings" and the values
+        are lists of extractor classes.
     """
-    out = set()
-    for e in ExtractorClasses:
-        if e.data_query_string:
-            out.add(e.data_query_string)
+    out = {}
 
-    # TODO: [TD0053] Fix special case of collecting data from 'FileObject'.
-    out.add('filesystem.basename.full')
-    out.add('filesystem.basename.extension')
-    out.add('filesystem.basename.suffix')
-    out.add('filesystem.basename.prefix')
-    out.add('filesystem.pathname.full')
-    out.add('filesystem.pathname.parent')
-    out.add('contents.mime_type')
+    for klass in ExtractorClasses:
+        if not klass.data_query_string:
+            # print('Extractor class "{!s}" did not provide a "data_query_string"'.format(klass))
+            continue
+
+        if klass.data_query_string in out:
+            out[klass.data_query_string].append(klass)
+        else:
+            out[klass.data_query_string] = [klass]
+
     return out
-
-
-def get_metadata_query_strings():
-    _abstract_classes = get_abstract_extractor_classes(find_extractor_files())
-
-    klasses = False
-    for klass in _abstract_classes:
-        if klass == 'AbstractMetadataExtractor':
-            klasses = [k for k in klass.__subclasses__()]
-
-    if not klasses:
-        return None
-
-    out = set()
-    for e in klasses:
-        if e.data_query_string:
-            out.add(e.data_query_string)
-    return out
-
 
 ExtractorClasses = get_extractor_classes(find_extractor_files())
-QueryStrings = get_query_strings()
-MetadataExtractorQueryStrings = get_metadata_query_strings()
+QueryStringClassMap = map_query_string_to_extractors()

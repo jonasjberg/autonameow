@@ -113,3 +113,35 @@ class TestIndent(TestCase):
                   'XX  bar\n'
                   'XXbaz\n')
         self.assertEqual(textutils.indent(input_, ch='X', amount=2), expect)
+
+
+class TestExtractDigits(TestCase):
+    def test_extract_digits_is_defined(self):
+        self.assertIsNotNone(textutils.extract_digits)
+
+    def test_extract_digits_returns_none_if_input_has_no_digits(self):
+        def _assert_is_none(test_data):
+            self.assertIsNone(textutils.extract_digits(test_data))
+
+        _assert_is_none('')
+        _assert_is_none(' ')
+        _assert_is_none('_')
+        _assert_is_none('ö')
+        _assert_is_none('foo')
+
+    def test_extract_digits_returns_only_digits_of_input_string(self):
+        def _assert_equal(test_data, expect):
+            actual = textutils.extract_digits(test_data)
+            self.assertTrue(isinstance(actual, str))
+            self.assertEqual(actual, expect)
+
+        _assert_equal('0', '0')
+        _assert_equal('1', '1')
+        _assert_equal('1', '1')
+        _assert_equal('_1', '1')
+        _assert_equal('foo1', '1')
+        _assert_equal('foo1bar', '1')
+        _assert_equal('foo1bar2', '12')
+        _assert_equal('1a2b3c4d', '1234')
+        _assert_equal('  1a2b3c4d', '1234')
+        _assert_equal('  1a2b3c4d  _', '1234')

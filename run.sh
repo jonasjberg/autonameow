@@ -31,10 +31,28 @@
 # Make sure that Python 3 is available.
 if ! command -v python3 >/dev/null 2>&1
 then
-    echo "[ERROR] This program requires Python v3.x to run."
-    echo "        Please install python3 and make sure it is executable."
+    cat >&2 <<EOF
+
+[ERROR] This program requires Python v3.x to run.
+        Please install python3 and make sure it is executable.
+
+EOF
     exit 1
 fi
+
+
+# Check if running on a supported/target operating system.
+case $OSTYPE in
+    darwin*) ;;
+     linux*) ;;
+          *) cat >&2 <<EOF
+
+[WARNING] Running on unsupported operating system "$OSTYPE"
+          autonameow has NOT been thoroughly tested on this OS!
+
+EOF
+;;
+esac
 
 
 # Get the absolute path of the main module.
@@ -51,7 +69,7 @@ then
     # Using GNU coreutils version of readlink.
     AUTONAMEOW_PATH="$(dirname -- "$(readlink -fn -- "$0")")"
 else
-    # Running on MacOS.
+    # Not using GNU coreutils readlink or readlink is not available.
 
     # TODO: Untange symlinks and get an absolute path.
     AUTONAMEOW_PATH="$(dirname -- "$0")"

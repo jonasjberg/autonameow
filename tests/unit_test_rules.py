@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 
+from core import exceptions
 from core.config import rules
 
 
@@ -74,10 +75,8 @@ class TestRuleConditionFromValidInput(TestCase):
 
 class TestRuleConditionFromInvalidInput(TestCase):
     def _assert_invalid(self, query, data):
-        # with self.assertRaises((ValueError, TypeError)):
-        #     actual = rules.get_valid_rule_condition(query, data)
-        actual = rules.get_valid_rule_condition(query, data)
-        self.assertFalse(actual)
+        with self.assertRaises(exceptions.InvalidFileRuleError):
+            _ = rules.get_valid_rule_condition(query, data)
 
     def test_invalid_condition_contents_mime_type(self):
         self._assert_invalid('contents.mime_type', None)
@@ -171,8 +170,8 @@ class TestGetValidRuleCondition(TestCase):
         self.assertTrue(isinstance(actual, rules.RuleCondition))
 
     def _assert_invalid(self, query, data):
-        actual = rules.get_valid_rule_condition(query, data)
-        self.assertFalse(actual)
+        with self.assertRaises(exceptions.InvalidFileRuleError):
+            _ = rules.get_valid_rule_condition(query, data)
 
     def test_returns_valid_rule_condition_for_valid_query_valid_data(self):
         self._assert_valid('contents.mime_type', 'application/pdf')

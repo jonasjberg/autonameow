@@ -30,12 +30,13 @@ from core.util import dateandtime
 class ImageAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     handles_mime_types = ['image/*']
+    data_query_string = 'analysis.image'
 
-    def __init__(self, file_object, add_results_callback, extracted_data):
+    def __init__(self, file_object, add_results_callback,
+                 request_data_callback):
         super(ImageAnalyzer, self).__init__(
-            file_object, add_results_callback, extracted_data
+            file_object, add_results_callback, request_data_callback
         )
-        self.add_results = add_results_callback
 
         self.exiftool = None
         self.exif_data = None
@@ -49,8 +50,10 @@ class ImageAnalyzer(BaseAnalyzer):
         self.add_results(query_string, data)
 
     def run(self):
-        self.exif_data = self.extracted_data.get('metadata.exiftool')
-        self.ocr_text = self.extracted_data.get('contents.visual.ocr_text')
+        self.exif_data = self.request_data(self.file_object,
+                                           'metadata.exiftool')
+        self.ocr_text = self.request_data(self.file_object,
+                                          'contents.visual.ocr_text')
 
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)

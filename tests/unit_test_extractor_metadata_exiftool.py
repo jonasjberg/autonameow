@@ -24,7 +24,7 @@ from unittest import TestCase
 
 from core import util
 from core.exceptions import ExtractorError
-from extractors.metadata import ExiftoolMetadataExtractor
+from extractors.metadata_exiftool import ExiftoolMetadataExtractor
 import unit_utils as uu
 
 
@@ -68,8 +68,8 @@ class TestExiftoolMetadataExtractor(TestCase):
     def test_get_exiftool_data_returns_expected_type(self):
         self.assertTrue(isinstance(self.e._get_exiftool_data(), dict))
 
-    def test_get_exiftool_data_raises_expected_exceptions(self):
-        with self.assertRaises((AttributeError, ValueError, TypeError)):
+    def test_get_exiftool_data_raises_expected_exception(self):
+        with self.assertRaises(ExtractorError):
             e = ExiftoolMetadataExtractor(None)
             e._get_exiftool_data()
             f = ExiftoolMetadataExtractor('not_a_file_surely')

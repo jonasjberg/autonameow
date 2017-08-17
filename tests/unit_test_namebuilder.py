@@ -22,7 +22,7 @@
 from unittest import TestCase
 
 from core.evaluate.namebuilder import (
-    assemble_basename,
+    populate_name_template,
     format_string_placeholders,
     all_template_fields_defined
 )
@@ -33,7 +33,7 @@ class TestNameBuilder(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-    def test_assemble_basename_using_template_1_given_all_fields(self):
+    def test_populate_name_template_using_template_1_given_all_fields(self):
         template = '{title} - {author} {datetime}.{extension}'
         data = {'title': '11 years old and dying',
                 'author': 'Gibson',
@@ -41,18 +41,18 @@ class TestNameBuilder(TestCase):
                 'extension': 'pdf'}
         expected = '11 years old and dying - Gibson 2017-05-27.pdf'
 
-        self.assertEqual(assemble_basename(template, **data), expected)
+        self.assertEqual(populate_name_template(template, **data), expected)
 
-    def test_assemble_basename_using_template_1_some_fields_missing(self):
+    def test_populate_name_template_using_template_1_some_fields_missing(self):
         with self.assertRaises(NameTemplateSyntaxError):
             template = '{title} - {author} {datetime}.{extension}'
             data = {'author': None,
                     'datetime': '2017-05-27',
                     'extension': None}
             expected = '11 years old and dying - Gibson 2017-05-27.pdf'
-            self.assertEqual(assemble_basename(template, **data), expected)
+            self.assertEqual(populate_name_template(template, **data), expected)
 
-    def test_assemble_basename_using_template_2_given_all_fields(self):
+    def test_populate_name_template_using_template_2_given_all_fields(self):
         template = '{publisher} {title} {edition} - {author} {date}.{extension}'
         data = {'title': '11 years old and dying',
                 'publisher': 'CatPub',
@@ -62,14 +62,14 @@ class TestNameBuilder(TestCase):
                 'extension': 'pdf'}
         expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
 
-        self.assertEqual(assemble_basename(template, **data), expected)
+        self.assertEqual(populate_name_template(template, **data), expected)
 
-    def test_assemble_basename_using_template_2_all_fields_missing(self):
+    def test_populate_name_template_using_template_2_all_fields_missing(self):
         with self.assertRaises(NameTemplateSyntaxError):
             template = '{publisher} {title} {edition} - {author} {date}.{extension}'
             data = {}
             expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
-            self.assertEqual(assemble_basename(template, **data), expected)
+            self.assertEqual(populate_name_template(template, **data), expected)
 
 
 class TestFormatStringPlaceholders(TestCase):

@@ -253,3 +253,141 @@ def count_dict_recursive(dictionary, count=0):
 
     return count
 
+
+def expand_query_string_data_dict(query_string_dict):
+    """
+    Performs the reverse operation of that of 'flatten_dict'.
+
+    A dictionary with "query strings" as keys storing data in each value is
+    expanded by splitting the query strings by periods and creating a
+    nested dictionary.
+
+    Args:
+        query_string_dict: Dictionary keyed by "query strings".
+
+    Returns:
+        An "expanded" or "unflattened" version of the given dictionary.
+    """
+    if not query_string_dict or not isinstance(query_string_dict, dict):
+        raise TypeError
+
+    out = {}
+    for key, value in query_string_dict.items():
+        key_parts = key.split('.')
+        nested_dict_set(out, key_parts, value)
+
+    return out
+
+
+def nested_dict_get(dictionary, list_of_keys):
+    """
+    Retrieves a value from a given nested dictionary structure.
+
+    The structure is traversed by accessing each key in the given list of keys
+    in order.
+
+    Based on this post:  https://stackoverflow.com/a/37704379/7802196
+
+    Args:
+        dictionary: The dictionary structure to traverse.
+        list_of_keys: List of keys to use during the traversal.
+
+    Returns:
+        The value in the nested structure, if successful.
+
+    Raises:
+        KeyError: Failed to retrieve any value with the given list of keys.
+    """
+    if not list_of_keys or not isinstance(list_of_keys, list):
+        raise TypeError('Expected "list_of_keys" to be a list of strings')
+
+    for k in list_of_keys:
+        try:
+            dictionary = dictionary[k]
+        except TypeError:
+            raise KeyError('Thing is not subscriptable (traversed too deep?)')
+    return dictionary
+
+
+def nested_dict_set(dictionary, list_of_keys, value):
+    """
+    Sets a value in a nested dictionary structure.
+
+    The structure is traversed using the given list of keys and the destination
+    dictionary is set to the given value, unless the traversal fails by
+    attempting to overwrite an already existing value with a new dictionary
+    entry.
+
+    Note that the dictionary is modified IN PLACE.
+
+    Based on this post:  https://stackoverflow.com/a/37704379/7802196
+
+    Args:
+        dictionary: The dictionary from which to retrieve a value.
+        list_of_keys: List of keys to the value to set.
+        value: The new value that will be set.
+    """
+    if not list_of_keys or not isinstance(list_of_keys, list):
+        raise TypeError('Expected "list_of_keys" to be a list of strings')
+    elif all(not k for k in list_of_keys):
+        raise ValueError('Expected "list_of_keys" not to be all None/empty')
+
+    for key in list_of_keys[:-1]:
+        dictionary = dictionary.setdefault(key, {})
+
+    try:
+        dictionary[list_of_keys[-1]] = value
+    except TypeError:
+        raise KeyError('Caught TypeError (would have clobbered existing value)')
+
+
+def eval_magic_glob(mime_to_match, glob_list):
+    """
+    Tests if a given MIME type string matches any of the specified globs.
+
+    The MIME types consist of a "type" and a "subtype", separated by '/'.
+    For instance; "image/jpg" or "application/pdf".
+
+    Globs can substitute either one or both of "type" and "subtype" with an
+    asterisk to ignore that part. Examples:
+
+        mime_to_match         glob_list                 evaluates
+        'image/jpg'           ['image/jpg']             True
+        'image/png'           ['image/*']               True
+        'application/pdf'     ['*/*']                   True
+        'application/pdf'     ['image/*', '*/jpg']      False
+
+    Args:
+        mime_to_match: The MIME to match against the globs as a string.
+        glob_list: A list of globs as strings.
+
+    Returns:
+        True if the given MIME type matches any of the specified globs.
+    """
+    if not mime_to_match or not glob_list:
+        return False
+
+    if not isinstance(glob_list, list):
+        glob_list = [glob_list]
+
+    mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
+
+    for glob in glob_list:
+        if glob == mime_to_match:
+            return True
+        elif '*' in glob:
+            try:
+                glob_type, glob_subtype = glob.split('/')
+            except ValueError:
+                # NOTE(jonas): Raise exception? Use sophisticated glob parser?
+                raise
+            if glob_type == '*' and glob_subtype == '*':
+                # Matches everything.
+                return True
+            elif glob_type == '*' and glob_subtype == mime_to_match_subtype:
+                # Matches any type. Tests subtype equality.
+                return True
+            elif glob_type == mime_to_match_type and glob_subtype == '*':
+                # Checks type equality. Matches any subtype.
+                return True
+    return False

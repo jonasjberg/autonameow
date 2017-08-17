@@ -28,7 +28,6 @@ import unicodedata
 from core import (
     constants,
     util,
-    fileobject,
     exceptions
 )
 from core.evaluate import namebuilder
@@ -213,17 +212,36 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['contents.mime_type']
+    applies_to_field = ['*.mime_type']
 
     @staticmethod
     def is_valid_mime_type(expression):
         if not expression:
             return False
 
-        # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
-        if re.match(r'^([a-z]+|\*)/([a-z0-9\-+]+|\*)$', expression):
-            return True
+        if not isinstance(expression, list):
+            expression = [expression]
 
+        for expr in expression:
+            if not expr or not isinstance(expr, (str, bytes)):
+                return False
+
+            # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
+            if not re.match(r'^([a-z]+|\*)/([a-z0-9\-+]+|\*)$', expr):
+                return False
+
+        return True
+
+    @staticmethod
+    def evaluate_mime_type_globs(expression, mime_to_match):
+        if not isinstance(expression, list):
+            expression = [expression]
+
+        # True is returned if any of the given expressions evaluates true.
+        for expr in expression:
+            evaluates_true = util.eval_magic_glob(mime_to_match, expr)
+            if evaluates_true:
+                return True
         return False
 
     @classmethod
@@ -235,9 +253,7 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
         """
         Returns: A function that in turn returns either True or False.
         """
-        # TODO: [TD0015] Handle expression in 'condition_value'
-        #                ('Defined', '> 2017', etc)
-        return fileobject.eval_magic_glob
+        return cls.evaluate_mime_type_globs
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
@@ -277,7 +293,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
             return False
 
         try:
-            namebuilder.assemble_basename(expression, **DATA_FIELDS)
+            namebuilder.populate_name_template(expression, **DATA_FIELDS)
         except exceptions.NameTemplateSyntaxError:
             return False
         else:

@@ -20,7 +20,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
+import inspect
 import os
 import io
 import tempfile
@@ -28,9 +28,10 @@ import sys
 import unittest
 
 from contextlib import contextmanager
+from datetime import datetime
 
 import analyzers
-from core.extraction import ExtractedData
+from core.config import rules
 from core.fileobject import FileObject
 from core import util
 
@@ -156,16 +157,93 @@ def get_mock_empty_extractor_data():
     return {}
 
 
-def get_mock_extractor_data():
+def mock_request_data_callback(file_object, label):
+    data = mock_session_data_pool_with_extractor_and_analysis_data(file_object)
+    try:
+        d = util.nested_dict_get(data, [file_object, label])
+    except KeyError:
+        return None
+    else:
+        return d
+
+
+def mock_session_data_pool(file_object):
     """
-    Returns: Mock extracted data from an 'Extraction' instance.
+    Returns: Mock session data pool with typical extractor data.
     """
-    data = ExtractedData()
-    data.add('filesystem.basename.extension', 'bar')
-    data.add('filesystem.basename.full', 'foo.bar')
-    data.add('filesystem.basename.prefix', 'foo')
-    data.add('filesystem.basename.suffix', 'bar')
-    data.add('metadata.exiftool', {'File:MIMEType': 'application/bar'})
+    data = {}
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.full'], b'gmail.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.extension'], b'pdf.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.suffix'], b'pdf.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.pathname.parent'], b'test_files')
+    util.nested_dict_set(data, [file_object, 'contents.mime_type'], 'application/pdf')
+    util.nested_dict_set(data, [file_object, 'metadata.exiftool.PDF:Creator'], 'Chromium')
+    util.nested_dict_set(data, [file_object, 'metadata.exiftool'], {'File:MIMEType': 'application/bar'})
+
+    return data
+
+
+def mock_session_data_pool_empty_analysis_data(file_object):
+    data = {}
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.datetime'], [])
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.tags'], [])
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.title'], [])
+    util.nested_dict_set(data, [file_object, 'analysis.filesystem_analyzer.datetime'], [])
+    util.nested_dict_set(data, [file_object, 'analysis.filesystem_analyzer.tags'], [])
+    util.nested_dict_set(data, [file_object, 'analysis.filesystem_analyzer.title'], [])
+    return data
+
+
+def mock_session_data_pool_with_analysis_data(file_object):
+    data = {}
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.tags'],
+             [{'source': 'filenamepart_tags',
+               'value': ['tagfoo', 'tagbar'],
+               'weight': 1}])
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.title'],
+             [{'source': 'filenamepart_base',
+               'value': 'gmail',
+               'weight': 0.25}])
+    util.nested_dict_set(data, [file_object, 'analysis.filesystem_analyzer.datetime'],
+             [{'source': 'modified',
+               'value': datetime(2017, 6, 12, 22, 38, 34),
+               'weight': 1},
+              {'source': 'created',
+               'value': datetime(2017, 6, 12, 22, 38, 34),
+               'weight': 1},
+              {'source': 'accessed',
+               'value': datetime(2017, 6, 12, 22, 38, 34),
+               'weight': 0.25}])
+    return data
+
+
+def mock_session_data_pool_with_extractor_and_analysis_data(file_object):
+    data = {}
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.full'], b'gmail.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.extension'], b'pdf.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.basename.suffix'], b'pdf.pdf')
+    util.nested_dict_set(data, [file_object, 'filesystem.pathname.parent'], b'test_files')
+    util.nested_dict_set(data, [file_object, 'contents.mime_type'], 'application/pdf')
+    util.nested_dict_set(data, [file_object, 'metadata.exiftool.PDF:Creator'], 'Chromium')
+    util.nested_dict_set(data, [file_object, 'metadata.exiftool'], {'File:MIMEType': 'application/bar'})
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.tags'],
+                         [{'source': 'filenamepart_tags',
+                           'value': ['tagfoo', 'tagbar'],
+                           'weight': 1}])
+    util.nested_dict_set(data, [file_object, 'analysis.filename_analyzer.title'],
+                         [{'source': 'filenamepart_base',
+                           'value': 'gmail',
+                           'weight': 0.25}])
+    util.nested_dict_set(data, [file_object, 'analysis.filesystem_analyzer.datetime'],
+                         [{'source': 'modified',
+                           'value': datetime(2017, 6, 12, 22, 38, 34),
+                           'weight': 1},
+                          {'source': 'created',
+                           'value': datetime(2017, 6, 12, 22, 38, 34),
+                           'weight': 1},
+                          {'source': 'accessed',
+                           'value': datetime(2017, 6, 12, 22, 38, 34),
+                           'weight': 0.25}])
     return data
 
 
@@ -233,3 +311,150 @@ def get_instantiated_analyzers():
     #       problem and is surely not very pretty.
     return [klass(None, None, None) for klass in
             analyzers.get_analyzer_classes()]
+
+
+def get_dummy_rules_to_examine():
+    out = []
+
+    dummy_conditions = [
+        [rules.RuleCondition('contents.mime_type', 'application/pdf'),
+         rules.RuleCondition('filesystem.basename.extension', 'pdf'),
+         rules.RuleCondition('filesystem.basename.full', 'gmail.pdf')],
+
+        [rules.RuleCondition('contents.mime_type', 'image/jpeg'),
+         rules.RuleCondition('filesystem.basename.full', 'smulan.jpg')],
+
+        [rules.RuleCondition('contents.mime_type', 'image/jpeg'),
+         rules.RuleCondition('filesystem.basename.extension', 'jpg'),
+         rules.RuleCondition('filesystem.basename.full', 'DCIM*'),
+         rules.RuleCondition('filesystem.pathname.full', '~/Pictures/incoming'),
+         rules.RuleCondition('metadata.exiftool.EXIF:DateTimeOriginal',
+                             'Defined')],
+
+        [rules.RuleCondition('contents.mime_type', 'application/epub+zip'),
+         rules.RuleCondition('filesystem.basename.extension', 'epub'),
+         rules.RuleCondition('filesystem.basename.full', '.*'),
+         rules.RuleCondition('filesystem.pathname.full', '.*'),
+         rules.RuleCondition('metadata.exiftool.XMP-dc:Creator', 'Defined')],
+    ]
+
+    dummy_sources = [
+        {'datetime': 'metadata.exiftool.PDF:CreateDate',
+         'extension': 'filesystem.basename.extension',
+         'title': 'filesystem.basename.prefix'},
+
+        {'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
+         'description': 'plugin.microsoft_vision.caption',
+         'extension': 'filesystem.basename.extension'},
+
+        {'datetime': 'metadata.exiftool.EXIF:CreateDate',
+         'description': 'plugin.microsoft_vision.caption',
+         'extension': 'filesystem.basename.extension'},
+
+        {'author': 'metadata.exiftool.XMP-dc:CreatorFile-as',
+         'datetime': 'metadata.exiftool.XMP-dc:Date',
+         'extension': 'filesystem.basename.extension',
+         'publisher': 'metadata.exiftool.XMP-dc:Publisher',
+         'title': 'metadata.exiftool.XMP-dc:Title'},
+    ]
+
+    out.append(rules.FileRule(
+        description='test_files Gmail print-to-pdf',
+        exact_match=True,
+        weight=0.5,
+        name_template='{datetime} {title}.{extension}',
+        conditions=dummy_conditions[0],
+        data_sources=dummy_sources[0]
+    ))
+    out.append(rules.FileRule(
+        description='test_files smulan.jpg',
+        exact_match=True,
+        weight=1.0,
+        name_template='{datetime} {description}.{extension}',
+        conditions=dummy_conditions[1],
+        data_sources=dummy_sources[1]
+    ))
+    out.append(rules.FileRule(
+        description='Sample Entry for Photos with strict rules',
+        exact_match=True,
+        weight=1.0,
+        name_template='{datetime} {description} -- {tags}.{extension}',
+        conditions=dummy_conditions[1],
+        data_sources=dummy_sources[1]
+    ))
+    out.append(rules.FileRule(
+        description='Sample Entry for EPUB e-books',
+        exact_match=True,
+        weight=1.0,
+        name_template='{publisher} {title} {edition} - {author} {date}.{extension}',
+        conditions=dummy_conditions[1],
+        data_sources=dummy_sources[1]
+    ))
+
+    return out
+
+
+def is_class_instance(thing):
+    """
+    Tests whether a given object is a instance of a class.
+
+    Args:
+        thing: The object to test.
+
+    Returns:
+        True if the given object is an instance of a class, otherwise False.
+    """
+    if not thing:
+        return False
+    if isinstance(thing,
+                  (type, bool, str, bytes, int, float, list, set, tuple)):
+        return False
+
+    if hasattr(thing, '__class__'):
+        return True
+
+    # Make sure to always return boolean. Catches case where "thing" is a
+    # built-in/primitive not included in the messy "isinstance"-check ..
+    return False
+
+
+def is_class(thing):
+    """
+    Tests whether a given object is an (uninstantiated) class.
+
+    Args:
+        thing: The object to test.
+
+    Returns:
+        True if the given object is a class, otherwise False.
+    """
+    return inspect.isclass(thing)
+
+
+def str_to_datetime(yyyy_mm_ddthhmmss):
+    """
+    Converts a string on the form "YYYY-MM-DD HHMMSS" to a 'datetime' object.
+
+    Args:
+        yyyy_mm_ddthhmmss: String to convert.
+
+    Returns:
+        A 'datetime' object if the conversion was successful.
+    Raises:
+        ValueError: The string could not be converted.
+    """
+    return datetime.strptime(yyyy_mm_ddthhmmss, '%Y-%m-%d %H%M%S')
+
+
+def is_importable(module_name):
+    """
+    Tests if a given module can be imported without raising an exception.
+
+    Returns: True if the module was successfully imported, otherwise False.
+    """
+    try:
+        _ = __import__(module_name, None, None)
+    except (TypeError, ValueError, ImportError):
+        return False
+    else:
+        return True

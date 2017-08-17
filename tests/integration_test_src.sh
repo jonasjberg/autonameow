@@ -23,6 +23,7 @@ set -o noclobber -o nounset -o pipefail
 
 SELF="$(basename "$0")"
 SELF_DIR="$(dirname "$0")"
+TESTSUITE_NAME='Source Code'
 
 # Source 'integration_utils.sh', which in turn sources 'common_utils.sh'.
 if ! source "${SELF_DIR}/integration_utils.sh"
@@ -40,7 +41,7 @@ fi
 time_start="$(current_unix_time)"
 
 logmsg "Started \"${SELF}\""
-logmsg "Running the Source Code test suite .."
+logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 
 
@@ -54,7 +55,6 @@ assert_false 'grep -qE -- "def print.*\(" "$ANALYSIS_RESULTS"' \
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
-total_time="$((($time_end - $time_start) / 1000000))"
+total_time="$(calculate_execution_time "$time_start" "$time_end")"
 
-calculate_statistics
-logmsg "Completed the Source Code test suite tests in ${total_time} ms"
+log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"

@@ -28,12 +28,13 @@ from core.util import dateandtime
 class PdfAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['application/pdf']
+    data_query_string = 'analysis.pdf'
 
-    def __init__(self, file_object, add_results_callback, extracted_data):
+    def __init__(self, file_object, add_results_callback,
+                 request_data_callback):
         super(PdfAnalyzer, self).__init__(
-            file_object, add_results_callback, extracted_data
+            file_object, add_results_callback, request_data_callback
         )
-        self.add_results = add_results_callback
 
         self.text = None
 
@@ -45,7 +46,11 @@ class PdfAnalyzer(BaseAnalyzer):
         self.add_results(query_string, data)
 
     def run(self):
-        self.text = self.extracted_data.get('contents.textual.raw_text')
+        self.text = self.request_data(self.file_object,
+                                      'contents.textual.raw_text')
+
+    # def request_data(self, file_object, label):
+    #     util.nested_dict_get(self.session_data, [file_object, label])
 
         # Pass results through callback function provided by the 'Analysis'.
         self._add_results('author', self.get_author())
@@ -54,7 +59,7 @@ class PdfAnalyzer(BaseAnalyzer):
         self._add_results('publisher', self.get_publisher())
 
     def __collect_results(self, query_string, weight):
-        value = self.extracted_data.get(query_string)
+        value = self.request_data(self.file_object, query_string)
         if value:
             return result_list_add(value, query_string, weight)
         else:

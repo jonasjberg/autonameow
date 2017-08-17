@@ -25,7 +25,7 @@ from unittest import TestCase
 import unit_utils as uu
 import extractors
 from extractors.metadata import AbstractMetadataExtractor
-from extractors.textual import AbstractTextExtractor
+from extractors.text import AbstractTextExtractor
 
 
 class TestExtractorsConstants(TestCase):
@@ -98,32 +98,41 @@ class TestFindExtractorSourceFiles(TestCase):
     def test_find_extractor_files_returns_expected_files(self):
         actual = extractors.find_extractor_files()
 
+        self.assertNotIn('__init__.py', actual)
+
         # TODO: [hardcoded] Likely to break; requires manual updates.
-        self.assertIn('textual.py', actual)
         self.assertIn('metadata.py', actual)
+        self.assertIn('metadata_exiftool.py', actual)
+        self.assertIn('metadata_pypdf.py', actual)
+        self.assertIn('text.py', actual)
+        self.assertIn('text_ocr.py', actual)
+        self.assertIn('text_pdf.py', actual)
+        self.assertIn('text_plain.py', actual)
+
+
+def subclasses_base_extractor(klass):
+    return uu.is_class(klass) and issubclass(klass, extractors.BaseExtractor)
 
 
 class TestGetAllExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['textual.py', 'metadata.py']
+        self.sources = ['text_ocr.py', 'text_pdf.py', 'text_plain.py',
+                        'metadata_exiftool.py', 'metadata_pypdf.py']
 
     def test_get_extractor_classes_returns_expected_type(self):
         actual = extractors._get_all_extractor_classes(self.sources)
         self.assertTrue(isinstance(actual, tuple))
 
     def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
-        def __subclasses_base_extractor(klass):
-            self.assertTrue(issubclass(klass, extractors.BaseExtractor))
-
         actual = extractors._get_all_extractor_classes(self.sources)
 
         actual_abstract, _ = actual
         for _abstract in actual_abstract:
-            __subclasses_base_extractor(_abstract)
+            self.assertTrue(subclasses_base_extractor(_abstract))
 
         _, actual_implemented = actual
         for _implemented in actual_implemented:
-            __subclasses_base_extractor(_implemented)
+            self.assertTrue(subclasses_base_extractor(_implemented))
 
     def test_get_extractor_classes_does_not_include_base_extractor(self):
         abstract, implemented = extractors._get_all_extractor_classes(self.sources)
@@ -133,7 +142,8 @@ class TestGetAllExtractorClasses(TestCase):
 
 class TestGetImplementedExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['textual.py', 'metadata.py']
+        self.sources = ['text_ocr.py', 'text_pdf.py', 'text_plain.py',
+                        'metadata_exiftool.py', 'metadata_pypdf.py']
         self.actual = extractors.get_extractor_classes(self.sources)
 
     def test_get_extractor_classes_returns_expected_type(self):
@@ -141,6 +151,7 @@ class TestGetImplementedExtractorClasses(TestCase):
 
     def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
         for klass in self.actual:
+            self.assertTrue(uu.is_class(klass))
             self.assertTrue(issubclass(klass, extractors.BaseExtractor))
 
     def test_get_extractor_classes_does_not_include_base_extractor(self):
@@ -153,7 +164,8 @@ class TestGetImplementedExtractorClasses(TestCase):
 
 class TestNumberOfAvailableExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['textual.py', 'metadata.py']
+        self.sources = ['text_ocr.py', 'text_pdf.py', 'text_plain.py',
+                        'metadata_exiftool.py', 'metadata_pypdf.py']
         self.actual = extractors.get_extractor_classes(self.sources)
 
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.
@@ -168,32 +180,6 @@ class TestNumberOfAvailableExtractorClasses(TestCase):
 
     def test_get_extractor_classes_returns_at_least_four_extractors(self):
         self.assertGreaterEqual(len(self.actual), 4)
-
-
-class TestGetQueryStrings(TestCase):
-    def setUp(self):
-        self.actual = extractors.get_query_strings()
-
-    def test_returns_expected_container_type(self):
-        self.assertTrue(isinstance(self.actual, set))
-
-    def test_returns_expected_contained_types(self):
-        for q in self.actual:
-            self.assertTrue(isinstance(q, str))
-
-    def test_contains_expected_metadata_query_strings(self):
-        self.assertIn('metadata.exiftool', self.actual)
-        self.assertIn('metadata.pypdf', self.actual)
-
-    def test_contains_expected_contents_query_strings(self):
-        self.assertIn('contents.visual.ocr_text', self.actual)
-        self.assertIn('contents.textual.raw_text', self.actual)
-
-    def test_does_not_contain_unexpected_query_strings(self):
-        self.assertNotIn('foo.bar', self.actual)
-        self.assertNotIn('.', self.actual)
-        self.assertNotIn('', self.actual)
-        self.assertNotIn(None, self.actual)
 
 
 class TestSuitableDataExtractorsForFile(TestCase):
@@ -217,3 +203,17 @@ class TestSuitableDataExtractorsForFile(TestCase):
         self.assertIn('ExiftoolMetadataExtractor', actual)
         self.assertIn('PyPDFMetadataExtractor', actual)
         self.assertIn('PdfTextExtractor', actual)
+
+
+class TestMapQueryStringToExtractors(TestCase):
+    def setUp(self):
+        self.actual = extractors.map_query_string_to_extractors()
+
+    def test_returns_expected_type(self):
+        self.assertIsNotNone(self.actual)
+        self.assertTrue(isinstance(self.actual, dict))
+
+        for key, value in self.actual.items():
+            self.assertTrue(isinstance(key, str))
+            for v in value:
+                self.assertTrue(subclasses_base_extractor(v))

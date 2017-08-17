@@ -42,14 +42,28 @@ class TestConstants(TestCase):
         self.assertTrue(isinstance(constants.VALID_DATA_SOURCES, list))
 
     def test_constants_contains_default_file_rule_weight(self):
-        self.assertIsNotNone(constants.FILERULE_DEFAULT_WEIGHT)
-        self.assertTrue(isinstance(constants.FILERULE_DEFAULT_WEIGHT, float))
+        self.assertIsNotNone(constants.DEFAULT_FILERULE_WEIGHT)
+        self.assertTrue(isinstance(constants.DEFAULT_FILERULE_WEIGHT, float))
 
     def test_constants_contains_default_file_tags_options(self):
-        self.assertIsNotNone(constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR)
-        self.assertTrue(isinstance(constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR, str))
-        self.assertIsNotNone(constants.FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR)
-        self.assertTrue(isinstance(constants.FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR, str))
+        self.assertIsNotNone(constants.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR)
+        self.assertTrue(
+            isinstance(constants.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR, str)
+        )
+        self.assertIsNotNone(constants.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR)
+        self.assertTrue(
+            isinstance(constants.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR, str)
+        )
+
+    def test_constants_contains_default_filesystem_options(self):
+        self.assertIsNotNone(constants.DEFAULT_FILESYSTEM_SANITIZE_FILENAME)
+        self.assertTrue(
+            isinstance(constants.DEFAULT_FILESYSTEM_SANITIZE_FILENAME, bool)
+        )
+        self.assertIsNotNone(constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT)
+        self.assertTrue(
+            isinstance(constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT, bool)
+        )
 
     def test_constants_contains_python_version(self):
         self.assertIsNotNone(constants.PYTHON_VERSION)

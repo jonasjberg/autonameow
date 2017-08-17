@@ -29,7 +29,8 @@ from core import (
     constants,
     options,
     util,
-    exceptions
+    exceptions,
+    repository
 )
 from core.analysis import Analysis
 from core.config.configuration import Configuration
@@ -38,6 +39,7 @@ from core.evaluate.namebuilder import NameBuilder
 from core.evaluate.rulematcher import RuleMatcher
 from core.extraction import Extraction
 from core.fileobject import FileObject
+from core.plugin_handler import PluginHandler
 from core.util import (
     cli,
     diskutils
@@ -66,7 +68,7 @@ class Autonameow(object):
         self.opts = None        # Parsed options returned by argparse.
 
         self.filter = None
-        self.config = None
+        self.active_config = None
 
     def run(self):
         # Display help/usage information if no arguments are provided.
@@ -90,44 +92,22 @@ class Autonameow(object):
         # provided and no config file is found at default paths; copy the
         # template config and tell the user.
         if self.opts.config_path:
-            try:
-                log.info('Using configuration file: "{!s}"'.format(
-                    util.displayable_path(self.opts.config_path)
-                ))
-                self.config = Configuration(self.opts.config_path)
-            except exceptions.ConfigError as e:
-                log.critical('Unable to load configuration: {!s}'.format(e))
-                self.exit_program(constants.EXIT_ERROR)
+            self._load_config_from_alternate_path()
         else:
-
-            _disp_config_path = util.displayable_path(config.ConfigFilePath)
             if not config.has_config_file():
-                log.info('No configuration file was found. Writing default ..')
-
-                try:
-                    config.write_default_config()
-                except PermissionError:
-                    log.critical('Unable to write configuration file to path: '
-                                 '"{!s}"'.format(_disp_config_path))
-                    self.exit_program(constants.EXIT_ERROR)
-                else:
-                    cli.msg('A template configuration file was written to '
-                            '"{!s}"'.format(_disp_config_path), style='info')
-                    cli.msg('Use this file to configure {}. '
-                            'Refer to the documentation for additional '
-                            'information.'.format(version.__title__),
-                            style='info')
-                    self.exit_program(constants.EXIT_SUCCESS)
+                self._write_template_config_to_default_path_and_exit()
             else:
-                log.info('Using configuration: "{}"'.format(_disp_config_path))
-                try:
-                    self.config = Configuration(config.ConfigFilePath)
-                except exceptions.ConfigError as e:
-                    log.critical('Configuration error: "{!s}"'.format(e))
+                self._load_config_from_default_path()
 
-        if not self.config:
+        if not self.active_config:
             log.critical('Unable to load configuration -- Aborting ..')
             self.exit_program(constants.EXIT_ERROR)
+
+        # TODO: [TD0076] Register non-core components at startup.
+        _referenced_qs = sorted(self.active_config.referenced_query_strings)
+        for _query_string in _referenced_qs:
+            log.debug('Configuration file rule referenced query string'
+                      ' "{!s}"'.format(_query_string))
 
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
@@ -139,17 +119,23 @@ class Autonameow(object):
             options.prettyprint_options(self.opts, include_opts)
 
         if self.opts.dump_config:
-            log.info('Dumping active configuration ..')
-            cli.msg('Active Configuration:', style='heading')
-            cli.msg(str(self.config))
-            self.exit_program(constants.EXIT_SUCCESS)
+            self._dump_active_config_and_exit()
 
         # Handle any input paths/files. Abort early if input paths are missing.
         if not self.opts.input_paths:
             log.warning('No input files specified ..')
             self.exit_program(constants.EXIT_SUCCESS)
 
-        files_to_process = []
+        # Path name encoding boundary. Returns list of paths in internal format.
+        files_to_process = self._get_files_to_process()
+        log.info('Got {} files to process'.format(len(files_to_process)))
+
+        self._handle_files(files_to_process)
+        self.exit_program(self.exit_code)
+
+    def _get_files_to_process(self):
+        file_list = []
+
         for path in self.opts.input_paths:
             if not path:
                 continue
@@ -157,17 +143,56 @@ class Autonameow(object):
             # Path name encoding boundary. Convert to internal format.
             path = util.normpath(path)
             try:
-                files_to_process += diskutils.get_files(
+                file_list += diskutils.get_files(
                     path, recurse=self.opts.recurse_paths
                 )
             except FileNotFoundError:
-                log.error('File not found: "{}"'.format(
+                log.error('File(s) not found: "{}"'.format(
                     util.displayable_path(path))
                 )
 
-        log.info('Got {} files to process'.format(len(files_to_process)))
-        self._handle_files(files_to_process)
-        self.exit_program(self.exit_code)
+        return file_list
+
+    def load_config(self, dict_or_yaml):
+        try:
+            self.active_config = Configuration(dict_or_yaml)
+        except exceptions.ConfigError as e:
+            log.critical('Unable to load configuration: {!s}'.format(e))
+
+    def _dump_active_config_and_exit(self):
+        log.info('Dumping active configuration ..')
+        cli.msg('Active Configuration:', style='heading')
+        cli.msg(str(self.active_config))
+        self.exit_program(constants.EXIT_SUCCESS)
+
+    def _load_config_from_default_path(self):
+        _displayable_config_path = util.displayable_path(config.ConfigFilePath)
+        log.info('Using configuration: "{}"'.format(_displayable_config_path))
+        self.load_config(config.ConfigFilePath)
+
+    def _write_template_config_to_default_path_and_exit(self):
+        log.info('No configuration file was found. Writing default ..')
+        _displayable_config_path = util.displayable_path(config.ConfigFilePath)
+        try:
+            config.write_default_config()
+        except exceptions.ConfigError:
+            log.critical('Unable to write template configuration file to path: '
+                         '"{!s}"'.format(_displayable_config_path))
+            self.exit_program(constants.EXIT_ERROR)
+        else:
+            cli.msg('A template configuration file was written to '
+                    '"{!s}"'.format(_displayable_config_path), style='info')
+            cli.msg('Use this file to configure {}. '
+                    'Refer to the documentation for additional '
+                    'information.'.format(version.__title__),
+                    style='info')
+            self.exit_program(constants.EXIT_SUCCESS)
+
+    def _load_config_from_alternate_path(self):
+        log.info('Using configuration file: "{!s}"'.format(
+            util.displayable_path(self.opts.config_path)
+        ))
+        self.load_config(self.opts.config_path)
 
     def _handle_files(self, file_paths):
         """
@@ -181,6 +206,9 @@ class Autonameow(object):
         5. Do any reporting of results to the user.
         6. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
         7. (automagic mode and not --dry-run) Rename the file.
+
+        Assume all state is setup and completely reset for each loop iteration.
+        It is not currently possible to share "information" between runs.
         """
         for file_path in file_paths:
             log.info('Processing: "{!s}"'.format(
@@ -189,120 +217,85 @@ class Autonameow(object):
 
             # Sanity checking the "file_path" is part of 'FileObject' init.
             try:
-                current_file = FileObject(file_path, self.config)
+                current_file = FileObject(file_path, self.active_config)
             except exceptions.InvalidFileArgumentError as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
                     e, util.displayable_path(file_path))
                 )
                 continue
 
-            should_list_any_results = (self.opts.list_datetime
-                                       or self.opts.list_title
-                                       or self.opts.list_all)
-
-            # Extract data from the file.
-            extraction = Extraction(current_file)
             try:
-                # TODO: [TD0056] Determine required extractors for current file.
-
-                # Assume slower execution speed is tolerable when the user
-                # wants to display any results, also for completeness. Run all.
-                extraction.start(
-                    require_all_extractors=should_list_any_results is True
-                )
-            except exceptions.AutonameowException as e:
-                log.critical('Extraction FAILED: {!s}'.format(e))
+                self._handle_file(current_file)
+            except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(file_path))
                 )
                 self.exit_code = constants.EXIT_WARNING
                 continue
 
-            # Begin analysing the file.
-            analysis = Analysis(current_file, extraction.data)
-            try:
-                analysis.start()
-            except exceptions.AutonameowException as e:
-                log.critical('Analysis FAILED: {!s}'.format(e))
-                log.critical('Skipping file "{}" ..'.format(
-                    util.displayable_path(file_path))
-                )
-                self.exit_code = constants.EXIT_WARNING
-                continue
+        if self.opts.list_all:
+            log.info('Listing session repository contents ..')
+            cli.msg('Session Repository Data', style='heading', log=True)
+            cli.msg(str(repository.SessionRepository))
+        # else:
+        #     if self.opts.list_datetime:
+        #         _list_analysis_results_field(analysis, 'datetime')
+        #     if self.opts.list_title:
+        #         _list_analysis_results_field(analysis, 'title')
 
-            # Determine matching rule.
-            matcher = RuleMatcher(analysis.results, extraction.data,
-                                  self.config)
-            try:
-                matcher.start()
-            except exceptions.AutonameowException as e:
-                log.critical('Rule Matching FAILED: {!s}'.format(e))
-                log.critical('Skipping file "{}" ..'.format(
-                    util.displayable_path(file_path))
-                )
-                self.exit_code = constants.EXIT_WARNING
-                continue
+    def _handle_file(self, current_file):
+        should_list_any_results = (self.opts.list_datetime
+                                   or self.opts.list_title
+                                   or self.opts.list_all)
 
-            # Present results.
-            if should_list_any_results:
-                cli.msg(('File: "{}"\n'.format(
-                    util.displayable_path(current_file.abspath)))
-                )
+        # Extract data from the file.
+        # Run all extractors so that all possible data is included
+        # when listing any (all) results later on.
+        extraction = _run_extraction(current_file)
 
-            if self.opts.list_all:
-                log.info('Listing ALL analysis results ..')
-                cli.msg('Analysis Results Data', style='heading', log=True)
-                cli.msg(util.dump(analysis.results.get()))
+        # Begin analysing the file.
+        analysis = _run_analysis(current_file)
 
-                cli.msg('Extraction Results Data', style='heading', log=True)
-                cli.msg(util.dump(extraction.data.get()))
-            else:
-                if self.opts.list_datetime:
-                    log.info('Listing "datetime" analysis results ..')
-                    cli.msg(util.dump(analysis.results.get('datetime')))
-                if self.opts.list_title:
-                    log.info('Listing "title" analysis results ..')
-                    cli.msg(util.dump(analysis.results.get('title')))
+        plugin_handler = _run_plugins(current_file)
 
-            # Perform actions.
-            if self.opts.prepend_datetime:
-                # TODO: Prepend datetime to filename.
-                log.warning('[UNIMPLEMENTED FEATURE] prepend_datetime')
+        # Determine matching rule.
+        matcher = _run_rule_matcher(current_file, self.active_config)
 
-            if self.opts.automagic:
-                if not matcher.best_match:
-                    log.info('None of the rules seem to apply')
-                    continue
+        # # Present results.
+        # if should_list_any_results:
+        #     cli.msg(('File: "{}"\n'.format(
+        #         util.displayable_path(current_file.abspath)))
+        #     )
 
-                log.info('Using file rule: "{!s}"'.format(
-                    matcher.best_match.description)
-                )
-                try:
-                    self.builder = NameBuilder(
-                        current_file, extraction.data, analysis.results,
-                        self.config, matcher.best_match
-                    )
-                    new_name = self.builder.build()
-                except exceptions.NameBuilderError as e:
-                    log.critical('Name assembly FAILED: {!s}'.format(e))
-                    self.exit_code = constants.EXIT_WARNING
-                    continue
-                else:
-                    # TODO: [TD0042] Respect '--quiet' option. Suppress output.
-                    log.info('New name: "{}"'.format(
-                        util.displayable_path(new_name))
-                    )
-                    renamed_ok = self.do_rename(current_file.abspath, new_name,
-                                                dry_run=self.opts.dry_run)
-                    if renamed_ok:
-                        self.exit_code = constants.EXIT_SUCCESS
-                    else:
-                        self.exit_code = constants.EXIT_WARNING
+        # Perform actions.
+        if self.opts.automagic:
+            self._perform_automagic_actions(current_file, matcher)
+        elif self.opts.interactive:
+            # TODO: Create a interactive interface.
+            # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
+            log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
-            elif self.opts.interactive:
-                # TODO: Create a interactive interface.
-                # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
-                log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
+    def _perform_automagic_actions(self, current_file, rule_matcher):
+        if not rule_matcher.best_match:
+            log.info('None of the rules seem to apply')
+            return
+
+        log.info('Using file rule: "{!s}"'.format(
+            rule_matcher.best_match.description)
+        )
+        new_name = _build_new_name(
+            current_file,
+            active_config=self.active_config,
+            active_rule=rule_matcher.best_match,
+        )
+
+        # TODO: [TD0042] Respect '--quiet' option. Suppress output.
+        log.info('New name: "{}"'.format(
+            util.displayable_path(new_name))
+        )
+        self.do_rename(from_path=current_file.abspath,
+                       new_basename=new_name,
+                       dry_run=self.opts.dry_run)
 
     def exit_program(self, exit_code_):
         """
@@ -322,40 +315,62 @@ class Autonameow(object):
 
         sys.exit(self.exit_code)
 
-    @staticmethod
-    def do_rename(from_path, new_basename, dry_run=True):
+    def do_rename(self, from_path, new_basename, dry_run=True):
         """
         Renames a file at the given path to the specified basename.
 
+        If the basenames of the file at "from_path" and "new_basename" are
+        equal, the renaming operation is skipped and True is returned.
+
         Args:
-            from_path: Path to the file to rename.
-            new_basename: The new basename for the file as type str.
+            from_path: Path to the file to rename as an "internal" byte string.
+            new_basename: The new basename for the file as a Unicode string.
             dry_run: Controls whether the renaming is actually performed.
 
         Returns:
-            True if the rename succeeded, otherwise False.
+            True if the rename succeeded or would be a NO-OP, otherwise False.
         """
-        dest_basename = diskutils.sanitize_filename(new_basename)
+        assert(isinstance(from_path, bytes))
+        assert(isinstance(new_basename, str))
+
+        # TODO: [TD0071] Move "sanitation" to the 'NameBuilder' or elsewhere.
+        if self.active_config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
+            if self.active_config.get(['FILESYSTEM_OPTIONS', 'sanitize_strict']):
+                log.debug('Sanitizing filename (restricted=True)')
+                new_basename = diskutils.sanitize_filename(new_basename,
+                                                           restricted=True)
+            else:
+                log.debug('Sanitizing filename')
+                new_basename = diskutils.sanitize_filename(new_basename)
+
+            log.debug('Sanitized basename (unicode): "{!s}"'.format(
+                util.displayable_path(new_basename))
+            )
+        else:
+            log.debug('Skipped sanitizing filename')
 
         # Encoding boundary.  Internal str --> internal filename bytestring
-        dest_basename = util.bytestring_path(dest_basename)
-
-        from_basename = diskutils.file_basename(from_path)
-        log.debug('Sanitized basename: "{!s}"'.format(
+        dest_basename = util.bytestring_path(new_basename)
+        log.debug('Destination basename (bytestring): "{!s}"'.format(
             util.displayable_path(dest_basename))
         )
 
-        success = True
-        if dry_run is False:
-            try:
-                diskutils.rename_file(from_path, dest_basename)
-            except (FileNotFoundError, FileExistsError, OSError) as e:
-                log.error('Rename FAILED: {!s}'.format(e))
-                success = False
+        from_basename = diskutils.file_basename(from_path)
+        if diskutils.compare_basenames(from_basename, dest_basename):
+            _msg = 'Skipped "{!s}" because the current name is the same as ' \
+                   'the new name'.format(util.displayable_path(from_basename),
+                                         util.displayable_path(dest_basename))
+            log.debug(_msg)
+            cli.msg(_msg, style='color_quoted')
+        else:
+            if dry_run is False:
+                try:
+                    diskutils.rename_file(from_path, dest_basename)
+                except (FileNotFoundError, FileExistsError, OSError) as e:
+                    log.error('Rename FAILED: {!s}'.format(e))
+                    raise exceptions.AutonameowException
 
-        if success:
             cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
-        return success
 
     @property
     def exit_code(self):
@@ -381,3 +396,119 @@ class Autonameow(object):
             log.debug('Exit code updated: {} -> {}'.format(self._exit_code,
                                                            value))
             self._exit_code = value
+
+
+def _build_new_name(file_object, active_config, active_rule):
+    try:
+        builder = NameBuilder(file_object, active_config, active_rule)
+
+        # TODO: Do not return anything from 'build()', use property.
+        new_name = builder.build()
+    except exceptions.NameBuilderError as e:
+        log.critical('Name assembly FAILED: {!s}'.format(e))
+        raise exceptions.AutonameowException
+    else:
+        return new_name
+
+
+def _run_extraction(file_object, run_all_extractors=False):
+    """
+    Instantiates, executes and returns an 'Extraction' instance.
+
+    Args:
+        file_object: The file object to extract data from.
+        run_all_extractors: Whether all data extractors should be included.
+
+    Returns:
+        An instance of the 'Extraction' class that has executed successfully.
+    Raises:
+        AutonameowException: An unrecoverable error occurred during extraction.
+    """
+    extraction = Extraction(file_object)
+    try:
+        # TODO: [TD0056][TD0076] Determine required extractors for current file.
+
+        # Assume slower execution speed is tolerable when the user
+        # wants to display any results, also for completeness. Run all.
+        extraction.start(
+            require_all_extractors=run_all_extractors is True
+        )
+    except exceptions.AutonameowException as e:
+        log.critical('Extraction FAILED: {!s}'.format(e))
+        raise
+    else:
+        return extraction
+
+
+def _run_plugins(file_object):
+    """
+    Instantiates, executes and returns a 'PluginHandler' instance.
+
+    Args:
+        file_object: The current file object to pass to plugins.
+
+    Returns:
+        An instance of the 'PluginHandler' class that has executed successfully.
+    Raises:
+        AutonameowException: An unrecoverable error occurred during analysis.
+    """
+    plugin_handler = PluginHandler(file_object)
+    try:
+        plugin_handler.start()
+    except exceptions.AutonameowPluginError as e:
+        log.critical('Plugins FAILED: {!s}'.format(e))
+        raise exceptions.AutonameowException(e)
+    else:
+        return plugin_handler
+
+
+def _run_analysis(file_object):
+    """
+    Instantiates, executes and returns an 'Analysis' instance.
+
+    Args:
+        file_object: The file object to analyze.
+
+    Returns:
+        An instance of the 'Analysis' class that has executed successfully.
+    Raises:
+        AutonameowException: An unrecoverable error occurred during analysis.
+    """
+    analysis = Analysis(file_object)
+    try:
+        analysis.start()
+    except exceptions.AutonameowException as e:
+        log.critical('Analysis FAILED: {!s}'.format(e))
+        raise
+    else:
+        return analysis
+
+
+def _run_rule_matcher(file_object, active_config):
+    """
+    Instantiates, executes and returns a 'RuleMatcher' instance.
+
+    Args:
+        active_config: An instance of the 'Configuration' class.
+
+    Returns:
+        An instance of the 'RuleMatcher' class that has executed successfully.
+    Raises:
+        AutonameowException: An unrecoverable error occurred during execution.
+    """
+    matcher = RuleMatcher(file_object, active_config)
+    try:
+        matcher.start()
+    except exceptions.AutonameowException as e:
+        log.critical('Rule Matching FAILED: {!s}'.format(e))
+        raise
+    else:
+        return matcher
+
+
+def _list_analysis_results_field(analysis, results_field):
+    log.info('Listing "{}" analysis results ..'.format(results_field))
+    # TODO: [TD0066] Handle all encoding properly.
+
+    cli.msg('TODO: Re-implement this after moving to shared data pool storage.')
+    # cli.msg(util.dump(analysis.results.get(results_field)))

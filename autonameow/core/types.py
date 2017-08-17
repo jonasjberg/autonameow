@@ -23,10 +23,11 @@
 Custom data types, used internally by autonameow.
 Wraps primitives to force safe defaults and extra functionality.
 
-Requirements:
-* Simplify configuration parsing
-* Confine data extractor results data to types
-* Allow type-specific processing of data extractor data
+Use by passing through the singletons defined at the bottom of this file.
+The values are "passed through" the type classes and returned as primitive or
+standard library types (E.G. "datetime").
+These classes are meant to be used as "filters" for coercing values to known
+types, they are shared and should not retain any kind of state.
 """
 
 
@@ -54,10 +55,10 @@ class BaseType(object):
     null = 'NULL'
 
     # Types that can be coerced with the "parse" method.
-    coercible_types = (str,)
+    coercible_types = (str, )
 
     # Types that are "equivalent", does not require coercion.
-    equivalent_types = (str,)
+    equivalent_types = (str, )
 
     def __call__(self, raw_value=None):
         if raw_value is None:
@@ -99,19 +100,18 @@ class BaseType(object):
             return value
 
     def coerce(self, raw_value):
-        return raw_value
+        try:
+            value = self.primitive_type(raw_value)
+        except (ValueError, TypeError):
+            raise exceptions.AWTypeError(
+                'Coercion default failed for: "{!s}" to primitive'
+                ' {!r}'.format(raw_value, self.primitive_type)
+            )
+        else:
+            return value
 
     def format(self, value, formatter=None):
-        if value is None:
-            value = self._null()
-        if value is None:
-            # Case where 'self.null' is None.
-            value = ''
-        if isinstance(value, bytes):
-            value = value.decode('utf-8', 'ignore')
-
-        parsed = self.coerce(value)
-        return str(parsed)
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __repr__(self):
         return self.__class__.__name__
@@ -168,6 +168,7 @@ class Path(BaseType):
         )
 
     def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
         parsed = self.coerce(value)
         return util.displayable_path(parsed)
 
@@ -175,8 +176,7 @@ class Path(BaseType):
 class PathComponent(BaseType):
     primitive_type = str
     coercible_types = (str, bytes)
-    equivalent_types = (bytes,)
-
+    equivalent_types = (bytes, )
     null = b''
 
     def normalize(self, value):
@@ -199,6 +199,7 @@ class PathComponent(BaseType):
             return value
 
     def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
         parsed = self.coerce(value)
         return util.displayable_path(parsed)
 
@@ -206,7 +207,7 @@ class PathComponent(BaseType):
 class Boolean(BaseType):
     primitive_type = bool
     coercible_types = (str, bytes)
-    equivalent_types = (bool,)
+    equivalent_types = (bool, )
     null = False
 
     @staticmethod
@@ -222,13 +223,10 @@ class Boolean(BaseType):
     def coerce(self, value):
         if value is None:
             return False
-        if isinstance(value, bool):
-            return bool(value)
-        elif isinstance(value, str):
+        if isinstance(value, bytes):
+            value = util.decode_(value)
+        if isinstance(value, str):
             return self.string_to_bool(value)
-        elif isinstance(value, bytes):
-            decoded = util.decode_(value)
-            return self.string_to_bool(decoded)
         else:
             return False
 
@@ -240,45 +238,57 @@ class Boolean(BaseType):
         else:
             return False
 
+    def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
+        value = self.__call__(value)
+        return str(value)
+
 
 class Integer(BaseType):
     primitive_type = int
     coercible_types = (str, float)
-    equivalent_types = (int,)
+    equivalent_types = (int, )
     null = 0
 
-    @classmethod
-    def coerce(cls, value):
+    def coerce(self, value):
+        # If casting to int directly fails, try first converting to float,
+        # then from float to int. Casting string to int handles "1.5" but
+        # "-1.5" fails. The two step approach fixes the negative numbers.
         try:
-            parsed = int(value)
-        except (TypeError, ValueError):
-            return 0
-        else:
-            return parsed
+            return int(value)
+        except (ValueError, TypeError):
+            try:
+                float_value = float(value)
+            except (ValueError, TypeError):
+                pass
+            else:
+                try:
+                    return int(float_value)
+                except (ValueError, TypeError):
+                    pass
 
-    @classmethod
-    def format(cls, value, formatter=None):
+        raise exceptions.AWTypeError(
+            'Coercion default failed for: "{!s}" to primitive'
+            ' {!r}'.format(value, self.primitive_type)
+        )
+
+    def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
+        coerced = self.coerce(value)
         if not formatter:
-            return '{}'.format(value or 0)
+            return '{}'.format(coerced)
         else:
-            return formatter.format(value or 0)
+            return formatter.format(coerced)
 
 
 class Float(BaseType):
     primitive_type = float
     coercible_types = (str, int)
-    equivalent_types = (float,)
+    equivalent_types = (float, )
     null = 0.0
 
-    def coerce(self, value):
-        try:
-            parsed = float(value)
-        except (TypeError, ValueError):
-            return self._null()
-        else:
-            return parsed
-
     def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
         if not formatter:
             return '{0:.1f}'.format(value or self._null())
         else:
@@ -287,11 +297,17 @@ class Float(BaseType):
 
 class String(BaseType):
     primitive_type = str
-    coercible_types = (str, bytes, int, float)
-    equivalent_types = (str,)
+
+    from PyPDF2.generic import TextStringObject
+    coercible_types = (str, bytes, int, float, bool, TextStringObject)
+
+    equivalent_types = (str, )
     null = ''
 
     def coerce(self, value):
+        if value is None:
+            return self._null()
+
         if isinstance(value, bytes):
             try:
                 decoded = util.decode_(value)
@@ -299,44 +315,44 @@ class String(BaseType):
                 return self._null()
             else:
                 return decoded
-        if isinstance(value, (int, float)):
-            return str(value)
+        if isinstance(value, self.coercible_types):
+            try:
+                value = self.primitive_type(value)
+            except (ValueError, TypeError):
+                raise exceptions.AWTypeError(
+                    'Coercion default failed for: "{!s}" to primitive'
+                    ' {!r}'.format(value, self.primitive_type)
+                )
+            else:
+                return value
+        return str(value)
+
+    def normalize(self, value):
+        return self.__call__(value).strip()
 
 
 class TimeDate(BaseType):
     primitive_type = None
     coercible_types = (str, bytes, int, float)
-    equivalent_types = (str, datetime)
+    equivalent_types = (datetime, )
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
     null = 'INVALID DATE'
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
 
-    def __call__(self, raw_value=None):
-        # Overrides the 'BaseType' __call__ method as to never return 'null'.
-        if raw_value and not isinstance(raw_value, (list, tuple)):
-            parsed = self.coerce(raw_value)
-            if parsed:
-                return parsed
-
-        raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
-        )
-
     def coerce(self, raw_value):
-        if isinstance(raw_value, datetime):
-            return raw_value
         try:
             dt = try_parse_full_datetime(raw_value)
-        except ValueError as e:
-            return self._null()
+        except (TypeError, ValueError) as e:
+            raise exceptions.AWTypeError(
+                'Unable to coerce "{!s}" into {!r}: {!s}'.format(raw_value,
+                                                                 self, e)
+            )
         else:
             return dt
 
     def normalize(self, value):
-        if not value:
-            return self._null()
         try:
             parsed = self.coerce(value)
             if isinstance(parsed, datetime):
@@ -346,39 +362,41 @@ class TimeDate(BaseType):
         except (TypeError, ValueError):
             return self._null()
 
+    # Override parent '_null' method to force returning only valid 'datetime'
+    # instances. Otherwise, raise an exception to be handled by the caller.
+    def _null(self):
+        raise exceptions.AWTypeError(
+            'Type wrapper "{!r}" should never EVER return null!'.format(self)
+        )
+
 
 class ExifToolTimeDate(TimeDate):
-    primitive_type = None
-
     def coerce(self, raw_value):
-        if isinstance(raw_value, datetime):
-            return raw_value
-
         if re.match(r'.*\+\d\d:\d\d$', raw_value):
             raw_value = re.sub(r'\+(\d\d):(\d\d)$', r'+\1\2', raw_value)
+        elif re.match(r'.*-\d\d:\d\d$', raw_value):
+            raw_value = re.sub(r'-(\d\d):(\d\d)$', r'-\1\2', raw_value)
+
         try:
             # TODO: Fix matching dates with timezone. Below is not working.
             dt = datetime.strptime(raw_value, '%Y:%m:%d %H:%M:%S%z')
-        except (ValueError, TypeError) as e:
+            return dt
+        except (ValueError, TypeError):
             try:
                 dt = try_parse_full_datetime(raw_value)
-            except ValueError:
-                return self._null()
-            else:
                 return dt
-        else:
-            return dt
+            except (TypeError, ValueError) as e:
+                pass
+
+        raise exceptions.AWTypeError(
+            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        )
 
 
 class PyPDFTimeDate(TimeDate):
     primitive_type = None
 
     def coerce(self, raw_value):
-        if not raw_value:
-            raise ValueError('Got empty/None string from PyPDF')
-        if isinstance(raw_value, datetime):
-            return raw_value
-
         if "'" in raw_value:
             raw_value = raw_value.replace("'", '')
 
@@ -413,7 +431,9 @@ class PyPDFTimeDate(TimeDate):
             except ValueError:
                 pass
 
-        raise ValueError
+        raise exceptions.AWTypeError(
+            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        )
 
 
 def try_parse_full_datetime(string):
@@ -430,11 +450,14 @@ def try_parse_full_datetime(string):
         string
     )
 
+    # Handles malformed dates produced by "Mac OS X 10.11.5 Quartz PDFContext".
+    if string.endswith('Z'):
+        string = string[:-1]
+
     date_formats = ['%Y-%m-%d %H:%M:%S',
                     '%Y-%m-%d %H:%M:%S.%f',  # %f: Microseconds
                     '%Y-%m-%d %H:%M:%S %z',  # %z: UTC offset
                     '%Y-%m-%d %H:%M:%S%z']
-
     for date_format in date_formats:
         try:
             dt = datetime.strptime(string, date_format)

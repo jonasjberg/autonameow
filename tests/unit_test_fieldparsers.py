@@ -34,6 +34,7 @@ from core.config.field_parsers import (
     is_valid_template_field,
     eval_query_string_glob
 )
+import unit_utils as uu
 
 
 class TestFieldParserFunctions(TestCase):
@@ -55,11 +56,12 @@ class TestFieldParserFunctions(TestCase):
     def test_get_available_parsers(self):
         self.assertIsNotNone(available_field_parsers())
 
-    def test_get_available_parsers_returns_list_of_strings(self):
-        self.assertTrue(isinstance(available_field_parsers(), list))
+    def test_get_available_parsers_returns_expected_type(self):
+        actual = available_field_parsers()
+        self.assertTrue(isinstance(actual, list))
 
-        for p in available_field_parsers():
-            self.assertTrue(isinstance(p, type))
+        for p in actual:
+            self.assertTrue(uu.is_class(p))
 
     def test_get_available_parsers_returns_arbitrary_number(self):
         # TODO: [hardcoded] Likely to break; Fix or remove!
@@ -170,6 +172,28 @@ class TestMimeTypeFieldParser(TestCase):
         self.assertFalse(self.val_func('/jpeg'))
         self.assertFalse(self.val_func('image/*/*'))
 
+    def test_expect_fail_for_list_of_invalid_mime_types(self):
+        self.assertFalse(self.val_func(['']))
+        self.assertFalse(self.val_func([None]))
+        self.assertFalse(self.val_func(['invalid_mime_surely']))
+        self.assertFalse(self.val_func([None, None]))
+        self.assertFalse(self.val_func([None, '']))
+        self.assertFalse(self.val_func([None, '', 'invalid_mime_surely']))
+        self.assertFalse(self.val_func([[]]))
+        self.assertFalse(self.val_func([None, []]))
+        self.assertFalse(self.val_func([None, [None]]))
+
+    def test_expect_fail_for_list_of_invalid_globs(self):
+        self.assertFalse(self.val_func(['.*']))
+        self.assertFalse(self.val_func(['*']))
+        self.assertFalse(self.val_func(['image/']))
+        self.assertFalse(self.val_func(['/jpeg']))
+        self.assertFalse(self.val_func(['image/*/*']))
+        self.assertFalse(self.val_func(['.*', '.*']))
+        self.assertFalse(self.val_func(['*', '.*']))
+        self.assertFalse(self.val_func([None, '.*']))
+        self.assertFalse(self.val_func([[], '.*']))
+
     def test_expect_pass_for_valid_mime_types_no_globs(self):
         self.assertTrue(self.val_func('image/x-ms-bmp'))
         self.assertTrue(self.val_func('image/gif'))
@@ -194,9 +218,66 @@ class TestMimeTypeFieldParser(TestCase):
         self.assertTrue(self.val_func('*/epub+zip'))
         self.assertTrue(self.val_func('application/*'))
 
-    def test_expect_pass_for_valid_mime_types_with_globs(self):
-        self.assertTrue(self.val_func('*/jpeg'))
-        self.assertTrue(self.val_func('image/*'))
+    def test_expect_pass_for_list_of_valid_mime_types_with_globs(self):
+        self.assertTrue(self.val_func(['*/*']))
+        self.assertTrue(self.val_func(['image/*']))
+        self.assertTrue(self.val_func(['*/jpeg']))
+        self.assertTrue(self.val_func(['inode/*']))
+        self.assertTrue(self.val_func(['*/x-empty']))
+        self.assertTrue(self.val_func(['*/x-ms-bmp']))
+        self.assertTrue(self.val_func(['image/*']))
+        self.assertTrue(self.val_func(['*/epub+zip']))
+        self.assertTrue(self.val_func(['application/*']))
+        self.assertTrue(self.val_func(['*/*', '*/*']))
+        self.assertTrue(self.val_func(['*/*', '*/jpeg']))
+        self.assertTrue(self.val_func(['image/*', '*/jpeg']))
+        self.assertTrue(self.val_func(['*/jpeg', 'image/*']))
+        self.assertTrue(self.val_func(['*/jpeg', 'application/*']))
+
+    def test_expect_pass_for_list_of_valid_mime_types_no_globs(self):
+        self.assertTrue(self.val_func(['image/x-ms-bmp']))
+        self.assertTrue(self.val_func(['image/gif']))
+        self.assertTrue(self.val_func(['image/jpeg']))
+        self.assertTrue(self.val_func(['video/quicktime']))
+        self.assertTrue(self.val_func(['video/mp4']))
+        self.assertTrue(self.val_func(['video/ogg']))
+        self.assertTrue(self.val_func(['application/pdf']))
+        self.assertTrue(self.val_func(['image/png']))
+        self.assertTrue(self.val_func(['text/plain']))
+        self.assertTrue(self.val_func(['inode/x-empty']))
+        self.assertTrue(self.val_func(['application/epub+zip']))
+        self.assertTrue(self.val_func(['image/gif', 'image/jpeg']))
+        self.assertTrue(self.val_func(['image/jpeg', 'image/gif']))
+        self.assertTrue(self.val_func(['video/quicktime', 'image/jpeg']))
+
+    def test_expect_mime_type_globs_to_evaluate_true(self):
+        def _assert_eval_true(expression, data):
+            actual = self.p.evaluate_mime_type_globs(expression, data)
+            self.assertTrue(isinstance(actual, bool))
+            self.assertTrue(actual)
+
+        _assert_eval_true('image/jpeg', 'image/jpeg')
+        _assert_eval_true('image/*', 'image/jpeg')
+        _assert_eval_true('*/jpeg', 'image/jpeg')
+        _assert_eval_true(['*/jpeg', 'application/pdf'], 'image/jpeg')
+        _assert_eval_true(['image/*', 'application/pdf'], 'image/jpeg')
+        _assert_eval_true(['image/*', 'application/pdf'], 'application/pdf')
+        _assert_eval_true(['image/jpeg', 'application/pdf'], 'application/pdf')
+        _assert_eval_true(['image/jpeg', '*/pdf'], 'application/pdf')
+
+    def test_expect_mime_type_globs_to_evaluate_false(self):
+        def _assert_eval_false(expression, data):
+            actual = self.p.evaluate_mime_type_globs(expression, data)
+            self.assertTrue(isinstance(actual, bool))
+            self.assertFalse(actual)
+
+        _assert_eval_false('image/png', 'image/jpeg')
+        _assert_eval_false('application/*', 'image/jpeg')
+        _assert_eval_false('*/png', 'image/jpeg')
+        _assert_eval_false(['*/png', 'application/pdf'], 'image/jpeg')
+        _assert_eval_false(['application/*', 'video/quicktime'], 'image/png')
+        _assert_eval_false(['image/*', 'application/pdf'], 'text/p,ain')
+        _assert_eval_false(['image/jpeg', 'application/pdf'], 'image/gif')
 
 
 class TestDateTimeFieldParser(TestCase):
@@ -237,13 +318,15 @@ class TestInstantiatedFieldParsers(TestCase):
     def test_field_parsers_in_not_none(self):
         self.assertIsNotNone(field_parsers.FieldParserInstances)
 
-    def test_configuration_field_parsers_subclass_of_config_field_parser(self):
+    def test_field_parsers_subclass_config_field_parser(self):
         for parser in field_parsers.FieldParserInstances:
             self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
+            self.assertTrue(issubclass(parser.__class__,
+                                       field_parsers.ConfigFieldParser))
 
-    def test_configuration_field_parsers_instance_of_config_field_parser(self):
+    def test_field_parsers_are_instantiated_classes(self):
         for parser in field_parsers.FieldParserInstances:
-            self.assertTrue(isinstance(parser, field_parsers.ConfigFieldParser))
+            self.assertTrue(uu.is_class_instance(parser))
 
 
 class TestSuitableFieldParserFor(TestCase):

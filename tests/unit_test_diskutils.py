@@ -512,3 +512,56 @@ class TestPathComponents(TestCase):
         ]
         for p, c in PATHS_COMPONENTS:
             self.assertEqual(diskutils.path_components(p), c)
+
+
+class TestCompareBasenames(TestCase):
+    def test_compare_basenames_is_defined(self):
+        self.assertIsNotNone(diskutils.compare_basenames)
+
+    def test_compare_basenames_raises_exceptions_given_invalid_input(self):
+        with self.assertRaises(ValueError):
+            diskutils.compare_basenames(None, None)
+            diskutils.compare_basenames(None, [])
+            diskutils.compare_basenames([], None)
+            diskutils.compare_basenames(b'a', [])
+            diskutils.compare_basenames(b'', b'')
+            diskutils.compare_basenames(b'', b' ')
+            diskutils.compare_basenames(b'_', b'')
+
+        with self.assertRaises(TypeError):
+            diskutils.compare_basenames(1, 2)
+            diskutils.compare_basenames('a', 1)
+            diskutils.compare_basenames(1, 'a')
+            diskutils.compare_basenames('a', 'a')
+            diskutils.compare_basenames('a', b'a')
+            diskutils.compare_basenames(b'a', 'a')
+
+    def test_comparing_equal_basenames_returns_true(self):
+        def _assert_true(first, second):
+            self.assertTrue(diskutils.compare_basenames(first, second))
+            self.assertTrue(
+                isinstance(diskutils.compare_basenames(first, second), bool)
+            )
+
+        _assert_true(b' ', b' ')
+        _assert_true(b'a', b'a')
+        _assert_true(b'foo', b'foo')
+        _assert_true(b'_', b'_')
+        _assert_true('å'.encode('utf-8'), 'å'.encode('utf-8'))
+        _assert_true('ö'.encode('utf-8'), 'ö'.encode('utf-8'))
+        _assert_true('A_ö'.encode('utf-8'), 'A_ö'.encode('utf-8'))
+        _assert_true(b'__', b'__')
+
+    def test_comparing_unequal_basenames_returns_false(self):
+        def _assert_false(first, second):
+            self.assertFalse(diskutils.compare_basenames(first, second))
+            self.assertTrue(
+                isinstance(diskutils.compare_basenames(first, second), bool)
+            )
+
+        _assert_false(b' ', b'y')
+        _assert_false(b'x', b'y')
+        _assert_false(b'foo_', b'foo')
+        _assert_false('ä'.encode('utf-8'), b'a')
+        _assert_false('Ä'.encode('utf-8'), b'A')
+        _assert_false('Ä'.encode('utf-8'), 'A'.encode('utf-8'))

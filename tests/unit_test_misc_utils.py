@@ -24,12 +24,56 @@ from unittest import TestCase
 
 from core import util
 from core.exceptions import InvalidQueryStringError
+from core.util import eval_magic_glob
 from core.util.misc import (
     unique_identifier,
     multiset_count,
     query_string_list,
-    flatten_dict
+    flatten_dict,
+    expand_query_string_data_dict,
+    nested_dict_get,
+    nested_dict_set
 )
+
+
+DUMMY_RESULTS_DICT = {
+    'filesystem': {
+        'basename': {
+            'full': 'a',
+            'extension': 'b'
+        },
+        'pathname': {
+            'full': 'c',
+        }
+    },
+    'contents': {
+        'mime_type': 'd',
+        'textual': {
+            'raw_text': 'e',
+            'number_pages': 'f',
+        },
+        'visual': {
+            'ocr_text': 'g',
+            'ocr_tags': 'h'},
+        'binary': {
+            'boolean_true': True,
+            'boolean_false': False
+        }
+    },
+}
+
+DUMMY_FLATTENED_RESULTS_DICT = {
+    'filesystem.basename.full': 'a',
+    'filesystem.basename.extension': 'b',
+    'filesystem.pathname.full': 'c',
+    'contents.mime_type': 'd',
+    'contents.textual.raw_text': 'e',
+    'contents.textual.number_pages': 'f',
+    'contents.visual.ocr_text': 'g',
+    'contents.visual.ocr_tags': 'h',
+    'contents.binary.boolean_true': True,
+    'contents.binary.boolean_false': False,
+}
 
 
 class TestUniqueIdentifier(TestCase):
@@ -140,47 +184,8 @@ class TestQueryStringList(TestCase):
 class TestFlattenDict(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.INPUT = {
-            'filesystem': {
-                'basename': {
-                    'full': 'a',
-                    'extension': 'b'
-                },
-                'pathname': {
-                    'full': 'c',
-                }
-            },
-            'contents': {
-                'mime_type': 'd',
-                'textual': {
-                    'raw_text': 'e',
-                    'number_pages': 'f',
-                },
-                'visual': {
-                    'ocr_text': 'g',
-                    'ocr_tags': 'h'
-                },
-                'binary': {
-                    'boolean_true': True,
-                    'boolean_false': False
-                }
-            },
-            'metadata': {
-                'exiftool': {}
-            }
-        }
-        self.EXPECTED = {
-            'filesystem.basename.full': 'a',
-            'filesystem.basename.extension': 'b',
-            'filesystem.pathname.full': 'c',
-            'contents.mime_type': 'd',
-            'contents.textual.raw_text': 'e',
-            'contents.textual.number_pages': 'f',
-            'contents.visual.ocr_text': 'g',
-            'contents.visual.ocr_tags': 'h',
-            'contents.binary.boolean_true': True,
-            'contents.binary.boolean_false': False,
-        }
+        self.INPUT = DUMMY_RESULTS_DICT
+        self.EXPECTED = DUMMY_FLATTENED_RESULTS_DICT
 
     def test_raises_type_error_for_invalid_input(self):
         with self.assertRaises(TypeError):
@@ -297,3 +302,208 @@ class TestCountDictRecursive(TestCase):
         _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['']}, 4)
         _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g']}, 5)
         _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g', 'h']}, 6)
+
+
+class TestExpandQueryStringDataDict(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.EXPECTED = DUMMY_RESULTS_DICT
+        self.INPUT = DUMMY_FLATTENED_RESULTS_DICT
+
+    def test_raises_type_error_for_invalid_input(self):
+        with self.assertRaises(TypeError):
+            expand_query_string_data_dict(None)
+            expand_query_string_data_dict([])
+            expand_query_string_data_dict('')
+
+    def test_returns_expected_type(self):
+        actual = expand_query_string_data_dict(self.INPUT)
+
+        self.assertTrue(isinstance(actual, dict))
+
+    def test_returns_expected_len(self):
+        actual = len(expand_query_string_data_dict(self.INPUT))
+        expected = len(self.EXPECTED)
+
+        self.assertEqual(actual, expected)
+
+    def test_expanded_dict_contains_all_expected(self):
+        actual = expand_query_string_data_dict(self.INPUT)
+        self.assertDictEqual(actual, self.EXPECTED)
+
+    def test_expanded_dict_contain_expected_first_level(self):
+        actual = expand_query_string_data_dict(self.INPUT)
+        self.assertIn('filesystem', actual)
+        self.assertIn('contents', actual)
+
+    def test_expanded_dict_contain_expected_second_level(self):
+        actual = expand_query_string_data_dict(self.INPUT)
+        actual_filesystem = actual.get('filesystem')
+        actual_contents = actual.get('contents')
+
+        self.assertIn('basename', actual_filesystem)
+        self.assertIn('pathname', actual_filesystem)
+        self.assertIn('mime_type', actual_contents)
+        self.assertIn('textual', actual_contents)
+        self.assertIn('visual', actual_contents)
+        self.assertIn('binary', actual_contents)
+
+
+class TestNestedDictGet(TestCase):
+    def test_nested_dict_get_is_defined(self):
+        self.assertIsNotNone(nested_dict_get)
+
+    def test_get_nested_value_returns_expected(self):
+        key_list = ['contents', 'mime_type']
+        actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)
+        self.assertEqual(actual, 'd')
+
+    def test_get_nested_values_returns_expected(self):
+        keys_expected = [(['contents', 'mime_type'], 'd'),
+                         (['filesystem', 'basename', 'full'], 'a'),
+                         (['filesystem', 'basename', 'extension'], 'b'),
+                         (['filesystem', 'pathname', 'full'], 'c'),
+                         (['contents', 'mime_type'], 'd'),
+                         (['contents', 'textual', 'raw_text'], 'e'),
+                         (['contents', 'textual', 'number_pages'], 'f'),
+                         (['contents', 'visual', 'ocr_text'], 'g'),
+                         (['contents', 'visual', 'ocr_tags'], 'h'),
+                         (['contents', 'binary', 'boolean_true'], True),
+                         (['contents', 'binary', 'boolean_false'], False)]
+
+        for key_list, expected in keys_expected:
+            actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)
+            self.assertEqual(actual, expected)
+
+    def test_missing_keys_raises_key_error(self):
+        d = {'a': {'b': {'c': 5}}}
+
+        def _assert_raises(key_list):
+            with self.assertRaises(KeyError):
+                nested_dict_get(d, key_list)
+
+        _assert_raises([None])
+        _assert_raises([''])
+        _assert_raises(['q'])
+        _assert_raises(['a', 'q'])
+        _assert_raises(['a', 'b', 'q'])
+        _assert_raises(['a', 'b', 'c', 'q'])
+
+    def test_passing_no_keys_raises_type_error(self):
+        d = {'a': {'b': {'c': 5}}}
+
+        def _assert_raises(key_list):
+            with self.assertRaises(TypeError):
+                nested_dict_get(d, key_list)
+
+        _assert_raises('')
+        _assert_raises(None)
+
+
+class TestNestedDictSet(TestCase):
+    def test_nested_dict_set_is_defined(self):
+        self.assertIsNotNone(nested_dict_set)
+
+    def test_set_single_value_in_empty_dictionary(self):
+        d = {}
+        nested_dict_set(d, ['a'], 2)
+        expected = {'a': 2}
+        self.assertEqual(d, expected)
+
+    def test_set_single_value_modifies_dictionary_in_place(self):
+        actual = {'a': 1}
+        nested_dict_set(actual, ['a'], 2)
+        expected = {'a': 2}
+        self.assertEqual(actual, expected)
+
+    def test_set_nested_value_modifies_dictionary_in_place(self):
+        actual = {'a': 1}
+        nested_dict_set(actual, ['b', 'c'], 4)
+        expected = {'a': 1, 'b': {'c': 4}}
+        self.assertEqual(actual, expected)
+
+    def test_set_nested_values_modifies_dictionary_in_place(self):
+        actual = {'a': 1}
+        nested_dict_set(actual, ['b', 'c'], 4)
+        nested_dict_set(actual, ['b', 'd'], 5)
+        expected = {'a': 1, 'b': {'c': 4, 'd': 5}}
+        self.assertEqual(actual, expected)
+
+    def test_attempting_to_set_occupied_value_raises_key_error(self):
+        actual = {'a': 1}
+        with self.assertRaises(KeyError):
+            nested_dict_set(actual, ['a', 'b'], 5)
+
+    def test_passing_no_keys_raises_type_error(self):
+        d = {'a': 1}
+
+        def _assert_raises(key_list):
+            with self.assertRaises(TypeError):
+                nested_dict_set(d, key_list, 2)
+
+        _assert_raises('')
+        _assert_raises(None)
+
+    def test_passing_empty_list_raises_value_error(self):
+        d = {'a': 1}
+
+        def _assert_raises(key_list):
+            with self.assertRaises(ValueError):
+                nested_dict_set(d, key_list, 2)
+
+        _assert_raises([''])
+        _assert_raises([None])
+
+
+class TestEvalMagicGlob(TestCase):
+    def test_eval_magic_blob_is_defined(self):
+        self.assertIsNotNone(eval_magic_glob)
+
+    def test_eval_magic_blob_returns_false_given_bad_arguments(self):
+        self.assertIsNotNone(eval_magic_glob(None, None))
+        self.assertFalse(eval_magic_glob(None, None))
+
+    def test_eval_magic_blob_raises_exception_given_bad_arguments(self):
+        with self.assertRaises(ValueError):
+            self.assertTrue(eval_magic_glob('image/jpeg', ['*/*/jpeg']))
+
+    def test_eval_magic_blob_returns_false_as_expected(self):
+        self.assertFalse(eval_magic_glob('image/jpeg', []))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['application/pdf']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['*/pdf']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['image/pdf']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['image/pdf',
+                                                        'application/jpeg']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['image/']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['/jpeg']))
+        self.assertFalse(eval_magic_glob('image/jpeg', ['*/pdf', '*/png']))
+        self.assertFalse(eval_magic_glob('image/jpeg',
+                                         ['*/pdf', '*/png', 'application/*']))
+        self.assertFalse(eval_magic_glob('image/png',
+                                         ['*/pdf', '*/jpg', 'application/*']))
+        self.assertFalse(eval_magic_glob('image/png',
+                                         ['*/pdf', '*/jpg', 'image/jpg']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                         ['*/jpg']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                         ['image/*']))
+        self.assertFalse(eval_magic_glob('application/epub+zip',
+                                         ['image/jpeg']))
+
+    def test_eval_magic_blob_returns_true_as_expected(self):
+        self.assertTrue(eval_magic_glob('image/jpeg', ['*/*']))
+        self.assertTrue(eval_magic_glob('image/jpeg', ['*/jpeg']))
+        self.assertTrue(eval_magic_glob('image/jpeg', ['image/*']))
+        self.assertTrue(eval_magic_glob('image/png', ['image/*']))
+        self.assertTrue(eval_magic_glob('image/jpeg', ['image/jpeg']))
+        self.assertTrue(eval_magic_glob('image/jpeg', ['*/*', '*/jpeg']))
+        self.assertTrue(eval_magic_glob('image/jpeg', ['image/*', '*/jpeg']))
+        self.assertTrue(eval_magic_glob('image/png',
+                                        ['*/pdf', '*/png', 'application/*']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['application/epub+zip']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['application/*']))
+        self.assertTrue(eval_magic_glob('application/epub+zip',
+                                        ['*/epub+zip']))

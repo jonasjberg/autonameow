@@ -190,6 +190,21 @@ class FileObject(object):
         return '<{} {}>'.format(self.__class__.__name__,
                                 util.displayable_path(self.abspath))
 
+    def __hash__(self):
+        # NOTE(jonas): Might need to use a more robust method to avoid
+        #              collisions. Use "proper" cryptographic checksum?
+        return hash((self.abspath, self.mime_type))
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        else:
+            return (self.abspath, self.mime_type) == (other.abspath,
+                                                      other.mime_type)
+
+    def __ne__(self, other):
+        return not (self == other)
+
 
 # TODO: [TD0049]` Think about defining legal "placeholder fields".
 # Might be helpful to define all legal fields (such as `title`, `datetime`,
@@ -277,55 +292,3 @@ def validate_path_argument(path):
         )
     elif not os.access(path, os.R_OK):
         raise InvalidFileArgumentError('Not authorized to read path')
-
-
-def eval_magic_glob(mime_to_match, glob_list):
-    """
-    Tests if a given MIME type string matches any of the specified globs.
-
-    The MIME types consist of a "type" and a "subtype", separated by '/'.
-    For instance; "image/jpg" or "application/pdf".
-
-    Globs can substitute either one or both of "type" and "subtype" with an
-    asterisk to ignore that part. Examples:
-
-        mime_to_match         glob_list                 evaluates
-        'image/jpg'           ['image/jpg']             True
-        'image/png'           ['image/*']               True
-        'application/pdf'     ['*/*']                   True
-        'application/pdf'     ['image/*', '*/jpg']      False
-
-    Args:
-        mime_to_match: The MIME to match against the globs as a string.
-        glob_list: A list of globs as strings.
-
-    Returns:
-        True if the given MIME type matches any of the specified globs.
-    """
-    if not mime_to_match or not glob_list:
-        return False
-
-    if not isinstance(glob_list, list):
-        glob_list = [glob_list]
-
-    mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
-
-    for glob in glob_list:
-        if glob == mime_to_match:
-            return True
-        elif '*' in glob:
-            try:
-                glob_type, glob_subtype = glob.split('/')
-            except ValueError:
-                # NOTE(jonas): Raise exception? Use sophisticated glob parser?
-                raise
-            if glob_type == '*' and glob_subtype == '*':
-                # Matches everything.
-                return True
-            elif glob_type == '*' and glob_subtype == mime_to_match_subtype:
-                # Matches any type. Tests subtype equality.
-                return True
-            elif glob_type == mime_to_match_type and glob_subtype == '*':
-                # Checks type equality. Matches any subtype.
-                return True
-    return False

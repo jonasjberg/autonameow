@@ -14,6 +14,8 @@ Please see "LICENSE.txt" for licensing details.
 
 Configuration File
 ==================
+__PLEASE NOTE: This document is a collection of notes and ideas. Portions of
+it is likely outdated and does not reflect the current state of the program.__
 
 Current Formats
 ---------------

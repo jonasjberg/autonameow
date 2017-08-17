@@ -23,7 +23,7 @@ from datetime import datetime
 from unittest import TestCase
 
 from core import util
-from extractors.metadata import PyPDFMetadataExtractor
+from extractors.metadata_pypdf import PyPDFMetadataExtractor
 import unit_utils as uu
 
 

@@ -20,6 +20,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from datetime import datetime
 import os
 import types
 
@@ -153,24 +154,150 @@ class TestCaptureStdout(TestCase):
 
 
 class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
+    def setUp(self):
+        self.instances = uu.get_instantiated_analyzers()
+
     def test_get_instantiated_analyzers_returns_something(self):
         self.assertIsNotNone(uu.get_instantiated_analyzers())
 
-    def test_get_instantiated_analyzers_returns_class_objects(self):
-        instances = uu.get_instantiated_analyzers()
-        for analyzer_instance in instances:
-            self.assertTrue(hasattr(analyzer_instance, '__class__'))
-
     def test_get_instantiated_analyzers_returns_expected_type(self):
-        instances = uu.get_instantiated_analyzers()
-        self.assertEqual(type(instances), list)
+        self.assertEqual(type(self.instances), list)
 
-        for analyzer_instance in instances:
-            self.assertTrue(issubclass(analyzer_instance.__class__, BaseAnalyzer))
+        for analyzer_instance in self.instances:
+            self.assertTrue(
+                issubclass(analyzer_instance.__class__, BaseAnalyzer)
+            )
+
+    def test_get_analyzer_classes_does_not_return_classes(self):
+        for instance in self.instances:
+            self.assertFalse(uu.is_class(instance))
+
+    def test_get_analyzer_classes_returns_class_instances(self):
+        for instance in self.instances:
+            self.assertTrue(uu.is_class_instance(instance))
 
     def test_get_instantiated_analyzers_returns_arbitrary_number(self):
         # TODO: [hardcoded] Likely to break; Fix or remove!
-        self.assertGreaterEqual(len(uu.get_instantiated_analyzers()), 6)
+        self.assertGreaterEqual(len(self.instances), 6)
 
-    def test_get_instantiated_analyzers_returns_list(self):
-        self.assertTrue(isinstance(uu.get_instantiated_analyzers(), list))
+
+class _DummyClass(object):
+    pass
+
+
+class TestIsClass(TestCase):
+    def test_is_class_is_defined(self):
+        self.assertIsNotNone(uu.is_class)
+
+    def _assert_not_class(self, thing):
+        actual = uu.is_class(thing)
+        self.assertFalse(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def _assert_is_class(self, thing):
+        actual = uu.is_class(thing)
+        self.assertTrue(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def test_returns_true_for_classes(self):
+        self._assert_is_class(_DummyClass)
+
+    def test_returns_false_for_class_instances(self):
+        self._assert_not_class(_DummyClass())
+
+    def test_returns_false_for_none_or_empty(self):
+        self._assert_not_class(None)
+        self._assert_not_class('')
+        self._assert_not_class([])
+        self._assert_not_class([''])
+        self._assert_not_class((None, None))
+
+    def test_returns_false_for_primitive_types(self):
+        self._assert_not_class(False)
+        self._assert_not_class(True)
+        self._assert_not_class(' ')
+        self._assert_not_class([' '])
+        self._assert_not_class(set())
+        self._assert_not_class((None, None))
+        self._assert_not_class(('foo', 'bar'))
+        self._assert_not_class(1)
+        self._assert_not_class(1.0)
+
+
+class TestIsClassInstance(TestCase):
+    def test_is_class_instance_is_defined(self):
+        self.assertIsNotNone(uu.is_class_instance)
+
+    def _assert_not_class_instance(self, klass):
+        actual = uu.is_class_instance(klass)
+        self.assertFalse(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def _assert_is_class_instance(self, thing):
+        actual = uu.is_class_instance(thing)
+        self.assertTrue(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def test_returns_false_for_classes(self):
+        self._assert_not_class_instance(_DummyClass)
+
+    def test_returns_true_for_class_instances(self):
+        instance = _DummyClass()
+        self._assert_is_class_instance(instance)
+        self._assert_is_class_instance(_DummyClass())
+
+    def test_returns_false_for_none_or_empty(self):
+        self._assert_not_class_instance(None)
+        self._assert_not_class_instance('')
+        self._assert_not_class_instance([])
+        self._assert_not_class_instance([''])
+        self._assert_not_class_instance((None, None))
+
+    def test_returns_false_for_primitive_types(self):
+        self._assert_not_class_instance(False)
+        self._assert_not_class_instance(True)
+        self._assert_not_class_instance(' ')
+        self._assert_not_class_instance([' '])
+        self._assert_not_class_instance(set())
+        self._assert_not_class_instance(('foo', 'bar'))
+        self._assert_not_class_instance(1)
+        self._assert_not_class_instance(1.0)
+
+
+class TestStrToDatetime(TestCase):
+    def test_str_to_datetime_is_defined(self):
+        self.assertIsNotNone(uu.str_to_datetime)
+
+    def test_returns_expected_type(self):
+        actual = uu.str_to_datetime('2017-08-09 001225')
+        self.assertTrue(isinstance(actual, datetime))
+
+    def test_raises_exception_if_given_invalid_argument(self):
+        def _assert_raises(test_data):
+            with self.assertRaises((ValueError, TypeError)):
+                uu.str_to_datetime(test_data)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises(' ')
+        _assert_raises('2017-08-09T001225')
+        _assert_raises('2017-0809 001225')
+        _assert_raises('201708-09 001225')
+
+
+class TestIsImportable(TestCase):
+    def test_is_importable_returns_booleans(self):
+        expect_false = uu.is_importable(None)
+        self.assertTrue(isinstance(expect_false, bool))
+
+        expect_true = uu.is_importable('datetime')
+        self.assertTrue(isinstance(expect_true, bool))
+
+    def test_is_importable_returns_false_as_expected(self):
+        self.assertFalse(uu.is_importable(None))
+        self.assertFalse(uu.is_importable(''))
+        self.assertFalse(uu.is_importable(' '))
+        self.assertFalse(uu.is_importable('foo'))
+
+    def test_is_importable_returns_true_as_expected(self):
+        self.assertTrue(uu.is_importable('datetime'))

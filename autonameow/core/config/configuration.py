@@ -22,12 +22,12 @@
 import logging as log
 import os
 
-import extractors
 from core import (
     config,
     constants,
     exceptions,
-    util
+    util,
+    repository
 )
 from core.config import (
     field_parsers,
@@ -62,17 +62,19 @@ class Configuration(object):
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
         self._version = None
+        self.referenced_query_strings = set()
 
         # NOTE(jonas): Detecting type prior to loading could be improved ..
         if isinstance(source, dict):
             self._load_from_dict(source)
         else:
+            assert(isinstance(source, bytes))
             self._load_from_disk(source)
 
         if self._version:
             if self._version != constants.PROGRAM_VERSION:
                 log.warning('Possible configuration compatibility mismatch!')
-                log.warning('Loaded configuration created by v{} (currently '
+                log.warning('Loaded configuration created by {} (currently '
                             'running {})'.format(self._version,
                                                  constants.PROGRAM_VERSION))
                 log.info(
@@ -95,17 +97,19 @@ class Configuration(object):
     def _load_from_disk(self, load_path):
         try:
             _yaml_data = config.load_yaml_file(load_path)
-        except (OSError, exceptions.ConfigReadError) as e:
+        except exceptions.ConfigReadError as e:
             raise exceptions.ConfigError(e)
         else:
-            if not _yaml_data:
-                raise exceptions.ConfigError(
-                    'Bad (empty?) config: {!s}'.format(load_path)
-                )
+            if _yaml_data:
+                self._load_from_dict(_yaml_data)
+                return
 
-            self._load_from_dict(_yaml_data)
+        raise exceptions.ConfigError('Bad (empty?) config: "{!s}"'.format(
+            util.displayable_path(load_path)
+        ))
 
     def write_to_disk(self, dest_path):
+        # TODO: This method is currently unused. Remove?
         if os.path.exists(dest_path):
             raise FileExistsError
         else:
@@ -145,10 +149,15 @@ class Configuration(object):
                 valid_file_rule = self._validate_rule_data(rule)
             except exceptions.ConfigurationSyntaxError as e:
                 rule_description = rule.get('description', 'UNDESCRIBED')
-                log.error('File rule "{!s}" {!s}'.format(rule_description, e))
+                log.error('Bad rule "{!s}"; {!s}'.format(rule_description, e))
             else:
                 # Create and populate "FileRule" objects with *validated* data.
                 self._file_rules.append(valid_file_rule)
+
+                # Keep track of all "query strings" referenced by file rules.
+                self.referenced_query_strings.update(
+                    valid_file_rule.referenced_query_strings()
+                )
 
     def _validate_rule_data(self, raw_rule):
         """
@@ -156,7 +165,7 @@ class Configuration(object):
         instance of the 'FileRule' class, representing the "raw" file rule.
 
         Args:
-            raw_rule: A single file rule entry from a confiugration.
+            raw_rule: A single file rule entry from a configuration.
 
         Returns:
             An instance of the 'FileRule' class representing the given rule.
@@ -165,8 +174,15 @@ class Configuration(object):
             ConfigurationSyntaxError: The given file rule contains bad data,
                 making instantiating a 'FileRule' object impossible.
                 Note that the message will be used in the following sentence:
-                "ERROR -- File Rule "x" {message}"
+                "Bad rule "x"; {message}"
         """
+        # Get a description for referring to the rule in any log messages.
+        valid_description = raw_rule.get('description', False)
+        if not valid_description:
+            valid_description = 'UNDESCRIBED'
+
+        log.debug('Validating file rule "{!s}" ..'.format(valid_description))
+
         if 'NAME_FORMAT' not in raw_rule:
             log.debug('File rule contains no name format data' + str(raw_rule))
             raise exceptions.ConfigurationSyntaxError(
@@ -195,9 +211,6 @@ class Configuration(object):
         valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
         valid_weight = parse_weight(raw_rule.get('weight'))
         valid_exact_match = bool(raw_rule.get('exact_match'))
-        valid_description = raw_rule.get('description', False)
-        if not valid_description:
-            valid_description = 'UNDESCRIBED'
 
         file_rule = rules.FileRule(description=valid_description,
                                    exact_match=valid_exact_match,
@@ -205,6 +218,7 @@ class Configuration(object):
                                    name_template=valid_format,
                                    conditions=valid_conditions,
                                    data_sources=valid_sources)
+        log.debug('Validated file rule "{!s}" .. OK!'.format(valid_description))
         return file_rule
 
     def _load_options(self):
@@ -212,19 +226,34 @@ class Configuration(object):
             if 'DATETIME_FORMAT' in self._data:
                 _value = self._data['DATETIME_FORMAT'].get(option)
             else:
-                _value = False
-            if _value and DateTimeConfigFieldParser.is_valid_datetime(_value):
+                _value = None
+            if (_value is not None and
+                    DateTimeConfigFieldParser.is_valid_datetime(_value)):
                 self._options['DATETIME_FORMAT'][option] = _value
 
         def _try_load_filetags_option(option, default):
             if 'FILETAGS_OPTIONS' in self._data:
                 _value = self._data['FILETAGS_OPTIONS'].get(option)
             else:
-                _value = False
-            if _value:
+                _value = None
+            if _value is not None:
                 self._options['FILETAGS_OPTIONS'][option] = _value
             else:
                 self._options['FILETAGS_OPTIONS'][option] = default
+
+        def _try_load_filesystem_option(option, default):
+            if 'FILESYSTEM_OPTIONS' in self._data:
+                _value = self._data['FILESYSTEM_OPTIONS'].get(option)
+            else:
+                _value = None
+            if _value is not None:
+                util.nested_dict_set(
+                    self._options, ['FILESYSTEM_OPTIONS', option], _value
+                )
+            else:
+                util.nested_dict_set(
+                    self._options, ['FILESYSTEM_OPTIONS', option], default
+                )
 
         _try_load_date_format_option('date')
         _try_load_date_format_option('time')
@@ -232,11 +261,19 @@ class Configuration(object):
 
         _try_load_filetags_option(
             'filename_tag_separator',
-            constants.FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR
+            constants.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR
         )
         _try_load_filetags_option(
             'between_tag_separator',
-            constants.FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR
+            constants.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
+        )
+        _try_load_filesystem_option(
+            'sanitize_filename',
+            constants.DEFAULT_FILESYSTEM_SANITIZE_FILENAME
+        )
+        _try_load_filesystem_option(
+            'sanitize_strict',
+            constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
 
     def _load_version(self):
@@ -245,6 +282,9 @@ class Configuration(object):
             log.error('Unable to read program version from configuration')
         else:
             self._version = raw_version
+
+    def get(self, key_list):
+        return util.nested_dict_get(self._options, key_list)
 
     @property
     def version(self):
@@ -319,7 +359,7 @@ def parse_weight(value):
     ERROR_MSG = 'Expected float in range 0-1. Got: "{}"'.format(value)
 
     if value is None:
-        return constants.FILERULE_DEFAULT_WEIGHT
+        return constants.DEFAULT_FILERULE_WEIGHT
     if not isinstance(value, (int, float)):
         raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
 
@@ -341,12 +381,12 @@ def parse_sources(raw_sources):
 
     for template_field, query_string in raw_sources.items():
         if not query_string:
-            log.warning('Skipped source with empty query string '
-                        '(template field: "{!s}")'.format(template_field))
+            log.debug('Skipped source with empty query string '
+                      '(template field: "{!s}")'.format(template_field))
             continue
         elif not template_field:
-            log.warning('Skipped source with empty name template field '
-                        '(query string: "{!s}")'.format(query_string))
+            log.debug('Skipped source with empty name template field '
+                      '(query string: "{!s}")'.format(query_string))
             continue
 
         if not field_parsers.is_valid_template_field(template_field):
@@ -374,11 +414,11 @@ def is_valid_source(source_value):
     """
     Check if the source is valid.
 
-    Tests if the given source starts with the same text as any of the valid
-    date sources defined in the 'VALID_DATA_SOURCES' list.
+    Tests if the given source starts with the same text as any of the
+    date source "query strings" stored in the 'SessionRepository'.
 
-    For example, that the source value "metadata.exiftool.PDF:CreateDate" is
-    considered valid because "metadata.exiftool" is listed as a valid source.
+    For example, the source value "metadata.exiftool.PDF:CreateDate" would
+    be considered valid if "metadata.exiftool" was registered by a source.
 
     Args:
         source_value: The source to test as a text string.
@@ -389,39 +429,34 @@ def is_valid_source(source_value):
     if not source_value or not source_value.strip():
         return False
 
-    # TODO: [TD0052] Include 'analyzers.QueryStrings' with the valid sources.
-    valid_sources = extractors.QueryStrings
-
-    # TODO: [TD0009] Implement proper plugin interface
-    valid_sources.add('plugin.microsoft_vision.caption')
-
-    if source_value.startswith(tuple(valid_sources)):
-        return source_value
-    else:
-        return False
+    if repository.SessionRepository.resolvable(source_value):
+        return True
+    return False
 
 
 def parse_conditions(raw_conditions):
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
-    out = []
+    passed = []
     try:
         for query_string, expression in raw_conditions.items():
-            valid_condition = rules.get_valid_rule_condition(query_string,
-                                                             expression)
-            if not valid_condition:
-                raise exceptions.ConfigurationSyntaxError(
-                    'contains invalid condition [{}]: {}'.format(query_string,
+            try:
+                valid_condition = rules.get_valid_rule_condition(query_string,
                                                                  expression)
-                )
-            out.append(valid_condition)
-            log.debug('Validated condition: "{!s}"'.format(valid_condition))
+            except exceptions.InvalidFileRuleError as e:
+                raise exceptions.ConfigurationSyntaxError(e)
+            else:
+                passed.append(valid_condition)
+                log.debug('Validated condition: "{!s}"'.format(valid_condition))
     except ValueError as e:
         raise exceptions.ConfigurationSyntaxError(
             'contains invalid condition: ' + str(e)
         )
 
-    log.debug('parse_conditions returned {} valid conditions'.format(len(out)))
-    return out
+    log.debug(
+        'Returning {} (out of {}) valid conditions'.format(len(passed),
+                                                           len(raw_conditions))
+    )
+    return passed
 
 

@@ -79,8 +79,30 @@ RESULTS_DATA_STRUCTURE = {
         }
     },
     'metadata': {
-        'exiftool': None,
-        'pypdf': None,
+        'exiftool': {
+            'EXIF:DateTimeOriginal': None,
+            'PDF:Author': None,
+            'PDF:CreateDate': None,
+            'PDF:Creator': None,
+            'PDF:EBX_PUBLISHER': None,
+            'PDF:Producer': None,
+            'PDF:Subject': None,
+            'PDF:Title': None,
+            'XMP:Creator': None,
+            'XMP:EbxPublisher': None,
+            'XMP:Title': None,
+            'XMP-dc:Creator': None,
+            'XMP-dc:EbxPublisher': None,
+            'XMP-dc:Title': None,
+        },
+        'pypdf': {
+            'Author': None,
+            'Creator': None,
+            'Producer': None,
+            'Subject': None,
+            'Title': None,
+            'EBX_PUBLISHER': None,
+        }
     },
     'plugin': {
         'microsoft_vision': None,
@@ -110,9 +132,11 @@ MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
 MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
 
 # Default values for required configuration fields.
-FILERULE_DEFAULT_WEIGHT = 0.5
-FILETAGS_DEFAULT_FILENAME_TAG_SEPARATOR = ' -- '
-FILETAGS_DEFAULT_BETWEEN_TAG_SEPARATOR = ' '
+DEFAULT_FILERULE_WEIGHT = 0.5
+DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR = ' -- '
+DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR = ' '
+DEFAULT_FILESYSTEM_SANITIZE_FILENAME = True
+DEFAULT_FILESYSTEM_SANITIZE_STRICT = False
 
 # Exit code values returned to the executing shell or parent process.
 # Normal, successful termination should return "0" (EXIT_SUCCESS)

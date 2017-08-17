@@ -23,6 +23,7 @@ set -o noclobber -o nounset -o pipefail
 
 SELF="$(basename "$0")"
 SELF_DIR="$(dirname "$0")"
+TESTSUITE_NAME='Test Suite'
 
 # Source 'integration_utils.sh', which in turn sources 'common_utils.sh'.
 if ! source "${SELF_DIR}/integration_utils.sh"
@@ -40,7 +41,7 @@ fi
 time_start="$(current_unix_time)"
 
 logmsg "Started \"${SELF}\""
-logmsg "Running the Test Suite test suite .."
+logmsg "Running the "$TESTSUITE_NAME" test suite .."
 
 
 
@@ -98,10 +99,10 @@ assert_true '[ -e "${SELF_DIR}/unit_runner.sh" ]' \
 assert_true '[ -x "${SELF_DIR}/unit_runner.sh" ]' \
             'The unit test runner is executable'
 
-assert_true 'command -v "aha" >/dev/null 2>&1' \
+assert_true 'command -v "aha"' \
             'The executable "aha" is available on the system'
 
-assert_true 'command -v "pytest" >/dev/null 2>&1' \
+assert_true 'command -v "pytest"' \
             'The executable "pytest" is available on the system'
 
 _pytesthelp="$(pytest --help 2>&1)"
@@ -111,7 +112,7 @@ assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
 assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
 
-assert_true 'type -t get_timestamp_from_basename >/dev/null' \
+assert_true 'type -t get_timestamp_from_basename' \
             '"get_timestamp_from_basename" is a function'
 
 assert_false '[ -n "$(get_timestamp_from_basename "abc")" ]' \
@@ -120,11 +121,39 @@ assert_false '[ -n "$(get_timestamp_from_basename "abc")" ]' \
 assert_true 'get_timestamp_from_basename "unittest_log_2017-05-15T134801.html" | grep -qE -- "^2017-05-15 13:48:01$"' \
             '"get_timestamp_from_basename" returns "2017-05-15 13:48:01" given "unittest_log_2017-05-15T134801.html"'
 
+_abspath_testfile_empty="$(abspath_testfile "empty")"
+assert_false '[ -z "${_abspath_testfile_empty}" ]' \
+             'abspath_testfile "empty" should return something'
+
+assert_true '[ -e "${_abspath_testfile_empty}" ]' \
+            'abspath_testfile "empty" should an existing path'
+
+assert_true '[ -f "${_abspath_testfile_empty}" ]' \
+            'abspath_testfile "empty" should the path to an existing file'
+
+_abspath_testfile_subdir="$(abspath_testfile "subdir")"
+assert_false '[ -z "${_abspath_testfile_subdir}" ]' \
+             'abspath_testfile "subdir" should return something'
+
+assert_true '[ -e "${_abspath_testfile_subdir}" ]' \
+            'abspath_testfile "subdir" should an existing path'
+
+assert_true '[ -d "${_abspath_testfile_subdir}" ]' \
+            'abspath_testfile "subdir" should the path to an existing directory'
+
+assert_true 'type -t calculate_execution_time' \
+            '"calculate_execution_time" is a function'
+
+assert_true '[ "$(calculate_execution_time 1501987087187088013 1501987087942286968)" -eq "755" ]' \
+            'calculate_execution_time returns expected (755ms)'
+
+assert_true '[ "$(calculate_execution_time 1501987193168368101 1501987208094155073)" -eq "14925" ]' \
+            'calculate_execution_time returns expected (14925ms)'
+
 
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
-total_time="$((($time_end - $time_start) / 1000000))"
+total_time="$(calculate_execution_time "$time_start" "$time_end")"
 
-calculate_statistics
-logmsg "Completed the Test Suite test suite tests in ${total_time} ms"
+log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"

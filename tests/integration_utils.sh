@@ -38,8 +38,8 @@ then
 fi
 
 
-# Initialize counter variables every time this script is sourced, which means
-# these count numbers for each test suite.  Used in 'calculate_statistics'.
+# Initialize counter variables every time this script is sourced
+# by each of the test suites. Used in 'log_test_suite_results_summary'.
 tests_total=0
 tests_passed=0
 tests_failed=0
@@ -61,6 +61,8 @@ initialize_logging()
 
     AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/integration_log_${AUTONAMEOW_TEST_TIMESTAMP}.raw"
     export AUTONAMEOW_INTEGRATION_LOG
+
+    logmsg "Logging to file: \"${AUTONAMEOW_INTEGRATION_LOG}\""
 }
 
 # Print message to stdout and append message to AUTONAMEOW_INTEGRATION_LOG.
@@ -77,17 +79,35 @@ logmsg()
 }
 
 # Prints out a summary of test results for the currently sourcing script.
-calculate_statistics()
+log_test_suite_results_summary()
 {
+    local _name="$1"
+    local _execution_time="$2"
+    local _highlight_red=''
+
+    logmsg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     if [ "$tests_failed" -eq "0" ]
     then
         logmsg "${C_GREEN}[ ALL TESTS PASSED ]${C_RESET}"
     else
         logmsg "${C_RED}[ SOME TESTS FAILED ]${C_RESET}"
+        _highlight_red="${C_RED}"
     fi
 
-    logmsg "$(printf "Summary:  %d total, %d passed, %d failed" \
+    logmsg "$(printf "Test Suite Summary:  %d total, %d passed, ${_highlight_red}%d failed${C_RESET}" \
               "$tests_total" "$tests_passed" "$tests_failed")"
+    logmsg "Completed the "$_name" test suite tests in ${_execution_time} ms"
+    logmsg "======================================================================"
+}
+
+# Calculates the execution time by taking the difference of two unix
+# timestamps.  The expected arguments are start and end times.
+# Returns the time delta in milliseconds.
+calculate_execution_time()
+{
+    local _time_start="$1"
+    local _time_end="$2"
+    echo "$(((${_time_end} - ${_time_start}) / 1000000))"
 }
 
 # Logs a test failure message and increments counters.
@@ -111,7 +131,7 @@ test_pass()
 # Calls 'test_pass' if the expression returns zero.
 assert_true()
 {
-    eval "${1}"
+    ( eval "${1}" 2>&1 >/dev/null ) >/dev/null
     if [ "$?" -ne "0" ]
     then
         shift ; test_fail "$*"
@@ -125,7 +145,7 @@ assert_true()
 # Calls 'test_fail' if the expression returns zero.
 assert_false()
 {
-    eval "${1}"
+    ( eval "${1}" 2>&1 >/dev/null ) >/dev/null
     if [ "$?" -ne "0" ]
     then
         shift ; test_pass "$*"
@@ -222,6 +242,13 @@ convert_raw_log_to_html()
 grep_todos()
 {
     grep -q "\(TODO\|FIXME\|XXX\).*" -- "$1"
+}
+
+# Get the absolute path to a file in the "$SRCROOT/test_files" directory.
+# Expects the first and only argument to be the basename of the desired file.
+abspath_testfile()
+{
+    ( cd "$SELF_DIR" && realpath -e "../test_files/${1}" )
 }
 
 

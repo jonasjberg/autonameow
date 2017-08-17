@@ -20,23 +20,20 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging as log
-import os
-import re
 import operator
 
 import copy
 
 from core import (
     exceptions,
-    fileobject,
-    util
+    repository
 )
 
 
 class RuleMatcher(object):
-    def __init__(self, analysis_results, extracted_data, active_config):
-        self.analysis_data = analysis_results
-        self.extraction_data = extracted_data
+    def __init__(self, file_object, active_config):
+        self.file_object = file_object
+        self.request_data = repository.SessionRepository.resolve
 
         if not active_config or not active_config.file_rules:
             log.error('Configuration does not contain any rules to evaluate')
@@ -50,25 +47,23 @@ class RuleMatcher(object):
             self._rules = copy.deepcopy(active_config.file_rules)
 
         self._candidates = []
-        self._data_sources = [self.extraction_data, self.analysis_data]
 
     def query_data(self, query_string):
-        for source in self._data_sources:
-            data = source.get(query_string)
-            if data:
-                return data
+        # Functions that use this does not have access to the 'file_object'.
+        # This method, which calls a callback, is itself passed as a callback..
+        return self.request_data(self.file_object, query_string)
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))
-        ok_rules = examine_rules(self._rules, self.query_data)
+        ok_rules = evaluate_rule_conditions(self._rules, self.query_data)
         if len(ok_rules) == 0:
-            log.debug('No valid rules remain after evaluation')
+            log.info('No valid rules remain after evaluation')
             return
 
         log.debug('Prioritizing remaining {} candidates ..'.format(len(ok_rules)))
         ok_rules = prioritize_rules(ok_rules)
         for i, rule in enumerate(ok_rules):
-            log.debug('{}. (score: {}, weight: {}) {} '.format(
+            log.info('Rule #{} (Score: {:.2f} Weight: {:.2f}) {} '.format(
                 i + 1, rule.score, rule.weight, rule.description)
             )
 
@@ -97,20 +92,21 @@ def prioritize_rules(rules):
                   key=operator.attrgetter('score', 'weight'))
 
 
-def examine_rules(rules_to_examine, query_data):
-    # Conditions are evaluated with the current file object and current
-    # analysis results data.
-    # If a rule requires an exact match, it is skipped at first failed
-    # evaluation.
+def evaluate_rule_conditions(rules_to_examine, data_query_function):
+    # Conditions are evaluated with data accessed through 'data_query_function'
+    # which returns data related to 'RuleMatcher.file_object'.
     ok_rules = []
 
     for count, rule in enumerate(rules_to_examine):
         log.debug('Evaluating rule {}/{}: "{}"'.format(
-            count + 1, len(rules_to_examine), rule.description))
-        result = evaluate_rule(rule, query_data)
+            count + 1, len(rules_to_examine), rule.description)
+        )
+
+        result = rule.evaluate(data_query_function)
         if rule.exact_match and result is False:
-            log.debug('Rule evaluated FALSE, removing: '
-                      '"{}"'.format(rule.description))
+            log.debug(
+                'Rule evaluated FALSE, removing: "{}"'.format(rule.description)
+            )
             continue
 
         log.debug('Rule evaluated TRUE: "{}"'.format(rule.description))
@@ -119,55 +115,3 @@ def examine_rules(rules_to_examine, query_data):
     return ok_rules
 
 
-def evaluate_rule(file_rule, query_data):
-    """
-    Tests if a rule applies to a given file.
-
-    Returns at first unmatched condition if the rule requires an exact match.
-    If the rule does not require an exact match, all conditions are
-    evaluated and the rule is scored through "upvote()" and "downvote()".
-
-    Args:
-        file_rule: The rule to test as an instance of 'FileRule'.
-        query_data: Callback function used to query available data.
-
-    Returns:
-        If the rule requires an exact match:
-            True if all rule conditions evaluates to True.
-            False if any rule condition evaluates to False.
-        If the rule does not require an exact match:
-            True
-    """
-    if not file_rule.conditions:
-        raise exceptions.InvalidFileRuleError(
-            'Rule does not specify any conditions'
-        )
-
-    if file_rule.exact_match:
-        for condition in file_rule.conditions:
-            log.debug('Evaluating condition "{!s}"'.format(condition))
-            if not eval_condition(condition, query_data):
-                log.debug('Condition FAILED -- Exact match impossible ..')
-                return False
-            else:
-                file_rule.upvote()
-        return True
-
-    for condition in file_rule.conditions:
-        log.debug('Evaluating condition "{!s}"'.format(condition))
-        if eval_condition(condition, query_data):
-            log.debug('Condition Passed rule.votes++')
-            file_rule.upvote()
-        else:
-            # NOTE: file_rule.downvote()?
-            # log.debug('Condition FAILED rule.votes--')
-            log.debug('Condition FAILED')
-
-    # Rule was not completely discarded but could still have failed all tests.
-    return True
-
-
-def eval_condition(condition, query_data):
-    query_string = condition.query_string
-    data = query_data(query_string)
-    return condition.evaluate(data)

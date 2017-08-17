@@ -131,17 +131,6 @@ def date_is_probable(date):
         return True
 
 
-def search_standard_formats(text, prefix):
-    """
-    Matches against standard formats.
-    :param text: the text to extract information from
-    :param prefix: prefix this to the resulting dictionary keys
-    :return: a list of dictionaries containing datetime-objects.
-    """
-    # TODO: [cleanup] Implement or remove ..
-    pass
-
-
 def regex_search_str(text):
     """
     Extracts date/time-information from a text string using regex searches.
@@ -790,3 +779,20 @@ def naive_to_timezone_aware(naive_datetime):
     """
     # Reference:  https://stackoverflow.com/a/7065242/7802196
     return pytz.utc.localize(naive_datetime)
+
+
+def find_isodate_like(unicode_text):
+    if not unicode_text:
+        raise ValueError('Got None/empty argument')
+
+    unicode_text = unicode_text.strip()
+    if not unicode_text:
+        raise ValueError('Got empty string argument')
+
+    string_digits = textutils.extract_digits(unicode_text)
+    try:
+        dt = datetime.strptime(string_digits, '%Y%m%d%H%M%S')
+    except (ValueError, TypeError):
+        return None
+    else:
+        return dt

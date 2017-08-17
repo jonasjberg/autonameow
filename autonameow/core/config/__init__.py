@@ -95,14 +95,18 @@ def config_file_path():
     actually exist.
 
     Returns:
-        The absolute path to the autonameow configuration file.
+        The absolute path to the autonameow configuration file as a string
+        in the "internal bytestring" encoding.
+    Raises:
+        ConfigError: No config path candidates could be found.
     """
-    directories = config_dirs()
-    if not directories:
-        return False
+    dirs = config_dirs()
+    if not dirs:
+        raise exceptions.ConfigError('No configurations paths were found')
 
-    out = os.path.normpath(os.path.join(directories[0], CONFIG_BASENAME))
-    return str(out)
+    # Path name encoding boundary. Convert to internal bytestring format.
+    config_path = os.path.normpath(os.path.join(dirs[0], CONFIG_BASENAME))
+    return util.normpath(config_path)
 
 
 def has_config_file():
@@ -112,9 +116,10 @@ def has_config_file():
     Returns:
         True if a configuration file is available, else False.
     """
-    _path = ConfigFilePath
-    if os.path.exists(_path) and os.path.isfile(_path):
-        return True
+    config_path = util.syspath(ConfigFilePath)
+    if os.path.exists(config_path):
+        if os.path.isfile(config_path) or os.path.islink(config_path):
+            return True
 
     return False
 
@@ -124,18 +129,20 @@ def write_default_config():
     Writes a default template configuration file in YAML format to disk.
 
     Raises:
-        FileExistsError: A file exists at the configuration file path.
+        ConfigWriteError: The default configuration file could not be written.
     """
-    _path = ConfigFilePath
+    config_path = ConfigFilePath
 
-    if os.path.exists(_path):
-        log.warning('Path exists: "{}"'.format(_path))
-        raise FileExistsError
+    if os.path.exists(util.syspath(config_path)):
+        log.warning(
+            'Path exists: "{}"'.format(util.displayable_path(config_path))
+        )
+        raise exceptions.ConfigWriteError
 
     _default_config = DEFAULT_CONFIG.copy()
     _default_config['autonameow_version'] = constants.PROGRAM_VERSION
 
-    write_yaml_file(_path, _default_config)
+    write_yaml_file(config_path, _default_config)
 
 
 def load_yaml_file(file_path):
@@ -157,7 +164,7 @@ def load_yaml_file(file_path):
     try:
         with open(util.syspath(file_path), 'r', encoding='utf-8') as fh:
             return yaml.safe_load(fh)
-    except (IOError, yaml.YAMLError, UnicodeDecodeError) as e:
+    except (OSError, yaml.YAMLError, UnicodeDecodeError) as e:
         raise exceptions.ConfigReadError(file_path, e)
 
 
@@ -166,39 +173,24 @@ def write_yaml_file(dest_path, yaml_data):
     Writes the given data ("Python object"/dict) to the specified path.
 
     Args:
-        dest_path: The (absolute) path to the output file, which will be
-                   *overwritten* if it already exists.
+        dest_path: The (absolute) path to the output file as a bytestring.
+                   NOTE: The path will be *OVERWRITTEN* if it already exists!
         yaml_data: Data to write as a "Python object" (dict).
                    Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
 
     Raises:
-        ConfigWriteError: The configuration file could not be written.
+        ConfigWriteError: The yaml file could not be written.
     """
     if not os.access(os.path.dirname(dest_path), os.W_OK):
-        raise PermissionError
+        raise exceptions.ConfigWriteError(dest_path, 'Insufficient permissions')
 
     try:
-        with open(dest_path, 'w', encoding='utf-8') as fh:
+        with open(util.syspath(dest_path), 'w', encoding='utf-8') as fh:
             yaml.dump(yaml_data, fh, default_flow_style=False, encoding='utf-8',
                       width=160, indent=4)
-    except (IOError, yaml.YAMLError) as e:
+    except (OSError, yaml.YAMLError) as e:
         raise exceptions.ConfigWriteError(dest_path, e)
 
 
 # Variables listed here are intended for public, global use.
 ConfigFilePath = config_file_path()
-
-
-if __name__ == '__main__':
-    dirs = config_dirs()
-
-    print('Configuration directories:')
-    for dir_ in dirs:
-        print('  "{!s}"'.format(dir_))
-
-    __config_file_path = config_file_path()
-    print('Configuration file path: "{!s}"'.format(__config_file_path))
-
-    __has_config = has_config_file()
-    print('Has config file?: "{!s}"'.format(__has_config))
-

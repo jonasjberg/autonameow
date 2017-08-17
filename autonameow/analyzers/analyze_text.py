@@ -28,12 +28,13 @@ from core.util import dateandtime
 class TextAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     handles_mime_types = ['text/plain']
+    data_query_string = 'analysis.plaintext'
 
-    def __init__(self, file_object, add_results_callback, extracted_data):
+    def __init__(self, file_object, add_results_callback,
+                 request_data_callback):
         super(TextAnalyzer, self).__init__(
-            file_object, add_results_callback, extracted_data
+            file_object, add_results_callback, request_data_callback
         )
-        self.add_results = add_results_callback
 
         self.text = None
 
@@ -45,7 +46,8 @@ class TextAnalyzer(BaseAnalyzer):
         self.add_results(query_string, data)
 
     def run(self):
-        self.text = self.extracted_data.get('contents.textual.raw_text')
+        self.text = self.request_data(self.file_object,
+                                      'contents.textual.raw_text')
 
         # Pass results through callback function provided by the 'Analysis'.
         self._add_results('author', self.get_author())

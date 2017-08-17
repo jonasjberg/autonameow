@@ -25,10 +25,11 @@ from unittest import (
 )
 import unit_utils as uu
 
-from core import constants
-from core.autonameow import (
-    Autonameow,
+from core import (
+    constants,
+    config
 )
+from core.autonameow import Autonameow
 
 
 class TestAutonameowWithoutOptions(TestCase):
@@ -89,16 +90,25 @@ class TestSetAutonameowExitCode(TestCase):
 class TestDoRename(TestCase):
     def setUp(self):
         self.amw = Autonameow('')
-        self.expected_initial = constants.EXIT_SUCCESS
+        self.assertIsNotNone(self.amw)
+        self.amw.load_config(config.DEFAULT_CONFIG)
 
     @mock.patch('core.util.diskutils.rename_file')
     def test_dry_run_true_will_not_call_diskutils_rename_file(self, mockrename):
-        r = self.amw.do_rename('/tmp/dummy/path', 'mjaopath', dry_run=True)
+        self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=True)
         mockrename.assert_not_called()
-        self.assertTrue(r)
 
     @mock.patch('core.util.diskutils.rename_file')
     def test_dry_run_false_calls_diskutils_rename_file(self, mockrename):
-        r = self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=False)
+        self.amw.do_rename(b'/tmp/dummy/path', 'mjaopath', dry_run=False)
         mockrename.assert_called_with(b'/tmp/dummy/path', b'mjaopath')
-        self.assertTrue(r)
+
+    @mock.patch('core.util.diskutils.rename_file')
+    def test_skip_rename_if_new_name_equals_old_name(self, mockrename):
+        self.amw.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=False)
+        mockrename.assert_not_called()
+
+    @mock.patch('core.util.diskutils.rename_file')
+    def test_skip_rename_if_new_name_equals_old_name_dry_run(self, mockrename):
+        self.amw.do_rename(b'/tmp/dummy/foo', 'foo', dry_run=True)
+        mockrename.assert_not_called()
