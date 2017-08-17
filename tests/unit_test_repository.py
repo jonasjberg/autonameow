@@ -36,7 +36,7 @@ class TestRepository(TestCase):
 
     def test_setup(self):
         self.r.initialize()
-        self.assertTrue(isinstance(self.r._query_string_source_map, dict))
+        self.assertTrue(isinstance(self.r.query_string_class_map, dict))
 
 
 class TestRepositoryMethodStore(TestCase):

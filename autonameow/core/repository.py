@@ -33,31 +33,14 @@ from core import (
 class Repository(object):
     def __init__(self):
         self.data = {}
-        self._query_string_source_map = {}
+        self.query_string_class_map = {}
         self.resolvable_query_strings = set()
 
     def initialize(self):
-        self._create_query_string_source_mapping()
-        self.resolvable_query_strings = self._get_resolvable_query_strings()
-
-    def _create_query_string_source_mapping(self):
-        # The 'QueryStringClassMap' attributes in non-core modules keep
-        # references to the available component class.
-        # These are dicts with keys being the "query strings" that the data
-        # stored by the respective component uses when storing data and the
-        # contained values are lists of classes mapped to the "query string".
-        self._query_string_source_map['extractors'] = extractors.QueryStringClassMap
-        self._query_string_source_map['analyzers'] = analyzers.QueryStringClassMap
-        self._query_string_source_map['plugins'] = plugins.QueryStringClassMap
-
-    def _get_resolvable_query_strings(self):
-        out = set()
-
-        for key in ['extractors', 'analyzers', 'plugins']:
-            for query_string, _ in self._query_string_source_map[key].items():
-                out.add(query_string)
-
-        return out
+        self.query_string_class_map = querystring_class_map_dict()
+        self.resolvable_query_strings = resolvable_query_strings(
+            self.query_string_class_map
+        )
 
     def store(self, file_object, query_string, data):
         """
@@ -147,6 +130,32 @@ class Repository(object):
                 out[key] = value
 
         return out
+
+
+def querystring_class_map_dict():
+    # The 'QueryStringClassMap' attributes in non-core modules keep
+    # references to the available component class.
+    # These are dicts with keys being the "query strings" that the data
+    # stored by the respective component uses when storing data and the
+    # contained values are lists of classes mapped to the "query string".
+    _query_string_class_map = {
+        'extractors': extractors.QueryStringClassMap,
+        'analyzers': analyzers.QueryStringClassMap,
+        'plugins': plugins.QueryStringClassMap
+    }
+    return _query_string_class_map
+
+
+def resolvable_query_strings(query_string_class_map):
+    out = set()
+
+    # for key in ['extractors', 'analyzers', 'plugins']:
+    for key in query_string_class_map.keys():
+        for query_string, _ in query_string_class_map[key].items():
+            out.add(query_string)
+
+    return out
+
 
 SessionRepository = Repository()
 SessionRepository.initialize()
