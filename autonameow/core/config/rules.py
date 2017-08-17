@@ -204,8 +204,8 @@ class FileRule(Rule):
         self.exact_match = bool(kwargs.get('exact_match'))
         self.weight = kwargs.get('weight', constants.DEFAULT_FILERULE_WEIGHT)
         self.name_template = kwargs.get('name_template')
-        self.conditions = kwargs.get('conditions', False)
-        self.data_sources = kwargs.get('data_sources', False)
+        self.conditions = kwargs.get('conditions', [])
+        self.data_sources = kwargs.get('data_sources', [])
 
         self._count_met_conditions = 0
 
