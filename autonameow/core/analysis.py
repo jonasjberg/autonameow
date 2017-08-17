@@ -58,33 +58,12 @@ class Analysis(object):
         """
         Collects analysis results. Passed to analyzers as a callback.
 
-        Analyzers call this to store collected data.
-
-        If argument "data" is a dictionary, it is "flattened" here.
-        Example:
-
-          Incoming arguments:
-          LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
-
-          Would be "flattened" to:
-          LABEL: 'metadata.exiftool.a'   DATA: 'b'
-          LABEL: 'metadata.exiftool.c'   DATA: 'd'
+        Analyzers call this to pass collected data to the session repository.
 
         Args:
             label: Label that uniquely identifies the data.
             data: The data to add.
         """
-        assert label is not None and isinstance(label, str)
-
-        if isinstance(data, dict):
-            flat_data = util.flatten_dict(data)
-            for k, v in flat_data.items():
-                merged_label = label + '.' + str(k)
-                self.collect_data(merged_label, v)
-        else:
-            self.collect_data(label, data)
-
-    def collect_data(self, label, data):
         self.add_to_global_data(self.file_object, label, data)
 
     def start(self):

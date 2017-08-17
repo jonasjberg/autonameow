@@ -44,6 +44,8 @@ class Repository(object):
 
     def store(self, file_object, query_string, data):
         """
+        Collects data. Should be passed to "non-core" components as a callback.
+
         Adds data related to a given 'file_object', at a storage location
         defined by the given 'query_string'.
 
@@ -57,10 +59,25 @@ class Repository(object):
                     'query_string_b': [2, 1]
                 }
             }
+
+        If argument "data" is a dictionary, it is "flattened" here.
+        Example:
+
+          Incoming arguments:
+          LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
+
+          Would be "flattened" to:
+          LABEL: 'metadata.exiftool.a'   DATA: 'b'
+          LABEL: 'metadata.exiftool.c'   DATA: 'd'
+
         """
         if not query_string:
             raise exceptions.InvalidDataSourceError(
-                'Invalid source (missing label)'
+                'Missing required argument "query_string"'
+            )
+        if not isinstance(query_string, str):
+            raise exceptions.InvalidDataSourceError(
+                'Argument "query_string" must be of type str'
             )
 
         if data is None:
@@ -68,6 +85,15 @@ class Repository(object):
                         ' "{!s}"'.format(query_string))
             return
 
+        if isinstance(data, dict):
+            flat_data = util.flatten_dict(data)
+            for k, v in flat_data.items():
+                merged_query_string = query_string + '.' + str(k)
+                self._store(file_object, merged_query_string, v)
+        else:
+            self._store(file_object, query_string, data)
+
+    def _store(self, file_object, query_string, data):
         try:
             any_existing = util.nested_dict_get(self.data,
                                                 [file_object, query_string])
@@ -79,6 +105,9 @@ class Repository(object):
                 data = [any_existing] + [data]
 
         util.nested_dict_set(self.data, [file_object, query_string], data)
+        log.debug('Repository stored: {{"{!s}": {{"{!s}": {!s}}}}}'.format(
+            file_object, query_string, data
+        ))
 
     def resolve(self, file_object, query_string):
         if not query_string:

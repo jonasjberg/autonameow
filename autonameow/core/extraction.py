@@ -34,8 +34,6 @@ class Extraction(object):
     Performs high-level handling of data extraction.
 
     A run queue is populated with extractors suited for the current file.
-    The enqueued extractors are executed and any results are passed back
-    through a callback function.
     """
     def __init__(self, file_object):
         """
@@ -51,44 +49,12 @@ class Extraction(object):
 
     def collect_results(self, label, data):
         """
-        Collects extracted data. Passed to extractors as a callback.
-
-        If argument "data" is a dictionary, it is "flattened" here.
-        Example:
-
-          Incoming arguments:
-          LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
-
-          Would be "flattened" to:
-          LABEL: 'metadata.exiftool.a'   DATA: 'b'
-          LABEL: 'metadata.exiftool.c'   DATA: 'd'
+        Collects extractor data, passes it the the session repository.
 
         Args:
             label: Label that uniquely identifies the data.
             data: The data to add.
         """
-        if not label:
-            raise exceptions.InvalidDataSourceError(
-                'Missing required argument "label"'
-            )
-        if not isinstance(label, str):
-            raise exceptions.InvalidDataSourceError(
-                'Argument "label" must be of type str'
-            )
-
-        if data is None:
-            log.warning('Attempt to collect results with None data for query'
-                        ' string "{!s}"'.format(label))
-
-        if isinstance(data, dict):
-            flat_data = util.flatten_dict(data)
-            for k, v in flat_data.items():
-                merged_label = label + '.' + str(k)
-                self.collect_data(merged_label, v)
-        else:
-            self.collect_data(label, data)
-
-    def collect_data(self, label, data):
         self.add_to_global_data(self.file_object, label, data)
 
     def start(self, require_extractors=None, require_all_extractors=False):
