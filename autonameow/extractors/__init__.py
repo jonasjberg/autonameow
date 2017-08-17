@@ -244,4 +244,4 @@ def map_query_string_to_extractors():
     return out
 
 ExtractorClasses = get_extractor_classes(find_extractor_files())
-QueryStringExtractorClassMap = map_query_string_to_extractors()
+QueryStringClassMap = map_query_string_to_extractors()

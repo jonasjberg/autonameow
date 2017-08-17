@@ -41,12 +41,14 @@ class Repository(object):
         self.resolvable_query_strings = self._get_resolvable_query_strings()
 
     def _create_query_string_source_mapping(self):
-        # Module attributes store all available non-core components in dicts,
-        # with keys being the "query strings" that the components store data
-        # under and the contained values are lists of classes.
-        self._query_string_source_map['extractors'] = extractors.QueryStringExtractorClassMap
-        self._query_string_source_map['analyzers'] = analyzers.QueryStringAnalyzerClassMap
-        self._query_string_source_map['plugins'] = plugins.QueryStringPluginClassMap
+        # The 'QueryStringClassMap' attributes in non-core modules keep
+        # references to the available component class.
+        # These are dicts with keys being the "query strings" that the data
+        # stored by the respective component uses when storing data and the
+        # contained values are lists of classes mapped to the "query string".
+        self._query_string_source_map['extractors'] = extractors.QueryStringClassMap
+        self._query_string_source_map['analyzers'] = analyzers.QueryStringClassMap
+        self._query_string_source_map['plugins'] = plugins.QueryStringClassMap
 
     def _get_resolvable_query_strings(self):
         out = set()

@@ -150,4 +150,4 @@ def map_query_string_to_plugins():
 
 
 UsablePlugins = get_usable_plugin_classes()
-QueryStringPluginClassMap = map_query_string_to_plugins()
+QueryStringClassMap = map_query_string_to_plugins()

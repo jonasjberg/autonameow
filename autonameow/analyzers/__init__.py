@@ -219,4 +219,4 @@ def map_query_string_to_analyzers():
 
 
 AnalyzerClasses = get_analyzer_classes()
-QueryStringAnalyzerClassMap = map_query_string_to_analyzers()
+QueryStringClassMap = map_query_string_to_analyzers()
