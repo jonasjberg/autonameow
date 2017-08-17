@@ -381,12 +381,12 @@ def parse_sources(raw_sources):
 
     for template_field, query_string in raw_sources.items():
         if not query_string:
-            log.warning('Skipped source with empty query string '
-                        '(template field: "{!s}")'.format(template_field))
+            log.debug('Skipped source with empty query string '
+                      '(template field: "{!s}")'.format(template_field))
             continue
         elif not template_field:
-            log.warning('Skipped source with empty name template field '
-                        '(query string: "{!s}")'.format(query_string))
+            log.debug('Skipped source with empty name template field '
+                      '(query string: "{!s}")'.format(query_string))
             continue
 
         if not field_parsers.is_valid_template_field(template_field):
