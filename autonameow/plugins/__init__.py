@@ -111,23 +111,6 @@ def get_usable_plugin_classes():
     return [k for k in get_plugin_classes() if k.test_init()]
 
 
-# def _plugin_class_instance_dict():
-#     out = {}
-#
-#     klasses = get_plugin_classes()
-#     for klass in klasses:
-#         plugin_class_instance = klass()
-#         if plugin_class_instance.test_init():
-#             # Make sure that plugin-specific prerequisites/dependencies are met.
-#             key = str(plugin_class_instance)
-#             out[key] = plugin_class_instance
-#         else:
-#             print('Plugin [{!s}] failed initialization test'.format(
-#                 plugin_class_instance))
-#
-#     return out
-
-
 def suitable_plugins_for(file_object):
     """
     Returns plugin classes that can handle the given file object.
@@ -180,7 +163,6 @@ def map_query_string_to_plugins():
     return out
 
 
-# Plugins = _plugin_class_instance_dict()
 UsablePlugins = get_usable_plugin_classes()
 QueryStrings = get_query_strings()
 QueryStringPluginClassMap = map_query_string_to_plugins()
