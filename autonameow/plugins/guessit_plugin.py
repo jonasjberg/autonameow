@@ -68,7 +68,7 @@ class GuessitPlugin(BasePlugin):
                 self.add_results('plugin.guessit.title', wrapped_title)
 
     def can_handle(self):
-        _mime_type = self.request_data('contents.mime_type')
+        _mime_type = self.request_data('filesystem.contents.mime_type')
         return util.eval_magic_glob(_mime_type, 'video/*')
 
     def _perform_initial_query(self):
