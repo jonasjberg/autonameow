@@ -19,6 +19,9 @@ University mail: `js224eh[a]student.lnu.se`
     >
     > * `[TD0077]` __Implement a "repository" to handle "query string" queries__
     >
+    > * `[TD0069]` Calculate file rule scores as `score = conditions_met /
+    >   number_of_conditions`, I.E. use normalized floats.
+    >
     > Medium Priority
     > ---------------
     >

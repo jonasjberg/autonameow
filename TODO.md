@@ -62,9 +62,6 @@ High Priority
 
 * `[TD0061]` Re-implement basic queries to the "microsoft vision" plugin.
 
-* `[TD0069]` Calculate file rule scores as `score = conditions_met /
-  number_of_conditions`, I.E. use normalized floats.
-
 
 Medium Priority
 ---------------

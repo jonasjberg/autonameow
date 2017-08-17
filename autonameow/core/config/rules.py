@@ -203,9 +203,9 @@ class FileRule(Rule):
         self.data_sources = kwargs.get('data_sources', False)
 
         # Rules are sorted/prioritized by first the score, secondly the weight.
-        # TODO: [TD0069] Store scores as normalized floats.
         # Calculate scores as;  SCORE = conditions_met / number_of_conditions
         self.score = 0
+        self._count_met_conditions = 0
 
     def __str__(self):
         # TODO: [TD0039] Do not include the file rule attribute `score` when
@@ -222,18 +222,22 @@ class FileRule(Rule):
         """
         Increases the matching score of this rule.
         """
-        # TODO: [TD0069] Store scores as normalized floats.
-        # Calculate scores as;  SCORE = conditions_met / number_of_conditions
-        self.score += 1
+        self._count_met_conditions += 1
+        self._recalculate_score()
 
     def downvote(self):
         """
         Decreases the matching score of this rule.
         """
-        # TODO: [TD0069] Store scores as normalized floats.
+        self._count_met_conditions -= 1
+        self._count_met_conditions = max(0, self._count_met_conditions)
+        self._recalculate_score()
+
+    def _recalculate_score(self):
         # Calculate scores as;  SCORE = conditions_met / number_of_conditions
-        if self.score > 0:
-            self.score -= 1
+        self.score = self._count_met_conditions / max(1, len(self.conditions))
+        assert(self.score >= 0)
+        assert(self.score <= 1)
 
     def referenced_query_strings(self):
         """
