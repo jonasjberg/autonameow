@@ -293,7 +293,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
             return False
 
         try:
-            namebuilder.assemble_basename(expression, **DATA_FIELDS)
+            namebuilder.populate_name_template(expression, **DATA_FIELDS)
         except exceptions.NameTemplateSyntaxError:
             return False
         else:

@@ -142,7 +142,7 @@ class NameBuilder(object):
         # 'assemble_basename'.
 
         # Construct the new file name
-        new_name = assemble_basename(template, **data)
+        new_name = populate_name_template(template, **data)
         log.debug('Assembled basename: "{!s}"'.format(new_name))
         assert(isinstance(new_name, str))
 
@@ -155,7 +155,7 @@ class NameBuilder(object):
         return new_name
 
 
-def assemble_basename(name_template, **kwargs):
+def populate_name_template(name_template, **kwargs):
     """
     Assembles a basename string from a given "name_template" format string
     that is populated with an arbitrary number of keyword arguments.
