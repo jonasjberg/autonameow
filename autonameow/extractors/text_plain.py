@@ -42,7 +42,7 @@ def read_entire_text_file(file_path):
     try:
         with open(file_path, 'r', encoding='utf8') as fh:
             contents = fh.read().split('\n')
-    except FileNotFoundError as e:
+    except (FileNotFoundError, UnicodeDecodeError) as e:
         log.debug('{!s}'.format(e))
         raise ExtractorError(e)
 
