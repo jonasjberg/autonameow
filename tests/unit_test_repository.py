@@ -128,13 +128,12 @@ class TestRepositoryMethodStore(TestCase):
         actual = self.r.resolve(self.file_object, valid_label)
         self.assertEqual(actual, 'expected_data')
 
-    def test_none_label_returns_expected_data(self):
+    def test_resolve_none_label_raises_exception(self):
         valid_label = constants.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, valid_label, 'expected_data')
 
-        actual = self.r.resolve(self.file_object, None)
-        expect = {self.file_object: {valid_label: 'expected_data'}}
-        self.assertEqual(actual, expect)
+        with self.assertRaises(exceptions.InvalidDataSourceError):
+            self.r.resolve(self.file_object, None)
 
     def test_valid_label_returns_expected_data_multiple_entries(self):
         valid_label = constants.VALID_DATA_SOURCES[0]
@@ -144,20 +143,6 @@ class TestRepositoryMethodStore(TestCase):
         actual = self.r.resolve(self.file_object, valid_label)
         self.assertIn('expected_data_a', actual)
         self.assertIn('expected_data_b', actual)
-
-    def test_none_label_returns_expected_data_multiple_entries(self):
-        valid_label_a = constants.VALID_DATA_SOURCES[0]
-        valid_label_b = constants.VALID_DATA_SOURCES[1]
-        self.r.store(self.file_object, valid_label_a, 'expected_data_a')
-        self.r.store(self.file_object, valid_label_b, 'expected_data_b')
-
-        actual = self.r.resolve(self.file_object, None)
-        self.assertIn(valid_label_a, actual[self.file_object])
-        self.assertIn(valid_label_b, actual[self.file_object])
-        self.assertTrue(actual[self.file_object][valid_label_a],
-                        'expected_data_a')
-        self.assertTrue(actual[self.file_object][valid_label_b],
-                        'expected_data_b')
 
 
 class TestRepositoryMethodResolvable(TestCase):

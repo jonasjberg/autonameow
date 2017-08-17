@@ -83,6 +83,14 @@ class Repository(object):
                         ' "{!s}"'.format(query_string))
             return
 
+        try:
+            any_existing = util.nested_dict_get(self.data, [file_object, query_string])
+        except KeyError:
+            pass
+        else:
+            if any_existing is not None:
+                data = [any_existing] + [data]
+
         util.nested_dict_set(self.data, [file_object, query_string], data)
 
     def resolve(self, file_object, query_string):
