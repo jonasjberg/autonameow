@@ -455,7 +455,7 @@ def _run_plugins(file_object):
     try:
         plugin_handler.start()
     except exceptions.AutonameowPluginError as e:
-        log.critical('Analysis FAILED: {!s}'.format(e))
+        log.critical('Plugins FAILED: {!s}'.format(e))
         raise exceptions.AutonameowException(e)
     else:
         return plugin_handler
