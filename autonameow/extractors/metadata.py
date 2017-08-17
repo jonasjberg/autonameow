@@ -75,13 +75,11 @@ class AbstractMetadataExtractor(BaseExtractor):
             return _raw_metadata
         except exceptions.ExtractorError as e:
             log.error('{!s}: Initial extraction FAILED: {!s}'.format(self, e))
-            pass
+            raise
         except NotImplementedError as e:
             log.debug('[WARNING] Called unimplemented code in {!s}: '
                       '{!s}'.format(self, e))
-            pass
-
-        return None
+            raise exceptions.ExtractorError
 
     def _to_internal_format(self, raw_metadata):
         out = {}

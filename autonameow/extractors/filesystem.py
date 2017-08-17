@@ -42,7 +42,7 @@ class CommonFileSystemExtractor(BaseExtractor):
                 self.data = self._get_data(self.source)
             except ExtractorError as e:
                 log.error('{!s} query FAILED: {!s}'.format(self, e))
-                return False
+                raise
 
         if not field:
             log.debug('{!s} responding to query for all fields'.format(self))

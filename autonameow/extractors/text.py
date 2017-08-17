@@ -39,11 +39,11 @@ class AbstractTextExtractor(BaseExtractor):
                 self._perform_initial_extraction()
             except ExtractorError as e:
                 log.error('{!s} query FAILED; Error: {!s}'.format(self, e))
-                return False
+                raise
             except NotImplementedError as e:
                 log.debug('[WARNING] Called unimplemented code in {!s}: '
                           '{!s}'.format(self, e))
-                return False
+                raise ExtractorError
 
         if not field:
             # TODO: [TD0057] Fix this. Look over the entire 'query' method.
