@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 
+from core import exceptions
 from extractors.text import (
     AbstractTextExtractor
 )
@@ -43,13 +44,10 @@ class TestAbstractTextExtractor(TestCase):
     def test_abstract_text_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
-    def test_method_query_returns_something(self):
-        self.assertIsNotNone(self.e.query())
-        self.assertIsNotNone(self.e.query(field='some_field'))
-
-    def test_query_returns_false_without__get_raw_text_implemented(self):
-        self.assertFalse(self.e.query())
-        self.assertFalse(self.e.query(field='some_field'))
+    def test_query_raises_exception_with__get_raw_text_unimplemented(self):
+        with self.assertRaises(exceptions.ExtractorError):
+            self.e.query()
+            self.e.query(field='some_field')
 
     def test_method_str_is_defined_and_reachable(self):
         self.assertIsNotNone(str(self.e))

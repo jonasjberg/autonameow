@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 import unit_utils as uu
+from core import exceptions
 
 from extractors.metadata import (
     AbstractMetadataExtractor,
@@ -41,9 +42,10 @@ class TestAbstractMetadataExtractor(TestCase):
         with self.assertRaises(NotImplementedError):
             self.e._get_raw_metadata()
 
-    def test_query_returns_none_without__get_raw_metadata_implemented(self):
-        self.assertIsNone(self.e.query())
-        self.assertIsNone(self.e.query(field='some_field'))
+    def test_query_raises_exception_with__get_raw_metadata_unimplemented(self):
+        with self.assertRaises(exceptions.ExtractorError):
+            self.assertIsNone(self.e.query())
+            self.assertIsNone(self.e.query(field='some_field'))
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.handles_mime_types)
@@ -51,6 +53,6 @@ class TestAbstractMetadataExtractor(TestCase):
     def test_abstract_class_does_not_specify_data_query_string(self):
         self.assertIsNone(self.e.data_query_string)
 
-    def test__perform_initial_extraction_returns_none(self):
-        actual = self.e._perform_initial_extraction()
-        self.assertIsNone(actual)
+    def test__perform_initial_extraction_raises_extractor_error(self):
+        with self.assertRaises(exceptions.ExtractorError):
+            actual = self.e._perform_initial_extraction()
