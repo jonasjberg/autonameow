@@ -122,6 +122,10 @@ class Repository(object):
                 else:
                     temp[key] = value
 
+                # Often *a lot* of text, trim to arbitrary size..
+                if key == 'contents.textual.raw_text':
+                    temp[key] = truncate_text(temp[key])
+
             expanded = util.expand_query_string_data_dict(temp)
             out.append(util.dump(expanded))
             out.append('\n')
@@ -139,6 +143,11 @@ class Repository(object):
                 out[key] = value
 
         return out
+
+
+def truncate_text(text, number_chars=500):
+    msg = '  (.. TRUNCATED to {}/{} characters)'.format(number_chars, len(text))
+    return text[0:number_chars] + msg
 
 
 def querystring_class_map_dict():
