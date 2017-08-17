@@ -49,8 +49,8 @@ class Analysis(object):
             raise TypeError('Argument must be an instance of "FileObject"')
         self.file_object = file_object
 
-        self.add_pool_data = repository.SessionRepository.store
-        self.request_data = repository.SessionRepository.resolve
+        self.add_to_global_data = repository.SessionRepository.store
+        self.request_global_data = repository.SessionRepository.resolve
 
         self.analyzer_queue = AnalysisRunQueue()
 
@@ -85,7 +85,7 @@ class Analysis(object):
             self.collect_data(label, data)
 
     def collect_data(self, label, data):
-        self.add_pool_data(self.file_object, label, data)
+        self.add_to_global_data(self.file_object, label, data)
 
     def start(self):
         """
@@ -128,7 +128,7 @@ class Analysis(object):
         Returns:
             One instance of each of the given classes as a list of objects.
         """
-        return [a(self.file_object, self.collect_results, self.request_data)
+        return [a(self.file_object, self.collect_results, self.request_global_data)
                 for a in class_list]
 
     def _execute_run_queue(self):

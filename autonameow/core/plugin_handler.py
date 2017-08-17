@@ -31,8 +31,8 @@ class PluginHandler(object):
     def __init__(self, file_object):
         self.file_object = file_object
 
-        self.request_data = repository.SessionRepository.resolve
-        self.add_pool_data = repository.SessionRepository.store
+        self.request_global_data = repository.SessionRepository.resolve
+        self.add_to_global_data = repository.SessionRepository.store
 
         # Get instantiated and validated plugins.
         self.plugin_classes = plugins.UsablePlugins
@@ -69,10 +69,10 @@ class PluginHandler(object):
             self.collect_data(label, data)
 
     def collect_data(self, label, data):
-        self.add_pool_data(self.file_object, label, data)
+        self.add_to_global_data(self.file_object, label, data)
 
     def _request_data(self, query_string):
-        return self.request_data(self.file_object, query_string)
+        return self.request_global_data(self.file_object, query_string)
 
     def query(self, query_string):
         if query_string.startswith('plugin.'):
