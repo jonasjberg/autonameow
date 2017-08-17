@@ -70,8 +70,6 @@ class Autonameow(object):
         self.filter = None
         self.active_config = None
 
-        self.session_data = {}
-
     def run(self):
         # Display help/usage information if no arguments are provided.
         if not self.args:
@@ -195,15 +193,6 @@ class Autonameow(object):
             util.displayable_path(self.opts.config_path)
         ))
         self.load_config(self.opts.config_path)
-
-    def request_data(self, file_object, label):
-        try:
-            d = util.nested_dict_get(self.session_data, [file_object, label])
-        except KeyError as e:
-            log.debug('Data pool request raised KeyError: {!s}'.format(e))
-            return None
-        else:
-            return d
 
     def _handle_files(self, file_paths):
         """
