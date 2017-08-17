@@ -203,8 +203,7 @@ def format_string_placeholders(format_string):
         format_string: Format string to get placeholders from.
 
     Returns:
-        Format string placeholder fields in the text as a list of strings.
-
+        Any format string placeholder fields as a list of unicode strings.
     """
     if not format_string:
         return []
