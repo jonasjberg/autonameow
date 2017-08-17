@@ -93,8 +93,8 @@ def prioritize_rules(rules):
 
 
 def evaluate_rule_conditions(rules_to_examine, data_query_function):
-    # Conditions are evaluated with data accessed through 'data_query_function'
-    # which returns data related to 'RuleMatcher.file_object'.
+    # Conditions are evaluated with data accessed through the callback function
+    # 'data_query_function' which returns data for 'RuleMatcher.file_object'.
     ok_rules = []
 
     for count, rule in enumerate(rules_to_examine):

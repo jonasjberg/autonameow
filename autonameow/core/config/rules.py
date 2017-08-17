@@ -153,10 +153,6 @@ class RuleCondition(object):
         """
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
-
-        # NOTE(jonas): For unhandled cases like
-        # 'metadata.exiftool.EXIF:DateTimeOriginal, 'self._parser' is None
-        # and below method call will fail.
         if not self._parser:
             log.critical('Unimplemented condition evaluation -- query_string: '
                          '"{!s}" expression: "{!s}"'.format(self.query_string,
