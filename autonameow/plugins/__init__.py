@@ -124,20 +124,6 @@ def suitable_plugins_for(file_object):
     return [p for p in UsablePlugins if p.can_handle(file_object)]
 
 
-def get_query_strings():
-    """
-    Get the set of "query strings" for all plugin classes.
-
-    Returns:
-        Unique plugin query strings as a set.
-    """
-    out = set()
-    for p in UsablePlugins:
-        if p.data_query_string:
-            out.add(p.data_query_string)
-    return out
-
-
 def map_query_string_to_plugins():
     """
     Returns a mapping of the plugin classes "query strings" and actual classes.
@@ -164,5 +150,4 @@ def map_query_string_to_plugins():
 
 
 UsablePlugins = get_usable_plugin_classes()
-QueryStrings = get_query_strings()
 QueryStringPluginClassMap = map_query_string_to_plugins()
