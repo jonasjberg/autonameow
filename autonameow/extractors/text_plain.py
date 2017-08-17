@@ -41,7 +41,7 @@ class PlainTextExtractor(AbstractTextExtractor):
 def read_entire_text_file(file_path):
     try:
         with open(file_path, 'r', encoding='utf8') as fh:
-            contents = fh.read().split('\n')
+            contents = fh.readlines()
     except (FileNotFoundError, UnicodeDecodeError) as e:
         log.debug('{!s}'.format(e))
         raise ExtractorError(e)
@@ -50,6 +50,8 @@ def read_entire_text_file(file_path):
         log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
                                                                   file_path))
         # TODO: [TD0044][TD0004] Cleanup/normalize and ensure text encoding.
+        contents = '\n'.join(contents)
+        assert(isinstance(contents, str))
         return contents
     else:
         log.debug('Read NOTHING from file "{!s}"'.format(file_path))
