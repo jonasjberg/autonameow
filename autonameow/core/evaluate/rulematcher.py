@@ -57,13 +57,13 @@ class RuleMatcher(object):
         log.debug('Examining {} rules ..'.format(len(self._rules)))
         ok_rules = evaluate_rule_conditions(self._rules, self.query_data)
         if len(ok_rules) == 0:
-            log.debug('No valid rules remain after evaluation')
+            log.info('No valid rules remain after evaluation')
             return
 
         log.debug('Prioritizing remaining {} candidates ..'.format(len(ok_rules)))
         ok_rules = prioritize_rules(ok_rules)
         for i, rule in enumerate(ok_rules):
-            log.debug('{}. (Score: {:.2f} Weight: {:.2f}) {} '.format(
+            log.info('Rule #{} (Score: {:.2f} Weight: {:.2f}) {} '.format(
                 i + 1, rule.score, rule.weight, rule.description)
             )
 
