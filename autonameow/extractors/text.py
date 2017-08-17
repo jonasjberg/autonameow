@@ -21,7 +21,7 @@
 
 import logging as log
 
-from core.exceptions import ExtractorError
+from core import exceptions
 from extractors import BaseExtractor
 
 
@@ -37,13 +37,13 @@ class AbstractTextExtractor(BaseExtractor):
             try:
                 log.debug('{!s} received initial query ..'.format(self))
                 self._perform_initial_extraction()
-            except ExtractorError as e:
+            except exceptions.ExtractorError as e:
                 log.error('{!s} query FAILED; Error: {!s}'.format(self, e))
                 raise
             except NotImplementedError as e:
                 log.debug('[WARNING] Called unimplemented code in {!s}: '
                           '{!s}'.format(self, e))
-                raise ExtractorError
+                raise exceptions.ExtractorError
 
         if not field:
             # TODO: [TD0057] Fix this. Look over the entire 'query' method.
