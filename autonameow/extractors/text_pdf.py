@@ -28,7 +28,10 @@ from PyPDF2.utils import (
     PdfReadError
 )
 
-from core import util
+from core import (
+    util,
+    exceptions
+)
 from extractors.text import AbstractTextExtractor
 
 
@@ -48,22 +51,28 @@ class PdfTextExtractor(AbstractTextExtractor):
         Raises:
             ExtractorError: The extraction failed.
         """
-        pdf_text = None
+        text = None
         text_extractors = [extract_pdf_content_with_pdftotext,
                            extract_pdf_content_with_pypdf]
         for i, extractor in enumerate(text_extractors):
             log.debug('Running PDF text extractor {}/{}: '
                       '{!s}'.format(i + 1, len(text_extractors), extractor))
-            pdf_text = extractor(self.source)
-            if pdf_text and len(pdf_text) > 1:
+            try:
+                text = extractor(self.source)
+            except exceptions.ExtractorError as e:
+                log.error('Error while extracting PDF content with "{!s}":'
+                          ' "{!s}"'.format(extractor, e))
+                continue
+
+            if text and len(text) > 1:
                 log.debug('Extracted text with: {}'.format(extractor.__name__))
 
                 # TODO: [TD0044] Fix up post-processing extracted text.
-                # pdf_text = textutils.sanitize_text(pdf_text)
+                # text = textutils.sanitize_text(text)
                 break
 
-        if pdf_text:
-            return pdf_text
+        if text:
+            return text
         else:
             log.debug('Unable to extract textual content from PDF')
             return ''
@@ -71,25 +80,34 @@ class PdfTextExtractor(AbstractTextExtractor):
 
 def extract_pdf_content_with_pdftotext(pdf_file):
     """
-    Extract the plain text contents of a PDF document using pdftotext.
+    Extract the plain text contents of a PDF document using "pdftotext".
 
     Returns:
-        False or PDF content as a Unicode string (internal format)
+        Any textual content of the given PDF file, as Unicode strings.
+    Raises:
+        ExtractorError: The extraction failed and could not be completed.
     """
-    process = subprocess.Popen(
-        ['pdftotext', '-nopgbrk', '-enc', 'UTF-8', pdf_file, '-'],
-        shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-    )
-    stdout, stderr = process.communicate()
+    try:
+        process = subprocess.Popen(
+            ['pdftotext', '-nopgbrk', '-enc', 'UTF-8', pdf_file, '-'],
+            shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
+        stdout, stderr = process.communicate()
+    except (OSError, ValueError, subprocess.SubprocessError) as e:
+        raise exceptions.ExtractorError(e)
 
     if process.returncode != 0:
-        log.warning('pdftotext returned {!s}'.format(process.returncode))
-        log.warning('pdftotext stderr: {!s}'.format(stderr))
-        # TODO: Raise exception instead?
-        return False
+        raise exceptions.ExtractorError(
+            'pdftotext returned {!s} with STDERR: "{!s}"'.format(
+                process.returncode, stderr)
+        )
+
+    content = util.decode_(stdout)
+    if content:
+        assert(isinstance(content, str))
+        return content
     else:
-        log.debug('pdftotext returned {} bytes of text'.format(len(stdout)))
-        return util.decode_(stdout)
+        return ''
 
 
 def extract_pdf_content_with_pypdf(pdf_file):
@@ -97,23 +115,25 @@ def extract_pdf_content_with_pypdf(pdf_file):
     Extract the plain text contents of a PDF document using PyPDF2.
 
     Returns:
-        False or the PDF text contents as Unicode strings (internal format)
+        Any textual content of the given PDF file, as Unicode strings.
+    Raises:
+        ExtractorError: The extraction failed and could not be completed.
     """
     try:
         file_reader = PyPDF2.PdfFileReader(util.decode_(pdf_file), 'rb')
-    except (IOError, PyPdfError):
-        log.error('Unable to read PDF file content.')
-        # TODO: Raise exception instead?
-        return False
+    except (OSError, PyPdfError, UnicodeDecodeError) as e:
+        raise exceptions.ExtractorError(e)
 
     try:
         num_pages = file_reader.getNumPages()
-    except PdfReadError:
+    except PdfReadError as e:
         # NOTE: This now wholly determines whether a pdf is readable.
         #       Possible to not getNumPages but still be able to read the text?
-        log.error('PDF document might be encrypted with restrictions '
-                  'preventing reading.')
-        return False
+        log.warning('PDF document might be encrypted and/or has restrictions'
+                    ' that prevent reading')
+        raise exceptions.ExtractorError(
+            'PyPDF2.PdfReadError: "{!s}"'.format(e)
+        )
 
     # NOTE(jonas): From the PyPDF2 documentation:
     # https://pythonhosted.org/PyPDF2/PageObject.html#PyPDF2.pdf.PageObject
@@ -136,4 +156,4 @@ def extract_pdf_content_with_pypdf(pdf_file):
         return content
     else:
         log.debug('Unable to extract text with PyPDF2 ..')
-        return False
+        return ''
