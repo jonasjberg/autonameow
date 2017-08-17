@@ -205,15 +205,20 @@ class FileRule(Rule):
 
         # Rules are sorted/prioritized by first the score, secondly the weight.
         # Calculate scores as;  SCORE = conditions_met / number_of_conditions
-        self.score = 0
         self._count_met_conditions = 0
+
+    @property
+    def score(self):
+        # Calculate scores as;  SCORE = conditions_met / number_of_conditions
+        score = self._count_met_conditions / max(1, len(self.conditions))
+        assert(0 <= score <= 1)
+        return score
 
     def upvote(self):
         """
         Increases the matching score of this rule.
         """
         self._count_met_conditions += 1
-        self._recalculate_score()
 
     def downvote(self):
         """
@@ -221,13 +226,6 @@ class FileRule(Rule):
         """
         self._count_met_conditions -= 1
         self._count_met_conditions = max(0, self._count_met_conditions)
-        self._recalculate_score()
-
-    def _recalculate_score(self):
-        # Calculate scores as;  SCORE = conditions_met / number_of_conditions
-        self.score = self._count_met_conditions / max(1, len(self.conditions))
-        assert(self.score >= 0)
-        assert(self.score <= 1)
 
     def referenced_query_strings(self):
         """
