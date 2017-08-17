@@ -248,6 +248,63 @@ class FileRule(Rule):
 
         return unique_query_strings
 
+    def evaluate(self, data_query_function):
+        """
+        Tests if a rule applies to a given file.
+
+        Returns at first unmatched condition if the rule requires an exact
+        match. If the rule does not require an exact match, all conditions are
+        evaluated and the rule is scored through 'upvote' and 'downvote'.
+
+        Args:
+            data_query_function: Callback for retrieving the data to evaluate.
+
+        Returns:
+            If the rule requires an exact match:
+                True if all rule conditions evaluates to True.
+                False if any rule condition evaluates to False.
+            If the rule does not require an exact match:
+                True
+        """
+        if not self.conditions:
+            raise exceptions.InvalidFileRuleError(
+                'FileRule does not specify any conditions: "{!s}"'.format(self)
+            )
+
+        if self.exact_match:
+            for condition in self.conditions:
+                log.debug('Evaluating condition "{!s}"'.format(condition))
+                if not self._evaluate_condition(condition, data_query_function):
+                    log.debug('Condition FAILED -- Exact match impossible ..')
+                    return False
+                else:
+                    self.upvote()
+            return True
+
+        for condition in self.conditions:
+            log.debug('Evaluating condition "{!s}"'.format(condition))
+            if self._evaluate_condition(condition, data_query_function):
+                log.debug('Condition Passed rule.votes++')
+                self.upvote()
+            else:
+                # NOTE: file_rule.downvote()?
+                # log.debug('Condition FAILED rule.votes--')
+                log.debug('Condition FAILED')
+
+        # Rule was not discarded but could still have failed all tests.
+        return True
+
+    def _evaluate_condition(self, condition, data_query_function):
+        # Fetch data at "query_string" using the provided "data_query_function".
+        data = data_query_function(condition.query_string)
+        if data is None:
+            log.warning('Unable to evaluate condition due to missing data:'
+                        ' "{!s}"'.format(condition))
+            return False
+
+        # Evaluate the condition using actual data.
+        return condition.evaluate(data)
+
     def __str__(self):
         # TODO: [TD0039] Do not include the file rule attribute `score` when
         #       listing the configuration with `--dump-config`.

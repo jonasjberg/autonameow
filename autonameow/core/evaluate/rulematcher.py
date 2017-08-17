@@ -93,10 +93,8 @@ def prioritize_rules(rules):
 
 
 def evaluate_rule_conditions(rules_to_examine, data_query_function):
-    # Conditions are evaluated with the current file object and current
-    # analysis results data.
-    # If a rule requires an exact match, it is skipped at first failed
-    # evaluation.
+    # Conditions are evaluated with data accessed through 'data_query_function'
+    # which returns data related to 'RuleMatcher.file_object'.
     ok_rules = []
 
     for count, rule in enumerate(rules_to_examine):
@@ -104,7 +102,7 @@ def evaluate_rule_conditions(rules_to_examine, data_query_function):
             count + 1, len(rules_to_examine), rule.description)
         )
 
-        result = evaluate_rule(rule, data_query_function)
+        result = rule.evaluate(data_query_function)
         if rule.exact_match and result is False:
             log.debug(
                 'Rule evaluated FALSE, removing: "{}"'.format(rule.description)
@@ -117,64 +115,3 @@ def evaluate_rule_conditions(rules_to_examine, data_query_function):
     return ok_rules
 
 
-def evaluate_rule(file_rule, data_query_function):
-    """
-    Tests if a rule applies to a given file.
-
-    Returns at first unmatched condition if the rule requires an exact match.
-    If the rule does not require an exact match, all conditions are
-    evaluated and the rule is scored through "upvote()" and "downvote()".
-
-    Args:
-        file_rule: The rule to test as an instance of 'FileRule'.
-        data_query_function: Callback function used to query available data.
-
-    Returns:
-        If the rule requires an exact match:
-            True if all rule conditions evaluates to True.
-            False if any rule condition evaluates to False.
-        If the rule does not require an exact match:
-            True
-    """
-    if not file_rule.conditions:
-        raise exceptions.InvalidFileRuleError(
-            'Rule does not specify any conditions'
-        )
-
-    if file_rule.exact_match:
-        for condition in file_rule.conditions:
-            log.debug('Evaluating condition "{!s}"'.format(condition))
-            if not eval_condition(condition, data_query_function):
-                log.debug('Condition FAILED -- Exact match impossible ..')
-                return False
-            else:
-                file_rule.upvote()
-        return True
-
-    for condition in file_rule.conditions:
-        log.debug('Evaluating condition "{!s}"'.format(condition))
-        if eval_condition(condition, data_query_function):
-            log.debug('Condition Passed rule.votes++')
-            file_rule.upvote()
-        else:
-            # NOTE: file_rule.downvote()?
-            # log.debug('Condition FAILED rule.votes--')
-            log.debug('Condition FAILED')
-
-    # Rule was not completely discarded but could still have failed all tests.
-    return True
-
-
-def eval_condition(condition, data_query_function):
-    # The condition must provide a valid query string.
-    query_string = condition.query_string
-
-    # Fetch data at "query_string" using the provided "data_query_function".
-    data = data_query_function(query_string)
-    if not data:
-        log.warning('Unable to evaluate condition due to missing data:'
-                    ' "{!s}"'.format(condition))
-        return False
-
-    # Evaluate the condition using actual data.
-    return condition.evaluate(data)
