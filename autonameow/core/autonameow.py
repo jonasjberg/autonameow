@@ -233,6 +233,16 @@ class Autonameow(object):
                 self.exit_code = constants.EXIT_WARNING
                 continue
 
+        if self.opts.list_all:
+            log.info('Listing session repository contents ..')
+            cli.msg('Session Repository Data', style='heading', log=True)
+            cli.msg(str(repository.SessionRepository))
+        # else:
+        #     if self.opts.list_datetime:
+        #         _list_analysis_results_field(analysis, 'datetime')
+        #     if self.opts.list_title:
+        #         _list_analysis_results_field(analysis, 'title')
+
     def _handle_file(self, current_file):
         should_list_any_results = (self.opts.list_datetime
                                    or self.opts.list_title
@@ -251,21 +261,11 @@ class Autonameow(object):
         # Determine matching rule.
         matcher = _run_rule_matcher(current_file, self.active_config)
 
-        # Present results.
-        if should_list_any_results:
-            cli.msg(('File: "{}"\n'.format(
-                util.displayable_path(current_file.abspath)))
-            )
-
-        if self.opts.list_all:
-            log.info('Listing session repository contents ..')
-            cli.msg('Session Repository Data', style='heading', log=True)
-            cli.msg(str(repository.SessionRepository))
-        else:
-            if self.opts.list_datetime:
-                _list_analysis_results_field(analysis, 'datetime')
-            if self.opts.list_title:
-                _list_analysis_results_field(analysis, 'title')
+        # # Present results.
+        # if should_list_any_results:
+        #     cli.msg(('File: "{}"\n'.format(
+        #         util.displayable_path(current_file.abspath)))
+        #     )
 
         # Perform actions.
         if self.opts.automagic:
