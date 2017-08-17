@@ -199,6 +199,7 @@ def resolvable_query_strings(query_string_class_map):
     # for key in ['extractors', 'analyzers', 'plugins']:
     for key in query_string_class_map.keys():
         for query_string, _ in query_string_class_map[key].items():
+            assert not (isinstance(query_string, list))
             out.add(query_string)
 
     return out
