@@ -107,17 +107,26 @@ class Repository(object):
         return util.count_dict_recursive(self.data)
 
     def __str__(self):
-        out = {}
+        out = []
+        for file_object, data in self.data.items():
+            out.append('FileObject basename: "{!s}"'.format(file_object))
+            _abspath = util.displayable_path(file_object.abspath)
+            out.append('FileObject absolute path: "{!s}"'.format(_abspath))
+            out.append('')
 
-        for key, value in self.data.items():
             # TODO: [TD0066] Handle all encoding properly.
-            if isinstance(value, bytes):
-                out[key] = util.displayable_path(value)
-            else:
-                out[key] = value
+            temp = {}
+            for key, value in data.items():
+                if isinstance(value, bytes):
+                    temp[key] = util.displayable_path(value)
+                else:
+                    temp[key] = value
 
-        expanded = util.expand_query_string_data_dict(out)
-        return util.dump(expanded)
+            expanded = util.expand_query_string_data_dict(temp)
+            out.append(util.dump(expanded))
+            out.append('\n')
+
+        return '\n'.join(out)
 
     def __repr__(self):
         out = {}
