@@ -54,18 +54,33 @@ class GuessitPlugin(BasePlugin):
 
         if not self.guessit_results:
             raise exceptions.AutonameowPluginError('TODO: ..')
+        else:
+            self._wrap_and_add_result('date', types.AW_TIMEDATE, 'date')
+            self._wrap_and_add_result('title', types.AW_STRING, 'title')
+            self._wrap_and_add_result('release_group', types.AW_STRING,
+                                      'publisher')
+            self._wrap_and_add_result('audio_codec', types.AW_STRING, 'tags')
+            self._wrap_and_add_result('video_codec', types.AW_STRING, 'tags')
+            self._wrap_and_add_result('format', types.AW_STRING, 'tags')
+            self._wrap_and_add_result('screen_size', types.AW_STRING, 'tags')
+            self._wrap_and_add_result('type', types.AW_STRING, 'tags')
+            self._wrap_and_add_result('episode', types.AW_INTEGER,
+                                      'episode_number')
+            self._wrap_and_add_result('season', types.AW_INTEGER,
+                                      'season_number')
 
-        if 'date' in self.guessit_results:
-            wrapped_date = types.AW_TIMEDATE(self.guessit_results['date'])
-            if wrapped_date:
-                print('Wrapped guessit_results[date]: {}'.format(wrapped_date))
-                self.add_results('plugin.guessit.datetime', wrapped_date)
+    def _wrap_and_add_result(self, raw_key, wrapper_type, result_key):
+        if raw_key in self.guessit_results:
+            wrapped = wrapper_type(self.guessit_results[raw_key])
+            if wrapped is not None:
+                self._add_results(result_key, wrapped)
 
-        if 'title' in self.guessit_results:
-            wrapped_title = types.AW_STRING(self.guessit_results['title'])
-            if wrapped_title:
-                print('Wrapped guessit_results[title]: {}'.format(wrapped_title))
-                self.add_results('plugin.guessit.title', wrapped_title)
+    def _add_results(self, label, data):
+        query_string = 'plugin.guessit.{}'.format(label)
+        # log.debug('{} passed "{}" to "add_results" callback'.format(
+        #     self, query_string)
+        # )
+        self.add_results(query_string, data)
 
     def can_handle(self):
         _mime_type = self.request_data('filesystem.contents.mime_type')
