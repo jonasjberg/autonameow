@@ -147,14 +147,6 @@ class Analysis(object):
             log.debug('Finished running "{!s}"'.format(a))
 
 
-def include_analyzer_name(result_list, source):
-    out = []
-    for result in result_list:
-        result['analyzer'] = str(source)
-        out.append(result)
-    return out
-
-
 class AnalysisRunQueue(util.GenericQueue):
     """
     Execution queue for analyzers.
