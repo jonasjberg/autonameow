@@ -69,8 +69,9 @@ class Extraction(object):
         else:
             required_extractors = []
 
-        # Select extractors based on detected file type.
+        # Get all extractors that can handle the current file.
         classes = extractors.suitable_data_extractors_for(self.file_object)
+        log.debug('Extractors able to handle the file: {}'.format(len(classes)))
 
         if not require_all_extractors:
             # Exclude "slow" extractors if they are not explicitly required.
