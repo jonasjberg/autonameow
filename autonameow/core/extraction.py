@@ -112,10 +112,9 @@ class Extraction(object):
                                                        required_extractors)
 
         log.debug('Got {} suitable extractors'.format(len(classes)))
-        instances = self._instantiate_extractors(classes)
 
-        for e in instances:
-            self.extractor_queue.enqueue(e)
+        for instance in self._instantiate_extractors(classes):
+            self.extractor_queue.enqueue(instance)
         log.debug('Enqueued extractors: {!s}'.format(self.extractor_queue))
 
         # Execute all suitable extractors and collect results.
