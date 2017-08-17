@@ -131,17 +131,6 @@ def date_is_probable(date):
         return True
 
 
-def search_standard_formats(text, prefix):
-    """
-    Matches against standard formats.
-    :param text: the text to extract information from
-    :param prefix: prefix this to the resulting dictionary keys
-    :return: a list of dictionaries containing datetime-objects.
-    """
-    # TODO: [cleanup] Implement or remove ..
-    pass
-
-
 def regex_search_str(text):
     """
     Extracts date/time-information from a text string using regex searches.
