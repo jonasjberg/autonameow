@@ -1,3 +1,68 @@
+2017-08-18  [autonameow v0.4.5]
+            Mostly non-functional improvements and refactoring.
+            Rework of the internals for improved robustness and new features.
+            Refer to the git log for additional details.
+
+            Additions:
+            - Add new type wrapper class 'PathComponent'.
+              Passing parts of file names that could be empty, like a file
+              extension that might be missing without considering the file name
+              to be invalid, would trigger exceptions in the 'Path' type class
+              that expected full absolute paths.
+              This commit adds a new type class 'PathComponent' that accepts
+              parts of paths and even empty paths, like that of a missing file
+              extension.
+            - Add requiring all extractors to be run if displaying any results.
+              This should be reworked to handle cases where the configuration
+              requires information from "slow" and normally excluded
+              extractors.
+              Normally excluded extractors should be included when they are
+              required, not only when any results are to be shown.
+            - Add optional list of required extractors.
+              Adds optional argument 'require_extractors' to the 'start'
+              method.
+              The 'Extraction' class 'start' method can take an optional list
+              of required extractor classes. If a extractor is "slow", it is
+              not used if not explicitly required by inclusion in the
+              'require_extractors' list.
+
+            Changes:
+            - Remove "get_*" methods from 'BaseAnalyzer'.
+            - Add new extractor 'PlainTextExtractor'.
+            - Move 'Rule' and 'FileRule' classes to 'rules.py'.
+            - Modify field assignments to field parser classes.
+              Uses the globs to catch some metadata fields. Especially
+              'exiftool' fields such as 'PDF:Title' and 'XMP:Title' are matched
+              by '*.:Title'.
+            - Substitute a bad recursive function with a new common utility.
+              Both the 'AnalysisResults' and 'ExtractedData' classes used a
+              recursive function to count the number of contained items.
+              One of these implementations was bad and returned bad counts.
+              Add a single shared utility function used by both classes.
+            - Rename 'AnalysisResults' method 'query' to 'get'.
+            - Modify overall storage architecture.
+            - Add a new 'Repository' class for storing all data.
+            - Modify querying results in the 'RuleMatcher'.
+            - Modify wrapping possibly empty path components.
+              Use the new 'PathComponent' class for data that might be empty.
+              The file extension might be missing and still be valid.
+            - And a lot more --- refer to the git log for additional details.
+
+            Fixes:
+            - A lot of unused code removed.
+            - Fix 'PlainTextExtractor' returns text as list.
+            - Fix "null" return form the 'Path' types. Raise exception instead.
+            - Do not represent "null" for 'datetime' types.
+
+              <BANE> Find a suitable "null" representation of a 'datetime'
+                     object, by not representing it.  </BANE>
+
+            - Add fixes to the 'PathType' class and its related tests.
+            - Fix various extractor bugs.
+            - Fix incorrect exception handling in extractors.
+            - And a lot more --- refer to the git log for additional details.
+
+
 2017-07-25  [autonameow v0.4.4]
             Mostly non-functional improvements and refactoring.
             Rework of the internals for improved robustness and new features.
