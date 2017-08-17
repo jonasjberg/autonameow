@@ -22,7 +22,10 @@
 import logging as log
 
 import PyPDF2
-from PyPDF2.utils import PdfReadError
+from PyPDF2.utils import (
+    PyPdfError,
+    PdfReadError
+)
 
 from core import (
     types,
@@ -63,8 +66,8 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         try:
             # NOTE(jonas): [encoding] Double-check PyPDF2 docs ..
             file_reader = PyPDF2.PdfFileReader(util.decode_(self.source), 'rb')
-        except OSError:
-            raise exceptions.ExtractorError('Unable to read file with PyPDF2')
+        except (OSError, PyPdfError) as e:
+            raise exceptions.ExtractorError(e)
         else:
 
             # Notes on 'getDocumentInfo' from the PyPDF2 source documentation:
@@ -102,10 +105,16 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
 
             try:
                 num_pages = file_reader.getNumPages()
-            except PdfReadError:
-                # PDF document might be encrypted with restrictions for reading.
-                # TODO: Raise custom exception .. ?
-                pass
+            except PdfReadError as e:
+                # NOTE: This now wholly determines whether a pdf is readable.
+                # Can getNumPages fail although the text is actually readable?
+                log.warning(
+                    'PDF document might be encrypted and/or has restrictions'
+                    ' that prevent reading'
+                )
+                raise exceptions.ExtractorError(
+                    'PyPDF2.PdfReadError: "{!s}"'.format(e)
+                )
             else:
                 out.update({'NumberPages': num_pages})
                 out.update({'Paginated': True})
