@@ -62,7 +62,8 @@ class FilesystemAnalyzer(BaseAnalyzer):
         logging.debug('{} passed "{}" to "add_results" callback'.format(
             self, query_string)
         )
-        self.add_results(query_string, data)
+        if data is not None:
+            self.add_results(query_string, data)
 
     def run(self):
         # Pass results through callback function provided by the 'Analysis'.
@@ -87,13 +88,13 @@ class FilesystemAnalyzer(BaseAnalyzer):
             }}
 
     def get_datetime(self):
-        result = []
+        results = []
 
         fs_timestamps = self._get_datetime_from_filesystem()
         if fs_timestamps:
-            result += fs_timestamps
+            results += fs_timestamps
 
-        return result
+        return results if results else None
 
     def _get_datetime_from_filesystem(self):
         """

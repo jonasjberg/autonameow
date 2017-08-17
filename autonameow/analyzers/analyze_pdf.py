@@ -43,7 +43,8 @@ class PdfAnalyzer(BaseAnalyzer):
         logging.debug('{} passed "{}" to "add_results" callback'.format(
             self, query_string)
         )
-        self.add_results(query_string, data)
+        if data is not None:
+            self.add_results(query_string, data)
 
     def run(self):
         self.text = self.request_data(self.file_object,
@@ -80,7 +81,7 @@ class PdfAnalyzer(BaseAnalyzer):
         for query_string, weight, in possible_authors:
             results += self.__collect_results(query_string, weight)
 
-        return results
+        return results if results else None
 
     def get_title(self):
         results = []
@@ -95,7 +96,7 @@ class PdfAnalyzer(BaseAnalyzer):
         for query_string, weight in possible_titles:
             results += self.__collect_results(query_string, weight)
 
-        return results
+        return results if results else None
 
     def get_datetime(self):
         results = []
@@ -105,7 +106,7 @@ class PdfAnalyzer(BaseAnalyzer):
             if text_timestamps:
                 results += text_timestamps
 
-        return results
+        return results if results else None
 
     def get_tags(self):
         raise NotImplementedError('Get "tags" from PdfAnalyzer')
@@ -121,7 +122,7 @@ class PdfAnalyzer(BaseAnalyzer):
         for query_string, weight in possible_publishers:
             results += self.__collect_results(query_string, weight)
 
-        return results
+        return results if results else None
 
     def _is_gmail(self):
         """

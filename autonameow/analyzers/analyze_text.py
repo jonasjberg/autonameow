@@ -43,7 +43,8 @@ class TextAnalyzer(BaseAnalyzer):
         log.debug('{} passed "{}" to "add_results" callback'.format(
             self, query_string)
         )
-        self.add_results(query_string, data)
+        if data is not None:
+            self.add_results(query_string, data)
 
     def run(self):
         self.text = self.request_data(self.file_object,
@@ -61,13 +62,13 @@ class TextAnalyzer(BaseAnalyzer):
         pass
 
     def get_datetime(self):
-        result = []
+        results = []
         if self.text:
             text_timestamps = self._get_datetime_from_text()
             if text_timestamps:
-                result += text_timestamps
+                results += text_timestamps
 
-        return result
+        return results if results else None
 
     def get_tags(self):
         pass

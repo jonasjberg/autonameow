@@ -47,7 +47,8 @@ class ImageAnalyzer(BaseAnalyzer):
         log.debug('{} passed "{}" to "add_results" callback'.format(
             self, query_string)
         )
-        self.add_results(query_string, data)
+        if data is not None:
+            self.add_results(query_string, data)
 
     def run(self):
         self.exif_data = self.request_data(self.file_object,
@@ -66,17 +67,17 @@ class ImageAnalyzer(BaseAnalyzer):
         self._add_results('publisher', self.get_publisher())
 
     def get_datetime(self):
-        result = []
+        results = []
         exif_timestamps = self._get_exif_datetime()
         if exif_timestamps:
-            result += exif_timestamps
+            results += exif_timestamps
 
         # TODO: Fix this here below.
         ocr_timestamps = self._get_ocr_datetime()
         if ocr_timestamps:
-            result += ocr_timestamps
+            results += ocr_timestamps
 
-        return result
+        return results if results else None
 
     def get_author(self):
         pass

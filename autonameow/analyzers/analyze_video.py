@@ -41,7 +41,8 @@ class VideoAnalyzer(BaseAnalyzer):
         log.debug('{} passed "{}" to "add_results" callback'.format(
             self, query_string)
         )
-        self.add_results(query_string, data)
+        if data is not None:
+            self.add_results(query_string, data)
 
     def run(self):
         # Pass results through callback function provided by the 'Analysis'.

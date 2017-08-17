@@ -42,7 +42,8 @@ class FilenameAnalyzer(BaseAnalyzer):
         logging.debug('{} passed "{}" to "add_results" callback'.format(
             self, query_string)
         )
-        self.add_results(query_string, data)
+        if data is not None:
+            self.add_results(query_string, data)
 
     def run(self):
         # Pass results through callback function provided by the 'Analysis'.
@@ -51,21 +52,22 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._add_results('tags', self.get_tags())
 
     def get_datetime(self):
-        result = []
+        results = []
 
         fn_timestamps = self._get_datetime_from_name()
         if fn_timestamps:
-            result += fn_timestamps
-        return result
+            results += fn_timestamps
+
+        return results if results else None
 
     def get_title(self):
-        titles = []
+        results = []
 
         fn_title = self._get_title_from_filename()
         if fn_title:
-            titles += fn_title
+            results += fn_title
 
-        return titles
+        return results if results else None
 
     def get_tags(self):
         return [{'value': self.file_object.filenamepart_tags,
