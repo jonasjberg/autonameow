@@ -343,6 +343,18 @@ class TestTypeExiftoolTimeDate(TestCase):
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE('2017-07-12 20:50:15+0200'),
                          expected)
 
+    def test_call_with_coercible_data_messy_timezone(self):
+        expected = datetime.strptime('2008-09-12T04:40:52-0400',
+                                     '%Y-%m-%dT%H:%M:%S%z')
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE('2008:09:12 04:40:52-04:00'),
+                         expected)
+
+    def test_call_with_coercible_data_negative_timezone(self):
+        expected = datetime.strptime('2015-03-03T12:25:56-0800',
+                                     '%Y-%m-%dT%H:%M:%S%z')
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE('2015:03:03 12:25:56-08:00'),
+                         expected)
+
     def test_call_with_malformed_date_trailing_z(self):
         actual = types.AW_EXIFTOOLTIMEDATE('2017:07:12 20:50:15Z')
         expected = uu.str_to_datetime('2017-07-12 205015')

@@ -374,6 +374,8 @@ class ExifToolTimeDate(TimeDate):
     def coerce(self, raw_value):
         if re.match(r'.*\+\d\d:\d\d$', raw_value):
             raw_value = re.sub(r'\+(\d\d):(\d\d)$', r'+\1\2', raw_value)
+        elif re.match(r'.*-\d\d:\d\d$', raw_value):
+            raw_value = re.sub(r'-(\d\d):(\d\d)$', r'-\1\2', raw_value)
 
         try:
             # TODO: Fix matching dates with timezone. Below is not working.
