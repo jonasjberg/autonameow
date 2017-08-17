@@ -208,17 +208,6 @@ class FileRule(Rule):
         self.score = 0
         self._count_met_conditions = 0
 
-    def __str__(self):
-        # TODO: [TD0039] Do not include the file rule attribute `score` when
-        #       listing the configuration with `--dump-config`.
-        return util.dump(self.__dict__)
-
-    def __repr__(self):
-        out = []
-        for key in self.__dict__:
-            out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
-        return 'FileRule({})'.format(', '.join(out))
-
     def upvote(self):
         """
         Increases the matching score of this rule.
@@ -257,6 +246,17 @@ class FileRule(Rule):
             unique_query_strings.add(query_string)
 
         return unique_query_strings
+
+    def __str__(self):
+        # TODO: [TD0039] Do not include the file rule attribute `score` when
+        #       listing the configuration with `--dump-config`.
+        return util.dump(self.__dict__)
+
+    def __repr__(self):
+        out = []
+        for key in self.__dict__:
+            out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
+        return 'FileRule({})'.format(', '.join(out))
 
 
 def get_valid_rule_condition(raw_query, raw_value):
