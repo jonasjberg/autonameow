@@ -149,7 +149,7 @@ class Configuration(object):
                 valid_file_rule = self._validate_rule_data(rule)
             except exceptions.ConfigurationSyntaxError as e:
                 rule_description = rule.get('description', 'UNDESCRIBED')
-                log.error('File rule "{!s}" {!s}'.format(rule_description, e))
+                log.error('Bad rule "{!s}"; {!s}'.format(rule_description, e))
             else:
                 # Create and populate "FileRule" objects with *validated* data.
                 self._file_rules.append(valid_file_rule)
@@ -174,7 +174,7 @@ class Configuration(object):
             ConfigurationSyntaxError: The given file rule contains bad data,
                 making instantiating a 'FileRule' object impossible.
                 Note that the message will be used in the following sentence:
-                "ERROR -- File Rule "x" {message}"
+                "Bad rule "x"; {message}"
         """
         # Get a description for referring to the rule in any log messages.
         valid_description = raw_rule.get('description', False)
@@ -440,15 +440,14 @@ def parse_conditions(raw_conditions):
     passed = []
     try:
         for query_string, expression in raw_conditions.items():
-            valid_condition = rules.get_valid_rule_condition(query_string,
-                                                             expression)
-            if not valid_condition:
-                raise exceptions.ConfigurationSyntaxError(
-                    'contains invalid condition [{}]: {}'.format(query_string,
+            try:
+                valid_condition = rules.get_valid_rule_condition(query_string,
                                                                  expression)
-                )
-            passed.append(valid_condition)
-            log.debug('Validated condition: "{!s}"'.format(valid_condition))
+            except exceptions.InvalidFileRuleError as e:
+                raise exceptions.ConfigurationSyntaxError(e)
+            else:
+                passed.append(valid_condition)
+                log.debug('Validated condition: "{!s}"'.format(valid_condition))
     except ValueError as e:
         raise exceptions.ConfigurationSyntaxError(
             'contains invalid condition: ' + str(e)

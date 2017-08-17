@@ -23,7 +23,8 @@ import logging as log
 
 from core import (
     constants,
-    util
+    util,
+    exceptions
 )
 from core.config import field_parsers
 
@@ -272,11 +273,18 @@ def get_valid_rule_condition(raw_query, raw_value):
     Returns:
         An instance of the 'RuleCondition' class if the given arguments are
         valid, otherwise False.
+    Raises:
+        InvalidFileRuleError: The 'RuleCondition' instance could not be created.
     """
     try:
         condition = RuleCondition(raw_query, raw_value)
     except (TypeError, ValueError) as e:
-        log.critical('Invalid rule condition: {!s}'.format(e))
-        return False
+        # Add information and then pass the exception up the chain so that the
+        # error can be displayed with additional contextual information.
+        raise exceptions.InvalidFileRuleError(
+            'Invalid rule condition ("{!s}": "{!s}"); {!s}'.format(
+                raw_query, raw_value, e
+            )
+        )
     else:
         return condition
