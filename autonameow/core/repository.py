@@ -38,17 +38,18 @@ class Repository(object):
 
     def initialize(self):
         self.query_string_class_map = querystring_class_map_dict()
-        self._log_string_class_map()
+        # self._log_string_class_map()
 
         self.resolvable_query_strings = resolvable_query_strings(
             self.query_string_class_map
         )
 
     def _log_string_class_map(self):
-        for key in self.query_string_class_map.keys():
-            for query_string, klass in self.query_string_class_map[key].items():
-                print('Mapped query string "{!s}" to <{!s}> ({!s})'.format(
-                    query_string, klass, key))
+        pass
+        # for key in self.query_string_class_map.keys():
+        #     for query_string, klass in self.query_string_class_map[key].items():
+        #         print('Mapped query string "{!s}" to <{!s}> ({!s})'.format(
+        #             query_string, klass, key))
 
     def store(self, file_object, query_string, data):
         """
