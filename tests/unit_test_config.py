@@ -23,9 +23,9 @@
 from unittest import TestCase
 
 import os
-from mock import (
-    patch,
-    MagicMock
+from unittest.mock import (
+    MagicMock,
+    patch
 )
 
 from core import (
