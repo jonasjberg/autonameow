@@ -192,6 +192,10 @@ class FileRule(Rule):
       - weight If multiple rules end up with an equal score, weights are
                used to further prioritize as to get a single "winning" rule.
                This value is specified in the active configuration.
+
+    Rules are sorted/prioritized by first the score, secondly the weight.
+    Calculate scores as;  SCORE = conditions_met / number_of_conditions
+    Which produces a "normalized" decimal number between 0 and 1.
     """
     def __init__(self, **kwargs):
         super().__init__()
@@ -203,13 +207,12 @@ class FileRule(Rule):
         self.conditions = kwargs.get('conditions', False)
         self.data_sources = kwargs.get('data_sources', False)
 
-        # Rules are sorted/prioritized by first the score, secondly the weight.
-        # Calculate scores as;  SCORE = conditions_met / number_of_conditions
         self._count_met_conditions = 0
 
     @property
     def score(self):
         # Calculate scores as;  SCORE = conditions_met / number_of_conditions
+        # Number of conditions is clamped at 1 to prevent division by 0.
         score = self._count_met_conditions / max(1, len(self.conditions))
         assert(0 <= score <= 1)
         return score
