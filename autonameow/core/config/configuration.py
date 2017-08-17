@@ -414,11 +414,11 @@ def is_valid_source(source_value):
     """
     Check if the source is valid.
 
-    Tests if the given source starts with the same text as any of the valid
-    date sources defined in the 'VALID_DATA_SOURCES' list.
+    Tests if the given source starts with the same text as any of the
+    date source "query strings" stored in the 'SessionRepository'.
 
-    For example, that the source value "metadata.exiftool.PDF:CreateDate" is
-    considered valid because "metadata.exiftool" is listed as a valid source.
+    For example, the source value "metadata.exiftool.PDF:CreateDate" would
+    be considered valid if "metadata.exiftool" was registered by a source.
 
     Args:
         source_value: The source to test as a text string.
