@@ -84,11 +84,13 @@ class Repository(object):
             return
 
         try:
-            any_existing = util.nested_dict_get(self.data, [file_object, query_string])
+            any_existing = util.nested_dict_get(self.data,
+                                                [file_object, query_string])
         except KeyError:
             pass
         else:
             if any_existing is not None:
+                assert(not isinstance(data, list))
                 data = [any_existing] + [data]
 
         util.nested_dict_set(self.data, [file_object, query_string], data)
