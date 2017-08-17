@@ -258,8 +258,9 @@ class Autonameow(object):
             )
 
         if self.opts.list_all:
-            _list_all_analysis_results(analysis)
-            _list_all_extracted_data(extraction)
+            log.info('Listing session repository contents ..')
+            cli.msg('Session Repository Data', style='heading', log=True)
+            cli.msg(str(repository.SessionRepository))
         else:
             if self.opts.list_datetime:
                 _list_analysis_results_field(analysis, 'datetime')
@@ -503,20 +504,6 @@ def _run_rule_matcher(file_object, active_config):
         raise
     else:
         return matcher
-
-
-def _list_all_extracted_data(extraction):
-    log.info('Listing ALL extraction results ..')
-    cli.msg('Extraction Results Data', style='heading', log=True)
-    cli.msg('TODO: Re-implement this after moving to shared data pool storage.')
-    # cli.msg(str(extraction.data))
-
-
-def _list_all_analysis_results(analysis):
-    log.info('Listing ALL analysis results ..')
-    cli.msg('Analysis Results Data', style='heading', log=True)
-    cli.msg('TODO: Re-implement this after moving to shared data pool storage.')
-    # cli.msg(str(analysis.results))
 
 
 def _list_analysis_results_field(analysis, results_field):
