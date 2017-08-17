@@ -43,7 +43,10 @@ class TestGuessitPlugin(TestCase):
         self.assertIsNotNone(plugin_instance)
 
     def test_test_init_returns_true_if_guessit_is_available(self):
-        plugin_instance = GuessitPlugin()
+        plugin_instance = GuessitPlugin(
+            add_results_callback=self.dummy_collect_data,
+            request_data_callback=self.dummy_request_data
+        )
 
         guessit_available = uu.is_importable('guessit')
         if guessit_available:
