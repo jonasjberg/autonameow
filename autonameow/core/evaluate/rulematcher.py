@@ -84,7 +84,13 @@ def prioritize_rules(rules):
     """
     Prioritizes (sorts) a list of 'FileRule' instances.
 
-    The list is sorted first by "score" and then by "weight".
+    The list is sorted first by "score", then by whether the rule requires an
+    exact match or not and then finally by "weight".
+
+    This means that a rule that met all conditions will be ranked lower than
+    another rule that also met all conditions but *did* require an exact match.
+    Rules requiring an exact match is filtered are removed at a prior stage and
+    will never get here.
 
     Args:
         rules: The list of 'FileRule' instances to prioritize/sort.
@@ -93,7 +99,7 @@ def prioritize_rules(rules):
         A sorted/prioritized list of 'FileRule' instances.
     """
     return sorted(rules, reverse=True,
-                  key=operator.attrgetter('score', 'weight'))
+                  key=operator.attrgetter('score', 'exact_match', 'weight'))
 
 
 def evaluate_rule_conditions(rules_to_examine, data_query_function):
