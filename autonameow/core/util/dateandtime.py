@@ -92,7 +92,7 @@ def _year_is_probable(year):
             year = util.decode_(year)
         try:
             year = datetime.strptime(str(year), '%Y')
-        except TypeError:
+        except (ValueError, TypeError):
             log.warning('Failed converting "{}" '
                         'to datetime-object.'.format(year))
             return False
@@ -192,7 +192,7 @@ def regex_search_str(text):
             dt_str = (m_date + '_' + m_time).strip()
             try:
                 dt = datetime.strptime(dt_str, dt_fmt_1)
-            except ValueError:
+            except (TypeError, ValueError):
                 pass
             else:
                 if date_is_probable(dt):
@@ -208,7 +208,7 @@ def regex_search_str(text):
         dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_2)
-        except ValueError:
+        except (TypeError, ValueError):
             pass
         else:
             if date_is_probable(dt):
@@ -224,7 +224,7 @@ def regex_search_str(text):
         dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_3)
-        except ValueError:
+        except (TypeError, ValueError):
             pass
         else:
             if date_is_probable(dt):
@@ -259,7 +259,7 @@ def match_special_case(text):
     for mp, chars in match_patterns:
         try:
             dt = datetime.strptime(text[:chars], mp)
-        except ValueError:
+        except (TypeError, ValueError):
             log.debug('Failed matching very special case.')
         else:
             if date_is_probable(dt):
@@ -280,7 +280,7 @@ def match_special_case_no_date(text):
     text = util.decode_(text)
     try:
         dt = datetime.strptime(text[:10], '%Y-%m-%d')
-    except ValueError:
+    except (TypeError, ValueError):
         log.debug('Failed matching date only version of very special case.')
     else:
         if date_is_probable(dt):
@@ -473,7 +473,7 @@ def bruteforce_str(text, return_first_match=False):
         tries_total += 1
         try:
             dt = datetime.strptime(text_strip, fmt)
-        except ValueError:
+        except (TypeError, ValueError):
             pass
         else:
             # TODO: [TD0010] Include number of tries in the result to act as a
@@ -523,7 +523,7 @@ def bruteforce_str(text, return_first_match=False):
             tries_total += 1
             try:
                 dt = datetime.strptime(digits_strip, fmt)
-            except ValueError:
+            except (TypeError, ValueError):
                 pass
             else:
                 # TODO: Include number of tries in the result as a weight.
@@ -555,7 +555,7 @@ def bruteforce_str(text, return_first_match=False):
                 tries_total += 1
                 try:
                     dt = datetime.strptime(digits_strip, fmt)
-                except ValueError:
+                except (TypeError, ValueError):
                     pass
                 else:
                     # TODO: [BL002] Include number of tries in the result to
@@ -689,7 +689,7 @@ def special_datetime_ocr_search(text):
     for dt_str in re.findall(pattern, text):
         try:
             dt = datetime.strptime(dt_str, dt_fmt)
-        except ValueError:
+        except (TypeError, ValueError):
             pass
         else:
             if date_is_probable(dt):
