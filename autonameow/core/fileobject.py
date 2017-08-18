@@ -21,14 +21,13 @@
 
 import os
 import re
-
 import magic
 
 from core import (
     constants,
+    exceptions,
     util
 )
-from core.exceptions import InvalidFileArgumentError
 from .util import diskutils
 
 # TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
@@ -279,16 +278,16 @@ def validate_path_argument(path):
     path = util.syspath(path)
 
     if not os.path.exists(path):
-        raise InvalidFileArgumentError('Path does not exist')
+        raise exceptions.InvalidFileArgumentError('Path does not exist')
     elif os.path.isdir(path):
         # TODO: [TD0045] Implement handling/renaming directories.
-        raise InvalidFileArgumentError(
+        raise exceptions.InvalidFileArgumentError(
             'Safe handling of directories is not implemented yet'
         )
     elif os.path.islink(path):
         # TODO: [TD0026] Implement handling of symlinks.
-        raise InvalidFileArgumentError(
+        raise exceptions.InvalidFileArgumentError(
             'Safe handling of symbolic links is not implemented yet'
         )
     elif not os.access(path, os.R_OK):
-        raise InvalidFileArgumentError('Not authorized to read path')
+        raise exceptions.InvalidFileArgumentError('Not authorized to read path')
