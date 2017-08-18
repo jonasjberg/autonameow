@@ -21,16 +21,15 @@
 
 import logging as log
 import re
-from datetime import datetime
-
 import unicodedata
+from datetime import datetime
 
 from core import (
     constants,
     util,
-    exceptions
+    exceptions,
+    namebuilder
 )
-from core.evaluate import namebuilder
 
 
 class ConfigFieldParser(object):
