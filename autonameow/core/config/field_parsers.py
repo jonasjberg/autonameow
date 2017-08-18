@@ -164,10 +164,10 @@ class RegexConfigFieldParser(ConfigFieldParser):
         test_data = util.encode_(test_data)
         expression = util.encode_(expression)
 
-        log.debug('test_data: "{!s}" ({})"'.format(test_data,
-                                                   type(test_data)))
-        log.debug('expression: "{!s}" ({})"'.format(expression,
-                                                    type(expression)))
+        # log.debug('test_data: "{!s}" ({})"'.format(test_data,
+        #                                            type(test_data)))
+        # log.debug('expression: "{!s}" ({})"'.format(expression,
+        #                                            type(expression)))
         _match = re.match(expression, test_data)
         if _match:
             return _match
