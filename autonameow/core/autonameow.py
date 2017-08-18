@@ -27,17 +27,17 @@ import time
 from core import (
     config,
     constants,
-    options,
-    util,
     exceptions,
-    repository
+    options,
+    repository,
+    util
 )
 from core.analysis import Analysis
 from core.config.configuration import Configuration
-from core.evaluate.filter import ResultFilter
 from core.evaluate.rulematcher import RuleMatcher
 from core.extraction import Extraction
 from core.fileobject import FileObject
+from core.filter import ResultFilter
 from core.namebuilder import NameBuilder
 from core.plugin_handler import PluginHandler
 from core.util import (
