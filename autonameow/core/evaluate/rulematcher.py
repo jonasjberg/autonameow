@@ -55,6 +55,7 @@ class RuleMatcher(object):
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))
+
         ok_rules = evaluate_rule_conditions(self._rules, self.query_data)
         if len(ok_rules) == 0:
             log.info('No valid rules remain after evaluation')
@@ -95,23 +96,35 @@ def prioritize_rules(rules):
 def evaluate_rule_conditions(rules_to_examine, data_query_function):
     # Conditions are evaluated with data accessed through the callback function
     # 'data_query_function' which returns data for 'RuleMatcher.file_object'.
-    ok_rules = []
+    passed = remove_rules_failing_exact_match(rules_to_examine,
+                                              data_query_function)
+    log.debug('{} rules remain after removing rules that require exact'
+              ' matches'.format(len(passed)))
+    evaluate_rules_and_update_scores(passed, data_query_function)
+    return passed
+
+
+def remove_rules_failing_exact_match(rules_to_examine, data_query_function):
+    passed = []
 
     for count, rule in enumerate(rules_to_examine):
-        log.debug('Evaluating rule {}/{}: "{}"'.format(
+        log.debug('Testing exact match for Rule {}/{}: "{}"'.format(
             count + 1, len(rules_to_examine), rule.description)
         )
 
-        result = rule.evaluate(data_query_function)
-        if rule.exact_match and result is False:
-            log.debug(
-                'Rule evaluated FALSE, removing: "{}"'.format(rule.description)
-            )
+        should_keep = rule.evaluate_exact(data_query_function)
+        if not should_keep:
+            # Exact match failed, do not include 'rule' in returned list.
             continue
+        else:
+            passed.append(rule)
 
-        log.debug('Rule evaluated TRUE: "{}"'.format(rule.description))
-        ok_rules.append(rule)
-
-    return ok_rules
+    return passed
 
 
+def evaluate_rules_and_update_scores(rules_to_examine, data_query_function):
+    for count, rule in enumerate(rules_to_examine):
+        log.debug('Scoring Rule {}/{}: "{}"'.format(
+            count + 1, len(rules_to_examine), rule.description)
+        )
+        rule.evaluate_score(data_query_function)

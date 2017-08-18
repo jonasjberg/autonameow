@@ -198,6 +198,11 @@ class FileRule(object):
 
         self._count_met_conditions = 0
 
+        if not self.conditions:
+            raise exceptions.InvalidFileRuleError(
+                'FileRule does not specify any conditions: "{!s}"'.format(self)
+            )
+
     @property
     def score(self):
         # Calculate scores as;  SCORE = conditions_met / number_of_conditions
@@ -237,13 +242,14 @@ class FileRule(object):
 
         return unique_query_strings
 
-    def evaluate(self, data_query_function):
+    def evaluate_exact(self, data_query_function):
         """
-        Tests if a rule applies to a given file.
+        Evaluates this rule using data provided by a callback function.
 
-        Returns at first unmatched condition if the rule requires an exact
-        match. If the rule does not require an exact match, all conditions are
-        evaluated and the rule is scored through 'upvote' and 'downvote'.
+        This tests rules that require exact matches.
+        Returns False at first unmatched condition if the rule requires an
+        exact match. If the rule does not required an exact match, True is
+        returned at once.
 
         Args:
             data_query_function: Callback for retrieving the data to evaluate.
@@ -255,33 +261,38 @@ class FileRule(object):
             If the rule does not require an exact match:
                 True
         """
-        if not self.conditions:
-            raise exceptions.InvalidFileRuleError(
-                'FileRule does not specify any conditions: "{!s}"'.format(self)
-            )
-
-        if self.exact_match:
-            for condition in self.conditions:
-                log.debug('Evaluating condition "{!s}"'.format(condition))
-                if not self._evaluate_condition(condition, data_query_function):
-                    log.debug('Condition FAILED -- Exact match impossible ..')
-                    return False
-                else:
-                    self.upvote()
+        # Pass if exact match isn't required.
+        if not self.exact_match:
+            log.debug('Exact match not required')
             return True
 
         for condition in self.conditions:
-            log.debug('Evaluating condition "{!s}"'.format(condition))
+            if not self._evaluate_condition(condition, data_query_function):
+                log.debug('Condition FAILED: "{!s}"'.format(condition))
+                log.debug('Exact match FAILED!')
+                return False
+            else:
+                log.debug('Condition PASSED: "{!s}"'.format(condition))
+        log.debug('Exact match PASSED!')
+        return True
+
+    def evaluate_score(self, data_query_function):
+        """
+        Evaluates this rule using data provided by a callback function.
+
+        Conditions are evaluated and the rule is scored through the 'upvote'
+        (and 'downvote' methods)
+
+        Args:
+            data_query_function: Callback for retrieving the data to evaluate.
+        """
+        for condition in self.conditions:
             if self._evaluate_condition(condition, data_query_function):
-                log.debug('Condition Passed rule.votes++')
+                log.debug('Condition PASSED: "{!s}"'.format(condition))
                 self.upvote()
             else:
-                # NOTE: file_rule.downvote()?
-                # log.debug('Condition FAILED rule.votes--')
-                log.debug('Condition FAILED')
-
-        # Rule was not discarded but could still have failed all tests.
-        return True
+                # TODO: file_rule.downvote()?
+                log.debug('Condition FAILED: "{!s}"'.format(condition))
 
     def _evaluate_condition(self, condition, data_query_function):
         # Fetch data at "query_string" using the provided "data_query_function".
