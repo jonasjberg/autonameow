@@ -220,31 +220,30 @@ def pre_assemble_format(data, config):
     for key, value in data.items():
         if key == 'datetime':
             datetime_format = config.options['DATETIME_FORMAT']['datetime']
-            out['datetime'] = formatted_datetime(data['datetime'],
-                                                 datetime_format)
+            out[key] = formatted_datetime(data[key], datetime_format)
         elif key == 'date':
             datetime_format = config.options['DATETIME_FORMAT']['date']
-            out['date'] = formatted_datetime(data['date'],
-                                             datetime_format)
+            out[key] = formatted_datetime(data[key], datetime_format)
         elif key == 'time':
             datetime_format = config.options['DATETIME_FORMAT']['time']
-            out['time'] = formatted_datetime(data['time'],
-                                             datetime_format)
+            out[key] = formatted_datetime(data[key], datetime_format)
+
+        # TODO: [TD0044] Rework converting "raw data" to an internal format.
+        else:
+            # TODO: [TD0004] Take a look at this ad-hoc encoding boundary.
+            if isinstance(value, bytes):
+                value = util.decode_(value)
+                out[key] = value
+            else:
+                out[key] = data[key]
+
+            # TODO: [TD0017] Get file extension from MIME type strings.
+            if key == 'extension':
+                _maybe_mime_type = out.get(key)
+                if re.match(r'^[a-z]+/[a-z0-9\-+]+$', _maybe_mime_type):
+                    out[key] = _maybe_mime_type.split('/')[1]
 
         # TODO: [TD0041] Other substitutions, etc ..
-        # TODO: [TD0044] Rework converting "raw data" to an internal format.
-        # TODO: [TD0004] Take a look at this ad-hoc encoding boundary.
-        if isinstance(value, bytes):
-            value = util.decode_(value)
-            out[key] = value
-        else:
-            out[key] = data[key]
-
-        # TODO: [TD0017] Get file extension from MIME type strings.
-        if key == 'extension':
-            _maybe_mime_type = out.get(key)
-            if re.match(r'^[a-z]+/[a-z0-9\-+]+$', _maybe_mime_type):
-                out[key] = _maybe_mime_type.split('/')[1]
 
     return out
 
