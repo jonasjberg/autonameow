@@ -208,7 +208,7 @@ class Configuration(object):
             )
 
         valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
-        valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
+        valid_data_sources = parse_data_sources(raw_rule.get('DATA_SOURCES'))
         valid_weight = parse_weight(raw_rule.get('weight'))
         valid_exact_match = bool(raw_rule.get('exact_match'))
 
@@ -217,7 +217,7 @@ class Configuration(object):
                                    weight=valid_weight,
                                    name_template=valid_format,
                                    conditions=valid_conditions,
-                                   data_sources=valid_sources)
+                                   data_sources=valid_data_sources)
         log.debug('Validated file rule "{!s}" .. OK!'.format(valid_description))
         return file_rule
 
@@ -374,23 +374,23 @@ def parse_weight(value):
             raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
 
 
-def parse_sources(raw_sources):
+def parse_data_sources(raw_sources):
     passed = {}
 
-    log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
+    log.debug('Parsing {} raw data sources ..'.format(len(raw_sources)))
 
     for template_field, query_string in raw_sources.items():
         if not query_string:
-            log.debug('Skipped source with empty query string '
+            log.debug('Skipped data source with empty query string '
                       '(template field: "{!s}")'.format(template_field))
             continue
         elif not template_field:
-            log.debug('Skipped source with empty name template field '
+            log.debug('Skipped data source with empty name template field '
                       '(query string: "{!s}")'.format(query_string))
             continue
 
         if not field_parsers.is_valid_template_field(template_field):
-            log.warning('Skipped source with invalid name template field '
+            log.warning('Skipped data source with invalid name template field '
                         '(query string: "{!s}")'.format(query_string))
             continue
 
@@ -399,14 +399,15 @@ def parse_sources(raw_sources):
 
         for qs in query_string:
             if is_valid_source(qs):
-                log.debug('Validated source: [{}]: {}'.format(template_field,
-                                                              qs))
+                log.debug('Validated data source: [{}]: {}'.format(
+                    template_field, qs))
                 passed[template_field] = qs
             else:
-                log.debug('Invalid source: [{}]: {}'.format(template_field, qs))
+                log.debug('Invalid data source: [{}]: {}'.format(
+                    template_field, qs))
 
-    log.debug('Returning {} (out of {}) valid sources'.format(len(passed),
-                                                              len(raw_sources)))
+    log.debug('Returning {} (out of {}) valid data sources'.format(
+        len(passed), len(raw_sources)))
     return passed
 
 
