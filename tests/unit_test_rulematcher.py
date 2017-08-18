@@ -22,6 +22,7 @@
 from unittest import TestCase
 
 import unit_utils as uu
+from core import constants
 from core.config.configuration import Configuration
 from core.config import DEFAULT_CONFIG
 from core.evaluate.rulematcher import (
@@ -113,6 +114,8 @@ class DummyFileRule(object):
     def __init__(self, score, weight):
         self.score = score
         self.weight = weight
+        self.exact_match = True
+        self.ranking_bias = constants.DEFAULT_FILERULE_RANKING_BIAS
 
 
 class TestPrioritizeRules(TestCase):

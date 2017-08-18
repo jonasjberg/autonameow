@@ -178,20 +178,21 @@ class FileRule(object):
 
     File rules are prioritized and sorted by both "score" and "weight".
 
-      - score  Represents how well suited a rule is for a given file.
-               This value is changed at run-time.
-      - weight If multiple rules end up with an equal score, weights are
-               used to further prioritize as to get a single "winning" rule.
-               This value is specified in the active configuration.
+    - score         Represents how well suited a rule is for a given file.
+                    This value is changed at run-time.
+    - ranking_bias  If multiple rules end up with an equal score, weights are
+                    used to further prioritize as to get a single "winning"
+                    rule. This value is specified in the active configuration.
 
-    Rules are sorted/prioritized by first the score, secondly the weight.
     Calculate scores as;  SCORE = conditions_met / number_of_conditions
-    Which produces a "normalized" decimal number between 0 and 1.
+    Which gives a "normalized" decimal number between 0 and 1 that indicates
+    the ratio of satisfied to unsatisfied conditions.
     """
     def __init__(self, **kwargs):
         self.description = str(kwargs.get('description'))
         self.exact_match = bool(kwargs.get('exact_match'))
-        self.weight = kwargs.get('weight', constants.DEFAULT_FILERULE_WEIGHT)
+        self.ranking_bias = kwargs.get('bias',
+                                       constants.DEFAULT_FILERULE_RANKING_BIAS)
         self.name_template = kwargs.get('name_template')
         self.conditions = kwargs.get('conditions', [])
         self.data_sources = kwargs.get('data_sources', [])
@@ -210,6 +211,10 @@ class FileRule(object):
         score = self._count_met_conditions / max(1, len(self.conditions))
         assert(0 <= score <= 1)
         return score
+
+    @property
+    def weight(self):
+        return 0
 
     def upvote(self):
         """

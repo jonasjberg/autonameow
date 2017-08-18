@@ -133,16 +133,23 @@ class TestFileRuleInstantiation(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.filerule = rules.FileRule()
+        with self.assertRaises(exceptions.InvalidFileRuleError):
+            self.filerule = rules.FileRule()
 
     def test_init_description_is_str_or_none(self):
-        self.assertTrue(isinstance(self.filerule.description, str) or
-                        self.filerule.description is None,
-                        'FileRule description should be of type string or None')
+        self.skipTest('TODO')
+        with self.assertRaises(exceptions.InvalidFileRuleError):
+            self.assertTrue(
+                isinstance(self.filerule.description, str) or
+                self.filerule.description is None,
+                'FileRule description should be of type string or None'
+            )
 
     def test_init_exact_match_is_boolean(self):
-        self.assertTrue(isinstance(self.filerule.exact_match, bool),
-                        'FileRule exact_match should be a boolean')
+        self.skipTest('TODO')
+        with self.assertRaises(exceptions.InvalidFileRuleError):
+            self.assertTrue(isinstance(self.filerule.exact_match, bool),
+                            'FileRule exact_match should be a boolean')
 
 
 class TestFileRuleMethods(TestCase):

@@ -32,7 +32,7 @@ from core.config.default_config import DEFAULT_CONFIG
 from core.config.configuration import (
     Configuration,
     parse_conditions,
-    parse_weight,
+    parse_ranking_bias,
     is_valid_source,
 )
 from core.exceptions import ConfigurationSyntaxError
@@ -172,33 +172,34 @@ class TestParseConditions(TestCase):
         self.assertEqual(actual[0].expression, 'Defined')
 
 
-class TestParseWeight(TestCase):
+class TestParseRankingBias(TestCase):
     def test_negative_value_raises_configuration_syntax_error(self):
         with self.assertRaises(ConfigurationSyntaxError):
-            parse_weight(-1)
-            parse_weight(-0.1)
-            parse_weight(-0.01)
-            parse_weight(-0.0000000001)
+            parse_ranking_bias(-1)
+            parse_ranking_bias(-0.1)
+            parse_ranking_bias(-0.01)
+            parse_ranking_bias(-0.0000000001)
 
     def test_value_greater_than_one_raises_configuration_syntax_error(self):
         with self.assertRaises(ConfigurationSyntaxError):
-            parse_weight(2)
-            parse_weight(1.1)
-            parse_weight(1.00000000001)
+            parse_ranking_bias(2)
+            parse_ranking_bias(1.1)
+            parse_ranking_bias(1.00000000001)
 
     def test_unexpected_type_value_raises_configuration_syntax_error(self):
         with self.assertRaises(ConfigurationSyntaxError):
-            parse_weight('')
-            parse_weight(object())
+            parse_ranking_bias('')
+            parse_ranking_bias(object())
 
     def test_none_value_returns_default_weight(self):
-        self.assertEqual(parse_weight(None), constants.DEFAULT_FILERULE_WEIGHT)
+        self.assertEqual(parse_ranking_bias(None),
+                         constants.DEFAULT_FILERULE_RANKING_BIAS)
 
     def test_value_within_range_zero_to_one_returns_value(self):
-        VALUES = [0, 0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 1]
+        input_values = [0, 0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 1]
 
-        for value in VALUES:
-            self.assertEqual(parse_weight(value), value)
+        for value in input_values:
+            self.assertEqual(parse_ranking_bias(value), value)
 
 
 class TestIsValidSourceSpecification(TestCase):

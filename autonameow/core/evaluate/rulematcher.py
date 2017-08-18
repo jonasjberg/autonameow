@@ -64,11 +64,10 @@ class RuleMatcher(object):
         log.debug('Prioritizing remaining {} candidates ..'.format(len(ok_rules)))
         ok_rules = prioritize_rules(ok_rules)
         for i, rule in enumerate(ok_rules):
-            _exact = 'Exact: {}'.format(
-                'Yes' if rule.exact_match else 'No '
-            )
-            log.info('Rule #{} (Score: {:.2f}  Weight: {:.2f}  {}) {} '.format(
-                i + 1, rule.score, rule.weight, _exact, rule.description)
+            _exact = 'Yes' if rule.exact_match else 'No '
+            log.info('Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias: {:.2f}) {} '.format(
+                i + 1, _exact, rule.score, rule.weight, rule.ranking_bias,
+                rule.description)
             )
 
         self._candidates = ok_rules
@@ -84,8 +83,15 @@ def prioritize_rules(rules):
     """
     Prioritizes (sorts) a list of 'FileRule' instances.
 
-    The list is sorted first by "score", then by whether the rule requires an
-    exact match or not and then finally by "weight".
+    The list is sorted by multiple attributes in the following order;
+
+    1. By "score", a float between 0-1
+       Represents the number of satisfied rule conditions.
+    2. By Whether the rule requires an exact match or not.
+       Rules that require an exact match are ranked higher.
+    3. By "weight", a float between 0-1.
+       Represents how many conditions
+    # TODO:  ..
 
     This means that a rule that met all conditions will be ranked lower than
     another rule that also met all conditions but *did* require an exact match.
@@ -99,7 +105,8 @@ def prioritize_rules(rules):
         A sorted/prioritized list of 'FileRule' instances.
     """
     return sorted(rules, reverse=True,
-                  key=operator.attrgetter('score', 'exact_match', 'weight'))
+                  key=operator.attrgetter('score', 'exact_match', 'weight',
+                                          'ranking_bias'))
 
 
 def evaluate_rule_conditions(rules_to_examine, data_query_function):
@@ -114,21 +121,23 @@ def evaluate_rule_conditions(rules_to_examine, data_query_function):
 
 
 def remove_rules_failing_exact_match(rules_to_examine, data_query_function):
-    passed = []
+    # passed = []
 
-    for count, rule in enumerate(rules_to_examine):
-        log.debug('Testing exact match for Rule {}/{}: "{}"'.format(
-            count + 1, len(rules_to_examine), rule.description)
-        )
+    # for count, rule in enumerate(rules_to_examine):
+    #     log.debug('Testing exact match for Rule {}/{}: "{}"'.format(
+    #         count + 1, len(rules_to_examine), rule.description)
+    #     )
 
-        should_keep = rule.evaluate_exact(data_query_function)
-        if not should_keep:
-            # Exact match failed, do not include 'rule' in returned list.
-            continue
-        else:
-            passed.append(rule)
+    #     should_keep = rule.evaluate_exact(data_query_function)
+    #     if not should_keep:
+    #         # Exact match failed, do not include 'rule' in returned list.
+    #         continue
+    #     else:
+    #         passed.append(rule)
 
-    return passed
+    # return passed
+    return [rule for rule in rules_to_examine if
+            rule.evaluate_exact(data_query_function)]
 
 
 def evaluate_rules_and_update_scores(rules_to_examine, data_query_function):
