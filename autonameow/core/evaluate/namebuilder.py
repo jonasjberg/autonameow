@@ -230,22 +230,21 @@ def pre_assemble_format(data, config):
             datetime_format = config.options['DATETIME_FORMAT']['time']
             out['time'] = formatted_datetime(data['time'],
                                              datetime_format)
-        elif key == 'extension':
-            # TODO: [TD0017] Get file extension from MIME type strings.
-            _maybe_mime_type = data.get(key)
-            if not isinstance(_maybe_mime_type, bytes):
-                if re.match(r'^[a-z]+/[a-z0-9\-+]+$', _maybe_mime_type):
-                    out['extension'] = _maybe_mime_type.split('/')[1]
-                    print(out['extension'])
+
+        # TODO: [TD0041] Other substitutions, etc ..
+        # TODO: [TD0044] Rework converting "raw data" to an internal format.
+        # TODO: [TD0004] Take a look at this ad-hoc encoding boundary.
+        if isinstance(value, bytes):
+            value = util.decode_(value)
+            out[key] = value
         else:
-            # TODO: [TD0041] Other substitutions, etc ..
-            # TODO: [TD0044] Rework converting "raw data" to an internal format.
-            # TODO: [TD0004] Take a look at this ad-hoc encoding boundary.
-            if isinstance(value, bytes):
-                value = util.decode_(value)
-                out[key] = value
-            else:
-                out[key] = data[key]
+            out[key] = data[key]
+
+        # TODO: [TD0017] Get file extension from MIME type strings.
+        if key == 'extension':
+            _maybe_mime_type = out.get(key)
+            if re.match(r'^[a-z]+/[a-z0-9\-+]+$', _maybe_mime_type):
+                out[key] = _maybe_mime_type.split('/')[1]
 
     return out
 
