@@ -119,7 +119,7 @@ def init_argparser():
 
     optgrp_action = parser.add_argument_group(
         'Action options',
-        #description='Enable ACTIONS to perform for any matched files.'
+        # description='Enable ACTIONS to perform for any matched files.'
     )
     # TODO: [TD0059] Replace '--list-*' options with something more flexible.
     #       I.E. '--list-datetime' and '--list-title' could be '--list {FIELD}'
@@ -144,7 +144,7 @@ def init_argparser():
 
     optgrp_mode = parser.add_argument_group(
         'Operating mode',
-        #description='Select program operating mode. Manual or fully automatic.'
+        # description='Select program operating mode. Manual or fully automatic.'
     )
     optgrp_mode.add_argument(
         '--automagic',

@@ -138,10 +138,12 @@ class FilenameAnalyzer(BaseAnalyzer):
             #                 'weight': 1})
             # TODO: [TD0044] Look at how results are stored and named.
             # TODO: [TD0019] Rework The FilenameAnalyzer class.
-            self._add_results('datetime',
-                         {'value': dt_unix,
-                          'source': 'filesystem.basename.prefix.unix_timestamp',
-                          'weight': 1})
+            self._add_results(
+                'datetime',
+                {'value': dt_unix,
+                 'source': 'filesystem.basename.prefix.unix_timestamp',
+                 'weight': 1}
+            )
 
         # Match screencapture-prefixed UNIX timestamp
         dt_screencapture_unix = dateandtime.match_screencapture_unixtime(fn)
