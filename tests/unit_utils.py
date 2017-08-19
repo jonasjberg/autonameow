@@ -167,6 +167,10 @@ def mock_request_data_callback(file_object, label):
         return d
 
 
+def mock_add_results_callback(file_object, label, data):
+    pass
+
+
 def mock_session_data_pool(file_object):
     """
     Returns: Mock session data pool with typical extractor data.
