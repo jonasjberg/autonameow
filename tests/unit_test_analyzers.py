@@ -36,7 +36,8 @@ EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
                            'analyzers.analyze_filename.FilenameAnalyzer',
                            'analyzers.analyze_video.VideoAnalyzer',
                            'analyzers.analyze_pdf.PdfAnalyzer',
-                           'analyzers.analyze_text.TextAnalyzer']
+                           'analyzers.analyze_text.TextAnalyzer',
+                           'analyzers.analyze_ebook.EbookAnalyzer']
 EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
                                     for c in EXPECT_ANALYZER_CLASSES]
 
@@ -195,6 +196,9 @@ class TestNumberOfAvailableAnalyzerClasses(TestCase):
 
     def test_get_analyzer_classes_returns_at_least_six_analyzers(self):
         self.assertGreaterEqual(len(self.actual), 6)
+
+    def test_get_analyzer_classes_returns_at_least_seven(self):
+        self.assertGreaterEqual(len(self.actual), 7)
 
     # TODO: [hardcoded] Likely to break; fixed analyzer names!
     def test_get_analyzer_classes_returns_expected_count(self):
