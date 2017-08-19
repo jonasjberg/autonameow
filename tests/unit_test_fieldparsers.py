@@ -336,7 +336,7 @@ class TestSuitableFieldParserFor(TestCase):
         self.assertEqual(str(actual[0]), expected_parser)
 
     def test_returns_expected_type_list(self):
-        actual = suitable_field_parser_for('contents.mime_type')
+        actual = suitable_field_parser_for('filesystem.contents.mime_type')
         self.assertTrue(isinstance(actual, list))
 
     def test_returns_expected_given_invalid_mime_type_field(self):
@@ -370,7 +370,7 @@ class TestSuitableFieldParserFor(TestCase):
 
     def test_expect_mime_type_field_parser(self):
         self.__expect_parser_for('MimeTypeConfigFieldParser',
-                                 'contents.mime_type')
+                                 'filesystem.contents.mime_type')
 
 
 class TestFieldParserConstants(TestCase):
@@ -407,18 +407,17 @@ class TestEvalQueryStringGlob(TestCase):
 
     def test_eval_query_string_blob_returns_false_as_expected(self):
         self.assertFalse(eval_query_string_glob(
-            'contents.mime_type', ['filesystem.*']
+            'filesystem.contents.mime_type', ['filesystem.pathname.*']
         ))
         self.assertFalse(eval_query_string_glob(
-            'contents.mime_type', ['filesystem.pathname.*']
+            'filesystem.contents.mime_type', ['filesystem.pathname.full']
         ))
         self.assertFalse(eval_query_string_glob(
-            'contents.mime_type', ['filesystem.pathname.full']
+            'filesystem.contents.mime_type', ['filesystem.pathname.*',
+                                              'filesystem.pathname.full']
         ))
         self.assertFalse(eval_query_string_glob(
-            'contents.mime_type', ['filesystem.*',
-                                   'filesystem.pathname.*',
-                                   'filesystem.pathname.full']
+            'filesystem.basename.full', ['*.pathname.*']
         ))
         self.assertFalse(eval_query_string_glob(
             'filesystem.pathname.extension', ['*.basename.*',
@@ -434,6 +433,20 @@ class TestEvalQueryStringGlob(TestCase):
             ['datetime', 'date_accessed', 'date_created', 'date_modified',
              '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
              '*.EXIF:ModifyDate']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'filesystem.contents.mime_type', ['NAME_FORMAT']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.*']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_query_string_glob(
+            'contents.textual.plain_text', ['filesystem.*',
+                                            'filesystem.pathname.*',
+                                            'filesystem.pathname.full']
         ))
 
     def test_eval_query_string_blob_returns_true_as_expected(self):
@@ -459,6 +472,20 @@ class TestEvalQueryStringGlob(TestCase):
                                          'filesystem.*',
                                          'filesystem.pathname.*',
                                          'filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.pathname.full', ['*.pathname.*']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.contents.mime_type', ['filesystem.*']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.contents.mime_type', ['filesystem.contents.*']
+        ))
+        self.assertTrue(eval_query_string_glob(
+            'filesystem.contents.mime_type', ['filesystem.*',
+                                              'filesystem.pathname.*',
+                                              'filesystem.pathname.full']
         ))
         self.assertTrue(eval_query_string_glob(
             'filesystem.basename.extension', ['*.basename.*',

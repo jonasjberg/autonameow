@@ -385,8 +385,9 @@ def eval_query_string_glob(query_string, glob_list):
 
     for glob in glob_list:
         glob_parts = glob.split('.')
+
         # All wildcards match anything.
-        if all(gp == '*' for gp in glob_parts):
+        if len([gp for gp in glob_parts if gp == '*']) == len(glob_parts):
             return True
 
         # No wildcards, do direct comparison.
