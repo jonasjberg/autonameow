@@ -62,7 +62,7 @@ def print_ascii_banner():
     toplineleft = ' {title}  version {v}'.format(title=colortitle,
                                                  v=constants.PROGRAM_VERSION)
     toplineright = version.__copyright__
-    print(('{:<}{:>50}'.format(toplineleft, toplineright)))
+    print(('{:<}{:>49}'.format(toplineleft, toplineright)))
     print(('{:>78}'.format(version.__url__)))
     print(('{:>78}'.format(version.__email__)))
     print('')
