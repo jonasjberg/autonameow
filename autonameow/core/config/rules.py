@@ -214,6 +214,7 @@ class FileRule(object):
 
     @property
     def weight(self):
+        # TODO: Calculate weight, or revert "normalized" scores.
         return 0
 
     def upvote(self):
