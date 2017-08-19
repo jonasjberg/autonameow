@@ -50,7 +50,7 @@ DUMMY_RAW_RULE_CONDITIONS = [
 ]
 
 
-DUMMY_RAW_RULES_SOURCES = [
+DUMMY_RAW_RULE_DATA_SOURCES = [
     # Part of Rule 1
     {'datetime': 'metadata.exiftool.PDF:CreateDate',
      'extension': 'filesystem.basename.extension',
