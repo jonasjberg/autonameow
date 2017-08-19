@@ -32,9 +32,9 @@ from core.config.default_config import DEFAULT_CONFIG
 from core.config.configuration import (
     Configuration,
     parse_conditions,
-    parse_ranking_bias,
     is_valid_source,
 )
+from core.config.rules import parse_ranking_bias
 from core.exceptions import ConfigurationSyntaxError
 
 

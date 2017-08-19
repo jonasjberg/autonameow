@@ -26,16 +26,16 @@ from core import (
     config,
     constants,
     exceptions,
-    util,
-    repository
+    repository,
+    util
 )
 from core.config import (
     field_parsers,
     rules
 )
 from core.config.field_parsers import (
-    NameFormatConfigFieldParser,
-    DateTimeConfigFieldParser
+    DateTimeConfigFieldParser,
+    NameFormatConfigFieldParser
 )
 from core.util import textutils
 
@@ -209,11 +209,10 @@ class Configuration(object):
 
         valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
         valid_data_sources = parse_data_sources(raw_rule.get('DATA_SOURCES'))
-        valid_ranking_bias = parse_ranking_bias(raw_rule.get('ranking_bias'))
         # TODO: [TD0079] Refactor validation and initializing 'FileRule'
         file_rule = rules.FileRule(description=description,
                                    exact_match=raw_rule.get('exact_match'),
-                                   ranking_bias=valid_ranking_bias,
+                                   ranking_bias=raw_rule.get('ranking_bias'),
                                    name_template=valid_format,
                                    conditions=valid_conditions,
                                    data_sources=valid_data_sources)
@@ -336,41 +335,6 @@ class Configuration(object):
         out.append(textutils.indent(util.dump(self.options), amount=4))
 
         return ''.join(out)
-
-
-def parse_ranking_bias(value):
-    """
-    Validates data to be used as a "ranking_bias".
-
-    The value must be an integer or float between 0 and 1.
-    To allow for an unspecified bias, None values are allowed and substituted
-    with the default bias defined by "FILERULE_DEFAULT_RANKING_BIAS".
-
-    Args:
-        value: The raw value to parse.
-    Returns:
-        The specified value if the value is a number type in the range 0-1.
-        If the specified value is None, a default bias is returned.
-    Raises:
-        ConfigurationSyntaxError: The value is of an unexpected type or not
-            within the range 0-1.
-    """
-    ERROR_MSG = 'Expected float in range 0-1. Got: "{}"'.format(value)
-
-    if value is None:
-        return constants.DEFAULT_FILERULE_RANKING_BIAS
-    if not isinstance(value, (int, float)):
-        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
-
-    try:
-        w = float(value)
-    except TypeError:
-        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
-    else:
-        if float(0) <= w <= float(1):
-            return w
-        else:
-            raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
 
 
 def parse_data_sources(raw_sources):

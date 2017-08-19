@@ -21,8 +21,12 @@
 
 from unittest import TestCase
 
-from core import exceptions
+from core import (
+    exceptions,
+    constants
+)
 from core.config import rules
+import unit_utils as uu
 
 
 class TestRuleCondition(TestCase):
@@ -136,38 +140,10 @@ RULE_CONTENTS = {
 }
 
 
-class TestFileRuleInstantiation(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-        with self.assertRaises(exceptions.InvalidFileRuleError):
-            self.filerule = rules.FileRule()
-
-    def test_init_description_is_str_or_none(self):
-        self.skipTest('TODO')
-        with self.assertRaises(exceptions.InvalidFileRuleError):
-            self.assertTrue(
-                isinstance(self.filerule.description, str) or
-                self.filerule.description is None,
-                'FileRule description should be of type string or None'
-            )
-
-    def test_init_exact_match_is_boolean(self):
-        self.skipTest('TODO')
-        with self.assertRaises(exceptions.InvalidFileRuleError):
-            self.assertTrue(isinstance(self.filerule.exact_match, bool),
-                            'FileRule exact_match should be a boolean')
-
-
 class TestFileRuleMethods(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.filerule = rules.FileRule(description='dummy',
-                                       exact_match=False,
-                                       weight=0.5,
-                                       name_template='dummy',
-                                       conditions='dummy',
-                                       data_sources='dummy')
+        self.filerule = uu.get_dummy_rule()
 
     def test_filerule_string(self):
         actual = str(self.filerule)

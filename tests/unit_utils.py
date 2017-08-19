@@ -411,7 +411,7 @@ def get_dummy_rules_to_examine():
     out.append(rules.FileRule(
         description='test_files Gmail print-to-pdf',
         exact_match=True,
-        weight=0.5,
+        ranking_bias=0.5,
         name_template='{datetime} {title}.{extension}',
         conditions=dummy_conditions[0],
         data_sources=dummy_sources[0]
@@ -419,7 +419,7 @@ def get_dummy_rules_to_examine():
     out.append(rules.FileRule(
         description='test_files smulan.jpg',
         exact_match=True,
-        weight=1.0,
+        ranking_bias=1.0,
         name_template='{datetime} {description}.{extension}',
         conditions=dummy_conditions[1],
         data_sources=dummy_sources[1]
@@ -427,7 +427,7 @@ def get_dummy_rules_to_examine():
     out.append(rules.FileRule(
         description='Sample Entry for Photos with strict rules',
         exact_match=True,
-        weight=1.0,
+        ranking_bias=1.0,
         name_template='{datetime} {description} -- {tags}.{extension}',
         conditions=dummy_conditions[1],
         data_sources=dummy_sources[1]
@@ -435,13 +435,24 @@ def get_dummy_rules_to_examine():
     out.append(rules.FileRule(
         description='Sample Entry for EPUB e-books',
         exact_match=True,
-        weight=1.0,
+        ranking_bias=1.0,
         name_template='{publisher} {title} {edition} - {author} {date}.{extension}',
         conditions=dummy_conditions[1],
         data_sources=dummy_sources[1]
     ))
 
     return out
+
+
+def get_dummy_rule():
+    return rules.FileRule(
+        description='dummy',
+        exact_match=False,
+        ranking_bias=0.5,
+        name_template='dummy',
+        conditions='dummy',
+        data_sources='dummy'
+    )
 
 
 def is_class_instance(thing):

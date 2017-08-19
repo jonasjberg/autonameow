@@ -189,11 +189,10 @@ class FileRule(object):
     Which gives a "normalized" decimal number between 0 and 1 that indicates
     the ratio of satisfied to unsatisfied conditions.
     """
-    def __init__(self, description, exact_match, **kwargs):
+    def __init__(self, description, exact_match, ranking_bias, **kwargs):
         self.description = description
         self.exact_match = exact_match
-        self.ranking_bias = kwargs.get('bias',
-                                       constants.DEFAULT_FILERULE_RANKING_BIAS)
+        self.ranking_bias = ranking_bias
         self.name_template = kwargs.get('name_template')
         self.conditions = kwargs.get('conditions', [])
         self.data_sources = kwargs.get('data_sources', [])
@@ -223,6 +222,21 @@ class FileRule(object):
     @exact_match.setter
     def exact_match(self, raw_exact_match):
         self._exact_match = types.AW_BOOLEAN(raw_exact_match)
+
+    @property
+    def ranking_bias(self):
+        if self._ranking_bias:
+            return self._ranking_bias
+        else:
+            return constants.DEFAULT_FILERULE_RANKING_BIAS
+
+    @ranking_bias.setter
+    def ranking_bias(self, raw_ranking_bias):
+        try:
+            self._ranking_bias = parse_ranking_bias(raw_ranking_bias)
+        except exceptions.ConfigurationSyntaxError as e:
+            log.warning(e)
+            self._ranking_bias = constants.DEFAULT_FILERULE_RANKING_BIAS
 
     @property
     def score(self):
@@ -372,3 +386,38 @@ def get_valid_rule_condition(raw_query, raw_value):
         )
     else:
         return condition
+
+
+def parse_ranking_bias(value):
+    """
+    Validates data to be used as a "ranking_bias".
+
+    The value must be an integer or float between 0 and 1.
+    To allow for an unspecified bias, None values are allowed and substituted
+    with the default bias defined by "FILERULE_DEFAULT_RANKING_BIAS".
+
+    Args:
+        value: The raw value to parse.
+    Returns:
+        The specified value if the value is a number type in the range 0-1.
+        If the specified value is None, a default bias is returned.
+    Raises:
+        ConfigurationSyntaxError: The value is of an unexpected type or not
+            within the range 0-1.
+    """
+    ERROR_MSG = 'Expected float in range 0-1. Got: "{}"'.format(value)
+
+    if value is None:
+        return constants.DEFAULT_FILERULE_RANKING_BIAS
+    if not isinstance(value, (int, float)):
+        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
+
+    try:
+        w = float(value)
+    except TypeError:
+        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
+    else:
+        if float(0) <= w <= float(1):
+            return w
+        else:
+            raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
