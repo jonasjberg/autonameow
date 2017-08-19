@@ -66,6 +66,11 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0079]` __Refactor validation of `FileRule` data.__  
+  Probably more sense to perform validation of the data used to construct
+  `FileRule` instances in the `FileRule` class instead of scattered around
+  functions in the `configuration` module and the `Configuration` class.
+
 * `[TD0078]` Check extractor dependencies when enumerating extractor classes.
 
 * `[TD0071]` Move file name "sanitation" to the `NameBuilder` or elsewhere.
