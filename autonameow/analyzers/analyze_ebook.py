@@ -37,7 +37,16 @@ class EbookAnalyzer(BaseAnalyzer):
         )
 
     def run(self):
-        pass
+        self._text = self.request_data(self.file_object,
+                                       'contents.textual.raw_text')
+
+    def _add_results(self, label, data):
+        query_string = 'analysis.ebook_analyzer.{}'.format(label)
+        log.debug('{} passed "{}" to "add_results" callback'.format(
+            self, query_string)
+        )
+        if data is not None:
+            self.add_results(query_string, data)
 
     @classmethod
     def can_handle(cls, file_object):
