@@ -90,7 +90,7 @@ class Configuration(object):
 
         self._data = data
         self._load_name_templates()
-        self._load_file_rules()
+        self._load_rules()
         self._load_options()
         self._load_version()
 
@@ -137,26 +137,26 @@ class Configuration(object):
 
         self._name_templates.update(loaded_templates)
 
-    def _load_file_rules(self):
-        raw_file_rules = self._data.get('FILE_RULES', False)
-        if not raw_file_rules:
+    def _load_rules(self):
+        raw_rules = self._data.get('FILE_RULES', False)
+        if not raw_rules:
             raise exceptions.ConfigError(
                 'The configuration file does not contain any file rules'
             )
 
-        for rule in raw_file_rules:
+        for rule in raw_rules:
             try:
-                valid_file_rule = self._validate_rule_data(rule)
+                valid_rule = self._validate_rule_data(rule)
             except exceptions.ConfigurationSyntaxError as e:
                 rule_description = rule.get('description', 'UNDESCRIBED')
                 log.error('Bad rule "{!s}"; {!s}'.format(rule_description, e))
             else:
                 # Create and populate "FileRule" objects with *validated* data.
-                self._file_rules.append(valid_file_rule)
+                self._file_rules.append(valid_rule)
 
                 # Keep track of all "query strings" referenced by file rules.
                 self.referenced_query_strings.update(
-                    valid_file_rule.referenced_query_strings()
+                    valid_rule.referenced_query_strings()
                 )
 
     def _validate_rule_data(self, raw_rule):
