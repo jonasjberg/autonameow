@@ -210,11 +210,9 @@ class Configuration(object):
         valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
         valid_data_sources = parse_data_sources(raw_rule.get('DATA_SOURCES'))
         valid_ranking_bias = parse_ranking_bias(raw_rule.get('ranking_bias'))
-        valid_exact_match = bool(raw_rule.get('exact_match'))
-
         # TODO: [TD0079] Refactor validation and initializing 'FileRule'
         file_rule = rules.FileRule(description=description,
-                                   exact_match=valid_exact_match,
+                                   exact_match=raw_rule.get('exact_match'),
                                    ranking_bias=valid_ranking_bias,
                                    name_template=valid_format,
                                    conditions=valid_conditions,

@@ -24,7 +24,8 @@ import logging as log
 from core import (
     constants,
     util,
-    exceptions
+    exceptions,
+    types
 )
 from core.config import field_parsers
 
@@ -188,9 +189,9 @@ class FileRule(object):
     Which gives a "normalized" decimal number between 0 and 1 that indicates
     the ratio of satisfied to unsatisfied conditions.
     """
-    def __init__(self, description, **kwargs):
+    def __init__(self, description, exact_match, **kwargs):
         self.description = description
-        self.exact_match = bool(kwargs.get('exact_match'))
+        self.exact_match = exact_match
         self.ranking_bias = kwargs.get('bias',
                                        constants.DEFAULT_FILERULE_RANKING_BIAS)
         self.name_template = kwargs.get('name_template')
@@ -211,9 +212,17 @@ class FileRule(object):
     @description.setter
     def description(self, raw_description):
         if raw_description is None:
-            self._description = raw_description
-        else:
             self._description = 'UNDESCRIBED'
+        else:
+            self._description = raw_description
+
+    @property
+    def exact_match(self):
+        return self._exact_match
+
+    @exact_match.setter
+    def exact_match(self, raw_exact_match):
+        self._exact_match = types.AW_BOOLEAN(raw_exact_match)
 
     @property
     def score(self):
