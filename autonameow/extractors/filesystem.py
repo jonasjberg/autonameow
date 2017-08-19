@@ -20,6 +20,9 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging as log
+from datetime import datetime
+
+import os
 
 from core import types
 from core.exceptions import ExtractorError
@@ -66,8 +69,29 @@ class CommonFileSystemExtractor(BaseExtractor):
             'pathname.parent': types.AW_PATH(file_object.pathparent),
             'contents.mime_type': file_object.mime_type
         }
+
+        try:
+            modify_time = os.path.getmtime(file_object.abspath)
+            create_time = os.path.getctime(file_object.abspath)
+            access_time = os.path.getatime(file_object.abspath)
+        except OSError as e:
+            log.error('Unable to get timestamps from filesystem:'
+                      ' {!s}'.format(e))
+        else:
+            datetime_from_timestamp(out, 'date_accessed', access_time)
+            datetime_from_timestamp(out, 'date_created', create_time)
+            datetime_from_timestamp(out, 'date_modified', modify_time)
+
         return out
 
     @classmethod
     def check_dependencies(cls):
         return True
+
+
+def datetime_from_timestamp(dictionary, key, ts):
+    try:
+        dt = datetime.fromtimestamp(ts).replace(microsecond=0)
+        dictionary[key] = dt
+    except (ValueError, TypeError):
+        pass
