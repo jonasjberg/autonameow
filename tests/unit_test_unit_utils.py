@@ -30,6 +30,7 @@ import unit_utils_constants as uuconst
 
 import analyzers
 from analyzers import BaseAnalyzer
+from core.config import rules
 from core.fileobject import FileObject
 
 
@@ -302,6 +303,23 @@ class TestIsImportable(TestCase):
 
     def test_is_importable_returns_true_as_expected(self):
         self.assertTrue(uu.is_importable('datetime'))
+
+
+class TestGetDummyValidatedConditions(TestCase):
+    def test_returns_expected_type(self):
+        actual = uu.get_dummy_rulecondition_instances()
+        self.assertTrue(isinstance(actual, list))
+
+    def test_returns_rule_class_instances(self):
+        conditions = uu.get_dummy_rulecondition_instances()
+        for condition in conditions:
+            self.assertTrue(uu.is_class_instance(condition))
+            self.assertTrue(isinstance(condition, rules.RuleCondition))
+
+    def test_returns_all_rule_conditions_defined_in_unit_utils_constants(self):
+        expected = len(uuconst.DUMMY_RAW_RULE_CONDITIONS)
+        actual = len(uu.get_dummy_rulecondition_instances())
+        self.assertEqual(actual, expected)
 
 
 class TestGetDummyRawConditions(TestCase):

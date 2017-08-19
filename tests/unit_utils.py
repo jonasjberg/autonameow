@@ -424,6 +424,11 @@ def get_dummy_rules_to_examine():
     return out
 
 
+def get_dummy_rulecondition_instances():
+    return [rules.RuleCondition(query_string, expression)
+            for query_string, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS]
+
+
 def get_dummy_raw_conditions():
     return [{query_string: expression}
             for query_string, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS]
