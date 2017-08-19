@@ -237,6 +237,10 @@ def main(paths, api_key, dump_response=False, print_caption=True):
 
 
 def _read_api_key_from_file(file_path):
+    if not os.path.exists(file_path):
+        # log.critical('Unable to find "microsoft_vision.py" API key!')
+        return None
+
     try:
         with open(file_path, mode='r', encoding='utf8') as f:
             api_key = f.read()
