@@ -62,7 +62,7 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
             self.rm.query_data('analysis.filename_analyzer.tags')
         )
         self.assertIsNotNone(
-            self.rm.query_data('contents.mime_type')
+            self.rm.query_data('filesystem.contents.mime_type')
         )
 
     def test_querying_available_data_returns_expected_type(self):
@@ -72,7 +72,7 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
                        list)
         )
         self.assertTrue(
-            isinstance(self.rm.query_data('contents.mime_type'),
+            isinstance(self.rm.query_data('filesystem.contents.mime_type'),
                        str)
         )
 
@@ -83,7 +83,7 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
         expected_tags = ['tagfoo', 'tagbar']
         self.assertEqual(expected_tags, actual_tags)
 
-        self.assertEqual(self.rm.query_data('contents.mime_type'),
+        self.assertEqual(self.rm.query_data('filesystem.contents.mime_type'),
                          'application/pdf')
 
 
@@ -106,7 +106,7 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
 
     def test_querying_available_data_returns_expected(self):
         self.skipTest('TODO: Fix broken unit tests')
-        actual = self.rm.query_data('contents.mime_type')
+        actual = self.rm.query_data('filesystem.contents.mime_type')
         self.assertEqual(actual, 'application/pdf')
 
 

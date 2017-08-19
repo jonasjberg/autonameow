@@ -44,10 +44,12 @@ DUMMY_RESULTS_DICT = {
         },
         'pathname': {
             'full': 'c',
+        },
+        'contents': {
+            'mime_type': 'd'
         }
     },
     'contents': {
-        'mime_type': 'd',
         'textual': {
             'raw_text': 'e',
             'number_pages': 'f',
@@ -66,7 +68,7 @@ DUMMY_FLATTENED_RESULTS_DICT = {
     'filesystem.basename.full': 'a',
     'filesystem.basename.extension': 'b',
     'filesystem.pathname.full': 'c',
-    'contents.mime_type': 'd',
+    'filesystem.contents.mime_type': 'd',
     'contents.textual.raw_text': 'e',
     'contents.textual.number_pages': 'f',
     'contents.visual.ocr_text': 'g',
@@ -175,8 +177,8 @@ class TestQueryStringList(TestCase):
         self.assertEqual(query_string_list('a...b...'), ['a', 'b'])
 
     def test_returns_expected(self):
-        self.assertEqual(query_string_list('contents.mime_type'),
-                         ['contents', 'mime_type'])
+        self.assertEqual(query_string_list('filesystem.contents.mime_type'),
+                         ['filesystem', 'contents', 'mime_type'])
         self.assertEqual(query_string_list('metadata.exiftool.EXIF:Foo'),
                          ['metadata', 'exiftool', 'EXIF:Foo'])
 
@@ -343,7 +345,7 @@ class TestExpandQueryStringDataDict(TestCase):
 
         self.assertIn('basename', actual_filesystem)
         self.assertIn('pathname', actual_filesystem)
-        self.assertIn('mime_type', actual_contents)
+        self.assertIn('contents', actual_filesystem)
         self.assertIn('textual', actual_contents)
         self.assertIn('visual', actual_contents)
         self.assertIn('binary', actual_contents)
@@ -354,16 +356,15 @@ class TestNestedDictGet(TestCase):
         self.assertIsNotNone(nested_dict_get)
 
     def test_get_nested_value_returns_expected(self):
-        key_list = ['contents', 'mime_type']
+        key_list = ['filesystem', 'contents', 'mime_type']
         actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)
         self.assertEqual(actual, 'd')
 
     def test_get_nested_values_returns_expected(self):
-        keys_expected = [(['contents', 'mime_type'], 'd'),
+        keys_expected = [(['filesystem', 'contents', 'mime_type'], 'd'),
                          (['filesystem', 'basename', 'full'], 'a'),
                          (['filesystem', 'basename', 'extension'], 'b'),
                          (['filesystem', 'pathname', 'full'], 'c'),
-                         (['contents', 'mime_type'], 'd'),
                          (['contents', 'textual', 'raw_text'], 'e'),
                          (['contents', 'textual', 'number_pages'], 'f'),
                          (['contents', 'visual', 'ocr_text'], 'g'),

@@ -57,18 +57,18 @@ class TestExtraction(TestCase):
             self.e.collect_results(False, 'image/jpeg')
 
     def test_collects_valid_results(self):
-        self.e.collect_results('contents.mime_type', 'image/jpeg')
+        self.e.collect_results('filesystem.contents.mime_type', 'image/jpeg')
 
     def test_collecting_valid_results_increments_data_len(self):
         self.skipTest('TODO: Fix or remove result count tally.')
-        self.e.collect_results('contents.mime_type', 'image/jpeg')
+        self.e.collect_results('filesystem.contents.mime_type', 'image/jpeg')
         self.assertEqual(len(self.e.data), 1)
         self.e.collect_results('filesystem.basename.extension', 'jpg')
         self.assertEqual(len(self.e.data), 2)
 
     def test_collecting_results_with_empty_data_does_not_increment_len(self):
         self.skipTest('TODO: Fix or remove result count tally.')
-        self.e.collect_results('contents.mime_type', None)
+        self.e.collect_results('filesystem.contents.mime_type', None)
         self.assertEqual(len(self.e.data), 0)
         self.e.collect_results('filesystem.basename.extension', None)
         self.assertEqual(len(self.e.data), 0)

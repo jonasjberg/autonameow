@@ -155,10 +155,12 @@ class TestParseConditions(TestCase):
         self.assertEqual(actual[0].expression, '~/.config')
 
     def test_parse_condition_contents_mime_type_is_valid(self):
-        raw_conditions = {'contents.mime_type': 'image/jpeg'}
+        raw_conditions = {'filesystem.contents.mime_type': 'image/jpeg'}
         actual = parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].query_string, 'contents.mime_type')
-        self.assertEqual(actual[0].expression, 'image/jpeg')
+        self.assertEqual(actual[0].query_string,
+                         'filesystem.contents.mime_type')
+        self.assertEqual(actual[0].expression,
+                         'image/jpeg')
 
     def test_parse_condition_contents_metadata_is_valid(self):
         # TODO: [TD0015] Handle expression in 'condition_value'

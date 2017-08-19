@@ -185,7 +185,7 @@ def mock_session_data_pool(file_object):
                          [file_object, 'filesystem.pathname.parent'],
                          b'test_files')
     util.nested_dict_set(data,
-                         [file_object, 'contents.mime_type'],
+                         [file_object, 'filesystem.contents.mime_type'],
                          'application/pdf')
     util.nested_dict_set(data,
                          [file_object, 'metadata.exiftool.PDF:Creator'],
@@ -261,7 +261,7 @@ def mock_session_data_pool_with_extractor_and_analysis_data(file_object):
                          [file_object, 'filesystem.pathname.parent'],
                          b'test_files')
     util.nested_dict_set(data,
-                         [file_object, 'contents.mime_type'],
+                         [file_object, 'filesystem.contents.mime_type'],
                          'application/pdf')
     util.nested_dict_set(data,
                          [file_object, 'metadata.exiftool.PDF:Creator'],
@@ -363,21 +363,21 @@ def get_dummy_rules_to_examine():
     out = []
 
     dummy_conditions = [
-        [rules.RuleCondition('contents.mime_type', 'application/pdf'),
+        [rules.RuleCondition('filesystem.contents.mime_type', 'application/pdf'),
          rules.RuleCondition('filesystem.basename.extension', 'pdf'),
          rules.RuleCondition('filesystem.basename.full', 'gmail.pdf')],
 
-        [rules.RuleCondition('contents.mime_type', 'image/jpeg'),
+        [rules.RuleCondition('filesystem.contents.mime_type', 'image/jpeg'),
          rules.RuleCondition('filesystem.basename.full', 'smulan.jpg')],
 
-        [rules.RuleCondition('contents.mime_type', 'image/jpeg'),
+        [rules.RuleCondition('filesystem.contents.mime_type', 'image/jpeg'),
          rules.RuleCondition('filesystem.basename.extension', 'jpg'),
          rules.RuleCondition('filesystem.basename.full', 'DCIM*'),
          rules.RuleCondition('filesystem.pathname.full', '~/Pictures/incoming'),
          rules.RuleCondition('metadata.exiftool.EXIF:DateTimeOriginal',
                              'Defined')],
 
-        [rules.RuleCondition('contents.mime_type', 'application/epub+zip'),
+        [rules.RuleCondition('filesystem.contents.mime_type', 'application/epub+zip'),
          rules.RuleCondition('filesystem.basename.extension', 'epub'),
          rules.RuleCondition('filesystem.basename.full', '.*'),
          rules.RuleCondition('filesystem.pathname.full', '.*'),

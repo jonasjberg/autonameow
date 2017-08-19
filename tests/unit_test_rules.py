@@ -37,10 +37,10 @@ class TestRuleConditionFromValidInput(TestCase):
         self.assertTrue(isinstance(actual, rules.RuleCondition))
 
     def test_condition_contents_mime_type(self):
-        self._assert_valid('contents.mime_type', 'text/rtf')
-        self._assert_valid('contents.mime_type', 'text/*')
-        self._assert_valid('contents.mime_type', '*/application')
-        self._assert_valid('contents.mime_type', '*/*')
+        self._assert_valid('filesystem.contents.mime_type', 'text/rtf')
+        self._assert_valid('filesystem.contents.mime_type', 'text/*')
+        self._assert_valid('filesystem.contents.mime_type', '*/application')
+        self._assert_valid('filesystem.contents.mime_type', '*/*')
 
     def test_condition_filesystem_basename_full(self):
         self._assert_valid('filesystem.basename.full', 'foo.tar.gz')
@@ -79,12 +79,12 @@ class TestRuleConditionFromInvalidInput(TestCase):
             _ = rules.get_valid_rule_condition(query, data)
 
     def test_invalid_condition_contents_mime_type(self):
-        self._assert_invalid('contents.mime_type', None)
-        self._assert_invalid('contents.mime_type', '')
-        self._assert_invalid('contents.mime_type', '/')
-        self._assert_invalid('contents.mime_type', 'application/*//pdf')
-        self._assert_invalid('contents.mime_type', 'application///pdf')
-        self._assert_invalid('contents.mime_type', 'text/')
+        self._assert_invalid('filesystem.contents.mime_type', None)
+        self._assert_invalid('filesystem.contents.mime_type', '')
+        self._assert_invalid('filesystem.contents.mime_type', '/')
+        self._assert_invalid('filesystem.contents.mime_type', 'application/*//pdf')
+        self._assert_invalid('filesystem.contents.mime_type', 'application///pdf')
+        self._assert_invalid('filesystem.contents.mime_type', 'text/')
 
     def test_invalid_condition_filesystem_basename_full(self):
         self._assert_invalid('filesystem.basename.full', None)
@@ -109,14 +109,21 @@ RULE_CONTENTS = {
     'weight': 0.5,
     'name_template': 'default_template_name',
     'conditions': {
-        'filename': {
-            'pathname': '~/foo',
-            'basename': 'foo.bar',
-            'extension': 'bar'
+        'filesystem': {
+            'basename': {
+                'extension': 'bar',
+                'full': 'foo.bar',
+                'prefix': 'foo',
+                'suffix': 'bar',
+            },
+            'pathname': {
+                'full': '~/foo',
+                'parent': '~',
+            },
+            'contents': {
+                'mime_type': '*/*'
+            }
         },
-        'contents': {
-            'mime_type': '*/*'
-        }
     },
     'data_sources': {
         'datetime': None,
@@ -181,9 +188,9 @@ class TestGetValidRuleCondition(TestCase):
             _ = rules.get_valid_rule_condition(query, data)
 
     def test_returns_valid_rule_condition_for_valid_query_valid_data(self):
-        self._assert_valid('contents.mime_type', 'application/pdf')
-        self._assert_valid('contents.mime_type', 'text/rtf')
-        self._assert_valid('contents.mime_type', 'image/*')
+        self._assert_valid('filesystem.contents.mime_type', 'application/pdf')
+        self._assert_valid('filesystem.contents.mime_type', 'text/rtf')
+        self._assert_valid('filesystem.contents.mime_type', 'image/*')
         self._assert_valid('filesystem.basename.extension', 'pdf')
         self._assert_valid('filesystem.basename.full', 'foo.pdf')
         self._assert_valid('filesystem.pathname.full', '~/temp/foo')
@@ -197,9 +204,9 @@ class TestGetValidRuleCondition(TestCase):
         self._assert_invalid('foo', '~/temp/foo')
 
     def test_returns_false_for_valid_query_invalid_data(self):
-        self._assert_invalid('contents.mime_type', 'application/*//pdf')
-        self._assert_invalid('contents.mime_type', 'application///pdf')
-        self._assert_invalid('contents.mime_type', 'text/')
+        self._assert_invalid('filesystem.contents.mime_type', 'application/*//pdf')
+        self._assert_invalid('filesystem.contents.mime_type', 'application///pdf')
+        self._assert_invalid('filesystem.contents.mime_type', 'text/')
         self._assert_invalid('filesystem.basename.extension', '')
         self._assert_invalid('filesystem.basename.full', None)
         self._assert_invalid('filesystem.pathname.full', '')

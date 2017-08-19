@@ -67,18 +67,18 @@ class TestAnalysis(TestCase):
         self.assertEqual(len(self.a.results), 0)
 
     def test_collects_valid_results(self):
-        self.a.collect_results('contents.mime_type', 'image/jpeg')
+        self.a.collect_results('filesystem.contents.mime_type', 'image/jpeg')
 
     def test_collecting_valid_results_increments_results_len(self):
         self.skipTest('TODO: Fix or remove result count tally.')
-        self.a.collect_results('contents.mime_type', 'image/jpeg')
+        self.a.collect_results('filesystem.contents.mime_type', 'image/jpeg')
         self.assertEqual(len(self.a.results), 1)
         self.a.collect_results('filesystem.basename.extension', 'jpg')
         self.assertEqual(len(self.a.results), 2)
 
     def test_collecting_results_with_empty_data_does_not_increment_len(self):
         self.skipTest('TODO: Fix or remove result count tally.')
-        self.a.collect_results('contents.mime_type', '')
+        self.a.collect_results('filesystem.contents.mime_type', '')
         self.assertEqual(len(self.a.results), 0)
         self.a.collect_results('filesystem.basename.extension', '')
         self.assertEqual(len(self.a.results), 0)
