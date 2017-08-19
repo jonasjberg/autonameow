@@ -107,8 +107,10 @@ class Analysis(object):
         Returns:
             One instance of each of the given classes as a list of objects.
         """
-        return [a(self.file_object, self.collect_results, self.request_global_data)
-                for a in class_list]
+        return [analyzer(self.file_object,
+                         add_results_callback=self.collect_results,
+                         request_data_callback=self.request_global_data)
+                for analyzer in class_list]
 
     def _execute_run_queue(self):
         """
