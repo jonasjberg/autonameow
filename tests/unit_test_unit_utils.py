@@ -26,6 +26,7 @@ import types
 
 from unittest import TestCase
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 import analyzers
 from analyzers import BaseAnalyzer
@@ -301,3 +302,19 @@ class TestIsImportable(TestCase):
 
     def test_is_importable_returns_true_as_expected(self):
         self.assertTrue(uu.is_importable('datetime'))
+
+
+class TestGetDummyRawConditions(TestCase):
+    def test_returns_expected_type(self):
+        actual = uu.get_dummy_raw_conditions()
+        self.assertTrue(isinstance(actual, list))
+
+    def test_returns_equivalent_structure_as_yaml_config(self):
+        conditions = uu.get_dummy_raw_conditions()
+        for condition in conditions:
+            self.assertTrue(isinstance(condition, dict))
+
+    def test_returns_all_rule_conditions_defined_in_unit_utils_constants(self):
+        expected = len(uuconst.DUMMY_RAW_RULE_CONDITIONS)
+        actual = len(uu.get_dummy_rulecondition_instances())
+        self.assertEqual(actual, expected)

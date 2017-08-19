@@ -31,6 +31,7 @@ from contextlib import contextmanager
 from datetime import datetime
 
 import analyzers
+import unit_utils_constants as uuconst
 from core.config import rules
 from core.fileobject import FileObject
 from core import util
@@ -365,28 +366,7 @@ def get_instantiated_analyzers():
 
 def get_dummy_rules_to_examine():
     out = []
-
-    dummy_conditions = [
-        [rules.RuleCondition('filesystem.contents.mime_type', 'application/pdf'),
-         rules.RuleCondition('filesystem.basename.extension', 'pdf'),
-         rules.RuleCondition('filesystem.basename.full', 'gmail.pdf')],
-
-        [rules.RuleCondition('filesystem.contents.mime_type', 'image/jpeg'),
-         rules.RuleCondition('filesystem.basename.full', 'smulan.jpg')],
-
-        [rules.RuleCondition('filesystem.contents.mime_type', 'image/jpeg'),
-         rules.RuleCondition('filesystem.basename.extension', 'jpg'),
-         rules.RuleCondition('filesystem.basename.full', 'DCIM*'),
-         rules.RuleCondition('filesystem.pathname.full', '~/Pictures/incoming'),
-         rules.RuleCondition('metadata.exiftool.EXIF:DateTimeOriginal',
-                             'Defined')],
-
-        [rules.RuleCondition('filesystem.contents.mime_type', 'application/epub+zip'),
-         rules.RuleCondition('filesystem.basename.extension', 'epub'),
-         rules.RuleCondition('filesystem.basename.full', '.*'),
-         rules.RuleCondition('filesystem.pathname.full', '.*'),
-         rules.RuleCondition('metadata.exiftool.XMP-dc:Creator', 'Defined')],
-    ]
+    _raw_conditions = get_dummy_raw_conditions()
 
     dummy_sources = [
         {'datetime': 'metadata.exiftool.PDF:CreateDate',
@@ -413,7 +393,7 @@ def get_dummy_rules_to_examine():
         exact_match=True,
         ranking_bias=0.5,
         name_template='{datetime} {title}.{extension}',
-        conditions=dummy_conditions[0],
+        conditions=_raw_conditions[0],
         data_sources=dummy_sources[0]
     ))
     out.append(rules.FileRule(
@@ -421,7 +401,7 @@ def get_dummy_rules_to_examine():
         exact_match=True,
         ranking_bias=1.0,
         name_template='{datetime} {description}.{extension}',
-        conditions=dummy_conditions[1],
+        conditions=_raw_conditions[1],
         data_sources=dummy_sources[1]
     ))
     out.append(rules.FileRule(
@@ -429,7 +409,7 @@ def get_dummy_rules_to_examine():
         exact_match=True,
         ranking_bias=1.0,
         name_template='{datetime} {description} -- {tags}.{extension}',
-        conditions=dummy_conditions[1],
+        conditions=_raw_conditions[1],
         data_sources=dummy_sources[1]
     ))
     out.append(rules.FileRule(
@@ -437,11 +417,16 @@ def get_dummy_rules_to_examine():
         exact_match=True,
         ranking_bias=1.0,
         name_template='{publisher} {title} {edition} - {author} {date}.{extension}',
-        conditions=dummy_conditions[1],
+        conditions=_raw_conditions[1],
         data_sources=dummy_sources[1]
     ))
 
     return out
+
+
+def get_dummy_raw_conditions():
+    return [{query_string: expression}
+            for query_string, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS]
 
 
 def get_dummy_rule():
@@ -450,8 +435,8 @@ def get_dummy_rule():
         exact_match=False,
         ranking_bias=0.5,
         name_template='dummy',
-        conditions='dummy',
         data_sources='dummy'
+        conditions=get_dummy_raw_conditions()[0],
     )
 
 
