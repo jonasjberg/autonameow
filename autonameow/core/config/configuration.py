@@ -57,7 +57,7 @@ class Configuration(object):
             source: The configuration to load as either a dictionary or a
                 bytestring path.
         """
-        self._file_rules = []
+        self._rules = []
         self._name_templates = {}
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
@@ -152,7 +152,7 @@ class Configuration(object):
                 log.error('Bad rule "{!s}"; {!s}'.format(rule_description, e))
             else:
                 # Create and populate "FileRule" objects with *validated* data.
-                self._file_rules.append(valid_rule)
+                self._rules.append(valid_rule)
 
                 # Keep track of all "query strings" referenced by file rules.
                 self.referenced_query_strings.update(
@@ -314,9 +314,9 @@ class Configuration(object):
         return self._data
 
     @property
-    def file_rules(self):
-        if self._file_rules and len(self._file_rules) > 0:
-            return self._file_rules
+    def rules(self):
+        if self._rules and len(self._rules) > 0:
+            return self._rules
         else:
             return False
 
@@ -327,7 +327,7 @@ class Configuration(object):
     def __str__(self):
         out = ['Written by autonameow version v{}\n\n'.format(self.version)]
 
-        for number, rule in enumerate(self.file_rules):
+        for number, rule in enumerate(self.rules):
             out.append('File Rule {}:\n'.format(number + 1))
             out.append(textutils.indent(str(rule), amount=4) + '\n')
 

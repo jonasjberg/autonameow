@@ -35,7 +35,7 @@ class RuleMatcher(object):
         self.file_object = file_object
         self.request_data = repository.SessionRepository.resolve
 
-        if not active_config or not active_config.file_rules:
+        if not active_config or not active_config.rules:
             log.error('Configuration does not contain any rules to evaluate')
             self._rules = []
         else:
@@ -44,7 +44,7 @@ class RuleMatcher(object):
             # which are initialized *once* when the configuration is loaded.
             # This same configuration instance is used when iterating over the
             # files. The 'FileRule' scores were not reset between files.
-            self._rules = copy.deepcopy(active_config.file_rules)
+            self._rules = copy.deepcopy(active_config.rules)
 
         self._candidates = []
 

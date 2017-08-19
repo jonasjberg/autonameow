@@ -81,10 +81,10 @@ class TestDefaultConfig(TestCase):
                              'Default config dict is available')
 
     def test_default_configuration_contain_rules(self):
-        self.assertIsNotNone(self.configuration.file_rules)
+        self.assertIsNotNone(self.configuration.rules)
 
     def test_default_configuration_contain_at_least_two_rules(self):
-        self.assertGreaterEqual(len(self.configuration.file_rules), 2,
+        self.assertGreaterEqual(len(self.configuration.rules), 2,
                                 'Arbitrary rule count test')
 
     def test_default_configuration_contain_name_templates(self):
@@ -135,13 +135,13 @@ class TestConfigurationDataAccess(TestCase):
         self.assertIsNotNone(self.configuration.data)
 
     def test_get_file_rules_does_not_return_none(self):
-        self.assertIsNotNone(self.configuration.file_rules)
+        self.assertIsNotNone(self.configuration.rules)
 
     def test_get_file_rules_returns_expected_type(self):
-        self.assertTrue(isinstance(self.configuration.file_rules, list))
+        self.assertTrue(isinstance(self.configuration.rules, list))
 
     def test_get_file_rules_returns_expected_rule_count(self):
-        self.assertGreaterEqual(len(self.configuration.file_rules), 3)
+        self.assertGreaterEqual(len(self.configuration.rules), 3)
 
 
 class TestParseConditions(TestCase):
