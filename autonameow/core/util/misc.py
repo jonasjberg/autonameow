@@ -274,7 +274,11 @@ def expand_query_string_data_dict(query_string_dict):
     out = {}
     for key, value in query_string_dict.items():
         key_parts = key.split('.')
-        nested_dict_set(out, key_parts, value)
+        try:
+            nested_dict_set(out, key_parts, value)
+        except KeyError:
+            log.error('Duplicate "query strings" would have clobbered existing!'
+                      ' Key: "{!s}"  Value: {!s}'.format(key, value))
 
     return out
 
