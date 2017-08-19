@@ -420,14 +420,17 @@ class TestNestedDictSet(TestCase):
     def test_set_nested_value_modifies_dictionary_in_place(self):
         actual = {'a': 1}
         nested_dict_set(actual, ['b', 'c'], 4)
-        expected = {'a': 1, 'b': {'c': 4}}
+        expected = {'a': 1,
+                    'b': {'c': 4}}
         self.assertEqual(actual, expected)
 
     def test_set_nested_values_modifies_dictionary_in_place(self):
         actual = {'a': 1}
         nested_dict_set(actual, ['b', 'c'], 4)
         nested_dict_set(actual, ['b', 'd'], 5)
-        expected = {'a': 1, 'b': {'c': 4, 'd': 5}}
+        expected = {'a': 1,
+                    'b': {'c': 4,
+                          'd': 5}}
         self.assertEqual(actual, expected)
 
     def test_attempting_to_set_occupied_value_raises_key_error(self):
