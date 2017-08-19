@@ -333,8 +333,11 @@ def nested_dict_set(dictionary, list_of_keys, value):
     """
     if not list_of_keys or not isinstance(list_of_keys, list):
         raise TypeError('Expected "list_of_keys" to be a list of strings')
-    elif all(not k for k in list_of_keys):
-        raise ValueError('Expected "list_of_keys" not to be all None/empty')
+
+    if None in list_of_keys or '' in list_of_keys:
+        raise ValueError(
+            'Expected "list_of_keys" to not contain any None/empty items'
+        )
 
     for key in list_of_keys[:-1]:
         dictionary = dictionary.setdefault(key, {})

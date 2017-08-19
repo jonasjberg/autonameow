@@ -454,6 +454,12 @@ class TestNestedDictSet(TestCase):
 
         _assert_raises([''])
         _assert_raises([None])
+        _assert_raises([None, ''])
+        _assert_raises(['', None])
+        _assert_raises([None, 'foo'])
+        _assert_raises(['foo', None])
+        _assert_raises(['foo', ''])
+        _assert_raises(['', 'foo'])
 
 
 class TestEvalMagicGlob(TestCase):
