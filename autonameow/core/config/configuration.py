@@ -207,14 +207,13 @@ class Configuration(object):
                 'uses invalid name template format'
             )
 
-        valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
         valid_data_sources = parse_data_sources(raw_rule.get('DATA_SOURCES'))
         # TODO: [TD0079] Refactor validation and initializing 'FileRule'
         file_rule = rules.FileRule(description=description,
                                    exact_match=raw_rule.get('exact_match'),
                                    ranking_bias=raw_rule.get('ranking_bias'),
                                    name_template=valid_format,
-                                   conditions=valid_conditions,
+                                   conditions=raw_rule.get('CONDITIONS'),
                                    data_sources=valid_data_sources)
         log.debug('Validated file rule "{!s}" .. OK!'.format(description))
         return file_rule
@@ -396,31 +395,5 @@ def is_valid_source(source_value):
     if repository.SessionRepository.resolvable(source_value):
         return True
     return False
-
-
-def parse_conditions(raw_conditions):
-    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
-
-    passed = []
-    try:
-        for query_string, expression in raw_conditions.items():
-            try:
-                valid_condition = rules.get_valid_rule_condition(query_string,
-                                                                 expression)
-            except exceptions.InvalidFileRuleError as e:
-                raise exceptions.ConfigurationSyntaxError(e)
-            else:
-                passed.append(valid_condition)
-                log.debug('Validated condition: "{!s}"'.format(valid_condition))
-    except ValueError as e:
-        raise exceptions.ConfigurationSyntaxError(
-            'contains invalid condition: ' + str(e)
-        )
-
-    log.debug(
-        'Returning {} (out of {}) valid conditions'.format(len(passed),
-                                                           len(raw_conditions))
-    )
-    return passed
 
 

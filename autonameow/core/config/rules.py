@@ -194,12 +194,12 @@ class FileRule(object):
     the ratio of satisfied to unsatisfied conditions.
     """
     def __init__(self, description, exact_match, ranking_bias, name_template,
-                 **kwargs):
+                 conditions, **kwargs):
         self.description = description
         self.exact_match = exact_match
         self.ranking_bias = ranking_bias
         self.name_template = name_template
-        self.conditions = kwargs.get('conditions', [])
+        self.conditions = conditions
         self.data_sources = kwargs.get('data_sources', [])
 
         self._count_met_conditions = 0
@@ -252,6 +252,14 @@ class FileRule(object):
         if not raw_name_template:
             raise exceptions.InvalidFileRuleError('Got None name template')
         self._name_template = raw_name_template
+
+    @property
+    def conditions(self):
+        return self._conditions
+
+    @conditions.setter
+    def conditions(self, raw_conditions):
+        self._conditions = parse_conditions(raw_conditions)
 
     @property
     def score(self):
@@ -436,3 +444,34 @@ def parse_ranking_bias(value):
             return w
         else:
             raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
+
+
+def parse_conditions(raw_conditions):
+    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
+
+    if not raw_conditions:
+        raise exceptions.ConfigurationSyntaxError('Got empty conditions')
+    if not isinstance(raw_conditions, dict):
+        raise exceptions.ConfigurationSyntaxError('Expected conditions as dict')
+
+    passed = []
+    try:
+        for query_string, expression in raw_conditions.items():
+            try:
+                valid_condition = get_valid_rule_condition(query_string,
+                                                           expression)
+            except exceptions.InvalidFileRuleError as e:
+                raise exceptions.ConfigurationSyntaxError(e)
+            else:
+                passed.append(valid_condition)
+                log.debug('Validated condition: "{!s}"'.format(valid_condition))
+    except ValueError as e:
+        raise exceptions.ConfigurationSyntaxError(
+            'contains invalid condition: ' + str(e)
+        )
+
+    log.debug(
+        'Returning {} (out of {}) valid conditions'.format(len(passed),
+                                                           len(raw_conditions))
+    )
+    return passed
