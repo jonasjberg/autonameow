@@ -44,7 +44,7 @@ class TestExtractTextWithEpubzilla(TestCase):
 
     def test_reads_sample_file_metadata(self):
         def _assert_metadata(key, expected):
-            self.assertEqual(actual.get(key), expected)
+            self.assertEqual(getattr(actual, key), expected)
 
         actual = epubzilla.Epub.from_file(self.sample_file)
         _assert_metadata('author', 'Friedrich Wilhelm Nietzsche')
