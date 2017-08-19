@@ -188,8 +188,8 @@ class FileRule(object):
     Which gives a "normalized" decimal number between 0 and 1 that indicates
     the ratio of satisfied to unsatisfied conditions.
     """
-    def __init__(self, **kwargs):
-        self.description = str(kwargs.get('description'))
+    def __init__(self, description, **kwargs):
+        self.description = description
         self.exact_match = bool(kwargs.get('exact_match'))
         self.ranking_bias = kwargs.get('bias',
                                        constants.DEFAULT_FILERULE_RANKING_BIAS)
@@ -203,6 +203,17 @@ class FileRule(object):
             raise exceptions.InvalidFileRuleError(
                 'FileRule does not specify any conditions: "{!s}"'.format(self)
             )
+
+    @property
+    def description(self):
+        return self._description
+
+    @description.setter
+    def description(self, raw_description):
+        if raw_description is None:
+            self._description = raw_description
+        else:
+            self._description = 'UNDESCRIBED'
 
     @property
     def score(self):

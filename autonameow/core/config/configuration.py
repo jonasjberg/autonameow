@@ -177,11 +177,11 @@ class Configuration(object):
                 "Bad rule "x"; {message}"
         """
         # Get a description for referring to the rule in any log messages.
-        valid_description = raw_rule.get('description', False)
-        if not valid_description:
-            valid_description = 'UNDESCRIBED'
+        description = raw_rule.get('description', None)
+        if description is None:
+            description = 'UNDESCRIBED'
 
-        log.debug('Validating file rule "{!s}" ..'.format(valid_description))
+        log.debug('Validating file rule "{!s}" ..'.format(description))
 
         if 'NAME_FORMAT' not in raw_rule:
             log.debug('File rule contains no name format data' + str(raw_rule))
@@ -213,13 +213,13 @@ class Configuration(object):
         valid_exact_match = bool(raw_rule.get('exact_match'))
 
         # TODO: [TD0079] Refactor validation and initializing 'FileRule'
-        file_rule = rules.FileRule(description=valid_description,
+        file_rule = rules.FileRule(description=description,
                                    exact_match=valid_exact_match,
                                    ranking_bias=valid_ranking_bias,
                                    name_template=valid_format,
                                    conditions=valid_conditions,
                                    data_sources=valid_data_sources)
-        log.debug('Validated file rule "{!s}" .. OK!'.format(valid_description))
+        log.debug('Validated file rule "{!s}" .. OK!'.format(description))
         return file_rule
 
     def _load_options(self):
