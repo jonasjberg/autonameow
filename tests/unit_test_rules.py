@@ -119,6 +119,17 @@ class TestRuleConditionMethods(TestCase):
             'RuleCondition("filesystem.contents.mime_type", "application/pdf")'
         )
 
+    def test_rule___repr__exhaustive(self):
+        expected = []
+
+        for raw_condition in uu.get_dummy_raw_conditions():
+            for qstr, expr in raw_condition.items():
+                expected.append('RuleCondition("{}", "{}")'.format(qstr, expr))
+
+        for condition, expect in zip(uu.get_dummy_rulecondition_instances(),
+                                     expected):
+            self.assertEqual(repr(condition), expect)
+
 
 RULE_CONTENTS = {
     'description': 'First Entry in the Default Configuration',
