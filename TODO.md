@@ -66,6 +66,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0078]` Check extractor dependencies when enumerating extractor classes.
+
 * `[TD0071]` Move file name "sanitation" to the `NameBuilder` or elsewhere.
 
 * `[TD0062]` Look at testing that all name template fields are mapped to data

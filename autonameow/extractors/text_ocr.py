@@ -46,6 +46,11 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
         result = get_text_from_ocr(self.source, tesseract_args=None)
         return result
 
+    @classmethod
+    def check_dependencies(cls):
+        # TODO: [TD0078] Check that 'tesseract' and 'pytesseract' are available.
+        return True
+
 
 def get_text_from_ocr(image_path, tesseract_args=None):
     """

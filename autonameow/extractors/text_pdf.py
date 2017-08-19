@@ -77,6 +77,11 @@ class PdfTextExtractor(AbstractTextExtractor):
             log.debug('Unable to extract textual content from PDF')
             return ''
 
+    @classmethod
+    def check_dependencies(cls):
+        # TODO: [TD0078] Check that 'pdftotext' or 'pypdf2' is available.
+        return True
+
 
 def extract_pdf_content_with_pdftotext(pdf_file):
     """

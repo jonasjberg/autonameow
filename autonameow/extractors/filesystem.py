@@ -67,3 +67,7 @@ class CommonFileSystemExtractor(BaseExtractor):
             'contents.mime_type': file_object.mime_type
         }
         return out
+
+    @classmethod
+    def check_dependencies(cls):
+        return True

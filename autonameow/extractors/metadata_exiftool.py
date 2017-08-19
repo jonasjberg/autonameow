@@ -94,3 +94,8 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             except (AttributeError, ValueError, TypeError) as e:
                 # Raises ValueError if an ExifTool instance isn't running.
                 raise ExtractorError(e)
+
+    @classmethod
+    def check_dependencies(cls):
+        # TODO: [TD0078] Check that 'exiftool' is installed and executable.
+        return True

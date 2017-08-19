@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging as log
+
 import inspect
 import os
 import sys
@@ -148,6 +150,19 @@ class BaseExtractor(object):
             return False
 
     @classmethod
+    def check_dependencies(cls):
+        """
+        Tests if the extractor can be used.
+
+        This should be used to test that any dependencies required by the
+        extractor are met. This might be third party libraries or executables.
+
+        Returns:
+            True if the extractor has everything it needs, else False.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    @classmethod
     def __str__(cls):
         return cls.__name__
 
@@ -200,7 +215,15 @@ def get_abstract_extractor_classes(extractor_files):
 
 def get_extractor_classes(extractor_files):
     _abstract, _implemented = _get_all_extractor_classes(extractor_files)
-    return _implemented
+
+    out = []
+    for klass in _implemented:
+        if klass.check_dependencies():
+            out.append(klass)
+        else:
+            log.debug('Excluding extractor "{!s}" due to unmet dependencies')
+
+    return out
 
 
 def suitable_data_extractors_for(file_object):

@@ -37,6 +37,10 @@ class PlainTextExtractor(AbstractTextExtractor):
         result = read_entire_text_file(self.source)
         return result
 
+    @classmethod
+    def check_dependencies(cls):
+        return True
+
 
 def read_entire_text_file(file_path):
     try:

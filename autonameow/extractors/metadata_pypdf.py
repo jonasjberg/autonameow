@@ -148,6 +148,11 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
 
         return out
 
+    @classmethod
+    def check_dependencies(cls):
+        # TODO: [TD0078] Check that 'pypdf2' is installed and executable.
+        return True
+
 
 def is_indirectobject(pypdf_data):
     # TODO: Fix any performance/untidyness issues.
