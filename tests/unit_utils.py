@@ -440,8 +440,8 @@ def get_dummy_rule():
         exact_match=False,
         ranking_bias=0.5,
         name_template='dummy',
-        data_sources='dummy'
         conditions=get_dummy_raw_conditions()[0],
+        data_sources={'dummy_field': 'dummy_query_string'}
     )
 
 

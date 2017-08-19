@@ -21,10 +21,7 @@
 
 from unittest import TestCase
 
-from core import (
-    exceptions,
-    constants
-)
+from core import exceptions
 from core.config import rules
 import unit_utils as uu
 
