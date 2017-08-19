@@ -189,11 +189,12 @@ class FileRule(object):
     Which gives a "normalized" decimal number between 0 and 1 that indicates
     the ratio of satisfied to unsatisfied conditions.
     """
-    def __init__(self, description, exact_match, ranking_bias, **kwargs):
+    def __init__(self, description, exact_match, ranking_bias, name_template,
+                 **kwargs):
         self.description = description
         self.exact_match = exact_match
         self.ranking_bias = ranking_bias
-        self.name_template = kwargs.get('name_template')
+        self.name_template = name_template
         self.conditions = kwargs.get('conditions', [])
         self.data_sources = kwargs.get('data_sources', [])
 
@@ -237,6 +238,16 @@ class FileRule(object):
         except exceptions.ConfigurationSyntaxError as e:
             log.warning(e)
             self._ranking_bias = constants.DEFAULT_FILERULE_RANKING_BIAS
+
+    @property
+    def name_template(self):
+        return self._name_template
+
+    @name_template.setter
+    def name_template(self, raw_name_template):
+        if not raw_name_template:
+            raise exceptions.InvalidFileRuleError('Got None name template')
+        self._name_template = raw_name_template
 
     @property
     def score(self):
