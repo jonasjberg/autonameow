@@ -15,6 +15,13 @@ University mail: `js224eh[a]student.lnu.se`
     > High Priority
     > -------------
     >
+    > * `[TD0063]` Fix crash when a data source is mapped but data itself is missing.
+
+* 2017-08-17
+
+    > High Priority
+    > -------------
+    >
     > * `[TD0073]` __Fix or remove the `SessionDataPool` class.__
     >
     > * `[TD0077]` __Implement a "repository" to handle "query string" queries__

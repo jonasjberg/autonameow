@@ -134,13 +134,6 @@ class NameBuilder(object):
         log.debug('After pre-assembly formatting;')
         log.debug(str(data))
 
-        # TODO: [TD0063] Fix crashing when missing description.
-        # Running with 'smulan.jpg' that wants to fetch data for the
-        # "description' name template field from currently non-functional
-        # 'plugin.microsoft_vision.caption' returns None (?) and causes a crash
-        # due to an unhandled 'NameTemplateSyntaxError' exception raised in
-        # 'assemble_basename'.
-
         # Construct the new file name
         new_name = populate_name_template(template, **data)
         log.debug('Assembled basename: "{!s}"'.format(new_name))
