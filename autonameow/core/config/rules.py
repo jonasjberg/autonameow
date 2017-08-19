@@ -169,6 +169,10 @@ class RuleCondition(object):
     def __str__(self):
         return '{!s}: {!s}'.format(self.query_string, self.expression)
 
+    def __repr__(self):
+        return 'RuleCondition("{}", "{}")'.format(self.query_string,
+                                                  self.expression)
+
 
 class FileRule(object):
     """

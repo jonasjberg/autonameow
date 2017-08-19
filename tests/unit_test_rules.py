@@ -107,6 +107,19 @@ class TestRuleConditionFromInvalidInput(TestCase):
         self._assert_invalid('filesystem.basename.extension', '')
 
 
+class TestRuleConditionMethods(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.a = rules.RuleCondition('filesystem.contents.mime_type',
+                                     'application/pdf')
+
+    def test_rule___repr__(self):
+        self.assertEqual(
+            repr(self.a),
+            'RuleCondition("filesystem.contents.mime_type", "application/pdf")'
+        )
+
+
 RULE_CONTENTS = {
     'description': 'First Entry in the Default Configuration',
     'exact_match': False,
