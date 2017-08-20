@@ -25,7 +25,8 @@ from core import (
     constants,
     util,
     exceptions,
-    types
+    types,
+    repository
 )
 from core.config import field_parsers
 
@@ -178,8 +179,7 @@ class Rule(object):
     """
     Represents a single rule entry in a loaded configuration.
 
-    This class is a container; assumes all data in "kwargs" is valid.
-    All data validation should be performed outside of this class.
+    All data validation happens at 'Rule' init or when setting any attribute.
 
     Rules are prioritized and sorted by both "score" and "weight".
 
@@ -194,13 +194,31 @@ class Rule(object):
     the ratio of satisfied to unsatisfied conditions.
     """
     def __init__(self, description, exact_match, ranking_bias, name_template,
-                 conditions, **kwargs):
+                 conditions, data_sources):
+        """
+        Creates a new 'Rule' instance.
+
+        Args:
+            description: (OPTIONAL) Human-readable description.
+            exact_match: True if all conditions must be met at evaluation.
+            ranking_bias: (OPTIONAL) Float between 0-1 that influences ranking.
+            name_template: Name template to use for files matching the rule.
+            conditions: Dict used to create instances of 'RuleCondition'
+            data_sources: Dict of template field names and "query strings".
+        """
+        self._description = None
+        self._exact_match = None
+        self._ranking_bias = None
+        self._name_template = None
+        self._conditions = None
+        self._data_sources = None
+
         self.description = description
         self.exact_match = exact_match
         self.ranking_bias = ranking_bias
         self.name_template = name_template
         self.conditions = conditions
-        self.data_sources = kwargs.get('data_sources', [])
+        self.data_sources = data_sources
 
         self._count_met_conditions = 0
 
@@ -215,10 +233,15 @@ class Rule(object):
 
     @description.setter
     def description(self, raw_description):
-        if raw_description is None:
-            self._description = 'UNDESCRIBED'
+        try:
+            description = types.AW_STRING(raw_description)
+        except exceptions.AWTypeError:
+            description = ''
+
+        if description:
+            self._description = description
         else:
-            self._description = raw_description
+            self._description = 'UNDESCRIBED'
 
     @property
     def exact_match(self):
@@ -226,7 +249,10 @@ class Rule(object):
 
     @exact_match.setter
     def exact_match(self, raw_exact_match):
-        self._exact_match = types.AW_BOOLEAN(raw_exact_match)
+        try:
+            self._exact_match = types.AW_BOOLEAN(raw_exact_match)
+        except exceptions.AWTypeError as e:
+            raise exceptions.InvalidRuleError(e)
 
     @property
     def ranking_bias(self):
@@ -259,7 +285,20 @@ class Rule(object):
 
     @conditions.setter
     def conditions(self, raw_conditions):
-        self._conditions = parse_conditions(raw_conditions)
+        try:
+            self._conditions = parse_conditions(raw_conditions)
+        except exceptions.ConfigurationSyntaxError as e:
+            raise exceptions.InvalidRuleError(e)
+
+    @property
+    def data_sources(self):
+        return self._data_sources
+
+    @data_sources.setter
+    def data_sources(self, raw_data_sources):
+        # Skips and warns about invalid/missing sources. Does not fail or
+        # raise any exceptions even if all of the sources fail validation.
+        self._data_sources = parse_data_sources(raw_data_sources)
 
     @property
     def score(self):
@@ -475,3 +514,67 @@ def parse_conditions(raw_conditions):
                                                            len(raw_conditions))
     )
     return passed
+
+
+def parse_data_sources(raw_sources):
+    passed = {}
+
+    log.debug('Parsing {} raw data sources ..'.format(len(raw_sources)))
+
+    for template_field, query_string in raw_sources.items():
+        if not query_string:
+            log.debug('Skipped data source with empty query string '
+                      '(template field: "{!s}")'.format(template_field))
+            continue
+        elif not template_field:
+            log.debug('Skipped data source with empty name template field '
+                      '(query string: "{!s}")'.format(query_string))
+            continue
+
+        if not field_parsers.is_valid_template_field(template_field):
+            log.warning('Skipped data source with invalid name template field '
+                        '(query string: "{!s}")'.format(query_string))
+            continue
+
+        if not isinstance(query_string, list):
+            query_string = [query_string]
+        for qs in query_string:
+            if is_valid_source(qs):
+                log.debug(
+                    'Validated data source: [{}]: {}'.format(template_field, qs)
+                )
+                passed[template_field] = qs
+            else:
+                log.debug(
+                    'Invalid data source: [{}]: {}'.format(template_field, qs)
+                )
+
+    log.debug(
+        'Returning {} (out of {}) valid data sources'.format(len(passed),
+                                                             len(raw_sources))
+    )
+    return passed
+
+
+def is_valid_source(source_value):
+    """
+    Check if the source is valid.
+
+    Tests if the given source starts with the same text as any of the
+    date source "query strings" stored in the 'SessionRepository'.
+
+    For example, the source value "metadata.exiftool.PDF:CreateDate" would
+    be considered valid if "metadata.exiftool" was registered by a source.
+
+    Args:
+        source_value: The source to test as a text string.
+
+    Returns:
+        The given source value if it passes the test, otherwise False.
+    """
+    if not source_value or not source_value.strip():
+        return False
+
+    if repository.SessionRepository.resolvable(source_value):
+        return True
+    return False

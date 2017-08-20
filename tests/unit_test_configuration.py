@@ -21,23 +21,13 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
-from unittest import TestCase
-import unit_utils as uu
-
 import yaml
 
-from core import constants
+from unittest import TestCase
+
 from core.config.default_config import DEFAULT_CONFIG
-from core.config.configuration import (
-    Configuration,
-    is_valid_source,
-)
-from core.config.rules import (
-    parse_ranking_bias,
-    parse_conditions
-)
-from core.exceptions import ConfigurationSyntaxError
+from core.config.configuration import Configuration
+import unit_utils as uu
 
 
 def load_yaml(path):
@@ -144,79 +134,3 @@ class TestConfigurationDataAccess(TestCase):
 
     def test_get_rules_returns_expected_rule_count(self):
         self.assertGreaterEqual(len(self.configuration.rules), 3)
-
-
-class TestParseConditions(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-    def test_parse_condition_filesystem_pathname_is_valid(self):
-        raw_conditions = {'filesystem.pathname.full': '~/.config'}
-        actual = parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].query_string, 'filesystem.pathname.full')
-        self.assertEqual(actual[0].expression, '~/.config')
-
-    def test_parse_condition_contents_mime_type_is_valid(self):
-        raw_conditions = {'filesystem.contents.mime_type': 'image/jpeg'}
-        actual = parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].query_string,
-                         'filesystem.contents.mime_type')
-        self.assertEqual(actual[0].expression,
-                         'image/jpeg')
-
-    def test_parse_condition_contents_metadata_is_valid(self):
-        # TODO: [TD0015] Handle expression in 'condition_value'
-        #                ('Defined', '> 2017', etc)
-        raw_conditions = {
-            'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
-        }
-        actual = parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].query_string,
-                         'metadata.exiftool.EXIF:DateTimeOriginal')
-        self.assertEqual(actual[0].expression, 'Defined')
-
-
-class TestParseRankingBias(TestCase):
-    def test_negative_value_raises_configuration_syntax_error(self):
-        with self.assertRaises(ConfigurationSyntaxError):
-            parse_ranking_bias(-1)
-            parse_ranking_bias(-0.1)
-            parse_ranking_bias(-0.01)
-            parse_ranking_bias(-0.0000000001)
-
-    def test_value_greater_than_one_raises_configuration_syntax_error(self):
-        with self.assertRaises(ConfigurationSyntaxError):
-            parse_ranking_bias(2)
-            parse_ranking_bias(1.1)
-            parse_ranking_bias(1.00000000001)
-
-    def test_unexpected_type_value_raises_configuration_syntax_error(self):
-        with self.assertRaises(ConfigurationSyntaxError):
-            parse_ranking_bias('')
-            parse_ranking_bias(object())
-
-    def test_none_value_returns_default_weight(self):
-        self.assertEqual(parse_ranking_bias(None),
-                         constants.DEFAULT_RULE_RANKING_BIAS)
-
-    def test_value_within_range_zero_to_one_returns_value(self):
-        input_values = [0, 0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 1]
-
-        for value in input_values:
-            self.assertEqual(parse_ranking_bias(value), value)
-
-
-class TestIsValidSourceSpecification(TestCase):
-    def test_empty_source_returns_false(self):
-        self.assertFalse(is_valid_source(None))
-        self.assertFalse(is_valid_source(''))
-
-    def test_bad_source_returns_false(self):
-        self.assertFalse(is_valid_source('not.a.valid.source.surely'))
-
-    def test_good_source_returns_true(self):
-        self.assertTrue(is_valid_source('metadata.exiftool.PDF:CreateDate'))
-        self.assertTrue(is_valid_source('metadata.exiftool'))
-        self.assertTrue(is_valid_source('filesystem.basename.full'))
-        self.assertTrue(is_valid_source('filesystem.basename.extension'))
-        self.assertTrue(is_valid_source('filesystem.contents.mime_type'))

@@ -26,11 +26,9 @@ from core import (
     config,
     constants,
     exceptions,
-    repository,
     util
 )
 from core.config import (
-    field_parsers,
     rules
 )
 from core.config.field_parsers import (
@@ -207,14 +205,16 @@ class Configuration(object):
                 'uses invalid name template format'
             )
 
-        valid_data_sources = parse_data_sources(raw_rule.get('DATA_SOURCES'))
-        # TODO: [TD0079] Refactor validation and initializing 'Rule'
-        _rule = rules.Rule(description=description,
-                           exact_match=raw_rule.get('exact_match'),
-                           ranking_bias=raw_rule.get('ranking_bias'),
-                           name_template=valid_format,
-                           conditions=raw_rule.get('CONDITIONS'),
-                           data_sources=valid_data_sources)
+        try:
+            _rule = rules.Rule(description=description,
+                               exact_match=raw_rule.get('exact_match'),
+                               ranking_bias=raw_rule.get('ranking_bias'),
+                               name_template=valid_format,
+                               conditions=raw_rule.get('CONDITIONS'),
+                               data_sources=raw_rule.get('DATA_SOURCES'))
+        except exceptions.InvalidRuleError as e:
+            raise exceptions.ConfigurationSyntaxError(e)
+
         log.debug('Validated rule "{!s}" .. OK!'.format(description))
         return _rule
 
@@ -334,66 +334,3 @@ class Configuration(object):
         out.append(textutils.indent(util.dump(self.options), amount=4))
 
         return ''.join(out)
-
-
-def parse_data_sources(raw_sources):
-    passed = {}
-
-    log.debug('Parsing {} raw data sources ..'.format(len(raw_sources)))
-
-    for template_field, query_string in raw_sources.items():
-        if not query_string:
-            log.debug('Skipped data source with empty query string '
-                      '(template field: "{!s}")'.format(template_field))
-            continue
-        elif not template_field:
-            log.debug('Skipped data source with empty name template field '
-                      '(query string: "{!s}")'.format(query_string))
-            continue
-
-        if not field_parsers.is_valid_template_field(template_field):
-            log.warning('Skipped data source with invalid name template field '
-                        '(query string: "{!s}")'.format(query_string))
-            continue
-
-        if not isinstance(query_string, list):
-            query_string = [query_string]
-
-        for qs in query_string:
-            if is_valid_source(qs):
-                log.debug('Validated data source: [{}]: {}'.format(
-                    template_field, qs))
-                passed[template_field] = qs
-            else:
-                log.debug('Invalid data source: [{}]: {}'.format(
-                    template_field, qs))
-
-    log.debug('Returning {} (out of {}) valid data sources'.format(
-        len(passed), len(raw_sources)))
-    return passed
-
-
-def is_valid_source(source_value):
-    """
-    Check if the source is valid.
-
-    Tests if the given source starts with the same text as any of the
-    date source "query strings" stored in the 'SessionRepository'.
-
-    For example, the source value "metadata.exiftool.PDF:CreateDate" would
-    be considered valid if "metadata.exiftool" was registered by a source.
-
-    Args:
-        source_value: The source to test as a text string.
-
-    Returns:
-        The given source value if it passes the test, otherwise False.
-    """
-    if not source_value or not source_value.strip():
-        return False
-
-    if repository.SessionRepository.resolvable(source_value):
-        return True
-    return False
-
-

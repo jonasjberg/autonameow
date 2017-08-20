@@ -21,7 +21,10 @@
 
 from unittest import TestCase
 
-from core import exceptions
+from core import (
+    exceptions,
+    constants
+)
 from core.config import rules
 import unit_utils as uu
 
@@ -214,3 +217,79 @@ class TestGetValidRuleCondition(TestCase):
         self._assert_invalid('foo', None)
         self._assert_invalid(None, 'foo')
         self._assert_invalid(None, None)
+
+
+class TestIsValidSourceSpecification(TestCase):
+    def test_empty_source_returns_false(self):
+        self.assertFalse(rules.is_valid_source(None))
+        self.assertFalse(rules.is_valid_source(''))
+
+    def test_bad_source_returns_false(self):
+        self.assertFalse(rules.is_valid_source('not.a.valid.source.surely'))
+
+    def test_good_source_returns_true(self):
+        self.assertTrue(rules.is_valid_source('metadata.exiftool.PDF:CreateDate'))
+        self.assertTrue(rules.is_valid_source('metadata.exiftool'))
+        self.assertTrue(rules.is_valid_source('filesystem.basename.full'))
+        self.assertTrue(rules.is_valid_source('filesystem.basename.extension'))
+        self.assertTrue(rules.is_valid_source('filesystem.contents.mime_type'))
+
+
+class TestParseConditions(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_parse_condition_filesystem_pathname_is_valid(self):
+        raw_conditions = {'filesystem.pathname.full': '~/.config'}
+        actual = rules.parse_conditions(raw_conditions)
+        self.assertEqual(actual[0].query_string, 'filesystem.pathname.full')
+        self.assertEqual(actual[0].expression, '~/.config')
+
+    def test_parse_condition_contents_mime_type_is_valid(self):
+        raw_conditions = {'filesystem.contents.mime_type': 'image/jpeg'}
+        actual = rules.parse_conditions(raw_conditions)
+        self.assertEqual(actual[0].query_string,
+                         'filesystem.contents.mime_type')
+        self.assertEqual(actual[0].expression,
+                         'image/jpeg')
+
+    def test_parse_condition_contents_metadata_is_valid(self):
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
+        raw_conditions = {
+            'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
+        }
+        actual = rules.parse_conditions(raw_conditions)
+        self.assertEqual(actual[0].query_string,
+                         'metadata.exiftool.EXIF:DateTimeOriginal')
+        self.assertEqual(actual[0].expression, 'Defined')
+
+
+class TestParseRankingBias(TestCase):
+    def test_negative_value_raises_configuration_syntax_error(self):
+        with self.assertRaises(exceptions.ConfigurationSyntaxError):
+            rules.parse_ranking_bias(-1)
+            rules.parse_ranking_bias(-0.1)
+            rules.parse_ranking_bias(-0.01)
+            rules.parse_ranking_bias(-0.0000000001)
+
+    def test_value_greater_than_one_raises_configuration_syntax_error(self):
+        with self.assertRaises(exceptions.ConfigurationSyntaxError):
+            rules.parse_ranking_bias(2)
+            rules.parse_ranking_bias(1.1)
+            rules.parse_ranking_bias(1.00000000001)
+
+    def test_unexpected_type_value_raises_configuration_syntax_error(self):
+        with self.assertRaises(exceptions.ConfigurationSyntaxError):
+            rules.parse_ranking_bias('')
+            rules.parse_ranking_bias(object())
+
+    def test_none_value_returns_default_weight(self):
+        self.assertEqual(rules.parse_ranking_bias(None),
+                         constants.DEFAULT_RULE_RANKING_BIAS)
+
+    def test_value_within_range_zero_to_one_returns_value(self):
+        input_values = [0, 0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 1]
+
+        for value in input_values:
+            self.assertEqual(rules.parse_ranking_bias(value), value)
