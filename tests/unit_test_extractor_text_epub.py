@@ -20,17 +20,23 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from unittest import TestCase
+import unittest
 
 import unit_utils as uu
-from thirdparty import epubzilla
+
+try:
+    from thirdparty import epubzilla
+except (ModuleNotFoundError, ImportError):
+    epubzilla = None
 
 
-class TestExtractTextWithEpubzilla(TestCase):
+class TestExtractTextWithEpubzilla(unittest.TestCase):
     def setUp(self):
         self.sample_file = uu.abspath_testfile('pg38145-images.epub')
         self.assertTrue(os.path.isfile(self.sample_file))
 
+    @unittest.skipIf(epubzilla is None,
+                     'Unable to import module "thirdparty.epubzilla"')
     def test_does_not_open_non_epub_files(self):
         not_epub_file = uu.abspath_testfile('gmail.pdf')
         self.assertTrue(os.path.isfile(not_epub_file))
@@ -38,10 +44,14 @@ class TestExtractTextWithEpubzilla(TestCase):
         with self.assertRaises(Exception):
             actual = epubzilla.Epub.from_file(not_epub_file)
 
+    @unittest.skipIf(epubzilla is None,
+                     'Unable to import module "thirdparty.epubzilla"')
     def test_opens_sample_epub_file(self):
         actual = epubzilla.Epub.from_file(self.sample_file)
         self.assertIsNotNone(actual)
 
+    @unittest.skipIf(epubzilla is None,
+                     'Unable to import module "thirdparty.epubzilla"')
     def test_reads_sample_file_metadata(self):
         def _assert_metadata(key, expected):
             self.assertEqual(getattr(actual, key), expected)
