@@ -31,9 +31,11 @@ from core import constants
 from core.config.default_config import DEFAULT_CONFIG
 from core.config.configuration import (
     Configuration,
-    parse_conditions,
-    parse_ranking_bias,
     is_valid_source,
+)
+from core.config.rules import (
+    parse_ranking_bias,
+    parse_conditions
 )
 from core.exceptions import ConfigurationSyntaxError
 
@@ -134,13 +136,13 @@ class TestConfigurationDataAccess(TestCase):
     def test_get_data_does_not_return_none(self):
         self.assertIsNotNone(self.configuration.data)
 
-    def test_get_file_rules_does_not_return_none(self):
+    def test_get_rules_does_not_return_none(self):
         self.assertIsNotNone(self.configuration.rules)
 
-    def test_get_file_rules_returns_expected_type(self):
+    def test_get_rules_returns_expected_type(self):
         self.assertTrue(isinstance(self.configuration.rules, list))
 
-    def test_get_file_rules_returns_expected_rule_count(self):
+    def test_get_rules_returns_expected_rule_count(self):
         self.assertGreaterEqual(len(self.configuration.rules), 3)
 
 
@@ -195,7 +197,7 @@ class TestParseRankingBias(TestCase):
 
     def test_none_value_returns_default_weight(self):
         self.assertEqual(parse_ranking_bias(None),
-                         constants.DEFAULT_FILERULE_RANKING_BIAS)
+                         constants.DEFAULT_RULE_RANKING_BIAS)
 
     def test_value_within_range_zero_to_one_returns_value(self):
         input_values = [0, 0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 1]

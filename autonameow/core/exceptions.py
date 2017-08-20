@@ -59,15 +59,15 @@ class NameBuilderError(AutonameowException):
 
 
 class RuleMatcherError(AutonameowException):
-    """An error occurred while matching file rules. Unable to proceed."""
+    """An error occurred while matching rules. Unable to proceed."""
 
 
 class InvalidQueryStringError(ConfigError):
     """The query string format is invalid, can not be used to traverse data."""
 
 
-class FileRulePriorityError(ConfigError):
-    """Failed to prioritize rules. FileRule comparison failed."""
+class RulePriorityError(ConfigError):
+    """Failed to prioritize rules. Rule comparison failed."""
 
 
 class NameTemplateSyntaxError(ConfigError):
@@ -80,8 +80,8 @@ class ConfigurationSyntaxError(ConfigError):
     pass
 
 
-class InvalidFileRuleError(ConfigError):
-    """The FileRule is in a bad state. The FileRule state should only be set
+class InvalidRuleError(ConfigError):
+    """The Rule is in a bad state. The Rule state should only be set
     with known good data. This error implies data validation has failed."""
 
 

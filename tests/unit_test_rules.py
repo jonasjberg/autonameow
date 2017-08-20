@@ -23,6 +23,7 @@ from unittest import TestCase
 
 from core import exceptions
 from core.config import rules
+import unit_utils as uu
 
 
 class TestRuleCondition(TestCase):
@@ -75,7 +76,7 @@ class TestRuleConditionFromValidInput(TestCase):
 
 class TestRuleConditionFromInvalidInput(TestCase):
     def _assert_invalid(self, query, data):
-        with self.assertRaises(exceptions.InvalidFileRuleError):
+        with self.assertRaises(exceptions.InvalidRuleError):
             _ = rules.get_valid_rule_condition(query, data)
 
     def test_invalid_condition_contents_mime_type(self):
@@ -101,6 +102,30 @@ class TestRuleConditionFromInvalidInput(TestCase):
     def test_invalid_condition_filesystem_extension(self):
         self._assert_invalid('filesystem.basename.extension', None)
         self._assert_invalid('filesystem.basename.extension', '')
+
+
+class TestRuleConditionMethods(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.a = rules.RuleCondition('filesystem.contents.mime_type',
+                                     'application/pdf')
+
+    def test_rule___repr__(self):
+        self.assertEqual(
+            repr(self.a),
+            'RuleCondition("filesystem.contents.mime_type", "application/pdf")'
+        )
+
+    def test_rule___repr__exhaustive(self):
+        expected = []
+
+        for raw_condition in uu.get_dummy_raw_conditions():
+            for qstr, expr in raw_condition.items():
+                expected.append('RuleCondition("{}", "{}")'.format(qstr, expr))
+
+        for condition, expect in zip(uu.get_dummy_rulecondition_instances(),
+                                     expected):
+            self.assertEqual(repr(condition), expect)
 
 
 RULE_CONTENTS = {
@@ -136,41 +161,13 @@ RULE_CONTENTS = {
 }
 
 
-class TestFileRuleInstantiation(TestCase):
+class TestRuleMethods(TestCase):
     def setUp(self):
         self.maxDiff = None
+        self.rule = uu.get_dummy_rule()
 
-        with self.assertRaises(exceptions.InvalidFileRuleError):
-            self.filerule = rules.FileRule()
-
-    def test_init_description_is_str_or_none(self):
-        self.skipTest('TODO')
-        with self.assertRaises(exceptions.InvalidFileRuleError):
-            self.assertTrue(
-                isinstance(self.filerule.description, str) or
-                self.filerule.description is None,
-                'FileRule description should be of type string or None'
-            )
-
-    def test_init_exact_match_is_boolean(self):
-        self.skipTest('TODO')
-        with self.assertRaises(exceptions.InvalidFileRuleError):
-            self.assertTrue(isinstance(self.filerule.exact_match, bool),
-                            'FileRule exact_match should be a boolean')
-
-
-class TestFileRuleMethods(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.filerule = rules.FileRule(description='dummy',
-                                       exact_match=False,
-                                       weight=0.5,
-                                       name_template='dummy',
-                                       conditions='dummy',
-                                       data_sources='dummy')
-
-    def test_filerule_string(self):
-        actual = str(self.filerule)
+    def test_rule_string(self):
+        actual = str(self.rule)
         self.assertTrue(isinstance(actual, str))
 
 
@@ -184,7 +181,7 @@ class TestGetValidRuleCondition(TestCase):
         self.assertTrue(isinstance(actual, rules.RuleCondition))
 
     def _assert_invalid(self, query, data):
-        with self.assertRaises(exceptions.InvalidFileRuleError):
+        with self.assertRaises(exceptions.InvalidRuleError):
             _ = rules.get_valid_rule_condition(query, data)
 
     def test_returns_valid_rule_condition_for_valid_query_valid_data(self):

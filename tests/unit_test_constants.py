@@ -41,9 +41,9 @@ class TestConstants(TestCase):
         self.assertIsNotNone(constants.VALID_DATA_SOURCES)
         self.assertTrue(isinstance(constants.VALID_DATA_SOURCES, list))
 
-    def test_constants_contains_default_file_rule_weight(self):
-        self.assertIsNotNone(constants.DEFAULT_FILERULE_RANKING_BIAS)
-        self.assertTrue(isinstance(constants.DEFAULT_FILERULE_RANKING_BIAS, float))
+    def test_constants_contains_default_rule_ranking_bias(self):
+        self.assertIsNotNone(constants.DEFAULT_RULE_RANKING_BIAS)
+        self.assertTrue(isinstance(constants.DEFAULT_RULE_RANKING_BIAS, float))
 
     def test_constants_contains_default_file_tags_options(self):
         self.assertIsNotNone(constants.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR)

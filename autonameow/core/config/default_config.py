@@ -39,9 +39,9 @@ from core import constants
 
 DEFAULT_CONFIG = {
 
-    #   File Rules
-    #   ==========
-    #   File rules determine which files are handled and how they are handled.
+    #   Rules
+    #   =====
+    #   Rules determine which files are handled and how they are handled.
     #
     #   Each rule specifies conditions that should be met for the rule to apply
     #   to a given file.
@@ -55,7 +55,7 @@ DEFAULT_CONFIG = {
     #
     #   TODO: Document all fields ..
     #
-    'FILE_RULES': [
+    'RULES': [
         {'description': 'test_files Gmail print-to-pdf',
          'exact_match': True,
          'ranking_bias': None,
@@ -148,8 +148,8 @@ DEFAULT_CONFIG = {
 
     #  File Name Templates
     #  ===================
-    #  These file name templates can be reused by multiple file rules.
-    #  Simply add the template name to the file rule 'NAME_FORMAT' field.
+    #  These file name templates can be reused by multiple rules.
+    #  Simply add the template name to the rule 'NAME_FORMAT' field.
     #
     #  NOTE: If a rule specifies both 'NAME_FORMAT' and 'NAME_TEMPLATE',
     #        'NAME_FORMAT' will be prioritized.

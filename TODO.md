@@ -36,8 +36,6 @@ High Priority
   displayed properly due to them not being handled properly before being passed
   to `yaml.dump` which performs the formatting of the results dict.
 
-* `[TD0063]` Fix crash when a data source is mapped but data itself is missing.
-
 * `[TD0004]` __Text encoding issues__
     * Enforce strict boundaries between all external systems and an internal
       text data representation.
@@ -66,9 +64,9 @@ High Priority
 Medium Priority
 ---------------
 
-* `[TD0079]` __Refactor validation of `FileRule` data.__  
+* `[TD0079]` __Refactor validation of `Rule` data.__  
   Probably more sense to perform validation of the data used to construct
-  `FileRule` instances in the `FileRule` class instead of scattered around
+  `Rule` instances in the `Rule` class instead of scattered around
   functions in the `configuration` module and the `Configuration` class.
 
 * `[TD0078]` Check extractor dependencies when enumerating extractor classes.
@@ -129,7 +127,7 @@ Medium Priority
   In order to add conditional data extraction, a list of relevant extractors
   must be produced for each input path that will be processed. This should
   probably be collected during configuration parsing and rule matching; if a
-  file rule needs some information to be evaluated, the relevant extractor must
+  rule needs some information to be evaluated, the relevant extractor must
   be enqueued and executed.
 
 * `[TD0014]` Possibly redesign high-level handling of a "configuration".
@@ -137,16 +135,16 @@ Medium Priority
     * Think about separating validation and parsing of incoming
       configuration data from the `Configuration` class.
 
-* `[TD0015]` Allow conditionals in the configuration file rules.
-    * Test if a file rule is applicable by evaluating conditionals.
+* `[TD0015]` Allow conditionals in the configuration rules.
+    * Test if a rule is applicable by evaluating conditionals.
         * Textual contents of the file matches a regular expression?
         * Some date/time-information lies within some specific range.
 
 * `[TD0017]` Rethink how specified sources are connected to actual sources.
-  Take for example the configuration file rule:
+  Take for example the configuration rule:
 
     ```yaml
-    FILE_RULES:
+    RULES:
     -   CONDITIONS:
             contents:
                 mime_type: image/*
@@ -174,7 +172,7 @@ Medium Priority
   The `DATETIME_FORMAT` makes sure that the timestamp format is changed.
 
     ```yaml
-    FILE_RULES:
+    RULES:
     -   DATA_SOURCES:
             extension: contents.basename.extension
             datetime: analysis.filename.{?????}
@@ -209,7 +207,7 @@ Medium Priority
 * `[TD0023]` Add additional option to force non-interactive mode (`--batch`?)
 
 * `[TD0024]` Rework handling of unresolved operations
-    * Instead of aborting if a file rule data source is unavailable, use an
+    * Instead of aborting if a rule data source is unavailable, use an
       *interactive mode* and ask the user how to proceed.
     * Ideally, any remaining processing should proceed in the background. The
       user should be able to begin processing a large number of files without
@@ -284,7 +282,7 @@ Low Priority
 
 * `[TD0038]` Add new name format placeholder field `{year}`.
 
-* `[TD0039]` Do not include the file rule attribute `score` when listing the
+* `[TD0039]` Do not include the rule attribute `score` when listing the
   configuration with `--dump-config`.
 
 * `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF
@@ -300,7 +298,7 @@ Low Priority
 Wishlist
 --------
 
-* Construct file rules from user-specified __template__ and __filename__.
+* Construct rules from user-specified __template__ and __filename__.
 
     The user specifies a expected __file name template__ and
     a __expected file name__ for a given file;
