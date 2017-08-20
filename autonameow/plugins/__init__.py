@@ -20,14 +20,16 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import inspect
+import logging
 import os
 import sys
-# import logging as log
 
 
 # Plugins are assumed to be located in the same directory as this file.
 AUTONAMEOW_PLUGIN_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_PLUGIN_PATH)
+
+log = logging.getLogger(__name__)
 
 
 # TODO: [TD0009] Implement a proper plugin interface.

@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 
 import inspect
 import os
@@ -33,6 +33,8 @@ from core.fileobject import (
 # Extractors are assumed to be located in the same directory as this file.
 AUTONAMEOW_EXTRACTOR_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_EXTRACTOR_PATH)
+
+log = logging.getLogger(__name__)
 
 
 class BaseExtractor(object):
