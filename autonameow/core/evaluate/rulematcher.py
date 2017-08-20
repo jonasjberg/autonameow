@@ -90,8 +90,10 @@ def prioritize_rules(rules):
     2. By Whether the rule requires an exact match or not.
        Rules that require an exact match are ranked higher.
     3. By "weight", a float between 0-1.
-       Represents how many conditions
-    # TODO:  ..
+       Represents the number of met conditions for the rule, compared to the
+       number of conditions in other rules.
+    4. By "ranking bias", a float between 0-1.
+       Optional user-specified biasing of rule prioritization.
 
     This means that a rule that met all conditions will be ranked lower than
     another rule that also met all conditions but *did* require an exact match.
