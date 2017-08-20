@@ -57,7 +57,7 @@ class Configuration(object):
             source: The configuration to load as either a dictionary or a
                 bytestring path.
         """
-        self._file_rules = []
+        self._rules = []
         self._name_templates = {}
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
@@ -90,7 +90,7 @@ class Configuration(object):
 
         self._data = data
         self._load_name_templates()
-        self._load_file_rules()
+        self._load_rules()
         self._load_options()
         self._load_version()
 
@@ -137,42 +137,42 @@ class Configuration(object):
 
         self._name_templates.update(loaded_templates)
 
-    def _load_file_rules(self):
-        raw_file_rules = self._data.get('FILE_RULES', False)
-        if not raw_file_rules:
+    def _load_rules(self):
+        raw_rules = self._data.get('RULES', False)
+        if not raw_rules:
             raise exceptions.ConfigError(
-                'The configuration file does not contain any file rules'
+                'The configuration file does not contain any rules'
             )
 
-        for rule in raw_file_rules:
+        for rule in raw_rules:
             try:
-                valid_file_rule = self._validate_rule_data(rule)
+                valid_rule = self._validate_rule_data(rule)
             except exceptions.ConfigurationSyntaxError as e:
                 rule_description = rule.get('description', 'UNDESCRIBED')
                 log.error('Bad rule "{!s}"; {!s}'.format(rule_description, e))
             else:
-                # Create and populate "FileRule" objects with *validated* data.
-                self._file_rules.append(valid_file_rule)
+                # Create and populate "Rule" objects with *validated* data.
+                self._rules.append(valid_rule)
 
-                # Keep track of all "query strings" referenced by file rules.
+                # Keep track of all "query strings" referenced by rules.
                 self.referenced_query_strings.update(
-                    valid_file_rule.referenced_query_strings()
+                    valid_rule.referenced_query_strings()
                 )
 
     def _validate_rule_data(self, raw_rule):
         """
-        Validates one "raw" file rule from a configuration and returns an
-        instance of the 'FileRule' class, representing the "raw" file rule.
+        Validates one "raw" rule from a configuration and returns an
+        instance of the 'Rule' class, representing the "raw" rule.
 
         Args:
-            raw_rule: A single file rule entry from a configuration.
+            raw_rule: A single rule entry from a configuration.
 
         Returns:
-            An instance of the 'FileRule' class representing the given rule.
+            An instance of the 'Rule' class representing the given rule.
 
         Raises:
-            ConfigurationSyntaxError: The given file rule contains bad data,
-                making instantiating a 'FileRule' object impossible.
+            ConfigurationSyntaxError: The given rule contains bad data,
+                making instantiating a 'Rule' object impossible.
                 Note that the message will be used in the following sentence:
                 "Bad rule "x"; {message}"
         """
@@ -181,10 +181,10 @@ class Configuration(object):
         if description is None:
             description = 'UNDESCRIBED'
 
-        log.debug('Validating file rule "{!s}" ..'.format(description))
+        log.debug('Validating rule "{!s}" ..'.format(description))
 
         if 'NAME_FORMAT' not in raw_rule:
-            log.debug('File rule contains no name format data' + str(raw_rule))
+            log.debug('Rule contains no name format data' + str(raw_rule))
             raise exceptions.ConfigurationSyntaxError(
                 'is missing name template format'
             )
@@ -202,21 +202,21 @@ class Configuration(object):
                 valid_format = False
 
         if not valid_format:
-            log.debug('File rule name format is invalid: ' + str(raw_rule))
+            log.debug('Rule name format is invalid: ' + str(raw_rule))
             raise exceptions.ConfigurationSyntaxError(
                 'uses invalid name template format'
             )
 
         valid_data_sources = parse_data_sources(raw_rule.get('DATA_SOURCES'))
-        # TODO: [TD0079] Refactor validation and initializing 'FileRule'
-        file_rule = rules.FileRule(description=description,
-                                   exact_match=raw_rule.get('exact_match'),
-                                   ranking_bias=raw_rule.get('ranking_bias'),
-                                   name_template=valid_format,
-                                   conditions=raw_rule.get('CONDITIONS'),
-                                   data_sources=valid_data_sources)
-        log.debug('Validated file rule "{!s}" .. OK!'.format(description))
-        return file_rule
+        # TODO: [TD0079] Refactor validation and initializing 'Rule'
+        _rule = rules.Rule(description=description,
+                           exact_match=raw_rule.get('exact_match'),
+                           ranking_bias=raw_rule.get('ranking_bias'),
+                           name_template=valid_format,
+                           conditions=raw_rule.get('CONDITIONS'),
+                           data_sources=valid_data_sources)
+        log.debug('Validated rule "{!s}" .. OK!'.format(description))
+        return _rule
 
     def _load_options(self):
         def _try_load_date_format_option(option):
@@ -310,9 +310,9 @@ class Configuration(object):
         return self._data
 
     @property
-    def file_rules(self):
-        if self._file_rules and len(self._file_rules) > 0:
-            return self._file_rules
+    def rules(self):
+        if self._rules and len(self._rules) > 0:
+            return self._rules
         else:
             return False
 
@@ -323,8 +323,8 @@ class Configuration(object):
     def __str__(self):
         out = ['Written by autonameow version v{}\n\n'.format(self.version)]
 
-        for number, rule in enumerate(self.file_rules):
-            out.append('File Rule {}:\n'.format(number + 1))
+        for number, rule in enumerate(self.rules):
+            out.append('Rule {}:\n'.format(number + 1))
             out.append(textutils.indent(str(rule), amount=4) + '\n')
 
         out.append('\nName Templates:\n')

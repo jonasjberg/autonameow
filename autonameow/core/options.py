@@ -151,7 +151,7 @@ def init_argparser():
         dest='automagic',
         action='store_true',
         help='Perform renames without requiring any user interaction. '
-             'Matches the given paths against the available file rules. '
+             'Matches the given paths against the available rules. '
              'Paths matched to a rule is renamed in accordance with the rule.'
     )
     optgrp_mode.add_argument(

@@ -76,7 +76,7 @@ class TestRuleConditionFromValidInput(TestCase):
 
 class TestRuleConditionFromInvalidInput(TestCase):
     def _assert_invalid(self, query, data):
-        with self.assertRaises(exceptions.InvalidFileRuleError):
+        with self.assertRaises(exceptions.InvalidRuleError):
             _ = rules.get_valid_rule_condition(query, data)
 
     def test_invalid_condition_contents_mime_type(self):
@@ -161,13 +161,13 @@ RULE_CONTENTS = {
 }
 
 
-class TestFileRuleMethods(TestCase):
+class TestRuleMethods(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.filerule = uu.get_dummy_rule()
+        self.rule = uu.get_dummy_rule()
 
-    def test_filerule_string(self):
-        actual = str(self.filerule)
+    def test_rule_string(self):
+        actual = str(self.rule)
         self.assertTrue(isinstance(actual, str))
 
 
@@ -181,7 +181,7 @@ class TestGetValidRuleCondition(TestCase):
         self.assertTrue(isinstance(actual, rules.RuleCondition))
 
     def _assert_invalid(self, query, data):
-        with self.assertRaises(exceptions.InvalidFileRuleError):
+        with self.assertRaises(exceptions.InvalidRuleError):
             _ = rules.get_valid_rule_condition(query, data)
 
     def test_returns_valid_rule_condition_for_valid_query_valid_data(self):

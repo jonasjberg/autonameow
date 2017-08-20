@@ -35,16 +35,16 @@ class RuleMatcher(object):
         self.file_object = file_object
         self.request_data = repository.SessionRepository.resolve
 
-        if not active_config or not active_config.file_rules:
+        if not active_config or not active_config.rules:
             log.error('Configuration does not contain any rules to evaluate')
             self._rules = []
         else:
             # NOTE(jonas): Check a copy of all rules.
-            # Temporary fix for mutable state in the 'FileRule' instances,
+            # Temporary fix for mutable state in the 'Rule' instances,
             # which are initialized *once* when the configuration is loaded.
             # This same configuration instance is used when iterating over the
-            # files. The 'FileRule' scores were not reset between files.
-            self._rules = copy.deepcopy(active_config.file_rules)
+            # files. The 'Rule' scores were not reset between files.
+            self._rules = copy.deepcopy(active_config.rules)
 
         self._candidates = []
 
@@ -81,7 +81,7 @@ class RuleMatcher(object):
 
 def prioritize_rules(rules):
     """
-    Prioritizes (sorts) a list of 'FileRule' instances.
+    Prioritizes (sorts) a list of 'Rule' instances.
 
     The list is sorted by multiple attributes in the following order;
 
@@ -99,10 +99,10 @@ def prioritize_rules(rules):
     will never get here.
 
     Args:
-        rules: The list of 'FileRule' instances to prioritize/sort.
+        rules: The list of 'Rule' instances to prioritize/sort.
 
     Returns:
-        A sorted/prioritized list of 'FileRule' instances.
+        A sorted/prioritized list of 'Rule' instances.
     """
     return sorted(rules, reverse=True,
                   key=operator.attrgetter('score', 'exact_match', 'weight',

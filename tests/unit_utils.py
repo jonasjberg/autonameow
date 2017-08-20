@@ -370,7 +370,7 @@ def get_dummy_rules_to_examine():
     _raw_sources = get_dummy_raw_data_sources()
 
     out = []
-    out.append(rules.FileRule(
+    out.append(rules.Rule(
         description='test_files Gmail print-to-pdf',
         exact_match=True,
         ranking_bias=0.5,
@@ -378,7 +378,7 @@ def get_dummy_rules_to_examine():
         conditions=_raw_conditions[0],
         data_sources=_raw_sources[0]
     ))
-    out.append(rules.FileRule(
+    out.append(rules.Rule(
         description='test_files smulan.jpg',
         exact_match=True,
         ranking_bias=1.0,
@@ -386,7 +386,7 @@ def get_dummy_rules_to_examine():
         conditions=_raw_conditions[1],
         data_sources=_raw_sources[1]
     ))
-    out.append(rules.FileRule(
+    out.append(rules.Rule(
         description='Sample Entry for Photos with strict rules',
         exact_match=True,
         ranking_bias=1.0,
@@ -394,7 +394,7 @@ def get_dummy_rules_to_examine():
         conditions=_raw_conditions[1],
         data_sources=_raw_sources[1]
     ))
-    out.append(rules.FileRule(
+    out.append(rules.Rule(
         description='Sample Entry for EPUB e-books',
         exact_match=True,
         ranking_bias=1.0,
@@ -421,7 +421,7 @@ def get_dummy_raw_data_sources():
 
 
 def get_dummy_rule():
-    return rules.FileRule(
+    return rules.Rule(
         description='dummy',
         exact_match=False,
         ranking_bias=0.5,

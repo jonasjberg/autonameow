@@ -106,7 +106,7 @@ class Autonameow(object):
         # TODO: [TD0076] Register non-core components at startup.
         _referenced_qs = sorted(self.active_config.referenced_query_strings)
         for _query_string in _referenced_qs:
-            log.debug('Configuration file rule referenced query string'
+            log.debug('Configuration rule referenced query string'
                       ' "{!s}"'.format(_query_string))
 
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
@@ -280,7 +280,7 @@ class Autonameow(object):
             log.info('None of the rules seem to apply')
             return
 
-        log.info('Using file rule: "{!s}"'.format(
+        log.info('Using rule: "{!s}"'.format(
             rule_matcher.best_match.description)
         )
         new_name = _build_new_name(
