@@ -140,7 +140,7 @@ def split_filename(file_path):
         return base, None
 
 
-def file_suffix(file_path, make_lowercase=True):
+def basename_suffix(file_path, make_lowercase=True):
     """
     Returns the "suffix" or file extension, for a given file.
 

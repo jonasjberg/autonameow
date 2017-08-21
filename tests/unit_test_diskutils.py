@@ -81,35 +81,35 @@ class TestSplitFileName(TestCase):
         #                  diskutils.split_filename('foo.bar.tar.gz'))
 
 
-class TestFileSuffix(TestCase):
+class TestBasenameSuffix(TestCase):
     def _assert_suffix(self, expected, test_input):
-        actual = diskutils.file_suffix(test_input)
+        actual = diskutils.basename_suffix(test_input)
         self.assertEqual(expected, actual)
 
     def test_file_suffix_no_name(self):
-        self.assertIsNone(diskutils.file_suffix(''))
-        self.assertIsNone(diskutils.file_suffix(' '))
-        self.assertIsNone(diskutils.file_suffix(',. '))
-        self.assertIsNone(diskutils.file_suffix(' . '))
-        self.assertIsNone(diskutils.file_suffix(' . . '))
+        self.assertIsNone(diskutils.basename_suffix(''))
+        self.assertIsNone(diskutils.basename_suffix(' '))
+        self.assertIsNone(diskutils.basename_suffix(',. '))
+        self.assertIsNone(diskutils.basename_suffix(' . '))
+        self.assertIsNone(diskutils.basename_suffix(' . . '))
 
     def test_file_suffix_file_has_no_extension(self):
-        self.assertIsNone(diskutils.file_suffix('filename'))
-        self.assertIsNone(diskutils.file_suffix('file name'))
-        self.assertIsNone(diskutils.file_suffix('.hiddenfile'))
-        self.assertIsNone(diskutils.file_suffix('.hidden file'))
+        self.assertIsNone(diskutils.basename_suffix('filename'))
+        self.assertIsNone(diskutils.basename_suffix('file name'))
+        self.assertIsNone(diskutils.basename_suffix('.hiddenfile'))
+        self.assertIsNone(diskutils.basename_suffix('.hidden file'))
 
     def test_file_suffix_file_has_one_extension(self):
         self._assert_suffix(b'jpg', 'filename.jpg')
         self._assert_suffix(b'jpg', 'filename.JPG')
-        self.assertEqual(b'JPG', diskutils.file_suffix('filename.JPG',
-                                                       make_lowercase=False))
+        self.assertEqual(b'JPG', diskutils.basename_suffix('filename.JPG',
+                                                           make_lowercase=False))
 
     def test_file_suffix_from_hidden_file(self):
         self._assert_suffix(b'jpg', '.hiddenfile.jpg')
         self._assert_suffix(b'jpg', '.hiddenfile.JPG')
-        self.assertEqual(b'JPG', diskutils.file_suffix('.hiddenfile.JPG',
-                                                       make_lowercase=False))
+        self.assertEqual(b'JPG', diskutils.basename_suffix('.hiddenfile.JPG',
+                                                           make_lowercase=False))
 
     def test_file_suffix_file_has_many_suffixes(self):
         self._assert_suffix(b'tar', 'filename.tar')
