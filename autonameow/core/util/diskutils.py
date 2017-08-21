@@ -117,13 +117,15 @@ def split_basename(file_path):
       Input File Path:  'foo.tar.gz'    Return Value:  ('foo', 'tar.gz')
 
     Args:
-        file_path:
+        file_path: The path name to split as an "internal bytestring".
 
     Returns:
-
+        The basename of the given path split into two parts,
+            as a tuple of bytestrings.
     """
-    base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
+    assert(isinstance(file_path, bytes))
 
+    base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
     base = util.bytestring_path(base)
     ext = util.bytestring_path(ext)
 

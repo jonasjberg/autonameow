@@ -59,29 +59,30 @@ class TestSplitBasename(TestCase):
         self.assertEqual(expected, actual)
 
     def test_returns_bytestrings(self):
-        a, b = diskutils.split_basename('a.b')
-        self.assertTrue(isinstance(a, bytes))
-        self.assertTrue(isinstance(b, bytes))
-        c, d = diskutils.split_basename(b'a.b')
+        c, d = diskutils.split_basename(b'c.d')
         self.assertTrue(isinstance(c, bytes))
         self.assertTrue(isinstance(d, bytes))
 
+    def test_passing_unicode_strings_raises_assertion_error(self):
+        with self.assertRaises(AssertionError):
+            _, _ = diskutils.split_basename('a.b')
+
     def test_split_no_name(self):
-        self.assertIsNone(None, diskutils.split_basename(''))
+        self.assertIsNone(None, diskutils.split_basename(b''))
 
     def test_split_no_extension(self):
-        self._assert_splits((b'foo', None), 'foo')
-        self._assert_splits((b'.foo', None), '.foo')
+        self._assert_splits((b'foo', None), b'foo')
+        self._assert_splits((b'.foo', None), b'.foo')
 
     def test_split_one_extension(self):
-        self._assert_splits((b'foo', b'bar'), 'foo.bar')
-        self._assert_splits((b'.foo', b'bar'), '.foo.bar')
+        self._assert_splits((b'foo', b'bar'), b'foo.bar')
+        self._assert_splits((b'.foo', b'bar'), b'.foo.bar')
 
     def test_split_multiple_extensions(self):
-        self._assert_splits((b'.foo.bar', b'foo'), '.foo.bar.foo')
-        self._assert_splits((b'foo.bar', b'foo'), 'foo.bar.foo')
-        self._assert_splits((b'.foo.bar', b'tar'), '.foo.bar.tar')
-        self._assert_splits((b'foo.bar', b'tar'), 'foo.bar.tar')
+        self._assert_splits((b'.foo.bar', b'foo'), b'.foo.bar.foo')
+        self._assert_splits((b'foo.bar', b'foo'), b'foo.bar.foo')
+        self._assert_splits((b'.foo.bar', b'tar'), b'.foo.bar.tar')
+        self._assert_splits((b'foo.bar', b'tar'), b'foo.bar.tar')
 
         # TODO: This case still fails, but it is such a hassle to deal with
         #       and is a really weird way to name files anyway.
@@ -94,105 +95,114 @@ class TestBasenameSuffix(TestCase):
         actual = diskutils.basename_suffix(test_input)
         self.assertEqual(expected, actual)
 
-    def test_file_suffix_no_name(self):
-        self.assertIsNone(diskutils.basename_suffix(''))
-        self.assertIsNone(diskutils.basename_suffix(' '))
-        self.assertIsNone(diskutils.basename_suffix(',. '))
-        self.assertIsNone(diskutils.basename_suffix(' . '))
-        self.assertIsNone(diskutils.basename_suffix(' . . '))
+    def test_no_name(self):
+        self.assertIsNone(diskutils.basename_suffix(b''))
+        self.assertIsNone(diskutils.basename_suffix(b' '))
+        self.assertIsNone(diskutils.basename_suffix(b',. '))
+        self.assertIsNone(diskutils.basename_suffix(b' . '))
+        self.assertIsNone(diskutils.basename_suffix(b' . . '))
 
-    def test_file_suffix_file_has_no_extension(self):
-        self.assertIsNone(diskutils.basename_suffix('filename'))
-        self.assertIsNone(diskutils.basename_suffix('file name'))
-        self.assertIsNone(diskutils.basename_suffix('.hiddenfile'))
-        self.assertIsNone(diskutils.basename_suffix('.hidden file'))
+    def test_no_extension(self):
+        self.assertIsNone(diskutils.basename_suffix(b'filename'))
+        self.assertIsNone(diskutils.basename_suffix(b'file name'))
+        self.assertIsNone(diskutils.basename_suffix(b'.hiddenfile'))
+        self.assertIsNone(diskutils.basename_suffix(b'.hidden file'))
 
-    def test_file_suffix_file_has_one_extension(self):
-        self._assert_suffix(b'jpg', 'filename.jpg')
-        self._assert_suffix(b'jpg', 'filename.JPG')
-        self.assertEqual(b'JPG', diskutils.basename_suffix('filename.JPG',
-                                                           make_lowercase=False))
+    def test_one_extension(self):
+        self._assert_suffix(b'jpg', b'filename.jpg')
+        self._assert_suffix(b'jpg', b'filename.JPG')
+        self.assertEqual(
+            b'JPG', diskutils.basename_suffix(b'filename.JPG',
+                                              make_lowercase=False)
+        )
 
-    def test_file_suffix_from_hidden_file(self):
-        self._assert_suffix(b'jpg', '.hiddenfile.jpg')
-        self._assert_suffix(b'jpg', '.hiddenfile.JPG')
-        self.assertEqual(b'JPG', diskutils.basename_suffix('.hiddenfile.JPG',
-                                                           make_lowercase=False))
+    def test_hidden_file(self):
+        self._assert_suffix(b'jpg', b'.hiddenfile.jpg')
+        self._assert_suffix(b'jpg', b'.hiddenfile.JPG')
+        self.assertEqual(
+            b'JPG', diskutils.basename_suffix(b'.hiddenfile.JPG',
+                                              make_lowercase=False)
+        )
 
-    def test_file_suffix_file_has_many_suffixes(self):
-        self._assert_suffix(b'tar', 'filename.tar')
-        self._assert_suffix(b'gz', 'filename.gz')
-        self._assert_suffix(b'tar.gz', 'filename.tar.gz')
-        self._assert_suffix(b'tar.z', 'filename.tar.z')
-        self._assert_suffix(b'tar.lz', 'filename.tar.lz')
-        self._assert_suffix(b'tar.lzma', 'filename.tar.lzma')
-        self._assert_suffix(b'tar.lzo', 'filename.tar.lzo')
+    def test_many_suffixes(self):
+        self._assert_suffix(b'tar', b'filename.tar')
+        self._assert_suffix(b'gz', b'filename.gz')
+        self._assert_suffix(b'tar.gz', b'filename.tar.gz')
+        self._assert_suffix(b'tar.z', b'filename.tar.z')
+        self._assert_suffix(b'tar.lz', b'filename.tar.lz')
+        self._assert_suffix(b'tar.lzma', b'filename.tar.lzma')
+        self._assert_suffix(b'tar.lzo', b'filename.tar.lzo')
 
-    def test_file_suffix_from_hidden_file_many_suffixes(self):
-
-        self._assert_suffix(b'tar', '.filename.tar')
-        self._assert_suffix(b'gz', '.filename.gz')
-        self._assert_suffix(b'tar.gz', '.filename.tar.gz')
-        self._assert_suffix(b'tar.z', '.filename.tar.z')
-        self._assert_suffix(b'tar.lz', '.filename.tar.lz')
-        self._assert_suffix(b'tar.lzma', '.filename.tar.lzma')
-        self._assert_suffix(b'tar.lzo', '.filename.tar.lzo')
+    def test_hidden_with_many_suffixes(self):
+        self._assert_suffix(b'tar', b'.filename.tar')
+        self._assert_suffix(b'gz', b'.filename.gz')
+        self._assert_suffix(b'tar.gz', b'.filename.tar.gz')
+        self._assert_suffix(b'tar.z', b'.filename.tar.z')
+        self._assert_suffix(b'tar.lz', b'.filename.tar.lz')
+        self._assert_suffix(b'tar.lzma', b'.filename.tar.lzma')
+        self._assert_suffix(b'tar.lzo', b'.filename.tar.lzo')
 
 
 class TestBasenamePrefix(TestCase):
-    def test_file_base_no_name(self):
-        self.assertIsNone(diskutils.basename_prefix(''))
-        self.assertEqual(b' ', diskutils.basename_prefix(' '))
-        self.assertEqual(b',', diskutils.basename_prefix(',. '))
-        self.assertEqual(b' ', diskutils.basename_prefix(' . '))
+    def test_no_name(self):
+        self.assertIsNone(diskutils.basename_prefix(b''))
+        self.assertEqual(b' ', diskutils.basename_prefix(b' '))
+        self.assertEqual(b',', diskutils.basename_prefix(b',. '))
+        self.assertEqual(b' ', diskutils.basename_prefix(b' . '))
 
         # TODO: Test edge cases ..
         # self.assertEqual(' ', diskutils.file_base(' . . '))
 
-    def test_file_base_file_has_no_extension(self):
-        self.assertIsNotNone(diskutils.basename_prefix('filename'))
-        self.assertEqual(b'file name', diskutils.basename_prefix('file name'))
-        self.assertEqual(b'.hiddenfile', diskutils.basename_prefix('.hiddenfile'))
-        self.assertEqual(b'.hidden file', diskutils.basename_prefix('.hidden file'))
+    def test_no_extension(self):
+        self.assertIsNotNone(diskutils.basename_prefix(b'filename'))
+        self.assertEqual(b'file name',
+                         diskutils.basename_prefix(b'file name'))
+        self.assertEqual(b'.hiddenfile',
+                         diskutils.basename_prefix(b'.hiddenfile'))
+        self.assertEqual(b'.hidden file',
+                         diskutils.basename_prefix(b'.hidden file'))
 
-    def test_file_base_file_has_one_extension(self):
+    def test_one_extension(self):
         def __check_expected_for(test_input):
             self.assertEqual(b'filename', diskutils.basename_prefix(test_input))
 
-        __check_expected_for('filename.jpg')
-        __check_expected_for('filename.JPG')
+        __check_expected_for(b'filename.jpg')
+        __check_expected_for(b'filename.JPG')
 
-    def test_file_base_from_hidden_file(self):
+    def test_hidden_file(self):
         def __check_expected_for(test_input):
-            self.assertEqual(b'.hiddenfile', diskutils.basename_prefix(test_input))
+            self.assertEqual(b'.hiddenfile',
+                             diskutils.basename_prefix(test_input))
 
-        __check_expected_for('.hiddenfile.jpg')
-        __check_expected_for('.hiddenfile.JPG')
-        __check_expected_for('.hiddenfile.JPG')
+        __check_expected_for(b'.hiddenfile.jpg')
+        __check_expected_for(b'.hiddenfile.JPG')
+        __check_expected_for(b'.hiddenfile.JPG')
 
-    def test_file_base_file_has_many_suffixes(self):
+    def test_many_suffixes(self):
         def __check_expected_for(test_input):
-            self.assertEqual(b'filename', diskutils.basename_prefix(test_input))
+            self.assertEqual(b'filename',
+                             diskutils.basename_prefix(test_input))
 
-        __check_expected_for('filename.tar')
-        __check_expected_for('filename.gz')
-        __check_expected_for('filename.tar.gz')
-        __check_expected_for('filename.tar.z')
-        __check_expected_for('filename.tar.lz')
-        __check_expected_for('filename.tar.lzma')
-        __check_expected_for('filename.tar.lzo')
+        __check_expected_for(b'filename.tar')
+        __check_expected_for(b'filename.gz')
+        __check_expected_for(b'filename.tar.gz')
+        __check_expected_for(b'filename.tar.z')
+        __check_expected_for(b'filename.tar.lz')
+        __check_expected_for(b'filename.tar.lzma')
+        __check_expected_for(b'filename.tar.lzo')
 
-    def test_file_base_from_hidden_file_many_suffixes(self):
+    def test_hidden_with_many_suffixes(self):
         def __check_expected_for(test_input):
-            self.assertEqual(b'.filename', diskutils.basename_prefix(test_input))
+            self.assertEqual(b'.filename',
+                             diskutils.basename_prefix(test_input))
 
-        __check_expected_for('.filename.tar')
-        __check_expected_for('.filename.gz')
-        __check_expected_for('.filename.tar.gz')
-        __check_expected_for('.filename.tar.z')
-        __check_expected_for('.filename.tar.lz')
-        __check_expected_for('.filename.tar.lzma')
-        __check_expected_for('.filename.tar.lzo')
+        __check_expected_for(b'.filename.tar')
+        __check_expected_for(b'.filename.gz')
+        __check_expected_for(b'.filename.tar.gz')
+        __check_expected_for(b'.filename.tar.z')
+        __check_expected_for(b'.filename.tar.lz')
+        __check_expected_for(b'.filename.tar.lzma')
+        __check_expected_for(b'.filename.tar.lzo')
 
 
 class TestSanitizeFilename(TestCase):
