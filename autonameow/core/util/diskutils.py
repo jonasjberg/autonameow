@@ -168,7 +168,7 @@ def basename_suffix(file_path, make_lowercase=True):
     return ext
 
 
-def file_base(file_path):
+def basename_prefix(file_path):
     """
     Returns the basename _without_ any extension ("suffix"), for a given file.
 

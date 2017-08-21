@@ -66,7 +66,7 @@ class FileObject(object):
         self.mime_type = filetype_magic(self.abspath)
 
         # Extract parts of the file name.
-        self.fnbase = diskutils.file_base(self.abspath)
+        self.fnbase = diskutils.basename_prefix(self.abspath)
         self._suffix = diskutils.basename_suffix(self.abspath)
 
         self.BETWEEN_TAG_SEPARATOR = util.bytestring_path(
