@@ -64,7 +64,7 @@ class CommonFileSystemExtractor(BaseExtractor):
             'basename.full': types.AW_PATHCOMPONENT(file_object.filename),
             'basename.extension': types.AW_PATHCOMPONENT(file_object.suffix),
             'basename.suffix': types.AW_PATHCOMPONENT(file_object.suffix),
-            'basename.prefix': types.AW_PATHCOMPONENT(file_object.fnbase),
+            'basename.prefix': types.AW_PATHCOMPONENT(file_object.basename_prefix),
             'pathname.full': types.AW_PATH(file_object.pathname),
             'pathname.parent': types.AW_PATH(file_object.pathparent),
             'contents.mime_type': file_object.mime_type
