@@ -58,6 +58,14 @@ class TestSplitFileName(TestCase):
         actual = diskutils.split_filename(test_input)
         self.assertEqual(expected, actual)
 
+    def test_split_filename_returns_bytestrings(self):
+        a, b = diskutils.split_filename('a.b')
+        self.assertTrue(isinstance(a, bytes))
+        self.assertTrue(isinstance(b, bytes))
+        c, d = diskutils.split_filename(b'a.b')
+        self.assertTrue(isinstance(c, bytes))
+        self.assertTrue(isinstance(d, bytes))
+
     def test_split_filename_no_name(self):
         self.assertIsNone(None, diskutils.split_filename(''))
 
