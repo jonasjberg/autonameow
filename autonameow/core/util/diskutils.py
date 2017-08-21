@@ -106,7 +106,7 @@ def rename_file(source_path, new_basename):
         raise
 
 
-def split_filename(file_path):
+def split_basename(file_path):
     """
     Splits the basename of the specified path in two parts.
 
@@ -162,7 +162,7 @@ def basename_suffix(file_path, make_lowercase=True):
         The "suffix" or compound file extension for the given path as a
         "internal bytestring".  None is returned if it is not present.
     """
-    _, ext = split_filename(file_path)
+    _, ext = split_basename(file_path)
 
     if ext and make_lowercase:
         ext = ext.lower()
@@ -186,7 +186,7 @@ def basename_prefix(file_path):
         The basename of the specified path, without any extension ("suffix"),
         as a "internal bytestring".  None is returned if it is not present.
     """
-    base, _ = split_filename(file_path)
+    base, _ = split_basename(file_path)
     return base if base else None
 
 

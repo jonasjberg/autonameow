@@ -53,31 +53,31 @@ class TestMimeTypes(TestCase):
         self.assertEqual(['image/jpeg'], MAGIC_TYPE_LOOKUP['jpg'])
 
 
-class TestSplitFileName(TestCase):
+class TestSplitBasename(TestCase):
     def _assert_splits(self, expected, test_input):
-        actual = diskutils.split_filename(test_input)
+        actual = diskutils.split_basename(test_input)
         self.assertEqual(expected, actual)
 
-    def test_split_filename_returns_bytestrings(self):
-        a, b = diskutils.split_filename('a.b')
+    def test_returns_bytestrings(self):
+        a, b = diskutils.split_basename('a.b')
         self.assertTrue(isinstance(a, bytes))
         self.assertTrue(isinstance(b, bytes))
-        c, d = diskutils.split_filename(b'a.b')
+        c, d = diskutils.split_basename(b'a.b')
         self.assertTrue(isinstance(c, bytes))
         self.assertTrue(isinstance(d, bytes))
 
-    def test_split_filename_no_name(self):
-        self.assertIsNone(None, diskutils.split_filename(''))
+    def test_split_no_name(self):
+        self.assertIsNone(None, diskutils.split_basename(''))
 
-    def test_split_filename_has_no_extension(self):
+    def test_split_no_extension(self):
         self._assert_splits((b'foo', None), 'foo')
         self._assert_splits((b'.foo', None), '.foo')
 
-    def test_split_filename_has_one_extension(self):
+    def test_split_one_extension(self):
         self._assert_splits((b'foo', b'bar'), 'foo.bar')
         self._assert_splits((b'.foo', b'bar'), '.foo.bar')
 
-    def test_split_filename_has_multiple_extensions(self):
+    def test_split_multiple_extensions(self):
         self._assert_splits((b'.foo.bar', b'foo'), '.foo.bar.foo')
         self._assert_splits((b'foo.bar', b'foo'), 'foo.bar.foo')
         self._assert_splits((b'.foo.bar', b'tar'), '.foo.bar.tar')
