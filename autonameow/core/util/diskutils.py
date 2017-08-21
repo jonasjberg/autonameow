@@ -110,11 +110,11 @@ def split_filename(file_path):
     """
     Splits the basename of the specified path in two parts.
 
-    Does almost the same thing as "os.path.splitext", but handles "compound"
-    file extensions, such as "foo.tar.gz" differently.
+    Does almost the same thing as 'os.path.splitext', but handles "compound"
+    file extensions, such as 'foo.tar.gz' differently.
 
-      Input File Path:  "foo.tar"       Return Value:  ("foo", "tar")
-      Input File Path:  "foo.tar.gz"    Return Value:  ("foo", "tar.gz")
+      Input File Path:  'foo.tar'       Return Value:  ('foo', 'tar')
+      Input File Path:  'foo.tar.gz'    Return Value:  ('foo', 'tar.gz')
 
     Args:
         file_path:
@@ -142,23 +142,25 @@ def split_filename(file_path):
 
 def basename_suffix(file_path, make_lowercase=True):
     """
-    Returns the "suffix" or file extension, for a given file.
+    Returns the "suffix" or file extension of the basename, for a given file.
 
     The file path can be of any type, relative, absolute, etc.
-    Compound file extensions like "basename.tar.gz" will return the (suffix)
-    "tar.gz", not just the file extension "gz".
+
+    NOTE: On non-standard behaviour;
+    Compound file extensions like 'foo.tar.gz' will return the (full "suffix")
+    'tar.gz' and not just the conventional file extension 'gz'.
 
     Args:
-        file_path: Path from which to get the "suffix", I.E. the file
+        file_path: Path from which to get the full "suffix", I.E. the file
             extension part of the basename, with special treatment of
-            multiple file extensions, like "repo_backup.git.tar.lzma".
+            compound file extensions, like 'repo_backup.git.tar.lzma'.
 
         make_lowercase: Whether to convert the suffix to lower case before
             returning it. Defaults to True.
 
     Returns:
-        The "suffix" or compound file extension for the specified path,
-            as a string. None is returned if it is not found in the given path.
+        The "suffix" or compound file extension for the given path as a
+        "internal bytestring".  None is returned if it is not present.
     """
     _, ext = split_filename(file_path)
 
@@ -182,7 +184,7 @@ def basename_prefix(file_path):
 
     Returns:
         The basename of the specified path, without any extension ("suffix"),
-        as a string. None is returned if it is not found in the given path.
+        as a "internal bytestring".  None is returned if it is not present.
     """
     base, _ = split_filename(file_path)
     return base if base else None
