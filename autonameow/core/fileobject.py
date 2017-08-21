@@ -78,7 +78,7 @@ class FileObject(object):
 
         # Do "filename partitioning" -- split the file name into four parts:
         #
-        #   * filenamepart_ts     Date-/timestamp.
+        #   * namepart_timestamp  Date-/timestamp.
         #   * filenamepart_base   Descriptive text.
         #   * filenamepart_ext    File extension/suffix.
         #   * filenamepart_tags   Tags created within the "filetags" workflow.
@@ -99,7 +99,7 @@ class FileObject(object):
         self._filenamepart_tags = self._filenamepart_tags() or []
 
     @property
-    def filenamepart_ts(self):
+    def namepart_timestamp(self):
         if not self._filenamepart_ts:
             return None
         return util.decode_(self._filenamepart_ts)
