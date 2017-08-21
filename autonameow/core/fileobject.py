@@ -95,12 +95,8 @@ class FileObject(object):
         # TODO: [TD0037] Move "filetags"-specific code to separate module. (?)
         self._filenamepart_ts = self._filenamepart_ts()
         self._filenamepart_base = self._filenamepart_base()
-        self._filenamepart_ext = self._filenamepart_ext()
+        self._filenamepart_ext = self.basename_suffix or b''
         self._filenamepart_tags = self._filenamepart_tags() or []
-
-    @property
-    def suffix(self):
-        return self.basename_suffix if self.basename_suffix else ''
 
     @property
     def filenamepart_ts(self):
@@ -143,9 +139,6 @@ class FileObject(object):
         # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
         r = re.split(self.FILENAME_TAG_SEPARATOR, fnbase, 1)
         return r[0].strip()
-
-    def _filenamepart_ext(self):
-        return self.suffix
 
     def _filenamepart_tags(self):
         if not re.findall(self.BETWEEN_TAG_SEPARATOR, self.basename_prefix):

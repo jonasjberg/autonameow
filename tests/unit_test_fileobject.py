@@ -38,7 +38,7 @@ class TestFileObjectTypes(TestCase):
         self.assertTrue(isinstance(self.fo.abspath, bytes))
 
     def test_internal_bytestring_path_type_suffix(self):
-        self.assertTrue(isinstance(self.fo.suffix, bytes))
+        self.assertTrue(isinstance(self.fo.basename_suffix, bytes))
 
     def test_internal_bytestring_path_type_filename(self):
         self.assertTrue(isinstance(self.fo.filename, bytes))
