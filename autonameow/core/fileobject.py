@@ -66,8 +66,8 @@ class FileObject(object):
         self.mime_type = filetype_magic(self.abspath)
 
         # Extract parts of the file name.
-        self.fnbase = diskutils.basename_prefix(self.abspath)
-        self._suffix = diskutils.basename_suffix(self.abspath)
+        self._basename_prefix = diskutils.basename_prefix(self.abspath)
+        self._basename_suffix = diskutils.basename_suffix(self.abspath)
 
         self.BETWEEN_TAG_SEPARATOR = util.bytestring_path(
             opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
@@ -100,7 +100,7 @@ class FileObject(object):
 
     @property
     def suffix(self):
-        return self._suffix if self._suffix else ''
+        return self._basename_suffix if self._basename_suffix else ''
 
     @property
     def filenamepart_ts(self):
@@ -127,15 +127,15 @@ class FileObject(object):
         return [util.decode_(t) for t in self._filenamepart_tags]
 
     def _filenamepart_ts(self):
-        ts = FILENAMEPART_TS_REGEX.match(self.fnbase)
+        ts = FILENAMEPART_TS_REGEX.match(self._basename_prefix)
         if ts:
             return ts.group(0)
         return None
 
     def _filenamepart_base(self):
-        fnbase = self.fnbase
+        fnbase = self._basename_prefix
         if self._filenamepart_ts:
-            fnbase = self.fnbase.lstrip(self._filenamepart_ts)
+            fnbase = self._basename_prefix.lstrip(self._filenamepart_ts)
 
         if not re.findall(self.BETWEEN_TAG_SEPARATOR, fnbase):
             return fnbase
@@ -148,10 +148,10 @@ class FileObject(object):
         return self.suffix
 
     def _filenamepart_tags(self):
-        if not re.findall(self.BETWEEN_TAG_SEPARATOR, self.fnbase):
+        if not re.findall(self.BETWEEN_TAG_SEPARATOR, self._basename_prefix):
             return None
 
-        r = re.split(self.FILENAME_TAG_SEPARATOR, self.fnbase, 1)
+        r = re.split(self.FILENAME_TAG_SEPARATOR, self._basename_prefix, 1)
         try:
             tags = r[1].split(self.BETWEEN_TAG_SEPARATOR)
             return tags
