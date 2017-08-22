@@ -69,14 +69,13 @@ class FiletagsAnalyzer(BaseAnalyzer):
         self._tags = None
         self._extension = None
 
-    def _add_results(self, label, data):
+    def _add_results(self, meowuri_leaf, data):
         if data is None:
             return
 
-        # TODO: Why is not 'cls.meowuri_root' == 'meowuri' below?
-        meowuri = 'analysis.filetags.{}'.format(label)
-        log.debug('{} passed "{}" to "add_results" callback'.format(
-            self, meowuri)
+        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
+        log.debug(
+            '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
         self.add_results(meowuri, data)
 

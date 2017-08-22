@@ -75,11 +75,14 @@ class GuessitPlugin(BasePlugin):
             if wrapped is not None:
                 self._add_results(result_key, wrapped)
 
-    def _add_results(self, label, data):
-        meowuri = 'plugin.guessit.{}'.format(label)
-        # log.debug('{} passed "{}" to "add_results" callback'.format(
-        #     self, meowuri)
-        # )
+    def _add_results(self, meowuri_leaf, data):
+        if data is None:
+            return
+
+        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
+        #log.debug(
+        #    '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
+        #)
         self.add_results(meowuri, data)
 
     def can_handle(self):

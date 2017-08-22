@@ -57,14 +57,15 @@ class FilesystemAnalyzer(BaseAnalyzer):
             file_object, add_results_callback, request_data_callback
         )
 
-    def _add_results(self, label, data):
-        # TODO: Why is not 'cls.data_meowuri' == 'meowuri' below?
-        meowuri = 'analysis.filesystem.{}'.format(label)
-        logging.debug('{} passed "{}" to "add_results" callback'.format(
-            self, meowuri)
+    def _add_results(self, meowuri_leaf, data):
+        if data is None:
+            return
+
+        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
+        logging.debug(
+            '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
-        if data is not None:
-            self.add_results(meowuri, data)
+        self.add_results(meowuri, data)
 
     def run(self):
         # Pass results through callback function provided by the 'Analysis'.

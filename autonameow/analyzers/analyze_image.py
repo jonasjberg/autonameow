@@ -42,13 +42,15 @@ class ImageAnalyzer(BaseAnalyzer):
         self.exif_data = None
         self.ocr_text = None
 
-    def _add_results(self, label, data):
-        meowuri = 'analysis.image.{}'.format(label)
-        log.debug('{} passed "{}" to "add_results" callback'.format(
-            self, meowuri)
+    def _add_results(self, meowuri_leaf, data):
+        if data is None:
+            return
+
+        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
+        log.debug(
+            '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
-        if data is not None:
-            self.add_results(meowuri, data)
+        self.add_results(meowuri, data)
 
     def run(self):
         self.exif_data = self.request_data(self.file_object,
