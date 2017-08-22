@@ -190,10 +190,10 @@ def truncate_text(text, number_chars=500):
 
 def querystring_class_map_dict():
     # The 'QueryStringClassMap' attributes in non-core modules keep
-    # references to the available component class.
-    # These are dicts with keys being the "query strings" that the data
-    # stored by the respective component uses when storing data and the
-    # contained values are lists of classes mapped to the "query string".
+    # references to the available component classes.
+    # These are dicts with keys being the "query strings" that the respective
+    # component uses when storing data and the contained values are lists of
+    # classes mapped to the "query string".
     _query_string_class_map = {
         'extractors': extractors.QueryStringClassMap,
         'analyzers': analyzers.QueryStringClassMap,
