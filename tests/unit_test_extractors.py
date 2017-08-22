@@ -142,8 +142,9 @@ class TestGetAllExtractorClasses(TestCase):
 
 class TestGetImplementedExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['text_ocr.py', 'text_pdf.py', 'text_plain.py',
-                        'metadata_exiftool.py', 'metadata_pypdf.py']
+        self.sources = ['filesystem.py', 'text_epub.py', 'text_ocr.py',
+                        'text_pdf.py', 'text_plain.py', 'metadata_exiftool.py',
+                        'metadata_pypdf.py']
         self.actual = extractors.get_extractor_classes(self.sources)
 
     def test_get_extractor_classes_returns_expected_type(self):
@@ -164,10 +165,12 @@ class TestGetImplementedExtractorClasses(TestCase):
 
 class TestNumberOfAvailableExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['text_ocr.py', 'text_pdf.py', 'text_plain.py',
-                        'metadata_exiftool.py', 'metadata_pypdf.py']
+        self.sources = ['filesystem.py', 'text_epub.py', 'text_ocr.py',
+                        'text_pdf.py', 'text_plain.py', 'metadata_exiftool.py',
+                        'metadata_pypdf.py']
         self.actual = extractors.get_extractor_classes(self.sources)
 
+    # This tests up to the current number of extractors without dependencies.
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.
     def test_get_extractor_classes_returns_at_least_one_extractor(self):
         self.assertGreaterEqual(len(self.actual), 1)
