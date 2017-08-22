@@ -76,7 +76,7 @@ class FilenameAnalyzer(BaseAnalyzer):
 
     def _get_title_from_filename(self):
         fnp_tags = self.file_object.filenamepart_tags or None
-        fnp_base = self.file_object.filenamepart_base or None
+        fnp_base = self.file_object.namepart_description or None
         fnp_ts = self.file_object.namepart_timestamp or None
 
         # Weight cases with all "filetags" filename parts present higher.

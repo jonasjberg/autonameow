@@ -105,7 +105,7 @@ class FileObject(object):
         return util.decode_(self._filenamepart_ts)
 
     @property
-    def filenamepart_base(self):
+    def namepart_description(self):
         if not self._filenamepart_base:
             return None
         return util.decode_(self._filenamepart_base)
