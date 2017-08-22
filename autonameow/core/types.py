@@ -297,9 +297,13 @@ class Float(BaseType):
 
 class String(BaseType):
     primitive_type = str
+    coercible_types = (str, bytes, int, float, bool)
 
-    from PyPDF2.generic import TextStringObject
-    coercible_types = (str, bytes, int, float, bool, TextStringObject)
+    try:
+        from PyPDF2.generic import TextStringObject
+        coercible_types = coercible_types + (TextStringObject, )
+    except ImportError:
+        pass
 
     equivalent_types = (str, )
     null = ''
