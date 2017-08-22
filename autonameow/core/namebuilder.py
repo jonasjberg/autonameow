@@ -28,6 +28,7 @@ from core import (
     util,
     repository
 )
+from core.util import diskutils
 
 
 class NameBuilder(object):
@@ -143,6 +144,22 @@ class NameBuilder(object):
             log.debug('Unable to assemble basename with template "{!s}" and '
                       'data: {!s}'.format(template, data))
             raise exceptions.NameBuilderError('Unable to assemble basename')
+
+        # Do any file name "sanitation".
+        if self.config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
+            if self.config.get(['FILESYSTEM_OPTIONS', 'sanitize_strict']):
+                log.debug('Sanitizing filename (restricted=True)')
+                new_name = diskutils.sanitize_filename(new_name,
+                                                       restricted=True)
+            else:
+                log.debug('Sanitizing filename')
+                new_name = diskutils.sanitize_filename(new_name)
+
+            log.debug('Sanitized basename (unicode): "{!s}"'.format(
+                util.displayable_path(new_name))
+            )
+        else:
+            log.debug('Skipped sanitizing filename')
 
         self._new_name = new_name
         return new_name

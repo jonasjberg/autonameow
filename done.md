@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-08-22
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0071]` Move file name "sanitation" to the `NameBuilder` or elsewhere.
+
 * 2017-08-21
 
     > Medium Priority

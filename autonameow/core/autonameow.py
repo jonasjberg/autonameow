@@ -333,22 +333,6 @@ class Autonameow(object):
         assert(isinstance(from_path, bytes))
         assert(isinstance(new_basename, str))
 
-        # TODO: [TD0071] Move "sanitation" to the 'NameBuilder' or elsewhere.
-        if self.active_config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
-            if self.active_config.get(['FILESYSTEM_OPTIONS', 'sanitize_strict']):
-                log.debug('Sanitizing filename (restricted=True)')
-                new_basename = diskutils.sanitize_filename(new_basename,
-                                                           restricted=True)
-            else:
-                log.debug('Sanitizing filename')
-                new_basename = diskutils.sanitize_filename(new_basename)
-
-            log.debug('Sanitized basename (unicode): "{!s}"'.format(
-                util.displayable_path(new_basename))
-            )
-        else:
-            log.debug('Skipped sanitizing filename')
-
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = util.bytestring_path(new_basename)
         log.debug('Destination basename (bytestring): "{!s}"'.format(
