@@ -251,7 +251,8 @@ class Autonameow(object):
         # Extract data from the file.
         # Run all extractors so that all possible data is included
         # when listing any (all) results later on.
-        extraction = _run_extraction(current_file)
+        extraction = _run_extraction(current_file,
+                                     run_all_extractors=should_list_any_results)
 
         # Begin analysing the file.
         analysis = _run_analysis(current_file)
