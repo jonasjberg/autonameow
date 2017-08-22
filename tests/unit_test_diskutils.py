@@ -583,3 +583,10 @@ class TestCompareBasenames(TestCase):
         _assert_false('ä'.encode('utf-8'), b'a')
         _assert_false('Ä'.encode('utf-8'), b'A')
         _assert_false('Ä'.encode('utf-8'), 'A'.encode('utf-8'))
+
+        # Looks identical but the second string contains character '\xc2\xa0'
+        # between the last timestamp digit and 'W' instead of a simple space.
+        _assert_false(
+            '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode('utf-8'),
+            '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode('utf-8')
+        )

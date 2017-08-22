@@ -195,7 +195,7 @@ class Configuration(object):
             valid_format = self.name_templates.get(name_format, False)
         else:
             if NameFormatConfigFieldParser.is_valid_format_string(name_format):
-                valid_format = name_format
+                valid_format = util.remove_nonbreaking_spaces(name_format)
             else:
                 valid_format = False
 
