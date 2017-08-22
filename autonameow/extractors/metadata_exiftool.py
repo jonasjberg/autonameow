@@ -19,7 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core import types
+from core import (
+    types,
+    util
+)
 from core.exceptions import ExtractorError
 from core.util import wrap_exiftool
 from extractors.metadata import AbstractMetadataExtractor
@@ -97,5 +100,4 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        # TODO: [TD0078] Check that 'exiftool' is installed and executable.
-        return True
+        return util.is_executable('exiftool')

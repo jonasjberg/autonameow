@@ -20,12 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from unittest import TestCase
-
-import PyPDF2
+import unittest
 
 import unit_utils as uu
 from core import util
+from extractors.metadata_pypdf import PyPDFMetadataExtractor
 from extractors.text_pdf import (
     PdfTextExtractor,
     extract_pdf_content_with_pdftotext,
@@ -33,7 +32,11 @@ from extractors.text_pdf import (
 )
 
 
-class TestExtractPdfContentWithPdfTotext(TestCase):
+unmet_dependencies = PyPDFMetadataExtractor.check_dependencies() is False
+dependency_error = 'Extractor dependencies not satisfied'
+
+
+class TestExtractPdfContentWithPdfTotext(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -62,20 +65,13 @@ Test test. This file contains no digits whatsoever.
 '''
 
 
-class TestSetup(TestCase):
+class TestSetup(unittest.TestCase):
     def test_sample_pdf_file_exists(self):
         self.assertTrue(os.path.isfile(pdf_file))
 
 
-class TestPyPdf(TestCase):
-    def test_pypdf_is_available(self):
-        self.assertIsNotNone(PyPDF2)
-
-    def test_pypdf_pdf_file_reader_is_available(self):
-        self.assertIsNotNone(PyPDF2.PdfFileReader)
-
-
-class TestExtractPdfContentWithPyPdf(TestCase):
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestExtractPdfContentWithPyPdf(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -89,7 +85,7 @@ class TestExtractPdfContentWithPyPdf(TestCase):
                          expected_text)
 
 
-class TestPdfTextExtractor(TestCase):
+class TestPdfTextExtractor(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 

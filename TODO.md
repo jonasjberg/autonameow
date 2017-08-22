@@ -64,8 +64,6 @@ High Priority
 Medium Priority
 ---------------
 
-* `[TD0078]` Check extractor dependencies when enumerating extractor classes.
-
 * `[TD0062]` Look at testing that all name template fields are mapped to data
   sources. This could be done when reading the configuration, instead of later
   on in the name builder.

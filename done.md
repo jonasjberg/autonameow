@@ -16,6 +16,9 @@ University mail: `js224eh[a]student.lnu.se`
     > ---------------
     >
     > * `[TD0071]` Move file name "sanitation" to the `NameBuilder` or elsewhere.
+    >
+    > * `[TD0078]` Check extractor dependencies when enumerating extractor classes.
+
 
 * 2017-08-21
 

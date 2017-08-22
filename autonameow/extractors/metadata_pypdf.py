@@ -21,11 +21,18 @@
 
 import logging as log
 
-import PyPDF2
-from PyPDF2.utils import (
-    PyPdfError,
-    PdfReadError
-)
+try:
+    import PyPDF2
+    from PyPDF2.generic import (
+        IndirectObject,
+        TextStringObject
+    )
+    from PyPDF2.utils import (
+        PyPdfError,
+        PdfReadError
+    )
+except ImportError:
+    PyPDF2 = None
 
 from core import (
     types,
@@ -150,29 +157,16 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        # TODO: [TD0078] Check that 'pypdf2' is installed and executable.
-        return True
-
-
-def is_indirectobject(pypdf_data):
-    # TODO: Fix any performance/untidyness issues.
-    from PyPDF2.generic import IndirectObject
-    return isinstance(pypdf_data, IndirectObject)
-
-
-def is_textstringobject(pypdf_data):
-    # TODO: Fix any performance/untidyness issues.
-    from PyPDF2.generic import TextStringObject
-    return isinstance(pypdf_data, TextStringObject)
+        return PyPDF2 is not None
 
 
 def _wrap_pypdf_data(out_dict, out_key, pypdf_data, wrapper):
     if pypdf_data is None:
         return
-    if is_indirectobject(pypdf_data):
+    if isinstance(pypdf_data, IndirectObject):
         return
-    if is_textstringobject(pypdf_data):
-        pypdf_data = str(pypdf_data)
+    if isinstance(pypdf_data, TextStringObject):
+        return str(pypdf_data)
 
     try:
         wrapped = wrapper(pypdf_data)

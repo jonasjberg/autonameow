@@ -20,14 +20,17 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from unittest import TestCase
+import unittest
 
 import unit_utils as uu
 from core import util
 from extractors.text_ocr import ImageOCRTextExtractor
 
+unmet_dependencies = ImageOCRTextExtractor.check_dependencies() is False
+dependency_error = 'Extractor dependencies not satisfied'
 
-class TestImageOCRTextExtractor(TestCase):
+
+class TestImageOCRTextExtractor(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -47,7 +50,7 @@ class TestImageOCRTextExtractor(TestCase):
         self.assertFalse(self.e.can_handle(self.fo_pdf))
 
 
-class TestImageOCRTextExtractorWithEmptyFile(TestCase):
+class TestImageOCRTextExtractorWithEmptyFile(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -72,7 +75,7 @@ image_file = util.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
 image_ocr_extractor = ImageOCRTextExtractor(image_file)
 
 
-class TestImageOCRTextExtractorWithImageFile(TestCase):
+class TestImageOCRTextExtractorWithImageFile(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -86,18 +89,22 @@ class TestImageOCRTextExtractorWithImageFile(TestCase):
     def test_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
+    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test__get_raw_text_returns_expected_type(self):
         self.assertTrue(isinstance(self.e._get_raw_text(), str))
 
+    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_query_returns_expected_type(self):
         self.assertTrue(isinstance(self.e.query(), str))
 
+    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_query_all_result_contains_expected(self):
         self.skipTest(
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'")
         actual = self.e.query()
         self.assertEqual(self.EXPECT_TEXT, actual)
 
+    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_query_arbitrary_field_result_contains_expected(self):
         self.skipTest(
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'")

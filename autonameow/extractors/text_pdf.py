@@ -22,11 +22,14 @@
 import logging as log
 import subprocess
 
-import PyPDF2
-from PyPDF2.utils import (
-    PyPdfError,
-    PdfReadError
-)
+try:
+    import PyPDF2
+    from PyPDF2.utils import (
+        PyPdfError,
+        PdfReadError
+    )
+except ImportError:
+    PyPDF2 = None
 
 from core import (
     util,
@@ -79,8 +82,8 @@ class PdfTextExtractor(AbstractTextExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        # TODO: [TD0078] Check that 'pdftotext' or 'pypdf2' is available.
-        return True
+        pdftotext_available = util.is_executable('pdftotext')
+        return pdftotext_available or PyPDF2 is not None
 
 
 def extract_pdf_content_with_pdftotext(pdf_file):

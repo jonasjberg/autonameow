@@ -19,15 +19,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import unittest
 from datetime import datetime
-from unittest import TestCase
 
 from core import util
 from extractors.metadata_pypdf import PyPDFMetadataExtractor
 import unit_utils as uu
 
 
-class TestPyPDFMetadataExtractor(TestCase):
+unmet_dependencies = PyPDFMetadataExtractor.check_dependencies() is False
+dependency_error = 'Extractor dependencies not satisfied'
+
+
+class TestPyPDFMetadataExtractor(unittest.TestCase):
     def _to_datetime(self, value):
         return datetime.strptime(value, '%Y-%m-%d %H:%M:%S%z')
 
@@ -44,22 +48,27 @@ class TestPyPDFMetadataExtractor(TestCase):
             ('Encrypted', False)
         ]
 
+    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_query_returns_something(self):
         self.assertIsNotNone(self.e.query())
 
+    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_query_returns_expected_type(self):
         self.assertTrue(isinstance(self.e.query(), dict))
 
+    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_query_all_result_contains_expected_fields(self):
         actual = self.e.query()
         for field, _ in self.EXPECT_FIELD_VALUE:
             self.assertTrue(field in actual)
 
+    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_query_all_result_contains_expected_values(self):
         actual = self.e.query()
         for field, value in self.EXPECT_FIELD_VALUE:
             self.assertEqual(actual.get(field), value)
 
+    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_query_field_returns_expected_value(self):
         for field, value in self.EXPECT_FIELD_VALUE:
             actual = self.e.query(field)

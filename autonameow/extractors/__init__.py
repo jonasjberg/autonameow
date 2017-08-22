@@ -223,7 +223,7 @@ def get_extractor_classes(extractor_files):
         if klass.check_dependencies():
             out.append(klass)
         else:
-            log.debug('Excluding extractor "{!s}" due to unmet dependencies')
+            log.info('Excluding extractor "{!s}" due to unmet dependencies'.format(klass))
 
     return out
 

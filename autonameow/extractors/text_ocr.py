@@ -22,7 +22,11 @@
 import logging as log
 
 from PIL import Image
-import pytesseract
+
+try:
+    import pytesseract
+except ImportError:
+    pytesseract = None
 
 from core import util
 from core.exceptions import ExtractorError
@@ -48,8 +52,7 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        # TODO: [TD0078] Check that 'tesseract' and 'pytesseract' are available.
-        return True
+        return pytesseract is not None and util.is_executable('tesseract')
 
 
 def get_text_from_ocr(image_path, tesseract_args=None):
