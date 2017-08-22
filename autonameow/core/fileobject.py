@@ -30,14 +30,6 @@ from core import (
 )
 from .util import diskutils
 
-# TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
-DATE_SEP = b'[:\-._ ]?'
-TIME_SEP = b'[:\-._ T]?'
-DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'
-TIME_REGEX = (b'[012]\d' + TIME_SEP + b'[012345]\d' + TIME_SEP
-              + b'[012345]\d(.[012345]\d)?')
-FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + b'([T_ -]?' + TIME_REGEX + b')?')
-
 
 class FileObject(object):
     def __init__(self, path, opts):
