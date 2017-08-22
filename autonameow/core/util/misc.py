@@ -26,6 +26,7 @@ Miscellaneous utility functions.
 import collections
 import itertools
 import logging as log
+import shutil
 
 import yaml
 
@@ -398,3 +399,16 @@ def eval_magic_glob(mime_to_match, glob_list):
                 # Checks type equality. Matches any subtype.
                 return True
     return False
+
+
+def is_executable(command):
+    """
+    Checks if the given command would be executable.
+
+    Args:
+        command: The command to test.
+
+    Returns:
+        True if the command would be executable, otherwise False.
+    """
+    return shutil.which(command) is not None

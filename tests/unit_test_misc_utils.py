@@ -517,3 +517,11 @@ class TestEvalMagicGlob(TestCase):
                                         ['application/*']))
         self.assertTrue(eval_magic_glob('application/epub+zip',
                                         ['*/epub+zip']))
+
+
+class TestWhichExecutable(TestCase):
+    def test_returns_true_for_executable_commands(self):
+        self.assertTrue(util.is_executable('python'))
+
+    def test_returns_false_for_bogus_commands(self):
+        self.assertFalse(util.is_executable('thisisntexecutablesurely'))
