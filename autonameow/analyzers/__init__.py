@@ -184,17 +184,6 @@ def get_analyzer_classes():
     return _get_implemented_analyzer_classes(analyzer_source_files)
 
 
-def get_analyzer_classes_basename():
-    """
-    Get a list of class base names for all available analyzers.
-    All classes inheriting from the "Analyzer" class are included.
-
-    Returns:
-        The base names of available analyzer classes as a list of strings.
-    """
-    return [c.__name__ for c in get_analyzer_classes()]
-
-
 def map_query_string_to_analyzers():
     """
     Returns a mapping of the analyzer classes "query strings" and classes.

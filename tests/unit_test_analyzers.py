@@ -205,20 +205,3 @@ class TestNumberOfAvailableAnalyzerClasses(TestCase):
     def test_get_analyzer_classes_returns_expected_count(self):
         self.assertEqual(len(self.actual), len(EXPECT_ANALYZER_CLASSES))
 
-
-class TestGetAnalyzerClassesBasename(TestCase):
-    def test_get_analyzer_classes_basename_returns_expected_count(self):
-        _classes = analyzers.get_analyzer_classes_basename()
-        self.assertEqual(len(_classes), len(EXPECT_ANALYZER_CLASSES_BASENAME))
-
-    def test_get_analyzer_classes_basename_returns_expected_contents(self):
-        _classes = analyzers.get_analyzer_classes_basename()
-        self.assertEqual(sorted(_classes),
-                         sorted(EXPECT_ANALYZER_CLASSES_BASENAME))
-
-    def test_get_analyzer_classes_basename_returns_list_of_strings(self):
-        self.assertTrue(isinstance(analyzers.get_analyzer_classes_basename(),
-                                   list))
-
-        for a in analyzers.get_analyzer_classes_basename():
-            self.assertTrue(isinstance(a, str))
