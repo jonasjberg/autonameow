@@ -306,7 +306,7 @@ class TestNameFormatFieldParser(TestCase):
         self.assertFalse(self.val_func(None))
         self.assertFalse(self.val_func(''))
         self.assertFalse(self.val_func('{bad_field}'))
-        self.assertFalse(self.val_func('{datetime} {bad_field}'))
+        self.assertFalse(self.val_func('{datetime} {bad_field}'))
 
     def test_validation_function_expect_pass(self):
         self.assertTrue(self.val_func('{datetime}'))

@@ -357,7 +357,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # if args.verbose:
-    #     log_format = '{} %(asctime)s %(levelname)-8.8s %(funcName)-25.25s' \
+    #     log_format = '{} %(asctime)s %(levelname)-8.8s %(funcName)-25.25s' \
     #                  '(%(lineno)3d) %(message)s'.format(PROGRAM_NAME)
     #     logging.basicConfig(level=logging.DEBUG, format=log_format,
     #                         datefmt='%Y-%m-%d %H:%M:%S')

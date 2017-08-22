@@ -219,7 +219,7 @@ class Autonameow(object):
             try:
                 current_file = FileObject(file_path, self.active_config)
             except exceptions.InvalidFileArgumentError as e:
-                log.warning('{!s} - SKIPPING: "{!s}"'.format(
+                log.warning('{!s} - SKIPPING: "{!s}"'.format(
                     e, util.displayable_path(file_path))
                 )
                 continue

@@ -94,7 +94,7 @@ class TestFormatStringPlaceholders(TestCase):
 class TestAllTemplateFieldsDefined(TestCase):
     def setUp(self):
         self.all_defined = namebuilder.all_template_fields_defined
-        self.template = '{datetime} {title} -- tag.{extension}'
+        self.template = '{datetime} {title} -- tag.{extension}'
         self.data_sources_ok = {'datetime': 'dummy',
                                 'extension': 'dummy',
                                 'title': 'dummy'}
