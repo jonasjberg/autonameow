@@ -121,8 +121,7 @@ class NameBuilder(object):
             log.warning('Unable to get data from specified sources')
             raise exceptions.NameBuilderError('Unable to assemble basename')
 
-        log.debug('Query for results fields returned:')
-        log.debug(str(data))
+        log.debug('NameBuilder results field query returned: {!s}'.format(data))
 
         # Check that all name template fields can be populated.
         if not has_data_for_placeholder_fields(template, data):
