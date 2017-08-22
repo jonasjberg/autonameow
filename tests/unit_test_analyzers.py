@@ -34,6 +34,7 @@ from core import (
 EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
                            'analyzers.analyze_filesystem.FilesystemAnalyzer',
                            'analyzers.analyze_filename.FilenameAnalyzer',
+                           'analyzers.analyze_filetags.FiletagsAnalyzer',
                            'analyzers.analyze_video.VideoAnalyzer',
                            'analyzers.analyze_pdf.PdfAnalyzer',
                            'analyzers.analyze_text.TextAnalyzer',

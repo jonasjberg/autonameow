@@ -70,16 +70,40 @@ class FilenameAnalyzer(BaseAnalyzer):
         return results if results else None
 
     def get_tags(self):
-        return [{'value': self.file_object.filenamepart_tags,
-                 'source': 'filenamepart_tags',
-                 'weight': 1}]
-
-    def _get_title_from_filename(self):
-        fnp_tags = self.file_object.filenamepart_tags or None
-        fnp_base = self.file_object.namepart_description or None
-        fnp_ts = self.file_object.namepart_timestamp or None
+        # TODO: Remove! Duplicated 'FiletagsAnalyzer' functionality.
+        fnp_tags = self.request_data(self.file_object,
+                                     'analysis.filetags.tags')
+        fnp_base = self.request_data(self.file_object,
+                                     'analysis.filetags.description')
+        fnp_ts = self.request_data(self.file_object,
+                                   'analysis.filetags.timestamp')
 
         # Weight cases with all "filetags" filename parts present higher.
+        weight = 0.1
+        if fnp_tags and len(fnp_tags) > 0:
+            weight = 0.25
+            if fnp_base and len(fnp_base) > 0:
+                weight = 0.75
+                if fnp_ts and len(fnp_ts) > 0:
+                    weight = 1
+
+        if not fnp_tags:
+            fnp_tags = []
+        return [{'value': fnp_tags,
+                 'source': 'filenamepart_tags',
+                 'weight': weight}]
+
+    def _get_title_from_filename(self):
+        # TODO: Remove! Duplicated 'FiletagsAnalyzer' functionality.
+        fnp_tags = self.request_data(self.file_object,
+                                     'analysis.filetags.tags')
+        fnp_base = self.request_data(self.file_object,
+                                     'analysis.filetags.description')
+        fnp_ts = self.request_data(self.file_object,
+                                   'analysis.filetags.timestamp')
+
+        # Weight cases with all "filetags" filename parts present higher.
+        weight = 0.1
         if fnp_base and len(fnp_base) > 0:
             weight = 0.25
             if fnp_ts and len(fnp_ts) > 0:
@@ -88,7 +112,7 @@ class FilenameAnalyzer(BaseAnalyzer):
                     weight = 1
 
             return [{'value': fnp_base,
-                     'source': 'filenamepart_base',
+                     'source': 'filetags',
                      'weight': weight}]
         else:
             return None

@@ -280,6 +280,18 @@ def mock_session_data_pool_with_extractor_and_analysis_data(file_object):
                            'value': ['tagfoo', 'tagbar'],
                            'weight': 1}])
     util.nested_dict_set(data,
+                         [file_object, 'analysis.filetags.tags'],
+                         [])
+    util.nested_dict_set(data,
+                         [file_object, 'analysis.filetags.description'],
+                         'gmail')
+    util.nested_dict_set(data,
+                         [file_object, 'analysis.filetags.extension'],
+                         'pdf')
+    util.nested_dict_set(data,
+                         [file_object, 'analysis.filetags.timestamp'],
+                         None)
+    util.nested_dict_set(data,
                          [file_object, 'analysis.filename_analyzer.title'],
                          [{'source': 'filenamepart_base',
                            'value': 'gmail',

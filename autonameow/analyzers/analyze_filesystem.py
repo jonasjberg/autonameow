@@ -58,6 +58,7 @@ class FilesystemAnalyzer(BaseAnalyzer):
         )
 
     def _add_results(self, label, data):
+        # TODO: Why is not 'cls.data_query_string' == 'query_string' below?
         query_string = 'analysis.filesystem_analyzer.{}'.format(label)
         logging.debug('{} passed "{}" to "add_results" callback'.format(
             self, query_string)

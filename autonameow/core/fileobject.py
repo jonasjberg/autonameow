@@ -69,6 +69,7 @@ class FileObject(object):
         self.basename_prefix = diskutils.basename_prefix(self.abspath)
         self.basename_suffix = diskutils.basename_suffix(self.abspath)
 
+        # TODO: Remove these, unused since "filetags"-related was moved.
         self.BETWEEN_TAG_SEPARATOR = util.bytestring_path(
             opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
         )
@@ -76,82 +77,6 @@ class FileObject(object):
             opts.options['FILETAGS_OPTIONS'].get('filename_tag_separator')
         )
 
-        # Do "filename partitioning" -- split the file name into four parts:
-        #
-        #   * namepart_timestamp  Date-/timestamp.
-        #   * filenamepart_base   Descriptive text.
-        #   * filenamepart_ext    File extension/suffix.
-        #   * filenamepart_tags   Tags created within the "filetags" workflow.
-        #
-        # Example basename '20160722 Descriptive name -- firsttag tagtwo.txt':
-        #
-        #                               .------------ FILENAME_TAG_SEPARATOR
-        #                              ||         .-- BETWEEN_TAG_SEPARATOR
-        #                              VV         V
-        #    20160722 Descriptive name -- firsttag tagtwo.txt
-        #    |______| |______________|    |_____________| |_|
-        #       ts          base               tags       ext
-        #
-        # TODO: [TD0037] Move "filetags"-specific code to separate module. (?)
-        self._filenamepart_ts = self._filenamepart_ts()
-        self._filenamepart_base = self._filenamepart_base()
-        self._filenamepart_ext = self.basename_suffix or b''
-        self._filenamepart_tags = self._filenamepart_tags() or []
-
-    @property
-    def namepart_timestamp(self):
-        if not self._filenamepart_ts:
-            return None
-        return util.decode_(self._filenamepart_ts)
-
-    @property
-    def namepart_description(self):
-        if not self._filenamepart_base:
-            return None
-        return util.decode_(self._filenamepart_base)
-
-    @property
-    def filenamepart_ext(self):
-        if not self._filenamepart_ext:
-            return None
-        return util.decode_(self._filenamepart_ext)
-
-    @property
-    def filenamepart_tags(self):
-        if not self._filenamepart_tags:
-            return []
-        return [util.decode_(t) for t in self._filenamepart_tags]
-
-    def _filenamepart_ts(self):
-        ts = FILENAMEPART_TS_REGEX.match(self.basename_prefix)
-        if ts:
-            return ts.group(0)
-        return None
-
-    def _filenamepart_base(self):
-        fnbase = self.basename_prefix
-        if self._filenamepart_ts:
-            fnbase = self.basename_prefix.lstrip(self._filenamepart_ts)
-
-        if not re.findall(self.BETWEEN_TAG_SEPARATOR, fnbase):
-            return fnbase
-
-        # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
-        r = re.split(self.FILENAME_TAG_SEPARATOR, fnbase, 1)
-        return r[0].strip()
-
-    def _filenamepart_tags(self):
-        if not re.findall(self.BETWEEN_TAG_SEPARATOR, self.basename_prefix):
-            return None
-
-        r = re.split(self.FILENAME_TAG_SEPARATOR, self.basename_prefix, 1)
-        try:
-            tags = r[1].split(self.BETWEEN_TAG_SEPARATOR)
-            return tags
-        except IndexError:
-            return None
-
-    # NOTE: Move "filetags"-specific code to separate module. (?)
     def filetags_format_filename(self):
         """
         Returns whether the file name is in the "filetags" format.

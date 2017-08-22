@@ -61,7 +61,7 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
         self.assertIsNotNone(self.fna.get_tags())
 
     def test_get_tags_returns_expected(self):
-        expected = [{'source': 'filenamepart_tags', 'value': [], 'weight': 1}]
+        expected = [{'source': 'filenamepart_tags', 'value': [], 'weight': 0.1}]
         self.assertEqual(expected, self.fna.get_tags())
 
     def test_get_title_returns_empty_list(self):
@@ -71,7 +71,7 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
 
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def setUp(self):
-        self.fo = uu.get_named_file_object('empty')
+        self.fo = uu.get_named_file_object('gmail.pdf')
         self.fna = get_filename_analyzer(self.fo)
 
     def test_setup(self):
@@ -90,68 +90,13 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
         self.assertIsNotNone(self.fna.get_tags())
 
     def test_get_tags_returns_expected(self):
-        expected = [{'source': 'filenamepart_tags', 'value': [], 'weight': 1}]
+        expected = [{'source': 'filenamepart_tags', 'value': [], 'weight': 0.1}]
         self.assertEqual(expected, self.fna.get_tags())
 
     def test_get_title_does_not_return_none(self):
         self.assertIsNotNone(self.fna.get_title())
 
     def test_get_title_return_is_valid(self):
-        self.assertEqual([{'source': 'filenamepart_base',
-                           'value': 'empty',
+        self.assertEqual([{'source': 'filetags',
+                           'value': 'gmail',
                            'weight': 0.25}], self.fna.get_title())
-
-
-class TestFilenameAnalyzerWithTaggedFile(TestCase):
-    def setUp(self):
-        self.fo = uu.get_named_file_object(
-            '2015-07-03_163838 Keeping notes in Vim -- dv017a dev.ogv'
-        )
-        self.fna = get_filename_analyzer(self.fo)
-
-    def test_setup(self):
-        self.assertIsNotNone(self.fo)
-        self.assertIsNotNone(self.fna)
-
-    def test_get_datetime_does_not_return_none(self):
-        dt_list = self.fna.get_datetime()
-        self.assertIsNotNone(dt_list)
-
-    def test_get_datetime_contains_special_case(self):
-        dt_special, = filter(lambda dt: dt['source'] == 'very_special_case',
-                             self.fna.get_datetime())
-        self.assertIsNotNone(dt_special)
-
-    def test_get_datetime_special_case_is_valid(self):
-        dt_special, = filter(lambda dt: dt['source'] == 'very_special_case',
-                             self.fna.get_datetime())
-
-        expected = datetime.strptime('20150703 163838', '%Y%m%d %H%M%S')
-        self.assertEqual(expected, dt_special.get('value'))
-
-    def test_get_tags_does_not_return_none(self):
-        self.assertIsNotNone(self.fna.get_tags())
-
-    def test_get_tags_returns_expected(self):
-        expected = [{'source': 'filenamepart_tags',
-                     'value': ['dv017a', 'dev'],
-                     'weight': 1}]
-        self.assertEqual(expected, self.fna.get_tags())
-
-    def test_get_title_does_not_return_none(self):
-        self.assertIsNotNone(self.fna.get_title())
-
-    def test_get_title_contains_filename(self):
-        title_fn, = filter(lambda t: t['source'] == 'filenamepart_base',
-                           self.fna.get_title())
-        self.assertIsNotNone(title_fn)
-
-    def test_get_title_return_is_valid(self):
-        expected = {'source': 'filenamepart_base',
-                    'value': 'Keeping notes in Vim',
-                    'weight': 1}
-        actual = self.fna.get_title()
-
-        for k, v in expected.items():
-            self.assertEqual(actual[0][k], v)
-        # self.assertListEqual(expected, actual)
