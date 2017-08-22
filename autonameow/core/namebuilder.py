@@ -136,14 +136,17 @@ class NameBuilder(object):
         log.debug(str(data))
 
         # Construct the new file name
-        new_name = populate_name_template(template, **data)
-        log.debug('Assembled basename: "{!s}"'.format(new_name))
-        assert(isinstance(new_name, str))
-
-        if not new_name:
+        try:
+            new_name = populate_name_template(template, **data)
+        except exceptions.NameTemplateSyntaxError as e:
             log.debug('Unable to assemble basename with template "{!s}" and '
                       'data: {!s}'.format(template, data))
-            raise exceptions.NameBuilderError('Unable to assemble basename')
+            raise exceptions.NameBuilderError(
+                'Unable to assemble basename: {!s}'.format(e)
+            )
+
+        assert(isinstance(new_name, str))
+        log.debug('Assembled basename: "{!s}"'.format(new_name))
 
         # Do any file name "sanitation".
         if self.config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
