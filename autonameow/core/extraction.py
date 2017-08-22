@@ -24,7 +24,6 @@ import logging as log
 import extractors
 from core import (
     util,
-    exceptions,
     repository
 )
 
@@ -35,7 +34,9 @@ class Extraction(object):
 
     A run queue is populated with extractors suited for the current file.
     """
-    def __init__(self, file_object):
+    def __init__(self, file_object,
+                 require_extractors=None,
+                 require_all_extractors=False):
         """
         Instantiates extraction for a given file. This is done once per file.
 
@@ -43,6 +44,9 @@ class Extraction(object):
             file_object: File to extract data from, as a 'FileObject' instance.
         """
         self.file_object = file_object
+        self.require_extractors = require_extractors
+        self.require_all_extractors = require_all_extractors
+
         self.add_to_global_data = repository.SessionRepository.store
 
         self.extractor_queue = util.GenericQueue()
@@ -57,14 +61,14 @@ class Extraction(object):
         """
         self.add_to_global_data(self.file_object, label, data)
 
-    def start(self, require_extractors=None, require_all_extractors=False):
+    def start(self):
         """
         Starts the data extraction.
         """
         log.debug('Started data extraction')
 
-        if require_extractors:
-            required_extractors = require_extractors
+        if self.require_extractors:
+            required_extractors = self.require_extractors
             log.debug('Required extractors: {!s}'.format(required_extractors))
         else:
             required_extractors = []
@@ -73,7 +77,7 @@ class Extraction(object):
         classes = extractors.suitable_data_extractors_for(self.file_object)
         log.debug('Extractors able to handle the file: {}'.format(len(classes)))
 
-        if not require_all_extractors:
+        if not self.require_all_extractors:
             # Exclude "slow" extractors if they are not explicitly required.
             classes = keep_slow_extractors_if_required(classes,
                                                        required_extractors)
