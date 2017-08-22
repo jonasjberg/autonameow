@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 class BasePlugin(object):
     # Resource identifier "MeowURI" for the data returned by this extractor.
     # Example:  'plugin.guessit'
-    data_meowuri = None
+    meowuri_root = None
 
     def __init__(self, add_results_callback, request_data_callback,
                  display_name=None):
@@ -130,7 +130,7 @@ def map_meowuri_to_plugins():
     """
     Returns a mapping of the plugin classes "meowURIs" and actual classes.
 
-    Each plugin class defines 'data_meowuri' which is used as the
+    Each plugin class defines 'meowuri_root' which is used as the
     first part of all data returned by the plugin.
 
     Returns: A dictionary where the keys are "meowURIs" and the values
@@ -139,14 +139,14 @@ def map_meowuri_to_plugins():
     out = {}
 
     for klass in UsablePlugins:
-        data_meowuri = klass.data_meowuri
-        if not data_meowuri:
+        meowuri = klass.meowuri_root
+        if not meowuri:
             continue
 
-        if data_meowuri in out:
-            out[data_meowuri].append(klass)
+        if meowuri in out:
+            out[meowuri].append(klass)
         else:
-            out[data_meowuri] = [klass]
+            out[meowuri] = [klass]
 
     return out
 

@@ -56,7 +56,7 @@ FILENAME_TAG_SEPARATOR = util.bytestring_path(' -- ')
 class FiletagsAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['*/*']
-    data_meowuri = 'analysis.filetags'
+    meowuri_root = 'analysis.filetags'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -73,7 +73,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
         if data is None:
             return
 
-        # TODO: Why is not 'cls.data_meowuri' == 'meowuri' below?
+        # TODO: Why is not 'cls.meowuri_root' == 'meowuri' below?
         meowuri = 'analysis.filetags.{}'.format(label)
         log.debug('{} passed "{}" to "add_results" callback'.format(
             self, meowuri)

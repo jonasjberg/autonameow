@@ -40,7 +40,7 @@ from extractors.text import AbstractTextExtractor
 
 class PdfTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['application/pdf']
-    data_meowuri = 'contents.textual.raw_text'
+    meowuri_root = 'contents.textual.raw_text'
 
     def __init__(self, source):
         super(PdfTextExtractor, self).__init__(source)

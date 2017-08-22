@@ -33,7 +33,7 @@ except ImportError:
 
 
 class GuessitPlugin(BasePlugin):
-    data_meowuri = 'plugin.guessit'
+    meowuri_root = 'plugin.guessit'
 
     def __init__(self, add_results_callback, request_data_callback,
                  display_name=None):

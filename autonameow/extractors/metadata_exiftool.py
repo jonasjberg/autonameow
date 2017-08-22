@@ -34,7 +34,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
     """
     handles_mime_types = ['video/*', 'application/pdf', 'image/*',
                           'application/epub+zip', 'text/*']
-    data_meowuri = 'metadata.exiftool'
+    meowuri_root = 'metadata.exiftool'
 
     # TODO: [TD0044] Rework converting "raw data" to an internal format.
     tagname_type_lookup = {

@@ -50,8 +50,8 @@ class TestAbstractMetadataExtractor(TestCase):
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.handles_mime_types)
 
-    def test_abstract_class_does_not_specify_data_meowuri(self):
-        self.assertIsNone(self.e.data_meowuri)
+    def test_abstract_class_does_not_specify_meowuri_root(self):
+        self.assertIsNone(self.e.meowuri_root)
 
     def test__perform_initial_extraction_raises_extractor_error(self):
         with self.assertRaises(exceptions.ExtractorError):

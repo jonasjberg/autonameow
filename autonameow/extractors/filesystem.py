@@ -32,7 +32,7 @@ from extractors import BaseExtractor
 
 class CommonFileSystemExtractor(BaseExtractor):
     handles_mime_types = ['*/*']
-    data_meowuri = 'filesystem'
+    meowuri_root = 'filesystem'
 
     def __init__(self, source):
         super(CommonFileSystemExtractor, self).__init__(source)

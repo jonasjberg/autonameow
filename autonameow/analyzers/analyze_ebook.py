@@ -28,7 +28,7 @@ from core import util
 class EbookAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['application/pdf', 'application/epub+zip']
-    data_meowuri = 'analysis.ebook'
+    meowuri_root = 'analysis.ebook'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):

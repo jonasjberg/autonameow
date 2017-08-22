@@ -253,7 +253,7 @@ def _read_api_key_from_file(file_path):
 
 
 class MicrosoftVisionPlugin(BasePlugin):
-    data_meowuri = 'plugin.microsoft_vision'
+    meowuri_root = 'plugin.microsoft_vision'
 
     """
     'microsoft_vision.py'

@@ -44,7 +44,7 @@ from extractors.metadata import AbstractMetadataExtractor
 
 class PyPDFMetadataExtractor(AbstractMetadataExtractor):
     handles_mime_types = ['application/pdf']
-    data_meowuri = 'metadata.pypdf'
+    meowuri_root = 'metadata.pypdf'
 
     tagname_type_lookup = {
         'Creator': types.AW_STRING,

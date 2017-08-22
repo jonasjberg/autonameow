@@ -52,7 +52,7 @@ class BaseAnalyzer(object):
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
     # Example:  'analysis.filesystem'
-    data_meowuri = None
+    meowuri_root = None
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -118,7 +118,7 @@ class BaseAnalyzer(object):
             return False
 
     # @classmethod
-    # def data_meowuri(cls):
+    # def meowuri_root(cls):
     #     return cls.__name__.lower()
 
     def __str__(self):
@@ -188,7 +188,7 @@ def map_meowuri_to_analyzers():
     """
     Returns a mapping of the analyzer classes "meowURIs" and classes.
 
-    Each analyzer class defines 'data_meowuri' which is used as the
+    Each analyzer class defines 'meowuri_root' which is used as the
     first part of all data returned by the analyzer.
 
     Returns: A dictionary where the keys are "meowURIs" and the values
@@ -197,15 +197,15 @@ def map_meowuri_to_analyzers():
     out = {}
 
     for klass in AnalyzerClasses:
-        # data_meowuri = klass.data_meowuri()
-        data_meowuri = klass.data_meowuri
-        if not data_meowuri:
+        # meowuri_root = klass.meowuri_root()
+        meowuri_root = klass.meowuri_root
+        if not meowuri_root:
             continue
 
-        if data_meowuri in out:
-            out[data_meowuri].append(klass)
+        if meowuri_root in out:
+            out[meowuri_root].append(klass)
         else:
-            out[data_meowuri] = [klass]
+            out[meowuri_root] = [klass]
 
     return out
 

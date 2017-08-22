@@ -125,7 +125,7 @@ class Extraction(object):
             log.debug('Executing queue item {}/{}: '
                       '{!s}'.format(i + 1, len(self.extractor_queue), e))
 
-            self.collect_results(e.data_meowuri, e.query())
+            self.collect_results(e.meowuri_root, e.query())
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):

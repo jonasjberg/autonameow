@@ -35,7 +35,7 @@ from extractors.text import AbstractTextExtractor
 
 class ImageOCRTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['image/*']
-    data_meowuri = 'contents.visual.ocr_text'
+    meowuri_root = 'contents.visual.ocr_text'
     is_slow = True
 
     def __init__(self, source):

@@ -76,7 +76,7 @@ class BaseExtractor(object):
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
     # Example:  'metadata.exiftool'
-    data_meowuri = None
+    meowuri_root = None
 
     # Controls whether the extractor is enabled and used by default.
     # Used to exclude slow running extractors from always being executed.
@@ -245,9 +245,9 @@ def map_meowuri_to_extractors():
     """
     Returns a mapping of the extractor "meowURIs" and extractor classes.
 
-    Each extractor class defines 'data_meowuri' which is used as the
+    Each extractor class defines 'meowuri_root' which is used as the
     first part of all data returned by the extractor.
-    Multiple extractors can use the same 'data_meowuri'; for instance,
+    Multiple extractors can use the same 'meowuri_root'; for instance,
     the 'PdfTextExtractor' and 'PlainTextExtractor' classes both define the
     same meowURI, 'contents.textual.raw_text'.
 
@@ -257,14 +257,14 @@ def map_meowuri_to_extractors():
     out = {}
 
     for klass in ExtractorClasses:
-        if not klass.data_meowuri:
-            # print('Extractor class "{!s}" did not provide a "data_meowuri"'.format(klass))
+        if not klass.meowuri_root:
+            # print('Extractor class "{!s}" did not provide a "meowuri_root"'.format(klass))
             continue
 
-        if klass.data_meowuri in out:
-            out[klass.data_meowuri].append(klass)
+        if klass.meowuri_root in out:
+            out[klass.meowuri_root].append(klass)
         else:
-            out[klass.data_meowuri] = [klass]
+            out[klass.meowuri_root] = [klass]
 
     return out
 
