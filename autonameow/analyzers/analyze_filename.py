@@ -76,7 +76,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         fnp_base = self.request_data(self.file_object,
                                      'analysis.filetags.description')
         fnp_ts = self.request_data(self.file_object,
-                                   'analysis.filetags.timestamp')
+                                   'analysis.filetags.datetime')
 
         # Weight cases with all "filetags" filename parts present higher.
         weight = 0.1
@@ -100,7 +100,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         fnp_base = self.request_data(self.file_object,
                                      'analysis.filetags.description')
         fnp_ts = self.request_data(self.file_object,
-                                   'analysis.filetags.timestamp')
+                                   'analysis.filetags.datetime')
 
         # Weight cases with all "filetags" filename parts present higher.
         weight = 0.1
