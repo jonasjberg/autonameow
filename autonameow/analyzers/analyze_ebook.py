@@ -41,7 +41,7 @@ class EbookAnalyzer(BaseAnalyzer):
                                        'contents.textual.raw_text')
 
     def _add_results(self, label, data):
-        meowuri = 'analysis.ebook_analyzer.{}'.format(label)
+        meowuri = 'analysis.ebook.{}'.format(label)
         log.debug('{} passed "{}" to "add_results" callback'.format(
             self, meowuri)
         )

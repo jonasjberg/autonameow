@@ -43,7 +43,7 @@ class ImageAnalyzer(BaseAnalyzer):
         self.ocr_text = None
 
     def _add_results(self, label, data):
-        meowuri = 'analysis.image_analyzer.{}'.format(label)
+        meowuri = 'analysis.image.{}'.format(label)
         log.debug('{} passed "{}" to "add_results" callback'.format(
             self, meowuri)
         )

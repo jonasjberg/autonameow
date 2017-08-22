@@ -39,7 +39,7 @@ class TextAnalyzer(BaseAnalyzer):
         self.text = None
 
     def _add_results(self, label, data):
-        meowuri = 'analysis.text_analyzer.{}'.format(label)
+        meowuri = 'analysis.text.{}'.format(label)
         log.debug('{} passed "{}" to "add_results" callback'.format(
             self, meowuri)
         )

@@ -37,7 +37,7 @@ class VideoAnalyzer(BaseAnalyzer):
         self.add_results = add_results_callback
 
     def _add_results(self, label, data):
-        meowuri = 'analysis.video_analyzer.{}'.format(label)
+        meowuri = 'analysis.video.{}'.format(label)
         log.debug('{} passed "{}" to "add_results" callback'.format(
             self, meowuri)
         )

@@ -39,7 +39,7 @@ class PdfAnalyzer(BaseAnalyzer):
         self.text = None
 
     def _add_results(self, label, data):
-        meowuri = 'analysis.pdf_analyzer.{}'.format(label)
+        meowuri = 'analysis.pdf.{}'.format(label)
         logging.debug('{} passed "{}" to "add_results" callback'.format(
             self, meowuri)
         )

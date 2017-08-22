@@ -59,7 +59,7 @@ class FilesystemAnalyzer(BaseAnalyzer):
 
     def _add_results(self, label, data):
         # TODO: Why is not 'cls.data_meowuri' == 'meowuri' below?
-        meowuri = 'analysis.filesystem_analyzer.{}'.format(label)
+        meowuri = 'analysis.filesystem.{}'.format(label)
         logging.debug('{} passed "{}" to "add_results" callback'.format(
             self, meowuri)
         )

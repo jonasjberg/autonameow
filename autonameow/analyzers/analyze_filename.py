@@ -29,7 +29,7 @@ from core.util import dateandtime
 class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['*/*']
-    data_meowuri = 'analysis.filename_analyzer'
+    data_meowuri = 'analysis.filename'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -38,7 +38,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         )
 
     def _add_results(self, label, data):
-        meowuri = 'analysis.filename_analyzer.{}'.format(label)
+        meowuri = 'analysis.filename.{}'.format(label)
         logging.debug('{} passed "{}" to "add_results" callback'.format(
             self, meowuri)
         )
