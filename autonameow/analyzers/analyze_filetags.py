@@ -24,7 +24,11 @@ import re
 
 from analyzers import BaseAnalyzer
 
-from core import util
+from core import (
+    util,
+    types,
+    exceptions
+)
 from core.util import diskutils
 
 # TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
@@ -80,9 +84,16 @@ class FiletagsAnalyzer(BaseAnalyzer):
         (self._timestamp, self._description, self._tags,
          self._extension) = partition_basename(self.file_object.abspath)
 
-        self._add_results('datetime', self._timestamp)
-        self._add_results('description', self._description)
-        self._add_results('tags', self._tags)
+        try:
+            self._add_results('datetime', types.AW_TIMEDATE(self._timestamp))
+        except exceptions.AWTypeError as e:
+            pass
+        try:
+            self._add_results('description', types.AW_STRING(self._description))
+        except exceptions.AWTypeError as e:
+            pass
+
+        self._add_results('tags', sorted(self._tags))
         self._add_results('extension', self._extension)
         self._add_results('follows_filetags_convention',
                           self.follows_filetags_convention())

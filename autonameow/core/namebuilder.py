@@ -221,6 +221,10 @@ def pre_assemble_format(data, config):
             datetime_format = config.options['DATETIME_FORMAT']['time']
             out[key] = formatted_datetime(data[key], datetime_format)
 
+        elif key == 'tags':
+            assert(isinstance(value, list))
+            out[key] = ' '.join(value)
+
         # TODO: [TD0044] Rework converting "raw data" to an internal format.
         else:
             # TODO: [TD0004] Take a look at this ad-hoc encoding boundary.

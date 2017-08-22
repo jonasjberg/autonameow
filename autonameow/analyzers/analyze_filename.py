@@ -84,7 +84,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             weight = 0.25
             if fnp_base and len(fnp_base) > 0:
                 weight = 0.75
-                if fnp_ts and len(fnp_ts) > 0:
+                if fnp_ts:
                     weight = 1
 
         if not fnp_tags:
@@ -106,7 +106,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         weight = 0.1
         if fnp_base and len(fnp_base) > 0:
             weight = 0.25
-            if fnp_ts and len(fnp_ts) > 0:
+            if fnp_ts:
                 weight = 0.75
                 if fnp_tags and len(fnp_tags) > 0:
                     weight = 1

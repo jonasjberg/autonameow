@@ -437,15 +437,15 @@ class PyPDFTimeDate(TimeDate):
 
 
 def try_parse_full_datetime(string):
-    _error_msg = 'Unable parse to datetime: "{!s}"'
+    _error_msg = 'Unable to parse full datetime from: "{!s}"'.format(string)
 
     if not string:
-        raise ValueError(_error_msg.format(string))
+        raise ValueError(_error_msg)
     if not isinstance(string, str):
-        raise ValueError(_error_msg.format(string))
+        raise ValueError(_error_msg)
 
     string = re.sub(
-        r'(\d{4})[:-](\d{2})[:-](\d{2})[T ](\d{2})[:-](\d{2})[:-](\d{2})',
+        r'(\d{4})[:-](\d{2})[:-](\d{2})[T ](\d{2})[:-]?(\d{2})[:-]?(\d{2})',
         r'\1-\2-\3 \4:\5:\6',
         string
     )
@@ -466,7 +466,7 @@ def try_parse_full_datetime(string):
         else:
             return dt
 
-    raise ValueError(_error_msg.format(string))
+    raise ValueError(_error_msg)
 
 
 def try_wrap(value):

@@ -28,7 +28,8 @@ from core import (
     constants,
     util,
     exceptions,
-    namebuilder
+    namebuilder,
+    types
 )
 
 
@@ -138,6 +139,38 @@ class ConfigFieldParser(object):
 
     def __str__(self):
         return self.__class__.__name__
+
+
+class BooleanConfigFieldParser(ConfigFieldParser):
+    applies_to_field = ['*.filetags.follows_filetags_convention']
+
+    @staticmethod
+    def is_valid_boolean(expression):
+        try:
+            types.AW_BOOLEAN(expression)
+        except exceptions.AWTypeError:
+            return False
+        else:
+            return True
+
+    @staticmethod
+    def evaluate_boolean_operation(expression, test_data):
+        try:
+            a = types.AW_BOOLEAN(expression)
+            b = types.AW_BOOLEAN(test_data)
+        except exceptions.AWTypeError:
+            # TODO: Handle this case
+            raise
+        else:
+            return a == b
+
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_boolean
+
+    @classmethod
+    def get_evaluation_function(cls):
+        return cls.evaluate_boolean_operation
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
