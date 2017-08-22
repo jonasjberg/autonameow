@@ -19,11 +19,14 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import collections
+
 from unittest import TestCase
 
 from core import (
     exceptions,
-    constants
+    constants,
+    repository
 )
 from core.repository import Repository
 
@@ -163,3 +166,41 @@ class TestRepositoryMethodResolvable(TestCase):
         self.assertTrue(self.r.resolvable('filesystem.basename.full'))
         self.assertTrue(self.r.resolvable('filesystem.basename.extension'))
         self.assertTrue(self.r.resolvable('filesystem.contents.mime_type'))
+
+
+class TestMapSourcesToMeowURI(TestCase):
+    meowURIsExtractors = collections.namedtuple('meowURIsExtractors',
+                                                ['meowURIs', 'Extractors'])
+
+    def setUp(self):
+        self.expected_meowURI_source_mapping = [
+            (['analysis.filetags.datetime',
+              'analysis.filetags.description',
+              'analysis.filetags.follows_filetags_convention',
+              'analysis.filetags.tags'],
+             'FiletagsAnalyzer'),
+
+            (['filesystem.basename.extension',
+              'filesystem.basename.full',
+              'filesystem.basename.prefix',
+              'filesystem.contents.mime_type',
+              'filesystem.pathname.full'],
+             'CommonFileSystemExtractor'),
+
+            (['metadata.exiftool.EXIF:CreateDate',
+              'metadata.exiftool.EXIF:DateTimeOriginal',
+              'metadata.exiftool.PDF:CreateDate',
+              'metadata.exiftool.XMP-dc:Creator',
+              'metadata.exiftool.XMP-dc:CreatorFile-as',
+              'metadata.exiftool.XMP-dc:Date',
+              'metadata.exiftool.XMP-dc:Publisher',
+              'metadata.exiftool.XMP-dc:Title'],
+             'ExiftoolMetadataExtractor')
+        ]
+
+    def test_maps_meowuris_to_expected_source(self):
+        for meowuris, source in self.expected_meowURI_source_mapping:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(uri)[0]
+                self.assertEqual(actual.__name__, source)
+                self.assertTrue(uu.is_class(actual))

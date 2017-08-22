@@ -214,5 +214,17 @@ def unique_map_meowuris(meowuri_class_map):
     return out
 
 
+def map_meowuri_to_source_class(meowuri):
+    def _search_source_type(key):
+        for k, v in SessionRepository.meowuri_class_map[key].items():
+            if meowuri.startswith(k):
+                return SessionRepository.meowuri_class_map[key][k]
+        return None
+
+    return (_search_source_type('extractors')
+            or _search_source_type('analyzers')
+            or _search_source_type('plugins'))
+
+
 SessionRepository = Repository()
 SessionRepository.initialize()
