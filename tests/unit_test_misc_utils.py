@@ -23,14 +23,14 @@
 from unittest import TestCase
 
 from core import util
-from core.exceptions import InvalidQueryStringError
+from core.exceptions import InvalidMeowURIError
 from core.util import eval_magic_glob
 from core.util.misc import (
     unique_identifier,
     multiset_count,
-    query_string_list,
+    meowuri_list,
     flatten_dict,
-    expand_query_string_data_dict,
+    expand_meowuri_data_dict,
     nested_dict_get,
     nested_dict_set
 )
@@ -128,58 +128,58 @@ class TestMultisetCount(TestCase):
                          {None: 2, 'a': 1, 'b': 1})
 
 
-class TestQueryStringList(TestCase):
+class TestMeowURIList(TestCase):
     def test_raises_exception_for_none_argument(self):
-        with self.assertRaises(InvalidQueryStringError):
-            self.assertIsNone(query_string_list(None))
+        with self.assertRaises(InvalidMeowURIError):
+            self.assertIsNone(meowuri_list(None))
 
     def test_raises_exception_for_empty_argument(self):
-        with self.assertRaises(InvalidQueryStringError):
-            self.assertIsNone(query_string_list(''))
+        with self.assertRaises(InvalidMeowURIError):
+            self.assertIsNone(meowuri_list(''))
 
     def test_raises_exception_for_only_periods(self):
-        with self.assertRaises(InvalidQueryStringError):
-            self.assertIsNone(query_string_list('.'))
-            self.assertIsNone(query_string_list('..'))
-            self.assertIsNone(query_string_list('...'))
+        with self.assertRaises(InvalidMeowURIError):
+            self.assertIsNone(meowuri_list('.'))
+            self.assertIsNone(meowuri_list('..'))
+            self.assertIsNone(meowuri_list('...'))
 
     def test_return_value_is_type_list(self):
-        self.assertTrue(isinstance(query_string_list('a.b'), list))
+        self.assertTrue(isinstance(meowuri_list('a.b'), list))
 
     def test_valid_argument_returns_expected(self):
-        self.assertEqual(query_string_list('a'), ['a'])
-        self.assertEqual(query_string_list('a.b'), ['a', 'b'])
-        self.assertEqual(query_string_list('a.b.c'), ['a', 'b', 'c'])
-        self.assertEqual(query_string_list('a.b.c.a'), ['a', 'b', 'c', 'a'])
-        self.assertEqual(query_string_list('a.b.c.a.b'),
+        self.assertEqual(meowuri_list('a'), ['a'])
+        self.assertEqual(meowuri_list('a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a.b.c'), ['a', 'b', 'c'])
+        self.assertEqual(meowuri_list('a.b.c.a'), ['a', 'b', 'c', 'a'])
+        self.assertEqual(meowuri_list('a.b.c.a.b'),
                          ['a', 'b', 'c', 'a', 'b'])
-        self.assertEqual(query_string_list('a.b.c.a.b.c'),
+        self.assertEqual(meowuri_list('a.b.c.a.b.c'),
                          ['a', 'b', 'c', 'a', 'b', 'c'])
 
     def test_valid_argument_returns_expected_for_unexpected_input(self):
-        self.assertEqual(query_string_list('a.b.'), ['a', 'b'])
-        self.assertEqual(query_string_list('a.b..'), ['a', 'b'])
-        self.assertEqual(query_string_list('.a.b'), ['a', 'b'])
-        self.assertEqual(query_string_list('..a.b'), ['a', 'b'])
-        self.assertEqual(query_string_list('a..b'), ['a', 'b'])
-        self.assertEqual(query_string_list('.a..b'), ['a', 'b'])
-        self.assertEqual(query_string_list('..a..b'), ['a', 'b'])
-        self.assertEqual(query_string_list('...a..b'), ['a', 'b'])
-        self.assertEqual(query_string_list('a..b.'), ['a', 'b'])
-        self.assertEqual(query_string_list('a..b..'), ['a', 'b'])
-        self.assertEqual(query_string_list('a..b...'), ['a', 'b'])
-        self.assertEqual(query_string_list('a...b'), ['a', 'b'])
-        self.assertEqual(query_string_list('.a...b'), ['a', 'b'])
-        self.assertEqual(query_string_list('..a...b'), ['a', 'b'])
-        self.assertEqual(query_string_list('...a...b'), ['a', 'b'])
-        self.assertEqual(query_string_list('a...b.'), ['a', 'b'])
-        self.assertEqual(query_string_list('a...b..'), ['a', 'b'])
-        self.assertEqual(query_string_list('a...b...'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a.b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a.b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('...a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b...'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('...a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b...'), ['a', 'b'])
 
     def test_returns_expected(self):
-        self.assertEqual(query_string_list('filesystem.contents.mime_type'),
+        self.assertEqual(meowuri_list('filesystem.contents.mime_type'),
                          ['filesystem', 'contents', 'mime_type'])
-        self.assertEqual(query_string_list('metadata.exiftool.EXIF:Foo'),
+        self.assertEqual(meowuri_list('metadata.exiftool.EXIF:Foo'),
                          ['metadata', 'exiftool', 'EXIF:Foo'])
 
 
@@ -306,7 +306,7 @@ class TestCountDictRecursive(TestCase):
         _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g', 'h']}, 6)
 
 
-class TestExpandQueryStringDataDict(TestCase):
+class TestExpandMeowURIDataDict(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.EXPECTED = DUMMY_RESULTS_DICT
@@ -314,32 +314,32 @@ class TestExpandQueryStringDataDict(TestCase):
 
     def test_raises_type_error_for_invalid_input(self):
         with self.assertRaises(TypeError):
-            expand_query_string_data_dict(None)
-            expand_query_string_data_dict([])
-            expand_query_string_data_dict('')
+            expand_meowuri_data_dict(None)
+            expand_meowuri_data_dict([])
+            expand_meowuri_data_dict('')
 
     def test_returns_expected_type(self):
-        actual = expand_query_string_data_dict(self.INPUT)
+        actual = expand_meowuri_data_dict(self.INPUT)
 
         self.assertTrue(isinstance(actual, dict))
 
     def test_returns_expected_len(self):
-        actual = len(expand_query_string_data_dict(self.INPUT))
+        actual = len(expand_meowuri_data_dict(self.INPUT))
         expected = len(self.EXPECTED)
 
         self.assertEqual(actual, expected)
 
     def test_expanded_dict_contains_all_expected(self):
-        actual = expand_query_string_data_dict(self.INPUT)
+        actual = expand_meowuri_data_dict(self.INPUT)
         self.assertDictEqual(actual, self.EXPECTED)
 
     def test_expanded_dict_contain_expected_first_level(self):
-        actual = expand_query_string_data_dict(self.INPUT)
+        actual = expand_meowuri_data_dict(self.INPUT)
         self.assertIn('filesystem', actual)
         self.assertIn('contents', actual)
 
     def test_expanded_dict_contain_expected_second_level(self):
-        actual = expand_query_string_data_dict(self.INPUT)
+        actual = expand_meowuri_data_dict(self.INPUT)
         actual_filesystem = actual.get('filesystem')
         actual_contents = actual.get('contents')
 

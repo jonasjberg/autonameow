@@ -27,7 +27,7 @@ from extractors.text import AbstractTextExtractor
 
 class PlainTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['text/plain']
-    data_query_string = 'contents.textual.raw_text'
+    data_meowuri = 'contents.textual.raw_text'
 
     def __init__(self, source):
         super(PlainTextExtractor, self).__init__(source)

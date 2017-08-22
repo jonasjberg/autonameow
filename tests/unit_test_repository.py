@@ -36,7 +36,7 @@ class TestRepository(TestCase):
 
     def test_setup(self):
         self.r.initialize()
-        self.assertTrue(isinstance(self.r.query_string_class_map, dict))
+        self.assertTrue(isinstance(self.r.meowuri_class_map, dict))
 
 
 class TestRepositoryMethodStore(TestCase):
@@ -150,14 +150,14 @@ class TestRepositoryMethodResolvable(TestCase):
         self.r = Repository()
         self.r.initialize()
 
-    def test_empty_query_string_returns_false(self):
+    def test_empty_meowuri_returns_false(self):
         self.assertFalse(self.r.resolvable(None))
         self.assertFalse(self.r.resolvable(''))
 
-    def test_bad_query_string_returns_false(self):
+    def test_bad_meowuri_returns_false(self):
         self.assertFalse(self.r.resolvable('not.a.valid.source.surely'))
 
-    def test_good_query_string_returns_true(self):
+    def test_good_meowuri_returns_true(self):
         self.assertTrue(self.r.resolvable('metadata.exiftool.PDF:CreateDate'))
         self.assertTrue(self.r.resolvable('metadata.exiftool'))
         self.assertTrue(self.r.resolvable('filesystem.basename.full'))

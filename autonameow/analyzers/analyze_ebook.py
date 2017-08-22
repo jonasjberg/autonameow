@@ -28,7 +28,7 @@ from core import util
 class EbookAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['application/pdf', 'application/epub+zip']
-    data_query_string = 'analysis.filename_analyzer'
+    data_meowuri = 'analysis.filename_analyzer'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -41,12 +41,12 @@ class EbookAnalyzer(BaseAnalyzer):
                                        'contents.textual.raw_text')
 
     def _add_results(self, label, data):
-        query_string = 'analysis.ebook_analyzer.{}'.format(label)
+        meowuri = 'analysis.ebook_analyzer.{}'.format(label)
         log.debug('{} passed "{}" to "add_results" callback'.format(
-            self, query_string)
+            self, meowuri)
         )
         if data is not None:
-            self.add_results(query_string, data)
+            self.add_results(meowuri, data)
 
     @classmethod
     def can_handle(cls, file_object):

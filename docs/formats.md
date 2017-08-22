@@ -370,8 +370,8 @@ Extracted Data
     * `guessit`
 
 
-### Query Strings
-Extractor query strings as of version `v0.4.2`.
+### Resource Identifiers --- `MeowURIs`
+Extractor "MeowURIs" as of version `v0.4.2`.
 
 * `contents.textual.raw_text`
 * `contents.textual.encrypted`
@@ -389,7 +389,8 @@ Extractor query strings as of version `v0.4.2`.
 * `metadata.pypdf.number_pages`
 * `metadata.pypdf.paginated`
 
-Search the source code for currently used extractor query strings:
+The following command can be used to search the python sources for currently
+used extractor "MeowURIs".
 
 ```bash
 grep --color=always --exclude-dir={.git,.idea} --include="*.py" -rnHa -- data_query_string . | tr -s ' '

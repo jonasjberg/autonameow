@@ -28,7 +28,7 @@ from core.util import dateandtime
 class TextAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     handles_mime_types = ['text/plain']
-    data_query_string = 'analysis.plaintext'
+    data_meowuri = 'analysis.plaintext'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -39,12 +39,12 @@ class TextAnalyzer(BaseAnalyzer):
         self.text = None
 
     def _add_results(self, label, data):
-        query_string = 'analysis.text_analyzer.{}'.format(label)
+        meowuri = 'analysis.text_analyzer.{}'.format(label)
         log.debug('{} passed "{}" to "add_results" callback'.format(
-            self, query_string)
+            self, meowuri)
         )
         if data is not None:
-            self.add_results(query_string, data)
+            self.add_results(meowuri, data)
 
     def run(self):
         self.text = self.request_data(self.file_object,

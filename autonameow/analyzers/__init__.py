@@ -50,9 +50,9 @@ class BaseAnalyzer(object):
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
     handles_mime_types = None
 
-    # Query string label for the data returned by this extractor.
+    # Resource identifier "MeowURI" for the data returned by this extractor.
     # Example:  'analysis.filesystem'
-    data_query_string = None
+    data_meowuri = None
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -118,7 +118,7 @@ class BaseAnalyzer(object):
             return False
 
     # @classmethod
-    # def data_query_string(cls):
+    # def data_meowuri(cls):
     #     return cls.__name__.lower()
 
     def __str__(self):
@@ -184,31 +184,31 @@ def get_analyzer_classes():
     return _get_implemented_analyzer_classes(analyzer_source_files)
 
 
-def map_query_string_to_analyzers():
+def map_meowuri_to_analyzers():
     """
-    Returns a mapping of the analyzer classes "query strings" and classes.
+    Returns a mapping of the analyzer classes "meowURIs" and classes.
 
-    Each analyzer class defines 'data_query_string' which is used as the
+    Each analyzer class defines 'data_meowuri' which is used as the
     first part of all data returned by the analyzer.
 
-    Returns: A dictionary where the keys are "query strings" and the values
+    Returns: A dictionary where the keys are "meowURIs" and the values
         are lists of analyzer classes.
     """
     out = {}
 
     for klass in AnalyzerClasses:
-        # data_query_string = klass.data_query_string()
-        data_query_string = klass.data_query_string
-        if not data_query_string:
+        # data_meowuri = klass.data_meowuri()
+        data_meowuri = klass.data_meowuri
+        if not data_meowuri:
             continue
 
-        if data_query_string in out:
-            out[data_query_string].append(klass)
+        if data_meowuri in out:
+            out[data_meowuri].append(klass)
         else:
-            out[data_query_string] = [klass]
+            out[data_meowuri] = [klass]
 
     return out
 
 
 AnalyzerClasses = get_analyzer_classes()
-QueryStringClassMap = map_query_string_to_analyzers()
+MeowURIClassMap = map_meowuri_to_analyzers()

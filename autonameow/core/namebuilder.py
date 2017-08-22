@@ -53,16 +53,16 @@ class NameBuilder(object):
     def new_name(self):
         return self._new_name
 
-    def _gather_data(self, field_querystring_map):
+    def _gather_data(self, field_meowuri_map):
         """
-        Populates a dictionary with data fields matching a "query string".
+        Populates a dictionary with data fields matching a "meowURI".
 
-        The dictionary specifies which fields and a corresponding query string.
-        The extracted data is queried for the query string first, if the data
+        The dictionary specifies which fields and a corresponding "meowURI".
+        The extracted data is queried for the "meowURI" first, if the data
         exists, it is used and the analyzer data query is skipped.
 
         Args:
-            field_querystring_map: Dictionary of fields and query string.
+            field_meowuri_map: Dictionary of fields and "meowURI".
 
                 Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
                           'description' = 'plugin.microsoft_vision.caption'
@@ -78,12 +78,12 @@ class NameBuilder(object):
         # individually. Requires re-evaluating the configuration source
         # description format.
         # TODO: [TD0017] Rethink source specifications relation to source data.
-        for field, query_string in field_querystring_map.items():
-            _data = self.request_data(self.file, query_string)
+        for field, meowuri in field_meowuri_map.items():
+            _data = self.request_data(self.file, meowuri)
             if _data:
                 out[field] = _data
             # else:
-            #     analysis_data = self.analysis_data.get(query_string)
+            #     analysis_data = self.analysis_data.get(meowuri)
             #     if analysis_data:
             #         out[field] = analysis_data
             # TODO: Or else what.. ?

@@ -49,7 +49,7 @@ class FilesystemAnalyzer(BaseAnalyzer):
     """
     run_queue_priority = 1
     handles_mime_types = ['*/*']
-    data_query_string = 'analysis.filesystem'
+    data_meowuri = 'analysis.filesystem'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -58,13 +58,13 @@ class FilesystemAnalyzer(BaseAnalyzer):
         )
 
     def _add_results(self, label, data):
-        # TODO: Why is not 'cls.data_query_string' == 'query_string' below?
-        query_string = 'analysis.filesystem_analyzer.{}'.format(label)
+        # TODO: Why is not 'cls.data_meowuri' == 'meowuri' below?
+        meowuri = 'analysis.filesystem_analyzer.{}'.format(label)
         logging.debug('{} passed "{}" to "add_results" callback'.format(
-            self, query_string)
+            self, meowuri)
         )
         if data is not None:
-            self.add_results(query_string, data)
+            self.add_results(meowuri, data)
 
     def run(self):
         # Pass results through callback function provided by the 'Analysis'.

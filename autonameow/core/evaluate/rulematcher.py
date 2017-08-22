@@ -48,10 +48,10 @@ class RuleMatcher(object):
 
         self._candidates = []
 
-    def query_data(self, query_string):
+    def query_data(self, meowuri):
         # Functions that use this does not have access to the 'file_object'.
         # This method, which calls a callback, is itself passed as a callback..
-        return self.request_data(self.file_object, query_string)
+        return self.request_data(self.file_object, meowuri)
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))

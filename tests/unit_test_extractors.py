@@ -83,8 +83,8 @@ class TestBaseExtractor(TestCase):
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.handles_mime_types)
 
-    def test_abstract_class_does_not_specify_data_query_string(self):
-        self.assertIsNone(self.e.data_query_string)
+    def test_abstract_class_does_not_specify_data_meowuri(self):
+        self.assertIsNone(self.e.data_meowuri)
 
 
 class TestFindExtractorSourceFiles(TestCase):
@@ -214,9 +214,9 @@ class TestSuitableDataExtractorsForFile(TestCase):
         self.assert_in_if_available('PdfTextExtractor', actual)
 
 
-class TestMapQueryStringToExtractors(TestCase):
+class TestMapMeowURIToExtractors(TestCase):
     def setUp(self):
-        self.actual = extractors.map_query_string_to_extractors()
+        self.actual = extractors.map_meowuri_to_extractors()
 
     def test_returns_expected_type(self):
         self.assertIsNotNone(self.actual)

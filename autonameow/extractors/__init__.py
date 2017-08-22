@@ -74,9 +74,9 @@ class BaseExtractor(object):
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
     handles_mime_types = None
 
-    # Query string label for the data returned by this extractor.
+    # Resource identifier "MeowURI" for the data returned by this extractor.
     # Example:  'metadata.exiftool'
-    data_query_string = None
+    data_meowuri = None
 
     # Controls whether the extractor is enabled and used by default.
     # Used to exclude slow running extractors from always being executed.
@@ -241,32 +241,32 @@ def suitable_data_extractors_for(file_object):
     return [e for e in ExtractorClasses if e.can_handle(file_object)]
 
 
-def map_query_string_to_extractors():
+def map_meowuri_to_extractors():
     """
-    Returns a mapping of the extractor "query strings" and extractor classes.
+    Returns a mapping of the extractor "meowURIs" and extractor classes.
 
-    Each extractor class defines 'data_query_string' which is used as the
+    Each extractor class defines 'data_meowuri' which is used as the
     first part of all data returned by the extractor.
-    Multiple extractors can use the same 'data_query_string'; for instance,
+    Multiple extractors can use the same 'data_meowuri'; for instance,
     the 'PdfTextExtractor' and 'PlainTextExtractor' classes both define the
-    same query string, 'contents.textual.raw_text'.
+    same meowURI, 'contents.textual.raw_text'.
 
-    Returns: A dictionary where the keys are "query strings" and the values
+    Returns: A dictionary where the keys are "meowURIs" and the values
         are lists of extractor classes.
     """
     out = {}
 
     for klass in ExtractorClasses:
-        if not klass.data_query_string:
-            # print('Extractor class "{!s}" did not provide a "data_query_string"'.format(klass))
+        if not klass.data_meowuri:
+            # print('Extractor class "{!s}" did not provide a "data_meowuri"'.format(klass))
             continue
 
-        if klass.data_query_string in out:
-            out[klass.data_query_string].append(klass)
+        if klass.data_meowuri in out:
+            out[klass.data_meowuri].append(klass)
         else:
-            out[klass.data_query_string] = [klass]
+            out[klass.data_meowuri] = [klass]
 
     return out
 
 ExtractorClasses = get_extractor_classes(find_extractor_files())
-QueryStringClassMap = map_query_string_to_extractors()
+MeowURIClassMap = map_meowuri_to_extractors()

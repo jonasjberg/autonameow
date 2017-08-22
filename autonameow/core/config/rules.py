@@ -35,51 +35,51 @@ class RuleCondition(object):
     """
     Represents a single condition contained in a configuration rule.
     """
-    def __init__(self, raw_query_string, raw_expression):
+    def __init__(self, raw_meowuri, raw_expression):
         """
         Validates the arguments and returns a 'RuleCondition' instance if
         the validation is successful. Else an exception is thrown.
 
-        The "query string" is a reference to some data.
+        The "meowURI" is a reference to some data.
         The expression is some expression that will be evaluated on the data
-        contained at the location referenced to by the "query string".
+        contained at the location referenced to by the "meowURI".
 
-        Example: If the "query string" is 'contents.mime_type', a valid
+        Example: If the "meowURI" is 'contents.mime_type', a valid
         expression could be 'image/*'. When this condition is evaluated,
         the data contained at 'contents.mime_type' might be 'image/jpeg'.
         In this case the evaluation would return True.
 
         Args:
-            raw_query_string: A "query string" describing the target of the
+            raw_meowuri: A "meowURI" describing the target of the
                 condition. For example; "contents.mime_type".
             raw_expression: A expression to use when evaluating this condition.
         """
         # TODO: Clean up setting the 'parser' attribute.
-        # NOTE(jonas): The query string determines which parser class is used.
+        # NOTE(jonas): The "meowURI" determines which parser class is used.
 
         # TODO: [TD0015] Allow conditionals in the configuration rules.
         # Possible a list of functions already "loaded" with the target value.
         # Also "loaded" with corresponding (reference to) a validation function.
         self._parser = None
-        self._query_string = None
+        self._meowuri = None
         self._expression = None
 
-        self.query_string = raw_query_string
+        self.meowuri = raw_meowuri
         self.expression = raw_expression
 
     @property
-    def query_string(self):
-        return self._query_string
+    def meowuri(self):
+        return self._meowuri
 
-    @query_string.setter
-    def query_string(self, raw_query_string):
-        # The query string is considered valid if a field parser can handle it.
-        valid_query_string = self._validate_query_string(raw_query_string)
-        if valid_query_string:
-            self._query_string = raw_query_string
+    @meowuri.setter
+    def meowuri(self, raw_meowuri):
+        # The "meowURI" is considered valid if a field parser can handle it.
+        valid_meowuri = self._validate_meowuri(raw_meowuri)
+        if valid_meowuri:
+            self._meowuri = raw_meowuri
         else:
             raise TypeError(
-                'Invalid query string: "{!s}"'.format(raw_query_string)
+                'Invalid meowURI: "{!s}"'.format(raw_meowuri)
             )
 
     @property
@@ -88,23 +88,23 @@ class RuleCondition(object):
 
     @expression.setter
     def expression(self, raw_expression):
-        # The "query string" is required in order to know how the expression
+        # The "meowURI" is required in order to know how the expression
         # should be evaluated. Consider the expression invalid.
-        if not self.query_string:
+        if not self.meowuri:
             raise ValueError(
-                'A valid "query string" is required for validation.'
+                'A valid "meowURI" is required for validation.'
             )
 
-        # NOTE(jonas): No parser can currently handle these query strings ..
-        if self.query_string.startswith('metadata.exiftool'):
+        # NOTE(jonas): No parser can currently handle these "meowURIs" ..
+        if self.meowuri.startswith('metadata.exiftool'):
             # TODO: [TD0015] Handle expression in 'condition_value'
             #                ('Defined', '> 2017', etc)
             log.warning('Validation of this condition is not yet implemented!'
                         ' (starts with "metadata.exiftool")')
 
-        if not self._get_parser(self.query_string):
-            raise ValueError('Found no suitable parsers for query string: '
-                             '"{!s}"'.format(self.query_string))
+        if not self._get_parser(self.meowuri):
+            raise ValueError('Found no suitable parsers for meowURI: '
+                             '"{!s}"'.format(self.meowuri))
 
         valid_expression = self._validate_expression(raw_expression)
         if valid_expression:
@@ -114,12 +114,12 @@ class RuleCondition(object):
                 'Invalid expression: "{!s}"'.format(raw_expression)
             )
 
-    def _validate_query_string(self, raw_query_string):
-        if not raw_query_string:
+    def _validate_meowuri(self, raw_meowuri):
+        if not raw_meowuri:
             return False
 
-        # Consider the query string valid if any parser can handle it.
-        if self._get_parser(raw_query_string):
+        # Consider the "meowURI" valid if any parser can handle it.
+        if self._get_parser(raw_meowuri):
             return True
         else:
             return False
@@ -130,13 +130,13 @@ class RuleCondition(object):
         else:
             return False
 
-    def _get_parser(self, query_string):
+    def _get_parser(self, meowuri):
         if self._parser:
             return self._parser
 
-        parsers = field_parsers.suitable_field_parser_for(query_string)
+        parsers = field_parsers.suitable_field_parser_for(meowuri)
         if parsers:
-            # Assume only one parser can handle a query string for now.
+            # Assume only one parser can handle a "meowURI" for now.
             assert(len(parsers) == 1)
             self._parser = parsers[0]
             return self._parser
@@ -156,8 +156,8 @@ class RuleCondition(object):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
         if not self._parser:
-            log.critical('Unimplemented condition evaluation -- query_string: '
-                         '"{!s}" expression: "{!s}"'.format(self.query_string,
+            log.critical('Unimplemented condition evaluation -- meowURI: '
+                         '"{!s}" expression: "{!s}"'.format(self.meowuri,
                                                             self.expression))
             return False
 
@@ -168,10 +168,10 @@ class RuleCondition(object):
             return False
 
     def __str__(self):
-        return '{!s}: {!s}'.format(self.query_string, self.expression)
+        return '{!s}: {!s}'.format(self.meowuri, self.expression)
 
     def __repr__(self):
-        return 'RuleCondition("{}", "{}")'.format(self.query_string,
+        return 'RuleCondition("{}", "{}")'.format(self.meowuri,
                                                   self.expression)
 
 
@@ -204,7 +204,7 @@ class Rule(object):
             ranking_bias: (OPTIONAL) Float between 0-1 that influences ranking.
             name_template: Name template to use for files matching the rule.
             conditions: Dict used to create instances of 'RuleCondition'
-            data_sources: Dict of template field names and "query strings".
+            data_sources: Dict of template field names and "meowURIs".
         """
         self._description = None
         self._exact_match = None
@@ -326,23 +326,23 @@ class Rule(object):
         self._count_met_conditions -= 1
         self._count_met_conditions = max(0, self._count_met_conditions)
 
-    def referenced_query_strings(self):
+    def referenced_meowuris(self):
         """
-        Get all query strings referenced by this rule.
+        Get all "meowURIs" referenced by this rule.
 
-        The query string can be part of either a condition or a data source.
+        The "meowURI" can be part of either a condition or a data source.
 
-        Returns: The set of all query strings referenced by this rule.
+        Returns: The set of all "meowURIs" referenced by this rule.
         """
-        unique_query_strings = set()
+        unique_meowuris = set()
 
         for condition in self.conditions:
-            unique_query_strings.add(condition.query_string)
+            unique_meowuris.add(condition.meowuri)
 
-        for _, query_string in self.data_sources.items():
-            unique_query_strings.add(query_string)
+        for _, meowuri in self.data_sources.items():
+            unique_meowuris.add(meowuri)
 
-        return unique_query_strings
+        return unique_meowuris
 
     def evaluate_exact(self, data_query_function):
         """
@@ -397,8 +397,8 @@ class Rule(object):
                 log.debug('Condition FAILED: "{!s}"'.format(condition))
 
     def _evaluate_condition(self, condition, data_query_function):
-        # Fetch data at "query_string" using the provided "data_query_function".
-        data = data_query_function(condition.query_string)
+        # Fetch data at "meowuri" using the provided "data_query_function".
+        data = data_query_function(condition.meowuri)
         if data is None:
             log.warning('Unable to evaluate condition due to missing data:'
                         ' "{!s}"'.format(condition))
@@ -419,7 +419,7 @@ class Rule(object):
         return 'Rule({})'.format(', '.join(out))
 
 
-def get_valid_rule_condition(raw_query, raw_value):
+def get_valid_rule_condition(raw_meowuri, raw_expression):
     """
     Tries to create and return a 'RuleCondition' instance.
 
@@ -427,8 +427,8 @@ def get_valid_rule_condition(raw_query, raw_value):
     'RuleCondition' initialization. In case of failure, False is returned.
 
     Args:
-        raw_query: The "query string" specifying *some data* for the condition.
-        raw_value: The expression or value that describes the condition.
+        raw_meowuri: The "meowURI" specifying *some data* for the condition.
+        raw_expression: The expression or value that describes the condition.
 
     Returns:
         An instance of the 'RuleCondition' class if the given arguments are
@@ -437,13 +437,13 @@ def get_valid_rule_condition(raw_query, raw_value):
         InvalidRuleError: The 'RuleCondition' instance could not be created.
     """
     try:
-        condition = RuleCondition(raw_query, raw_value)
+        condition = RuleCondition(raw_meowuri, raw_expression)
     except (TypeError, ValueError) as e:
         # Add information and then pass the exception up the chain so that the
         # error can be displayed with additional contextual information.
         raise exceptions.InvalidRuleError(
             'Invalid rule condition ("{!s}": "{!s}"); {!s}'.format(
-                raw_query, raw_value, e
+                raw_meowuri, raw_expression, e
             )
         )
     else:
@@ -495,9 +495,9 @@ def parse_conditions(raw_conditions):
 
     passed = []
     try:
-        for query_string, expression in raw_conditions.items():
+        for meowuri, expression in raw_conditions.items():
             try:
-                valid_condition = get_valid_rule_condition(query_string,
+                valid_condition = get_valid_rule_condition(meowuri,
                                                            expression)
             except exceptions.InvalidRuleError as e:
                 raise exceptions.ConfigurationSyntaxError(e)
@@ -521,32 +521,32 @@ def parse_data_sources(raw_sources):
 
     log.debug('Parsing {} raw data sources ..'.format(len(raw_sources)))
 
-    for template_field, query_string in raw_sources.items():
-        if not query_string:
-            log.debug('Skipped data source with empty query string '
+    for template_field, meowuris in raw_sources.items():
+        if not meowuris:
+            log.debug('Skipped data source with empty meowURI '
                       '(template field: "{!s}")'.format(template_field))
             continue
         elif not template_field:
             log.debug('Skipped data source with empty name template field '
-                      '(query string: "{!s}")'.format(query_string))
+                      '(meowURI: "{!s}")'.format(meowuris))
             continue
 
         if not field_parsers.is_valid_template_field(template_field):
             log.warning('Skipped data source with invalid name template field '
-                        '(query string: "{!s}")'.format(query_string))
+                        '(meowURI: "{!s}")'.format(meowuris))
             continue
 
-        if not isinstance(query_string, list):
-            query_string = [query_string]
-        for qs in query_string:
-            if is_valid_source(qs):
+        if not isinstance(meowuris, list):
+            meowuris = [meowuris]
+        for meowuri in meowuris:
+            if is_valid_source(meowuri):
                 log.debug(
-                    'Validated data source: [{}]: {}'.format(template_field, qs)
+                    'Validated data source: [{}]: {}'.format(template_field, meowuri)
                 )
-                passed[template_field] = qs
+                passed[template_field] = meowuri
             else:
                 log.debug(
-                    'Invalid data source: [{}]: {}'.format(template_field, qs)
+                    'Invalid data source: [{}]: {}'.format(template_field, meowuri)
                 )
 
     log.debug(
@@ -561,7 +561,7 @@ def is_valid_source(source_value):
     Check if the source is valid.
 
     Tests if the given source starts with the same text as any of the
-    date source "query strings" stored in the 'SessionRepository'.
+    date source "meowURIs" stored in the 'SessionRepository'.
 
     For example, the source value "metadata.exiftool.PDF:CreateDate" would
     be considered valid if "metadata.exiftool" was registered by a source.

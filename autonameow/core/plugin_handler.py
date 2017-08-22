@@ -51,12 +51,12 @@ class PluginHandler(object):
         """
         self.add_to_global_data(self.file_object, label, data)
 
-    def _request_data(self, query_string):
-        return self.request_global_data(self.file_object, query_string)
+    def _request_data(self, meowuri):
+        return self.request_global_data(self.file_object, meowuri)
 
-    def query(self, query_string):
-        if query_string.startswith('plugin.'):
-            plugin_name, plugin_query = query_string.lstrip('plugin.').split('.')
+    def query(self, meowuri):
+        if meowuri.startswith('plugin.'):
+            plugin_name, plugin_query = meowuri.lstrip('plugin.').split('.')
             result = plugins.plugin_query(plugin_name, plugin_query, None)
             return result
         else:

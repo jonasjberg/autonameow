@@ -31,7 +31,7 @@ from extractors.text import AbstractTextExtractor
 
 class EpubTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['application/epub+zip']
-    data_query_string = 'contents.textual.raw_text'
+    data_meowuri = 'contents.textual.raw_text'
 
     # TODO: [TD0028] Implement extractor for E-books (pdf/epub/mobi/..)
 

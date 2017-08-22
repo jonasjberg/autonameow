@@ -60,7 +60,7 @@ class Configuration(object):
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
         self._version = None
-        self.referenced_query_strings = set()
+        self.referenced_meowuris = set()
 
         # NOTE(jonas): Detecting type prior to loading could be improved ..
         if isinstance(source, dict):
@@ -152,9 +152,9 @@ class Configuration(object):
                 # Create and populate "Rule" objects with *validated* data.
                 self._rules.append(valid_rule)
 
-                # Keep track of all "query strings" referenced by rules.
-                self.referenced_query_strings.update(
-                    valid_rule.referenced_query_strings()
+                # Keep track of all "meowURIs" referenced by rules.
+                self.referenced_meowuris.update(
+                    valid_rule.referenced_meowuris()
                 )
 
     def _validate_rule_data(self, raw_rule):

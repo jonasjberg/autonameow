@@ -120,14 +120,16 @@ class TestRuleConditionMethods(TestCase):
         )
 
     def test_rule___repr__exhaustive(self):
-        expected = []
+        expected_reprs = []
 
         for raw_condition in uu.get_dummy_raw_conditions():
-            for qstr, expr in raw_condition.items():
-                expected.append('RuleCondition("{}", "{}")'.format(qstr, expr))
+            for meowuri, expression in raw_condition.items():
+                expected_reprs.append(
+                    'RuleCondition("{}", "{}")'.format(meowuri, expression)
+                )
 
         for condition, expect in zip(uu.get_dummy_rulecondition_instances(),
-                                     expected):
+                                     expected_reprs):
             self.assertEqual(repr(condition), expect)
 
 
@@ -242,13 +244,13 @@ class TestParseConditions(TestCase):
     def test_parse_condition_filesystem_pathname_is_valid(self):
         raw_conditions = {'filesystem.pathname.full': '~/.config'}
         actual = rules.parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].query_string, 'filesystem.pathname.full')
+        self.assertEqual(actual[0].meowuri, 'filesystem.pathname.full')
         self.assertEqual(actual[0].expression, '~/.config')
 
     def test_parse_condition_contents_mime_type_is_valid(self):
         raw_conditions = {'filesystem.contents.mime_type': 'image/jpeg'}
         actual = rules.parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].query_string,
+        self.assertEqual(actual[0].meowuri,
                          'filesystem.contents.mime_type')
         self.assertEqual(actual[0].expression,
                          'image/jpeg')
@@ -260,7 +262,7 @@ class TestParseConditions(TestCase):
             'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
         }
         actual = rules.parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].query_string,
+        self.assertEqual(actual[0].meowuri,
                          'metadata.exiftool.EXIF:DateTimeOriginal')
         self.assertEqual(actual[0].expression, 'Defined')
 

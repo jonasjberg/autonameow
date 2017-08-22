@@ -22,12 +22,12 @@ High Priority
   components.
     * Enumerate all available extractors, analyzers and plugins at startup.
         * Check that dependencies are available; external executables, etc.
-        * Have the components "register" their query strings. If the component
-          could return data with query string
+        * Have the components "register" their "meowURIs". If the component
+          could return data with "meowURI"
           `metadata.exiftool.PDF:CreateDate`, register the first part:
           `metadata.exiftool`.
-    * Read the configuration file and get a list of all referenced query strings.
-    * Find out which components could produce the referenced query strings and
+    * Read the configuration file and get a list of all referenced "meowURIs".
+    * Find out which components could produce the referenced "meowURIs" and
       use this information to selectively run only components that are
       required.
 

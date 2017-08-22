@@ -33,7 +33,7 @@ except ImportError:
 
 
 class GuessitPlugin(BasePlugin):
-    data_query_string = 'plugin.guessit'
+    data_meowuri = 'plugin.guessit'
 
     def __init__(self, add_results_callback, request_data_callback,
                  display_name=None):
@@ -76,11 +76,11 @@ class GuessitPlugin(BasePlugin):
                 self._add_results(result_key, wrapped)
 
     def _add_results(self, label, data):
-        query_string = 'plugin.guessit.{}'.format(label)
+        meowuri = 'plugin.guessit.{}'.format(label)
         # log.debug('{} passed "{}" to "add_results" callback'.format(
-        #     self, query_string)
+        #     self, meowuri)
         # )
-        self.add_results(query_string, data)
+        self.add_results(meowuri, data)
 
     def can_handle(self):
         _mime_type = self.request_data('filesystem.contents.mime_type')

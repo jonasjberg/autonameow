@@ -104,10 +104,10 @@ class Autonameow(object):
             self.exit_program(constants.EXIT_ERROR)
 
         # TODO: [TD0076] Register non-core components at startup.
-        _referenced_qs = sorted(self.active_config.referenced_query_strings)
-        for _query_string in _referenced_qs:
-            log.debug('Configuration rule referenced query string'
-                      ' "{!s}"'.format(_query_string))
+        _referenced_meowuris = sorted(self.active_config.referenced_meowuris)
+        for _meowuri in _referenced_meowuris:
+            log.debug('Configuration rule referenced meowURI'
+                      ' "{!s}"'.format(_meowuri))
 
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)

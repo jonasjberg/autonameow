@@ -27,7 +27,7 @@ from analyzers import BaseAnalyzer
 class VideoAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.1
     handles_mime_types = ['video/*']
-    data_query_string = 'analysis.video'
+    data_meowuri = 'analysis.video'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -37,12 +37,12 @@ class VideoAnalyzer(BaseAnalyzer):
         self.add_results = add_results_callback
 
     def _add_results(self, label, data):
-        query_string = 'analysis.video_analyzer.{}'.format(label)
+        meowuri = 'analysis.video_analyzer.{}'.format(label)
         log.debug('{} passed "{}" to "add_results" callback'.format(
-            self, query_string)
+            self, meowuri)
         )
         if data is not None:
-            self.add_results(query_string, data)
+            self.add_results(meowuri, data)
 
     def run(self):
         # Pass results through callback function provided by the 'Analysis'.

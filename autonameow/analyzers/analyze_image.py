@@ -30,7 +30,7 @@ from core.util import dateandtime
 class ImageAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     handles_mime_types = ['image/*']
-    data_query_string = 'analysis.image'
+    data_meowuri = 'analysis.image'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -43,12 +43,12 @@ class ImageAnalyzer(BaseAnalyzer):
         self.ocr_text = None
 
     def _add_results(self, label, data):
-        query_string = 'analysis.image_analyzer.{}'.format(label)
+        meowuri = 'analysis.image_analyzer.{}'.format(label)
         log.debug('{} passed "{}" to "add_results" callback'.format(
-            self, query_string)
+            self, meowuri)
         )
         if data is not None:
-            self.add_results(query_string, data)
+            self.add_results(meowuri, data)
 
     def run(self):
         self.exif_data = self.request_data(self.file_object,

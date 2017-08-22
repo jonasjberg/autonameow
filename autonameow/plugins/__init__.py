@@ -34,9 +34,9 @@ log = logging.getLogger(__name__)
 
 # TODO: [TD0009] Implement a proper plugin interface.
 class BasePlugin(object):
-    # Query string label for the data returned by this plugin.
+    # Resource identifier "MeowURI" for the data returned by this extractor.
     # Example:  'plugin.guessit'
-    data_query_string = None
+    data_meowuri = None
 
     def __init__(self, add_results_callback, request_data_callback,
                  display_name=None):
@@ -126,30 +126,30 @@ def suitable_plugins_for(file_object):
     return [p for p in UsablePlugins if p.can_handle(file_object)]
 
 
-def map_query_string_to_plugins():
+def map_meowuri_to_plugins():
     """
-    Returns a mapping of the plugin classes "query strings" and actual classes.
+    Returns a mapping of the plugin classes "meowURIs" and actual classes.
 
-    Each plugin class defines 'data_query_string' which is used as the
+    Each plugin class defines 'data_meowuri' which is used as the
     first part of all data returned by the plugin.
 
-    Returns: A dictionary where the keys are "query strings" and the values
+    Returns: A dictionary where the keys are "meowURIs" and the values
         are lists of analyzer classes.
     """
     out = {}
 
     for klass in UsablePlugins:
-        data_query_string = klass.data_query_string
-        if not data_query_string:
+        data_meowuri = klass.data_meowuri
+        if not data_meowuri:
             continue
 
-        if data_query_string in out:
-            out[data_query_string].append(klass)
+        if data_meowuri in out:
+            out[data_meowuri].append(klass)
         else:
-            out[data_query_string] = [klass]
+            out[data_meowuri] = [klass]
 
     return out
 
 
 UsablePlugins = get_usable_plugin_classes()
-QueryStringClassMap = map_query_string_to_plugins()
+MeowURIClassMap = map_meowuri_to_plugins()

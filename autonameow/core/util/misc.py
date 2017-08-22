@@ -30,7 +30,7 @@ import shutil
 
 import yaml
 
-from core.exceptions import InvalidQueryStringError
+from core.exceptions import InvalidMeowURIError
 
 
 def dump(obj):
@@ -137,42 +137,42 @@ def multiset_count(list_data):
     return out
 
 
-def query_string_list(query_string):
+def meowuri_list(meowuri):
     """
-    Converts a "query string" to a list suited for traversing nested dicts.
+    Converts a "meowURI" to a list suited for traversing nested dicts.
 
-    Example query string:  "metadata.exiftool.datetimeoriginal"
-    Resulting output:      ['metadata', 'exiftool', 'datetimeoriginal']
+    Example meowURI:    'metadata.exiftool.datetimeoriginal'
+    Resulting output:   ['metadata', 'exiftool', 'datetimeoriginal']
 
     Args:
-        query_string: The "query string" to convert.
+        meowuri: The "meowURI" to convert.
 
-    Returns: The components of the given "query string" as a list.
+    Returns: The components of the given "meowURI" as a list.
     """
-    if not isinstance(query_string, str):
-        raise InvalidQueryStringError('Query string must be of type "str"')
+    if not isinstance(meowuri, str):
+        raise InvalidMeowURIError('meowURI must be of type "str"')
     else:
-        query_string = query_string.strip()
-    if not query_string:
-        raise InvalidQueryStringError('Got empty query string')
+        meowuri = meowuri.strip()
+    if not meowuri:
+        raise InvalidMeowURIError('Got empty meowURI')
 
-    if '.' in query_string:
+    if '.' in meowuri:
         # Remove any leading/trailing periods.
-        if query_string.startswith('.'):
-            query_string = query_string.lstrip('.')
-        if query_string.endswith('.'):
-            query_string = query_string.rstrip('.')
+        if meowuri.startswith('.'):
+            meowuri = meowuri.lstrip('.')
+        if meowuri.endswith('.'):
+            meowuri = meowuri.rstrip('.')
 
         # Collapse any repeating periods.
-        while '..' in query_string:
-            query_string = query_string.replace('..', '.')
+        while '..' in meowuri:
+            meowuri = meowuri.replace('..', '.')
 
         # Check if input is all periods.
-        stripped_period = str(query_string).replace('.', '')
+        stripped_period = str(meowuri).replace('.', '')
         if not stripped_period.strip():
-            raise InvalidQueryStringError('Invalid query string')
+            raise InvalidMeowURIError('Invalid meowURI')
 
-    parts = query_string.split('.')
+    parts = meowuri.split('.')
     return [p for p in parts if p is not None]
 
 
@@ -255,30 +255,30 @@ def count_dict_recursive(dictionary, count=0):
     return count
 
 
-def expand_query_string_data_dict(query_string_dict):
+def expand_meowuri_data_dict(meowuri_dict):
     """
     Performs the reverse operation of that of 'flatten_dict'.
 
-    A dictionary with "query strings" as keys storing data in each value is
-    expanded by splitting the query strings by periods and creating a
+    A dictionary with "meowURIs" as keys storing data in each value is
+    expanded by splitting the meowURIs by periods and creating a
     nested dictionary.
 
     Args:
-        query_string_dict: Dictionary keyed by "query strings".
+        meowuri_dict: Dictionary keyed by "meowURIs".
 
     Returns:
         An "expanded" or "unflattened" version of the given dictionary.
     """
-    if not query_string_dict or not isinstance(query_string_dict, dict):
+    if not meowuri_dict or not isinstance(meowuri_dict, dict):
         raise TypeError
 
     out = {}
-    for key, value in query_string_dict.items():
+    for key, value in meowuri_dict.items():
         key_parts = key.split('.')
         try:
             nested_dict_set(out, key_parts, value)
         except KeyError:
-            log.error('Duplicate "query strings" would have clobbered existing!'
+            log.error('Duplicate "meowURIs" would have clobbered existing!'
                       ' Key: "{!s}"  Value: {!s}'.format(key, value))
 
     return out

@@ -62,8 +62,8 @@ class RuleMatcherError(AutonameowException):
     """An error occurred while matching rules. Unable to proceed."""
 
 
-class InvalidQueryStringError(ConfigError):
-    """The query string format is invalid, can not be used to traverse data."""
+class InvalidMeowURIError(ConfigError):
+    """An error caused by an invalid "meowURI"."""
 
 
 class RulePriorityError(ConfigError):
