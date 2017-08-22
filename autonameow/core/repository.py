@@ -34,13 +34,13 @@ class Repository(object):
     def __init__(self):
         self.data = {}
         self.query_string_class_map = {}
-        self.resolvable_query_strings = set()
+        self.mapped_query_strings = set()
 
     def initialize(self):
         self.query_string_class_map = querystring_class_map_dict()
         # self._log_string_class_map()
 
-        self.resolvable_query_strings = resolvable_query_strings(
+        self.mapped_query_strings = unique_map_query_strings(
             self.query_string_class_map
         )
 
@@ -136,7 +136,7 @@ class Repository(object):
         if not query_string:
             return False
 
-        resolvable = list(self.resolvable_query_strings)
+        resolvable = list(self.mapped_query_strings)
         if any([query_string.startswith(r) for r in resolvable]):
             return True
         return False
@@ -202,7 +202,7 @@ def querystring_class_map_dict():
     return _query_string_class_map
 
 
-def resolvable_query_strings(query_string_class_map):
+def unique_map_query_strings(query_string_class_map):
     out = set()
 
     # for key in ['extractors', 'analyzers', 'plugins']:
