@@ -67,7 +67,7 @@ class AbstractMetadataExtractor(BaseExtractor):
         else:
             log.debug('{!s} responding to query for field: '
                       '"{!s}"'.format(self, field))
-            return self.metadata.get(field, False)
+            return self.metadata.get(field)
 
     def _perform_initial_extraction(self):
         try:

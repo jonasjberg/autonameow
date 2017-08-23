@@ -120,7 +120,7 @@ class Configuration(object):
             config.write_yaml_file(dest_path, self._data)
 
     def _load_name_templates(self):
-        raw_templates = self._data.get('NAME_TEMPLATES', False)
+        raw_templates = self._data.get('NAME_TEMPLATES')
         if not raw_templates:
             log.debug('Configuration does not contain any name templates')
             return
@@ -142,7 +142,7 @@ class Configuration(object):
         self._name_templates.update(loaded_templates)
 
     def _load_rules(self):
-        raw_rules = self._data.get('RULES', False)
+        raw_rules = self._data.get('RULES')
         if not raw_rules:
             raise exceptions.ConfigError(
                 'The configuration file does not contain any rules'
@@ -181,7 +181,7 @@ class Configuration(object):
                 "Bad rule "x"; {message}"
         """
         # Get a description for referring to the rule in any log messages.
-        description = raw_rule.get('description', None)
+        description = raw_rule.get('description')
         if description is None:
             description = 'UNDESCRIBED'
 
@@ -284,7 +284,7 @@ class Configuration(object):
         )
 
     def _load_version(self):
-        raw_version = self._data.get('autonameow_version', False)
+        raw_version = self._data.get('autonameow_version')
         if not raw_version:
             log.error('Unable to read program version from configuration')
         else:

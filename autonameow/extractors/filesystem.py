@@ -53,7 +53,7 @@ class CommonFileSystemExtractor(BaseExtractor):
         else:
             log.debug('{!s} responding to query for field: '
                       '"{!s}"'.format(self, field))
-            return self.data.get(field, False)
+            return self.data.get(field)
 
     @staticmethod
     def _get_data(file_object):

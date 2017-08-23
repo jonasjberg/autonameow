@@ -473,7 +473,7 @@ def try_parse_full_datetime(string):
 
 
 def try_wrap(value):
-    wrapper = PRIMITIVE_AW_TYPE_MAP.get(type(value), False)
+    wrapper = PRIMITIVE_AW_TYPE_MAP.get(type(value))
     if wrapper:
         return wrapper(value)
     else:
