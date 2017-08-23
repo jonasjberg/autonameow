@@ -123,21 +123,6 @@ def evaluate_rule_conditions(rules_to_examine, data_query_function):
 
 
 def remove_rules_failing_exact_match(rules_to_examine, data_query_function):
-    # passed = []
-
-    # for count, rule in enumerate(rules_to_examine):
-    #     log.debug('Testing exact match for Rule {}/{}: "{}"'.format(
-    #         count + 1, len(rules_to_examine), rule.description)
-    #     )
-
-    #     should_keep = rule.evaluate_exact(data_query_function)
-    #     if not should_keep:
-    #         # Exact match failed, do not include 'rule' in returned list.
-    #         continue
-    #     else:
-    #         passed.append(rule)
-
-    # return passed
     return [rule for rule in rules_to_examine if
             rule.evaluate_exact(data_query_function)]
 
