@@ -298,7 +298,6 @@ class Float(BaseType):
 class String(BaseType):
     primitive_type = str
     coercible_types = (str, bytes, int, float, bool)
-
     try:
         from PyPDF2.generic import TextStringObject
         coercible_types = coercible_types + (TextStringObject, )
@@ -493,6 +492,9 @@ AW_EXIFTOOLTIMEDATE = ExifToolTimeDate()
 AW_PYPDFTIMEDATE = PyPDFTimeDate()
 
 
+# NOTE: Wrapping paths (potentially bytes) with this automatic type
+#       detection would coerce them to Unicode strings when we actually
+#       want to do path coercion with one the "AW_Path"-types ..
 PRIMITIVE_AW_TYPE_MAP = {
     bool: AW_BOOLEAN,
     datetime: AW_TIMEDATE,

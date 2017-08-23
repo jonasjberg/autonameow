@@ -93,7 +93,7 @@ class AbstractMetadataExtractor(BaseExtractor):
 
     def _wrap_raw(self, tag_name, value):
         if tag_name in self.tagname_type_lookup:
-            # First check the lookup table.
+            # First check the extractor-specific lookup table.
             return self.tagname_type_lookup[tag_name](value)
         else:
             # Fall back automatic type detection if not found in lookup table.
