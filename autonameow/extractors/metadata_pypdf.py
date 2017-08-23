@@ -91,7 +91,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
             # Skip entries starting with "IndirectObject(" ..
             # TODO: Cleanup this filtering.
             out = {k.lstrip('\/'): v for k, v in doc_info.items()
-                   if not is_indirectobject(v)}
+                   if not isinstance(v, IndirectObject)}
 
             # Convert PyPDF values of type 'PyPDF2.generic.TextStringObject'
             out = {k: str(v) for k, v in out.items()}
