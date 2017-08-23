@@ -157,6 +157,11 @@ class Repository(object):
             for key, value in data.items():
                 if isinstance(value, bytes):
                     temp[key] = util.displayable_path(value)
+                elif isinstance(value, list):
+                    log.debug('TODO: Improve robustness of handling this case')
+                    temp_list = [util.displayable_path(v) for v in value
+                                 if isinstance(v, bytes)]
+                    temp[key] = temp_list
                 else:
                     temp[key] = value
 
@@ -177,6 +182,11 @@ class Repository(object):
             # TODO: [TD0066] Handle all encoding properly.
             if isinstance(value, bytes):
                 out[key] = util.displayable_path(value)
+            elif isinstance(value, list):
+                log.debug('TODO: Improve robustness of handling this case')
+                temp_list = [util.displayable_path(v) for v in value
+                             if isinstance(v, bytes)]
+                out[key] = temp_list
             else:
                 out[key] = value
 
