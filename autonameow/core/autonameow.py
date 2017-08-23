@@ -128,7 +128,7 @@ class Autonameow(object):
         self.exit_program(self.exit_code)
 
     def _get_files_to_process(self):
-        file_list = []
+        file_list = set()
 
         for path in self.opts.input_paths:
             if not path:
@@ -137,15 +137,18 @@ class Autonameow(object):
             # Path name encoding boundary. Convert to internal format.
             path = util.normpath(path)
             try:
-                file_list += diskutils.get_files(
+                found_files = diskutils.get_files(
                     path, recurse=self.opts.recurse_paths
                 )
             except FileNotFoundError:
                 log.error('File(s) not found: "{}"'.format(
                     util.displayable_path(path))
                 )
+            else:
+                for f in found_files:
+                    file_list.add(f)
 
-        return file_list
+        return list(file_list)
 
     def load_config(self, dict_or_yaml):
         try:

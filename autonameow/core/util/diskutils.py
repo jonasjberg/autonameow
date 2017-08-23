@@ -265,11 +265,11 @@ def get_files(search_path, recurse=False):
         NOTE: Does not currently handle symlinks.
 
     Args:
-        search_path: The path from which to collect files.
+        search_path: The path to collect files from as an "internal bytestring".
         recurse: Whether to traverse the path recursively or not.
 
     Returns:
-        Absolute paths to files in the specified path, as a list of strings.
+        Absolute paths to files in the specified path, as a list of bytestrings.
     """
     # TODO: [TD0026] Follow symlinks? Add option for following symlinks?
     # NOTE(jonas): If one were to have "out" be a set instead of a list, some
@@ -286,15 +286,19 @@ def get_files(search_path, recurse=False):
     out = []
 
     def traverse(path):
-        if os.path.isfile(path):
+        assert(isinstance(path, bytes))
+
+        if os.path.isfile(util.syspath(path)):
             out.append(path)
 
-        elif os.path.isdir(path):
-            for entry in os.listdir(path):
-                entry_path = os.path.join(path, entry)
-                if os.path.isfile(entry_path):
+        elif os.path.isdir(util.syspath(path)):
+            for entry in os.listdir(util.syspath(path)):
+                entry_path = os.path.join(util.syspath(path),
+                                          util.syspath(entry))
+                entry_path = util.bytestring_path(entry_path)
+                if os.path.isfile(util.syspath(entry_path)):
                     out.append(entry_path)
-                elif recurse and os.path.isdir(entry_path):
+                elif recurse and os.path.isdir(util.syspath(entry_path)):
                     traverse(entry_path)
 
     traverse(search_path)
