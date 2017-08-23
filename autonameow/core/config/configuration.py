@@ -92,6 +92,12 @@ class Configuration(object):
         self._load_options()
         self._load_version()
 
+        # For Debugging/development only.
+        _referenced_meowuris = sorted(self.referenced_meowuris)
+        for _meowuri in _referenced_meowuris:
+            log.debug('Configuration Rule referenced meowURI'
+                      ' "{!s}"'.format(_meowuri))
+
     def _load_from_disk(self, load_path):
         try:
             _yaml_data = config.load_yaml_file(load_path)

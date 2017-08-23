@@ -10,6 +10,38 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-08-23
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0076]` __Have all non-core components register themselves at startup.__  
+    >   A lot of the problems with implementing a plugin-interface, handling queries
+    >   from components to a centralized "data pool", only running the required
+    >   plugins/extractors/analyzers for performance, etc; might possibly be solved
+    >   by implementing a more sophisticated method of keeping track of available
+    >   components.
+    >     * Enumerate all available extractors, analyzers and plugins at startup.
+    >         * Check that dependencies are available; external executables, etc.
+    >         * Have the components "register" their "meowURIs". If the component
+    >           could return data with "meowURI"
+    >           `metadata.exiftool.PDF:CreateDate`, register the first part:
+    >           `metadata.exiftool`.
+    >     * Read the configuration file and get a list of all referenced "meowURIs".
+    >     * Find out which components could produce the referenced "meowURIs" and
+    >       use this information to selectively run only components that are
+    >       required.
+    >
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0056]` __Determine which extractors should be used for each input.__  
+    >   In order to add conditional data extraction, a list of relevant extractors
+    >   must be produced for each input path that will be processed. This should
+    >   probably be collected during configuration parsing and rule matching; if a
+    >   rule needs some information to be evaluated, the relevant extractor must
+    >   be enqueued and executed.
+
 * 2017-08-22
 
     > Medium Priority

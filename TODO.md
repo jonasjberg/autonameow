@@ -14,23 +14,6 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0076]` __Have all non-core components register themselves at startup.__  
-  A lot of the problems with implementing a plugin-interface, handling queries
-  from components to a centralized "data pool", only running the required
-  plugins/extractors/analyzers for performance, etc; might possibly be solved
-  by implementing a more sophisticated method of keeping track of available
-  components.
-    * Enumerate all available extractors, analyzers and plugins at startup.
-        * Check that dependencies are available; external executables, etc.
-        * Have the components "register" their "meowURIs". If the component
-          could return data with "meowURI"
-          `metadata.exiftool.PDF:CreateDate`, register the first part:
-          `metadata.exiftool`.
-    * Read the configuration file and get a list of all referenced "meowURIs".
-    * Find out which components could produce the referenced "meowURIs" and
-      use this information to selectively run only components that are
-      required.
-
 * `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
   When listing results with any of the `--list-*` options, paths are not
   displayed properly due to them not being handled properly before being passed
@@ -113,13 +96,6 @@ Medium Priority
       or the text is needed elsewhere.
     * Image OCR is very slow, should only be executed when needed, caching the
       results for all accesses.
-
-* `[TD0056]` __Determine which extractors should be used for each input.__  
-  In order to add conditional data extraction, a list of relevant extractors
-  must be produced for each input path that will be processed. This should
-  probably be collected during configuration parsing and rule matching; if a
-  rule needs some information to be evaluated, the relevant extractor must
-  be enqueued and executed.
 
 * `[TD0014]` Possibly redesign high-level handling of a "configuration".
     * Decouple the `Configuration` instance from I/O.

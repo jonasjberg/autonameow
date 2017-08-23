@@ -103,12 +103,6 @@ class Autonameow(object):
             log.critical('Unable to load configuration -- Aborting ..')
             self.exit_program(constants.EXIT_ERROR)
 
-        # TODO: [TD0076] Register non-core components at startup.
-        _referenced_meowuris = sorted(self.active_config.referenced_meowuris)
-        for _meowuri in _referenced_meowuris:
-            log.debug('Configuration rule referenced meowURI'
-                      ' "{!s}"'.format(_meowuri))
-
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
 
@@ -249,10 +243,17 @@ class Autonameow(object):
                                    or self.opts.list_all)
 
         # Extract data from the file.
-        # Run all extractors so that all possible data is included
-        # when listing any (all) results later on.
-        extraction = _run_extraction(current_file,
-                                     run_all_extractors=should_list_any_results)
+        required_extractors = repository.get_sources_for_meowuris(
+            self.active_config.referenced_meowuris
+        )
+        extraction = _run_extraction(
+            current_file,
+            require_extractors=required_extractors,
+
+            # Run all extractors so that all possible data is included
+            # when listing any (all) results later on.
+            run_all_extractors=should_list_any_results
+        )
 
         # Begin analysing the file.
         analysis = _run_analysis(current_file)
@@ -396,7 +397,7 @@ def _build_new_name(file_object, active_config, active_rule):
         return new_name
 
 
-def _run_extraction(file_object, run_all_extractors=False):
+def _run_extraction(file_object, require_extractors, run_all_extractors=False):
     """
     Instantiates, executes and returns an 'Extraction' instance.
 
@@ -409,11 +410,8 @@ def _run_extraction(file_object, run_all_extractors=False):
     Raises:
         AutonameowException: An unrecoverable error occurred during extraction.
     """
-
-    # Assume slower execution speed is tolerable when the user
-    # wants to display any results, also for completeness. Run all.
-    # TODO: [TD0056][TD0076] Determine required extractors for current file.
     extraction = Extraction(file_object,
+                            require_extractors=require_extractors,
                             require_all_extractors=run_all_extractors is True)
     try:
         extraction.start()

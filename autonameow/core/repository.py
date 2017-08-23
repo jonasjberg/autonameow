@@ -226,5 +226,16 @@ def map_meowuri_to_source_class(meowuri):
             or _search_source_type('plugins'))
 
 
+def get_sources_for_meowuris(meowuri_list):
+    out = set()
+
+    for uri in meowuri_list:
+        source_classes = map_meowuri_to_source_class(uri)
+        for source_class in source_classes:
+            out.add(source_class)
+
+    return list(out)
+
+
 SessionRepository = Repository()
 SessionRepository.initialize()
