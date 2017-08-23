@@ -157,6 +157,7 @@ DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR = ' -- '
 DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR = ' '
 DEFAULT_FILESYSTEM_SANITIZE_FILENAME = True
 DEFAULT_FILESYSTEM_SANITIZE_STRICT = False
+DEFAULT_FILESYSTEM_IGNORE = ['.DS_Store', 'Thumbs.db']
 
 # Exit code values returned to the executing shell or parent process.
 # Normal, successful termination should return "0" (EXIT_SUCCESS)

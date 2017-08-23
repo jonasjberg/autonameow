@@ -180,7 +180,8 @@ DEFAULT_CONFIG = {
     #  characters and potentially custom replacements, etc.
     'FILESYSTEM_OPTIONS': {
         'sanitize_filename': True,
-        'sanitize_strict': False
+        'sanitize_strict': False,
+        'ignore': ['.DS_Store', 'Thumbs.db', '*~', '*.swp']
     },
 
     #  Filetags Options

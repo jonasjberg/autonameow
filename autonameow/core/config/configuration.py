@@ -278,6 +278,10 @@ class Configuration(object):
             'sanitize_strict',
             constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
+        _try_load_filesystem_option(
+            'ignore',
+            constants.DEFAULT_FILESYSTEM_IGNORE
+        )
 
     def _load_version(self):
         raw_version = self._data.get('autonameow_version', False)
