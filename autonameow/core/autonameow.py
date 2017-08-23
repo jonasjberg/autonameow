@@ -121,34 +121,15 @@ class Autonameow(object):
             self.exit_program(constants.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
-        files_to_process = self._get_files_to_process()
+        files_to_process = diskutils.normpaths_from_opts(
+            self.opts.input_paths,
+            self.active_config.options['FILESYSTEM_OPTIONS']['ignore'],
+            self.opts.recurse_paths
+        )
         log.info('Got {} files to process'.format(len(files_to_process)))
 
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
-
-    def _get_files_to_process(self):
-        file_list = set()
-
-        for path in self.opts.input_paths:
-            if not path:
-                continue
-
-            # Path name encoding boundary. Convert to internal format.
-            path = util.normpath(path)
-            try:
-                found_files = diskutils.get_files(
-                    path, recurse=self.opts.recurse_paths
-                )
-            except FileNotFoundError:
-                log.error('File(s) not found: "{}"'.format(
-                    util.displayable_path(path))
-                )
-            else:
-                for f in found_files:
-                    file_list.add(f)
-
-        return list(file_list)
 
     def load_config(self, dict_or_yaml):
         try:

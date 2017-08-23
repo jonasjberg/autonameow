@@ -37,10 +37,10 @@ from core.fileobject import FileObject
 from core import util
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-_PARENT_DIR = os.path.join(_THIS_DIR, os.pardir)
-TEST_FILES_DIR = os.path.join(_PARENT_DIR + os.sep + util.syspath('test_files'))
-AUTONAMEOW_SRCROOT_DIR = os.path.join(
-    _PARENT_DIR + os.sep + util.syspath('autonameow')
+_PARENT_DIR = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
+TEST_FILES_DIR = os.path.normpath(os.path.join(_PARENT_DIR, 'test_files'))
+AUTONAMEOW_SRCROOT_DIR = os.path.normpath(
+    os.path.join(_PARENT_DIR, util.syspath('autonameow'))
 )
 
 
@@ -65,9 +65,7 @@ def abspath_testfile(file):
     Returns:
         The full path to the specified file.
     """
-    return os.path.normpath(
-        os.path.join(TEST_FILES_DIR + os.sep + util.syspath(file))
-    )
+    return os.path.normpath(os.path.join(TEST_FILES_DIR, file))
 
 
 def make_temp_dir():

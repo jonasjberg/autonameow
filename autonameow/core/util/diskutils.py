@@ -19,12 +19,15 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import fnmatch
 import os
 import re
 import itertools
-import logging as log
+import logging
 
 from core import util
+
+log = logging.getLogger(__name__)
 
 # Needed by 'sanitize_filename' for sanitizing filenames in restricted mode.
 ACCENT_CHARS = dict(zip('ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ',
@@ -365,3 +368,50 @@ def compare_basenames(basename_one, basename_two):
         return True
     else:
         return False
+
+
+def filter_paths(path_list, ignore_globs):
+    if not ignore_globs:
+        return path_list
+
+    ignore_globs = [util.bytestring_path(i) for i in ignore_globs]
+
+    remain = []
+    for path in path_list:
+        # f = os.path.basename(util.syspath(path))
+        f = path
+
+        skip = False
+        for pattern in ignore_globs:
+            if fnmatch.fnmatch(f, pattern):
+                skip = True
+                log.info('Ignored path: "{!s}"'.format(f))
+                break
+        if skip:
+            continue
+
+        remain.append(path)
+
+    return remain
+
+
+def normpaths_from_opts(path_list, ignore_globs, recurse):
+    file_list = set()
+
+    for path in path_list:
+        if not path:
+            continue
+
+        # Path name encoding boundary. Convert to internal format.
+        path = util.normpath(path)
+        try:
+            found_files = get_files(path, recurse)
+        except FileNotFoundError:
+            log.error('File(s) not found: "{}"'.format(
+                util.displayable_path(path))
+            )
+        else:
+            for f in filter_paths(found_files, ignore_globs):
+                file_list.add(f)
+
+    return list(file_list)
