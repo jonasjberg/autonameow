@@ -145,3 +145,23 @@ class TestExtractDigits(TestCase):
         _assert_equal('1a2b3c4d', '1234')
         _assert_equal('  1a2b3c4d', '1234')
         _assert_equal('  1a2b3c4d  _', '1234')
+
+
+class TestAutodetectDecode(TestCase):
+    def _assert_encodes(self, encoding, unicode_text):
+        input = unicode_text.encode(encoding)
+        actual = textutils.autodetect_decode(input)
+        self.assertEqual(unicode_text, actual)
+
+    def test_returns_expected_given_unicode(self):
+        actual = textutils.autodetect_decode('foo bar')
+        self.assertEqual('foo bar', actual)
+
+    def test_returns_expected_given_ascii(self):
+        self._assert_encodes('ascii', 'foo bar')
+
+    def test_returns_expected_given_ISO8859(self):
+        self._assert_encodes('iso-8859-1', 'foo bar')
+
+    def test_returns_expected_given_cp1252(self):
+        self._assert_encodes('cp1252', 'foo bar')

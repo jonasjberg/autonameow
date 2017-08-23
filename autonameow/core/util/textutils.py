@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import chardet
 from unidecode import unidecode
 
 from core import util
@@ -92,3 +93,31 @@ def indent(text, amount=4, ch=' '):
     """
     padding = amount * ch
     return ''.join(padding + line for line in text.splitlines(True))
+
+
+def autodetect_decode(string):
+    """
+    Try to decode a string with an unknown encoding to a Unicode str.
+
+    Args:
+        string: The string to decode.
+
+    Returns:
+        The given string decoded to an "internal" Unicode string.
+    Raises:
+        ValueError: The autodetection and/or decoding was unsuccessful.
+    """
+    if isinstance(string, str):
+        return string
+
+    # chardet "expects a bytes object, not a unicode object".
+    assert(isinstance(string, bytes))
+
+    detected_encoding = chardet.detect(string)
+    if detected_encoding and 'encoding' in detected_encoding:
+        try:
+            string = string.decode(detected_encoding['encoding'])
+        except ValueError:
+            raise ValueError('Unable to autodetect encoding and decode string')
+
+    return string
