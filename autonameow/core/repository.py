@@ -215,9 +215,9 @@ def meowuri_class_map_dict():
 def unique_map_meowuris(meowuri_class_map):
     out = set()
 
-    # for key in ['extractors', 'analyzers', 'plugins']:
+    # for key in ['extractors', 'analyzers', 'plugins'] ..
     for key in meowuri_class_map.keys():
-        for meowuri, _ in meowuri_class_map[key].items():
+        for meowuri in meowuri_class_map[key].keys():
             assert not (isinstance(meowuri, list))
             out.add(meowuri)
 
