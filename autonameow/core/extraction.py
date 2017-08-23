@@ -82,7 +82,7 @@ class Extraction(object):
             classes = keep_slow_extractors_if_required(classes,
                                                        required_extractors)
 
-        log.debug('Got {} suitable extractors'.format(len(classes)))
+        log.debug('About to instantiate {} extractors'.format(len(classes)))
 
         for instance in self._instantiate_extractors(classes):
             self.extractor_queue.enqueue(instance)
