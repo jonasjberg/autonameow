@@ -94,19 +94,19 @@ class TestImageOCRTextExtractorWithImageFile(unittest.TestCase):
         self.assertTrue(isinstance(self.e._get_raw_text(), str))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.query(), str))
+    def test_method_execute_returns_expected_type(self):
+        self.assertTrue(isinstance(self.e.execute(), str))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_all_result_contains_expected(self):
+    def test_method_execute_all_result_contains_expected(self):
         self.skipTest(
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'")
-        actual = self.e.query()
+        actual = self.e.execute()
         self.assertEqual(self.EXPECT_TEXT, actual)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_arbitrary_field_result_contains_expected(self):
+    def test_method_execute_arbitrary_field_result_contains_expected(self):
         self.skipTest(
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'")
-        actual = self.e.query('dummy_field')
+        actual = self.e.execute(field='dummy_field')
         self.assertEqual(self.EXPECT_TEXT, actual)

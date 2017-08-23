@@ -85,26 +85,22 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
             f._get_exiftool_data()
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_returns_something(self):
-        self.assertIsNotNone(self.e.query())
+    def test_method_execute_returns_something(self):
+        self.assertIsNotNone(self.e.execute())
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.query(), dict))
+    def test_method_execute_returns_expected_type(self):
+        self.assertTrue(isinstance(self.e.execute(), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_all_result_contains_file_size(self):
-        actual = self.e.query()
+    def test_method_execute_all_result_contains_file_size(self):
+        actual = self.e.execute()
         self.assertTrue('File:FileSize' in actual)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_file_size_returns_expected(self):
-        actual = self.e.query('File:FileSize')
+    def test_method_execute_file_size_returns_expected(self):
+        actual = self.e.execute(field='File:FileSize')
         self.assertEqual(actual, 0)
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_result_file_size_is_zero(self):
-        self.assertEqual(self.e.query('File:FileSize'), 0)
 
 
 class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
@@ -123,27 +119,27 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
         ]
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_returns_something(self):
-        self.assertIsNotNone(self.e.query())
+    def test_method_execute_returns_something(self):
+        self.assertIsNotNone(self.e.execute())
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.query(), dict))
+    def test_method_execute_returns_expected_type(self):
+        self.assertTrue(isinstance(self.e.execute(), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_all_result_contains_expected_fields(self):
-        actual = self.e.query()
+    def test_method_execute_all_result_contains_expected_fields(self):
+        actual = self.e.execute()
         for field, _ in self.EXPECT_FIELD_VALUE:
             self.assertTrue(field in actual)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_all_result_contains_expected_values(self):
-        actual = self.e.query()
+    def test_method_execute_all_result_contains_expected_values(self):
+        actual = self.e.execute()
         for field, value in self.EXPECT_FIELD_VALUE:
             self.assertEqual(actual.get(field), value)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_query_field_returns_expected_value(self):
+    def test_method_execute_field_returns_expected_value(self):
         for field, value in self.EXPECT_FIELD_VALUE:
-            actual = self.e.query(field)
+            actual = self.e.execute(field=field)
             self.assertEqual(actual, value)

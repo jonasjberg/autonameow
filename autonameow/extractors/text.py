@@ -31,28 +31,25 @@ class AbstractTextExtractor(BaseExtractor):
 
         self._raw_text = None
 
-    def query(self, field=None):
-        # TODO: [TD0057] Will text extractors be queried for anything but text?
+    def execute(self, **kwargs):
         if not self._raw_text:
             try:
-                log.debug('{!s} received initial query ..'.format(self))
+                log.debug('{!s} starting initial extraction ..'.format(self))
                 self._perform_initial_extraction()
             except exceptions.ExtractorError as e:
-                log.error('{!s} query FAILED; Error: {!s}'.format(self, e))
+                log.error('{!s}: extraction FAILED; {!s}'.format(self, e))
                 raise
             except NotImplementedError as e:
                 log.debug('[WARNING] Called unimplemented code in {!s}: '
                           '{!s}'.format(self, e))
                 raise exceptions.ExtractorError
 
-        if not field:
-            # TODO: [TD0057] Fix this. Look over the entire 'query' method.
-            log.debug('{!s} responding to query for all fields'.format(self))
-            return self._raw_text
-        else:
-            log.debug('{!s} ignoring query for field (returning all fields):'
-                      ' "{!s}"'.format(self, field))
-            return self._raw_text
+        if 'field' in kwargs:
+            log.debug('{!s} ignoring field (returning all fields):'
+                      ' "{!s}"'.format(self, kwargs.get('field')))
+
+        log.debug('{!s} returning all extracted data'.format(self))
+        return self._raw_text
 
     def _perform_initial_extraction(self):
         self._raw_text = self._get_raw_text()

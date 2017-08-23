@@ -58,8 +58,8 @@ class TestBaseExtractor(TestCase):
 
     def test_method_query_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e.query()
-            self.e.query(field='some_field')
+            self.e.execute()
+            self.e.execute(field='some_field')
 
     def test_method_str_is_defined_and_reachable(self):
         self.assertIsNotNone(str(self.e))

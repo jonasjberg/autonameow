@@ -39,19 +39,20 @@ class CommonFileSystemExtractor(BaseExtractor):
 
         self.data = {}
 
-    def query(self, field=None):
+    def execute(self, **kwargs):
         if not self.data:
             try:
                 self.data = self._get_data(self.source)
             except ExtractorError as e:
-                log.error('{!s} query FAILED: {!s}'.format(self, e))
+                log.error('{!s} extraction FAILED: {!s}'.format(self, e))
                 raise
 
-        if not field:
-            log.debug('{!s} responding to query for all fields'.format(self))
+        if 'field' not in kwargs:
+            log.debug('{!s} returning all extracted data'.format(self))
             return self.data
         else:
-            log.debug('{!s} responding to query for field: '
+            field = kwargs.get('field')
+            log.debug('{!s} returning data matching field: '
                       '"{!s}"'.format(self, field))
             return self.data.get(field)
 

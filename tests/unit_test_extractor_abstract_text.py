@@ -46,8 +46,8 @@ class TestAbstractTextExtractor(TestCase):
 
     def test_query_raises_exception_with__get_raw_text_unimplemented(self):
         with self.assertRaises(exceptions.ExtractorError):
-            self.e.query()
-            self.e.query(field='some_field')
+            self.e.execute()
+            self.e.execute(field='some_field')
 
     def test_method_str_is_defined_and_reachable(self):
         self.assertIsNotNone(str(self.e))

@@ -38,34 +38,36 @@ class AbstractMetadataExtractor(BaseExtractor):
         self._raw_metadata = None
         self.metadata = None
 
-    def query(self, field=None):
+    def execute(self, **kwargs):
         """
-        Queries this extractor for a specific field or all field if argument
-        "field" is left unspecified.
+        Executes this extractor and returns all results.
 
-        Args:
-            field: Optional refinement of the query.
-                All fields are returned by default.
+        All fields are returned by default.
+        The keyword argument "field" can be used to extract specific data.
+
+        Keyword Args:
+            field: Return only data matching this field.
 
         Returns:
-            The specified fields or False if the extraction fails.
+            Data matching the given field or False if the extraction fails.
         """
         if not self.metadata:
-            log.debug('{!s} received initial query ..'.format(self))
+            log.debug('{!s} starting initial extraction ..'.format(self))
             self._raw_metadata = self._perform_initial_extraction()
 
             if not self._raw_metadata:
-                log.error('{!s}: Query FAILED'.format(self))
+                log.error('{!s}: extraction FAILED'.format(self))
                 return None
 
             # Internal data format boundary.  Wrap "raw" data with type classes.
             self.metadata = self._to_internal_format(self._raw_metadata)
 
-        if not field:
-            log.debug('{!s} responding to query for all fields'.format(self))
+        if 'field' not in kwargs:
+            log.debug('{!s} returning all extracted data'.format(self))
             return self.metadata
         else:
-            log.debug('{!s} responding to query for field: '
+            field = kwargs.get('field')
+            log.debug('{!s} returning data matching field: '
                       '"{!s}"'.format(self, field))
             return self.metadata.get(field)
 

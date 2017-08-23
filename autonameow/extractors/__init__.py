@@ -98,11 +98,11 @@ class BaseExtractor(object):
             assert(isinstance(source, bytes))
         self.source = source
 
-    def query(self, field=None):
+    def execute(self, **kwargs):
         """
-        Queries the extractor for extracted data.
+        Starts extracting data using the extractor.
 
-        Argument "field" is optional. All data is returned by default.
+        Keyword argument "field" is optional. All data is returned by default.
         If the data is text, is should be returned as Unicode strings.
 
         Implementing classes should make sure to catch all exceptions and
@@ -111,9 +111,9 @@ class BaseExtractor(object):
         Otherwise, implementers should strive to return empty values of the
         same type as that of the expected, valid data.
 
-        Args:
-            field: Optional refinement of the query.
-                Expect format and type is defined by the extractor class.
+        Keyword Args:
+            field: Return only data matching this field.
+                Field format and type is defined by the extractor class.
 
         Returns:
             All data gathered by the extractor if no field is specified.

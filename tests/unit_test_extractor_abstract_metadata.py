@@ -44,8 +44,8 @@ class TestAbstractMetadataExtractor(TestCase):
 
     def test_query_raises_exception_with__get_raw_metadata_unimplemented(self):
         with self.assertRaises(exceptions.ExtractorError):
-            self.assertIsNone(self.e.query())
-            self.assertIsNone(self.e.query(field='some_field'))
+            self.assertIsNone(self.e.execute())
+            self.assertIsNone(self.e.execute(field='some_field'))
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.handles_mime_types)

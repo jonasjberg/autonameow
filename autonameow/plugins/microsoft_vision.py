@@ -282,13 +282,13 @@ class MicrosoftVisionPlugin(BasePlugin):
     def test_init(cls):
         return cls.API_KEY is not None
 
-    def query(self, field=None):
+    def query(self, **kwargs):
         # TODO: [TD0061] Re-implement basic queries to this script.
         # NOTE: Expecting "data" to be a valid path to an image file.
         # if not cls.API_KEY:
         #     raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
 
-        if field == 'caption' or field == 'tags':
+        if kwargs.get('field') == 'caption' or kwargs.get('field') == 'tags':
             response = query_api(self.source, self.API_KEY)
             if not response:
                 # log.error('[plugin.microsoft_vision] Unable to query to API')
@@ -297,12 +297,12 @@ class MicrosoftVisionPlugin(BasePlugin):
                 # log.debug('Received microsoft_vision API query response')
                 pass
 
-            if field == 'caption':
+            if kwargs.get('field') == 'caption':
                 caption = get_caption_text(response)
                 # log.debug('Returning caption: "{!s}"'.format(caption))
                 return str(caption)
 
-            elif field == 'tags':
+            elif kwargs.get('field') == 'tags':
                 tags = get_tags(response, 5)
                 tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
                 # log.debug('Returning tags: {}'.format(tags_pretty))
