@@ -36,19 +36,19 @@ from core.fileobject import FileObject
 
 class TestUnitUtilityConstants(TestCase):
     def test_tests_dir_is_defined(self):
-        self.assertIsNotNone(uu.TESTS_DIR)
+        self.assertIsNotNone(uu.TEST_FILES_DIR)
 
     def test_tests_dir_exists(self):
-        self.assertTrue(os.path.exists(uu.TESTS_DIR))
+        self.assertTrue(os.path.exists(uu.TEST_FILES_DIR))
 
     def test_tests_dir_is_a_directory(self):
-        self.assertTrue(os.path.isdir(uu.TESTS_DIR))
+        self.assertTrue(os.path.isdir(uu.TEST_FILES_DIR))
 
     def test_tests_dir_is_readable(self):
-        self.assertTrue(os.access(uu.TESTS_DIR, os.R_OK))
+        self.assertTrue(os.access(uu.TEST_FILES_DIR, os.R_OK))
 
     def test_tests_dir_is_executable(self):
-        self.assertTrue(os.access(uu.TESTS_DIR, os.X_OK))
+        self.assertTrue(os.access(uu.TEST_FILES_DIR, os.X_OK))
 
     def test_autonameow_srcroot_dir_is_defined(self):
         self.assertIsNotNone(uu.AUTONAMEOW_SRCROOT_DIR)
