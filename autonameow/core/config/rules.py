@@ -572,6 +572,12 @@ def is_valid_source(source_value):
     Returns:
         The given source value if it passes the test, otherwise False.
     """
+    # TODO: [TD0080] Allow literal strings in 'DATA_SOURCES'.
+    #
+    #       DATA_SOURCES:
+    #           datetime: metadata.exiftool.EXIF:DateTimeOriginal
+    #           extension: jpg
+    #           ^^^^^^^^^^^^^^---< This is not considered a valid source.
     if not source_value or not source_value.strip():
         return False
 

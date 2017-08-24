@@ -43,6 +43,30 @@ High Priority
 
 * `[TD0061]` Re-implement basic queries to the "microsoft vision" plugin.
 
+* `[TD0080]` __Fix literal strings not considered a valid "data source".__  
+  It is currently not possible to specify a fixed literal value for a name
+  template field. Take the following example rule;
+
+    ```yaml
+	-   CONDITIONS:
+            filesystem.basename.full: 'P[0-9]{7}.JPG'
+            filesystem.contents.mime_type: image/jpeg
+        DATA_SOURCES:
+            datetime: metadata.exiftool.EXIF:DateTimeOriginal
+            extension: jpg
+        NAME_FORMAT: '{datetime}.{extension}'
+    ```
+
+  This rule will not pass validation because the literal string `jpg` is
+  discarded by the `is_valid_source` function in `core/config/rules.py`;
+
+	```
+	$ autonameow --debug --dry-run --automagic P1020738.JPG 2>&1 | grep -i invalid
+	[DEBUG] parse_data_sources (549) Invalid data source: [extension]: jpg
+	```
+
+  __Related:__ `[TD0015][TD0017][TD0049]`
+
 
 Medium Priority
 ---------------
