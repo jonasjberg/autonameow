@@ -412,3 +412,13 @@ def is_executable(command):
         True if the command would be executable, otherwise False.
     """
     return shutil.which(command) is not None
+
+
+def contains_none(iterable):
+    """
+    Returns True if the given iterable contains any None value.
+    """
+    for item in iterable:
+        if item is None:
+            return True
+    return False

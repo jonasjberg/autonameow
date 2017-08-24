@@ -525,3 +525,34 @@ class TestWhichExecutable(TestCase):
 
     def test_returns_false_for_bogus_commands(self):
         self.assertFalse(util.is_executable('thisisntexecutablesurely'))
+
+
+class TestNoNone(TestCase):
+    def _assert_false(self, test_data):
+        actual = util.contains_none(test_data)
+        self.assertFalse(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def _assert_true(self, test_data):
+        actual = util.contains_none(test_data)
+        self.assertTrue(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def test_returns_true_as_expected(self):
+        self._assert_true([None])
+        self._assert_true([None, None])
+        self._assert_true(['', None])
+        self._assert_true([None, ''])
+        self._assert_true([None, '', None])
+        self._assert_true(['', None, ''])
+        self._assert_true([None, 'a'])
+        self._assert_true(['a', None])
+        self._assert_true([None, 'a', None])
+        self._assert_true(['a', None, 'a'])
+        self._assert_true(['a', None, ''])
+
+    def test_returns_false_as_expected(self):
+        self._assert_false([])
+        self._assert_false([''])
+        self._assert_false([' '])
+        self._assert_false(['a', ''])
