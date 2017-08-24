@@ -36,7 +36,6 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                           'application/epub+zip', 'text/*']
     meowuri_root = 'metadata.exiftool'
 
-    # TODO: [TD0044] Rework converting "raw data" to an internal format.
     tagname_type_lookup = {
         'Composite:Aperture': types.AW_FLOAT,
         'Composite:ImageSize': types.AW_STRING,

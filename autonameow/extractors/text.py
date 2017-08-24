@@ -19,10 +19,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 
-from core import exceptions
+import chardet
+
+from core import (
+    exceptions,
+    types,
+    util
+)
+from core.util import textutils
 from extractors import BaseExtractor
+
+log = logging.getLogger(__name__)
 
 
 class AbstractTextExtractor(BaseExtractor):
@@ -51,8 +60,22 @@ class AbstractTextExtractor(BaseExtractor):
         log.debug('{!s} returning all extracted data'.format(self))
         return self._raw_text
 
+    def _decode_raw(self, text):
+        try:
+            text = types.AW_STRING(text)
+        except exceptions.AWTypeError:
+            try:
+                text = textutils.autodetect_decode(text)
+            except ValueError:
+                log.warning('{!s}: Unable to decode text'.format(self))
+                return ''
+
+        text = util.remove_nonbreaking_spaces(text)
+        return text
+
     def _perform_initial_extraction(self):
-        self._raw_text = self._get_raw_text()
+        raw_text = self._get_raw_text()
+        self._raw_text = self._decode_raw(raw_text)
 
     def _get_raw_text(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')

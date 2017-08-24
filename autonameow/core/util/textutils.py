@@ -20,38 +20,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import chardet
-from unidecode import unidecode
 
 from core import util
-
-
-def sanitize_text(text):
-    """
-    Sanitizes text of unknown origin, encoding and content.
-    :param text: text to process
-    :return: sanitized text
-    """
-    if text is None or text.strip() is None:
-        return False
-
-    # TODO: [TD0004] Handle text encoding properly.
-    # TODO: [TD0044] Rework converting "raw data" to internal representations.
-
-    # NOTE(jonas): This strips all umlauts from 'test_files/gmail.pdf" on Linux.
-    # try:
-    #     text = unidecode(text)
-    # except UnicodeDecodeError:
-    #     pass
-
-    # Collapse whitespace.
-    # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
-    # text = text.replace('\xa0', ' ')
-
-    # text = text.decode('unicode-escape')
-    # text = unicode(text, 'UTF-8')
-
-    # TODO: [TD0004] Enforce encoding boundary for extracted data.
-    return util.encode_(text)
 
 
 def extract_digits(string):

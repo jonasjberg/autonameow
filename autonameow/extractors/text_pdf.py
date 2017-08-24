@@ -68,13 +68,10 @@ class PdfTextExtractor(AbstractTextExtractor):
                 continue
 
             if text and len(text) > 1:
-                log.debug('Extracted text with: {}'.format(extractor.__name__))
-
-                # TODO: [TD0044] Fix up post-processing extracted text.
-                # text = textutils.sanitize_text(text)
                 break
 
         if text:
+            log.debug('Extracted text with: {}'.format(extractor.__name__))
             return text
         else:
             log.debug('Unable to extract textual content from PDF')

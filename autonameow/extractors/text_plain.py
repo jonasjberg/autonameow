@@ -19,10 +19,18 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
+
+import chardet
 
 from core.exceptions import ExtractorError
+from core.util import textutils
 from extractors.text import AbstractTextExtractor
+
+
+log = logging.getLogger(__name__)
+
+DEFAULT_ENCODING = 'utf8'
 
 
 class PlainTextExtractor(AbstractTextExtractor):
@@ -35,7 +43,7 @@ class PlainTextExtractor(AbstractTextExtractor):
     def _get_raw_text(self):
         log.debug('Extracting raw text from plain text file ..')
         result = read_entire_text_file(self.source)
-        return result
+        return self._decode_raw(result)
 
     @classmethod
     def check_dependencies(cls):
@@ -43,19 +51,34 @@ class PlainTextExtractor(AbstractTextExtractor):
 
 
 def read_entire_text_file(file_path):
+    contents = None
     try:
-        with open(file_path, 'r', encoding='utf8') as fh:
+        with open(file_path, 'r', encoding=DEFAULT_ENCODING) as fh:
             contents = fh.readlines()
-    except (FileNotFoundError, UnicodeDecodeError) as e:
-        log.debug('{!s}'.format(e))
+    except FileNotFoundError as e:
         raise ExtractorError(e)
+    except UnicodeDecodeError as e:
+        log.debug(str(e))
+        log.debug('Unable to decode text with {} encoding. Reading as bytes '
+                  'and attempting auto-detection..'.format(DEFAULT_ENCODING))
+
+        detected_encoding = chardet.detect(open(file_path, 'rb').read())
+        if detected_encoding and 'encoding' in detected_encoding:
+            try:
+                with open(file_path, 'r',
+                          encoding=detected_encoding['encoding']) as fh:
+                    contents = fh.readlines()
+            except (UnicodeDecodeError, ValueError) as e:
+                raise ExtractorError(
+                    'Unable to read with auto-detected encoding; {!s}'.format(e)
+                )
 
     if contents:
+        assert(isinstance(contents, str))
         log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
                                                                   file_path))
-        # TODO: [TD0044][TD0004] Cleanup/normalize and ensure text encoding.
         contents = '\n'.join(contents)
-        assert(isinstance(contents, str))
+        contents = textutils.remove_nonbreaking_spaces(contents)
         return contents
     else:
         log.debug('Read NOTHING from file "{!s}"'.format(file_path))
