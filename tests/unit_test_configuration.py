@@ -31,8 +31,8 @@ import unit_utils as uu
 
 
 def load_yaml(path):
-    with open(path, 'r') as file_handle:
-        data = yaml.load(file_handle)
+    with open(path, 'r', encoding='utf-8') as fh:
+        data = yaml.safe_load(fh)
     return data
 
 
