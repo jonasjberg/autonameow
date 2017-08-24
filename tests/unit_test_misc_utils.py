@@ -556,3 +556,25 @@ class TestNoNone(TestCase):
         self._assert_false([''])
         self._assert_false([' '])
         self._assert_false(['a', ''])
+
+
+class TestFilterNone(TestCase):
+    def _assert_filters(self, test_data, expected):
+        actual = util.filter_none(test_data)
+        self.assertTrue(isinstance(actual, list))
+        self.assertListEqual(actual, expected)
+        self.assertEqual(len(actual), len(expected))
+
+    def test_returns_list_without_none_values_as_is(self):
+        self._assert_filters(['a'], ['a'])
+        self._assert_filters(['a', 'b'], ['a', 'b'])
+        self._assert_filters(['a', 'b', 'c'], ['a', 'b', 'c'])
+
+    def test_removes_none_values_from_list(self):
+        self._assert_filters(['a', None], ['a'])
+        self._assert_filters([None, 'a'], ['a'])
+        self._assert_filters(['a', 'b'], ['a', 'b'])
+        self._assert_filters(['a', None, 'b'], ['a', 'b'])
+        self._assert_filters(['a', None, 'b', 'c'], ['a', 'b', 'c'])
+        self._assert_filters(['a', None, 'b', None, 'c'], ['a', 'b', 'c'])
+        self._assert_filters(['a', None, 'b', None, 'c', None], ['a', 'b', 'c'])

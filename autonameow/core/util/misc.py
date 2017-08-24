@@ -422,3 +422,10 @@ def contains_none(iterable):
         if item is None:
             return True
     return False
+
+
+def filter_none(iterable):
+    """
+    Removes any None values from the given iterable and returns the result.
+    """
+    return [item for item in iterable if item is not None]
