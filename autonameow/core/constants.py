@@ -157,7 +157,94 @@ DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR = ' -- '
 DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR = ' '
 DEFAULT_FILESYSTEM_SANITIZE_FILENAME = True
 DEFAULT_FILESYSTEM_SANITIZE_STRICT = False
-DEFAULT_FILESYSTEM_IGNORE = ['.DS_Store', 'Thumbs.db']
+
+DEFAULT_FILESYSTEM_IGNORE_DARWIN = frozenset([
+    # Metadata
+    '*/.DS_Store',
+    '*/.AppleDouble',
+    '*/.LSOverride',
+
+    # Thumbnails
+    '*/._*',
+
+    # Files that might appear in the root of a volume
+    '*/.DocumentRevisions-V100',
+    '*/.fseventsd',
+    '*/.Spotlight-V100',
+    '*/.TemporaryItems',
+    '*/.Trashes',
+    '*/.VolumeIcon.icns',
+    '*/.com.apple.timemachine.donotpresent',
+
+    # Directories potentially created on remote AFP share
+    '*/.AppleDB',
+    '*/.AppleDesktop',
+    '*/Network Trash Folder',
+    '*/Temporary Items',
+    '*/.apdisk'
+])
+
+DEFAULT_FILESYSTEM_IGNORE_LINUX = frozenset([
+    # FUSE temporary files
+    '*/.fuse_hidden*',
+
+    # KDE directory preferences
+    '*/.directory',
+
+    # Trash directories found at partition/disk roots
+    '*/.Trash-*',
+
+    # Created by NFS when an open file is removed but is still being accessed
+    '*/.nfs*'
+])
+
+DEFAULT_FILESYSTEM_IGNORE_WINDOWS = frozenset([
+    # Shortcuts
+    '*.lnk',
+
+    # Folder configuration
+    '*/Desktop.ini',
+
+    # Thumbnail cache files
+    '*/ehthumbs.db',
+    '*/ehthumbs_vista.db',
+    '*/Thumbs.db',
+
+    # Recycle Bin used on file shares
+    '*/$RECYCLE.BIN*'
+])
+
+DEFAULT_FILESYSTEM_IGNORE_VCS = frozenset([
+    # Git
+    '*/.git*', '*/.repo',
+
+    # Mercurial
+    '*/.hg', '*/.hgignore',
+
+    # SVN
+    '*/.svn', '*/.svnignore',
+
+    # Microsoft TFS config
+    '*/.tfignore',
+
+    # Visual Source Safe
+    '*/vssver.scc',
+
+    # CVS
+    '*/CVS', '*/.cvsignore', '*/RCS', '*/SCCS',
+
+    # Monotone
+    '*/_MTN',
+
+    # Darcs
+    '*/_darcs',
+])
+
+
+DEFAULT_FILESYSTEM_IGNORE = DEFAULT_FILESYSTEM_IGNORE_DARWIN.union(
+    DEFAULT_FILESYSTEM_IGNORE_LINUX).union(
+    DEFAULT_FILESYSTEM_IGNORE_WINDOWS).union(
+    DEFAULT_FILESYSTEM_IGNORE_VCS)
 
 # Exit code values returned to the executing shell or parent process.
 # Normal, successful termination should return "0" (EXIT_SUCCESS)
