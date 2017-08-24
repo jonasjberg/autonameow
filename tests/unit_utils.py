@@ -21,27 +21,21 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import inspect
-import os
 import io
-import tempfile
+import os
 import sys
+import tempfile
 import unittest
-
 from contextlib import contextmanager
 from datetime import datetime
 
 import analyzers
-import unit_utils_constants as uuconst
+
+from core import util
 from core.config import rules
 from core.fileobject import FileObject
-from core import util
 
-_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-_PARENT_DIR = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
-TEST_FILES_DIR = os.path.normpath(os.path.join(_PARENT_DIR, 'test_files'))
-AUTONAMEOW_SRCROOT_DIR = os.path.normpath(
-    os.path.join(_PARENT_DIR, util.syspath('autonameow'))
-)
+import unit_utils_constants as uuconst
 
 
 class TestCase(unittest.TestCase):
@@ -65,7 +59,7 @@ def abspath_testfile(file):
     Returns:
         The full path to the specified file.
     """
-    return os.path.normpath(os.path.join(TEST_FILES_DIR, file))
+    return os.path.normpath(os.path.join(uuconst.TEST_FILES_DIR, file))
 
 
 def make_temp_dir():

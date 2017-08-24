@@ -378,14 +378,13 @@ def filter_paths(path_list, ignore_globs):
 
     remain = []
     for path in path_list:
-        # f = os.path.basename(util.syspath(path))
-        f = path
-
         skip = False
         for pattern in ignore_globs:
-            if fnmatch.fnmatch(f, pattern):
+            if fnmatch.fnmatch(path, pattern):
                 skip = True
-                log.info('Ignored path: "{!s}"'.format(f))
+                log.info(
+                    'Ignored path: "{!s}"'.format(util.displayable_path(path))
+                )
                 break
         if skip:
             continue

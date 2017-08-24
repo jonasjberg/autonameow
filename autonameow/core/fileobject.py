@@ -61,14 +61,6 @@ class FileObject(object):
         self.basename_prefix = diskutils.basename_prefix(self.abspath)
         self.basename_suffix = diskutils.basename_suffix(self.abspath)
 
-        # TODO: Remove these, unused since "filetags"-related was moved.
-        self.BETWEEN_TAG_SEPARATOR = util.bytestring_path(
-            opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
-        )
-        self.FILENAME_TAG_SEPARATOR = util.bytestring_path(
-            opts.options['FILETAGS_OPTIONS'].get('filename_tag_separator')
-        )
-
     def __str__(self):
         return util.displayable_path(self.filename)
 

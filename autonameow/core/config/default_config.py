@@ -181,7 +181,7 @@ DEFAULT_CONFIG = {
     'FILESYSTEM_OPTIONS': {
         'sanitize_filename': True,
         'sanitize_strict': False,
-        'ignore': ['*/.DS_Store', '*/Thumbs.db', '*~', '*.swp']
+        'ignore': ['*.swp', '*/.*']
     },
 
     #  Filetags Options

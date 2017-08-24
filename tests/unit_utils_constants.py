@@ -20,10 +20,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
+from core import util
+
+_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+_PARENT_DIR = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
+TEST_FILES_DIR = os.path.normpath(os.path.join(_PARENT_DIR, 'test_files'))
+AUTONAMEOW_SRCROOT_DIR = os.path.normpath(
+    os.path.join(_PARENT_DIR, util.syspath('autonameow'))
+)
+
 
 # Constants used to construct dummy/mock test fixtures.
-
-
 DUMMY_RAW_RULE_CONDITIONS = [
     # Part of Rule 1
     ('filesystem.contents.mime_type', 'application/pdf'),
@@ -73,5 +82,3 @@ DUMMY_RAW_RULE_DATA_SOURCES = [
      'publisher': 'metadata.exiftool.XMP-dc:Publisher',
      'title': 'metadata.exiftool.XMP-dc:Title'},
 ]
-
-

@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from datetime import datetime
 
 from core import (
     util,
@@ -157,7 +158,106 @@ DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR = ' -- '
 DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR = ' '
 DEFAULT_FILESYSTEM_SANITIZE_FILENAME = True
 DEFAULT_FILESYSTEM_SANITIZE_STRICT = False
-DEFAULT_FILESYSTEM_IGNORE = ['.DS_Store', 'Thumbs.db']
+
+DEFAULT_FILESYSTEM_IGNORE_DARWIN = frozenset([
+    # Metadata
+    '*/.DS_Store',
+    '*/.AppleDouble',
+    '*/.LSOverride',
+
+    # Thumbnails
+    '*/._*',
+
+    # Files that might appear in the root of a volume
+    '*/.DocumentRevisions-V100',
+    '*/.fseventsd',
+    '*/.Spotlight-V100',
+    '*/.TemporaryItems',
+    '*/.Trashes',
+    '*/.VolumeIcon.icns',
+    '*/.com.apple.timemachine.donotpresent',
+
+    # Directories potentially created on remote AFP share
+    '*/.AppleDB',
+    '*/.AppleDesktop',
+    '*/Network Trash Folder',
+    '*/Temporary Items',
+    '*/.apdisk'
+])
+
+DEFAULT_FILESYSTEM_IGNORE_LINUX = frozenset([
+    # Temporary/backup files
+    '*~',
+
+    # FUSE temporary files
+    '*/.fuse_hidden*',
+
+    # KDE directory preferences
+    '*/.directory',
+
+    # Trash directories found at partition/disk roots
+    '*/.Trash-*',
+
+    # Created by NFS when an open file is removed but is still being accessed
+    '*/.nfs*'
+])
+
+DEFAULT_FILESYSTEM_IGNORE_WINDOWS = frozenset([
+    # Shortcuts
+    '*.lnk',
+
+    # Folder configuration
+    '*/Desktop.ini',
+
+    # Thumbnail cache files
+    '*/ehthumbs.db',
+    '*/ehthumbs_vista.db',
+    '*/Thumbs.db',
+
+    # Recycle Bin used on file shares
+    '*/$RECYCLE.BIN*'
+])
+
+DEFAULT_FILESYSTEM_IGNORE_VCS = frozenset([
+    # Git
+    '*/.git*', '*/.repo',
+
+    # Mercurial
+    '*/.hg', '*/.hgignore',
+
+    # SVN
+    '*/.svn', '*/.svnignore',
+
+    # Microsoft TFS config
+    '*/.tfignore',
+
+    # Visual Source Safe
+    '*/vssver.scc',
+
+    # CVS
+    '*/CVS', '*/.cvsignore', '*/RCS', '*/SCCS',
+
+    # Monotone
+    '*/_MTN',
+
+    # Darcs
+    '*/_darcs',
+])
+
+
+DEFAULT_FILESYSTEM_IGNORE = DEFAULT_FILESYSTEM_IGNORE_DARWIN.union(
+    DEFAULT_FILESYSTEM_IGNORE_LINUX).union(
+    DEFAULT_FILESYSTEM_IGNORE_WINDOWS).union(
+    DEFAULT_FILESYSTEM_IGNORE_VCS)
+
+
+# TODO: [TD0043] Allow storing these in the configuration file.
+# Ignore all date/time-information for the specified year and years prior.
+YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
+
+# Ignore all date/time-information following the specified year (inclusive).
+YEAR_UPPER_LIMIT = util.dateandtime.nextyear(datetime.today())
+
 
 # Exit code values returned to the executing shell or parent process.
 # Normal, successful termination should return "0" (EXIT_SUCCESS)

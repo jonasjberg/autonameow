@@ -278,10 +278,27 @@ class Configuration(object):
             'sanitize_strict',
             constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
-        _try_load_filesystem_option(
-            'ignore',
+
+        # Unlikely the previous options; first load the default ignore patterns,
+        # then combine these defaults with any user-specified patterns.
+        util.nested_dict_set(
+            self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
             constants.DEFAULT_FILESYSTEM_IGNORE
         )
+        if 'FILESYSTEM_OPTIONS' in self._data:
+            _user_ignores = self._data['FILESYSTEM_OPTIONS'].get('ignore')
+            if isinstance(_user_ignores, list):
+                _user_ignores = util.filter_none(_user_ignores)
+                if _user_ignores:
+                    _defaults = util.nested_dict_get(
+                        self._options, ['FILESYSTEM_OPTIONS', 'ignore']
+                    )
+
+                    _combined = _defaults.union(frozenset(_user_ignores))
+                    util.nested_dict_set(
+                        self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
+                        _combined
+                    )
 
     def _load_version(self):
         raw_version = self._data.get('autonameow_version')
