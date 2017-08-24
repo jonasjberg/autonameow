@@ -20,50 +20,50 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
 import os
 import types
-
+from datetime import datetime
 from unittest import TestCase
-import unit_utils as uu
-import unit_utils_constants as uuconst
 
 import analyzers
 from analyzers import BaseAnalyzer
 from core.config import rules
 from core.fileobject import FileObject
 
+import unit_utils as uu
+import unit_utils_constants as uuconst
+
 
 class TestUnitUtilityConstants(TestCase):
     def test_tests_dir_is_defined(self):
-        self.assertIsNotNone(uu.TEST_FILES_DIR)
+        self.assertIsNotNone(uuconst.TEST_FILES_DIR)
 
     def test_tests_dir_exists(self):
-        self.assertTrue(os.path.exists(uu.TEST_FILES_DIR))
+        self.assertTrue(os.path.exists(uuconst.TEST_FILES_DIR))
 
     def test_tests_dir_is_a_directory(self):
-        self.assertTrue(os.path.isdir(uu.TEST_FILES_DIR))
+        self.assertTrue(os.path.isdir(uuconst.TEST_FILES_DIR))
 
     def test_tests_dir_is_readable(self):
-        self.assertTrue(os.access(uu.TEST_FILES_DIR, os.R_OK))
+        self.assertTrue(os.access(uuconst.TEST_FILES_DIR, os.R_OK))
 
     def test_tests_dir_is_executable(self):
-        self.assertTrue(os.access(uu.TEST_FILES_DIR, os.X_OK))
+        self.assertTrue(os.access(uuconst.TEST_FILES_DIR, os.X_OK))
 
     def test_autonameow_srcroot_dir_is_defined(self):
-        self.assertIsNotNone(uu.AUTONAMEOW_SRCROOT_DIR)
+        self.assertIsNotNone(uuconst.AUTONAMEOW_SRCROOT_DIR)
 
     def test_autonameow_srcroot_dir_exists(self):
-        self.assertTrue(os.path.exists(uu.AUTONAMEOW_SRCROOT_DIR))
+        self.assertTrue(os.path.exists(uuconst.AUTONAMEOW_SRCROOT_DIR))
 
     def test_autonameow_srcroot_dir_is_a_directory(self):
-        self.assertTrue(os.path.isdir(uu.AUTONAMEOW_SRCROOT_DIR))
+        self.assertTrue(os.path.isdir(uuconst.AUTONAMEOW_SRCROOT_DIR))
 
     def test_autonameow_srcroot_dir_is_readable(self):
-        self.assertTrue(os.access(uu.AUTONAMEOW_SRCROOT_DIR, os.R_OK))
+        self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.R_OK))
 
     def test_autonameow_srcroot_dir_is_executable(self):
-        self.assertTrue(os.access(uu.AUTONAMEOW_SRCROOT_DIR, os.X_OK))
+        self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.X_OK))
 
 
 class TestUnitUtilityMakeTempDir(TestCase):
@@ -138,8 +138,8 @@ class TestUnitUtilityGetMockFileObject(TestCase):
         self.assertEqual(actual.mime_type, 'video/mp4')
 
     def test_get_mock_fileobject_with_mime_type_all_types(self):
-        mime_types = ['application/pdf', 'image/gif', 'image/jpeg', 'image/png',
-                      'image/x-ms-bmp', 'text/plain', 'video/mp4']
+        mime_types = ['application/pdf', 'image/gif', 'image/jpeg',
+                      'image/png', 'image/x-ms-bmp', 'text/plain', 'video/mp4']
 
         for mt in mime_types:
             actual = uu.get_mock_fileobject(mime_type=mt)
