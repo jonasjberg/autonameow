@@ -315,3 +315,12 @@ def has_data_for_placeholder_fields(template, data):
             log.error('Missing data for placeholder field "{}"'.format(field))
             result = False
     return result
+
+
+def probable_extension(file_object):
+    # TODO: [TD0017] Get file extension for MIME-type.
+    import mimetypes
+    candidates = mimetypes.guess_all_extensions(mime_type)
+    if file_object.extension in candidates:
+        return file_object.extension
+    pass
