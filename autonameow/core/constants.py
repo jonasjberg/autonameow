@@ -185,6 +185,9 @@ DEFAULT_FILESYSTEM_IGNORE_DARWIN = frozenset([
 ])
 
 DEFAULT_FILESYSTEM_IGNORE_LINUX = frozenset([
+    # Temporary/backup files
+    '*~',
+
     # FUSE temporary files
     '*/.fuse_hidden*',
 
