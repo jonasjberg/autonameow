@@ -23,11 +23,11 @@ import argparse
 import logging
 import os
 
-from core import util
-from core.util import (
-    dateandtime,
-    cli
+from core import (
+    constants,
+    util
 )
+from core.util import cli
 
 
 def arg_is_year(value):
@@ -164,7 +164,7 @@ def init_argparser():
 
     optgrp_filter = parser.add_argument_group('Processing options')
 
-    ignore_to_year_default = str(dateandtime.YEAR_LOWER_LIMIT.strftime('%Y'))
+    ignore_to_year_default = constants.YEAR_LOWER_LIMIT.strftime('%Y')
     optgrp_filter.add_argument(
         '--ignore-to-year',
         metavar='YYYY',
@@ -176,7 +176,7 @@ def init_argparser():
              'years prior. Default: {}'.format(ignore_to_year_default)
     )
 
-    ignore_from_year_default = str(dateandtime.YEAR_UPPER_LIMIT.strftime('%Y'))
+    ignore_from_year_default = constants.YEAR_UPPER_LIMIT.strftime('%Y')
     optgrp_filter.add_argument(
         '--ignore-from-year',
         metavar='YYYY',

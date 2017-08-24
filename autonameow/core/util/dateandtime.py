@@ -19,16 +19,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import dateutil
 import logging as log
 import re
 import string
 from datetime import datetime, timedelta
 
+import dateutil
 import pytz
 from dateutil import parser
 
-from core import util
+from core import (
+    constants,
+    util
+)
 from core.util import textutils
 
 
@@ -52,11 +55,6 @@ def nextyear(dt):
         # February 29th in a leap year
         # Add 365 days instead to arrive at March 1st
         return dt + timedelta(days=365)
-
-
-# TODO: [TD0043] Allow storing these in the configuration file.
-YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
-YEAR_UPPER_LIMIT = nextyear(datetime.today())
 
 
 def _year_is_probable(year):
@@ -97,9 +95,9 @@ def _year_is_probable(year):
                         'to datetime-object.'.format(year))
             return False
 
-    if year.year > YEAR_UPPER_LIMIT.year:
+    if year.year > constants.YEAR_UPPER_LIMIT.year:
         return False
-    elif year.year < YEAR_LOWER_LIMIT.year:
+    elif year.year < constants.YEAR_LOWER_LIMIT.year:
         return False
     else:
         # Year lies within window, assume it is OK.
@@ -122,9 +120,9 @@ def date_is_probable(date):
                     '(expected datetime)'.format(type(date)))
         return False
 
-    if date.year > YEAR_UPPER_LIMIT.year:
+    if date.year > constants.YEAR_UPPER_LIMIT.year:
         return False
-    elif date.year < YEAR_LOWER_LIMIT.year:
+    elif date.year < constants.YEAR_LOWER_LIMIT.year:
         return False
     else:
         # Date lies within window, assume it is OK.

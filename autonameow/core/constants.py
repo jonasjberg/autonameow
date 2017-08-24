@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from datetime import datetime
 
 from core import (
     util,
@@ -248,6 +249,15 @@ DEFAULT_FILESYSTEM_IGNORE = DEFAULT_FILESYSTEM_IGNORE_DARWIN.union(
     DEFAULT_FILESYSTEM_IGNORE_LINUX).union(
     DEFAULT_FILESYSTEM_IGNORE_WINDOWS).union(
     DEFAULT_FILESYSTEM_IGNORE_VCS)
+
+
+# TODO: [TD0043] Allow storing these in the configuration file.
+# Ignore all date/time-information for the specified year and years prior.
+YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
+
+# Ignore all date/time-information following the specified year (inclusive).
+YEAR_UPPER_LIMIT = util.dateandtime.nextyear(datetime.today())
+
 
 # Exit code values returned to the executing shell or parent process.
 # Normal, successful termination should return "0" (EXIT_SUCCESS)
