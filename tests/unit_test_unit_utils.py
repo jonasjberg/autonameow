@@ -66,6 +66,19 @@ class TestUnitUtilityConstants(TestCase):
         self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.X_OK))
 
 
+class TestUnitUtilityAbsPathTestFile(TestCase):
+    def test_abspath_testfile_is_defined(self):
+        self.assertIsNotNone(uu.abspath_testfile)
+
+    def test_returns_expected_encoding(self):
+        actual = uu.abspath_testfile('empty')
+        self.assertTrue(isinstance(actual, str))
+
+    def test_returns_absolute_paths(self):
+        actual = uu.abspath_testfile('empty')
+        self.assertTrue(os.path.isabs(actual))
+
+
 class TestUnitUtilityMakeTempDir(TestCase):
     def test_make_temp_dir(self):
         self.assertIsNotNone(uu.make_temp_dir())
