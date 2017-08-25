@@ -79,6 +79,33 @@ class TestUnitUtilityAbsPathTestFile(TestCase):
         self.assertTrue(os.path.isabs(actual))
 
 
+class TestUnitUtilityFileExists(TestCase):
+    def test_testfile_exists_is_defined(self):
+        self.assertIsNotNone(uu.file_exists)
+
+    def _check_return(self, file_to_test):
+        actual = uu.file_exists(file_to_test)
+        self.assertTrue(isinstance(actual, bool))
+
+        expected = os.path.isfile(file_to_test)
+        self.assertEqual(actual, expected)
+
+    def test_returns_false_for_files_assumed_missing(self):
+        _dummy_files = [
+            '/foo/bar/baz/mjao',
+            '/tmp/this_isnt_a_file_right_or_huh'
+        ]
+        for df in _dummy_files:
+            self._check_return(df)
+
+    def test_returns_true_for_files_likely_to_exist(self):
+        _files = [
+            __file__,
+        ]
+        for df in _files:
+            self._check_return(df)
+
+
 class TestUnitUtilityMakeTempDir(TestCase):
     def test_make_temp_dir(self):
         self.assertIsNotNone(uu.make_temp_dir())

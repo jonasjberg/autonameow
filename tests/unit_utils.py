@@ -63,6 +63,19 @@ def abspath_testfile(testfile_basename):
                                         testfile_basename))
 
 
+def file_exists(file_path):
+    """
+    Tests whether a given path is an existing, readable file.
+
+    Args:
+        file_path: Path to the file to test.
+
+    Returns:
+        True if the file exists and is readable, else False.
+    """
+    return os.path.isfile(file_path)
+
+
 def make_temp_dir():
     """
     Creates and returns a temporary directory.
