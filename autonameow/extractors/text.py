@@ -21,8 +21,6 @@
 
 import logging
 
-import chardet
-
 from core import (
     exceptions,
     types,

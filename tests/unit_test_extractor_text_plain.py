@@ -19,5 +19,25 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from unittest import TestCase
 
-# TODO: Add unit tests for the 'PlainTextExtractor' class.
+from extractors.text_plain import read_entire_text_file
+import unit_utils as uu
+
+
+class TestReadEntireTextFile(TestCase):
+    def setUp(self):
+        self.sample_file = uu.abspath_testfile('magic_txt.txt')
+        self.assertTrue(uu.file_exists(self.sample_file))
+
+    def test_read_entire_text_file(self):
+        actual = read_entire_text_file(self.sample_file)
+        self.assertIsNotNone(actual)
+
+    def test_returns_expected_encoding(self):
+        actual = read_entire_text_file(self.sample_file)
+        self.assertTrue(isinstance(actual, str))
+
+    def test_returns_expected_contents(self):
+        actual = read_entire_text_file(self.sample_file)
+        self.assertEqual(actual, 'text\n')

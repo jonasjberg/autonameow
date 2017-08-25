@@ -19,7 +19,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import chardet
+try:
+    import chardet
+except (ImportError, ModuleNotFoundError):
+    chardet = None
 
 from core import util
 
@@ -79,6 +82,9 @@ def autodetect_decode(string):
     """
     if isinstance(string, str):
         return string
+
+    if chardet is None:
+        raise ValueError('Required module "chardet" is not available!')
 
     # chardet "expects a bytes object, not a unicode object".
     assert(isinstance(string, bytes))
