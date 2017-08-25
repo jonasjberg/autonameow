@@ -35,7 +35,7 @@ class TestMainFileExistsAndIsExecutable(TestCase):
         ))
 
     def test_assumed_main_source_file_exists(self):
-        self.assertTrue(os.path.exists(self.main_file))
+        self.assertTrue(uu.file_exists(self.main_file))
 
     def test_assumed_main_source_file_is_a_file(self):
         self.assertTrue(uu.file_exists(self.main_file))

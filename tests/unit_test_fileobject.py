@@ -22,12 +22,12 @@
 import os
 
 from unittest import TestCase
-import unit_utils as uu
 
 from core import (
     fileobject,
     constants
 )
+import unit_utils as uu
 
 
 class TestFileObjectTypes(TestCase):

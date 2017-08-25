@@ -22,8 +22,10 @@
 
 from unittest import TestCase
 
-from core import util
-from core.exceptions import InvalidMeowURIError
+from core import (
+    util,
+    exceptions
+)
 from core.util import eval_magic_glob
 from core.util.misc import (
     unique_identifier,
@@ -130,15 +132,15 @@ class TestMultisetCount(TestCase):
 
 class TestMeowURIList(TestCase):
     def test_raises_exception_for_none_argument(self):
-        with self.assertRaises(InvalidMeowURIError):
+        with self.assertRaises(exceptions.InvalidMeowURIError):
             self.assertIsNone(meowuri_list(None))
 
     def test_raises_exception_for_empty_argument(self):
-        with self.assertRaises(InvalidMeowURIError):
+        with self.assertRaises(exceptions.InvalidMeowURIError):
             self.assertIsNone(meowuri_list(''))
 
     def test_raises_exception_for_only_periods(self):
-        with self.assertRaises(InvalidMeowURIError):
+        with self.assertRaises(exceptions.InvalidMeowURIError):
             self.assertIsNone(meowuri_list('.'))
             self.assertIsNone(meowuri_list('..'))
             self.assertIsNone(meowuri_list('...'))

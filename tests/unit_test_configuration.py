@@ -43,7 +43,7 @@ class TestWriteConfig(TestCase):
         self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_setup(self):
-        self.assertFalse(os.path.exists(self.dest_path),
+        self.assertFalse(uu.file_exists(self.dest_path),
                          'Destination path should not already exist')
 
     def test_load_from_dict(self):
@@ -53,7 +53,7 @@ class TestWriteConfig(TestCase):
 
     def test_write_config(self):
         self.configuration.write_to_disk(self.dest_path)
-        self.assertTrue(os.path.exists(self.dest_path),
+        self.assertTrue(uu.file_exists(self.dest_path),
                         'Configuration file exists on disk')
 
     def test_write_and_verify(self):
@@ -94,14 +94,14 @@ class TestWriteDefaultConfig(TestCase):
         self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_setup(self):
-        self.assertFalse(os.path.exists(self.dest_path),
+        self.assertFalse(uu.file_exists(self.dest_path),
                          'Destination path should not already exist')
         self.assertIsNotNone(self.configuration.data,
                              'Configuration data should exist')
 
     def test_write_default_config_to_disk(self):
         self.configuration.write_to_disk(self.dest_path)
-        self.assertTrue(os.path.exists(self.dest_path),
+        self.assertTrue(uu.file_exists(self.dest_path),
                         'Default configuration file exists on disk')
 
     def test_write_default_config_to_disk_and_verify(self):

@@ -87,7 +87,7 @@ def dir_exists(dir_path):
         True if the directory exists and is readable, else False.
     """
     try:
-        return os.path.isdir(dir_path)
+        return os.path.exists(dir_path) and os.path.isdir(dir_path)
     except OSError:
         return False
 

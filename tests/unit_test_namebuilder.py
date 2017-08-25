@@ -21,8 +21,10 @@
 
 from unittest import TestCase
 
-from core import namebuilder
-from core.exceptions import NameTemplateSyntaxError
+from core import (
+    namebuilder,
+    exceptions
+)
 
 
 class TestNameBuilder(TestCase):
@@ -41,7 +43,7 @@ class TestNameBuilder(TestCase):
         self.assertEqual(self.populate(template, **data), expected)
 
     def test_populate_name_template_using_template_1_some_fields_missing(self):
-        with self.assertRaises(NameTemplateSyntaxError):
+        with self.assertRaises(exceptions.NameTemplateSyntaxError):
             template = '{title} - {author} {datetime}.{extension}'
             data = {'author': None,
                     'datetime': '2017-05-27',
@@ -62,7 +64,7 @@ class TestNameBuilder(TestCase):
         self.assertEqual(self.populate(template, **data), expected)
 
     def test_populate_name_template_using_template_2_all_fields_missing(self):
-        with self.assertRaises(NameTemplateSyntaxError):
+        with self.assertRaises(exceptions.NameTemplateSyntaxError):
             template = '{publisher} {title} {edition} - {author} {date}.{extension}'
             data = {}
             expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
