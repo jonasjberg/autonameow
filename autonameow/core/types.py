@@ -375,6 +375,12 @@ class TimeDate(BaseType):
 
 class ExifToolTimeDate(TimeDate):
     def coerce(self, raw_value):
+        if re.match(r'.*0000:00:00 00:00:00.*', raw_value):
+            raise exceptions.AWTypeError(
+                'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+            )
+
+        # Remove any ':' in timezone as to match strptime pattern.
         if re.match(r'.*\+\d\d:\d\d$', raw_value):
             raw_value = re.sub(r'\+(\d\d):(\d\d)$', r'+\1\2', raw_value)
         elif re.match(r'.*-\d\d:\d\d$', raw_value):
