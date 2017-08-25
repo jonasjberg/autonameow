@@ -283,11 +283,18 @@ def msg_rename(from_basename, dest_basename, dry_run):
         dest_basename: The new basename of the file to be renamed.
         dry_run: True if the operation was a "dry run"/simulation.
     """
-    if dry_run:
-        _message = 'Would have renamed "{!s}" -> "{!s}"'
-    else:
-        _message = 'Renamed "{!s}" -> "{!s}"'
+    _name_old = colorize_quoted(
+        '"{!s}"'.format(util.displayable_path(from_basename)),
+        color='WHITE'
+    )
+    _name_new = colorize_quoted(
+        '"{!s}"'.format(util.displayable_path(dest_basename)),
+        color='LIGHTGREEN_EX'
+    )
 
-    msg(_message.format(util.displayable_path(from_basename),
-                        util.displayable_path(dest_basename)),
-        style='color_quoted')
+    if dry_run:
+        _message = 'Would have renamed {!s} -> {!s}'
+    else:
+        _message = 'Renamed {!s} -> {!s}'
+
+    msg(_message.format(_name_old, _name_new))
