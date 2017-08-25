@@ -76,6 +76,22 @@ def file_exists(file_path):
     return os.path.isfile(file_path)
 
 
+def dir_exists(dir_path):
+    """
+    Tests whether a given path is an existing directory.
+
+    Args:
+        dir_path: The path to test.
+
+    Returns:
+        True if the directory exists and is readable, else False.
+    """
+    try:
+        return os.path.isdir(dir_path)
+    except OSError:
+        return False
+
+
 def make_temp_dir():
     """
     Creates and returns a temporary directory.
