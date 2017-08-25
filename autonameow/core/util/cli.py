@@ -156,6 +156,47 @@ def colorize(text, fore=None, back=None, style=None):
     return ''.join(buffer)
 
 
+def colorize_quoted(text, color=None):
+    if color is not None:
+        _color = color
+    else:
+        _color = 'LIGHTGREEN_EX'
+
+    replacements = []
+    match_iter = re.findall(r'"([^"]*)"', text)
+    for match in match_iter:
+        replacements.append((match, colorize(match, fore=_color)))
+
+    out = ''
+    for old, new in replacements:
+        #
+        # Find position of the first match:  text = a "B" b "B"
+        #                                              ^
+        # Work on a bit at a time to avoid replacing the same match.
+        # Store from start to the first match + 1 (catch ") in 'temp_text'.
+        #
+        #          text = 'a "B" b "B"'
+        #                     ^
+        #     temp_text = 'a "B"'
+        #
+        # Do replacement in temp_text, append to 'out'. Continue to work
+        # on the rest of the text:  text = ' b "B"'
+        #
+        old_pos = text.find(old)
+        strip_to = old_pos + len(old) + 1
+        temp_text = text[:strip_to]
+
+        temp_text = temp_text.replace(old, new, 1)
+        out = out + temp_text
+
+        text = text[strip_to:]
+
+    if text:
+        out = out + text
+
+    return out
+
+
 def msg(message, style=None, log=False):
     """
     Displays a message to the user using preset formatting options.
@@ -173,41 +214,6 @@ def msg(message, style=None, log=False):
         prefix = colorize('[info]', fore='LIGHTBLACK_EX')
         colored_text = colorize(text)
         print(prefix + ' ' + colored_text)
-
-    def colorize_quoted(text):
-        replacements = []
-        match_iter = re.findall(r'"([^"]*)"', text)
-        for match in match_iter:
-            replacements.append((match, colorize(match, fore='LIGHTGREEN_EX')))
-
-        out = ''
-        for old, new in replacements:
-            #
-            # Find position of the first match:  text = a "B" b "B"
-            #                                              ^
-            # Work on a bit at a time to avoid replacing the same match.
-            # Store from start to the first match + 1 (catch ") in 'temp_text'.
-            #
-            #          text = 'a "B" b "B"'
-            #                     ^
-            #     temp_text = 'a "B"'
-            #
-            # Do replacement in temp_text, append to 'out'. Continue to work
-            # on the rest of the text:  text = ' b "B"'
-            #
-            old_pos = text.find(old)
-            strip_to = old_pos + len(old) + 1
-            temp_text = text[:strip_to]
-
-            temp_text = temp_text.replace(old, new, 1)
-            out = out + temp_text
-
-            text = text[strip_to:]
-
-        if text:
-            out = out + text
-
-        return out
 
     # TODO: [TD0042] Respect '--quiet' option. Suppress output.
 
