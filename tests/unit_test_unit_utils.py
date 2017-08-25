@@ -66,6 +66,76 @@ class TestUnitUtilityConstants(TestCase):
         self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.X_OK))
 
 
+class TestUnitUtilityAbsPathTestFile(TestCase):
+    def test_abspath_testfile_is_defined(self):
+        self.assertIsNotNone(uu.abspath_testfile)
+
+    def test_returns_expected_encoding(self):
+        actual = uu.abspath_testfile('empty')
+        self.assertTrue(isinstance(actual, str))
+
+    def test_returns_absolute_paths(self):
+        actual = uu.abspath_testfile('empty')
+        self.assertTrue(os.path.isabs(actual))
+
+
+class TestUnitUtilityFileExists(TestCase):
+    def test_file_exists_is_defined(self):
+        self.assertIsNotNone(uu.file_exists)
+
+    def _check_return(self, file_to_test):
+        actual = uu.file_exists(file_to_test)
+        self.assertTrue(isinstance(actual, bool))
+
+        expected = os.path.isfile(file_to_test)
+        self.assertEqual(actual, expected)
+
+    def test_returns_false_for_files_assumed_missing(self):
+        _dummy_paths = [
+            '/foo/bar/baz/mjao',
+            '/tmp/this_isnt_a_file_right_or_huh'
+        ]
+        for df in _dummy_paths:
+            self._check_return(df)
+
+    def test_returns_true_for_files_likely_to_exist(self):
+        _files = [
+            __file__,
+        ]
+        for df in _files:
+            self._check_return(df)
+
+
+class TestUnitUtilityDirExists(TestCase):
+    def test_dir_exists_is_defined(self):
+        self.assertIsNotNone(uu.dir_exists)
+
+    def _check_return(self, path_to_test):
+        actual = uu.dir_exists(path_to_test)
+        self.assertTrue(isinstance(actual, bool))
+
+        expected = os.path.isdir(path_to_test)
+        self.assertEqual(actual, expected)
+
+    def test_returns_false_for_assumed_non_directory_paths(self):
+        _dummy_paths = [
+            '/foo/bar/baz/mjao',
+            '/tmp/this_isnt_a_file_right_or_huh',
+            __file__
+        ]
+        for df in _dummy_paths:
+            self._check_return(df)
+
+    def test_returns_true_for_likely_directory_paths(self):
+        _files = [
+            os.path.dirname(__file__),
+            uuconst.AUTONAMEOW_SRCROOT_DIR,
+            '/'
+        ]
+        for df in _files:
+            self._check_return(df)
+
+
 class TestUnitUtilityMakeTempDir(TestCase):
     def test_make_temp_dir(self):
         self.assertIsNotNone(uu.make_temp_dir())

@@ -21,7 +21,10 @@
 
 import logging
 
-import chardet
+try:
+    import chardet
+except (ImportError, ModuleNotFoundError):
+    chardet = None
 
 from core.exceptions import ExtractorError
 from core.util import textutils
@@ -59,27 +62,34 @@ def read_entire_text_file(file_path):
         raise ExtractorError(e)
     except UnicodeDecodeError as e:
         log.debug(str(e))
-        log.debug('Unable to decode text with {} encoding. Reading as bytes '
-                  'and attempting auto-detection..'.format(DEFAULT_ENCODING))
-
-        detected_encoding = chardet.detect(open(file_path, 'rb').read())
-        if detected_encoding and 'encoding' in detected_encoding:
-            try:
-                with open(file_path, 'r',
-                          encoding=detected_encoding['encoding']) as fh:
-                    contents = fh.readlines()
-            except (UnicodeDecodeError, ValueError) as e:
-                raise ExtractorError(
-                    'Unable to read with auto-detected encoding; {!s}'.format(e)
-                )
+        if chardet is not None:
+            log.debug(
+                'Unable to decode text with {} encoding. Reading as bytes and '
+                'trying to auto-detect the encoding.'.format(DEFAULT_ENCODING)
+            )
+            contents = _read_entire_text_file_autodetect_encoding(file_path)
 
     if contents:
-        assert(isinstance(contents, str))
         log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
                                                                   file_path))
         contents = '\n'.join(contents)
         contents = textutils.remove_nonbreaking_spaces(contents)
+        assert(isinstance(contents, str))
         return contents
     else:
         log.debug('Read NOTHING from file "{!s}"'.format(file_path))
         return ''
+
+
+def _read_entire_text_file_autodetect_encoding(file_path):
+    detected_encoding = chardet.detect(open(file_path, 'rb').read())
+    if detected_encoding and 'encoding' in detected_encoding:
+        log.debug('')
+        try:
+            with open(file_path, 'r',
+                      encoding=detected_encoding['encoding']) as fh:
+                return fh.readlines()
+        except (UnicodeDecodeError, ValueError) as e:
+            raise ExtractorError(
+                'Unable to read with auto-detected encoding; {!s}'.format(e)
+            )

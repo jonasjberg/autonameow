@@ -47,19 +47,49 @@ class TestCase(unittest.TestCase):
         pass
 
 
-def abspath_testfile(file):
+def abspath_testfile(testfile_basename):
     """
     Utility function used by tests to construct a full path to individual test
     files in the 'test_files' directory.
     
     Args:
-        file: The basename of a file in the 'test_files' directory as a
-            Unicode string (internal format)
+        testfile_basename: The basename of a file in the 'test_files' directory
+            as a Unicode string (internal string format)
 
     Returns:
-        The full path to the specified file.
+        The full absolute path to the given file.
     """
-    return os.path.normpath(os.path.join(uuconst.TEST_FILES_DIR, file))
+    return os.path.abspath(os.path.join(uuconst.TEST_FILES_DIR,
+                                        testfile_basename))
+
+
+def file_exists(file_path):
+    """
+    Tests whether a given path is an existing file.
+
+    Args:
+        file_path: Path to the file to test.
+
+    Returns:
+        True if the file exists, else False.
+    """
+    return os.path.isfile(file_path)
+
+
+def dir_exists(dir_path):
+    """
+    Tests whether a given path is an existing directory.
+
+    Args:
+        dir_path: The path to test.
+
+    Returns:
+        True if the directory exists and is readable, else False.
+    """
+    try:
+        return os.path.exists(dir_path) and os.path.isdir(dir_path)
+    except OSError:
+        return False
 
 
 def make_temp_dir():

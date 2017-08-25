@@ -19,13 +19,18 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
+import unittest
 
 from core import util
 from core.util import textutils
 
+try:
+    import chardet
+except (ModuleNotFoundError, ImportError):
+    chardet = None
 
-class TestRemoveNonBreakingSpaces(TestCase):
+
+class TestRemoveNonBreakingSpaces(unittest.TestCase):
     def test_remove_non_breaking_spaces_removes_expected(self):
         expected = 'foo bar'
 
@@ -46,7 +51,7 @@ class TestRemoveNonBreakingSpaces(TestCase):
         self.assertEqual(expected, actual)
 
 
-class TestIndent(TestCase):
+class TestIndent(unittest.TestCase):
     def test_indents_single_line(self):
         self.assertEqual(textutils.indent('foo'), '    foo')
         self.assertEqual(textutils.indent('foo bar'), '    foo bar')
@@ -115,7 +120,7 @@ class TestIndent(TestCase):
         self.assertEqual(textutils.indent(input_, ch='X', amount=2), expect)
 
 
-class TestExtractDigits(TestCase):
+class TestExtractDigits(unittest.TestCase):
     def test_extract_digits_is_defined(self):
         self.assertIsNotNone(textutils.extract_digits)
 
@@ -147,7 +152,8 @@ class TestExtractDigits(TestCase):
         _assert_equal('  1a2b3c4d  _', '1234')
 
 
-class TestAutodetectDecode(TestCase):
+@unittest.skipIf(chardet is None, 'Unable to import required module "chardet"')
+class TestAutodetectDecode(unittest.TestCase):
     def _assert_encodes(self, encoding, unicode_text):
         input = unicode_text.encode(encoding)
         actual = textutils.autodetect_decode(input)

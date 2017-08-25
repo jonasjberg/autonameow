@@ -22,12 +22,12 @@
 
 from unittest import TestCase
 
-import unit_utils as uu
 import analyzers
 from core import (
     exceptions,
     constants
 )
+import unit_utils as uu
 
 
 # TODO: [hardcoded] Likely to break; fixed analyzer names!

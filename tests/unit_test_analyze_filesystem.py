@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 from datetime import datetime
 from unittest import TestCase
 
@@ -41,7 +40,7 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
                        'ignore_after_year': None}
 
         p_test_file = util.bytestring_path(uu.abspath_testfile('empty'))
-        self.assertTrue(os.path.isfile(p_test_file))
+        self.assertTrue(uu.file_exists(p_test_file))
 
         class MockOptions(object):
             def __init__(self):

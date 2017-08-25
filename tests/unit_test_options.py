@@ -20,10 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import os
 from unittest import TestCase
 
 from core import options
+import unit_utils as uu
 
 
 class TestArgumentValidators(TestCase):
@@ -41,8 +41,7 @@ class TestArgumentValidators(TestCase):
 
     def test_arg_is_readable_file_raises_exception_missing_file(self):
         _file_missing = '/tmp/nopenopenopenope_no-file-here_nono'
-        self.assertFalse(os.path.exists(_file_missing))
-        self.assertFalse(os.path.isfile(_file_missing))
+        self.assertFalse(uu.file_exists(_file_missing))
 
         with self.assertRaises(argparse.ArgumentTypeError) as e:
             options.arg_is_readable_file(_file_missing)
