@@ -117,10 +117,6 @@ class BaseAnalyzer(object):
         else:
             return False
 
-    # @classmethod
-    # def meowuri_root(cls):
-    #     return cls.__name__.lower()
-
     def __str__(self):
         return self.__class__.__name__
 
@@ -197,7 +193,6 @@ def map_meowuri_to_analyzers():
     out = {}
 
     for klass in AnalyzerClasses:
-        # meowuri_root = klass.meowuri_root()
         meowuri_root = klass.meowuri_root
         if not meowuri_root:
             continue
