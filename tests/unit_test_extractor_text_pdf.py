@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import unittest
 
 import unit_utils as uu
@@ -67,7 +66,7 @@ Test test. This file contains no digits whatsoever.
 
 class TestSetup(unittest.TestCase):
     def test_sample_pdf_file_exists(self):
-        self.assertTrue(os.path.isfile(pdf_file))
+        self.assertTrue(uu.file_exists(pdf_file))
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)

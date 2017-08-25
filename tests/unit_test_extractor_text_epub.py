@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import unittest
 
 import unit_utils as uu
@@ -33,13 +32,13 @@ except (ModuleNotFoundError, ImportError):
 class TestExtractTextWithEpubzilla(unittest.TestCase):
     def setUp(self):
         self.sample_file = uu.abspath_testfile('pg38145-images.epub')
-        self.assertTrue(os.path.isfile(self.sample_file))
+        self.assertTrue(uu.file_exists(self.sample_file))
 
     @unittest.skipIf(epubzilla is None,
                      'Unable to import module "thirdparty.epubzilla"')
     def test_does_not_open_non_epub_files(self):
         not_epub_file = uu.abspath_testfile('gmail.pdf')
-        self.assertTrue(os.path.isfile(not_epub_file))
+        self.assertTrue(uu.file_exists(not_epub_file))
 
         with self.assertRaises(Exception):
             actual = epubzilla.Epub.from_file(not_epub_file)

@@ -66,8 +66,8 @@ class TestFileObjectEquivalence(TestCase):
         self.fo_dupe_2 = uu.get_mock_fileobject(mime_type='text/plain')
 
     def test_setup(self):
-        self.assertTrue(os.path.isfile(self.fo_unique.abspath))
-        self.assertTrue(os.path.isfile(self.fo_dupe_1.abspath))
+        self.assertTrue(uu.file_exists(self.fo_unique.abspath))
+        self.assertTrue(uu.file_exists(self.fo_dupe_1.abspath))
 
     def test_equivalence_expect_unequal(self):
         self.assertFalse(self.fo_unique == self.fo_dupe_1)
@@ -119,7 +119,7 @@ class TestFileTypeMagic(TestCase):
 
     def test_test_files_exist(self):
         for fname, _ in self.test_files:
-            self.assertTrue(os.path.isfile(fname))
+            self.assertTrue(uu.file_exists(fname))
 
     def test_test_files_are_readable(self):
         for fname, _ in self.test_files:
