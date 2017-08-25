@@ -195,6 +195,8 @@ def map_meowuri_to_analyzers():
     for klass in AnalyzerClasses:
         meowuri_root = klass.meowuri_root
         if not meowuri_root:
+            log.debug('Missing attribute "meowuri_root" for class'
+                      ' "{!s}"'.format(klass))
             continue
 
         if meowuri_root in out:
