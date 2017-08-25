@@ -65,13 +65,13 @@ def abspath_testfile(testfile_basename):
 
 def file_exists(file_path):
     """
-    Tests whether a given path is an existing, readable file.
+    Tests whether a given path is an existing file.
 
     Args:
         file_path: Path to the file to test.
 
     Returns:
-        True if the file exists and is readable, else False.
+        True if the file exists, else False.
     """
     return os.path.isfile(file_path)
 

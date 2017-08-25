@@ -80,7 +80,7 @@ class TestUnitUtilityAbsPathTestFile(TestCase):
 
 
 class TestUnitUtilityFileExists(TestCase):
-    def test_testfile_exists_is_defined(self):
+    def test_file_exists_is_defined(self):
         self.assertIsNotNone(uu.file_exists)
 
     def _check_return(self, file_to_test):
@@ -91,11 +91,11 @@ class TestUnitUtilityFileExists(TestCase):
         self.assertEqual(actual, expected)
 
     def test_returns_false_for_files_assumed_missing(self):
-        _dummy_files = [
+        _dummy_paths = [
             '/foo/bar/baz/mjao',
             '/tmp/this_isnt_a_file_right_or_huh'
         ]
-        for df in _dummy_files:
+        for df in _dummy_paths:
             self._check_return(df)
 
     def test_returns_true_for_files_likely_to_exist(self):
