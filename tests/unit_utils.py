@@ -147,12 +147,6 @@ def get_mock_fileobject(mime_type=None):
         A mock FileObject built from an actual (empty) file.
     """
     # TODO: [hardcoded] Might break if options data structure is modified.
-    class MockOptions(object):
-        def __init__(self):
-            self.options = {'FILETAGS_OPTIONS':
-                            {'between_tag_separator': ' -- ',
-                             'filename_tag_separator': ' '}}
-    opts = MockOptions()
 
     MIME_TYPE_TEST_FILE_LOOKUP = {
         'application/pdf': 'magic_pdf.pdf',
@@ -162,6 +156,7 @@ def get_mock_fileobject(mime_type=None):
         'image/x-ms-bmp': 'magic_bmp.bmp',
         'text/plain': 'magic_txt.txt',
         'video/mp4': 'magic_mp4.mp4',
+        'inode/x-empty': 'empty',
     }
 
     if mime_type and mime_type in MIME_TYPE_TEST_FILE_LOOKUP:
@@ -170,7 +165,7 @@ def get_mock_fileobject(mime_type=None):
     else:
         temp_file = make_temporary_file()
 
-    return FileObject(util.normpath(temp_file), opts)
+    return FileObject(util.normpath(temp_file))
 
 
 def get_mock_empty_extractor_data():
@@ -347,15 +342,7 @@ def get_named_file_object(basename):
     Returns: A FileObject with mocked options and the specified basename.
     """
     tf = make_temporary_file(basename=basename)
-
-    class MockOptions(object):
-        def __init__(self):
-            self.options = {'FILETAGS_OPTIONS':
-                            {'between_tag_separator': ' ',
-                             'filename_tag_separator': ' -- '}}
-    opts = MockOptions()
-
-    return FileObject(util.normpath(tf), opts)
+    return FileObject(util.normpath(tf))
 
 
 @contextmanager

@@ -195,7 +195,7 @@ class Autonameow(object):
 
             # Sanity checking the "file_path" is part of 'FileObject' init.
             try:
-                current_file = FileObject(file_path, self.active_config)
+                current_file = FileObject(file_path)
             except exceptions.InvalidFileArgumentError as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
                     e, util.displayable_path(file_path))

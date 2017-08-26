@@ -32,7 +32,7 @@ from .util import diskutils
 
 
 class FileObject(object):
-    def __init__(self, path, opts):
+    def __init__(self, path):
         """
         Creates a new FileObject instance representing a single path/file.
 

@@ -39,17 +39,7 @@ class TestFilesystemAnalyzerWithEmptyFile(TestCase):
                        'ignore_before_year': None,
                        'ignore_after_year': None}
 
-        p_test_file = util.bytestring_path(uu.abspath_testfile('empty'))
-        self.assertTrue(uu.file_exists(p_test_file))
-
-        class MockOptions(object):
-            def __init__(self):
-                self.options = {'FILETAGS_OPTIONS':
-                                    {'between_tag_separator': ' ',
-                                     'filename_tag_separator': ' -- '}}
-        opts = MockOptions()
-
-        self.fo = FileObject(p_test_file, opts)
+        self.fo = uu.get_mock_fileobject('inode/x-empty')
         self.fsa = get_filesystem_analyzer(self.fo)
 
     def get_datetime_source(self, field_name):
