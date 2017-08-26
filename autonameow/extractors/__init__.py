@@ -34,6 +34,7 @@ from core.fileobject import (
 AUTONAMEOW_EXTRACTOR_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_EXTRACTOR_PATH)
 
+
 log = logging.getLogger(__name__)
 
 

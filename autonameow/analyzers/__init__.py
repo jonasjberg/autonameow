@@ -34,6 +34,7 @@ from core import (
 AUTONAMEOW_ANALYZER_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_ANALYZER_PATH)
 
+
 log = logging.getLogger(__name__)
 
 

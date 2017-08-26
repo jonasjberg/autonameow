@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 
 from PIL import Image
 
@@ -28,9 +28,14 @@ try:
 except ImportError:
     pytesseract = None
 
-from core import util
-from core.exceptions import ExtractorError
+from core import (
+    exceptions,
+    util
+)
 from extractors.text import AbstractTextExtractor
+
+
+log = logging.getLogger(__name__)
 
 
 class ImageOCRTextExtractor(AbstractTextExtractor):

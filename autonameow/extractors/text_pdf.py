@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import subprocess
 
 try:
@@ -36,6 +36,9 @@ from core import (
     exceptions
 )
 from extractors.text import AbstractTextExtractor
+
+
+log = logging.getLogger(__name__)
 
 
 class PdfTextExtractor(AbstractTextExtractor):

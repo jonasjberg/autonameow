@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 
 try:
     from thirdparty import epubzilla
@@ -27,6 +27,9 @@ except ImportError:
     epubzilla = None
 
 from extractors.text import AbstractTextExtractor
+
+
+log = logging.getLogger(__name__)
 
 
 class EpubTextExtractor(AbstractTextExtractor):

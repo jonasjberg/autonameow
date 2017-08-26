@@ -27,6 +27,9 @@ from datetime import datetime
 from analyzers import BaseAnalyzer
 
 
+log = logging.getLogger(__name__)
+
+
 class FilesystemAnalyzer(BaseAnalyzer):
     """
     FilesystemAnalyzer -- Gets information about files from the filesystem.
@@ -62,7 +65,7 @@ class FilesystemAnalyzer(BaseAnalyzer):
             return
 
         meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
-        logging.debug(
+        log.debug(
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
         self.add_results(meowuri, data)
@@ -95,14 +98,14 @@ class FilesystemAnalyzer(BaseAnalyzer):
         filename = self.file_object.abspath
         results = []
 
-        logging.debug('Fetching file system timestamps ..')
+        log.debug('Fetching file system timestamps ..')
         try:
             mtime = os.path.getmtime(filename)
             ctime = os.path.getctime(filename)
             atime = os.path.getatime(filename)
         except OSError as e:
-            logging.critical('Failed extracting date/time-information '
-                             'from file system -- OSError: {}'.format(e))
+            log.critical('Failed extracting date/time-information '
+                         'from file system -- OSError: {}'.format(e))
         else:
             def dt_fts(t):
                 return datetime.fromtimestamp(t).replace(microsecond=0)
@@ -117,7 +120,6 @@ class FilesystemAnalyzer(BaseAnalyzer):
                             'source': 'accessed',
                             'weight': 0.25})
 
-        logging.debug('Got {} timestamps from the filesystem.'.format(
-            len(results)))
+        log.debug('Got {} timestamps from the filesystem.'.format(len(results)))
         return results
 

@@ -29,6 +29,7 @@ from core import (
 from core.util import textutils
 from extractors import BaseExtractor
 
+
 log = logging.getLogger(__name__)
 
 

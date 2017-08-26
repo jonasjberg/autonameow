@@ -25,6 +25,9 @@ from analyzers import BaseAnalyzer
 from core.util import dateandtime
 
 
+log = logging.getLogger(__name__)
+
+
 class PdfAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['application/pdf']
@@ -43,7 +46,7 @@ class PdfAnalyzer(BaseAnalyzer):
             return
 
         meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
-        logging.debug(
+        log.debug(
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
         self.add_results(meowuri, data)
@@ -136,7 +139,7 @@ class PdfAnalyzer(BaseAnalyzer):
             text = ' '.join(text)
 
         if text.lower().find('gmail'):
-            logging.debug('Text might be a Gmail (contains "gmail")')
+            log.debug('Text might be a Gmail (contains "gmail")')
             return True
         else:
             return False
@@ -172,7 +175,7 @@ class PdfAnalyzer(BaseAnalyzer):
 
         matches = 0
         text_split = text.split('\n')
-        logging.debug('Try getting datetime from text split by newlines')
+        log.debug('Try getting datetime from text split by newlines')
         for t in text_split:
             dt_brute = dateandtime.bruteforce_str(t)
             if dt_brute:
@@ -188,7 +191,7 @@ class PdfAnalyzer(BaseAnalyzer):
                                     'weight': 0.1})
 
         if matches == 0:
-            logging.debug('No matches. Trying with text split by whitespace')
+            log.debug('No matches. Trying with text split by whitespace')
             text_split = text.split()
             for t in text_split:
                 dt_brute = dateandtime.bruteforce_str(t)

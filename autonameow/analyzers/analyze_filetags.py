@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import re
 
 from analyzers import BaseAnalyzer
@@ -31,8 +31,11 @@ from core import (
 )
 from core.util import diskutils
 
-# TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
 
+log = logging.getLogger(__name__)
+
+
+# TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
 DATE_SEP = b'[:\-._ ]?'
 TIME_SEP = b'[:\-._ T]?'
 DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'

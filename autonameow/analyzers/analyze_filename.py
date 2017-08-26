@@ -26,6 +26,9 @@ from analyzers import BaseAnalyzer
 from core.util import dateandtime
 
 
+log = logging.getLogger(__name__)
+
+
 class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['*/*']

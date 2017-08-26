@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 from core import (
     exceptions,
     types,
@@ -30,6 +32,9 @@ try:
     import guessit as guessit
 except ImportError:
     guessit = False
+
+
+log = logging.getLogger(__name__)
 
 
 class GuessitPlugin(BasePlugin):
