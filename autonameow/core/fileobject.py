@@ -84,16 +84,6 @@ class FileObject(object):
         return not (self == other)
 
 
-# TODO: [TD0049]` Think about defining legal "placeholder fields".
-# Might be helpful to define all legal fields (such as `title`, `datetime`,
-# `author`, etc.) somewhere and keep references to type coercion wrappers,
-# maybe validation and/or formatting functionality; in the field definitions.
-#
-# NOTE(jonas): This should probably be done where both the Extraction data and
-# the Analysis results data is "joined"; the sum total of data available for a
-# given file.
-
-
 def filetype_magic(file_path):
     """
     Determine file type by reading "magic" header bytes.

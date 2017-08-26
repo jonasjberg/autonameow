@@ -34,26 +34,6 @@ PYTHON_VERSION = sys.version.replace('\n', '')
 PROGRAM_VERSION = 'v{}'.format(version.__version__)
 
 
-# Original Dublin Core Metadata Element Set Version 1.1
-# Metadata Elements:
-#
-#   - Title
-#   - Creator
-#   - Subject
-#   - Description
-#   - Publisher
-#   - Contributor
-#   - Date
-#   - Type
-#   - Format
-#   - Identifier
-#   - Source
-#   - Language
-#   - Relation
-#   - Coverage
-#   - Rights
-
-
 # Each analyzer can be queried for these fields by calling either;
 #   the_analyzer.get_FIELD()   or   the_analyzer.get('FIELD')
 ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
