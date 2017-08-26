@@ -58,24 +58,24 @@ def dump_to_list(obj, nested_level=0, output=None):
         out = output
 
     if type(obj) == dict:
-        out.append(('%s{' % ((nested_level) * spacing)))
+        out.append('{}{{'.format(nested_level * spacing))
         for k, v in list(obj.items()):
             if hasattr(v, '__iter__'):
-                out.append(('%s%s:' % ((nested_level + 1) * spacing, k)))
+                out.append('{}{}:'.format((nested_level + 1) * spacing, k))
                 dump_to_list(v, nested_level + 1, out)
             else:
-                out.append(('%s%s: %s' % ((nested_level + 1) * spacing, k, v)))
-        out.append(('%s}' % (nested_level * spacing)))
+                out.append('{}{}: {}'.format((nested_level + 1) * spacing, k, v))
+        out.append('{}}}'.format(nested_level * spacing))
     elif type(obj) == list:
-        out.append(('%s[' % ((nested_level) * spacing)))
+        out.append('{}['.format(nested_level * spacing))
         for v in obj:
             if hasattr(v, '__iter__'):
                 dump_to_list(v, nested_level + 1, out)
             else:
-                out.append(('%s%s' % ((nested_level + 1) * spacing, v)))
-        out.append(('%s]' % ((nested_level) * spacing)))
+                out.append('{}{}'.format((nested_level + 1) * spacing, v))
+        out.append('{}]'.format(nested_level * spacing))
     else:
-        out.append(('%s%s' % (nested_level * spacing, obj)))
+        out.append('{}{}'.format(nested_level * spacing, obj))
 
     return out
 
