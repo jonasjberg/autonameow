@@ -25,7 +25,6 @@ import operator
 import copy
 
 from core import (
-    exceptions,
     repository
 )
 

@@ -19,13 +19,15 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
-
 import logging
 import os
 
-from core import types
-from core.exceptions import ExtractorError
+from datetime import datetime
+
+from core import (
+    exceptions,
+    types
+)
 from core.fileobject import FileObject
 from extractors import BaseExtractor
 
@@ -46,7 +48,7 @@ class CommonFileSystemExtractor(BaseExtractor):
         if not self.data:
             try:
                 self.data = self._get_data(self.source)
-            except ExtractorError as e:
+            except exceptions.ExtractorError as e:
                 log.error('{!s} extraction FAILED: {!s}'.format(self, e))
                 raise
 
@@ -62,7 +64,9 @@ class CommonFileSystemExtractor(BaseExtractor):
     @staticmethod
     def _get_data(file_object):
         if not isinstance(file_object, FileObject):
-            raise ExtractorError('Expected source to be "FileObject" instance')
+            raise exceptions.ExtractorError(
+                'Expected source to be "FileObject" instance'
+            )
 
         out = {
             'basename.full': types.AW_PATHCOMPONENT(file_object.filename),

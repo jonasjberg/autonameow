@@ -80,7 +80,7 @@ def get_text_from_ocr(image_path, tesseract_args=None):
     try:
         image = Image.open(image_path)
     except IOError as e:
-        raise ExtractorError(e)
+        raise exceptions.ExtractorError(e)
 
     log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
         tesseract_args, util.displayable_path(image_path)
@@ -90,7 +90,9 @@ def get_text_from_ocr(image_path, tesseract_args=None):
         text = pytesseract.image_to_string(image, lang='swe+eng',
                                            config=tesseract_args)
     except pytesseract.pytesseract.TesseractError as e:
-        raise ExtractorError('PyTesseract ERROR: {}'.format(str(e)))
+        raise exceptions.ExtractorError(
+            'PyTesseract ERROR: {}'.format(str(e))
+        )
     else:
         if text:
             text = text.strip()

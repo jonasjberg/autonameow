@@ -35,7 +35,6 @@ from core.config.field_parsers import (
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser
 )
-from core.util import textutils
 
 
 class Configuration(object):
@@ -131,7 +130,7 @@ class Configuration(object):
         loaded_templates = {}
         for k, v in raw_templates.items():
             # Remove any non-breaking spaces in the name template.
-            v = textutils.remove_nonbreaking_spaces(v)
+            v = util.remove_nonbreaking_spaces(v)
 
             if NameFormatConfigFieldParser.is_valid_format_string(v):
                 loaded_templates[k] = v
@@ -352,12 +351,12 @@ class Configuration(object):
 
         for number, rule in enumerate(self.rules):
             out.append('Rule {}:\n'.format(number + 1))
-            out.append(textutils.indent(str(rule), amount=4) + '\n')
+            out.append(util.indent(str(rule), amount=4) + '\n')
 
         out.append('\nName Templates:\n')
-        out.append(textutils.indent(util.dump(self.name_templates), amount=4))
+        out.append(util.indent(util.dump(self.name_templates), amount=4))
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(textutils.indent(util.dump(self.options), amount=4))
+        out.append(util.indent(util.dump(self.options), amount=4))
 
         return ''.join(out)

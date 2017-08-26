@@ -21,7 +21,6 @@
 
 import plugins
 from core import (
-    util,
     repository,
     exceptions
 )
