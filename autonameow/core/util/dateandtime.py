@@ -22,7 +22,7 @@
 import logging as log
 import re
 import string
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import dateutil
 import pytz
@@ -45,16 +45,6 @@ def hyphenate_date(date_str):
         return '-'.join(match.groups())
     else:
         return date_str
-
-
-def nextyear(dt):
-    # http://stackoverflow.com/a/11206511
-    try:
-        return dt.replace(year=dt.year+1)
-    except ValueError:
-        # February 29th in a leap year
-        # Add 365 days instead to arrive at March 1st
-        return dt + timedelta(days=365)
 
 
 def _year_is_probable(year):
