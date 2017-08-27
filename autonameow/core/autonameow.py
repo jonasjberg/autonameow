@@ -272,7 +272,8 @@ class Autonameow(object):
         new_name = _build_new_name(
             current_file,
             active_config=self.active_config,
-            active_rule=rule_matcher.best_match,
+            name_template=rule_matcher.best_match.name_template,
+            data_sources=rule_matcher.best_match.data_sources
         )
 
         # TODO: [TD0042] Respect '--quiet' option. Suppress output.
@@ -368,10 +369,10 @@ class Autonameow(object):
             self._exit_code = value
 
 
-def _build_new_name(file_object, active_config, active_rule):
+def _build_new_name(file_object, active_config, name_template, data_sources):
     try:
-        builder = NameBuilder(file_object, active_config, active_rule)
-
+        builder = NameBuilder(file_object, active_config,
+                              name_template, data_sources)
         # TODO: Do not return anything from 'build()', use property.
         new_name = builder.build()
     except exceptions.NameBuilderError as e:

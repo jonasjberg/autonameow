@@ -33,17 +33,14 @@ from core.util import diskutils
 
 class NameBuilder(object):
     """
-    Constructs a new filename for a FileObject given a set of rules,
-    a file object and data gathered by analyzers.
-
-    A rule contains the name template that determines the format of the
-    resulting name. The rule also determines what analysis data to use when
-    populating the name template fields.
+    Constructs a new filename for a 'FileObject' given a name template and
+    a data sources dict mapping name template fields to "meowURIs".
     """
-    def __init__(self, file_object, active_config, active_rule):
+    def __init__(self, file_object, active_config, name_template, data_sources):
         self.file = file_object
         self.config = active_config
-        self.active_rule = active_rule
+        self.name_template = name_template
+        self.data_sources = data_sources
 
         self.request_data = repository.SessionRepository.resolve
 
@@ -91,8 +88,7 @@ class NameBuilder(object):
         return out
 
     def build(self):
-        template = self.active_rule.name_template
-        log.debug('Using name template: "{}"'.format(template))
+        log.debug('Using name template: "{}"'.format(self.name_template))
 
         # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
@@ -104,10 +100,8 @@ class NameBuilder(object):
         # required in order to complete the rename. This would be useful to
         # implement the feature to force non-interactive mode, see [TD0023].
 
-        # NOTE(jonas): Make sure name builder always gets a valid rule?
-
-        data_sources = self.active_rule.data_sources
-        if not all_template_fields_defined(template, data_sources):
+        if not all_template_fields_defined(self.name_template,
+                                           self.data_sources):
             log.error('All name template placeholder fields must be '
                       'given a data source; Check the configuration!')
             raise exceptions.NameBuilderError(
@@ -116,7 +110,7 @@ class NameBuilder(object):
 
         # Get a dictionary of data to pass to 'assemble_basename'.
         # Should be keyed by the placeholder fields used in the name template.
-        data = self._gather_data(data_sources)
+        data = self._gather_data(self.data_sources)
         if not data:
             log.warning('Unable to get data from specified sources')
             raise exceptions.NameBuilderError('Unable to assemble basename')
@@ -124,7 +118,7 @@ class NameBuilder(object):
         log.debug('NameBuilder results field query returned: {!s}'.format(data))
 
         # Check that all name template fields can be populated.
-        if not has_data_for_placeholder_fields(template, data):
+        if not has_data_for_placeholder_fields(self.name_template, data):
             log.warning('Unable to populate name. Missing field data.')
             raise exceptions.NameBuilderError('Unable to assemble basename')
 
@@ -136,10 +130,10 @@ class NameBuilder(object):
 
         # Construct the new file name
         try:
-            new_name = populate_name_template(template, **data)
+            new_name = populate_name_template(self.name_template, **data)
         except exceptions.NameTemplateSyntaxError as e:
             log.debug('Unable to assemble basename with template "{!s}" and '
-                      'data: {!s}'.format(template, data))
+                      'data: {!s}'.format(self.name_template, data))
             raise exceptions.NameBuilderError(
                 'Unable to assemble basename: {!s}'.format(e)
             )
