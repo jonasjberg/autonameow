@@ -35,20 +35,21 @@ from core import (
 
 class ConfigFieldParser(object):
     """
-    Top-level superclass for all parsers of configuration fields.
+    Top-level superclass for all configuration field parsers.
 
     Provides common functionality and interfaces that must be implemented
-    by inheriting rule parser classes.
+    by inheriting parser classes.
 
-    The field parser classes handle the "keys" in the "key-value pairs" that
-    make up the configuration rules. The "key" is a "meowURI" that
-    represent the location of some data and the "value" is some kind of
-    expression.
+    The field parser classes each handle different types of "keys" in the
+    "key-value pairs" that make up configuration entries.
+    The "key" is a "meowURI" that represent a location or provider of some data.
+    The "value" is some kind of expression.
 
     The "meowURI" (key) determines which parser class is to be used by
-    matching the "meowURI" against class variables 'applies_to_field'
-    using "globs"/wildcards. Classes whose 'applies_to_field' evaluates True
-    for a given "meowURI" is used to parse that configuration field.
+    matching the "meowURI" against class variables 'applies_to_field'.
+    This is handled with the 'eval_meowuri_glob' function, which supports
+    "globs"/wildcards. Parser classes whose 'applies_to_field' attribute
+    evaluates True for a given "meowURI" is used to parse the associated value.
 
     * The 'validate' methods
       The 'Configuration' class uses the field parser classes primarily for
