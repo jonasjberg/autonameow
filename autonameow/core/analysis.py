@@ -70,7 +70,6 @@ class Analysis(object):
         """
         Starts the analysis by populating and executing the run queue.
         """
-        log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
         self._populate_run_queue()
 
         # Run all analyzers in the queue.
