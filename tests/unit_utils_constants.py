@@ -82,3 +82,76 @@ DUMMY_RAW_RULE_DATA_SOURCES = [
      'publisher': 'metadata.exiftool.XMP-dc:Publisher',
      'title': 'metadata.exiftool.XMP-dc:Title'},
 ]
+
+
+# Dummy internal data structure with (supposedly) valid fields and sources.
+RESULTS_DATA_STRUCTURE = {
+    'filesystem': {
+        'basename': {
+            'full': None,
+            'prefix': None,
+            'suffix': None,
+            'extension': None,
+            'derived_data': {
+                'datetime': None,
+            }
+        },
+        'pathname': {
+            'full': None,
+            'parent': None
+        },
+        'date_accessed': None,
+        'date_created': None,
+        'date_modified': None,
+    },
+    'contents': {
+        'mime_type': None,
+        'textual': {
+            'raw_text': None,
+            'paginated': False,
+            'number_pages': None,
+        },
+        'visual': {
+            'ocr_text': None,
+            'ocr_description': None,
+            'ocr_tags': None
+        },
+        'binary': {
+            'placeholder_field': None,
+        }
+    },
+    'metadata': {
+        'exiftool': {
+            'EXIF:DateTimeOriginal': None,
+            'PDF:Author': None,
+            'PDF:CreateDate': None,
+            'PDF:Creator': None,
+            'PDF:EBX_PUBLISHER': None,
+            'PDF:Producer': None,
+            'PDF:Subject': None,
+            'PDF:Title': None,
+            'XMP:Creator': None,
+            'XMP:EbxPublisher': None,
+            'XMP:Title': None,
+            'XMP-dc:Creator': None,
+            'XMP-dc:EbxPublisher': None,
+            'XMP-dc:Title': None,
+        },
+        'pypdf': {
+            'Author': None,
+            'Creator': None,
+            'Producer': None,
+            'Subject': None,
+            'Title': None,
+            'EBX_PUBLISHER': None,
+        }
+    },
+    'plugin': {
+        'microsoft_vision': None,
+        'guessit': None,
+    }
+}
+
+# Static dummy data sources used in the 'Repository' unit tests.
+__flat_results_data_structure = util.flatten_dict(RESULTS_DATA_STRUCTURE)
+VALID_DATA_SOURCES = list(__flat_results_data_structure.keys())
