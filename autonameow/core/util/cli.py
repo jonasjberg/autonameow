@@ -199,14 +199,14 @@ def colorize_quoted(text, color=None):
     return out
 
 
-def msg(message, style=None, log=False):
+def msg(message, style=None, add_info_log=False):
     """
     Displays a message to the user using preset formatting options.
 
     Args:
         message: The raw text message to print as a string.
         style: Optional message type.
-        log: Displays and logs the message if True. Defaults to False.
+        add_info_log: Displays and logs the message if True. Defaults to False.
     """
 
     def print_default_msg(text):
@@ -224,11 +224,11 @@ def msg(message, style=None, log=False):
 
     if not style:
         print_default_msg(message)
-        if log:
+        if add_info_log:
             log.info(message)
     elif style == 'info':
         print_info_msg(message)
-        if log:
+        if add_info_log:
             log.info(message)
     elif style == 'heading':
         print_default_msg('')
@@ -238,7 +238,7 @@ def msg(message, style=None, log=False):
         print(colorize_quoted(message))
     else:
         print_default_msg(message)
-        if log:
+        if add_info_log:
             log.info(message)
 
 
