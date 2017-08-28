@@ -57,7 +57,7 @@ class NameBuilder(object):
         """
         Populates a dictionary with data fields matching a "meowURI".
 
-        The dictionary specifies which fields and a corresponding "meowURI".
+        The dictionary maps name template fields to "meowURIs".
         The extracted data is queried for the "meowURI" first, if the data
         exists, it is used and the analyzer data query is skipped.
 
@@ -82,11 +82,6 @@ class NameBuilder(object):
             _data = self.request_data(self.file, meowuri)
             if _data:
                 out[field] = _data
-            # else:
-            #     analysis_data = self.analysis_data.get(meowuri)
-            #     if analysis_data:
-            #         out[field] = analysis_data
-            # TODO: Or else what.. ?
 
         return out
 

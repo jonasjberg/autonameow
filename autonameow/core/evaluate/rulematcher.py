@@ -72,12 +72,7 @@ class RuleMatcher(object):
 
         # Calculate score and weight for each rule, store the results in a
         # new local dict instead of mutating the 'Rule' instances.
-        # The new dict is keyed by the 'Rule' class instances;
-        #
-        #   self._scored_rules = {
-        #       '<RuleObjectA>': {'score': 0.5, 'weight': 0.1}
-        #       '<RuleObjectB>': {'score': 0.1, 'weight': 0.5}
-        #   }
+        # The new dict is keyed by the 'Rule' class instances.
         max_condition_count = max(len(rule.conditions)
                                   for rule in remaining_rules)
         for rule in remaining_rules:
