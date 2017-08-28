@@ -50,11 +50,13 @@ class TestMsg(TestCase):
 
     def test_msg_type_info_log_true(self):
         with uu.capture_stdout() as out:
-            cli.msg('text printed by msg() with type="info", log=True',
-                    style='info', log=True)
+            cli.msg('text printed by msg() with type="info", add_info_log=True',
+                    style='info', add_info_log=True)
 
-        self.assertIn('text printed by msg() with type="info", log=True',
-                      out.getvalue().strip())
+        self.assertIn(
+            'text printed by msg() with type="info", add_info_log=True',
+            out.getvalue().strip()
+        )
 
     def test_msg_type_color_quoted(self):
         with uu.capture_stdout() as out:
