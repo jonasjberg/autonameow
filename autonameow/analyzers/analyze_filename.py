@@ -206,6 +206,10 @@ class FilenameAnalyzer(BaseAnalyzer):
 
         return results
 
+    @classmethod
+    def check_dependencies(cls):
+        return True
+
 
 def _find_datetime_isodate(text_line):
     # TODO: [TD0070] Implement arbitrary basic personal use case.

@@ -130,3 +130,7 @@ class TextAnalyzer(BaseAnalyzer):
                       '{} results.'.format(matches_brute))
 
         return results
+
+    @classmethod
+    def check_dependencies(cls):
+        return True

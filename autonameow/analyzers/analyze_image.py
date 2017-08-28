@@ -231,3 +231,7 @@ class ImageAnalyzer(BaseAnalyzer):
             return None
         else:
             return results
+
+    @classmethod
+    def check_dependencies(cls):
+        return True

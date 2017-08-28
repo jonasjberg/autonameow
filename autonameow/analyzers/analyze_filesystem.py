@@ -123,3 +123,6 @@ class FilesystemAnalyzer(BaseAnalyzer):
         log.debug('Got {} timestamps from the filesystem.'.format(len(results)))
         return results
 
+    @classmethod
+    def check_dependencies(cls):
+        return True

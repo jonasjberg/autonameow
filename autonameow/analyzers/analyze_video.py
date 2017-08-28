@@ -80,3 +80,7 @@ class VideoAnalyzer(BaseAnalyzer):
     # NOTE: Look into using "ffprobe" to get video data.
     #       Can it provide information not covered by "exiftool"?
     # NOTE: If using "ffprobe", add it as a new extractor class!
+
+    @classmethod
+    def check_dependencies(cls):
+        return True

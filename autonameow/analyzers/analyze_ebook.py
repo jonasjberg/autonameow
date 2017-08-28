@@ -24,6 +24,11 @@ import logging
 from analyzers import BaseAnalyzer
 from core import util
 
+try:
+    import isbnlib
+except (ImportError, ModuleNotFoundError):
+    isbnlib = None
+
 
 log = logging.getLogger(__name__)
 
@@ -61,3 +66,7 @@ class EbookAnalyzer(BaseAnalyzer):
                 file_object.mime_type == 'application/octet-stream'):
             return True
         return False
+
+    @classmethod
+    def check_dependencies(cls):
+        return isbnlib is not None

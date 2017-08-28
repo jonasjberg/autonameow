@@ -118,6 +118,19 @@ class BaseAnalyzer(object):
         else:
             return False
 
+    @classmethod
+    def check_dependencies(cls):
+        """
+        Tests if the analyzer can be used.
+
+        This should be used to test that any dependencies required by the
+        analyzer are met. This might be third party libraries or executables.
+
+        Returns:
+            True if the analyzer has everything it needs, else False.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
     def __str__(self):
         return self.__class__.__name__
 
@@ -178,7 +191,16 @@ def get_analyzer_classes():
     Returns:
         All available analyzer classes as a list of type.
     """
-    return _get_implemented_analyzer_classes(analyzer_source_files)
+    klasses = _get_implemented_analyzer_classes(analyzer_source_files)
+
+    out = []
+    for klass in klasses:
+        if klass.check_dependencies():
+            out.append(klass)
+        else:
+            log.warning('Excluding analyzer "{!s}" due to unmet '
+                        'dependencies'.format(klass))
+    return out
 
 
 def map_meowuri_to_analyzers():

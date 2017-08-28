@@ -209,6 +209,10 @@ class PdfAnalyzer(BaseAnalyzer):
 
         return results
 
+    @classmethod
+    def check_dependencies(cls):
+        return True
+
 
 def result_list_add(value, source, weight):
     return [{'value': value,

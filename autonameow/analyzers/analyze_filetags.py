@@ -127,6 +127,10 @@ class FiletagsAnalyzer(BaseAnalyzer):
         # Assume 'FileObject' has a path and a basename.
         return True
 
+    @classmethod
+    def check_dependencies(cls):
+        return True
+
 
 def partition_basename(file_path):
     """
