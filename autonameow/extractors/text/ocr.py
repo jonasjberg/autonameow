@@ -53,7 +53,7 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
         ))
         result = get_text_from_ocr(self.source, tesseract_args=tesseract_args)
 
-        log.debug('PyTesseract returned {} (?) of text'.format(len(result)))
+        self.log.debug('PyTesseract returned {} (?) of text'.format(len(result)))
         return result
 
     @classmethod
