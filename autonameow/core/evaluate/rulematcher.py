@@ -79,7 +79,13 @@ class RuleMatcher(object):
                                   for rule in remaining_rules)
         for rule in remaining_rules:
             met_conditions = rule.count_conditions_met(self.query_data)
+
+            # Ratio of met conditions to the total number of conditions
+            # for a single rule.
             score = met_conditions / max(1, len(rule.conditions))
+
+            # Ratio of number of conditions in this rule to the number of
+            # conditions in the rule with the highest number of conditions.
             weight = len(rule.conditions) / max(1, max_condition_count)
 
             self._scored_rules[rule] = {'score': score,
