@@ -46,7 +46,6 @@ class NameBuilder(object):
         self.data_sources = data_sources
 
         self.request_data = repository.SessionRepository.resolve
-
         self._new_name = None
 
     @property

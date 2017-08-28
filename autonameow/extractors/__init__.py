@@ -99,6 +99,10 @@ class BaseExtractor(object):
             assert(isinstance(source, bytes))
         self.source = source
 
+        self.log = logging.getLogger(
+            '{!s}.{!s}'.format(__name__, self.__module__)
+        )
+
     def execute(self, **kwargs):
         """
         Starts extracting data using the extractor.

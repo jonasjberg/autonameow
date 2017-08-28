@@ -40,10 +40,9 @@ class FileObject(object):
             opts: Configuration options as an instance of 'Configuration'.
         """
         assert(isinstance(path, bytes))
-
         validate_path_argument(path)
-
         self.abspath = path
+
         self.filename = util.bytestring_path(
             os.path.basename(util.syspath(path))
         )

@@ -51,7 +51,6 @@ class Extraction(object):
         self.require_all_extractors = require_all_extractors
 
         self.add_to_global_data = repository.SessionRepository.store
-
         self.extractor_queue = util.GenericQueue()
 
     def collect_results(self, label, data):

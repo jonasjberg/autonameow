@@ -60,6 +60,7 @@ class BaseAnalyzer(object):
         self.file_object = file_object
         self.add_results = add_results_callback
         self.request_data = request_data_callback
+
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )

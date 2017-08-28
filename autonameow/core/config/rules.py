@@ -57,18 +57,19 @@ class RuleCondition(object):
                 condition. For example; "contents.mime_type".
             raw_expression: A expression to use when evaluating this condition.
         """
-        # TODO: Clean up setting the 'parser' attribute.
-        # NOTE(jonas): The "meowURI" determines which parser class is used.
+        self.meowuri = raw_meowuri
+        self.expression = raw_expression
 
         # TODO: [TD0015] Allow conditionals in the configuration rules.
         # Possible a list of functions already "loaded" with the target value.
         # Also "loaded" with corresponding (reference to) a validation function.
+
+        # TODO: Clean up setting the 'parser' attribute.
+        # NOTE(jonas): The "meowURI" determines which parser class is used.
         self._parser = None
         self._meowuri = None
         self._expression = None
 
-        self.meowuri = raw_meowuri
-        self.expression = raw_expression
 
     @property
     def meowuri(self):

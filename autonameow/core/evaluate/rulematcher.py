@@ -35,7 +35,6 @@ log = logging.getLogger(__name__)
 class RuleMatcher(object):
     def __init__(self, file_object, active_config):
         self.file_object = file_object
-        self.request_data = repository.SessionRepository.resolve
 
         if not active_config or not active_config.rules:
             log.error('Configuration does not contain any rules to evaluate')
@@ -48,6 +47,8 @@ class RuleMatcher(object):
             # files. The 'Rule' scores were not reset between files.
             # TODO: Double-check that this isn't needed anymore, then remove.
             self._rules = copy.deepcopy(active_config.rules)
+
+        self.request_data = repository.SessionRepository.resolve
 
         self._scored_rules = {}
         self._candidates = []
