@@ -189,7 +189,6 @@ class Rule(object):
                     used to further prioritize as to get a single "winning"
                     rule. This value is specified in the active configuration.
 
-    Calculate scores as;  SCORE = conditions_met / number_of_conditions
     Which gives a "normalized" decimal number between 0 and 1 that indicates
     the ratio of satisfied to unsatisfied conditions.
     """
@@ -219,8 +218,6 @@ class Rule(object):
         self.name_template = name_template
         self.conditions = conditions
         self.data_sources = data_sources
-
-        self._count_met_conditions = 0
 
         if not self.conditions:
             raise exceptions.InvalidRuleError(
@@ -300,32 +297,6 @@ class Rule(object):
         # raise any exceptions even if all of the sources fail validation.
         self._data_sources = parse_data_sources(raw_data_sources)
 
-    @property
-    def score(self):
-        # Calculate scores as;  SCORE = conditions_met / number_of_conditions
-        # Number of conditions is clamped at 1 to prevent division by 0.
-        score = self._count_met_conditions / max(1, len(self.conditions))
-        assert(0 <= score <= 1)
-        return score
-
-    @property
-    def weight(self):
-        # TODO: Calculate weight, or revert "normalized" scores.
-        return 0
-
-    def upvote(self):
-        """
-        Increases the matching score of this rule.
-        """
-        self._count_met_conditions += 1
-
-    def downvote(self):
-        """
-        Decreases the matching score of this rule.
-        """
-        self._count_met_conditions -= 1
-        self._count_met_conditions = max(0, self._count_met_conditions)
-
     def referenced_meowuris(self):
         """
         Get all "meowURIs" referenced by this rule.
@@ -378,23 +349,27 @@ class Rule(object):
         log.debug('Exact match PASSED!')
         return True
 
-    def evaluate_score(self, data_query_function):
+    def count_conditions_met(self, data_query_function):
         """
-        Evaluates this rule using data provided by a callback function.
-
-        Conditions are evaluated and the rule is scored through the 'upvote'
-        (and 'downvote' methods)
+        Evaluates rule conditions using data provided by a callback function.
 
         Args:
             data_query_function: Callback for retrieving the data to evaluate.
+
+        Returns:
+            The number of met conditions as an integer.
         """
+        assert(self.conditions and len(self.conditions) > 0)
+
+        _count_met_conditions = 0
         for condition in self.conditions:
             if self._evaluate_condition(condition, data_query_function):
                 log.debug('Condition PASSED: "{!s}"'.format(condition))
-                self.upvote()
+                _count_met_conditions += 1
             else:
-                # TODO: self.downvote()?
                 log.debug('Condition FAILED: "{!s}"'.format(condition))
+
+        return _count_met_conditions
 
     def _evaluate_condition(self, condition, data_query_function):
         # Fetch data at "meowuri" using the provided "data_query_function".

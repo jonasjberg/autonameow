@@ -43,8 +43,10 @@ class RuleMatcher(object):
             # which are initialized *once* when the configuration is loaded.
             # This same configuration instance is used when iterating over the
             # files. The 'Rule' scores were not reset between files.
+            # TODO: Double-check that this isn't needed anymore, then remove.
             self._rules = copy.deepcopy(active_config.rules)
 
+        self._scored_rules = {}
         self._candidates = []
 
     def query_data(self, meowuri):
@@ -55,21 +57,52 @@ class RuleMatcher(object):
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))
 
-        ok_rules = evaluate_rule_conditions(self._rules, self.query_data)
-        if len(ok_rules) == 0:
-            log.info('No valid rules remain after evaluation')
+        remaining_rules = remove_rules_failing_exact_match(self._rules,
+                                                           self.query_data)
+        if len(remaining_rules) == 0:
+            log.info('No rules remain after discarding those who requires an'
+                     ' exact match but failed evaluation ..')
             return
 
-        log.debug('Prioritizing remaining {} candidates ..'.format(len(ok_rules)))
-        ok_rules = prioritize_rules(ok_rules)
-        for i, rule in enumerate(ok_rules):
+        log.debug('{} rules remain after removing rules that require exact'
+                  ' matches'.format(len(remaining_rules)))
+
+        # Calculate score and weight for each rule, store the results in a
+        # new local dict instead of mutating the 'Rule' instances.
+        # The new dict is keyed by the 'Rule' class instances;
+        #
+        #   self._scored_rules = {
+        #       '<RuleObjectA>': {'score': 0.5, 'weight': 0.1}
+        #       '<RuleObjectB>': {'score': 0.1, 'weight': 0.5}
+        #   }
+        max_condition_count = max(len(rule.conditions)
+                                  for rule in remaining_rules)
+        for rule in remaining_rules:
+            met_conditions = rule.count_conditions_met(self.query_data)
+            score = met_conditions / max(1, len(rule.conditions))
+            weight = len(rule.conditions) / max(1, max_condition_count)
+
+            self._scored_rules[rule] = {'score': score,
+                                        'weight': weight}
+
+        log.debug('Prioritizing remaining {} candidates ..'.format(
+            len(remaining_rules))
+        )
+        prioritized_rules = prioritize_rules(self._scored_rules)
+
+        _candidates = []
+        for i, rule in enumerate(prioritized_rules):
+            _candidates.append(rule)
+
             _exact = 'Yes' if rule.exact_match else 'No '
             log.info('Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias: {:.2f}) {} '.format(
-                i + 1, _exact, rule.score, rule.weight, rule.ranking_bias,
-                rule.description)
+                i + 1, _exact,
+                self._scored_rules[rule]['score'],
+                self._scored_rules[rule]['weight'],
+                rule.ranking_bias, rule.description)
             )
 
-        self._candidates = ok_rules
+        self._candidates = _candidates
 
     @property
     def best_match(self):
@@ -80,55 +113,43 @@ class RuleMatcher(object):
 
 def prioritize_rules(rules):
     """
-    Prioritizes (sorts) a list of 'Rule' instances.
+    Prioritizes (sorts) a dict with 'Rule' instances and scores/weights.
 
-    The list is sorted by multiple attributes in the following order;
+    Rules are sorted by multiple attributes in the following order;
 
     1. By "score", a float between 0-1
        Represents the number of satisfied rule conditions.
     2. By Whether the rule requires an exact match or not.
        Rules that require an exact match are ranked higher.
     3. By "weight", a float between 0-1.
-       Represents the number of met conditions for the rule, compared to the
-       number of conditions in other rules.
+       Represents the number of met conditions for the rule, compared to
+       the number of conditions in other rules.
     4. By "ranking bias", a float between 0-1.
        Optional user-specified biasing of rule prioritization.
 
     This means that a rule that met all conditions will be ranked lower than
     another rule that also met all conditions but *did* require an exact match.
-    Rules requiring an exact match is filtered are removed at a prior stage and
-    will never get here.
+    Rules requiring an exact match is filtered are removed at a prior
+    stage and should never get here.
 
     Args:
-        rules: The list of 'Rule' instances to prioritize/sort.
+        rules: Dict keyed by instances of 'Rule' storing score/weight-dicts.
 
     Returns:
-        A sorted/prioritized list of 'Rule' instances.
+        A sorted/prioritized list of tuples composed of 'Rule' instances
+        and score/weight-dicts.
     """
-    return sorted(rules, reverse=True,
-                  key=operator.attrgetter('score', 'exact_match', 'weight',
-                                          'ranking_bias'))
-
-
-def evaluate_rule_conditions(rules_to_examine, data_query_function):
-    # Conditions are evaluated with data accessed through the callback function
-    # 'data_query_function' which returns data for 'RuleMatcher.file_object'.
-    passed = remove_rules_failing_exact_match(rules_to_examine,
-                                              data_query_function)
-    log.debug('{} rules remain after removing rules that require exact'
-              ' matches'.format(len(passed)))
-    evaluate_rules_and_update_scores(passed, data_query_function)
-    return passed
+    prioritized_rules = sorted(
+        rules.items(),
+        reverse=True,
+        key=lambda d: (d[1]['score'],
+                       d[0].exact_match,
+                       d[1]['weight'],
+                       d[0].ranking_bias)
+    )
+    return [rule[0] for rule in prioritized_rules]
 
 
 def remove_rules_failing_exact_match(rules_to_examine, data_query_function):
     return [rule for rule in rules_to_examine if
             rule.evaluate_exact(data_query_function)]
-
-
-def evaluate_rules_and_update_scores(rules_to_examine, data_query_function):
-    for count, rule in enumerate(rules_to_examine):
-        log.debug('Scoring Rule {}/{}: "{}"'.format(
-            count + 1, len(rules_to_examine), rule.description)
-        )
-        rule.evaluate_score(data_query_function)

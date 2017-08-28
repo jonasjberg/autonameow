@@ -28,7 +28,6 @@ from core.config import DEFAULT_CONFIG
 from core.evaluate.rulematcher import (
     RuleMatcher,
     prioritize_rules,
-    evaluate_rule_conditions
 )
 
 dummy_config = Configuration(DEFAULT_CONFIG)
@@ -111,80 +110,66 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
 
 
 class DummyRule(object):
-    def __init__(self, score, weight):
-        self.score = score
-        self.weight = weight
-        self.exact_match = True
+    def __init__(self, exact_match):
+        self.exact_match = exact_match
         self.ranking_bias = constants.DEFAULT_RULE_RANKING_BIAS
 
 
 class TestPrioritizeRules(TestCase):
-    def test_prioritize_rules_returns_empty_list_given_empty_list(self):
-        self.assertIsNotNone(prioritize_rules([]))
-        self.assertTrue(isinstance(prioritize_rules([]), list))
-
     def test_prioritize_rules_raises_attribute_error_given_invalid_input(self):
         with self.assertRaises(AttributeError):
             prioritize_rules([None, None])
             prioritize_rules([None])
 
     def test_prioritize_rules_returns_expected_based_on_score_same_weight(self):
-        r_a = DummyRule(3, 0.5)
-        r_b = DummyRule(2, 0.5)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 3, 'weight': 0.5}
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 0, 'weight': 0.5}
         expected = [r_a, r_b]
-        actual = prioritize_rules([r_a, r_b])
-        self.assertTrue(actual, expected)
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
 
-        r_a = DummyRule(0, 0.5)
-        r_b = DummyRule(3, 0.5)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 0, 'weight': 0.5}
+
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 3, 'weight': 0.5}
         expected = [r_b, r_a]
-        actual = prioritize_rules([r_a, r_b])
-        self.assertTrue(actual, expected)
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
 
     def test_prioritize_rules_returns_expected_based_on_score_diff_weight(self):
-        r_a = DummyRule(3, 1)
-        r_b = DummyRule(2, 0)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 3, 'weight': 1}
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 2, 'weight': 0}
         expected = [r_a, r_b]
-        actual = prioritize_rules([r_a, r_b])
-        self.assertTrue(actual, expected)
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
 
-        r_a = DummyRule(1, 0.1)
-        r_b = DummyRule(3, 0.5)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 1, 'weight': 0.1}
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 3, 'weight': 0.0}
         expected = [r_b, r_a]
-        actual = prioritize_rules([r_a, r_b])
-        self.assertTrue(actual, expected)
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
 
     def test_prioritize_rules_returns_expected_based_on_weight_same_score(self):
-        r_a = DummyRule(3, 0)
-        r_b = DummyRule(3, 1)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 3, 'weight': 0.0}
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 3, 'weight': 1.0}
         expected = [r_b, r_a]
-        actual = prioritize_rules([r_a, r_b])
-        self.assertTrue(actual, expected)
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
 
     def test_prioritize_rules_returns_expected_based_on_weight_zero_score(self):
-        r_a = DummyRule(0, 0.1)
-        r_b = DummyRule(0, 0.5)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 0, 'weight': 0.1}
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 0, 'weight': 0.5}
         expected = [r_b, r_a]
-        actual = prioritize_rules([r_a, r_b])
-        self.assertTrue(actual, expected)
-
-
-class TestEvaluateRuleConditions(TestCase):
-    def setUp(self):
-        self.rules_to_examine = uu.get_dummy_rules_to_examine()
-
-        # NOTE: Simulates no data available, no rules should pass evaluation.
-        self.dummy_query_function = lambda *_: False
-
-    def test_evaluate_rule_conditions_is_defined(self):
-        self.assertIsNotNone(evaluate_rule_conditions)
-
-    def test_returns_expected_type(self):
-        actual = evaluate_rule_conditions(self.rules_to_examine,
-                                          self.dummy_query_function)
-        self.assertTrue(isinstance(actual, list))
-
-    def test_no_valid_rules_pass_with_dummy_query_function(self):
-        actual = evaluate_rule_conditions(self.rules_to_examine,
-                                          self.dummy_query_function)
-        self.assertEqual(len(actual), 0)
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
