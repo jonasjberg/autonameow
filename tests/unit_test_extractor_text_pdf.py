@@ -21,17 +21,16 @@
 
 import unittest
 
-import unit_utils as uu
 from core import util
-from extractors.metadata_pypdf import PyPDFMetadataExtractor
-from extractors.text_pdf import (
-    PdfTextExtractor,
+from extractors.text import PdfTextExtractor
+from extractors.text.pdf import (
     extract_pdf_content_with_pdftotext,
     extract_pdf_content_with_pypdf
 )
+import unit_utils as uu
 
 
-unmet_dependencies = PyPDFMetadataExtractor.check_dependencies() is False
+unmet_dependencies = PdfTextExtractor.check_dependencies() is False
 dependency_error = 'Extractor dependencies not satisfied'
 
 

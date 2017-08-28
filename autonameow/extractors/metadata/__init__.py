@@ -21,10 +21,7 @@
 
 import logging
 
-from core import (
-    types,
-    exceptions
-)
+from core import exceptions, types
 from extractors import BaseExtractor
 
 
@@ -112,3 +109,7 @@ class AbstractMetadataExtractor(BaseExtractor):
 
     def _get_raw_metadata(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
+
+from .pdf import PyPDFMetadataExtractor
+from .exiftool import ExiftoolMetadataExtractor

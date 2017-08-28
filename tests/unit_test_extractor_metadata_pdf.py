@@ -22,16 +22,15 @@
 import unittest
 from datetime import datetime
 
-from core import util
-from extractors.metadata_pypdf import PyPDFMetadataExtractor
 import unit_utils as uu
-
+from core import util
+from extractors.metadata import PyPDFMetadataExtractor
 
 unmet_dependencies = PyPDFMetadataExtractor.check_dependencies() is False
 dependency_error = 'Extractor dependencies not satisfied'
 
 
-class TestPyPDFMetadataExtractor(unittest.TestCase):
+class TestPDFMetadataExtractor(unittest.TestCase):
     def _to_datetime(self, value):
         return datetime.strptime(value, '%Y-%m-%d %H:%M:%S%z')
 

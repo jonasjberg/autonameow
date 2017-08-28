@@ -176,21 +176,46 @@ class BaseExtractor(object):
         return '<{}>'.format(self.__class__.__name__)
 
 
-def find_extractor_files():
+def find_extractor_module_files():
     """
     Finds Python source files assumed to be autonameow extractors.
 
     Returns: List of found extractor source files basenames.
     """
-    extractor_files = [x for x in os.listdir(AUTONAMEOW_EXTRACTOR_PATH)
-                       if x.endswith('.py')
-                       and x != '__init__.py']
+    extractor_files = [
+        x for x in os.listdir(AUTONAMEOW_EXTRACTOR_PATH)
+        if x.endswith('.py')
+        and x != '__init__.py'
+        and x != '__pycache__'
+        and not x.startswith('.')
+    ]
     return extractor_files
 
 
-def _get_all_extractor_classes(extractor_files):
-    # Strip extensions.
-    _to_import = [f[:-3] for f in extractor_files]
+def _get_package_classes(packages):
+    klasses = []
+    _abstract_extractor_classes = []
+
+    for package in packages:
+        __import__(package, None, None)
+        namespace = inspect.getmembers(sys.modules[package],
+                                       inspect.isclass)
+        for _obj_name, _obj_type in namespace:
+            if not issubclass(_obj_type, BaseExtractor):
+                continue
+            if _obj_type == BaseExtractor:
+                continue
+            if _obj_name.startswith('Abstract'):
+                _abstract_extractor_classes.append(_obj_type)
+            else:
+                klasses.append(_obj_type)
+
+    return _abstract_extractor_classes, klasses
+
+
+def _get_module_classes(modules):
+    # Strip extensions from file names.
+    _to_import = [f[:-3] for f in modules]
 
     _extractor_classes = []
     _abstract_extractor_classes = []
@@ -212,12 +237,16 @@ def _get_all_extractor_classes(extractor_files):
 
 
 def get_abstract_extractor_classes(extractor_files):
-    _abstract, _implemented = _get_all_extractor_classes(extractor_files)
-    return _abstract
+    _p_abstract, _p_implemented = _get_package_classes(['metadata', 'text'])
+    _m_abstract, _m_implemented = _get_module_classes(extractor_files)
+    return _p_abstract + _m_abstract
 
 
 def get_extractor_classes(extractor_files):
-    _abstract, _implemented = _get_all_extractor_classes(extractor_files)
+    _p_abstract, _p_implemented = _get_package_classes(['metadata', 'text'])
+    _m_abstract, _m_implemented = _get_module_classes(extractor_files)
+
+    _implemented = _p_implemented + _m_implemented
 
     out = []
     for klass in _implemented:
@@ -225,6 +254,9 @@ def get_extractor_classes(extractor_files):
             out.append(klass)
         else:
             log.info('Excluding extractor "{!s}" due to unmet dependencies'.format(klass))
+
+    for o in out:
+        log.debug('Registered extractor class: "{!s}"'.format(o))
 
     return out
 
@@ -269,5 +301,5 @@ def map_meowuri_to_extractors():
 
     return out
 
-ExtractorClasses = get_extractor_classes(find_extractor_files())
+ExtractorClasses = get_extractor_classes(['filesystem.py'])
 MeowURIClassMap = map_meowuri_to_extractors()

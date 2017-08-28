@@ -41,7 +41,7 @@ def dummy_request_data(file_object, label):
 class TestExtraction(TestCase):
     def setUp(self):
         self.e = Extraction(uu.get_mock_fileobject())
-        self.sources = ['text.py', 'metadata.py']
+        self.sources = ['filesystem.py']
 
     def test_can_be_instantiated(self):
         self.assertIsNotNone(self.e)

@@ -24,7 +24,7 @@ import unittest
 
 import unit_utils as uu
 from core import util
-from extractors.text_ocr import ImageOCRTextExtractor
+from extractors.text import ImageOCRTextExtractor
 
 unmet_dependencies = ImageOCRTextExtractor.check_dependencies() is False
 dependency_error = 'Extractor dependencies not satisfied'

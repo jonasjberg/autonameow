@@ -21,8 +21,8 @@
 
 from unittest import TestCase
 
-from extractors.text_plain import read_entire_text_file
 import unit_utils as uu
+from extractors.text.plain import read_entire_text_file
 
 
 class TestReadEntireTextFile(TestCase):

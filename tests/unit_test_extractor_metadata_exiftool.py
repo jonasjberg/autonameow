@@ -24,7 +24,7 @@ from datetime import datetime
 
 from core import util
 from core.exceptions import ExtractorError
-from extractors.metadata_exiftool import ExiftoolMetadataExtractor
+from extractors.metadata import ExiftoolMetadataExtractor
 import unit_utils as uu
 
 

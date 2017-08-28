@@ -21,11 +21,7 @@
 
 import logging
 
-from core import (
-    exceptions,
-    types,
-    util
-)
+from core import exceptions, types, util
 from core.util import textutils
 from extractors import BaseExtractor
 
@@ -78,3 +74,10 @@ class AbstractTextExtractor(BaseExtractor):
 
     def _get_raw_text(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
+
+from .ocr import ImageOCRTextExtractor
+from .epub import EpubTextExtractor
+from .plain import PlainTextExtractor
+from .pdf import PdfTextExtractor
+

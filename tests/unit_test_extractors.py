@@ -85,27 +85,21 @@ class TestBaseExtractor(TestCase):
         self.assertIsNone(self.e.meowuri_root)
 
 
-class TestFindExtractorSourceFiles(TestCase):
-    def test_find_extractor_files_is_defined(self):
-        self.assertIsNotNone(extractors.find_extractor_files)
+class TestFindExtractorModuleSourceFiles(TestCase):
+    def test_find_extractor_module_files_is_defined(self):
+        self.assertIsNotNone(extractors.find_extractor_module_files)
 
-    def test_find_extractor_files_returns_expected_type(self):
-        actual = extractors.find_extractor_files()
+    def test_returns_expected_type(self):
+        actual = extractors.find_extractor_module_files()
         self.assertTrue(isinstance(actual, list))
 
-    def test_find_extractor_files_returns_expected_files(self):
-        actual = extractors.find_extractor_files()
+    def test_returns_expected_files(self):
+        actual = extractors.find_extractor_module_files()
 
         self.assertNotIn('__init__.py', actual)
 
         # TODO: [hardcoded] Likely to break; requires manual updates.
-        self.assertIn('metadata.py', actual)
-        self.assertIn('metadata_exiftool.py', actual)
-        self.assertIn('metadata_pypdf.py', actual)
-        self.assertIn('text.py', actual)
-        self.assertIn('text_ocr.py', actual)
-        self.assertIn('text_pdf.py', actual)
-        self.assertIn('text_plain.py', actual)
+        self.assertIn('filesystem.py', actual)
 
 
 def subclasses_base_extractor(klass):
@@ -114,15 +108,14 @@ def subclasses_base_extractor(klass):
 
 class TestGetAllExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['text_ocr.py', 'text_pdf.py', 'text_plain.py',
-                        'metadata_exiftool.py', 'metadata_pypdf.py']
+        self.sources = ['text', 'metadata']
 
     def test_get_extractor_classes_returns_expected_type(self):
-        actual = extractors._get_all_extractor_classes(self.sources)
+        actual = extractors._get_package_classes(self.sources)
         self.assertTrue(isinstance(actual, tuple))
 
     def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
-        actual = extractors._get_all_extractor_classes(self.sources)
+        actual = extractors._get_package_classes(self.sources)
 
         actual_abstract, _ = actual
         for _abstract in actual_abstract:
@@ -133,16 +126,14 @@ class TestGetAllExtractorClasses(TestCase):
             self.assertTrue(subclasses_base_extractor(_implemented))
 
     def test_get_extractor_classes_does_not_include_base_extractor(self):
-        abstract, implemented = extractors._get_all_extractor_classes(self.sources)
+        abstract, implemented = extractors._get_package_classes(self.sources)
         self.assertNotIn(extractors.BaseExtractor, abstract)
         self.assertNotIn(extractors.BaseExtractor, implemented)
 
 
 class TestGetImplementedExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['filesystem.py', 'text_epub.py', 'text_ocr.py',
-                        'text_pdf.py', 'text_plain.py', 'metadata_exiftool.py',
-                        'metadata_pypdf.py']
+        self.sources = ['filesystem.py']
         self.actual = extractors.get_extractor_classes(self.sources)
 
     def test_get_extractor_classes_returns_expected_type(self):
@@ -163,9 +154,7 @@ class TestGetImplementedExtractorClasses(TestCase):
 
 class TestNumberOfAvailableExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['filesystem.py', 'text_epub.py', 'text_ocr.py',
-                        'text_pdf.py', 'text_plain.py', 'metadata_exiftool.py',
-                        'metadata_pypdf.py']
+        self.sources = ['filesystem.py']
         self.actual = extractors.get_extractor_classes(self.sources)
 
     # This tests up to the current number of extractors without dependencies.
