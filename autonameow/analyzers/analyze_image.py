@@ -19,12 +19,15 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import re
 from datetime import datetime
 
 from analyzers import BaseAnalyzer
 from core.util import dateandtime
+
+
+log = logging.getLogger(__name__)
 
 
 class ImageAnalyzer(BaseAnalyzer):

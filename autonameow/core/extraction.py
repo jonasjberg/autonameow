@@ -19,13 +19,16 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 
 import extractors
 from core import (
     util,
     repository
 )
+
+
+log = logging.getLogger(__name__)
 
 
 class Extraction(object):

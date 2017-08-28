@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import os
 
 from core import (
@@ -35,6 +35,9 @@ from core.config.field_parsers import (
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser
 )
+
+
+log = logging.getLogger(__name__)
 
 
 class Configuration(object):

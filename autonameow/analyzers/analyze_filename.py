@@ -45,7 +45,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             return
 
         meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
-        logging.debug(
+        log.debug(
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
         self.add_results(meowuri, data)
@@ -189,8 +189,8 @@ class FilenameAnalyzer(BaseAnalyzer):
                                 'source': 'regex_search',
                                 'weight': 0.25})
         else:
-            logging.debug('Unable to extract date/time-information '
-                          'from file name using regex search.')
+            log.debug('Unable to extract date/time-information '
+                      'from file name using regex search.')
 
         # Lastly, an iterative brute force search.
         # TODO: Collapse duplicate results with 'util.misc.multiset_count'..?
@@ -201,8 +201,8 @@ class FilenameAnalyzer(BaseAnalyzer):
                                 'source': 'bruteforce_search',
                                 'weight': 0.1})
         else:
-            logging.debug('Unable to extract date/time-information '
-                          'from file name using brute force search.')
+            log.debug('Unable to extract date/time-information '
+                      'from file name using brute force search.')
 
         return results
 

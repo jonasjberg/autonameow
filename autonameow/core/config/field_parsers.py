@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import re
 import unicodedata
 from datetime import datetime
@@ -31,6 +31,9 @@ from core import (
     namebuilder,
     types
 )
+
+
+log = logging.getLogger(__name__)
 
 
 class ConfigFieldParser(object):

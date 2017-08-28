@@ -39,6 +39,8 @@ from core import (
     util
 )
 
+log = logging.getLogger(__name__)
+
 
 def print_ascii_banner():
     """
@@ -79,11 +81,11 @@ def print_start_info():
                  style='DIM')
     print(i)
 
-    logging.debug('Started {} version {}'.format(version.__title__,
-                                                 constants.PROGRAM_VERSION))
-    logging.debug('Running on Python {}'.format(constants.PYTHON_VERSION))
-    logging.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
-    logging.debug('Process ID: {}'.format(os.getpid()))
+    log.debug('Started {} version {}'.format(version.__title__,
+                                             constants.PROGRAM_VERSION))
+    log.debug('Running on Python {}'.format(constants.PYTHON_VERSION))
+    log.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
+    log.debug('Process ID: {}'.format(os.getpid()))
 
 
 def print_exit_info(exit_code, elapsed_time):
@@ -223,11 +225,11 @@ def msg(message, style=None, log=False):
     if not style:
         print_default_msg(message)
         if log:
-            logging.info(message)
+            log.info(message)
     elif style == 'info':
         print_info_msg(message)
         if log:
-            logging.info(message)
+            log.info(message)
     elif style == 'heading':
         print_default_msg('')
         print_default_msg(message)
@@ -237,7 +239,7 @@ def msg(message, style=None, log=False):
     else:
         print_default_msg(message)
         if log:
-            logging.info(message)
+            log.info(message)
 
 
 if __name__ == '__main__':

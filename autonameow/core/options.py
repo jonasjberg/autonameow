@@ -30,6 +30,9 @@ from core import (
 from core.util import cli
 
 
+log = logging.getLogger(__name__)
+
+
 def arg_is_year(value):
     """
     Check if "value" is a year, here defined as consisting solely of 4 digits,
@@ -270,13 +273,13 @@ def initialize(raw_args):
     init_logging(args)
 
     if args.automagic and args.interactive:
-        logging.critical('Operating mode must be either one of "automagic" or '
-                         '"interactive", not both. Reverting to default: '
-                         '[interactive mode].')
+        log.critical('Operating mode must be either one of "automagic" or '
+                     '"interactive", not both. Reverting to default: '
+                     '[interactive mode].')
         args.automagic = False
         args.interactive = True
     if not args.automagic and not args.interactive:
-        logging.debug('Using default operating mode: [interactive mode].')
+        log.debug('Using default operating mode: [interactive mode].')
         args.interactive = True
 
     return args

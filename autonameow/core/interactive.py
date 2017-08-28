@@ -24,6 +24,9 @@ import sys
 import logging
 
 
+log = logging.getLogger(__name__)
+
+
 class InteractiveCLI(object):
     # TODO: Implement this class.
     def __init__(self):
@@ -34,7 +37,7 @@ class InteractiveCLI(object):
             # Possibly redundant check for Python 2.
             # TODO: Assume running with Python 3+. Add checks/asserts elsewhere.
             if sys.version_info[0] < 3:
-                logging.warning('Using potentially unsafe Python 2 "raw_input"')
+                log.warning('Using potentially unsafe Python 2 "raw_input"')
                 answer = raw_input(question + ' [Yes|No]').lower()
             else:
                 answer = input(question + ' (Yes|No)').lower()

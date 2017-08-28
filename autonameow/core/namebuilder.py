@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import re
 from datetime import datetime
 
@@ -29,6 +29,9 @@ from core import (
     repository
 )
 from core.util import diskutils
+
+
+log = logging.getLogger(__name__)
 
 
 class NameBuilder(object):

@@ -25,12 +25,15 @@ Miscellaneous utility functions.
 
 import collections
 import itertools
-import logging as log
+import logging
 import shutil
 
 import yaml
 
 from core.exceptions import InvalidMeowURIError
+
+
+log = logging.getLogger(__name__)
 
 
 def dump(obj):

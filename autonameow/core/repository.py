@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 
 import analyzers
 import extractors
@@ -28,6 +28,9 @@ from core import (
     exceptions,
     util
 )
+
+
+log = logging.getLogger(__name__)
 
 
 class Repository(object):

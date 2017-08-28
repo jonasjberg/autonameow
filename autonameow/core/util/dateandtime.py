@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import re
 import string
 from datetime import datetime
@@ -33,6 +33,9 @@ from core import (
     util
 )
 from core.util import textutils
+
+
+log = logging.getLogger(__name__)
 
 
 def hyphenate_date(date_str):
