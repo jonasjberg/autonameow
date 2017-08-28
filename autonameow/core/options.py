@@ -332,8 +332,10 @@ def init_logging(args):
 
     _colored_timestamp = cli.colorize('%(asctime)s', style='DIM')
     if args.debug:
-        fmt = (_colored_timestamp
-               + ' %(levelname)s %(name)-20.20s (%(lineno)3d) %(funcName)-20.20s %(message)s')
+        fmt = (
+            _colored_timestamp
+            + ' %(levelname)s %(name)-25.25s %(funcName)-20.20s  %(message)s'
+        )
         logging.basicConfig(level=logging.DEBUG, format=fmt,
                             datefmt='%Y-%m-%d %H:%M:%S')
     elif args.verbose:
