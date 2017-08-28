@@ -208,6 +208,13 @@ class Rule(object):
             conditions: Dict used to create instances of 'RuleCondition'
             data_sources: Dict of template field names and "meowURIs".
         """
+        self._description = None
+        self._exact_match = None
+        self._ranking_bias = None
+        self._name_template = None
+        self._conditions = None
+        self._data_sources = None
+
         self.description = description
         self.exact_match = exact_match
         self.ranking_bias = ranking_bias
