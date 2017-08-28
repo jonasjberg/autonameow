@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import re
 
 from analyzers import BaseAnalyzer
 from core import util
@@ -31,6 +32,13 @@ except (ImportError, ModuleNotFoundError):
 
 
 log = logging.getLogger(__name__)
+
+
+# Known bad numbers that keep turning up ..
+BLACKLISTED_ISBN_NUMBERS = ['0000000000', '1111111111', '2222222222',
+                            '3333333333', '4444444444', '5555555555',
+                            '6666666666', '7777777777', '8888888888',
+                            '9999999999', '0123456789']
 
 
 class EbookAnalyzer(BaseAnalyzer):
@@ -70,3 +78,40 @@ class EbookAnalyzer(BaseAnalyzer):
     @classmethod
     def check_dependencies(cls):
         return isbnlib is not None
+
+
+# TODO: [TD0030] Plugin for querying APIs with ISBN numbers.
+
+
+def extract_isbns_from_text(text):
+    try:
+        isbns = [isbnlib.get_canonical_isbn(isbn)
+                 for isbn in isbnlib.get_isbnlike(text)]
+    except IndexError:
+        return []
+    else:
+        return [i for i in isbns if validate_isbn(i)]
+
+
+def validate_isbn(number):
+    if not number:
+        return None
+
+    n = isbnlib.clean(number)
+    if not n or isbnlib.notisbn(n):
+        return None
+    else:
+        return n
+
+
+def filter_isbns(numbers):
+    # Remove all characters except digits and dashes.
+    numbers = [re.sub(r'[^\d-]+', '', n) for n in numbers]
+
+    # Remove any duplicates.
+    nums = list(set(numbers))
+
+    # Remove known bad ISBN numbers.
+    numbers = [n for n in nums
+               if n not in BLACKLISTED_ISBN_NUMBERS]
+    return numbers
