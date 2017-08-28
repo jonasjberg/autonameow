@@ -51,5 +51,14 @@
 
 
 class NameTemplateField(object):
-    def __init__(self):
-        pass
+    def __init__(self, content):
+        self._content = content
+
+
+class NTFTitle(NameTemplateField):
+    # TODO: Remove or implement ..
+    def __init__(self, content):
+        super(NTFTitle).__init__(content)
+
+    def clean(self):
+        self._content = self._content.strip(',.:;-_ ')
