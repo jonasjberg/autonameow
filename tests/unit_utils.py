@@ -339,7 +339,7 @@ def get_mock_analyzer():
 
 def get_named_file_object(basename):
     """
-    Returns: A FileObject with mocked options and the specified basename.
+    Returns: A FileObject based on a temporary file with the given basename.
     """
     tf = make_temporary_file(basename=basename)
     return FileObject(util.normpath(tf))
