@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import os
 
 from datetime import datetime
@@ -30,9 +29,6 @@ from core import (
 )
 from core.fileobject import FileObject
 from extractors import BaseExtractor
-
-
-log = logging.getLogger(__name__)
 
 
 class CommonFileSystemExtractor(BaseExtractor):
@@ -49,20 +45,19 @@ class CommonFileSystemExtractor(BaseExtractor):
             try:
                 self.data = self._get_data(self.source)
             except exceptions.ExtractorError as e:
-                log.error('{!s} extraction FAILED: {!s}'.format(self, e))
+                self.log.error('{!s} extraction FAILED: {!s}'.format(self, e))
                 raise
 
         if 'field' not in kwargs:
-            log.debug('{!s} returning all extracted data'.format(self))
+            self.log.debug('{!s} returning all extracted data'.format(self))
             return self.data
         else:
             field = kwargs.get('field')
-            log.debug('{!s} returning data matching field: '
-                      '"{!s}"'.format(self, field))
+            self.log.debug('{!s} returning data matching field: '
+                           '"{!s}"'.format(self, field))
             return self.data.get(field)
 
-    @staticmethod
-    def _get_data(file_object):
+    def _get_data(self, file_object):
         if not isinstance(file_object, FileObject):
             raise exceptions.ExtractorError(
                 'Expected source to be "FileObject" instance'
@@ -83,8 +78,8 @@ class CommonFileSystemExtractor(BaseExtractor):
             create_time = os.path.getctime(file_object.abspath)
             access_time = os.path.getatime(file_object.abspath)
         except OSError as e:
-            log.error('Unable to get timestamps from filesystem:'
-                      ' {!s}'.format(e))
+            self.log.error('Unable to get timestamps from filesystem:'
+                           ' {!s}'.format(e))
         else:
             datetime_from_timestamp(out, 'date_accessed', access_time)
             datetime_from_timestamp(out, 'date_created', create_time)

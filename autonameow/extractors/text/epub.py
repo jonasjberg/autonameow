@@ -19,17 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-
 try:
     from thirdparty import epubzilla
 except ImportError:
     epubzilla = None
 
 from extractors.text import AbstractTextExtractor
-
-
-log = logging.getLogger(__name__)
 
 
 class EpubTextExtractor(AbstractTextExtractor):
@@ -42,7 +37,7 @@ class EpubTextExtractor(AbstractTextExtractor):
         super(EpubTextExtractor, self).__init__(source)
 
     def _get_raw_text(self):
-        log.debug('Extracting raw text from EPUB file ..')
+        self.log.debug('Extracting raw text from EPUB file ..')
         result = extract_text_with_epubzilla(self.source)
 
     @classmethod

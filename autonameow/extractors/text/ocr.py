@@ -19,8 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-
 from PIL import Image
 
 try:
@@ -33,9 +31,6 @@ from core import (
     util
 )
 from extractors.text import AbstractTextExtractor
-
-
-log = logging.getLogger(__name__)
 
 
 class ImageOCRTextExtractor(AbstractTextExtractor):
@@ -51,8 +46,14 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
         #       on the image contents. Will need to pass "tesseract_args"
         #       somehow. I'm starting to think image OCR does not belong
         #       in this inheritance hierarchy ..
-        log.debug('Running image OCR with PyTesseract ..')
-        result = get_text_from_ocr(self.source, tesseract_args=None)
+        tesseract_args = None
+
+        self.log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
+            tesseract_args, util.displayable_path(self.source)
+        ))
+        result = get_text_from_ocr(self.source, tesseract_args=tesseract_args)
+
+        log.debug('PyTesseract returned {} (?) of text'.format(len(result)))
         return result
 
     @classmethod
@@ -82,9 +83,6 @@ def get_text_from_ocr(image_path, tesseract_args=None):
     except IOError as e:
         raise exceptions.ExtractorError(e)
 
-    log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
-        tesseract_args, util.displayable_path(image_path)
-    ))
     try:
         # TODO: [TD0068] Let the user configure which languages to use with OCR.
         text = pytesseract.image_to_string(image, lang='swe+eng',
@@ -96,6 +94,5 @@ def get_text_from_ocr(image_path, tesseract_args=None):
     else:
         if text:
             text = text.strip()
-            log.debug('PyTesseract returned {} bytes of text'.format(len(text)))
             return util.decode_(text)
         return ''

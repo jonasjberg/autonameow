@@ -127,7 +127,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         except PdfReadError as e:
             # NOTE: This now wholly determines whether a pdf is readable.
             # Can getNumPages fail although the text is actually readable?
-            log.warning(
+            self.log.warning(
                 'PDF document might be encrypted and/or has restrictions'
                 ' that prevent reading'
             )

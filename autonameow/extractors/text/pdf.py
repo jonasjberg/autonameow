@@ -61,23 +61,24 @@ class PdfTextExtractor(AbstractTextExtractor):
         text_extractors = [extract_pdf_content_with_pdftotext,
                            extract_pdf_content_with_pypdf]
         for i, extractor in enumerate(text_extractors):
-            log.debug('Running PDF text extractor {}/{}: '
-                      '{!s}'.format(i + 1, len(text_extractors), extractor))
+            self.log.debug('Running PDF text extractor {}/{}: {!s}'.format(
+                    i + 1, len(text_extractors), extractor
+            ))
             try:
                 text = extractor(self.source)
             except exceptions.ExtractorError as e:
-                log.error('Error while extracting PDF content with "{!s}":'
-                          ' "{!s}"'.format(extractor, e))
+                self.log.error('Error while extracting PDF content with '
+                               '"{!s}": "{!s}"'.format(extractor, e))
                 continue
 
             if text and len(text) > 1:
                 break
 
         if text:
-            log.debug('Extracted text with: {}'.format(extractor.__name__))
+            self.log.debug('Extracted text with: {}'.format(extractor.__name__))
             return text
         else:
-            log.debug('Unable to extract textual content from PDF')
+            self.log.debug('Unable to extract textual content from PDF')
             return ''
 
     @classmethod

@@ -19,14 +19,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-
-from core import exceptions, types, util
+from core import (
+    exceptions,
+    types,
+    util
+)
 from core.util import textutils
 from extractors import BaseExtractor
-
-
-log = logging.getLogger(__name__)
 
 
 class AbstractTextExtractor(BaseExtractor):
@@ -38,21 +37,21 @@ class AbstractTextExtractor(BaseExtractor):
     def execute(self, **kwargs):
         if not self._raw_text:
             try:
-                log.debug('{!s} starting initial extraction ..'.format(self))
+                self.log.debug('{!s} starting initial extraction'.format(self))
                 self._perform_initial_extraction()
             except exceptions.ExtractorError as e:
-                log.error('{!s}: extraction FAILED; {!s}'.format(self, e))
+                self.log.error('{!s}: extraction FAILED; {!s}'.format(self, e))
                 raise
             except NotImplementedError as e:
-                log.debug('[WARNING] Called unimplemented code in {!s}: '
-                          '{!s}'.format(self, e))
+                self.log.debug('[WARNING] Called unimplemented code in {!s}: '
+                               '{!s}'.format(self, e))
                 raise exceptions.ExtractorError
 
         if 'field' in kwargs:
-            log.debug('{!s} ignoring field (returning all fields):'
-                      ' "{!s}"'.format(self, kwargs.get('field')))
+            self.log.debug('{!s} ignoring field (returning all fields):'
+                           ' "{!s}"'.format(self, kwargs.get('field')))
 
-        log.debug('{!s} returning all extracted data'.format(self))
+        self.log.debug('{!s} returning all extracted data'.format(self))
         return self._raw_text
 
     def _decode_raw(self, text):
@@ -62,7 +61,7 @@ class AbstractTextExtractor(BaseExtractor):
             try:
                 text = textutils.autodetect_decode(text)
             except ValueError:
-                log.warning('{!s}: Unable to decode text'.format(self))
+                self.log.warning('{!s}: Unable to decode text'.format(self))
                 return ''
 
         text = util.remove_nonbreaking_spaces(text)

@@ -44,7 +44,7 @@ class PlainTextExtractor(AbstractTextExtractor):
         super(PlainTextExtractor, self).__init__(source)
 
     def _get_raw_text(self):
-        log.debug('Extracting raw text from plain text file ..')
+        self.log.debug('Extracting raw text from plain text file ..')
         result = read_entire_text_file(self.source)
         return self._decode_raw(result)
 
