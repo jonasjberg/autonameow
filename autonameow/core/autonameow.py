@@ -216,7 +216,8 @@ class Autonameow(object):
 
         if self.opts.list_all:
             log.info('Listing session repository contents ..')
-            cli.msg('Session Repository Data', style='heading', log=True)
+            cli.msg('Session Repository Data', style='heading',
+                    add_info_log=True)
             cli.msg(str(repository.SessionRepository))
         # else:
         #     if self.opts.list_datetime:
