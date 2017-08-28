@@ -124,7 +124,7 @@ About future additions of a frontends/GUIs.
 * __Program Operates on input:__ file(s)
 * __Program Provides:__ New file names for the file(s)
 
-Where/when are options presented and choices made? 
+Where/when are options presented and choices made?
 Which could be presented in a GUI or in an *interactive mode*?
 
 For any given file, how does the program come up with a new name?
@@ -155,3 +155,55 @@ How are possible candidates collected?
 
 
 
+
+Rule Matching Calculations
+--------------------------
+
+
+#### Alternative 1:
+Calculating __score__ as `conditions_met / conditions_total` and
+__weight__ as `conditions_met / max(len(rule.conditions) for rule in rules)`:
+
+```
+           CONDITIONS
+           MET  TOTAL    Score   Weight     -->  Total scores?
+  Rule A     1      2    0.5     0.2        -->  0.5*0.2 = 0.1
+  Rule B     2      2    1       0.2        -->  1*0.2   = 0.2
+  Rule C     5     10    0.5     0.5        -->  0.5*0.5 = 0.25
+  Rule D    10     10    1       1          -->  1 * 1   = 1
+```
+
+
+#### Alternative 2:
+Calculating __score__ as `conditions_met / conditions_total` and
+__weight__ as `conditions_total / max(len(rule.conditions) for rule in rules)`:
+
+```
+           CONDITIONS
+           MET  TOTAL    Score   Weight     -->  Total scores?
+  Rule A     1      2    0.5     0.2        -->  0.5*0.2 = 0.1
+  Rule B     2      2    1       0.2        -->  1*0.2   = 0.2
+  Rule C     5     10    0.5     1          -->  0.5*1   = 0.5
+  Rule D    10     10    1       1          -->  1 * 1   = 1
+```
+
+
+#### ~~Alternative 3:~~
+Calculating __score__ as `conditions_met / conditions_total` and
+__weight__ as `conditions_total / sum(len(rule.conditions) for rule in rules)`:
+
+
+```python
+sum(len(rule.conditions) for rule in rules) # = 24
+```
+
+```
+           CONDITIONS
+           MET  TOTAL    Score   Weight     -->  Total scores?
+  Rule A     1      2    0.5     0.083      -->  0.5*0.083 = 0.0415
+  Rule B     2      2    1       0.083      -->    1*0.083 = 0.084
+  Rule C     5     10    0.5     0.416      -->  0.5*0.416 = 0.208
+  Rule D    10     10    1       0.416      -->    1*0.416 = 0.416
+```
+
+~~
