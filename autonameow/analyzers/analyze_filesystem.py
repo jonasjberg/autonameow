@@ -20,14 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
-import logging
 import os
 from datetime import datetime
 
 from analyzers import BaseAnalyzer
-
-
-log = logging.getLogger(__name__)
 
 
 class FilesystemAnalyzer(BaseAnalyzer):
@@ -65,7 +61,7 @@ class FilesystemAnalyzer(BaseAnalyzer):
             return
 
         meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
-        log.debug(
+        self.log.debug(
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
         self.add_results(meowuri, data)
@@ -98,14 +94,14 @@ class FilesystemAnalyzer(BaseAnalyzer):
         filename = self.file_object.abspath
         results = []
 
-        log.debug('Fetching file system timestamps ..')
+        self.log.debug('Fetching file system timestamps ..')
         try:
             mtime = os.path.getmtime(filename)
             ctime = os.path.getctime(filename)
             atime = os.path.getatime(filename)
         except OSError as e:
-            log.critical('Failed extracting date/time-information '
-                         'from file system -- OSError: {}'.format(e))
+            self.log.critical('Failed extracting date/time-information '
+                              'from file system -- OSError: {}'.format(e))
         else:
             def dt_fts(t):
                 return datetime.fromtimestamp(t).replace(microsecond=0)
@@ -120,7 +116,9 @@ class FilesystemAnalyzer(BaseAnalyzer):
                             'source': 'accessed',
                             'weight': 0.25})
 
-        log.debug('Got {} timestamps from the filesystem.'.format(len(results)))
+        self.log.debug(
+            'Got {} timestamps from the filesystem.'.format(len(results))
+        )
         return results
 
     @classmethod

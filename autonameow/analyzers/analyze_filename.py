@@ -19,14 +19,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-
 from analyzers import BaseAnalyzer
 
 from core.util import dateandtime
-
-
-log = logging.getLogger(__name__)
 
 
 class FilenameAnalyzer(BaseAnalyzer):
@@ -45,7 +40,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             return
 
         meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
-        log.debug(
+        self.log.debug(
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
         self.add_results(meowuri, data)
@@ -189,7 +184,7 @@ class FilenameAnalyzer(BaseAnalyzer):
                                 'source': 'regex_search',
                                 'weight': 0.25})
         else:
-            log.debug('Unable to extract date/time-information '
+            self.log.debug('Unable to extract date/time-information '
                       'from file name using regex search.')
 
         # Lastly, an iterative brute force search.
@@ -201,8 +196,8 @@ class FilenameAnalyzer(BaseAnalyzer):
                                 'source': 'bruteforce_search',
                                 'weight': 0.1})
         else:
-            log.debug('Unable to extract date/time-information '
-                      'from file name using brute force search.')
+            self.log.debug('Unable to extract date/time-information '
+                           'from file name using brute force search.')
 
         return results
 

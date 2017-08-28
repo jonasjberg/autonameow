@@ -61,7 +61,7 @@ class EbookAnalyzer(BaseAnalyzer):
             return
 
         meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
-        log.debug(
+        self.log.debug(
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
         self.add_results(meowuri, data)

@@ -19,13 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-
 from analyzers import BaseAnalyzer
 from core.util import dateandtime
-
-
-log = logging.getLogger(__name__)
 
 
 class PdfAnalyzer(BaseAnalyzer):
@@ -46,7 +41,7 @@ class PdfAnalyzer(BaseAnalyzer):
             return
 
         meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
-        log.debug(
+        self.log.debug(
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
         self.add_results(meowuri, data)
@@ -139,7 +134,7 @@ class PdfAnalyzer(BaseAnalyzer):
             text = ' '.join(text)
 
         if text.lower().find('gmail'):
-            log.debug('Text might be a Gmail (contains "gmail")')
+            self.log.debug('Text might be a Gmail (contains "gmail")')
             return True
         else:
             return False
@@ -175,7 +170,7 @@ class PdfAnalyzer(BaseAnalyzer):
 
         matches = 0
         text_split = text.split('\n')
-        log.debug('Try getting datetime from text split by newlines')
+        self.log.debug('Try getting datetime from text split by newlines')
         for t in text_split:
             dt_brute = dateandtime.bruteforce_str(t)
             if dt_brute:
@@ -191,7 +186,7 @@ class PdfAnalyzer(BaseAnalyzer):
                                     'weight': 0.1})
 
         if matches == 0:
-            log.debug('No matches. Trying with text split by whitespace')
+            self.log.debug('No matches. Trying with text split by whitespace')
             text_split = text.split()
             for t in text_split:
                 dt_brute = dateandtime.bruteforce_str(t)
