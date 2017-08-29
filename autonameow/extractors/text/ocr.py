@@ -83,11 +83,20 @@ def get_text_from_ocr(image_path, tesseract_args=None):
     except IOError as e:
         raise exceptions.ExtractorError(e)
 
+    # NOTE: Catching TypeError to work around bug in 'pytesseract';
+    #
+    # def get_errors(error_string):
+    #     lines = error_string.splitlines()
+    #     lines = [util.decode_(line) for line in lines]
+    #     error_lines = tuple(line for line in lines if line.find('Error') >= 0)
+    #                                                             ^^^^^^^
+    #                         This is fails when environment is set up so
+    #                    that tesseract output is bytes or non-Unicode ..
     try:
         # TODO: [TD0068] Let the user configure which languages to use with OCR.
         text = pytesseract.image_to_string(image, lang='swe+eng',
                                            config=tesseract_args)
-    except pytesseract.pytesseract.TesseractError as e:
+    except (pytesseract.pytesseract.TesseractError, TypeError) as e:
         raise exceptions.ExtractorError(
             'PyTesseract ERROR: {}'.format(str(e))
         )
