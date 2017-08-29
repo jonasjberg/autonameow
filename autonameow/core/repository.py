@@ -38,21 +38,26 @@ class Repository(object):
         self.data = {}
         self.meowuri_class_map = {}
         self.mapped_meowuris = set()
+        self.log = logging.getLogger(
+            '{!s}.{!s}'.format(__name__, self.__module__)
+        )
+        self.log.setLevel(logging.DEBUG)
 
     def initialize(self):
         self.meowuri_class_map = meowuri_class_map_dict()
-        # self._log_string_class_map()
+        self._log_string_class_map()
 
         self.mapped_meowuris = unique_map_meowuris(
             self.meowuri_class_map
         )
 
     def _log_string_class_map(self):
-        pass
-        # for key in self.meowuri_class_map.keys():
-        #     for meowuri, klass in self.meowuri_class_map[key].items():
-        #         print('Mapped meowURI "{!s}" to <{!s}> ({!s})'.format(
-        #             meowuri, klass, key))
+        for key in self.meowuri_class_map.keys():
+            for meowuri, klass in self.meowuri_class_map[key].items():
+                self.log.debug(
+                    'Mapped meowURI <{!s}> to "{!s}" ({!s})'.format(meowuri,
+                                                                    klass, key)
+                )
 
     def store(self, file_object, meowuri, data):
         """
