@@ -494,6 +494,16 @@ class TestNestedDictSet(TestCase):
 
 
 class TestEvalMagicGlob(TestCase):
+    def _aF(self, mime_to_match, glob_list):
+        actual = eval_magic_glob(mime_to_match, glob_list)
+        self.assertTrue(isinstance(actual, bool))
+        self.assertFalse(actual)
+
+    def _aT(self, mime_to_match, glob_list):
+        actual = eval_magic_glob(mime_to_match, glob_list)
+        self.assertTrue(isinstance(actual, bool))
+        self.assertTrue(actual)
+
     def test_eval_magic_blob_is_defined(self):
         self.assertIsNotNone(eval_magic_glob)
 
@@ -506,45 +516,35 @@ class TestEvalMagicGlob(TestCase):
             self.assertTrue(eval_magic_glob('image/jpeg', ['*/*/jpeg']))
 
     def test_eval_magic_blob_returns_false_as_expected(self):
-        self.assertFalse(eval_magic_glob('image/jpeg', []))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['application/pdf']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['*/pdf']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['image/pdf']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['image/pdf',
-                                                        'application/jpeg']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['image/']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['/jpeg']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['*/pdf', '*/png']))
-        self.assertFalse(eval_magic_glob('image/jpeg',
-                                         ['*/pdf', '*/png', 'application/*']))
-        self.assertFalse(eval_magic_glob('image/png',
-                                         ['*/pdf', '*/jpg', 'application/*']))
-        self.assertFalse(eval_magic_glob('image/png',
-                                         ['*/pdf', '*/jpg', 'image/jpg']))
-        self.assertFalse(eval_magic_glob('application/epub+zip',
-                                         ['*/jpg']))
-        self.assertFalse(eval_magic_glob('application/epub+zip',
-                                         ['image/*']))
-        self.assertFalse(eval_magic_glob('application/epub+zip',
-                                         ['image/jpeg']))
+        self._aF('image/jpeg', [])
+        self._aF('image/jpeg', [''])
+        self._aF('image/jpeg', ['application/pdf'])
+        self._aF('image/jpeg', ['*/pdf'])
+        self._aF('image/jpeg', ['application/*'])
+        self._aF('image/jpeg', ['image/pdf'])
+        self._aF('image/jpeg', ['image/pdf', 'application/jpeg'])
+        self._aF('image/jpeg', ['image/'])
+        self._aF('image/jpeg', ['/jpeg'])
+        self._aF('image/jpeg', ['*/pdf', '*/png'])
+        self._aF('image/jpeg', ['*/pdf', '*/png', 'application/*'])
+        self._aF('image/png', ['*/pdf', '*/jpg', 'application/*'])
+        self._aF('image/png', ['*/pdf', '*/jpg', 'image/jpg'])
+        self._aF('application/epub+zip', ['*/jpg'])
+        self._aF('application/epub+zip', ['image/*'])
+        self._aF('application/epub+zip', ['image/jpeg'])
 
     def test_eval_magic_blob_returns_true_as_expected(self):
-        self.assertTrue(eval_magic_glob('image/jpeg', ['*/*']))
-        self.assertTrue(eval_magic_glob('image/jpeg', ['*/jpeg']))
-        self.assertTrue(eval_magic_glob('image/jpeg', ['image/*']))
-        self.assertTrue(eval_magic_glob('image/png', ['image/*']))
-        self.assertTrue(eval_magic_glob('image/jpeg', ['image/jpeg']))
-        self.assertTrue(eval_magic_glob('image/jpeg', ['*/*', '*/jpeg']))
-        self.assertTrue(eval_magic_glob('image/jpeg', ['image/*', '*/jpeg']))
-        self.assertTrue(eval_magic_glob('image/png',
-                                        ['*/pdf', '*/png', 'application/*']))
-        self.assertTrue(eval_magic_glob('application/epub+zip',
-                                        ['application/epub+zip']))
-        self.assertTrue(eval_magic_glob('application/epub+zip',
-                                        ['application/*']))
-        self.assertTrue(eval_magic_glob('application/epub+zip',
-                                        ['*/epub+zip']))
+        self._aT('image/jpeg', ['*/*'])
+        self._aT('image/jpeg', ['*/jpeg'])
+        self._aT('image/jpeg', ['image/*'])
+        self._aT('image/png', ['image/*'])
+        self._aT('image/jpeg', ['image/jpeg'])
+        self._aT('image/jpeg', ['*/*', '*/jpeg'])
+        self._aT('image/jpeg', ['image/*', '*/jpeg'])
+        self._aT('image/png', ['*/pdf', '*/png', 'application/*'])
+        self._aT('application/epub+zip', ['application/epub+zip'])
+        self._aT('application/epub+zip', ['application/*'])
+        self._aT('application/epub+zip', ['*/epub+zip'])
 
 
 class TestWhichExecutable(TestCase):
@@ -555,7 +555,7 @@ class TestWhichExecutable(TestCase):
         self.assertFalse(util.is_executable('thisisntexecutablesurely'))
 
 
-class TestNoNone(TestCase):
+class TestContainsNone(TestCase):
     def _assert_false(self, test_data):
         actual = util.contains_none(test_data)
         self.assertFalse(actual)
@@ -567,6 +567,7 @@ class TestNoNone(TestCase):
         self.assertTrue(isinstance(actual, bool))
 
     def test_returns_true_as_expected(self):
+        self._assert_true([])
         self._assert_true([None])
         self._assert_true([None, None])
         self._assert_true(['', None])
@@ -580,10 +581,11 @@ class TestNoNone(TestCase):
         self._assert_true(['a', None, ''])
 
     def test_returns_false_as_expected(self):
-        self._assert_false([])
         self._assert_false([''])
         self._assert_false([' '])
         self._assert_false(['a', ''])
+        self._assert_false([' ', 'a'])
+        self._assert_false([' ', 'a', ''])
 
 
 class TestFilterNone(TestCase):
