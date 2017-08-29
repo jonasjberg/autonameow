@@ -36,6 +36,7 @@ from core.util.misc import (
     nested_dict_get,
     nested_dict_set
 )
+import unit_utils as uu
 
 
 DUMMY_RESULTS_DICT = {
@@ -407,64 +408,89 @@ class TestNestedDictSet(TestCase):
     def test_nested_dict_set_is_defined(self):
         self.assertIsNotNone(nested_dict_set)
 
-    def test_set_single_value_in_empty_dictionary(self):
-        d = {}
-        nested_dict_set(d, ['a'], 2)
-        expected = {'a': 2}
-        self.assertEqual(d, expected)
+    def _assert_sets(self, dictionary, list_of_keys, value, expected):
+        _ = nested_dict_set(dictionary, list_of_keys, value)
+        self.assertIsNone(_)
+        self.assertDictEqual(dictionary, expected)
+        self.assertTrue(key in dictionary for key in expected.keys())
 
-    def test_set_single_value_modifies_dictionary_in_place(self):
-        actual = {'a': 1}
-        nested_dict_set(actual, ['a'], 2)
-        expected = {'a': 2}
-        self.assertEqual(actual, expected)
+    def test_set_value_in_empty_dictionary(self):
+        self._assert_sets(dictionary={}, list_of_keys=['a'],
+                          value=1, expected={'a': 1})
+        self._assert_sets(dictionary={}, list_of_keys=['a', 'b'],
+                          value=2, expected={'a': {'b': 2}})
+        self._assert_sets(dictionary={}, list_of_keys=['a', 'b', 'c'],
+                          value=3, expected={'a': {'b': {'c': 3}}})
 
-    def test_set_nested_value_modifies_dictionary_in_place(self):
-        actual = {'a': 1}
-        nested_dict_set(actual, ['b', 'c'], 4)
-        expected = {'a': 1,
-                    'b': {'c': 4}}
-        self.assertEqual(actual, expected)
+    def test_set_value_in_empty_dictionary_with_fileobject_key(self):
+        keys = [uu.get_mock_fileobject()]
+        self._assert_sets(dictionary={}, list_of_keys=keys, value=1,
+                          expected={keys[0]: 1})
 
-    def test_set_nested_values_modifies_dictionary_in_place(self):
-        actual = {'a': 1}
-        nested_dict_set(actual, ['b', 'c'], 4)
-        nested_dict_set(actual, ['b', 'd'], 5)
-        expected = {'a': 1,
-                    'b': {'c': 4,
-                          'd': 5}}
-        self.assertEqual(actual, expected)
+        keys = [uu.get_mock_fileobject(), uu.get_mock_fileobject()]
+        self._assert_sets(dictionary={}, list_of_keys=keys, value='foo',
+                          expected={keys[0]: {keys[1]: 'foo'}})
+
+    def test_set_value_modifies_dictionary_in_place(self):
+        d = {'a': 1}
+        self._assert_sets(dictionary=d, list_of_keys=['a'], value=2,
+                          expected={'a': 2})
+        self._assert_sets(dictionary=d, list_of_keys=['b'], value={},
+                          expected={'a': 2,
+                                    'b': {}})
+        self._assert_sets(dictionary=d, list_of_keys=['b', 'c'], value=4,
+                          expected={'a': 2,
+                                    'b': {'c': 4}})
+        self._assert_sets(dictionary=d, list_of_keys=['b', 'foo'], value=6,
+                          expected={'a': 2,
+                                    'b': {'c': 4,
+                                          'foo': 6}})
+        self._assert_sets(dictionary=d, list_of_keys=['b', 'foo'], value=8,
+                          expected={'a': 2,
+                                    'b': {'c': 4,
+                                          'foo': 8}})
 
     def test_attempting_to_set_occupied_value_raises_key_error(self):
-        actual = {'a': 1}
         with self.assertRaises(KeyError):
-            nested_dict_set(actual, ['a', 'b'], 5)
+            self._assert_sets(dictionary={'a': 1}, list_of_keys=['a', 'b'],
+                              value=5, expected={'a': 2})
 
-    def test_passing_no_keys_raises_type_error(self):
-        d = {'a': 1}
-
+    def test_passing_invalid_list_of_keys_raises_type_error(self):
         def _assert_raises(key_list):
             with self.assertRaises(TypeError):
-                nested_dict_set(d, key_list, 2)
+                self._assert_sets(dictionary={'a': 1}, list_of_keys=key_list,
+                                  value=2, expected={'expect_exception': 0})
 
-        _assert_raises('')
-        _assert_raises(None)
+        _assert_raises(key_list='')
+        _assert_raises(key_list=None)
+        _assert_raises(key_list=())
+        _assert_raises(key_list={})
+        _assert_raises(key_list={'a': None})
+        _assert_raises(key_list={'a': 'b'})
 
     def test_passing_empty_list_raises_value_error(self):
-        d = {'a': 1}
-
         def _assert_raises(key_list):
             with self.assertRaises(ValueError):
-                nested_dict_set(d, key_list, 2)
+                self._assert_sets(dictionary={'a': 1}, list_of_keys=key_list,
+                                  value=2, expected={'expect_exception': 0})
 
-        _assert_raises([''])
-        _assert_raises([None])
-        _assert_raises([None, ''])
-        _assert_raises(['', None])
-        _assert_raises([None, 'foo'])
-        _assert_raises(['foo', None])
-        _assert_raises(['foo', ''])
-        _assert_raises(['', 'foo'])
+        _assert_raises(key_list=[''])
+        _assert_raises(key_list=[None])
+        _assert_raises(key_list=[None, ''])
+        _assert_raises(key_list=['', None])
+        _assert_raises(key_list=[None, 'foo'])
+        _assert_raises(key_list=['foo', None])
+        _assert_raises(key_list=['foo', ''])
+        _assert_raises(key_list=['', 'foo'])
+        _assert_raises(key_list=[None, 'foo', ''])
+        _assert_raises(key_list=[None, '', 'foo'])
+        _assert_raises(key_list=['foo', None, ''])
+        _assert_raises(key_list=['', None, 'foo'])
+        _assert_raises(key_list=['foo', None, '', None])
+        _assert_raises(key_list=['', None, 'foo', None])
+        _assert_raises(key_list=['foo', None, 'a', 'b'])
+        _assert_raises(key_list=['', 'a', 'b', None])
+        _assert_raises(key_list=['', 'a', 'b', 'foo'])
 
 
 class TestEvalMagicGlob(TestCase):
