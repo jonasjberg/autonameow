@@ -80,7 +80,7 @@ class Autonameow(object):
             self.exit_program(constants.EXIT_SUCCESS)
 
         # Handle the command line arguments and setup logging.
-        self.opts = options.initialize(self.args)
+        self.opts = options.parse_args(self.args)
 
         # Display various information depending on verbosity level.
         if self.opts.verbose or self.opts.debug:

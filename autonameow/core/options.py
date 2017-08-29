@@ -25,10 +25,10 @@ import os
 
 from core import (
     constants,
-    util
+    util,
+    logs
 )
 from core.util import cli
-
 
 log = logging.getLogger(__name__)
 
@@ -256,11 +256,12 @@ def init_argparser():
     return parser
 
 
-def initialize(raw_args):
+def parse_args(raw_args):
     """
-    Handles raw option arguments and initializes logging.
+    Parses raw positional arguments.
 
-    Configures logging and checks legality of combined options.
+    Parses the given option arguments with argparse and verifies legality of
+    any combinations.
 
     Args:
         raw_args: The option arguments as a list of strings.
@@ -268,9 +269,9 @@ def initialize(raw_args):
     Returns:
         Parsed option arguments as type 'argparse.NameSpace'.
     """
-    args = parse_args(raw_args)
+    args = _parse_args(raw_args)
 
-    init_logging(args)
+    logs.init_logging(args)
 
     if args.automagic and args.interactive:
         log.critical('Operating mode must be either one of "automagic" or '
@@ -285,7 +286,7 @@ def initialize(raw_args):
     return args
 
 
-def parse_args(raw_args):
+def _parse_args(raw_args):
     """
     Parses the given option arguments with argparse.
 
@@ -297,58 +298,6 @@ def parse_args(raw_args):
     """
     parser = init_argparser()
     return parser.parse_args(args=raw_args)
-
-
-def init_logging(args):
-    """
-    Configures the log format and logging settings.
-
-    Args:
-        args: Parsed option arguments as type 'argparse.NameSpace'.
-    """
-    # NOTE(jonas): This is probably a bad idea, but seems to work good enough.
-    # TODO: [hardcoded] Remove spaces after labels, used for alignment.
-    logging.addLevelName(logging.INFO, cli.colorize(
-        '[INFO]    ', fore='GREEN'
-    ))
-    logging.addLevelName(logging.DEBUG, cli.colorize(
-        '[DEBUG]   ', fore='BLUE'
-    ))
-    logging.addLevelName(logging.WARNING, cli.colorize(
-        '[WARNING] ', fore='YELLOW', style='BRIGHT'
-    ))
-    logging.addLevelName(logging.ERROR, cli.colorize(
-        '[ERROR]   ', fore='RED', style='BRIGHT'
-    ))
-    logging.addLevelName(logging.CRITICAL, cli.colorize(
-        '[CRITICAL]', fore='LIGHTRED_EX', style='BRIGHT'
-    ))
-
-    # Setup logging output format.
-    # TODO: Make logging verbosity more controllable with additional logging
-    #       levels, enabled by adding on any number of '-v' options to the
-    #       command-line. For instance, verbosity levels 1 and 3 would be
-    #       enabled with '-v' and '-vvv', respectively.
-
-    _colored_timestamp = cli.colorize('%(asctime)s', style='DIM')
-    if args.debug:
-        fmt = (
-            _colored_timestamp
-            + ' %(levelname)s %(name)-25.25s %(funcName)-20.20s  %(message)s'
-        )
-        logging.basicConfig(level=logging.DEBUG, format=fmt,
-                            datefmt='%Y-%m-%d %H:%M:%S')
-    elif args.verbose:
-        fmt = (_colored_timestamp
-               + ' %(levelname)s %(message)s')
-        logging.basicConfig(level=logging.INFO, format=fmt,
-                            datefmt='%Y-%m-%d %H:%M:%S')
-    elif args.quiet:
-        fmt = '%(levelname)s %(message)s'
-        logging.basicConfig(level=logging.CRITICAL, format=fmt)
-    else:
-        fmt = '%(levelname)s %(message)s'
-        logging.basicConfig(level=logging.WARNING, format=fmt)
 
 
 def prettyprint_options(opts, extra_opts):
