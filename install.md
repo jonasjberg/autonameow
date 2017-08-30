@@ -33,7 +33,6 @@ TL;DR
     * `python-dateutil`
     * `unidecode`
     * `PyPDF2`
-    * `pytesseract`
     * `python-magic`
     * `pytz`
 
@@ -61,7 +60,7 @@ Install the dependencies by running the following commands in a terminal:
 
 ```bash
 brew install libmagic exiftool tesseract
-pip3 install chardet colorama python-dateutil unidecode PyPDF2 pytesseract python-magic pytz
+pip3 install chardet colorama python-dateutil unidecode PyPDF2 python-magic pytz
 ```
 
 ### Installing __optional__ third-party software
@@ -89,7 +88,7 @@ Install the dependencies by running the following commands in a terminal:
 
 ```bash
 apt install exiftool tesseract-ocr
-pip3 install chardet colorama python-dateutil unidecode PyPDF2 pytesseract python-magic pytz
+pip3 install chardet colorama python-dateutil unidecode PyPDF2 python-magic pytz
 ```
 
 Alternatively, search the repositories for the packages with `apt-search`.

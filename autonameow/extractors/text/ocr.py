@@ -19,18 +19,25 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from PIL import Image
 
-try:
-    import pytesseract
-except ImportError:
-    pytesseract = None
+#   NOTE:  Some of this code is based on 'pytesseract' by Matthias Lee.
+#          https://github.com/madmaze/python-tesseract
+
+import os
+import shlex
+import subprocess
+import tempfile
+
+from PIL import Image
 
 from core import (
     exceptions,
     util
 )
 from extractors.text import AbstractTextExtractor
+
+
+TESSERACT_COMMAND = 'tesseract'
 
 
 class ImageOCRTextExtractor(AbstractTextExtractor):
@@ -53,18 +60,17 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
         ))
         result = get_text_from_ocr(self.source, tesseract_args=tesseract_args)
 
-        self.log.debug('PyTesseract returned {} (?) of text'.format(len(result)))
+        self.log.debug('Tesseract returned {} (?) of text'.format(len(result)))
         return result
 
     @classmethod
     def check_dependencies(cls):
-        return pytesseract is not None and util.is_executable('tesseract')
+        return util.is_executable('tesseract')
 
 
 def get_text_from_ocr(image_path, tesseract_args=None):
     """
-    Get any textual content from the image by running OCR with tesseract
-    through the pytesseract wrapper.
+    Get any textual content from the image by running OCR with tesseract.
 
     Args:
         image_path: The path to the image to process.
@@ -80,7 +86,7 @@ def get_text_from_ocr(image_path, tesseract_args=None):
 
     try:
         image = Image.open(image_path)
-    except IOError as e:
+    except OSError as e:
         raise exceptions.ExtractorError(e)
 
     # NOTE: Catching TypeError to work around bug in 'pytesseract';
@@ -89,19 +95,132 @@ def get_text_from_ocr(image_path, tesseract_args=None):
     #     lines = error_string.splitlines()
     #     lines = [util.decode_(line) for line in lines]
     #     error_lines = tuple(line for line in lines if line.find('Error') >= 0)
-    #                                                             ^^^^^^^
-    #                         This is fails when environment is set up so
-    #                    that tesseract output is bytes or non-Unicode ..
+
     try:
         # TODO: [TD0068] Let the user configure which languages to use with OCR.
-        text = pytesseract.image_to_string(image, lang='swe+eng',
-                                           config=tesseract_args)
-    except (pytesseract.pytesseract.TesseractError, TypeError) as e:
-        raise exceptions.ExtractorError(
-            'PyTesseract ERROR: {}'.format(str(e))
-        )
+        text = image_to_string(image, lang='swe+eng',
+                               config=tesseract_args)
+    except (exceptions.ExtractorError, TypeError) as e:
+        # TODO: Cleanup exception handling.
+        raise exceptions.ExtractorError('tesseract ERROR: {}'.format(str(e)))
     else:
         if text:
             text = text.strip()
             return util.decode_(text)
         return ''
+
+
+def run_tesseract(input_filename, output_filename_base,
+                  lang=None, boxes=False, config=None):
+    """
+    Runs the command:
+        'tesseract_cmd' 'input_filename' 'output_filename_base'
+
+    Returns the exit status and stderr output of tesseract.
+    """
+    command = [TESSERACT_COMMAND, input_filename, output_filename_base]
+
+    if lang is not None:
+        command += ['-l', lang]
+    if boxes:
+        command += ['batch.nochop', 'makebox']
+    if config:
+        command += shlex.split(config)
+
+    try:
+        process = subprocess.Popen(command, stderr=subprocess.PIPE)
+    except (OSError, ValueError, subprocess.SubprocessError) as e:
+        raise exceptions.ExtractorError(e)
+    else:
+        return process.wait(), process.stderr.read()
+
+
+def cleanup_temporary_file(filename):
+    """
+    Deletes the given filename.  Any errors are silently ignored.
+    """
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+
+
+def get_errors(error_string):
+    """
+    Returns all lines in the error_string that start with the string "error".
+    """
+    lines = error_string.splitlines()
+    lines = [util.decode_(line) for line in lines]
+    error_lines = tuple(line for line in lines if line.find('Error') >= 0)
+    #                                                       ^^^^^^^
+    #                   This is fails when environment is set up so
+    #              that tesseract output is bytes or non-Unicode ..
+    # TODO: Fix this bug!
+
+    if len(error_lines) > 0:
+        return '\n'.join(error_lines)
+    else:
+        return error_string.strip()
+
+
+def new_temporary_file(prefix=None, suffix=None):
+    """
+    Returns a named temporary file.
+    """
+    return os.path.realpath(
+        tempfile.NamedTemporaryFile(delete=False,
+                                    prefix=prefix,
+                                    suffix=suffix).name
+    )
+
+
+def image_to_string(image, lang=None, boxes=False, config=None):
+    """
+    Runs tesseract on the specified image.
+
+    The image is first written to disk, then tesseract is executed with this
+    image. The result is read and the temporary files are deleted.
+
+    if boxes=True
+        "batch.nochop makebox" gets added to the tesseract call
+
+    if config is set, the config gets appended to the command.
+        Example; config="-psm 6"
+    """
+    try:
+        # This could fail if the image is truncated.
+        _number_image_channels = len(image.split())
+    except OSError as e:
+        raise exceptions.ExtractorError(e)
+    else:
+        if _number_image_channels == 4:
+            # Discard the Alpha.
+            r, g, b, a = image.split()
+            image = Image.merge('RGB', (r, g, b))
+
+    input_file_name = new_temporary_file(suffix='.bmp')
+
+    output_file_name_base = new_temporary_file()
+    if not boxes:
+        output_file_name = '{}.txt'.format(output_file_name_base)
+    else:
+        output_file_name = '{}.box'.format(output_file_name_base)
+
+    try:
+        image.save(input_file_name)
+        status, error_string = run_tesseract(input_file_name,
+                                             output_file_name_base,
+                                             lang=lang,
+                                             boxes=boxes,
+                                             config=config)
+        if status:
+            errors = get_errors(error_string)
+            raise exceptions.ExtractorError(status, errors)
+        f = open(output_file_name)
+        try:
+            return f.read().strip()
+        finally:
+            f.close()
+    finally:
+        cleanup_temporary_file(input_file_name)
+        cleanup_temporary_file(output_file_name)
