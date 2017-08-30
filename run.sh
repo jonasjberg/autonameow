@@ -70,9 +70,8 @@ then
     AUTONAMEOW_PATH="$(dirname -- "$(readlink -fn -- "$0")")"
 else
     # Not using GNU coreutils readlink or readlink is not available.
-
-    # TODO: Untange symlinks and get an absolute path.
-    AUTONAMEOW_PATH="$(dirname -- "$0")"
+    _abs_self_path="$(python -c "import os; print(os.path.realpath(\"$0\"))")"
+    AUTONAMEOW_PATH="$(dirname -- "${_abs_self_path}")"
 fi
 
 
