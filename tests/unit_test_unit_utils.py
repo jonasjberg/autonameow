@@ -94,6 +94,7 @@ class TestUnitUtilityFileExists(TestCase):
         _dummy_paths = [
             '/foo/bar/baz/mjao',
             '/tmp/this_isnt_a_file_right_or_huh'
+            b'/tmp/this_isnt_a_file_right_or_huh'
         ]
         for df in _dummy_paths:
             self._check_return(df)
@@ -121,6 +122,7 @@ class TestUnitUtilityDirExists(TestCase):
         _dummy_paths = [
             '/foo/bar/baz/mjao',
             '/tmp/this_isnt_a_file_right_or_huh',
+            b'/tmp/this_isnt_a_file_right_or_huh',
             __file__
         ]
         for df in _dummy_paths:
