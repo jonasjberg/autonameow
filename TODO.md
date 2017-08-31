@@ -187,6 +187,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0081]` Bundle the `pyexiftool` dependency. Add to `autonameow/thirdparty`.
+
 * `[TD0068]` Let the user specify which languages to use for OCR.
 
 * `[TD0060]` Implement or remove the type wrapper classes `format` method.
