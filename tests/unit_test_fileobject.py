@@ -98,37 +98,31 @@ class TestFileObjectEquivalence(TestCase):
 
 
 class TestFileTypeMagic(TestCase):
+    TEST_FILES = [('magic_bmp.bmp', 'image/x-ms-bmp'),
+                  ('magic_gif.gif', 'image/gif'),
+                  ('magic_jpg.jpg', 'image/jpeg'),
+                  ('magic_mp4.mp4', 'video/mp4'),
+                  ('magic_pdf.pdf', 'application/pdf'),
+                  ('magic_png.png', 'image/png'),
+                  ('magic_txt',     'text/plain'),
+                  ('magic_txt.md',  'text/plain'),
+                  ('magic_txt.txt', 'text/plain')]
+
     def setUp(self):
-        TEST_FILES = [('magic_bmp.bmp', 'image/x-ms-bmp'),
-                      ('magic_gif.gif', 'image/gif'),
-                      ('magic_jpg.jpg', 'image/jpeg'),
-                      ('magic_mp4.mp4', 'video/mp4'),
-                      ('magic_pdf.pdf', 'application/pdf'),
-                      ('magic_png.png', 'image/png'),
-                      ('magic_txt',     'text/plain'),
-                      ('magic_txt.md',  'text/plain'),
-                      ('magic_txt.txt', 'text/plain')]
-        self.test_files = [(uu.abspath_testfile(f), e) for f, e in TEST_FILES]
+        self.test_files = [
+            (uu.abspath_testfile(basename), expect_mime)
+            for basename, expect_mime in self.TEST_FILES
+        ]
 
-    def test_test_files_defined(self):
-        for fname, fmagic in self.test_files:
-            self.assertIsNotNone(fname)
-            self.assertIsNotNone(fmagic)
-            self.assertTrue(len(fname) > 0)
-            self.assertTrue(len(fmagic) > 0)
-
-    def test_test_files_exist(self):
-        for fname, _ in self.test_files:
-            self.assertTrue(uu.file_exists(fname))
-
-    def test_test_files_are_readable(self):
-        for fname, _ in self.test_files:
-            self.assertTrue(os.access(fname, os.R_OK))
+    def test_test_files_exist_and_are_readable(self):
+        for test_file, _ in self.test_files:
+            self.assertTrue(uu.file_exists(test_file))
+            self.assertTrue(uu.path_is_readable(test_file))
 
     def test_filetype_magic(self):
-        for fname, fmagic in self.test_files:
-            self.assertIsNotNone(fileobject.filetype_magic(fname))
-            self.assertEqual(fmagic, fileobject.filetype_magic(fname))
+        for test_file, expected_mime in self.test_files:
+            actual = fileobject.filetype_magic(test_file)
+            self.assertEqual(expected_mime, actual)
 
     def test_filetype_magic_with_invalid_args(self):
         self.assertEqual(fileobject.filetype_magic(None),
