@@ -81,9 +81,9 @@ class CommonFileSystemExtractor(BaseExtractor):
             self.log.error('Unable to get timestamps from filesystem:'
                            ' {!s}'.format(e))
         else:
-            datetime_from_timestamp(out, 'date_accessed', access_time)
-            datetime_from_timestamp(out, 'date_created', create_time)
-            datetime_from_timestamp(out, 'date_modified', modify_time)
+            add_datetime_from_timestamp(out, 'date_accessed', access_time)
+            add_datetime_from_timestamp(out, 'date_created', create_time)
+            add_datetime_from_timestamp(out, 'date_modified', modify_time)
 
         return out
 
@@ -92,7 +92,7 @@ class CommonFileSystemExtractor(BaseExtractor):
         return True
 
 
-def datetime_from_timestamp(dictionary, key, ts):
+def add_datetime_from_timestamp(dictionary, key, ts):
     try:
         dt = datetime.fromtimestamp(ts).replace(microsecond=0)
         dictionary[key] = dt
