@@ -136,6 +136,37 @@ class TestUnitUtilityDirExists(TestCase):
             self._check_return(df)
 
 
+class TestUnitUtilityPathIsReadable(TestCase):
+    def _check_return(self, path_to_test):
+        actual = uu.path_is_readable(path_to_test)
+        self.assertTrue(isinstance(actual, bool))
+
+        try:
+            expected = os.access(path_to_test, os.R_OK)
+        except OSError:
+            expected = False
+        self.assertEqual(actual, expected)
+
+    def test_returns_false_for_paths_assumed_missing(self):
+        _dummy_paths = [
+            '',
+            b'',
+            '/foo/bar/baz/mjao',
+            b'/foo/bar/baz/mjao',
+            '/tmp/this_isnt_a_file_right_or_huh'
+        ]
+        for df in _dummy_paths:
+            self._check_return(df)
+
+    def test_returns_true_for_paths_likely_to_exist(self):
+        _paths = [
+            __file__,
+            os.path.dirname(__file__),
+        ]
+        for df in _paths:
+            self._check_return(df)
+
+
 class TestUnitUtilityMakeTempDir(TestCase):
     def test_make_temp_dir(self):
         self.assertIsNotNone(uu.make_temp_dir())

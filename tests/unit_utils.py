@@ -92,6 +92,23 @@ def dir_exists(dir_path):
         return False
 
 
+def path_is_readable(file_path):
+    """
+    Tests whether a given path is readable.
+
+    Args:
+        file_path: The path to test.
+
+    Returns:
+        True if the path is readable.
+        False for any other case, including errors.
+    """
+    try:
+        return os.access(file_path, os.R_OK)
+    except OSError:
+        return False
+
+
 def make_temp_dir():
     """
     Creates and returns a temporary directory.
