@@ -24,6 +24,7 @@ import os
 import re
 import itertools
 import logging
+import tempfile
 
 from core import util
 
@@ -414,3 +415,4 @@ def normpaths_from_opts(path_list, ignore_globs, recurse):
                 file_list.add(f)
 
     return list(file_list)
+

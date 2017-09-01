@@ -74,6 +74,10 @@ class AbstractTextExtractor(BaseExtractor):
     def _get_raw_text(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
+    @classmethod
+    def check_dependencies(cls):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
 
 from .ocr import ImageOCRTextExtractor
 from .epub import EpubTextExtractor

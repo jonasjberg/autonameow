@@ -21,6 +21,9 @@
 
 import re
 
+from collections import namedtuple
+
+
 # Original Dublin Core Metadata Element Set Version 1.1
 # Metadata Elements:
 #
@@ -49,6 +52,8 @@ import re
 # NOTE(jonas): This should probably be done where both the Extraction data and
 # the Analysis results data is "joined"; the sum total of data available for a
 # given file.
+
+# Weighted = namedtuple('FieldProb', ['field', 'probability'])
 
 
 class NameTemplateField(object):
@@ -112,3 +117,38 @@ class Extension(NameTemplateField):
             data = _find.sub(_replace, data)
         return data
 
+
+
+class Author(NameTemplateField):
+    pass
+
+
+class DateTime(NameTemplateField):
+    pass
+
+
+class Date(NameTemplateField):
+    pass
+
+
+class Description(NameTemplateField):
+    pass
+
+
+class Publisher(NameTemplateField):
+    pass
+
+
+class Tags(NameTemplateField):
+    pass
+
+
+datetime = DateTime
+publisher = Publisher
+title = Title
+tags = Tags
+author = Author
+date = Date
+description = Description
+edition = Edition
+extension = Extension

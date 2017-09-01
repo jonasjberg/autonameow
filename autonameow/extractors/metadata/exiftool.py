@@ -22,10 +22,12 @@
 from core import (
     exceptions,
     types,
-    util
+    util,
+    name_template
 )
+from core.name_template import Weighted
 from core.util import wrap_exiftool
-from extractors.metadata import AbstractMetadataExtractor
+from extractors.metadata import AbstractMetadataExtractor, MetaInfo
 
 
 class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
@@ -37,41 +39,65 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
     meowuri_root = 'metadata.exiftool'
 
     tagname_type_lookup = {
-        'Composite:Aperture': types.AW_FLOAT,
-        'Composite:ImageSize': types.AW_STRING,
-        'Composite:HyperfocalDistance': types.AW_FLOAT,
-        'EXIF:CreateDate': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:DateTimeDigitized': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:DateTimeOriginal': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:ExifVersion': types.AW_INTEGER,
-        'EXIF:GainControl': types.AW_INTEGER,
-        'EXIF:ImageDescription': types.AW_STRING,
-        'EXIF:Make': types.AW_STRING,
-        'EXIF:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:Software': types.AW_STRING,
-        'EXIF:UserComment': types.AW_STRING,
-        'ExifTool:Error': types.AW_STRING,
-        'ExifTool:ExifToolVersion': types.AW_FLOAT,
-        'File:Directory': types.AW_PATH,
-        'File:FileAccessDate': types.AW_EXIFTOOLTIMEDATE,
-        'File:FileInodeChangeDate': types.AW_EXIFTOOLTIMEDATE,
-        'File:FileModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'File:FileName': types.AW_PATH,
-        'File:FilePermissions': types.AW_INTEGER,
-        'File:FileSize': types.AW_INTEGER,
-        'File:FileType': types.AW_STRING,
-        'File:FileTypeExtension': types.AW_PATH,
-        'File:ImageHeight': types.AW_INTEGER,
-        'File:ImageWidth': types.AW_INTEGER,
-        'File:MIMEType': types.AW_STRING,
-        'PDF:CreateDate': types.AW_EXIFTOOLTIMEDATE,
-        'PDF:Creator': types.AW_STRING,
-        'PDF:Linearized': types.AW_BOOLEAN,
-        'PDF:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'PDF:PDFVersion': types.AW_FLOAT,
-        'PDF:PageCount': types.AW_INTEGER,
-        'PDF:Producer': types.AW_STRING,
-        'SourceFile': types.AW_PATH,
+        'Composite:Aperture': MetaInfo(wrapper=types.AW_FLOAT, fields=None),
+        'Composite:ImageSize': MetaInfo(wrapper=types.AW_STRING, fields=None),
+        'Composite:HyperfocalDistance': MetaInfo(types.AW_FLOAT, fields=None),
+        'EXIF:CreateDate': MetaInfo(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            fields=[
+                Weighted(name_template.datetime, probability=1),
+                Weighted(name_template.date, probability=1)
+            ]
+        ),
+        'EXIF:DateTimeDigitized': MetaInfo(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            fields=[
+                Weighted(name_template.datetime, probability=1),
+                Weighted(name_template.date, probability=1)
+            ]
+        ),
+        'EXIF:DateTimeOriginal': MetaInfo(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            fields=[
+                Weighted(name_template.datetime, probability=1),
+                Weighted(name_template.date, probability=1)
+            ]
+        ),
+        'EXIF:ExifVersion': (types.AW_INTEGER, None),
+        'EXIF:GainControl': (types.AW_INTEGER, None),
+        'EXIF:ImageDescription': (types.AW_STRING, None),
+        'EXIF:Make': (types.AW_STRING, None),
+        'EXIF:ModifyDate': (types.AW_EXIFTOOLTIMEDATE, None),
+        'EXIF:Software': (types.AW_STRING, None),
+        'EXIF:UserComment': (types.AW_STRING, None),
+        'ExifTool:Error': (types.AW_STRING, None),
+        'ExifTool:ExifToolVersion': (types.AW_FLOAT, None),
+        'File:Directory': (types.AW_PATH, None),
+        'File:FileAccessDate': (types.AW_EXIFTOOLTIMEDATE, None),
+        'File:FileInodeChangeDate': (types.AW_EXIFTOOLTIMEDATE, None),
+        'File:FileModifyDate': (types.AW_EXIFTOOLTIMEDATE, None),
+        'File:FileName': (types.AW_PATH, None),
+        'File:FilePermissions': (types.AW_INTEGER, None),
+        'File:FileSize': (types.AW_INTEGER, None),
+        'File:FileType': (types.AW_STRING, None),
+        'File:FileTypeExtension': (types.AW_PATH, None),
+        'File:ImageHeight': (types.AW_INTEGER, None),
+        'File:ImageWidth': (types.AW_INTEGER, None),
+        'File:MIMEType': (types.AW_STRING, None),
+        'PDF:CreateDate': (types.AW_EXIFTOOLTIMEDATE, None),
+        'PDF:Creator': (types.AW_STRING, None),
+        'PDF:Linearized': (types.AW_BOOLEAN, None),
+        'PDF:ModifyDate': (types.AW_EXIFTOOLTIMEDATE, None),
+        'PDF:PDFVersion': MetaInfo(wrapper=types.AW_FLOAT, fields=None),
+        'PDF:PageCount': MetaInfo(wrapper=types.AW_INTEGER, fields=None),
+        'PDF:Producer': MetaInfo(
+            wrapper=types.AW_STRING,
+            fields=[
+                Weighted(name_template.publisher, probability=0.25),
+                Weighted(name_template.author, probability=0.01)
+            ]
+        ),
+        'SourceFile': (types.AW_PATH, None),
     }
 
     def __init__(self, source):

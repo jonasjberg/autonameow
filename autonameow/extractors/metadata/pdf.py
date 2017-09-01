@@ -37,7 +37,8 @@ from core import (
     util,
     exceptions
 )
-from extractors.metadata import AbstractMetadataExtractor
+from core.name_template import Weighted
+from extractors.metadata import AbstractMetadataExtractor, MetaInfo
 
 
 class PyPDFMetadataExtractor(AbstractMetadataExtractor):
@@ -45,7 +46,13 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
     meowuri_root = 'metadata.pypdf'
 
     tagname_type_lookup = {
-        'Creator': types.AW_STRING,
+        'Creator': MetaInfo(
+            wrapper=types.AW_STRING,
+            fields=[
+                Weighted(name_template.datetime, probability=1),
+                Weighted(name_template.date, probability=1)
+            ]
+        ),
         'CreationDate': types.AW_PYPDFTIMEDATE,
         'Encrypted': types.AW_BOOLEAN,
         'ModDate': types.AW_PYPDFTIMEDATE,
@@ -166,9 +173,8 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         if isinstance(pypdf_data, IndirectObject):
             return
         if isinstance(pypdf_data, TextStringObject):
-            # return str(pypdf_data)
-            # TODO: Validate behaviour after removing erroneous return value.
-            pass
+            out_dict[out_key] = str(pypdf_data)
+            return
 
         try:
             wrapped = wrapper(pypdf_data)

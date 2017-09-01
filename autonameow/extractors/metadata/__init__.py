@@ -19,12 +19,16 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections import namedtuple
+
 from core import (
     exceptions,
     types
 )
 from extractors import BaseExtractor
 
+
+# MetaInfo = namedtuple('MetaInfo', ['wrapper', 'fields'])
 
 class AbstractMetadataExtractor(BaseExtractor):
     # Lookup table that maps extractor-specific field names to wrapper classes.
@@ -96,19 +100,23 @@ class AbstractMetadataExtractor(BaseExtractor):
     def _wrap_raw(self, tag_name, value):
         if tag_name in self.tagname_type_lookup:
             # First check the extractor-specific lookup table.
-            return self.tagname_type_lookup[tag_name](value)
+            wrapper_class = self.tagname_type_lookup[tag_name][0]
+            return wrapper_class(value)
         else:
             # Fall back automatic type detection if not found in lookup table.
             wrapped = types.try_wrap(value)
             if wrapped is not None:
                 return wrapped
             else:
-                self.log.critical('Unhandled wrapping of tag name "{}" '
-                                  '(value: "{}")'.format(tag_name, value))
+                self.log.critical(
+                    'Unhandled wrapping of tag name "{}" (type: {!s} '
+                    ' value: "{!s}")'.format(tag_name, type(value), value)
+                )
                 return value
 
     def _get_raw_metadata(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
 
 
 from .pdf import PyPDFMetadataExtractor
