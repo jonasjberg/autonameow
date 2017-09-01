@@ -28,7 +28,14 @@ from extractors import BaseExtractor
 
 
 class Item(object):
-    def __init__(self, wrapper=None, fields=None):
+    """
+    Instances of this class wrap some extracted data with extra information.
+
+    Extractors can specify which (if any) name template fields that the item
+    is compatible with. For instance, date/time-information is could be used
+    to populate the 'datetime' name template field.
+    """
+    def __init__(self, wrapper, fields=None):
         pass
 
 # 'EXIF:CreateDate': MetaInfo(

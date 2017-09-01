@@ -39,9 +39,9 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
     meowuri_root = 'metadata.exiftool'
 
     tagname_type_lookup = {
-        'Composite:Aperture': metadata.Item(wrapper=types.AW_FLOAT, fields=None),
-        'Composite:ImageSize': metadata.Item(wrapper=types.AW_STRING, fields=None),
-        'Composite:HyperfocalDistance': metadata.Item(types.AW_FLOAT, fields=None),
+        'Composite:Aperture': metadata.Item(wrapper=types.AW_FLOAT),
+        'Composite:ImageSize': metadata.Item(wrapper=types.AW_STRING),
+        'Composite:HyperfocalDistance': metadata.Item(types.AW_FLOAT),
         'EXIF:CreateDate': metadata.Item(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             fields=[
@@ -63,7 +63,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.Weighted(fields.date, probability=1)
             ]
         ),
-        'EXIF:ExifVersion': (types.AW_INTEGER, None),
+        'EXIF:ExifVersion': metadata.Item(types.AW_INTEGER),
         'EXIF:GainControl': (types.AW_INTEGER, None),
         'EXIF:ImageDescription': (types.AW_STRING, None),
         'EXIF:Make': (types.AW_STRING, None),

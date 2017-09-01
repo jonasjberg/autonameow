@@ -71,6 +71,8 @@ class TestMetaInfo(TestCase):
                 fields.Weighted('foo_field_b', probability=0.8)
             ])
 
+        self.assertIsNotNone(m)
+
 
 # 'EXIF:CreateDate': MetaInfo(
 #     wrapper=types.AW_EXIFTOOLTIMEDATE,
