@@ -93,7 +93,7 @@ class TestUnitUtilityFileExists(TestCase):
     def test_returns_false_for_files_assumed_missing(self):
         _dummy_paths = [
             '/foo/bar/baz/mjao',
-            '/tmp/this_isnt_a_file_right_or_huh'
+            '/tmp/this_isnt_a_file_right_or_huh',
             b'/tmp/this_isnt_a_file_right_or_huh'
         ]
         for df in _dummy_paths:
