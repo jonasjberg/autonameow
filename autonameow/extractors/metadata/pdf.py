@@ -18,6 +18,7 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
+from extractors import metadata
 
 try:
     import PyPDF2
@@ -35,10 +36,10 @@ except ImportError:
 from core import (
     types,
     util,
-    exceptions
+    exceptions,
+    fields
 )
-from core.name_template import Weighted
-from extractors.metadata import AbstractMetadataExtractor, MetaInfo
+from extractors.metadata.common import AbstractMetadataExtractor
 
 
 class PyPDFMetadataExtractor(AbstractMetadataExtractor):
@@ -46,11 +47,11 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
     meowuri_root = 'metadata.pypdf'
 
     tagname_type_lookup = {
-        'Creator': MetaInfo(
+        'Creator': metadata.Item(
             wrapper=types.AW_STRING,
             fields=[
-                Weighted(name_template.datetime, probability=1),
-                Weighted(name_template.date, probability=1)
+                fields.Weighted(fields.datetime, probability=1),
+                fields.Weighted(fields.date, probability=1)
             ]
         ),
         'CreationDate': types.AW_PYPDFTIMEDATE,

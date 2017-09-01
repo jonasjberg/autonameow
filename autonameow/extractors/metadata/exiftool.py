@@ -23,11 +23,11 @@ from core import (
     exceptions,
     types,
     util,
-    name_template
+    fields
 )
-from core.name_template import Weighted
 from core.util import wrap_exiftool
-from extractors.metadata import AbstractMetadataExtractor, MetaInfo
+from extractors import metadata
+from extractors.metadata import AbstractMetadataExtractor
 
 
 class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
@@ -39,28 +39,28 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
     meowuri_root = 'metadata.exiftool'
 
     tagname_type_lookup = {
-        'Composite:Aperture': MetaInfo(wrapper=types.AW_FLOAT, fields=None),
-        'Composite:ImageSize': MetaInfo(wrapper=types.AW_STRING, fields=None),
-        'Composite:HyperfocalDistance': MetaInfo(types.AW_FLOAT, fields=None),
-        'EXIF:CreateDate': MetaInfo(
+        'Composite:Aperture': metadata.Item(wrapper=types.AW_FLOAT, fields=None),
+        'Composite:ImageSize': metadata.Item(wrapper=types.AW_STRING, fields=None),
+        'Composite:HyperfocalDistance': metadata.Item(types.AW_FLOAT, fields=None),
+        'EXIF:CreateDate': metadata.Item(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             fields=[
-                Weighted(name_template.datetime, probability=1),
-                Weighted(name_template.date, probability=1)
+                fields.Weighted(fields.datetime, probability=1),
+                fields.Weighted(fields.date, probability=1)
             ]
         ),
-        'EXIF:DateTimeDigitized': MetaInfo(
+        'EXIF:DateTimeDigitized': metadata.Item(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             fields=[
-                Weighted(name_template.datetime, probability=1),
-                Weighted(name_template.date, probability=1)
+                fields.Weighted(fields.datetime, probability=1),
+                fields.Weighted(fields.date, probability=1)
             ]
         ),
-        'EXIF:DateTimeOriginal': MetaInfo(
+        'EXIF:DateTimeOriginal': metadata.Item(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             fields=[
-                Weighted(name_template.datetime, probability=1),
-                Weighted(name_template.date, probability=1)
+                fields.Weighted(fields.datetime, probability=1),
+                fields.Weighted(fields.date, probability=1)
             ]
         ),
         'EXIF:ExifVersion': (types.AW_INTEGER, None),
@@ -88,13 +88,13 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         'PDF:Creator': (types.AW_STRING, None),
         'PDF:Linearized': (types.AW_BOOLEAN, None),
         'PDF:ModifyDate': (types.AW_EXIFTOOLTIMEDATE, None),
-        'PDF:PDFVersion': MetaInfo(wrapper=types.AW_FLOAT, fields=None),
-        'PDF:PageCount': MetaInfo(wrapper=types.AW_INTEGER, fields=None),
-        'PDF:Producer': MetaInfo(
+        'PDF:PDFVersion': metadata.Item(wrapper=types.AW_FLOAT, fields=None),
+        'PDF:PageCount': metadata.Item(wrapper=types.AW_INTEGER, fields=None),
+        'PDF:Producer': metadata.Item(
             wrapper=types.AW_STRING,
             fields=[
-                Weighted(name_template.publisher, probability=0.25),
-                Weighted(name_template.author, probability=0.01)
+                fields.Weighted(fields.publisher, probability=0.25),
+                fields.Weighted(fields.author, probability=0.01)
             ]
         ),
         'SourceFile': (types.AW_PATH, None),

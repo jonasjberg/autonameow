@@ -53,7 +53,7 @@ from collections import namedtuple
 # the Analysis results data is "joined"; the sum total of data available for a
 # given file.
 
-# Weighted = namedtuple('FieldProb', ['field', 'probability'])
+Weighted = namedtuple('Weighted', ['field', 'probability'])
 
 
 class NameTemplateField(object):

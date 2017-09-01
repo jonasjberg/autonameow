@@ -20,12 +20,16 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-import unit_utils as uu
-from core import exceptions
 
-from extractors.metadata import (
-    AbstractMetadataExtractor,
+from core import (
+    exceptions,
+    types,
+    fields
 )
+
+import unit_utils as uu
+from extractors import metadata
+from extractors.metadata.common import AbstractMetadataExtractor
 
 
 class TestAbstractMetadataExtractor(TestCase):
@@ -56,3 +60,22 @@ class TestAbstractMetadataExtractor(TestCase):
     def test__perform_initial_extraction_raises_extractor_error(self):
         with self.assertRaises(exceptions.ExtractorError):
             actual = self.e._perform_initial_extraction()
+
+
+class TestMetaInfo(TestCase):
+    def test_call(self):
+        m = metadata.Item(
+            wrapper=types.AW_STRING,
+            fields=[
+                fields.Weighted('foo_field_a', probability=1.0),
+                fields.Weighted('foo_field_b', probability=0.8)
+            ])
+
+
+# 'EXIF:CreateDate': MetaInfo(
+#     wrapper=types.AW_EXIFTOOLTIMEDATE,
+#     fields=[
+#         Weighted(name_template.datetime, probability=1),
+#         Weighted(name_template.date, probability=1)
+#     ]
+# ),

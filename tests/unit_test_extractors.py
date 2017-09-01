@@ -22,7 +22,7 @@
 from unittest import TestCase
 
 import extractors
-from extractors.metadata import AbstractMetadataExtractor
+from extractors.metadata.common import AbstractMetadataExtractor
 from extractors.text import AbstractTextExtractor
 import unit_utils as uu
 
