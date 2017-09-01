@@ -168,11 +168,6 @@ def get_errors(error_string):
     lines = error_string.splitlines()
     lines = [util.decode_(line) for line in lines]
     error_lines = tuple(line for line in lines if line.find('Error') >= 0)
-    #                                                       ^^^^^^^
-    #                   This is fails when environment is set up so
-    #              that tesseract output is bytes or non-Unicode ..
-    # TODO: Fix this bug!
-
     if len(error_lines) > 0:
         return '\n'.join(error_lines)
     else:
@@ -181,7 +176,7 @@ def get_errors(error_string):
 
 def new_temporary_file(prefix=None, suffix=None):
     """
-    Returns a named temporary file.
+    Returns the absoluate path to a named temporary file, as a Unicode string.
     """
     return os.path.realpath(
         tempfile.NamedTemporaryFile(delete=False,
