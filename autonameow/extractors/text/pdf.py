@@ -31,11 +31,9 @@ try:
 except ImportError:
     PyPDF2 = None
 
-from core import (
-    util,
-    exceptions
-)
-from extractors.text import AbstractTextExtractor
+from core import util
+from extractors import ExtractorError
+from extractors.text.common import AbstractTextExtractor
 
 
 log = logging.getLogger(__name__)
@@ -66,7 +64,7 @@ class PdfTextExtractor(AbstractTextExtractor):
             ))
             try:
                 text = extractor(self.source)
-            except exceptions.ExtractorError as e:
+            except ExtractorError as e:
                 self.log.error('Error while extracting PDF content with '
                                '"{!s}": "{!s}"'.format(extractor, e))
                 continue
@@ -103,10 +101,10 @@ def extract_pdf_content_with_pdftotext(pdf_file):
         )
         stdout, stderr = process.communicate()
     except (OSError, ValueError, subprocess.SubprocessError) as e:
-        raise exceptions.ExtractorError(e)
+        raise ExtractorError(e)
 
     if process.returncode != 0:
-        raise exceptions.ExtractorError(
+        raise ExtractorError(
             'pdftotext returned {!s} with STDERR: "{!s}"'.format(
                 process.returncode, stderr)
         )
@@ -131,7 +129,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
     try:
         file_reader = PyPDF2.PdfFileReader(util.decode_(pdf_file), 'rb')
     except (OSError, PyPdfError, UnicodeDecodeError) as e:
-        raise exceptions.ExtractorError(e)
+        raise ExtractorError(e)
 
     try:
         num_pages = file_reader.getNumPages()
@@ -140,9 +138,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
         #       Possible to not getNumPages but still be able to read the text?
         log.warning('PDF document might be encrypted and/or has restrictions'
                     ' that prevent reading')
-        raise exceptions.ExtractorError(
-            'PyPDF2.PdfReadError: "{!s}"'.format(e)
-        )
+        raise ExtractorError('PyPDF2.PdfReadError: "{!s}"'.format(e))
 
     # NOTE(jonas): From the PyPDF2 documentation:
     # https://pythonhosted.org/PyPDF2/PageObject.html#PyPDF2.pdf.PageObject

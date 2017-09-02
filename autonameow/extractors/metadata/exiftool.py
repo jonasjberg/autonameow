@@ -20,14 +20,16 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from core import (
-    exceptions,
     types,
     util,
     fields
 )
 from core.util import wrap_exiftool
-from extractors import metadata
-from extractors.metadata import AbstractMetadataExtractor
+from extractors import (
+    ExtractorError,
+    metadata
+)
+from extractors.metadata.common import AbstractMetadataExtractor
 
 
 class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
@@ -121,7 +123,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 return et.get_metadata(self.source)
             except (AttributeError, ValueError, TypeError) as e:
                 # Raises ValueError if an ExifTool instance isn't running.
-                raise exceptions.ExtractorError(e)
+                raise ExtractorError(e)
 
     @classmethod
     def check_dependencies(cls):

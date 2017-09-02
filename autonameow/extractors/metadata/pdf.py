@@ -18,7 +18,6 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
-from extractors import metadata
 
 try:
     import PyPDF2
@@ -34,10 +33,14 @@ except ImportError:
     PyPDF2 = None
 
 from core import (
-    types,
-    util,
     exceptions,
-    fields
+    fields,
+    types,
+    util
+)
+from extractors import (
+    ExtractorError,
+    metadata,
 )
 from extractors.metadata.common import AbstractMetadataExtractor
 
@@ -71,7 +74,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         try:
             return self._get_pypdf_data()
         except Exception as e:
-            raise exceptions.ExtractorError(e)
+            raise ExtractorError(e)
 
     def _get_pypdf_data(self):
         out = {}
@@ -80,7 +83,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
             # NOTE(jonas): [encoding] Double-check PyPDF2 docs ..
             file_reader = PyPDF2.PdfFileReader(util.decode_(self.source), 'rb')
         except (OSError, PyPdfError) as e:
-            raise exceptions.ExtractorError(e)
+            raise ExtractorError(e)
 
         # Notes on 'getDocumentInfo' from the PyPDF2 source documentation:
         #
@@ -134,9 +137,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
                 'PDF document might be encrypted and/or has restrictions'
                 ' that prevent reading'
             )
-            raise exceptions.ExtractorError(
-                'PyPDF2.PdfReadError: "{!s}"'.format(e)
-            )
+            raise ExtractorError('PyPDF2.PdfReadError: "{!s}"'.format(e))
         else:
             out.update({'NumberPages': num_pages})
             out.update({'Paginated': True})

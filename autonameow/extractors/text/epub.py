@@ -24,7 +24,7 @@ try:
 except ImportError:
     epubzilla = None
 
-from extractors.text import AbstractTextExtractor
+from extractors.text.common import AbstractTextExtractor
 
 
 class EpubTextExtractor(AbstractTextExtractor):

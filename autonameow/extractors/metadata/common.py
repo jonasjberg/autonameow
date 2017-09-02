@@ -19,12 +19,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 
 from core import (
     exceptions,
     types
 )
-from extractors import BaseExtractor
+from extractors import (
+    BaseExtractor,
+    ExtractorError
+)
+
+
+log = logging.getLogger(__name__)
 
 
 class Item(object):
@@ -94,7 +101,7 @@ class AbstractMetadataExtractor(BaseExtractor):
         try:
             _raw_metadata = self._get_raw_metadata()
             return _raw_metadata
-        except exceptions.ExtractorError as e:
+        except ExtractorError as e:
             self.log.error(
                 '{!s}: Initial extraction FAILED: {!s}'.format(self, e)
             )

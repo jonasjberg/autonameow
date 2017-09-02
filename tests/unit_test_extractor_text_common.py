@@ -21,12 +21,11 @@
 
 from unittest import TestCase
 
-from core import exceptions
-from extractors.text import (
-    AbstractTextExtractor
-)
-
+import extractors
 import unit_utils as uu
+
+from extractors import ExtractorError
+from extractors.text.common import AbstractTextExtractor
 
 
 class TestAbstractTextExtractor(TestCase):
@@ -45,7 +44,7 @@ class TestAbstractTextExtractor(TestCase):
         self.assertIsNotNone(self.e)
 
     def test_query_raises_exception_with__get_raw_text_unimplemented(self):
-        with self.assertRaises(exceptions.ExtractorError):
+        with self.assertRaises(ExtractorError):
             self.e.execute()
             self.e.execute(field='some_field')
 

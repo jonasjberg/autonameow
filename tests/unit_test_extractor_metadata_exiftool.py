@@ -23,16 +23,18 @@ import unittest
 from datetime import datetime
 
 from core import util
-from core.exceptions import ExtractorError
+from extractors import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor
+
 import unit_utils as uu
+
+
+unmet_dependencies = not ExiftoolMetadataExtractor.check_dependencies()
+dependency_error = 'Extractor dependencies not satisfied'
 
 
 temporary_file = uu.make_temporary_file()
 E = ExiftoolMetadataExtractor(temporary_file)
-
-unmet_dependencies = ExiftoolMetadataExtractor.check_dependencies() is False
-dependency_error = 'Extractor dependencies not satisfied'
 
 
 class TestExiftoolMetadataExtractor(unittest.TestCase):

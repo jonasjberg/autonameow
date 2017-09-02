@@ -22,14 +22,15 @@
 from unittest import TestCase
 
 from core import (
-    exceptions,
     types,
     fields
 )
-
-import unit_utils as uu
-from extractors import metadata
+from extractors import (
+    metadata,
+    ExtractorError
+)
 from extractors.metadata.common import AbstractMetadataExtractor
+import unit_utils as uu
 
 
 class TestAbstractMetadataExtractor(TestCase):
@@ -47,7 +48,7 @@ class TestAbstractMetadataExtractor(TestCase):
             self.e._get_raw_metadata()
 
     def test_query_raises_exception_with__get_raw_metadata_unimplemented(self):
-        with self.assertRaises(exceptions.ExtractorError):
+        with self.assertRaises(ExtractorError):
             self.assertIsNone(self.e.execute())
             self.assertIsNone(self.e.execute(field='some_field'))
 
@@ -58,7 +59,7 @@ class TestAbstractMetadataExtractor(TestCase):
         self.assertIsNone(self.e.meowuri_root)
 
     def test__perform_initial_extraction_raises_extractor_error(self):
-        with self.assertRaises(exceptions.ExtractorError):
+        with self.assertRaises(ExtractorError):
             actual = self.e._perform_initial_extraction()
 
 
@@ -67,8 +68,8 @@ class TestMetaInfo(TestCase):
         m = metadata.Item(
             wrapper=types.AW_STRING,
             fields=[
-                fields.Weighted('foo_field_a', probability=1.0),
-                fields.Weighted('foo_field_b', probability=0.8)
+                fields.WeightedMapping('foo_field_a', probability=1.0),
+                fields.WeightedMapping('foo_field_b', probability=0.8)
             ])
 
         self.assertIsNotNone(m)

@@ -20,9 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .common import (
-    AbstractMetadataExtractor,
-    Item
-)
+from .common import Item
 from .exiftool import ExiftoolMetadataExtractor
 from .pdf import PyPDFMetadataExtractor

@@ -23,12 +23,12 @@ import os
 
 from datetime import datetime
 
-from core import (
-    exceptions,
-    types
+from extractors import (
+    BaseExtractor,
+    ExtractorError
 )
+from core import types
 from core.fileobject import FileObject
-from extractors import BaseExtractor
 
 
 class CommonFileSystemExtractor(BaseExtractor):
@@ -44,7 +44,7 @@ class CommonFileSystemExtractor(BaseExtractor):
         if not self.data:
             try:
                 self.data = self._get_data(self.source)
-            except exceptions.ExtractorError as e:
+            except ExtractorError as e:
                 self.log.error('{!s} extraction FAILED: {!s}'.format(self, e))
                 raise
 
@@ -59,7 +59,7 @@ class CommonFileSystemExtractor(BaseExtractor):
 
     def _get_data(self, file_object):
         if not isinstance(file_object, FileObject):
-            raise exceptions.ExtractorError(
+            raise ExtractorError(
                 'Expected source to be "FileObject" instance'
             )
 
