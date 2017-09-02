@@ -53,8 +53,8 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         'Creator': metadata.Item(
             wrapper=types.AW_STRING,
             fields=[
-                fields.Weighted(fields.datetime, probability=1),
-                fields.Weighted(fields.date, probability=1)
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
             ]
         ),
         'CreationDate': types.AW_PYPDFTIMEDATE,

@@ -43,7 +43,34 @@ class Item(object):
     to populate the 'datetime' name template field.
     """
     def __init__(self, wrapper, fields=None):
-        pass
+        self.wrapper = wrapper
+
+        if fields is not None:
+            self.fields = fields
+        else:
+            self.fields = []
+
+        self._value = None
+
+    def __call__(self, raw_value):
+        if self.wrapper:
+            try:
+                self._value = self.wrapper(raw_value)
+            except exceptions.AWTypeError as e:
+                pass
+        else:
+            # Fall back automatic type detection if 'wrapper' is unspecified.
+            wrapped = types.try_wrap(raw_value)
+            if wrapped is None:
+                # log.critical(
+                #     'Unhandled wrapping of tag name "{}" (type: {!s} '
+                #     ' value: "{!s}")'.format(tag_name, type(value), value)
+                # )
+                self._value = raw_value
+            else:
+                self._value = wrapped
+
+        return self
 
 # 'EXIF:CreateDate': MetaInfo(
 #     wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -109,34 +136,22 @@ class AbstractMetadataExtractor(BaseExtractor):
         except NotImplementedError as e:
             self.log.debug('[WARNING] Called unimplemented code in {!s}: '
                            '{!s}'.format(self, e))
-            raise exceptions.ExtractorError
+            raise ExtractorError
 
     def _to_internal_format(self, raw_metadata):
         out = {}
-        for tag_name, value in raw_metadata.items():
-            try:
-                out[tag_name] = self._wrap_raw(tag_name, value)
-            except exceptions.AWTypeError as e:
-                self.log.warning(str(e))
-                continue
-        return out
 
-    def _wrap_raw(self, tag_name, value):
-        if tag_name in self.tagname_type_lookup:
-            # First check the extractor-specific lookup table.
-            wrapper_class = self.tagname_type_lookup[tag_name][0]
-            return wrapper_class(value)
-        else:
-            # Fall back automatic type detection if not found in lookup table.
-            wrapped = types.try_wrap(value)
-            if wrapped is not None:
-                return wrapped
+        for tag_name, value in raw_metadata.items():
+            if tag_name in self.tagname_type_lookup:
+                # Found a "template" 'Item' class.
+                item = self.tagname_type_lookup[tag_name](value)
             else:
-                self.log.critical(
-                    'Unhandled wrapping of tag name "{}" (type: {!s} '
-                    ' value: "{!s}")'.format(tag_name, type(value), value)
-                )
-                return value
+                # Use a default 'Item' class.
+                item = Item(value)
+
+            out[tag_name] = item
+
+        return out
 
     def _get_raw_metadata(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')

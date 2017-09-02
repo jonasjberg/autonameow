@@ -41,65 +41,63 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
     meowuri_root = 'metadata.exiftool'
 
     tagname_type_lookup = {
-        'Composite:Aperture': metadata.Item(wrapper=types.AW_FLOAT),
-        'Composite:ImageSize': metadata.Item(wrapper=types.AW_STRING),
+        'Composite:Aperture': metadata.Item(types.AW_FLOAT),
+        'Composite:ImageSize': metadata.Item(types.AW_STRING),
         'Composite:HyperfocalDistance': metadata.Item(types.AW_FLOAT),
         'EXIF:CreateDate': metadata.Item(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             fields=[
-                fields.Weighted(fields.datetime, probability=1),
-                fields.Weighted(fields.date, probability=1)
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
             ]
         ),
         'EXIF:DateTimeDigitized': metadata.Item(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             fields=[
-                fields.Weighted(fields.datetime, probability=1),
-                fields.Weighted(fields.date, probability=1)
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
             ]
         ),
         'EXIF:DateTimeOriginal': metadata.Item(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             fields=[
-                fields.Weighted(fields.datetime, probability=1),
-                fields.Weighted(fields.date, probability=1)
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
             ]
         ),
         'EXIF:ExifVersion': metadata.Item(types.AW_INTEGER),
-        'EXIF:GainControl': (types.AW_INTEGER, None),
-        'EXIF:ImageDescription': (types.AW_STRING, None),
-        'EXIF:Make': (types.AW_STRING, None),
-        'EXIF:ModifyDate': (types.AW_EXIFTOOLTIMEDATE, None),
-        'EXIF:Software': (types.AW_STRING, None),
-        'EXIF:UserComment': (types.AW_STRING, None),
-        'ExifTool:Error': (types.AW_STRING, None),
-        'ExifTool:ExifToolVersion': (types.AW_FLOAT, None),
-        'File:Directory': (types.AW_PATH, None),
-        'File:FileAccessDate': (types.AW_EXIFTOOLTIMEDATE, None),
-        'File:FileInodeChangeDate': (types.AW_EXIFTOOLTIMEDATE, None),
-        'File:FileModifyDate': (types.AW_EXIFTOOLTIMEDATE, None),
-        'File:FileName': (types.AW_PATH, None),
-        'File:FilePermissions': (types.AW_INTEGER, None),
-        'File:FileSize': (types.AW_INTEGER, None),
-        'File:FileType': (types.AW_STRING, None),
-        'File:FileTypeExtension': (types.AW_PATH, None),
-        'File:ImageHeight': (types.AW_INTEGER, None),
-        'File:ImageWidth': (types.AW_INTEGER, None),
-        'File:MIMEType': (types.AW_STRING, None),
-        'PDF:CreateDate': (types.AW_EXIFTOOLTIMEDATE, None),
-        'PDF:Creator': (types.AW_STRING, None),
-        'PDF:Linearized': (types.AW_BOOLEAN, None),
-        'PDF:ModifyDate': (types.AW_EXIFTOOLTIMEDATE, None),
-        'PDF:PDFVersion': metadata.Item(wrapper=types.AW_FLOAT, fields=None),
-        'PDF:PageCount': metadata.Item(wrapper=types.AW_INTEGER, fields=None),
+        'EXIF:GainControl': metadata.Item(types.AW_INTEGER),
+        'EXIF:ImageDescription': metadata.Item(types.AW_STRING),
+        'EXIF:Make': metadata.Item(types.AW_STRING),
+        'EXIF:ModifyDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
+        'EXIF:Software': metadata.Item(types.AW_STRING),
+        'EXIF:UserComment': metadata.Item(types.AW_STRING),
+        'File:Directory': metadata.Item(types.AW_PATH),
+        'File:FileAccessDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
+        'File:FileInodeChangeDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
+        'File:FileModifyDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
+        'File:FileName': metadata.Item(types.AW_PATH),
+        'File:FilePermissions': metadata.Item(types.AW_INTEGER),
+        'File:FileSize': metadata.Item(types.AW_INTEGER),
+        'File:FileType': metadata.Item(types.AW_STRING),
+        'File:FileTypeExtension': metadata.Item(types.AW_PATH),
+        'File:ImageHeight': metadata.Item(types.AW_INTEGER),
+        'File:ImageWidth': metadata.Item(types.AW_INTEGER),
+        'File:MIMEType': metadata.Item(types.AW_STRING),
+        'PDF:CreateDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
+        'PDF:Creator': metadata.Item(types.AW_STRING),
+        'PDF:Linearized': metadata.Item(types.AW_BOOLEAN),
+        'PDF:ModifyDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
+        'PDF:PDFVersion': metadata.Item(types.AW_FLOAT),
+        'PDF:PageCount': metadata.Item(types.AW_INTEGER),
         'PDF:Producer': metadata.Item(
             wrapper=types.AW_STRING,
             fields=[
-                fields.Weighted(fields.publisher, probability=0.25),
-                fields.Weighted(fields.author, probability=0.01)
+                fields.WeightedMapping(fields.publisher, probability=0.25),
+                fields.WeightedMapping(fields.author, probability=0.01)
             ]
         ),
-        'SourceFile': (types.AW_PATH, None),
+        'SourceFile': metadata.Item(types.AW_PATH),
     }
 
     def __init__(self, source):
