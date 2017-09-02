@@ -229,3 +229,12 @@ class ExtractedData(object):
         return '{!s}("{!s}")  FieldMap: {!s}"'.format(
             self.wrapper, self.value, self.field_map
         )
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        if (self.wrapper == other.wrapper
+                and self.field_map == other.field_map
+                and self.value == other.value):
+            return True
+        return False
