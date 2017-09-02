@@ -97,7 +97,7 @@ class AbstractMetadataExtractor(BaseExtractor):
                 wrapper = self.tagname_type_lookup[tag_name]
             else:
                 # Use a default 'Item' class.
-                wrapper = ExtractedData
+                wrapper = ExtractedData(wrapper=None, mapped_fields=None)
 
             item = wrapper(value)
             if item:

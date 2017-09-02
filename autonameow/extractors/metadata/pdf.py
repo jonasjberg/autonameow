@@ -41,7 +41,6 @@ from core import (
 from extractors import (
     ExtractorError,
     ExtractedData,
-    metadata,
 )
 from extractors.metadata.common import AbstractMetadataExtractor
 

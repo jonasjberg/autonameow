@@ -23,7 +23,12 @@ import unittest
 from datetime import datetime
 
 import unit_utils as uu
-from core import util
+from core import (
+    util,
+    types,
+    fields
+)
+from extractors import ExtractedData
 from extractors.metadata import PyPDFMetadataExtractor
 
 unmet_dependencies = PyPDFMetadataExtractor.check_dependencies() is False
@@ -47,6 +52,21 @@ class TestPDFMetadataExtractor(unittest.TestCase):
             ('Encrypted', False)
         ]
 
+        self.EXPECT_WRAPPED_FIELD_VALUE = [
+            ('CreationDate', ExtractedData(types.AW_PYPDFTIMEDATE)(self._to_datetime('2016-01-11 12:41:32+0000'))),
+            ('ModDate', ExtractedData(types.AW_PYPDFTIMEDATE)(self._to_datetime('2016-01-11 12:41:32+0000'))),
+            ('Creator',
+                ExtractedData(
+                   wrapper=types.AW_STRING,
+                   mapped_fields=[
+                       fields.WeightedMapping(fields.datetime, probability=1),
+                       fields.WeightedMapping(fields.date, probability=1)
+                   ])('Chromium')),
+            ('Producer', ExtractedData(types.AW_STRING)('Skia/PDF')),
+            ('NumberPages', ExtractedData(types.AW_INTEGER)(2)),
+            ('Encrypted', ExtractedData(types.AW_BOOLEAN)(False))
+        ]
+
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_something(self):
         self.assertIsNotNone(self.e.execute())
@@ -56,19 +76,21 @@ class TestPDFMetadataExtractor(unittest.TestCase):
         self.assertTrue(isinstance(self.e.execute(), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_all_result_contains_expected_fields(self):
-        actual = self.e.execute()
-        for field, _ in self.EXPECT_FIELD_VALUE:
-            self.assertTrue(field in actual)
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_all_result_contains_expected_values(self):
         actual = self.e.execute()
         for field, value in self.EXPECT_FIELD_VALUE:
-            self.assertEqual(actual.get(field), value)
+            self.assertEqual(actual.get(field).value, value)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_field_returns_expected_value(self):
         for field, value in self.EXPECT_FIELD_VALUE:
             actual = self.e.execute(field=field)
+            self.assertTrue(isinstance(actual, ExtractedData))
+            self.assertEqual(actual.value, value)
+
+    @unittest.skipIf(unmet_dependencies, dependency_error)
+    def test_method_execute_field_returns_wrapped_data(self):
+        for field, value in self.EXPECT_WRAPPED_FIELD_VALUE:
+            actual = self.e.execute(field=field)
+            self.assertTrue(isinstance(actual, ExtractedData))
             self.assertEqual(actual, value)
