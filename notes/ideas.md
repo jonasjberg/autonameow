@@ -189,8 +189,8 @@ __weight__ as `conditions_total / max(len(rule.conditions) for rule in rules)`:
 
 
 #### ~~Alternative 3:~~
-Calculating __score__ as `conditions_met / conditions_total` and
-__weight__ as `conditions_total / sum(len(rule.conditions) for rule in rules)`:
+~~Calculating __score__ as `conditions_met / conditions_total` and __weight__
+as `conditions_total / sum(len(rule.conditions) for rule in rules)`:~~
 
 
 ```python
@@ -206,4 +206,34 @@ sum(len(rule.conditions) for rule in rules) # = 24
   Rule D    10     10    1       0.416      -->    1*0.416 = 0.416
 ```
 
-~~
+Data Transformation
+-------------------
+Thoughts on interactions between data-users (`NameBuilder`, analyzers) and
+data-providers (extractors).
+
+Data is collected by extractors and stored in the `SessionRepository`. This
+data is "raw", I.E. consists of primitives and `datetime`-objects.
+
+Some contextual metadata should be kept along with each stored data item for;
+
+* Conversion of "raw" data to fit a specific name template field.
+    * The byte string `.jpg` to could populate the `{extension}` field by
+      Unicode-conversion.
+    * The MIME type (Unicode string) `image/jpeg` could also be used to
+      populate the `{extension}` field, but some sort of __transformation__
+      must be performed. *Likely using a lookup-table of MIME-types to file
+      extensions.*
+* Ranking and prioritizing of results.
+    * For example, EXIF metadata fields are often misused; the `author` field
+      might not contain the author, the `producer` field might contain the
+      publisher, etc.
+    * Extractors should assign "probability" to extracted data.
+      Example;
+        ```python
+        'PDF:Producer': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.publisher, probability=0.25),
+                fields.WeightedMapping(fields.author, probability=0.01)
+            ]
+        ```
