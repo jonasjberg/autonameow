@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 
+import extractors.common
 from core import (
     types,
     fields
@@ -65,9 +66,9 @@ class TestAbstractMetadataExtractor(TestCase):
 
 class TestMetaInfo(TestCase):
     def test_call(self):
-        m = metadata.Item(
+        m = extractors.common.ExtractedData(
             wrapper=types.AW_STRING,
-            fields=[
+            mapped_fields=[
                 fields.WeightedMapping('foo_field_a', probability=1.0),
                 fields.WeightedMapping('foo_field_b', probability=0.8)
             ])

@@ -126,11 +126,14 @@ class Repository(object):
             file_object, meowuri, data
         ))
 
-    def resolve(self, file_object, meowuri):
+    def resolve(self, file_object, meowuri, mapped_to_field=None):
         if not meowuri:
             raise exceptions.InvalidDataSourceError(
                 'Unable to resolve empty meowURI'
             )
+
+        log.debug('Got request [{!s}][{!s}] Mapped to Field: "{!s}'.format(
+            file_object, meowuri, mapped_to_field))
 
         try:
             d = util.nested_dict_get(self.data, [file_object, meowuri])
@@ -138,7 +141,21 @@ class Repository(object):
             log.debug('Repository request raised KeyError: {!s}'.format(e))
             return None
         else:
-            return d
+            # TODO: [TD0082] Integrate the 'ExtractedData' class.
+            if isinstance(d, extractors.ExtractedData):
+                if mapped_to_field is not None:
+                    if d.maps_field(mapped_to_field):
+                        return d.value
+                    else:
+                        log.debug('Repository request failed requirement; '
+                                  '[{!s}][{!s}] Mapped to Field: "{!s}'.format(
+                                    file_object, meowuri, mapped_to_field))
+                        return None
+                else:
+                    return d.value
+
+            else:
+                return d
 
     def resolvable(self, meowuri):
         if not meowuri:
@@ -163,6 +180,9 @@ class Repository(object):
             # TODO: [TD0066] Handle all encoding properly.
             temp = {}
             for key, value in data.items():
+                if isinstance(value, extractors.ExtractedData):
+                    value = value.value
+
                 if isinstance(value, bytes):
                     temp[key] = util.displayable_path(value)
                 elif isinstance(value, list):

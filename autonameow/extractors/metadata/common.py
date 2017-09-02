@@ -21,64 +21,14 @@
 
 import logging
 
-from core import (
-    exceptions,
-    types
-)
 from extractors import (
     BaseExtractor,
+    ExtractedData,
     ExtractorError
 )
 
 
 log = logging.getLogger(__name__)
-
-
-class Item(object):
-    """
-    Instances of this class wrap some extracted data with extra information.
-
-    Extractors can specify which (if any) name template fields that the item
-    is compatible with. For instance, date/time-information is could be used
-    to populate the 'datetime' name template field.
-    """
-    def __init__(self, wrapper, fields=None):
-        self.wrapper = wrapper
-
-        if fields is not None:
-            self.fields = fields
-        else:
-            self.fields = []
-
-        self._value = None
-
-    def __call__(self, raw_value):
-        if self.wrapper:
-            try:
-                self._value = self.wrapper(raw_value)
-            except exceptions.AWTypeError as e:
-                pass
-        else:
-            # Fall back automatic type detection if 'wrapper' is unspecified.
-            wrapped = types.try_wrap(raw_value)
-            if wrapped is None:
-                # log.critical(
-                #     'Unhandled wrapping of tag name "{}" (type: {!s} '
-                #     ' value: "{!s}")'.format(tag_name, type(value), value)
-                # )
-                self._value = raw_value
-            else:
-                self._value = wrapped
-
-        return self
-
-# 'EXIF:CreateDate': MetaInfo(
-#     wrapper=types.AW_EXIFTOOLTIMEDATE,
-#     fields=[
-#         Weighted(name_template.datetime, probability=1),
-#         Weighted(name_template.date, probability=1)
-#     ]
-# ),
 
 
 class AbstractMetadataExtractor(BaseExtractor):
@@ -144,12 +94,14 @@ class AbstractMetadataExtractor(BaseExtractor):
         for tag_name, value in raw_metadata.items():
             if tag_name in self.tagname_type_lookup:
                 # Found a "template" 'Item' class.
-                item = self.tagname_type_lookup[tag_name](value)
+                wrapper = self.tagname_type_lookup[tag_name]
             else:
                 # Use a default 'Item' class.
-                item = Item(value)
+                wrapper = ExtractedData
 
-            out[tag_name] = item
+            item = wrapper(value)
+            if item:
+                out[tag_name] = item
 
         return out
 

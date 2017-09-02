@@ -21,9 +21,12 @@
 
 import logging
 
-from core import util
+from core import util, exceptions, types
 from core.exceptions import AutonameowException
 from core.fileobject import FileObject
+
+
+log = logging.getLogger(__name__)
 
 
 class ExtractorError(AutonameowException):
@@ -170,3 +173,59 @@ class BaseExtractor(object):
 
     def __repr__(self):
         return '<{}>'.format(self.__class__.__name__)
+
+
+class ExtractedData(object):
+    """
+    Instances of this class wrap some extracted data with extra information.
+
+    Extractors can specify which (if any) name template fields that the item
+    is compatible with. For instance, date/time-information is could be used
+    to populate the 'datetime' name template field.
+    """
+    def __init__(self, wrapper, mapped_fields=None):
+        self.wrapper = wrapper
+
+        if mapped_fields is not None:
+            self.field_map = mapped_fields
+        else:
+            self.field_map = []
+
+        self._data = None
+
+    def __call__(self, raw_value):
+        if self.wrapper:
+            try:
+                self._data = self.wrapper(raw_value)
+            except exceptions.AWTypeError as e:
+                log.warning(e)
+                raise
+        else:
+            # Fall back automatic type detection if 'wrapper' is unspecified.
+            from core.config.configuration import Configuration
+            wrapped = types.try_wrap(Configuration)
+            if wrapped is None:
+                # log.critical(
+                #     'Unhandled wrapping of tag name "{}" (type: {!s} '
+                #     ' value: "{!s}")'.format(tag_name, type(value), value)
+                # )
+                self._data = raw_value
+            else:
+                self._data = wrapped
+
+        return self
+
+    @property
+    def value(self):
+        return self._data
+
+    def maps_field(self, field):
+        for mapping in self.field_map:
+            if field == mapping.field:
+                return True
+        return False
+
+    def __str__(self):
+        return '{!s}("{!s}")  FieldMap: {!s}"'.format(
+            self.wrapper, self.value, self.field_map
+        )

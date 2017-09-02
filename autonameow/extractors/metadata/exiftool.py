@@ -27,7 +27,7 @@ from core import (
 from core.util import wrap_exiftool
 from extractors import (
     ExtractorError,
-    metadata
+    ExtractedData
 )
 from extractors.metadata.common import AbstractMetadataExtractor
 
@@ -41,63 +41,64 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
     meowuri_root = 'metadata.exiftool'
 
     tagname_type_lookup = {
-        'Composite:Aperture': metadata.Item(types.AW_FLOAT),
-        'Composite:ImageSize': metadata.Item(types.AW_STRING),
-        'Composite:HyperfocalDistance': metadata.Item(types.AW_FLOAT),
-        'EXIF:CreateDate': metadata.Item(
+        'Composite:Aperture': ExtractedData(types.AW_FLOAT),
+        'Composite:ImageSize': ExtractedData(types.AW_STRING),
+        'Composite:HyperfocalDistance': ExtractedData(types.AW_FLOAT),
+        #'ExifTool:ExifToolVersion': ExtractedData(types.AW_FLOAT),
+        'EXIF:CreateDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
-            fields=[
+            mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ]
         ),
-        'EXIF:DateTimeDigitized': metadata.Item(
+        'EXIF:DateTimeDigitized': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
-            fields=[
+            mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ]
         ),
-        'EXIF:DateTimeOriginal': metadata.Item(
+        'EXIF:DateTimeOriginal': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
-            fields=[
+            mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ]
         ),
-        'EXIF:ExifVersion': metadata.Item(types.AW_INTEGER),
-        'EXIF:GainControl': metadata.Item(types.AW_INTEGER),
-        'EXIF:ImageDescription': metadata.Item(types.AW_STRING),
-        'EXIF:Make': metadata.Item(types.AW_STRING),
-        'EXIF:ModifyDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
-        'EXIF:Software': metadata.Item(types.AW_STRING),
-        'EXIF:UserComment': metadata.Item(types.AW_STRING),
-        'File:Directory': metadata.Item(types.AW_PATH),
-        'File:FileAccessDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
-        'File:FileInodeChangeDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
-        'File:FileModifyDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
-        'File:FileName': metadata.Item(types.AW_PATH),
-        'File:FilePermissions': metadata.Item(types.AW_INTEGER),
-        'File:FileSize': metadata.Item(types.AW_INTEGER),
-        'File:FileType': metadata.Item(types.AW_STRING),
-        'File:FileTypeExtension': metadata.Item(types.AW_PATH),
-        'File:ImageHeight': metadata.Item(types.AW_INTEGER),
-        'File:ImageWidth': metadata.Item(types.AW_INTEGER),
-        'File:MIMEType': metadata.Item(types.AW_STRING),
-        'PDF:CreateDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
-        'PDF:Creator': metadata.Item(types.AW_STRING),
-        'PDF:Linearized': metadata.Item(types.AW_BOOLEAN),
-        'PDF:ModifyDate': metadata.Item(types.AW_EXIFTOOLTIMEDATE),
-        'PDF:PDFVersion': metadata.Item(types.AW_FLOAT),
-        'PDF:PageCount': metadata.Item(types.AW_INTEGER),
-        'PDF:Producer': metadata.Item(
+        'EXIF:ExifVersion': ExtractedData(types.AW_INTEGER),
+        'EXIF:GainControl': ExtractedData(types.AW_INTEGER),
+        'EXIF:ImageDescription': ExtractedData(types.AW_STRING),
+        'EXIF:Make': ExtractedData(types.AW_STRING),
+        'EXIF:ModifyDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+        'EXIF:Software': ExtractedData(types.AW_STRING),
+        'EXIF:UserComment': ExtractedData(types.AW_STRING),
+        'File:Directory': ExtractedData(types.AW_PATH),
+        'File:FileAccessDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+        'File:FileInodeChangeDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+        'File:FileModifyDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+        'File:FileName': ExtractedData(types.AW_PATH),
+        'File:FilePermissions': ExtractedData(types.AW_INTEGER),
+        'File:FileSize': ExtractedData(types.AW_INTEGER),
+        'File:FileType': ExtractedData(types.AW_STRING),
+        'File:FileTypeExtension': ExtractedData(types.AW_PATH),
+        'File:ImageHeight': ExtractedData(types.AW_INTEGER),
+        'File:ImageWidth': ExtractedData(types.AW_INTEGER),
+        'File:MIMEType': ExtractedData(types.AW_STRING),
+        'PDF:CreateDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+        'PDF:Creator': ExtractedData(types.AW_STRING),
+        'PDF:Linearized': ExtractedData(types.AW_BOOLEAN),
+        'PDF:ModifyDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+        'PDF:PDFVersion': ExtractedData(types.AW_FLOAT),
+        'PDF:PageCount': ExtractedData(types.AW_INTEGER),
+        'PDF:Producer': ExtractedData(
             wrapper=types.AW_STRING,
-            fields=[
+            mapped_fields=[
                 fields.WeightedMapping(fields.publisher, probability=0.25),
                 fields.WeightedMapping(fields.author, probability=0.01)
             ]
         ),
-        'SourceFile': metadata.Item(types.AW_PATH),
+        'SourceFile': ExtractedData(types.AW_PATH),
     }
 
     def __init__(self, source):

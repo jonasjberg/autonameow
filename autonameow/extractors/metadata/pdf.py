@@ -40,6 +40,7 @@ from core import (
 )
 from extractors import (
     ExtractorError,
+    ExtractedData,
     metadata,
 )
 from extractors.metadata.common import AbstractMetadataExtractor
@@ -50,20 +51,20 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
     meowuri_root = 'metadata.pypdf'
 
     tagname_type_lookup = {
-        'Creator': metadata.Item(
+        'Creator': ExtractedData(
             wrapper=types.AW_STRING,
-            fields=[
+            mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ]
         ),
-        'CreationDate': types.AW_PYPDFTIMEDATE,
-        'Encrypted': types.AW_BOOLEAN,
-        'ModDate': types.AW_PYPDFTIMEDATE,
-        'NumberPages': types.AW_INTEGER,
-        'Paginated': types.AW_BOOLEAN,
-        'Producer': types.AW_STRING,
-        'Title': types.AW_STRING,
+        'CreationDate': ExtractedData(types.AW_PYPDFTIMEDATE),
+        'Encrypted': ExtractedData(types.AW_BOOLEAN),
+        'ModDate': ExtractedData(types.AW_PYPDFTIMEDATE),
+        'NumberPages': ExtractedData(types.AW_INTEGER),
+        'Paginated': ExtractedData(types.AW_BOOLEAN),
+        'Producer': ExtractedData(types.AW_STRING),
+        'Title': ExtractedData(types.AW_STRING),
     }
 
     def __init__(self, source):

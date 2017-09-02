@@ -26,6 +26,7 @@ import sys
 
 from .common import (
     BaseExtractor,
+    ExtractedData,
     ExtractorError,
 )
 
