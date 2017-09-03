@@ -53,8 +53,14 @@ class TestPDFMetadataExtractor(unittest.TestCase):
         ]
 
         self.EXPECT_WRAPPED_FIELD_VALUE = [
-            ('CreationDate', ExtractedData(types.AW_PYPDFTIMEDATE)(self._to_datetime('2016-01-11 12:41:32+0000'))),
-            ('ModDate', ExtractedData(types.AW_PYPDFTIMEDATE)(self._to_datetime('2016-01-11 12:41:32+0000'))),
+            ('CreationDate',
+             ExtractedData(types.AW_PYPDFTIMEDATE)(
+                 self._to_datetime('2016-01-11 12:41:32+0000'))
+             ),
+            ('ModDate',
+             ExtractedData(types.AW_PYPDFTIMEDATE)(
+                 self._to_datetime('2016-01-11 12:41:32+0000'))
+             ),
             ('Creator',
                 ExtractedData(
                    wrapper=types.AW_STRING,
