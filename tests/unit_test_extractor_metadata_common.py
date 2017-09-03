@@ -21,13 +21,12 @@
 
 from unittest import TestCase
 
-import extractors.common
 from core import (
     types,
     fields
 )
 from extractors import (
-    metadata,
+    ExtractedData,
     ExtractorError
 )
 from extractors.metadata.common import AbstractMetadataExtractor
@@ -38,10 +37,10 @@ class TestAbstractMetadataExtractor(TestCase):
     def setUp(self):
         self.e = AbstractMetadataExtractor(uu.make_temporary_file())
 
-    def test_abstract_metadata_extractor_class_is_available(self):
+    def test_class_is_available(self):
         self.assertIsNotNone(AbstractMetadataExtractor)
 
-    def test_abstract_metadata_extractor_class_can_be_instantiated(self):
+    def test_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
     def test_method__get_raw_metadata_raises_not_implemented_error(self):
@@ -61,12 +60,16 @@ class TestAbstractMetadataExtractor(TestCase):
 
     def test__perform_initial_extraction_raises_extractor_error(self):
         with self.assertRaises(ExtractorError):
-            actual = self.e._perform_initial_extraction()
+            _ = self.e._perform_initial_extraction()
+
+    def test_check_dependencies_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            self.e.check_dependencies()
 
 
-class TestMetaInfo(TestCase):
+class TestExtractedData(TestCase):
     def test_call(self):
-        m = extractors.common.ExtractedData(
+        m = ExtractedData(
             wrapper=types.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping('foo_field_a', probability=1.0),
@@ -74,12 +77,3 @@ class TestMetaInfo(TestCase):
             ])
 
         self.assertIsNotNone(m)
-
-
-# 'EXIF:CreateDate': MetaInfo(
-#     wrapper=types.AW_EXIFTOOLTIMEDATE,
-#     fields=[
-#         Weighted(name_template.datetime, probability=1),
-#         Weighted(name_template.date, probability=1)
-#     ]
-# ),

@@ -21,7 +21,6 @@
 
 from unittest import TestCase
 
-import extractors
 import unit_utils as uu
 
 from extractors import ExtractorError
@@ -80,3 +79,7 @@ class TestAbstractTextExtractor(TestCase):
     def test__perform_initial_extraction_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.e._perform_initial_extraction()
+
+    def test_check_dependencies_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            self.e.check_dependencies()
