@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0082]` Integrate the `ExtractedData` class.
+
 * `[TD0066]` __Fix bad encoding of bytestring paths when listing results.__  
   When listing results with any of the `--list-*` options, paths are not
   displayed properly due to them not being handled properly before being passed
@@ -46,6 +48,14 @@ High Priority
 
 Medium Priority
 ---------------
+
+* `[TD0083]` __Clean up the type wrapper classes.__  
+    * Remove ambiguities around returning "NULL" and raising `AWTypeError`.
+    * Clean up the "interface" to the type wrappers. If callers only use the
+      shared singleton module attributes, I.E. all data flows in through
+      `__call__`, then unit testing the `coerce` method is superfluous.
+    * Look at the `normalize` methods, think about removing them if they
+      continue to go unused.  See also, related entry: `[TD0060]`
 
 * `[TD0062]` Look at testing that all name template fields are mapped to data
   sources. This could be done when reading the configuration, instead of later

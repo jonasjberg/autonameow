@@ -30,15 +30,16 @@ These classes are meant to be used as "filters" for coercing values to known
 types, they are shared and should not retain any kind of state.
 """
 
+import os
+import mimetypes
+import re
 
 from datetime import datetime
 
-import os
-import re
-
 from core import (
-    util,
-    exceptions
+    constants,
+    exceptions,
+    util
 )
 
 
@@ -334,6 +335,51 @@ class String(BaseType):
         return self.__call__(value).strip()
 
 
+class MimeType(BaseType):
+    primitive_type = str
+    coercible_types = (str, bytes)
+    equivalent_types = ()
+    null = constants.MAGIC_TYPE_UNKNOWN
+
+    MIME_TYPE_LOOKUP = {
+        ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
+    }
+    KNOWN_EXTENSIONS = list(MIME_TYPE_LOOKUP.keys())
+    KNOWN_MIME_TYPES = list(MIME_TYPE_LOOKUP.values())
+    assert(len(KNOWN_EXTENSIONS) > 0)
+    assert(len(KNOWN_MIME_TYPES) > 0)
+
+    def __call__(self, raw_value=None):
+        # Overrides the 'BaseType' __call__ method as to not perform the test
+        # after the the value coercion. A valid MIME-type can not be determined
+        # by looking at the primitive type alone.
+        if (raw_value is not None
+                and isinstance(raw_value, self.coercible_types)):
+            if raw_value.strip() is not None:
+                value = self.coerce(raw_value)
+                return value
+        return self._null()
+
+    def coerce(self, raw_value):
+        string_value = AW_STRING(raw_value)
+        string_value = string_value.lstrip('.').strip().lower()
+
+        if string_value:
+            if string_value in self.KNOWN_MIME_TYPES:
+                return string_value
+            if string_value in self.KNOWN_EXTENSIONS:
+                return self.MIME_TYPE_LOOKUP[string_value]
+
+        # TODO: [TD0083] Return "NULL" or raise 'AWTypeError'..?
+        # raise exceptions.AWTypeError(
+        #     'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        # )
+        return self._null()
+
+    def normalize(self, value):
+        return self.__call__(value)
+
+
 class TimeDate(BaseType):
     primitive_type = None
     coercible_types = (str, bytes, int, float)
@@ -493,6 +539,7 @@ AW_PATHCOMPONENT = PathComponent()
 AW_INTEGER = Integer()
 AW_FLOAT = Float()
 AW_STRING = String()
+AW_MIMETYPE = MimeType()
 AW_TIMEDATE = TimeDate()
 AW_EXIFTOOLTIMEDATE = ExifToolTimeDate()
 AW_PYPDFTIMEDATE = PyPDFTimeDate()

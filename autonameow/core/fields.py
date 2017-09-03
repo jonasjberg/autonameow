@@ -21,6 +21,9 @@
 
 import re
 
+from collections import namedtuple
+
+
 # Original Dublin Core Metadata Element Set Version 1.1
 # Metadata Elements:
 #
@@ -50,10 +53,26 @@ import re
 # the Analysis results data is "joined"; the sum total of data available for a
 # given file.
 
+WeightedMapping = namedtuple('WeightedMapping', ['field', 'probability'])
+
+
+def todo_func(foo):
+    pass
+
 
 class NameTemplateField(object):
     def __init__(self, content):
         self._content = content
+
+        self._transforms = {
+            Title: todo_func,
+            Edition: todo_func
+        }
+
+    def transform(self, target_field):
+        # TODO: Implement transforming data between field types, if possible.
+        target_field_type = type(target_field)
+        result = self._transforms[target_field_type](self._content)
 
 
 class Title(NameTemplateField):
@@ -112,3 +131,37 @@ class Extension(NameTemplateField):
             data = _find.sub(_replace, data)
         return data
 
+
+class Author(NameTemplateField):
+    pass
+
+
+class DateTime(NameTemplateField):
+    pass
+
+
+class Date(NameTemplateField):
+    pass
+
+
+class Description(NameTemplateField):
+    pass
+
+
+class Publisher(NameTemplateField):
+    pass
+
+
+class Tags(NameTemplateField):
+    pass
+
+
+datetime = DateTime
+publisher = Publisher
+title = Title
+tags = Tags
+author = Author
+date = Date
+description = Description
+edition = Edition
+extension = Extension

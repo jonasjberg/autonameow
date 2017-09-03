@@ -126,11 +126,14 @@ class Repository(object):
             file_object, meowuri, data
         ))
 
-    def resolve(self, file_object, meowuri):
+    def resolve(self, file_object, meowuri, mapped_to_field=None):
         if not meowuri:
             raise exceptions.InvalidDataSourceError(
                 'Unable to resolve empty meowURI'
             )
+
+        log.debug('Got request [{!s}][{!s}] Mapped to Field: "{!s}'.format(
+            file_object, meowuri, mapped_to_field))
 
         try:
             d = util.nested_dict_get(self.data, [file_object, meowuri])
@@ -138,7 +141,21 @@ class Repository(object):
             log.debug('Repository request raised KeyError: {!s}'.format(e))
             return None
         else:
-            return d
+            # TODO: [TD0082] Integrate the 'ExtractedData' class.
+            if isinstance(d, extractors.ExtractedData):
+                if mapped_to_field is not None:
+                    if d.maps_field(mapped_to_field):
+                        return d.value
+                    else:
+                        log.debug('Repository request failed requirement; '
+                                  '[{!s}][{!s}] Mapped to Field: "{!s}'.format(
+                                    file_object, meowuri, mapped_to_field))
+                        return None
+                else:
+                    return d.value
+
+            else:
+                return d
 
     def resolvable(self, meowuri):
         if not meowuri:
@@ -163,12 +180,22 @@ class Repository(object):
             # TODO: [TD0066] Handle all encoding properly.
             temp = {}
             for key, value in data.items():
+                if isinstance(value, extractors.ExtractedData):
+                    value = value.value
+
                 if isinstance(value, bytes):
                     temp[key] = util.displayable_path(value)
                 elif isinstance(value, list):
                     log.debug('TODO: Improve robustness of handling this case')
-                    temp_list = [util.displayable_path(v) for v in value
-                                 if isinstance(v, bytes)]
+                    # temp_list = [util.displayable_path(v) for v in value
+                    #              if isinstance(v, bytes)]
+                    temp_list = []
+                    for v in value:
+                        if isinstance(v, bytes):
+                            temp_list.append(util.displayable_path(v))
+                        else:
+                            temp_list.append(v)
+
                     temp[key] = temp_list
                 else:
                     temp[key] = value
@@ -183,22 +210,9 @@ class Repository(object):
 
         return '\n'.join(out)
 
-    def __repr__(self):
-        out = {}
-
-        for key, value in self.data.items():
-            # TODO: [TD0066] Handle all encoding properly.
-            if isinstance(value, bytes):
-                out[key] = util.displayable_path(value)
-            elif isinstance(value, list):
-                log.debug('TODO: Improve robustness of handling this case')
-                temp_list = [util.displayable_path(v) for v in value
-                             if isinstance(v, bytes)]
-                out[key] = temp_list
-            else:
-                out[key] = value
-
-        return out
+    # def __repr__(self):
+    #     # TODO: Implement this properly.
+    #     pass
 
 
 def truncate_text(text, number_chars=500):

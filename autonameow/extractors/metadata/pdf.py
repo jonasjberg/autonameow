@@ -33,11 +33,16 @@ except ImportError:
     PyPDF2 = None
 
 from core import (
+    exceptions,
+    fields,
     types,
-    util,
-    exceptions
+    util
 )
-from extractors.metadata import AbstractMetadataExtractor
+from extractors import (
+    ExtractorError,
+    ExtractedData,
+)
+from extractors.metadata.common import AbstractMetadataExtractor
 
 
 class PyPDFMetadataExtractor(AbstractMetadataExtractor):
@@ -45,14 +50,20 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
     meowuri_root = 'metadata.pypdf'
 
     tagname_type_lookup = {
-        'Creator': types.AW_STRING,
-        'CreationDate': types.AW_PYPDFTIMEDATE,
-        'Encrypted': types.AW_BOOLEAN,
-        'ModDate': types.AW_PYPDFTIMEDATE,
-        'NumberPages': types.AW_INTEGER,
-        'Paginated': types.AW_BOOLEAN,
-        'Producer': types.AW_STRING,
-        'Title': types.AW_STRING,
+        'Creator': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
+            ]
+        ),
+        'CreationDate': ExtractedData(types.AW_PYPDFTIMEDATE),
+        'Encrypted': ExtractedData(types.AW_BOOLEAN),
+        'ModDate': ExtractedData(types.AW_PYPDFTIMEDATE),
+        'NumberPages': ExtractedData(types.AW_INTEGER),
+        'Paginated': ExtractedData(types.AW_BOOLEAN),
+        'Producer': ExtractedData(types.AW_STRING),
+        'Title': ExtractedData(types.AW_STRING),
     }
 
     def __init__(self, source):
@@ -63,7 +74,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         try:
             return self._get_pypdf_data()
         except Exception as e:
-            raise exceptions.ExtractorError(e)
+            raise ExtractorError(e)
 
     def _get_pypdf_data(self):
         out = {}
@@ -72,7 +83,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
             # NOTE(jonas): [encoding] Double-check PyPDF2 docs ..
             file_reader = PyPDF2.PdfFileReader(util.decode_(self.source), 'rb')
         except (OSError, PyPdfError) as e:
-            raise exceptions.ExtractorError(e)
+            raise ExtractorError(e)
 
         # Notes on 'getDocumentInfo' from the PyPDF2 source documentation:
         #
@@ -126,9 +137,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
                 'PDF document might be encrypted and/or has restrictions'
                 ' that prevent reading'
             )
-            raise exceptions.ExtractorError(
-                'PyPDF2.PdfReadError: "{!s}"'.format(e)
-            )
+            raise ExtractorError('PyPDF2.PdfReadError: "{!s}"'.format(e))
         else:
             out.update({'NumberPages': num_pages})
             out.update({'Paginated': True})
@@ -166,9 +175,8 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         if isinstance(pypdf_data, IndirectObject):
             return
         if isinstance(pypdf_data, TextStringObject):
-            # return str(pypdf_data)
-            # TODO: Validate behaviour after removing erroneous return value.
-            pass
+            out_dict[out_key] = str(pypdf_data)
+            return
 
         try:
             wrapped = wrapper(pypdf_data)

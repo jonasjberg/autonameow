@@ -37,6 +37,13 @@ class PdfAnalyzer(BaseAnalyzer):
         self.text = None
 
     def _add_results(self, meowuri_leaf, data):
+        """
+        Constructs a full "MeowURI" and stores data in the repository.
+
+        Args:
+            meowuri_leaf: Last part of the "MeowURI", for example 'author'.
+            data: A list of dict, each containing some data, source and weight.
+        """
         if data is None:
             return
 

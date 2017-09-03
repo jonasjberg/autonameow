@@ -25,8 +25,9 @@ from datetime import datetime
 
 from core import (
     exceptions,
+    fields,
+    repository,
     util,
-    repository
 )
 from core.util import diskutils
 
@@ -77,8 +78,14 @@ class NameBuilder(object):
         # individually. Requires re-evaluating the configuration source
         # description format.
         # TODO: [TD0017] Rethink source specifications relation to source data.
+        # TODO: [TD0082] Integrate the 'ExtractedData' class.
         for field, meowuri in field_meowuri_map.items():
-            _data = self.request_data(self.file, meowuri)
+            if field == 'extension':
+                _data = self.request_data(self.file, meowuri,
+                                          mapped_to_field=fields.extension)
+            else:
+                _data = self.request_data(self.file, meowuri)
+
             if _data:
                 out[field] = _data
 

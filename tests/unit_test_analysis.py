@@ -23,10 +23,7 @@ from unittest import TestCase
 import unit_utils as uu
 
 import analyzers
-from core import (
-    analysis,
-    constants
-)
+from core import analysis
 
 
 class TestAnalysis(TestCase):

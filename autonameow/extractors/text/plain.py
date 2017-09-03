@@ -26,10 +26,9 @@ try:
 except (ImportError, ModuleNotFoundError):
     chardet = None
 
-from core.exceptions import ExtractorError
+from extractors import ExtractorError
+from extractors.text.common import AbstractTextExtractor
 from core.util import textutils
-from extractors.text import AbstractTextExtractor
-
 
 log = logging.getLogger(__name__)
 

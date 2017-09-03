@@ -23,16 +23,21 @@ import unittest
 from datetime import datetime
 
 from core import util
-from core.exceptions import ExtractorError
+from extractors import (
+    ExtractorError,
+    ExtractedData
+)
 from extractors.metadata import ExiftoolMetadataExtractor
+
 import unit_utils as uu
+
+
+unmet_dependencies = not ExiftoolMetadataExtractor.check_dependencies()
+dependency_error = 'Extractor dependencies not satisfied'
 
 
 temporary_file = uu.make_temporary_file()
 E = ExiftoolMetadataExtractor(temporary_file)
-
-unmet_dependencies = ExiftoolMetadataExtractor.check_dependencies() is False
-dependency_error = 'Extractor dependencies not satisfied'
 
 
 class TestExiftoolMetadataExtractor(unittest.TestCase):
@@ -100,7 +105,8 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_file_size_returns_expected(self):
         actual = self.e.execute(field='File:FileSize')
-        self.assertEqual(actual, 0)
+        self.assertTrue(isinstance(actual, ExtractedData))
+        self.assertEqual(actual.value, 0)
 
 
 class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
@@ -134,12 +140,15 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_all_result_contains_expected_values(self):
-        actual = self.e.execute()
+        actual_result = self.e.execute()
         for field, value in self.EXPECT_FIELD_VALUE:
-            self.assertEqual(actual.get(field), value)
+            actual = actual_result.get(field)
+            self.assertEqual(actual.value, value)
+
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_field_returns_expected_value(self):
         for field, value in self.EXPECT_FIELD_VALUE:
             actual = self.e.execute(field=field)
-            self.assertEqual(actual, value)
+            self.assertTrue(isinstance(actual, ExtractedData))
+            self.assertEqual(actual.value, value)

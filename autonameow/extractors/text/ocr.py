@@ -31,11 +31,10 @@ import tempfile
 from PIL import Image
 
 from core import (
-    exceptions,
     util
 )
-from extractors.text import AbstractTextExtractor
-
+from extractors import ExtractorError
+from extractors.text.common import AbstractTextExtractor
 
 TESSERACT_COMMAND = 'tesseract'
 
@@ -84,7 +83,7 @@ def pil_read_image(image_path):
     try:
         return Image.open(image_path)
     except (AttributeError, OSError, ValueError) as e:
-        raise exceptions.ExtractorError('Unable to load image; {!s}'.format(e))
+        raise ExtractorError('Unable to load image; {!s}'.format(e))
 
 
 def get_text_from_ocr(image_path, tesseract_args=None):
@@ -116,9 +115,9 @@ def get_text_from_ocr(image_path, tesseract_args=None):
         # TODO: [TD0068] Let the user configure which languages to use with OCR.
         text = image_to_string(image, lang='swe+eng',
                                config=tesseract_args)
-    except (exceptions.ExtractorError, TypeError) as e:
+    except (ExtractorError, TypeError) as e:
         # TODO: Cleanup exception handling.
-        raise exceptions.ExtractorError('tesseract ERROR: {}'.format(str(e)))
+        raise ExtractorError('tesseract ERROR: {}'.format(str(e)))
     else:
         if text:
             text = text.strip()
@@ -146,7 +145,7 @@ def run_tesseract(input_filename, output_filename_base,
     try:
         process = subprocess.Popen(command, stderr=subprocess.PIPE)
     except (OSError, ValueError, subprocess.SubprocessError) as e:
-        raise exceptions.ExtractorError(e)
+        raise ExtractorError(e)
     else:
         return process.wait(), process.stderr.read()
 
@@ -202,7 +201,7 @@ def image_to_string(image, lang=None, boxes=False, config=None):
         # This could fail if the image is truncated.
         _number_image_channels = len(image.split())
     except OSError as e:
-        raise exceptions.ExtractorError(e)
+        raise ExtractorError(e)
     else:
         if _number_image_channels == 4:
             # Discard the Alpha.
@@ -226,7 +225,7 @@ def image_to_string(image, lang=None, boxes=False, config=None):
                                              config=config)
         if status:
             errors = get_errors(error_string)
-            raise exceptions.ExtractorError(status, errors)
+            raise ExtractorError(status, errors)
         f = open(output_file_name)
         try:
             return f.read().strip()

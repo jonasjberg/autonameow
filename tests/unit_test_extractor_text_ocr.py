@@ -22,10 +22,8 @@
 
 import unittest
 
-from core import (
-    exceptions,
-    util
-)
+from core import util
+from extractors import ExtractorError
 from extractors.text import (
     ImageOCRTextExtractor,
     ocr
@@ -143,7 +141,7 @@ class TestTesseractWrapper(unittest.TestCase):
             uu.abspath_testfile('magic_txt.txt')
         ]
         for _test_file in _test_files:
-            with self.assertRaises(exceptions.ExtractorError):
+            with self.assertRaises(ExtractorError):
                 actual = ocr.pil_read_image(_test_file)
 
 

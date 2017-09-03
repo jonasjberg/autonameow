@@ -26,7 +26,8 @@ from datetime import datetime
 from core import (
     types,
     exceptions,
-    util
+    util,
+    constants
 )
 
 import unit_utils as uu
@@ -65,7 +66,7 @@ class TestTypeBoolean(TestCase):
     def test_null(self):
         self.assertEqual(types.AW_BOOLEAN(None),
                          types.AW_BOOLEAN.null)
-        self.assertNotEqual(types.AW_BOOLEAN(None), 'NONE',
+        self.assertNotEqual(types.AW_BOOLEAN(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -161,7 +162,7 @@ class TestTypeInteger(TestCase):
 
     def test_null(self):
         self.assertEqual(types.AW_INTEGER(None), types.AW_INTEGER.null)
-        self.assertNotEqual(types.AW_INTEGER(None), 'NONE',
+        self.assertNotEqual(types.AW_INTEGER(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -222,7 +223,7 @@ class TestTypeFloat(TestCase):
 
     def test_null(self):
         self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.null)
-        self.assertNotEqual(types.AW_FLOAT(None), 'NONE',
+        self.assertNotEqual(types.AW_FLOAT(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -272,7 +273,7 @@ class TestTypeTimeDate(TestCase):
         self.assertEqual(types.AW_TIMEDATE.null, 'INVALID DATE')
 
         with self.assertRaises(exceptions.AWTypeError):
-            self.assertNotEqual(types.AW_TIMEDATE(None), 'NONE',
+            self.assertNotEqual(types.AW_TIMEDATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -329,7 +330,7 @@ class TestTypeExiftoolTimeDate(TestCase):
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE.null, 'INVALID DATE')
 
         with self.assertRaises(exceptions.AWTypeError):
-            self.assertNotEqual(types.AW_EXIFTOOLTIMEDATE(None), 'NONE',
+            self.assertNotEqual(types.AW_EXIFTOOLTIMEDATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
     def test_call_with_none(self):
@@ -392,7 +393,7 @@ class TestTypePyPDFTimeDate(TestCase):
         self.assertEqual(types.AW_PYPDFTIMEDATE.null, 'INVALID DATE')
 
         with self.assertRaises(exceptions.AWTypeError):
-            self.assertNotEqual(types.AW_PYPDFTIMEDATE(None), 'NONE',
+            self.assertNotEqual(types.AW_PYPDFTIMEDATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
     def test_call_with_none(self):
@@ -447,7 +448,7 @@ class TestTypePath(TestCase):
             self.assertEqual(types.AW_PATH(None), types.AW_PATH.null)
 
         with self.assertRaises(exceptions.AWTypeError):
-            self.assertNotEqual(types.AW_PATH(None), 'NONE',
+            self.assertNotEqual(types.AW_PATH(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -503,7 +504,7 @@ class TestTypePathComponent(TestCase):
         self.assertEqual(types.AW_PATHCOMPONENT(None),
                          types.AW_PATHCOMPONENT.null)
 
-        self.assertNotEqual(types.AW_PATHCOMPONENT(None), 'NONE',
+        self.assertNotEqual(types.AW_PATHCOMPONENT(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
     def test_normalize_path_with_user_home(self):
@@ -566,7 +567,7 @@ class TestTypeString(TestCase):
     def test_null(self):
         self.assertEqual(types.AW_STRING.null, '')
 
-        self.assertNotEqual(types.AW_STRING(None), 'NONE',
+        self.assertNotEqual(types.AW_STRING(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -628,6 +629,87 @@ class TestTypeString(TestCase):
     def test_format(self):
         # TODO: Add additional tests.
         self.assertIsNotNone(types.AW_STRING.format)
+
+
+class TestTypeMimeType(TestCase):
+    def test_wraps_expected_primitive(self):
+        self.assertEqual(type(types.AW_MIMETYPE(None)), str)
+
+    def test_null(self):
+        self.assertEqual(types.AW_MIMETYPE.null, constants.MAGIC_TYPE_UNKNOWN)
+        self.assertNotEqual(types.AW_MIMETYPE(None), 'NULL',
+                            'BaseType default "null" must be overridden')
+
+    def test_normalize(self):
+        def _assert_normalizes(test_data, expected):
+            self.assertEqual(types.AW_MIMETYPE.normalize(test_data), expected)
+        _assert_normalizes('pdf', 'application/pdf')
+        _assert_normalizes('.pdf', 'application/pdf')
+        _assert_normalizes('PDF', 'application/pdf')
+        _assert_normalizes('.PDF', 'application/pdf')
+        _assert_normalizes('application/pdf', 'application/pdf')
+        _assert_normalizes(b'pdf', 'application/pdf')
+        _assert_normalizes(b'.pdf', 'application/pdf')
+        _assert_normalizes(b'PDF', 'application/pdf')
+        _assert_normalizes(b'.PDF', 'application/pdf')
+        _assert_normalizes(b'application/pdf', 'application/pdf')
+
+    def test_call_with_none(self):
+        self.assertEqual(types.AW_MIMETYPE(None), types.AW_MIMETYPE.null)
+
+    def test_call_with_coercible_data(self):
+        def _assert_coerces(test_data, expected):
+            self.assertEqual(types.AW_MIMETYPE(test_data), expected)
+
+        _assert_coerces('pdf', 'application/pdf')
+        _assert_coerces('.pdf', 'application/pdf')
+        _assert_coerces('PDF', 'application/pdf')
+        _assert_coerces('.PDF', 'application/pdf')
+        _assert_coerces('application/pdf', 'application/pdf')
+        _assert_coerces('APPLICATION/pdf', 'application/pdf')
+        _assert_coerces('application/PDF', 'application/pdf')
+        _assert_coerces('APPLICATION/PDF', 'application/pdf')
+        _assert_coerces(b'pdf', 'application/pdf')
+        _assert_coerces(b'.pdf', 'application/pdf')
+        _assert_coerces(b'PDF', 'application/pdf')
+        _assert_coerces(b'.PDF', 'application/pdf')
+        _assert_coerces(b'application/pdf', 'application/pdf')
+        _assert_coerces(b'APPLICATION/pdf', 'application/pdf')
+        _assert_coerces(b'application/PDF', 'application/pdf')
+        _assert_coerces(b'APPLICATION/PDF', 'application/pdf')
+        _assert_coerces('jpg', 'image/jpeg')
+        _assert_coerces('.jpg', 'image/jpeg')
+        _assert_coerces('JPG', 'image/jpeg')
+        _assert_coerces('.JPG', 'image/jpeg')
+        _assert_coerces('.JPEG', 'image/jpeg')
+        _assert_coerces('image/jpeg', 'image/jpeg')
+        _assert_coerces(b'jpg', 'image/jpeg')
+        _assert_coerces(b'.jpg', 'image/jpeg')
+        _assert_coerces(b'JPG', 'image/jpeg')
+        _assert_coerces(b'.JPG', 'image/jpeg')
+        _assert_coerces(b'image/jpeg', 'image/jpeg')
+
+    def test_call_with_noncoercible_data(self):
+        def _assert_uncoercible(test_data):
+            self.assertEqual(types.AW_MIMETYPE(test_data),
+                             types.AW_MIMETYPE.null)
+
+            # TODO: [TD0083] Return "NULL" or raise 'AWTypeError'..?
+            # with self.assertRaises(exceptions.AWTypeError):
+            #     types.AW_MIMETYPE(test_data)
+
+        _assert_uncoercible(None)
+        _assert_uncoercible(False)
+        _assert_uncoercible(True)
+        _assert_uncoercible('')
+        _assert_uncoercible(' ')
+        _assert_uncoercible('foo')
+        _assert_uncoercible(-1)
+        _assert_uncoercible(1)
+
+    def test_format(self):
+        # TODO: Add additional tests.
+        self.assertIsNotNone(types.AW_MIMETYPE.format)
 
 
 class TestTryWrap(TestCase):

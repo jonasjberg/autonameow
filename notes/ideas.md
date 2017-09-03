@@ -155,10 +155,8 @@ How are possible candidates collected?
 
 
 
-
 Rule Matching Calculations
 --------------------------
-
 
 #### Alternative 1:
 Calculating __score__ as `conditions_met / conditions_total` and
@@ -189,8 +187,8 @@ __weight__ as `conditions_total / max(len(rule.conditions) for rule in rules)`:
 
 
 #### ~~Alternative 3:~~
-Calculating __score__ as `conditions_met / conditions_total` and
-__weight__ as `conditions_total / sum(len(rule.conditions) for rule in rules)`:
+~~Calculating __score__ as `conditions_met / conditions_total` and __weight__
+as `conditions_total / sum(len(rule.conditions) for rule in rules)`:~~
 
 
 ```python
@@ -206,4 +204,185 @@ sum(len(rule.conditions) for rule in rules) # = 24
   Rule D    10     10    1       0.416      -->    1*0.416 = 0.416
 ```
 
-~~
+Data Transformation
+-------------------
+Thoughts on interactions between data-users (`NameBuilder`, analyzers) and
+data-providers (extractors).
+
+Data is collected by extractors and stored in the `SessionRepository`. This
+data is "raw", I.E. consists of primitives and `datetime`-objects.
+
+Some contextual metadata should be kept along with each stored data item for;
+
+1. Conversion of "raw" data to fit a specific name template field.
+    * The byte string `.jpg` to could populate the `{extension}` field by
+      Unicode-conversion.
+    * The MIME type (Unicode string) `image/jpeg` could also be used to
+      populate the `{extension}` field, but some sort of __transformation__
+      must be performed. *Likely using a lookup-table of MIME-types to file
+      extensions.*
+2. Ranking and prioritizing of results.
+    * For example, EXIF metadata fields are often misused; the `author` field
+      might not contain the author, the `producer` field might contain the
+      publisher, etc.
+    * Extractors could assign "probability" to extracted data.
+      Example;
+        ```python
+        'PDF:Producer': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.publisher, probability=0.25),
+                fields.WeightedMapping(fields.author, probability=0.01)
+            ]
+        ```
+    * ~~Alternatively, assigning semantic context and probabilities to the raw
+      data could be handled by a separate process, after extraction.
+      But the extractor that produced is probably in a better position to
+      add additional contextual information or metadata to the data..~~
+
+
+### Mapping "raw" data to name template placeholder fields
+Expanding on the first item above.
+
+* All available "raw" data is not equally suited to populate all of the
+  placeholder fields.
+* Some "raw" data sources is incompatible with certain placeholder fields.
+
+A lot of "raw" data could probably be converted with varying results and
+conversion losses.
+For instance, `filesystem.contents.mime_type` could be "coerced" or converted
+to some format appropriate for populating the template field `{title}`.
+
+```
+ 'application/pdf'  -->  'PDF Document'
+     Raw Data              Title Field
+```
+
+This specific example would probably require some kind of lookup-table or
+heuristic to convert MIME-types to a equivalent human-readable "title"-like
+form.
+
+
+Some "raw" data will not relate to certain name template fields in any
+meaningful way.  For example, `filesystem.contents.mime_type` can not be
+transformed to a format suited for populating the template field `{datetime}`.
+
+There is no way to transform a MIME type to date/time-information in a single
+step.
+The only way would be to "follow" the MIME-type data to some other related data
+that might contain date/time-information.
+
+
+### Example Practical Application
+How would template fields map to actual "raw" data extracted from
+`$AUTONAMEOW_SRCROOT_DIR/test_files/gmail.pdf`.
+
+
+#### Example will be using the following name template fields:
+
+* author
+* date
+* datetime
+* description
+* edition
+* extension
+* publisher
+* tags
+* title
+
+
+#### Example will be using the following raw `SessionRepository` data:
+
+
+```python
+SessionRepository.data = {
+    'metadata.exiftool.SourceFile': '/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf',
+    'metadata.exiftool.ExifTool:ExifToolVersion': 10.55,
+    'metadata.exiftool.File:FileName': 'gmail.pdf',
+    'metadata.exiftool.File:Directory': '/Users/jonas/PycharmProjects/autonameow.git/test_files',
+    'metadata.exiftool.File:FileSize': 141636,
+    'metadata.exiftool.File:FileModifyDate': datetime.datetime(2017, 6, 10, 16, 36, 18, tzinfo=datetime.timezone(datetime.timedelta(0, 7200)),),
+    'metadata.exiftool.File:FileAccessDate': datetime.datetime(2017, 9, 3, 15, 41, 54, tzinfo=datetime.timezone(datetime.timedelta(0, 7200)),),
+    'metadata.exiftool.File:FileInodeChangeDate': datetime.datetime(2017, 6, 10, 16, 36, 18, tzinfo=datetime.timezone(datetime.timedelta(0, 7200)),),
+    'metadata.exiftool.File:FilePermissions': 644,
+    'metadata.exiftool.File:FileType': 'PDF',
+    'metadata.exiftool.File:FileTypeExtension': 'PDF',
+    'metadata.exiftool.File:MIMEType': 'application/pdf',
+    'metadata.exiftool.PDF:PDFVersion': 1.4,
+    'metadata.exiftool.PDF:Linearized': False,
+    'metadata.exiftool.PDF:PageCount': 2,
+    'metadata.exiftool.PDF:Creator': 'Chromium',
+    'metadata.exiftool.PDF:Producer': 'Skia/PDF',
+    'metadata.exiftool.PDF:CreateDate': datetime.datetime(2016, 1, 11, 12, 41, 32, tzinfo=datetime.timezone.utc,),
+    'metadata.exiftool.PDF:ModifyDate': datetime.datetime(2016, 1, 11, 12, 41, 32, tzinfo=datetime.timezone.utc,),
+    'metadata.pypdf.Creator': 'Chromium',
+    'metadata.pypdf.Producer': 'Skia/PDF',
+    'metadata.pypdf.CreationDate': datetime.datetime(2016, 1, 11, 12, 41, 32, tzinfo=datetime.timezone.utc,),
+    'metadata.pypdf.ModDate': datetime.datetime(2016, 1, 11, 12, 41, 32, tzinfo=datetime.timezone.utc,),
+    'metadata.pypdf.creator': 'Chromium',
+    'metadata.pypdf.producer': 'Skia/PDF',
+    'metadata.pypdf.creator_raw': 'Chromium',
+    'metadata.pypdf.producer_raw': 'Skia/PDF',
+    'metadata.pypdf.Encrypted': False,
+    'metadata.pypdf.NumberPages': 2,
+    'metadata.pypdf.Paginated': True,
+    'contents.textual.raw_text': '''1/11/2016 Gmail - .. TRUNCATED to 500/1981 characters)''',
+    'filesystem.basename.full': 'gmail.pdf',
+    'filesystem.basename.extension': 'pdf',
+    'filesystem.basename.suffix': 'pdf',
+    'filesystem.basename.prefix': 'gmail',
+    'filesystem.pathname.full': '/Users/jonas/PycharmProjects/autonameow.git/test_files',
+    'filesystem.pathname.parent': 'test_files',
+    'filesystem.contents.mime_type': 'application/pdf',
+    'filesystem.date_accessed': datetime.datetime(2017, 9, 3, 15, 41, 54,),
+    'filesystem.date_created': datetime.datetime(2017, 6, 10, 16, 36, 18,),
+    'filesystem.date_modified': datetime.datetime(2017, 6, 10, 16, 36, 18,),
+    'analysis.filetags.description': 'gmail',
+    'analysis.filetags.tags': [],
+    'analysis.filetags.extension': 'pdf',
+    'analysis.filetags.follows_filetags_convention': False,
+}
+```
+
+
+#### Relationships between Raw data and Name Template Fields
+
+| "MeowURI"                                       | Raw Data                                                             | Populateable (?) Fields                            |
+|:------------------------------------------------|:---------------------------------------------------------------------|----------------------------------------------------|
+| `'contents.textual.raw_text'`                   | `'''1/11/2016 Gmail - .. TRUNCATED to 500/1981 characters)'''`       | ?                                                  |
+| `'filesystem.abspath.full'`                     | `'/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf'` | ?                                                  |
+| `'filesystem.basename.full'`                    | `'gmail.pdf'`                                                        | ?                                                  |
+| `'filesystem.basename.extension'`               | `'pdf'`                                                              | `{extension}`                                      |
+| `'filesystem.basename.suffix'`                  | `'pdf'`                                                              | `{extension}`                                      |
+| `'filesystem.basename.prefix'`                  | `'gmail'`                                                            | ?                                                  |
+| `'filesystem.pathname.full'`                    | `'/Users/jonas/PycharmProjects/autonameow.git/test_files'`           | ?                                                  |
+| `'filesystem.pathname.parent'`                  | `'test_files'`                                                       | ?                                                  |
+| `'filesystem.contents.mime_type'`               | `'application/pdf'`                                                  | `{extension}`                                      |
+| `'filesystem.date_accessed'`                    | `datetime.datetime(2017, 9, 3, 15, 41, 54,)`                         | `{date}` `{datetime}`                              |
+| `'filesystem.date_created'`                     | `datetime.datetime(2017, 6, 10, 16, 36, 18,)`                        | `{date}` `{datetime}`                              |
+| `'filesystem.date_modified'`                    | `datetime.datetime(2017, 6, 10, 16, 36, 18,)`                        | `{date}` `{datetime}`                              |
+| `'metadata.exiftool.ExifTool:ExifToolVersion'`  | `10.55`                                                              | ?                                                  |
+| `'metadata.exiftool.File:FileSize'`             | `141636`                                                             | ?                                                  |
+| `'metadata.exiftool.File:FileModifyDate'`       | `datetime.datetime(2017, 6, 10, 16, 36, 18)`                         | `{date}` `{datetime}`                              |
+| `'metadata.exiftool.File:FileAccessDate'`       | `datetime.datetime(2017, 9, 3, 15, 41, 54)`                          | `{date}` `{datetime}`                              |
+| `'metadata.exiftool.File:FileInodeChangeDate'`  | `datetime.datetime(2017, 6, 10, 16, 36, 18)`                         | `{date}` `{datetime}`                              |
+| `'metadata.exiftool.File:FilePermissions'`      | `644`                                                                | ?                                                  |
+| `'metadata.exiftool.File:FileType'`             | `'PDF'`                                                              | `{extension}`                                      |
+| `'metadata.exiftool.File:FileTypeExtension'`    | `'PDF'`                                                              | `{extension}`                                      |
+| `'metadata.exiftool.File:MIMEType'`             | `'application/pdf'`                                                  | `{extension}`                                      |
+| `'metadata.exiftool.PDF:PDFVersion'`            | `1.4`                                                                | ?                                                  |
+| `'metadata.exiftool.PDF:Linearized'`            | `False`                                                              | ?                                                  |
+| `'metadata.exiftool.PDF:PageCount'`             | `2`                                                                  | ?                                                  |
+| `'metadata.exiftool.PDF:Creator'`               | `'Chromium'`                                                         | `{author}` `{description}` `{publisher}` `{title}` |
+| `'metadata.exiftool.PDF:Producer'`              | `'Skia/PDF'`                                                         | `{author}` `{description}` `{publisher}` `{title}` |
+| `'metadata.exiftool.PDF:CreateDate'`            | `datetime.datetime(2016, 1, 11, 12, 41, 32)`                         | `{date}` `{datetime}`                              |
+| `'metadata.exiftool.PDF:ModifyDate'`            | `datetime.datetime(2016, 1, 11, 12, 41, 32)`                         | `{date}` `{datetime}`                              |
+| `'metadata.pypdf.Creator'`                      | `'Chromium'`                                                         | `{author}` `{description}` `{publisher}` `{title}` |
+| `'metadata.pypdf.Producer'`                     | `'Skia/PDF'`                                                         | `{author}` `{description}` `{publisher}` `{title}` |
+| `'metadata.pypdf.CreationDate'`                 | `datetime.datetime(2016, 1, 11, 12, 41, 32)`                         | `{date}` `{datetime}`                              |
+| `'metadata.pypdf.ModDate'`                      | `datetime.datetime(2016, 1, 11, 12, 41, 32)`                         | `{date}` `{datetime}`                              |
+| `'metadata.pypdf.Encrypted'`                    | `False`                                                              | ?                                                  |
+| `'metadata.pypdf.NumberPages'`                  | `2`                                                                  | ?                                                  |
+| `'metadata.pypdf.Paginated'`                    | `True`                                                               | ?                                                  |
+
+

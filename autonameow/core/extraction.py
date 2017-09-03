@@ -26,7 +26,7 @@ from core import (
     util,
     repository
 )
-
+from extractors import ExtractorError
 
 log = logging.getLogger(__name__)
 
@@ -124,10 +124,21 @@ class Extraction(object):
         Executes all enqueued extractors and collects the results.
         """
         for i, e in enumerate(self.extractor_queue):
-            log.debug('Executing queue item {}/{}: '
-                      '{!s}'.format(i + 1, len(self.extractor_queue), e))
+            item_number = i + 1
+            total_items = len(self.extractor_queue)
 
-            self.collect_results(e.meowuri_root, e.execute())
+
+            log.debug('Executing queue item {}/{}: '
+                      '{!s}'.format(item_number, total_items, e))
+
+            try:
+                self.collect_results(e.meowuri_root, e.execute())
+            except ExtractorError as e:
+                log.warning(
+                    'Execution of queue item {}/{} raised ExtractorError; '
+                    '{!s}'.format(item_number, total_items, e)
+                )
+                continue
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
