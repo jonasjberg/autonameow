@@ -273,24 +273,25 @@ The only way would be to "follow" the MIME-type data to some other related data
 that might contain date/time-information.
 
 
-* datetime
-* publisher
-* title
-* tags
+### Example Practical Application
+How would template fields map to actual "raw" data extracted from
+`$AUTONAMEOW_SRCROOT_DIR/test_files/gmail.pdf`.
+
+
+#### Example will be using the following name template fields:
+
 * author
 * date
+* datetime
 * description
 * edition
 * extension
+* publisher
+* tags
+* title
 
 
-
-
-| Raw Data                            | Compatible Fields     |
-|:------------------------------------|---------------------- |
-| `metadata.exiftool.EXIF:CreateDate` | `{datetime}` `{date}` |
-| `metadata.exiftool.EXIF:Title`      | `{title}` `{description}` `{publisher}` |
-| `filesystem.contents.mime_type`     | `{extension}`  |
+#### Example will be using the following raw `SessionRepository` data:
 
 
 ```python
@@ -336,29 +337,52 @@ SessionRepository.data = {
     'filesystem.date_accessed': datetime.datetime(2017, 9, 3, 15, 41, 54,),
     'filesystem.date_created': datetime.datetime(2017, 6, 10, 16, 36, 18,),
     'filesystem.date_modified': datetime.datetime(2017, 6, 10, 16, 36, 18,),
-    'analysis.pdf.author': [{'value': 'Chromium',
-                             'source': 'metadata.exiftool.PDF:Creator',
-                             'weight': 0.8},
-                            {'value': 'Skia/PDF',
-                             'source': 'metadata.exiftool.PDF:Producer',
-                             'weight': 0.8},
-                            {'value': 'Chromium',
-                             'source': 'metadata.pypdf.Creator',
-                             'weight': 0.8},
-                            {'value': 'Skia/PDF',
-                             'source': 'metadata.pypdf.Producer',
-                             'weight': 0.5}],
     'analysis.filetags.description': 'gmail',
     'analysis.filetags.tags': [],
     'analysis.filetags.extension': 'pdf',
     'analysis.filetags.follows_filetags_convention': False,
-    'analysis.filename.title': [{'value': 'gmail',
-                                 'source': 'filetags',
-                                 'weight': 0.25}],
-    'analysis.filename.tags': [{'value': [],
-                                'source': 'filenamepart_tags',
-                                'weight': 0.1}],
 }
 ```
+
+
+#### Relationships between Raw data and Name Template Fields
+
+| "MeowURI"                                       | Raw Data                                                             | Populateable (?) Fields                            |
+|:------------------------------------------------|:---------------------------------------------------------------------|----------------------------------------------------|
+| `'contents.textual.raw_text'`                   | `'''1/11/2016 Gmail - .. TRUNCATED to 500/1981 characters)'''`       | ?                                                  |
+| `'filesystem.abspath.full'`                     | `'/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf'` | ?                                                  |
+| `'filesystem.basename.full'`                    | `'gmail.pdf'`                                                        | ?                                                  |
+| `'filesystem.basename.extension'`               | `'pdf'`                                                              | `{extension}`                                      |
+| `'filesystem.basename.suffix'`                  | `'pdf'`                                                              | `{extension}`                                      |
+| `'filesystem.basename.prefix'`                  | `'gmail'`                                                            | ?                                                  |
+| `'filesystem.pathname.full'`                    | `'/Users/jonas/PycharmProjects/autonameow.git/test_files'`           | ?                                                  |
+| `'filesystem.pathname.parent'`                  | `'test_files'`                                                       | ?                                                  |
+| `'filesystem.contents.mime_type'`               | `'application/pdf'`                                                  | `{extension}`                                      |
+| `'filesystem.date_accessed'`                    | `datetime.datetime(2017, 9, 3, 15, 41, 54,)`                         | `{date}` `{datetime}`                              |
+| `'filesystem.date_created'`                     | `datetime.datetime(2017, 6, 10, 16, 36, 18,)`                        | `{date}` `{datetime}`                              |
+| `'filesystem.date_modified'`                    | `datetime.datetime(2017, 6, 10, 16, 36, 18,)`                        | `{date}` `{datetime}`                              |
+| `'metadata.exiftool.ExifTool:ExifToolVersion'`  | `10.55`                                                              | ?                                                  |
+| `'metadata.exiftool.File:FileSize'`             | `141636`                                                             | ?                                                  |
+| `'metadata.exiftool.File:FileModifyDate'`       | `datetime.datetime(2017, 6, 10, 16, 36, 18)`                         | `{date}` `{datetime}`                              |
+| `'metadata.exiftool.File:FileAccessDate'`       | `datetime.datetime(2017, 9, 3, 15, 41, 54)`                          | `{date}` `{datetime}`                              |
+| `'metadata.exiftool.File:FileInodeChangeDate'`  | `datetime.datetime(2017, 6, 10, 16, 36, 18)`                         | `{date}` `{datetime}`                              |
+| `'metadata.exiftool.File:FilePermissions'`      | `644`                                                                | ?                                                  |
+| `'metadata.exiftool.File:FileType'`             | `'PDF'`                                                              | `{extension}`                                      |
+| `'metadata.exiftool.File:FileTypeExtension'`    | `'PDF'`                                                              | `{extension}`                                      |
+| `'metadata.exiftool.File:MIMEType'`             | `'application/pdf'`                                                  | `{extension}`                                      |
+| `'metadata.exiftool.PDF:PDFVersion'`            | `1.4`                                                                | ?                                                  |
+| `'metadata.exiftool.PDF:Linearized'`            | `False`                                                              | ?                                                  |
+| `'metadata.exiftool.PDF:PageCount'`             | `2`                                                                  | ?                                                  |
+| `'metadata.exiftool.PDF:Creator'`               | `'Chromium'`                                                         | `{author}` `{description}` `{publisher}` `{title}` |
+| `'metadata.exiftool.PDF:Producer'`              | `'Skia/PDF'`                                                         | `{author}` `{description}` `{publisher}` `{title}` |
+| `'metadata.exiftool.PDF:CreateDate'`            | `datetime.datetime(2016, 1, 11, 12, 41, 32)`                         | `{date}` `{datetime}`                              |
+| `'metadata.exiftool.PDF:ModifyDate'`            | `datetime.datetime(2016, 1, 11, 12, 41, 32)`                         | `{date}` `{datetime}`                              |
+| `'metadata.pypdf.Creator'`                      | `'Chromium'`                                                         | `{author}` `{description}` `{publisher}` `{title}` |
+| `'metadata.pypdf.Producer'`                     | `'Skia/PDF'`                                                         | `{author}` `{description}` `{publisher}` `{title}` |
+| `'metadata.pypdf.CreationDate'`                 | `datetime.datetime(2016, 1, 11, 12, 41, 32)`                         | `{date}` `{datetime}`                              |
+| `'metadata.pypdf.ModDate'`                      | `datetime.datetime(2016, 1, 11, 12, 41, 32)`                         | `{date}` `{datetime}`                              |
+| `'metadata.pypdf.Encrypted'`                    | `False`                                                              | ?                                                  |
+| `'metadata.pypdf.NumberPages'`                  | `2`                                                                  | ?                                                  |
+| `'metadata.pypdf.Paginated'`                    | `True`                                                               | ?                                                  |
 
 
