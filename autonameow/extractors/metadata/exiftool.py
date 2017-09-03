@@ -101,7 +101,12 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         'File:FileTypeExtension': ExtractedData(types.AW_PATH),
         'File:ImageHeight': ExtractedData(types.AW_INTEGER),
         'File:ImageWidth': ExtractedData(types.AW_INTEGER),
-        'File:MIMEType': ExtractedData(types.AW_STRING),
+        'File:MIMEType': ExtractedData(
+            wrapper=types.AW_MIMETYPE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.extension, probability=1)
+            ]
+        ),
         'PDF:CreateDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
         'PDF:Creator': ExtractedData(types.AW_STRING),
         'PDF:Linearized': ExtractedData(types.AW_BOOLEAN),
