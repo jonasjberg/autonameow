@@ -41,6 +41,7 @@ class CommonFileSystemExtractor(BaseExtractor):
     meowuri_root = 'filesystem'
 
     wrapper_lookup = {
+        'abspath.full': ExtractedData(types.AW_PATH),
         'basename.full': ExtractedData(types.AW_PATHCOMPONENT),
         'basename.extension': ExtractedData(
             wrapper=types.AW_PATHCOMPONENT,
@@ -125,6 +126,7 @@ class CommonFileSystemExtractor(BaseExtractor):
         # }
 
         meowuris_datasources = [
+            ('abspath.full', file_object.abspath),
             ('basename.full', file_object.filename),
             ('basename.extension', file_object.basename_suffix),
             ('basename.suffix', file_object.basename_suffix),
