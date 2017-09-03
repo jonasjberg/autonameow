@@ -65,7 +65,7 @@ class TestTypeBoolean(TestCase):
     def test_null(self):
         self.assertEqual(types.AW_BOOLEAN(None),
                          types.AW_BOOLEAN.null)
-        self.assertNotEqual(types.AW_BOOLEAN(None), 'NONE',
+        self.assertNotEqual(types.AW_BOOLEAN(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -161,7 +161,7 @@ class TestTypeInteger(TestCase):
 
     def test_null(self):
         self.assertEqual(types.AW_INTEGER(None), types.AW_INTEGER.null)
-        self.assertNotEqual(types.AW_INTEGER(None), 'NONE',
+        self.assertNotEqual(types.AW_INTEGER(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -222,7 +222,7 @@ class TestTypeFloat(TestCase):
 
     def test_null(self):
         self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.null)
-        self.assertNotEqual(types.AW_FLOAT(None), 'NONE',
+        self.assertNotEqual(types.AW_FLOAT(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -272,7 +272,7 @@ class TestTypeTimeDate(TestCase):
         self.assertEqual(types.AW_TIMEDATE.null, 'INVALID DATE')
 
         with self.assertRaises(exceptions.AWTypeError):
-            self.assertNotEqual(types.AW_TIMEDATE(None), 'NONE',
+            self.assertNotEqual(types.AW_TIMEDATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -329,7 +329,7 @@ class TestTypeExiftoolTimeDate(TestCase):
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE.null, 'INVALID DATE')
 
         with self.assertRaises(exceptions.AWTypeError):
-            self.assertNotEqual(types.AW_EXIFTOOLTIMEDATE(None), 'NONE',
+            self.assertNotEqual(types.AW_EXIFTOOLTIMEDATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
     def test_call_with_none(self):
@@ -392,7 +392,7 @@ class TestTypePyPDFTimeDate(TestCase):
         self.assertEqual(types.AW_PYPDFTIMEDATE.null, 'INVALID DATE')
 
         with self.assertRaises(exceptions.AWTypeError):
-            self.assertNotEqual(types.AW_PYPDFTIMEDATE(None), 'NONE',
+            self.assertNotEqual(types.AW_PYPDFTIMEDATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
     def test_call_with_none(self):
@@ -447,7 +447,7 @@ class TestTypePath(TestCase):
             self.assertEqual(types.AW_PATH(None), types.AW_PATH.null)
 
         with self.assertRaises(exceptions.AWTypeError):
-            self.assertNotEqual(types.AW_PATH(None), 'NONE',
+            self.assertNotEqual(types.AW_PATH(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -503,7 +503,7 @@ class TestTypePathComponent(TestCase):
         self.assertEqual(types.AW_PATHCOMPONENT(None),
                          types.AW_PATHCOMPONENT.null)
 
-        self.assertNotEqual(types.AW_PATHCOMPONENT(None), 'NONE',
+        self.assertNotEqual(types.AW_PATHCOMPONENT(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
     def test_normalize_path_with_user_home(self):
@@ -566,7 +566,7 @@ class TestTypeString(TestCase):
     def test_null(self):
         self.assertEqual(types.AW_STRING.null, '')
 
-        self.assertNotEqual(types.AW_STRING(None), 'NONE',
+        self.assertNotEqual(types.AW_STRING(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
