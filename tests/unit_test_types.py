@@ -26,7 +26,8 @@ from datetime import datetime
 from core import (
     types,
     exceptions,
-    util
+    util,
+    constants
 )
 
 import unit_utils as uu
@@ -628,6 +629,66 @@ class TestTypeString(TestCase):
     def test_format(self):
         # TODO: Add additional tests.
         self.assertIsNotNone(types.AW_STRING.format)
+
+
+class TestTypeMimeType(TestCase):
+    def test_wraps_expected_primitive(self):
+        self.assertEqual(type(types.AW_MIMETYPE(None)), str)
+
+    def test_null(self):
+        self.assertEqual(types.AW_MIMETYPE.null, constants.MAGIC_TYPE_UNKNOWN)
+        self.assertNotEqual(types.AW_MIMETYPE(None), 'NULL',
+                            'BaseType default "null" must be overridden')
+
+    def test_normalize(self):
+        def _assert_normalizes(test_data, expected):
+            self.assertEqual(types.AW_MIMETYPE.normalize(test_data), expected)
+        _assert_normalizes('pdf', 'pdf')
+        _assert_normalizes('.pdf', 'pdf')
+        _assert_normalizes('PDF', 'pdf')
+        _assert_normalizes('.PDF', 'pdf')
+        _assert_normalizes('application/pdf', 'pdf')
+        _assert_normalizes(b'pdf', 'pdf')
+        _assert_normalizes(b'.pdf', 'pdf')
+        _assert_normalizes(b'PDF', 'pdf')
+        _assert_normalizes(b'.PDF', 'pdf')
+        _assert_normalizes(b'application/pdf', 'pdf')
+
+    def test_call_with_none(self):
+        self.assertEqual(types.AW_MIMETYPE(None), types.AW_MIMETYPE.null)
+
+    def test_call_with_coercible_data(self):
+        def _assert_coerces(test_data, expected):
+            self.assertEqual(types.AW_MIMETYPE(test_data), expected)
+
+        _assert_coerces('pdf', 'pdf')
+        _assert_coerces('.pdf', 'pdf')
+        _assert_coerces('PDF', 'pdf')
+        _assert_coerces('.PDF', 'pdf')
+        _assert_coerces('application/pdf', 'pdf')
+        _assert_coerces(b'pdf', 'pdf')
+        _assert_coerces(b'.pdf', 'pdf')
+        _assert_coerces(b'PDF', 'pdf')
+        _assert_coerces(b'.PDF', 'pdf')
+        _assert_coerces(b'application/pdf', 'pdf')
+
+    def test_call_with_noncoercible_data(self):
+        def _assert_uncoercible(test_data):
+            with self.assertRaises(exceptions.AWTypeError):
+                types.AW_MIMETYPE(test_data)
+
+        _assert_uncoercible(None)
+        _assert_uncoercible(False)
+        _assert_uncoercible(True)
+        _assert_uncoercible('')
+        _assert_uncoercible(' ')
+        _assert_uncoercible('foo')
+        _assert_uncoercible(-1)
+        _assert_uncoercible(1)
+
+    def test_format(self):
+        # TODO: Add additional tests.
+        self.assertIsNotNone(types.AW_MIMETYPE.format)
 
 
 class TestTryWrap(TestCase):
