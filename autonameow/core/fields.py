@@ -56,9 +56,23 @@ from collections import namedtuple
 WeightedMapping = namedtuple('WeightedMapping', ['field', 'probability'])
 
 
+def todo_func(foo):
+    pass
+
+
 class NameTemplateField(object):
     def __init__(self, content):
         self._content = content
+
+        self._transforms = {
+            Title: todo_func,
+            Edition: todo_func
+        }
+
+    def transform(self, target_field):
+        # TODO: Implement transforming data between field types, if possible.
+        target_field_type = type(target_field)
+        result = self._transforms[target_field_type](self._content)
 
 
 class Title(NameTemplateField):
@@ -116,7 +130,6 @@ class Extension(NameTemplateField):
         for _find, _replace in cls.ORDINALS:
             data = _find.sub(_replace, data)
         return data
-
 
 
 class Author(NameTemplateField):
