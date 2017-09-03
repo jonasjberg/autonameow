@@ -643,16 +643,16 @@ class TestTypeMimeType(TestCase):
     def test_normalize(self):
         def _assert_normalizes(test_data, expected):
             self.assertEqual(types.AW_MIMETYPE.normalize(test_data), expected)
-        _assert_normalizes('pdf', 'pdf')
-        _assert_normalizes('.pdf', 'pdf')
-        _assert_normalizes('PDF', 'pdf')
-        _assert_normalizes('.PDF', 'pdf')
-        _assert_normalizes('application/pdf', 'pdf')
-        _assert_normalizes(b'pdf', 'pdf')
-        _assert_normalizes(b'.pdf', 'pdf')
-        _assert_normalizes(b'PDF', 'pdf')
-        _assert_normalizes(b'.PDF', 'pdf')
-        _assert_normalizes(b'application/pdf', 'pdf')
+        _assert_normalizes('pdf', 'application/pdf')
+        _assert_normalizes('.pdf', 'application/pdf')
+        _assert_normalizes('PDF', 'application/pdf')
+        _assert_normalizes('.PDF', 'application/pdf')
+        _assert_normalizes('application/pdf', 'application/pdf')
+        _assert_normalizes(b'pdf', 'application/pdf')
+        _assert_normalizes(b'.pdf', 'application/pdf')
+        _assert_normalizes(b'PDF', 'application/pdf')
+        _assert_normalizes(b'.PDF', 'application/pdf')
+        _assert_normalizes(b'application/pdf', 'application/pdf')
 
     def test_call_with_none(self):
         self.assertEqual(types.AW_MIMETYPE(None), types.AW_MIMETYPE.null)
@@ -661,21 +661,42 @@ class TestTypeMimeType(TestCase):
         def _assert_coerces(test_data, expected):
             self.assertEqual(types.AW_MIMETYPE(test_data), expected)
 
-        _assert_coerces('pdf', 'pdf')
-        _assert_coerces('.pdf', 'pdf')
-        _assert_coerces('PDF', 'pdf')
-        _assert_coerces('.PDF', 'pdf')
-        _assert_coerces('application/pdf', 'pdf')
-        _assert_coerces(b'pdf', 'pdf')
-        _assert_coerces(b'.pdf', 'pdf')
-        _assert_coerces(b'PDF', 'pdf')
-        _assert_coerces(b'.PDF', 'pdf')
-        _assert_coerces(b'application/pdf', 'pdf')
+        _assert_coerces('pdf', 'application/pdf')
+        _assert_coerces('.pdf', 'application/pdf')
+        _assert_coerces('PDF', 'application/pdf')
+        _assert_coerces('.PDF', 'application/pdf')
+        _assert_coerces('application/pdf', 'application/pdf')
+        _assert_coerces('APPLICATION/pdf', 'application/pdf')
+        _assert_coerces('application/PDF', 'application/pdf')
+        _assert_coerces('APPLICATION/PDF', 'application/pdf')
+        _assert_coerces(b'pdf', 'application/pdf')
+        _assert_coerces(b'.pdf', 'application/pdf')
+        _assert_coerces(b'PDF', 'application/pdf')
+        _assert_coerces(b'.PDF', 'application/pdf')
+        _assert_coerces(b'application/pdf', 'application/pdf')
+        _assert_coerces(b'APPLICATION/pdf', 'application/pdf')
+        _assert_coerces(b'application/PDF', 'application/pdf')
+        _assert_coerces(b'APPLICATION/PDF', 'application/pdf')
+        _assert_coerces('jpg', 'image/jpeg')
+        _assert_coerces('.jpg', 'image/jpeg')
+        _assert_coerces('JPG', 'image/jpeg')
+        _assert_coerces('.JPG', 'image/jpeg')
+        _assert_coerces('.JPEG', 'image/jpeg')
+        _assert_coerces('image/jpeg', 'image/jpeg')
+        _assert_coerces(b'jpg', 'image/jpeg')
+        _assert_coerces(b'.jpg', 'image/jpeg')
+        _assert_coerces(b'JPG', 'image/jpeg')
+        _assert_coerces(b'.JPG', 'image/jpeg')
+        _assert_coerces(b'image/jpeg', 'image/jpeg')
 
     def test_call_with_noncoercible_data(self):
         def _assert_uncoercible(test_data):
-            with self.assertRaises(exceptions.AWTypeError):
-                types.AW_MIMETYPE(test_data)
+            self.assertEqual(types.AW_MIMETYPE(test_data),
+                             types.AW_MIMETYPE.null)
+
+            # TODO: [TD0083] Return "NULL" or raise 'AWTypeError'..?
+            # with self.assertRaises(exceptions.AWTypeError):
+            #     types.AW_MIMETYPE(test_data)
 
         _assert_uncoercible(None)
         _assert_uncoercible(False)

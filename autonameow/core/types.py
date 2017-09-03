@@ -341,9 +341,13 @@ class MimeType(BaseType):
     equivalent_types = ()
     null = constants.MAGIC_TYPE_UNKNOWN
 
-    MIME_TYPE_LOOKUP = mimetypes.types_map
-    KNOWN_EXTENSIONS = [e.lstrip('.') for e in MIME_TYPE_LOOKUP.keys()]
-    KNOWN_MIME_TYPES = MIME_TYPE_LOOKUP.values()
+    MIME_TYPE_LOOKUP = {
+        ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
+    }
+    KNOWN_EXTENSIONS = list(MIME_TYPE_LOOKUP.keys())
+    KNOWN_MIME_TYPES = list(MIME_TYPE_LOOKUP.values())
+    assert(len(KNOWN_EXTENSIONS) > 0)
+    assert(len(KNOWN_MIME_TYPES) > 0)
 
     def __call__(self, raw_value=None):
         # Overrides the 'BaseType' __call__ method as to not perform the test
@@ -354,22 +358,22 @@ class MimeType(BaseType):
             if raw_value.strip() is not None:
                 value = self.coerce(raw_value)
                 return value
-        raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
-        )
+        return self._null()
 
     def coerce(self, raw_value):
-        string_value = String()(raw_value)
+        string_value = AW_STRING(raw_value)
         string_value = string_value.lstrip('.').strip().lower()
 
         if string_value:
-            candidate = mimetypes.guess_extension(string_value)
-            if candidate:
-                return candidate.lstrip('.')
-
-            if string_value in self.KNOWN_EXTENSIONS:
+            if string_value in self.KNOWN_MIME_TYPES:
                 return string_value
+            if string_value in self.KNOWN_EXTENSIONS:
+                return self.MIME_TYPE_LOOKUP[string_value]
 
+        # TODO: [TD0083] Return "NULL" or raise 'AWTypeError'..?
+        # raise exceptions.AWTypeError(
+        #     'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        # )
         return self._null()
 
     def normalize(self, value):
