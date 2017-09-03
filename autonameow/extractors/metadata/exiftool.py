@@ -68,8 +68,25 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         ),
         'EXIF:ExifVersion': ExtractedData(types.AW_INTEGER),
         'EXIF:GainControl': ExtractedData(types.AW_INTEGER),
+        # TODO: Handle GPS date/time-information.
+        #       EXIF:GPSTimeStamp: '12:07:59'
+        #       EXIF:GPSDateStamp: '2016:03:26'
+
+        # 'EXIF:GPSTimeStamp': ExtractedData(
+        #     wrapper=types.AW_EXIFTOOLTIMEDATE,
+        #     mapped_fields=[
+        #         fields.WeightedMapping(fields.time, probability=1),
+        #     ]
+        # ),
+        'EXIF:GPSDateStamp': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.date, probability=1),
+            ]
+        ),
         'EXIF:ImageDescription': ExtractedData(types.AW_STRING),
         'EXIF:Make': ExtractedData(types.AW_STRING),
+        'EXIF:Model': ExtractedData(types.AW_STRING),
         'EXIF:ModifyDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
         'EXIF:Software': ExtractedData(types.AW_STRING),
         'EXIF:UserComment': ExtractedData(types.AW_STRING),
@@ -95,10 +112,30 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             wrapper=types.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping(fields.publisher, probability=0.25),
-                fields.WeightedMapping(fields.author, probability=0.01)
+                fields.WeightedMapping(fields.author, probability=0.02),
+                fields.WeightedMapping(fields.title, probability=0.01)
             ]
         ),
         'SourceFile': ExtractedData(types.AW_PATH),
+
+        # TODO: [TD0084] Add handling collections to type wrapper classes.
+        # 'XMP:Subject': ExtractedData(
+        #     wrapper=types.AW_STRINGLIST,
+        #     mapped_fields=[
+        #         fields.WeightedMapping(fields.tags, probability=1),
+        #         fields.WeightedMapping(fields.title, probability=0.9)
+        #         fields.WeightedMapping(fields.description, probability=0.8)
+        #     ]
+        # ),
+        # TODO: [TD0084] Add handling collections to type wrapper classes.
+        # 'XMP:TagsList': ExtractedData(
+        #     wrapper=types.AW_STRINGLIST,
+        #     mapped_fields=[
+        #         fields.WeightedMapping(fields.tags, probability=1),
+        #         fields.WeightedMapping(fields.title, probability=0.9)
+        #         fields.WeightedMapping(fields.description, probability=0.8)
+        #     ]
+        # )
     }
 
     def __init__(self, source):

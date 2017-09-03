@@ -42,6 +42,8 @@ from core import (
     util
 )
 
+# TODO: [TD0084] Add handling collections to type wrapper classes.
+
 
 class BaseType(object):
     """
