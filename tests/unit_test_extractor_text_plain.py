@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 from unittest import TestCase
 
 import unit_utils as uu
@@ -44,6 +46,18 @@ class TestReadEntireTextFile(TestCase):
     def test_returns_expected_contents(self):
         actual = read_entire_text_file(self.sample_file)
         self.assertEqual(actual, 'text\n')
+
+
+class TestReadEntireTextFileStressTest(TestCase):
+    def setUp(self):
+        self.sample_files = [f for f in uu.all_testfiles()
+                             if os.path.basename(f).endswith('.txt')]
+
+    def reads_all_test_files_with_txt_extension(self):
+        for f in self.sample_files:
+            self.assertTrue(uu.file_exists(f))
+            actual = read_entire_text_file(f)
+            self.assertTrue(isinstance(actual, str))
 
 
 class TestAutodetectEncoding(TestCase):
@@ -93,3 +107,34 @@ class TestAutodetectEncoding(TestCase):
         self.assertFalse(uu.file_exists(sample))
         actual = autodetect_encoding(sample)
         self.assertIsNone(actual)
+
+
+class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
+    def setUp(self):
+        self.sample_files = [
+            f for f in uu.all_testfiles()
+            if os.path.basename(f).startswith('text_alnum_')
+            and os.path.basename(f).endswith('.txt')
+        ]
+
+        self.testfile_encoding_pairs = [
+            (f,
+             os.path.basename(f).replace('text_alnum_', '').replace('.txt', ''))
+            for f in self.sample_files
+        ]
+
+    def test_setup(self):
+        self.assertGreaterEqual(len(self.testfile_encoding_pairs), 0)
+        self.assertGreaterEqual(len(self.sample_files), 0)
+
+    def test_detects_encodings(self):
+        self.skipTest('TODO: Improve auto-detecting encodings ..')
+        for testfile, expected_encoding in self.testfile_encoding_pairs:
+            self.assertTrue(uu.file_exists(testfile))
+
+            if expected_encoding == 'cp1252':
+                # TODO: Improve encoding detection!
+                continue
+
+            actual = autodetect_encoding(testfile)
+            self.assertEqual(actual, expected_encoding)
