@@ -63,6 +63,16 @@ def abspath_testfile(testfile_basename):
                                         testfile_basename))
 
 
+def all_testfiles():
+    """
+    Returns: Absolute paths to all files in 'uuconst.TEST_FILES_DIR',
+        as a list of Unicode strings.
+    """
+    return [os.path.abspath(os.path.join(uuconst.TEST_FILES_DIR, f))
+            for f in os.listdir(uuconst.TEST_FILES_DIR)
+            if os.path.isfile(f)]
+
+
 def file_exists(file_path):
     """
     Tests whether a given path is an existing file.

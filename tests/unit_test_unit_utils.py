@@ -79,6 +79,20 @@ class TestUnitUtilityAbsPathTestFile(TestCase):
         self.assertTrue(os.path.isabs(actual))
 
 
+class TestUnitUtilityAllTestFiles(TestCase):
+    def test_returns_expected_encoding(self):
+        actual = uu.all_testfiles()
+        self.assertTrue(isinstance(actual, list))
+        self.assertTrue(isinstance(a, str) for a in actual)
+
+    def test_returns_existing_absolute_paths(self):
+        actual = uu.all_testfiles()
+        for f in actual:
+            self.assertTrue(os.path.exists(f))
+            self.assertTrue(os.path.isfile(f) | os.path.islink(f))
+            self.assertTrue(os.path.isabs(f))
+
+
 class TestUnitUtilityFileExists(TestCase):
     def test_file_exists_is_defined(self):
         self.assertIsNotNone(uu.file_exists)
