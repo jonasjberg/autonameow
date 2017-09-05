@@ -60,6 +60,24 @@ class TestReadEntireTextFileStressTest(TestCase):
             self.assertTrue(isinstance(actual, str))
 
 
+def get_sample_text_files(prefix, suffix='.txt'):
+    """
+    Returns:  A list of tuples; ('absolute_path', 'expected_encoding')
+    """
+    _sample_files = [
+        f for f in uu.all_testfiles()
+        if os.path.basename(f).startswith(prefix)
+           and os.path.basename(f).endswith(suffix)
+    ]
+
+    samplefile_expectedencoding = [
+        (f, os.path.basename(f).replace(prefix, '').replace(suffix, ''))
+        for f in _sample_files
+    ]
+
+    return samplefile_expectedencoding
+
+
 class TestAutodetectEncoding(TestCase):
     def test_detects_ascii(self):
         sample = uu.abspath_testfile('magic_txt.txt')
@@ -74,20 +92,25 @@ class TestAutodetectEncoding(TestCase):
         self.assertEqual(actual, 'utf-8')
 
     def test_detects_encodings(self):
-        testfile_encoding_pairs = [
-            ('text_eucjp.txt', 'EUC-JP'),
-            ('text_iso2022jp.txt', 'ISO-2022-JP'),
-            # ('text_iso88591.txt', 'ISO-8859-1'),
-            ('text_utf16.txt', 'ISO-8859-1'),
-            ('text_utf8_1.txt', 'utf-8'),
-            ('text_utf8_2.txt', 'utf-8'),
-        ]
+        testfile_encoding = get_sample_text_files(prefix='text_git_')
+        self.assertGreater(len(testfile_encoding), 0)
+        self.assertTrue(uu.file_exists(f) for f, _ in testfile_encoding)
+        self.assertTrue(isinstance(e, str) for _, e in testfile_encoding)
 
-        for testfile, expected_encoding in testfile_encoding_pairs:
-            sample = uu.abspath_testfile(testfile)
-            self.assertTrue(uu.file_exists(sample))
+        for testfile, expected_encoding in testfile_encoding:
+            actual = autodetect_encoding(testfile).lower()
 
-            actual = autodetect_encoding(sample)
+            # Two of the sample files are utf-8, remove trailing "_n".
+            if expected_encoding in ('utf-8_1', 'utf-8_2'):
+                expected_encoding = 'utf-8'
+
+            if actual == 'koi8-r' and expected_encoding == 'iso88591':
+                # TODO: TODO: Improve auto-detecting encodings ..
+                continue
+            if actual == 'iso-8859-1' and expected_encoding == 'utf16':
+                # TODO: TODO: Improve auto-detecting encodings ..
+                continue
+
             self.assertEqual(actual, expected_encoding)
 
     def test_returns_none_for_non_text_files(self):
@@ -111,25 +134,16 @@ class TestAutodetectEncoding(TestCase):
 
 class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
     def setUp(self):
-        self.sample_files = [
-            f for f in uu.all_testfiles()
-            if os.path.basename(f).startswith('text_alnum_')
-            and os.path.basename(f).endswith('.txt')
-        ]
-
-        self.testfile_encoding_pairs = [
-            (f,
-             os.path.basename(f).replace('text_alnum_', '').replace('.txt', ''))
-            for f in self.sample_files
-        ]
+        self.testfile_encoding = get_sample_text_files(prefix='text_alnum_')
 
     def test_setup(self):
-        self.assertGreaterEqual(len(self.testfile_encoding_pairs), 0)
-        self.assertGreaterEqual(len(self.sample_files), 0)
+        self.assertGreaterEqual(len(self.testfile_encoding), 0)
+        self.assertTrue(uu.file_exists(f) for f, _ in self.testfile_encoding)
+        self.assertTrue(isinstance(e, str) for _, e in self.testfile_encoding)
 
     def test_detects_encodings(self):
         self.skipTest('TODO: Improve auto-detecting encodings ..')
-        for testfile, expected_encoding in self.testfile_encoding_pairs:
+        for testfile, expected_encoding in self.testfile_encoding:
             self.assertTrue(uu.file_exists(testfile))
 
             if expected_encoding == 'cp1252':
@@ -142,25 +156,15 @@ class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
 
 class TestAutoDetectsEncodingFromSampleText(TestCase):
     def setUp(self):
-        self.sample_files = [
-            f for f in uu.all_testfiles()
-            if os.path.basename(f).startswith('text_sample_')
-               and os.path.basename(f).endswith('.txt')
-        ]
-
-        self.testfile_encoding_pairs = [
-            (f,
-             os.path.basename(f).replace('text_sample_', '').replace('.txt', '')
-             )
-            for f in self.sample_files
-        ]
+        self.testfile_encoding = get_sample_text_files(prefix='text_sample_')
 
     def test_setup(self):
-        self.assertGreater(len(self.testfile_encoding_pairs), 0)
-        self.assertGreater(len(self.sample_files), 0)
+        self.assertGreater(len(self.testfile_encoding), 0)
+        self.assertTrue(uu.file_exists(f) for f, _ in self.testfile_encoding)
+        self.assertTrue(isinstance(e, str) for _, e in self.testfile_encoding)
 
     def test_detects_encodings(self):
-        for testfile, expected_encoding in self.testfile_encoding_pairs:
+        for testfile, expected_encoding in self.testfile_encoding:
             self.assertTrue(uu.file_exists(testfile))
             actual = autodetect_encoding(testfile).lower()
 
