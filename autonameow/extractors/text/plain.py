@@ -45,7 +45,7 @@ class PlainTextExtractor(AbstractTextExtractor):
     def _get_raw_text(self):
         self.log.debug('Extracting raw text from plain text file ..')
         result = read_entire_text_file(self.source)
-        return self._decode_raw(result)
+        return result
 
     @classmethod
     def check_dependencies(cls):
