@@ -22,7 +22,10 @@
 from unittest import TestCase
 
 import unit_utils as uu
-from extractors.text.plain import read_entire_text_file
+from extractors.text.plain import (
+    read_entire_text_file,
+    autodetect_encoding
+)
 
 
 class TestReadEntireTextFile(TestCase):
@@ -41,3 +44,52 @@ class TestReadEntireTextFile(TestCase):
     def test_returns_expected_contents(self):
         actual = read_entire_text_file(self.sample_file)
         self.assertEqual(actual, 'text\n')
+
+
+class TestAutodetectEncoding(TestCase):
+    def test_detects_ascii(self):
+        sample = uu.abspath_testfile('magic_txt.txt')
+        self.assertTrue(uu.file_exists(sample))
+        actual = autodetect_encoding(sample)
+        self.assertEqual(actual, 'ascii')
+
+    def test_detects_utf8(self):
+        sample = uu.abspath_testfile('README.txt')
+        self.assertTrue(uu.file_exists(sample))
+        actual = autodetect_encoding(sample)
+        self.assertEqual(actual, 'utf-8')
+
+    def test_detects_encodings(self):
+        testfile_encoding_pairs = [
+            ('text_eucjp.txt', 'EUC-JP'),
+            ('text_iso2022jp.txt', 'ISO-2022-JP'),
+            # ('text_iso88591.txt', 'ISO-8859-1'),
+            ('text_utf16.txt', 'ISO-8859-1'),
+            ('text_utf8_1.txt', 'utf-8'),
+            ('text_utf8_2.txt', 'utf-8'),
+        ]
+
+        for testfile, expected_encoding in testfile_encoding_pairs:
+            sample = uu.abspath_testfile(testfile)
+            self.assertTrue(uu.file_exists(sample))
+
+            actual = autodetect_encoding(sample)
+            self.assertEqual(actual, expected_encoding)
+
+    def test_returns_none_for_non_text_files(self):
+        sample = uu.abspath_testfile('magic_png.png')
+        self.assertTrue(uu.file_exists(sample))
+        actual = autodetect_encoding(sample)
+        self.assertIsNone(actual)
+
+    def test_returns_none_for_empty_files(self):
+        sample = uu.abspath_testfile('empty')
+        self.assertTrue(uu.file_exists(sample))
+        actual = autodetect_encoding(sample)
+        self.assertIsNone(actual)
+
+    def test_returns_none_for_non_existing_files(self):
+        sample = '/tmp/this_isnt_a_file_right_or_huh'
+        self.assertFalse(uu.file_exists(sample))
+        actual = autodetect_encoding(sample)
+        self.assertIsNone(actual)

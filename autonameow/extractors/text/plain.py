@@ -81,14 +81,24 @@ def read_entire_text_file(file_path):
 
 
 def _read_entire_text_file_autodetect_encoding(file_path):
-    detected_encoding = chardet.detect(open(file_path, 'rb').read())
-    if detected_encoding and 'encoding' in detected_encoding:
-        log.debug('')
+    _encoding = autodetect_encoding(file_path)
+    if _encoding:
+        log.debug('Auto-detected encoding: {!s}'.format(_encoding))
         try:
-            with open(file_path, 'r',
-                      encoding=detected_encoding['encoding']) as fh:
+            with open(file_path, 'r', encoding=_encoding) as fh:
                 return fh.readlines()
         except (UnicodeDecodeError, ValueError) as e:
             raise ExtractorError(
-                'Unable to read with auto-detected encoding; {!s}'.format(e)
+                'Unable to use auto-detected encoding; {!s}'.format(e)
             )
+
+
+def autodetect_encoding(file_path):
+    try:
+        with open(file_path, 'rb') as fh:
+            detected_encoding = chardet.detect(fh.read())
+    except (OSError, TypeError) as e:
+        log.error('Error while auto-detecting encoding; {!s}'.format(e))
+        return None
+    else:
+        return detected_encoding.get('encoding', None)
