@@ -115,6 +115,7 @@ files.
     `match` could also be given as a list of expressions.
 
 
+
 Notes on High-level Architecture
 --------------------------------
 About future additions of a frontends/GUIs.
@@ -203,6 +204,8 @@ sum(len(rule.conditions) for rule in rules) # = 24
   Rule C     5     10    0.5     0.416      -->  0.5*0.416 = 0.208
   Rule D    10     10    1       0.416      -->    1*0.416 = 0.416
 ```
+
+
 
 Data Transformation
 -------------------
@@ -386,3 +389,60 @@ SessionRepository.data = {
 | `'metadata.pypdf.Paginated'`                    | `True`                                                               | ?                                                  |
 
 
+
+Data Identifiers ("meowURIs")
+-----------------------------
+Currently, the available identifiers strings, a.k.a. "meowURIs" use
+extractor-specific "leaf-nodes", I.E. last period-separated part.
+
+For instance;
+
+```
+metadata.exiftool.PDF:CreateDate
+                  |____________|___.--< Last part
+                                        ("leaf node")
+```
+
+The usability of this arrangement is very poor ..
+Users might not care about which specific extractor produced the field data,
+but rather that *some* information about the date of creation is available.
+
+This would require translating extractor-specific fields with roughly
+equivalent semantic meanings.
+One possibility is to translate extractor-specific identifiers to a common
+higher-level interface to fields.
+
+For example;
+```
+Extractor-specific "meowURIs", references specific fields:
+    metadata.pypdf.CreationDate
+    metadata.exiftool.PDF:CreateDate
+
+Proposed interface, alternate access to "any" equivalent field:
+    metadata.DateCreated
+```
+
+Note that the proposed field query still only references metadata sources.
+
+If the session repository contains the following data for a given file object:
+
+| "MeowURI"                            | Raw Data                            |
+|:-------------------------------------|:------------------------------------|
+| `'metadata.pypdf.CreationDate'`      | `datetime(1972, 2, 23, 11, 22, 33)` |
+| `'metadata.exiftool.PDF:CreateDate'` | `datetime(2017, 9,  5, 14, 07, 31)` |
+
+
+Querying the repository for;
+
+* `'metadata.pypdf.CreationDate'` returns `datetime(1972, 2, 23, 11, 22, 33)`
+* `'metadata.exiftool.PDF:CreateDate'` returns `datetime(2017, 9,  5, 14, 07, 31)`
+
+And additionally, the proposed change would allow querying for;
+
+* `'metadata.DateCreated'` returns `[datetime(1972, 2, 23, 11, 22, 33),
+  datetime(2017, 9,  5, 14, 07, 31)]`
+
+Additionally, the returned list could contain contextual information; weights,
+scores, priorities, etc.
+The less specific query would require the program to take responsibility for
+selecting the appropriate field.
