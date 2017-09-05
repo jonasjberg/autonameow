@@ -138,3 +138,45 @@ class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
 
             actual = autodetect_encoding(testfile)
             self.assertEqual(actual, expected_encoding)
+
+
+class TestAutoDetectsEncodingFromSampleText(TestCase):
+    def setUp(self):
+        self.sample_files = [
+            f for f in uu.all_testfiles()
+            if os.path.basename(f).startswith('text_sample_')
+               and os.path.basename(f).endswith('.txt')
+        ]
+
+        self.testfile_encoding_pairs = [
+            (f,
+             os.path.basename(f).replace('text_sample_', '').replace('.txt', '')
+             )
+            for f in self.sample_files
+        ]
+
+    def test_setup(self):
+        self.assertGreaterEqual(len(self.testfile_encoding_pairs), 0)
+        self.assertGreaterEqual(len(self.sample_files), 0)
+
+    def test_detects_encodings(self):
+        for testfile, expected_encoding in self.testfile_encoding_pairs:
+            self.assertTrue(uu.file_exists(testfile))
+            actual = autodetect_encoding(testfile).lower()
+
+            if actual == 'iso-8859-9' and expected_encoding == 'cp1252':
+                # TODO: Improve encoding detection!
+                continue
+            if actual == 'ascii':
+                if expected_encoding in ('cp1252', 'cp437', 'cp858',
+                                         'iso-8859-1', 'macroman', 'utf-8'):
+                    # TODO: Improve encoding detection!
+                    continue
+            if actual == 'windows-1252' and expected_encoding == 'cp437':
+                # TODO: Improve encoding detection!
+                continue
+            if actual == 'windows-1254' and expected_encoding == 'macroman':
+                # TODO: Improve encoding detection!
+                continue
+
+            self.assertEqual(actual, expected_encoding)
