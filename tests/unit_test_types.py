@@ -708,8 +708,38 @@ class TestTypeMimeType(TestCase):
         _assert_uncoercible(1)
 
     def test_format(self):
-        # TODO: Add additional tests.
-        self.assertIsNotNone(types.AW_MIMETYPE.format)
+        def _assert_formats(test_data, expected):
+            self.assertEqual(types.AW_MIMETYPE.format(test_data), expected)
+
+        _assert_formats('JPG', 'jpg')
+        _assert_formats('image/jpeg', 'jpg')
+        _assert_formats('pdf', 'pdf')
+        _assert_formats('.pdf', 'pdf')
+        _assert_formats('PDF', 'pdf')
+        _assert_formats('.PDF', 'pdf')
+        _assert_formats('application/pdf', 'pdf')
+        _assert_formats('APPLICATION/pdf', 'pdf')
+        _assert_formats('application/PDF', 'pdf')
+        _assert_formats('APPLICATION/PDF', 'pdf')
+        _assert_formats(b'pdf', 'pdf')
+        _assert_formats(b'.pdf', 'pdf')
+        _assert_formats(b'PDF', 'pdf')
+        _assert_formats(b'.PDF', 'pdf')
+        _assert_formats(b'application/pdf', 'pdf')
+        _assert_formats(b'APPLICATION/pdf', 'pdf')
+        _assert_formats(b'application/PDF', 'pdf')
+        _assert_formats(b'APPLICATION/PDF', 'pdf')
+        _assert_formats('jpg', 'jpg')
+        _assert_formats('.jpg', 'jpg')
+        _assert_formats('JPG', 'jpg')
+        _assert_formats('.JPG', 'jpg')
+        _assert_formats('.JPEG', 'jpg')
+        _assert_formats('image/jpeg', 'jpg')
+        _assert_formats(b'jpg', 'jpg')
+        _assert_formats(b'.jpg', 'jpg')
+        _assert_formats(b'JPG', 'jpg')
+        _assert_formats(b'.JPG', 'jpg')
+        _assert_formats(b'image/jpeg', 'jpg')
 
 
 class TestTryWrap(TestCase):

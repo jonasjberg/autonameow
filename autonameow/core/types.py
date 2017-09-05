@@ -346,6 +346,9 @@ class MimeType(BaseType):
     MIME_TYPE_LOOKUP = {
         ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
     }
+    MIME_TYPE_LOOKUP_INV = {
+        mime: ext for ext, mime in MIME_TYPE_LOOKUP.items()
+    }
     KNOWN_EXTENSIONS = list(MIME_TYPE_LOOKUP.keys())
     KNOWN_MIME_TYPES = list(MIME_TYPE_LOOKUP.values())
     assert(len(KNOWN_EXTENSIONS) > 0)
@@ -380,6 +383,12 @@ class MimeType(BaseType):
 
     def normalize(self, value):
         return self.__call__(value)
+
+    def format(self, raw_value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
+        value = self.__call__(raw_value)
+        formatted = self.MIME_TYPE_LOOKUP_INV.get(value)
+        return formatted if formatted is not None else self._null()
 
 
 class TimeDate(BaseType):
