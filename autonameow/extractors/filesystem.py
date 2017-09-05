@@ -59,7 +59,7 @@ class CommonFileSystemExtractor(BaseExtractor):
         'pathname.full': ExtractedData(types.AW_PATH),
         'pathname.parent': ExtractedData(types.AW_PATH),
         'contents.mime_type': ExtractedData(
-            wrapper=types.AW_STRING,
+            wrapper=types.AW_MIMETYPE,
             mapped_fields=[
                 fields.WeightedMapping(fields.extension, probability=1),
             ]
