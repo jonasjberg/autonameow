@@ -133,7 +133,7 @@ class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
             self.assertTrue(uu.file_exists(testfile))
 
             if expected_encoding == 'cp1252':
-                # TODO: Improve encoding detection!
+                # TODO: Improve encoding detection! (or not, for these samples)
                 continue
 
             actual = autodetect_encoding(testfile)
@@ -156,27 +156,20 @@ class TestAutoDetectsEncodingFromSampleText(TestCase):
         ]
 
     def test_setup(self):
-        self.assertGreaterEqual(len(self.testfile_encoding_pairs), 0)
-        self.assertGreaterEqual(len(self.sample_files), 0)
+        self.assertGreater(len(self.testfile_encoding_pairs), 0)
+        self.assertGreater(len(self.sample_files), 0)
 
     def test_detects_encodings(self):
         for testfile, expected_encoding in self.testfile_encoding_pairs:
             self.assertTrue(uu.file_exists(testfile))
             actual = autodetect_encoding(testfile).lower()
 
-            if actual == 'iso-8859-9' and expected_encoding == 'cp1252':
-                # TODO: Improve encoding detection!
+            if actual == 'iso-8859-1' and expected_encoding == 'cp1252':
+                # TODO: TODO: Improve auto-detecting encodings ..
                 continue
-            if actual == 'ascii':
-                if expected_encoding in ('cp1252', 'cp437', 'cp858',
-                                         'iso-8859-1', 'macroman', 'utf-8'):
-                    # TODO: Improve encoding detection!
-                    continue
-            if actual == 'windows-1252' and expected_encoding == 'cp437':
-                # TODO: Improve encoding detection!
-                continue
-            if actual == 'windows-1254' and expected_encoding == 'macroman':
-                # TODO: Improve encoding detection!
+            if (actual == 'windows-1252'
+                    and expected_encoding in ('cp858', 'cp437', 'macroman')):
+                # TODO: TODO: Improve auto-detecting encodings ..
                 continue
 
             self.assertEqual(actual, expected_encoding)
