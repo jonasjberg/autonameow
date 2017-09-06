@@ -57,7 +57,16 @@ class NameBuilder(object):
         response = repository.SessionRepository.resolve(file_object, meowuri)
         log.debug('Got response ({}): {!s}'.format(type(response), response))
         if response is not None and isinstance(response, ExtractedData):
-            return response.value
+            # TODO: Clean up ..
+            log.debug('Formatting response value "{!s}"'.format(response.value))
+            formatted = response.wrapper.format(response.value)
+            if formatted and not formatted == response.wrapper.null:
+                log.debug('Response value formatted: "{!s}"'.format(formatted))
+                return formatted
+            else:
+                log.debug(
+                    'ERROR when formatted value "{!s}"'.format(response.value)
+                )
         else:
             return response
 
@@ -255,16 +264,11 @@ def pre_assemble_format(data, config):
         else:
             # TODO: [TD0004] Take a look at this ad-hoc encoding boundary.
             if isinstance(value, bytes):
+                log.error('Unexpectedly got "bytes": "{!s}"'.format(value))
                 value = util.decode_(value)
                 out[key] = value
             else:
                 out[key] = data[key]
-
-            # TODO: [TD0017] Get file extension from MIME type strings.
-            if key == 'extension':
-                _maybe_mime_type = out.get(key)
-                if re.match(r'^[a-z]+/[a-z0-9\-+]+$', _maybe_mime_type):
-                    out[key] = _maybe_mime_type.split('/')[1]
 
         # TODO: [TD0041] Other substitutions, etc ..
 
