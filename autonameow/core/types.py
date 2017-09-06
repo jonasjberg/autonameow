@@ -388,6 +388,9 @@ class MimeType(BaseType):
 
     def format(self, raw_value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
+        if raw_value == constants.MAGIC_TYPE_UNKNOWN:
+            return ''
+
         value = self.__call__(raw_value)
         formatted = self.MIME_TYPE_LOOKUP_INV.get(value)
         return formatted if formatted is not None else self._null()

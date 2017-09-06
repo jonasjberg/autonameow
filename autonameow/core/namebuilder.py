@@ -60,7 +60,7 @@ class NameBuilder(object):
             # TODO: Clean up ..
             log.debug('Formatting response value "{!s}"'.format(response.value))
             formatted = response.wrapper.format(response.value)
-            if formatted and not formatted == response.wrapper.null:
+            if formatted is not None and formatted != response.wrapper.null:
                 log.debug('Response value formatted: "{!s}"'.format(formatted))
                 return formatted
             else:
@@ -104,7 +104,7 @@ class NameBuilder(object):
             #    _data = self.request_data(self.file, meowuri)
 
             _data = self.request_data(self.file, meowuri)
-            if _data:
+            if _data is not None:
                 out[field] = _data
 
         return out
@@ -161,6 +161,7 @@ class NameBuilder(object):
             )
 
         assert(isinstance(new_name, str))
+        new_name = post_assemble_format(new_name)
         log.debug('Assembled basename: "{!s}"'.format(new_name))
 
         # Do any file name "sanitation".
@@ -181,6 +182,10 @@ class NameBuilder(object):
 
         self._new_name = new_name
         return new_name
+
+
+def post_assemble_format(new_name):
+    return new_name.rstrip('.')
 
 
 def populate_name_template(name_template, **kwargs):
