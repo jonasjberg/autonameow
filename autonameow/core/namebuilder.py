@@ -53,7 +53,7 @@ class NameBuilder(object):
         return self._new_name
 
     def request_data(self, file_object, meowuri):
-        log.debug('requesting [{!s}][{!s}]'.format(file_object, meowuri))
+        log.debug('Requesting [{!s}] "{!s}"'.format(file_object, meowuri))
         response = repository.SessionRepository.resolve(file_object, meowuri)
         log.debug('Got response ({}): {!s}'.format(type(response), response))
         if response is not None and isinstance(response, ExtractedData):
