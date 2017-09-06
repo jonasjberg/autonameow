@@ -138,8 +138,11 @@ def format_string_placeholders(format_string):
     Returns:
         Any format string placeholder fields as a list of unicode strings.
     """
-    if not format_string:
+    if not isinstance(format_string, str):
+        raise TypeError('Expected "format_string" to be of type str')
+    if not format_string.strip():
         return []
+
     return re.findall(r'{(\w+)}', format_string)
 
 
