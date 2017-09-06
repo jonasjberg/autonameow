@@ -80,12 +80,13 @@ class NameBuilder(object):
         # TODO: [TD0017] Rethink source specifications relation to source data.
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
         for field, meowuri in field_meowuri_map.items():
-            if field == 'extension':
-                _data = self.request_data(self.file, meowuri,
-                                          mapped_to_field=fields.extension)
-            else:
-                _data = self.request_data(self.file, meowuri)
+            #if field == 'extension':
+            #    _data = self.request_data(self.file, meowuri,
+            #                              mapped_to_field=fields.extension)
+            #else:
+            #    _data = self.request_data(self.file, meowuri)
 
+            _data = self.request_data(self.file, meowuri)
             if _data:
                 out[field] = _data
 

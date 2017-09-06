@@ -27,7 +27,7 @@ import copy
 from core import (
     repository
 )
-
+from extractors import ExtractedData
 
 log = logging.getLogger(__name__)
 
@@ -48,10 +48,17 @@ class RuleMatcher(object):
             # TODO: Double-check that this isn't needed anymore, then remove.
             self._rules = copy.deepcopy(active_config.rules)
 
-        self.request_data = repository.SessionRepository.resolve
-
         self._scored_rules = {}
         self._candidates = []
+
+    def request_data(self, file_object, meowuri):
+        log.debug('requesting [{!s}][{!s}]'.format(file_object, meowuri))
+        response = repository.SessionRepository.resolve(file_object, meowuri)
+        log.debug('Got response ({}): {!s}'.format(type(response), response))
+        if response is not None and isinstance(response, ExtractedData):
+            return response.value
+        else:
+            return response
 
     def query_data(self, meowuri):
         # Functions that use this does not have access to the 'file_object'.

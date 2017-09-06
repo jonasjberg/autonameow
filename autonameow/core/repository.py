@@ -145,14 +145,14 @@ class Repository(object):
             if isinstance(d, extractors.ExtractedData):
                 if mapped_to_field is not None:
                     if d.maps_field(mapped_to_field):
-                        return d.value
+                        return d
                     else:
                         log.debug('Repository request failed requirement; '
                                   '[{!s}][{!s}] Mapped to Field: "{!s}'.format(
                                     file_object, meowuri, mapped_to_field))
                         return None
                 else:
-                    return d.value
+                    return d
 
             else:
                 return d
