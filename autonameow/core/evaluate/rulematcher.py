@@ -55,6 +55,8 @@ class RuleMatcher(object):
         log.debug('requesting [{!s}][{!s}]'.format(file_object, meowuri))
         response = repository.SessionRepository.resolve(file_object, meowuri)
         log.debug('Got response ({}): {!s}'.format(type(response), response))
+
+        # TODO: [TD0082] Integrate the 'ExtractedData' class.
         if response is not None and isinstance(response, ExtractedData):
             return response.value
         else:

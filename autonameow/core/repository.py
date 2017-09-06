@@ -183,6 +183,7 @@ class Repository(object):
             # TODO: [TD0066] Handle all encoding properly.
             temp = {}
             for key, value in data.items():
+                # TODO: [TD0082] Integrate the 'ExtractedData' class.
                 if isinstance(value, extractors.ExtractedData):
                     value = value.value
 

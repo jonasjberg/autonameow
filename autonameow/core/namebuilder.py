@@ -56,8 +56,9 @@ class NameBuilder(object):
         log.debug('Requesting [{!s}] "{!s}"'.format(file_object, meowuri))
         response = repository.SessionRepository.resolve(file_object, meowuri)
         log.debug('Got response ({}): {!s}'.format(type(response), response))
+
+        # TODO: [TD0082] Integrate the 'ExtractedData' class.
         if response is not None and isinstance(response, ExtractedData):
-            # TODO: Clean up ..
             log.debug('Formatting response value "{!s}"'.format(response.value))
             formatted = response.wrapper.format(response.value)
             if formatted is not None and formatted != response.wrapper.null:
