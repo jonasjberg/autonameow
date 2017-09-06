@@ -171,7 +171,7 @@ class Path(BaseType):
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
-        parsed = self.coerce(value)
+        parsed = self.__call__(value)
         return util.displayable_path(parsed)
 
 
@@ -182,10 +182,10 @@ class PathComponent(BaseType):
     null = b''
 
     def normalize(self, value):
-        coerced = self.__call__(value)
-        if coerced:
+        value = self.__call__(value)
+        if value:
             # Expand user home directory if present.
-            return os.path.normpath(os.path.expanduser(util.syspath(coerced)))
+            return os.path.normpath(os.path.expanduser(util.syspath(value)))
 
         self._fail_normalization(value)
 
@@ -197,8 +197,8 @@ class PathComponent(BaseType):
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
-        parsed = self.coerce(value)
-        return util.displayable_path(parsed)
+        value = self.__call__(value)
+        return util.displayable_path(value)
 
 
 class Boolean(BaseType):
@@ -271,11 +271,11 @@ class Integer(BaseType):
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
-        coerced = self.coerce(value)
+        value = self.__call__(value)
         if not formatter:
-            return '{}'.format(coerced)
+            return '{}'.format(value)
         else:
-            return formatter.format(coerced)
+            return formatter.format(value)
 
 
 class Float(BaseType):
@@ -289,6 +289,7 @@ class Float(BaseType):
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
+        value = self.__call__(value)
         if not formatter:
             return '{0:.1f}'.format(value or self._null())
         else:
@@ -403,7 +404,7 @@ class TimeDate(BaseType):
             self._fail_coercion(value, msg=e)
 
     def normalize(self, value):
-        value = self.coerce(value)
+        value = self.__call__(value)
         if isinstance(value, datetime):
             return value.replace(microsecond=0)
 
