@@ -206,8 +206,13 @@ class TestTypeInteger(TestCase):
         _assert_raises('foo')
 
     def test_format(self):
-        # TODO: Add additional tests.
-        self.assertIsNotNone(types.AW_INTEGER.format)
+        def _assert_formats(test_data, expected):
+            self.assertEqual(types.AW_INTEGER.format(test_data), expected)
+
+        _assert_formats(1, '1')
+        _assert_formats('1', '1')
+        _assert_formats(b'1', '1')
+
 
     def test_format_noncoercible_data(self):
         def _assert_raises(input_data):
