@@ -146,9 +146,12 @@ class BaseExtractor(object):
         if cls.handles_mime_types is None:
             raise NotImplementedError('Must be defined by inheriting classes.')
 
-        if util.eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
-            return True
-        else:
+        try:
+            return util.eval_magic_glob(file_object.mime_type,
+                                        cls.handles_mime_types)
+        except (TypeError, ValueError) as e:
+            log.error('Error evaluating "{!s}" MIME handling; {!s}'.format(cls,
+                                                                           e))
             return False
 
     @classmethod
