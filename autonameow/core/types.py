@@ -65,20 +65,20 @@ class BaseType(object):
     # Types that are "equivalent", does not require coercion.
     equivalent_types = (str, )
 
-    def __call__(self, raw_value=None):
-        if raw_value is None:
+    def __call__(self, value=None):
+        if value is None:
             return self._null()
-        elif self.test(raw_value):
+        elif self.test(value):
             # Pass through if type is "equivalent" without coercion.
-            return raw_value
-        elif isinstance(raw_value, self.coercible_types):
+            return value
+        elif isinstance(value, self.coercible_types):
             # Type can be coerced, test after coercion to make sure.
-            value = self.coerce(raw_value)
+            value = self.coerce(value)
             if self.test(value):
                 return value
 
         raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+            'Unable to coerce "{!s}" into {!r}'.format(value, self)
         )
 
     def _null(self):
@@ -104,13 +104,13 @@ class BaseType(object):
             # TODO: Implement or make sure that inheriting classes does ..
             return value
 
-    def coerce(self, raw_value):
+    def coerce(self, value):
         try:
-            value = self.primitive_type(raw_value)
+            value = self.primitive_type(value)
         except (ValueError, TypeError):
             raise exceptions.AWTypeError(
                 'Coercion default failed for: "{!s}" to primitive'
-                ' {!r}'.format(raw_value, self.primitive_type)
+                ' {!r}'.format(value, self.primitive_type)
             )
         else:
             return value
@@ -138,17 +138,17 @@ class Path(BaseType):
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
     null = 'INVALID PATH'
 
-    def __call__(self, raw_value=None):
+    def __call__(self, value=None):
         # Overrides the 'BaseType' __call__ method as to not perform the test
         # after the the value coercion. This is because the path could be a
         # byte string and still not be properly normalized.
-        if (raw_value is not None
-                and isinstance(raw_value, self.coercible_types)):
-            if raw_value.strip() is not None:
-                value = self.coerce(raw_value)
+        if (value is not None
+                and isinstance(value, self.coercible_types)):
+            if value.strip() is not None:
+                value = self.coerce(value)
                 return value
         raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+            'Unable to coerce "{!s}" into {!r}'.format(value, self)
         )
 
     def normalize(self, value):
@@ -159,17 +159,17 @@ class Path(BaseType):
             'Unable to normalize "{!s}" into {!r}'.format(value, self)
         )
 
-    def coerce(self, raw_value):
-        if raw_value:
+    def coerce(self, value):
+        if value:
             try:
-                value = util.bytestring_path(raw_value)
+                value = util.bytestring_path(value)
             except (ValueError, TypeError):
                 pass
             else:
                 return value
 
         raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+            'Unable to coerce "{!s}" into {!r}'.format(value, self)
         )
 
     def format(self, value, formatter=None):
@@ -193,12 +193,12 @@ class PathComponent(BaseType):
             'Unable to normalize "{!s}" into {!r}'.format(value, self)
         )
 
-    def coerce(self, raw_value):
+    def coerce(self, value):
         try:
-            value = util.bytestring_path(raw_value)
+            value = util.bytestring_path(value)
         except (ValueError, TypeError):
             raise exceptions.AWTypeError(
-                'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+                'Unable to coerce "{!s}" into {!r}'.format(value, self)
             )
         else:
             return value
@@ -360,19 +360,19 @@ class MimeType(BaseType):
     assert(len(KNOWN_EXTENSIONS) > 0)
     assert(len(KNOWN_MIME_TYPES) > 0)
 
-    def __call__(self, raw_value=None):
+    def __call__(self, value=None):
         # Overrides the 'BaseType' __call__ method as to not perform the test
         # after the the value coercion. A valid MIME-type can not be determined
         # by looking at the primitive type alone.
-        if (raw_value is not None
-                and isinstance(raw_value, self.coercible_types)):
-            if raw_value.strip() is not None:
-                value = self.coerce(raw_value)
+        if (value is not None
+                and isinstance(value, self.coercible_types)):
+            if value.strip() is not None:
+                value = self.coerce(value)
                 return value
         return self._null()
 
-    def coerce(self, raw_value):
-        string_value = AW_STRING(raw_value)
+    def coerce(self, value):
+        string_value = AW_STRING(value)
         string_value = string_value.lstrip('.').strip().lower()
 
         if string_value:
@@ -383,19 +383,19 @@ class MimeType(BaseType):
 
         # TODO: [TD0083] Return "NULL" or raise 'AWTypeError'..?
         # raise exceptions.AWTypeError(
-        #     'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+        #     'Unable to coerce "{!s}" into {!r}'.format(value, self)
         # )
         return self._null()
 
     def normalize(self, value):
         return self.__call__(value)
 
-    def format(self, raw_value, formatter=None):
+    def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
-        if raw_value == constants.MAGIC_TYPE_UNKNOWN:
+        if value == constants.MAGIC_TYPE_UNKNOWN:
             return ''
 
-        value = self.__call__(raw_value)
+        value = self.__call__(value)
         formatted = self.MIME_TYPE_LOOKUP_INV.get(value)
         return formatted if formatted is not None else self._null()
 
@@ -410,12 +410,12 @@ class TimeDate(BaseType):
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
 
-    def coerce(self, raw_value):
+    def coerce(self, value):
         try:
-            dt = try_parse_full_datetime(raw_value)
+            dt = try_parse_full_datetime(value)
         except (TypeError, ValueError) as e:
             raise exceptions.AWTypeError(
-                'Unable to coerce "{!s}" into {!r}: {!s}'.format(raw_value,
+                'Unable to coerce "{!s}" into {!r}: {!s}'.format(value,
                                                                  self, e)
             )
         else:
@@ -444,46 +444,46 @@ class TimeDate(BaseType):
 
 
 class ExifToolTimeDate(TimeDate):
-    def coerce(self, raw_value):
-        if re.match(r'.*0000:00:00 00:00:00.*', raw_value):
+    def coerce(self, value):
+        if re.match(r'.*0000:00:00 00:00:00.*', value):
             raise exceptions.AWTypeError(
-                'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+                'Unable to coerce "{!s}" into {!r}'.format(value, self)
             )
 
         # Remove any ':' in timezone as to match strptime pattern.
-        if re.match(r'.*\+\d\d:\d\d$', raw_value):
-            raw_value = re.sub(r'\+(\d\d):(\d\d)$', r'+\1\2', raw_value)
-        elif re.match(r'.*-\d\d:\d\d$', raw_value):
-            raw_value = re.sub(r'-(\d\d):(\d\d)$', r'-\1\2', raw_value)
+        if re.match(r'.*\+\d\d:\d\d$', value):
+            value = re.sub(r'\+(\d\d):(\d\d)$', r'+\1\2', value)
+        elif re.match(r'.*-\d\d:\d\d$', value):
+            value = re.sub(r'-(\d\d):(\d\d)$', r'-\1\2', value)
 
         try:
             # TODO: Fix matching dates with timezone. Below is not working.
-            dt = datetime.strptime(raw_value, '%Y:%m:%d %H:%M:%S%z')
+            dt = datetime.strptime(value, '%Y:%m:%d %H:%M:%S%z')
             return dt
         except (ValueError, TypeError):
             try:
-                dt = try_parse_full_datetime(raw_value)
+                dt = try_parse_full_datetime(value)
                 return dt
             except (TypeError, ValueError) as e:
                 pass
 
         raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+            'Unable to coerce "{!s}" into {!r}'.format(value, self)
         )
 
 
 class PyPDFTimeDate(TimeDate):
     primitive_type = None
 
-    def coerce(self, raw_value):
-        if "'" in raw_value:
-            raw_value = raw_value.replace("'", '')
+    def coerce(self, value):
+        if "'" in value:
+            value = value.replace("'", '')
 
         # Expected date format:           D:20121225235237 +05'30'
         #                                   ^____________^ ^_____^
         # Regex search matches two groups:        #1         #2
         re_datetime_tz = re.compile(r'D:(\d{14}) ?(\+\d{2}\'?\d{2}\'?)')
-        re_match_tz = re_datetime_tz.search(raw_value)
+        re_match_tz = re_datetime_tz.search(value)
         if re_match_tz:
             datetime_str = re_match_tz.group(1)
             timezone_str = re_match_tz.group(2)
@@ -503,7 +503,7 @@ class PyPDFTimeDate(TimeDate):
 
         # Try matching another pattern.
         re_datetime_no_tz = re.compile(r'D:(\d{14})')
-        re_match = re_datetime_no_tz.search(raw_value)
+        re_match = re_datetime_no_tz.search(value)
         if re_match:
             try:
                 return datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
@@ -511,7 +511,7 @@ class PyPDFTimeDate(TimeDate):
                 pass
 
         raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(raw_value, self)
+            'Unable to coerce "{!s}" into {!r}'.format(value, self)
         )
 
 
