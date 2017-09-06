@@ -41,8 +41,8 @@ class TestBaseType(TestCase):
         self.assertEqual(self.base_type(None), self.base_type.null)
 
     def test_normalize(self):
-        self.assertEqual(self.base_type.normalize(None), self.base_type.null)
-        self.assertEqual(self.base_type.normalize('foo'), 'foo')
+        with self.assertRaises(NotImplementedError):
+            self.base_type.normalize(None)
 
     def test_base_type_call(self):
         self.assertEqual(self.base_type('foo'), 'foo')

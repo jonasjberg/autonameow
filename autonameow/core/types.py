@@ -96,11 +96,7 @@ class BaseType(object):
             A "normalized" version of the given value in this class type if
             the value can be normalized, otherwise the class "null" value.
         """
-        if value is None:
-            return self._null()
-        else:
-            # TODO: Implement or make sure that inheriting classes does ..
-            return value
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def coerce(self, value):
         try:
@@ -270,6 +266,9 @@ class Integer(BaseType):
 
         self._fail_coercion(value)
 
+    def normalize(self, value):
+        return self.__call__(value)
+
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
         coerced = self.coerce(value)
@@ -284,6 +283,9 @@ class Float(BaseType):
     coercible_types = (str, int)
     equivalent_types = (float, )
     null = 0.0
+
+    def normalize(self, value):
+        return self.__call__(value)
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
