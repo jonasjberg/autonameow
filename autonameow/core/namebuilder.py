@@ -30,7 +30,7 @@ from core import (
     util,
 )
 from core.util import diskutils
-
+from extractors import ExtractedData
 
 log = logging.getLogger(__name__)
 
@@ -46,12 +46,20 @@ class NameBuilder(object):
         self.name_template = name_template
         self.data_sources = data_sources
 
-        self.request_data = repository.SessionRepository.resolve
         self._new_name = None
 
     @property
     def new_name(self):
         return self._new_name
+
+    def request_data(self, file_object, meowuri):
+        log.debug('requesting [{!s}][{!s}]'.format(file_object, meowuri))
+        response = repository.SessionRepository.resolve(file_object, meowuri)
+        log.debug('Got response ({}): {!s}'.format(type(response), response))
+        if response is not None and isinstance(response, ExtractedData):
+            return response.value
+        else:
+            return response
 
     def _gather_data(self, field_meowuri_map):
         """
