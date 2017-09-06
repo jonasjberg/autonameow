@@ -91,10 +91,6 @@ class NameBuilder(object):
         """
         out = {}
 
-        # NOTE(jonas): Mapping specified sources to extracted data and
-        # analysis results must be redesigned. Sources must be queried
-        # individually. Requires re-evaluating the configuration source
-        # description format.
         # TODO: [TD0017] Rethink source specifications relation to source data.
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
         for field, meowuri in field_meowuri_map.items():
