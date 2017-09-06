@@ -29,14 +29,17 @@ log = logging.getLogger(__name__)
 
 
 class Resolver(object):
-    def __init__(self, file_object, name_template, data_sources):
+    def __init__(self, file_object, name_template):
         self.file = file_object
         self.name_template = name_template
-        self.data_sources = data_sources
+        self.data_sources = {}
 
     def mapped_all_template_fields(self):
         return all_template_fields_defined(self.name_template,
                                            self.data_sources)
+
+    def add_known_source(self, field, meowuri):
+        self.data_sources[field] = meowuri
 
     def resolve(self):
         # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.

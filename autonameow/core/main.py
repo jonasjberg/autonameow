@@ -278,8 +278,10 @@ class Autonameow(object):
         resolver = Resolver(
             current_file,
             name_template=rule_matcher.best_match.name_template,
-            data_sources=rule_matcher.best_match.data_sources
         )
+
+        for _field, _meowuri in rule_matcher.best_match.data_sources.items():
+            resolver.add_known_source(_field, _meowuri)
 
         if not resolver.mapped_all_template_fields():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
