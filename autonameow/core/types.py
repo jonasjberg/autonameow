@@ -426,7 +426,8 @@ class TimeDate(BaseType):
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
-        raise NotImplementedError('TODO: Implement TimeDate.format()')
+        return value
+        # raise NotImplementedError('TODO: Implement TimeDate.format()')
 
 
 class ExifToolTimeDate(TimeDate):

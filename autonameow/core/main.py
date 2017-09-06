@@ -34,6 +34,7 @@ from core import (
 )
 from core.analysis import Analysis
 from core.config.configuration import Configuration
+from core.evaluate.resolver import Resolver
 from core.evaluate.rulematcher import RuleMatcher
 from core.extraction import Extraction
 from core.fileobject import FileObject
@@ -273,11 +274,29 @@ class Autonameow(object):
         log.info('Using rule: "{!s}"'.format(
             rule_matcher.best_match.description)
         )
+
+        resolver = Resolver(
+            current_file,
+            name_template=rule_matcher.best_match.name_template,
+            data_sources=rule_matcher.best_match.data_sources
+        )
+
+        if not resolver.mapped_all_template_fields():
+            # TODO: Abort if running in "batch mode". Otherwise, ask the user.
+            log.error('All name template placeholder fields must be '
+                      'given a data source; Check the configuration!')
+            self.exit_code = constants.EXIT_WARNING
+            return
+
+        # Get a dictionary of data to pass to 'assemble_basename'.
+        # Should be keyed by the placeholder fields used in the name template.
+        templatefield_data_map = resolver.resolve()
+
         new_name = _build_new_name(
             current_file,
             active_config=self.active_config,
-            name_template=rule_matcher.best_match.name_template,
-            data_sources=rule_matcher.best_match.data_sources
+            name_template=resolver.name_template,
+            field_data_map=templatefield_data_map
         )
 
         # TODO: [TD0042] Respect '--quiet' option. Suppress output.
@@ -373,10 +392,10 @@ class Autonameow(object):
             self._exit_code = value
 
 
-def _build_new_name(file_object, active_config, name_template, data_sources):
+def _build_new_name(file_object, active_config, name_template, field_data_map):
     try:
         builder = NameBuilder(file_object, active_config,
-                              name_template, data_sources)
+                              name_template, field_data_map)
         # TODO: Do not return anything from 'build()', use property.
         new_name = builder.build()
     except exceptions.NameBuilderError as e:

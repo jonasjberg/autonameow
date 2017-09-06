@@ -20,17 +20,13 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import re
 from datetime import datetime
 
 from core import (
     exceptions,
-    fields,
-    repository,
     util,
 )
 from core.util import diskutils
-from extractors import ExtractedData
 
 log = logging.getLogger(__name__)
 
@@ -38,13 +34,13 @@ log = logging.getLogger(__name__)
 class NameBuilder(object):
     """
     Constructs a new filename for a 'FileObject' given a name template and
-    a data sources dict mapping name template fields to "meowURIs".
+    a dict mapping name template fields to data to be populated in each field.
     """
-    def __init__(self, file_object, active_config, name_template, data_sources):
+    def __init__(self, file_object, active_config, name_template, field_data_map):
         self.file = file_object
         self.config = active_config
         self.name_template = name_template
-        self.data_sources = data_sources
+        self.field_data_map = field_data_map
 
         self._new_name = None
 
@@ -52,93 +48,12 @@ class NameBuilder(object):
     def new_name(self):
         return self._new_name
 
-    def request_data(self, file_object, meowuri):
-        log.debug('Requesting [{!s}] "{!s}"'.format(file_object, meowuri))
-        response = repository.SessionRepository.resolve(file_object, meowuri)
-        log.debug('Got response ({}): {!s}'.format(type(response), response))
-
-        # TODO: [TD0082] Integrate the 'ExtractedData' class.
-        if response is not None and isinstance(response, ExtractedData):
-            log.debug('Formatting response value "{!s}"'.format(response.value))
-            formatted = response.wrapper.format(response.value)
-            if formatted is not None and formatted != response.wrapper.null:
-                log.debug('Response value formatted: "{!s}"'.format(formatted))
-                return formatted
-            else:
-                log.debug(
-                    'ERROR when formatted value "{!s}"'.format(response.value)
-                )
-        else:
-            return response
-
-    def _gather_data(self, field_meowuri_map):
-        """
-        Populates a dictionary with data fields matching a "meowURI".
-
-        The dictionary maps name template fields to "meowURIs".
-        The extracted data is queried for the "meowURI" first, if the data
-        exists, it is used and the analyzer data query is skipped.
-
-        Args:
-            field_meowuri_map: Dictionary of fields and "meowURI".
-
-                Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
-                          'description' = 'plugin.microsoft_vision.caption'
-                          'extension'   = 'filesystem.basename.extension'}
-
-        Returns:
-            Results data for the specified fields matching the specified query.
-        """
-        out = {}
-
-        # TODO: [TD0017] Rethink source specifications relation to source data.
-        # TODO: [TD0082] Integrate the 'ExtractedData' class.
-        for field, meowuri in field_meowuri_map.items():
-            #if field == 'extension':
-            #    _data = self.request_data(self.file, meowuri,
-            #                              mapped_to_field=fields.extension)
-            #else:
-            #    _data = self.request_data(self.file, meowuri)
-
-            _data = self.request_data(self.file, meowuri)
-            if _data is not None:
-                out[field] = _data
-
-        return out
-
     def build(self):
         log.debug('Using name template: "{}"'.format(self.name_template))
 
-        # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
-        # Add automatically resolving missing sources from possible candidates.
-
-        # TODO: [TD0062] Move test for name template fields mapping to sources.
-        # NOTE(jonas): Move this to the rule matcher?
-        # Or maybe to when reading the configuration, which would give a
-        # heads-up on that switching to the "interactive mode" would be
-        # required in order to complete the rename. This would be useful to
-        # implement the feature to force non-interactive mode, see [TD0023].
-
-        if not all_template_fields_defined(self.name_template,
-                                           self.data_sources):
-            log.error('All name template placeholder fields must be '
-                      'given a data source; Check the configuration!')
-            raise exceptions.NameBuilderError(
-                'Some template field sources are unknown'
-            )
-
-        # Get a dictionary of data to pass to 'assemble_basename'.
-        # Should be keyed by the placeholder fields used in the name template.
-        data = self._gather_data(self.data_sources)
+        data = self.field_data_map
         if not data:
-            log.warning('Unable to get data from specified sources')
-            raise exceptions.NameBuilderError('Unable to assemble basename')
-
-        log.debug('NameBuilder results field query returned: {!s}'.format(data))
-
-        # Check that all name template fields can be populated.
-        if not has_data_for_placeholder_fields(self.name_template, data):
-            log.warning('Unable to populate name. Missing field data.')
+            log.error('Name builder got empty data! This should not happen ..')
             raise exceptions.NameBuilderError('Unable to assemble basename')
 
         # TODO: [TD0017][TD0041] Format ALL data before assembly!
@@ -223,23 +138,6 @@ def populate_name_template(name_template, **kwargs):
         return out
 
 
-def format_string_placeholders(format_string):
-    """
-    Gets the format string placeholder fields from a text string.
-
-    The text "{foo} mjao baz {bar}" would return ['foo', 'bar'].
-
-    Args:
-        format_string: Format string to get placeholders from.
-
-    Returns:
-        Any format string placeholder fields as a list of unicode strings.
-    """
-    if not format_string:
-        return []
-    return re.findall(r'{(\w+)}', format_string)
-
-
 def pre_assemble_format(data, config):
     out = {}
 
@@ -297,43 +195,3 @@ def formatted_datetime(datetime_object, format_string):
     return datetime_object.strftime(format_string)
 
 
-def all_template_fields_defined(template, data_sources):
-    """
-    Tests if all name template placeholder fields is included in the sources.
-
-    This tests only the keys of the sources, for instance "datetime".
-    But the value stored for the key could still be invalid.
-
-    Args:
-        template: The name template to compare against.
-        data_sources: The sources to check.
-
-    Returns:
-        True if all placeholder fields in the template is accounted for in
-        the sources. else False.
-    """
-    format_fields = format_string_placeholders(template)
-    for field in format_fields:
-        if field not in data_sources.keys():
-            log.error('Field "{}" has not been assigned a source'.format(field))
-            return False
-    return True
-
-
-def has_data_for_placeholder_fields(template, data):
-    placeholder_fields = format_string_placeholders(template)
-    result = True
-    for field in placeholder_fields:
-        if field not in data.keys():
-            log.error('Missing data for placeholder field "{}"'.format(field))
-            result = False
-    return result
-
-
-def probable_extension(file_object):
-    # TODO: [TD0017] Get file extension for MIME-type.
-    import mimetypes
-    candidates = mimetypes.guess_all_extensions(mime_type)
-    if file_object.extension in candidates:
-        return file_object.extension
-    pass
