@@ -217,6 +217,13 @@ class Boolean(BaseType):
         else:
             return False
 
+    @staticmethod
+    def bool_to_string(bool_value):
+        if bool_value:
+            return 'True'
+        else:
+            return 'False'
+
     def coerce(self, value):
         if value is None:
             return False
@@ -238,12 +245,12 @@ class Boolean(BaseType):
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
         value = self.__call__(value)
-        return str(value)
+        return self.bool_to_string(value)
 
 
 class Integer(BaseType):
     primitive_type = int
-    coercible_types = (str, float)
+    coercible_types = (str, float, bytes)
     equivalent_types = (int, )
     null = 0
 
@@ -409,7 +416,6 @@ class TimeDate(BaseType):
             return value.replace(microsecond=0)
 
         self._fail_normalization(value)
-
 
     # Override parent '_null' method to force returning only valid 'datetime'
     # instances. Otherwise, raise an exception to be handled by the caller.

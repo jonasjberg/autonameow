@@ -213,13 +213,12 @@ class TestTypeInteger(TestCase):
         _assert_formats('1', '1')
         _assert_formats(b'1', '1')
 
-
     def test_format_noncoercible_data(self):
         def _assert_raises(input_data):
             with self.assertRaises(exceptions.AWTypeError):
                 types.AW_INTEGER.format(input_data)
 
-        _assert_raises(None)
+        _assert_raises('x')
 
 
 class TestTypeFloat(TestCase):
@@ -594,6 +593,10 @@ class TestTypeString(TestCase):
         self.assertEqual(types.AW_STRING(None), types.AW_STRING.null)
 
     def test_call_with_coercible_data(self):
+        self.assertEqual(types.AW_STRING(''), '')
+        self.assertEqual(types.AW_STRING(' '), ' ')
+        self.assertEqual(types.AW_STRING(b''), '')
+        self.assertEqual(types.AW_STRING(b' '), ' ')
         self.assertEqual(types.AW_STRING(-1), '-1')
         self.assertEqual(types.AW_STRING(0), '0')
         self.assertEqual(types.AW_STRING(1), '1')
@@ -615,6 +618,10 @@ class TestTypeString(TestCase):
             types.AW_STRING(datetime.now())
 
     def test_coerce_with_coercible_data(self):
+        self.assertEqual(types.AW_STRING.coerce(''), '')
+        self.assertEqual(types.AW_STRING.coerce(' '), ' ')
+        self.assertEqual(types.AW_STRING.coerce(b''), '')
+        self.assertEqual(types.AW_STRING.coerce(b' '), ' ')
         self.assertEqual(types.AW_STRING.coerce(-1), '-1')
         self.assertEqual(types.AW_STRING.coerce(0), '0')
         self.assertEqual(types.AW_STRING.coerce(1), '1')
