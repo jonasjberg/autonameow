@@ -44,6 +44,8 @@ from core import (
 
 # TODO: [TD0084] Add handling collections to type wrapper classes.
 
+mimetypes.add_type('application/epub+zip', '.epub')
+
 
 class BaseType(object):
     """
@@ -372,7 +374,7 @@ class MimeType(BaseType):
         if string_value:
             if string_value in self.KNOWN_MIME_TYPES:
                 return string_value
-            if string_value in self.KNOWN_EXTENSIONS:
+            elif string_value in self.KNOWN_EXTENSIONS:
                 return self.MIME_TYPE_LOOKUP[string_value]
 
         # TODO: [TD0083] Return "NULL" or raise 'AWTypeError'..?

@@ -31,7 +31,6 @@ class PluginHandler(object):
     def __init__(self, file_object):
         self.file_object = file_object
 
-        self.request_global_data = repository.SessionRepository.resolve
         self.add_to_global_data = repository.SessionRepository.store
 
         # Get instantiated and validated plugins.
@@ -51,7 +50,9 @@ class PluginHandler(object):
         self.add_to_global_data(self.file_object, label, data)
 
     def _request_data(self, meowuri):
-        return self.request_global_data(self.file_object, meowuri)
+        response = repository.SessionRepository.resolve(self.file_object,
+                                                        meowuri)
+        return response.value
 
     def query(self, meowuri):
         if meowuri.startswith('plugin.'):

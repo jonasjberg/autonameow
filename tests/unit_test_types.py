@@ -688,6 +688,7 @@ class TestTypeMimeType(TestCase):
         _assert_coerces(b'JPG', 'image/jpeg')
         _assert_coerces(b'.JPG', 'image/jpeg')
         _assert_coerces(b'image/jpeg', 'image/jpeg')
+        _assert_coerces('application/epub+zip', 'application/epub+zip')
 
     def test_call_with_noncoercible_data(self):
         def _assert_uncoercible(test_data):
@@ -706,6 +707,8 @@ class TestTypeMimeType(TestCase):
         _assert_uncoercible('foo')
         _assert_uncoercible(-1)
         _assert_uncoercible(1)
+        _assert_uncoercible('application/foo+bar')
+        _assert_uncoercible('foo/epub+zip')
 
     def test_format(self):
         def _assert_formats(test_data, expected):

@@ -129,8 +129,8 @@ class TestRepositoryMethodStore(TestCase):
         valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, valid_label, 'expected_data')
 
-        actual = self.r.resolve(self.file_object, valid_label)
-        self.assertEqual(actual, 'expected_data')
+        response = self.r.resolve(self.file_object, valid_label)
+        self.assertEqual(response.value, 'expected_data')
 
     def test_resolve_none_label_raises_exception(self):
         valid_label = uuconst.VALID_DATA_SOURCES[0]
@@ -144,9 +144,9 @@ class TestRepositoryMethodStore(TestCase):
         self.r.store(self.file_object, valid_label, 'expected_data_a')
         self.r.store(self.file_object, valid_label, 'expected_data_b')
 
-        actual = self.r.resolve(self.file_object, valid_label)
-        self.assertIn('expected_data_a', actual)
-        self.assertIn('expected_data_b', actual)
+        response = self.r.resolve(self.file_object, valid_label)
+        self.assertIn('expected_data_a', response)
+        self.assertIn('expected_data_b', response)
 
 
 class TestRepositoryMethodResolvable(TestCase):

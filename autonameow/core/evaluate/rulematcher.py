@@ -27,7 +27,7 @@ import copy
 from core import (
     repository
 )
-
+from extractors import ExtractedData
 
 log = logging.getLogger(__name__)
 
@@ -48,13 +48,20 @@ class RuleMatcher(object):
             # TODO: Double-check that this isn't needed anymore, then remove.
             self._rules = copy.deepcopy(active_config.rules)
 
-        self.request_data = repository.SessionRepository.resolve
-
         self._scored_rules = {}
         self._candidates = []
 
-    def query_data(self, meowuri):
-        # Functions that use this does not have access to the 'file_object'.
+    def request_data(self, file_object, meowuri):
+        log.debug('requesting [{!s}][{!s}]'.format(file_object, meowuri))
+        response = repository.SessionRepository.resolve(file_object, meowuri)
+        log.debug('Got response ({}): {!s}'.format(type(response), response))
+        if response is not None and isinstance(response, ExtractedData):
+            return response.value
+        else:
+            return response
+
+    def _request_data(self, meowuri):
+        # Functions that use this does not have access to 'self.file_object'.
         # This method, which calls a callback, is itself passed as a callback..
         return self.request_data(self.file_object, meowuri)
 
@@ -62,7 +69,7 @@ class RuleMatcher(object):
         log.debug('Examining {} rules ..'.format(len(self._rules)))
 
         remaining_rules = remove_rules_failing_exact_match(self._rules,
-                                                           self.query_data)
+                                                           self._request_data)
         if len(remaining_rules) == 0:
             log.info('No rules remain after discarding those who requires an'
                      ' exact match but failed evaluation ..')
@@ -77,7 +84,7 @@ class RuleMatcher(object):
         max_condition_count = max(len(rule.conditions)
                                   for rule in remaining_rules)
         for rule in remaining_rules:
-            met_conditions = rule.count_conditions_met(self.query_data)
+            met_conditions = rule.count_conditions_met(self._request_data)
 
             # Ratio of met conditions to the total number of conditions
             # for a single rule.

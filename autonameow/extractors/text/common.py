@@ -27,7 +27,8 @@ from core import (
 from core.util import textutils
 from extractors import (
     BaseExtractor,
-    ExtractorError
+    ExtractorError,
+    ExtractedData
 )
 
 
@@ -55,7 +56,7 @@ class AbstractTextExtractor(BaseExtractor):
                            ' "{!s}"'.format(self, kwargs.get('field')))
 
         self.log.debug('{!s} returning all extracted data'.format(self))
-        return self._raw_text
+        return ExtractedData(wrapper=types.AW_STRING)(self._raw_text)
 
     def _decode_raw(self, text):
         try:

@@ -28,7 +28,7 @@ from core import (
     repository
 )
 from core.fileobject import FileObject
-
+from extractors import ExtractedData
 
 log = logging.getLogger(__name__)
 
@@ -53,9 +53,15 @@ class Analysis(object):
         self.file_object = file_object
 
         self.add_to_global_data = repository.SessionRepository.store
-        self.request_global_data = repository.SessionRepository.resolve
 
         self.analyzer_queue = AnalysisRunQueue()
+
+    def request_global_data(self, file_object, meowuri):
+        response = repository.SessionRepository.resolve(file_object, meowuri)
+        if response is not None and isinstance(response, ExtractedData):
+            return response.value
+        else:
+            return response
 
     def collect_results(self, label, data):
         """
