@@ -68,11 +68,16 @@ class EbookAnalyzer(BaseAnalyzer):
 
     @classmethod
     def can_handle(cls, file_object):
-        if util.eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
-            return True
+        try:
+            return util.eval_magic_glob(file_object.mime_type,
+                                        cls.handles_mime_types)
+        except (TypeError, ValueError) as e:
+            log.error('Error evaluating "{!s}" MIME handling; {!s}'.format(cls,
+                                                                           e))
         if (file_object.basename_suffix == b'mobi' and
                 file_object.mime_type == 'application/octet-stream'):
             return True
+
         return False
 
     @classmethod

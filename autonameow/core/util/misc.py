@@ -30,6 +30,7 @@ import shutil
 
 import yaml
 
+from core import constants
 from core.exceptions import InvalidMeowURIError
 
 
@@ -386,30 +387,48 @@ def eval_magic_glob(mime_to_match, glob_list):
         'application/pdf'     ['*/*']                   True
         'application/pdf'     ['image/*', '*/jpg']      False
 
+    This function performs extra argument validation due to the fact that it is
+    likely to be used by third party developers. It is also exposed to possibly
+    malformed configuration entries.
+
     Args:
-        mime_to_match: The MIME to match against the globs as a string.
-        glob_list: A list of globs as strings.
+        mime_to_match: The MIME to match against the globs as a Unicode string.
+        glob_list: A list of globs as Unicode strings.
 
     Returns:
-        True if the given MIME type matches any of the specified globs.
+        True if the MIME to match is valid and matches any of the globs.
+        False if the MIME to match is valid but does not match any of the globs.
+    Raises:
+        TypeError: Got non-Unicode string arguments.
+        ValueError: Argument "mime_to_match" is not on the form "foo/bar".
     """
     if not mime_to_match or not glob_list:
         return False
+    if mime_to_match == constants.MAGIC_TYPE_UNKNOWN:
+        return False
+
+    if not (isinstance(mime_to_match, str)):
+        raise TypeError('Expected "mime_to_match" to be of type str')
+    if '/' not in mime_to_match:
+        raise ValueError('Expected "mime_to_match" to be on the form "foo/bar"')
 
     if not isinstance(glob_list, list):
         glob_list = [glob_list]
 
+    log.debug('Evaluating MIME. Match: "{!s}" Globs: {!s}'.format(mime_to_match,
+                                                                  glob_list))
     mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
-
     for glob in glob_list:
+        assert(isinstance(glob, str))
         if glob == mime_to_match:
             return True
         elif '*' in glob:
             try:
                 glob_type, glob_subtype = glob.split('/')
             except ValueError:
-                # NOTE(jonas): Raise exception? Use sophisticated glob parser?
-                raise
+                raise ValueError(
+                    'Expected globs to be on the form "*/a", "a/*"'
+                )
             if glob_type == '*' and glob_subtype == '*':
                 # Matches everything.
                 return True

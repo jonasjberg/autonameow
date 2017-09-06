@@ -24,7 +24,8 @@ from unittest import TestCase
 
 from core import (
     util,
-    exceptions
+    exceptions,
+    constants
 )
 from core.util import eval_magic_glob
 from core.util.misc import (
@@ -512,8 +513,21 @@ class TestEvalMagicGlob(TestCase):
         self.assertFalse(eval_magic_glob(None, None))
 
     def test_eval_magic_blob_raises_exception_given_bad_arguments(self):
-        with self.assertRaises(ValueError):
-            self.assertTrue(eval_magic_glob('image/jpeg', ['*/*/jpeg']))
+        def _assert_raises(error, mime_to_match, glob_list):
+            with self.assertRaises(error):
+                eval_magic_glob(mime_to_match, glob_list)
+
+        _assert_raises(ValueError, 'image/jpeg', ['*/*/jpeg'])
+        _assert_raises(ValueError, 'application', ['*/*'])
+        _assert_raises(TypeError, b'application', ['*/*'])
+        _assert_raises(ValueError, '1', ['*/*'])
+        _assert_raises(TypeError, b'1', ['*/*'])
+        _assert_raises(AssertionError, 'image/jpeg', [b'*/jpeg'])
+        _assert_raises(AssertionError, 'image/jpeg', [b'*/jpeg', 'image/*'])
+        _assert_raises(AssertionError, 'image/jpeg', [1])
+        _assert_raises(AssertionError, 'image/jpeg', [1, 'image/jpeg'])
+        _assert_raises(ValueError, 'application', ['*a'])
+        _assert_raises(ValueError, 'application', ['a*'])
 
     def test_eval_magic_blob_returns_false_as_expected(self):
         self._aF('image/jpeg', [])
@@ -532,9 +546,14 @@ class TestEvalMagicGlob(TestCase):
         self._aF('application/epub+zip', ['*/jpg'])
         self._aF('application/epub+zip', ['image/*'])
         self._aF('application/epub+zip', ['image/jpeg'])
+        self._aF('application/epub+zip', 'video/*')
+        self._aF('application/epub+zip', ['video/*'])
+        self._aF('application/epub+zip', constants.MAGIC_TYPE_UNKNOWN)
 
     def test_eval_magic_blob_returns_true_as_expected(self):
+        self._aT('image/jpeg', '*/*')
         self._aT('image/jpeg', ['*/*'])
+        self._aT('image/jpeg', '*/jpeg')
         self._aT('image/jpeg', ['*/jpeg'])
         self._aT('image/jpeg', ['image/*'])
         self._aT('image/png', ['image/*'])
@@ -542,6 +561,7 @@ class TestEvalMagicGlob(TestCase):
         self._aT('image/jpeg', ['*/*', '*/jpeg'])
         self._aT('image/jpeg', ['image/*', '*/jpeg'])
         self._aT('image/png', ['*/pdf', '*/png', 'application/*'])
+        self._aT('application/epub+zip', 'application/epub+zip')
         self._aT('application/epub+zip', ['application/epub+zip'])
         self._aT('application/epub+zip', ['application/*'])
         self._aT('application/epub+zip', ['*/epub+zip'])
