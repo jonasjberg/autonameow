@@ -144,10 +144,26 @@ def format_string_placeholders(format_string):
 
 
 def has_data_for_placeholder_fields(template, data):
+    """
+    Tests if all placeholder fields in the given 'template' has data in 'data'.
+
+    Data should be a dict keyed by placeholder fields in 'template'.
+    If any of the fields are missing or None, the test fails.
+
+    Args:
+        template: Name template to test, as a Unicode string.
+        data: Dict keyed by Unicode strings, storing arbitrary data.
+
+    Returns:
+        True if all placeholder fields in 'template' is present in 'data' and
+        the values stored in 'data' is not None. Else False.
+    """
     placeholder_fields = format_string_placeholders(template)
-    result = True
     for field in placeholder_fields:
         if field not in data.keys():
-            log.error('Missing data for placeholder field "{}"'.format(field))
-            result = False
-    return result
+            log.error('Missing placeholder field "{}"'.format(field))
+            return False
+        elif data.get(field) is None:
+            log.error('None data for placeholder field "{}"'.format(field))
+            return False
+    return True

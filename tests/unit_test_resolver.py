@@ -23,8 +23,10 @@ from unittest import TestCase
 
 from core.evaluate.resolver import (
     all_template_fields_defined,
-    format_string_placeholders
+    format_string_placeholders,
+    has_data_for_placeholder_fields
 )
+import unit_utils as uu
 
 
 class TestAllTemplateFieldsDefined(TestCase):
@@ -66,3 +68,39 @@ class TestFormatStringPlaceholders(TestCase):
         self.assertEqual(format_string_placeholders('{foo} abc {foo}'),
                          ['foo', 'foo'])
 
+
+class TestHasDataForPlaceholderFields(TestCase):
+    def test_data_for_template_fields_present_returns_true(self):
+        data = {
+            'datetime': uu.str_to_datetime('2016-01-11 124132'),
+            'extension': 'pdf',
+            'title': 'Meow Gibson Rules Meow'
+        }
+        template = '{datetime} {title}.{extension}'
+
+        actual = has_data_for_placeholder_fields(template, data)
+        self.assertTrue(isinstance(actual, bool))
+        self.assertTrue(actual)
+
+    def test_field_data_missing_returns_false(self):
+        data = {
+            'extension': 'pdf',
+            'title': 'Meow Gibson Rules Meow'
+        }
+        template = '{datetime} {title}.{extension}'
+
+        actual = has_data_for_placeholder_fields(template, data)
+        self.assertTrue(isinstance(actual, bool))
+        self.assertFalse(actual)
+
+    def test_none_field_data_returns_false(self):
+        data = {
+            'datetime': uu.str_to_datetime('2016-01-11 124132'),
+            'extension': None,
+            'title': 'Meow Gibson Rules Meow'
+        }
+        template = '{datetime} {title}.{extension}'
+
+        actual = has_data_for_placeholder_fields(template, data)
+        self.assertTrue(isinstance(actual, bool))
+        self.assertFalse(actual)
