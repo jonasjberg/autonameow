@@ -77,9 +77,7 @@ class BaseType(object):
             if self.test(value):
                 return value
 
-        raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(value, self)
-        )
+        self._fail_coercion(value)
 
     def _null(self):
         return self.null
@@ -108,13 +106,17 @@ class BaseType(object):
         try:
             return self.primitive_type(value)
         except (ValueError, TypeError):
-            raise exceptions.AWTypeError(
-                'Coercion default failed for: "{!s}" to primitive'
-                ' {!r}'.format(value, self.primitive_type)
-            )
+            self._fail_coercion(value)
 
     def format(self, value, formatter=None):
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def _fail_coercion(self, value, msg=None):
+        error_msg = 'Unable to coerce "{!s}" into {!r}'.format(value, self)
+        if msg is not None:
+            error_msg = '{}; {!s}'.format(error_msg, msg)
+
+        raise exceptions.AWTypeError(error_msg)
 
     def __repr__(self):
         return self.__class__.__name__
@@ -145,9 +147,8 @@ class Path(BaseType):
             if value.strip() is not None:
                 value = self.coerce(value)
                 return value
-        raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(value, self)
-        )
+
+        self._fail_coercion(value)
 
     def normalize(self, value):
         coerced = self.coerce(value)
@@ -164,9 +165,7 @@ class Path(BaseType):
             except (ValueError, TypeError):
                 pass
 
-        raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(value, self)
-        )
+        self._fail_coercion(value)
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
@@ -193,9 +192,7 @@ class PathComponent(BaseType):
         try:
             return util.bytestring_path(value)
         except (ValueError, TypeError):
-            raise exceptions.AWTypeError(
-                'Unable to coerce "{!s}" into {!r}'.format(value, self)
-            )
+            self._fail_coercion(value)
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
@@ -266,10 +263,7 @@ class Integer(BaseType):
                 except (ValueError, TypeError):
                     pass
 
-        raise exceptions.AWTypeError(
-            'Coercion default failed for: "{!s}" to primitive'
-            ' {!r}'.format(value, self.primitive_type)
-        )
+        self._fail_coercion(value)
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
@@ -320,10 +314,7 @@ class String(BaseType):
             try:
                 return self.primitive_type(value)
             except (ValueError, TypeError):
-                raise exceptions.AWTypeError(
-                    'Coercion default failed for: "{!s}" to primitive'
-                    ' {!r}'.format(value, self.primitive_type)
-                )
+                self._fail_coercion(value)
 
     def normalize(self, value):
         return self.__call__(value).strip()
@@ -372,9 +363,7 @@ class MimeType(BaseType):
                 return self.MIME_TYPE_LOOKUP[string_value]
 
         # TODO: [TD0083] Return "NULL" or raise 'AWTypeError'..?
-        # raise exceptions.AWTypeError(
-        #     'Unable to coerce "{!s}" into {!r}'.format(value, self)
-        # )
+        # self._fail_coercion(value)
         return self._null()
 
     def normalize(self, value):
@@ -404,10 +393,7 @@ class TimeDate(BaseType):
         try:
             return try_parse_full_datetime(value)
         except (TypeError, ValueError) as e:
-            raise exceptions.AWTypeError(
-                'Unable to coerce "{!s}" into {!r}: {!s}'.format(value,
-                                                                 self, e)
-            )
+            self._fail_coercion(value, msg=e)
 
     def normalize(self, value):
         try:
@@ -434,9 +420,7 @@ class TimeDate(BaseType):
 class ExifToolTimeDate(TimeDate):
     def coerce(self, value):
         if re.match(r'.*0000:00:00 00:00:00.*', value):
-            raise exceptions.AWTypeError(
-                'Unable to coerce "{!s}" into {!r}'.format(value, self)
-            )
+            self._fail_coercion(value)
 
         # Remove any ':' in timezone as to match strptime pattern.
         if re.match(r'.*\+\d\d:\d\d$', value):
@@ -453,9 +437,7 @@ class ExifToolTimeDate(TimeDate):
             except (TypeError, ValueError) as e:
                 pass
 
-        raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(value, self)
-        )
+        self._fail_coercion(value)
 
 
 class PyPDFTimeDate(TimeDate):
@@ -496,9 +478,7 @@ class PyPDFTimeDate(TimeDate):
             except ValueError:
                 pass
 
-        raise exceptions.AWTypeError(
-            'Unable to coerce "{!s}" into {!r}'.format(value, self)
-        )
+        self._fail_coercion(value)
 
 
 def try_parse_full_datetime(string):
