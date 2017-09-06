@@ -84,7 +84,7 @@ class Resolver(object):
 
     def _request_data(self, file, meowuri):
         log.debug('Requesting [{!s}] "{!s}"'.format(file, meowuri))
-        data = repository.SessionRepository.resolve(file, meowuri)
+        data = repository.SessionRepository.query(file, meowuri)
         log.debug('Got data ({}): {!s}'.format(type(data), data))
 
         # TODO: [TD0082] Integrate the 'ExtractedData' class.

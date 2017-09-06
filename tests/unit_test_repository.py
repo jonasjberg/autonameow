@@ -129,22 +129,22 @@ class TestRepositoryMethodStore(TestCase):
         valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, valid_label, 'expected_data')
 
-        response = self.r.resolve(self.file_object, valid_label)
+        response = self.r.query(self.file_object, valid_label)
         self.assertEqual(response.value, 'expected_data')
 
-    def test_resolve_none_label_raises_exception(self):
+    def test_none_label_raises_exception(self):
         valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, valid_label, 'expected_data')
 
         with self.assertRaises(exceptions.InvalidDataSourceError):
-            self.r.resolve(self.file_object, None)
+            self.r.query(self.file_object, None)
 
     def test_valid_label_returns_expected_data_multiple_entries(self):
         valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, valid_label, 'expected_data_a')
         self.r.store(self.file_object, valid_label, 'expected_data_b')
 
-        response = self.r.resolve(self.file_object, valid_label)
+        response = self.r.query(self.file_object, valid_label)
         self.assertIn('expected_data_a', response)
         self.assertIn('expected_data_b', response)
 

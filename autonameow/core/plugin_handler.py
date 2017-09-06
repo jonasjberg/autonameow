@@ -50,8 +50,8 @@ class PluginHandler(object):
         self.add_to_global_data(self.file_object, label, data)
 
     def _request_data(self, meowuri):
-        response = repository.SessionRepository.resolve(self.file_object,
-                                                        meowuri)
+        response = repository.SessionRepository.query(self.file_object,
+                                                      meowuri)
         return response.value
 
     def query(self, meowuri):

@@ -126,7 +126,7 @@ class Repository(object):
             file_object, meowuri, data
         ))
 
-    def resolve(self, file_object, meowuri, mapped_to_field=None):
+    def query(self, file_object, meowuri, mapped_to_field=None):
         if not meowuri:
             raise exceptions.InvalidDataSourceError(
                 'Unable to resolve empty meowURI'
