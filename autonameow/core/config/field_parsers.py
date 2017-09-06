@@ -275,7 +275,13 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
         # True is returned if any of the given expressions evaluates true.
         for expr in expression:
-            evaluates_true = util.eval_magic_glob(mime_to_match, expr)
+            try:
+                evaluates_true = util.eval_magic_glob(mime_to_match, expr)
+            except (TypeError, ValueError) as e:
+                log.error(
+                    'Error evaluating expression "{!s}"; {!s}'.format(expr, e)
+                )
+                continue
             if evaluates_true:
                 return True
         return False
