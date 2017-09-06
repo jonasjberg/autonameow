@@ -106,14 +106,12 @@ class BaseType(object):
 
     def coerce(self, value):
         try:
-            value = self.primitive_type(value)
+            return self.primitive_type(value)
         except (ValueError, TypeError):
             raise exceptions.AWTypeError(
                 'Coercion default failed for: "{!s}" to primitive'
                 ' {!r}'.format(value, self.primitive_type)
             )
-        else:
-            return value
 
     def format(self, value, formatter=None):
         raise NotImplementedError('Must be implemented by inheriting classes.')
@@ -162,11 +160,9 @@ class Path(BaseType):
     def coerce(self, value):
         if value:
             try:
-                value = util.bytestring_path(value)
+                return util.bytestring_path(value)
             except (ValueError, TypeError):
                 pass
-            else:
-                return value
 
         raise exceptions.AWTypeError(
             'Unable to coerce "{!s}" into {!r}'.format(value, self)
@@ -195,13 +191,11 @@ class PathComponent(BaseType):
 
     def coerce(self, value):
         try:
-            value = util.bytestring_path(value)
+            return util.bytestring_path(value)
         except (ValueError, TypeError):
             raise exceptions.AWTypeError(
                 'Unable to coerce "{!s}" into {!r}'.format(value, self)
             )
-        else:
-            return value
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
@@ -318,22 +312,18 @@ class String(BaseType):
 
         if isinstance(value, bytes):
             try:
-                decoded = util.decode_(value)
+                return util.decode_(value)
             except Exception:
                 return self._null()
-            else:
-                return decoded
+
         if isinstance(value, self.coercible_types):
             try:
-                value = self.primitive_type(value)
+                return self.primitive_type(value)
             except (ValueError, TypeError):
                 raise exceptions.AWTypeError(
                     'Coercion default failed for: "{!s}" to primitive'
                     ' {!r}'.format(value, self.primitive_type)
                 )
-            else:
-                return value
-        return str(value)
 
     def normalize(self, value):
         return self.__call__(value).strip()
@@ -412,14 +402,12 @@ class TimeDate(BaseType):
 
     def coerce(self, value):
         try:
-            dt = try_parse_full_datetime(value)
+            return try_parse_full_datetime(value)
         except (TypeError, ValueError) as e:
             raise exceptions.AWTypeError(
                 'Unable to coerce "{!s}" into {!r}: {!s}'.format(value,
                                                                  self, e)
             )
-        else:
-            return dt
 
     def normalize(self, value):
         try:
@@ -458,12 +446,10 @@ class ExifToolTimeDate(TimeDate):
 
         try:
             # TODO: Fix matching dates with timezone. Below is not working.
-            dt = datetime.strptime(value, '%Y:%m:%d %H:%M:%S%z')
-            return dt
+            return datetime.strptime(value, '%Y:%m:%d %H:%M:%S%z')
         except (ValueError, TypeError):
             try:
-                dt = try_parse_full_datetime(value)
-                return dt
+                return try_parse_full_datetime(value)
             except (TypeError, ValueError) as e:
                 pass
 
@@ -539,11 +525,9 @@ def try_parse_full_datetime(string):
                     '%Y-%m-%d %H:%M:%S%z']
     for date_format in date_formats:
         try:
-            dt = datetime.strptime(string, date_format)
+            return datetime.strptime(string, date_format)
         except (ValueError, TypeError):
             continue
-        else:
-            return dt
 
     raise ValueError(_error_msg)
 
