@@ -31,69 +31,54 @@ from core.util import diskutils
 log = logging.getLogger(__name__)
 
 
-class NameBuilder(object):
+def build(config, name_template, field_data_map):
     """
-    Constructs a new filename for a 'FileObject' given a name template and
-    a dict mapping name template fields to data to be populated in each field.
+    Constructs a new filename given a name template and a dict mapping
+    name template fields to data to be populated in each field.
     """
-    def __init__(self, file_object, active_config, name_template, field_data_map):
-        self.file = file_object
-        self.config = active_config
-        self.name_template = name_template
-        self.field_data_map = field_data_map
+    log.debug('Using name template: "{}"'.format(name_template))
 
-        self._new_name = None
+    if not field_data_map:
+        log.error('Name builder got empty data map! This should not happen ..')
+        raise exceptions.NameBuilderError('Unable to assemble basename')
 
-    @property
-    def new_name(self):
-        return self._new_name
+    # TODO: [TD0017][TD0041] Format ALL data before assembly!
+    # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
+    data = pre_assemble_format(field_data_map, config)
+    log.debug('After pre-assembly formatting;')
+    log.debug(str(data))
 
-    def build(self):
-        log.debug('Using name template: "{}"'.format(self.name_template))
+    # Construct the new file name
+    try:
+        new_name = populate_name_template(name_template, **data)
+    except exceptions.NameTemplateSyntaxError as e:
+        log.debug('Unable to assemble basename with template "{!s}" and '
+                  'data: {!s}'.format(name_template, data))
+        raise exceptions.NameBuilderError(
+            'Unable to assemble basename: {!s}'.format(e)
+        )
 
-        data = self.field_data_map
-        if not data:
-            log.error('Name builder got empty data! This should not happen ..')
-            raise exceptions.NameBuilderError('Unable to assemble basename')
+    assert(isinstance(new_name, str))
+    new_name = post_assemble_format(new_name)
+    log.debug('Assembled basename: "{!s}"'.format(new_name))
 
-        # TODO: [TD0017][TD0041] Format ALL data before assembly!
-        # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
-        data = pre_assemble_format(data, self.config)
-        log.debug('After pre-assembly formatting;')
-        log.debug(str(data))
-
-        # Construct the new file name
-        try:
-            new_name = populate_name_template(self.name_template, **data)
-        except exceptions.NameTemplateSyntaxError as e:
-            log.debug('Unable to assemble basename with template "{!s}" and '
-                      'data: {!s}'.format(self.name_template, data))
-            raise exceptions.NameBuilderError(
-                'Unable to assemble basename: {!s}'.format(e)
-            )
-
-        assert(isinstance(new_name, str))
-        new_name = post_assemble_format(new_name)
-        log.debug('Assembled basename: "{!s}"'.format(new_name))
-
-        # Do any file name "sanitation".
-        if self.config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
-            if self.config.get(['FILESYSTEM_OPTIONS', 'sanitize_strict']):
-                log.debug('Sanitizing filename (restricted=True)')
-                new_name = diskutils.sanitize_filename(new_name,
-                                                       restricted=True)
-            else:
-                log.debug('Sanitizing filename')
-                new_name = diskutils.sanitize_filename(new_name)
-
-            log.debug('Sanitized basename (unicode): "{!s}"'.format(
-                util.displayable_path(new_name))
-            )
+    # Do any file name "sanitation".
+    if config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
+        if config.get(['FILESYSTEM_OPTIONS', 'sanitize_strict']):
+            log.debug('Sanitizing filename (restricted=True)')
+            new_name = diskutils.sanitize_filename(new_name,
+                                                   restricted=True)
         else:
-            log.debug('Skipped sanitizing filename')
+            log.debug('Sanitizing filename')
+            new_name = diskutils.sanitize_filename(new_name)
 
-        self._new_name = new_name
-        return new_name
+        log.debug('Sanitized basename (unicode): "{!s}"'.format(
+            util.displayable_path(new_name))
+        )
+    else:
+        log.debug('Skipped sanitizing filename')
+
+    return new_name
 
 
 def post_assemble_format(new_name):

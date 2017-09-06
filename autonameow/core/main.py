@@ -30,7 +30,8 @@ from core import (
     exceptions,
     options,
     repository,
-    util
+    util,
+    namebuilder
 )
 from core.analysis import Analysis
 from core.config.configuration import Configuration
@@ -39,7 +40,6 @@ from core.evaluate.rulematcher import RuleMatcher
 from core.extraction import Extraction
 from core.fileobject import FileObject
 from core.filter import ResultFilter
-from core.namebuilder import NameBuilder
 from core.plugin_handler import PluginHandler
 from core.util import (
     cli,
@@ -288,16 +288,15 @@ class Autonameow(object):
             self.exit_code = constants.EXIT_WARNING
             return
 
-        # Get a dictionary of data to pass to 'assemble_basename'.
-        # Should be keyed by the placeholder fields used in the name template.
+        # Get a dict of data keyed by the name template placeholder fields.
         templatefield_data_map = resolver.resolve()
-
-        new_name = _build_new_name(
-            current_file,
-            active_config=self.active_config,
-            name_template=resolver.name_template,
-            field_data_map=templatefield_data_map
-        )
+        try:
+            new_name = namebuilder.build(config=self.active_config,
+                                         name_template=resolver.name_template,
+                                         field_data_map=templatefield_data_map)
+        except exceptions.NameBuilderError as e:
+            log.critical('Name assembly FAILED: {!s}'.format(e))
+            raise exceptions.AutonameowException
 
         # TODO: [TD0042] Respect '--quiet' option. Suppress output.
         log.info('New name: "{}"'.format(
@@ -390,19 +389,6 @@ class Autonameow(object):
             log.debug('Exit code updated: {} -> {}'.format(self._exit_code,
                                                            value))
             self._exit_code = value
-
-
-def _build_new_name(file_object, active_config, name_template, field_data_map):
-    try:
-        builder = NameBuilder(file_object, active_config,
-                              name_template, field_data_map)
-        # TODO: Do not return anything from 'build()', use property.
-        new_name = builder.build()
-    except exceptions.NameBuilderError as e:
-        log.critical('Name assembly FAILED: {!s}'.format(e))
-        raise exceptions.AutonameowException
-    else:
-        return new_name
 
 
 def _run_extraction(file_object, require_extractors, run_all_extractors=False):

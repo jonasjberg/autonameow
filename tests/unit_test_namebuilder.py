@@ -21,16 +21,13 @@
 
 from unittest import TestCase
 
-from core import (
-    namebuilder,
-    exceptions
-)
+from core import exceptions
+from core.namebuilder import populate_name_template
 
 
 class TestNameBuilder(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.populate = namebuilder.populate_name_template
 
     def test_populate_name_template_using_template_1_given_all_fields(self):
         template = '{title} - {author} {datetime}.{extension}'
@@ -40,7 +37,7 @@ class TestNameBuilder(TestCase):
                 'extension': 'pdf'}
         expect = '11 years old and dying - Gibson 2017-05-27.pdf'
 
-        self.assertEqual(self.populate(template, **data), expect)
+        self.assertEqual(populate_name_template(template, **data), expect)
 
     def test_populate_name_template_using_template_1_some_fields_missing(self):
         with self.assertRaises(exceptions.NameTemplateSyntaxError):
@@ -49,7 +46,7 @@ class TestNameBuilder(TestCase):
                     'datetime': '2017-05-27',
                     'extension': None}
             expect = '11 years old and dying - Gibson 2017-05-27.pdf'
-            self.assertEqual(self.populate(template, **data), expect)
+            self.assertEqual(populate_name_template(template, **data), expect)
 
     def test_populate_name_template_using_template_2_given_all_fields(self):
         template = '{publisher} {title} {edition} - {author} {date}.{extension}'
@@ -61,7 +58,7 @@ class TestNameBuilder(TestCase):
                 'extension': 'pdf'}
         expect = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
 
-        self.assertEqual(self.populate(template, **data), expect)
+        self.assertEqual(populate_name_template(template, **data), expect)
 
     def test_populate_name_template_using_template_2_all_fields_missing(self):
         template = '{publisher} {title} {edition} - {author} {date}.{extension}'
@@ -69,5 +66,5 @@ class TestNameBuilder(TestCase):
         expect = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
 
         with self.assertRaises(exceptions.NameTemplateSyntaxError):
-            self.assertEqual(self.populate(template, **data), expect)
+            self.assertEqual(populate_name_template(template, **data), expect)
 
