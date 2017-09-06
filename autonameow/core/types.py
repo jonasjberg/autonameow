@@ -338,6 +338,10 @@ class String(BaseType):
     def normalize(self, value):
         return self.__call__(value).strip()
 
+    def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
+        raise NotImplementedError('TODO: Implement String.format()')
+
 
 class MimeType(BaseType):
     primitive_type = str
@@ -433,6 +437,10 @@ class TimeDate(BaseType):
         raise exceptions.AWTypeError(
             'Type wrapper "{!r}" should never EVER return null!'.format(self)
         )
+
+    def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
+        raise NotImplementedError('TODO: Implement TimeDate.format()')
 
 
 class ExifToolTimeDate(TimeDate):
