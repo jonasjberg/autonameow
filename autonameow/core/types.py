@@ -111,6 +111,13 @@ class BaseType(object):
     def format(self, value, formatter=None):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
+    def _fail_normalization(self, value, msg=None):
+        error_msg = 'Unable to normalize "{!s}" into {!r}'.format(value, self)
+        if msg is not None:
+            error_msg = '{}; {!s}'.format(error_msg, msg)
+
+        raise exceptions.AWTypeError(error_msg)
+
     def _fail_coercion(self, value, msg=None):
         error_msg = 'Unable to coerce "{!s}" into {!r}'.format(value, self)
         if msg is not None:
@@ -151,12 +158,11 @@ class Path(BaseType):
         self._fail_coercion(value)
 
     def normalize(self, value):
-        coerced = self.coerce(value)
-        if coerced:
-            return util.normpath(coerced)
-        raise exceptions.AWTypeError(
-            'Unable to normalize "{!s}" into {!r}'.format(value, self)
-        )
+        value = self.__call__(value)
+        if value:
+            return util.normpath(value)
+
+        self._fail_normalization(value)
 
     def coerce(self, value):
         if value:
@@ -180,13 +186,12 @@ class PathComponent(BaseType):
     null = b''
 
     def normalize(self, value):
-        coerced = self.coerce(value)
+        coerced = self.__call__(value)
         if coerced:
             # Expand user home directory if present.
             return os.path.normpath(os.path.expanduser(util.syspath(coerced)))
-        raise exceptions.AWTypeError(
-            'Unable to normalize "{!s}" into {!r}'.format(value, self)
-        )
+
+        self._fail_normalization(value)
 
     def coerce(self, value):
         try:
@@ -396,14 +401,12 @@ class TimeDate(BaseType):
             self._fail_coercion(value, msg=e)
 
     def normalize(self, value):
-        try:
-            parsed = self.coerce(value)
-            if isinstance(parsed, datetime):
-                return parsed.replace(microsecond=0)
-            else:
-                return self._null()
-        except (TypeError, ValueError):
-            return self._null()
+        value = self.coerce(value)
+        if isinstance(value, datetime):
+            return value.replace(microsecond=0)
+
+        self._fail_normalization(value)
+
 
     # Override parent '_null' method to force returning only valid 'datetime'
     # instances. Otherwise, raise an exception to be handled by the caller.
