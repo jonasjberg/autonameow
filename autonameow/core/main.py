@@ -291,7 +291,7 @@ class Autonameow(object):
             return
 
         # Get a dict of data keyed by the name template placeholder fields.
-        templatefield_data_map = resolver.resolve()
+        templatefield_data_map = resolver.collect()
         try:
             new_name = namebuilder.build(config=self.active_config,
                                          name_template=resolver.name_template,

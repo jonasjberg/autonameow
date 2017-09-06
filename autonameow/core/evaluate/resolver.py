@@ -41,7 +41,7 @@ class Resolver(object):
     def add_known_source(self, field, meowuri):
         self.data_sources[field] = meowuri
 
-    def resolve(self):
+    def collect(self):
         # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
 
