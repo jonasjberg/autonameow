@@ -351,8 +351,9 @@ class MimeType(BaseType):
     MIME_TYPE_LOOKUP_INV = {
         mime: ext for ext, mime in MIME_TYPE_LOOKUP.items()
     }
-    KNOWN_EXTENSIONS = list(MIME_TYPE_LOOKUP.keys())
-    KNOWN_MIME_TYPES = list(MIME_TYPE_LOOKUP.values())
+    MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
+    KNOWN_EXTENSIONS = set(MIME_TYPE_LOOKUP.keys())
+    KNOWN_MIME_TYPES = set(MIME_TYPE_LOOKUP.values())
     assert(len(KNOWN_EXTENSIONS) > 0)
     assert(len(KNOWN_MIME_TYPES) > 0)
 
