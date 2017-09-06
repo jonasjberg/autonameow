@@ -62,6 +62,8 @@ class TestBaseExtractor(TestCase):
     def test_method_query_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.e.execute()
+
+        with self.assertRaises(NotImplementedError):
             self.e.execute(field='some_field')
 
     def test_method_str_is_defined_and_reachable(self):
@@ -80,8 +82,7 @@ class TestBaseExtractor(TestCase):
 
     def test_class_method_can_handle_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.assertIsNotNone(self.e.can_handle(self.fo))
-            self.assertFalse(self.e.can_handle(self.fo))
+            self.e.can_handle(self.fo)
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.handles_mime_types)
