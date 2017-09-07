@@ -180,17 +180,18 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
         self.assertIsNotNone(self.e.execute())
 
     def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.execute(), str))
+        actual = self.e.execute()
+        self.assertTrue(isinstance(actual.value, str))
 
     def test_method_execute_all_result_contains_expected(self):
         self.skipTest('Fix expected text encoding issue')
         actual = self.e.execute()
-        self.assertEqual(self.EXPECT_TEXT, actual)
+        self.assertEqual(actual.value, self.EXPECT_TEXT)
 
     def test_method_execute_arbitrary_field_result_contains_expected(self):
         self.skipTest('Fix expected text encoding issue')
         actual = self.e.execute(field='dummy_field')
-        self.assertEqual(self.EXPECT_TEXT, actual)
+        self.assertEqual(actual.value, self.EXPECT_TEXT)
 
     def test_class_method_can_handle_is_defined(self):
         self.assertIsNotNone(self.e.can_handle)

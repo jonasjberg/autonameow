@@ -130,7 +130,7 @@ class TestRepositoryMethodStore(TestCase):
         self.r.store(self.file_object, valid_label, 'expected_data')
 
         response = self.r.query(self.file_object, valid_label)
-        self.assertEqual(response.value, 'expected_data')
+        self.assertEqual(response, 'expected_data')
 
     def test_none_label_raises_exception(self):
         valid_label = uuconst.VALID_DATA_SOURCES[0]
