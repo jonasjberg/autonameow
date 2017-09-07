@@ -136,16 +136,16 @@ class Repository(object):
             file_object, meowuri, mapped_to_field))
 
         try:
-            d = util.nested_dict_get(self.data, [file_object, meowuri])
+            data = util.nested_dict_get(self.data, [file_object, meowuri])
         except KeyError as e:
             log.debug('Repository request raised KeyError: {!s}'.format(e))
             return None
         else:
             # TODO: [TD0082] Integrate the 'ExtractedData' class.
-            if isinstance(d, extractors.ExtractedData):
+            if isinstance(data, extractors.ExtractedData):
                 if mapped_to_field is not None:
-                    if d.maps_field(mapped_to_field):
-                        return d
+                    if data.maps_field(mapped_to_field):
+                        return data
                     else:
                         log.debug(
                             'Repository request failed requirement; [{!s}] '
@@ -155,10 +155,10 @@ class Repository(object):
                         )
                         return None
                 else:
-                    return d
+                    return data
 
             else:
-                return d
+                return data
 
     def resolvable(self, meowuri):
         if not meowuri:
