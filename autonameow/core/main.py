@@ -271,15 +271,12 @@ class Autonameow(object):
             log.info('None of the rules seem to apply')
             return
 
-        log.info('Using rule: "{!s}"'.format(
-            rule_matcher.best_match.description)
+        log.info(
+            'Using rule: "{!s}"'.format(rule_matcher.best_match.description)
         )
+        name_template = rule_matcher.best_match.name_template
 
-        resolver = Resolver(
-            current_file,
-            name_template=rule_matcher.best_match.name_template,
-        )
-
+        resolver = Resolver(current_file, name_template)
         for _field, _meowuri in rule_matcher.best_match.data_sources.items():
             resolver.add_known_source(_field, _meowuri)
 
@@ -294,7 +291,7 @@ class Autonameow(object):
         templatefield_data_map = resolver.collect()
         try:
             new_name = namebuilder.build(config=self.active_config,
-                                         name_template=resolver.name_template,
+                                         name_template=name_template,
                                          field_data_map=templatefield_data_map)
         except exceptions.NameBuilderError as e:
             log.critical('Name assembly FAILED: {!s}'.format(e))
