@@ -127,7 +127,6 @@ class Extraction(object):
             item_number = i + 1
             total_items = len(self.extractor_queue)
 
-
             log.debug('Executing queue item {}/{}: '
                       '{!s}'.format(item_number, total_items, e))
 
