@@ -60,8 +60,10 @@ class EbookAnalyzer(BaseAnalyzer):
 
     def run(self):
         text = self.request_data(self.file_object, 'contents.textual.raw_text')
-        isbns = _search_initial_text(text, extract_isbns_from_text)
+        if not text:
+            return
 
+        isbns = _search_initial_text(text, extract_isbns_from_text)
         if isbns:
             isbns = filter_isbns(isbns)
             for isbn in isbns:
