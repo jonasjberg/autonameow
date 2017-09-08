@@ -171,10 +171,10 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
         self.assertIsNotNone(self.e)
 
     def test__get_raw_text_returns_something(self):
-        self.assertIsNotNone(self.e._get_raw_text())
+        self.assertIsNotNone(self.e._get_text())
 
     def test__get_raw_text_returns_expected_type(self):
-        self.assertEqual(type(self.e._get_raw_text()), str)
+        self.assertEqual(type(self.e._get_text()), str)
 
     def test_method_execute_returns_something(self):
         self.assertIsNotNone(self.e.execute())

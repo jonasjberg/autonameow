@@ -145,7 +145,6 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
             actual = actual_result.get(field)
             self.assertEqual(actual.value, value)
 
-
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_field_returns_expected_value(self):
         for field, value in self.EXPECT_FIELD_VALUE:

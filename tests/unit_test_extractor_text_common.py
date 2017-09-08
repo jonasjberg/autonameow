@@ -74,11 +74,7 @@ class TestAbstractTextExtractor(TestCase):
 
     def test__get_raw_text_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e._get_raw_text()
-
-    def test__perform_initial_extraction_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
-            self.e._perform_initial_extraction()
+            self.e._get_text()
 
     def test_check_dependencies_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

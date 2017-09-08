@@ -96,7 +96,7 @@ class TestImageOCRTextExtractorWithImageFile(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test__get_raw_text_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e._get_raw_text(), str))
+        self.assertTrue(isinstance(self.e._get_text(), str))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_expected_type(self):

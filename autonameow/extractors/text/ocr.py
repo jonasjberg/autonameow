@@ -47,7 +47,7 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
     def __init__(self, source):
         super(ImageOCRTextExtractor, self).__init__(source)
 
-    def _get_raw_text(self):
+    def _get_text(self):
         # NOTE: Tesseract behaviour will likely need tweaking depending
         #       on the image contents. Will need to pass "tesseract_args"
         #       somehow. I'm starting to think image OCR does not belong

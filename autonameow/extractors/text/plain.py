@@ -27,7 +27,10 @@ except (ImportError, ModuleNotFoundError):
     chardet = None
 
 from extractors import ExtractorError
-from extractors.text.common import AbstractTextExtractor
+from extractors.text.common import (
+    AbstractTextExtractor,
+    normalize_unicode
+)
 from core.util import textutils
 
 log = logging.getLogger(__name__)
@@ -42,10 +45,13 @@ class PlainTextExtractor(AbstractTextExtractor):
     def __init__(self, source):
         super(PlainTextExtractor, self).__init__(source)
 
-    def _get_raw_text(self):
+    def _get_text(self):
         self.log.debug('Extracting raw text from plain text file ..')
         result = read_entire_text_file(self.source)
-        return result
+        text = normalize_unicode(result)
+        text = textutils.remove_nonbreaking_spaces(text)
+        assert(isinstance(text, str))
+        return text
 
     @classmethod
     def check_dependencies(cls):
@@ -72,7 +78,6 @@ def read_entire_text_file(file_path):
         log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
                                                                   file_path))
         contents = '\n'.join(contents)
-        contents = textutils.remove_nonbreaking_spaces(contents)
         assert(isinstance(contents, str))
         return contents
     else:
