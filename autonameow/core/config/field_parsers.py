@@ -26,10 +26,10 @@ from datetime import datetime
 
 from core import (
     constants,
-    util,
     exceptions,
     namebuilder,
-    types
+    types,
+    util,
 )
 
 
@@ -152,7 +152,7 @@ class BooleanConfigFieldParser(ConfigFieldParser):
     def is_valid_boolean(expression):
         try:
             types.AW_BOOLEAN(expression)
-        except exceptions.AWTypeError:
+        except types.AWTypeError:
             return False
         else:
             return True
@@ -162,7 +162,7 @@ class BooleanConfigFieldParser(ConfigFieldParser):
         try:
             a = types.AW_BOOLEAN(expression)
             b = types.AW_BOOLEAN(test_data)
-        except exceptions.AWTypeError:
+        except types.AWTypeError:
             # TODO: Handle this case
             raise
         else:

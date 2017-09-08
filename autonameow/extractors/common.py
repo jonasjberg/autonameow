@@ -21,7 +21,10 @@
 
 import logging
 
-from core import util, exceptions, types
+from core import (
+    util,
+    types
+)
 from core.exceptions import AutonameowException
 from core.fileobject import FileObject
 
@@ -200,7 +203,7 @@ class ExtractedData(object):
         if self.wrapper:
             try:
                 self._data = self.wrapper(raw_value)
-            except exceptions.AWTypeError as e:
+            except types.AWTypeError as e:
                 log.warning(e)
                 raise
         else:

@@ -22,11 +22,9 @@
 import re
 
 from analyzers import BaseAnalyzer
-
 from core import (
-    util,
     types,
-    exceptions
+    util,
 )
 from core.util import diskutils
 
@@ -84,11 +82,11 @@ class FiletagsAnalyzer(BaseAnalyzer):
 
         try:
             self._add_results('datetime', types.AW_TIMEDATE(self._timestamp))
-        except exceptions.AWTypeError as e:
+        except types.AWTypeError as e:
             pass
         try:
             self._add_results('description', types.AW_STRING(self._description))
-        except exceptions.AWTypeError as e:
+        except types.AWTypeError as e:
             pass
 
         self._add_results('tags', sorted(self._tags))

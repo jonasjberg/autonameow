@@ -23,10 +23,10 @@ import logging
 
 from core import (
     constants,
-    util,
     exceptions,
+    repository,
     types,
-    repository
+    util,
 )
 from core.config import field_parsers
 
@@ -235,7 +235,7 @@ class Rule(object):
     def description(self, raw_description):
         try:
             description = types.AW_STRING(raw_description)
-        except exceptions.AWTypeError:
+        except types.AWTypeError:
             description = ''
 
         if description:
@@ -251,7 +251,7 @@ class Rule(object):
     def exact_match(self, raw_exact_match):
         try:
             self._exact_match = types.AW_BOOLEAN(raw_exact_match)
-        except exceptions.AWTypeError as e:
+        except types.AWTypeError as e:
             raise exceptions.InvalidRuleError(e)
 
     @property

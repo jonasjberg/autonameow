@@ -24,10 +24,9 @@ from unittest import TestCase
 from datetime import datetime
 
 from core import (
+    constants,
     types,
-    exceptions,
     util,
-    constants
 )
 
 import unit_utils as uu
@@ -122,7 +121,7 @@ class TestTypeBoolean(TestCase):
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(input_data):
-            with self.assertRaises(exceptions.AWTypeError):
+            with self.assertRaises(types.AWTypeError):
                 types.AW_BOOLEAN(input_data)
 
         _assert_raises(-1)
@@ -195,7 +194,7 @@ class TestTypeInteger(TestCase):
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(input_data):
-            with self.assertRaises(exceptions.AWTypeError):
+            with self.assertRaises(types.AWTypeError):
                 types.AW_INTEGER(input_data)
 
         _assert_raises([])
@@ -215,7 +214,7 @@ class TestTypeInteger(TestCase):
 
     def test_format_noncoercible_data(self):
         def _assert_raises(input_data):
-            with self.assertRaises(exceptions.AWTypeError):
+            with self.assertRaises(types.AWTypeError):
                 types.AW_INTEGER.format(input_data)
 
         _assert_raises('x')
@@ -256,7 +255,7 @@ class TestTypeFloat(TestCase):
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(input_data):
-            with self.assertRaises(exceptions.AWTypeError):
+            with self.assertRaises(types.AWTypeError):
                 types.AW_FLOAT(input_data)
 
         _assert_raises('foo')
@@ -270,13 +269,13 @@ class TestTypeFloat(TestCase):
 
 class TestTypeTimeDate(TestCase):
     def test_wraps_expected_primitive(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_TIMEDATE(None)), str)
 
     def test_null(self):
         self.assertEqual(types.AW_TIMEDATE.null, 'INVALID DATE')
 
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_TIMEDATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
@@ -297,7 +296,7 @@ class TestTypeTimeDate(TestCase):
         self.assertNotEqual(without_usecs, another_day)
 
     def test_call_with_none(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertEqual(types.AW_TIMEDATE(None), types.AW_TIMEDATE.null)
 
     def test_call_with_coercible_data(self):
@@ -309,7 +308,7 @@ class TestTypeTimeDate(TestCase):
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(input_data):
-            with self.assertRaises(exceptions.AWTypeError):
+            with self.assertRaises(types.AWTypeError):
                 types.AW_TIMEDATE(input_data)
 
         _assert_raises(None)
@@ -327,13 +326,13 @@ class TestTypeTimeDate(TestCase):
 
 class TestTypeDate(TestCase):
     def test_wraps_expected_primitive(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_DATE(None)), datetime)
 
     def test_null(self):
         self.assertEqual(types.AW_DATE.null, 'INVALID DATE')
 
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_DATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
@@ -341,7 +340,7 @@ class TestTypeDate(TestCase):
         self.skipTest('TODO: Add tests for the "Date" type wrapper')
 
     def test_call_with_none(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             types.AW_DATE(None)
 
     def test_call_with_coercible_data(self):
@@ -357,7 +356,7 @@ class TestTypeDate(TestCase):
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(input_data):
-            with self.assertRaises(exceptions.AWTypeError):
+            with self.assertRaises(types.AWTypeError):
                 types.AW_DATE(input_data)
 
         _assert_raises(None)
@@ -375,18 +374,18 @@ class TestTypeDate(TestCase):
 
 class TestTypeExiftoolTimeDate(TestCase):
     def test_wraps_expected_primitive(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_EXIFTOOLTIMEDATE(None)), str)
 
     def test_null(self):
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE.null, 'INVALID DATE')
 
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_EXIFTOOLTIMEDATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
     def test_call_with_none(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertEqual(types.AW_EXIFTOOLTIMEDATE(None),
                              types.AW_EXIFTOOLTIMEDATE.null)
 
@@ -416,7 +415,7 @@ class TestTypeExiftoolTimeDate(TestCase):
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(input_data):
-            with self.assertRaises(exceptions.AWTypeError):
+            with self.assertRaises(types.AWTypeError):
                 types.AW_EXIFTOOLTIMEDATE(input_data)
 
         _assert_raises(None)
@@ -438,18 +437,18 @@ class TestTypeExiftoolTimeDate(TestCase):
 
 class TestTypePyPDFTimeDate(TestCase):
     def test_wraps_expected_primitive(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_PYPDFTIMEDATE(None)), str)
 
     def test_null(self):
         self.assertEqual(types.AW_PYPDFTIMEDATE.null, 'INVALID DATE')
 
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_PYPDFTIMEDATE(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
     def test_call_with_none(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertEqual(types.AW_PYPDFTIMEDATE(None),
                              types.AW_PYPDFTIMEDATE.null)
 
@@ -470,7 +469,7 @@ class TestTypePyPDFTimeDate(TestCase):
                          expected)
 
     def test_call_with_noncoercible_data(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             types.AW_PYPDFTIMEDATE(None)
             types.AW_PYPDFTIMEDATE('')
             types.AW_PYPDFTIMEDATE('foo')
@@ -489,17 +488,17 @@ class TestTypePyPDFTimeDate(TestCase):
 
 class TestTypePath(TestCase):
     def test_wraps_expected_primitive(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_PATH(None)), None)
 
     def test_null(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertEqual(types.AW_PATH(None), 'INVALID PATH')
 
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertEqual(types.AW_PATH(None), types.AW_PATH.null)
 
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_PATH(None), 'NULL',
                                 'BaseType default "null" must be overridden')
 
@@ -515,7 +514,7 @@ class TestTypePath(TestCase):
                          util.encode_(expected))
 
     def test_normalize_invalid_value(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             types.AW_PATH.normalize('')
 
     def test_call_with_coercible_data(self):
@@ -534,7 +533,7 @@ class TestTypePath(TestCase):
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(input_data):
-            with self.assertRaises(exceptions.AWTypeError):
+            with self.assertRaises(types.AWTypeError):
                 types.AW_PATH(input_data)
 
         _assert_raises(datetime.now())
@@ -578,7 +577,7 @@ class TestTypePathComponent(TestCase):
         self.assertEqual(types.AW_PATHCOMPONENT.normalize('a.pdf'), b'a.pdf')
 
     def test_normalize_invalid_value(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             types.AW_PATHCOMPONENT.normalize('')
 
     def test_call_with_coercible_data(self):
@@ -601,7 +600,7 @@ class TestTypePathComponent(TestCase):
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(input_data):
-            with self.assertRaises(exceptions.AWTypeError):
+            with self.assertRaises(types.AWTypeError):
                 types.AW_PATHCOMPONENT(input_data)
 
         _assert_raises(0)
@@ -662,7 +661,7 @@ class TestTypeString(TestCase):
         self.assertEqual(types.AW_STRING(True), 'True')
 
     def test_call_with_noncoercible_data(self):
-        with self.assertRaises(exceptions.AWTypeError):
+        with self.assertRaises(types.AWTypeError):
             types.AW_STRING(datetime.now())
 
     def test_coerce_with_coercible_data(self):

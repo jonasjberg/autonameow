@@ -20,11 +20,9 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-
 import unicodedata
 
 from core import (
-    exceptions,
     types,
     util
 )
@@ -75,7 +73,7 @@ class AbstractTextExtractor(BaseExtractor):
 def decode_raw(raw_text):
     try:
         text = types.AW_STRING(raw_text)
-    except exceptions.AWTypeError:
+    except types.AWTypeError:
         try:
             text = textutils.autodetect_decode(text)
         except ValueError:

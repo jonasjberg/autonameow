@@ -47,6 +47,10 @@ from core import (
 mimetypes.add_type('application/epub+zip', '.epub')
 
 
+class AWTypeError(exceptions.AutonameowException):
+    """Failure to coerce a value with one of the type wrappers."""
+
+
 class BaseType(object):
     """
     Base class for all custom types. Provides type coercion and known defaults.
@@ -112,14 +116,14 @@ class BaseType(object):
         if msg is not None:
             error_msg = '{}; {!s}'.format(error_msg, msg)
 
-        raise exceptions.AWTypeError(error_msg)
+        raise AWTypeError(error_msg)
 
     def _fail_coercion(self, value, msg=None):
         error_msg = 'Unable to coerce "{!s}" into {!r}'.format(value, self)
         if msg is not None:
             error_msg = '{}; {!s}'.format(error_msg, msg)
 
-        raise exceptions.AWTypeError(error_msg)
+        raise AWTypeError(error_msg)
 
     def __repr__(self):
         return self.__class__.__name__
@@ -421,7 +425,7 @@ class Date(BaseType):
     # Override parent '_null' method to force returning only valid 'datetime'
     # instances. Otherwise, raise an exception to be handled by the caller.
     def _null(self):
-        raise exceptions.AWTypeError(
+        raise AWTypeError(
             'Type wrapper "{!r}" should never EVER return null!'.format(self)
         )
 
@@ -457,7 +461,7 @@ class TimeDate(BaseType):
     # Override parent '_null' method to force returning only valid 'datetime'
     # instances. Otherwise, raise an exception to be handled by the caller.
     def _null(self):
-        raise exceptions.AWTypeError(
+        raise AWTypeError(
             'Type wrapper "{!r}" should never EVER return null!'.format(self)
         )
 

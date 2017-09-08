@@ -33,7 +33,6 @@ except ImportError:
     PyPDF2 = None
 
 from core import (
-    exceptions,
     fields,
     types,
     util
@@ -180,7 +179,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
 
         try:
             wrapped = wrapper(pypdf_data)
-        except exceptions.AWTypeError:
+        except types.AWTypeError:
             self.log.warning(
                 'Wrapping PyPDF data raised AWTypeError for "{!s}" ({})'.format(
                     pypdf_data, type(pypdf_data))
