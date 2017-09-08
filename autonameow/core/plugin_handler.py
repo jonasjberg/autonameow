@@ -52,7 +52,10 @@ class PluginHandler(object):
     def _request_data(self, meowuri):
         response = repository.SessionRepository.query(self.file_object,
                                                       meowuri)
-        return response.value
+        if response is None:
+            return None
+        else:
+            return response.value
 
     def query(self, meowuri):
         if meowuri.startswith('plugin.'):
