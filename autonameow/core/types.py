@@ -340,7 +340,8 @@ class String(BaseType):
 
     def format(self, value, formatter=None):
         # TODO: [TD0060] Implement or remove the "formatter" argument.
-        raise NotImplementedError('TODO: Implement String.format()')
+        # raise NotImplementedError('TODO: Implement String.format()')
+        return value
 
 
 class MimeType(BaseType):

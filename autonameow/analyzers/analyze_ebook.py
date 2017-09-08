@@ -86,9 +86,16 @@ class EbookAnalyzer(BaseAnalyzer):
                 if maybe_title:
                     self._add_results('title', self._wrap_title(maybe_title))
 
-                maybe_author = self._filter_author(metadata.get('Author'))
-                if maybe_author:
-                    self._add_results('author', self._wrap_author(maybe_author))
+                maybe_authors = metadata.get('Authors')
+                if maybe_authors:
+                    # TODO: [TD0084] Use a "list-of-strings" wrapper ..
+                    if isinstance(maybe_authors, list):
+                        for maybe_author in maybe_authors:
+                            _author = self._filter_author(maybe_author)
+                            if _author:
+                                self._add_results('author', self._wrap_author(_author))
+                    else:
+                        self._add_results('author', self._wrap_author(maybe_authors))
 
                 maybe_publisher = self._filter_publisher(
                     metadata.get('Publisher')
@@ -102,12 +109,17 @@ class EbookAnalyzer(BaseAnalyzer):
                     self._add_results('date', self._wrap_date(maybe_date))
 
     def _filter_author(self, raw_string):
-        string_ = types.AW_STRING(raw_string)
-        if not string_.strip():
+        try:
+            # TODO: Calling 'ExtractedData' "wraps" the value a second time!
+            string_ = types.AW_STRING(raw_string)
+        except types.AWTypeError:
             return
+        else:
+            if not string_.strip():
+                return
 
-        # TODO: Cleanup and filter author(s)
-        return string_
+            # TODO: Cleanup and filter author(s)
+            return string_
 
     def _wrap_author(self, author_string):
         return ExtractedData(
@@ -118,12 +130,12 @@ class EbookAnalyzer(BaseAnalyzer):
         )(author_string)
 
     def _filter_date(self, raw_string):
-        string_ = types.AW_DATE(raw_string)
-        if not string_.strip():
-            return
-
         # TODO: Cleanup and filter date/year
-        return string_
+        try:
+            # TODO: Calling 'ExtractedData' "wraps" the value a second time!
+            return types.AW_DATE(raw_string)
+        except types.AWTypeError:
+            return None
 
     def _wrap_date(self, date_string):
         return ExtractedData(
@@ -134,12 +146,17 @@ class EbookAnalyzer(BaseAnalyzer):
         )(date_string)
 
     def _filter_publisher(self, raw_string):
-        string_ = types.AW_STRING(raw_string)
-        if not string_.strip():
+        try:
+            # TODO: Calling 'ExtractedData' "wraps" the value a second time!
+            string_ = types.AW_STRING(raw_string)
+        except types.AWTypeError:
             return
+        else:
+            if not string_.strip():
+                return
 
-        # TODO: Cleanup and filter publisher(s)
-        return string_
+            # TODO: Cleanup and filter publisher(s)
+            return string_
 
     def _wrap_publisher(self, publisher_string):
         return ExtractedData(
@@ -150,12 +167,17 @@ class EbookAnalyzer(BaseAnalyzer):
         )(publisher_string)
 
     def _filter_title(self, raw_string):
-        string_ = types.AW_STRING(raw_string)
-        if not string_.strip():
+        try:
+            # TODO: Calling 'ExtractedData' "wraps" the value a second time!
+            string_ = types.AW_STRING(raw_string)
+        except types.AWTypeError:
             return
+        else:
+            if not string_.strip():
+                return
 
-        # TODO: Cleanup and filter title.
-        return string_
+            # TODO: Cleanup and filter title.
+            return string_
 
     def _wrap_title(self, title_string):
         return ExtractedData(
