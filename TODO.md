@@ -51,6 +51,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0085]` Simplify extractor discovery and import. Use only packages?
+
 * `[TD0083]` __Clean up the type wrapper classes.__  
     * Remove ambiguities around returning "NULL" and raising `AWTypeError`.
     * Clean up the "interface" to the type wrappers. If callers only use the

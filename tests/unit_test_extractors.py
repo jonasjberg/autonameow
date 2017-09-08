@@ -104,6 +104,8 @@ class TestFindExtractorModuleSourceFiles(TestCase):
         actual = extractors.find_extractor_module_files()
 
         self.assertNotIn('__init__.py', actual)
+        self.assertNotIn('__pycache__', actual)
+        self.assertNotIn('common.py', actual)
 
         # TODO: [hardcoded] Likely to break; requires manual updates.
         self.assertIn('filesystem.py', actual)
