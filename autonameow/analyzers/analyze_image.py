@@ -40,16 +40,6 @@ class ImageAnalyzer(BaseAnalyzer):
         self.exiftool = None
         self.ocr_text = None
 
-    def _add_results(self, meowuri_leaf, data):
-        if data is None:
-            return
-
-        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
-        self.log.debug(
-            '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
-        )
-        self.add_results(meowuri, data)
-
     def run(self):
         self.ocr_text = self.request_data(self.file_object,
                                           'contents.visual.ocr_text')

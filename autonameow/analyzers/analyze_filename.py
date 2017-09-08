@@ -35,16 +35,6 @@ class FilenameAnalyzer(BaseAnalyzer):
             file_object, add_results_callback, request_data_callback
         )
 
-    def _add_results(self, meowuri_leaf, data):
-        if data is None:
-            return
-
-        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
-        self.log.debug(
-            '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
-        )
-        self.add_results(meowuri, data)
-
     def run(self):
         # Pass results through callback function provided by the 'Analysis'.
         self._add_results('datetime', self.get_datetime())

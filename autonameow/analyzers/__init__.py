@@ -99,6 +99,32 @@ class BaseAnalyzer(object):
         else:
             raise NotImplementedError(field)
 
+    def _add_results(self, meowuri_leaf, data):
+        """
+        Used by analyzer classes to store results data in the repository.
+
+        Constructs a full "MeowURI" from the given 'meowuri_leaf' and the
+        extractor class attribute 'meowuri_root'.
+
+        Example:  The FilenameAnalyzer 'meowuri_root' is 'analysis.filename'.
+        If this analyzer calls this method with 'meowuri_leaf' = 'datetime',
+        'data' would be stored in the repository under the full "MeowURI":
+        'analysis.filename.datetime'
+
+        Args:
+            meowuri_leaf: Last part of the "MeowURI"; for example 'author',
+                as a Unicode str.
+            data: A list of dicts, each containing some data, source and weight.
+        """
+        if data is None:
+            return
+
+        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
+        self.log.debug(
+            '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
+        )
+        self.add_results(self.file_object, meowuri, data)
+
     @classmethod
     def can_handle(cls, file_object):
         """
