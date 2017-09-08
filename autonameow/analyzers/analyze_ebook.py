@@ -23,8 +23,13 @@ import logging
 import re
 
 from analyzers import BaseAnalyzer
-from core import util
+from core import (
+    util,
+    types,
+    fields
+)
 from core.util import textutils
+from extractors import ExtractedData
 
 try:
     import isbnlib
@@ -62,19 +67,103 @@ class EbookAnalyzer(BaseAnalyzer):
             for isbn in isbns:
                 self.log.debug('Extracted ISBN: {!s}'.format(isbn))
                 self.log.debug('Querying external service for ISBN metadata ..')
-                isbn_metadata = fetch_isbn_metadata(isbn)
-                if not isbn_metadata:
+                metadata = fetch_isbn_metadata(isbn)
+                if not metadata:
                     self.log.warning(
                         'Unable to get metadata for ISBN: "{}"'.format(isbn)
                     )
-                else:
-                    self.log.info('Fetched metadata for ISBN: {}'.format(isbn))
-                    self.log.info('Title     : {}'.format(isbn_metadata['Title']))
-                    self.log.info('Authors   : {}'.format(isbn_metadata['Authors']))
-                    self.log.info('Publisher : {}'.format(isbn_metadata['Publisher']))
-                    self.log.info('Year      : {}'.format(isbn_metadata['Year']))
-                    self.log.info('Language  : {}'.format(isbn_metadata['Language']))
-                    self.log.info('ISBN-13   : {}'.format(isbn_metadata['ISBN-13']))
+                    continue
+
+                self.log.info('Fetched metadata for ISBN: {}'.format(isbn))
+                self.log.info('Title     : {}'.format(metadata['Title']))
+                self.log.info('Authors   : {}'.format(metadata['Authors']))
+                self.log.info('Publisher : {}'.format(metadata['Publisher']))
+                self.log.info('Year      : {}'.format(metadata['Year']))
+                self.log.info('Language  : {}'.format(metadata['Language']))
+                self.log.info('ISBN-13   : {}'.format(metadata['ISBN-13']))
+
+                maybe_title = self._filter_title(metadata.get('Title'))
+                if maybe_title:
+                    self._add_results('title', self._wrap_title(maybe_title))
+
+                maybe_author = self._filter_author(metadata.get('Author'))
+                if maybe_author:
+                    self._add_results('author', self._wrap_author(maybe_author))
+
+                maybe_publisher = self._filter_publisher(
+                    metadata.get('Publisher')
+                )
+                if maybe_publisher:
+                    self._add_results('publisher',
+                                      self._wrap_publisher(maybe_publisher))
+
+                maybe_date = self._filter_date(metadata.get('Year'))
+                if maybe_date:
+                    self._add_results('date', self._wrap_date(maybe_date))
+
+    def _filter_author(self, raw_string):
+        string_ = types.AW_STRING(raw_string)
+        if not string_.strip():
+            return
+
+        # TODO: Cleanup and filter author(s)
+        return string_
+
+    def _wrap_author(self, author_string):
+        return ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.author, probability=1),
+            ]
+        )(author_string)
+
+    def _filter_date(self, raw_string):
+        string_ = types.AW_DATE(raw_string)
+        if not string_.strip():
+            return
+
+        # TODO: Cleanup and filter date/year
+        return string_
+
+    def _wrap_date(self, date_string):
+        return ExtractedData(
+            wrapper=types.AW_DATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.date, probability=1),
+            ]
+        )(date_string)
+
+    def _filter_publisher(self, raw_string):
+        string_ = types.AW_STRING(raw_string)
+        if not string_.strip():
+            return
+
+        # TODO: Cleanup and filter publisher(s)
+        return string_
+
+    def _wrap_publisher(self, publisher_string):
+        return ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.publisher, probability=1),
+            ]
+        )(publisher_string)
+
+    def _filter_title(self, raw_string):
+        string_ = types.AW_STRING(raw_string)
+        if not string_.strip():
+            return
+
+        # TODO: Cleanup and filter title.
+        return string_
+
+    def _wrap_title(self, title_string):
+        return ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.title, probability=1),
+            ]
+        )(title_string)
 
     def _add_results(self, meowuri_leaf, data):
         if data is None:
