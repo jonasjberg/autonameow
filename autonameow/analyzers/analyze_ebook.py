@@ -24,6 +24,7 @@ import re
 
 from analyzers import BaseAnalyzer
 from core import util
+from core.util import textutils
 
 try:
     import isbnlib
@@ -53,8 +54,13 @@ class EbookAnalyzer(BaseAnalyzer):
         )
 
     def run(self):
-        self._text = self.request_data(self.file_object,
-                                       'contents.textual.raw_text')
+        text = self.request_data(self.file_object, 'contents.textual.raw_text')
+        isbns = _search_initial_text(text, extract_isbns_from_text)
+
+        if isbns:
+            isbns = filter_isbns(isbns)
+            for isbn in isbns:
+                self.log.debug('Extracted ISBN: {!s}'.format(isbn))
 
     def _add_results(self, meowuri_leaf, data):
         if data is None:
@@ -88,14 +94,21 @@ class EbookAnalyzer(BaseAnalyzer):
 # TODO: [TD0030] Plugin for querying APIs with ISBN numbers.
 
 
+def _search_initial_text(text, callback):
+    initial_text_start = 0
+    initial_text_end = 100
+    lines = textutils.extract_lines(text, initial_text_start, initial_text_end)
+
+    return callback(lines)
+
+
 def extract_isbns_from_text(text):
-    try:
-        isbns = [isbnlib.get_canonical_isbn(isbn)
-                 for isbn in isbnlib.get_isbnlike(text)]
-    except IndexError:
-        return []
-    else:
+    isbns = [isbnlib.get_canonical_isbn(isbn)
+             for isbn in isbnlib.get_isbnlike(text)]
+    if isbns:
         return [i for i in isbns if validate_isbn(i)]
+    else:
+        return []
 
 
 def validate_isbn(number):
