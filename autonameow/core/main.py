@@ -181,13 +181,22 @@ class Autonameow(object):
         Main loop. Iterate over input paths/files.
 
         For each file:
-        1. Create 'FileObject' representing the file.
-        2. Extract data from the file with an instance of the 'Extraction' class
-        3. Perform analysis of the file with an instance of the 'Analysis' class
-        4. Determine which rules match the given file.
-        5. Do any reporting of results to the user.
-        6. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
-        7. (automagic mode and not --dry-run) Rename the file.
+        1. Create a 'FileObject' representing the current file.
+        2. Extract data from the file with suitable and/or required extractors.
+        3. Perform analysis of the file with suitable analyzers.
+        4. Run any available plugins.
+        5A -- "AUTOMAGIC MODE"
+            1. Determine which rules match the given file.
+            2. Use the "name template" and "data sources" specified in the
+               highest ranked rule, if any.
+            3. Use a 'Resolver' to collect data from "data sources" to be used
+               to populate "name template".
+            4. Construct a file name with the "name builder" if all required
+               data is available.
+            5. If not --dry-run; rename the file to the new file name.
+        5B -- "INTERACTIVE MODE"
+          1. Not implemented yet!
+        6. Do any reporting of results to the user.
 
         Assume all state is setup and completely reset for each loop iteration.
         It is not currently possible to share "information" between runs.
@@ -392,14 +401,13 @@ class Autonameow(object):
 
 def _run_extraction(file_object, require_extractors, run_all_extractors=False):
     """
-    Instantiates, executes and returns an 'Extraction' instance.
+    Sets up and executes data extraction for the given file.
 
     Args:
         file_object: The file object to extract data from.
+        require_extractors: List of extractor classes that should be included.
         run_all_extractors: Whether all data extractors should be included.
 
-    Returns:
-        An instance of the 'Extraction' class that has executed successfully.
     Raises:
         AutonameowException: An unrecoverable error occurred during extraction.
     """
@@ -436,7 +444,7 @@ def _run_plugins(file_object):
 
 def _run_analysis(file_object):
     """
-    Starts analyzing a given file.
+    Sets up and executes "analysis" of the given file.
 
     Args:
         file_object: The file object to analyze.

@@ -70,6 +70,7 @@ def _instantiate_extractors(file_object, klass_list):
     Get a list of class instances from a given list of classes.
 
     Args:
+        file_object: The file to extract data from.
         klass_list: The classes to instantiate as a list of type 'class'.
 
     Returns:
