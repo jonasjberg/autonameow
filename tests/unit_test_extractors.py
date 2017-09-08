@@ -28,6 +28,7 @@ from extractors import (
 from extractors.metadata.common import AbstractMetadataExtractor
 from extractors.text.common import AbstractTextExtractor
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestExtractorsConstants(TestCase):
@@ -140,8 +141,8 @@ class TestGetAllExtractorClasses(TestCase):
 class TestGetImplementedExtractorClasses(TestCase):
     def setUp(self):
         self.actual = extractors.get_extractor_classes(
-            packages=['metadata', 'text'],
-            modules=['filesystem.py']
+            packages=uuconst.EXTRACTOR_CLASS_PACKAGES,
+            modules=uuconst.EXTRACTOR_CLASS_MODULES
         )
 
     def test_get_extractor_classes_returns_expected_type(self):
@@ -163,8 +164,8 @@ class TestGetImplementedExtractorClasses(TestCase):
 class TestNumberOfAvailableExtractorClasses(TestCase):
     def setUp(self):
         self.actual = extractors.get_extractor_classes(
-            packages=['metadata', 'text'],
-            modules=['filesystem.py']
+            packages=uuconst.EXTRACTOR_CLASS_PACKAGES,
+            modules=uuconst.EXTRACTOR_CLASS_MODULES
         )
 
     # This tests up to the current number of extractors without dependencies.

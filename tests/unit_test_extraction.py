@@ -24,13 +24,14 @@ from unittest import TestCase
 import extractors
 from core import extraction
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestExtraction(TestCase):
     def test__instantiate_extractors_returns_expected_type(self):
         klasses = extractors.get_extractor_classes(
-            packages=['metadata', 'text'],
-            modules=['filesystem.py']
+            packages=uuconst.EXTRACTOR_CLASS_PACKAGES,
+            modules=uuconst.EXTRACTOR_CLASS_MODULES
         )
         fo = uu.get_mock_fileobject()
 
