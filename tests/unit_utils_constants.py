@@ -155,3 +155,8 @@ RESULTS_DATA_STRUCTURE = {
 # Static dummy data sources used in the 'Repository' unit tests.
 __flat_results_data_structure = util.flatten_dict(RESULTS_DATA_STRUCTURE)
 VALID_DATA_SOURCES = list(__flat_results_data_structure.keys())
+
+
+# Sources to search for extractor classes.
+EXTRACTOR_CLASS_PACKAGES = ['metadata', 'text']
+EXTRACTOR_CLASS_MODULES = ['filesystem.py']

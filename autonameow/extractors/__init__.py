@@ -45,11 +45,15 @@ def find_extractor_module_files():
 
     Returns: List of found extractor source files basenames.
     """
+    # TODO: [TD0085] Move all extractors to packages?
+    #       Move 'filesystem.py' to new 'filesystem' package to avoid
+    #       searching both modules AND packages?
     extractor_files = [
         x for x in os.listdir(AUTONAMEOW_EXTRACTOR_PATH)
         if x.endswith('.py')
         and x != '__init__.py'
         and x != '__pycache__'
+        and x != 'common.py'
         and not x.startswith('.')
     ]
     return extractor_files
@@ -105,9 +109,9 @@ def get_abstract_extractor_classes(extractor_files):
     return _p_abstract + _m_abstract
 
 
-def get_extractor_classes(extractor_files):
-    _p_abstract, _p_implemented = _get_package_classes(['metadata', 'text'])
-    _m_abstract, _m_implemented = _get_module_classes(extractor_files)
+def get_extractor_classes(packages, modules):
+    _p_abstract, _p_implemented = _get_package_classes(packages)
+    _m_abstract, _m_implemented = _get_module_classes(modules)
 
     _implemented = _p_implemented + _m_implemented
 
@@ -165,7 +169,9 @@ def map_meowuri_to_extractors():
     return out
 
 
-ExtractorClasses = get_extractor_classes(['filesystem.py'])
+_extractor_module_files = find_extractor_module_files()
+ExtractorClasses = get_extractor_classes(packages=['metadata', 'text'],
+                                         modules=_extractor_module_files)
 MeowURIClassMap = map_meowuri_to_extractors()
 
 

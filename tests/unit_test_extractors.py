@@ -28,6 +28,7 @@ from extractors import (
 from extractors.metadata.common import AbstractMetadataExtractor
 from extractors.text.common import AbstractTextExtractor
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestExtractorsConstants(TestCase):
@@ -103,6 +104,8 @@ class TestFindExtractorModuleSourceFiles(TestCase):
         actual = extractors.find_extractor_module_files()
 
         self.assertNotIn('__init__.py', actual)
+        self.assertNotIn('__pycache__', actual)
+        self.assertNotIn('common.py', actual)
 
         # TODO: [hardcoded] Likely to break; requires manual updates.
         self.assertIn('filesystem.py', actual)
@@ -139,8 +142,10 @@ class TestGetAllExtractorClasses(TestCase):
 
 class TestGetImplementedExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['filesystem.py']
-        self.actual = extractors.get_extractor_classes(self.sources)
+        self.actual = extractors.get_extractor_classes(
+            packages=uuconst.EXTRACTOR_CLASS_PACKAGES,
+            modules=uuconst.EXTRACTOR_CLASS_MODULES
+        )
 
     def test_get_extractor_classes_returns_expected_type(self):
         self.assertTrue(isinstance(self.actual, list))
@@ -160,8 +165,10 @@ class TestGetImplementedExtractorClasses(TestCase):
 
 class TestNumberOfAvailableExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['filesystem.py']
-        self.actual = extractors.get_extractor_classes(self.sources)
+        self.actual = extractors.get_extractor_classes(
+            packages=uuconst.EXTRACTOR_CLASS_PACKAGES,
+            modules=uuconst.EXTRACTOR_CLASS_MODULES
+        )
 
     # This tests up to the current number of extractors without dependencies.
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.
@@ -189,12 +196,14 @@ class TestSuitableDataExtractorsForFile(TestCase):
         self.fo = uu.get_mock_fileobject(mime_type='video/mp4')
         actual = [c.__name__ for c in
                   extractors.suitable_data_extractors_for(self.fo)]
+        self.assertIn('CommonFileSystemExtractor', actual)
         self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
 
     def test_returns_expected_extractors_for_png_image_file(self):
         self.fo = uu.get_mock_fileobject(mime_type='image/png')
         actual = [c.__name__ for c in
                   extractors.suitable_data_extractors_for(self.fo)]
+        self.assertIn('CommonFileSystemExtractor', actual)
         self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
         self.assert_in_if_available('ImageOCRTextExtractor', actual)
 
@@ -202,6 +211,7 @@ class TestSuitableDataExtractorsForFile(TestCase):
         self.fo = uu.get_mock_fileobject(mime_type='application/pdf')
         actual = [c.__name__ for c in
                   extractors.suitable_data_extractors_for(self.fo)]
+        self.assertIn('CommonFileSystemExtractor', actual)
         self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
         self.assert_in_if_available('PyPDFMetadataExtractor', actual)
         self.assert_in_if_available('PdfTextExtractor', actual)
