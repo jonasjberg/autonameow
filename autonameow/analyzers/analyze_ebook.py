@@ -61,6 +61,20 @@ class EbookAnalyzer(BaseAnalyzer):
             isbns = filter_isbns(isbns)
             for isbn in isbns:
                 self.log.debug('Extracted ISBN: {!s}'.format(isbn))
+                self.log.debug('Querying external service for ISBN metadata ..')
+                isbn_metadata = fetch_isbn_metadata(isbn)
+                if not isbn_metadata:
+                    self.log.warning(
+                        'Unable to get metadata for ISBN: "{}"'.format(isbn)
+                    )
+                else:
+                    self.log.info('Fetched metadata for ISBN: {}'.format(isbn))
+                    self.log.info('Title     : {}'.format(isbn_metadata['Title']))
+                    self.log.info('Authors   : {}'.format(isbn_metadata['Authors']))
+                    self.log.info('Publisher : {}'.format(isbn_metadata['Publisher']))
+                    self.log.info('Year      : {}'.format(isbn_metadata['Year']))
+                    self.log.info('Language  : {}'.format(isbn_metadata['Language']))
+                    self.log.info('ISBN-13   : {}'.format(isbn_metadata['ISBN-13']))
 
     def _add_results(self, meowuri_leaf, data):
         if data is None:
@@ -133,3 +147,18 @@ def filter_isbns(numbers):
     numbers = [n for n in nums
                if n not in BLACKLISTED_ISBN_NUMBERS]
     return numbers
+
+
+def fetch_isbn_metadata(isbn_number):
+    logging.disable(logging.DEBUG)
+
+    isbn_metadata = None
+    try:
+        isbn_metadata = isbnlib.meta(isbn_number)
+    except isbnlib.NotValidISBNError:
+        log.error(
+            'Metadata query FAILED for ISBN: "{}"'.format(isbn_number)
+        )
+
+    logging.disable(logging.NOTSET)
+    return isbn_metadata
