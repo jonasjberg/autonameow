@@ -97,3 +97,49 @@ def autodetect_decode(string):
             raise ValueError('Unable to autodetect encoding and decode string')
 
     return string
+
+
+def extract_lines(text, first_line, last_line):
+    """
+    Extracts a range of text lines from a Unicode string.
+
+    The line boundaries are a superset of "universal newlines" as defined here;
+        https://docs.python.org/3/library/stdtypes.html#str.splitlines
+
+    Any trailing newlines are trimmed.
+
+    Args:
+        text: Text to extract lines from, as a Unicode string.
+        first_line: First line to include, as a non-negative integer.
+        last_line: Last line to include, as a non-negative integer.
+
+    Returns:
+        Lines between 'first_line' and 'last_line' from the given 'text'.
+    """
+    if text is None:
+        raise ValueError('Got None argument "text"')
+    if not isinstance(text, str):
+        raise TypeError('Expected argument "text" to be a Unicode str')
+
+    assert(first_line >= 0)
+    assert(last_line >= 0)
+
+    #if text.endswith('\n'):
+    #    add_trailing_newline = True
+    #else:
+    #    add_trailing_newline = False
+
+    lines = text.splitlines(keepends=True)
+    if last_line > len(lines):
+        last_line = len(lines)
+
+    if first_line > last_line:
+        first_line = last_line
+
+    extracted = lines[first_line:last_line]
+    extracted = ''.join(extracted)
+
+    #if last_line == len(lines) and add_trailing_newline:
+    #    extracted += '\n'
+
+    return extracted
