@@ -139,8 +139,10 @@ class TestGetAllExtractorClasses(TestCase):
 
 class TestGetImplementedExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['filesystem.py']
-        self.actual = extractors.get_extractor_classes(self.sources)
+        self.actual = extractors.get_extractor_classes(
+            packages=['metadata', 'text'],
+            modules=['filesystem.py']
+        )
 
     def test_get_extractor_classes_returns_expected_type(self):
         self.assertTrue(isinstance(self.actual, list))
@@ -160,8 +162,10 @@ class TestGetImplementedExtractorClasses(TestCase):
 
 class TestNumberOfAvailableExtractorClasses(TestCase):
     def setUp(self):
-        self.sources = ['filesystem.py']
-        self.actual = extractors.get_extractor_classes(self.sources)
+        self.actual = extractors.get_extractor_classes(
+            packages=['metadata', 'text'],
+            modules=['filesystem.py']
+        )
 
     # This tests up to the current number of extractors without dependencies.
     # TODO: [hardcoded] Testing number of extractor classes needs fixing.

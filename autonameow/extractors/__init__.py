@@ -105,9 +105,9 @@ def get_abstract_extractor_classes(extractor_files):
     return _p_abstract + _m_abstract
 
 
-def get_extractor_classes(extractor_files):
-    _p_abstract, _p_implemented = _get_package_classes(['metadata', 'text'])
-    _m_abstract, _m_implemented = _get_module_classes(extractor_files)
+def get_extractor_classes(packages, modules):
+    _p_abstract, _p_implemented = _get_package_classes(packages)
+    _m_abstract, _m_implemented = _get_module_classes(modules)
 
     _implemented = _p_implemented + _m_implemented
 
@@ -165,7 +165,8 @@ def map_meowuri_to_extractors():
     return out
 
 
-ExtractorClasses = get_extractor_classes(['filesystem.py'])
+ExtractorClasses = get_extractor_classes(packages=['metadata', 'text'],
+                                         modules=['filesystem.py'])
 MeowURIClassMap = map_meowuri_to_extractors()
 
 

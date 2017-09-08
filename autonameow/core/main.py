@@ -31,13 +31,13 @@ from core import (
     options,
     repository,
     util,
-    namebuilder
+    namebuilder,
+    extraction
 )
 from core.analysis import Analysis
 from core.config.configuration import Configuration
 from core.evaluate.resolver import Resolver
 from core.evaluate.rulematcher import RuleMatcher
-from core.extraction import Extraction
 from core.fileobject import FileObject
 from core.filter import ResultFilter
 from core.plugin_handler import PluginHandler
@@ -235,7 +235,7 @@ class Autonameow(object):
         required_extractors = repository.get_sources_for_meowuris(
             self.active_config.referenced_meowuris
         )
-        extraction = _run_extraction(
+        _run_extraction(
             current_file,
             require_extractors=required_extractors,
 
@@ -403,16 +403,13 @@ def _run_extraction(file_object, require_extractors, run_all_extractors=False):
     Raises:
         AutonameowException: An unrecoverable error occurred during extraction.
     """
-    extraction = Extraction(file_object,
-                            require_extractors=require_extractors,
-                            require_all_extractors=run_all_extractors is True)
     try:
-        extraction.start()
+        extraction.start(file_object,
+                         require_extractors=require_extractors,
+                         require_all_extractors=run_all_extractors is True)
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
         raise
-    else:
-        return extraction
 
 
 def _run_plugins(file_object):
