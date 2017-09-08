@@ -395,6 +395,42 @@ class MimeType(BaseType):
         return formatted if formatted is not None else self._null()
 
 
+class Date(BaseType):
+    primitive_type = None
+    coercible_types = (str, bytes, int, float)
+    equivalent_types = (datetime, )
+
+    # Make sure to never return "null" -- raise a 'AWTypeError' exception.
+    null = 'INVALID DATE'
+
+    # TODO: [TD0054] Represent datetime as UTC within autonameow.
+
+    def coerce(self, value):
+        try:
+            return try_parse_date(value)
+        except (TypeError, ValueError) as e:
+            self._fail_coercion(value, msg=e)
+
+    def normalize(self, value):
+        value = self.__call__(value)
+        if isinstance(value, datetime):
+            return value.replace(microsecond=0)
+
+        self._fail_normalization(value)
+
+    # Override parent '_null' method to force returning only valid 'datetime'
+    # instances. Otherwise, raise an exception to be handled by the caller.
+    def _null(self):
+        raise exceptions.AWTypeError(
+            'Type wrapper "{!r}" should never EVER return null!'.format(self)
+        )
+
+    def format(self, value, formatter=None):
+        # TODO: [TD0060] Implement or remove the "formatter" argument.
+        return value
+        # raise NotImplementedError('TODO: Implement TimeDate.format()')
+
+
 class TimeDate(BaseType):
     primitive_type = None
     coercible_types = (str, bytes, int, float)
@@ -526,6 +562,25 @@ def try_parse_full_datetime(string):
     raise ValueError(_error_msg)
 
 
+def try_parse_date(string):
+    _error_msg = 'Unable to parse date from: "{!s}"'.format(string)
+
+    if not string:
+        raise ValueError(_error_msg)
+    if not isinstance(string, str):
+        raise ValueError(_error_msg)
+
+    date_formats = ['%Y-%m-%d',
+                    '%Y']
+    for date_format in date_formats:
+        try:
+            return datetime.strptime(string, date_format)
+        except (ValueError, TypeError):
+            continue
+
+    raise ValueError(_error_msg)
+
+
 def try_wrap(value):
     wrapper = PRIMITIVE_AW_TYPE_MAP.get(type(value))
     if wrapper:
@@ -536,6 +591,7 @@ def try_wrap(value):
 
 # Singletons for actual use.
 AW_BOOLEAN = Boolean()
+AW_DATE = Date()
 AW_PATH = Path()
 AW_PATHCOMPONENT = PathComponent()
 AW_INTEGER = Integer()

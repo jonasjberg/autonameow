@@ -325,6 +325,54 @@ class TestTypeTimeDate(TestCase):
         self.assertIsNotNone(types.AW_TIMEDATE.format)
 
 
+class TestTypeDate(TestCase):
+    def test_wraps_expected_primitive(self):
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertEqual(type(types.AW_DATE(None)), datetime)
+
+    def test_null(self):
+        self.assertEqual(types.AW_DATE.null, 'INVALID DATE')
+
+        with self.assertRaises(exceptions.AWTypeError):
+            self.assertNotEqual(types.AW_DATE(None), 'NULL',
+                                'BaseType default "null" must be overridden')
+
+    def test_normalize(self):
+        self.skipTest('TODO: Add tests for the "Date" type wrapper')
+
+    def test_call_with_none(self):
+        with self.assertRaises(exceptions.AWTypeError):
+            types.AW_DATE(None)
+
+    def test_call_with_coercible_data(self):
+        expected = datetime.strptime('2017-07-12', '%Y-%m-%d')
+        self.assertEqual(types.AW_DATE(expected), expected)
+        self.assertEqual(types.AW_DATE('2017-07-12'), expected)
+        # self.assertEqual(types.AW_DATE(b'2017-07-12'), expected)
+
+        expected = datetime.strptime('2017', '%Y')
+        self.assertEqual(types.AW_DATE(expected), expected)
+        self.assertEqual(types.AW_DATE('2017'), expected)
+        # self.assertEqual(types.AW_DATE(b'2017'), expected)
+
+    def test_call_with_noncoercible_data(self):
+        def _assert_raises(input_data):
+            with self.assertRaises(exceptions.AWTypeError):
+                types.AW_DATE(input_data)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises('foo')
+        _assert_raises([])
+        _assert_raises([''])
+        _assert_raises([None])
+        # TODO: Add testing additional input data.
+
+    def test_format(self):
+        # TODO: Add additional tests.
+        self.assertIsNotNone(types.AW_DATE.format)
+
+
 class TestTypeExiftoolTimeDate(TestCase):
     def test_wraps_expected_primitive(self):
         with self.assertRaises(exceptions.AWTypeError):
