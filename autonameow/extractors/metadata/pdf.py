@@ -65,22 +65,21 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         'Title': ExtractedData(types.AW_STRING),
     }
 
-    def __init__(self, source):
-        super(PyPDFMetadataExtractor, self).__init__(source)
-        self._raw_metadata = None
+    def __init__(self):
+        super(PyPDFMetadataExtractor, self).__init__()
 
-    def _get_raw_metadata(self):
+    def _get_raw_metadata(self, source):
         try:
-            return self._get_pypdf_data()
+            return self._get_pypdf_data(source)
         except Exception as e:
             raise ExtractorError(e)
 
-    def _get_pypdf_data(self):
+    def _get_pypdf_data(self, source):
         out = {}
 
         try:
             # NOTE(jonas): [encoding] Double-check PyPDF2 docs ..
-            file_reader = PyPDF2.PdfFileReader(util.decode_(self.source), 'rb')
+            file_reader = PyPDF2.PdfFileReader(util.decode_(source), 'rb')
         except (OSError, PyPdfError) as e:
             raise ExtractorError(e)
 

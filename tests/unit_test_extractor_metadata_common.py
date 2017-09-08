@@ -35,7 +35,8 @@ import unit_utils as uu
 
 class TestAbstractMetadataExtractor(TestCase):
     def setUp(self):
-        self.e = AbstractMetadataExtractor(uu.make_temporary_file())
+        self.test_file = uu.make_temporary_file()
+        self.e = AbstractMetadataExtractor()
 
     def test_class_is_available(self):
         self.assertIsNotNone(AbstractMetadataExtractor)
@@ -45,12 +46,14 @@ class TestAbstractMetadataExtractor(TestCase):
 
     def test_method__get_raw_metadata_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e._get_raw_metadata()
+            self.e._get_raw_metadata(self.test_file)
 
     def test_query_raises_exception_with__get_raw_metadata_unimplemented(self):
         with self.assertRaises(ExtractorError):
-            self.assertIsNone(self.e.execute())
-            self.assertIsNone(self.e.execute(field='some_field'))
+            self.assertIsNone(self.e(self.test_file))
+
+        with self.assertRaises(ExtractorError):
+            self.assertIsNone(self.e(self.test_file, field='some_field'))
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.handles_mime_types)
@@ -60,7 +63,7 @@ class TestAbstractMetadataExtractor(TestCase):
 
     def test__perform_initial_extraction_raises_extractor_error(self):
         with self.assertRaises(ExtractorError):
-            _ = self.e._perform_initial_extraction()
+            _ = self.e.execute(self.test_file)
 
     def test_check_dependencies_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

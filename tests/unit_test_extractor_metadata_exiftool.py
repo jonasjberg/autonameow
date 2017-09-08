@@ -36,13 +36,12 @@ unmet_dependencies = not ExiftoolMetadataExtractor.check_dependencies()
 dependency_error = 'Extractor dependencies not satisfied'
 
 
-temporary_file = uu.make_temporary_file()
-E = ExiftoolMetadataExtractor(temporary_file)
+temp_file = uu.make_temporary_file()
 
 
 class TestExiftoolMetadataExtractor(unittest.TestCase):
     def setUp(self):
-        self.e = E
+        self.e = ExiftoolMetadataExtractor()
 
     def test_exiftool_metadata_extractor_class_is_available(self):
         self.assertIsNotNone(ExiftoolMetadataExtractor)
@@ -59,52 +58,56 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test__get_raw_metadata_returns_something(self):
-        self.assertIsNotNone(self.e._get_raw_metadata())
+        self.assertIsNotNone(self.e._get_raw_metadata(temp_file))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test__get_raw_metadata_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e._get_raw_metadata(), dict))
+        self.assertTrue(isinstance(self.e._get_raw_metadata(temp_file), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test__get_raw_metadata_raises_expected_exceptions(self):
         with self.assertRaises(ExtractorError):
-            e = ExiftoolMetadataExtractor(None)
-            e._get_raw_metadata()
-            f = ExiftoolMetadataExtractor('not_a_file_surely')
-            f._get_raw_metadata()
+            e = ExiftoolMetadataExtractor()
+            e._get_raw_metadata(None)
+
+        with self.assertRaises(ExtractorError):
+            f = ExiftoolMetadataExtractor()
+            f._get_raw_metadata('not_a_file_surely')
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_returns_something(self):
-        self.assertIsNotNone(self.e._get_exiftool_data())
+        self.assertIsNotNone(self.e._get_exiftool_data(temp_file))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e._get_exiftool_data(), dict))
+        self.assertTrue(isinstance(self.e._get_exiftool_data(temp_file), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_raises_expected_exception(self):
         with self.assertRaises(ExtractorError):
-            e = ExiftoolMetadataExtractor(None)
-            e._get_exiftool_data()
-            f = ExiftoolMetadataExtractor('not_a_file_surely')
-            f._get_exiftool_data()
+            e = ExiftoolMetadataExtractor()
+            e._get_exiftool_data(None)
+
+        with self.assertRaises(ExtractorError):
+            f = ExiftoolMetadataExtractor()
+            f._get_exiftool_data('not_a_file_surely')
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute())
+        self.assertIsNotNone(self.e.execute(temp_file))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.execute(), dict))
+        self.assertTrue(isinstance(self.e.execute(temp_file), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_all_result_contains_file_size(self):
-        actual = self.e.execute()
+        actual = self.e.execute(temp_file)
         self.assertTrue('File:FileSize' in actual)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_file_size_returns_expected(self):
-        actual = self.e.execute(field='File:FileSize')
+        actual = self.e.execute(temp_file, field='File:FileSize')
         self.assertTrue(isinstance(actual, ExtractedData))
         self.assertEqual(actual.value, 0)
 
@@ -114,8 +117,8 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
         return datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
 
     def setUp(self):
-        image = util.normpath(uu.abspath_testfile('smulan.jpg'))
-        self.e = ExiftoolMetadataExtractor(image)
+        self.test_file = util.normpath(uu.abspath_testfile('smulan.jpg'))
+        self.e = ExiftoolMetadataExtractor()
 
         self.EXPECT_FIELD_VALUE = [
             ('EXIF:CreateDate', self._to_datetime('2010-01-31 16:12:51')),
@@ -126,21 +129,21 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute())
+        self.assertIsNotNone(self.e.execute(self.test_file))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.execute(), dict))
+        self.assertTrue(isinstance(self.e.execute(self.test_file), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_all_result_contains_expected_fields(self):
-        actual = self.e.execute()
+        actual = self.e.execute(self.test_file)
         for field, _ in self.EXPECT_FIELD_VALUE:
             self.assertTrue(field in actual)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_all_result_contains_expected_values(self):
-        actual_result = self.e.execute()
+        actual_result = self.e.execute(self.test_file)
         for field, value in self.EXPECT_FIELD_VALUE:
             actual = actual_result.get(field)
             self.assertEqual(actual.value, value)
@@ -148,6 +151,6 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_field_returns_expected_value(self):
         for field, value in self.EXPECT_FIELD_VALUE:
-            actual = self.e.execute(field=field)
+            actual = self.e.execute(self.test_file, field=field)
             self.assertTrue(isinstance(actual, ExtractedData))
             self.assertEqual(actual.value, value)

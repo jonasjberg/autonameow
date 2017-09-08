@@ -29,7 +29,8 @@ from extractors.text.common import AbstractTextExtractor
 
 class TestAbstractTextExtractor(TestCase):
     def setUp(self):
-        self.e = AbstractTextExtractor(uu.make_temporary_file())
+        self.test_file = uu.make_temporary_file()
+        self.e = AbstractTextExtractor()
 
         class DummyFileObject(object):
             def __init__(self):
@@ -44,7 +45,7 @@ class TestAbstractTextExtractor(TestCase):
 
     def test_query_raises_exception_with__get_raw_text_unimplemented(self):
         with self.assertRaises(ExtractorError):
-            self.e.execute()
+            self.e.execute(self.test_file)
             self.e.execute(field='some_field')
 
     def test_method_str_is_defined_and_reachable(self):
@@ -74,7 +75,7 @@ class TestAbstractTextExtractor(TestCase):
 
     def test__get_raw_text_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e._get_text()
+            self.e._get_text(self.test_file)
 
     def test_check_dependencies_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

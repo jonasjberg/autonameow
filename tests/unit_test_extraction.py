@@ -28,19 +28,8 @@ import unit_utils_constants as uuconst
 
 
 class TestExtraction(TestCase):
-    def test__instantiate_extractors_returns_expected_type(self):
-        klasses = extractors.get_extractor_classes(
-            packages=uuconst.EXTRACTOR_CLASS_PACKAGES,
-            modules=uuconst.EXTRACTOR_CLASS_MODULES
-        )
-        fo = uu.get_mock_fileobject()
-
-        actual = extraction._instantiate_extractors(fo, klasses)
-        self.assertTrue(isinstance(actual, list))
-        for ec in actual:
-            self.assertTrue(uu.is_class_instance(ec))
-            self.assertTrue(issubclass(ec.__class__,
-                                       extractors.BaseExtractor))
+    def test_TODO(self):
+        self.skipTest('TODO: Add tests of extraction')
 
 
 class _DummyExtractor(object):

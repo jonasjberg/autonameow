@@ -87,27 +87,24 @@ class CommonFileSystemExtractor(BaseExtractor):
         )
     }
 
-    def __init__(self, source):
-        super(CommonFileSystemExtractor, self).__init__(source)
+    def __init__(self):
+        super(CommonFileSystemExtractor, self).__init__()
 
-        self.data = {}
-
-    def execute(self, **kwargs):
-        if not self.data:
-            try:
-                self.data = self._get_data(self.source)
-            except ExtractorError as e:
-                self.log.error('{!s} extraction FAILED: {!s}'.format(self, e))
-                raise
+    def execute(self, source, **kwargs):
+        try:
+            data = self._get_data(source)
+        except ExtractorError as e:
+            self.log.error('{!s} extraction FAILED: {!s}'.format(self, e))
+            raise
 
         if 'field' not in kwargs:
             self.log.debug('{!s} returning all extracted data'.format(self))
-            return self.data
+            return data
         else:
             field = kwargs.get('field')
             self.log.debug('{!s} returning data matching field: '
                            '"{!s}"'.format(self, field))
-            return self.data.get(field)
+            return data.get(field)
 
     def _get_data(self, file_object):
         if not isinstance(file_object, FileObject):

@@ -44,10 +44,10 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
     meowuri_root = 'contents.visual.ocr_text'
     is_slow = True
 
-    def __init__(self, source):
-        super(ImageOCRTextExtractor, self).__init__(source)
+    def __init__(self):
+        super(ImageOCRTextExtractor, self).__init__()
 
-    def _get_text(self):
+    def _get_text(self, source):
         # NOTE: Tesseract behaviour will likely need tweaking depending
         #       on the image contents. Will need to pass "tesseract_args"
         #       somehow. I'm starting to think image OCR does not belong
@@ -55,9 +55,9 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
         tesseract_args = None
 
         self.log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
-            tesseract_args, util.displayable_path(self.source)
+            tesseract_args, util.displayable_path(source)
         ))
-        result = get_text_from_ocr(self.source, tesseract_args=tesseract_args)
+        result = get_text_from_ocr(source, tesseract_args=tesseract_args)
 
         self.log.debug('Tesseract returned {} (?) of text'.format(len(result)))
         return result

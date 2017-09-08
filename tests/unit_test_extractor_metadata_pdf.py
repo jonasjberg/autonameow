@@ -40,8 +40,8 @@ class TestPDFMetadataExtractor(unittest.TestCase):
         return datetime.strptime(value, '%Y-%m-%d %H:%M:%S%z')
 
     def setUp(self):
-        image = util.normpath(uu.abspath_testfile('gmail.pdf'))
-        self.e = PyPDFMetadataExtractor(image)
+        self.test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
+        self.e = PyPDFMetadataExtractor()
 
         self.EXPECT_FIELD_VALUE = [
             ('CreationDate', self._to_datetime('2016-01-11 12:41:32+0000')),
@@ -75,28 +75,28 @@ class TestPDFMetadataExtractor(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute())
+        self.assertIsNotNone(self.e.execute(self.test_file))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.execute(), dict))
+        self.assertTrue(isinstance(self.e.execute(self.test_file), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_all_result_contains_expected_values(self):
-        actual = self.e.execute()
+        actual = self.e.execute(self.test_file)
         for field, value in self.EXPECT_FIELD_VALUE:
             self.assertEqual(actual.get(field).value, value)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_field_returns_expected_value(self):
         for field, value in self.EXPECT_FIELD_VALUE:
-            actual = self.e.execute(field=field)
+            actual = self.e.execute(self.test_file, field=field)
             self.assertTrue(isinstance(actual, ExtractedData))
             self.assertEqual(actual.value, value)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_field_returns_wrapped_data(self):
         for field, value in self.EXPECT_WRAPPED_FIELD_VALUE:
-            actual = self.e.execute(field=field)
+            actual = self.e.execute(self.test_file, field=field)
             self.assertTrue(isinstance(actual, ExtractedData))
             self.assertEqual(actual, value)

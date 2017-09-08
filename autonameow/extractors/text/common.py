@@ -38,13 +38,13 @@ log = logging.getLogger(__name__)
 
 
 class AbstractTextExtractor(BaseExtractor):
-    def __init__(self, source):
-        super(AbstractTextExtractor, self).__init__(source)
+    def __init__(self):
+        super(AbstractTextExtractor, self).__init__()
 
-    def execute(self, **kwargs):
+    def execute(self, source, **kwargs):
         try:
             self.log.debug('{!s} starting initial extraction'.format(self))
-            text = self._get_text()
+            text = self._get_text(source)
         except ExtractorError as e:
             self.log.error('{!s}: extraction FAILED; {!s}'.format(self, e))
             raise
@@ -62,7 +62,7 @@ class AbstractTextExtractor(BaseExtractor):
         self.log.debug('{!s} returning all extracted data'.format(self))
         return ExtractedData(wrapper=types.AW_STRING)(text)
 
-    def _get_text(self):
+    def _get_text(self, source):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod

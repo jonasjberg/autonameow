@@ -48,10 +48,10 @@ class PdfTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['application/pdf']
     meowuri_root = 'contents.textual.raw_text'
 
-    def __init__(self, source):
-        super(PdfTextExtractor, self).__init__(source)
+    def __init__(self):
+        super(PdfTextExtractor, self).__init__()
 
-    def _get_text(self):
+    def _get_text(self, source):
         """
         Extracts the plain text contents of a PDF document.
 
@@ -68,7 +68,7 @@ class PdfTextExtractor(AbstractTextExtractor):
                     i + 1, len(text_extractors), extractor
             ))
             try:
-                text = extractor(self.source)
+                text = extractor(source)
             except ExtractorError as e:
                 self.log.error('Error while extracting PDF content with '
                                '"{!s}": "{!s}"'.format(extractor, e))

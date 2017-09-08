@@ -42,12 +42,12 @@ class PlainTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['text/plain']
     meowuri_root = 'contents.textual.raw_text'
 
-    def __init__(self, source):
-        super(PlainTextExtractor, self).__init__(source)
+    def __init__(self):
+        super(PlainTextExtractor, self).__init__()
 
-    def _get_text(self):
+    def _get_text(self, source):
         self.log.debug('Extracting raw text from plain text file ..')
-        result = read_entire_text_file(self.source)
+        result = read_entire_text_file(source)
         text = normalize_unicode(result)
         text = textutils.remove_nonbreaking_spaces(text)
         assert(isinstance(text, str))

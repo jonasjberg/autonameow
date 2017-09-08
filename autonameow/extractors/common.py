@@ -83,27 +83,48 @@ class BaseExtractor(object):
     # specified in order to be enqueued in the extractor run queue.
     is_slow = False
 
-    def __init__(self, source):
-        """
-        Creates a extractor instance acting on the specified source data.
-
-        Args:
-            source: Source of data from which to extract information as a
-                byte string path (internal path format)
-        """
-        # Make sure the 'source' paths are in the "internal bytestring" format.
-        # The is-None-check below is for unit tests that pass a None 'source'.
-        if source is not None and not isinstance(source, FileObject):
-            assert(isinstance(source, bytes))
-        self.source = source
-
+    def __init__(self):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-    def execute(self, **kwargs):
+    def __call__(self, source, **kwargs):
         """
         Starts extracting data using the extractor.
+
+        Keyword argument "field" is optional. All data is returned by default.
+        Returned data should be of obvious and "safe" internal formats/types.
+
+        Args:
+            source: Source of data from which to extract information as a
+                byte string path (internal path format). A special case is the
+                'CommonFileSystemExtractor' that expects a 'FileObject' source.
+
+        Keyword Args:
+            field: Return only data matching this field.
+                Field format and type is defined by the extractor class.
+
+        Returns:
+            All data gathered by the extractor if no field is specified.
+            Else the data matching the specified field.
+
+        Raises:
+            ExtractorError: The extraction could not be completed successfully.
+        """
+
+        # Make sure the 'source' paths are in the "internal bytestring" format.
+        # The is-None-check below is for unit tests that pass a None 'source'.
+        if source is not None and not isinstance(source, FileObject):
+            assert(isinstance(source, bytes))
+
+        extracted_data = self.execute(source, **kwargs)
+        return extracted_data
+
+    def execute(self, source, **kwargs):
+        """
+        Starts extracting data using a specific extractor.
+
+        NOTE: This method *MUST* be implemented by inheriting classes!
 
         Keyword argument "field" is optional. All data is returned by default.
         If the data is text, is should be returned as Unicode strings.
@@ -114,6 +135,10 @@ class BaseExtractor(object):
         Otherwise, implementers should strive to return empty values of the
         same type as that of the expected, valid data.
 
+        Args:
+            source: Source of data from which to extract information as a
+                byte string path (internal path format). A special case is the
+                'CommonFileSystemExtractor' that expects a 'FileObject' source.
         Keyword Args:
             field: Return only data matching this field.
                 Field format and type is defined by the extractor class.
@@ -161,6 +186,8 @@ class BaseExtractor(object):
     def check_dependencies(cls):
         """
         Tests if the extractor can be used.
+
+        NOTE: This method *MUST* be implemented by inheriting classes!
 
         This should be used to test that any dependencies required by the
         extractor are met. This might be third party libraries or executables.

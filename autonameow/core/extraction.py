@@ -23,7 +23,6 @@ import logging
 
 import extractors
 from core import (
-    util,
     repository
 )
 from extractors import ExtractorError
@@ -42,52 +41,6 @@ def collect_results(file_object, label, data):
         data: The data to add.
     """
     repository.SessionRepository.store(file_object, label, data)
-
-
-def _execute_run_queue(extractor_queue, file_object):
-    """
-    Executes all enqueued extractors and collects the results.
-    """
-    for i, e in enumerate(extractor_queue):
-        item_number = i + 1
-        total_items = len(extractor_queue)
-
-        log.debug('Executing queue item {}/{}: '
-                  '{!s}'.format(item_number, total_items, e))
-
-        try:
-            collect_results(file_object, e.meowuri_root, e.execute())
-        except ExtractorError as e:
-            log.warning(
-                'Execution of queue item {}/{} raised ExtractorError; '
-                '{!s}'.format(item_number, total_items, e)
-            )
-            continue
-
-
-def _instantiate_extractors(file_object, klass_list):
-    """
-    Get a list of class instances from a given list of classes.
-
-    Args:
-        file_object: The file to extract data from.
-        klass_list: The classes to instantiate as a list of type 'class'.
-
-    Returns:
-        One instance of each of the given classes as a list of objects.
-    """
-    instances = []
-
-    for klass in klass_list:
-        if klass.__name__ == 'CommonFileSystemExtractor':
-            # Special case where the source should be a 'FileObject'.
-            _instance = klass(file_object)
-        else:
-            _instance = klass(file_object.abspath)
-
-        instances.append(_instance)
-
-    return instances
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
@@ -137,19 +90,28 @@ def start(file_object,
         required_extractors = []
     log.debug('Required extractors: {!s}'.format(required_extractors))
 
-    classes = extractors.suitable_data_extractors_for(file_object)
-    log.debug('Extractors able to handle the file: {}'.format(len(classes)))
+    klasses = extractors.suitable_data_extractors_for(file_object)
+    log.debug('Extractors able to handle the file: {}'.format(len(klasses)))
 
     if not require_all_extractors:
         # Exclude "slow" extractors if they are not explicitly required.
-        classes = keep_slow_extractors_if_required(classes,
+        klasses = keep_slow_extractors_if_required(klasses,
                                                    required_extractors)
 
-    log.debug('Will instantiate and enqueue {} extractors'.format(len(classes)))
-    extractor_queue = util.GenericQueue()
-    for instance in _instantiate_extractors(file_object, classes):
-        extractor_queue.enqueue(instance)
-    log.debug('Enqueued extractors: {!s}'.format(extractor_queue))
+    log.debug('Running {} extractors'.format(len(klasses)))
+    for klass in klasses:
+        if klass.__name__ == 'CommonFileSystemExtractor':
+            # Special case where the source should be a 'FileObject'.
+            _source = file_object
+        else:
+            _source = file_object.abspath
 
-    # Execute all suitable extractors and collect results.
-    _execute_run_queue(extractor_queue, file_object)
+        _extractor_instance = klass()
+        try:
+            collect_results(
+                file_object, klass.meowuri_root, _extractor_instance(_source)
+            )
+        except ExtractorError as e:
+            log.warning('Execution of extractor "{}” raised ExtractorError; '
+                        '{!s}'.format(klass, e))
+            continue

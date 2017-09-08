@@ -38,12 +38,12 @@ class EpubTextExtractor(AbstractTextExtractor):
 
     # TODO: [TD0028] Implement extractor for E-books (pdf/epub/mobi/..)
 
-    def __init__(self, source):
-        super(EpubTextExtractor, self).__init__(source)
+    def __init__(self):
+        super(EpubTextExtractor, self).__init__()
 
-    def _get_text(self):
+    def _get_text(self, source):
         self.log.debug('Extracting raw text from EPUB file ..')
-        result = extract_text_with_epubzilla(self.source)
+        result = extract_text_with_epubzilla(source)
         return result
 
     @classmethod

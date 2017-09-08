@@ -87,8 +87,8 @@ class TestPdfTextExtractor(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
-        self.e = PdfTextExtractor(test_file)
+        self.test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
+        self.e = PdfTextExtractor()
 
         class DummyFileObject(object):
             def __init__(self, mime):
@@ -171,26 +171,26 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
         self.assertIsNotNone(self.e)
 
     def test__get_raw_text_returns_something(self):
-        self.assertIsNotNone(self.e._get_text())
+        self.assertIsNotNone(self.e._get_text(self.test_file))
 
     def test__get_raw_text_returns_expected_type(self):
-        self.assertEqual(type(self.e._get_text()), str)
+        self.assertEqual(type(self.e._get_text(self.test_file)), str)
 
     def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute())
+        self.assertIsNotNone(self.e.execute(self.test_file))
 
     def test_method_execute_returns_expected_type(self):
-        actual = self.e.execute()
+        actual = self.e.execute(self.test_file)
         self.assertTrue(isinstance(actual.value, str))
 
     def test_method_execute_all_result_contains_expected(self):
         self.skipTest('Fix expected text encoding issue')
-        actual = self.e.execute()
+        actual = self.e.execute(self.test_file)
         self.assertEqual(actual.value, self.EXPECT_TEXT)
 
     def test_method_execute_arbitrary_field_result_contains_expected(self):
         self.skipTest('Fix expected text encoding issue')
-        actual = self.e.execute(field='dummy_field')
+        actual = self.e.execute(self.test_file, field='dummy_field')
         self.assertEqual(actual.value, self.EXPECT_TEXT)
 
     def test_class_method_can_handle_is_defined(self):

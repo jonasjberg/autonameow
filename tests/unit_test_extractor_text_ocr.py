@@ -39,7 +39,7 @@ class TestImageOCRTextExtractor(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.e = ImageOCRTextExtractor(uu.make_temporary_file())
+        self.e = ImageOCRTextExtractor()
 
         class DummyFileObject(object):
             def __init__(self, mime):
@@ -59,7 +59,7 @@ class TestImageOCRTextExtractorWithEmptyFile(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.e = ImageOCRTextExtractor(uu.make_temporary_file())
+        self.e = ImageOCRTextExtractor()
 
     def test_extractor_class_is_available(self):
         self.assertIsNotNone(ImageOCRTextExtractor)
@@ -80,7 +80,7 @@ TEST_IMAGE_FILE = util.normpath(
     uu.abspath_testfile('2007-04-23_12-comments.png')
 )
 TEST_IMAGE_FILE_TEXT = 'Apr 23, 2007 - 12 Comments'
-image_ocr_extractor = ImageOCRTextExtractor(TEST_IMAGE_FILE)
+image_ocr_extractor = ImageOCRTextExtractor()
 
 
 class TestImageOCRTextExtractorWithImageFile(unittest.TestCase):
@@ -96,11 +96,11 @@ class TestImageOCRTextExtractorWithImageFile(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test__get_raw_text_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e._get_text(), str))
+        self.assertTrue(isinstance(self.e._get_text(TEST_IMAGE_FILE), str))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_expected_type(self):
-        actual = self.e.execute()
+        actual = self.e.execute(TEST_IMAGE_FILE)
         self.assertTrue(isinstance(actual.value, str))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
@@ -108,7 +108,7 @@ class TestImageOCRTextExtractorWithImageFile(unittest.TestCase):
         self.skipTest(
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'"
         )
-        actual = self.e.execute()
+        actual = self.e.execute(TEST_IMAGE_FILE)
         self.assertEqual(actual.value, TEST_IMAGE_FILE_TEXT)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
@@ -116,7 +116,7 @@ class TestImageOCRTextExtractorWithImageFile(unittest.TestCase):
         self.skipTest(
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'"
         )
-        actual = self.e.execute(field='dummy_field')
+        actual = self.e.execute(TEST_IMAGE_FILE, field='dummy_field')
         self.assertEqual(actual.value, TEST_IMAGE_FILE_TEXT)
 
 

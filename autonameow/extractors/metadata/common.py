@@ -35,58 +35,50 @@ class AbstractMetadataExtractor(BaseExtractor):
     # Lookup table that maps extractor-specific field names to wrapper classes.
     tagname_type_lookup = {}
 
-    def __init__(self, source):
-        super(AbstractMetadataExtractor, self).__init__(source)
+    def __init__(self):
+        super(AbstractMetadataExtractor, self).__init__()
 
-        self._raw_metadata = None
-        self.metadata = None
-
-    def execute(self, **kwargs):
+    def execute(self, source, **kwargs):
         """
         Executes this extractor and returns all results.
 
         All fields are returned by default.
         The keyword argument "field" can be used to extract specific data.
 
+        Args:
+            source: Source of data from which to extract information as a
+                byte string path (internal path format)
         Keyword Args:
             field: Return only data matching this field.
 
         Returns:
             Data matching the given field or False if the extraction fails.
         """
-        if not self.metadata:
-            self.log.debug('{!s} starting initial extraction ..'.format(self))
-            self._raw_metadata = self._perform_initial_extraction()
+        self.log.debug('{!s} starting initial extraction ..'.format(self))
 
-            if not self._raw_metadata:
-                self.log.error('{!s}: extraction FAILED'.format(self))
-                return None
-
-            # Internal data format boundary.  Wrap "raw" data with type classes.
-            self.metadata = self._to_internal_format(self._raw_metadata)
-
-        if 'field' not in kwargs:
-            self.log.debug('{!s} returning all extracted data'.format(self))
-            return self.metadata
-        else:
-            field = kwargs.get('field')
-            self.log.debug('{!s} returning data matching field: '
-                           '"{!s}"'.format(self, field))
-            return self.metadata.get(field)
-
-    def _perform_initial_extraction(self):
         try:
-            _raw_metadata = self._get_raw_metadata()
-            return _raw_metadata
+            _raw_metadata = self._get_raw_metadata(source)
         except ExtractorError as e:
             self.log.error(
-                '{!s}: Initial extraction FAILED: {!s}'.format(self, e)
+                '{!s}: extraction FAILED: {!s}'.format(self, e)
             )
             raise
         except NotImplementedError as e:
             self.log.debug('[WARNING] Called unimplemented code in {!s}: '
                            '{!s}'.format(self, e))
             raise ExtractorError
+
+        # Internal data format boundary.  Wrap "raw" data with type classes.
+        metadata = self._to_internal_format(_raw_metadata)
+
+        if 'field' not in kwargs:
+            self.log.debug('{!s} returning all extracted data'.format(self))
+            return metadata
+        else:
+            field = kwargs.get('field')
+            self.log.debug('{!s} returning data matching field: '
+                           '"{!s}"'.format(self, field))
+            return metadata.get(field)
 
     def _to_internal_format(self, raw_metadata):
         out = {}
@@ -105,7 +97,7 @@ class AbstractMetadataExtractor(BaseExtractor):
 
         return out
 
-    def _get_raw_metadata(self):
+    def _get_raw_metadata(self, source):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod

@@ -143,25 +143,24 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         # )
     }
 
-    def __init__(self, source):
-        super(ExiftoolMetadataExtractor, self).__init__(source)
-        self._raw_metadata = None
+    def __init__(self):
+        super(ExiftoolMetadataExtractor, self).__init__()
 
-    def _get_raw_metadata(self):
-        result = self._get_exiftool_data()
+    def _get_raw_metadata(self, source):
+        result = self._get_exiftool_data(source)
         if result:
             return result
         else:
             return {}
 
-    def _get_exiftool_data(self):
+    def _get_exiftool_data(self, source):
         """
         Returns:
             Exiftool results as a dictionary of strings/ints/floats.
         """
         with wrap_exiftool.ExifTool() as et:
             try:
-                return et.get_metadata(self.source)
+                return et.get_metadata(source)
             except (AttributeError, ValueError, TypeError) as e:
                 # Raises ValueError if an ExifTool instance isn't running.
                 raise ExtractorError(e)
