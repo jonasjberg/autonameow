@@ -194,12 +194,14 @@ class TestSuitableDataExtractorsForFile(TestCase):
         self.fo = uu.get_mock_fileobject(mime_type='video/mp4')
         actual = [c.__name__ for c in
                   extractors.suitable_data_extractors_for(self.fo)]
+        self.assertIn('CommonFileSystemExtractor', actual)
         self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
 
     def test_returns_expected_extractors_for_png_image_file(self):
         self.fo = uu.get_mock_fileobject(mime_type='image/png')
         actual = [c.__name__ for c in
                   extractors.suitable_data_extractors_for(self.fo)]
+        self.assertIn('CommonFileSystemExtractor', actual)
         self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
         self.assert_in_if_available('ImageOCRTextExtractor', actual)
 
@@ -207,6 +209,7 @@ class TestSuitableDataExtractorsForFile(TestCase):
         self.fo = uu.get_mock_fileobject(mime_type='application/pdf')
         actual = [c.__name__ for c in
                   extractors.suitable_data_extractors_for(self.fo)]
+        self.assertIn('CommonFileSystemExtractor', actual)
         self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
         self.assert_in_if_available('PyPDFMetadataExtractor', actual)
         self.assert_in_if_available('PdfTextExtractor', actual)
