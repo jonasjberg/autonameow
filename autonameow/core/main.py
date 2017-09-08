@@ -25,16 +25,16 @@ import sys
 import time
 
 from core import (
+    analysis,
     config,
     constants,
     exceptions,
+    extraction,
+    namebuilder,
     options,
     repository,
     util,
-    namebuilder,
-    extraction
 )
-from core.analysis import Analysis
 from core.config.configuration import Configuration
 from core.evaluate.resolver import Resolver
 from core.evaluate.rulematcher import RuleMatcher
@@ -245,7 +245,7 @@ class Autonameow(object):
         )
 
         # Begin analysing the file.
-        analysis = _run_analysis(current_file)
+        _run_analysis(current_file)
 
         plugin_handler = _run_plugins(current_file)
 
@@ -436,24 +436,19 @@ def _run_plugins(file_object):
 
 def _run_analysis(file_object):
     """
-    Instantiates, executes and returns an 'Analysis' instance.
+    Starts analyzing a given file.
 
     Args:
         file_object: The file object to analyze.
 
-    Returns:
-        An instance of the 'Analysis' class that has executed successfully.
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
-    analysis = Analysis(file_object)
     try:
-        analysis.start()
+        analysis.start(file_object)
     except exceptions.AutonameowException as e:
         log.critical('Analysis FAILED: {!s}'.format(e))
         raise
-    else:
-        return analysis
 
 
 def _run_rule_matcher(file_object, active_config):
