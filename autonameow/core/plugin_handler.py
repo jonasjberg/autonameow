@@ -55,7 +55,10 @@ class PluginHandler(object):
         if response is None:
             return None
         else:
-            return response.value
+            if isinstance(response, ExtractedData):
+                return response.value
+            else:
+                return response
 
     def query(self, meowuri):
         if meowuri.startswith('plugin.'):
