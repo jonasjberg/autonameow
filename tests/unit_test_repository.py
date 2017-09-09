@@ -304,63 +304,65 @@ class TestGetSourcesForMeowURIs(TestCase):
                               + self._meowuris_guessit)
 
     def _assert_maps(self, actual, expected_source):
-        self.assertEqual(len(actual), 1)
-        a = actual[0]
-        self.assertEqual(a.__name__, expected_source)
+        if isinstance(expected_source, list):
+            self.assertEqual(len(actual), len(expected_source))
+            for a in actual:
+                self.assertTrue(uu.is_class(a))
+                self.assertIn(a.__name__, expected_source)
+        else:
+            self.assertEqual(len(actual), 1)
+            a = actual[0]
+            self.assertTrue(uu.is_class(a))
+            self.assertEqual(a.__name__, expected_source)
+
+    def test_returns_no_sources_for_invalid_meowuris(self):
+        def _assert_empty_mapping(meowuri_list):
+            actual = repository.get_sources_for_meowuris(meowuri_list)
+            self.assertEqual(len(actual), 0)
+
+        _assert_empty_mapping(None)
+        _assert_empty_mapping([])
+        _assert_empty_mapping([None])
+        _assert_empty_mapping([None, None])
+        _assert_empty_mapping(['xxxyyyzzz'])
+        _assert_empty_mapping([None, 'xxxyyyzzz'])
 
     def test_returns_expected_source_filetags(self):
         actual = repository.get_sources_for_meowuris(self._meowuris_filetags)
         self._assert_maps(actual, 'FiletagsAnalyzer')
-        #self.assertEqual(len(actual), 1)
-        #a = actual[0]
-        #self.assertEqual(a.__name__, 'FiletagsAnalyzer')
 
     def test_returns_expected_source_filesystem(self):
         actual = repository.get_sources_for_meowuris(self._meowuris_filesystem)
-        #self.assertEqual(len(actual), 1)
-        #a = actual[0]
-        #self.assertEqual(a.__name__, 'CommonFileSystemExtractor')
         self._assert_maps(actual, 'CommonFileSystemExtractor')
 
     def test_returns_expected_source_exiftool(self):
         actual = repository.get_sources_for_meowuris(self._meowuris_exiftool)
-        #self.assertEqual(len(actual), 1)
-        #a = actual[0]
-        #self.assertEqual(a.__name__, 'ExiftoolMetadataExtractor')
         self._assert_maps(actual, 'ExiftoolMetadataExtractor')
 
     def test_returns_expected_source_guessit(self):
         actual = repository.get_sources_for_meowuris(self._meowuris_guessit)
-        #self.assertEqual(len(actual), 1)
-        #a = actual[0]
-        #self.assertEqual(a.__name__, 'GuessitPlugin')
         self._assert_maps(actual, 'GuessitPlugin')
 
     def test_returns_expected_sources(self):
         actual = repository.get_sources_for_meowuris(self._all_meowuris)
         self.assertEqual(len(actual), 4)
+        self._assert_maps(
+            actual, ['CommonFileSystemExtractor', 'ExiftoolMetadataExtractor',
+                     'FiletagsAnalyzer', 'GuessitPlugin']
+        )
 
     def test_returns_included_sources_analyzers(self):
         actual = repository.get_sources_for_meowuris(self._all_meowuris,
                                                      includes=['analyzers'])
-        self.assertEqual(len(actual), 1)
-        a = actual[0]
-        self.assertEqual(a.__name__, 'FiletagsAnalyzer')
+        self._assert_maps(actual, 'FiletagsAnalyzer')
 
-    def test_returns_included_sources_extractors(self):
+    def test_returns_included_sources_extractorss(self):
         actual = repository.get_sources_for_meowuris(self._all_meowuris,
                                                      includes=['extractors'])
-        self.assertEqual(len(actual), 2)
-        for a in actual:
-            self.assertIn(
-                a.__name__,
-                ('CommonFileSystemExtractor', 'ExiftoolMetadataExtractor')
-            )
+        self._assert_maps(actual, ['CommonFileSystemExtractor',
+                                   'ExiftoolMetadataExtractor'])
 
     def test_returns_included_sources_plugins(self):
         actual = repository.get_sources_for_meowuris(self._all_meowuris,
                                                      includes=['plugins'])
-        self.assertEqual(len(actual), 1)
-        a = actual[0]
-        self.assertEqual(a.__name__, 'GuessitPlugin')
-
+        self._assert_maps(actual, 'GuessitPlugin')
