@@ -169,7 +169,7 @@ class TestRepositoryMethodResolvable(TestCase):
         self.assertTrue(self.r.resolvable('filesystem.contents.mime_type'))
 
 
-class TestMapSourcesToMeowURI(TestCase):
+class TestMapMeowURItoSourceClass(TestCase):
     meowURIsExtractors = collections.namedtuple('meowURIsExtractors',
                                                 ['meowURIs', 'Extractors'])
 
@@ -202,6 +202,72 @@ class TestMapSourcesToMeowURI(TestCase):
     def test_maps_meowuris_to_expected_source(self):
         for meowuris, source in self.expected_meowURI_source_mapping:
             for uri in meowuris:
-                actual = repository.map_meowuri_to_source_class(uri)[0]
+                actual = repository.map_meowuri_to_source_class(uri)
+                self.assertEqual(len(actual), 1)
+
+                actual = actual[0]
                 self.assertEqual(actual.__name__, source)
                 self.assertTrue(uu.is_class(actual))
+
+
+class TestGetSourcesForMeowURIs(TestCase):
+    def setUp(self):
+        self._meowuris_filetags = [
+            'analysis.filetags.datetime',
+            'analysis.filetags.description',
+            'analysis.filetags.follows_filetags_convention',
+            'analysis.filetags.tags',
+        ]
+        self._meowuris_filesystem = [
+            'filesystem.basename.extension',
+            'filesystem.basename.full',
+            'filesystem.basename.prefix',
+            'filesystem.contents.mime_type',
+            'filesystem.pathname.full',
+        ]
+        self._meowuris_exiftool = [
+            'metadata.exiftool.EXIF:CreateDate',
+            'metadata.exiftool.EXIF:DateTimeOriginal',
+            'metadata.exiftool.PDF:CreateDate',
+            'metadata.exiftool.QuickTime:CreationDate',
+            'metadata.exiftool.XMP-dc:Creator',
+            'metadata.exiftool.XMP-dc:Date',
+            'metadata.exiftool.XMP-dc:Publisher',
+            'metadata.exiftool.XMP-dc:Title',
+        ]
+        self._meowuris_guessit = [
+            'plugin.guessit.date',
+            'plugin.guessit.title',
+        ]
+        self._all_meowuris = (self._meowuris_filetags
+                              + self._meowuris_filesystem
+                              + self._meowuris_exiftool
+                              + self._meowuris_guessit)
+
+    def test_returns_expected_source_filetags(self):
+        actual = repository.get_sources_for_meowuris(self._meowuris_filetags)
+        self.assertEqual(len(actual), 1)
+        a = actual[0]
+        self.assertEqual(a.__name__, 'FiletagsAnalyzer')
+
+    def test_returns_expected_source_filesystem(self):
+        actual = repository.get_sources_for_meowuris(self._meowuris_filesystem)
+        self.assertEqual(len(actual), 1)
+        a = actual[0]
+        self.assertEqual(a.__name__, 'CommonFileSystemExtractor')
+
+    def test_returns_expected_source_exiftool(self):
+        actual = repository.get_sources_for_meowuris(self._meowuris_exiftool)
+        self.assertEqual(len(actual), 1)
+        a = actual[0]
+        self.assertEqual(a.__name__, 'ExiftoolMetadataExtractor')
+
+    def test_returns_expected_source_guessit(self):
+        actual = repository.get_sources_for_meowuris(self._meowuris_guessit)
+        self.assertEqual(len(actual), 1)
+        a = actual[0]
+        self.assertEqual(a.__name__, 'GuessitPlugin')
+
+    def test_returns_expected_sources(self):
+        actual = repository.get_sources_for_meowuris(self._all_meowuris)
+        self.assertEqual(len(actual), 4)
