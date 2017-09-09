@@ -47,6 +47,7 @@ class Repository(object):
         self.meowuri_class_map = meowuri_class_map_dict()
         self._log_string_class_map()
 
+        # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
         self.mapped_meowuris = unique_map_meowuris(
             self.meowuri_class_map
         )

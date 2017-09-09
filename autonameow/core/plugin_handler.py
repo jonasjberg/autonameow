@@ -27,17 +27,19 @@ from core import (
 
 
 # TODO: [TD0009] Implement a proper plugin interface.
+from extractors import ExtractedData
+
+
 class PluginHandler(object):
     def __init__(self, file_object):
-        self.file_object = file_object
-
         self.add_to_global_data = repository.SessionRepository.store
+        self.file_object = file_object
 
         # Get instantiated and validated plugins.
         self.plugin_classes = plugins.UsablePlugins
         assert(isinstance(self.plugin_classes, list))
 
-    def collect_results(self, label, data):
+    def _collect_results(self, label, data):
         """
         Collects plugin results. Passed to plugins as a callback.
 
@@ -49,9 +51,8 @@ class PluginHandler(object):
         """
         self.add_to_global_data(self.file_object, label, data)
 
-    def _request_data(self, meowuri):
-        response = repository.SessionRepository.query(self.file_object,
-                                                      meowuri)
+    def _request_data(self, file_object, meowuri):
+        response = repository.SessionRepository.query(file_object, meowuri)
         if response is None:
             return None
         else:
@@ -70,11 +71,11 @@ class PluginHandler(object):
 
     def start(self):
         for klass in self.plugin_classes:
-            plugin_instance = klass(add_results_callback=self.collect_results,
+            plugin_instance = klass(add_results_callback=self._collect_results,
                                     request_data_callback=self._request_data)
             if plugin_instance.can_handle():
                 try:
-                    plugin_instance.run()
+                    plugin_instance.execute()
                 except exceptions.AutonameowPluginError:
                     # log.critical('Plugin instance "{!s}" execution '
                     #              'FAILED'.format(plugin_instance))

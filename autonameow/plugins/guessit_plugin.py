@@ -24,8 +24,10 @@ import logging
 from core import (
     exceptions,
     types,
-    util
+    util,
+    fields
 )
+from extractors import ExtractedData
 from plugins import BasePlugin
 
 try:
@@ -39,44 +41,80 @@ log = logging.getLogger(__name__)
 
 class GuessitPlugin(BasePlugin):
     meowuri_root = 'plugin.guessit'
+    DISPLAY_NAME = 'Guessit'
 
-    def __init__(self, add_results_callback, request_data_callback,
-                 display_name=None):
+    tagname_type_lookup = {
+        'date': ExtractedData(
+            wrapper=types.AW_TIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
+            ]
+        ),
+        'title': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.title, probability=1),
+            ]
+        ),
+        'release_group': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.publisher, probability=0.1),
+                fields.WeightedMapping(fields.description, probability=0.001),
+            ]
+        ),
+    }
+
+    def __init__(self, add_results_callback, request_data_callback):
         super(GuessitPlugin, self).__init__(
-            add_results_callback, request_data_callback, display_name='Guessit'
+            add_results_callback, request_data_callback, self.DISPLAY_NAME
         )
-
-        self.guessit_results = {}
 
     @classmethod
     def test_init(cls):
         return guessit is not False
 
-    def run(self):
-        if not self.guessit_results:
-            # TODO: Pass input data (basename of current file) to guessit ..
-            self.guessit_results = self._perform_initial_query()
+    def execute(self):
+        # TODO: Pass input data (basename of current file) to guessit ..
+        _file_basename = self.request_data('filesystem.basename.full')
+        if not _file_basename:
+            raise exceptions.AutonameowPluginError('Required data unavailable')
 
-        if not self.guessit_results:
+        data = run_guessit(_file_basename)
+
+        if not data:
             raise exceptions.AutonameowPluginError('TODO: ..')
-        else:
-            self._wrap_and_add_result('date', types.AW_TIMEDATE, 'date')
-            self._wrap_and_add_result('title', types.AW_STRING, 'title')
-            self._wrap_and_add_result('release_group', types.AW_STRING,
-                                      'publisher')
-            self._wrap_and_add_result('audio_codec', types.AW_STRING, 'tags')
-            self._wrap_and_add_result('video_codec', types.AW_STRING, 'tags')
-            self._wrap_and_add_result('format', types.AW_STRING, 'tags')
-            self._wrap_and_add_result('screen_size', types.AW_STRING, 'tags')
-            self._wrap_and_add_result('type', types.AW_STRING, 'tags')
-            self._wrap_and_add_result('episode', types.AW_INTEGER,
-                                      'episode_number')
-            self._wrap_and_add_result('season', types.AW_INTEGER,
-                                      'season_number')
 
-    def _wrap_and_add_result(self, raw_key, wrapper_type, result_key):
-        if raw_key in self.guessit_results:
-            wrapped = wrapper_type(self.guessit_results[raw_key])
+        # self._wrap_and_add_result('date', types.AW_TIMEDATE, 'date')
+        # self._wrap_and_add_result('title', types.AW_STRING, 'title')
+        # self._wrap_and_add_result('release_group', types.AW_STRING, 'publisher')
+        self._to_internal_format(data)
+
+        self._wrap_and_add_result(data, 'audio_codec', types.AW_STRING, 'tags')
+        self._wrap_and_add_result(data, 'video_codec', types.AW_STRING, 'tags')
+        self._wrap_and_add_result(data, 'format', types.AW_STRING, 'tags')
+        self._wrap_and_add_result(data, 'screen_size', types.AW_STRING, 'tags')
+        self._wrap_and_add_result(data, 'type', types.AW_STRING, 'tags')
+        self._wrap_and_add_result(data, 'episode', types.AW_INTEGER, 'episode_number')
+        self._wrap_and_add_result(data, 'season', types.AW_INTEGER, 'season_number')
+
+    def _to_internal_format(self, raw_data):
+        for tag_name, value in raw_data.items():
+            if tag_name in self.tagname_type_lookup:
+                # Found a "template" 'Item' class.
+                wrapper = self.tagname_type_lookup[tag_name]
+            else:
+                # Use a default 'Item' class.
+                wrapper = ExtractedData(wrapper=None, mapped_fields=None)
+
+            item = wrapper(value)
+            if item:
+                self._add_results(tag_name, item)
+
+    def _wrap_and_add_result(self, raw_data, raw_key, wrapper_type, result_key):
+        if raw_key in raw_data:
+            wrapped = wrapper_type(raw_data[raw_key])
             if wrapped is not None:
                 self._add_results(result_key, wrapped)
 
@@ -90,17 +128,10 @@ class GuessitPlugin(BasePlugin):
         #)
         self.add_results(meowuri, data)
 
-    def can_handle(self):
-        _mime_type = self.request_data('filesystem.contents.mime_type')
+    def can_handle(self, file_object):
+        _mime_type = self.request_data(file_object,
+                                       'filesystem.contents.mime_type')
         return util.eval_magic_glob(_mime_type, 'video/*')
-
-    def _perform_initial_query(self):
-        _file_basename = self.request_data('filesystem.basename.full')
-        if not _file_basename:
-            raise exceptions.AutonameowPluginError('Required data unavailable')
-
-        results = run_guessit(_file_basename)
-        return results
 
 
 def run_guessit(input_data, options=None):
@@ -112,7 +143,7 @@ def run_guessit(input_data, options=None):
     if guessit:
         try:
             result = guessit.guessit(input_data, guessit_options)
-        except guessit.api.GuessitException as e:
+        except (guessit.api.GuessitException, Exception) as e:
             raise exceptions.AutonameowPluginError(e)
         else:
             return result

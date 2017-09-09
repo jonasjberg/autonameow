@@ -158,7 +158,7 @@ def map_meowuri_to_extractors():
 
     for klass in ExtractorClasses:
         if not klass.meowuri_root:
-            log.error('"{!s}" does not specify "meowuri_root"'.format(klass))
+            log.critical('"{!s}" does not specify "meowuri_root"'.format(klass))
             continue
 
         if klass.meowuri_root in out:

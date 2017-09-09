@@ -35,7 +35,7 @@ log = logging.getLogger(__name__)
 
 # TODO: [TD0009] Implement a proper plugin interface.
 class BasePlugin(object):
-    # Resource identifier "MeowURI" for the data returned by this extractor.
+    # Resource identifier ("MeowURI") for the data returned by this plugin.
     # Example:  'plugin.guessit'
     meowuri_root = None
 
@@ -53,10 +53,8 @@ class BasePlugin(object):
     def test_init(cls):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def run(self):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def can_handle(self, file_object):
+    @classmethod
+    def can_handle(cls, file_object):
         """
         Tests if this plugin class can handle the given file object.
 
@@ -66,6 +64,9 @@ class BasePlugin(object):
         Returns:
             True if the plugin class can handle the given file, else False.
         """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def execute(self):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):
