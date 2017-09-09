@@ -268,10 +268,14 @@ def map_meowuri_to_source_class(meowuri, includes=None):
                 return SessionRepository.meowuri_class_map[key][k]
         return None
 
+    if not meowuri:
+        return []
+
     if includes is None:
         return (_search_source_type('extractors')
                 or _search_source_type('analyzers')
-                or _search_source_type('plugins'))
+                or _search_source_type('plugins')
+                or [])
     else:
         if not isinstance(includes, list):
             includes = [includes]
@@ -287,8 +291,10 @@ def map_meowuri_to_source_class(meowuri, includes=None):
 
 
 def get_sources_for_meowuris(meowuri_list, includes=None):
-    out = set()
+    if not meowuri_list:
+        return []
 
+    out = set()
     for uri in meowuri_list:
         source_classes = map_meowuri_to_source_class(uri, includes)
 
