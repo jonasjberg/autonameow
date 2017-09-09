@@ -242,7 +242,8 @@ class Autonameow(object):
 
         # Extract data from the file.
         required_extractors = repository.get_sources_for_meowuris(
-            self.active_config.referenced_meowuris
+            self.active_config.referenced_meowuris,
+            includes=['extractors']
         )
         _run_extraction(
             current_file,
