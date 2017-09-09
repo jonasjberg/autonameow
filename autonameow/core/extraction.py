@@ -98,6 +98,10 @@ def start(file_object,
         klasses = keep_slow_extractors_if_required(klasses,
                                                    required_extractors)
 
+    # TODO: Use sets for required/actual klasses to easily display differences.
+    # Which required extractors were not "suitable" for the file and therefore
+    # not included?
+
     log.debug('Running {} extractors'.format(len(klasses)))
     for klass in klasses:
         if klass.__name__ == 'CommonFileSystemExtractor':
