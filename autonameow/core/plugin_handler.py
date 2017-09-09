@@ -24,9 +24,12 @@ from core import (
     repository,
     exceptions
 )
+from extractors import ExtractedData
 
 
 # TODO: [TD0009] Implement a proper plugin interface.
+
+
 class PluginHandler(object):
     def __init__(self, file_object):
         self.file_object = file_object
@@ -35,7 +38,7 @@ class PluginHandler(object):
 
         # Get instantiated and validated plugins.
         self.plugin_classes = plugins.UsablePlugins
-        assert(isinstance(self.plugin_classes, list))
+        assert isinstance(self.plugin_classes, list)
 
     def collect_results(self, label, data):
         """
@@ -60,13 +63,13 @@ class PluginHandler(object):
             else:
                 return response
 
-    def query(self, meowuri):
-        if meowuri.startswith('plugin.'):
-            plugin_name, plugin_query = meowuri.lstrip('plugin.').split('.')
-            result = plugins.plugin_query(plugin_name, plugin_query, None)
-            return result
-        else:
-            return False
+    # def query(self, meowuri):
+    #     if meowuri.startswith('plugin.'):
+    #         plugin_name, plugin_query = meowuri.lstrip('plugin.').split('.')
+    #         result = plugins.plugin_query(plugin_name, plugin_query, None)
+    #         return result
+    #     else:
+    #         return False
 
     def start(self):
         for klass in self.plugin_classes:
