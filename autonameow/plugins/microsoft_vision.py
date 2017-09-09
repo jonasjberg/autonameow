@@ -36,6 +36,7 @@ import argparse
 # import logging
 import requests
 
+from core import util
 from plugins import BasePlugin
 from core.exceptions import AutonameowPluginError
 
@@ -267,7 +268,6 @@ class MicrosoftVisionPlugin(BasePlugin):
     Add your API key to the file 'microsoft_vision.key' in this directory,
     or modify the line below to point to the file containing your API key.
     """
-
     api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
                                 'microsoft_vision.key')
     API_KEY = _read_api_key_from_file(api_key_path)
@@ -307,6 +307,15 @@ class MicrosoftVisionPlugin(BasePlugin):
                 tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
                 # log.debug('Returning tags: {}'.format(tags_pretty))
                 return tags
+
+    @classmethod
+    def can_handle(cls, file_object):
+        _mime_type = cls.request_data(file_object,
+                                      'filesystem.contents.mime_type')
+        return util.eval_magic_glob(_mime_type, ['image/png', 'image/jpeg'])
+
+    def execute(self):
+        pass
 
 
 if __name__ == '__main__':

@@ -47,7 +47,7 @@ class BasePlugin(object):
             self.display_name = self.__class__.__name__
 
         self.add_results = add_results_callback
-        self.request_data = request_data_callback
+        request_data = request_data_callback
 
     @classmethod
     def test_init(cls):

@@ -24,22 +24,21 @@ from core import (
     repository,
     exceptions
 )
-
-
-# TODO: [TD0009] Implement a proper plugin interface.
 from extractors import ExtractedData
 
 
+# TODO: [TD0009] Implement a proper plugin interface.
+
+
 class PluginHandler(object):
-    def __init__(self, file_object):
+    def __init__(self):
         self.add_to_global_data = repository.SessionRepository.store
-        self.file_object = file_object
 
         # Get instantiated and validated plugins.
         self.plugin_classes = plugins.UsablePlugins
-        assert(isinstance(self.plugin_classes, list))
+        assert isinstance(self.plugin_classes, list)
 
-    def _collect_results(self, label, data):
+    def _collect_results(self, file_object, label, data):
         """
         Collects plugin results. Passed to plugins as a callback.
 
@@ -49,7 +48,7 @@ class PluginHandler(object):
             label: Label that uniquely identifies the data.
             data: The data to add.
         """
-        self.add_to_global_data(self.file_object, label, data)
+        self.add_to_global_data(file_object, label, data)
 
     def _request_data(self, file_object, meowuri):
         response = repository.SessionRepository.query(file_object, meowuri)
@@ -61,19 +60,19 @@ class PluginHandler(object):
             else:
                 return response
 
-    def query(self, meowuri):
-        if meowuri.startswith('plugin.'):
-            plugin_name, plugin_query = meowuri.lstrip('plugin.').split('.')
-            result = plugins.plugin_query(plugin_name, plugin_query, None)
-            return result
-        else:
-            return False
+    # def query(self, meowuri):
+    #     if meowuri.startswith('plugin.'):
+    #         plugin_name, plugin_query = meowuri.lstrip('plugin.').split('.')
+    #         result = plugins.plugin_query(plugin_name, plugin_query, None)
+    #         return result
+    #     else:
+    #         return False
 
-    def start(self):
+    def start(self, file_object):
         for klass in self.plugin_classes:
             plugin_instance = klass(add_results_callback=self._collect_results,
                                     request_data_callback=self._request_data)
-            if plugin_instance.can_handle():
+            if plugin_instance.can_handle(file_object):
                 try:
                     plugin_instance.execute()
                 except exceptions.AutonameowPluginError:
