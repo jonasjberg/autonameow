@@ -250,26 +250,50 @@ def unique_map_meowuris(meowuri_class_map):
     return out
 
 
-def map_meowuri_to_source_class(meowuri):
+def map_meowuri_to_source_class(meowuri, includes=None):
+    """
+    Returns a list of classes that could store data using the given "MeowURI".
+
+    Args:
+        meowuri: The "MeowURI" of interest.
+        includes: Optional list of sources to include. Default: include all
+
+    Returns:
+        A list of classes that "could" produce and store data with a MeowURI
+        that matches the given MeowURI.
+    """
     def _search_source_type(key):
         for k, v in SessionRepository.meowuri_class_map[key].items():
             if meowuri.startswith(k):
                 return SessionRepository.meowuri_class_map[key][k]
         return None
 
-    return (_search_source_type('extractors')
-            or _search_source_type('analyzers')
-            or _search_source_type('plugins'))
+    if includes is None:
+        return (_search_source_type('extractors')
+                or _search_source_type('analyzers')
+                or _search_source_type('plugins'))
+    else:
+        if not isinstance(includes, list):
+            includes = [includes]
+        for include in includes:
+            if include not in ('analyzers', 'extractors', 'plugins'):
+                continue
+
+            result = _search_source_type(include)
+            if result is not None:
+                return result
+
+        return []
 
 
-def get_sources_for_meowuris(meowuri_list):
+def get_sources_for_meowuris(meowuri_list, includes=None):
     out = set()
 
     for uri in meowuri_list:
-        source_classes = map_meowuri_to_source_class(uri)
+        source_classes = map_meowuri_to_source_class(uri, includes)
 
         # TODO: Improve robustness of linking "MeowURIs" to data source classes.
-        assert(len(source_classes) == 1)
+        # assert(len(source_classes) == 1)
 
         for source_class in source_classes:
             out.add(source_class)

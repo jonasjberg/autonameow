@@ -174,20 +174,20 @@ class TestMapMeowURItoSourceClass(TestCase):
                                                 ['meowURIs', 'Extractors'])
 
     def setUp(self):
-        self.expected_meowURI_source_mapping = [
+        self._analyzer_meowURI_sourcemap = [
             (['analysis.filetags.datetime',
               'analysis.filetags.description',
               'analysis.filetags.follows_filetags_convention',
               'analysis.filetags.tags'],
              'FiletagsAnalyzer'),
-
+        ]
+        self._extractor_meowURI_sourcemap = [
             (['filesystem.basename.extension',
               'filesystem.basename.full',
               'filesystem.basename.prefix',
               'filesystem.contents.mime_type',
               'filesystem.pathname.full'],
              'CommonFileSystemExtractor'),
-
             (['metadata.exiftool.EXIF:CreateDate',
               'metadata.exiftool.EXIF:DateTimeOriginal',
               'metadata.exiftool.PDF:CreateDate',
@@ -198,16 +198,71 @@ class TestMapMeowURItoSourceClass(TestCase):
               'metadata.exiftool.XMP-dc:Title'],
              'ExiftoolMetadataExtractor')
         ]
+        self._all_meowURI_sourcemap = (self._analyzer_meowURI_sourcemap
+                                       + self._extractor_meowURI_sourcemap)
 
     def test_maps_meowuris_to_expected_source(self):
-        for meowuris, source in self.expected_meowURI_source_mapping:
+        for meowuris, expected_source in self._all_meowURI_sourcemap:
             for uri in meowuris:
                 actual = repository.map_meowuri_to_source_class(uri)
                 self.assertEqual(len(actual), 1)
 
                 actual = actual[0]
-                self.assertEqual(actual.__name__, source)
+                self.assertEqual(actual.__name__, expected_source)
                 self.assertTrue(uu.is_class(actual))
+
+    def test_maps_meowuris_to_expected_source_include_analyzers(self):
+        for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='analyzers'
+                )
+                self.assertEqual(len(actual), 1)
+
+                actual = actual[0]
+                self.assertEqual(actual.__name__, expected_source)
+                self.assertTrue(uu.is_class(actual))
+
+        for meowuris, expected_source in self._extractor_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='analyzers'
+                )
+                self.assertEqual(len(actual), 0)
+
+    def test_maps_meowuris_to_expected_source_include_extractors(self):
+        for meowuris, expected_source in self._extractor_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='extractors'
+                )
+                self.assertEqual(len(actual), 1)
+
+                actual = actual[0]
+                self.assertEqual(actual.__name__, expected_source)
+                self.assertTrue(uu.is_class(actual))
+
+        for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='extractors'
+                )
+                self.assertEqual(len(actual), 0)
+
+    def test_maps_meowuris_to_expected_source_include_plugins(self):
+        for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='plugins'
+                )
+                self.assertEqual(len(actual), 0)
+
+        for meowuris, expected_source in self._extractor_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='plugins'
+                )
+                self.assertEqual(len(actual), 0)
 
 
 class TestGetSourcesForMeowURIs(TestCase):
@@ -239,35 +294,73 @@ class TestGetSourcesForMeowURIs(TestCase):
             'plugin.guessit.date',
             'plugin.guessit.title',
         ]
+        self._extractor_meowuris = (self._meowuris_filesystem
+                                    + self._meowuris_exiftool)
+        self._analyzer_meowuris = self._meowuris_filetags
+        self._plugin_meowuris = self._meowuris_guessit
         self._all_meowuris = (self._meowuris_filetags
                               + self._meowuris_filesystem
                               + self._meowuris_exiftool
                               + self._meowuris_guessit)
 
-    def test_returns_expected_source_filetags(self):
-        actual = repository.get_sources_for_meowuris(self._meowuris_filetags)
+    def _assert_maps(self, actual, expected_source):
         self.assertEqual(len(actual), 1)
         a = actual[0]
-        self.assertEqual(a.__name__, 'FiletagsAnalyzer')
+        self.assertEqual(a.__name__, expected_source)
+
+    def test_returns_expected_source_filetags(self):
+        actual = repository.get_sources_for_meowuris(self._meowuris_filetags)
+        self._assert_maps(actual, 'FiletagsAnalyzer')
+        #self.assertEqual(len(actual), 1)
+        #a = actual[0]
+        #self.assertEqual(a.__name__, 'FiletagsAnalyzer')
 
     def test_returns_expected_source_filesystem(self):
         actual = repository.get_sources_for_meowuris(self._meowuris_filesystem)
-        self.assertEqual(len(actual), 1)
-        a = actual[0]
-        self.assertEqual(a.__name__, 'CommonFileSystemExtractor')
+        #self.assertEqual(len(actual), 1)
+        #a = actual[0]
+        #self.assertEqual(a.__name__, 'CommonFileSystemExtractor')
+        self._assert_maps(actual, 'CommonFileSystemExtractor')
 
     def test_returns_expected_source_exiftool(self):
         actual = repository.get_sources_for_meowuris(self._meowuris_exiftool)
-        self.assertEqual(len(actual), 1)
-        a = actual[0]
-        self.assertEqual(a.__name__, 'ExiftoolMetadataExtractor')
+        #self.assertEqual(len(actual), 1)
+        #a = actual[0]
+        #self.assertEqual(a.__name__, 'ExiftoolMetadataExtractor')
+        self._assert_maps(actual, 'ExiftoolMetadataExtractor')
 
     def test_returns_expected_source_guessit(self):
         actual = repository.get_sources_for_meowuris(self._meowuris_guessit)
-        self.assertEqual(len(actual), 1)
-        a = actual[0]
-        self.assertEqual(a.__name__, 'GuessitPlugin')
+        #self.assertEqual(len(actual), 1)
+        #a = actual[0]
+        #self.assertEqual(a.__name__, 'GuessitPlugin')
+        self._assert_maps(actual, 'GuessitPlugin')
 
     def test_returns_expected_sources(self):
         actual = repository.get_sources_for_meowuris(self._all_meowuris)
         self.assertEqual(len(actual), 4)
+
+    def test_returns_included_sources_analyzers(self):
+        actual = repository.get_sources_for_meowuris(self._all_meowuris,
+                                                     includes=['analyzers'])
+        self.assertEqual(len(actual), 1)
+        a = actual[0]
+        self.assertEqual(a.__name__, 'FiletagsAnalyzer')
+
+    def test_returns_included_sources_extractors(self):
+        actual = repository.get_sources_for_meowuris(self._all_meowuris,
+                                                     includes=['extractors'])
+        self.assertEqual(len(actual), 2)
+        for a in actual:
+            self.assertIn(
+                a.__name__,
+                ('CommonFileSystemExtractor', 'ExiftoolMetadataExtractor')
+            )
+
+    def test_returns_included_sources_plugins(self):
+        actual = repository.get_sources_for_meowuris(self._all_meowuris,
+                                                     includes=['plugins'])
+        self.assertEqual(len(actual), 1)
+        a = actual[0]
+        self.assertEqual(a.__name__, 'GuessitPlugin')
+
