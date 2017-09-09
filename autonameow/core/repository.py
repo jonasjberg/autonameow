@@ -277,5 +277,6 @@ def get_sources_for_meowuris(meowuri_list):
     return list(out)
 
 
+# TODO: [TD0086] Keep one global 'SessionRepository' per 'Autonameow' instance.
 SessionRepository = Repository()
 SessionRepository.initialize()

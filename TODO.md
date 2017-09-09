@@ -190,6 +190,11 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0086]` __Use one `SessionRepository` per `Autonameow` instance.__  
+  The `Autonameow` class "manages a running instance of the program" should
+  have its own instance of the `Repository` class. This is fine for now but
+  should be fixed to avoid confusion and future problems.
+
 * `[TD0081]` Bundle the `pyexiftool` dependency. Add to `autonameow/thirdparty`.
 
 * `[TD0068]` Let the user specify which languages to use for OCR.
