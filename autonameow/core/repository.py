@@ -119,8 +119,12 @@ class Repository(object):
             pass
         else:
             if any_existing is not None:
-                assert(not isinstance(data, list))
-                data = [any_existing] + [data]
+                if not isinstance(any_existing, list):
+                    any_existing = [any_existing]
+                if not isinstance(data, list):
+                    data = [data]
+
+                data = any_existing + data
 
         util.nested_dict_set(self.data, [file_object, meowuri], data)
         log.debug('Repository stored: {{"{!s}": {{"{!s}": {!s}}}}}'.format(
