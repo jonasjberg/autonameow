@@ -33,7 +33,7 @@ from plugins import BasePlugin
 try:
     import guessit as guessit
 except ImportError:
-    guessit = False
+    guessit = None
 
 
 log = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ class GuessitPlugin(BasePlugin):
 
     @classmethod
     def test_init(cls):
-        return guessit is not False
+        return guessit is not None
 
     def execute(self):
         # TODO: Pass input data (basename of current file) to guessit ..
@@ -135,15 +135,17 @@ class GuessitPlugin(BasePlugin):
 
 
 def run_guessit(input_data, options=None):
+    if not guessit:
+        return
+
     if options:
         guessit_options = options
     else:
         guessit_options = {'no-embedded-config': True, 'name_only': True}
 
-    if guessit:
-        try:
-            result = guessit.guessit(input_data, guessit_options)
-        except (guessit.api.GuessitException, Exception) as e:
-            raise exceptions.AutonameowPluginError(e)
-        else:
-            return result
+    try:
+        result = guessit.guessit(input_data, guessit_options)
+    except (guessit.api.GuessitException, Exception) as e:
+        raise exceptions.AutonameowPluginError(e)
+    else:
+        return result
