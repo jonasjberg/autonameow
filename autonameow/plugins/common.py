@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 from core import plugin_handler
 
 
@@ -34,6 +36,10 @@ class BasePlugin(object):
             self.display_name = self.__class__.__name__
 
         self.add_results = plugin_handler.collect_results
+        self.log = logging.getLogger(
+            '{!s}.{!s}'.format(__name__, self.__module__)
+        )
+
         self.request_data = plugin_handler.request_data
 
     def __call__(self, source, *args, **kwargs):

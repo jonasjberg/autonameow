@@ -36,9 +36,6 @@ except ImportError:
     guessit = None
 
 
-log = logging.getLogger(__name__)
-
-
 class GuessitPlugin(BasePlugin):
     meowuri_root = 'plugin.guessit'
     DISPLAY_NAME = 'Guessit'
@@ -104,7 +101,11 @@ class GuessitPlugin(BasePlugin):
             try:
                 wrapped = wrapper_type(raw_value)
             except types.AWTypeError as e:
-                pass
+                self.log.warning(
+                    'Wrapping guessit data FAILED for "{!s}" ({})'.format(
+                        raw_value, type(type(raw_value)))
+                )
+                self.log.debug('Wrapping guessit data FAILED; {!s}'.format(e))
             else:
                 if wrapped is not None:
                     self._add_results(file_object, result_key, wrapped)
