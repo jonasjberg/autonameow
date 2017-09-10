@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 import plugins
 from core import (
     repository,
@@ -31,54 +33,72 @@ from extractors import ExtractedData
 
 
 class PluginHandler(object):
-    def __init__(self, file_object):
-        self.file_object = file_object
-
-        self.add_to_global_data = repository.SessionRepository.store
+    def __init__(self):
+        self.log = logging.getLogger(
+            '{!s}.{!s}'.format(__name__, self.__module__)
+        )
 
         # Get instantiated and validated plugins.
-        self.plugin_classes = plugins.UsablePlugins
-        assert isinstance(self.plugin_classes, list)
+        self.available_plugins = plugins.UsablePlugins
+        assert isinstance(self.available_plugins, list)
 
-    def collect_results(self, label, data):
-        """
-        Collects plugin results. Passed to plugins as a callback.
+        self._plugins_to_use = []
 
-        Plugins call this to pass collected data to the session repository.
-
-        Args:
-            label: Label that uniquely identifies the data.
-            data: The data to add.
-        """
-        self.add_to_global_data(self.file_object, label, data)
-
-    def _request_data(self, meowuri):
-        response = repository.SessionRepository.query(self.file_object,
-                                                      meowuri)
-        if response is None:
-            return None
-        else:
-            if isinstance(response, ExtractedData):
-                return response.value
+    def use_plugins(self, plugin_list):
+        for plugin in plugin_list:
+            if plugin in self.available_plugins:
+                self._plugins_to_use.append(plugin)
+                self.log.debug('Using plugin: "{!s}"'.format(plugin))
             else:
-                return response
+                self.log.debug(
+                    'Requested unavailable plugin: "{!s}"'.format(plugin)
+                )
 
-    # def query(self, meowuri):
-    #     if meowuri.startswith('plugin.'):
-    #         plugin_name, plugin_query = meowuri.lstrip('plugin.').split('.')
-    #         result = plugins.plugin_query(plugin_name, plugin_query, None)
-    #         return result
-    #     else:
-    #         return False
+    def execute_plugins(self, file_object):
+        self.log.debug('Executing plugins ..')
 
-    def start(self):
-        for klass in self.plugin_classes:
-            plugin_instance = klass(add_results_callback=self.collect_results,
-                                    request_data_callback=self._request_data)
-            if plugin_instance.can_handle():
+        for plugin_klass in self._plugins_to_use:
+            plugin = plugin_klass()
+
+            if plugin.can_handle(file_object):
+                self.log.debug(
+                    '"{!s}" plugin CAN handle file "{!s}"'.format(
+                        plugin, file_object)
+                )
                 try:
-                    plugin_instance.run()
+                    self.log.debug('Executing plugin: "{!s}" ..'.format(plugin))
+                    plugin(file_object)
                 except exceptions.AutonameowPluginError:
                     # log.critical('Plugin instance "{!s}" execution '
                     #              'FAILED'.format(plugin_instance))
                     raise
+            else:
+                self.log.debug(
+                    '"{!s}" plugin can not handle file "{!s}"'.format(
+                        plugin, file_object)
+                )
+
+
+def request_data(file_object, meowuri):
+    response = repository.SessionRepository.query(file_object, meowuri)
+    if response is None:
+        return None
+    else:
+        if isinstance(response, ExtractedData):
+            return response.value
+        else:
+            return response
+
+
+def collect_results(file_object, label, data):
+    """
+    Collects plugin results. Passed to plugins as a callback.
+
+    Plugins call this to pass collected data to the session repository.
+
+    Args:
+        file_object: File that produced the data to add.
+        label: Label that uniquely identifies the data.
+        data: The data to add.
+    """
+    repository.SessionRepository.store(file_object, label, data)

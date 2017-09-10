@@ -47,6 +47,7 @@ class Repository(object):
         self.meowuri_class_map = meowuri_class_map_dict()
         self._log_string_class_map()
 
+        # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
         self.mapped_meowuris = unique_map_meowuris(
             self.meowuri_class_map
         )
@@ -118,8 +119,12 @@ class Repository(object):
             pass
         else:
             if any_existing is not None:
-                assert(not isinstance(data, list))
-                data = [any_existing] + [data]
+                if not isinstance(any_existing, list):
+                    any_existing = [any_existing]
+                if not isinstance(data, list):
+                    data = [data]
+
+                data = any_existing + data
 
         util.nested_dict_set(self.data, [file_object, meowuri], data)
         log.debug('Repository stored: {{"{!s}": {{"{!s}": {!s}}}}}'.format(
@@ -299,10 +304,9 @@ def get_sources_for_meowuris(meowuri_list, includes=None):
         source_classes = map_meowuri_to_source_class(uri, includes)
 
         # TODO: Improve robustness of linking "MeowURIs" to data source classes.
-        # assert(len(source_classes) == 1)
-
-        for source_class in source_classes:
-            out.add(source_class)
+        if source_classes:
+            for source_class in source_classes:
+                out.add(source_class)
 
     return list(out)
 

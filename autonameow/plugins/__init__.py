@@ -24,6 +24,7 @@ import logging
 import os
 import sys
 
+from .common import BasePlugin
 
 # Plugins are assumed to be located in the same directory as this file.
 AUTONAMEOW_PLUGIN_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -34,42 +35,6 @@ log = logging.getLogger(__name__)
 
 
 # TODO: [TD0009] Implement a proper plugin interface.
-class BasePlugin(object):
-    # Resource identifier "MeowURI" for the data returned by this extractor.
-    # Example:  'plugin.guessit'
-    meowuri_root = None
-
-    def __init__(self, add_results_callback, request_data_callback,
-                 display_name=None):
-        if display_name:
-            self.display_name = display_name
-        else:
-            self.display_name = self.__class__.__name__
-
-        self.add_results = add_results_callback
-        self.request_data = request_data_callback
-
-    @classmethod
-    def test_init(cls):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def run(self):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def can_handle(self, file_object):
-        """
-        Tests if this plugin class can handle the given file object.
-
-        Args:
-            file_object: The file to test as an instance of 'FileObject'.
-
-        Returns:
-            True if the plugin class can handle the given file, else False.
-        """
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def __str__(self):
-        return self.display_name
 
 
 def find_plugin_files():
@@ -114,17 +79,18 @@ def get_usable_plugin_classes():
     return [k for k in get_plugin_classes() if k.test_init()]
 
 
-def suitable_plugins_for(file_object):
-    """
-    Returns plugin classes that can handle the given file object.
-
-    Args:
-        file_object: File to get plugins for as an instance of 'FileObject'.
-
-    Returns:
-        A list of plugin classes that can handle the given file.
-    """
-    return [p for p in UsablePlugins if p.can_handle(file_object)]
+# TODO: Use or remove function 'suitable_plugins_for'.
+# def suitable_plugins_for(file_object):
+#     """
+#     Returns plugin classes that can handle the given file object.
+#
+#     Args:
+#         file_object: File to get plugins for as an instance of 'FileObject'.
+#
+#     Returns:
+#         A list of plugin classes that can handle the given file.
+#     """
+#     return [p for p in UsablePlugins if p.can_handle(file_object)]
 
 
 def map_meowuri_to_plugins():
