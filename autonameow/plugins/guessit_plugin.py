@@ -157,9 +157,12 @@ def run_guessit(input_data, options=None):
     else:
         guessit_options = {'no-embedded-config': True, 'name_only': True}
 
+    logging.disable(logging.DEBUG)
     try:
         result = guessit.guessit(input_data, guessit_options)
     except (guessit.api.GuessitException, Exception) as e:
+        logging.disable(logging.NOTSET)
         raise exceptions.AutonameowPluginError(e)
     else:
+        logging.disable(logging.NOTSET)
         return result
