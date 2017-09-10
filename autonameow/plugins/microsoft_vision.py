@@ -36,7 +36,12 @@ import argparse
 # import logging
 import requests
 
-from core import util
+from core import (
+    util,
+    fields,
+    types
+)
+from extractors import ExtractedData
 from plugins import BasePlugin
 from core.exceptions import AutonameowPluginError
 
@@ -114,7 +119,7 @@ def query_api(image_file, api_key):
     """
     if not api_key:
         # log.error('Unable to continue without an API key!')
-        return False
+        return None
 
     headers = {
         'Content-Type': 'application/octet-stream',
@@ -140,7 +145,7 @@ def query_api(image_file, api_key):
         # log.error('[ERROR] Caught exception when querying the API;')
         # if e:
         #     log.error(str(e))
-        return False
+        return None
 
 
 def get_caption_text(json_data):
@@ -238,23 +243,17 @@ def main(paths, api_key, dump_response=False, print_caption=True):
 
 
 def _read_api_key_from_file(file_path):
-    if not os.path.exists(file_path):
-        # log.critical('Unable to find "microsoft_vision.py" API key!')
-        return None
-
     try:
         with open(file_path, mode='r', encoding='utf8') as f:
             api_key = f.read()
-            api_key = api_key.strip()
-    except FileNotFoundError as e:
-        # log.critical('Unable to find "microsoft_vision.py" API key!')
+            return api_key.strip()
+    except OSError:
         return None
-    else:
-        return api_key
 
 
 class MicrosoftVisionPlugin(BasePlugin):
     meowuri_root = 'plugin.microsoft_vision'
+    DISPLAY_NAME = 'MicrosoftVision'
 
     """
     'microsoft_vision.py'
@@ -272,50 +271,65 @@ class MicrosoftVisionPlugin(BasePlugin):
                                 'microsoft_vision.key')
     API_KEY = _read_api_key_from_file(api_key_path)
 
-    def __init__(self, add_results_callback, request_data_callback):
+    def __init__(self):
         super(MicrosoftVisionPlugin, self).__init__(
-            add_results_callback, request_data_callback,
-            display_name='MicrosoftVision'
+            display_name=self.DISPLAY_NAME
         )
 
     @classmethod
     def test_init(cls):
         return cls.API_KEY is not None
 
-    def query(self, **kwargs):
-        # TODO: [TD0061] Re-implement basic queries to this script.
-        # NOTE: Expecting "data" to be a valid path to an image file.
-        # if not cls.API_KEY:
-        #     raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
-
-        if kwargs.get('field') == 'caption' or kwargs.get('field') == 'tags':
-            response = query_api(self.source, self.API_KEY)
-            if not response:
-                # log.error('[plugin.microsoft_vision] Unable to query to API')
-                raise AutonameowPluginError('Did not receive a valid response')
-            else:
-                # log.debug('Received microsoft_vision API query response')
-                pass
-
-            if kwargs.get('field') == 'caption':
-                caption = get_caption_text(response)
-                # log.debug('Returning caption: "{!s}"'.format(caption))
-                return str(caption)
-
-            elif kwargs.get('field') == 'tags':
-                tags = get_tags(response, 5)
-                tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
-                # log.debug('Returning tags: {}'.format(tags_pretty))
-                return tags
-
-    @classmethod
-    def can_handle(cls, file_object):
-        _mime_type = cls.request_data(file_object,
-                                      'filesystem.contents.mime_type')
+    def can_handle(self, file_object):
+        _mime_type = self.request_data(file_object,
+                                       'filesystem.contents.mime_type')
         return util.eval_magic_glob(_mime_type, ['image/png', 'image/jpeg'])
 
-    def execute(self):
-        pass
+    def execute(self, file_object):
+        _source_path = self.request_data(file_object, 'filesystem.abspath.full')
+        if _source_path is None:
+            raise AutonameowPluginError('Required data unavailable')
+
+        response = query_api(_source_path, self.API_KEY)
+        if not response:
+            raise AutonameowPluginError('Did not receive a valid response')
+
+        if 'statusCode' in response:
+            if response['statusCode'] == 401:
+                raise AutonameowPluginError(
+                    'Error: {!s}'.format(
+                        response.get('message',
+                                     'Status code 401 (Access denied)')
+                    )
+                )
+
+        _caption = get_caption_text(response)
+        self.log.debug('Returning caption: "{!s}"'.format(_caption))
+        self.add_results(
+            file_object,
+            'caption',
+            ExtractedData(
+                wrapper=types.AW_STRING,
+                mapped_fields=[
+                    fields.WeightedMapping(fields.title, probability=1),
+                    fields.WeightedMapping(fields.description, probability=1)
+                ]
+            )(_caption)
+        )
+
+        _tags = get_tags(response)
+        _tags_pretty = ' '.join(map(lambda x: '"' + x + '"', _tags))
+        self.log.debug('Returning tags: {}'.format(_tags_pretty))
+        self.add_results(
+            file_object,
+            'tags',
+            ExtractedData(
+                wrapper=types.AW_STRING,
+                mapped_fields=[
+                    fields.WeightedMapping(fields.tags, probability=1),
+                ]
+            )(_tags)
+        )
 
 
 if __name__ == '__main__':

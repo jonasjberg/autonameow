@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-09-10
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0061]` Re-implement basic queries to the "microsoft vision" plugin.
+
 * 2017-08-25
 
     > High Priority
