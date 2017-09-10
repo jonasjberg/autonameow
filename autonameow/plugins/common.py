@@ -35,12 +35,21 @@ class BasePlugin(object):
         else:
             self.display_name = self.__class__.__name__
 
-        self.add_results = plugin_handler.collect_results
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
         self.request_data = plugin_handler.request_data
+
+    def add_results(self, file_object, meowuri_leaf, data):
+        if data is None:
+            return
+
+        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
+        #self.log.debug(
+        #    '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
+        #)
+        plugin_handler.collect_results(file_object, meowuri, data)
 
     def __call__(self, source, *args, **kwargs):
         self.execute(source)
