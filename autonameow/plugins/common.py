@@ -19,28 +19,27 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from core import plugin_handler
+
 
 class BasePlugin(object):
     # Resource identifier ("MeowURI") for the data returned by this plugin.
     # Example:  'plugin.guessit'
     meowuri_root = None
 
-    def __init__(self, add_results_callback, request_data_callback,
-                 display_name=None):
+    def __init__(self, display_name=None):
         if display_name:
             self.display_name = display_name
         else:
             self.display_name = self.__class__.__name__
 
-        self.add_results = add_results_callback
-        self.request_data = request_data_callback
+        self.add_results = plugin_handler.collect_results
+        self.request_data = plugin_handler.request_data
 
-    @classmethod
-    def test_init(cls):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
+    def __call__(self, source, *args, **kwargs):
+        self.execute(source)
 
-    @classmethod
-    def can_handle(cls, file_object):
+    def can_handle(self, file_object):
         """
         Tests if this plugin class can handle the given file object.
 
@@ -52,8 +51,12 @@ class BasePlugin(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def execute(self):
+    def execute(self, file_object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):
         return self.display_name
+
+    @classmethod
+    def test_init(cls):
+        raise NotImplementedError('Must be implemented by inheriting classes.')

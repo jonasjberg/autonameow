@@ -300,10 +300,9 @@ def get_sources_for_meowuris(meowuri_list, includes=None):
         source_classes = map_meowuri_to_source_class(uri, includes)
 
         # TODO: Improve robustness of linking "MeowURIs" to data source classes.
-        # assert(len(source_classes) == 1)
-
-        for source_class in source_classes:
-            out.add(source_class)
+        if source_classes:
+            for source_class in source_classes:
+                out.add(source_class)
 
     return list(out)
 

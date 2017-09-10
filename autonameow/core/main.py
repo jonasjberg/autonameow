@@ -257,7 +257,12 @@ class Autonameow(object):
         # Begin analysing the file.
         _run_analysis(current_file)
 
-        plugin_handler = _run_plugins(current_file)
+        # Run plugins.
+        required_plugins = repository.get_sources_for_meowuris(
+            self.active_config.referenced_meowuris,
+            includes=['plugins']
+        )
+        _run_plugins(current_file, required_plugins)
 
         # Determine matching rule.
         matcher = _run_rule_matcher(current_file, self.active_config)
@@ -421,7 +426,7 @@ def _run_extraction(file_object, require_extractors, run_all_extractors=False):
         raise
 
 
-def _run_plugins(file_object):
+def _run_plugins(file_object, required_plugins=None):
     """
     Instantiates, executes and returns a 'PluginHandler' instance.
 
@@ -433,14 +438,16 @@ def _run_plugins(file_object):
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
+    if not required_plugins:
+        return
+
     plugin_handler = PluginHandler()
+    plugin_handler.use_plugins(required_plugins)
     try:
-        plugin_handler.start(file_object)
+        plugin_handler.execute_plugins(file_object)
     except exceptions.AutonameowPluginError as e:
         log.critical('Plugins FAILED: {!s}'.format(e))
         raise exceptions.AutonameowException(e)
-    else:
-        return plugin_handler
 
 
 def _run_analysis(file_object):
