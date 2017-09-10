@@ -343,16 +343,24 @@ class TestTypeDate(TestCase):
         with self.assertRaises(types.AWTypeError):
             types.AW_DATE(None)
 
-    def test_call_with_coercible_data(self):
+    def test_call_with_coercible_data_year_month_day(self):
         expected = datetime.strptime('2017-07-12', '%Y-%m-%d')
         self.assertEqual(types.AW_DATE(expected), expected)
         self.assertEqual(types.AW_DATE('2017-07-12'), expected)
-        # self.assertEqual(types.AW_DATE(b'2017-07-12'), expected)
+        self.assertEqual(types.AW_DATE(b'2017-07-12'), expected)
 
+    def test_call_with_coercible_data_year_month(self):
+        expected = datetime.strptime('2017-07', '%Y-%m')
+        self.assertEqual(types.AW_DATE(expected), expected)
+        self.assertEqual(types.AW_DATE('2017-07'), expected)
+        self.assertEqual(types.AW_DATE(b'2017-07'), expected)
+
+    def test_call_with_coercible_data_year(self):
         expected = datetime.strptime('2017', '%Y')
         self.assertEqual(types.AW_DATE(expected), expected)
         self.assertEqual(types.AW_DATE('2017'), expected)
-        # self.assertEqual(types.AW_DATE(b'2017'), expected)
+        self.assertEqual(types.AW_DATE(b'2017'), expected)
+        self.assertEqual(types.AW_DATE(2017), expected)
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(input_data):

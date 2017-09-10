@@ -412,9 +412,14 @@ class Date(BaseType):
 
     def coerce(self, value):
         try:
-            return try_parse_date(value)
-        except (TypeError, ValueError) as e:
+            string_value = AW_STRING(value)
+        except AWTypeError as e:
             self._fail_coercion(value, msg=e)
+        else:
+            try:
+                return try_parse_date(string_value)
+            except (TypeError, ValueError) as e:
+                self._fail_coercion(value, msg=e)
 
     def normalize(self, value):
         value = self.__call__(value)
@@ -576,6 +581,7 @@ def try_parse_date(string):
         raise ValueError(_error_msg)
 
     date_formats = ['%Y-%m-%d',
+                    '%Y-%m',
                     '%Y']
     for date_format in date_formats:
         try:
