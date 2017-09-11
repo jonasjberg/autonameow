@@ -146,6 +146,34 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
     def __init__(self):
         super(ExiftoolMetadataExtractor, self).__init__()
 
+    def _get_metadata(self, source):
+        _raw_metadata = self._get_exiftool_data(source)
+        if _raw_metadata:
+            # Internal data format boundary.  Wrap "raw" data with type classes.
+            metadata = self._to_internal_format(_raw_metadata)
+            return metadata
+
+    def _to_internal_format(self, raw_metadata):
+        out = {}
+
+        for tag_name, value in raw_metadata.items():
+            if tag_name in self.tagname_type_lookup:
+                wrapper = self.tagname_type_lookup[tag_name]
+            else:
+                # Use a default 'ExtractedData' class.
+                wrapper = ExtractedData(wrapper=None, mapped_fields=None)
+
+            try:
+                item = wrapper(value)
+            except types.AWTypeError:
+                self.log.warning('Wrapping exiftool data raised AWTypeError '
+                                 'for "{!s}" ({})'.format(value, type(value)))
+                pass
+            else:
+                out[tag_name] = item
+
+        return out
+
     def _get_raw_metadata(self, source):
         result = self._get_exiftool_data(source)
         if result:

@@ -68,11 +68,36 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
     def __init__(self):
         super(PyPDFMetadataExtractor, self).__init__()
 
-    def _get_raw_metadata(self, source):
+    def _get_metadata(self, source):
         try:
-            return self._get_pypdf_data(source)
+            _raw_metadata = self._get_pypdf_data(source)
         except Exception as e:
             raise ExtractorError(e)
+
+        # Internal data format boundary.  Wrap "raw" data with type classes.
+        metadata = self._to_internal_format(_raw_metadata)
+        return metadata
+
+    # TODO: [TD0087] Clean up messy (and duplicated) wrapping of "raw" data.
+    def _to_internal_format(self, raw_metadata):
+        out = {}
+
+        for tag_name, value in raw_metadata.items():
+            if tag_name in self.tagname_type_lookup:
+                wrapper = self.tagname_type_lookup[tag_name]
+            else:
+                # Use a default 'ExtractedData' class.
+                wrapper = ExtractedData(wrapper=None, mapped_fields=None)
+
+            try:
+                item = wrapper(value)
+            except types.AWTypeError:
+                self.log.warning('Wrapping PyPDF data raised AWTypeError for '
+                                 '"{!s}" ({})'.format(value, type(value)))
+            else:
+                out[tag_name] = item
+
+        return out
 
     def _get_pypdf_data(self, source):
         out = {}
@@ -82,6 +107,8 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
             file_reader = PyPDF2.PdfFileReader(util.decode_(source), 'rb')
         except (OSError, PyPdfError) as e:
             raise ExtractorError(e)
+
+        # TODO: [TD0087] Clean up messy (and duplicated) wrapping of "raw" data.
 
         # Notes on 'getDocumentInfo' from the PyPDF2 source documentation:
         #

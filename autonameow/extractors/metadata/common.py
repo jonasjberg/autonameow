@@ -42,7 +42,7 @@ class AbstractMetadataExtractor(BaseExtractor):
         self.log.debug('{!s} starting initial extraction ..'.format(self))
 
         try:
-            _raw_metadata = self._get_raw_metadata(source)
+            _metadata = self._get_metadata(source)
         except ExtractorError as e:
             self.log.error(
                 '{!s}: extraction FAILED: {!s}'.format(self, e)
@@ -53,31 +53,10 @@ class AbstractMetadataExtractor(BaseExtractor):
                            '{!s}'.format(self, e))
             raise ExtractorError
 
-        # Internal data format boundary.  Wrap "raw" data with type classes.
-        # TODO: [TD0087] Clean up messy (and duplicated) wrapping of "raw" data.
-        metadata = self._to_internal_format(_raw_metadata)
-
         self.log.debug('{!s} returning all extracted data'.format(self))
-        return metadata
+        return _metadata
 
-    def _to_internal_format(self, raw_metadata):
-        out = {}
-
-        for tag_name, value in raw_metadata.items():
-            if tag_name in self.tagname_type_lookup:
-                # Found a "template" 'Item' class.
-                wrapper = self.tagname_type_lookup[tag_name]
-            else:
-                # Use a default 'Item' class.
-                wrapper = ExtractedData(wrapper=None, mapped_fields=None)
-
-            item = wrapper(value)
-            if item:
-                out[tag_name] = item
-
-        return out
-
-    def _get_raw_metadata(self, source):
+    def _get_metadata(self, source):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
