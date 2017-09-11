@@ -1,3 +1,127 @@
+2017-09-11  [autonameow v0.4.6]
+            A lot of refactoring for improved robustness and stability.
+            Removes the 'pytesseract' dependency. Adds dynamic handling of
+            missing dependencies.  Major rework of extractors and plugins.
+            Refer to the git log for additional details.
+
+            Additions:
+            - Add new analyzer class 'EbookAnalyzer'.
+            - Add git submodule 'epubzilla' for handling epub-files.
+              This is still WIP, and will reqire a lof of fixing before use..
+            - Add checking extractor class dependencies.
+            - Add extracting timestamps in 'CommonFileSystemExtractor'.
+            - Add improved logging system.
+            - Add new analyer class 'FiletagsAnalyzer'.
+            - Add mapping "sources" (plugins/extractors/analyzers) to
+              "meowURIs" for looking up candidate sources classes from
+              query strings.
+            - Add requiring extractors based on "meowURIs" referenced by rules
+              in the active configuration.
+            - Add ignoring files listed in the configuration.
+
+              Uses "globbing" similar to that of 'fslint', acting on full
+              paths.  So that glob '.DS_Store' would not match any files,
+              instead use '*/.DS_Store' to match all files called '.DS_Store'
+              in any path.
+
+              The ignored files are listed under the 'FILESYSTEM_OPTIONS' in
+              the configuration.
+
+              The user-specific ignore-patterns is added to a set of defaults
+              that are listed in 'constants.py'.
+            - Add a new file 'name_template.py' for placeholder fields.
+              Still somewhat of a work in progress.
+            - Add A new class 'Resolver' for handling data collection
+              previously done in 'namebuilder.py'.
+            - Add meowURI: 'filesystem.abspath.full'
+            - Rework 'plugin_handler.py'. Run only referenced plugins.
+            - And a lot more --- refer to the git log for additional details.
+
+            Changes:
+            - Remove state and modify calling extractor classes.
+              Modifies extractors to not keep any state and simplifies use.
+              Previously, the extractor classes was handed a data source at
+              instantiation through the '__init__' method.  This meant that the
+              classes first had to be "loaded" with a source before they were
+              executed in a later step, when running the "queue".
+              Extractor classes no longer require any arguments to the
+              '__init__' method.  Instead, the data source is passed to the
+              class 'execute'-method, through the '__call__' method.
+
+                  Old way of extracting data:
+
+                      extractor = DataExtractor(source)
+                      result = extractor.execute()
+
+                  New way of extracting data:
+
+                      extractor = DataExtractor()
+                      result = extractor(source)
+
+              This also removes the "extractor run queue" as it no longer
+              required with this new way of executing extractors.
+
+              Extractors also stored data in instance variables such as
+              'self._data'.  This is also removed -- extractors should be
+              called as functions.
+              Extractors should no longer keep any state between calls.
+
+            - Consolidate methods for returning extractor results.
+            - Remove unused base class 'Rule'.
+            - Refactor evaluating 'FileRule' conditions.
+              Separates modifying the object state from returning results.
+            - Refactoring by renaming variables and methods.
+            - Improve prioritization of rules in the name builder.
+            - Renmae file rule 'weight' to 'ranking_bias'.
+            - Move 'namebuilder.py' to the 'core' module'.
+            - Move 'filter.py' to the 'core' module'.
+            - Restructure extractor module nesting.
+              Modifies extractor namespacing to use submodules instead of '_'.
+            - Remove "Py3k compatibility" in 'wrap_exiftool.py'.
+            - Refactor and restructure unit tests.
+            - Add 'unit_utils_constants.py'.
+            - Rename the concept of "File Rules" to "Rules".
+            - Move validation of rules to 'rules.py'.
+            - Move validation of rule conditions to 'rules.py'.
+            - Separate commad-line options setup from logging setup.
+            - Clean up file object internals. Modify public interface.
+            - Move "filetags"-specific code from 'FileObject' to the new
+              'FiletagsAnalyzer' class.
+            - Move "sanitation" to the name builder.
+            - Replace the 'Extraction' class with module-level functions.
+            - Replace the 'Analysis' class with module-level functions.
+            - Remove unused function 'get_analyzer_classes_basename'.
+            - The concept of a "query string" is now called a "meowURI".
+            - Rename extractor query methods 'query' to 'execute'.
+            - Adds method of auto-detecting encoding for difficult text.
+            - Modify default colors in rename message.
+            - Refactor the "name builder". Remove the 'NameBuilder' class.
+            - Modify the 'Rule' class to not keep any state.
+            - Remove 'pytesseract' depdendency, add inline modified version.
+            - Rename 'autonameow.py' to 'main.py'.
+            - Add wrapping data with 'ExtractedData' classes, for keeping
+              contextual information and refernces to type wrapper classes,
+              for use when converting the "raw" data to a form suitable for
+              populating placeholder fields in the name template.
+            - And a lot more --- refer to the git log for additional details.
+
+            Fixes:
+            - Fix getting file extensions from MIME-types.
+            - Fix logging loosing track of the root logger.
+            - Add skipping unit tests if dependencies aren't met.
+            - Fix logic bugs in getting extension from MIME.
+            - Fix bugs in 'eval_query_string_glob'.
+            - Fix bug in repository where multiple results would not be
+              collected properly in a list.
+            - Fix non-breaking spaces messing up reading the configuration.
+            - Fix cases of missing modules, 'PyPDF2'.
+            - Fix inconsistent use of "MeowURIs" in analyzers.
+            - Fix crashing when repeating the same input path multiple times.
+            - Fix 'run.sh' wrapper script not resolving symlinks on MacOS.
+            - Fix various bugs in the 'PlainTextExtractor', related to encoding.
+            - And a lot more --- refer to the git log for additional details.
+
+
 2017-08-18  [autonameow v0.4.5]
             Mostly non-functional improvements and refactoring.
             Rework of the internals for improved robustness and new features.
