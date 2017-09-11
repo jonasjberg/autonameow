@@ -69,6 +69,7 @@ class AbstractMetadataExtractor(BaseExtractor):
             raise ExtractorError
 
         # Internal data format boundary.  Wrap "raw" data with type classes.
+        # TODO: [TD0087] Clean up messy (and duplicated) wrapping of "raw" data.
         metadata = self._to_internal_format(_raw_metadata)
 
         if 'field' not in kwargs:

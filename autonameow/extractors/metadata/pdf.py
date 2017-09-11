@@ -176,6 +176,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
             out_dict[out_key] = str(pypdf_data)
             return
 
+        # TODO: [TD0087] Clean up messy (and duplicated) wrapping of "raw" data.
         try:
             wrapped = wrapper(pypdf_data)
         except types.AWTypeError:
