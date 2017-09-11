@@ -19,8 +19,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   _____________________________________________________________________
 
-# Source repo:  https://github.com/jonasjberg/image-utils
-# Commit hash:  2972dae5df58b335e80244ab176d38281d49171e
+# Source repo:           https://github.com/jonasjberg/image-utils
+# Based on commit hash:  2972dae5df58b335e80244ab176d38281d49171e
 
 # This is me playing around with the Microsoft Vision API on a friday night.
 
