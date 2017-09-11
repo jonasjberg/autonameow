@@ -22,7 +22,10 @@
 import unittest
 
 from analyzers import analyze_ebook
-from analyzers.analyze_ebook import extract_isbns_from_text
+from analyzers.analyze_ebook import (
+    extract_isbns_from_text,
+    validate_isbn
+)
 
 import unit_utils as uu
 
@@ -98,3 +101,20 @@ ISBN: 1-56592-306-5
         actual = extract_isbns_from_text(text)
         self.assertEqual(len(actual), 2)
         self.assertIn('1565923065', actual)
+
+
+class TestValidateISBN(unittest.TestCase):
+    def test_returns_valid_isbn_numbers(self):
+        sample_isbn = '1565923065'
+        self.assertEqual(validate_isbn(sample_isbn), sample_isbn)
+
+    def test_returns_non_for_invalid_isbn_numbers(self):
+        sample_invalid_isbns = [
+            None,
+            '',
+            ' ',
+            '123',
+            '1234567890'
+        ]
+        for sample_isbn in sample_invalid_isbns:
+            self.assertIsNone(validate_isbn(sample_isbn))

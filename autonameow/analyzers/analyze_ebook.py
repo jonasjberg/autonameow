@@ -230,15 +230,17 @@ def extract_isbns_from_text(text):
         return []
 
 
-def validate_isbn(number):
-    if not number:
+def validate_isbn(possible_isbn):
+    if not possible_isbn:
         return None
 
-    n = isbnlib.clean(number)
-    if not n or isbnlib.notisbn(n):
+    assert isinstance(possible_isbn, str)
+
+    isbn_number = isbnlib.clean(possible_isbn)
+    if not isbn_number or isbnlib.notisbn(isbn_number):
         return None
     else:
-        return n
+        return isbn_number
 
 
 def filter_isbns(numbers):
