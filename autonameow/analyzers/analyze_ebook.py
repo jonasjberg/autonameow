@@ -220,10 +220,12 @@ def _search_initial_text(text, callback):
 
 
 def extract_isbns_from_text(text):
-    isbns = [isbnlib.get_canonical_isbn(isbn)
-             for isbn in isbnlib.get_isbnlike(text)]
-    if isbns:
-        return [i for i in isbns if validate_isbn(i)]
+    assert isinstance(text, str)
+
+    possible_isbns = isbnlib.get_isbnlike(text)
+    if possible_isbns:
+        return [isbnlib.get_canonical_isbn(i)
+                for i in possible_isbns if validate_isbn(i)]
     else:
         return []
 

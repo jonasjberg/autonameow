@@ -53,7 +53,7 @@ class TestEbookAnalyzer(unittest.TestCase):
 
 class TestExtractIsbnsFromText(unittest.TestCase):
     def test_returns_expected_type(self):
-        text = 'fooo'
+        text = 'fooo1-56592-306-5baar'
         actual = extract_isbns_from_text(text)
         self.assertTrue(isinstance(actual, list))
 
@@ -68,7 +68,7 @@ class TestExtractIsbnsFromText(unittest.TestCase):
         self.assertEqual(len(actual), 1)
         self.assertIn('1565923065', actual)
 
-    def test_returns_expected_given_text_with_isbns(self):
+    def test_returns_expected_given_text_with_isbn(self):
         text = '''
 Practical C Programming, 3rd Edition  
 By Steve Oualline 
@@ -81,4 +81,20 @@ development environments. Programs conform to ANSI C.
 '''
         actual = extract_isbns_from_text(text)
         self.assertEqual(len(actual), 1)
+        self.assertIn('1565923065', actual)
+
+    def test_returns_expected_given_text_with_duplicate_isbn(self):
+        text = '''
+Practical C Programming, 3rd Edition
+By Steve Oualline
+3rd Edition August 1997
+ISBN: 1-56592-306-5
+This new edition of "Practical C Programming" teaches users not only the mechanics or
+programming, but also how to create programs that are easy to read, maintain, and
+debug. It features more extensive examples and an introduction to graphical
+development environments. Programs conform to ANSI C.
+ISBN: 1-56592-306-5
+'''
+        actual = extract_isbns_from_text(text)
+        self.assertEqual(len(actual), 2)
         self.assertIn('1565923065', actual)
