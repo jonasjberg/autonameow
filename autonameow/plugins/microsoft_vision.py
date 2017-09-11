@@ -22,18 +22,13 @@
 # Source repo:  https://github.com/jonasjberg/image-utils
 # Commit hash:  2972dae5df58b335e80244ab176d38281d49171e
 
-
 # This is me playing around with the Microsoft Vision API on a friday night.
 
-
-from __future__ import print_function
-
-import sys
 import os
 import json
-import urllib
-import argparse
-import requests
+
+from urllib.parse import urlencode
+import http.client as httplib
 
 from core import (
     util,
@@ -43,17 +38,6 @@ from core import (
 from extractors import ExtractedData
 from plugins import BasePlugin
 from core.exceptions import AutonameowPluginError
-
-
-# Python 2.6+
-if sys.version_info[0] == 2:
-    from urllib import urlencode
-    import httplib
-
-# Python 3.x
-if sys.version_info[0] == 3:
-    from urllib.parse import urlencode
-    import http.client as httplib
 
 
 def query_api(image_file, api_key):
