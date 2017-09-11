@@ -137,7 +137,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
             )
             raise ExtractorError('PyPDF2.PdfReadError: "{!s}"'.format(e))
         else:
-            out.update({'NumberPages': num_pages})
+            out.update({'NumberPages': types.AW_INTEGER(num_pages)})
             out.update({'Paginated': True})
 
         # https://pythonhosted.org/PyPDF2/XmpInformation.html
