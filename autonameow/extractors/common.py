@@ -98,7 +98,7 @@ class BaseExtractor(object):
         Args:
             source: Source of data from which to extract information as a
                 byte string path (internal path format). A special case is the
-                'CommonFileSystemExtractor' that expects a 'FileObject' source.
+                'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
 
         Keyword Args:
             field: Return only data matching this field.
@@ -138,7 +138,7 @@ class BaseExtractor(object):
         Args:
             source: Source of data from which to extract information as a
                 byte string path (internal path format). A special case is the
-                'CommonFileSystemExtractor' that expects a 'FileObject' source.
+                'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
         Keyword Args:
             field: Return only data matching this field.
                 Field format and type is defined by the extractor class.
