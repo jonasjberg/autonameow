@@ -36,9 +36,6 @@ except ImportError:
     guessit = None
 
 
-log = logging.getLogger(__name__)
-
-
 class GuessitPlugin(BasePlugin):
     meowuri_root = 'plugin.guessit'
     DISPLAY_NAME = 'Guessit'
@@ -94,7 +91,7 @@ class GuessitPlugin(BasePlugin):
 
                 item = wrapper(value)
                 if item:
-                    self._add_results(file_object, tag_name, item)
+                    self.add_results(file_object, tag_name, item)
 
         def _wrap_and_add_result(raw_data, raw_key, wrapper_type, result_key):
             raw_value = raw_data.get(raw_key)
@@ -104,10 +101,13 @@ class GuessitPlugin(BasePlugin):
             try:
                 wrapped = wrapper_type(raw_value)
             except types.AWTypeError as e:
-                pass
+                self.log.warning(
+                    'Wrapping guessit data FAILED for "{!s}" ({})'.format(
+                        raw_value, type(type(raw_value)))
+                )
+                self.log.debug('Wrapping guessit data FAILED; {!s}'.format(e))
             else:
-                if wrapped is not None:
-                    self._add_results(file_object, result_key, wrapped)
+                self.add_results(file_object, result_key, wrapped)
 
         # self._wrap_and_add_result('date', types.AW_TIMEDATE, 'date')
         # self._wrap_and_add_result('title', types.AW_STRING, 'title')
@@ -132,16 +132,6 @@ class GuessitPlugin(BasePlugin):
                 ]),
             'date'
         )
-
-    def _add_results(self, file_object, meowuri_leaf, data):
-        if data is None:
-            return
-
-        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
-        #log.debug(
-        #    '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
-        #)
-        self.add_results(file_object, meowuri, data)
 
     @classmethod
     def test_init(cls):

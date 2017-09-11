@@ -158,5 +158,5 @@ VALID_DATA_SOURCES = list(__flat_results_data_structure.keys())
 
 
 # Sources to search for extractor classes.
-EXTRACTOR_CLASS_PACKAGES = ['metadata', 'text']
-EXTRACTOR_CLASS_MODULES = ['filesystem.py']
+EXTRACTOR_CLASS_PACKAGES = ['filesystem', 'metadata', 'text']
+EXTRACTOR_CLASS_MODULES = []

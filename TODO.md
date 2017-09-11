@@ -45,13 +45,9 @@ High Priority
           the process would mostly add yet another layer of indirection ..
     * Think about how wrapped data types (`[TD0002]`) relates to this.
 
-* `[TD0061]` Re-implement basic queries to the "microsoft vision" plugin.
-
 
 Medium Priority
 ---------------
-
-* `[TD0085]` Simplify extractor discovery and import. Use only packages?
 
 * `[TD0083]` __Clean up the type wrapper classes.__  
     * Remove ambiguities around returning "NULL" and raising `AWTypeError`.

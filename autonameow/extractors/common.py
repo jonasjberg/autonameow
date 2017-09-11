@@ -98,7 +98,7 @@ class BaseExtractor(object):
         Args:
             source: Source of data from which to extract information as a
                 byte string path (internal path format). A special case is the
-                'CommonFileSystemExtractor' that expects a 'FileObject' source.
+                'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
 
         Keyword Args:
             field: Return only data matching this field.
@@ -138,7 +138,7 @@ class BaseExtractor(object):
         Args:
             source: Source of data from which to extract information as a
                 byte string path (internal path format). A special case is the
-                'CommonFileSystemExtractor' that expects a 'FileObject' source.
+                'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
         Keyword Args:
             field: Return only data matching this field.
                 Field format and type is defined by the extractor class.
@@ -172,14 +172,18 @@ class BaseExtractor(object):
             else False.
         """
         if cls.handles_mime_types is None:
-            raise NotImplementedError('Must be defined by inheriting classes.')
+            raise NotImplementedError(
+                'Classes without class attribute "handles_mime_types" must '
+                'implement (override) class method "can_handle"!'
+            )
 
         try:
             return util.eval_magic_glob(file_object.mime_type,
                                         cls.handles_mime_types)
         except (TypeError, ValueError) as e:
-            log.error('Error evaluating "{!s}" MIME handling; {!s}'.format(cls,
-                                                                           e))
+            log.error(
+                'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
+            )
             return False
 
     @classmethod

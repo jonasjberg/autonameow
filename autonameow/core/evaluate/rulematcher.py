@@ -73,8 +73,8 @@ class RuleMatcher(object):
         remaining_rules = remove_rules_failing_exact_match(self._rules,
                                                            self._request_data)
         if len(remaining_rules) == 0:
-            log.info('No rules remain after discarding those who requires an'
-                     ' exact match but failed evaluation ..')
+            log.debug('No rules remain after discarding those who requires an'
+                      ' exact match but failed evaluation ..')
             return
 
         log.debug('{} rules remain after removing rules that require exact'

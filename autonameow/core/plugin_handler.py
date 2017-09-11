@@ -42,6 +42,9 @@ class PluginHandler(object):
         self.available_plugins = plugins.UsablePlugins
         assert isinstance(self.available_plugins, list)
 
+        _p = ' '.join(map(lambda x: '"' + str(x) + '"', self.available_plugins))
+        self.log.debug('Available plugins: {!s}'.format(_p))
+
         self._plugins_to_use = []
 
     def use_plugins(self, plugin_list):
