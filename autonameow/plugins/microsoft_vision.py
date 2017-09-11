@@ -169,8 +169,9 @@ class MicrosoftVisionPlugin(BasePlugin):
     Add your API key to the file 'microsoft_vision.key' in this directory,
     or modify the line below to point to the file containing your API key.
     """
-    api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
-                                'microsoft_vision.key')
+    api_key_path = os.path.join(
+        os.path.realpath(os.path.dirname(__file__)), 'microsoft_vision.key'
+    )
     API_KEY = _read_api_key_from_file(api_key_path)
 
     def __init__(self):
