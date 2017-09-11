@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import os
 
 from datetime import datetime
@@ -29,11 +28,11 @@ from extractors import (
     ExtractorError,
     ExtractedData
 )
-from core import types, fields
+from core import (
+    types,
+    fields
+)
 from core.fileobject import FileObject
-
-
-log = logging.getLogger(__name__)
 
 
 class CrossPlatformFileSystemExtractor(BaseExtractor):
