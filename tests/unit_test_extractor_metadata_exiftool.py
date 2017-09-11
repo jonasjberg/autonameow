@@ -105,12 +105,6 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
         actual = self.e.execute(temp_file)
         self.assertTrue('File:FileSize' in actual)
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_file_size_returns_expected(self):
-        actual = self.e.execute(temp_file, field='File:FileSize')
-        self.assertTrue(isinstance(actual, ExtractedData))
-        self.assertEqual(actual.value, 0)
-
 
 class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
     def _to_datetime(self, value):
@@ -146,11 +140,4 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
         actual_result = self.e.execute(self.test_file)
         for field, value in self.EXPECT_FIELD_VALUE:
             actual = actual_result.get(field)
-            self.assertEqual(actual.value, value)
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_field_returns_expected_value(self):
-        for field, value in self.EXPECT_FIELD_VALUE:
-            actual = self.e.execute(self.test_file, field=field)
-            self.assertTrue(isinstance(actual, ExtractedData))
             self.assertEqual(actual.value, value)

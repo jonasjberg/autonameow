@@ -55,10 +55,6 @@ class AbstractTextExtractor(BaseExtractor):
 
         assert(isinstance(text, str))
 
-        if 'field' in kwargs:
-            self.log.debug('{!s} ignoring field (returning all fields):'
-                           ' "{!s}"'.format(self, kwargs.get('field')))
-
         self.log.debug('{!s} returning all extracted data'.format(self))
         return ExtractedData(wrapper=types.AW_STRING)(text)
 

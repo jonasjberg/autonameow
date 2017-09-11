@@ -95,15 +95,9 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         except ExtractorError as e:
             self.log.error('{!s} extraction FAILED: {!s}'.format(self, e))
             raise
-
-        if 'field' not in kwargs:
+        else:
             self.log.debug('{!s} returning all extracted data'.format(self))
             return data
-        else:
-            field = kwargs.get('field')
-            self.log.debug('{!s} returning data matching field: '
-                           '"{!s}"'.format(self, field))
-            return data.get(field)
 
     def _get_data(self, file_object):
         if not isinstance(file_object, FileObject):

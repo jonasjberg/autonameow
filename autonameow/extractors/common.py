@@ -92,21 +92,14 @@ class BaseExtractor(object):
         """
         Starts extracting data using the extractor.
 
-        Keyword argument "field" is optional. All data is returned by default.
-        Returned data should be of obvious and "safe" internal formats/types.
 
         Args:
             source: Source of data from which to extract information as a
                 byte string path (internal path format). A special case is the
                 'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
 
-        Keyword Args:
-            field: Return only data matching this field.
-                Field format and type is defined by the extractor class.
-
         Returns:
-            All data gathered by the extractor if no field is specified.
-            Else the data matching the specified field.
+            All data gathered by the extractor, as a dictionary.
 
         Raises:
             ExtractorError: The extraction could not be completed successfully.
@@ -126,8 +119,6 @@ class BaseExtractor(object):
 
         NOTE: This method *MUST* be implemented by inheriting classes!
 
-        Keyword argument "field" is optional. All data is returned by default.
-        If the data is text, is should be returned as Unicode strings.
 
         Implementing classes should make sure to catch all exceptions and
         re-raise an "ExtractorError", passing any valuable information along.
@@ -139,13 +130,10 @@ class BaseExtractor(object):
             source: Source of data from which to extract information as a
                 byte string path (internal path format). A special case is the
                 'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
-        Keyword Args:
-            field: Return only data matching this field.
-                Field format and type is defined by the extractor class.
 
         Returns:
-            All data gathered by the extractor if no field is specified.
-            Else the data matching the specified field.
+            All data produced gathered by the extractor as a dict keyed by
+            "MeowURIs", storing arbitrary data or lists of arbitrary data.
 
         Raises:
             ExtractorError: The extraction could not be completed successfully.

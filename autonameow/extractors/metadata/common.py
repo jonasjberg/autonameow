@@ -39,21 +39,6 @@ class AbstractMetadataExtractor(BaseExtractor):
         super(AbstractMetadataExtractor, self).__init__()
 
     def execute(self, source, **kwargs):
-        """
-        Executes this extractor and returns all results.
-
-        All fields are returned by default.
-        The keyword argument "field" can be used to extract specific data.
-
-        Args:
-            source: Source of data from which to extract information as a
-                byte string path (internal path format)
-        Keyword Args:
-            field: Return only data matching this field.
-
-        Returns:
-            Data matching the given field or False if the extraction fails.
-        """
         self.log.debug('{!s} starting initial extraction ..'.format(self))
 
         try:
@@ -72,14 +57,8 @@ class AbstractMetadataExtractor(BaseExtractor):
         # TODO: [TD0087] Clean up messy (and duplicated) wrapping of "raw" data.
         metadata = self._to_internal_format(_raw_metadata)
 
-        if 'field' not in kwargs:
-            self.log.debug('{!s} returning all extracted data'.format(self))
-            return metadata
-        else:
-            field = kwargs.get('field')
-            self.log.debug('{!s} returning data matching field: '
-                           '"{!s}"'.format(self, field))
-            return metadata.get(field)
+        self.log.debug('{!s} returning all extracted data'.format(self))
+        return metadata
 
     def _to_internal_format(self, raw_metadata):
         out = {}

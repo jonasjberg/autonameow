@@ -188,11 +188,6 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
         actual = self.e.execute(self.test_file)
         self.assertEqual(actual.value, self.EXPECT_TEXT)
 
-    def test_method_execute_arbitrary_field_result_contains_expected(self):
-        self.skipTest('Fix expected text encoding issue')
-        actual = self.e.execute(self.test_file, field='dummy_field')
-        self.assertEqual(actual.value, self.EXPECT_TEXT)
-
     def test_class_method_can_handle_is_defined(self):
         self.assertIsNotNone(self.e.can_handle)
 

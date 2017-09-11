@@ -111,14 +111,6 @@ class TestImageOCRTextExtractorWithImageFile(unittest.TestCase):
         actual = self.e.execute(TEST_IMAGE_FILE)
         self.assertEqual(actual.value, TEST_IMAGE_FILE_TEXT)
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_arbitrary_field_result_contains_expected(self):
-        self.skipTest(
-            "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'"
-        )
-        actual = self.e.execute(TEST_IMAGE_FILE, field='dummy_field')
-        self.assertEqual(actual.value, TEST_IMAGE_FILE_TEXT)
-
 
 class TestTesseractWrapper(unittest.TestCase):
     TEST_FILE = uu.abspath_testfile('2007-04-23_12-comments.png')

@@ -52,9 +52,6 @@ class TestAbstractMetadataExtractor(TestCase):
         with self.assertRaises(ExtractorError):
             self.assertIsNone(self.e(self.test_file))
 
-        with self.assertRaises(ExtractorError):
-            self.assertIsNone(self.e(self.test_file, field='some_field'))
-
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.handles_mime_types)
 
