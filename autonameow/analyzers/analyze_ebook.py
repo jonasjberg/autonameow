@@ -243,18 +243,19 @@ def validate_isbn(possible_isbn):
         return isbn_number
 
 
-def filter_isbns(numbers):
-    # Remove all characters except digits and dashes.
-    # numbers = [re.sub(r'[^\d-]+', '', n) for n in numbers]
-    # TODO: Duplicates 'isbnlib.clean(number)' in 'validate_isbn'.
+def filter_isbns(isbn_list):
+    if not isbn_list:
+        return []
+
+    assert isinstance(isbn_list, list)
 
     # Remove any duplicates.
-    nums = list(set(numbers))
+    isbn_list = list(set(isbn_list))
 
     # Remove known bad ISBN numbers.
-    numbers = [n for n in nums
-               if n not in BLACKLISTED_ISBN_NUMBERS]
-    return numbers
+    isbn_list = [n for n in isbn_list if n
+                 and n not in BLACKLISTED_ISBN_NUMBERS]
+    return isbn_list
 
 
 def fetch_isbn_metadata(isbn_number):

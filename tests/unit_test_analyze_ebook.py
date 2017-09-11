@@ -24,7 +24,8 @@ import unittest
 from analyzers import analyze_ebook
 from analyzers.analyze_ebook import (
     extract_isbns_from_text,
-    validate_isbn
+    validate_isbn,
+    filter_isbns
 )
 
 import unit_utils as uu
@@ -118,3 +119,20 @@ class TestValidateISBN(unittest.TestCase):
         ]
         for sample_isbn in sample_invalid_isbns:
             self.assertIsNone(validate_isbn(sample_isbn))
+
+
+class TestFilterISBN(unittest.TestCase):
+    def test_returns_valid_isbn_numbers(self):
+        sample_isbn = ['1565923065']
+        self.assertEqual(filter_isbns(sample_isbn), sample_isbn)
+
+    def test_returns_non_for_invalid_isbn_numbers(self):
+        sample_invalid_isbns = [
+            None,
+            [None],
+            [''],
+            ['1111111111'],
+            ['9999999999'],
+        ]
+        for sample_isbn in sample_invalid_isbns:
+            self.assertEqual(filter_isbns(sample_isbn), [])
