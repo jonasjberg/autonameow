@@ -241,7 +241,8 @@ def validate_isbn(number):
 
 def filter_isbns(numbers):
     # Remove all characters except digits and dashes.
-    numbers = [re.sub(r'[^\d-]+', '', n) for n in numbers]
+    # numbers = [re.sub(r'[^\d-]+', '', n) for n in numbers]
+    # TODO: Duplicates 'isbnlib.clean(number)' in 'validate_isbn'.
 
     # Remove any duplicates.
     nums = list(set(numbers))
