@@ -64,6 +64,8 @@ class TestAbstractTextExtractor(TestCase):
     def test_class_method_can_handle_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.assertIsNotNone(self.e.can_handle(self.fo))
+
+        with self.assertRaises(NotImplementedError):
             self.assertFalse(self.e.can_handle(self.fo))
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
