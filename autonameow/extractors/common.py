@@ -44,8 +44,8 @@ class BaseExtractor(object):
     by inheriting extractor classes.
 
     All "extractors" must inherit from the 'BaseExtractor' class. This class
-    is never used directly -- it is an abstract class that defines interfaces
-    that must be implemented by inheriting classes.
+    is abstract and serves to define interfaces that actual extractor classes
+    must implement --- it is never used directly.
 
     Currently, there is also an additional layer of abstraction/inheritance/
     (indirection..) between the 'BaseExtractor' and the *actual *REAL**
@@ -90,8 +90,21 @@ class BaseExtractor(object):
 
     def __call__(self, source, **kwargs):
         """
-        Starts extracting data using the extractor.
+        Extracts and returns data using a specific extractor.
 
+          NOTE: This method __MUST__ be implemented by inheriting classes!
+
+        The return value should be a dictionary keyed by "MeowURIs", storing
+        data. The stored data can be either single elements or lists.
+        The data should be "safe", I.E. validated and converted to a suitable
+        "internal format" --- text should be returned as Unicode strings.
+
+        Implementing classes should make sure to catch all exceptions and
+        re-raise an "ExtractorError", passing any valuable information along.
+
+        Only raise the "ExtractorError" exception for irrecoverable errors.
+        Otherwise, implementers should strive to return empty values of the
+        expected type. The type wrappers in 'types.py' could be useful here.
 
         Args:
             source: Source of data from which to extract information as a
@@ -104,7 +117,6 @@ class BaseExtractor(object):
         Raises:
             ExtractorError: The extraction could not be completed successfully.
         """
-
         # Make sure the 'source' paths are in the "internal bytestring" format.
         # The is-None-check below is for unit tests that pass a None 'source'.
         if source is not None and not isinstance(source, FileObject):
@@ -115,16 +127,21 @@ class BaseExtractor(object):
 
     def execute(self, source, **kwargs):
         """
-        Starts extracting data using a specific extractor.
+        Extracts and returns data using a specific extractor.
 
-        NOTE: This method *MUST* be implemented by inheriting classes!
+          NOTE: This method __MUST__ be implemented by inheriting classes!
 
+        The return value should be a dictionary keyed by "MeowURIs", storing
+        data. The stored data can be either single elements or lists.
+        The data should be "safe", I.E. validated and converted to a suitable
+        "internal format" --- text should be returned as Unicode strings.
 
         Implementing classes should make sure to catch all exceptions and
         re-raise an "ExtractorError", passing any valuable information along.
-        Only raise the "ExtractorError" exception for any irrecoverable errors.
+
+        Only raise the "ExtractorError" exception for irrecoverable errors.
         Otherwise, implementers should strive to return empty values of the
-        same type as that of the expected, valid data.
+        expected type. The type wrappers in 'types.py' could be useful here.
 
         Args:
             source: Source of data from which to extract information as a
@@ -143,14 +160,14 @@ class BaseExtractor(object):
     @classmethod
     def can_handle(cls, file_object):
         """
-        Tests if this extractor class can handle the given file.
+        Tests if a specific extractor class can handle a given file object.
 
-        The extractor is considered to be able to handle the given file if the
-        file MIME type is listed in the class attribute 'handles_mime_types'.
+        The extractor is considered to be able to handle the file if the
+        file MIME-type is listed in the class attribute 'handles_mime_types'.
 
         Inheriting extractor classes can override this method if they need
         to perform additional tests in order to determine if they can handle
-        the given file object.
+        a given file object.
 
         Args:
             file_object: The file to test as an instance of 'FileObject'.
@@ -179,13 +196,14 @@ class BaseExtractor(object):
         """
         Tests if the extractor can be used.
 
-        NOTE: This method *MUST* be implemented by inheriting classes!
+          NOTE: This method __MUST__ be implemented by inheriting classes!
 
         This should be used to test that any dependencies required by the
         extractor are met. This might be third party libraries or executables.
 
         Returns:
-            True if the extractor has everything it needs, else False.
+            True if any and all dependencies are satisfied and the extractor
+            is usable, else False.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
