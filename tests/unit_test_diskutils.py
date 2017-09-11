@@ -22,6 +22,7 @@
 import os
 from unittest import TestCase
 
+from core import util
 from core.constants import MAGIC_TYPE_LOOKUP
 from core.util import diskutils
 from core.util.diskutils import (
@@ -53,27 +54,36 @@ class TestMimeTypes(TestCase):
         self.assertEqual(['image/jpeg'], MAGIC_TYPE_LOOKUP['jpg'])
 
 
-class TestSplitFileName(TestCase):
+class TestSplitBasename(TestCase):
     def _assert_splits(self, expected, test_input):
-        actual = diskutils.split_filename(test_input)
+        actual = diskutils.split_basename(test_input)
         self.assertEqual(expected, actual)
 
-    def test_split_filename_no_name(self):
-        self.assertIsNone(None, diskutils.split_filename(''))
+    def test_returns_bytestrings(self):
+        c, d = diskutils.split_basename(b'c.d')
+        self.assertTrue(isinstance(c, bytes))
+        self.assertTrue(isinstance(d, bytes))
 
-    def test_split_filename_has_no_extension(self):
-        self._assert_splits((b'foo', None), 'foo')
-        self._assert_splits((b'.foo', None), '.foo')
+    def test_passing_unicode_strings_raises_assertion_error(self):
+        with self.assertRaises(AssertionError):
+            _, _ = diskutils.split_basename('a.b')
 
-    def test_split_filename_has_one_extension(self):
-        self._assert_splits((b'foo', b'bar'), 'foo.bar')
-        self._assert_splits((b'.foo', b'bar'), '.foo.bar')
+    def test_split_no_name(self):
+        self.assertIsNone(None, diskutils.split_basename(b''))
 
-    def test_split_filename_has_multiple_extensions(self):
-        self._assert_splits((b'.foo.bar', b'foo'), '.foo.bar.foo')
-        self._assert_splits((b'foo.bar', b'foo'), 'foo.bar.foo')
-        self._assert_splits((b'.foo.bar', b'tar'), '.foo.bar.tar')
-        self._assert_splits((b'foo.bar', b'tar'), 'foo.bar.tar')
+    def test_split_no_extension(self):
+        self._assert_splits((b'foo', None), b'foo')
+        self._assert_splits((b'.foo', None), b'.foo')
+
+    def test_split_one_extension(self):
+        self._assert_splits((b'foo', b'bar'), b'foo.bar')
+        self._assert_splits((b'.foo', b'bar'), b'.foo.bar')
+
+    def test_split_multiple_extensions(self):
+        self._assert_splits((b'.foo.bar', b'foo'), b'.foo.bar.foo')
+        self._assert_splits((b'foo.bar', b'foo'), b'foo.bar.foo')
+        self._assert_splits((b'.foo.bar', b'tar'), b'.foo.bar.tar')
+        self._assert_splits((b'foo.bar', b'tar'), b'foo.bar.tar')
 
         # TODO: This case still fails, but it is such a hassle to deal with
         #       and is a really weird way to name files anyway.
@@ -81,110 +91,119 @@ class TestSplitFileName(TestCase):
         #                  diskutils.split_filename('foo.bar.tar.gz'))
 
 
-class TestFileSuffix(TestCase):
+class TestBasenameSuffix(TestCase):
     def _assert_suffix(self, expected, test_input):
-        actual = diskutils.file_suffix(test_input)
+        actual = diskutils.basename_suffix(test_input)
         self.assertEqual(expected, actual)
 
-    def test_file_suffix_no_name(self):
-        self.assertIsNone(diskutils.file_suffix(''))
-        self.assertIsNone(diskutils.file_suffix(' '))
-        self.assertIsNone(diskutils.file_suffix(',. '))
-        self.assertIsNone(diskutils.file_suffix(' . '))
-        self.assertIsNone(diskutils.file_suffix(' . . '))
+    def test_no_name(self):
+        self.assertIsNone(diskutils.basename_suffix(b''))
+        self.assertIsNone(diskutils.basename_suffix(b' '))
+        self.assertIsNone(diskutils.basename_suffix(b',. '))
+        self.assertIsNone(diskutils.basename_suffix(b' . '))
+        self.assertIsNone(diskutils.basename_suffix(b' . . '))
 
-    def test_file_suffix_file_has_no_extension(self):
-        self.assertIsNone(diskutils.file_suffix('filename'))
-        self.assertIsNone(diskutils.file_suffix('file name'))
-        self.assertIsNone(diskutils.file_suffix('.hiddenfile'))
-        self.assertIsNone(diskutils.file_suffix('.hidden file'))
+    def test_no_extension(self):
+        self.assertIsNone(diskutils.basename_suffix(b'filename'))
+        self.assertIsNone(diskutils.basename_suffix(b'file name'))
+        self.assertIsNone(diskutils.basename_suffix(b'.hiddenfile'))
+        self.assertIsNone(diskutils.basename_suffix(b'.hidden file'))
 
-    def test_file_suffix_file_has_one_extension(self):
-        self._assert_suffix(b'jpg', 'filename.jpg')
-        self._assert_suffix(b'jpg', 'filename.JPG')
-        self.assertEqual(b'JPG', diskutils.file_suffix('filename.JPG',
-                                                       make_lowercase=False))
+    def test_one_extension(self):
+        self._assert_suffix(b'jpg', b'filename.jpg')
+        self._assert_suffix(b'jpg', b'filename.JPG')
+        self.assertEqual(
+            b'JPG', diskutils.basename_suffix(b'filename.JPG',
+                                              make_lowercase=False)
+        )
 
-    def test_file_suffix_from_hidden_file(self):
-        self._assert_suffix(b'jpg', '.hiddenfile.jpg')
-        self._assert_suffix(b'jpg', '.hiddenfile.JPG')
-        self.assertEqual(b'JPG', diskutils.file_suffix('.hiddenfile.JPG',
-                                                       make_lowercase=False))
+    def test_hidden_file(self):
+        self._assert_suffix(b'jpg', b'.hiddenfile.jpg')
+        self._assert_suffix(b'jpg', b'.hiddenfile.JPG')
+        self.assertEqual(
+            b'JPG', diskutils.basename_suffix(b'.hiddenfile.JPG',
+                                              make_lowercase=False)
+        )
 
-    def test_file_suffix_file_has_many_suffixes(self):
-        self._assert_suffix(b'tar', 'filename.tar')
-        self._assert_suffix(b'gz', 'filename.gz')
-        self._assert_suffix(b'tar.gz', 'filename.tar.gz')
-        self._assert_suffix(b'tar.z', 'filename.tar.z')
-        self._assert_suffix(b'tar.lz', 'filename.tar.lz')
-        self._assert_suffix(b'tar.lzma', 'filename.tar.lzma')
-        self._assert_suffix(b'tar.lzo', 'filename.tar.lzo')
+    def test_many_suffixes(self):
+        self._assert_suffix(b'tar', b'filename.tar')
+        self._assert_suffix(b'gz', b'filename.gz')
+        self._assert_suffix(b'tar.gz', b'filename.tar.gz')
+        self._assert_suffix(b'tar.z', b'filename.tar.z')
+        self._assert_suffix(b'tar.lz', b'filename.tar.lz')
+        self._assert_suffix(b'tar.lzma', b'filename.tar.lzma')
+        self._assert_suffix(b'tar.lzo', b'filename.tar.lzo')
 
-    def test_file_suffix_from_hidden_file_many_suffixes(self):
+    def test_hidden_with_many_suffixes(self):
+        self._assert_suffix(b'tar', b'.filename.tar')
+        self._assert_suffix(b'gz', b'.filename.gz')
+        self._assert_suffix(b'tar.gz', b'.filename.tar.gz')
+        self._assert_suffix(b'tar.z', b'.filename.tar.z')
+        self._assert_suffix(b'tar.lz', b'.filename.tar.lz')
+        self._assert_suffix(b'tar.lzma', b'.filename.tar.lzma')
+        self._assert_suffix(b'tar.lzo', b'.filename.tar.lzo')
 
-        self._assert_suffix(b'tar', '.filename.tar')
-        self._assert_suffix(b'gz', '.filename.gz')
-        self._assert_suffix(b'tar.gz', '.filename.tar.gz')
-        self._assert_suffix(b'tar.z', '.filename.tar.z')
-        self._assert_suffix(b'tar.lz', '.filename.tar.lz')
-        self._assert_suffix(b'tar.lzma', '.filename.tar.lzma')
-        self._assert_suffix(b'tar.lzo', '.filename.tar.lzo')
 
-
-class TestFileBase(TestCase):
-    def test_file_base_no_name(self):
-        self.assertIsNone(diskutils.file_base(''))
-        self.assertEqual(b' ', diskutils.file_base(' '))
-        self.assertEqual(b',', diskutils.file_base(',. '))
-        self.assertEqual(b' ', diskutils.file_base(' . '))
+class TestBasenamePrefix(TestCase):
+    def test_no_name(self):
+        self.assertIsNone(diskutils.basename_prefix(b''))
+        self.assertEqual(b' ', diskutils.basename_prefix(b' '))
+        self.assertEqual(b',', diskutils.basename_prefix(b',. '))
+        self.assertEqual(b' ', diskutils.basename_prefix(b' . '))
 
         # TODO: Test edge cases ..
         # self.assertEqual(' ', diskutils.file_base(' . . '))
 
-    def test_file_base_file_has_no_extension(self):
-        self.assertIsNotNone(diskutils.file_base('filename'))
-        self.assertEqual(b'file name', diskutils.file_base('file name'))
-        self.assertEqual(b'.hiddenfile', diskutils.file_base('.hiddenfile'))
-        self.assertEqual(b'.hidden file', diskutils.file_base('.hidden file'))
+    def test_no_extension(self):
+        self.assertIsNotNone(diskutils.basename_prefix(b'filename'))
+        self.assertEqual(b'file name',
+                         diskutils.basename_prefix(b'file name'))
+        self.assertEqual(b'.hiddenfile',
+                         diskutils.basename_prefix(b'.hiddenfile'))
+        self.assertEqual(b'.hidden file',
+                         diskutils.basename_prefix(b'.hidden file'))
 
-    def test_file_base_file_has_one_extension(self):
+    def test_one_extension(self):
         def __check_expected_for(test_input):
-            self.assertEqual(b'filename', diskutils.file_base(test_input))
+            self.assertEqual(b'filename', diskutils.basename_prefix(test_input))
 
-        __check_expected_for('filename.jpg')
-        __check_expected_for('filename.JPG')
+        __check_expected_for(b'filename.jpg')
+        __check_expected_for(b'filename.JPG')
 
-    def test_file_base_from_hidden_file(self):
+    def test_hidden_file(self):
         def __check_expected_for(test_input):
-            self.assertEqual(b'.hiddenfile', diskutils.file_base(test_input))
+            self.assertEqual(b'.hiddenfile',
+                             diskutils.basename_prefix(test_input))
 
-        __check_expected_for('.hiddenfile.jpg')
-        __check_expected_for('.hiddenfile.JPG')
-        __check_expected_for('.hiddenfile.JPG')
+        __check_expected_for(b'.hiddenfile.jpg')
+        __check_expected_for(b'.hiddenfile.JPG')
+        __check_expected_for(b'.hiddenfile.JPG')
 
-    def test_file_base_file_has_many_suffixes(self):
+    def test_many_suffixes(self):
         def __check_expected_for(test_input):
-            self.assertEqual(b'filename', diskutils.file_base(test_input))
+            self.assertEqual(b'filename',
+                             diskutils.basename_prefix(test_input))
 
-        __check_expected_for('filename.tar')
-        __check_expected_for('filename.gz')
-        __check_expected_for('filename.tar.gz')
-        __check_expected_for('filename.tar.z')
-        __check_expected_for('filename.tar.lz')
-        __check_expected_for('filename.tar.lzma')
-        __check_expected_for('filename.tar.lzo')
+        __check_expected_for(b'filename.tar')
+        __check_expected_for(b'filename.gz')
+        __check_expected_for(b'filename.tar.gz')
+        __check_expected_for(b'filename.tar.z')
+        __check_expected_for(b'filename.tar.lz')
+        __check_expected_for(b'filename.tar.lzma')
+        __check_expected_for(b'filename.tar.lzo')
 
-    def test_file_base_from_hidden_file_many_suffixes(self):
+    def test_hidden_with_many_suffixes(self):
         def __check_expected_for(test_input):
-            self.assertEqual(b'.filename', diskutils.file_base(test_input))
+            self.assertEqual(b'.filename',
+                             diskutils.basename_prefix(test_input))
 
-        __check_expected_for('.filename.tar')
-        __check_expected_for('.filename.gz')
-        __check_expected_for('.filename.tar.gz')
-        __check_expected_for('.filename.tar.z')
-        __check_expected_for('.filename.tar.lz')
-        __check_expected_for('.filename.tar.lzma')
-        __check_expected_for('.filename.tar.lzo')
+        __check_expected_for(b'.filename.tar')
+        __check_expected_for(b'.filename.gz')
+        __check_expected_for(b'.filename.tar.gz')
+        __check_expected_for(b'.filename.tar.z')
+        __check_expected_for(b'.filename.tar.lz')
+        __check_expected_for(b'.filename.tar.lzma')
+        __check_expected_for(b'.filename.tar.lzo')
 
 
 class TestSanitizeFilename(TestCase):
@@ -275,7 +294,13 @@ def shorten_path(abs_path):
 
 
 def to_abspath(path_list):
-    return [tf for tf in (uu.abspath_testfile(f) for f in path_list)]
+    paths = [util.bytestring_path(tf)
+             for tf in (uu.abspath_testfile(f)
+             for f in path_list)]
+    if len(paths) == 1:
+        return paths[0]
+    else:
+        return paths
 
 
 class TestGetFiles(TestCase):
@@ -298,9 +323,16 @@ class TestGetFiles(TestCase):
         self.abspath_files_subsubdir_b = to_abspath(self.FILES_SUBSUBDIR_B)
         self.abspath_all_files = to_abspath(self.ALL_FILES)
 
+        self.EXPECT_FILES_SUBDIR = [util.bytestring_path(p)
+                                    for p in self.FILES_SUBDIR]
+        self.EXPECT_FILES_SUBSUBDIR_A = [util.bytestring_path(p)
+                                         for p in self.FILES_SUBSUBDIR_A]
+        self.EXPECT_FILES_SUBSUBDIR_B = [util.bytestring_path(p)
+                                         for p in self.FILES_SUBSUBDIR_B]
+
     def test_setup(self):
         for tf in self.abspath_all_files:
-            self.assertTrue(os.path.isfile(tf),
+            self.assertTrue(uu.file_exists(tf),
                             'Expected file: "{}"'.format(tf))
 
         self.assertEqual(len(self.abspath_all_files), 8)
@@ -315,50 +347,50 @@ class TestGetFiles(TestCase):
             get_files(' ')
 
     def test_returns_expected_number_of_files_non_recursive(self):
-        actual = get_files(uu.abspath_testfile('subdir'))
+        actual = get_files(to_abspath(['subdir']))
         self.assertEqual(len(actual), 3)
 
     def test_returns_expected_files_non_recursive(self):
-        actual = get_files(uu.abspath_testfile('subdir'))
+        actual = get_files(to_abspath(['subdir']))
 
         for f in actual:
-            self.assertTrue(os.path.isfile(f))
-            self.assertIn(shorten_path(f), self.FILES_SUBDIR)
-            self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_A)
-            self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_B)
+            self.assertTrue(uu.file_exists(f))
+            self.assertIn(shorten_path(f), self.EXPECT_FILES_SUBDIR)
+            self.assertNotIn(shorten_path(f), self.EXPECT_FILES_SUBSUBDIR_A)
+            self.assertNotIn(shorten_path(f), self.EXPECT_FILES_SUBSUBDIR_B)
 
     def test_returns_expected_number_of_files_recursive(self):
-        actual = get_files(uu.abspath_testfile('subdir'), recurse=True)
+        actual = get_files(to_abspath(['subdir']), recurse=True)
         self.assertEqual(len(actual), 8)
 
     def test_returns_expected_files_recursive(self):
-        actual = get_files(uu.abspath_testfile('subdir'), recurse=True)
+        actual = get_files(to_abspath(['subdir']), recurse=True)
 
         for f in actual:
-            self.assertTrue(os.path.isfile(f))
+            self.assertTrue(uu.file_exists(f))
             self.assertIn(f, self.abspath_all_files)
 
     def test_returns_expected_number_of_files_recursive_from_subsubdir_a(self):
-        actual = get_files(uu.abspath_testfile('subdir/subsubdir_A'),
+        actual = get_files(to_abspath(['subdir/subsubdir_A']),
                            recurse=True)
         self.assertEqual(len(actual), 2)
 
     def test_returns_expected_files_recursive_from_subsubdir_a(self):
-        actual = get_files(uu.abspath_testfile('subdir/subsubdir_A'),
+        actual = get_files(to_abspath(['subdir/subsubdir_A']),
                            recurse=True)
 
         for f in actual:
-            self.assertTrue(os.path.isfile(f))
+            self.assertTrue(uu.file_exists(f))
             self.assertIn(f, self.abspath_files_subsubdir_a)
             self.assertNotIn(f, self.abspath_files_subsubdir_b)
             self.assertNotIn(f, self.abspath_files_subdir)
 
     def test_returns_expected_files_recursive_from_subsubdir_b(self):
-        actual = get_files(uu.abspath_testfile('subdir/subsubdir_B'),
+        actual = get_files(to_abspath(['subdir/subsubdir_B']),
                            recurse=True)
 
         for f in actual:
-            self.assertTrue(os.path.isfile(f))
+            self.assertTrue(uu.file_exists(f))
             self.assertIn(f, self.abspath_files_subsubdir_b)
             self.assertNotIn(f, self.abspath_files_subsubdir_a)
             self.assertNotIn(f, self.abspath_files_subdir)
@@ -384,9 +416,16 @@ class TestGetFilesGen(TestCase):
         self.abspath_files_subsubdir_b = to_abspath(self.FILES_SUBSUBDIR_B)
         self.abspath_all_files = to_abspath(self.ALL_FILES)
 
+        self.EXPECT_FILES_SUBDIR = [util.bytestring_path(p)
+                                    for p in self.FILES_SUBDIR]
+        self.EXPECT_FILES_SUBSUBDIR_A = [util.bytestring_path(p)
+                                         for p in self.FILES_SUBSUBDIR_A]
+        self.EXPECT_FILES_SUBSUBDIR_B = [util.bytestring_path(p)
+                                         for p in self.FILES_SUBSUBDIR_B]
+
     def test_setup(self):
         for tf in self.abspath_all_files:
-            self.assertTrue(os.path.isfile(tf),
+            self.assertTrue(uu.file_exists(tf),
                             'Expected file: "{}"'.format(tf))
 
         self.assertEqual(len(self.abspath_all_files), 8)
@@ -404,50 +443,50 @@ class TestGetFilesGen(TestCase):
             list(get_files_gen(' '))
 
     def test_returns_expected_number_of_files_non_recursive(self):
-        actual = list(get_files_gen(uu.abspath_testfile('subdir')))
+        actual = list(get_files_gen(to_abspath(['subdir'])))
         self.assertEqual(len(actual), 3)
 
     def test_returns_expected_files_non_recursive(self):
-        actual = list(get_files_gen(uu.abspath_testfile('subdir')))
+        actual = list(get_files_gen(to_abspath(['subdir'])))
 
         for f in actual:
-            self.assertTrue(os.path.isfile(f))
-            self.assertIn(shorten_path(f), self.FILES_SUBDIR)
-            self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_A)
-            self.assertNotIn(shorten_path(f), self.FILES_SUBSUBDIR_B)
+            self.assertTrue(uu.file_exists(f))
+            self.assertIn(shorten_path(f), self.EXPECT_FILES_SUBDIR)
+            self.assertNotIn(shorten_path(f), self.EXPECT_FILES_SUBSUBDIR_A)
+            self.assertNotIn(shorten_path(f), self.EXPECT_FILES_SUBSUBDIR_B)
 
     def test_returns_expected_number_of_files_recursive(self):
-        actual = list(get_files_gen(uu.abspath_testfile('subdir'), recurse=True))
+        actual = list(get_files_gen(to_abspath(['subdir']), recurse=True))
         self.assertEqual(len(actual), 8)
 
     def test_returns_expected_files_recursive(self):
-        actual = list(get_files_gen(uu.abspath_testfile('subdir'), recurse=True))
+        actual = list(get_files_gen(to_abspath(['subdir']), recurse=True))
 
         for f in actual:
-            self.assertTrue(os.path.isfile(f))
+            self.assertTrue(uu.file_exists(f))
             self.assertIn(f, self.abspath_all_files)
 
     def test_returns_expected_number_of_files_recursive_from_subsubdir_a(self):
-        actual = list(get_files_gen(uu.abspath_testfile('subdir/subsubdir_A'),
+        actual = list(get_files_gen(to_abspath(['subdir/subsubdir_A']),
                            recurse=True))
         self.assertEqual(len(actual), 2)
 
     def test_returns_expected_files_recursive_from_subsubdir_a(self):
-        actual = list(get_files_gen(uu.abspath_testfile('subdir/subsubdir_A'),
+        actual = list(get_files_gen(to_abspath(['subdir/subsubdir_A']),
                            recurse=True))
 
         for f in actual:
-            self.assertTrue(os.path.isfile(f))
+            self.assertTrue(uu.file_exists(f))
             self.assertIn(f, self.abspath_files_subsubdir_a)
             self.assertNotIn(f, self.abspath_files_subsubdir_b)
             self.assertNotIn(f, self.abspath_files_subdir)
 
     def test_returns_expected_files_recursive_from_subsubdir_b(self):
-        actual = list(get_files_gen(uu.abspath_testfile('subdir/subsubdir_B'),
-                           recurse=True))
+        actual = list(get_files_gen(to_abspath(['subdir/subsubdir_B']),
+                                    recurse=True))
 
         for f in actual:
-            self.assertTrue(os.path.isfile(f))
+            self.assertTrue(uu.file_exists(f))
             self.assertIn(f, self.abspath_files_subsubdir_b)
             self.assertNotIn(f, self.abspath_files_subsubdir_a)
             self.assertNotIn(f, self.abspath_files_subdir)
@@ -565,3 +604,94 @@ class TestCompareBasenames(TestCase):
         _assert_false('ä'.encode('utf-8'), b'a')
         _assert_false('Ä'.encode('utf-8'), b'A')
         _assert_false('Ä'.encode('utf-8'), 'A'.encode('utf-8'))
+
+        # Looks identical but the second string contains character '\xc2\xa0'
+        # between the last timestamp digit and 'W' instead of a simple space.
+        _assert_false(
+            '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode('utf-8'),
+            '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode('utf-8')
+        )
+
+
+class UnitTestIgnorePaths(TestCase):
+    def setUp(self):
+        _paths = [
+            '~/dummy/foo.txt',
+            '~/dummy/d/foo.txt',
+            '~/dummy/bar.jpg',
+            '~/dummy/.DS_Store',
+            '~/foo/bar',
+            '~/foo/.DS_Store'
+        ]
+        self.input_paths = [
+           util.normpath(p) for p in _paths
+        ]
+
+    def test_setup(self):
+        for path in self.input_paths:
+            self.assertTrue(isinstance(path, bytes))
+            self.assertTrue(os.path.isabs(util.syspath(path)))
+
+    def test_passes_all_paths_if_no_ignore_globs_are_provided(self):
+        actual = diskutils.filter_paths(self.input_paths, [])
+        self.assertEqual(actual, self.input_paths)
+        self.assertEqual(len(actual), len(self.input_paths))
+
+    def _assert_filters(self, ignore_globs, remain, missing):
+        # Sanity check arguments.
+        self.assertEqual(len(self.input_paths),
+                         len(remain) + len(missing))
+        for path in missing + remain:
+            self.assertIn(util.normpath(path), self.input_paths)
+
+        actual = diskutils.filter_paths(self.input_paths, ignore_globs)
+        self.assertIsNotNone(actual)
+
+        self.assertTrue(isinstance(actual, list))
+        for p in actual:
+            self.assertTrue(isinstance(p, bytes))
+
+        for m in missing:
+            self.assertNotIn(util.normpath(m), actual)
+        for r in remain:
+            self.assertIn(util.normpath(r), actual)
+
+    def test_ignores_txt_extensions(self):
+        self._assert_filters(
+            ignore_globs=['*.txt'],
+            remain=['~/dummy/.DS_Store', '~/dummy/bar.jpg', '~/foo/bar',
+                    '~/foo/.DS_Store'],
+            missing=['~/dummy/foo.txt', '~/dummy/d/foo.txt']
+        )
+
+    def test_ignores_ds_store(self):
+        self._assert_filters(
+            ignore_globs=['*.DS_Store'],
+            remain=['~/dummy/bar.jpg', '~/dummy/foo.txt', '~/dummy/d/foo.txt',
+                    '~/foo/bar'],
+            missing=['~/dummy/.DS_Store', '~/foo/.DS_Store']
+        )
+
+    def test_ignores_single_file(self):
+        self._assert_filters(
+            ignore_globs=['*/bar.jpg'],
+            remain=['~/dummy/.DS_Store', '~/foo/.DS_Store', '~/dummy/foo.txt',
+                    '~/dummy/d/foo.txt', '~/foo/bar'],
+            missing=['~/dummy/bar.jpg']
+        )
+
+    def test_ignores_all_files(self):
+        self._assert_filters(
+            ignore_globs=['*'],
+            remain=[],
+            missing=['~/dummy/.DS_Store', '~/dummy/bar.jpg', '~/dummy/foo.txt',
+                     '~/dummy/d/foo.txt', '~/foo/.DS_Store', '~/foo/bar']
+       )
+
+    def test_ignores_path(self):
+        self._assert_filters(
+            ignore_globs=['*/dummy/*'],
+            remain=['~/foo/bar', '~/foo/.DS_Store'],
+            missing=['~/dummy/.DS_Store', '~/dummy/bar.jpg', '~/dummy/foo.txt',
+                     '~/dummy/d/foo.txt']
+        )

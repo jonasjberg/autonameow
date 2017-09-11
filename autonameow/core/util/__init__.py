@@ -22,3 +22,8 @@
 from core.util.encoding import *
 from core.util.misc import *
 from core.util.queue import GenericQueue
+from core.util.textutils import (
+    indent,
+    remove_nonbreaking_spaces
+)
+from core.util import dateandtime

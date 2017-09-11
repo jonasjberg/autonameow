@@ -37,13 +37,9 @@ class TestConstants(TestCase):
         self.assertIsNotNone(constants.MAGIC_TYPE_UNKNOWN)
         self.assertTrue(isinstance(constants.MAGIC_TYPE_UNKNOWN, str))
 
-    def test_constants_contains_list_of_valid_data_sources(self):
-        self.assertIsNotNone(constants.VALID_DATA_SOURCES)
-        self.assertTrue(isinstance(constants.VALID_DATA_SOURCES, list))
-
-    def test_constants_contains_default_file_rule_weight(self):
-        self.assertIsNotNone(constants.DEFAULT_FILERULE_WEIGHT)
-        self.assertTrue(isinstance(constants.DEFAULT_FILERULE_WEIGHT, float))
+    def test_constants_contains_default_rule_ranking_bias(self):
+        self.assertIsNotNone(constants.DEFAULT_RULE_RANKING_BIAS)
+        self.assertTrue(isinstance(constants.DEFAULT_RULE_RANKING_BIAS, float))
 
     def test_constants_contains_default_file_tags_options(self):
         self.assertIsNotNone(constants.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR)
@@ -72,10 +68,6 @@ class TestConstants(TestCase):
     def test_constants_contains_analysis_results_fields(self):
         self.assertIsNotNone(constants.ANALYSIS_RESULTS_FIELDS)
         self.assertTrue(isinstance(constants.ANALYSIS_RESULTS_FIELDS, list))
-
-    def test_constants_contains_results_data_structure(self):
-        self.assertIsNotNone(constants.RESULTS_DATA_STRUCTURE)
-        self.assertTrue(isinstance(constants.RESULTS_DATA_STRUCTURE, dict))
 
     def test_constants_contains_legal_name_template_fields(self):
         self.assertIsNotNone(constants.NAME_TEMPLATE_FIELDS)

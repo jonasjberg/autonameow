@@ -19,36 +19,40 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import re
-from datetime import datetime
-
 import unicodedata
+from datetime import datetime
 
 from core import (
     constants,
+    exceptions,
+    namebuilder,
+    types,
     util,
-    exceptions
 )
-from core.evaluate import namebuilder
+
+
+log = logging.getLogger(__name__)
 
 
 class ConfigFieldParser(object):
     """
-    Top-level superclass for all parsers of configuration fields.
+    Top-level superclass for all configuration field parsers.
 
     Provides common functionality and interfaces that must be implemented
-    by inheriting rule parser classes.
+    by inheriting parser classes.
 
-    The field parser classes handle the "keys" in the "key-value pairs" that
-    make up the configuration rules. The "key" is a "query string" that
-    represent the location of some data and the "value" is some kind of
-    expression.
+    The field parser classes each handle different types of "keys" in the
+    "key-value pairs" that make up configuration entries.
+    The "key" is a "meowURI" that represent a location or provider of some data.
+    The "value" is some kind of expression.
 
-    The "query string" (key) determines which parser class is to be used by
-    matching the "query string" against class variables 'applies_to_field'
-    using "globs"/wildcards. Classes whose 'applies_to_field' evaluates True
-    for a given "query string" is used to parse that configuration field.
+    The "meowURI" (key) determines which parser class is to be used by
+    matching the "meowURI" against class variables 'applies_to_field'.
+    This is handled with the 'eval_meowuri_glob' function, which supports
+    "globs"/wildcards. Parser classes whose 'applies_to_field' attribute
+    evaluates True for a given "meowURI" is used to parse the associated value.
 
     * The 'validate' methods
       The 'Configuration' class uses the field parser classes primarily for
@@ -62,12 +66,12 @@ class ConfigFieldParser(object):
       For example, the 'RegexConfigFieldParser' would return the matched part.
     """
 
-    # List of "query strings" (or configuration "keys"/"fields") used to
+    # List of "meowURIs" (or configuration "keys"/"fields") used to
     # determine if the class is suited to handle the expression or data.
     #
-    # The "query string" consist of a lower case words, separated by periods.
+    # The "meowURI" consist of a lower case words, separated by periods.
     # For instance; "contents.mime_type" or "filesystem.basename.extension".
-    # The "query string" can contain "globs" as wildcards. Globs substitute
+    # The "meowURI" can contain "globs" as wildcards. Globs substitute
     # any of the lower case words with an asterisk, effectively ignoring that
     # part during comparison.
     #
@@ -141,6 +145,38 @@ class ConfigFieldParser(object):
         return self.__class__.__name__
 
 
+class BooleanConfigFieldParser(ConfigFieldParser):
+    applies_to_field = ['*.filetags.follows_filetags_convention']
+
+    @staticmethod
+    def is_valid_boolean(expression):
+        try:
+            types.AW_BOOLEAN(expression)
+        except types.AWTypeError:
+            return False
+        else:
+            return True
+
+    @staticmethod
+    def evaluate_boolean_operation(expression, test_data):
+        try:
+            a = types.AW_BOOLEAN(expression)
+            b = types.AW_BOOLEAN(test_data)
+        except types.AWTypeError:
+            # TODO: Handle this case
+            raise
+        else:
+            return a == b
+
+    @classmethod
+    def get_validation_function(cls):
+        return cls.is_valid_boolean
+
+    @classmethod
+    def get_evaluation_function(cls):
+        return cls.evaluate_boolean_operation
+
+
 class RegexConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['*.pathname.*', '*.basename.*', '*.raw_text',
                         '*.:Title', '*.:Creator', '*.:Publisher',
@@ -164,10 +200,10 @@ class RegexConfigFieldParser(ConfigFieldParser):
         test_data = util.encode_(test_data)
         expression = util.encode_(expression)
 
-        log.debug('test_data: "{!s}" ({})"'.format(test_data,
-                                                   type(test_data)))
-        log.debug('expression: "{!s}" ({})"'.format(expression,
-                                                    type(expression)))
+        # log.debug('test_data: "{!s}" ({})"'.format(test_data,
+        #                                            type(test_data)))
+        # log.debug('expression: "{!s}" ({})"'.format(expression,
+        #                                            type(expression)))
         _match = re.match(expression, test_data)
         if _match:
             return _match
@@ -239,7 +275,13 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
         # True is returned if any of the given expressions evaluates true.
         for expr in expression:
-            evaluates_true = util.eval_magic_glob(mime_to_match, expr)
+            try:
+                evaluates_true = util.eval_magic_glob(mime_to_match, expr)
+            except (TypeError, ValueError) as e:
+                log.error(
+                    'Error evaluating expression "{!s}"; {!s}'.format(expr, e)
+                )
+                continue
             if evaluates_true:
                 return True
         return False
@@ -334,72 +376,73 @@ def available_field_parsers():
             globals()['ConfigFieldParser'].__subclasses__()]
 
 
-def suitable_field_parser_for(query_string):
+def suitable_field_parser_for(meowuri):
     """
-    Returns instances of field parser classes that can handle the given query.
+    Returns field parser instances that can handle the given "meowURI".
 
-    The "query string" can be a "glob", I.E. contain wildcards.
+    The "meowURI" can be a "glob", I.E. contain wildcards.
 
     Args:
-        query_string: Query string to match against a RuleParser class.
+        meowuri: Resource identifier to match against a RuleParser class.
 
     Returns:
-        A list of instantiated field parsers suited for the given query string.
+        A list of instantiated field parsers suited for the given "meowURI".
     """
     return [p for p in FieldParserInstances
-            if eval_query_string_glob(query_string, p.applies_to_field)]
+            if eval_meowuri_glob(meowuri, p.applies_to_field)]
 
 
-def eval_query_string_glob(query_string, glob_list):
+def eval_meowuri_glob(meowuri, glob_list):
     """
-    Evaluates a given "query string" against a list of "globs".
+    Evaluates a given "meowURI" against a list of "globs".
 
-    The "query string" matching any of the given globs evaluates true.
+    The "meowURI" matching any of the given globs evaluates true.
 
-    The "query string" consist of a lower case words, separated by periods.
+    The "meowURI" consist of a lower case words, separated by periods.
     For instance; "contents.mime_type" or "filesystem.basename.extension".
 
     Globs substitute any of the lower case words with an asterisk,
     which means that part is ignored during the comparison. Examples:
 
-        match_query_string          glob_list                   evaluates
+        meowuri                     glob_list                   evaluates
         'contents.mime_type'        ['contents.mime_type']      True
         'contents.foo'              ['foo.*', 'contents.*']     True
         'foo.bar'                   ['*.*']                     True
         'filesystem.basename.full'  ['contents.*', '*.parent']  False
 
     Args:
-        query_string: The "query string" to match as a string.
+        meowuri: The "meowURI" to match as a Unicode string.
         glob_list: A list of globs as strings.
 
     Returns:
-        True if the given "query string" matches any of the specified globs.
+        True if the given "meowURI" matches any of the specified globs.
     """
-    if not query_string or not glob_list:
+    if not meowuri or not glob_list:
         return False
 
-    if query_string in glob_list:
+    if meowuri in glob_list:
         return True
 
-    # Split the "query string" by periods to a list of strings.
-    query_string_parts = util.query_string_list(query_string)
+    # Split the "meowURI" by periods to a list of strings.
+    meowuri_parts = util.meowuri_list(meowuri)
 
     for glob in glob_list:
         glob_parts = glob.split('.')
+
         # All wildcards match anything.
-        if all(gp == '*' for gp in glob_parts):
+        if len([gp for gp in glob_parts if gp == '*']) == len(glob_parts):
             return True
 
         # No wildcards, do direct comparison.
         if '*' not in glob_parts:
-            if glob_parts == query_string_parts:
+            if glob_parts == meowuri_parts:
                 return True
             else:
                 continue
 
         # Convert to regular expression to match wildcards. Simplest solution.
         re_glob = re.compile(glob.replace('*', '.*'))
-        if re_glob.match(query_string):
+        if re_glob.match(meowuri):
             return True
 
     return False

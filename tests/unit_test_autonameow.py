@@ -23,13 +23,13 @@ from unittest import (
     TestCase,
     mock
 )
-import unit_utils as uu
 
 from core import (
     constants,
     config
 )
-from core.autonameow import Autonameow
+from core.main import Autonameow
+import unit_utils as uu
 
 
 class TestAutonameowWithoutOptions(TestCase):

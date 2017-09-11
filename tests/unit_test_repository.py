@@ -19,15 +19,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import collections
+
 from unittest import TestCase
 
 from core import (
     exceptions,
-    constants
+    constants,
+    repository
 )
 from core.repository import Repository
 
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestRepository(TestCase):
@@ -36,7 +40,7 @@ class TestRepository(TestCase):
 
     def test_setup(self):
         self.r.initialize()
-        self.assertTrue(isinstance(self.r.query_string_class_map, dict))
+        self.assertTrue(isinstance(self.r.meowuri_class_map, dict))
 
 
 class TestRepositoryMethodStore(TestCase):
@@ -50,25 +54,25 @@ class TestRepositoryMethodStore(TestCase):
         self.assertEqual(len(self.r), 0)
 
     def test_storing_data_increments_len(self):
-        valid_label = constants.VALID_DATA_SOURCES[0]
+        valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
     def test_storing_data_with_different_labels_increments_len(self):
-        first_valid_label = constants.VALID_DATA_SOURCES[0]
+        first_valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, first_valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
-        second_valid_label = constants.VALID_DATA_SOURCES[1]
+        second_valid_label = uuconst.VALID_DATA_SOURCES[1]
         self.r.store(self.file_object, second_valid_label, 'data')
         self.assertEqual(len(self.r), 2)
 
     def test_adding_data_with_same_label_increments_len(self):
-        first_valid_label = constants.VALID_DATA_SOURCES[0]
+        first_valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, first_valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
-        second_valid_label = constants.VALID_DATA_SOURCES[0]
+        second_valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, second_valid_label, 'data')
         self.assertEqual(len(self.r), 2)
 
@@ -117,32 +121,32 @@ class TestRepositoryMethodStore(TestCase):
             self.r.store(self.file_object, '', 'data')
 
     def test_stores_data_with_valid_label(self):
-        valid_labels = constants.VALID_DATA_SOURCES[:3]
+        valid_labels = uuconst.VALID_DATA_SOURCES[:3]
         for valid_label in valid_labels:
             self.r.store(self.file_object, valid_label, 'data')
 
     def test_valid_label_returns_expected_data(self):
-        valid_label = constants.VALID_DATA_SOURCES[0]
+        valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, valid_label, 'expected_data')
 
-        actual = self.r.resolve(self.file_object, valid_label)
-        self.assertEqual(actual, 'expected_data')
+        response = self.r.query(self.file_object, valid_label)
+        self.assertEqual(response, 'expected_data')
 
-    def test_resolve_none_label_raises_exception(self):
-        valid_label = constants.VALID_DATA_SOURCES[0]
+    def test_none_label_raises_exception(self):
+        valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, valid_label, 'expected_data')
 
         with self.assertRaises(exceptions.InvalidDataSourceError):
-            self.r.resolve(self.file_object, None)
+            self.r.query(self.file_object, None)
 
     def test_valid_label_returns_expected_data_multiple_entries(self):
-        valid_label = constants.VALID_DATA_SOURCES[0]
+        valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.file_object, valid_label, 'expected_data_a')
         self.r.store(self.file_object, valid_label, 'expected_data_b')
 
-        actual = self.r.resolve(self.file_object, valid_label)
-        self.assertIn('expected_data_a', actual)
-        self.assertIn('expected_data_b', actual)
+        response = self.r.query(self.file_object, valid_label)
+        self.assertIn('expected_data_a', response)
+        self.assertIn('expected_data_b', response)
 
 
 class TestRepositoryMethodResolvable(TestCase):
@@ -150,16 +154,215 @@ class TestRepositoryMethodResolvable(TestCase):
         self.r = Repository()
         self.r.initialize()
 
-    def test_empty_query_string_returns_false(self):
+    def test_empty_meowuri_returns_false(self):
         self.assertFalse(self.r.resolvable(None))
         self.assertFalse(self.r.resolvable(''))
 
-    def test_bad_query_string_returns_false(self):
+    def test_bad_meowuri_returns_false(self):
         self.assertFalse(self.r.resolvable('not.a.valid.source.surely'))
 
-    def test_good_query_string_returns_true(self):
+    def test_good_meowuri_returns_true(self):
         self.assertTrue(self.r.resolvable('metadata.exiftool.PDF:CreateDate'))
         self.assertTrue(self.r.resolvable('metadata.exiftool'))
         self.assertTrue(self.r.resolvable('filesystem.basename.full'))
         self.assertTrue(self.r.resolvable('filesystem.basename.extension'))
         self.assertTrue(self.r.resolvable('filesystem.contents.mime_type'))
+
+
+class TestMapMeowURItoSourceClass(TestCase):
+    meowURIsExtractors = collections.namedtuple('meowURIsExtractors',
+                                                ['meowURIs', 'Extractors'])
+
+    def setUp(self):
+        self._analyzer_meowURI_sourcemap = [
+            (['analysis.filetags.datetime',
+              'analysis.filetags.description',
+              'analysis.filetags.follows_filetags_convention',
+              'analysis.filetags.tags'],
+             'FiletagsAnalyzer'),
+        ]
+        self._extractor_meowURI_sourcemap = [
+            (['filesystem.basename.extension',
+              'filesystem.basename.full',
+              'filesystem.basename.prefix',
+              'filesystem.contents.mime_type',
+              'filesystem.pathname.full'],
+             'CommonFileSystemExtractor'),
+            (['metadata.exiftool.EXIF:CreateDate',
+              'metadata.exiftool.EXIF:DateTimeOriginal',
+              'metadata.exiftool.PDF:CreateDate',
+              'metadata.exiftool.XMP-dc:Creator',
+              'metadata.exiftool.XMP-dc:CreatorFile-as',
+              'metadata.exiftool.XMP-dc:Date',
+              'metadata.exiftool.XMP-dc:Publisher',
+              'metadata.exiftool.XMP-dc:Title'],
+             'ExiftoolMetadataExtractor')
+        ]
+        self._all_meowURI_sourcemap = (self._analyzer_meowURI_sourcemap
+                                       + self._extractor_meowURI_sourcemap)
+
+    def test_maps_meowuris_to_expected_source(self):
+        for meowuris, expected_source in self._all_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(uri)
+                self.assertEqual(len(actual), 1)
+
+                actual = actual[0]
+                self.assertEqual(actual.__name__, expected_source)
+                self.assertTrue(uu.is_class(actual))
+
+    def test_maps_meowuris_to_expected_source_include_analyzers(self):
+        for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='analyzers'
+                )
+                self.assertEqual(len(actual), 1)
+
+                actual = actual[0]
+                self.assertEqual(actual.__name__, expected_source)
+                self.assertTrue(uu.is_class(actual))
+
+        for meowuris, expected_source in self._extractor_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='analyzers'
+                )
+                self.assertEqual(len(actual), 0)
+
+    def test_maps_meowuris_to_expected_source_include_extractors(self):
+        for meowuris, expected_source in self._extractor_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='extractors'
+                )
+                self.assertEqual(len(actual), 1)
+
+                actual = actual[0]
+                self.assertEqual(actual.__name__, expected_source)
+                self.assertTrue(uu.is_class(actual))
+
+        for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='extractors'
+                )
+                self.assertEqual(len(actual), 0)
+
+    def test_maps_meowuris_to_expected_source_include_plugins(self):
+        for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='plugins'
+                )
+                self.assertEqual(len(actual), 0)
+
+        for meowuris, expected_source in self._extractor_meowURI_sourcemap:
+            for uri in meowuris:
+                actual = repository.map_meowuri_to_source_class(
+                    uri, includes='plugins'
+                )
+                self.assertEqual(len(actual), 0)
+
+
+class TestGetSourcesForMeowURIs(TestCase):
+    def setUp(self):
+        self._meowuris_filetags = [
+            'analysis.filetags.datetime',
+            'analysis.filetags.description',
+            'analysis.filetags.follows_filetags_convention',
+            'analysis.filetags.tags',
+        ]
+        self._meowuris_filesystem = [
+            'filesystem.basename.extension',
+            'filesystem.basename.full',
+            'filesystem.basename.prefix',
+            'filesystem.contents.mime_type',
+            'filesystem.pathname.full',
+        ]
+        self._meowuris_exiftool = [
+            'metadata.exiftool.EXIF:CreateDate',
+            'metadata.exiftool.EXIF:DateTimeOriginal',
+            'metadata.exiftool.PDF:CreateDate',
+            'metadata.exiftool.QuickTime:CreationDate',
+            'metadata.exiftool.XMP-dc:Creator',
+            'metadata.exiftool.XMP-dc:Date',
+            'metadata.exiftool.XMP-dc:Publisher',
+            'metadata.exiftool.XMP-dc:Title',
+        ]
+        self._meowuris_guessit = [
+            'plugin.guessit.date',
+            'plugin.guessit.title',
+        ]
+        self._extractor_meowuris = (self._meowuris_filesystem
+                                    + self._meowuris_exiftool)
+        self._analyzer_meowuris = self._meowuris_filetags
+        self._plugin_meowuris = self._meowuris_guessit
+        self._all_meowuris = (self._meowuris_filetags
+                              + self._meowuris_filesystem
+                              + self._meowuris_exiftool
+                              + self._meowuris_guessit)
+
+    def _assert_maps(self, actual, expected_source):
+        if isinstance(expected_source, list):
+            self.assertEqual(len(actual), len(expected_source))
+            for a in actual:
+                self.assertTrue(uu.is_class(a))
+                self.assertIn(a.__name__, expected_source)
+        else:
+            self.assertEqual(len(actual), 1)
+            a = actual[0]
+            self.assertTrue(uu.is_class(a))
+            self.assertEqual(a.__name__, expected_source)
+
+    def test_returns_no_sources_for_invalid_meowuris(self):
+        def _assert_empty_mapping(meowuri_list):
+            actual = repository.get_sources_for_meowuris(meowuri_list)
+            self.assertEqual(len(actual), 0)
+
+        _assert_empty_mapping(None)
+        _assert_empty_mapping([])
+        _assert_empty_mapping([None])
+        _assert_empty_mapping([None, None])
+        _assert_empty_mapping(['xxxyyyzzz'])
+        _assert_empty_mapping([None, 'xxxyyyzzz'])
+
+    def test_returns_expected_source_filetags(self):
+        actual = repository.get_sources_for_meowuris(self._meowuris_filetags)
+        self._assert_maps(actual, 'FiletagsAnalyzer')
+
+    def test_returns_expected_source_filesystem(self):
+        actual = repository.get_sources_for_meowuris(self._meowuris_filesystem)
+        self._assert_maps(actual, 'CommonFileSystemExtractor')
+
+    def test_returns_expected_source_exiftool(self):
+        actual = repository.get_sources_for_meowuris(self._meowuris_exiftool)
+        self._assert_maps(actual, 'ExiftoolMetadataExtractor')
+
+    def test_returns_expected_source_guessit(self):
+        actual = repository.get_sources_for_meowuris(self._meowuris_guessit)
+        self._assert_maps(actual, 'GuessitPlugin')
+
+    def test_returns_expected_sources(self):
+        actual = repository.get_sources_for_meowuris(self._all_meowuris)
+        self.assertEqual(len(actual), 4)
+        self._assert_maps(
+            actual, ['CommonFileSystemExtractor', 'ExiftoolMetadataExtractor',
+                     'FiletagsAnalyzer', 'GuessitPlugin']
+        )
+
+    def test_returns_included_sources_analyzers(self):
+        actual = repository.get_sources_for_meowuris(self._all_meowuris,
+                                                     includes=['analyzers'])
+        self._assert_maps(actual, 'FiletagsAnalyzer')
+
+    def test_returns_included_sources_extractorss(self):
+        actual = repository.get_sources_for_meowuris(self._all_meowuris,
+                                                     includes=['extractors'])
+        self._assert_maps(actual, ['CommonFileSystemExtractor',
+                                   'ExiftoolMetadataExtractor'])
+
+    def test_returns_included_sources_plugins(self):
+        actual = repository.get_sources_for_meowuris(self._all_meowuris,
+                                                     includes=['plugins'])
+        self._assert_maps(actual, 'GuessitPlugin')

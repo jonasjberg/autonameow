@@ -22,21 +22,23 @@
 
 from unittest import TestCase
 
-import unit_utils as uu
 import analyzers
 from core import (
     exceptions,
     constants
 )
+import unit_utils as uu
 
 
 # TODO: [hardcoded] Likely to break; fixed analyzer names!
 EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
                            'analyzers.analyze_filesystem.FilesystemAnalyzer',
                            'analyzers.analyze_filename.FilenameAnalyzer',
+                           'analyzers.analyze_filetags.FiletagsAnalyzer',
                            'analyzers.analyze_video.VideoAnalyzer',
                            'analyzers.analyze_pdf.PdfAnalyzer',
-                           'analyzers.analyze_text.TextAnalyzer']
+                           'analyzers.analyze_text.TextAnalyzer',
+                           'analyzers.analyze_ebook.EbookAnalyzer']
 EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
                                     for c in EXPECT_ANALYZER_CLASSES]
 
@@ -196,24 +198,10 @@ class TestNumberOfAvailableAnalyzerClasses(TestCase):
     def test_get_analyzer_classes_returns_at_least_six_analyzers(self):
         self.assertGreaterEqual(len(self.actual), 6)
 
+    def test_get_analyzer_classes_returns_at_least_seven(self):
+        self.assertGreaterEqual(len(self.actual), 7)
+
     # TODO: [hardcoded] Likely to break; fixed analyzer names!
     def test_get_analyzer_classes_returns_expected_count(self):
         self.assertEqual(len(self.actual), len(EXPECT_ANALYZER_CLASSES))
 
-
-class TestGetAnalyzerClassesBasename(TestCase):
-    def test_get_analyzer_classes_basename_returns_expected_count(self):
-        _classes = analyzers.get_analyzer_classes_basename()
-        self.assertEqual(len(_classes), len(EXPECT_ANALYZER_CLASSES_BASENAME))
-
-    def test_get_analyzer_classes_basename_returns_expected_contents(self):
-        _classes = analyzers.get_analyzer_classes_basename()
-        self.assertEqual(sorted(_classes),
-                         sorted(EXPECT_ANALYZER_CLASSES_BASENAME))
-
-    def test_get_analyzer_classes_basename_returns_list_of_strings(self):
-        self.assertTrue(isinstance(analyzers.get_analyzer_classes_basename(),
-                                   list))
-
-        for a in analyzers.get_analyzer_classes_basename():
-            self.assertTrue(isinstance(a, str))

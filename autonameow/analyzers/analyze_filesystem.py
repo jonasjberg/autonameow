@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
-import logging
 import os
 from datetime import datetime
 
@@ -49,7 +48,7 @@ class FilesystemAnalyzer(BaseAnalyzer):
     """
     run_queue_priority = 1
     handles_mime_types = ['*/*']
-    data_query_string = 'analysis.filesystem'
+    meowuri_root = 'analysis.filesystem'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -57,43 +56,18 @@ class FilesystemAnalyzer(BaseAnalyzer):
             file_object, add_results_callback, request_data_callback
         )
 
-    def _add_results(self, label, data):
-        query_string = 'analysis.filesystem_analyzer.{}'.format(label)
-        logging.debug('{} passed "{}" to "add_results" callback'.format(
-            self, query_string)
-        )
-        self.add_results(query_string, data)
-
     def run(self):
         # Pass results through callback function provided by the 'Analysis'.
         self._add_results('datetime', self.get_datetime())
 
-    def __results(self):
-        def dt_fts(t):
-            return datetime.fromtimestamp(t).replace(microsecond=0)
-
-        try:
-            mtime = os.path.getmtime(self.file_object.abspath)
-            ctime = os.path.getctime(self.file_object.abspath)
-            atime = os.path.getatime(self.file_object.abspath)
-        except OSError as e:
-            logging.critical('Unable to get timestamps from filesystem:'
-                             ' {!s}'.format(e))
-        else:
-            return {'filesystem': {
-                'date_accessed': dt_fts(atime),
-                'date_created': dt_fts(ctime),
-                'date_modified': dt_fts(mtime)
-            }}
-
     def get_datetime(self):
-        result = []
+        results = []
 
         fs_timestamps = self._get_datetime_from_filesystem()
         if fs_timestamps:
-            result += fs_timestamps
+            results += fs_timestamps
 
-        return result
+        return results if results else None
 
     def _get_datetime_from_filesystem(self):
         """
@@ -110,14 +84,14 @@ class FilesystemAnalyzer(BaseAnalyzer):
         filename = self.file_object.abspath
         results = []
 
-        logging.debug('Fetching file system timestamps ..')
+        self.log.debug('Fetching file system timestamps ..')
         try:
             mtime = os.path.getmtime(filename)
             ctime = os.path.getctime(filename)
             atime = os.path.getatime(filename)
         except OSError as e:
-            logging.critical('Failed extracting date/time-information '
-                             'from file system -- OSError: {}'.format(e))
+            self.log.critical('Failed extracting date/time-information '
+                              'from file system -- OSError: {}'.format(e))
         else:
             def dt_fts(t):
                 return datetime.fromtimestamp(t).replace(microsecond=0)
@@ -132,7 +106,11 @@ class FilesystemAnalyzer(BaseAnalyzer):
                             'source': 'accessed',
                             'weight': 0.25})
 
-        logging.debug('Got {} timestamps from the filesystem.'.format(
-            len(results)))
+        self.log.debug(
+            'Got {} timestamps from the filesystem.'.format(len(results))
+        )
         return results
 
+    @classmethod
+    def check_dependencies(cls):
+        return True

@@ -32,7 +32,7 @@ from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     suitable_field_parser_for,
     is_valid_template_field,
-    eval_query_string_glob
+    eval_meowuri_glob
 )
 import unit_utils as uu
 
@@ -306,7 +306,7 @@ class TestNameFormatFieldParser(TestCase):
         self.assertFalse(self.val_func(None))
         self.assertFalse(self.val_func(''))
         self.assertFalse(self.val_func('{bad_field}'))
-        self.assertFalse(self.val_func('{datetime} {bad_field}'))
+        self.assertFalse(self.val_func('{datetime} {bad_field}'))
 
     def test_validation_function_expect_pass(self):
         self.assertTrue(self.val_func('{datetime}'))
@@ -336,7 +336,7 @@ class TestSuitableFieldParserFor(TestCase):
         self.assertEqual(str(actual[0]), expected_parser)
 
     def test_returns_expected_type_list(self):
-        actual = suitable_field_parser_for('contents.mime_type')
+        actual = suitable_field_parser_for('filesystem.contents.mime_type')
         self.assertTrue(isinstance(actual, list))
 
     def test_returns_expected_given_invalid_mime_type_field(self):
@@ -370,7 +370,7 @@ class TestSuitableFieldParserFor(TestCase):
 
     def test_expect_mime_type_field_parser(self):
         self.__expect_parser_for('MimeTypeConfigFieldParser',
-                                 'contents.mime_type')
+                                 'filesystem.contents.mime_type')
 
 
 class TestFieldParserConstants(TestCase):
@@ -397,106 +397,133 @@ class TestIsValidTemplateField(TestCase):
         self.assertTrue(is_valid_template_field('title'))
 
 
-class TestEvalQueryStringGlob(TestCase):
-    def test_eval_query_string_blob_is_defined(self):
-        self.assertIsNotNone(eval_query_string_glob)
+class TestEvalMeowURIGlob(TestCase):
+    def test_eval_meowuri_blob_is_defined(self):
+        self.assertIsNotNone(eval_meowuri_glob)
 
-    def test_eval_query_string_blob_returns_false_given_bad_arguments(self):
-        self.assertIsNotNone(eval_query_string_glob(None, None))
-        self.assertFalse(eval_query_string_glob(None, None))
+    def test_eval_meowuri_blob_returns_false_given_bad_arguments(self):
+        self.assertIsNotNone(eval_meowuri_glob(None, None))
+        self.assertFalse(eval_meowuri_glob(None, None))
 
-    def test_eval_query_string_blob_returns_false_as_expected(self):
-        self.assertFalse(eval_query_string_glob(
-            'contents.mime_type', ['filesystem.*']
+    def test_eval_meowuri_blob_returns_false_as_expected(self):
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.*']
         ))
-        self.assertFalse(eval_query_string_glob(
-            'contents.mime_type', ['filesystem.pathname.*']
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.full']
         ))
-        self.assertFalse(eval_query_string_glob(
-            'contents.mime_type', ['filesystem.pathname.full']
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.*',
+                                              'filesystem.pathname.full']
         ))
-        self.assertFalse(eval_query_string_glob(
-            'contents.mime_type', ['filesystem.*',
-                                   'filesystem.pathname.*',
-                                   'filesystem.pathname.full']
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.basename.full', ['*.pathname.*']
         ))
-        self.assertFalse(eval_query_string_glob(
+        self.assertFalse(eval_meowuri_glob(
             'filesystem.pathname.extension', ['*.basename.*',
                                               '*.basename.extension',
                                               'filesystem.basename.extension']
         ))
-        self.assertFalse(eval_query_string_glob(
+        self.assertFalse(eval_meowuri_glob(
             'filesystem.pathname.parent', ['*.pathname.full',
                                            'filesystem.*.full']
         ))
-        self.assertFalse(eval_query_string_glob(
+        self.assertFalse(eval_meowuri_glob(
             'metadata.exiftool.PDF:Creator',
             ['datetime', 'date_accessed', 'date_created', 'date_modified',
              '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
              '*.EXIF:ModifyDate']
         ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['NAME_FORMAT']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.plain_text', ['filesystem.*',
+                                            'filesystem.pathname.*',
+                                            'filesystem.pathname.full']
+        ))
 
-    def test_eval_query_string_blob_returns_true_as_expected(self):
-        self.assertTrue(eval_query_string_glob(
+    def test_eval_meowuri_blob_returns_true_as_expected(self):
+        self.assertTrue(eval_meowuri_glob(
             'filesystem.pathname.full', ['*']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'filesystem.pathname.full', ['filesystem.*']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'filesystem.pathname.full', ['filesystem.pathname.*']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'filesystem.pathname.full', ['filesystem.pathname.full']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'filesystem.pathname.full', ['filesystem.*',
                                          'filesystem.pathname.*',
                                          'filesystem.pathname.full']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'filesystem.pathname.full', ['*',
                                          'filesystem.*',
                                          'filesystem.pathname.*',
                                          'filesystem.pathname.full']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.pathname.full', ['*.pathname.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.contents.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.*',
+                                              'filesystem.pathname.*',
+                                              'filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_meowuri_glob(
             'filesystem.basename.extension', ['*.basename.*',
                                               '*.basename.extension',
                                               'filesystem.basename.extension']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'filesystem.basename.extension', ['*',
                                               '*.basename.*',
                                               '*.basename.extension',
                                               'filesystem.basename.extension']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'filesystem.basename.extension', ['*.extension']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'filesystem.basename.extension', ['*',
                                               '*.extension']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'metadata.exiftool.PDF:CreateDate',
             ['metadata.exiftool.PDF:CreateDate']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'metadata.exiftool.PDF:CreateDate', ['metadata.exiftool.*']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'metadata.exiftool.PDF:CreateDate', ['metadata.*']
         ))
-        self.assertTrue(eval_query_string_glob(
+        self.assertTrue(eval_meowuri_glob(
             'metadata.exiftool.PDF:CreateDate',
             ['datetime', 'date_accessed', 'date_created', 'date_modified',
              '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
              '*.EXIF:ModifyDate']
         ))
 
-    def test_eval_query_string_blob_returns_as_expected(self):
-        self.assertTrue(eval_query_string_glob(
+    def test_eval_meowuri_blob_returns_as_expected(self):
+        self.assertTrue(eval_meowuri_glob(
             'filesystem.basename.full', ['*.pathname.*',
                                          '*.basename.*',
                                          '*.raw_text']

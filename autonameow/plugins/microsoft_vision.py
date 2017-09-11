@@ -36,6 +36,7 @@ import argparse
 # import logging
 import requests
 
+from core import util
 from plugins import BasePlugin
 from core.exceptions import AutonameowPluginError
 
@@ -237,6 +238,10 @@ def main(paths, api_key, dump_response=False, print_caption=True):
 
 
 def _read_api_key_from_file(file_path):
+    if not os.path.exists(file_path):
+        # log.critical('Unable to find "microsoft_vision.py" API key!')
+        return None
+
     try:
         with open(file_path, mode='r', encoding='utf8') as f:
             api_key = f.read()
@@ -249,7 +254,7 @@ def _read_api_key_from_file(file_path):
 
 
 class MicrosoftVisionPlugin(BasePlugin):
-    data_query_string = 'plugin.microsoft_vision'
+    meowuri_root = 'plugin.microsoft_vision'
 
     """
     'microsoft_vision.py'
@@ -263,7 +268,6 @@ class MicrosoftVisionPlugin(BasePlugin):
     Add your API key to the file 'microsoft_vision.key' in this directory,
     or modify the line below to point to the file containing your API key.
     """
-
     api_key_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
                                 'microsoft_vision.key')
     API_KEY = _read_api_key_from_file(api_key_path)
@@ -278,13 +282,13 @@ class MicrosoftVisionPlugin(BasePlugin):
     def test_init(cls):
         return cls.API_KEY is not None
 
-    def query(self, field=None):
+    def query(self, **kwargs):
         # TODO: [TD0061] Re-implement basic queries to this script.
         # NOTE: Expecting "data" to be a valid path to an image file.
         # if not cls.API_KEY:
         #     raise AutonameowPluginError('Missing "microsoft_vision.py" API key!')
 
-        if field == 'caption' or field == 'tags':
+        if kwargs.get('field') == 'caption' or kwargs.get('field') == 'tags':
             response = query_api(self.source, self.API_KEY)
             if not response:
                 # log.error('[plugin.microsoft_vision] Unable to query to API')
@@ -293,16 +297,25 @@ class MicrosoftVisionPlugin(BasePlugin):
                 # log.debug('Received microsoft_vision API query response')
                 pass
 
-            if field == 'caption':
+            if kwargs.get('field') == 'caption':
                 caption = get_caption_text(response)
                 # log.debug('Returning caption: "{!s}"'.format(caption))
                 return str(caption)
 
-            elif field == 'tags':
+            elif kwargs.get('field') == 'tags':
                 tags = get_tags(response, 5)
                 tags_pretty = ' '.join(map(lambda x: '"' + x + '"', tags))
                 # log.debug('Returning tags: {}'.format(tags_pretty))
                 return tags
+
+    @classmethod
+    def can_handle(cls, file_object):
+        _mime_type = cls.request_data(file_object,
+                                      'filesystem.contents.mime_type')
+        return util.eval_magic_glob(_mime_type, ['image/png', 'image/jpeg'])
+
+    def execute(self):
+        pass
 
 
 if __name__ == '__main__':
@@ -353,7 +366,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # if args.verbose:
-    #     log_format = '{} %(asctime)s %(levelname)-8.8s %(funcName)-25.25s' \
+    #     log_format = '{} %(asctime)s %(levelname)-8.8s %(funcName)-25.25s' \
     #                  '(%(lineno)3d) %(message)s'.format(PROGRAM_NAME)
     #     logging.basicConfig(level=logging.DEBUG, format=log_format,
     #                         datefmt='%Y-%m-%d %H:%M:%S')

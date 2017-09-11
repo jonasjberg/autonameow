@@ -21,26 +21,18 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
-from unittest import TestCase
-import unit_utils as uu
-
 import yaml
 
-from core import constants
+from unittest import TestCase
+
 from core.config.default_config import DEFAULT_CONFIG
-from core.config.configuration import (
-    Configuration,
-    parse_conditions,
-    parse_weight,
-    is_valid_source,
-)
-from core.exceptions import ConfigurationSyntaxError
+from core.config.configuration import Configuration
+import unit_utils as uu
 
 
 def load_yaml(path):
-    with open(path, 'r') as file_handle:
-        data = yaml.load(file_handle)
+    with open(path, 'r', encoding='utf-8') as fh:
+        data = yaml.safe_load(fh)
     return data
 
 
@@ -51,7 +43,7 @@ class TestWriteConfig(TestCase):
         self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_setup(self):
-        self.assertFalse(os.path.exists(self.dest_path),
+        self.assertFalse(uu.file_exists(self.dest_path),
                          'Destination path should not already exist')
 
     def test_load_from_dict(self):
@@ -61,7 +53,7 @@ class TestWriteConfig(TestCase):
 
     def test_write_config(self):
         self.configuration.write_to_disk(self.dest_path)
-        self.assertTrue(os.path.exists(self.dest_path),
+        self.assertTrue(uu.file_exists(self.dest_path),
                         'Configuration file exists on disk')
 
     def test_write_and_verify(self):
@@ -81,10 +73,10 @@ class TestDefaultConfig(TestCase):
                              'Default config dict is available')
 
     def test_default_configuration_contain_rules(self):
-        self.assertIsNotNone(self.configuration.file_rules)
+        self.assertIsNotNone(self.configuration.rules)
 
     def test_default_configuration_contain_at_least_two_rules(self):
-        self.assertGreaterEqual(len(self.configuration.file_rules), 2,
+        self.assertGreaterEqual(len(self.configuration.rules), 2,
                                 'Arbitrary rule count test')
 
     def test_default_configuration_contain_name_templates(self):
@@ -102,14 +94,14 @@ class TestWriteDefaultConfig(TestCase):
         self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_setup(self):
-        self.assertFalse(os.path.exists(self.dest_path),
+        self.assertFalse(uu.file_exists(self.dest_path),
                          'Destination path should not already exist')
         self.assertIsNotNone(self.configuration.data,
                              'Configuration data should exist')
 
     def test_write_default_config_to_disk(self):
         self.configuration.write_to_disk(self.dest_path)
-        self.assertTrue(os.path.exists(self.dest_path),
+        self.assertTrue(uu.file_exists(self.dest_path),
                         'Default configuration file exists on disk')
 
     def test_write_default_config_to_disk_and_verify(self):
@@ -134,84 +126,11 @@ class TestConfigurationDataAccess(TestCase):
     def test_get_data_does_not_return_none(self):
         self.assertIsNotNone(self.configuration.data)
 
-    def test_get_file_rules_does_not_return_none(self):
-        self.assertIsNotNone(self.configuration.file_rules)
+    def test_get_rules_does_not_return_none(self):
+        self.assertIsNotNone(self.configuration.rules)
 
-    def test_get_file_rules_returns_expected_type(self):
-        self.assertTrue(isinstance(self.configuration.file_rules, list))
+    def test_get_rules_returns_expected_type(self):
+        self.assertTrue(isinstance(self.configuration.rules, list))
 
-    def test_get_file_rules_returns_expected_rule_count(self):
-        self.assertGreaterEqual(len(self.configuration.file_rules), 3)
-
-
-class TestParseConditions(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-    def test_parse_condition_filesystem_pathname_is_valid(self):
-        raw_conditions = {'filesystem.pathname.full': '~/.config'}
-        actual = parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].query_string, 'filesystem.pathname.full')
-        self.assertEqual(actual[0].expression, '~/.config')
-
-    def test_parse_condition_contents_mime_type_is_valid(self):
-        raw_conditions = {'contents.mime_type': 'image/jpeg'}
-        actual = parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].query_string, 'contents.mime_type')
-        self.assertEqual(actual[0].expression, 'image/jpeg')
-
-    def test_parse_condition_contents_metadata_is_valid(self):
-        # TODO: [TD0015] Handle expression in 'condition_value'
-        #                ('Defined', '> 2017', etc)
-        raw_conditions = {
-            'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
-        }
-        actual = parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].query_string,
-                         'metadata.exiftool.EXIF:DateTimeOriginal')
-        self.assertEqual(actual[0].expression, 'Defined')
-
-
-class TestParseWeight(TestCase):
-    def test_negative_value_raises_configuration_syntax_error(self):
-        with self.assertRaises(ConfigurationSyntaxError):
-            parse_weight(-1)
-            parse_weight(-0.1)
-            parse_weight(-0.01)
-            parse_weight(-0.0000000001)
-
-    def test_value_greater_than_one_raises_configuration_syntax_error(self):
-        with self.assertRaises(ConfigurationSyntaxError):
-            parse_weight(2)
-            parse_weight(1.1)
-            parse_weight(1.00000000001)
-
-    def test_unexpected_type_value_raises_configuration_syntax_error(self):
-        with self.assertRaises(ConfigurationSyntaxError):
-            parse_weight('')
-            parse_weight(object())
-
-    def test_none_value_returns_default_weight(self):
-        self.assertEqual(parse_weight(None), constants.DEFAULT_FILERULE_WEIGHT)
-
-    def test_value_within_range_zero_to_one_returns_value(self):
-        VALUES = [0, 0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 1]
-
-        for value in VALUES:
-            self.assertEqual(parse_weight(value), value)
-
-
-class TestIsValidSourceSpecification(TestCase):
-    def test_empty_source_returns_false(self):
-        self.assertFalse(is_valid_source(None))
-        self.assertFalse(is_valid_source(''))
-
-    def test_bad_source_returns_false(self):
-        self.assertFalse(is_valid_source('not.a.valid.source.surely'))
-
-    def test_good_source_returns_true(self):
-        self.assertTrue(is_valid_source('metadata.exiftool.PDF:CreateDate'))
-        self.assertTrue(is_valid_source('metadata.exiftool'))
-        self.assertTrue(is_valid_source('filesystem.basename.full'))
-        self.assertTrue(is_valid_source('filesystem.basename.extension'))
-        self.assertTrue(is_valid_source('filesystem.contents.mime_type'))
+    def test_get_rules_returns_expected_rule_count(self):
+        self.assertGreaterEqual(len(self.configuration.rules), 3)

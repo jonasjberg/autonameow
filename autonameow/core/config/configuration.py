@@ -19,25 +19,25 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import os
 
 from core import (
     config,
     constants,
     exceptions,
-    util,
-    repository
+    util
 )
 from core.config import (
-    field_parsers,
     rules
 )
 from core.config.field_parsers import (
-    NameFormatConfigFieldParser,
-    DateTimeConfigFieldParser
+    DateTimeConfigFieldParser,
+    NameFormatConfigFieldParser
 )
-from core.util import textutils
+
+
+log = logging.getLogger(__name__)
 
 
 class Configuration(object):
@@ -57,12 +57,12 @@ class Configuration(object):
             source: The configuration to load as either a dictionary or a
                 bytestring path.
         """
-        self._file_rules = []
+        self._rules = []
         self._name_templates = {}
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
         self._version = None
-        self.referenced_query_strings = set()
+        self.referenced_meowuris = set()
 
         # NOTE(jonas): Detecting type prior to loading could be improved ..
         if isinstance(source, dict):
@@ -90,9 +90,15 @@ class Configuration(object):
 
         self._data = data
         self._load_name_templates()
-        self._load_file_rules()
+        self._load_rules()
         self._load_options()
         self._load_version()
+
+        # For Debugging/development only.
+        _referenced_meowuris = sorted(self.referenced_meowuris)
+        for _meowuri in _referenced_meowuris:
+            log.debug('Configuration Rule referenced meowURI'
+                      ' "{!s}"'.format(_meowuri))
 
     def _load_from_disk(self, load_path):
         try:
@@ -116,7 +122,7 @@ class Configuration(object):
             config.write_yaml_file(dest_path, self._data)
 
     def _load_name_templates(self):
-        raw_templates = self._data.get('NAME_TEMPLATES', False)
+        raw_templates = self._data.get('NAME_TEMPLATES')
         if not raw_templates:
             log.debug('Configuration does not contain any name templates')
             return
@@ -127,7 +133,7 @@ class Configuration(object):
         loaded_templates = {}
         for k, v in raw_templates.items():
             # Remove any non-breaking spaces in the name template.
-            v = textutils.remove_nonbreaking_spaces(v)
+            v = util.remove_nonbreaking_spaces(v)
 
             if NameFormatConfigFieldParser.is_valid_format_string(v):
                 loaded_templates[k] = v
@@ -137,54 +143,54 @@ class Configuration(object):
 
         self._name_templates.update(loaded_templates)
 
-    def _load_file_rules(self):
-        raw_file_rules = self._data.get('FILE_RULES', False)
-        if not raw_file_rules:
+    def _load_rules(self):
+        raw_rules = self._data.get('RULES')
+        if not raw_rules:
             raise exceptions.ConfigError(
-                'The configuration file does not contain any file rules'
+                'The configuration file does not contain any rules'
             )
 
-        for rule in raw_file_rules:
+        for rule in raw_rules:
             try:
-                valid_file_rule = self._validate_rule_data(rule)
+                valid_rule = self._validate_rule_data(rule)
             except exceptions.ConfigurationSyntaxError as e:
                 rule_description = rule.get('description', 'UNDESCRIBED')
                 log.error('Bad rule "{!s}"; {!s}'.format(rule_description, e))
             else:
-                # Create and populate "FileRule" objects with *validated* data.
-                self._file_rules.append(valid_file_rule)
+                # Create and populate "Rule" objects with *validated* data.
+                self._rules.append(valid_rule)
 
-                # Keep track of all "query strings" referenced by file rules.
-                self.referenced_query_strings.update(
-                    valid_file_rule.referenced_query_strings()
+                # Keep track of all "meowURIs" referenced by rules.
+                self.referenced_meowuris.update(
+                    valid_rule.referenced_meowuris()
                 )
 
     def _validate_rule_data(self, raw_rule):
         """
-        Validates one "raw" file rule from a configuration and returns an
-        instance of the 'FileRule' class, representing the "raw" file rule.
+        Validates one "raw" rule from a configuration and returns an
+        instance of the 'Rule' class, representing the "raw" rule.
 
         Args:
-            raw_rule: A single file rule entry from a configuration.
+            raw_rule: A single rule entry from a configuration.
 
         Returns:
-            An instance of the 'FileRule' class representing the given rule.
+            An instance of the 'Rule' class representing the given rule.
 
         Raises:
-            ConfigurationSyntaxError: The given file rule contains bad data,
-                making instantiating a 'FileRule' object impossible.
+            ConfigurationSyntaxError: The given rule contains bad data,
+                making instantiating a 'Rule' object impossible.
                 Note that the message will be used in the following sentence:
                 "Bad rule "x"; {message}"
         """
         # Get a description for referring to the rule in any log messages.
-        valid_description = raw_rule.get('description', False)
-        if not valid_description:
-            valid_description = 'UNDESCRIBED'
+        description = raw_rule.get('description')
+        if description is None:
+            description = 'UNDESCRIBED'
 
-        log.debug('Validating file rule "{!s}" ..'.format(valid_description))
+        log.debug('Validating rule "{!s}" ..'.format(description))
 
         if 'NAME_FORMAT' not in raw_rule:
-            log.debug('File rule contains no name format data' + str(raw_rule))
+            log.debug('Rule contains no name format data' + str(raw_rule))
             raise exceptions.ConfigurationSyntaxError(
                 'is missing name template format'
             )
@@ -197,29 +203,28 @@ class Configuration(object):
             valid_format = self.name_templates.get(name_format, False)
         else:
             if NameFormatConfigFieldParser.is_valid_format_string(name_format):
-                valid_format = name_format
+                valid_format = util.remove_nonbreaking_spaces(name_format)
             else:
                 valid_format = False
 
         if not valid_format:
-            log.debug('File rule name format is invalid: ' + str(raw_rule))
+            log.debug('Rule name format is invalid: ' + str(raw_rule))
             raise exceptions.ConfigurationSyntaxError(
                 'uses invalid name template format'
             )
 
-        valid_conditions = parse_conditions(raw_rule.get('CONDITIONS'))
-        valid_sources = parse_sources(raw_rule.get('DATA_SOURCES'))
-        valid_weight = parse_weight(raw_rule.get('weight'))
-        valid_exact_match = bool(raw_rule.get('exact_match'))
+        try:
+            _rule = rules.Rule(description=description,
+                               exact_match=raw_rule.get('exact_match'),
+                               ranking_bias=raw_rule.get('ranking_bias'),
+                               name_template=valid_format,
+                               conditions=raw_rule.get('CONDITIONS'),
+                               data_sources=raw_rule.get('DATA_SOURCES'))
+        except exceptions.InvalidRuleError as e:
+            raise exceptions.ConfigurationSyntaxError(e)
 
-        file_rule = rules.FileRule(description=valid_description,
-                                   exact_match=valid_exact_match,
-                                   weight=valid_weight,
-                                   name_template=valid_format,
-                                   conditions=valid_conditions,
-                                   data_sources=valid_sources)
-        log.debug('Validated file rule "{!s}" .. OK!'.format(valid_description))
-        return file_rule
+        log.debug('Validated rule "{!s}" .. OK!'.format(description))
+        return _rule
 
     def _load_options(self):
         def _try_load_date_format_option(option):
@@ -276,8 +281,29 @@ class Configuration(object):
             constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
 
+        # Unlikely the previous options; first load the default ignore patterns,
+        # then combine these defaults with any user-specified patterns.
+        util.nested_dict_set(
+            self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
+            constants.DEFAULT_FILESYSTEM_IGNORE
+        )
+        if 'FILESYSTEM_OPTIONS' in self._data:
+            _user_ignores = self._data['FILESYSTEM_OPTIONS'].get('ignore')
+            if isinstance(_user_ignores, list):
+                _user_ignores = util.filter_none(_user_ignores)
+                if _user_ignores:
+                    _defaults = util.nested_dict_get(
+                        self._options, ['FILESYSTEM_OPTIONS', 'ignore']
+                    )
+
+                    _combined = _defaults.union(frozenset(_user_ignores))
+                    util.nested_dict_set(
+                        self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
+                        _combined
+                    )
+
     def _load_version(self):
-        raw_version = self._data.get('autonameow_version', False)
+        raw_version = self._data.get('autonameow_version')
         if not raw_version:
             log.error('Unable to read program version from configuration')
         else:
@@ -313,9 +339,9 @@ class Configuration(object):
         return self._data
 
     @property
-    def file_rules(self):
-        if self._file_rules and len(self._file_rules) > 0:
-            return self._file_rules
+    def rules(self):
+        if self._rules and len(self._rules) > 0:
+            return self._rules
         else:
             return False
 
@@ -326,137 +352,14 @@ class Configuration(object):
     def __str__(self):
         out = ['Written by autonameow version v{}\n\n'.format(self.version)]
 
-        for number, rule in enumerate(self.file_rules):
-            out.append('File Rule {}:\n'.format(number + 1))
-            out.append(textutils.indent(str(rule), amount=4) + '\n')
+        for number, rule in enumerate(self.rules):
+            out.append('Rule {}:\n'.format(number + 1))
+            out.append(util.indent(str(rule), amount=4) + '\n')
 
         out.append('\nName Templates:\n')
-        out.append(textutils.indent(util.dump(self.name_templates), amount=4))
+        out.append(util.indent(util.dump(self.name_templates), amount=4))
 
         out.append('\nMiscellaneous Options:\n')
-        out.append(textutils.indent(util.dump(self.options), amount=4))
+        out.append(util.indent(util.dump(self.options), amount=4))
 
         return ''.join(out)
-
-
-def parse_weight(value):
-    """
-    Validates data to be used as a "weight".
-
-    The value must be an integer or float between 0 and 1.
-    To allow for unspecified weights, None values are allowed and substituted
-    with the default weight defined by "FILERULE_DEFAULT_WEIGHT".
-    Args:
-        value: The raw value to parse.
-
-    Returns:
-        The specified value if the value is a number type in the range 0-1.
-        If the specified value is None, a default weight is returned.
-    Raises:
-        ConfigurationSyntaxError: The value is of an unexpected type or not
-            within the range 0-1.
-    """
-    ERROR_MSG = 'Expected float in range 0-1. Got: "{}"'.format(value)
-
-    if value is None:
-        return constants.DEFAULT_FILERULE_WEIGHT
-    if not isinstance(value, (int, float)):
-        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
-
-    try:
-        w = float(value)
-    except TypeError:
-        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
-    else:
-        if float(0) <= w <= float(1):
-            return w
-        else:
-            raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
-
-
-def parse_sources(raw_sources):
-    passed = {}
-
-    log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
-
-    for template_field, query_string in raw_sources.items():
-        if not query_string:
-            log.debug('Skipped source with empty query string '
-                      '(template field: "{!s}")'.format(template_field))
-            continue
-        elif not template_field:
-            log.debug('Skipped source with empty name template field '
-                      '(query string: "{!s}")'.format(query_string))
-            continue
-
-        if not field_parsers.is_valid_template_field(template_field):
-            log.warning('Skipped source with invalid name template field '
-                        '(query string: "{!s}")'.format(query_string))
-            continue
-
-        if not isinstance(query_string, list):
-            query_string = [query_string]
-
-        for qs in query_string:
-            if is_valid_source(qs):
-                log.debug('Validated source: [{}]: {}'.format(template_field,
-                                                              qs))
-                passed[template_field] = qs
-            else:
-                log.debug('Invalid source: [{}]: {}'.format(template_field, qs))
-
-    log.debug('Returning {} (out of {}) valid sources'.format(len(passed),
-                                                              len(raw_sources)))
-    return passed
-
-
-def is_valid_source(source_value):
-    """
-    Check if the source is valid.
-
-    Tests if the given source starts with the same text as any of the
-    date source "query strings" stored in the 'SessionRepository'.
-
-    For example, the source value "metadata.exiftool.PDF:CreateDate" would
-    be considered valid if "metadata.exiftool" was registered by a source.
-
-    Args:
-        source_value: The source to test as a text string.
-
-    Returns:
-        The given source value if it passes the test, otherwise False.
-    """
-    if not source_value or not source_value.strip():
-        return False
-
-    if repository.SessionRepository.resolvable(source_value):
-        return True
-    return False
-
-
-def parse_conditions(raw_conditions):
-    log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
-
-    passed = []
-    try:
-        for query_string, expression in raw_conditions.items():
-            try:
-                valid_condition = rules.get_valid_rule_condition(query_string,
-                                                                 expression)
-            except exceptions.InvalidFileRuleError as e:
-                raise exceptions.ConfigurationSyntaxError(e)
-            else:
-                passed.append(valid_condition)
-                log.debug('Validated condition: "{!s}"'.format(valid_condition))
-    except ValueError as e:
-        raise exceptions.ConfigurationSyntaxError(
-            'contains invalid condition: ' + str(e)
-        )
-
-    log.debug(
-        'Returning {} (out of {}) valid conditions'.format(len(passed),
-                                                           len(raw_conditions))
-    )
-    return passed
-
-

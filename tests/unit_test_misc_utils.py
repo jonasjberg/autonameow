@@ -22,18 +22,22 @@
 
 from unittest import TestCase
 
-from core import util
-from core.exceptions import InvalidQueryStringError
+from core import (
+    util,
+    exceptions,
+    constants
+)
 from core.util import eval_magic_glob
 from core.util.misc import (
     unique_identifier,
     multiset_count,
-    query_string_list,
+    meowuri_list,
     flatten_dict,
-    expand_query_string_data_dict,
+    expand_meowuri_data_dict,
     nested_dict_get,
     nested_dict_set
 )
+import unit_utils as uu
 
 
 DUMMY_RESULTS_DICT = {
@@ -44,10 +48,12 @@ DUMMY_RESULTS_DICT = {
         },
         'pathname': {
             'full': 'c',
+        },
+        'contents': {
+            'mime_type': 'd'
         }
     },
     'contents': {
-        'mime_type': 'd',
         'textual': {
             'raw_text': 'e',
             'number_pages': 'f',
@@ -66,7 +72,7 @@ DUMMY_FLATTENED_RESULTS_DICT = {
     'filesystem.basename.full': 'a',
     'filesystem.basename.extension': 'b',
     'filesystem.pathname.full': 'c',
-    'contents.mime_type': 'd',
+    'filesystem.contents.mime_type': 'd',
     'contents.textual.raw_text': 'e',
     'contents.textual.number_pages': 'f',
     'contents.visual.ocr_text': 'g',
@@ -126,58 +132,58 @@ class TestMultisetCount(TestCase):
                          {None: 2, 'a': 1, 'b': 1})
 
 
-class TestQueryStringList(TestCase):
+class TestMeowURIList(TestCase):
     def test_raises_exception_for_none_argument(self):
-        with self.assertRaises(InvalidQueryStringError):
-            self.assertIsNone(query_string_list(None))
+        with self.assertRaises(exceptions.InvalidMeowURIError):
+            self.assertIsNone(meowuri_list(None))
 
     def test_raises_exception_for_empty_argument(self):
-        with self.assertRaises(InvalidQueryStringError):
-            self.assertIsNone(query_string_list(''))
+        with self.assertRaises(exceptions.InvalidMeowURIError):
+            self.assertIsNone(meowuri_list(''))
 
     def test_raises_exception_for_only_periods(self):
-        with self.assertRaises(InvalidQueryStringError):
-            self.assertIsNone(query_string_list('.'))
-            self.assertIsNone(query_string_list('..'))
-            self.assertIsNone(query_string_list('...'))
+        with self.assertRaises(exceptions.InvalidMeowURIError):
+            self.assertIsNone(meowuri_list('.'))
+            self.assertIsNone(meowuri_list('..'))
+            self.assertIsNone(meowuri_list('...'))
 
     def test_return_value_is_type_list(self):
-        self.assertTrue(isinstance(query_string_list('a.b'), list))
+        self.assertTrue(isinstance(meowuri_list('a.b'), list))
 
     def test_valid_argument_returns_expected(self):
-        self.assertEqual(query_string_list('a'), ['a'])
-        self.assertEqual(query_string_list('a.b'), ['a', 'b'])
-        self.assertEqual(query_string_list('a.b.c'), ['a', 'b', 'c'])
-        self.assertEqual(query_string_list('a.b.c.a'), ['a', 'b', 'c', 'a'])
-        self.assertEqual(query_string_list('a.b.c.a.b'),
+        self.assertEqual(meowuri_list('a'), ['a'])
+        self.assertEqual(meowuri_list('a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a.b.c'), ['a', 'b', 'c'])
+        self.assertEqual(meowuri_list('a.b.c.a'), ['a', 'b', 'c', 'a'])
+        self.assertEqual(meowuri_list('a.b.c.a.b'),
                          ['a', 'b', 'c', 'a', 'b'])
-        self.assertEqual(query_string_list('a.b.c.a.b.c'),
+        self.assertEqual(meowuri_list('a.b.c.a.b.c'),
                          ['a', 'b', 'c', 'a', 'b', 'c'])
 
     def test_valid_argument_returns_expected_for_unexpected_input(self):
-        self.assertEqual(query_string_list('a.b.'), ['a', 'b'])
-        self.assertEqual(query_string_list('a.b..'), ['a', 'b'])
-        self.assertEqual(query_string_list('.a.b'), ['a', 'b'])
-        self.assertEqual(query_string_list('..a.b'), ['a', 'b'])
-        self.assertEqual(query_string_list('a..b'), ['a', 'b'])
-        self.assertEqual(query_string_list('.a..b'), ['a', 'b'])
-        self.assertEqual(query_string_list('..a..b'), ['a', 'b'])
-        self.assertEqual(query_string_list('...a..b'), ['a', 'b'])
-        self.assertEqual(query_string_list('a..b.'), ['a', 'b'])
-        self.assertEqual(query_string_list('a..b..'), ['a', 'b'])
-        self.assertEqual(query_string_list('a..b...'), ['a', 'b'])
-        self.assertEqual(query_string_list('a...b'), ['a', 'b'])
-        self.assertEqual(query_string_list('.a...b'), ['a', 'b'])
-        self.assertEqual(query_string_list('..a...b'), ['a', 'b'])
-        self.assertEqual(query_string_list('...a...b'), ['a', 'b'])
-        self.assertEqual(query_string_list('a...b.'), ['a', 'b'])
-        self.assertEqual(query_string_list('a...b..'), ['a', 'b'])
-        self.assertEqual(query_string_list('a...b...'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a.b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a.b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('...a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b...'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('...a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b...'), ['a', 'b'])
 
     def test_returns_expected(self):
-        self.assertEqual(query_string_list('contents.mime_type'),
-                         ['contents', 'mime_type'])
-        self.assertEqual(query_string_list('metadata.exiftool.EXIF:Foo'),
+        self.assertEqual(meowuri_list('filesystem.contents.mime_type'),
+                         ['filesystem', 'contents', 'mime_type'])
+        self.assertEqual(meowuri_list('metadata.exiftool.EXIF:Foo'),
                          ['metadata', 'exiftool', 'EXIF:Foo'])
 
 
@@ -304,7 +310,7 @@ class TestCountDictRecursive(TestCase):
         _assert_count({'a': 'foo', 'b': ['c', 'd', 'e'], 'f': ['g', 'h']}, 6)
 
 
-class TestExpandQueryStringDataDict(TestCase):
+class TestExpandMeowURIDataDict(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.EXPECTED = DUMMY_RESULTS_DICT
@@ -312,38 +318,38 @@ class TestExpandQueryStringDataDict(TestCase):
 
     def test_raises_type_error_for_invalid_input(self):
         with self.assertRaises(TypeError):
-            expand_query_string_data_dict(None)
-            expand_query_string_data_dict([])
-            expand_query_string_data_dict('')
+            expand_meowuri_data_dict(None)
+            expand_meowuri_data_dict([])
+            expand_meowuri_data_dict('')
 
     def test_returns_expected_type(self):
-        actual = expand_query_string_data_dict(self.INPUT)
+        actual = expand_meowuri_data_dict(self.INPUT)
 
         self.assertTrue(isinstance(actual, dict))
 
     def test_returns_expected_len(self):
-        actual = len(expand_query_string_data_dict(self.INPUT))
+        actual = len(expand_meowuri_data_dict(self.INPUT))
         expected = len(self.EXPECTED)
 
         self.assertEqual(actual, expected)
 
     def test_expanded_dict_contains_all_expected(self):
-        actual = expand_query_string_data_dict(self.INPUT)
+        actual = expand_meowuri_data_dict(self.INPUT)
         self.assertDictEqual(actual, self.EXPECTED)
 
     def test_expanded_dict_contain_expected_first_level(self):
-        actual = expand_query_string_data_dict(self.INPUT)
+        actual = expand_meowuri_data_dict(self.INPUT)
         self.assertIn('filesystem', actual)
         self.assertIn('contents', actual)
 
     def test_expanded_dict_contain_expected_second_level(self):
-        actual = expand_query_string_data_dict(self.INPUT)
+        actual = expand_meowuri_data_dict(self.INPUT)
         actual_filesystem = actual.get('filesystem')
         actual_contents = actual.get('contents')
 
         self.assertIn('basename', actual_filesystem)
         self.assertIn('pathname', actual_filesystem)
-        self.assertIn('mime_type', actual_contents)
+        self.assertIn('contents', actual_filesystem)
         self.assertIn('textual', actual_contents)
         self.assertIn('visual', actual_contents)
         self.assertIn('binary', actual_contents)
@@ -354,16 +360,15 @@ class TestNestedDictGet(TestCase):
         self.assertIsNotNone(nested_dict_get)
 
     def test_get_nested_value_returns_expected(self):
-        key_list = ['contents', 'mime_type']
+        key_list = ['filesystem', 'contents', 'mime_type']
         actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)
         self.assertEqual(actual, 'd')
 
     def test_get_nested_values_returns_expected(self):
-        keys_expected = [(['contents', 'mime_type'], 'd'),
+        keys_expected = [(['filesystem', 'contents', 'mime_type'], 'd'),
                          (['filesystem', 'basename', 'full'], 'a'),
                          (['filesystem', 'basename', 'extension'], 'b'),
                          (['filesystem', 'pathname', 'full'], 'c'),
-                         (['contents', 'mime_type'], 'd'),
                          (['contents', 'textual', 'raw_text'], 'e'),
                          (['contents', 'textual', 'number_pages'], 'f'),
                          (['contents', 'visual', 'ocr_text'], 'g'),
@@ -404,58 +409,102 @@ class TestNestedDictSet(TestCase):
     def test_nested_dict_set_is_defined(self):
         self.assertIsNotNone(nested_dict_set)
 
-    def test_set_single_value_in_empty_dictionary(self):
-        d = {}
-        nested_dict_set(d, ['a'], 2)
-        expected = {'a': 2}
-        self.assertEqual(d, expected)
+    def _assert_sets(self, dictionary, list_of_keys, value, expected):
+        _ = nested_dict_set(dictionary, list_of_keys, value)
+        self.assertIsNone(_)
+        self.assertDictEqual(dictionary, expected)
+        self.assertTrue(key in dictionary for key in expected.keys())
 
-    def test_set_single_value_modifies_dictionary_in_place(self):
-        actual = {'a': 1}
-        nested_dict_set(actual, ['a'], 2)
-        expected = {'a': 2}
-        self.assertEqual(actual, expected)
+    def test_set_value_in_empty_dictionary(self):
+        self._assert_sets(dictionary={}, list_of_keys=['a'],
+                          value=1, expected={'a': 1})
+        self._assert_sets(dictionary={}, list_of_keys=['a', 'b'],
+                          value=2, expected={'a': {'b': 2}})
+        self._assert_sets(dictionary={}, list_of_keys=['a', 'b', 'c'],
+                          value=3, expected={'a': {'b': {'c': 3}}})
 
-    def test_set_nested_value_modifies_dictionary_in_place(self):
-        actual = {'a': 1}
-        nested_dict_set(actual, ['b', 'c'], 4)
-        expected = {'a': 1, 'b': {'c': 4}}
-        self.assertEqual(actual, expected)
+    def test_set_value_in_empty_dictionary_with_fileobject_key(self):
+        keys = [uu.get_mock_fileobject()]
+        self._assert_sets(dictionary={}, list_of_keys=keys, value=1,
+                          expected={keys[0]: 1})
 
-    def test_set_nested_values_modifies_dictionary_in_place(self):
-        actual = {'a': 1}
-        nested_dict_set(actual, ['b', 'c'], 4)
-        nested_dict_set(actual, ['b', 'd'], 5)
-        expected = {'a': 1, 'b': {'c': 4, 'd': 5}}
-        self.assertEqual(actual, expected)
+        keys = [uu.get_mock_fileobject(), uu.get_mock_fileobject()]
+        self._assert_sets(dictionary={}, list_of_keys=keys, value='foo',
+                          expected={keys[0]: {keys[1]: 'foo'}})
+
+    def test_set_value_modifies_dictionary_in_place(self):
+        d = {'a': 1}
+        self._assert_sets(dictionary=d, list_of_keys=['a'], value=2,
+                          expected={'a': 2})
+        self._assert_sets(dictionary=d, list_of_keys=['b'], value={},
+                          expected={'a': 2,
+                                    'b': {}})
+        self._assert_sets(dictionary=d, list_of_keys=['b', 'c'], value=4,
+                          expected={'a': 2,
+                                    'b': {'c': 4}})
+        self._assert_sets(dictionary=d, list_of_keys=['b', 'foo'], value=6,
+                          expected={'a': 2,
+                                    'b': {'c': 4,
+                                          'foo': 6}})
+        self._assert_sets(dictionary=d, list_of_keys=['b', 'foo'], value=8,
+                          expected={'a': 2,
+                                    'b': {'c': 4,
+                                          'foo': 8}})
 
     def test_attempting_to_set_occupied_value_raises_key_error(self):
-        actual = {'a': 1}
         with self.assertRaises(KeyError):
-            nested_dict_set(actual, ['a', 'b'], 5)
+            self._assert_sets(dictionary={'a': 1}, list_of_keys=['a', 'b'],
+                              value=5, expected={'a': 2})
 
-    def test_passing_no_keys_raises_type_error(self):
-        d = {'a': 1}
-
+    def test_passing_invalid_list_of_keys_raises_type_error(self):
         def _assert_raises(key_list):
             with self.assertRaises(TypeError):
-                nested_dict_set(d, key_list, 2)
+                self._assert_sets(dictionary={'a': 1}, list_of_keys=key_list,
+                                  value=2, expected={'expect_exception': 0})
 
-        _assert_raises('')
-        _assert_raises(None)
+        _assert_raises(key_list='')
+        _assert_raises(key_list=None)
+        _assert_raises(key_list=())
+        _assert_raises(key_list={})
+        _assert_raises(key_list={'a': None})
+        _assert_raises(key_list={'a': 'b'})
 
     def test_passing_empty_list_raises_value_error(self):
-        d = {'a': 1}
-
         def _assert_raises(key_list):
             with self.assertRaises(ValueError):
-                nested_dict_set(d, key_list, 2)
+                self._assert_sets(dictionary={'a': 1}, list_of_keys=key_list,
+                                  value=2, expected={'expect_exception': 0})
 
-        _assert_raises([''])
-        _assert_raises([None])
+        _assert_raises(key_list=[''])
+        _assert_raises(key_list=[None])
+        _assert_raises(key_list=[None, ''])
+        _assert_raises(key_list=['', None])
+        _assert_raises(key_list=[None, 'foo'])
+        _assert_raises(key_list=['foo', None])
+        _assert_raises(key_list=['foo', ''])
+        _assert_raises(key_list=['', 'foo'])
+        _assert_raises(key_list=[None, 'foo', ''])
+        _assert_raises(key_list=[None, '', 'foo'])
+        _assert_raises(key_list=['foo', None, ''])
+        _assert_raises(key_list=['', None, 'foo'])
+        _assert_raises(key_list=['foo', None, '', None])
+        _assert_raises(key_list=['', None, 'foo', None])
+        _assert_raises(key_list=['foo', None, 'a', 'b'])
+        _assert_raises(key_list=['', 'a', 'b', None])
+        _assert_raises(key_list=['', 'a', 'b', 'foo'])
 
 
 class TestEvalMagicGlob(TestCase):
+    def _aF(self, mime_to_match, glob_list):
+        actual = eval_magic_glob(mime_to_match, glob_list)
+        self.assertTrue(isinstance(actual, bool))
+        self.assertFalse(actual)
+
+    def _aT(self, mime_to_match, glob_list):
+        actual = eval_magic_glob(mime_to_match, glob_list)
+        self.assertTrue(isinstance(actual, bool))
+        self.assertTrue(actual)
+
     def test_eval_magic_blob_is_defined(self):
         self.assertIsNotNone(eval_magic_glob)
 
@@ -464,46 +513,118 @@ class TestEvalMagicGlob(TestCase):
         self.assertFalse(eval_magic_glob(None, None))
 
     def test_eval_magic_blob_raises_exception_given_bad_arguments(self):
-        with self.assertRaises(ValueError):
-            self.assertTrue(eval_magic_glob('image/jpeg', ['*/*/jpeg']))
+        def _assert_raises(error, mime_to_match, glob_list):
+            with self.assertRaises(error):
+                eval_magic_glob(mime_to_match, glob_list)
+
+        _assert_raises(ValueError, 'image/jpeg', ['*/*/jpeg'])
+        _assert_raises(ValueError, 'application', ['*/*'])
+        _assert_raises(TypeError, b'application', ['*/*'])
+        _assert_raises(ValueError, '1', ['*/*'])
+        _assert_raises(TypeError, b'1', ['*/*'])
+        _assert_raises(AssertionError, 'image/jpeg', [b'*/jpeg'])
+        _assert_raises(AssertionError, 'image/jpeg', [b'*/jpeg', 'image/*'])
+        _assert_raises(AssertionError, 'image/jpeg', [1])
+        _assert_raises(AssertionError, 'image/jpeg', [1, 'image/jpeg'])
+        _assert_raises(ValueError, 'application', ['*a'])
+        _assert_raises(ValueError, 'application', ['a*'])
 
     def test_eval_magic_blob_returns_false_as_expected(self):
-        self.assertFalse(eval_magic_glob('image/jpeg', []))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['application/pdf']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['*/pdf']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['image/pdf']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['image/pdf',
-                                                        'application/jpeg']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['image/']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['/jpeg']))
-        self.assertFalse(eval_magic_glob('image/jpeg', ['*/pdf', '*/png']))
-        self.assertFalse(eval_magic_glob('image/jpeg',
-                                         ['*/pdf', '*/png', 'application/*']))
-        self.assertFalse(eval_magic_glob('image/png',
-                                         ['*/pdf', '*/jpg', 'application/*']))
-        self.assertFalse(eval_magic_glob('image/png',
-                                         ['*/pdf', '*/jpg', 'image/jpg']))
-        self.assertFalse(eval_magic_glob('application/epub+zip',
-                                         ['*/jpg']))
-        self.assertFalse(eval_magic_glob('application/epub+zip',
-                                         ['image/*']))
-        self.assertFalse(eval_magic_glob('application/epub+zip',
-                                         ['image/jpeg']))
+        self._aF('image/jpeg', [])
+        self._aF('image/jpeg', [''])
+        self._aF('image/jpeg', ['application/pdf'])
+        self._aF('image/jpeg', ['*/pdf'])
+        self._aF('image/jpeg', ['application/*'])
+        self._aF('image/jpeg', ['image/pdf'])
+        self._aF('image/jpeg', ['image/pdf', 'application/jpeg'])
+        self._aF('image/jpeg', ['image/'])
+        self._aF('image/jpeg', ['/jpeg'])
+        self._aF('image/jpeg', ['*/pdf', '*/png'])
+        self._aF('image/jpeg', ['*/pdf', '*/png', 'application/*'])
+        self._aF('image/png', ['*/pdf', '*/jpg', 'application/*'])
+        self._aF('image/png', ['*/pdf', '*/jpg', 'image/jpg'])
+        self._aF('application/epub+zip', ['*/jpg'])
+        self._aF('application/epub+zip', ['image/*'])
+        self._aF('application/epub+zip', ['image/jpeg'])
+        self._aF('application/epub+zip', 'video/*')
+        self._aF('application/epub+zip', ['video/*'])
+        self._aF('application/epub+zip', constants.MAGIC_TYPE_UNKNOWN)
 
     def test_eval_magic_blob_returns_true_as_expected(self):
-        self.assertTrue(eval_magic_glob('image/jpeg', ['*/*']))
-        self.assertTrue(eval_magic_glob('image/jpeg', ['*/jpeg']))
-        self.assertTrue(eval_magic_glob('image/jpeg', ['image/*']))
-        self.assertTrue(eval_magic_glob('image/png', ['image/*']))
-        self.assertTrue(eval_magic_glob('image/jpeg', ['image/jpeg']))
-        self.assertTrue(eval_magic_glob('image/jpeg', ['*/*', '*/jpeg']))
-        self.assertTrue(eval_magic_glob('image/jpeg', ['image/*', '*/jpeg']))
-        self.assertTrue(eval_magic_glob('image/png',
-                                        ['*/pdf', '*/png', 'application/*']))
-        self.assertTrue(eval_magic_glob('application/epub+zip',
-                                        ['application/epub+zip']))
-        self.assertTrue(eval_magic_glob('application/epub+zip',
-                                        ['application/*']))
-        self.assertTrue(eval_magic_glob('application/epub+zip',
-                                        ['*/epub+zip']))
+        self._aT('image/jpeg', '*/*')
+        self._aT('image/jpeg', ['*/*'])
+        self._aT('image/jpeg', '*/jpeg')
+        self._aT('image/jpeg', ['*/jpeg'])
+        self._aT('image/jpeg', ['image/*'])
+        self._aT('image/png', ['image/*'])
+        self._aT('image/jpeg', ['image/jpeg'])
+        self._aT('image/jpeg', ['*/*', '*/jpeg'])
+        self._aT('image/jpeg', ['image/*', '*/jpeg'])
+        self._aT('image/png', ['*/pdf', '*/png', 'application/*'])
+        self._aT('application/epub+zip', 'application/epub+zip')
+        self._aT('application/epub+zip', ['application/epub+zip'])
+        self._aT('application/epub+zip', ['application/*'])
+        self._aT('application/epub+zip', ['*/epub+zip'])
+
+
+class TestWhichExecutable(TestCase):
+    def test_returns_true_for_executable_commands(self):
+        self.assertTrue(util.is_executable('python'))
+
+    def test_returns_false_for_bogus_commands(self):
+        self.assertFalse(util.is_executable('thisisntexecutablesurely'))
+
+
+class TestContainsNone(TestCase):
+    def _assert_false(self, test_data):
+        actual = util.contains_none(test_data)
+        self.assertFalse(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def _assert_true(self, test_data):
+        actual = util.contains_none(test_data)
+        self.assertTrue(actual)
+        self.assertTrue(isinstance(actual, bool))
+
+    def test_returns_true_as_expected(self):
+        self._assert_true([])
+        self._assert_true([None])
+        self._assert_true([None, None])
+        self._assert_true(['', None])
+        self._assert_true([None, ''])
+        self._assert_true([None, '', None])
+        self._assert_true(['', None, ''])
+        self._assert_true([None, 'a'])
+        self._assert_true(['a', None])
+        self._assert_true([None, 'a', None])
+        self._assert_true(['a', None, 'a'])
+        self._assert_true(['a', None, ''])
+
+    def test_returns_false_as_expected(self):
+        self._assert_false([''])
+        self._assert_false([' '])
+        self._assert_false(['a', ''])
+        self._assert_false([' ', 'a'])
+        self._assert_false([' ', 'a', ''])
+
+
+class TestFilterNone(TestCase):
+    def _assert_filters(self, test_data, expected):
+        actual = util.filter_none(test_data)
+        self.assertTrue(isinstance(actual, list))
+        self.assertListEqual(actual, expected)
+        self.assertEqual(len(actual), len(expected))
+
+    def test_returns_list_without_none_values_as_is(self):
+        self._assert_filters(['a'], ['a'])
+        self._assert_filters(['a', 'b'], ['a', 'b'])
+        self._assert_filters(['a', 'b', 'c'], ['a', 'b', 'c'])
+
+    def test_removes_none_values_from_list(self):
+        self._assert_filters(['a', None], ['a'])
+        self._assert_filters([None, 'a'], ['a'])
+        self._assert_filters(['a', 'b'], ['a', 'b'])
+        self._assert_filters(['a', None, 'b'], ['a', 'b'])
+        self._assert_filters(['a', None, 'b', 'c'], ['a', 'b', 'c'])
+        self._assert_filters(['a', None, 'b', None, 'c'], ['a', 'b', 'c'])
+        self._assert_filters(['a', None, 'b', None, 'c', None], ['a', 'b', 'c'])

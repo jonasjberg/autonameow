@@ -19,12 +19,16 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import fnmatch
 import os
 import re
 import itertools
-import logging as log
+import logging
+import tempfile
 
 from core import util
+
+log = logging.getLogger(__name__)
 
 # Needed by 'sanitize_filename' for sanitizing filenames in restricted mode.
 ACCENT_CHARS = dict(zip('ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ',
@@ -106,24 +110,26 @@ def rename_file(source_path, new_basename):
         raise
 
 
-def split_filename(file_path):
+def split_basename(file_path):
     """
     Splits the basename of the specified path in two parts.
 
-    Does almost the same thing as "os.path.splitext", but handles "compound"
-    file extensions, such as "foo.tar.gz" differently.
+    Does almost the same thing as 'os.path.splitext', but handles "compound"
+    file extensions, such as 'foo.tar.gz' differently.
 
-      Input File Path:  "foo.tar"       Return Value:  ("foo", "tar")
-      Input File Path:  "foo.tar.gz"    Return Value:  ("foo", "tar.gz")
+      Input File Path:  'foo.tar'       Return Value:  ('foo', 'tar')
+      Input File Path:  'foo.tar.gz'    Return Value:  ('foo', 'tar.gz')
 
     Args:
-        file_path:
+        file_path: The path name to split as an "internal bytestring".
 
     Returns:
-
+        The basename of the given path split into two parts,
+            as a tuple of bytestrings.
     """
-    base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
+    assert(isinstance(file_path, bytes))
 
+    base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
     base = util.bytestring_path(base)
     ext = util.bytestring_path(ext)
 
@@ -140,27 +146,29 @@ def split_filename(file_path):
         return base, None
 
 
-def file_suffix(file_path, make_lowercase=True):
+def basename_suffix(file_path, make_lowercase=True):
     """
-    Returns the "suffix" or file extension, for a given file.
+    Returns the "suffix" or file extension of the basename, for a given file.
 
     The file path can be of any type, relative, absolute, etc.
-    Compound file extensions like "basename.tar.gz" will return the (suffix)
-    "tar.gz", not just the file extension "gz".
+
+    NOTE: On non-standard behaviour;
+    Compound file extensions like 'foo.tar.gz' will return the (full "suffix")
+    'tar.gz' and not just the conventional file extension 'gz'.
 
     Args:
-        file_path: Path from which to get the "suffix", I.E. the file
+        file_path: Path from which to get the full "suffix", I.E. the file
             extension part of the basename, with special treatment of
-            multiple file extensions, like "repo_backup.git.tar.lzma".
+            compound file extensions, like 'repo_backup.git.tar.lzma'.
 
         make_lowercase: Whether to convert the suffix to lower case before
             returning it. Defaults to True.
 
     Returns:
-        The "suffix" or compound file extension for the specified path,
-            as a string. None is returned if it is not found in the given path.
+        The "suffix" or compound file extension for the given path as a
+        "internal bytestring".  None is returned if it is not present.
     """
-    _, ext = split_filename(file_path)
+    _, ext = split_basename(file_path)
 
     if ext and make_lowercase:
         ext = ext.lower()
@@ -168,7 +176,7 @@ def file_suffix(file_path, make_lowercase=True):
     return ext
 
 
-def file_base(file_path):
+def basename_prefix(file_path):
     """
     Returns the basename _without_ any extension ("suffix"), for a given file.
 
@@ -182,9 +190,9 @@ def file_base(file_path):
 
     Returns:
         The basename of the specified path, without any extension ("suffix"),
-        as a string. None is returned if it is not found in the given path.
+        as a "internal bytestring".  None is returned if it is not present.
     """
-    base, _ = split_filename(file_path)
+    base, _ = split_basename(file_path)
     return base if base else None
 
 
@@ -261,11 +269,11 @@ def get_files(search_path, recurse=False):
         NOTE: Does not currently handle symlinks.
 
     Args:
-        search_path: The path from which to collect files.
+        search_path: The path to collect files from as an "internal bytestring".
         recurse: Whether to traverse the path recursively or not.
 
     Returns:
-        Absolute paths to files in the specified path, as a list of strings.
+        Absolute paths to files in the specified path, as a list of bytestrings.
     """
     # TODO: [TD0026] Follow symlinks? Add option for following symlinks?
     # NOTE(jonas): If one were to have "out" be a set instead of a list, some
@@ -282,15 +290,19 @@ def get_files(search_path, recurse=False):
     out = []
 
     def traverse(path):
-        if os.path.isfile(path):
+        assert(isinstance(path, bytes))
+
+        if os.path.isfile(util.syspath(path)):
             out.append(path)
 
-        elif os.path.isdir(path):
-            for entry in os.listdir(path):
-                entry_path = os.path.join(path, entry)
-                if os.path.isfile(entry_path):
+        elif os.path.isdir(util.syspath(path)):
+            for entry in os.listdir(util.syspath(path)):
+                entry_path = os.path.join(util.syspath(path),
+                                          util.syspath(entry))
+                entry_path = util.bytestring_path(entry_path)
+                if os.path.isfile(util.syspath(entry_path)):
                     out.append(entry_path)
-                elif recurse and os.path.isdir(entry_path):
+                elif recurse and os.path.isdir(util.syspath(entry_path)):
                     traverse(entry_path)
 
     traverse(search_path)
@@ -357,3 +369,50 @@ def compare_basenames(basename_one, basename_two):
         return True
     else:
         return False
+
+
+def filter_paths(path_list, ignore_globs):
+    if not ignore_globs:
+        return path_list
+
+    ignore_globs = [util.bytestring_path(i) for i in ignore_globs]
+
+    remain = []
+    for path in path_list:
+        skip = False
+        for pattern in ignore_globs:
+            if fnmatch.fnmatch(path, pattern):
+                skip = True
+                log.info(
+                    'Ignored path: "{!s}"'.format(util.displayable_path(path))
+                )
+                break
+        if skip:
+            continue
+
+        remain.append(path)
+
+    return remain
+
+
+def normpaths_from_opts(path_list, ignore_globs, recurse):
+    file_list = set()
+
+    for path in path_list:
+        if not path:
+            continue
+
+        # Path name encoding boundary. Convert to internal format.
+        path = util.normpath(path)
+        try:
+            found_files = get_files(path, recurse)
+        except FileNotFoundError:
+            log.error('File(s) not found: "{}"'.format(
+                util.displayable_path(path))
+            )
+        else:
+            for f in filter_paths(found_files, ignore_globs):
+                file_list.add(f)
+
+    return list(file_list)
+

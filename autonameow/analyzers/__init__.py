@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import inspect
+import logging
 import os
 import sys
 
@@ -32,6 +33,9 @@ from core import (
 # Analyzers are assumed to be located in the same directory as this file.
 AUTONAMEOW_ANALYZER_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_ANALYZER_PATH)
+
+
+log = logging.getLogger(__name__)
 
 
 class BaseAnalyzer(object):
@@ -47,15 +51,19 @@ class BaseAnalyzer(object):
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
     handles_mime_types = None
 
-    # Query string label for the data returned by this extractor.
+    # Resource identifier "MeowURI" for the data returned by this extractor.
     # Example:  'analysis.filesystem'
-    data_query_string = None
+    meowuri_root = None
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
         self.file_object = file_object
         self.add_results = add_results_callback
         self.request_data = request_data_callback
+
+        self.log = logging.getLogger(
+            '{!s}.{!s}'.format(__name__, self.__module__)
+        )
 
     def run(self):
         """
@@ -91,6 +99,32 @@ class BaseAnalyzer(object):
         else:
             raise NotImplementedError(field)
 
+    def _add_results(self, meowuri_leaf, data):
+        """
+        Used by analyzer classes to store results data in the repository.
+
+        Constructs a full "MeowURI" from the given 'meowuri_leaf' and the
+        extractor class attribute 'meowuri_root'.
+
+        Example:  The FilenameAnalyzer 'meowuri_root' is 'analysis.filename'.
+        If this analyzer calls this method with 'meowuri_leaf' = 'datetime',
+        'data' would be stored in the repository under the full "MeowURI":
+        'analysis.filename.datetime'
+
+        Args:
+            meowuri_leaf: Last part of the "MeowURI"; for example 'author',
+                as a Unicode str.
+            data: A list of dicts, each containing some data, source and weight.
+        """
+        if data is None:
+            return
+
+        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
+        self.log.debug(
+            '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
+        )
+        self.add_results(self.file_object, meowuri, data)
+
     @classmethod
     def can_handle(cls, file_object):
         """
@@ -114,9 +148,18 @@ class BaseAnalyzer(object):
         else:
             return False
 
-    # @classmethod
-    # def data_query_string(cls):
-    #     return cls.__name__.lower()
+    @classmethod
+    def check_dependencies(cls):
+        """
+        Tests if the analyzer can be used.
+
+        This should be used to test that any dependencies required by the
+        analyzer are met. This might be third party libraries or executables.
+
+        Returns:
+            True if the analyzer has everything it needs, else False.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):
         return self.__class__.__name__
@@ -178,45 +221,44 @@ def get_analyzer_classes():
     Returns:
         All available analyzer classes as a list of type.
     """
-    return _get_implemented_analyzer_classes(analyzer_source_files)
+    klasses = _get_implemented_analyzer_classes(analyzer_source_files)
+
+    out = []
+    for klass in klasses:
+        if klass.check_dependencies():
+            out.append(klass)
+        else:
+            log.warning('Excluding analyzer "{!s}" due to unmet '
+                        'dependencies'.format(klass))
+    return out
 
 
-def get_analyzer_classes_basename():
+def map_meowuri_to_analyzers():
     """
-    Get a list of class base names for all available analyzers.
-    All classes inheriting from the "Analyzer" class are included.
+    Returns a mapping of the analyzer classes "meowURIs" and classes.
 
-    Returns:
-        The base names of available analyzer classes as a list of strings.
-    """
-    return [c.__name__ for c in get_analyzer_classes()]
-
-
-def map_query_string_to_analyzers():
-    """
-    Returns a mapping of the analyzer classes "query strings" and classes.
-
-    Each analyzer class defines 'data_query_string' which is used as the
+    Each analyzer class defines 'meowuri_root' which is used as the
     first part of all data returned by the analyzer.
 
-    Returns: A dictionary where the keys are "query strings" and the values
+    Returns: A dictionary where the keys are "meowURIs" and the values
         are lists of analyzer classes.
     """
     out = {}
 
     for klass in AnalyzerClasses:
-        # data_query_string = klass.data_query_string()
-        data_query_string = klass.data_query_string
-        if not data_query_string:
+        meowuri_root = klass.meowuri_root
+        if not meowuri_root:
+            log.debug('Missing attribute "meowuri_root" for class'
+                      ' "{!s}"'.format(klass))
             continue
 
-        if data_query_string in out:
-            out[data_query_string].append(klass)
+        if meowuri_root in out:
+            out[meowuri_root].append(klass)
         else:
-            out[data_query_string] = [klass]
+            out[meowuri_root] = [klass]
 
     return out
 
 
 AnalyzerClasses = get_analyzer_classes()
-QueryStringClassMap = map_query_string_to_analyzers()
+MeowURIClassMap = map_meowuri_to_analyzers()

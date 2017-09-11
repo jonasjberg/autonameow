@@ -19,21 +19,22 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-from unittest import TestCase
+import unittest
 
-import PyPDF2
-
-import unit_utils as uu
 from core import util
-from extractors.text_pdf import (
-    PdfTextExtractor,
+from extractors.text import PdfTextExtractor
+from extractors.text.pdf import (
     extract_pdf_content_with_pdftotext,
     extract_pdf_content_with_pypdf
 )
+import unit_utils as uu
 
 
-class TestExtractPdfContentWithPdfTotext(TestCase):
+unmet_dependencies = PdfTextExtractor.check_dependencies() is False
+dependency_error = 'Extractor dependencies not satisfied'
+
+
+class TestExtractPdfContentWithPdfTotext(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -62,20 +63,13 @@ Test test. This file contains no digits whatsoever.
 '''
 
 
-class TestSetup(TestCase):
+class TestSetup(unittest.TestCase):
     def test_sample_pdf_file_exists(self):
-        self.assertTrue(os.path.isfile(pdf_file))
+        self.assertTrue(uu.file_exists(pdf_file))
 
 
-class TestPyPdf(TestCase):
-    def test_pypdf_is_available(self):
-        self.assertIsNotNone(PyPDF2)
-
-    def test_pypdf_pdf_file_reader_is_available(self):
-        self.assertIsNotNone(PyPDF2.PdfFileReader)
-
-
-class TestExtractPdfContentWithPyPdf(TestCase):
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestExtractPdfContentWithPyPdf(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -89,12 +83,12 @@ class TestExtractPdfContentWithPyPdf(TestCase):
                          expected_text)
 
 
-class TestPdfTextExtractor(TestCase):
+class TestPdfTextExtractor(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
-        self.e = PdfTextExtractor(test_file)
+        self.test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
+        self.e = PdfTextExtractor()
 
         class DummyFileObject(object):
             def __init__(self, mime):
@@ -177,26 +171,27 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
         self.assertIsNotNone(self.e)
 
     def test__get_raw_text_returns_something(self):
-        self.assertIsNotNone(self.e._get_raw_text())
+        self.assertIsNotNone(self.e._get_text(self.test_file))
 
     def test__get_raw_text_returns_expected_type(self):
-        self.assertEqual(type(self.e._get_raw_text()), str)
+        self.assertEqual(type(self.e._get_text(self.test_file)), str)
 
-    def test_method_query_returns_something(self):
-        self.assertIsNotNone(self.e.query())
+    def test_method_execute_returns_something(self):
+        self.assertIsNotNone(self.e.execute(self.test_file))
 
-    def test_method_query_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.query(), str))
+    def test_method_execute_returns_expected_type(self):
+        actual = self.e.execute(self.test_file)
+        self.assertTrue(isinstance(actual.value, str))
 
-    def test_method_query_all_result_contains_expected(self):
+    def test_method_execute_all_result_contains_expected(self):
         self.skipTest('Fix expected text encoding issue')
-        actual = self.e.query()
-        self.assertEqual(self.EXPECT_TEXT, actual)
+        actual = self.e.execute(self.test_file)
+        self.assertEqual(actual.value, self.EXPECT_TEXT)
 
-    def test_method_query_arbitrary_field_result_contains_expected(self):
+    def test_method_execute_arbitrary_field_result_contains_expected(self):
         self.skipTest('Fix expected text encoding issue')
-        actual = self.e.query('dummy_field')
-        self.assertEqual(self.EXPECT_TEXT, actual)
+        actual = self.e.execute(self.test_file, field='dummy_field')
+        self.assertEqual(actual.value, self.EXPECT_TEXT)
 
     def test_class_method_can_handle_is_defined(self):
         self.assertIsNotNone(self.e.can_handle)

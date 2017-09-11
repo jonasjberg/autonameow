@@ -20,18 +20,26 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from unittest import TestCase
+import unittest
 
-import unit_utils as uu
 from core import util
-from extractors.text_ocr import ImageOCRTextExtractor
+from extractors import ExtractorError
+from extractors.text import (
+    ImageOCRTextExtractor,
+    ocr
+)
+import unit_utils as uu
 
 
-class TestImageOCRTextExtractor(TestCase):
+unmet_dependencies = ImageOCRTextExtractor.check_dependencies() is False
+dependency_error = 'Extractor dependencies not satisfied'
+
+
+class TestImageOCRTextExtractor(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.e = ImageOCRTextExtractor(uu.make_temporary_file())
+        self.e = ImageOCRTextExtractor()
 
         class DummyFileObject(object):
             def __init__(self, mime):
@@ -47,11 +55,11 @@ class TestImageOCRTextExtractor(TestCase):
         self.assertFalse(self.e.can_handle(self.fo_pdf))
 
 
-class TestImageOCRTextExtractorWithEmptyFile(TestCase):
+class TestImageOCRTextExtractorWithEmptyFile(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.e = ImageOCRTextExtractor(uu.make_temporary_file())
+        self.e = ImageOCRTextExtractor()
 
     def test_extractor_class_is_available(self):
         self.assertIsNotNone(ImageOCRTextExtractor)
@@ -68,16 +76,16 @@ class TestImageOCRTextExtractorWithEmptyFile(TestCase):
 
 
 # NOTE(jonas): Use a shared instance to maintain test execution speed.
-image_file = util.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
-image_ocr_extractor = ImageOCRTextExtractor(image_file)
+TEST_IMAGE_FILE = util.normpath(
+    uu.abspath_testfile('2007-04-23_12-comments.png')
+)
+TEST_IMAGE_FILE_TEXT = 'Apr 23, 2007 - 12 Comments'
+image_ocr_extractor = ImageOCRTextExtractor()
 
 
-class TestImageOCRTextExtractorWithImageFile(TestCase):
+class TestImageOCRTextExtractorWithImageFile(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
-
-        self.EXPECT_TEXT = 'Apr 23, 2007 - 12 Comments'
-
         self.e = image_ocr_extractor
 
     def test_extractor_class_is_available(self):
@@ -86,20 +94,60 @@ class TestImageOCRTextExtractorWithImageFile(TestCase):
     def test_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
+    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test__get_raw_text_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e._get_raw_text(), str))
+        self.assertTrue(isinstance(self.e._get_text(TEST_IMAGE_FILE), str))
 
-    def test_method_query_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.query(), str))
+    @unittest.skipIf(unmet_dependencies, dependency_error)
+    def test_method_execute_returns_expected_type(self):
+        actual = self.e.execute(TEST_IMAGE_FILE)
+        self.assertTrue(isinstance(actual.value, str))
 
-    def test_method_query_all_result_contains_expected(self):
+    @unittest.skipIf(unmet_dependencies, dependency_error)
+    def test_method_execute_all_result_contains_expected(self):
         self.skipTest(
-            "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'")
-        actual = self.e.query()
-        self.assertEqual(self.EXPECT_TEXT, actual)
+            "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'"
+        )
+        actual = self.e.execute(TEST_IMAGE_FILE)
+        self.assertEqual(actual.value, TEST_IMAGE_FILE_TEXT)
 
-    def test_method_query_arbitrary_field_result_contains_expected(self):
+    @unittest.skipIf(unmet_dependencies, dependency_error)
+    def test_method_execute_arbitrary_field_result_contains_expected(self):
         self.skipTest(
-            "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'")
-        actual = self.e.query('dummy_field')
-        self.assertEqual(self.EXPECT_TEXT, actual)
+            "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'"
+        )
+        actual = self.e.execute(TEST_IMAGE_FILE, field='dummy_field')
+        self.assertEqual(actual.value, TEST_IMAGE_FILE_TEXT)
+
+
+class TestTesseractWrapper(unittest.TestCase):
+    TEST_FILE = uu.abspath_testfile('2007-04-23_12-comments.png')
+
+    def test_pil_read_image_returns_pil_image_for_valid_images(self):
+        import PIL
+
+        # Tests both Unicode or bytestring file names, even though the
+        # intended primary caller 'ImageOCRTextExtractor' uses bytestrings.
+        for _image_file in [self.TEST_FILE,
+                            util.normpath(self.TEST_FILE)]:
+            actual = ocr.pil_read_image(_image_file)
+            self.assertTrue(isinstance(actual, PIL.Image.Image))
+
+    def test_pil_read_image_raises_expected_exception_for_invalid_images(self):
+        _test_files = [
+            '/foo/bar/baz',
+            '',
+            ' ',
+            uu.abspath_testfile('empty'),
+            uu.abspath_testfile('magic_txt.txt')
+        ]
+        for _test_file in _test_files:
+            with self.assertRaises(ExtractorError):
+                actual = ocr.pil_read_image(_test_file)
+
+
+            #def test_pil_read_image_raises_exception_for_invalid_images(self):
+        #_test_inputs = [
+        #    image_file = util.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
+        #]
+        #actual = ocr.pil_read_image(image_file)

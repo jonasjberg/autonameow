@@ -23,81 +23,29 @@ from unittest import TestCase
 import unit_utils as uu
 
 import analyzers
-from core import (
-    analysis,
-    constants
-)
+from core import analysis
 
 
 class TestAnalysis(TestCase):
     def setUp(self):
-        def dummy_collect_data(file_object, label, data):
-            pass
+        self.fo = uu.get_mock_fileobject()
 
-        def dummy_request_data(file_object, label):
-            pass
-
-        self.a = analysis.Analysis(uu.get_mock_fileobject())
-
-    def test_analysis_is_defined(self):
-        self.assertIsNotNone(analysis.Analysis)
-
-    def test_analysis_requires_file_object_argument(self):
+    def test_analysis_start_requires_file_object_argument(self):
         with self.assertRaises(TypeError):
-            a = analysis.Analysis(None)
-            a = analysis.Analysis('  ')
-
-    def test_analysis_start_method_exists(self):
-        self.assertIsNotNone(self.a.start)
-
-    def test_has_method__instantiate_analyzers(self):
-        self.assertIsNotNone(self.a._instantiate_analyzers)
+            analysis.start(None)
 
     def test__instantiate_analyzers_returns_expected_type(self):
         analyzer_classes = analyzers.get_analyzer_classes()
-        actual = self.a._instantiate_analyzers(analyzer_classes)
+        actual = analysis._instantiate_analyzers(self.fo, analyzer_classes)
 
         self.assertTrue(isinstance(actual, list))
         for ac in actual:
             self.assertTrue(uu.is_class_instance(ac))
             self.assertTrue(issubclass(ac.__class__, analyzers.BaseAnalyzer))
 
-    def test_initial_results_data_len_is_zero(self):
-        self.skipTest('TODO: Fix or remove result count tally.')
-        self.assertEqual(len(self.a.results), 0)
-
     def test_collects_valid_results(self):
-        self.a.collect_results('contents.mime_type', 'image/jpeg')
-
-    def test_collecting_valid_results_increments_results_len(self):
-        self.skipTest('TODO: Fix or remove result count tally.')
-        self.a.collect_results('contents.mime_type', 'image/jpeg')
-        self.assertEqual(len(self.a.results), 1)
-        self.a.collect_results('filesystem.basename.extension', 'jpg')
-        self.assertEqual(len(self.a.results), 2)
-
-    def test_collecting_results_with_empty_data_does_not_increment_len(self):
-        self.skipTest('TODO: Fix or remove result count tally.')
-        self.a.collect_results('contents.mime_type', '')
-        self.assertEqual(len(self.a.results), 0)
-        self.a.collect_results('filesystem.basename.extension', '')
-        self.assertEqual(len(self.a.results), 0)
-
-    def test_analysis__populate_run_queue_method_exists(self):
-        self.assertIsNotNone(self.a._populate_run_queue)
-
-    def test_analysis__populate_run_queue_populates_queue(self):
-        self.assertEqual(len(self.a.analyzer_queue), 0)
-        self.a._populate_run_queue()
-        self.assertEqual(len(self.a.analyzer_queue), 2)
-
-    def test_analysis__execute_run_queue_method_exists(self):
-        self.assertIsNotNone(self.a._execute_run_queue)
-
-    def test_analysis__execute_run_queue_increases_number_of_results(self):
-        self.skipTest('TODO: Fix or remove result count tally.')
-        _results_len = len(self.a.results)
-        self.assertEqual(_results_len, 0)
+        analysis.collect_results(self.fo, 'filesystem.contents.mime_type',
+                                 'image/jpeg')
 
 
 class TestAnalysisRunQueue(TestCase):

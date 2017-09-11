@@ -29,7 +29,8 @@ Execute autonameow by running either one of;
 """
 
 import sys
-from core.autonameow import Autonameow
+
+from core.main import Autonameow
 
 if __package__ is None and not hasattr(sys, 'frozen'):
     # It is a direct call to __main__.py

@@ -19,30 +19,39 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import subprocess
 
-import PyPDF2
-from PyPDF2.utils import (
-    PyPdfError,
-    PdfReadError
+from core.util import textutils
+
+try:
+    import PyPDF2
+    from PyPDF2.utils import (
+        PyPdfError,
+        PdfReadError
+    )
+except ImportError:
+    PyPDF2 = None
+
+from core import util
+from extractors import ExtractorError
+from extractors.text.common import (
+    AbstractTextExtractor,
+    decode_raw,
+    normalize_unicode
 )
 
-from core import (
-    util,
-    exceptions
-)
-from extractors.text import AbstractTextExtractor
+log = logging.getLogger(__name__)
 
 
 class PdfTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['application/pdf']
-    data_query_string = 'contents.textual.raw_text'
+    meowuri_root = 'contents.textual.raw_text'
 
-    def __init__(self, source):
-        super(PdfTextExtractor, self).__init__(source)
+    def __init__(self):
+        super(PdfTextExtractor, self).__init__()
 
-    def _get_raw_text(self):
+    def _get_text(self, source):
         """
         Extracts the plain text contents of a PDF document.
 
@@ -55,27 +64,30 @@ class PdfTextExtractor(AbstractTextExtractor):
         text_extractors = [extract_pdf_content_with_pdftotext,
                            extract_pdf_content_with_pypdf]
         for i, extractor in enumerate(text_extractors):
-            log.debug('Running PDF text extractor {}/{}: '
-                      '{!s}'.format(i + 1, len(text_extractors), extractor))
+            self.log.debug('Running PDF text extractor {}/{}: {!s}'.format(
+                    i + 1, len(text_extractors), extractor
+            ))
             try:
-                text = extractor(self.source)
-            except exceptions.ExtractorError as e:
-                log.error('Error while extracting PDF content with "{!s}":'
-                          ' "{!s}"'.format(extractor, e))
+                text = extractor(source)
+            except ExtractorError as e:
+                self.log.error('Error while extracting PDF content with '
+                               '"{!s}": "{!s}"'.format(extractor, e))
                 continue
 
             if text and len(text) > 1:
-                log.debug('Extracted text with: {}'.format(extractor.__name__))
-
-                # TODO: [TD0044] Fix up post-processing extracted text.
-                # text = textutils.sanitize_text(text)
                 break
 
         if text:
+            self.log.debug('Extracted text with: {}'.format(extractor.__name__))
             return text
         else:
-            log.debug('Unable to extract textual content from PDF')
+            self.log.debug('Unable to extract textual content from PDF')
             return ''
+
+    @classmethod
+    def check_dependencies(cls):
+        pdftotext_available = util.is_executable('pdftotext')
+        return pdftotext_available or PyPDF2 is not None
 
 
 def extract_pdf_content_with_pdftotext(pdf_file):
@@ -94,18 +106,20 @@ def extract_pdf_content_with_pdftotext(pdf_file):
         )
         stdout, stderr = process.communicate()
     except (OSError, ValueError, subprocess.SubprocessError) as e:
-        raise exceptions.ExtractorError(e)
+        raise ExtractorError(e)
 
     if process.returncode != 0:
-        raise exceptions.ExtractorError(
+        raise ExtractorError(
             'pdftotext returned {!s} with STDERR: "{!s}"'.format(
                 process.returncode, stderr)
         )
 
-    content = util.decode_(stdout)
-    if content:
-        assert(isinstance(content, str))
-        return content
+    text = decode_raw(stdout)
+    text = normalize_unicode(text)
+    text = textutils.remove_nonbreaking_spaces(text)
+    if text:
+        assert(isinstance(text, str))
+        return text
     else:
         return ''
 
@@ -122,7 +136,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
     try:
         file_reader = PyPDF2.PdfFileReader(util.decode_(pdf_file), 'rb')
     except (OSError, PyPdfError, UnicodeDecodeError) as e:
-        raise exceptions.ExtractorError(e)
+        raise ExtractorError(e)
 
     try:
         num_pages = file_reader.getNumPages()
@@ -131,9 +145,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
         #       Possible to not getNumPages but still be able to read the text?
         log.warning('PDF document might be encrypted and/or has restrictions'
                     ' that prevent reading')
-        raise exceptions.ExtractorError(
-            'PyPDF2.PdfReadError: "{!s}"'.format(e)
-        )
+        raise ExtractorError('PyPDF2.PdfReadError: "{!s}"'.format(e))
 
     # NOTE(jonas): From the PyPDF2 documentation:
     # https://pythonhosted.org/PyPDF2/PageObject.html#PyPDF2.pdf.PageObject

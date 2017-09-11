@@ -5,7 +5,7 @@ DATETIME_FORMAT:
 FILETAGS_OPTIONS:
     between_tag_separator: ' '
     filename_tag_separator: ' -- '
-FILE_RULES:
+RULES:
 NAME_TEMPLATES:
     default_book: '{publisher} {title} {edition} - {author} {date}.{extension}'
     default_document: '{title} - {author} {datetime}.{extension}'

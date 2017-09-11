@@ -10,6 +10,100 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-08-25
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0080]` __Fix literal strings not considered a valid "data source".__  
+    >   It is currently not possible to specify a fixed literal value for a name
+    >   template field. Take the following example rule;
+    >
+    >     ```yaml
+    > 	-   CONDITIONS:
+    >             filesystem.basename.full: 'P[0-9]{7}.JPG'
+    >             filesystem.contents.mime_type: image/jpeg
+    >         DATA_SOURCES:
+    >             datetime: metadata.exiftool.EXIF:DateTimeOriginal
+    >             extension: jpg
+    >         NAME_FORMAT: '{datetime}.{extension}'
+    >     ```
+    >
+    >   This rule will not pass validation because the literal string `jpg` is
+    >   discarded by the `is_valid_source` function in `core/config/rules.py`;
+    >
+    > 	```
+    > 	$ autonameow --debug --dry-run --automagic P1020738.JPG 2>&1 | grep -i invalid
+    > 	[DEBUG] parse_data_sources (549) Invalid data source: [extension]: jpg
+    > 	```
+    >
+    >   __Related:__ `[TD0015][TD0017][TD0049]`
+
+* 2017-08-23
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0076]` __Have all non-core components register themselves at startup.__  
+    >   A lot of the problems with implementing a plugin-interface, handling queries
+    >   from components to a centralized "data pool", only running the required
+    >   plugins/extractors/analyzers for performance, etc; might possibly be solved
+    >   by implementing a more sophisticated method of keeping track of available
+    >   components.
+    >     * Enumerate all available extractors, analyzers and plugins at startup.
+    >         * Check that dependencies are available; external executables, etc.
+    >         * Have the components "register" their "meowURIs". If the component
+    >           could return data with "meowURI"
+    >           `metadata.exiftool.PDF:CreateDate`, register the first part:
+    >           `metadata.exiftool`.
+    >     * Read the configuration file and get a list of all referenced "meowURIs".
+    >     * Find out which components could produce the referenced "meowURIs" and
+    >       use this information to selectively run only components that are
+    >       required.
+    >
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0056]` __Determine which extractors should be used for each input.__  
+    >   In order to add conditional data extraction, a list of relevant extractors
+    >   must be produced for each input path that will be processed. This should
+    >   probably be collected during configuration parsing and rule matching; if a
+    >   rule needs some information to be evaluated, the relevant extractor must
+    >   be enqueued and executed.
+    >
+    > * `[TD0057]` __Look at the optional `field` parameter of the `query` method.__  
+    >   The extractor classes `query` method takes an optional parameter `field` that
+    >   seems to be unused. Some classes, like the text extractors will probably not
+    >   return anything but text. Look into possibly removing the optional argument
+    >   or rework how the extractor classes are queried.
+
+* 2017-08-22
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0071]` Move file name "sanitation" to the `NameBuilder` or elsewhere.
+    >
+    > * `[TD0078]` Check extractor dependencies when enumerating extractor classes.
+
+
+* 2017-08-21
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0079]` __Refactor validation of `Rule` data.__  
+    >   Probably more sense to perform validation of the data used to construct
+    >   `Rule` instances in the `Rule` class instead of scattered around
+    >   functions in the `configuration` module and the `Configuration` class.
+
+* 2017-08-17
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0063]` Fix crash when a data source is mapped but data itself is missing.
+
 * 2017-08-17
 
     > High Priority

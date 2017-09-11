@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
 import re
 from datetime import datetime
 
@@ -30,7 +29,7 @@ from core.util import dateandtime
 class ImageAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     handles_mime_types = ['image/*']
-    data_query_string = 'analysis.image'
+    meowuri_root = 'analysis.image'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -39,19 +38,9 @@ class ImageAnalyzer(BaseAnalyzer):
         )
 
         self.exiftool = None
-        self.exif_data = None
         self.ocr_text = None
 
-    def _add_results(self, label, data):
-        query_string = 'analysis.image_analyzer.{}'.format(label)
-        log.debug('{} passed "{}" to "add_results" callback'.format(
-            self, query_string)
-        )
-        self.add_results(query_string, data)
-
     def run(self):
-        self.exif_data = self.request_data(self.file_object,
-                                           'metadata.exiftool')
         self.ocr_text = self.request_data(self.file_object,
                                           'contents.visual.ocr_text')
 
@@ -66,17 +55,17 @@ class ImageAnalyzer(BaseAnalyzer):
         self._add_results('publisher', self.get_publisher())
 
     def get_datetime(self):
-        result = []
+        results = []
         exif_timestamps = self._get_exif_datetime()
         if exif_timestamps:
-            result += exif_timestamps
+            results += exif_timestamps
 
         # TODO: Fix this here below.
         ocr_timestamps = self._get_ocr_datetime()
         if ocr_timestamps:
-            result += ocr_timestamps
+            results += ocr_timestamps
 
-        return result
+        return results if results else None
 
     def get_author(self):
         pass
@@ -90,6 +79,10 @@ class ImageAnalyzer(BaseAnalyzer):
     def get_publisher(self):
         pass
 
+    def _request_exiftool_metadata(self, field):
+        return self.request_data(self.file_object,
+                                 'metadata.exiftool.{}'.format(field))
+
     def _get_exif_datetime(self):
         """
         Extracts date and time information from the EXIF data.
@@ -102,9 +95,6 @@ class ImageAnalyzer(BaseAnalyzer):
                      'weight'  : 1
                    }, .. ]
         """
-        if not self.exif_data:
-            return None
-
         # TODO: Recheck the weights. Should they even be defined here?
         DATE_TAG_FIELDS = [['EXIF:DateTimeOriginal', 1],
                            ['EXIF:DateTimeDigitized', 1],
@@ -113,9 +103,9 @@ class ImageAnalyzer(BaseAnalyzer):
                            ['EXIF:ModifyDate', 0.5],
                            ['EXIF:DateTime', 0.75]]
         results = []
-        log.debug('Extracting date/time-information from EXIF-tags')
+        self.log.debug('Extracting date/time-information from EXIF-tags')
         for field, weight in DATE_TAG_FIELDS:
-            dtstr = self.exif_data.get(field, None)
+            dtstr = self._request_exiftool_metadata(field)
             if not dtstr:
                 continue
 
@@ -126,25 +116,25 @@ class ImageAnalyzer(BaseAnalyzer):
             try:
                 re_match = date_pattern.search(dtstr)
             except TypeError:
-                log.debug('TypeError while matching: "{!s}"'.format(dtstr))
+                self.log.debug('TypeError while matching: "{!s}"'.format(dtstr))
             else:
                 datetime_str = re_match.group(1)
                 try:
                     dt = datetime.strptime(datetime_str, '%Y:%m:%d %H:%M:%S')
                 except ValueError:
-                    log.debug('Unable to parse datetime: "{!s}"'.format(field))
+                    self.log.debug(
+                        'Unable to parse datetime: "{!s}"'.format(field)
+                    )
             if dt:
                 results.append({'value': dt,
                                 'source': field,
                                 'weight': weight})
 
-        log.debug('Searching for GPS date/time-information in EXIF-tags')
-        try:
-            gps_date = self.exif_data['GPSDateStamp']
-            gps_time = self.exif_data['GPSTimeStamp']
-        except KeyError:
-            pass
-        else:
+        self.log.debug('Searching for GPS date/time-information in EXIF-tags')
+        gps_date = self._request_exiftool_metadata('GPSDateStamp')
+        gps_time = self._request_exiftool_metadata('GPSTimeStamp')
+
+        if gps_date and gps_time:
             dt = None
             gps_time_str = ''
             for toup in gps_time:
@@ -154,8 +144,8 @@ class ImageAnalyzer(BaseAnalyzer):
             try:
                 dt = datetime.strptime(gps_datetime_str, '%Y:%m:%d%H%M%S')
             except ValueError:
-                log.debug('Unable to parse GPS datetime from: '
-                          '"{!s}"'.format(gps_datetime_str))
+                self.log.debug('Unable to parse GPS datetime from: '
+                               '"{!s}"'.format(gps_datetime_str))
             if dt:
                 results.append({'value': dt,
                                 'source': 'gpsdatetime',
@@ -163,8 +153,9 @@ class ImageAnalyzer(BaseAnalyzer):
 
         # Remove erroneous date value produced by "OnePlus X" as of 2016-04-13.
         # https://forums.oneplus.net/threads/2002-12-08-exif-date-problem.104599/
-        if (self.exif_data.get('Make') == 'OnePlus' and
-                self.exif_data.get('Model') == 'ONE E1003'):
+        device_make = self._request_exiftool_metadata('Make')
+        device_model = self._request_exiftool_metadata('Model')
+        if device_make == 'OnePlus' and device_model == 'ONE E1003':
             bad_exif_date = datetime.strptime('20021208_120000',
                                               '%Y%m%d_%H%M%S')
             try:
@@ -192,7 +183,7 @@ class ImageAnalyzer(BaseAnalyzer):
                    }, .. ]
         """
         if not self.ocr_text:
-            log.debug('Found no date/time-information in OCR text.')
+            self.log.debug('Found no date/time-information in OCR text.')
             return None
 
         results = []
@@ -208,7 +199,7 @@ class ImageAnalyzer(BaseAnalyzer):
                                 'weight': 0.25})
 
         text_split = text.split('\n')
-        log.debug('Try getting datetime from text split by newlines')
+        self.log.debug('Try getting datetime from text split by newlines')
         for t in text_split:
             dt_brute = dateandtime.bruteforce_str(t)
             if dt_brute:
@@ -224,7 +215,11 @@ class ImageAnalyzer(BaseAnalyzer):
                                 'weight': 0.25})
 
         if not results:
-            log.debug('Found no date/time-information in OCR text.')
+            self.log.debug('Found no date/time-information in OCR text.')
             return None
         else:
             return results
+
+    @classmethod
+    def check_dependencies(cls):
+        return True

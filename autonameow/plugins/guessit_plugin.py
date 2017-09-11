@@ -19,92 +19,150 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 from core import (
     exceptions,
     types,
-    util
+    util,
+    fields
 )
+from extractors import ExtractedData
 from plugins import BasePlugin
 
 try:
     import guessit as guessit
 except ImportError:
-    guessit = False
+    guessit = None
+
+
+log = logging.getLogger(__name__)
 
 
 class GuessitPlugin(BasePlugin):
-    data_query_string = 'plugin.guessit'
+    meowuri_root = 'plugin.guessit'
+    DISPLAY_NAME = 'Guessit'
 
-    def __init__(self, add_results_callback, request_data_callback,
-                 display_name=None):
-        super(GuessitPlugin, self).__init__(
-            add_results_callback, request_data_callback, display_name='Guessit'
+    tagname_type_lookup = {
+        'date': ExtractedData(
+            wrapper=types.AW_TIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
+            ]
+        ),
+        'title': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.title, probability=1),
+            ]
+        ),
+        'release_group': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.publisher, probability=0.1),
+                fields.WeightedMapping(fields.description, probability=0.001),
+            ]
+        ),
+    }
+
+    def __init__(self):
+        super(GuessitPlugin, self).__init__(self.DISPLAY_NAME)
+
+    def can_handle(self, file_object):
+        _mime_type = self.request_data(file_object,
+                                       'filesystem.contents.mime_type')
+        return util.eval_magic_glob(_mime_type, 'video/*')
+
+    def execute(self, file_object):
+        _file_basename = self.request_data(file_object, 'filesystem.basename.full')
+        if _file_basename is None:
+            raise exceptions.AutonameowPluginError('Required data unavailable')
+
+        data = run_guessit(_file_basename)
+        if not data:
+            raise exceptions.AutonameowPluginError('TODO: ..')
+
+        def _to_internal_format(raw_data):
+            for tag_name, value in raw_data.items():
+                if tag_name in self.tagname_type_lookup:
+                    # Found a "template" 'Item' class.
+                    wrapper = self.tagname_type_lookup[tag_name]
+                else:
+                    # Use a default 'Item' class.
+                    wrapper = ExtractedData(wrapper=None, mapped_fields=None)
+
+                item = wrapper(value)
+                if item:
+                    self._add_results(file_object, tag_name, item)
+
+        def _wrap_and_add_result(raw_data, raw_key, wrapper_type, result_key):
+            raw_value = raw_data.get(raw_key)
+            if not raw_value:
+                return
+
+            try:
+                wrapped = wrapper_type(raw_value)
+            except types.AWTypeError as e:
+                pass
+            else:
+                if wrapped is not None:
+                    self._add_results(file_object, result_key, wrapped)
+
+        # self._wrap_and_add_result('date', types.AW_TIMEDATE, 'date')
+        # self._wrap_and_add_result('title', types.AW_STRING, 'title')
+        # self._wrap_and_add_result('release_group', types.AW_STRING, 'publisher')
+        _to_internal_format(data)
+
+        _wrap_and_add_result(data, 'audio_codec', types.AW_STRING, 'tags')
+        _wrap_and_add_result(data, 'video_codec', types.AW_STRING, 'tags')
+        _wrap_and_add_result(data, 'format', types.AW_STRING, 'tags')
+        _wrap_and_add_result(data, 'screen_size', types.AW_STRING, 'tags')
+        _wrap_and_add_result(data, 'type', types.AW_STRING, 'tags')
+        _wrap_and_add_result(data, 'episode', types.AW_INTEGER, 'episode_number')
+        _wrap_and_add_result(data, 'season', types.AW_INTEGER, 'season_number')
+        _wrap_and_add_result(
+            data,
+            'year',
+            ExtractedData(
+                wrapper=types.AW_DATE,
+                mapped_fields=[
+                    fields.WeightedMapping(fields.datetime, probability=1),
+                    fields.WeightedMapping(fields.date, probability=1)
+                ]),
+            'date'
         )
 
-        self.guessit_results = {}
+    def _add_results(self, file_object, meowuri_leaf, data):
+        if data is None:
+            return
+
+        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
+        #log.debug(
+        #    '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
+        #)
+        self.add_results(file_object, meowuri, data)
 
     @classmethod
     def test_init(cls):
-        return guessit is not False
-
-    def run(self):
-        if not self.guessit_results:
-            # TODO: Pass input data (basename of current file) to guessit ..
-            self.guessit_results = self._perform_initial_query()
-
-        if not self.guessit_results:
-            raise exceptions.AutonameowPluginError('TODO: ..')
-        else:
-            self._wrap_and_add_result('date', types.AW_TIMEDATE, 'date')
-            self._wrap_and_add_result('title', types.AW_STRING, 'title')
-            self._wrap_and_add_result('release_group', types.AW_STRING,
-                                      'publisher')
-            self._wrap_and_add_result('audio_codec', types.AW_STRING, 'tags')
-            self._wrap_and_add_result('video_codec', types.AW_STRING, 'tags')
-            self._wrap_and_add_result('format', types.AW_STRING, 'tags')
-            self._wrap_and_add_result('screen_size', types.AW_STRING, 'tags')
-            self._wrap_and_add_result('type', types.AW_STRING, 'tags')
-            self._wrap_and_add_result('episode', types.AW_INTEGER,
-                                      'episode_number')
-            self._wrap_and_add_result('season', types.AW_INTEGER,
-                                      'season_number')
-
-    def _wrap_and_add_result(self, raw_key, wrapper_type, result_key):
-        if raw_key in self.guessit_results:
-            wrapped = wrapper_type(self.guessit_results[raw_key])
-            if wrapped is not None:
-                self._add_results(result_key, wrapped)
-
-    def _add_results(self, label, data):
-        query_string = 'plugin.guessit.{}'.format(label)
-        # log.debug('{} passed "{}" to "add_results" callback'.format(
-        #     self, query_string)
-        # )
-        self.add_results(query_string, data)
-
-    def can_handle(self):
-        _mime_type = self.request_data('filesystem.contents.mime_type')
-        return util.eval_magic_glob(_mime_type, 'video/*')
-
-    def _perform_initial_query(self):
-        _file_basename = self.request_data('filesystem.basename.full')
-        if not _file_basename:
-            raise exceptions.AutonameowPluginError('Required data unavailable')
-
-        results = run_guessit(_file_basename)
-        return results
+        return guessit is not None
 
 
 def run_guessit(input_data, options=None):
+    if not guessit:
+        return
+
     if options:
         guessit_options = options
     else:
         guessit_options = {'no-embedded-config': True, 'name_only': True}
 
-    if guessit:
-        try:
-            result = guessit.guessit(input_data, guessit_options)
-        except guessit.api.GuessitException as e:
-            raise exceptions.AutonameowPluginError(e)
-        else:
-            return result
+    logging.disable(logging.DEBUG)
+    try:
+        result = guessit.guessit(input_data, guessit_options)
+    except (guessit.api.GuessitException, Exception) as e:
+        logging.disable(logging.NOTSET)
+        raise exceptions.AutonameowPluginError(e)
+    else:
+        logging.disable(logging.NOTSET)
+        return result

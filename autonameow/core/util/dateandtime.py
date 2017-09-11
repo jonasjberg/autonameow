@@ -19,17 +19,23 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import dateutil
-import logging as log
+import logging
 import re
 import string
-from datetime import datetime, timedelta
+from datetime import datetime
 
+import dateutil
 import pytz
 from dateutil import parser
 
-from core import util
+from core import (
+    constants,
+    util
+)
 from core.util import textutils
+
+
+log = logging.getLogger(__name__)
 
 
 def hyphenate_date(date_str):
@@ -42,21 +48,6 @@ def hyphenate_date(date_str):
         return '-'.join(match.groups())
     else:
         return date_str
-
-
-def nextyear(dt):
-    # http://stackoverflow.com/a/11206511
-    try:
-        return dt.replace(year=dt.year+1)
-    except ValueError:
-        # February 29th in a leap year
-        # Add 365 days instead to arrive at March 1st
-        return dt + timedelta(days=365)
-
-
-# TODO: [TD0043] Allow storing these in the configuration file.
-YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
-YEAR_UPPER_LIMIT = nextyear(datetime.today())
 
 
 def _year_is_probable(year):
@@ -92,14 +83,14 @@ def _year_is_probable(year):
             year = util.decode_(year)
         try:
             year = datetime.strptime(str(year), '%Y')
-        except TypeError:
+        except (ValueError, TypeError):
             log.warning('Failed converting "{}" '
                         'to datetime-object.'.format(year))
             return False
 
-    if year.year > YEAR_UPPER_LIMIT.year:
+    if year.year > constants.YEAR_UPPER_LIMIT.year:
         return False
-    elif year.year < YEAR_LOWER_LIMIT.year:
+    elif year.year < constants.YEAR_LOWER_LIMIT.year:
         return False
     else:
         # Year lies within window, assume it is OK.
@@ -122,9 +113,9 @@ def date_is_probable(date):
                     '(expected datetime)'.format(type(date)))
         return False
 
-    if date.year > YEAR_UPPER_LIMIT.year:
+    if date.year > constants.YEAR_UPPER_LIMIT.year:
         return False
-    elif date.year < YEAR_LOWER_LIMIT.year:
+    elif date.year < constants.YEAR_LOWER_LIMIT.year:
         return False
     else:
         # Date lies within window, assume it is OK.
@@ -192,7 +183,7 @@ def regex_search_str(text):
             dt_str = (m_date + '_' + m_time).strip()
             try:
                 dt = datetime.strptime(dt_str, dt_fmt_1)
-            except ValueError:
+            except (TypeError, ValueError):
                 pass
             else:
                 if date_is_probable(dt):
@@ -208,7 +199,7 @@ def regex_search_str(text):
         dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_2)
-        except ValueError:
+        except (TypeError, ValueError):
             pass
         else:
             if date_is_probable(dt):
@@ -224,7 +215,7 @@ def regex_search_str(text):
         dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_3)
-        except ValueError:
+        except (TypeError, ValueError):
             pass
         else:
             if date_is_probable(dt):
@@ -259,7 +250,7 @@ def match_special_case(text):
     for mp, chars in match_patterns:
         try:
             dt = datetime.strptime(text[:chars], mp)
-        except ValueError:
+        except (TypeError, ValueError):
             log.debug('Failed matching very special case.')
         else:
             if date_is_probable(dt):
@@ -280,7 +271,7 @@ def match_special_case_no_date(text):
     text = util.decode_(text)
     try:
         dt = datetime.strptime(text[:10], '%Y-%m-%d')
-    except ValueError:
+    except (TypeError, ValueError):
         log.debug('Failed matching date only version of very special case.')
     else:
         if date_is_probable(dt):
@@ -473,7 +464,7 @@ def bruteforce_str(text, return_first_match=False):
         tries_total += 1
         try:
             dt = datetime.strptime(text_strip, fmt)
-        except ValueError:
+        except (TypeError, ValueError):
             pass
         else:
             # TODO: [TD0010] Include number of tries in the result to act as a
@@ -523,7 +514,7 @@ def bruteforce_str(text, return_first_match=False):
             tries_total += 1
             try:
                 dt = datetime.strptime(digits_strip, fmt)
-            except ValueError:
+            except (TypeError, ValueError):
                 pass
             else:
                 # TODO: Include number of tries in the result as a weight.
@@ -555,7 +546,7 @@ def bruteforce_str(text, return_first_match=False):
                 tries_total += 1
                 try:
                     dt = datetime.strptime(digits_strip, fmt)
-                except ValueError:
+                except (TypeError, ValueError):
                     pass
                 else:
                     # TODO: [BL002] Include number of tries in the result to
@@ -689,7 +680,7 @@ def special_datetime_ocr_search(text):
     for dt_str in re.findall(pattern, text):
         try:
             dt = datetime.strptime(dt_str, dt_fmt)
-        except ValueError:
+        except (TypeError, ValueError):
             pass
         else:
             if date_is_probable(dt):
@@ -737,7 +728,7 @@ def to_datetime(datetime_string):
         datetime_string = datetime_string.replace('+02:00', '')
 
     REGEX_FORMAT_MAP = [(r'^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$',
-                         '%Y:%m:%d %H:%M:%S'), # '2010:01:31 16:12:51'
+                         '%Y:%m:%d %H:%M:%S'),  # '2010:01:31 16:12:51'
                         ]
 
     for regex_pattern, datetime_format in REGEX_FORMAT_MAP:

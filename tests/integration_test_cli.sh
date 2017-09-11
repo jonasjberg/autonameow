@@ -149,16 +149,16 @@ assert_true '[ -e "$SAMPLE_JPG_FILE" ]' \
             "Sample file \"${SAMPLE_JPG_FILE}\" exists. Substitute a suitable sample file if this test fails!"
 
 set +o pipefail
-assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -- "Using file rule: \"test_files Gmail print-to-pdf\""' \
+assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -- "Using rule: \"test_files Gmail print-to-pdf\""' \
             "[TC014] autonameow should choose file rule \"test_files Gmail print-to-pdf\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 
-assert_false '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>&1 | grep -- "Using file rule: \"test_files Gmail print-to-pdf\""' \
+assert_false '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>&1 | grep -- "Using rule: \"test_files Gmail print-to-pdf\""' \
              "[TC014] autonameow should NOT choose file rule \"test_files Gmail print-to-pdf\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>&1 | grep -- "Using file rule: \"test_files smulan.jpg\""' \
+assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_JPG_FILE" 2>&1 | grep -- "Using rule: \"test_files smulan.jpg\""' \
             "[TC014] autonameow should choose file rule \"test_files smulan.jpg\" given the file \""$(basename -- "${SAMPLE_JPG_FILE}")"\""
 
-assert_false '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -- "Using file rule: \"test_files smulan.jpg\""' \
+assert_false '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "$SAMPLE_PDF_FILE" 2>&1 | grep -- "Using rule: \"test_files smulan.jpg\""' \
              "[TC014] autonameow should NOT choose file rule \"test_files smulan.jpg\" given the file \""$(basename -- "${SAMPLE_PDF_FILE}")"\""
 set -o pipefail
 
@@ -193,6 +193,47 @@ assert_true '"$AUTONAMEOW_RUNNER" --recurse --dry-run -- "$TEST_FILES_SUBDIR"' \
 
 assert_true '"$AUTONAMEOW_RUNNER" --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 | grep -- ".*Got 8 files to process.*"' \
             "Expect output to contain \"Got 8 files to process\" when running \"--verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR"\""
+
+
+# Tests with the same input paths used more than once.
+sample_empty_file_basename="$(basename -- "${SAMPLE_EMPTY_FILE}")"
+sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\"\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\" \"${sample_empty_file_basename}\"\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\" \"${sample_empty_file_basename}\" \"${sample_empty_file_basename}\"\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\"\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\" \"${sample_pdf_file_basename}\"\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\" \"${sample_pdf_file_basename}\" \"${sample_pdf_file_basename}\"\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\"\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\"\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\"\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\"\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\"\""
+
+assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE" "$SAMPLE_PDF_FILE" "$SAMPLE_EMPTY_FILE"' \
+            "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\" \"${sample_pdf_file_basename}\" \"${sample_empty_file_basename}\"\""
 
 
 

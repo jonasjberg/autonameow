@@ -20,10 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import os
 from unittest import TestCase
 
 from core import options
+import unit_utils as uu
 
 
 class TestArgumentValidators(TestCase):
@@ -41,8 +41,7 @@ class TestArgumentValidators(TestCase):
 
     def test_arg_is_readable_file_raises_exception_missing_file(self):
         _file_missing = '/tmp/nopenopenopenope_no-file-here_nono'
-        self.assertFalse(os.path.exists(_file_missing))
-        self.assertFalse(os.path.isfile(_file_missing))
+        self.assertFalse(uu.file_exists(_file_missing))
 
         with self.assertRaises(argparse.ArgumentTypeError) as e:
             options.arg_is_readable_file(_file_missing)
@@ -75,21 +74,21 @@ class TestArgParse(TestCase):
                                    argparse.ArgumentParser))
 
     def test_parse_args_returns_expected_type(self):
-        self.assertEqual(type(options.parse_args('')), argparse.Namespace)
-        self.assertEqual(type(options.parse_args('--help')), argparse.Namespace)
+        self.assertEqual(type(options._parse_args('')), argparse.Namespace)
+        self.assertEqual(type(options._parse_args('--help')), argparse.Namespace)
 
     def test_parse_args_raises_typeerror_if_argument_missing(self):
         with self.assertRaises(TypeError):
-            options.parse_args()
+            options._parse_args()
 
     def test_parse_args_accepts_argument_help(self):
-        self.assertIsNotNone(options.parse_args('--help'))
+        self.assertIsNotNone(options._parse_args('--help'))
 
     def test_parse_args_accepts_argument_dry_run(self):
-        self.assertIsNotNone(options.parse_args('--dry-run'))
+        self.assertIsNotNone(options._parse_args('--dry-run'))
 
     def test_parse_args_accepts_argument_verbose(self):
-        self.assertIsNotNone(options.parse_args('--verbose'))
+        self.assertIsNotNone(options._parse_args('--verbose'))
 
     def test_parse_args_accepts_argument_debug(self):
-        self.assertIsNotNone(options.parse_args('--debug'))
+        self.assertIsNotNone(options._parse_args('--debug'))

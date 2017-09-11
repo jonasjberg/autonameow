@@ -21,12 +21,8 @@
 
 from unittest import TestCase
 
-from core.evaluate.namebuilder import (
-    populate_name_template,
-    format_string_placeholders,
-    all_template_fields_defined
-)
-from core.exceptions import NameTemplateSyntaxError
+from core import exceptions
+from core.namebuilder import populate_name_template
 
 
 class TestNameBuilder(TestCase):
@@ -39,18 +35,18 @@ class TestNameBuilder(TestCase):
                 'author': 'Gibson',
                 'datetime': '2017-05-27',
                 'extension': 'pdf'}
-        expected = '11 years old and dying - Gibson 2017-05-27.pdf'
+        expect = '11 years old and dying - Gibson 2017-05-27.pdf'
 
-        self.assertEqual(populate_name_template(template, **data), expected)
+        self.assertEqual(populate_name_template(template, **data), expect)
 
     def test_populate_name_template_using_template_1_some_fields_missing(self):
-        with self.assertRaises(NameTemplateSyntaxError):
+        with self.assertRaises(exceptions.NameTemplateSyntaxError):
             template = '{title} - {author} {datetime}.{extension}'
             data = {'author': None,
                     'datetime': '2017-05-27',
                     'extension': None}
-            expected = '11 years old and dying - Gibson 2017-05-27.pdf'
-            self.assertEqual(populate_name_template(template, **data), expected)
+            expect = '11 years old and dying - Gibson 2017-05-27.pdf'
+            self.assertEqual(populate_name_template(template, **data), expect)
 
     def test_populate_name_template_using_template_2_given_all_fields(self):
         template = '{publisher} {title} {edition} - {author} {date}.{extension}'
@@ -60,50 +56,15 @@ class TestNameBuilder(TestCase):
                 'author': 'Gibson',
                 'date': '2017',
                 'extension': 'pdf'}
-        expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
+        expect = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
 
-        self.assertEqual(populate_name_template(template, **data), expected)
+        self.assertEqual(populate_name_template(template, **data), expect)
 
     def test_populate_name_template_using_template_2_all_fields_missing(self):
-        with self.assertRaises(NameTemplateSyntaxError):
-            template = '{publisher} {title} {edition} - {author} {date}.{extension}'
-            data = {}
-            expected = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
-            self.assertEqual(populate_name_template(template, **data), expected)
+        template = '{publisher} {title} {edition} - {author} {date}.{extension}'
+        data = {}
+        expect = 'CatPub 11 years old and dying Final Edition - Gibson 2017.pdf'
 
+        with self.assertRaises(exceptions.NameTemplateSyntaxError):
+            self.assertEqual(populate_name_template(template, **data), expect)
 
-class TestFormatStringPlaceholders(TestCase):
-    def test_format_string_placeholders_no_input(self):
-        self.assertEqual(format_string_placeholders(None), [])
-
-    def test_format_string_placeholders_no_placeholders(self):
-        self.assertEqual(format_string_placeholders('abc'), [])
-
-    def test_format_string_placeholders_one_placeholder(self):
-        self.assertEqual(format_string_placeholders('abc {foo}'), ['foo'])
-
-    def test_format_string_placeholders_two_unique_placeholders(self):
-        self.assertEqual(format_string_placeholders('{abc} abc {foo}'),
-                         ['abc', 'foo'])
-
-    def test_format_string_placeholders_duplicate_placeholders(self):
-        self.assertEqual(format_string_placeholders('{foo} abc {foo}'),
-                         ['foo', 'foo'])
-
-
-class TestAllTemplateFieldsDefined(TestCase):
-    def setUp(self):
-        self.template = '{datetime} {title} -- tag.{extension}'
-        self.data_sources_ok = {'datetime': 'dummy',
-                                'extension': 'dummy',
-                                'title': 'dummy'}
-        self.data_sources_missing = {'datetime': 'dummy',
-                                     'extension': 'dummy'}
-
-    def test_return_false_if_sources_does_not_include_all_template_fields(self):
-        self.assertFalse(all_template_fields_defined(self.template,
-                                                     self.data_sources_missing))
-
-    def test_return_true_if_sources_contain_all_template_fields(self):
-        self.assertTrue(all_template_fields_defined(self.template,
-                                                    self.data_sources_ok))

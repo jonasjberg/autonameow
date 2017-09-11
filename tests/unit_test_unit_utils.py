@@ -20,48 +20,167 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
 import os
 import types
-
+from datetime import datetime
 from unittest import TestCase
-import unit_utils as uu
 
 import analyzers
 from analyzers import BaseAnalyzer
+from core.config import rules
 from core.fileobject import FileObject
+
+import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestUnitUtilityConstants(TestCase):
     def test_tests_dir_is_defined(self):
-        self.assertIsNotNone(uu.TESTS_DIR)
+        self.assertIsNotNone(uuconst.TEST_FILES_DIR)
 
     def test_tests_dir_exists(self):
-        self.assertTrue(os.path.exists(uu.TESTS_DIR))
+        self.assertTrue(os.path.exists(uuconst.TEST_FILES_DIR))
 
     def test_tests_dir_is_a_directory(self):
-        self.assertTrue(os.path.isdir(uu.TESTS_DIR))
+        self.assertTrue(os.path.isdir(uuconst.TEST_FILES_DIR))
 
     def test_tests_dir_is_readable(self):
-        self.assertTrue(os.access(uu.TESTS_DIR, os.R_OK))
+        self.assertTrue(os.access(uuconst.TEST_FILES_DIR, os.R_OK))
 
     def test_tests_dir_is_executable(self):
-        self.assertTrue(os.access(uu.TESTS_DIR, os.X_OK))
+        self.assertTrue(os.access(uuconst.TEST_FILES_DIR, os.X_OK))
 
     def test_autonameow_srcroot_dir_is_defined(self):
-        self.assertIsNotNone(uu.AUTONAMEOW_SRCROOT_DIR)
+        self.assertIsNotNone(uuconst.AUTONAMEOW_SRCROOT_DIR)
 
     def test_autonameow_srcroot_dir_exists(self):
-        self.assertTrue(os.path.exists(uu.AUTONAMEOW_SRCROOT_DIR))
+        self.assertTrue(os.path.exists(uuconst.AUTONAMEOW_SRCROOT_DIR))
 
     def test_autonameow_srcroot_dir_is_a_directory(self):
-        self.assertTrue(os.path.isdir(uu.AUTONAMEOW_SRCROOT_DIR))
+        self.assertTrue(os.path.isdir(uuconst.AUTONAMEOW_SRCROOT_DIR))
 
     def test_autonameow_srcroot_dir_is_readable(self):
-        self.assertTrue(os.access(uu.AUTONAMEOW_SRCROOT_DIR, os.R_OK))
+        self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.R_OK))
 
     def test_autonameow_srcroot_dir_is_executable(self):
-        self.assertTrue(os.access(uu.AUTONAMEOW_SRCROOT_DIR, os.X_OK))
+        self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.X_OK))
+
+
+class TestUnitUtilityAbsPathTestFile(TestCase):
+    def test_abspath_testfile_is_defined(self):
+        self.assertIsNotNone(uu.abspath_testfile)
+
+    def test_returns_expected_encoding(self):
+        actual = uu.abspath_testfile('empty')
+        self.assertTrue(isinstance(actual, str))
+
+    def test_returns_absolute_paths(self):
+        actual = uu.abspath_testfile('empty')
+        self.assertTrue(os.path.isabs(actual))
+
+
+class TestUnitUtilityAllTestFiles(TestCase):
+    def test_returns_expected_encoding(self):
+        actual = uu.all_testfiles()
+        self.assertTrue(isinstance(actual, list))
+        self.assertTrue(isinstance(a, str) for a in actual)
+
+    def test_returns_existing_absolute_paths(self):
+        actual = uu.all_testfiles()
+        for f in actual:
+            self.assertTrue(os.path.exists(f))
+            self.assertTrue(os.path.isfile(f) | os.path.islink(f))
+            self.assertTrue(os.path.isabs(f))
+
+
+class TestUnitUtilityFileExists(TestCase):
+    def test_file_exists_is_defined(self):
+        self.assertIsNotNone(uu.file_exists)
+
+    def _check_return(self, file_to_test):
+        actual = uu.file_exists(file_to_test)
+        self.assertTrue(isinstance(actual, bool))
+
+        expected = os.path.isfile(file_to_test)
+        self.assertEqual(actual, expected)
+
+    def test_returns_false_for_files_assumed_missing(self):
+        _dummy_paths = [
+            '/foo/bar/baz/mjao',
+            '/tmp/this_isnt_a_file_right_or_huh',
+            b'/tmp/this_isnt_a_file_right_or_huh'
+        ]
+        for df in _dummy_paths:
+            self._check_return(df)
+
+    def test_returns_true_for_files_likely_to_exist(self):
+        _files = [
+            __file__,
+        ]
+        for df in _files:
+            self._check_return(df)
+
+
+class TestUnitUtilityDirExists(TestCase):
+    def test_dir_exists_is_defined(self):
+        self.assertIsNotNone(uu.dir_exists)
+
+    def _check_return(self, path_to_test):
+        actual = uu.dir_exists(path_to_test)
+        self.assertTrue(isinstance(actual, bool))
+
+        expected = os.path.isdir(path_to_test)
+        self.assertEqual(actual, expected)
+
+    def test_returns_false_for_assumed_non_directory_paths(self):
+        _dummy_paths = [
+            '/foo/bar/baz/mjao',
+            '/tmp/this_isnt_a_file_right_or_huh',
+            b'/tmp/this_isnt_a_file_right_or_huh',
+            __file__
+        ]
+        for df in _dummy_paths:
+            self._check_return(df)
+
+    def test_returns_true_for_likely_directory_paths(self):
+        _files = [
+            os.path.dirname(__file__),
+            uuconst.AUTONAMEOW_SRCROOT_DIR,
+            '/'
+        ]
+        for df in _files:
+            self._check_return(df)
+
+
+class TestUnitUtilityPathIsReadable(TestCase):
+    def _check_return(self, path_to_test):
+        actual = uu.path_is_readable(path_to_test)
+        self.assertTrue(isinstance(actual, bool))
+
+        try:
+            expected = os.access(path_to_test, os.R_OK)
+        except OSError:
+            expected = False
+        self.assertEqual(actual, expected)
+
+    def test_returns_false_for_paths_assumed_missing(self):
+        _dummy_paths = [
+            '',
+            b'',
+            '/foo/bar/baz/mjao',
+            b'/foo/bar/baz/mjao',
+            '/tmp/this_isnt_a_file_right_or_huh'
+        ]
+        for df in _dummy_paths:
+            self._check_return(df)
+
+    def test_returns_true_for_paths_likely_to_exist(self):
+        _paths = [
+            __file__,
+            os.path.dirname(__file__),
+        ]
+        for df in _paths:
+            self._check_return(df)
 
 
 class TestUnitUtilityMakeTempDir(TestCase):
@@ -136,8 +255,8 @@ class TestUnitUtilityGetMockFileObject(TestCase):
         self.assertEqual(actual.mime_type, 'video/mp4')
 
     def test_get_mock_fileobject_with_mime_type_all_types(self):
-        mime_types = ['application/pdf', 'image/gif', 'image/jpeg', 'image/png',
-                      'image/x-ms-bmp', 'text/plain', 'video/mp4']
+        mime_types = ['application/pdf', 'image/gif', 'image/jpeg',
+                      'image/png', 'image/x-ms-bmp', 'text/plain', 'video/mp4']
 
         for mt in mime_types:
             actual = uu.get_mock_fileobject(mime_type=mt)
@@ -301,3 +420,36 @@ class TestIsImportable(TestCase):
 
     def test_is_importable_returns_true_as_expected(self):
         self.assertTrue(uu.is_importable('datetime'))
+
+
+class TestGetDummyValidatedConditions(TestCase):
+    def test_returns_expected_type(self):
+        actual = uu.get_dummy_rulecondition_instances()
+        self.assertTrue(isinstance(actual, list))
+
+    def test_returns_rule_class_instances(self):
+        conditions = uu.get_dummy_rulecondition_instances()
+        for condition in conditions:
+            self.assertTrue(uu.is_class_instance(condition))
+            self.assertTrue(isinstance(condition, rules.RuleCondition))
+
+    def test_returns_all_rule_conditions_defined_in_unit_utils_constants(self):
+        expected = len(uuconst.DUMMY_RAW_RULE_CONDITIONS)
+        actual = len(uu.get_dummy_rulecondition_instances())
+        self.assertEqual(actual, expected)
+
+
+class TestGetDummyRawConditions(TestCase):
+    def test_returns_expected_type(self):
+        actual = uu.get_dummy_raw_conditions()
+        self.assertTrue(isinstance(actual, list))
+
+    def test_returns_equivalent_structure_as_yaml_config(self):
+        conditions = uu.get_dummy_raw_conditions()
+        for condition in conditions:
+            self.assertTrue(isinstance(condition, dict))
+
+    def test_returns_all_rule_conditions_defined_in_unit_utils_constants(self):
+        expected = len(uuconst.DUMMY_RAW_RULE_CONDITIONS)
+        actual = len(uu.get_dummy_rulecondition_instances())
+        self.assertEqual(actual, expected)

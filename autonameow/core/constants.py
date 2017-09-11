@@ -20,6 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from datetime import (
+    datetime,
+    timedelta
+)
 
 from core import (
     util,
@@ -41,80 +45,6 @@ NAME_TEMPLATE_FIELDS = (
     ANALYSIS_RESULTS_FIELDS + ['date', 'description', 'edition', 'extension']
 )
 
-
-# Reference analysis results data structure with all valid fields/sources.
-RESULTS_DATA_STRUCTURE = {
-    'filesystem': {
-        'basename': {
-            'full': None,
-            'prefix': None,
-            'suffix': None,
-            'extension': None,
-            'derived_data': {
-                'datetime': None,
-            }
-        },
-        'pathname': {
-            'full': None,
-            'parent': None
-        },
-        'date_accessed': None,
-        'date_created': None,
-        'date_modified': None,
-    },
-    'contents': {
-        'mime_type': None,
-        'textual': {
-            'raw_text': None,
-            'paginated': False,
-            'number_pages': None,
-        },
-        'visual': {
-            'ocr_text': None,
-            'ocr_description': None,
-            'ocr_tags': None
-        },
-        'binary': {
-            'placeholder_field': None,
-        }
-    },
-    'metadata': {
-        'exiftool': {
-            'EXIF:DateTimeOriginal': None,
-            'PDF:Author': None,
-            'PDF:CreateDate': None,
-            'PDF:Creator': None,
-            'PDF:EBX_PUBLISHER': None,
-            'PDF:Producer': None,
-            'PDF:Subject': None,
-            'PDF:Title': None,
-            'XMP:Creator': None,
-            'XMP:EbxPublisher': None,
-            'XMP:Title': None,
-            'XMP-dc:Creator': None,
-            'XMP-dc:EbxPublisher': None,
-            'XMP-dc:Title': None,
-        },
-        'pypdf': {
-            'Author': None,
-            'Creator': None,
-            'Producer': None,
-            'Subject': None,
-            'Title': None,
-            'EBX_PUBLISHER': None,
-        }
-    },
-    'plugin': {
-        'microsoft_vision': None,
-        'guessit': None,
-    }
-}
-
-# Used to validate sources defined in the configuration file.
-__flat_results_data_structure = util.flatten_dict(RESULTS_DATA_STRUCTURE)
-VALID_DATA_SOURCES = list(__flat_results_data_structure.keys())
-
-
 # File "magic" MIME type lookup table keyed by shorthand. Each value is a
 # list of file MIME types that is classified for that particular shorthand.
 MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
@@ -132,11 +62,122 @@ MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
 MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
 
 # Default values for required configuration fields.
-DEFAULT_FILERULE_WEIGHT = 0.5
+DEFAULT_RULE_RANKING_BIAS = 0.5
 DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR = ' -- '
 DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR = ' '
 DEFAULT_FILESYSTEM_SANITIZE_FILENAME = True
 DEFAULT_FILESYSTEM_SANITIZE_STRICT = False
+
+DEFAULT_FILESYSTEM_IGNORE_DARWIN = frozenset([
+    # Metadata
+    '*/.DS_Store',
+    '*/.AppleDouble',
+    '*/.LSOverride',
+
+    # Thumbnails
+    '*/._*',
+
+    # Files that might appear in the root of a volume
+    '*/.DocumentRevisions-V100',
+    '*/.fseventsd',
+    '*/.Spotlight-V100',
+    '*/.TemporaryItems',
+    '*/.Trashes',
+    '*/.VolumeIcon.icns',
+    '*/.com.apple.timemachine.donotpresent',
+
+    # Directories potentially created on remote AFP share
+    '*/.AppleDB',
+    '*/.AppleDesktop',
+    '*/Network Trash Folder',
+    '*/Temporary Items',
+    '*/.apdisk'
+])
+
+DEFAULT_FILESYSTEM_IGNORE_LINUX = frozenset([
+    # Temporary/backup files
+    '*~',
+
+    # FUSE temporary files
+    '*/.fuse_hidden*',
+
+    # KDE directory preferences
+    '*/.directory',
+
+    # Trash directories found at partition/disk roots
+    '*/.Trash-*',
+
+    # Created by NFS when an open file is removed but is still being accessed
+    '*/.nfs*'
+])
+
+DEFAULT_FILESYSTEM_IGNORE_WINDOWS = frozenset([
+    # Shortcuts
+    '*.lnk',
+
+    # Folder configuration
+    '*/Desktop.ini',
+
+    # Thumbnail cache files
+    '*/ehthumbs.db',
+    '*/ehthumbs_vista.db',
+    '*/Thumbs.db',
+
+    # Recycle Bin used on file shares
+    '*/$RECYCLE.BIN*'
+])
+
+DEFAULT_FILESYSTEM_IGNORE_VCS = frozenset([
+    # Git
+    '*/.git*', '*/.repo',
+
+    # Mercurial
+    '*/.hg', '*/.hgignore',
+
+    # SVN
+    '*/.svn', '*/.svnignore',
+
+    # Microsoft TFS config
+    '*/.tfignore',
+
+    # Visual Source Safe
+    '*/vssver.scc',
+
+    # CVS
+    '*/CVS', '*/.cvsignore', '*/RCS', '*/SCCS',
+
+    # Monotone
+    '*/_MTN',
+
+    # Darcs
+    '*/_darcs',
+])
+
+
+DEFAULT_FILESYSTEM_IGNORE = DEFAULT_FILESYSTEM_IGNORE_DARWIN.union(
+    DEFAULT_FILESYSTEM_IGNORE_LINUX).union(
+    DEFAULT_FILESYSTEM_IGNORE_WINDOWS).union(
+    DEFAULT_FILESYSTEM_IGNORE_VCS)
+
+
+def next_year():
+    # http://stackoverflow.com/a/11206511
+    _today = datetime.today()
+    try:
+        return _today.replace(year=_today.year + 1)
+    except ValueError:
+        # February 29th in a leap year
+        # Add 365 days instead to arrive at March 1st
+        return _today + timedelta(days=365)
+
+
+# Ignore all date/time-information following the specified year (inclusive).
+YEAR_UPPER_LIMIT = next_year()
+
+# TODO: [TD0043] Allow storing these in the configuration file.
+# Ignore all date/time-information for the specified year and years prior.
+YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
+
 
 # Exit code values returned to the executing shell or parent process.
 # Normal, successful termination should return "0" (EXIT_SUCCESS)

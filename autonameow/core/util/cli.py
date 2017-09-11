@@ -39,6 +39,8 @@ from core import (
     util
 )
 
+log = logging.getLogger(__name__)
+
 
 def print_ascii_banner():
     """
@@ -62,7 +64,7 @@ def print_ascii_banner():
     toplineleft = ' {title}  version {v}'.format(title=colortitle,
                                                  v=constants.PROGRAM_VERSION)
     toplineright = version.__copyright__
-    print(('{:<}{:>50}'.format(toplineleft, toplineright)))
+    print(('{:<}{:>49}'.format(toplineleft, toplineright)))
     print(('{:>78}'.format(version.__url__)))
     print(('{:>78}'.format(version.__email__)))
     print('')
@@ -79,11 +81,11 @@ def print_start_info():
                  style='DIM')
     print(i)
 
-    logging.debug('Started {} version {}'.format(version.__title__,
-                                                 constants.PROGRAM_VERSION))
-    logging.debug('Running on Python {}'.format(constants.PYTHON_VERSION))
-    logging.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
-    logging.debug('Process ID: {}'.format(os.getpid()))
+    log.debug('Started {} version {}'.format(version.__title__,
+                                             constants.PROGRAM_VERSION))
+    log.debug('Running on Python {}'.format(constants.PYTHON_VERSION))
+    log.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
+    log.debug('Process ID: {}'.format(os.getpid()))
 
 
 def print_exit_info(exit_code, elapsed_time):
@@ -156,14 +158,55 @@ def colorize(text, fore=None, back=None, style=None):
     return ''.join(buffer)
 
 
-def msg(message, style=None, log=False):
+def colorize_quoted(text, color=None):
+    if color is not None:
+        _color = color
+    else:
+        _color = 'LIGHTGREEN_EX'
+
+    replacements = []
+    match_iter = re.findall(r'"([^"]*)"', text)
+    for match in match_iter:
+        replacements.append((match, colorize(match, fore=_color)))
+
+    out = ''
+    for old, new in replacements:
+        #
+        # Find position of the first match:  text = a "B" b "B"
+        #                                              ^
+        # Work on a bit at a time to avoid replacing the same match.
+        # Store from start to the first match + 1 (catch ") in 'temp_text'.
+        #
+        #          text = 'a "B" b "B"'
+        #                     ^
+        #     temp_text = 'a "B"'
+        #
+        # Do replacement in temp_text, append to 'out'. Continue to work
+        # on the rest of the text:  text = ' b "B"'
+        #
+        old_pos = text.find(old)
+        strip_to = old_pos + len(old) + 1
+        temp_text = text[:strip_to]
+
+        temp_text = temp_text.replace(old, new, 1)
+        out = out + temp_text
+
+        text = text[strip_to:]
+
+    if text:
+        out = out + text
+
+    return out
+
+
+def msg(message, style=None, add_info_log=False):
     """
     Displays a message to the user using preset formatting options.
 
     Args:
         message: The raw text message to print as a string.
         style: Optional message type.
-        log: Displays and logs the message if True. Defaults to False.
+        add_info_log: Displays and logs the message if True. Defaults to False.
     """
 
     def print_default_msg(text):
@@ -174,41 +217,6 @@ def msg(message, style=None, log=False):
         colored_text = colorize(text)
         print(prefix + ' ' + colored_text)
 
-    def colorize_quoted(text):
-        replacements = []
-        match_iter = re.findall(r'"([^"]*)"', text)
-        for match in match_iter:
-            replacements.append((match, colorize(match, fore='LIGHTGREEN_EX')))
-
-        out = ''
-        for old, new in replacements:
-            #
-            # Find position of the first match:  text = a "B" b "B"
-            #                                              ^
-            # Work on a bit at a time to avoid replacing the same match.
-            # Store from start to the first match + 1 (catch ") in 'temp_text'.
-            #
-            #          text = 'a "B" b "B"'
-            #                     ^
-            #     temp_text = 'a "B"'
-            #
-            # Do replacement in temp_text, append to 'out'. Continue to work
-            # on the rest of the text:  text = ' b "B"'
-            #
-            old_pos = text.find(old)
-            strip_to = old_pos + len(old) + 1
-            temp_text = text[:strip_to]
-
-            temp_text = temp_text.replace(old, new, 1)
-            out = out + temp_text
-
-            text = text[strip_to:]
-
-        if text:
-            out = out + text
-
-        return out
-
     # TODO: [TD0042] Respect '--quiet' option. Suppress output.
 
     if not message:
@@ -216,12 +224,12 @@ def msg(message, style=None, log=False):
 
     if not style:
         print_default_msg(message)
-        if log:
-            logging.info(message)
+        if add_info_log:
+            log.info(message)
     elif style == 'info':
         print_info_msg(message)
-        if log:
-            logging.info(message)
+        if add_info_log:
+            log.info(message)
     elif style == 'heading':
         print_default_msg('')
         print_default_msg(message)
@@ -230,8 +238,8 @@ def msg(message, style=None, log=False):
         print(colorize_quoted(message))
     else:
         print_default_msg(message)
-        if log:
-            logging.info(message)
+        if add_info_log:
+            log.info(message)
 
 
 if __name__ == '__main__':
@@ -277,11 +285,18 @@ def msg_rename(from_basename, dest_basename, dry_run):
         dest_basename: The new basename of the file to be renamed.
         dry_run: True if the operation was a "dry run"/simulation.
     """
-    if dry_run:
-        _message = 'Would have renamed "{!s}" -> "{!s}"'
-    else:
-        _message = 'Renamed "{!s}" -> "{!s}"'
+    _name_old = colorize_quoted(
+        '"{!s}"'.format(util.displayable_path(from_basename)),
+        color='WHITE'
+    )
+    _name_new = colorize_quoted(
+        '"{!s}"'.format(util.displayable_path(dest_basename)),
+        color='LIGHTGREEN_EX'
+    )
 
-    msg(_message.format(util.displayable_path(from_basename),
-                        util.displayable_path(dest_basename)),
-        style='color_quoted')
+    if dry_run:
+        _message = 'Would have renamed {!s} -> {!s}'
+    else:
+        _message = 'Renamed {!s} -> {!s}'
+
+    msg(_message.format(_name_old, _name_new))

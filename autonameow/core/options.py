@@ -23,11 +23,14 @@ import argparse
 import logging
 import os
 
-from core import util
-from core.util import (
-    dateandtime,
-    cli
+from core import (
+    constants,
+    util,
+    logs
 )
+from core.util import cli
+
+log = logging.getLogger(__name__)
 
 
 def arg_is_year(value):
@@ -119,7 +122,7 @@ def init_argparser():
 
     optgrp_action = parser.add_argument_group(
         'Action options',
-        #description='Enable ACTIONS to perform for any matched files.'
+        # description='Enable ACTIONS to perform for any matched files.'
     )
     # TODO: [TD0059] Replace '--list-*' options with something more flexible.
     #       I.E. '--list-datetime' and '--list-title' could be '--list {FIELD}'
@@ -144,14 +147,14 @@ def init_argparser():
 
     optgrp_mode = parser.add_argument_group(
         'Operating mode',
-        #description='Select program operating mode. Manual or fully automatic.'
+        # description='Select program operating mode. Manual or fully automatic.'
     )
     optgrp_mode.add_argument(
         '--automagic',
         dest='automagic',
         action='store_true',
         help='Perform renames without requiring any user interaction. '
-             'Matches the given paths against the available file rules. '
+             'Matches the given paths against the available rules. '
              'Paths matched to a rule is renamed in accordance with the rule.'
     )
     optgrp_mode.add_argument(
@@ -164,7 +167,7 @@ def init_argparser():
 
     optgrp_filter = parser.add_argument_group('Processing options')
 
-    ignore_to_year_default = str(dateandtime.YEAR_LOWER_LIMIT.strftime('%Y'))
+    ignore_to_year_default = constants.YEAR_LOWER_LIMIT.strftime('%Y')
     optgrp_filter.add_argument(
         '--ignore-to-year',
         metavar='YYYY',
@@ -176,7 +179,7 @@ def init_argparser():
              'years prior. Default: {}'.format(ignore_to_year_default)
     )
 
-    ignore_from_year_default = str(dateandtime.YEAR_UPPER_LIMIT.strftime('%Y'))
+    ignore_from_year_default = constants.YEAR_UPPER_LIMIT.strftime('%Y')
     optgrp_filter.add_argument(
         '--ignore-from-year',
         metavar='YYYY',
@@ -253,11 +256,12 @@ def init_argparser():
     return parser
 
 
-def initialize(raw_args):
+def parse_args(raw_args):
     """
-    Handles raw option arguments and initializes logging.
+    Parses raw positional arguments.
 
-    Configures logging and checks legality of combined options.
+    Parses the given option arguments with argparse and verifies legality of
+    any combinations.
 
     Args:
         raw_args: The option arguments as a list of strings.
@@ -265,24 +269,24 @@ def initialize(raw_args):
     Returns:
         Parsed option arguments as type 'argparse.NameSpace'.
     """
-    args = parse_args(raw_args)
+    args = _parse_args(raw_args)
 
-    init_logging(args)
+    logs.init_logging(args)
 
     if args.automagic and args.interactive:
-        logging.critical('Operating mode must be either one of "automagic" or '
-                         '"interactive", not both. Reverting to default: '
-                         '[interactive mode].')
+        log.critical('Operating mode must be either one of "automagic" or '
+                     '"interactive", not both. Reverting to default: '
+                     '[interactive mode].')
         args.automagic = False
         args.interactive = True
     if not args.automagic and not args.interactive:
-        logging.debug('Using default operating mode: [interactive mode].')
+        log.debug('Using default operating mode: [interactive mode].')
         args.interactive = True
 
     return args
 
 
-def parse_args(raw_args):
+def _parse_args(raw_args):
     """
     Parses the given option arguments with argparse.
 
@@ -294,56 +298,6 @@ def parse_args(raw_args):
     """
     parser = init_argparser()
     return parser.parse_args(args=raw_args)
-
-
-def init_logging(args):
-    """
-    Configures the log format and logging settings.
-
-    Args:
-        args: Parsed option arguments as type 'argparse.NameSpace'.
-    """
-    # NOTE(jonas): This is probably a bad idea, but seems to work good enough.
-    # TODO: [hardcoded] Remove spaces after labels, used for alignment.
-    logging.addLevelName(logging.INFO, cli.colorize(
-        '[INFO]    ', fore='GREEN'
-    ))
-    logging.addLevelName(logging.DEBUG, cli.colorize(
-        '[DEBUG]   ', fore='BLUE'
-    ))
-    logging.addLevelName(logging.WARNING, cli.colorize(
-        '[WARNING] ', fore='YELLOW', style='BRIGHT'
-    ))
-    logging.addLevelName(logging.ERROR, cli.colorize(
-        '[ERROR]   ', fore='RED', style='BRIGHT'
-    ))
-    logging.addLevelName(logging.CRITICAL, cli.colorize(
-        '[CRITICAL]', fore='LIGHTRED_EX', style='BRIGHT'
-    ))
-
-    # Setup logging output format.
-    # TODO: Make logging verbosity more controllable with additional logging
-    #       levels, enabled by adding on any number of '-v' options to the
-    #       command-line. For instance, verbosity levels 1 and 3 would be
-    #       enabled with '-v' and '-vvv', respectively.
-
-    _colored_timestamp = cli.colorize('%(asctime)s', style='DIM')
-    if args.debug:
-        fmt = (_colored_timestamp
-               + ' %(levelname)s %(funcName)-25.25s (%(lineno)3d) %(message)s')
-        logging.basicConfig(level=logging.DEBUG, format=fmt,
-                            datefmt='%Y-%m-%d %H:%M:%S')
-    elif args.verbose:
-        fmt = (_colored_timestamp
-               + ' %(levelname)s %(message)s')
-        logging.basicConfig(level=logging.INFO, format=fmt,
-                            datefmt='%Y-%m-%d %H:%M:%S')
-    elif args.quiet:
-        fmt = '%(levelname)s %(message)s'
-        logging.basicConfig(level=logging.CRITICAL, format=fmt)
-    else:
-        fmt = '%(levelname)s %(message)s'
-        logging.basicConfig(level=logging.WARNING, format=fmt)
 
 
 def prettyprint_options(opts, extra_opts):

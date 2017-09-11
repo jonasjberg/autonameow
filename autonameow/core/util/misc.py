@@ -25,11 +25,16 @@ Miscellaneous utility functions.
 
 import collections
 import itertools
-import logging as log
+import logging
+import shutil
 
 import yaml
 
-from core.exceptions import InvalidQueryStringError
+from core import constants
+from core.exceptions import InvalidMeowURIError
+
+
+log = logging.getLogger(__name__)
 
 
 def dump(obj):
@@ -57,24 +62,24 @@ def dump_to_list(obj, nested_level=0, output=None):
         out = output
 
     if type(obj) == dict:
-        out.append(('%s{' % ((nested_level) * spacing)))
+        out.append('{}{{'.format(nested_level * spacing))
         for k, v in list(obj.items()):
             if hasattr(v, '__iter__'):
-                out.append(('%s%s:' % ((nested_level + 1) * spacing, k)))
+                out.append('{}{}:'.format((nested_level + 1) * spacing, k))
                 dump_to_list(v, nested_level + 1, out)
             else:
-                out.append(('%s%s: %s' % ((nested_level + 1) * spacing, k, v)))
-        out.append(('%s}' % (nested_level * spacing)))
+                out.append('{}{}: {}'.format((nested_level + 1) * spacing, k, v))
+        out.append('{}}}'.format(nested_level * spacing))
     elif type(obj) == list:
-        out.append(('%s[' % ((nested_level) * spacing)))
+        out.append('{}['.format(nested_level * spacing))
         for v in obj:
             if hasattr(v, '__iter__'):
                 dump_to_list(v, nested_level + 1, out)
             else:
-                out.append(('%s%s' % ((nested_level + 1) * spacing, v)))
-        out.append(('%s]' % ((nested_level) * spacing)))
+                out.append('{}{}'.format((nested_level + 1) * spacing, v))
+        out.append('{}]'.format(nested_level * spacing))
     else:
-        out.append(('%s%s' % (nested_level * spacing, obj)))
+        out.append('{}{}'.format(nested_level * spacing, obj))
 
     return out
 
@@ -136,42 +141,42 @@ def multiset_count(list_data):
     return out
 
 
-def query_string_list(query_string):
+def meowuri_list(meowuri):
     """
-    Converts a "query string" to a list suited for traversing nested dicts.
+    Converts a "meowURI" to a list suited for traversing nested dicts.
 
-    Example query string:  "metadata.exiftool.datetimeoriginal"
-    Resulting output:      ['metadata', 'exiftool', 'datetimeoriginal']
+    Example meowURI:    'metadata.exiftool.datetimeoriginal'
+    Resulting output:   ['metadata', 'exiftool', 'datetimeoriginal']
 
     Args:
-        query_string: The "query string" to convert.
+        meowuri: The "meowURI" to convert.
 
-    Returns: The components of the given "query string" as a list.
+    Returns: The components of the given "meowURI" as a list.
     """
-    if not isinstance(query_string, str):
-        raise InvalidQueryStringError('Query string must be of type "str"')
+    if not isinstance(meowuri, str):
+        raise InvalidMeowURIError('meowURI must be of type "str"')
     else:
-        query_string = query_string.strip()
-    if not query_string:
-        raise InvalidQueryStringError('Got empty query string')
+        meowuri = meowuri.strip()
+    if not meowuri:
+        raise InvalidMeowURIError('Got empty meowURI')
 
-    if '.' in query_string:
+    if '.' in meowuri:
         # Remove any leading/trailing periods.
-        if query_string.startswith('.'):
-            query_string = query_string.lstrip('.')
-        if query_string.endswith('.'):
-            query_string = query_string.rstrip('.')
+        if meowuri.startswith('.'):
+            meowuri = meowuri.lstrip('.')
+        if meowuri.endswith('.'):
+            meowuri = meowuri.rstrip('.')
 
         # Collapse any repeating periods.
-        while '..' in query_string:
-            query_string = query_string.replace('..', '.')
+        while '..' in meowuri:
+            meowuri = meowuri.replace('..', '.')
 
         # Check if input is all periods.
-        stripped_period = str(query_string).replace('.', '')
+        stripped_period = str(meowuri).replace('.', '')
         if not stripped_period.strip():
-            raise InvalidQueryStringError('Invalid query string')
+            raise InvalidMeowURIError('Invalid meowURI')
 
-    parts = query_string.split('.')
+    parts = meowuri.split('.')
     return [p for p in parts if p is not None]
 
 
@@ -254,27 +259,31 @@ def count_dict_recursive(dictionary, count=0):
     return count
 
 
-def expand_query_string_data_dict(query_string_dict):
+def expand_meowuri_data_dict(meowuri_dict):
     """
     Performs the reverse operation of that of 'flatten_dict'.
 
-    A dictionary with "query strings" as keys storing data in each value is
-    expanded by splitting the query strings by periods and creating a
+    A dictionary with "meowURIs" as keys storing data in each value is
+    expanded by splitting the meowURIs by periods and creating a
     nested dictionary.
 
     Args:
-        query_string_dict: Dictionary keyed by "query strings".
+        meowuri_dict: Dictionary keyed by "meowURIs".
 
     Returns:
         An "expanded" or "unflattened" version of the given dictionary.
     """
-    if not query_string_dict or not isinstance(query_string_dict, dict):
+    if not meowuri_dict or not isinstance(meowuri_dict, dict):
         raise TypeError
 
     out = {}
-    for key, value in query_string_dict.items():
+    for key, value in meowuri_dict.items():
         key_parts = key.split('.')
-        nested_dict_set(out, key_parts, value)
+        try:
+            nested_dict_set(out, key_parts, value)
+        except KeyError:
+            log.error('Duplicate "meowURIs" would have clobbered existing!'
+                      ' Key: "{!s}"  Value: {!s}'.format(key, value))
 
     return out
 
@@ -318,19 +327,29 @@ def nested_dict_set(dictionary, list_of_keys, value):
     attempting to overwrite an already existing value with a new dictionary
     entry.
 
+    The list of keys can not contain any None or whitespace-only items.
+
     Note that the dictionary is modified IN PLACE.
 
     Based on this post:  https://stackoverflow.com/a/37704379/7802196
 
     Args:
         dictionary: The dictionary from which to retrieve a value.
-        list_of_keys: List of keys to the value to set.
-        value: The new value that will be set.
+        list_of_keys: List of keys to the value to set, as any hashable type.
+        value: The new value that will be set in the given dictionary.
+    Raises:
+        TypeError: Arg 'list_of_keys' evaluates None or isn't a list.
+        ValueError: Arg 'list_of_keys' contains None or whitespace-only string.
+        KeyError: Existing value would have been clobbered.
     """
     if not list_of_keys or not isinstance(list_of_keys, list):
         raise TypeError('Expected "list_of_keys" to be a list of strings')
-    elif all(not k for k in list_of_keys):
-        raise ValueError('Expected "list_of_keys" not to be all None/empty')
+
+    if (None in list_of_keys or
+            any(k.strip() == '' for k in list_of_keys if isinstance(k, str))):
+        raise ValueError(
+            'Expected "list_of_keys" to not contain any None/"empty" items'
+        )
 
     for key in list_of_keys[:-1]:
         dictionary = dictionary.setdefault(key, {})
@@ -338,6 +357,17 @@ def nested_dict_set(dictionary, list_of_keys, value):
     try:
         dictionary[list_of_keys[-1]] = value
     except TypeError:
+        # TODO: Add keyword-argument to allow overwriting any existing.
+        # This happens when the dictionary contains a non-dict item where one
+        # of the keys would go. For example;
+        #
+        #    example_dict = {'a': 2,
+        #                    'b': {'c': 4,
+        #                          'foo': 6}})
+        #
+        # Calling "nested_dict_set(example_dict, ['a', 'foo'], 1])" would
+        # fail because 'a' stores the integer "2" where we would like to
+        # create the new dict;  "{'foo': 6}"
         raise KeyError('Caught TypeError (would have clobbered existing value)')
 
 
@@ -357,30 +387,50 @@ def eval_magic_glob(mime_to_match, glob_list):
         'application/pdf'     ['*/*']                   True
         'application/pdf'     ['image/*', '*/jpg']      False
 
+    This function performs extra argument validation due to the fact that it is
+    likely to be used by third party developers. It is also exposed to possibly
+    malformed configuration entries.
+
     Args:
-        mime_to_match: The MIME to match against the globs as a string.
-        glob_list: A list of globs as strings.
+        mime_to_match: The MIME to match against the globs as a Unicode string.
+        glob_list: A list of globs as Unicode strings.
 
     Returns:
-        True if the given MIME type matches any of the specified globs.
+        True if the MIME to match is valid and matches any of the globs.
+        False if the MIME to match is valid but does not match any of the globs.
+    Raises:
+        TypeError: Got non-Unicode string arguments.
+        ValueError: Argument "mime_to_match" is not on the form "foo/bar".
     """
     if not mime_to_match or not glob_list:
         return False
+    if mime_to_match == constants.MAGIC_TYPE_UNKNOWN:
+        return False
+
+    if not (isinstance(mime_to_match, str)):
+        raise TypeError('Expected "mime_to_match" to be of type str')
+    if '/' not in mime_to_match:
+        raise ValueError('Expected "mime_to_match" to be on the form "foo/bar"')
 
     if not isinstance(glob_list, list):
         glob_list = [glob_list]
 
+    log.debug(
+        'Evaluating MIME. MimeToMatch: "{!s}" Globs: {!s}'.format(mime_to_match,
+                                                                  glob_list)
+    )
     mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
-
     for glob in glob_list:
+        assert(isinstance(glob, str))
         if glob == mime_to_match:
             return True
         elif '*' in glob:
             try:
                 glob_type, glob_subtype = glob.split('/')
             except ValueError:
-                # NOTE(jonas): Raise exception? Use sophisticated glob parser?
-                raise
+                raise ValueError(
+                    'Expected globs to be on the form "*/a", "a/*"'
+                )
             if glob_type == '*' and glob_subtype == '*':
                 # Matches everything.
                 return True
@@ -391,3 +441,30 @@ def eval_magic_glob(mime_to_match, glob_list):
                 # Checks type equality. Matches any subtype.
                 return True
     return False
+
+
+def is_executable(command):
+    """
+    Checks if the given command would be executable.
+
+    Args:
+        command: The command to test.
+
+    Returns:
+        True if the command would be executable, otherwise False.
+    """
+    return shutil.which(command) is not None
+
+
+def contains_none(iterable):
+    """
+    Returns True if the given iterable is empty or contains a None item.
+    """
+    return not iterable or None in iterable
+
+
+def filter_none(iterable):
+    """
+    Removes any None values from the given iterable and returns the result.
+    """
+    return [item for item in iterable if item is not None]

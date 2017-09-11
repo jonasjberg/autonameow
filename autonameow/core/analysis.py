@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 
 import analyzers
 from core import (
@@ -28,102 +28,17 @@ from core import (
     repository
 )
 from core.fileobject import FileObject
+from extractors import ExtractedData
 
+log = logging.getLogger(__name__)
 
-class Analysis(object):
-    """
-    Performs high-level handling of an analysis.
+"""
+Performs high-level handling of an analysis.
 
-    A run queue is populated based on which analyzers are suited for the
-    current file.  The enqueued analyzers are executed and any results are
-    passed back through a callback function.
-    """
-    def __init__(self, file_object):
-        """
-        Setup an analysis of a given file. This is done once per file.
-
-        Args:
-            file_object: File to analyze as an instance of class 'FileObject'.
-        """
-        if not isinstance(file_object, FileObject):
-            raise TypeError('Argument must be an instance of "FileObject"')
-        self.file_object = file_object
-
-        self.add_to_global_data = repository.SessionRepository.store
-        self.request_global_data = repository.SessionRepository.resolve
-
-        self.analyzer_queue = AnalysisRunQueue()
-
-    def collect_results(self, label, data):
-        """
-        Collects analysis results. Passed to analyzers as a callback.
-
-        Analyzers call this to pass collected data to the session repository.
-
-        Args:
-            label: Label that uniquely identifies the data.
-            data: The data to add.
-        """
-        self.add_to_global_data(self.file_object, label, data)
-
-    def start(self):
-        """
-        Starts the analysis by populating and executing the run queue.
-        """
-        log.debug('File is of type "{!s}"'.format(self.file_object.mime_type))
-        self._populate_run_queue()
-
-        # Run all analyzers in the queue.
-        self._execute_run_queue()
-
-        # TODO: Fix or remove result count tally.
-        # log.info('Finished executing {} analyzers. Got {} results'.format(
-        #     len(self.analyzer_queue), len(self.results)
-        # ))
-
-    def _populate_run_queue(self):
-        """
-        Populate the run queue with analyzers suited for the given file.
-        """
-
-        classes = analyzers.suitable_analyzers_for(self.file_object)
-        if not classes:
-            raise exceptions.AutonameowException(
-                'None of the analyzers applies (!)'
-            )
-
-        analyzer_instances = self._instantiate_analyzers(classes)
-        for a in analyzer_instances:
-            self.analyzer_queue.enqueue(a)
-        log.debug('Enqueued analyzers: {!s}'.format(self.analyzer_queue))
-
-    def _instantiate_analyzers(self, class_list):
-        """
-        Get a list of class instances from a given list of classes.
-
-        Args:
-            class_list: The classes to instantiate as a list of type 'class'.
-
-        Returns:
-            One instance of each of the given classes as a list of objects.
-        """
-        return [a(self.file_object, self.collect_results, self.request_global_data)
-                for a in class_list]
-
-    def _execute_run_queue(self):
-        """
-        Executes analyzers in the analyzer run queue.
-        """
-        for i, a in enumerate(self.analyzer_queue):
-            log.debug('Executing queue item {}/{}: '
-                      '{!s}'.format(i + 1, len(self.analyzer_queue), a))
-            if not a:
-                log.critical('Got undefined analyzer from the run queue (!)')
-                continue
-
-            log.debug('Running Analyzer "{!s}"'.format(a))
-            a.run()
-            log.debug('Finished running "{!s}"'.format(a))
+A run queue is populated based on which analyzers are suited for the
+current file.  The enqueued analyzers are executed and any results are
+passed back through a callback function.
+"""
 
 
 class AnalysisRunQueue(util.GenericQueue):
@@ -156,3 +71,79 @@ class AnalysisRunQueue(util.GenericQueue):
         for pos, item in enumerate(self):
             out.append('{:02d}: {!s}'.format(pos, item))
         return ', '.join(out)
+
+
+def _execute_run_queue(analyzer_queue):
+    """
+    Executes analyzers in the analyzer run queue.
+    """
+    for i, a in enumerate(analyzer_queue):
+        log.debug('Executing queue item {}/{}: '
+                  '{!s}'.format(i + 1, len(analyzer_queue), a))
+
+        log.debug('Running Analyzer "{!s}"'.format(a))
+        a.run()
+        log.debug('Finished running "{!s}"'.format(a))
+
+
+def request_global_data(file_object, meowuri):
+    response = repository.SessionRepository.query(file_object, meowuri)
+    # TODO: [TD0082] Integrate the 'ExtractedData' class.
+    if response is not None and isinstance(response, ExtractedData):
+        return response.value
+    else:
+        return response
+
+
+def collect_results(file_object, label, data):
+    """
+    Collects analysis results. Passed to analyzers as a callback.
+
+    Analyzers call this to store results data in the session repository.
+
+    Args:
+        file_object: Instance of 'file_object' that produced the data to add.
+        label: Label that uniquely identifies the data, as a Unicode str.
+        data: The data to add, as any type or container.
+    """
+    repository.SessionRepository.store(file_object, label, data)
+
+
+def _instantiate_analyzers(file_object, klass_list):
+    """
+    Get a list of class instances from a given list of classes.
+
+    Args:
+        file_object: The file to analyze.
+        klass_list: The classes to instantiate as a list of type 'class'.
+
+    Returns:
+        One instance of each of the given classes as a list of objects.
+    """
+    return [analyzer(file_object,
+                     add_results_callback=collect_results,
+                     request_data_callback=request_global_data)
+            for analyzer in klass_list]
+
+
+def start(file_object):
+    """
+    Starts analyzing 'file_object' using all analyzers deemed "suitable".
+    """
+    if not isinstance(file_object, FileObject):
+        raise TypeError('Argument must be an instance of "FileObject"')
+
+    klasses = analyzers.suitable_analyzers_for(file_object)
+    if not klasses:
+        raise exceptions.AutonameowException(
+            'None of the analyzers applies (!)'
+        )
+
+    analyzer_queue = AnalysisRunQueue()
+    for a in _instantiate_analyzers(file_object, klasses):
+        analyzer_queue.enqueue(a)
+    log.debug('Enqueued analyzers: {!s}'.format(analyzer_queue))
+
+    # Run all analyzers in the queue.
+    _execute_run_queue(analyzer_queue)
+

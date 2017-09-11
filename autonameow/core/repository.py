@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 
 import analyzers
 import extractors
@@ -30,41 +30,51 @@ from core import (
 )
 
 
+log = logging.getLogger(__name__)
+
+
 class Repository(object):
     def __init__(self):
         self.data = {}
-        self.query_string_class_map = {}
-        self.resolvable_query_strings = set()
+        self.meowuri_class_map = {}
+        self.mapped_meowuris = set()
+        self.log = logging.getLogger(
+            '{!s}.{!s}'.format(__name__, self.__module__)
+        )
+        self.log.setLevel(logging.DEBUG)
 
     def initialize(self):
-        self.query_string_class_map = querystring_class_map_dict()
+        self.meowuri_class_map = meowuri_class_map_dict()
         self._log_string_class_map()
 
-        self.resolvable_query_strings = resolvable_query_strings(
-            self.query_string_class_map
+        # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
+        self.mapped_meowuris = unique_map_meowuris(
+            self.meowuri_class_map
         )
 
     def _log_string_class_map(self):
-        for key in self.query_string_class_map.keys():
-            for query_string, klass in self.query_string_class_map[key].items():
-                print('Mapped query string "{!s}" to <{!s}> ({!s})'.format(
-                    query_string, klass, key))
+        for key in self.meowuri_class_map.keys():
+            for meowuri, klass in self.meowuri_class_map[key].items():
+                self.log.debug(
+                    'Mapped meowURI <{!s}> to "{!s}" ({!s})'.format(meowuri,
+                                                                    klass, key)
+                )
 
-    def store(self, file_object, query_string, data):
+    def store(self, file_object, meowuri, data):
         """
         Collects data. Should be passed to "non-core" components as a callback.
 
         Adds data related to a given 'file_object', at a storage location
-        defined by the given 'query_string'.
+        defined by the given 'meowuri'.
 
             STORAGE = {
                 'file_object_A': {
-                    'query_string_a': [1, 2]
-                    'query_string_b': ['foo']
+                    'meowuri_a': [1, 2]
+                    'meowuri_b': ['foo']
                 }
                 'file_object_B': {
-                    'query_string_a': ['bar']
-                    'query_string_b': [2, 1]
+                    'meowuri_a': ['bar']
+                    'meowuri_b': [2, 1]
                 }
             }
 
@@ -79,64 +89,88 @@ class Repository(object):
           LABEL: 'metadata.exiftool.c'   DATA: 'd'
 
         """
-        if not query_string:
+        if not meowuri:
             raise exceptions.InvalidDataSourceError(
-                'Missing required argument "query_string"'
+                'Missing required argument "meowuri"'
             )
-        if not isinstance(query_string, str):
+        if not isinstance(meowuri, str):
             raise exceptions.InvalidDataSourceError(
-                'Argument "query_string" must be of type str'
+                'Argument "meowuri" must be of type str'
             )
 
         if data is None:
-            log.warning('Attempted to add None data with query string'
-                        ' "{!s}"'.format(query_string))
+            log.warning('Attempted to add None data with meowURI'
+                        ' "{!s}"'.format(meowuri))
             return
 
         if isinstance(data, dict):
             flat_data = util.flatten_dict(data)
             for k, v in flat_data.items():
-                merged_query_string = query_string + '.' + str(k)
-                self._store(file_object, merged_query_string, v)
+                merged_meowuri = meowuri + '.' + str(k)
+                self._store(file_object, merged_meowuri, v)
         else:
-            self._store(file_object, query_string, data)
+            self._store(file_object, meowuri, data)
 
-    def _store(self, file_object, query_string, data):
+    def _store(self, file_object, meowuri, data):
         try:
             any_existing = util.nested_dict_get(self.data,
-                                                [file_object, query_string])
+                                                [file_object, meowuri])
         except KeyError:
             pass
         else:
             if any_existing is not None:
-                assert(not isinstance(data, list))
-                data = [any_existing] + [data]
+                if not isinstance(any_existing, list):
+                    any_existing = [any_existing]
+                if not isinstance(data, list):
+                    data = [data]
 
-        util.nested_dict_set(self.data, [file_object, query_string], data)
+                data = any_existing + data
+
+        util.nested_dict_set(self.data, [file_object, meowuri], data)
         log.debug('Repository stored: {{"{!s}": {{"{!s}": {!s}}}}}'.format(
-            file_object, query_string, data
+            file_object, meowuri, data
         ))
 
-    def resolve(self, file_object, query_string):
-        if not query_string:
+    def query(self, file_object, meowuri, mapped_to_field=None):
+        if not meowuri:
             raise exceptions.InvalidDataSourceError(
-                'Unable to resolve empty query string'
+                'Unable to resolve empty meowURI'
             )
 
+        log.debug('Got request [{!s}] "{!s}" Mapped to Field: "{!s}"'.format(
+            file_object, meowuri, mapped_to_field))
+
         try:
-            d = util.nested_dict_get(self.data, [file_object, query_string])
+            data = util.nested_dict_get(self.data, [file_object, meowuri])
         except KeyError as e:
             log.debug('Repository request raised KeyError: {!s}'.format(e))
             return None
         else:
-            return d
+            # TODO: [TD0082] Integrate the 'ExtractedData' class.
+            if isinstance(data, extractors.ExtractedData):
+                if mapped_to_field is not None:
+                    if data.maps_field(mapped_to_field):
+                        return data
+                    else:
+                        log.debug(
+                            'Repository request failed requirement; [{!s}] '
+                            '"{!s}" Mapped to Field: "{!s}"'.format(
+                                file_object, meowuri, mapped_to_field
+                            )
+                        )
+                        return None
+                else:
+                    return data
 
-    def resolvable(self, query_string):
-        if not query_string:
+            else:
+                return data
+
+    def resolvable(self, meowuri):
+        if not meowuri:
             return False
 
-        resolvable = list(self.resolvable_query_strings)
-        if any([query_string.startswith(r) for r in resolvable]):
+        resolvable = list(self.mapped_meowuris)
+        if any([meowuri.startswith(r) for r in resolvable]):
             return True
         return False
 
@@ -154,8 +188,24 @@ class Repository(object):
             # TODO: [TD0066] Handle all encoding properly.
             temp = {}
             for key, value in data.items():
+                # TODO: [TD0082] Integrate the 'ExtractedData' class.
+                if isinstance(value, extractors.ExtractedData):
+                    value = value.value
+
                 if isinstance(value, bytes):
                     temp[key] = util.displayable_path(value)
+                elif isinstance(value, list):
+                    log.debug('TODO: Improve robustness of handling this case')
+                    # temp_list = [util.displayable_path(v) for v in value
+                    #              if isinstance(v, bytes)]
+                    temp_list = []
+                    for v in value:
+                        if isinstance(v, bytes):
+                            temp_list.append(util.displayable_path(v))
+                        else:
+                            temp_list.append(v)
+
+                    temp[key] = temp_list
                 else:
                     temp[key] = value
 
@@ -163,23 +213,15 @@ class Repository(object):
                 if key == 'contents.textual.raw_text':
                     temp[key] = truncate_text(temp[key])
 
-            expanded = util.expand_query_string_data_dict(temp)
+            expanded = util.expand_meowuri_data_dict(temp)
             out.append(util.dump(expanded))
             out.append('\n')
 
         return '\n'.join(out)
 
-    def __repr__(self):
-        out = {}
-
-        for key, value in self.data.items():
-            # TODO: [TD0066] Handle all encoding properly.
-            if isinstance(value, bytes):
-                out[key] = util.displayable_path(value)
-            else:
-                out[key] = value
-
-        return out
+    # def __repr__(self):
+    #     # TODO: Implement this properly.
+    #     pass
 
 
 def truncate_text(text, number_chars=500):
@@ -187,31 +229,88 @@ def truncate_text(text, number_chars=500):
     return text[0:number_chars] + msg
 
 
-def querystring_class_map_dict():
-    # The 'QueryStringClassMap' attributes in non-core modules keep
-    # references to the available component class.
-    # These are dicts with keys being the "query strings" that the data
-    # stored by the respective component uses when storing data and the
-    # contained values are lists of classes mapped to the "query string".
-    _query_string_class_map = {
-        'extractors': extractors.QueryStringClassMap,
-        'analyzers': analyzers.QueryStringClassMap,
-        'plugins': plugins.QueryStringClassMap
+def meowuri_class_map_dict():
+    # The 'MeowURIClassMap' attributes in non-core modules keep
+    # references to the available component classes.
+    # These are dicts with keys being the "meowURIs" that the respective
+    # component uses when storing data and the contained values are lists of
+    # classes mapped to the "meowURI".
+    _meowuri_class_map = {
+        'extractors': extractors.MeowURIClassMap,
+        'analyzers': analyzers.MeowURIClassMap,
+        'plugins': plugins.MeowURIClassMap
     }
-    return _query_string_class_map
+    return _meowuri_class_map
 
 
-def resolvable_query_strings(query_string_class_map):
+def unique_map_meowuris(meowuri_class_map):
     out = set()
 
-    # for key in ['extractors', 'analyzers', 'plugins']:
-    for key in query_string_class_map.keys():
-        for query_string, _ in query_string_class_map[key].items():
-            assert not (isinstance(query_string, list))
-            out.add(query_string)
+    # for key in ['extractors', 'analyzers', 'plugins'] ..
+    for key in meowuri_class_map.keys():
+        for meowuri in meowuri_class_map[key].keys():
+            assert not (isinstance(meowuri, list))
+            out.add(meowuri)
 
     return out
 
 
+def map_meowuri_to_source_class(meowuri, includes=None):
+    """
+    Returns a list of classes that could store data using the given "MeowURI".
+
+    Args:
+        meowuri: The "MeowURI" of interest.
+        includes: Optional list of sources to include. Default: include all
+
+    Returns:
+        A list of classes that "could" produce and store data with a MeowURI
+        that matches the given MeowURI.
+    """
+    def _search_source_type(key):
+        for k, v in SessionRepository.meowuri_class_map[key].items():
+            if meowuri.startswith(k):
+                return SessionRepository.meowuri_class_map[key][k]
+        return None
+
+    if not meowuri:
+        return []
+
+    if includes is None:
+        return (_search_source_type('extractors')
+                or _search_source_type('analyzers')
+                or _search_source_type('plugins')
+                or [])
+    else:
+        if not isinstance(includes, list):
+            includes = [includes]
+        for include in includes:
+            if include not in ('analyzers', 'extractors', 'plugins'):
+                continue
+
+            result = _search_source_type(include)
+            if result is not None:
+                return result
+
+        return []
+
+
+def get_sources_for_meowuris(meowuri_list, includes=None):
+    if not meowuri_list:
+        return []
+
+    out = set()
+    for uri in meowuri_list:
+        source_classes = map_meowuri_to_source_class(uri, includes)
+
+        # TODO: Improve robustness of linking "MeowURIs" to data source classes.
+        if source_classes:
+            for source_class in source_classes:
+                out.add(source_class)
+
+    return list(out)
+
+
+# TODO: [TD0086] Keep one global 'SessionRepository' per 'Autonameow' instance.
 SessionRepository = Repository()
 SessionRepository.initialize()

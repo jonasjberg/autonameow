@@ -19,8 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
-
 from analyzers import BaseAnalyzer
 from core.util import dateandtime
 
@@ -28,7 +26,7 @@ from core.util import dateandtime
 class TextAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     handles_mime_types = ['text/plain']
-    data_query_string = 'analysis.plaintext'
+    meowuri_root = 'analysis.text'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -37,13 +35,6 @@ class TextAnalyzer(BaseAnalyzer):
         )
 
         self.text = None
-
-    def _add_results(self, label, data):
-        query_string = 'analysis.text_analyzer.{}'.format(label)
-        log.debug('{} passed "{}" to "add_results" callback'.format(
-            self, query_string)
-        )
-        self.add_results(query_string, data)
 
     def run(self):
         self.text = self.request_data(self.file_object,
@@ -61,13 +52,13 @@ class TextAnalyzer(BaseAnalyzer):
         pass
 
     def get_datetime(self):
-        result = []
+        results = []
         if self.text:
             text_timestamps = self._get_datetime_from_text()
             if text_timestamps:
-                result += text_timestamps
+                results += text_timestamps
 
-        return result
+        return results if results else None
 
     def get_tags(self):
         pass
@@ -78,7 +69,7 @@ class TextAnalyzer(BaseAnalyzer):
             text = ' '.join(text)
 
         if text.lower().find('gmail'):
-            log.debug('Text might be a Gmail (contains "gmail")')
+            self.log.debug('Text might be a Gmail (contains "gmail")')
             return
 
     def _get_datetime_from_text(self):
@@ -100,14 +91,14 @@ class TextAnalyzer(BaseAnalyzer):
                                 'source': 'regex_search',
                                 'weight': 0.25})
         else:
-            log.debug('Unable to extract date/time-information from text file '
-                      'contents using regex search.')
+            self.log.debug('Unable to extract date/time-information from'
+                           ' text file contents using regex search.')
 
         if type(text) == list:
             text = ' '.join(text)
 
         matches_brute = 0
-        log.debug('Try getting datetime from text split by newlines')
+        self.log.debug('Try getting datetime from text split by newlines')
         for t in text.split('\n'):
             dt_brute = dateandtime.bruteforce_str(t)
             if dt_brute:
@@ -117,10 +108,14 @@ class TextAnalyzer(BaseAnalyzer):
                                     'source': 'bruteforce_search',
                                     'weight': 0.1})
         if matches_brute == 0:
-            log.debug('Unable to extract date/time-information from text file '
-                      'contents using brute force search.')
+            self.log.debug('Unable to extract date/time-information from'
+                           ' text file contents using brute force search.')
         else:
-            log.debug('Brute force search for date/time-information returned '
-                      '{} results.'.format(matches_brute))
+            self.log.debug('Brute force search for date/time-information'
+                           ' returned {} results.'.format(matches_brute))
 
         return results
+
+    @classmethod
+    def check_dependencies(cls):
+        return True

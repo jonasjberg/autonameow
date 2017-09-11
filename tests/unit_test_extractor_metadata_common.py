@@ -20,39 +20,63 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-import unit_utils as uu
-from core import exceptions
 
-from extractors.metadata import (
-    AbstractMetadataExtractor,
+from core import (
+    types,
+    fields
 )
+from extractors import (
+    ExtractedData,
+    ExtractorError
+)
+from extractors.metadata.common import AbstractMetadataExtractor
+import unit_utils as uu
 
 
 class TestAbstractMetadataExtractor(TestCase):
     def setUp(self):
-        self.e = AbstractMetadataExtractor(uu.make_temporary_file())
+        self.test_file = uu.make_temporary_file()
+        self.e = AbstractMetadataExtractor()
 
-    def test_abstract_metadata_extractor_class_is_available(self):
+    def test_class_is_available(self):
         self.assertIsNotNone(AbstractMetadataExtractor)
 
-    def test_abstract_metadata_extractor_class_can_be_instantiated(self):
+    def test_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
     def test_method__get_raw_metadata_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e._get_raw_metadata()
+            self.e._get_raw_metadata(self.test_file)
 
     def test_query_raises_exception_with__get_raw_metadata_unimplemented(self):
-        with self.assertRaises(exceptions.ExtractorError):
-            self.assertIsNone(self.e.query())
-            self.assertIsNone(self.e.query(field='some_field'))
+        with self.assertRaises(ExtractorError):
+            self.assertIsNone(self.e(self.test_file))
+
+        with self.assertRaises(ExtractorError):
+            self.assertIsNone(self.e(self.test_file, field='some_field'))
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.handles_mime_types)
 
-    def test_abstract_class_does_not_specify_data_query_string(self):
-        self.assertIsNone(self.e.data_query_string)
+    def test_abstract_class_does_not_specify_meowuri_root(self):
+        self.assertIsNone(self.e.meowuri_root)
 
     def test__perform_initial_extraction_raises_extractor_error(self):
-        with self.assertRaises(exceptions.ExtractorError):
-            actual = self.e._perform_initial_extraction()
+        with self.assertRaises(ExtractorError):
+            _ = self.e.execute(self.test_file)
+
+    def test_check_dependencies_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            self.e.check_dependencies()
+
+
+class TestExtractedData(TestCase):
+    def test_call(self):
+        m = ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping('foo_field_a', probability=1.0),
+                fields.WeightedMapping('foo_field_b', probability=0.8)
+            ])
+
+        self.assertIsNotNone(m)

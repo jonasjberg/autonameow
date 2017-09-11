@@ -20,31 +20,35 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import sys
 import time
 
 from core import (
+    analysis,
     config,
     constants,
-    options,
-    util,
     exceptions,
-    repository
+    extraction,
+    namebuilder,
+    options,
+    repository,
+    util,
 )
-from core.analysis import Analysis
 from core.config.configuration import Configuration
-from core.evaluate.filter import ResultFilter
-from core.evaluate.namebuilder import NameBuilder
+from core.evaluate.resolver import Resolver
 from core.evaluate.rulematcher import RuleMatcher
-from core.extraction import Extraction
 from core.fileobject import FileObject
+from core.filter import ResultFilter
 from core.plugin_handler import PluginHandler
 from core.util import (
     cli,
     diskutils
 )
 from . import version
+
+
+log = logging.getLogger(__name__)
 
 
 class Autonameow(object):
@@ -77,7 +81,7 @@ class Autonameow(object):
             self.exit_program(constants.EXIT_SUCCESS)
 
         # Handle the command line arguments and setup logging.
-        self.opts = options.initialize(self.args)
+        self.opts = options.parse_args(self.args)
 
         # Display various information depending on verbosity level.
         if self.opts.verbose or self.opts.debug:
@@ -103,12 +107,6 @@ class Autonameow(object):
             log.critical('Unable to load configuration -- Aborting ..')
             self.exit_program(constants.EXIT_ERROR)
 
-        # TODO: [TD0076] Register non-core components at startup.
-        _referenced_qs = sorted(self.active_config.referenced_query_strings)
-        for _query_string in _referenced_qs:
-            log.debug('Configuration file rule referenced query string'
-                      ' "{!s}"'.format(_query_string))
-
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
 
@@ -127,31 +125,15 @@ class Autonameow(object):
             self.exit_program(constants.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
-        files_to_process = self._get_files_to_process()
+        files_to_process = diskutils.normpaths_from_opts(
+            self.opts.input_paths,
+            self.active_config.options['FILESYSTEM_OPTIONS']['ignore'],
+            self.opts.recurse_paths
+        )
         log.info('Got {} files to process'.format(len(files_to_process)))
 
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
-
-    def _get_files_to_process(self):
-        file_list = []
-
-        for path in self.opts.input_paths:
-            if not path:
-                continue
-
-            # Path name encoding boundary. Convert to internal format.
-            path = util.normpath(path)
-            try:
-                file_list += diskutils.get_files(
-                    path, recurse=self.opts.recurse_paths
-                )
-            except FileNotFoundError:
-                log.error('File(s) not found: "{}"'.format(
-                    util.displayable_path(path))
-                )
-
-        return file_list
 
     def load_config(self, dict_or_yaml):
         try:
@@ -199,13 +181,22 @@ class Autonameow(object):
         Main loop. Iterate over input paths/files.
 
         For each file:
-        1. Create 'FileObject' representing the file.
-        2. Extract data from the file with an instance of the 'Extraction' class
-        3. Perform analysis of the file with an instance of the 'Analysis' class
-        4. Determine which rules match the given file.
-        5. Do any reporting of results to the user.
-        6. (automagic mode) Use a 'NameBuilder' instance to assemble the name.
-        7. (automagic mode and not --dry-run) Rename the file.
+        1. Create a 'FileObject' representing the current file.
+        2. Extract data from the file with suitable and/or required extractors.
+        3. Perform analysis of the file with suitable analyzers.
+        4. Run any available plugins.
+        5A -- "AUTOMAGIC MODE"
+            1. Determine which rules match the given file.
+            2. Use the "name template" and "data sources" specified in the
+               highest ranked rule, if any.
+            3. Use a 'Resolver' to collect data from "data sources" to be used
+               to populate "name template".
+            4. Construct a file name with the "name builder" if all required
+               data is available.
+            5. If not --dry-run; rename the file to the new file name.
+        5B -- "INTERACTIVE MODE"
+          1. Not implemented yet!
+        6. Do any reporting of results to the user.
 
         Assume all state is setup and completely reset for each loop iteration.
         It is not currently possible to share "information" between runs.
@@ -217,9 +208,9 @@ class Autonameow(object):
 
             # Sanity checking the "file_path" is part of 'FileObject' init.
             try:
-                current_file = FileObject(file_path, self.active_config)
+                current_file = FileObject(file_path)
             except exceptions.InvalidFileArgumentError as e:
-                log.warning('{!s} - SKIPPING: "{!s}"'.format(
+                log.warning('{!s} - SKIPPING: "{!s}"'.format(
                     e, util.displayable_path(file_path))
                 )
                 continue
@@ -235,7 +226,8 @@ class Autonameow(object):
 
         if self.opts.list_all:
             log.info('Listing session repository contents ..')
-            cli.msg('Session Repository Data', style='heading', log=True)
+            cli.msg('Session Repository Data', style='heading',
+                    add_info_log=True)
             cli.msg(str(repository.SessionRepository))
         # else:
         #     if self.opts.list_datetime:
@@ -249,14 +241,28 @@ class Autonameow(object):
                                    or self.opts.list_all)
 
         # Extract data from the file.
-        # Run all extractors so that all possible data is included
-        # when listing any (all) results later on.
-        extraction = _run_extraction(current_file)
+        required_extractors = repository.get_sources_for_meowuris(
+            self.active_config.referenced_meowuris,
+            includes=['extractors']
+        )
+        _run_extraction(
+            current_file,
+            require_extractors=required_extractors,
+
+            # Run all extractors so that all possible data is included
+            # when listing any (all) results later on.
+            run_all_extractors=should_list_any_results
+        )
 
         # Begin analysing the file.
-        analysis = _run_analysis(current_file)
+        _run_analysis(current_file)
 
-        plugin_handler = _run_plugins(current_file)
+        # Run plugins.
+        required_plugins = repository.get_sources_for_meowuris(
+            self.active_config.referenced_meowuris,
+            includes=['plugins']
+        )
+        _run_plugins(current_file, required_plugins)
 
         # Determine matching rule.
         matcher = _run_rule_matcher(current_file, self.active_config)
@@ -280,14 +286,31 @@ class Autonameow(object):
             log.info('None of the rules seem to apply')
             return
 
-        log.info('Using file rule: "{!s}"'.format(
-            rule_matcher.best_match.description)
+        log.info(
+            'Using rule: "{!s}"'.format(rule_matcher.best_match.description)
         )
-        new_name = _build_new_name(
-            current_file,
-            active_config=self.active_config,
-            active_rule=rule_matcher.best_match,
-        )
+        name_template = rule_matcher.best_match.name_template
+
+        resolver = Resolver(current_file, name_template)
+        for _field, _meowuri in rule_matcher.best_match.data_sources.items():
+            resolver.add_known_source(_field, _meowuri)
+
+        if not resolver.mapped_all_template_fields():
+            # TODO: Abort if running in "batch mode". Otherwise, ask the user.
+            log.error('All name template placeholder fields must be '
+                      'given a data source; Check the configuration!')
+            self.exit_code = constants.EXIT_WARNING
+            return
+
+        # Get a dict of data keyed by the name template placeholder fields.
+        templatefield_data_map = resolver.collect()
+        try:
+            new_name = namebuilder.build(config=self.active_config,
+                                         name_template=name_template,
+                                         field_data_map=templatefield_data_map)
+        except exceptions.NameBuilderError as e:
+            log.critical('Name assembly FAILED: {!s}'.format(e))
+            raise exceptions.AutonameowException
 
         # TODO: [TD0042] Respect '--quiet' option. Suppress output.
         log.info('New name: "{}"'.format(
@@ -332,22 +355,6 @@ class Autonameow(object):
         """
         assert(isinstance(from_path, bytes))
         assert(isinstance(new_basename, str))
-
-        # TODO: [TD0071] Move "sanitation" to the 'NameBuilder' or elsewhere.
-        if self.active_config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
-            if self.active_config.get(['FILESYSTEM_OPTIONS', 'sanitize_strict']):
-                log.debug('Sanitizing filename (restricted=True)')
-                new_basename = diskutils.sanitize_filename(new_basename,
-                                                           restricted=True)
-            else:
-                log.debug('Sanitizing filename')
-                new_basename = diskutils.sanitize_filename(new_basename)
-
-            log.debug('Sanitized basename (unicode): "{!s}"'.format(
-                util.displayable_path(new_basename))
-            )
-        else:
-            log.debug('Skipped sanitizing filename')
 
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = util.bytestring_path(new_basename)
@@ -398,49 +405,28 @@ class Autonameow(object):
             self._exit_code = value
 
 
-def _build_new_name(file_object, active_config, active_rule):
-    try:
-        builder = NameBuilder(file_object, active_config, active_rule)
-
-        # TODO: Do not return anything from 'build()', use property.
-        new_name = builder.build()
-    except exceptions.NameBuilderError as e:
-        log.critical('Name assembly FAILED: {!s}'.format(e))
-        raise exceptions.AutonameowException
-    else:
-        return new_name
-
-
-def _run_extraction(file_object, run_all_extractors=False):
+def _run_extraction(file_object, require_extractors, run_all_extractors=False):
     """
-    Instantiates, executes and returns an 'Extraction' instance.
+    Sets up and executes data extraction for the given file.
 
     Args:
         file_object: The file object to extract data from.
+        require_extractors: List of extractor classes that should be included.
         run_all_extractors: Whether all data extractors should be included.
 
-    Returns:
-        An instance of the 'Extraction' class that has executed successfully.
     Raises:
         AutonameowException: An unrecoverable error occurred during extraction.
     """
-    extraction = Extraction(file_object)
     try:
-        # TODO: [TD0056][TD0076] Determine required extractors for current file.
-
-        # Assume slower execution speed is tolerable when the user
-        # wants to display any results, also for completeness. Run all.
-        extraction.start(
-            require_all_extractors=run_all_extractors is True
-        )
+        extraction.start(file_object,
+                         require_extractors=require_extractors,
+                         require_all_extractors=run_all_extractors is True)
     except exceptions.AutonameowException as e:
         log.critical('Extraction FAILED: {!s}'.format(e))
         raise
-    else:
-        return extraction
 
 
-def _run_plugins(file_object):
+def _run_plugins(file_object, required_plugins=None):
     """
     Instantiates, executes and returns a 'PluginHandler' instance.
 
@@ -452,36 +438,33 @@ def _run_plugins(file_object):
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
-    plugin_handler = PluginHandler(file_object)
+    if not required_plugins:
+        return
+
+    plugin_handler = PluginHandler()
+    plugin_handler.use_plugins(required_plugins)
     try:
-        plugin_handler.start()
+        plugin_handler.execute_plugins(file_object)
     except exceptions.AutonameowPluginError as e:
         log.critical('Plugins FAILED: {!s}'.format(e))
         raise exceptions.AutonameowException(e)
-    else:
-        return plugin_handler
 
 
 def _run_analysis(file_object):
     """
-    Instantiates, executes and returns an 'Analysis' instance.
+    Sets up and executes "analysis" of the given file.
 
     Args:
         file_object: The file object to analyze.
 
-    Returns:
-        An instance of the 'Analysis' class that has executed successfully.
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
-    analysis = Analysis(file_object)
     try:
-        analysis.start()
+        analysis.start(file_object)
     except exceptions.AutonameowException as e:
         log.critical('Analysis FAILED: {!s}'.format(e))
         raise
-    else:
-        return analysis
 
 
 def _run_rule_matcher(file_object, active_config):

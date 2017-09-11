@@ -23,18 +23,22 @@
 import os
 
 from unittest import TestCase
+
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestMainFileExistsAndIsExecutable(TestCase):
     def setUp(self):
-        self.main_file = os.path.join(uu.AUTONAMEOW_SRCROOT_DIR, '__main__.py')
+        self.main_file = os.path.normpath(os.path.join(
+            uuconst.AUTONAMEOW_SRCROOT_DIR, '__main__.py'
+        ))
 
     def test_assumed_main_source_file_exists(self):
-        self.assertTrue(os.path.exists(self.main_file))
+        self.assertTrue(uu.file_exists(self.main_file))
 
     def test_assumed_main_source_file_is_a_file(self):
-        self.assertTrue(os.path.isfile(self.main_file))
+        self.assertTrue(uu.file_exists(self.main_file))
 
     def test_assumed_main_source_file_is_readable(self):
         self.assertTrue(os.access(self.main_file, os.R_OK))

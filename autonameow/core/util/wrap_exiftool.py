@@ -15,6 +15,9 @@
 #
 # See COPYING.GPL or COPYING.BSD for more details.
 
+
+# TODO: [TD0081] Bundle `pyexiftool`. Add to `autonameow/thirdparty`.
+
 """
 PyExifTool is a Python library to communicate with an instance of Phil
 Harvey's excellent ExifTool_ command-line application.  The library
@@ -62,10 +65,7 @@ import json
 import warnings
 import codecs
 
-try:        # Py3k compatibility
-    basestring
-except NameError:
-    basestring = (bytes, str)
+basestring = (bytes, str)
 
 executable = "exiftool"
 """The name of the executable to run.

@@ -22,71 +22,14 @@
 from unittest import TestCase
 
 import extractors
-from core import (
-    extraction,
-    exceptions
-)
-from core.extraction import Extraction
+from core import extraction
 import unit_utils as uu
-
-
-def dummy_collect_data(file_object, label, data):
-    pass
-
-
-def dummy_request_data(file_object, label):
-    pass
+import unit_utils_constants as uuconst
 
 
 class TestExtraction(TestCase):
-    def setUp(self):
-        self.e = Extraction(uu.get_mock_fileobject())
-        self.sources = ['text.py', 'metadata.py']
-
-    def test_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test_initial_results_data_len_is_zero(self):
-        self.skipTest('TODO: Fix or remove result count tally.')
-        self.assertEqual(len(self.e.data), 0)
-
-    def test_raises_exception_For_invalid_results(self):
-        with self.assertRaises(exceptions.InvalidDataSourceError):
-            self.e.collect_results(None, 'image/jpeg')
-            self.e.collect_results(1, 'image/jpeg')
-            self.e.collect_results(False, 'image/jpeg')
-
-    def test_collects_valid_results(self):
-        self.e.collect_results('contents.mime_type', 'image/jpeg')
-
-    def test_collecting_valid_results_increments_data_len(self):
-        self.skipTest('TODO: Fix or remove result count tally.')
-        self.e.collect_results('contents.mime_type', 'image/jpeg')
-        self.assertEqual(len(self.e.data), 1)
-        self.e.collect_results('filesystem.basename.extension', 'jpg')
-        self.assertEqual(len(self.e.data), 2)
-
-    def test_collecting_results_with_empty_data_does_not_increment_len(self):
-        self.skipTest('TODO: Fix or remove result count tally.')
-        self.e.collect_results('contents.mime_type', None)
-        self.assertEqual(len(self.e.data), 0)
-        self.e.collect_results('filesystem.basename.extension', None)
-        self.assertEqual(len(self.e.data), 0)
-
-    def test_has_method__instantiate_extractors(self):
-        self.assertIsNotNone(self.e._instantiate_extractors)
-
-    def test__instantiate_extractors_returns_expected_type(self):
-        extractor_classes = extractors.get_extractor_classes(self.sources)
-        actual = self.e._instantiate_extractors(extractor_classes)
-
-        self.assertTrue(isinstance(actual, list))
-        for ec in actual:
-            self.assertTrue(uu.is_class_instance(ec))
-            self.assertTrue(issubclass(ec.__class__, extractors.BaseExtractor))
-
-    def test_has_method__execute_run_queue(self):
-        self.assertIsNotNone(self.e._execute_run_queue)
+    def test_TODO(self):
+        self.skipTest('TODO: Add tests of extraction')
 
 
 class _DummyExtractor(object):

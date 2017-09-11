@@ -50,11 +50,13 @@ class TestMsg(TestCase):
 
     def test_msg_type_info_log_true(self):
         with uu.capture_stdout() as out:
-            cli.msg('text printed by msg() with type="info", log=True',
-                    style='info', log=True)
+            cli.msg('text printed by msg() with type="info", add_info_log=True',
+                    style='info', add_info_log=True)
 
-        self.assertIn('text printed by msg() with type="info", log=True',
-                      out.getvalue().strip())
+        self.assertIn(
+            'text printed by msg() with type="info", add_info_log=True',
+            out.getvalue().strip()
+        )
 
     def test_msg_type_color_quoted(self):
         with uu.capture_stdout() as out:
@@ -217,7 +219,7 @@ class TestMsgRename(TestCase):
                            '2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=True)
 
-            self.assertEqual('Would have renamed "\x1b[92msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+            self.assertEqual('Would have renamed "\x1b[37msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
                              out.getvalue().strip())
 
     def test_valid_args_dry_run_false_gives_expected_output(self):
@@ -226,7 +228,7 @@ class TestMsgRename(TestCase):
                            '2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=False)
 
-            self.assertEqual('Renamed "\x1b[92msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+            self.assertEqual('Renamed "\x1b[37msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
                              out.getvalue().strip())
 
     def test_valid_bytestring_args_dry_run_true_gives_expected_output(self):
@@ -235,7 +237,7 @@ class TestMsgRename(TestCase):
                            b'2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=True)
 
-            self.assertEqual('Would have renamed "\x1b[92msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+            self.assertEqual('Would have renamed "\x1b[37msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
                              out.getvalue().strip())
 
     def test_valid_bytestring_args_dry_run_false_gives_expected_output(self):
@@ -244,5 +246,5 @@ class TestMsgRename(TestCase):
                            b'2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=False)
 
-            self.assertEqual('Renamed "\x1b[92msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+            self.assertEqual('Renamed "\x1b[37msmulan.jpg\x1b[39m" -> "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
                              out.getvalue().strip())

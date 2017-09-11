@@ -65,7 +65,7 @@ test_automagic_rename()
         return -1
     fi
 
-    assert_true '"$AUTONAMEOW_RUNNER" --automagic -- "${_temp_file}" && [ -e "$_expected_name" ]' \
+    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic -- "${_temp_file}" && [ -e "$_expected_name" ]' \
                 "(${_test_name}) Should be renamed to \"${_expected_basename}\""
 
     assert_true '[ -f "${_temp_file}" ] && rm -- "${_temp_file}" ; [ -f "$_expected_name" ] && rm -- "$_expected_name" || true' \
@@ -92,19 +92,19 @@ test_automagic_dryrun()
         return -1
     fi
 
-    assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run -- "${_sample_file}"' \
+    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
                 "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run\""
 
-    assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "${_sample_file}"' \
+    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}"' \
                 "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run --verbose\""
 
-    assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --debug -- "${_sample_file}"' \
+    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "${_sample_file}"' \
                 "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run --debug\""
 
-    assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run -- "${_sample_file}" | grep -- "${_expected_basename}"' \
+    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}" | grep -- "${_expected_basename}"' \
                 "(${_test_name}) Expect output to include \"${_expected_basename}\" when started with \"--dry-run\""
 
-    assert_true '"$AUTONAMEOW_RUNNER" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null | grep -- "${_expected_basename}"' \
+    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null | grep -- "${_expected_basename}"' \
                 "(${_test_name}) Expect output to include \"${_expected_basename}\" when started with \"--dry-run --verbose\""
 
     assert_true '[ -f "${_sample_file}" ]' \
@@ -128,13 +128,20 @@ assert_true 'command -v python3' \
 
 AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../run.sh" ) )"
 assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
-             'Environment variable "AUTONAMEOW_RUNNER" should not be unset'
+             'Variable "AUTONAMEOW_RUNNER" should not be unset'
 
 assert_true '[ -e "$AUTONAMEOW_RUNNER" ]' \
             "The autonameow launcher script \""$(basename -- "$AUTONAMEOW_RUNNER")"\" exists"
 
 assert_true '[ -x "$AUTONAMEOW_RUNNER" ]' \
             "The autonameow launcher script has executable permission"
+
+ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_1.yaml")"
+assert_false '[ -z "$ACTIVE_CONFIG" ]' \
+             'Variable "ACTIVE_CONFIG" should not be unset'
+
+assert_true '[ -e "$ACTIVE_CONFIG" ]' \
+            "The config file \""$(basename -- "$ACTIVE_CONFIG")"\" exists"
 
 
 SAMPLE_JPG_FILE="$(abspath_testfile "smulan.jpg")"

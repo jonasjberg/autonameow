@@ -19,38 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unidecode import unidecode
+try:
+    import chardet
+except (ImportError, ModuleNotFoundError):
+    chardet = None
 
 from core import util
-
-
-def sanitize_text(text):
-    """
-    Sanitizes text of unknown origin, encoding and content.
-    :param text: text to process
-    :return: sanitized text
-    """
-    if text is None or text.strip() is None:
-        return False
-
-    # TODO: [TD0004] Handle text encoding properly.
-    # TODO: [TD0044] Rework converting "raw data" to internal representations.
-
-    # NOTE(jonas): This strips all umlauts from 'test_files/gmail.pdf" on Linux.
-    # try:
-    #     text = unidecode(text)
-    # except UnicodeDecodeError:
-    #     pass
-
-    # Collapse whitespace.
-    # '\xa0' is non-breaking space in Latin1 (ISO 8859-1), also chr(160).
-    # text = text.replace('\xa0', ' ')
-
-    # text = text.decode('unicode-escape')
-    # text = unicode(text, 'UTF-8')
-
-    # TODO: [TD0004] Enforce encoding boundary for extracted data.
-    return util.encode_(text)
 
 
 def extract_digits(string):
@@ -92,3 +66,80 @@ def indent(text, amount=4, ch=' '):
     """
     padding = amount * ch
     return ''.join(padding + line for line in text.splitlines(True))
+
+
+def autodetect_decode(string):
+    """
+    Try to decode a string with an unknown encoding to a Unicode str.
+
+    Args:
+        string: The string to decode.
+
+    Returns:
+        The given string decoded to an "internal" Unicode string.
+    Raises:
+        ValueError: The autodetection and/or decoding was unsuccessful.
+    """
+    if isinstance(string, str):
+        return string
+
+    if chardet is None:
+        raise ValueError('Required module "chardet" is not available!')
+
+    # chardet "expects a bytes object, not a unicode object".
+    assert(isinstance(string, bytes))
+
+    detected_encoding = chardet.detect(string)
+    if detected_encoding and 'encoding' in detected_encoding:
+        try:
+            string = string.decode(detected_encoding['encoding'])
+        except ValueError:
+            raise ValueError('Unable to autodetect encoding and decode string')
+
+    return string
+
+
+def extract_lines(text, first_line, last_line):
+    """
+    Extracts a range of text lines from a Unicode string.
+
+    The line boundaries are a superset of "universal newlines" as defined here;
+        https://docs.python.org/3/library/stdtypes.html#str.splitlines
+
+    Any trailing newlines are trimmed.
+
+    Args:
+        text: Text to extract lines from, as a Unicode string.
+        first_line: First line to include, as a non-negative integer.
+        last_line: Last line to include, as a non-negative integer.
+
+    Returns:
+        Lines between 'first_line' and 'last_line' from the given 'text'.
+    """
+    if text is None:
+        raise ValueError('Got None argument "text"')
+    if not isinstance(text, str):
+        raise TypeError('Expected argument "text" to be a Unicode str')
+
+    assert(first_line >= 0)
+    assert(last_line >= 0)
+
+    #if text.endswith('\n'):
+    #    add_trailing_newline = True
+    #else:
+    #    add_trailing_newline = False
+
+    lines = text.splitlines(keepends=True)
+    if last_line > len(lines):
+        last_line = len(lines)
+
+    if first_line > last_line:
+        first_line = last_line
+
+    extracted = lines[first_line:last_line]
+    extracted = ''.join(extracted)
+
+    #if last_line == len(lines) and add_trailing_newline:
+    #    extracted += '\n'
+
+    return extracted

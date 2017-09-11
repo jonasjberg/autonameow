@@ -19,55 +19,104 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging as log
+import logging
 import operator
 
 import copy
 
 from core import (
-    exceptions,
     repository
 )
+from extractors import ExtractedData
+
+log = logging.getLogger(__name__)
 
 
 class RuleMatcher(object):
     def __init__(self, file_object, active_config):
         self.file_object = file_object
-        self.request_data = repository.SessionRepository.resolve
 
-        if not active_config or not active_config.file_rules:
+        if not active_config or not active_config.rules:
             log.error('Configuration does not contain any rules to evaluate')
             self._rules = []
         else:
             # NOTE(jonas): Check a copy of all rules.
-            # Temporary fix for mutable state in the 'FileRule' instances,
+            # Temporary fix for mutable state in the 'Rule' instances,
             # which are initialized *once* when the configuration is loaded.
             # This same configuration instance is used when iterating over the
-            # files. The 'FileRule' scores were not reset between files.
-            self._rules = copy.deepcopy(active_config.file_rules)
+            # files. The 'Rule' scores were not reset between files.
+            # TODO: Double-check that this isn't needed anymore, then remove.
+            self._rules = copy.deepcopy(active_config.rules)
 
+        self._scored_rules = {}
         self._candidates = []
 
-    def query_data(self, query_string):
-        # Functions that use this does not have access to the 'file_object'.
+    def request_data(self, file_object, meowuri):
+        log.debug('requesting [{!s}][{!s}]'.format(file_object, meowuri))
+        response = repository.SessionRepository.query(file_object, meowuri)
+        log.debug('Got response ({}): {!s}'.format(type(response), response))
+
+        # TODO: [TD0082] Integrate the 'ExtractedData' class.
+        if response is not None and isinstance(response, ExtractedData):
+            return response.value
+        else:
+            return response
+
+    def _request_data(self, meowuri):
+        # Functions that use this does not have access to 'self.file_object'.
         # This method, which calls a callback, is itself passed as a callback..
-        return self.request_data(self.file_object, query_string)
+        return self.request_data(self.file_object, meowuri)
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))
-        ok_rules = evaluate_rule_conditions(self._rules, self.query_data)
-        if len(ok_rules) == 0:
-            log.info('No valid rules remain after evaluation')
+
+        remaining_rules = remove_rules_failing_exact_match(self._rules,
+                                                           self._request_data)
+        if len(remaining_rules) == 0:
+            log.info('No rules remain after discarding those who requires an'
+                     ' exact match but failed evaluation ..')
             return
 
-        log.debug('Prioritizing remaining {} candidates ..'.format(len(ok_rules)))
-        ok_rules = prioritize_rules(ok_rules)
-        for i, rule in enumerate(ok_rules):
-            log.info('Rule #{} (Score: {:.2f} Weight: {:.2f}) {} '.format(
-                i + 1, rule.score, rule.weight, rule.description)
+        log.debug('{} rules remain after removing rules that require exact'
+                  ' matches'.format(len(remaining_rules)))
+
+        # Calculate score and weight for each rule, store the results in a
+        # new local dict instead of mutating the 'Rule' instances.
+        # The new dict is keyed by the 'Rule' class instances.
+        max_condition_count = max(len(rule.conditions)
+                                  for rule in remaining_rules)
+        for rule in remaining_rules:
+            met_conditions = rule.count_conditions_met(self._request_data)
+
+            # Ratio of met conditions to the total number of conditions
+            # for a single rule.
+            score = met_conditions / max(1, len(rule.conditions))
+
+            # Ratio of number of conditions in this rule to the number of
+            # conditions in the rule with the highest number of conditions.
+            weight = len(rule.conditions) / max(1, max_condition_count)
+
+            self._scored_rules[rule] = {'score': score,
+                                        'weight': weight}
+
+        log.debug('Prioritizing remaining {} candidates ..'.format(
+            len(remaining_rules))
+        )
+        prioritized_rules = prioritize_rules(self._scored_rules)
+
+        _candidates = []
+        for i, rule in enumerate(prioritized_rules):
+            _candidates.append(rule)
+
+            _exact = 'Yes' if rule.exact_match else 'No '
+            log.info('Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias: {:.2f}) {} '.format(
+                i + 1, _exact,
+                self._scored_rules[rule]['score'],
+                self._scored_rules[rule]['weight'],
+                rule.ranking_bias, rule.description)
             )
 
-        self._candidates = ok_rules
+        self._candidates = _candidates
 
     @property
     def best_match(self):
@@ -78,40 +127,43 @@ class RuleMatcher(object):
 
 def prioritize_rules(rules):
     """
-    Prioritizes (sorts) a list of 'FileRule' instances.
+    Prioritizes (sorts) a dict with 'Rule' instances and scores/weights.
 
-    The list is sorted first by "score" and then by "weight".
+    Rules are sorted by multiple attributes in the following order;
+
+    1. By "score", a float between 0-1
+       Represents the number of satisfied rule conditions.
+    2. By Whether the rule requires an exact match or not.
+       Rules that require an exact match are ranked higher.
+    3. By "weight", a float between 0-1.
+       Represents the number of met conditions for the rule, compared to
+       the number of conditions in other rules.
+    4. By "ranking bias", a float between 0-1.
+       Optional user-specified biasing of rule prioritization.
+
+    This means that a rule that met all conditions will be ranked lower than
+    another rule that also met all conditions but *did* require an exact match.
+    Rules requiring an exact match is filtered are removed at a prior
+    stage and should never get here.
 
     Args:
-        rules: The list of 'FileRule' instances to prioritize/sort.
+        rules: Dict keyed by instances of 'Rule' storing score/weight-dicts.
 
     Returns:
-        A sorted/prioritized list of 'FileRule' instances.
+        A sorted/prioritized list of tuples composed of 'Rule' instances
+        and score/weight-dicts.
     """
-    return sorted(rules, reverse=True,
-                  key=operator.attrgetter('score', 'weight'))
+    prioritized_rules = sorted(
+        rules.items(),
+        reverse=True,
+        key=lambda d: (d[1]['score'],
+                       d[0].exact_match,
+                       d[1]['weight'],
+                       d[0].ranking_bias)
+    )
+    return [rule[0] for rule in prioritized_rules]
 
 
-def evaluate_rule_conditions(rules_to_examine, data_query_function):
-    # Conditions are evaluated with data accessed through 'data_query_function'
-    # which returns data related to 'RuleMatcher.file_object'.
-    ok_rules = []
-
-    for count, rule in enumerate(rules_to_examine):
-        log.debug('Evaluating rule {}/{}: "{}"'.format(
-            count + 1, len(rules_to_examine), rule.description)
-        )
-
-        result = rule.evaluate(data_query_function)
-        if rule.exact_match and result is False:
-            log.debug(
-                'Rule evaluated FALSE, removing: "{}"'.format(rule.description)
-            )
-            continue
-
-        log.debug('Rule evaluated TRUE: "{}"'.format(rule.description))
-        ok_rules.append(rule)
-
-    return ok_rules
-
-
+def remove_rules_failing_exact_match(rules_to_examine, data_query_function):
+    return [rule for rule in rules_to_examine if
+            rule.evaluate_exact(data_query_function)]

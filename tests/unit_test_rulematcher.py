@@ -22,12 +22,12 @@
 from unittest import TestCase
 
 import unit_utils as uu
+from core import constants
 from core.config.configuration import Configuration
 from core.config import DEFAULT_CONFIG
 from core.evaluate.rulematcher import (
     RuleMatcher,
     prioritize_rules,
-    evaluate_rule_conditions
 )
 
 dummy_config = Configuration(DEFAULT_CONFIG)
@@ -53,36 +53,36 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
         self.rm = RuleMatcher(fo, dummy_config)
 
     def test_query_data_is_defined(self):
-        self.assertIsNotNone(self.rm.query_data)
+        self.assertIsNotNone(self.rm._request_data)
 
     def test_query_data_returns_something(self):
         self.skipTest('TODO: Fix broken unit tests')
         self.assertIsNotNone(
-            self.rm.query_data('analysis.filename_analyzer.tags')
+            self.rm._request_data('analysis.filename_analyzer.tags')
         )
         self.assertIsNotNone(
-            self.rm.query_data('contents.mime_type')
+            self.rm._request_data('filesystem.contents.mime_type')
         )
 
     def test_querying_available_data_returns_expected_type(self):
         self.skipTest('TODO: Fix broken unit tests')
         self.assertTrue(
-            isinstance(self.rm.query_data('analysis.filename_analyzer.tags'),
+            isinstance(self.rm._request_data('analysis.filename_analyzer.tags'),
                        list)
         )
         self.assertTrue(
-            isinstance(self.rm.query_data('contents.mime_type'),
+            isinstance(self.rm._request_data('filesystem.contents.mime_type'),
                        str)
         )
 
     def test_querying_available_data_returns_expected(self):
         self.skipTest('TODO: Fix broken unit tests')
-        actual_result = self.rm.query_data('analysis.filename_analyzer.tags')
+        actual_result = self.rm._request_data('analysis.filename_analyzer.tags')
         actual_tags = actual_result[0].get('value', [])
         expected_tags = ['tagfoo', 'tagbar']
         self.assertEqual(expected_tags, actual_tags)
 
-        self.assertEqual(self.rm.query_data('contents.mime_type'),
+        self.assertEqual(self.rm._request_data('filesystem.contents.mime_type'),
                          'application/pdf')
 
 
@@ -93,95 +93,83 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
 
     def test_querying_unavailable_data_returns_false(self):
         self.assertFalse(
-            self.rm.query_data('analysis.filename_analyzer.publisher')
+            self.rm._request_data('analysis.filename_analyzer.publisher')
         )
 
     def test_querying_available_data_returns_expected_type(self):
         self.skipTest('TODO: Fix broken unit tests')
         self.assertTrue(
-            isinstance(self.rm.query_data('filesystem.contents.mime_type'),
+            isinstance(self.rm._request_data('filesystem.contents.mime_type'),
                        str)
         )
 
     def test_querying_available_data_returns_expected(self):
         self.skipTest('TODO: Fix broken unit tests')
-        actual = self.rm.query_data('contents.mime_type')
+        actual = self.rm._request_data('filesystem.contents.mime_type')
         self.assertEqual(actual, 'application/pdf')
 
 
-class DummyFileRule(object):
-    def __init__(self, score, weight):
-        self.score = score
-        self.weight = weight
+class DummyRule(object):
+    def __init__(self, exact_match):
+        self.exact_match = exact_match
+        self.ranking_bias = constants.DEFAULT_RULE_RANKING_BIAS
 
 
 class TestPrioritizeRules(TestCase):
-    def test_prioritize_rules_returns_empty_list_given_empty_list(self):
-        self.assertIsNotNone(prioritize_rules([]))
-        self.assertTrue(isinstance(prioritize_rules([]), list))
-
     def test_prioritize_rules_raises_attribute_error_given_invalid_input(self):
         with self.assertRaises(AttributeError):
             prioritize_rules([None, None])
             prioritize_rules([None])
 
     def test_prioritize_rules_returns_expected_based_on_score_same_weight(self):
-        fr_a = DummyFileRule(3, 0.5)
-        fr_b = DummyFileRule(2, 0.5)
-        expected = [fr_a, fr_b]
-        actual = prioritize_rules([fr_a, fr_b])
-        self.assertTrue(actual, expected)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 3, 'weight': 0.5}
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 0, 'weight': 0.5}
+        expected = [r_a, r_b]
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
 
-        fr_a = DummyFileRule(0, 0.5)
-        fr_b = DummyFileRule(3, 0.5)
-        expected = [fr_b, fr_a]
-        actual = prioritize_rules([fr_a, fr_b])
-        self.assertTrue(actual, expected)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 0, 'weight': 0.5}
+
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 3, 'weight': 0.5}
+        expected = [r_b, r_a]
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
 
     def test_prioritize_rules_returns_expected_based_on_score_diff_weight(self):
-        fr_a = DummyFileRule(3, 1)
-        fr_b = DummyFileRule(2, 0)
-        expected = [fr_a, fr_b]
-        actual = prioritize_rules([fr_a, fr_b])
-        self.assertTrue(actual, expected)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 3, 'weight': 1}
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 2, 'weight': 0}
+        expected = [r_a, r_b]
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
 
-        fr_a = DummyFileRule(1, 0.1)
-        fr_b = DummyFileRule(3, 0.5)
-        expected = [fr_b, fr_a]
-        actual = prioritize_rules([fr_a, fr_b])
-        self.assertTrue(actual, expected)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 1, 'weight': 0.1}
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 3, 'weight': 0.0}
+        expected = [r_b, r_a]
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
 
     def test_prioritize_rules_returns_expected_based_on_weight_same_score(self):
-        fr_a = DummyFileRule(3, 0)
-        fr_b = DummyFileRule(3, 1)
-        expected = [fr_b, fr_a]
-        actual = prioritize_rules([fr_a, fr_b])
-        self.assertTrue(actual, expected)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 3, 'weight': 0.0}
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 3, 'weight': 1.0}
+        expected = [r_b, r_a]
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)
 
     def test_prioritize_rules_returns_expected_based_on_weight_zero_score(self):
-        fr_a = DummyFileRule(0, 0.1)
-        fr_b = DummyFileRule(0, 0.5)
-        expected = [fr_b, fr_a]
-        actual = prioritize_rules([fr_a, fr_b])
-        self.assertTrue(actual, expected)
-
-
-class TestEvaluateRuleConditions(TestCase):
-    def setUp(self):
-        self.rules_to_examine = uu.get_dummy_rules_to_examine()
-
-        # NOTE: Simulates no data available, no rules should pass evaluation.
-        self.dummy_query_function = lambda *_: False
-
-    def test_evaluate_rule_conditions_is_defined(self):
-        self.assertIsNotNone(evaluate_rule_conditions)
-
-    def test_returns_expected_type(self):
-        actual = evaluate_rule_conditions(self.rules_to_examine,
-                                          self.dummy_query_function)
-        self.assertTrue(isinstance(actual, list))
-
-    def test_no_valid_rules_pass_with_dummy_query_function(self):
-        actual = evaluate_rule_conditions(self.rules_to_examine,
-                                          self.dummy_query_function)
-        self.assertEqual(len(actual), 0)
+        r_a = DummyRule(exact_match=False)
+        s_a = {'score': 0, 'weight': 0.1}
+        r_b = DummyRule(exact_match=False)
+        s_b = {'score': 0, 'weight': 0.5}
+        expected = [r_b, r_a]
+        actual = prioritize_rules({r_a: s_a, r_b: s_b})
+        self.assertListEqual(actual, expected)

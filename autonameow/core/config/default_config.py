@@ -39,9 +39,9 @@ from core import constants
 
 DEFAULT_CONFIG = {
 
-    #   File Rules
-    #   ==========
-    #   File rules determine which files are handled and how they are handled.
+    #   Rules
+    #   =====
+    #   Rules determine which files are handled and how they are handled.
     #
     #   Each rule specifies conditions that should be met for the rule to apply
     #   to a given file.
@@ -51,18 +51,14 @@ DEFAULT_CONFIG = {
     #   * If 'exact_match' is True, __all__ conditions must be met,
     #     otherwise the rule is considered to not apply to the given file.
     #
-    #   * If 'exact_match' is False, the rule with the highest number of
-    #     satisfied conditions is used.
-    #     When multiple rules end up tied for the "best fit", I.E. they all
-    #     have an equal amount of satisfied conditions; 'weight' is used
-    #     to prioritize the candidates.
+    #   * If 'exact_match' is False, the rule is kept even if a condition fails.
     #
     #   TODO: Document all fields ..
     #
-    'FILE_RULES': [
+    'RULES': [
         {'description': 'test_files Gmail print-to-pdf',
          'exact_match': True,
-         'weight': None,
+         'ranking_bias': None,
          'NAME_FORMAT': '{datetime} {title}.{extension}',
          'CONDITIONS': {
              'filesystem.basename.full': 'gmail.pdf',
@@ -78,7 +74,7 @@ DEFAULT_CONFIG = {
         # ____________________________________________________________________
         {'description': 'test_files smulan.jpg',
          'exact_match': True,
-         'weight': 1,
+         'ranking_bias': 1,
          'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
              'filesystem.basename.full': 'smulan.jpg',
@@ -93,7 +89,7 @@ DEFAULT_CONFIG = {
         # ____________________________________________________________________
         {'description': 'test_files simplest_pdf.md.pdf',
          'exact_match': True,
-         'weight': 1,
+         'ranking_bias': 1,
          'NAME_FORMAT': 'simplest_pdf.md.{extension}',
          'CONDITIONS': {
              'filesystem.basename.full': 'simplest_pdf.md.pdf',
@@ -105,7 +101,7 @@ DEFAULT_CONFIG = {
         # ____________________________________________________________________
         {'description': 'Sample Entry for Photos with strict rules',
          'exact_match': True,
-         'weight': 1,
+         'ranking_bias': 1,
          'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
          'CONDITIONS': {
              'filesystem.pathname.full': '~/Pictures/incoming',
@@ -127,7 +123,7 @@ DEFAULT_CONFIG = {
         # ____________________________________________________________________
         {'description': 'Sample Entry for EPUB e-books',
          'exact_match': True,
-         'weight': 1,
+         'ranking_bias': 1,
          'NAME_FORMAT': 'default_book',
          'CONDITIONS': {
              'filesystem.pathname.full': '.*',
@@ -152,8 +148,8 @@ DEFAULT_CONFIG = {
 
     #  File Name Templates
     #  ===================
-    #  These file name templates can be reused by multiple file rules.
-    #  Simply add the template name to the file rule 'NAME_FORMAT' field.
+    #  These file name templates can be reused by multiple rules.
+    #  Simply add the template name to the rule 'NAME_FORMAT' field.
     #
     #  NOTE: If a rule specifies both 'NAME_FORMAT' and 'NAME_TEMPLATE',
     #        'NAME_FORMAT' will be prioritized.
@@ -184,7 +180,8 @@ DEFAULT_CONFIG = {
     #  characters and potentially custom replacements, etc.
     'FILESYSTEM_OPTIONS': {
         'sanitize_filename': True,
-        'sanitize_strict': False
+        'sanitize_strict': False,
+        'ignore': ['*.swp', '*/.*']
     },
 
     #  Filetags Options

@@ -20,28 +20,18 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import re
-
 import magic
 
 from core import (
     constants,
+    exceptions,
     util
 )
-from core.exceptions import InvalidFileArgumentError
 from .util import diskutils
-
-# TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
-DATE_SEP = b'[:\-._ ]?'
-TIME_SEP = b'[:\-._ T]?'
-DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'
-TIME_REGEX = (b'[012]\d' + TIME_SEP + b'[012345]\d' + TIME_SEP
-              + b'[012345]\d(.[012345]\d)?')
-FILENAMEPART_TS_REGEX = re.compile(DATE_REGEX + b'([T_ -]?' + TIME_REGEX + b')?')
 
 
 class FileObject(object):
-    def __init__(self, path, opts):
+    def __init__(self, path):
         """
         Creates a new FileObject instance representing a single path/file.
 
@@ -50,10 +40,9 @@ class FileObject(object):
             opts: Configuration options as an instance of 'Configuration'.
         """
         assert(isinstance(path, bytes))
-
         validate_path_argument(path)
-
         self.abspath = path
+
         self.filename = util.bytestring_path(
             os.path.basename(util.syspath(path))
         )
@@ -67,121 +56,8 @@ class FileObject(object):
         self.mime_type = filetype_magic(self.abspath)
 
         # Extract parts of the file name.
-        self.fnbase = diskutils.file_base(self.abspath)
-        self._suffix = diskutils.file_suffix(self.abspath)
-
-        self.BETWEEN_TAG_SEPARATOR = util.bytestring_path(
-            opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
-        )
-        self.FILENAME_TAG_SEPARATOR = util.bytestring_path(
-            opts.options['FILETAGS_OPTIONS'].get('filename_tag_separator')
-        )
-
-        # Do "filename partitioning" -- split the file name into four parts:
-        #
-        #   * filenamepart_ts     Date-/timestamp.
-        #   * filenamepart_base   Descriptive text.
-        #   * filenamepart_ext    File extension/suffix.
-        #   * filenamepart_tags   Tags created within the "filetags" workflow.
-        #
-        # Example basename '20160722 Descriptive name -- firsttag tagtwo.txt':
-        #
-        #                               .------------ FILENAME_TAG_SEPARATOR
-        #                              ||         .-- BETWEEN_TAG_SEPARATOR
-        #                              VV         V
-        #    20160722 Descriptive name -- firsttag tagtwo.txt
-        #    |______| |______________|    |_____________| |_|
-        #       ts          base               tags       ext
-        #
-        # TODO: [TD0037] Move "filetags"-specific code to separate module. (?)
-        self._filenamepart_ts = self._filenamepart_ts()
-        self._filenamepart_base = self._filenamepart_base()
-        self._filenamepart_ext = self._filenamepart_ext()
-        self._filenamepart_tags = self._filenamepart_tags() or []
-
-    @property
-    def suffix(self):
-        return self._suffix if self._suffix else ''
-
-    @property
-    def filenamepart_ts(self):
-        if not self._filenamepart_ts:
-            return None
-        return util.decode_(self._filenamepart_ts)
-
-    @property
-    def filenamepart_base(self):
-        if not self._filenamepart_base:
-            return None
-        return util.decode_(self._filenamepart_base)
-
-    @property
-    def filenamepart_ext(self):
-        if not self._filenamepart_ext:
-            return None
-        return util.decode_(self._filenamepart_ext)
-
-    @property
-    def filenamepart_tags(self):
-        if not self._filenamepart_tags:
-            return []
-        return [util.decode_(t) for t in self._filenamepart_tags]
-
-    def _filenamepart_ts(self):
-        ts = FILENAMEPART_TS_REGEX.match(self.fnbase)
-        if ts:
-            return ts.group(0)
-        return None
-
-    def _filenamepart_base(self):
-        fnbase = self.fnbase
-        if self._filenamepart_ts:
-            fnbase = self.fnbase.lstrip(self._filenamepart_ts)
-
-        if not re.findall(self.BETWEEN_TAG_SEPARATOR, fnbase):
-            return fnbase
-
-        # NOTE: Handle case with multiple "BETWEEN_TAG_SEPARATOR" better?
-        r = re.split(self.FILENAME_TAG_SEPARATOR, fnbase, 1)
-        return r[0].strip()
-
-    def _filenamepart_ext(self):
-        return self.suffix
-
-    def _filenamepart_tags(self):
-        if not re.findall(self.BETWEEN_TAG_SEPARATOR, self.fnbase):
-            return None
-
-        r = re.split(self.FILENAME_TAG_SEPARATOR, self.fnbase, 1)
-        try:
-            tags = r[1].split(self.BETWEEN_TAG_SEPARATOR)
-            return tags
-        except IndexError:
-            return None
-
-    # NOTE: Move "filetags"-specific code to separate module. (?)
-    def filetags_format_filename(self):
-        """
-        Returns whether the file name is in the "filetags" format.
-
-                                   .------------ FILENAME_TAG_SEPARATOR
-                                  ||         .-- BETWEEN_TAG_SEPARATOR
-                                  VV         V
-        20160722 Descriptive name -- firsttag tagtwo.txt
-        |______| |______________|    |_____________| |_|
-           ts          base               tags       ext
-
-        All filename parts; 'ts', 'base' and 'tags' must be present.
-
-        Returns:
-            True if the filename is in the "filetags" format.
-            Otherwise False.
-        """
-        if (self._filenamepart_ts and self._filenamepart_base
-                and self._filenamepart_tags):
-            return True
-        else:
-            return False
+        self.basename_prefix = diskutils.basename_prefix(self.abspath)
+        self.basename_suffix = diskutils.basename_suffix(self.abspath)
 
     def __str__(self):
         return util.displayable_path(self.filename)
@@ -204,16 +80,6 @@ class FileObject(object):
 
     def __ne__(self, other):
         return not (self == other)
-
-
-# TODO: [TD0049]` Think about defining legal "placeholder fields".
-# Might be helpful to define all legal fields (such as `title`, `datetime`,
-# `author`, etc.) somewhere and keep references to type coercion wrappers,
-# maybe validation and/or formatting functionality; in the field definitions.
-#
-# NOTE(jonas): This should probably be done where both the Extraction data and
-# the Analysis results data is "joined"; the sum total of data available for a
-# given file.
 
 
 def filetype_magic(file_path):
@@ -279,16 +145,16 @@ def validate_path_argument(path):
     path = util.syspath(path)
 
     if not os.path.exists(path):
-        raise InvalidFileArgumentError('Path does not exist')
+        raise exceptions.InvalidFileArgumentError('Path does not exist')
     elif os.path.isdir(path):
         # TODO: [TD0045] Implement handling/renaming directories.
-        raise InvalidFileArgumentError(
+        raise exceptions.InvalidFileArgumentError(
             'Safe handling of directories is not implemented yet'
         )
     elif os.path.islink(path):
         # TODO: [TD0026] Implement handling of symlinks.
-        raise InvalidFileArgumentError(
+        raise exceptions.InvalidFileArgumentError(
             'Safe handling of symbolic links is not implemented yet'
         )
     elif not os.access(path, os.R_OK):
-        raise InvalidFileArgumentError('Not authorized to read path')
+        raise exceptions.InvalidFileArgumentError('Not authorized to read path')

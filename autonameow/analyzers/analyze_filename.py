@@ -19,8 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-
 from analyzers import BaseAnalyzer
 
 from core.util import dateandtime
@@ -29,20 +27,13 @@ from core.util import dateandtime
 class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['*/*']
-    data_query_string = 'analysis.filename_analyzer'
+    meowuri_root = 'analysis.filename'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
         super(FilenameAnalyzer, self).__init__(
             file_object, add_results_callback, request_data_callback
         )
-
-    def _add_results(self, label, data):
-        query_string = 'analysis.filename_analyzer.{}'.format(label)
-        logging.debug('{} passed "{}" to "add_results" callback'.format(
-            self, query_string)
-        )
-        self.add_results(query_string, data)
 
     def run(self):
         # Pass results through callback function provided by the 'Analysis'.
@@ -51,42 +42,67 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._add_results('tags', self.get_tags())
 
     def get_datetime(self):
-        result = []
+        results = []
 
         fn_timestamps = self._get_datetime_from_name()
         if fn_timestamps:
-            result += fn_timestamps
-        return result
+            results += fn_timestamps
+
+        return results if results else None
 
     def get_title(self):
-        titles = []
+        results = []
 
         fn_title = self._get_title_from_filename()
         if fn_title:
-            titles += fn_title
+            results += fn_title
 
-        return titles
+        return results if results else None
 
     def get_tags(self):
-        return [{'value': self.file_object.filenamepart_tags,
-                 'source': 'filenamepart_tags',
-                 'weight': 1}]
-
-    def _get_title_from_filename(self):
-        fnp_tags = self.file_object.filenamepart_tags or None
-        fnp_base = self.file_object.filenamepart_base or None
-        fnp_ts = self.file_object.filenamepart_ts or None
+        # TODO: Remove! Duplicated 'FiletagsAnalyzer' functionality.
+        fnp_tags = self.request_data(self.file_object,
+                                     'analysis.filetags.tags')
+        fnp_base = self.request_data(self.file_object,
+                                     'analysis.filetags.description')
+        fnp_ts = self.request_data(self.file_object,
+                                   'analysis.filetags.datetime')
 
         # Weight cases with all "filetags" filename parts present higher.
+        weight = 0.1
+        if fnp_tags and len(fnp_tags) > 0:
+            weight = 0.25
+            if fnp_base and len(fnp_base) > 0:
+                weight = 0.75
+                if fnp_ts:
+                    weight = 1
+
+        if not fnp_tags:
+            fnp_tags = []
+        return [{'value': fnp_tags,
+                 'source': 'filenamepart_tags',
+                 'weight': weight}]
+
+    def _get_title_from_filename(self):
+        # TODO: Remove! Duplicated 'FiletagsAnalyzer' functionality.
+        fnp_tags = self.request_data(self.file_object,
+                                     'analysis.filetags.tags')
+        fnp_base = self.request_data(self.file_object,
+                                     'analysis.filetags.description')
+        fnp_ts = self.request_data(self.file_object,
+                                   'analysis.filetags.datetime')
+
+        # Weight cases with all "filetags" filename parts present higher.
+        weight = 0.1
         if fnp_base and len(fnp_base) > 0:
             weight = 0.25
-            if fnp_ts and len(fnp_ts) > 0:
+            if fnp_ts:
                 weight = 0.75
                 if fnp_tags and len(fnp_tags) > 0:
                     weight = 1
 
             return [{'value': fnp_base,
-                     'source': 'filenamepart_base',
+                     'source': 'filetags',
                      'weight': weight}]
         else:
             return None
@@ -100,7 +116,7 @@ class FilenameAnalyzer(BaseAnalyzer):
                      'weight'  : 1
                    }, .. ]
         """
-        fn = self.file_object.fnbase
+        fn = self.file_object.basename_prefix
         results = []
 
         # 1. The Very Special Case
@@ -131,28 +147,22 @@ class FilenameAnalyzer(BaseAnalyzer):
         # Match UNIX timestamp
         dt_unix = dateandtime.match_any_unix_timestamp(fn)
         if dt_unix:
-            # results.append({'value': dt_unix,
-            #                 'source': 'unix_timestamp',
-            #                 'weight': 1})
             # TODO: [TD0044] Look at how results are stored and named.
             # TODO: [TD0019] Rework The FilenameAnalyzer class.
-            self._add_results('datetime',
-                         {'value': dt_unix,
-                          'source': 'filesystem.basename.prefix.unix_timestamp',
-                          'weight': 1})
+            results.append(
+                {'value': dt_unix,
+                 'source': 'unix_timestamp',
+                 'weight': 1}
+            )
 
         # Match screencapture-prefixed UNIX timestamp
         dt_screencapture_unix = dateandtime.match_screencapture_unixtime(fn)
         if dt_screencapture_unix:
-            # results.append({'value': dt_screencapture_unix,
-            #                 'source': 'screencapture_unixtime',
-            #                 'weight': 1})
             # TODO: [TD0044] Look at how results are stored and named.
             # TODO: [TD0019] Rework The FilenameAnalyzer class.
-            self.add_results('filesystem.basename.derived_data.datetime',
-                             {'value': dt_screencapture_unix,
-                              'source': 'screencapture_unixtime',
-                              'weight': 1})
+            results.append({'value': dt_screencapture_unix,
+                            'source': 'screencapture_unixtime',
+                            'weight': 1})
 
         # 3. Generalized patternmatching and bruteforcing
         # ===============================================
@@ -164,8 +174,8 @@ class FilenameAnalyzer(BaseAnalyzer):
                                 'source': 'regex_search',
                                 'weight': 0.25})
         else:
-            logging.debug('Unable to extract date/time-information '
-                          'from file name using regex search.')
+            self.log.debug('Unable to extract date/time-information '
+                      'from file name using regex search.')
 
         # Lastly, an iterative brute force search.
         # TODO: Collapse duplicate results with 'util.misc.multiset_count'..?
@@ -176,10 +186,14 @@ class FilenameAnalyzer(BaseAnalyzer):
                                 'source': 'bruteforce_search',
                                 'weight': 0.1})
         else:
-            logging.debug('Unable to extract date/time-information '
-                          'from file name using brute force search.')
+            self.log.debug('Unable to extract date/time-information '
+                           'from file name using brute force search.')
 
         return results
+
+    @classmethod
+    def check_dependencies(cls):
+        return True
 
 
 def _find_datetime_isodate(text_line):

@@ -5,7 +5,7 @@ DATETIME_FORMAT:
 FILETAGS_OPTIONS:
     between_tag_separator: ' '
     filename_tag_separator: ' -- '
-FILE_RULES:
+RULES:
 -   CONDITIONS:
         contents:
             mime_type: image/png

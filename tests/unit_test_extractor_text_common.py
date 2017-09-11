@@ -21,17 +21,16 @@
 
 from unittest import TestCase
 
-from core import exceptions
-from extractors.text import (
-    AbstractTextExtractor
-)
-
 import unit_utils as uu
+
+from extractors import ExtractorError
+from extractors.text.common import AbstractTextExtractor
 
 
 class TestAbstractTextExtractor(TestCase):
     def setUp(self):
-        self.e = AbstractTextExtractor(uu.make_temporary_file())
+        self.test_file = uu.make_temporary_file()
+        self.e = AbstractTextExtractor()
 
         class DummyFileObject(object):
             def __init__(self):
@@ -45,9 +44,9 @@ class TestAbstractTextExtractor(TestCase):
         self.assertIsNotNone(self.e)
 
     def test_query_raises_exception_with__get_raw_text_unimplemented(self):
-        with self.assertRaises(exceptions.ExtractorError):
-            self.e.query()
-            self.e.query(field='some_field')
+        with self.assertRaises(ExtractorError):
+            self.e.execute(self.test_file)
+            self.e.execute(field='some_field')
 
     def test_method_str_is_defined_and_reachable(self):
         self.assertIsNotNone(str(self.e))
@@ -71,13 +70,13 @@ class TestAbstractTextExtractor(TestCase):
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.handles_mime_types)
 
-    def test_abstract_class_does_not_specify_data_query_string(self):
-        self.assertIsNone(self.e.data_query_string)
+    def test_abstract_class_does_not_specify_meowuri_root(self):
+        self.assertIsNone(self.e.meowuri_root)
 
     def test__get_raw_text_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e._get_raw_text()
+            self.e._get_text(self.test_file)
 
-    def test__perform_initial_extraction_raises_not_implemented_error(self):
+    def test_check_dependencies_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e._perform_initial_extraction()
+            self.e.check_dependencies()
