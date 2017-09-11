@@ -187,7 +187,7 @@ class TestMapMeowURItoSourceClass(TestCase):
               'filesystem.basename.prefix',
               'filesystem.contents.mime_type',
               'filesystem.pathname.full'],
-             'CommonFileSystemExtractor'),
+             'CrossPlatformFileSystemExtractor'),
             (['metadata.exiftool.EXIF:CreateDate',
               'metadata.exiftool.EXIF:DateTimeOriginal',
               'metadata.exiftool.PDF:CreateDate',
@@ -333,7 +333,7 @@ class TestGetSourcesForMeowURIs(TestCase):
 
     def test_returns_expected_source_filesystem(self):
         actual = repository.get_sources_for_meowuris(self._meowuris_filesystem)
-        self._assert_maps(actual, 'CommonFileSystemExtractor')
+        self._assert_maps(actual, 'CrossPlatformFileSystemExtractor')
 
     def test_returns_expected_source_exiftool(self):
         actual = repository.get_sources_for_meowuris(self._meowuris_exiftool)
@@ -346,10 +346,10 @@ class TestGetSourcesForMeowURIs(TestCase):
     def test_returns_expected_sources(self):
         actual = repository.get_sources_for_meowuris(self._all_meowuris)
         self.assertEqual(len(actual), 4)
-        self._assert_maps(
-            actual, ['CommonFileSystemExtractor', 'ExiftoolMetadataExtractor',
-                     'FiletagsAnalyzer', 'GuessitPlugin']
-        )
+        self._assert_maps(actual, ['CrossPlatformFileSystemExtractor',
+                                   'ExiftoolMetadataExtractor',
+                                   'FiletagsAnalyzer',
+                                   'GuessitPlugin'])
 
     def test_returns_included_sources_analyzers(self):
         actual = repository.get_sources_for_meowuris(self._all_meowuris,
@@ -359,7 +359,7 @@ class TestGetSourcesForMeowURIs(TestCase):
     def test_returns_included_sources_extractorss(self):
         actual = repository.get_sources_for_meowuris(self._all_meowuris,
                                                      includes=['extractors'])
-        self._assert_maps(actual, ['CommonFileSystemExtractor',
+        self._assert_maps(actual, ['CrossPlatformFileSystemExtractor',
                                    'ExiftoolMetadataExtractor'])
 
     def test_returns_included_sources_plugins(self):

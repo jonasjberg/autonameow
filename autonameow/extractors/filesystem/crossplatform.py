@@ -36,7 +36,7 @@ from core.fileobject import FileObject
 log = logging.getLogger(__name__)
 
 
-class CommonFileSystemExtractor(BaseExtractor):
+class CrossPlatformFileSystemExtractor(BaseExtractor):
     handles_mime_types = ['*/*']
     meowuri_root = 'filesystem'
 
@@ -88,7 +88,7 @@ class CommonFileSystemExtractor(BaseExtractor):
     }
 
     def __init__(self):
-        super(CommonFileSystemExtractor, self).__init__()
+        super(CrossPlatformFileSystemExtractor, self).__init__()
 
     def execute(self, source, **kwargs):
         try:

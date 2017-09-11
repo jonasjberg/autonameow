@@ -104,7 +104,7 @@ def start(file_object,
 
     log.debug('Running {} extractors'.format(len(klasses)))
     for klass in klasses:
-        if klass.__name__ == 'CommonFileSystemExtractor':
+        if klass.__name__ == 'CrossPlatformFileSystemExtractor':
             # Special case where the source should be a 'FileObject'.
             _source = file_object
         else:

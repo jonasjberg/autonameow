@@ -19,18 +19,5 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-# Store the version here so:
-# 1) we don't load dependencies by storing it in __init__.py
-# 2) we can import it in setup.py for the same reason
-# 3) we can import it into your module module
-#
-# Source: http://stackoverflow.com/a/16084844
 
-__title__ = 'autonameow'
-__version_info__ = (0, 4, 6)
-__version__ = '.'.join(map(str, __version_info__))
-__author__ = 'Jonas Sjöberg'
-__email__ = 'jomeganas[at]gmail.com'
-__url__ = 'www.jonasjberg.com'
-__license__ = 'GNU General Public License Version 2'
-__copyright__ = 'Copyright \N{COPYRIGHT SIGN} 2016-2017 {}'.format(__author__)
+from .crossplatform import CrossPlatformFileSystemExtractor

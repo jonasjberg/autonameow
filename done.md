@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-09-11
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0085]` Simplify extractor discovery and import. Use only packages?
+
 * 2017-09-10
 
     > High Priority
