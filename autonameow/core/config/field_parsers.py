@@ -178,7 +178,7 @@ class BooleanConfigFieldParser(ConfigFieldParser):
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['*.pathname.*', '*.basename.*', '*.raw_text',
+    applies_to_field = ['*.pathname.*', '*.basename.*', '*.text.*',
                         '*.:Title', '*.:Creator', '*.:Publisher',
                         '*.:Producer']
 

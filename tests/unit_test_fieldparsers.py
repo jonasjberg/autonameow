@@ -366,7 +366,7 @@ class TestSuitableFieldParserFor(TestCase):
         self.__expect_parser_for('RegexConfigFieldParser',
                                  'filesystem.basename.extension')
         self.__expect_parser_for('RegexConfigFieldParser',
-                                 'contents.textual.raw_text')
+                                 'contents.textual.text.full')
 
     def test_expect_mime_type_field_parser(self):
         self.__expect_parser_for('MimeTypeConfigFieldParser',

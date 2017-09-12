@@ -46,7 +46,7 @@ log = logging.getLogger(__name__)
 
 class PdfTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['application/pdf']
-    meowuri_root = 'contents.textual'
+    meowuri_root = 'contents.textual.text'
 
     def __init__(self):
         super(PdfTextExtractor, self).__init__()

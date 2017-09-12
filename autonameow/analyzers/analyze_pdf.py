@@ -37,13 +37,15 @@ class PdfAnalyzer(BaseAnalyzer):
         self.text = None
 
     def run(self):
-        self.text = self.request_data(self.file_object,
-                                      'contents.textual.raw_text')
+        _response = self.request_data(self.file_object,
+                                      'contents.textual.text.full')
+        if _response is None:
+            return
+            # raise AnalyzerError(
+            #     'Required data unavailable ("contents.textual.text.full")'
+            # )
 
-    # def request_data(self, file_object, label):
-    #     util.nested_dict_get(self.session_data, [file_object, label])
-
-        # Pass results through callback function provided by the 'Analysis'.
+        self.text = _response
         self._add_results('author', self.get_author())
         self._add_results('title', self.get_title())
         self._add_results('datetime', self.get_datetime())

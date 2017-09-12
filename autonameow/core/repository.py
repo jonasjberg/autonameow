@@ -230,7 +230,7 @@ class Repository(object):
                 temp[key] = value
 
             # Often *a lot* of text, trim to arbitrary size..
-            if key == 'contents.textual.raw_text':
+            if key == 'contents.textual.text.full':
                 temp[key] = truncate_text(temp[key])
 
         out = []
@@ -242,7 +242,7 @@ class Repository(object):
                         out.append(_fmt_list_entry(_max_len_meowuri, v))
 
             else:
-                if key.endswith('raw_text'):
+                if key.endswith('text.full'):
                     _text = textutils.extract_lines(value, 0, 1)
                     _text = _text.rstrip('\n')
                     out.append(_fmt_text_line(_max_len_meowuri, _text, key))
@@ -292,7 +292,7 @@ class Repository(object):
                     temp[key] = value
 
                 # Often *a lot* of text, trim to arbitrary size..
-                if key == 'contents.textual.raw_text':
+                if key == 'contents.textual.text.full':
                     temp[key] = truncate_text(temp[key])
 
             expanded = util.expand_meowuri_data_dict(temp)
