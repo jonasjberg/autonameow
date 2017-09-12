@@ -52,6 +52,19 @@ class TestRemoveNonBreakingSpaces(unittest.TestCase):
 
 
 class TestIndent(unittest.TestCase):
+    def test_invalid_arguments_raises_exception(self):
+        def _assert_raises(*args, **kwargs):
+            with self.assertRaises(AssertionError):
+                textutils.indent(*args, **kwargs)
+
+        _assert_raises(None)
+        _assert_raises(b'')
+        _assert_raises('foo', amount=0)
+        _assert_raises('foo', amount=2, ch=None)
+        _assert_raises('foo', amount=2, ch=b'')
+        _assert_raises('foo', ch=None)
+        _assert_raises('foo', ch=b'')
+
     def test_indents_single_line(self):
         self.assertEqual(textutils.indent('foo'), '    foo')
         self.assertEqual(textutils.indent('foo bar'), '    foo bar')
@@ -69,7 +82,10 @@ class TestIndent(unittest.TestCase):
         self.assertEqual(textutils.indent(input_), expect)
 
     def test_indents_single_line_specified_amount(self):
+        self.assertEqual(textutils.indent('foo', amount=1), ' foo')
         self.assertEqual(textutils.indent('foo', amount=2), '  foo')
+        self.assertEqual(textutils.indent('foo', amount=3), '   foo')
+        self.assertEqual(textutils.indent('foo', amount=4), '    foo')
         self.assertEqual(textutils.indent('foo bar', amount=2), '  foo bar')
 
     def test_indents_two_lines_specified_amount(self):
@@ -84,6 +100,14 @@ class TestIndent(unittest.TestCase):
                   '  baz\n')
         self.assertEqual(textutils.indent(input_, amount=2), expect)
 
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('   foo\n'
+                  '     bar\n'
+                  '   baz\n')
+        self.assertEqual(textutils.indent(input_, amount=3), expect)
+
     def test_indents_single_line_specified_padding(self):
         self.assertEqual(textutils.indent('foo', ch='X'), 'XXXXfoo')
         self.assertEqual(textutils.indent('foo bar', ch='X'), 'XXXXfoo bar')
@@ -91,6 +115,8 @@ class TestIndent(unittest.TestCase):
     def test_indents_two_lines_specified_padding(self):
         self.assertEqual(textutils.indent('foo\nbar', ch='X'),
                          'XXXXfoo\nXXXXbar')
+        self.assertEqual(textutils.indent('foo\nbar', ch='Xj'),
+                         'XjXjXjXjfoo\nXjXjXjXjbar')
 
     def test_indents_three_lines_specified_padding(self):
         input_ = ('foo\n'
@@ -101,7 +127,21 @@ class TestIndent(unittest.TestCase):
                   'XXXXbaz\n')
         self.assertEqual(textutils.indent(input_, ch='X'), expect)
 
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XjXjXjXjfoo\n'
+                  'XjXjXjXj  bar\n'
+                  'XjXjXjXjbaz\n')
+        self.assertEqual(textutils.indent(input_, ch='Xj'), expect)
+
     def test_indents_text_single_line_specified_padding_and_amount(self):
+        self.assertEqual(textutils.indent('foo', amount=1, ch='  '), '  foo')
+        self.assertEqual(textutils.indent('foo', amount=2, ch='  '), '    foo')
+        self.assertEqual(textutils.indent('foo', amount=1, ch=''), 'foo')
+        self.assertEqual(textutils.indent('foo', amount=2, ch=''), 'foo')
+        self.assertEqual(textutils.indent('foo', amount=3, ch=''), 'foo')
+        self.assertEqual(textutils.indent('foo', amount=4, ch=''), 'foo')
         self.assertEqual(textutils.indent('foo', ch='X', amount=2), 'XXfoo')
         self.assertEqual(textutils.indent('foo bar', ch='X', amount=2),
                          'XXfoo bar')
@@ -109,6 +149,8 @@ class TestIndent(unittest.TestCase):
     def test_indents_two_lines_specified_padding_and_amount(self):
         self.assertEqual(textutils.indent('foo\nbar', ch='X', amount=2),
                          'XXfoo\nXXbar')
+        self.assertEqual(textutils.indent('foo\nbar', ch='X', amount=4),
+                         'XXXXfoo\nXXXXbar')
 
     def test_indents_three_lines_specified_padding_and_amount(self):
         input_ = ('foo\n'
@@ -118,6 +160,14 @@ class TestIndent(unittest.TestCase):
                   'XX  bar\n'
                   'XXbaz\n')
         self.assertEqual(textutils.indent(input_, ch='X', amount=2), expect)
+
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XXXfoo\n'
+                  'XXX  bar\n'
+                  'XXXbaz\n')
+        self.assertEqual(textutils.indent(input_, ch='X', amount=3), expect)
 
 
 class TestExtractDigits(unittest.TestCase):

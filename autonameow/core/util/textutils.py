@@ -49,21 +49,25 @@ def remove_nonbreaking_spaces(text):
 
 def indent(text, amount=4, ch=' '):
     """
-    Indents (multi-line) text a specified amount.
+    Indents (multi-line) text by a specified amount.
 
-    Shift text right by the given "amount" (default 4) using the character
-    "ch", which default to a space if left unspecified.
+    Shifts text right by a given "amount" (default: 4) using the character
+    "ch" for padding (defaults to ' ').
 
     Based on this post; https://stackoverflow.com/a/8348914/7802196
 
     Args:
-        text: The text to indent. Single or multi-line.
-        amount: Optional number of columns of indentation. Default: 4
-        ch: Optional character to insert. Default: ' '
+        text: Single or multi-line text to indent, as a Unicode str.
+        amount: Optional padding character ('ch') multiple, as an integer.
+        ch: Optional character to use for padding.
 
     Returns:
-        An indented version of the given text.
+        An indented version of the given text as an Unicode str.
     """
+    assert isinstance(text, str)
+    assert isinstance(amount, int) and amount > 0
+    assert isinstance(ch, str)
+
     padding = amount * ch
     return ''.join(padding + line for line in text.splitlines(True))
 
