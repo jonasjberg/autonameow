@@ -28,7 +28,9 @@ from core import (
     exceptions,
     util
 )
+from core.config.field_parsers import eval_meowuri_glob
 from core.util import textutils
+
 
 log = logging.getLogger(__name__)
 
@@ -207,52 +209,52 @@ class Repository(object):
         # TODO: [TD0066] Handle all encoding properly.
         temp = {}
         _max_len_meowuri = 20
-        for key, value in data.items():
-            _max_len_meowuri = max(_max_len_meowuri, len(key))
+        for uri, data in data.items():
+            _max_len_meowuri = max(_max_len_meowuri, len(uri))
 
             # TODO: [TD0082] Integrate the 'ExtractedData' class.
-            if isinstance(value, extractors.ExtractedData):
-                value = value.value
+            if isinstance(data, extractors.ExtractedData):
+                data = data.value
 
-            if isinstance(value, bytes):
-                temp[key] = util.displayable_path(value)
-            elif isinstance(value, list):
+            if isinstance(data, bytes):
+                temp[uri] = util.displayable_path(data)
+            elif isinstance(data, list):
                 log.debug('TODO: Improve robustness of handling this case')
                 temp_list = []
-                for v in value:
+                for v in data:
                     if isinstance(v, bytes):
                         temp_list.append(util.displayable_path(v))
                     else:
                         temp_list.append(v)
 
-                temp[key] = temp_list
+                temp[uri] = temp_list
             else:
-                temp[key] = value
+                temp[uri] = data
 
             # Often *a lot* of text, trim to arbitrary size..
-            if key == 'contents.textual.text.full':
-                temp[key] = truncate_text(temp[key])
+            if eval_meowuri_glob(uri, '*.text.full'):
+                temp[uri] = truncate_text(temp[uri])
 
         out = []
-        for key, value in temp.items():
-            if isinstance(value, list):
-                if value:
-                    out.append(_fmt_list_entry(_max_len_meowuri, value[0], key))
-                    for v in value[1:]:
+        for uri, data in temp.items():
+            if isinstance(data, list):
+                if data:
+                    out.append(_fmt_list_entry(_max_len_meowuri, data[0], uri))
+                    for v in data[1:]:
                         out.append(_fmt_list_entry(_max_len_meowuri, v))
 
             else:
-                if key.endswith('text.full'):
-                    _text = textutils.extract_lines(value, 0, 1)
+                if eval_meowuri_glob(uri, '*.text.full'):
+                    _text = textutils.extract_lines(data, 0, 1)
                     _text = _text.rstrip('\n')
-                    out.append(_fmt_text_line(_max_len_meowuri, _text, key))
+                    out.append(_fmt_text_line(_max_len_meowuri, _text, uri))
                     _lines = textutils.extract_lines(
-                        value, 1, len(value.splitlines())
+                        data, 1, len(data.splitlines())
                     )
                     for _line in _lines.splitlines():
                         out.append(_fmt_text_line(_max_len_meowuri, _line))
                 else:
-                    out.append(_fmt_entry(key, _max_len_meowuri, value))
+                    out.append(_fmt_entry(uri, _max_len_meowuri, data))
 
         return out
 
@@ -292,7 +294,7 @@ class Repository(object):
                     temp[key] = value
 
                 # Often *a lot* of text, trim to arbitrary size..
-                if key == 'contents.textual.text.full':
+                if eval_meowuri_glob(key, '*.text.full'):
                     temp[key] = truncate_text(temp[key])
 
             expanded = util.expand_meowuri_data_dict(temp)
