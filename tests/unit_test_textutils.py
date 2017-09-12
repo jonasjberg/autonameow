@@ -224,6 +224,12 @@ class TestAutodetectDecode(unittest.TestCase):
 
 
 class TestExtractLines(unittest.TestCase):
+    def test_returns_none_for_none_input(self):
+        self.assertIsNone(textutils.extract_lines(None, 0, 0))
+        self.assertIsNone(textutils.extract_lines(None, 0, 1))
+        self.assertIsNone(textutils.extract_lines(None, 1, 1))
+        self.assertIsNone(textutils.extract_lines(None, 1, 0))
+
     def test_extracts_lines_from_zero_to_any_last(self):
         sample_text = 'A\nB\nC\nD\nE\n'
 
@@ -311,11 +317,14 @@ class TestExtractLines(unittest.TestCase):
         self.assertEqual(textutils.extract_lines(' ', 0, 0), '')
 
     def test_raises_exceptions_given_bad_argument(self):
-        with self.assertRaises(ValueError):
-            textutils.extract_lines(None, 0, 0)
-
         with self.assertRaises(TypeError):
             textutils.extract_lines(b'foo', 0, 0)
 
         with self.assertRaises(TypeError):
             textutils.extract_lines(1, 0, 0)
+
+        with self.assertRaises(AssertionError):
+            textutils.extract_lines('foo', -1, 0)
+
+        with self.assertRaises(AssertionError):
+            textutils.extract_lines('foo', 0, -1)

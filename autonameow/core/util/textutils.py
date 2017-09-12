@@ -118,20 +118,19 @@ def extract_lines(text, first_line, last_line):
         last_line: Last line to include, as a non-negative integer.
 
     Returns:
-        Lines between 'first_line' and 'last_line' from the given 'text'.
+        If 'text' is a Unicode str; lines between 'first_line' and 'last_line'.
+        None if 'text' is None.
+    Raises:
+        TypeError: Argument 'text' is not a Unicode string.
+        AssertionError: Either 'first_line' or 'last_line' is negative.
     """
     if text is None:
-        raise ValueError('Got None argument "text"')
+        return text
     if not isinstance(text, str):
         raise TypeError('Expected argument "text" to be a Unicode str')
 
     assert(first_line >= 0)
     assert(last_line >= 0)
-
-    #if text.endswith('\n'):
-    #    add_trailing_newline = True
-    #else:
-    #    add_trailing_newline = False
 
     lines = text.splitlines(keepends=True)
     if last_line > len(lines):
@@ -141,9 +140,4 @@ def extract_lines(text, first_line, last_line):
         first_line = last_line
 
     extracted = lines[first_line:last_line]
-    extracted = ''.join(extracted)
-
-    #if last_line == len(lines) and add_trailing_newline:
-    #    extracted += '\n'
-
-    return extracted
+    return ''.join(extracted)
