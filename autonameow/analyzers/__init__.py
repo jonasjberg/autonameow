@@ -29,6 +29,8 @@ from core import (
     exceptions,
     util
 )
+from core.exceptions import AutonameowException
+
 
 # Analyzers are assumed to be located in the same directory as this file.
 AUTONAMEOW_ANALYZER_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -36,6 +38,10 @@ sys.path.insert(0, AUTONAMEOW_ANALYZER_PATH)
 
 
 log = logging.getLogger(__name__)
+
+
+class AnalyzerError(AutonameowException):
+    """Irrecoverable error occurred when running a "analyzer" class."""
 
 
 class BaseAnalyzer(object):

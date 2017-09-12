@@ -82,7 +82,12 @@ def _execute_run_queue(analyzer_queue):
                   '{!s}'.format(i + 1, len(analyzer_queue), a))
 
         log.debug('Running Analyzer "{!s}"'.format(a))
-        a.run()
+        try:
+            a.run()
+        except analyzers.AnalyzerError as e:
+            log.error('Halted analyzer "{!s}": {!s}'.format(a, e))
+            continue
+
         log.debug('Finished running "{!s}"'.format(a))
 
 
