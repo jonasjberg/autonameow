@@ -538,6 +538,15 @@ class PyPDFTimeDate(TimeDate):
             except ValueError:
                 pass
 
+        # Try matching only date.
+        re_date_only = re.compile(r'D:(\d{8})')
+        re_match = re_date_only.search(value)
+        if re_match:
+            try:
+                return datetime.strptime(re_match.group(1), '%Y%m%d')
+            except ValueError:
+                pass
+
         self._fail_coercion(value)
 
 

@@ -491,6 +491,10 @@ class TestTypePyPDFTimeDate(TestCase):
         self.assertEqual(types.AW_PYPDFTIMEDATE("D:20160111124132+00'00'"),
                          expected)
 
+    def test_call_with_coercible_data_no_time(self):
+        expected = uu.str_to_datetime('2005-10-23 000000')
+        self.assertEqual(types.AW_PYPDFTIMEDATE('D:20051023'), expected)
+
     def test_call_with_noncoercible_data(self):
         def _assert_raises(test_data):
             with self.assertRaises(types.AWTypeError):
