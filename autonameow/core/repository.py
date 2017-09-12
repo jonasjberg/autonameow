@@ -28,7 +28,7 @@ from core import (
     exceptions,
     util
 )
-
+from core.util import textutils
 
 log = logging.getLogger(__name__)
 
@@ -173,6 +173,88 @@ class Repository(object):
         if any([meowuri.startswith(r) for r in resolvable]):
             return True
         return False
+
+    def human_readable_contents(self):
+        out = []
+        for file_object, data in self.data.items():
+            out.append('FileObject basename: "{!s}"'.format(file_object))
+
+            _abspath = util.displayable_path(file_object.abspath)
+            out.append('FileObject absolute path: "{!s}"'.format(_abspath))
+
+            out.append('')
+            out.extend(self._human_readable_contents(data))
+            out.append('\n')
+
+        return '\n'.join(out)
+
+    def _human_readable_contents(self, data):
+        def _fmt_list_entry(width, _value, _key=None):
+            if _key is None:
+                return '{: <{}}  * {}'.format('', width, _value)
+            else:
+                return '{: <{}}: * {}'.format(_key, width, _value)
+
+        def _fmt_text_line(width, _value, _key=None):
+            if _key is None:
+                return '{: <{}}  > {}'.format('', width, _value)
+            else:
+                return '{: <{}}: > {}'.format(_key, width, _value)
+
+        def _fmt_entry(_key, width, _value):
+            return '{: <{}}: {}'.format(_key, width, _value)
+
+        # TODO: [TD0066] Handle all encoding properly.
+        temp = {}
+        _max_len_meowuri = 20
+        for key, value in data.items():
+            _max_len_meowuri = max(_max_len_meowuri, len(key))
+
+            # TODO: [TD0082] Integrate the 'ExtractedData' class.
+            if isinstance(value, extractors.ExtractedData):
+                value = value.value
+
+            if isinstance(value, bytes):
+                temp[key] = util.displayable_path(value)
+            elif isinstance(value, list):
+                log.debug('TODO: Improve robustness of handling this case')
+                temp_list = []
+                for v in value:
+                    if isinstance(v, bytes):
+                        temp_list.append(util.displayable_path(v))
+                    else:
+                        temp_list.append(v)
+
+                temp[key] = temp_list
+            else:
+                temp[key] = value
+
+            # Often *a lot* of text, trim to arbitrary size..
+            if key == 'contents.textual.raw_text':
+                temp[key] = truncate_text(temp[key])
+
+        out = []
+        for key, value in temp.items():
+            if isinstance(value, list):
+                if value:
+                    out.append(_fmt_list_entry(_max_len_meowuri, value[0], key))
+                    for v in value[1:]:
+                        out.append(_fmt_list_entry(_max_len_meowuri, v))
+
+            else:
+                if key.endswith('raw_text'):
+                    _text = textutils.extract_lines(value, 0, 1)
+                    _text = _text.rstrip('\n')
+                    out.append(_fmt_text_line(_max_len_meowuri, _text, key))
+                    _lines = textutils.extract_lines(
+                        value, 1, len(value.splitlines())
+                    )
+                    for _line in _lines.splitlines():
+                        out.append(_fmt_text_line(_max_len_meowuri, _line))
+                else:
+                    out.append(_fmt_entry(key, _max_len_meowuri, value))
+
+        return out
 
     def __len__(self):
         return util.count_dict_recursive(self.data)

@@ -228,7 +228,8 @@ class Autonameow(object):
             log.info('Listing session repository contents ..')
             cli.msg('Session Repository Data', style='heading',
                     add_info_log=True)
-            cli.msg(str(repository.SessionRepository))
+            # cli.msg(str(repository.SessionRepository))
+            cli.msg(repository.SessionRepository.human_readable_contents())
         # else:
         #     if self.opts.list_datetime:
         #         _list_analysis_results_field(analysis, 'datetime')
