@@ -56,7 +56,7 @@ class AbstractTextExtractor(BaseExtractor):
         assert(isinstance(text, str))
 
         self.log.debug('{!s} returning all extracted data'.format(self))
-        return ExtractedData(wrapper=types.AW_STRING)(text)
+        return {'raw_text': ExtractedData(wrapper=types.AW_STRING)(text)}
 
     def _get_text(self, source):
         raise NotImplementedError('Must be implemented by inheriting classes.')
