@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0089]` Validate only "generic" metadata fields when reading config.
+
 * `[TD0088]` Handle case where `ExtractedData.wrapper` is `None`.
 
 * `[TD0082]` Integrate the `ExtractedData` class.

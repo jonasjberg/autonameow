@@ -178,9 +178,14 @@ class BooleanConfigFieldParser(ConfigFieldParser):
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['*.pathname.*', '*.basename.*', '*.text.*',
-                        '*.:Title', '*.:Creator', '*.:Publisher',
-                        '*.:Producer']
+    applies_to_field = [
+        '*.pathname.*', '*.basename.*', '*.text.*',
+        '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
+        '*.XMP-dc:Title',
+        '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher', '*.PDF:Title'
+    ]
+    # Above globs does not include all possible extractor globs.
+    # TODO: [TD0089] Validate only "generic" metadata fields ..
 
     @staticmethod
     def is_valid_regex(expression):
@@ -302,6 +307,8 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['datetime', 'date_accessed', 'date_created',
                         'date_modified', '*.PDF:CreateDate', '*.PDF:ModifyDate',
                         '*.EXIF:DateTimeOriginal', '*.EXIF:ModifyDate']
+    # Above globs does not include all possible extractor globs.
+    # TODO: [TD0089] Validate only "generic" metadata fields ..
 
     @staticmethod
     def is_valid_datetime(expression):
