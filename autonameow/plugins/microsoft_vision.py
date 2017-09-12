@@ -89,7 +89,7 @@ def get_caption_text(json_data):
         caption = json_data['description']['captions'][0]['text']
     except KeyError as e:
         # log.error('[ERROR] Unable to get caption text: ', str(e))
-        pass
+        return None
     else:
         return caption
 
@@ -119,8 +119,7 @@ def get_tags(json_data, count=None):
     try:
         tags = json_data['description']['tags']
     except KeyError as e:
-        # log.error('[ERROR] Unable to get tags: ', str(e))
-        pass
+        return None
     else:
         if count and len(tags) > count:
             return tags[:count]
@@ -191,31 +190,35 @@ class MicrosoftVisionPlugin(BasePlugin):
                 )
 
         _caption = get_caption_text(response)
-        self.log.debug('Returning caption: "{!s}"'.format(_caption))
-        self.add_results(
-            file_object,
-            'caption',
-            ExtractedData(
-                wrapper=types.AW_STRING,
-                mapped_fields=[
-                    fields.WeightedMapping(fields.title, probability=1),
-                    fields.WeightedMapping(fields.description, probability=1)
-                ]
-            )(_caption)
-        )
+        if _caption:
+            self.log.debug('Returning caption: "{!s}"'.format(_caption))
+            self.add_results(
+                file_object,
+                'caption',
+                ExtractedData(
+                    wrapper=types.AW_STRING,
+                    mapped_fields=[
+                        fields.WeightedMapping(fields.title,
+                                               probability=1),
+                        fields.WeightedMapping(fields.description,
+                                               probability=1)
+                    ]
+                )(_caption)
+            )
 
         _tags = get_tags(response)
-        _tags_pretty = ' '.join(map(lambda x: '"' + x + '"', _tags))
-        self.log.debug('Returning tags: {}'.format(_tags_pretty))
-        self.add_results(
-            file_object,
-            'tags',
-            ExtractedData(
-                wrapper=types.AW_STRING,
-                mapped_fields=[
-                    fields.WeightedMapping(fields.tags, probability=1),
-                ]
-            )(_tags)
-        )
+        if _tags:
+            _tags_pretty = ' '.join(map(lambda x: '"' + x + '"', _tags))
+            self.log.debug('Returning tags: {}'.format(_tags_pretty))
+            self.add_results(
+                file_object,
+                'tags',
+                ExtractedData(
+                    wrapper=types.AW_STRING,
+                    mapped_fields=[
+                        fields.WeightedMapping(fields.tags, probability=1),
+                    ]
+                )(_tags)
+            )
 
 
