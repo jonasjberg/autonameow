@@ -57,22 +57,22 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
         self.assertEqual(str(self.e), 'ExiftoolMetadataExtractor')
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test__get_raw_metadata_returns_something(self):
-        self.assertIsNotNone(self.e._get_raw_metadata(temp_file))
+    def test__get_metadata_returns_something(self):
+        self.assertIsNotNone(self.e._get_metadata(temp_file))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test__get_raw_metadata_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e._get_raw_metadata(temp_file), dict))
+    def test__get_metadata_returns_expected_type(self):
+        self.assertTrue(isinstance(self.e._get_metadata(temp_file), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test__get_raw_metadata_raises_expected_exceptions(self):
+    def test__get_metadata_raises_expected_exceptions(self):
         with self.assertRaises(ExtractorError):
             e = ExiftoolMetadataExtractor()
-            e._get_raw_metadata(None)
+            e._get_metadata(None)
 
         with self.assertRaises(ExtractorError):
             f = ExiftoolMetadataExtractor()
-            f._get_raw_metadata('not_a_file_surely')
+            f._get_metadata('not_a_file_surely')
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_returns_something(self):
