@@ -503,22 +503,26 @@ class ExifToolTimeDate(TimeDate):
 class PyPDFTimeDate(TimeDate):
     primitive_type = None
 
-    def coerce(self, value):
-        if "'" in value:
-            value = value.replace("'", '')
+    # Expected date/time format:      D:20121225235237 +05'30'
+    #                                   ^____________^ ^_____^
+    # Regex search matches two groups:        #1         #2
+    RE_DATETIME_TZ = re.compile(r'D:(\d{14}) ?(\+\d{2}\'?\d{2}\'?)')
 
-        # Expected date format:           D:20121225235237 +05'30'
-        #                                   ^____________^ ^_____^
-        # Regex search matches two groups:        #1         #2
-        re_datetime_tz = re.compile(r'D:(\d{14}) ?(\+\d{2}\'?\d{2}\'?)')
-        re_match_tz = re_datetime_tz.search(value)
+    # Date/time without timezone, alternate pattern:
+    RE_DATETIME = re.compile(r'D:(\d{14})')
+
+    # Only date, without timezone:
+    RE_DATE = re.compile(r'D:(\d{8})')
+
+    def coerce(self, value):
+        value = value.replace("'", '')
+
+        re_match_tz = self.RE_DATETIME_TZ.search(value)
         if re_match_tz:
             datetime_str = re_match_tz.group(1)
             timezone_str = re_match_tz.group(2)
-            timezone_str = timezone_str.replace("'", "")
 
             try:
-                # With timezone ('%z')
                 return datetime.strptime(str(datetime_str + timezone_str),
                                          '%Y%m%d%H%M%S%z')
             except ValueError:
@@ -529,18 +533,14 @@ class PyPDFTimeDate(TimeDate):
             except ValueError:
                 pass
 
-        # Try matching another pattern.
-        re_datetime_no_tz = re.compile(r'D:(\d{14})')
-        re_match = re_datetime_no_tz.search(value)
+        re_match = self.RE_DATETIME.search(value)
         if re_match:
             try:
                 return datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
             except ValueError:
                 pass
 
-        # Try matching only date.
-        re_date_only = re.compile(r'D:(\d{8})')
-        re_match = re_date_only.search(value)
+        re_match = self.RE_DATE.search(value)
         if re_match:
             try:
                 return datetime.strptime(re_match.group(1), '%Y%m%d')
