@@ -33,7 +33,8 @@ from core.config import (
 )
 from core.config.field_parsers import (
     DateTimeConfigFieldParser,
-    NameFormatConfigFieldParser
+    NameFormatConfigFieldParser,
+    parse_versioning
 )
 
 
@@ -71,11 +72,11 @@ class Configuration(object):
             assert(isinstance(source, bytes))
             self._load_from_disk(source)
 
-        if self._version:
-            if self._version != constants.PROGRAM_VERSION:
+        if self.version:
+            if self.version != constants.PROGRAM_VERSION:
                 log.warning('Possible configuration compatibility mismatch!')
                 log.warning('Loaded configuration created by {} (currently '
-                            'running {})'.format(self._version,
+                            'running {})'.format(self.version,
                                                  constants.PROGRAM_VERSION))
                 log.info(
                     'The current recommended procedure is to move the '
@@ -303,11 +304,13 @@ class Configuration(object):
                     )
 
     def _load_version(self):
-        raw_version = self._data.get('autonameow_version')
-        if not raw_version:
-            log.error('Unable to read program version from configuration')
+        _raw_version = self._data.get('autonameow_version')
+        valid_version = parse_versioning(_raw_version)
+        if valid_version:
+            self._version = valid_version
         else:
-            self._version = raw_version
+            log.error('Unable to read program version from configuration.')
+            log.debug('Read invalid version: "{!s}"'.format(_raw_version))
 
     def get(self, key_list):
         return util.nested_dict_get(self._options, key_list)
@@ -315,9 +318,14 @@ class Configuration(object):
     @property
     def version(self):
         """
-        Returns: The program version that wrote the configuration.
+        Returns:
+            The version number of the program that wrote the configuration as
+            a Unicode string, if it is available.  Otherwise None.
         """
-        return self._version
+        if self._version:
+            return 'v' + '.'.join(map(str, self._version))
+        else:
+            return None
 
     @property
     def options(self):
