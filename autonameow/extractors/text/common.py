@@ -71,13 +71,14 @@ def decode_raw(raw_text):
         text = types.AW_STRING(raw_text)
     except types.AWTypeError:
         try:
-            text = textutils.autodetect_decode(text)
+            text = textutils.autodetect_decode(raw_text)
         except ValueError:
             log.warning('Unable to decode raw text')
             return ''
 
-    text = util.remove_nonbreaking_spaces(text)
-    return text
+    if text:
+        text = util.remove_nonbreaking_spaces(text)
+        return text
 
 
 def normalize_unicode(text):
