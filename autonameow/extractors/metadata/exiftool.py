@@ -230,13 +230,6 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
 
         return out
 
-    def _get_raw_metadata(self, source):
-        result = self._get_exiftool_data(source)
-        if result:
-            return result
-        else:
-            return {}
-
     def _get_exiftool_data(self, source):
         """
         Returns:
