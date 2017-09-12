@@ -420,6 +420,9 @@ def eval_meowuri_glob(meowuri, glob_list):
     if not meowuri or not glob_list:
         return False
 
+    if not isinstance(glob_list, list):
+        glob_list = [glob_list]
+
     if meowuri in glob_list:
         return True
 
@@ -440,10 +443,26 @@ def eval_meowuri_glob(meowuri, glob_list):
             else:
                 continue
 
-        # Convert to regular expression to match wildcards. Simplest solution.
-        re_glob = re.compile(glob.replace('*', '.*'))
-        if re_glob.match(meowuri):
-            return True
+        if glob.startswith('*.') and glob.endswith('.*'):
+            # Check if the center piece is a match.
+            literal_glob_parts = [g for g in glob_parts if g != '*']
+            for literal_glob_part in literal_glob_parts:
+                # Put back periods to match whole parts and not substrings.
+                glob_center_part = '.{}.'.format(literal_glob_part)
+                if glob_center_part in meowuri:
+                    return True
+
+        # First part doesn't matter, check if trailing pieces match.
+        if glob.startswith('*.'):
+            stripped_glob = re.sub(r'^\*', '', glob)
+            if meowuri.endswith(stripped_glob):
+                return True
+
+        # Last part doesn't matter, check if leading pieces match.
+        if glob.endswith('.*'):
+            stripped_glob = re.sub(r'\*$', '', glob)
+            if meowuri.startswith(stripped_glob):
+                return True
 
     return False
 

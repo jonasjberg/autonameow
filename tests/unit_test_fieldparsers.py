@@ -414,6 +414,9 @@ class TestEvalMeowURIGlob(TestCase):
             'filesystem.contents.mime_type', ['filesystem.pathname.full']
         ))
         self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.contents.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
             'filesystem.contents.mime_type', ['filesystem.pathname.*',
                                               'filesystem.pathname.full']
         ))
@@ -445,9 +448,25 @@ class TestEvalMeowURIGlob(TestCase):
             'filesystem.contents.mime_type', ['filesystem.pathname.full']
         ))
         self.assertFalse(eval_meowuri_glob(
-            'contents.textual.plain_text', ['filesystem.*',
-                                            'filesystem.pathname.*',
-                                            'filesystem.pathname.full']
+            'contents.textual.text.full', ['filesystem.*',
+                                           'filesystem.pathname.*',
+                                           'filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['contents.text.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['*.text.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['*.text', '*.text', '*.text.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['*.raw_*', '*.raw.*', '*.raw*.*'
+                                          '*.*raw*.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.abspath.full', ['*.text.full']
         ))
 
     def test_eval_meowuri_blob_returns_true_as_expected(self):
@@ -522,12 +541,28 @@ class TestEvalMeowURIGlob(TestCase):
              '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
              '*.EXIF:ModifyDate']
         ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['contents.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['*.textual.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['*.text.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['*.full']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['contents.*', '*.textual.*',
+                                           '*.text.*', '*.full']
+        ))
 
     def test_eval_meowuri_blob_returns_as_expected(self):
         self.assertTrue(eval_meowuri_glob(
             'filesystem.basename.full', ['*.pathname.*',
                                          '*.basename.*',
-                                         '*.raw_text']
+                                         '*.full']
         ))
 
 
