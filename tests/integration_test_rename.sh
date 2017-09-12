@@ -171,6 +171,23 @@ test_automagic_rename 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE
 test_automagic_dryrun 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
 
 
+ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_filetags.yaml")"
+assert_false '[ -z "$ACTIVE_CONFIG" ]' \
+             'Variable "ACTIVE_CONFIG" should not be unset'
+
+assert_true '[ -e "$ACTIVE_CONFIG" ]' \
+            "The config file \""$(basename -- "$ACTIVE_CONFIG")"\" exists"
+
+SAMPLE_FILETAGS_FILE="$(abspath_testfile "2017-09-12T224820 filetags-style name -- tag2 a tag1.txt")"
+SAMPLE_FILETAGS_FILE_EXPECTED='2017-09-12T224820 filetags-style name -- a tag1 tag2.txt'
+assert_true '[ -e "$SAMPLE_FILETAGS_FILE" ]' \
+            "Sample file \"${SAMPLE_FILETAGS_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+
+test_automagic_rename 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
+test_automagic_dryrun 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
+
+
+
 
 # Calculate total execution time.
 time_end="$(current_unix_time)"
