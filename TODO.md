@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0088]` Handle case where `ExtractedData.wrapper` is `None`.
+
 * `[TD0082]` Integrate the `ExtractedData` class.
 
 * `[TD0084]` Add handling collections (lists, etc) to the type wrapper classes.

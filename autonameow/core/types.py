@@ -593,11 +593,17 @@ def try_parse_date(string):
 
 
 def try_wrap(value):
-    wrapper = PRIMITIVE_AW_TYPE_MAP.get(type(value))
+    wrapper = wrapper_for(value)
     if wrapper:
         return wrapper(value)
     else:
         return None
+
+
+def wrapper_for(value):
+    if value is None:
+        return None
+    return PRIMITIVE_AW_TYPE_MAP.get(type(value), None)
 
 
 # Singletons for actual use.

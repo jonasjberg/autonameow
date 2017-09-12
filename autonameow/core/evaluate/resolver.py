@@ -91,14 +91,18 @@ class Resolver(object):
         if data is not None and isinstance(data, ExtractedData):
             log.debug('Formatting data value "{!s}"'.format(data.value))
 
-            formatted = data.wrapper.format(data.value, formatter=None)
-            if formatted is not None and formatted != data.wrapper.null:
-                log.debug('Formatted value: "{!s}"'.format(formatted))
-                return formatted
-            else:
-                log.debug(
-                    'ERROR when formatted value "{!s}"'.format(data.value)
-                )
+            # TODO: [TD0088] Handle case where 'ExtractedData' isn't provided
+            # with a 'wrapper' and then also fails to autodetect a proper
+            # 'wrapper' class from the raw file type ..
+            if data.wrapper:
+                formatted = data.wrapper.format(data.value, formatter=None)
+                if formatted is not None and formatted != data.wrapper.null:
+                    log.debug('Formatted value: "{!s}"'.format(formatted))
+                    return formatted
+                else:
+                    log.debug(
+                        'ERROR when formatting value "{!s}"'.format(data.value)
+                    )
         else:
             return data
 

@@ -237,6 +237,12 @@ class ExtractedData(object):
         self._data = None
 
     def __call__(self, raw_value):
+        if not self.wrapper:
+            # Fall back automatic type detection if 'wrapper' is unspecified.
+            _wrapper = types.wrapper_for(raw_value)
+            if _wrapper:
+                self.wrapper = _wrapper
+
         if self.wrapper:
             try:
                 self._data = self.wrapper(raw_value)
@@ -244,14 +250,13 @@ class ExtractedData(object):
                 log.warning(e)
                 raise
         else:
-            # Fall back automatic type detection if 'wrapper' is unspecified.
-            from core.config.configuration import Configuration
-            wrapped = types.try_wrap(Configuration)
+            log.warning('Missing wrapper in ExtractedData: "{!s}"'.format(self))
+
+            # TODO: [TD0088] The "resolver" needs 'wrapper.format' ..
+            wrapped = types.try_wrap(raw_value)
             if wrapped is None:
-                # log.critical(
-                #     'Unhandled wrapping of tag name "{}" (type: {!s} '
-                #     ' value: "{!s}")'.format(tag_name, type(value), value)
-                # )
+                log.critical('Unhandled wrapping of raw value "{!s}" '
+                             '({!s})'.format(raw_value, type(raw_value)))
                 self._data = raw_value
             else:
                 self._data = wrapped
