@@ -33,6 +33,7 @@ class Resolver(object):
         self.file = file_object
         self.name_template = name_template
         self.data_sources = {}
+        self.fields_data = {}
 
     def mapped_all_template_fields(self):
         return all_template_fields_defined(self.name_template,
@@ -42,48 +43,32 @@ class Resolver(object):
         self.data_sources[field] = meowuri
 
     def collect(self):
-        # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
-        # Add automatically resolving missing sources from possible candidates.
+        self._gather_data()
 
-        fields_data = self._gather_data(self.data_sources)
+    def collected_data_for_all_fields(self):
+        if not self.fields_data:
+            return False
 
-        # Check that all name template fields can be populated.
-        if not has_data_for_placeholder_fields(self.name_template, fields_data):
-            log.warning('Unable to populate name. Missing field data.')
+        return has_data_for_placeholder_fields(self.name_template,
+                                               self.fields_data)
 
-        return fields_data
-
-    def _gather_data(self, field_meowuri_map):
-        """
-        Populates a dict of name template fields from data at "meowURIs".
-
-        The dictionary maps name template fields to "meowURIs".
-        The extracted data is queried for the "meowURI" first, if the data
-        exists, it is used and the analyzer data query is skipped.
-
-        Args:
-            field_meowuri_map: Dictionary of fields and "meowURI".
-
-                Example: {'datetime'    = 'metadata.exiftool.DateTimeOriginal'
-                          'description' = 'plugin.microsoft_vision.caption'
-                          'extension'   = 'filesystem.basename.extension'}
-
-        Returns:
-            Results data for the specified fields matching the specified query.
-        """
-        out = {}
-
+    def _gather_data(self):
         # TODO: [TD0017] Rethink source specifications relation to source data.
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
-        for field, meowuri in field_meowuri_map.items():
+        for field, meowuri in self.data_sources.items():
+            if (field in self.fields_data
+                    and self.fields_data.get(field) is not None):
+                continue
+
             _data = self._request_data(self.file, meowuri)
             if _data is not None:
-                out[field] = _data
-
-        return out
+                self.fields_data[field] = _data
+            else:
+                # Remove the source that returned None data.
+                self.data_sources[field] = None
 
     def _request_data(self, file, meowuri):
-        log.debug('Requesting [{!s}] "{!s}"'.format(file, meowuri))
+        log.debug('{} requesting [{!s}] "{!s}"'.format(self, file, meowuri))
         data = repository.SessionRepository.query(file, meowuri)
         log.debug('Got data ({}): {!s}'.format(type(data), data))
 
@@ -105,6 +90,9 @@ class Resolver(object):
                     )
         else:
             return data
+
+    def __str__(self):
+        return self.__class__.__name__
 
 
 def all_template_fields_defined(template, data_sources):

@@ -228,6 +228,7 @@ class TestIsValidSourceSpecification(TestCase):
 
     def test_bad_source_returns_false(self):
         self.assertFalse(rules.is_valid_source('not.a.valid.source.surely'))
+        self.assertFalse(rules.is_valid_source('foobar'))
 
     def test_good_source_returns_true(self):
         self.assertTrue(rules.is_valid_source('metadata.exiftool.PDF:CreateDate'))
