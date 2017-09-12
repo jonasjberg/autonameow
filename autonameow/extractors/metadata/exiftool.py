@@ -122,6 +122,62 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             ]
         ),
         'SourceFile': ExtractedData(types.AW_PATH),
+        'QuickTime:CreateDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
+            ]
+        ),
+        'QuickTime:CreationDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
+            ]
+        ),
+        'QuickTime:ModifyDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=0.5),
+                fields.WeightedMapping(fields.date, probability=0.5)
+            ]
+        ),
+        'QuickTime:CreationDate-und-SE': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
+            ]
+        ),
+        'QuickTime:TrackCreateDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
+            ]
+        ),
+        'QuickTime:TrackModifyDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=0.5),
+                fields.WeightedMapping(fields.date, probability=0.5)
+            ]
+        ),
+        'QuickTime:MediaCreateDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
+            ]
+        ),
+        'QuickTime:MediaModifyDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=0.5),
+                fields.WeightedMapping(fields.date, probability=0.5)
+            ]
+        ),
 
         # TODO: [TD0084] Add handling collections to type wrapper classes.
         # 'XMP:Subject': ExtractedData(
