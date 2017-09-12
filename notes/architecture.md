@@ -31,10 +31,44 @@ unimplemented..) included:
 2. Start iterating over the files in the list of files to process
    --- for each file, do;
     1. Construct a `FileObject` representing the file
-    2. __Begin "data extraction"__ using an instance of `Extraction`
-        1. Populate a queue with all extractor classes that "can handle" the
-           file, which is determined by testing the file MIME-type.
-        2. If the `Extraction` instance is told to include all extractors,
-           include all. Otherwise, extractors that have a `is_slow` flag set is
-           remove from the queue.
+    2. __Begin "data extraction"__
+        1. Gather all extractor classes that "can handle" the file,
+           which is determined by testing the file MIME-type.
+        2. If all results should be displayed, include all extractors.
+           Otherwise, of the extractors that have the `is_slow` flag set,
+           include only those referenced by the active configuration rules.
+        3. Call each extractor in turn, passing the results back to the
+           `SessionRepository`.
+    3. __Begin "analysis"__
+        1. Gather all analyzer classes the "can handle" the file,
+           determined by the class methods `can_handle`.
+        2. Run all analyzers in turn, passing the results back to the
+           `SessionRepository`.
+    4. __Run "plugins"__
+        1. Gather all available plugins.
+        2. Filter out plugins that "can handle" the file, determined by the
+           class method `can_handle` of each plugin.
+        3. Run all plugins in turn, passing the results back to the
+           `SessionRepository`.
+    5. __Run "rule matcher"__
+        1. Get all rules from the active configuration.
+        2. For each rule, do;
+            1. Evaluate all rule conditions.
+            2. Remove rules that require an exact match and any conditions
+               evaluates false.
+        3. For each remaining rule, do;
+            1. Evaluate all rule conditions and calculate scores and weights
+               based on the number of met conditions and the total number of
+               conditions.
+        4. Prioritize rules by score, weight and ranking bias.
+        5. Store all prioritized rules as "candidates", presenting the highest
+           priority rule as the "best match".
+    6. __A) If running in "automagic" mode__
+        1. Set the active name template to the name template defined in the
+           "best matched" rule.
+        2. Create an instance of `Resolver`
+        3. Register each of the data sources defined in the "best matched" rule as a
+           known source to the resolver.
+        4. Check that all name template fields have been assigned a known source.
 
+<!-- TODO: .. -->
