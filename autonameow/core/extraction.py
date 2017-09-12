@@ -116,6 +116,7 @@ def start(file_object,
                 file_object, klass.meowuri_root, _extractor_instance(_source)
             )
         except ExtractorError as e:
-            log.warning('Execution of extractor "{}” raised ExtractorError; '
-                        '{!s}'.format(klass, e))
+            log.error(
+                'Halted extractor "{!s}": {!s}'.format(_extractor_instance, e)
+            )
             continue

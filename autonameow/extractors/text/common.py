@@ -46,7 +46,7 @@ class AbstractTextExtractor(BaseExtractor):
             self.log.debug('{!s} starting initial extraction'.format(self))
             text = self._get_text(source)
         except ExtractorError as e:
-            self.log.error('{!s}: extraction FAILED; {!s}'.format(self, e))
+            self.log.warning('{!s}: {!s}'.format(self, e))
             raise
         except NotImplementedError as e:
             self.log.debug('[WARNING] Called unimplemented code in {!s}: '
