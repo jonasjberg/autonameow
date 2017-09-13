@@ -469,50 +469,46 @@ How should they be nested?
 
 #### Current approach:
 
-* Sample Field 1
-    * Source-specific URIs:
-        * `filesystem.contents.mime_type`
-        * `metadata.exiftool.File:MIMEType`
-    * Generic URI: `contents.generic.mimetype`
-* Sample Field 2
-    * Source-specific URIs:
-        * `metadata.pypdf.CreationDate`
-        * `metadata.exiftool.PDF:CreateDate`
-    * Generic URI: `metadata.generic.datecreated`
+* Source-specific URIs:
+    * M: `filesystem.contents.mime_type`
+    * M: `metadata.exiftool.File:MIMEType`
+    * D: `metadata.pypdf.CreationDate`
+    * D: `metadata.exiftool.PDF:CreateDate`
+* Generic URIs:
+    * M: `contents.generic.mimetype`
+    * D: `metadata.generic.datecreated`
 
 #### Alternative approach 1:
 
-* Sample Field 1
-    * Source-specific URIs:
-        * `filesystem.contents.mime_type`
-        * `metadata.exiftool.File:MIMEType`
-    * Generic URI: `generic.contents.mimetype`
-* Sample Field 2
-    * Source-specific URIs:
-        * `metadata.pypdf.CreationDate`
-        * `metadata.exiftool.PDF:CreateDate`
-    * Generic URI: `generic.metadata.datecreated`
+* Source-specific URIs:
+    * M: `filesystem.contents.mime_type`
+    * M: `metadata.exiftool.File:MIMEType`
+    * D: `metadata.pypdf.CreationDate`
+    * D: `metadata.exiftool.PDF:CreateDate`
+* Generic URIs:
+    * M: `generic.contents.mimetype`
+    * D: `generic.metadata.datecreated`
 
 #### Alternative approach 2:
-* Sample Field 1:
-    * Source-specific URIs:
-        * `filesystem.contents.mime_type`
-        * `metadata.exiftool.File:MIMEType`
-    * Generic URI: `contents.mimetype`
 
-* Sample Field 2:
-    * Source-specific URIs:
-        * `metadata.pypdf.CreationDate`
-        * `metadata.exiftool.PDF:CreateDate`
-    * Generic URI: `metadata.datecreated`
+* Source-specific URIs:
+    * M: `filesystem.contents.mime_type`
+    * M: `metadata.exiftool.File:MIMEType`
+    * D: `metadata.pypdf.CreationDate`
+    * D: `metadata.exiftool.PDF:CreateDate`
+* Generic URIs:
+    * M: `contents.mimetype`
+    * D: `metadata.datecreated`
 
 
 #### Pros/Cons
 I'm currently in favor of "Alternative approach 2" because it seems simpler to
-just leave out the source part.. ~~It should also maybe possibly be easier to
-integrate into the existing codebase as it currently stands..~~
+just leave out the source part..
 
-Using "Alternative approach 2" would lead to this:
+~~(It should also maybe possibly be easier to integrate into the existing
+codebase as it currently stands..)~~
+
+Going with "Alternative approach 2" would allow referring to data like this:
 
 * Specific retrieval: `metadata.pypdf.creator`
     * Fetches specific data from a specific source.
