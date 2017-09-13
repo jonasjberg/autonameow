@@ -465,40 +465,43 @@ They are also stored under a "generic URI":
 
 ### Current conundrum
 I can't decide on how to lay out the "alternate" URIs.
+
 How should they be nested?
+Below examples show "MeowURIs" referring to dummy data
+"elements"; `D1`, `D2`, `D3`, `D4`.
 
 #### Current approach:
 
 * Source-specific URIs:
-    * M: `filesystem.contents.mime_type`
-    * M: `metadata.exiftool.File:MIMEType`
-    * D: `metadata.pypdf.CreationDate`
-    * D: `metadata.exiftool.PDF:CreateDate`
+    * `filesystem.contents.mime_type: D1`
+    * `metadata.exiftool.File:MIMEType: D2`
+    * `metadata.pypdf.CreationDate: D3`
+    * `metadata.exiftool.PDF:CreateDate: D4`
 * Generic URIs:
-    * M: `contents.generic.mimetype`
-    * D: `metadata.generic.datecreated`
+    * `contents.generic.mimetype: [D1, D2]`
+    * `metadata.generic.datecreated: [D3, D4]`
 
 #### Alternative approach 1:
 
 * Source-specific URIs:
-    * M: `filesystem.contents.mime_type`
-    * M: `metadata.exiftool.File:MIMEType`
-    * D: `metadata.pypdf.CreationDate`
-    * D: `metadata.exiftool.PDF:CreateDate`
+    * `filesystem.contents.mime_type: D1`
+    * `metadata.exiftool.File:MIMEType: D2`
+    * `metadata.pypdf.CreationDate: D3`
+    * `metadata.exiftool.PDF:CreateDate: D4`
 * Generic URIs:
-    * M: `generic.contents.mimetype`
-    * D: `generic.metadata.datecreated`
+    * `generic.contents.mimetype: [D1, D2]`
+    * `generic.metadata.datecreated: [D3, D4]`
 
 #### Alternative approach 2:
 
 * Source-specific URIs:
-    * M: `filesystem.contents.mime_type`
-    * M: `metadata.exiftool.File:MIMEType`
-    * D: `metadata.pypdf.CreationDate`
-    * D: `metadata.exiftool.PDF:CreateDate`
+    * `filesystem.contents.mime_type: D1`
+    * `metadata.exiftool.File:MIMEType: D2`
+    * `metadata.pypdf.CreationDate: D3`
+    * `metadata.exiftool.PDF:CreateDate: D4`
 * Generic URIs:
-    * M: `contents.mimetype`
-    * D: `metadata.datecreated`
+    * `contents.mimetype: [D1, D2]`
+    * `metadata.datecreated: [D3, D4]`
 
 
 #### Pros/Cons
