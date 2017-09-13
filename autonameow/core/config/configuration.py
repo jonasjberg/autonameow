@@ -295,7 +295,7 @@ class Configuration(object):
             constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
 
-        # Unlikely the previous options; first load the default ignore patterns,
+        # Unlike the previous options; first load the default ignore patterns,
         # then combine these defaults with any user-specified patterns.
         util.nested_dict_set(
             self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
