@@ -171,6 +171,7 @@ test_automagic_rename 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE
 test_automagic_dryrun 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
 
 
+# ==============================================================================
 ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_filetags.yaml")"
 assert_false '[ -z "$ACTIVE_CONFIG" ]' \
              'Variable "ACTIVE_CONFIG" should not be unset'
@@ -186,6 +187,31 @@ assert_true '[ -e "$SAMPLE_FILETAGS_FILE" ]' \
 test_automagic_rename 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
 test_automagic_dryrun 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
 
+
+# ==============================================================================
+ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext.yaml")"
+assert_false '[ -z "$ACTIVE_CONFIG" ]' \
+             'Variable "ACTIVE_CONFIG" should not be unset'
+
+assert_true '[ -e "$ACTIVE_CONFIG" ]' \
+            "The config file \""$(basename -- "$ACTIVE_CONFIG")"\" exists"
+
+SAMPLE_EMPTY_FILE="$(abspath_testfile "empty")"
+SAMPLE_EMPTY_FILE_EXPECTED='empty'
+assert_true '[ -e "$SAMPLE_EMPTY_FILE" ]' \
+            "Sample file \"${SAMPLE_EMPTY_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+
+test_automagic_rename 'Fix incorrect extensions test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+
+
+SAMPLE_NOEXT_FILE="$(abspath_testfile "simple-lexical-analysis")"
+SAMPLE_NOEXT_FILE_EXPECTED='simple-lexical-analysis.png'
+assert_true '[ -e "$SAMPLE_NOEXT_FILE" ]' \
+            "Sample file \"${SAMPLE_NOEXT_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+
+test_automagic_rename 'Fix incorrect extensions test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
 
 
 
