@@ -228,14 +228,21 @@ class Configuration(object):
         return _rule
 
     def _load_options(self):
-        def _try_load_date_format_option(option):
+        def _try_load_datetime_format_option(option, default):
             if 'DATETIME_FORMAT' in self._data:
-                _value = self._data['DATETIME_FORMAT'].get(option)
+                _value = self._data['DATETIME_FORMAT'].get(option, None)
+                if (_value is not None and
+                        DateTimeConfigFieldParser.is_valid_datetime(_value)):
+                    self._options['DATETIME_FORMAT'][option] = _value
+                    return  # OK!
+
+            # Use verified default value.
+            if DateTimeConfigFieldParser.is_valid_datetime(default):
+                self._options['DATETIME_FORMAT'][option] = default
             else:
-                _value = None
-            if (_value is not None and
-                    DateTimeConfigFieldParser.is_valid_datetime(_value)):
-                self._options['DATETIME_FORMAT'][option] = _value
+                log.critical('Invalid internal default value "{!s}": '
+                             '"{!s}'.format(option, default))
+                log.critical('This should not happen!')
 
         def _try_load_filetags_option(option, default):
             if 'FILETAGS_OPTIONS' in self._data:
@@ -261,9 +268,15 @@ class Configuration(object):
                     self._options, ['FILESYSTEM_OPTIONS', option], default
                 )
 
-        _try_load_date_format_option('date')
-        _try_load_date_format_option('time')
-        _try_load_date_format_option('datetime')
+        _try_load_datetime_format_option(
+            'date', constants.DEFAULT_DATETIME_FORMAT_DATE
+        )
+        _try_load_datetime_format_option(
+            'time', constants.DEFAULT_DATETIME_FORMAT_TIME
+        )
+        _try_load_datetime_format_option(
+            'datetime', constants.DEFAULT_DATETIME_FORMAT_DATETIME
+        )
 
         _try_load_filetags_option(
             'filename_tag_separator',
