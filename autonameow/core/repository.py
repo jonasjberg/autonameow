@@ -204,18 +204,18 @@ class Repository(object):
     def _human_readable_contents(self, data):
         def _fmt_list_entry(width, _value, _key=None):
             if _key is None:
-                return '{: <{}}  * {}'.format('', width, _value)
+                return '{: <{}}  * {!s}'.format('', width, _value)
             else:
-                return '{: <{}}: * {}'.format(_key, width, _value)
+                return '{: <{}}: * {!s}'.format(_key, width, _value)
 
         def _fmt_text_line(width, _value, _key=None):
             if _key is None:
-                return '{: <{}}  > {}'.format('', width, _value)
+                return '{: <{}}  > {!s}'.format('', width, _value)
             else:
-                return '{: <{}}: > {}'.format(_key, width, _value)
+                return '{: <{}}: > {!s}'.format(_key, width, _value)
 
         def _fmt_entry(_key, width, _value):
-            return '{: <{}}: {}'.format(_key, width, _value)
+            return '{: <{}}: {!s}'.format(_key, width, _value)
 
         # TODO: [TD0066] Handle all encoding properly.
         temp = {}
