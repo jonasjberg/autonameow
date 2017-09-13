@@ -446,3 +446,77 @@ Additionally, the returned list could contain contextual information; weights,
 scores, priorities, etc.
 The less specific query would require the program to take responsibility for
 selecting the appropriate field.
+
+## Update 2017-09-13
+I'm currently in the process of adding some kind of "generic" field that,
+if defined, allows referencing data using two different "MeowURIs";
+*source-specific* and *generic*
+
+### Examples from the current implementation;
+These two data entries are stored in the repository with
+source-specific MeowURIs:
+
+* `metadata.exiftool.File:MIMEType: application/pdf`
+* `filesystem.contents.mime_type: application/pdf`
+
+They are also stored under a "generic URI":
+
+* `contents.generic: [application/pdf, application/pdf]`
+
+### Current conundrum
+I can't decide on how to lay out the "alternate" URIs.
+How should they be nested?
+
+#### Current approach:
+
+* Sample Field 1
+    * Source-specific URIs:
+        * `filesystem.contents.mime_type`
+        * `metadata.exiftool.File:MIMEType`
+    * Generic URI: `contents.generic.mimetype`
+* Sample Field 2
+    * Source-specific URIs:
+        * `metadata.pypdf.CreationDate`
+        * `metadata.exiftool.PDF:CreateDate`
+    * Generic URI: `metadata.generic.datecreated`
+
+#### Alternative approach 1:
+
+* Sample Field 1
+    * Source-specific URIs:
+        * `filesystem.contents.mime_type`
+        * `metadata.exiftool.File:MIMEType`
+    * Generic URI: `generic.contents.mimetype`
+* Sample Field 2
+    * Source-specific URIs:
+        * `metadata.pypdf.CreationDate`
+        * `metadata.exiftool.PDF:CreateDate`
+    * Generic URI: `generic.metadata.datecreated`
+
+#### Alternative approach 2:
+* Sample Field 1:
+    * Source-specific URIs:
+        * `filesystem.contents.mime_type`
+        * `metadata.exiftool.File:MIMEType`
+    * Generic URI: `contents.mimetype`
+
+* Sample Field 2:
+    * Source-specific URIs:
+        * `metadata.pypdf.CreationDate`
+        * `metadata.exiftool.PDF:CreateDate`
+    * Generic URI: `metadata.datecreated`
+
+
+#### Pros/Cons
+I'm currently in favor of "Alternative approach 2" because it seems simpler to
+just leave out the source part.. ~~It should also maybe possibly be easier to
+integrate into the existing codebase as it currently stands..~~
+
+Using "Alternative approach 2" would lead to this:
+
+* Specific retrieval: `metadata.pypdf.creator`
+    * Fetches specific data from a specific source.
+    * Returns either nothing at all or __one__ data "element".
+* Generic retrieval: `metadata.creator`
+    * Fetches "equivalent" data from any sources.
+    * Returns nothing, __or any number__ of data "elements".
