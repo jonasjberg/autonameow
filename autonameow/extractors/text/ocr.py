@@ -28,7 +28,10 @@ import shlex
 import subprocess
 import tempfile
 
-from PIL import Image
+try:
+    from PIL import Image
+except (ImportError, ModuleNotFoundError):
+    Image = None
 
 from core import (
     util
@@ -64,7 +67,8 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        return util.is_executable('tesseract')
+        # Requires tesseract and PIL.Image.
+        return util.is_executable(TESSERACT_COMMAND) and Image is not None
 
 
 def pil_read_image(image_path):
