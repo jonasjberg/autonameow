@@ -26,7 +26,8 @@ import extractors
 import plugins
 from core import (
     exceptions,
-    util
+    util,
+    constants
 )
 from core.config.field_parsers import eval_meowuri_glob
 from core.util import textutils
@@ -110,8 +111,18 @@ class Repository(object):
             for k, v in flat_data.items():
                 merged_meowuri = meowuri + '.' + str(k)
                 self._store(file_object, merged_meowuri, v)
+                self._store_generic(file_object, v)
         else:
             self._store(file_object, meowuri, data)
+            self._store_generic(file_object, data)
+
+    def _store_generic(self, file_object, data):
+        if not isinstance(data, extractors.ExtractedData):
+            return
+
+        if data.generic_field is not None:
+            _gen_uri = data.generic_field.uri()
+            self._store(file_object, _gen_uri, data)
 
     def _store(self, file_object, meowuri, data):
         try:

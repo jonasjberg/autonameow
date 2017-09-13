@@ -50,7 +50,8 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
-            ]
+            ],
+            generic_field=fields.DateCreated
         ),
         'EXIF:DateTimeDigitized': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -84,10 +85,24 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.date, probability=1),
             ]
         ),
-        'EXIF:ImageDescription': ExtractedData(types.AW_STRING),
+        'EXIF:ImageDescription': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.description, probability=1),
+                fields.WeightedMapping(fields.tags, probability=0.5),
+                fields.WeightedMapping(fields.title, probability=0.25)
+            ]
+        ),
         'EXIF:Make': ExtractedData(types.AW_STRING),
         'EXIF:Model': ExtractedData(types.AW_STRING),
-        'EXIF:ModifyDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+        'EXIF:ModifyDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=0.25),
+                fields.WeightedMapping(fields.date, probability=0.25)
+            ],
+            generic_field=fields.DateModified
+        ),
         'EXIF:Software': ExtractedData(types.AW_STRING),
         'EXIF:UserComment': ExtractedData(types.AW_STRING),
         'File:Directory': ExtractedData(types.AW_PATH),
@@ -105,12 +120,34 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             wrapper=types.AW_MIMETYPE,
             mapped_fields=[
                 fields.WeightedMapping(fields.extension, probability=1)
+            ],
+            generic_field=fields.MimeType
+        ),
+        'PDF:CreateDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
+            ],
+            generic_field=fields.DateCreated
+        ),
+        'PDF:Creator': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.author, probability=0.025),
+                fields.WeightedMapping(fields.publisher, probability=0.02),
+                fields.WeightedMapping(fields.title, probability=0.01)
             ]
         ),
-        'PDF:CreateDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
-        'PDF:Creator': ExtractedData(types.AW_STRING),
         'PDF:Linearized': ExtractedData(types.AW_BOOLEAN),
-        'PDF:ModifyDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+        'PDF:ModifyDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=0.25),
+                fields.WeightedMapping(fields.date, probability=0.25)
+            ],
+            generic_field=fields.DateModified
+        ),
         'PDF:PDFVersion': ExtractedData(types.AW_FLOAT),
         'PDF:PageCount': ExtractedData(types.AW_INTEGER),
         'PDF:Producer': ExtractedData(
@@ -127,56 +164,64 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
-            ]
+            ],
+            generic_field=fields.DateCreated
         ),
         'QuickTime:CreationDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
-            ]
+            ],
+            generic_field=fields.DateCreated
         ),
         'QuickTime:ModifyDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=0.5),
                 fields.WeightedMapping(fields.date, probability=0.5)
-            ]
+            ],
+            generic_field=fields.DateModified
         ),
         'QuickTime:CreationDate-und-SE': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
-            ]
+            ],
+            generic_field=fields.DateCreated
         ),
         'QuickTime:TrackCreateDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
-            ]
+            ],
+            generic_field=fields.DateCreated
         ),
         'QuickTime:TrackModifyDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=0.5),
                 fields.WeightedMapping(fields.date, probability=0.5)
-            ]
+            ],
+            generic_field=fields.DateModified
         ),
         'QuickTime:MediaCreateDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
-            ]
+            ],
+            generic_field=fields.DateCreated
         ),
         'QuickTime:MediaModifyDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=0.5),
                 fields.WeightedMapping(fields.date, probability=0.5)
-            ]
+            ],
+            generic_field=fields.DateModified
         ),
 
         # TODO: [TD0084] Add handling collections to type wrapper classes.

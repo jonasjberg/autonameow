@@ -189,3 +189,7 @@ YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
 EXIT_SUCCESS = 0    # Program finished successfully.
 EXIT_WARNING = 1    # Program execution completed but there were errors.
 EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.
+
+
+# Repository and internal data storage
+MEOWURI_NODE_GENERIC = 'generic'

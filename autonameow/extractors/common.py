@@ -226,7 +226,7 @@ class ExtractedData(object):
     is compatible with. For instance, date/time-information is could be used
     to populate the 'datetime' name template field.
     """
-    def __init__(self, wrapper, mapped_fields=None):
+    def __init__(self, wrapper, mapped_fields=None, generic_field=None):
         self.wrapper = wrapper
 
         if mapped_fields is not None:
@@ -235,6 +235,11 @@ class ExtractedData(object):
             self.field_map = []
 
         self._data = None
+
+        if generic_field is not None:
+            self.generic_field = generic_field
+        else:
+            self.generic_field = None
 
     def __call__(self, raw_value):
         if not self.wrapper:
@@ -274,9 +279,16 @@ class ExtractedData(object):
         return False
 
     def __str__(self):
-        return '{!s}("{!s}")  FieldMap: {!s}"'.format(
-            self.wrapper, self.value, self.field_map
-        )
+        # 1) Detailed information, not suitable when listing to user ..
+        # return '{!s}("{!s}")  FieldMap: {!s}"'.format(
+        #     self.wrapper, self.value, self.field_map
+        # )
+
+        # 2) Simple default string representation of the data ..
+        return '{!s}'.format(self.value)
+
+        # 3) Use the format method of the wrapper ..
+        # return self.wrapper.format(self.value)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
