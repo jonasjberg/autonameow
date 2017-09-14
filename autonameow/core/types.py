@@ -459,8 +459,22 @@ class Date(BaseType):
         )
 
     def format(self, value, **kwargs):
-        return value
-        # raise NotImplementedError('TODO: Implement TimeDate.format()')
+        value = self.__call__(value)
+
+        format_string = kwargs.get('format_string')
+        if format_string is None:
+            format_string = constants.DEFAULT_DATETIME_FORMAT_DATE
+            if not isinstance(format_string, str):
+                raise AWTypeError('Expected "format_string" to be Unicode str')
+
+            try:
+                return datetime.strftime(value, format_string)
+            except TypeError:
+                pass
+
+        raise AWTypeError(
+            'Invalid "format_string": "{!s}"'.format(format_string)
+        )
 
 
 class TimeDate(BaseType):
@@ -610,6 +624,8 @@ def try_parse_date(string):
         raise ValueError(_error_msg)
     if not isinstance(string, str):
         raise ValueError(_error_msg)
+
+    string = string.replace(':', '-').replace('_', '-')
 
     date_formats = ['%Y-%m-%d',
                     '%Y-%m',

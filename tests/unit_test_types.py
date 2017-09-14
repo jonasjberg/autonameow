@@ -410,13 +410,21 @@ class TestTypeDate(TestCase):
         expected = datetime.strptime('2017-07-12', '%Y-%m-%d')
         self.assertEqual(types.AW_DATE(expected), expected)
         self.assertEqual(types.AW_DATE('2017-07-12'), expected)
+        self.assertEqual(types.AW_DATE('2017:07:12'), expected)
+        self.assertEqual(types.AW_DATE('2017_07_12'), expected)
         self.assertEqual(types.AW_DATE(b'2017-07-12'), expected)
+        self.assertEqual(types.AW_DATE(b'2017:07:12'), expected)
+        self.assertEqual(types.AW_DATE(b'2017_07_12'), expected)
 
     def test_call_with_coercible_data_year_month(self):
         expected = datetime.strptime('2017-07', '%Y-%m')
         self.assertEqual(types.AW_DATE(expected), expected)
         self.assertEqual(types.AW_DATE('2017-07'), expected)
+        self.assertEqual(types.AW_DATE('2017:07'), expected)
+        self.assertEqual(types.AW_DATE('2017_07'), expected)
         self.assertEqual(types.AW_DATE(b'2017-07'), expected)
+        self.assertEqual(types.AW_DATE(b'2017:07'), expected)
+        self.assertEqual(types.AW_DATE(b'2017_07'), expected)
 
     def test_call_with_coercible_data_year(self):
         expected = datetime.strptime('2017', '%Y')
@@ -438,9 +446,28 @@ class TestTypeDate(TestCase):
         _assert_raises([None])
         # TODO: Add testing additional input data.
 
-    def test_format(self):
-        # TODO: Add additional tests.
-        self.assertIsNotNone(types.AW_DATE.format)
+    def test_format_coercible_data(self):
+        def _assert_formats(test_data, expected):
+            self.assertEqual(types.AW_DATE.format(test_data),
+                             expected)
+
+        _assert_formats('2017:02:03', '2017-02-03')
+        _assert_formats('2017-02-03', '2017-02-03')
+        _assert_formats('2015:03:03', '2015-03-03')
+
+    def test_format_noncoercible_data(self):
+        def _assert_raises(test_data):
+            with self.assertRaises(types.AWTypeError):
+                types.AW_DATE.format(test_data)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises('foo')
+        _assert_raises([])
+        _assert_raises([''])
+        _assert_raises([None])
+        _assert_raises('0000:00:00')
+        _assert_raises('1234:56:78')
 
 
 class TestTypeExiftoolTimeDate(TestCase):
