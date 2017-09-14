@@ -353,6 +353,7 @@ class MimeType(BaseType):
     MIME_TYPE_LOOKUP = {
         ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
     }
+    MIME_TYPE_LOOKUP['sh'] = 'text/x-shellscript'
     MIME_TYPE_LOOKUP_INV = {
         mime: ext for ext, mime in MIME_TYPE_LOOKUP.items()
     }
