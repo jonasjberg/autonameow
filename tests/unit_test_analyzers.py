@@ -122,7 +122,7 @@ class TestFindAnalyzerSourceFiles(TestCase):
         self.assertIn('analyze_filename.py', actual)
         self.assertIn('analyze_filesystem.py', actual)
         self.assertIn('analyze_image.py', actual)
-        self.assertIn('analyze_pdf.py', actual)
+        self.assertIn('analyze_document.py', actual)
         self.assertIn('analyze_text.py', actual)
         self.assertIn('analyze_video.py', actual)
 
