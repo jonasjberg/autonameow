@@ -58,14 +58,16 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
-            ]
+            ],
+            generic_field=fields.DateCreated
         ),
         'EXIF:DateTimeOriginal': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
-            ]
+            ],
+            generic_field=fields.DateCreated
         ),
         'EXIF:ExifVersion': ExtractedData(types.AW_INTEGER),
         'EXIF:GainControl': ExtractedData(types.AW_INTEGER),
@@ -83,7 +85,8 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             wrapper=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.date, probability=1),
-            ]
+            ],
+            generic_field=fields.DateCreated
         ),
         'EXIF:ImageDescription': ExtractedData(
             wrapper=types.AW_STRING,
@@ -91,7 +94,8 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.description, probability=1),
                 fields.WeightedMapping(fields.tags, probability=0.5),
                 fields.WeightedMapping(fields.title, probability=0.25)
-            ]
+            ],
+            generic_field=fields.Description
         ),
         'EXIF:Make': ExtractedData(types.AW_STRING),
         'EXIF:Model': ExtractedData(types.AW_STRING),
@@ -104,16 +108,44 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             generic_field=fields.DateModified
         ),
         'EXIF:Software': ExtractedData(types.AW_STRING),
-        'EXIF:UserComment': ExtractedData(types.AW_STRING),
+        'EXIF:UserComment': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.description, probability=0.5),
+                fields.WeightedMapping(fields.tags, probability=0.5)
+            ],
+            generic_field=fields.DateModified
+        ),
         'File:Directory': ExtractedData(types.AW_PATH),
-        'File:FileAccessDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
-        'File:FileInodeChangeDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
-        'File:FileModifyDate': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+        'File:FileAccessDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=0.01),
+                fields.WeightedMapping(fields.date, probability=0.01)
+            ],
+            generic_field=fields.DateModified
+        ),
+        'File:FileInodeChangeDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=0.01),
+                fields.WeightedMapping(fields.date, probability=0.01)
+            ],
+            generic_field=fields.DateModified
+        ),
+        'File:FileModifyDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=0.25),
+                fields.WeightedMapping(fields.date, probability=0.25)
+            ],
+            generic_field=fields.DateModified
+        ),
         'File:FileName': ExtractedData(types.AW_PATH),
         'File:FilePermissions': ExtractedData(types.AW_INTEGER),
         'File:FileSize': ExtractedData(types.AW_INTEGER),
         'File:FileType': ExtractedData(types.AW_STRING),
-        'File:FileTypeExtension': ExtractedData(types.AW_PATH),
+        'File:FileTypeExtension': ExtractedData(types.AW_PATHCOMPONENT),
         'File:ImageHeight': ExtractedData(types.AW_INTEGER),
         'File:ImageWidth': ExtractedData(types.AW_INTEGER),
         'File:MIMEType': ExtractedData(
@@ -137,7 +169,8 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.author, probability=0.025),
                 fields.WeightedMapping(fields.publisher, probability=0.02),
                 fields.WeightedMapping(fields.title, probability=0.01)
-            ]
+            ],
+            generic_field=fields.Creator
         ),
         'PDF:Linearized': ExtractedData(types.AW_BOOLEAN),
         'PDF:ModifyDate': ExtractedData(
@@ -156,7 +189,8 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.publisher, probability=0.25),
                 fields.WeightedMapping(fields.author, probability=0.02),
                 fields.WeightedMapping(fields.title, probability=0.01)
-            ]
+            ],
+            generic_field=fields.Producer
         ),
         'SourceFile': ExtractedData(types.AW_PATH),
         'QuickTime:CreateDate': ExtractedData(
