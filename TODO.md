@@ -194,6 +194,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0091]` Take a look at old code in `util/dateandtime.py`.
+
 * `[TD0086]` __Use one `SessionRepository` per `Autonameow` instance.__  
   The `Autonameow` class "manages a running instance of the program" should
   have its own instance of the `Repository` class. This is fine for now but

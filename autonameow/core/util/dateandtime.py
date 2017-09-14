@@ -138,7 +138,7 @@ def regex_search_str(text):
 
     results = []
 
-    # TODO: [TD0044] This code should be removed and/or rewritten.
+    # TODO: [TD0091] This code should be removed and/or rewritten ..
 
     # TODO: [TD0004] Enforce encoding boundary for extracted data.
     text = util.decode_(text)
@@ -619,7 +619,7 @@ def get_datetime_from_text(text, prefix='NULL'):
              The dictionary is keyed by search method used to extract the
              datetime-objects.
     """
-    # TODO: [cleanup][TD0044] Should this even be used at all?
+    # TODO: [cleanup][TD0091] Should this even be used at all?
     if text is None:
         log.warning('Got NULL argument')
         return None
@@ -627,7 +627,7 @@ def get_datetime_from_text(text, prefix='NULL'):
         pass
     # text = util.decode_(text)
 
-    # TODO: [TD0044] Improve handling of generalized "text" from any source.
+    # TODO: [TD0091] Improve handling of generalized "text" from any source.
     #       (currently plain text and pdf documents)
     if type(text) == list:
         text = ' '.join(text)
@@ -672,7 +672,7 @@ def special_datetime_ocr_search(text):
     :return:
     """
     # TODO: [TD0004] Enforce encoding boundary for extracted data.
-    # TODO: [TD0044] Rework converting "raw data" to internal representations.
+    # TODO: [TD0091] Take a look at old, untested code ..
     text = util.decode_(text)
 
     pattern = re.compile(r'(\d{4}7[01]\d7[0123]\d)')
