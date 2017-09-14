@@ -214,7 +214,7 @@ class TestTypeInteger(TestCase):
         _assert_raises(' ')
         _assert_raises('foo')
 
-    def test_format(self):
+    def test_format_valid_data(self):
         def _assert_formats(test_data, expected):
             self.assertEqual(types.AW_INTEGER.format(test_data), expected)
 
@@ -222,12 +222,32 @@ class TestTypeInteger(TestCase):
         _assert_formats('1', '1')
         _assert_formats(b'1', '1')
 
-    def test_format_noncoercible_data(self):
-        def _assert_raises(test_data):
-            with self.assertRaises(types.AWTypeError):
-                types.AW_INTEGER.format(test_data)
+    def test_format_valid_data_with_format_string(self):
+        def _assert_formats(test_data, format_string, expected):
+            self.assertEqual(
+                types.AW_INTEGER.format(test_data, format_string=format_string),
+                expected
+            )
 
-        _assert_raises('x')
+        _assert_formats(None, '{:01d}', '0')
+        _assert_formats(1, '{:02d}', '01')
+        _assert_formats(2, '{:03d}', '002')
+        _assert_formats(33, '{:04d}', '0033')
+        _assert_formats(None, 'x', 'x')
+        _assert_formats(1, 'x', 'x')
+        _assert_formats(2, 'x', 'x')
+        _assert_formats(33, 'x', 'x')
+
+    def test_format_raises_exception_for_invalid_format_strings(self):
+        def _assert_raises(test_data, format_string):
+            with self.assertRaises(types.AWTypeError):
+                types.AW_INTEGER.format(test_data, format_string=format_string)
+
+        _assert_raises(1, None)
+        _assert_raises(1, [])
+        _assert_raises(1, '')
+        _assert_raises(1, b'')
+        _assert_raises(1, b'x')
 
 
 class TestTypeFloat(TestCase):
@@ -274,10 +294,40 @@ class TestTypeFloat(TestCase):
         _assert_raises('foo')
         _assert_raises(datetime.now())
 
-    def test_format(self):
-        # TODO: Add additional tests.
-        self.assertIsNotNone(types.AW_FLOAT.format)
-        self.assertEqual(types.AW_FLOAT.format(None), '0.0')
+    def test_format_valid_data(self):
+        def _assert_formats(test_data, expected):
+            self.assertEqual(types.AW_FLOAT.format(test_data), expected)
+
+        _assert_formats(None, '0.0')
+        _assert_formats(1, '1.0')
+        _assert_formats(20, '20.0')
+
+    def test_format_valid_data_with_format_string(self):
+        def _assert_formats(test_data, format_string, expected):
+            self.assertEqual(
+                types.AW_FLOAT.format(test_data, format_string=format_string),
+                expected
+            )
+
+        _assert_formats(None, '{0:.1f}', '0.0')
+        _assert_formats(1, '{0:.1f}', '1.0')
+        _assert_formats(2, '{0:.2f}', '2.00')
+        _assert_formats(33, '{0:.3f}', '33.000')
+        _assert_formats(None, 'x', 'x')
+        _assert_formats(1, 'x', 'x')
+        _assert_formats(2, 'x', 'x')
+        _assert_formats(33, 'x', 'x')
+
+    def test_format_raises_exception_for_invalid_format_strings(self):
+        def _assert_raises(test_data, format_string):
+            with self.assertRaises(types.AWTypeError):
+                types.AW_FLOAT.format(test_data, format_string=format_string)
+
+        _assert_raises(1.0, None)
+        _assert_raises(1.0, [])
+        _assert_raises(1.0, '')
+        _assert_raises(1.0, b'')
+        _assert_raises(1.0, b'x')
 
 
 class TestTypeTimeDate(TestCase):

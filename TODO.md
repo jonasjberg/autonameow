@@ -205,8 +205,6 @@ Low Priority
 
 * `[TD0068]` Let the user specify which languages to use for OCR.
 
-* `[TD0060]` Implement or remove the type wrapper classes `format` method.
-
 * `[TD0059]` Replace `--list-datetime`, `--list-title` and `--list-all`
   with something more flexible like `--list {FIELD}`.
 

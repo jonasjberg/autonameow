@@ -108,7 +108,7 @@ class BaseType(object):
         except (ValueError, TypeError):
             self._fail_coercion(value)
 
-    def format(self, value, formatter=None):
+    def format(self, value, **kwargs):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def _fail_normalization(self, value, msg=None):
@@ -173,8 +173,7 @@ class Path(BaseType):
 
         self._fail_coercion(value)
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         parsed = self.__call__(value)
         return util.displayable_path(parsed)
 
@@ -199,8 +198,7 @@ class PathComponent(BaseType):
         except (ValueError, TypeError):
             self._fail_coercion(value)
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         value = self.__call__(value)
         return util.displayable_path(value)
 
@@ -246,8 +244,7 @@ class Boolean(BaseType):
         else:
             return False
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         value = self.__call__(value)
         return self.bool_to_string(value)
 
@@ -280,13 +277,25 @@ class Integer(BaseType):
     def normalize(self, value):
         return self.__call__(value)
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         value = self.__call__(value)
-        if not formatter:
-            return '{}'.format(value)
-        else:
-            return formatter.format(value)
+
+        if 'format_string' not in kwargs:
+            return '{}'.format(value or self._null())
+
+        format_string = kwargs.get('format_string')
+        if format_string:
+            if not isinstance(format_string, str):
+                raise AWTypeError('Expected "format_string" to be Unicode str')
+
+            try:
+                return format_string.format(value)
+            except TypeError:
+                pass
+
+        raise AWTypeError(
+            'Invalid "format_string": "{!s}"'.format(format_string)
+        )
 
 
 class Float(BaseType):
@@ -298,13 +307,25 @@ class Float(BaseType):
     def normalize(self, value):
         return self.__call__(value)
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         value = self.__call__(value)
-        if not formatter:
+
+        if 'format_string' not in kwargs:
             return '{0:.1f}'.format(value or self._null())
-        else:
-            return formatter.format(value or self._null())
+
+        format_string = kwargs.get('format_string')
+        if format_string:
+            if not isinstance(format_string, str):
+                raise AWTypeError('Expected "format_string" to be Unicode str')
+
+            try:
+                return format_string.format(value)
+            except TypeError:
+                pass
+
+        raise AWTypeError(
+            'Invalid "format_string": "{!s}"'.format(format_string)
+        )
 
 
 class String(BaseType):
@@ -338,8 +359,7 @@ class String(BaseType):
     def normalize(self, value):
         return self.__call__(value).strip()
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         # raise NotImplementedError('TODO: Implement String.format()')
         return value
 
@@ -394,8 +414,7 @@ class MimeType(BaseType):
     def normalize(self, value):
         return self.__call__(value)
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         if value == constants.MAGIC_TYPE_UNKNOWN:
             return ''
 
@@ -439,8 +458,7 @@ class Date(BaseType):
             'Type wrapper "{!r}" should never EVER return null!'.format(self)
         )
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         return value
         # raise NotImplementedError('TODO: Implement TimeDate.format()')
 
@@ -475,10 +493,10 @@ class TimeDate(BaseType):
             'Type wrapper "{!r}" should never EVER return null!'.format(self)
         )
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
-        return value
-        # raise NotImplementedError('TODO: Implement TimeDate.format()')
+    def format(self, value, **kwargs):
+        _datetime_format = constants.DEFAULT_DATETIME_FORMAT_DATETIME
+        return datetime.strftime(value, _datetime_format)
+        # raise NotImplementedError('TODO: Implement TimeDate._meowuri_leaf()')
 
 
 class ExifToolTimeDate(TimeDate):
