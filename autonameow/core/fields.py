@@ -23,6 +23,8 @@ import re
 
 from collections import namedtuple
 
+from core import constants
+
 
 # Original Dublin Core Metadata Element Set Version 1.1
 # Metadata Elements:
@@ -52,7 +54,6 @@ from collections import namedtuple
 # NOTE(jonas): This should probably be done where both the Extraction data and
 # the Analysis results data is "joined"; the sum total of data available for a
 # given file.
-from core import constants
 
 WeightedMapping = namedtuple('WeightedMapping', ['field', 'probability'])
 
@@ -73,6 +74,22 @@ class GenericField(object):
                                  cls.meowuri_leaf.lower())
 
 
+# TODO: [TD0090] Complete initial implementation of "generic" fields.
+class Author(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Author'
+
+
+class Creator(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Creator'
+
+
+class Description(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Description'
+
+
 class DateCreated(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'DateCreated'
@@ -86,6 +103,16 @@ class DateModified(GenericField):
 class MimeType(GenericField):
     meowuri_root = 'contents'
     meowuri_leaf = 'MimeType'
+
+
+class Producer(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Producer'
+
+
+class Subject(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Subject'
 
 
 class NameTemplateField(object):
