@@ -59,7 +59,9 @@ class FileObject(object):
         self.basename_prefix = diskutils.basename_prefix(self.abspath)
         self.basename_suffix = diskutils.basename_suffix(self.abspath)
 
+        # Avoid round-tripping to the OS to decode strings.
         self.__cached_str = None
+        self.__cached_repr = None
 
     def __str__(self):
         if self.__cached_str is None:
@@ -68,8 +70,12 @@ class FileObject(object):
         return self.__cached_str
 
     def __repr__(self):
-        return '<{} {}>'.format(self.__class__.__name__,
-                                util.displayable_path(self.abspath))
+        if self.__cached_repr is None:
+            self.__cached_repr = '<{} {}>'.format(
+                self.__class__.__name__, util.displayable_path(self.abspath)
+            )
+
+        return self.__cached_repr
 
     def __hash__(self):
         # NOTE(jonas): Might need to use a more robust method to avoid
