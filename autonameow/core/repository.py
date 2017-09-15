@@ -121,8 +121,14 @@ class Repository(object):
             return
 
         if data.generic_field is not None:
-            _gen_uri = data.generic_field.uri()
-            self._store(file_object, _gen_uri, data)
+            try:
+                _gen_uri = data.generic_field.uri()
+            except AttributeError:
+                # TODO: [TD0082] Integrate the 'ExtractedData' class.
+                self.log.critical('TODO: Fix missing "field.uri()" for some'
+                                  ' GenericField classes!')
+            else:
+                self._store(file_object, _gen_uri, data)
 
     def _store(self, file_object, meowuri, data):
         try:

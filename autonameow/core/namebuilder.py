@@ -133,22 +133,37 @@ def pre_assemble_format(data, config):
 
     for field, value in data.items():
         log.debug('Pre-assembly formatting field "{!s}"'.format(field))
+
+        # TODO: [TD0082] Integrate the 'ExtractedData' class.
+        if isinstance(data[field], ExtractedData):
+            d = value.value
+        else:
+            d = value
+
         if field == 'datetime':
             datetime_format = config.options['DATETIME_FORMAT']['datetime']
-            formatted[field] = formatted_datetime(data[field],
-                                                  datetime_format)
+            formatted[field] = formatted_datetime(d, datetime_format)
         elif field == 'date':
             datetime_format = config.options['DATETIME_FORMAT']['date']
-            formatted[field] = formatted_datetime(data[field],
-                                                  datetime_format)
+            formatted[field] = formatted_datetime(d, datetime_format)
         elif field == 'time':
             datetime_format = config.options['DATETIME_FORMAT']['time']
-            formatted[field] = formatted_datetime(data[field],
-                                                  datetime_format)
+            formatted[field] = formatted_datetime(d, datetime_format)
 
         elif field == 'tags':
             assert(isinstance(value, list))
-            formatted[field] = ' '.join(value)
+
+            _tags = []
+            for _tag in value:
+                if isinstance(_tag, ExtractedData):
+                    _tag = _tag.value
+                else:
+                    _tag = _tag[0]
+
+                _tags.append(_tag)
+
+            sep = config.options['FILETAGS_OPTIONS']['between_tag_separator']
+            formatted[field] = sep.join(_tags)
 
         # TODO: [TD0044] Rework converting "raw data" to an internal format.
         else:
