@@ -93,11 +93,42 @@ class FileObject(object):
         return not (self == other)
 
 
+MY_MAGIC = None
+
+
+def _build_magic():
+    """
+    Workaround ambiguity about which magic library is actually used.
+
+    https://github.com/ahupp/python-magic
+      "There are, sadly, two libraries which use the module name magic.
+       Both have been around for quite a while.If you are using this
+       module and get an error using a method like open, your code is
+       expecting the other one."
+
+    http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
+      "The following code allows the rest of the script to work the same
+       way with either version of 'magic'"
+
+    Returns:
+        An instance of 'magic' as type 'Magic'.
+    """
+    try:
+        _magic = magic.open(magic.MAGIC_MIME_TYPE)
+        _magic.load()
+    except AttributeError:
+        _magic = magic.Magic(mime=True)
+        _magic.file = _magic.from_file
+
+    return _magic
+
+
 def filetype_magic(file_path):
     """
     Determine file type by reading "magic" header bytes.
 
     Should be equivalent to the 'file --mime-type' command in *NIX environments.
+    This functions sets the global 'MY_MAGIC' the first time it is called.
 
     Args:
         file_path: The path to the file to get the MIME type of as a string.
@@ -109,34 +140,12 @@ def filetype_magic(file_path):
     if not file_path:
         return constants.MAGIC_TYPE_UNKNOWN
 
-    def _build_magic():
-        """
-        Workaround ambiguity about which magic library is actually used.
+    global MY_MAGIC
+    if MY_MAGIC is None:
+        MY_MAGIC = _build_magic()
 
-        https://github.com/ahupp/python-magic
-          "There are, sadly, two libraries which use the module name magic.
-           Both have been around for quite a while.If you are using this
-           module and get an error using a method like open, your code is
-           expecting the other one."
-
-        http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
-          "The following code allows the rest of the script to work the same
-           way with either version of 'magic'"
-
-        Returns:
-            An instance of 'magic' as type 'Magic'.
-        """
-        try:
-            _my_magic = magic.open(magic.MAGIC_MIME_TYPE)
-            _my_magic.load()
-        except AttributeError:
-            _my_magic = magic.Magic(mime=True)
-            _my_magic.file = _my_magic.from_file
-        return _my_magic
-
-    magic_instance = _build_magic()
     try:
-        found_type = magic_instance.file(file_path)
+        found_type = MY_MAGIC.file(file_path)
     except (magic.MagicException, TypeError):
         found_type = constants.MAGIC_TYPE_UNKNOWN
 
