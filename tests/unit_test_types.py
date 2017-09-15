@@ -1045,3 +1045,255 @@ class TestTryWrap(TestCase):
         self.assertEqual(types.try_wrap(dt), dt)
         self.assertTrue(isinstance(types.try_wrap(dt), datetime))
         self.assertTrue(isinstance(types.try_wrap(datetime.now()), datetime))
+
+
+class TestRegexLooseDate(TestCase):
+    def test_matches_yyyy_mm_dd(self):
+        def _assert_matches(test_data):
+            actual = types.RE_LOOSE_DATE.match(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual(actual.group(1), '2017')
+            self.assertEqual(actual.group(2), '09')
+            self.assertEqual(actual.group(3), '14')
+
+        _assert_matches('20170914')
+        _assert_matches('2017-0914')
+        _assert_matches('201709-14')
+        _assert_matches('2017-09-14')
+        _assert_matches('2017:0914')
+        _assert_matches('201709:14')
+        _assert_matches('2017:09:14')
+        _assert_matches('2017_0914')
+        _assert_matches('201709_14')
+        _assert_matches('2017_09_14')
+        _assert_matches('2017 0914')
+        _assert_matches('201709 14')
+        _assert_matches('2017 09 14')
+
+    def test_does_not_match_non_yyyy_mm_dd(self):
+        def _assert_no_match(test_data):
+            actual = types.RE_LOOSE_DATE.match(test_data)
+            self.assertIsNone(actual)
+
+        _assert_no_match('')
+        _assert_no_match(' ')
+        _assert_no_match('foo')
+        _assert_no_match('2017')
+        _assert_no_match('201709')
+        _assert_no_match('2017091')
+
+        for test_string in ['20170914', '2017-09-14', '2017:09:14']:
+            for n in range(1, len(test_string)):
+                # Successively strip the right-most characters.
+                _partial = test_string[:-n]
+                _assert_no_match(_partial)
+
+
+class TestRegexLooseTime(TestCase):
+    def test_matches_hh_mm_ss(self):
+        def _assert_matches(test_data):
+            actual = types.RE_LOOSE_TIME.match(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual(actual.group(1), '16')
+            self.assertEqual(actual.group(2), '33')
+            self.assertEqual(actual.group(3), '59')
+
+        _assert_matches('163359')
+        _assert_matches('16-3359')
+        _assert_matches('1633-59')
+        _assert_matches('16-33-59')
+        _assert_matches('16:3359')
+        _assert_matches('1633:59')
+        _assert_matches('16:33:59')
+        _assert_matches('16_3359')
+        _assert_matches('1633_59')
+        _assert_matches('16_33_59')
+        _assert_matches('16 3359')
+        _assert_matches('1633 59')
+        _assert_matches('16 33 59')
+
+    def test_does_not_match_non_hh_mm_ss(self):
+        def _assert_no_match(test_data):
+            actual = types.RE_LOOSE_DATE.match(test_data)
+            self.assertIsNone(actual)
+
+        _assert_no_match('')
+        _assert_no_match(' ')
+        _assert_no_match('foo')
+        _assert_no_match('16')
+        _assert_no_match('1633')
+        _assert_no_match('16335')
+
+        for test_string in ['163359', '16-33-59', '16:33:59']:
+            for n in range(1, len(test_string)):
+                # Successively strip the right-most characters.
+                _partial = test_string[:-n]
+                _assert_no_match(_partial)
+
+
+class TestRegexLooseDateTime(TestCase):
+    def test_matches_yyyy_mm_dd_hh_mm_ss(self):
+        def _assert_matches(test_data):
+            actual = types.RE_LOOSE_DATETIME.match(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual(actual.group(1), '2017')
+            self.assertEqual(actual.group(2), '09')
+            self.assertEqual(actual.group(3), '14')
+            self.assertEqual(actual.group(4), '16')
+            self.assertEqual(actual.group(5), '33')
+            self.assertEqual(actual.group(6), '59')
+
+        _assert_matches('20170914163359')
+        _assert_matches('2017-091416-3359')
+        _assert_matches('201709-141633-59')
+        _assert_matches('2017-09-1416-33-59')
+        _assert_matches('2017:091416:3359')
+        _assert_matches('201709:141633:59')
+        _assert_matches('2017:09:1416:33:59')
+        _assert_matches('2017_091416_3359')
+        _assert_matches('201709_141633_59')
+        _assert_matches('2017_09_1416_33_59')
+        _assert_matches('2017 09 1416 3359')
+        _assert_matches('2017 09141633 59')
+        _assert_matches('201709 1416 33 59')
+
+    def test_does_not_match_non_yyyy_mm_dd(self):
+        def _assert_no_match(test_data):
+            actual = types.RE_LOOSE_DATETIME.match(test_data)
+            self.assertIsNone(actual)
+
+        _assert_no_match('')
+        _assert_no_match(' ')
+        _assert_no_match('foo')
+        _assert_no_match('16')
+        _assert_no_match('1633')
+        _assert_no_match('16335')
+
+        for test_string in ['20170914163359', '2017-09-14 16-33-59',
+                            '2017-09-14T16:33:59']:
+            for n in range(1, len(test_string)):
+                # Successively strip the right-most characters.
+                _partial = test_string[:-n]
+                _assert_no_match(_partial)
+
+
+class TestRegexLooseDateTimeMicroseconds(TestCase):
+    def test_matches_yyyy_mm_dd_hh_mm_ss_us(self):
+        def _assert_matches(test_data):
+            actual = types.RE_LOOSE_DATETIME_US.match(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual(actual.group(1), '2017')
+            self.assertEqual(actual.group(2), '07')
+            self.assertEqual(actual.group(3), '12')
+            self.assertEqual(actual.group(4), '20')
+            self.assertEqual(actual.group(5), '50')
+            self.assertEqual(actual.group(6), '15')
+            self.assertEqual(actual.group(7), '641659')
+
+        _assert_matches('2017-07-12T20:50:15.641659')
+        _assert_matches('2017-07-12 20:50:15.641659')
+        _assert_matches('2017:07:12 20:50:15.641659')
+        _assert_matches('2017_07_12 20:50:15.641659')
+        _assert_matches('2017_07_12 20-50-15.641659')
+        _assert_matches('2017_07_12 20_50_15.641659')
+        _assert_matches('2017_07_12 20_50_15 641659')
+        _assert_matches('2017_07_12 20_50_15_641659')
+        _assert_matches('2017 07 12 20 50 15 641659')
+
+    def test_does_not_match_non_yyyy_mm_dd_us(self):
+        def _assert_no_match(test_data):
+            actual = types.RE_LOOSE_DATETIME_US.match(test_data)
+            self.assertIsNone(actual)
+
+        _assert_no_match('')
+        _assert_no_match(' ')
+        _assert_no_match('foo')
+        _assert_no_match('16')
+        _assert_no_match('2017-07-12T20:50:15')
+        _assert_no_match('2017-07-12T20:50:15.')
+        _assert_no_match('2017-07-12T20:50:15.1')
+        _assert_no_match('2017-07-12T20:50:15.12')
+        _assert_no_match('2017-07-12T20:50:15.123')
+        _assert_no_match('2017-07-12T20:50:15.1234')
+        _assert_no_match('2017-07-12T20:50:15.12345')
+
+
+class TestNormalizeDate(TestCase):
+    def test_matches_expected(self):
+        expected = '2017-09-14'
+
+        def _assert_match(test_data):
+            actual = types.normalize_date(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual(actual, expected)
+
+        _assert_match(expected)
+        _assert_match('2017 09 14')
+        _assert_match('2017-09-14')
+        _assert_match('2017:09:14')
+        _assert_match('20170914')
+        _assert_match('2017-0914')
+        _assert_match('201709-14')
+        _assert_match('2017-09-14')
+        _assert_match('2017:0914')
+        _assert_match('201709:14')
+        _assert_match('2017:09:14')
+        _assert_match('2017_0914')
+        _assert_match('201709_14')
+        _assert_match('2017_09_14')
+        _assert_match('2017 0914')
+        _assert_match('201709 14')
+        _assert_match('2017 09 14')
+
+
+class TestNormalizeDatetimeWithTimeZone(TestCase):
+    def test_matches_expected(self):
+        expected = '2017-07-12T20:50:15+0200'
+
+        def _assert_match(test_data):
+            actual = types.normalize_datetime_with_timezone(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual(actual, expected)
+
+        _assert_match(expected)
+        _assert_match('2017 07 12 20 50 15+0200')
+        _assert_match('2017-07-12 20:50:15+0200')
+        _assert_match('2017:07:12 20:50:15+0200')
+        _assert_match('2017-07-12T20:50:15+0200')
+
+
+class TestNormalizeDatetime(TestCase):
+    def test_matches_expected(self):
+        expected = '2017-07-12T20:50:15'
+
+        def _assert_match(test_data):
+            actual = types.normalize_datetime(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual(actual, expected)
+
+        _assert_match(expected)
+        _assert_match('2017 07 12 20 50 15')
+        _assert_match('2017-07-12 20:50:15')
+        _assert_match('2017:07:12 20:50:15')
+        _assert_match('2017-07-12T20:50:15')
+
+
+class TestNormalizeDatetimeWithMicroseconds(TestCase):
+    def test_matches_expected(self):
+        expected = '2017-07-12T20:50:15.641659'
+
+        def _assert_match(test_data):
+            actual = types.normalize_datetime_with_microseconds(test_data)
+            self.assertIsNotNone(actual)
+            self.assertEqual(actual, expected)
+
+        _assert_match(expected)
+        _assert_match('2017-07-12T20:50:15.641659')
+        _assert_match('2017-07-12 20:50:15.641659')
+        _assert_match('2017:07:12 20:50:15.641659')
+        _assert_match('2017_07_12 20:50:15.641659')
+        _assert_match('2017_07_12 20-50-15.641659')
+        _assert_match('2017_07_12 20_50_15.641659')
+        _assert_match('2017_07_12 20_50_15 641659')
+        _assert_match('2017_07_12 20_50_15_641659')
+        _assert_match('2017 07 12 20 50 15 641659')

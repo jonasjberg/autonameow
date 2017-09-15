@@ -586,6 +586,64 @@ class PyPDFTimeDate(TimeDate):
         self._fail_coercion(value)
 
 
+_pat_loose_date = '{year}{sep}{month}{sep}{day}'.format(
+    year=r'(\d{4})', month=r'(\d{2})', day=r'(\d{2})', sep=r'[:_ \-]?'
+)
+_pat_loose_time = '{hour}{sep}{minute}{sep}{second}'.format(
+    hour=r'(\d{2})', minute=r'(\d{2})', second=r'(\d{2})', sep=r'[:_ \-]?'
+)
+_pat_datetime_sep = r'[:_ tT\-]?'
+_pat_timezone = r'([-+])?(\d{2}).?(\d{2})'
+_pat_microseconds = r'[\._ ]?(\d{6})'
+
+RE_LOOSE_TIME = re.compile(_pat_loose_time)
+RE_LOOSE_DATE = re.compile(_pat_loose_date)
+RE_LOOSE_DATETIME = re.compile(
+    _pat_loose_date + _pat_datetime_sep + _pat_loose_time
+)
+RE_LOOSE_DATETIME_TZ = re.compile(
+    _pat_loose_date + _pat_datetime_sep + _pat_loose_time + _pat_timezone
+)
+RE_LOOSE_DATETIME_US = re.compile(
+    _pat_loose_date + _pat_datetime_sep + _pat_loose_time + _pat_microseconds
+)
+
+
+def normalize_date(string):
+    match = RE_LOOSE_DATE.search(string)
+    if match:
+        _normalized = re.sub(RE_LOOSE_DATE, r'\1-\2-\3', string)
+        return _normalized
+    return None
+
+
+def normalize_datetime_with_timezone(string):
+    match = RE_LOOSE_DATETIME_TZ.search(string)
+    if match:
+        _normalized = re.sub(RE_LOOSE_DATETIME_TZ,
+                             r'\1-\2-\3T\4:\5:\6 \7\8\9',
+                             string)
+        return _normalized.replace(' ', '')
+    return None
+
+
+def normalize_datetime(string):
+    match = RE_LOOSE_DATETIME.search(string)
+    if match:
+        _normalized = re.sub(RE_LOOSE_DATETIME, r'\1-\2-\3T\4:\5:\6', string)
+        return _normalized.replace(' ', '')
+    return None
+
+
+def normalize_datetime_with_microseconds(string):
+    match = RE_LOOSE_DATETIME_US.search(string)
+    if match:
+        _normalized = re.sub(RE_LOOSE_DATETIME_US, r'\1-\2-\3T\4:\5:\6.\7',
+                             string)
+        return _normalized
+    return None
+
+
 def try_parse_full_datetime(string):
     _error_msg = 'Unable to parse full datetime from: "{!s}"'.format(string)
 
