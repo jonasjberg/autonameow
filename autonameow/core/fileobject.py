@@ -59,8 +59,13 @@ class FileObject(object):
         self.basename_prefix = diskutils.basename_prefix(self.abspath)
         self.basename_suffix = diskutils.basename_suffix(self.abspath)
 
+        self.__cached_str = None
+
     def __str__(self):
-        return util.displayable_path(self.filename)
+        if self.__cached_str is None:
+            self.__cached_str = util.displayable_path(self.filename)
+
+        return self.__cached_str
 
     def __repr__(self):
         return '<{} {}>'.format(self.__class__.__name__,
