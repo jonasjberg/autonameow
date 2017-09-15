@@ -51,7 +51,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ],
-            generic_field=fields.DateCreated
+            generic_field=fields.GenericDateCreated
         ),
         'EXIF:DateTimeDigitized': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -59,7 +59,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ],
-            generic_field=fields.DateCreated
+            generic_field=fields.GenericDateCreated
         ),
         'EXIF:DateTimeOriginal': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -67,7 +67,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ],
-            generic_field=fields.DateCreated
+            generic_field=fields.GenericDateCreated
         ),
         'EXIF:ExifVersion': ExtractedData(types.AW_INTEGER),
         'EXIF:GainControl': ExtractedData(types.AW_INTEGER),
@@ -86,7 +86,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             mapped_fields=[
                 fields.WeightedMapping(fields.date, probability=1),
             ],
-            generic_field=fields.DateCreated
+            generic_field=fields.GenericDateCreated
         ),
         'EXIF:ImageDescription': ExtractedData(
             wrapper=types.AW_STRING,
@@ -95,7 +95,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.tags, probability=0.5),
                 fields.WeightedMapping(fields.title, probability=0.25)
             ],
-            generic_field=fields.Description
+            generic_field=fields.GenericDescription
         ),
         'EXIF:Make': ExtractedData(types.AW_STRING),
         'EXIF:Model': ExtractedData(types.AW_STRING),
@@ -105,7 +105,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=0.25),
                 fields.WeightedMapping(fields.date, probability=0.25)
             ],
-            generic_field=fields.DateModified
+            generic_field=fields.GenericDateModified
         ),
         'EXIF:Software': ExtractedData(types.AW_STRING),
         'EXIF:UserComment': ExtractedData(
@@ -114,7 +114,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.description, probability=0.5),
                 fields.WeightedMapping(fields.tags, probability=0.5)
             ],
-            generic_field=fields.DateModified
+            generic_field=fields.GenericDateModified
         ),
         'File:Directory': ExtractedData(types.AW_PATH),
         'File:FileAccessDate': ExtractedData(
@@ -123,7 +123,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=0.01),
                 fields.WeightedMapping(fields.date, probability=0.01)
             ],
-            generic_field=fields.DateModified
+            generic_field=fields.GenericDateModified
         ),
         'File:FileInodeChangeDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -131,7 +131,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=0.01),
                 fields.WeightedMapping(fields.date, probability=0.01)
             ],
-            generic_field=fields.DateModified
+            generic_field=fields.GenericDateModified
         ),
         'File:FileModifyDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -139,7 +139,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=0.25),
                 fields.WeightedMapping(fields.date, probability=0.25)
             ],
-            generic_field=fields.DateModified
+            generic_field=fields.GenericDateModified
         ),
         'File:FileName': ExtractedData(types.AW_PATH),
         'File:FilePermissions': ExtractedData(types.AW_INTEGER),
@@ -153,7 +153,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             mapped_fields=[
                 fields.WeightedMapping(fields.extension, probability=1)
             ],
-            generic_field=fields.MimeType
+            generic_field=fields.GenericMimeType
         ),
         'PDF:CreateDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -161,7 +161,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ],
-            generic_field=fields.DateCreated
+            generic_field=fields.GenericDateCreated
         ),
         'PDF:Creator': ExtractedData(
             wrapper=types.AW_STRING,
@@ -170,7 +170,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.publisher, probability=0.02),
                 fields.WeightedMapping(fields.title, probability=0.01)
             ],
-            generic_field=fields.Creator
+            generic_field=fields.GenericCreator
         ),
         'PDF:Linearized': ExtractedData(types.AW_BOOLEAN),
         'PDF:ModifyDate': ExtractedData(
@@ -179,7 +179,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=0.25),
                 fields.WeightedMapping(fields.date, probability=0.25)
             ],
-            generic_field=fields.DateModified
+            generic_field=fields.GenericDateModified
         ),
         'PDF:PDFVersion': ExtractedData(types.AW_FLOAT),
         'PDF:PageCount': ExtractedData(types.AW_INTEGER),
@@ -190,7 +190,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.author, probability=0.02),
                 fields.WeightedMapping(fields.title, probability=0.01)
             ],
-            generic_field=fields.Producer
+            generic_field=fields.GenericProducer
         ),
         'SourceFile': ExtractedData(types.AW_PATH),
         'QuickTime:CreateDate': ExtractedData(
@@ -199,7 +199,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ],
-            generic_field=fields.DateCreated
+            generic_field=fields.GenericDateCreated
         ),
         'QuickTime:CreationDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -207,7 +207,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ],
-            generic_field=fields.DateCreated
+            generic_field=fields.GenericDateCreated
         ),
         'QuickTime:ModifyDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -215,7 +215,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=0.5),
                 fields.WeightedMapping(fields.date, probability=0.5)
             ],
-            generic_field=fields.DateModified
+            generic_field=fields.GenericDateModified
         ),
         'QuickTime:CreationDate-und-SE': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -223,7 +223,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ],
-            generic_field=fields.DateCreated
+            generic_field=fields.GenericDateCreated
         ),
         'QuickTime:TrackCreateDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -231,7 +231,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ],
-            generic_field=fields.DateCreated
+            generic_field=fields.GenericDateCreated
         ),
         'QuickTime:TrackModifyDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -239,7 +239,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=0.5),
                 fields.WeightedMapping(fields.date, probability=0.5)
             ],
-            generic_field=fields.DateModified
+            generic_field=fields.GenericDateModified
         ),
         'QuickTime:MediaCreateDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -247,7 +247,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ],
-            generic_field=fields.DateCreated
+            generic_field=fields.GenericDateCreated
         ),
         'QuickTime:MediaModifyDate': ExtractedData(
             wrapper=types.AW_EXIFTOOLTIMEDATE,
@@ -255,7 +255,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=0.5),
                 fields.WeightedMapping(fields.date, probability=0.5)
             ],
-            generic_field=fields.DateModified
+            generic_field=fields.GenericDateModified
         ),
 
         # TODO: [TD0084] Add handling collections to type wrapper classes.

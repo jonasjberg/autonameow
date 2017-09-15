@@ -75,44 +75,49 @@ class GenericField(object):
 
 
 # TODO: [TD0090] Complete initial implementation of "generic" fields.
-class Author(GenericField):
+class GenericAuthor(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'Author'
 
 
-class Creator(GenericField):
+class GenericCreator(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'Creator'
 
 
-class Description(GenericField):
+class GenericDescription(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'Description'
 
 
-class DateCreated(GenericField):
+class GenericDateCreated(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'DateCreated'
 
 
-class DateModified(GenericField):
+class GenericDateModified(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'DateModified'
 
 
-class MimeType(GenericField):
+class GenericMimeType(GenericField):
     meowuri_root = 'contents'
     meowuri_leaf = 'MimeType'
 
 
-class Producer(GenericField):
+class GenericProducer(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'Producer'
 
 
-class Subject(GenericField):
+class GenericSubject(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'Subject'
+
+
+class GenericTags(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Tags'
 
 
 class NameTemplateField(object):

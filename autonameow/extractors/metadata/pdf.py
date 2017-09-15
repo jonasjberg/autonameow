@@ -62,7 +62,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ],
-            generic_field=fields.DateCreated
+            generic_field=fields.GenericDateCreated
         ),
         'Encrypted': ExtractedData(types.AW_BOOLEAN),
         'ModDate': ExtractedData(types.AW_PYPDFTIMEDATE),
