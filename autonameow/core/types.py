@@ -41,6 +41,8 @@ from core import (
     exceptions,
     util
 )
+from core.util import textutils
+
 
 # TODO: [TD0084] Add handling collections to type wrapper classes.
 
@@ -682,23 +684,33 @@ def try_parse_datetime(string):
 
 
 def try_parse_date(string):
-    _error_msg = 'Unable to parse date from: "{!s}"'.format(string)
+    _error_msg = 'Unable to parse date: "{!s}" ({})'.format(string,
+                                                            type(string))
 
     if not string:
         raise ValueError(_error_msg)
     if not isinstance(string, str):
         raise ValueError(_error_msg)
 
-    string = string.replace(':', '-').replace('_', '-')
-
-    date_formats = ['%Y-%m-%d',
-                    '%Y-%m',
-                    '%Y']
-    for date_format in date_formats:
+    match = normalize_date(string)
+    if match:
         try:
-            return datetime.strptime(string, date_format)
+            return datetime.strptime(match, '%Y-%m-%d')
         except (ValueError, TypeError):
-            continue
+            pass
+
+    # Alternative, bruteforce method. Extract digits.
+    # Assumes year, month, day is in ISO-date-like order.
+    digits = textutils.extract_digits(string)
+    if digits:
+        assert(isinstance(digits, str))
+
+        date_formats = ['%Y%m%d', '%Y%m', '%Y']
+        for date_format in date_formats:
+            try:
+                return datetime.strptime(digits, date_format)
+            except (ValueError, TypeError):
+                pass
 
     raise ValueError(_error_msg)
 

@@ -1047,6 +1047,52 @@ class TestTryWrap(TestCase):
         self.assertTrue(isinstance(types.try_wrap(datetime.now()), datetime))
 
 
+class TestTryParseDate(TestCase):
+    def test_parses_valid_date(self):
+        expected = datetime.strptime('2017-09-14', '%Y-%m-%d')
+
+        def _assert_match(test_data):
+            actual = types.try_parse_date(test_data)
+            self.assertEqual(actual, expected)
+            self.assertTrue(isinstance(actual, datetime))
+
+        _assert_match('2017 09 14')
+        _assert_match('2017-09-14')
+        _assert_match('2017:09:14')
+        _assert_match('20170914')
+        _assert_match('2017-0914')
+        _assert_match('201709-14')
+        _assert_match('2017-09-14')
+        _assert_match('2017:0914')
+        _assert_match('201709:14')
+        _assert_match('2017:09:14')
+        _assert_match('2017_0914')
+        _assert_match('201709_14')
+        _assert_match('2017_09_14')
+        _assert_match('2017 0914')
+        _assert_match('201709 14')
+        _assert_match('2017 09 14')
+
+    def test_invalid_dates_raises_valueerror(self):
+        def _assert_raises(test_data):
+            with self.assertRaises(ValueError):
+                types.try_parse_date(test_data)
+
+        _assert_raises(None)
+        _assert_raises([])
+        _assert_raises({})
+        _assert_raises(1)
+        _assert_raises(1.0)
+        _assert_raises('')
+        _assert_raises(' ')
+        _assert_raises('foo')
+        _assert_raises('1')
+        _assert_raises(b'')
+        _assert_raises(b' ')
+        _assert_raises(b'foo')
+        _assert_raises(b'1')
+
+
 class TestTryParseDateTime(TestCase):
     def _assert_equal(self, test_data, expected):
         actual = types.try_parse_datetime(test_data)
