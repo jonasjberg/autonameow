@@ -1001,6 +1001,15 @@ class TestTypeMimeType(TestCase):
 
 
 class TestTryWrap(TestCase):
+    def test_try_wrap_none(self):
+        self.assertIsNone(types.try_wrap(None))
+
+    def test_try_wrap_list(self):
+        # TODO: [TD0084] Add handling collections to type wrapper classes.
+        self.assertIsNone(types.try_wrap([]))
+        self.assertIsNone(types.try_wrap(['foo', 'bar']))
+        self.assertIsNone(types.try_wrap([1, 2]))
+
     def test_try_wrap_primitive_bool(self):
         self.assertEqual(types.try_wrap(False), False)
         self.assertEqual(types.try_wrap(True), True)
