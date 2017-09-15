@@ -144,7 +144,7 @@ class Repository(object):
 
                 data = any_existing + data
 
-        util.nested_dict_set(self.data, [file_object, meowuri], data)
+        self.__store_data(file_object, meowuri, data)
         log.debug('Repository stored: {{"{!s}": {{"{!s}": {!s}}}}}'.format(
             file_object, meowuri, data
         ))
@@ -185,6 +185,9 @@ class Repository(object):
 
     def __get_data(self, file, meowuri):
         return util.nested_dict_get(self.data, [file, meowuri])
+
+    def __store_data(self, file, meowuri, data):
+        util.nested_dict_set(self.data, [file, meowuri], data)
 
     def resolvable(self, meowuri):
         if not meowuri:
