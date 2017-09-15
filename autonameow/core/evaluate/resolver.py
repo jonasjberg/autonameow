@@ -58,38 +58,30 @@ class Resolver(object):
         for field, meowuri in self.data_sources.items():
             if (field in self.fields_data
                     and self.fields_data.get(field) is not None):
+                log.debug('Skipping previously gathered data for field '
+                          '"{!s}"'.format(field))
                 continue
 
+            log.debug('Gathering data for field "{!s}" from source [{!s}]->'
+                      '[{!s}]'.format(field, self.file, meowuri))
             _data = self._request_data(self.file, meowuri)
             if _data is not None:
+                log.debug('Got data ({}): {!s}'.format(type(_data), _data))
+                log.debug('Updated data for field "{!s}"'.format(field))
                 self.fields_data[field] = _data
             else:
+                log.debug('Got NONE data for [{!s}]->"{!s}"'.format(self.file,
+                                                                    meowuri))
+
                 # Remove the source that returned None data.
+                log.debug(
+                    'Removing source "{!s}"'.format(self.data_sources[field])
+                )
                 self.data_sources[field] = None
 
     def _request_data(self, file, meowuri):
-        log.debug('{} requesting [{!s}] "{!s}"'.format(self, file, meowuri))
-        data = repository.SessionRepository.query(file, meowuri)
-        log.debug('Got data ({}): {!s}'.format(type(data), data))
-
-        # TODO: [TD0082] Integrate the 'ExtractedData' class.
-        if data is not None and isinstance(data, ExtractedData):
-            log.debug('Formatting data value "{!s}"'.format(data.value))
-
-            # TODO: [TD0088] Handle case where 'ExtractedData' isn't provided
-            # with a 'wrapper' and then also fails to autodetect a proper
-            # 'wrapper' class from the raw file type ..
-            if data.wrapper:
-                formatted = data.wrapper.format(data.value, formatter=None)
-                if formatted is not None and formatted != data.wrapper.null:
-                    log.debug('Formatted value: "{!s}"'.format(formatted))
-                    return formatted
-                else:
-                    log.debug(
-                        'ERROR when formatting value "{!s}"'.format(data.value)
-                    )
-        else:
-            return data
+        log.debug('{} requesting [{!s}]->[{!s}]'.format(self, file, meowuri))
+        return repository.SessionRepository.query(file, meowuri)
 
     def __str__(self):
         return self.__class__.__name__
