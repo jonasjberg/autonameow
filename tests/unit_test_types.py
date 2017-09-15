@@ -733,6 +733,7 @@ class TestTypePathComponent(TestCase):
         _assert_normalizes('/', b'/')
         _assert_normalizes('/foo', b'/foo')
         _assert_normalizes('/foo/', b'/foo')
+        _assert_normalizes('foo/', b'foo')
         _assert_normalizes('foo', b'foo')
         _assert_normalizes('a.pdf', b'a.pdf')
 
