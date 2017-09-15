@@ -146,7 +146,7 @@ def map_meowuri_to_extractors():
     first part of all data returned by the extractor.
     Multiple extractors can use the same 'meowuri_root'; for instance,
     the 'PdfTextExtractor' and 'PlainTextExtractor' classes both define the
-    same meowURI, 'contents.textual.raw_text'.
+    same meowURI, 'contents.textual.text'.
 
     Returns: A dictionary where the keys are "meowURIs" and the values
         are lists of extractor classes.

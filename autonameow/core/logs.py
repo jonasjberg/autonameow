@@ -34,13 +34,13 @@ def init_logging(args):
     # NOTE(jonas): This is probably a bad idea, but seems to work good enough.
     # TODO: [hardcoded] Remove spaces after labels, used for alignment.
     logging.addLevelName(logging.INFO, cli.colorize(
-        '[INFO]    ', fore='GREEN'
+        '[INFO]    ', fore='LIGHTBLUE_EX', style='BRIGHT'
     ))
     logging.addLevelName(logging.DEBUG, cli.colorize(
         '[DEBUG]   ', fore='BLUE'
     ))
     logging.addLevelName(logging.WARNING, cli.colorize(
-        '[WARNING] ', fore='YELLOW', style='BRIGHT'
+        '[WARNING] ', fore='RED', style='BRIGHT'
     ))
     logging.addLevelName(logging.ERROR, cli.colorize(
         '[ERROR]   ', fore='RED', style='BRIGHT'
@@ -55,7 +55,8 @@ def init_logging(args):
     #       command-line. For instance, verbosity levels 1 and 3 would be
     #       enabled with '-v' and '-vvv', respectively.
 
-    _colored_timestamp = cli.colorize('%(asctime)s', style='DIM')
+    _colored_timestamp = cli.colorize('%(asctime)s', fore='LIGHTBLACK_EX',
+                                      style='DIM')
     if args.debug:
         fmt = (
             _colored_timestamp

@@ -33,7 +33,8 @@ from core.config import (
 )
 from core.config.field_parsers import (
     DateTimeConfigFieldParser,
-    NameFormatConfigFieldParser
+    NameFormatConfigFieldParser,
+    parse_versioning
 )
 
 
@@ -71,11 +72,11 @@ class Configuration(object):
             assert(isinstance(source, bytes))
             self._load_from_disk(source)
 
-        if self._version:
-            if self._version != constants.PROGRAM_VERSION:
+        if self.version:
+            if self.version != constants.PROGRAM_VERSION:
                 log.warning('Possible configuration compatibility mismatch!')
                 log.warning('Loaded configuration created by {} (currently '
-                            'running {})'.format(self._version,
+                            'running {})'.format(self.version,
                                                  constants.PROGRAM_VERSION))
                 log.info(
                     'The current recommended procedure is to move the '
@@ -227,14 +228,21 @@ class Configuration(object):
         return _rule
 
     def _load_options(self):
-        def _try_load_date_format_option(option):
+        def _try_load_datetime_format_option(option, default):
             if 'DATETIME_FORMAT' in self._data:
-                _value = self._data['DATETIME_FORMAT'].get(option)
+                _value = self._data['DATETIME_FORMAT'].get(option, None)
+                if (_value is not None and
+                        DateTimeConfigFieldParser.is_valid_datetime(_value)):
+                    self._options['DATETIME_FORMAT'][option] = _value
+                    return  # OK!
+
+            # Use verified default value.
+            if DateTimeConfigFieldParser.is_valid_datetime(default):
+                self._options['DATETIME_FORMAT'][option] = default
             else:
-                _value = None
-            if (_value is not None and
-                    DateTimeConfigFieldParser.is_valid_datetime(_value)):
-                self._options['DATETIME_FORMAT'][option] = _value
+                log.critical('Invalid internal default value "{!s}": '
+                             '"{!s}'.format(option, default))
+                log.critical('This should not happen!')
 
         def _try_load_filetags_option(option, default):
             if 'FILETAGS_OPTIONS' in self._data:
@@ -260,9 +268,15 @@ class Configuration(object):
                     self._options, ['FILESYSTEM_OPTIONS', option], default
                 )
 
-        _try_load_date_format_option('date')
-        _try_load_date_format_option('time')
-        _try_load_date_format_option('datetime')
+        _try_load_datetime_format_option(
+            'date', constants.DEFAULT_DATETIME_FORMAT_DATE
+        )
+        _try_load_datetime_format_option(
+            'time', constants.DEFAULT_DATETIME_FORMAT_TIME
+        )
+        _try_load_datetime_format_option(
+            'datetime', constants.DEFAULT_DATETIME_FORMAT_DATETIME
+        )
 
         _try_load_filetags_option(
             'filename_tag_separator',
@@ -281,7 +295,7 @@ class Configuration(object):
             constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
 
-        # Unlikely the previous options; first load the default ignore patterns,
+        # Unlike the previous options; first load the default ignore patterns,
         # then combine these defaults with any user-specified patterns.
         util.nested_dict_set(
             self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
@@ -303,11 +317,13 @@ class Configuration(object):
                     )
 
     def _load_version(self):
-        raw_version = self._data.get('autonameow_version')
-        if not raw_version:
-            log.error('Unable to read program version from configuration')
+        _raw_version = self._data.get('autonameow_version')
+        valid_version = parse_versioning(_raw_version)
+        if valid_version:
+            self._version = valid_version
         else:
-            self._version = raw_version
+            log.error('Unable to read program version from configuration.')
+            log.debug('Read invalid version: "{!s}"'.format(_raw_version))
 
     def get(self, key_list):
         return util.nested_dict_get(self._options, key_list)
@@ -315,9 +331,14 @@ class Configuration(object):
     @property
     def version(self):
         """
-        Returns: The program version that wrote the configuration.
+        Returns:
+            The version number of the program that wrote the configuration as
+            a Unicode string, if it is available.  Otherwise None.
         """
-        return self._version
+        if self._version:
+            return 'v' + '.'.join(map(str, self._version))
+        else:
+            return None
 
     @property
     def options(self):

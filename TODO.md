@@ -14,6 +14,12 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0090]` Complete initial implementation of "generic" data fields.
+
+* `[TD0089]` Validate only "generic" data fields when reading config.
+
+* `[TD0088]` Handle case where `ExtractedData.wrapper` is `None`.
+
 * `[TD0082]` Integrate the `ExtractedData` class.
 
 * `[TD0084]` Add handling collections (lists, etc) to the type wrapper classes.
@@ -188,6 +194,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0091]` Take a look at old code in `util/dateandtime.py`.
+
 * `[TD0086]` __Use one `SessionRepository` per `Autonameow` instance.__  
   The `Autonameow` class "manages a running instance of the program" should
   have its own instance of the `Repository` class. This is fine for now but
@@ -196,8 +204,6 @@ Low Priority
 * `[TD0081]` Bundle the `pyexiftool` dependency. Add to `autonameow/thirdparty`.
 
 * `[TD0068]` Let the user specify which languages to use for OCR.
-
-* `[TD0060]` Implement or remove the type wrapper classes `format` method.
 
 * `[TD0059]` Replace `--list-datetime`, `--list-title` and `--list-all`
   with something more flexible like `--list {FIELD}`.

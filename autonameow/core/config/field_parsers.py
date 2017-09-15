@@ -178,9 +178,14 @@ class BooleanConfigFieldParser(ConfigFieldParser):
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
-    applies_to_field = ['*.pathname.*', '*.basename.*', '*.raw_text',
-                        '*.:Title', '*.:Creator', '*.:Publisher',
-                        '*.:Producer']
+    applies_to_field = [
+        '*.pathname.*', '*.basename.*', '*.text.*',
+        '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
+        '*.XMP-dc:Title',
+        '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher', '*.PDF:Title'
+    ]
+    # Above globs does not include all possible extractor globs.
+    # TODO: [TD0089] Validate only "generic" metadata fields ..
 
     @staticmethod
     def is_valid_regex(expression):
@@ -302,6 +307,8 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['datetime', 'date_accessed', 'date_created',
                         'date_modified', '*.PDF:CreateDate', '*.PDF:ModifyDate',
                         '*.EXIF:DateTimeOriginal', '*.EXIF:ModifyDate']
+    # Above globs does not include all possible extractor globs.
+    # TODO: [TD0089] Validate only "generic" metadata fields ..
 
     @staticmethod
     def is_valid_datetime(expression):
@@ -420,6 +427,9 @@ def eval_meowuri_glob(meowuri, glob_list):
     if not meowuri or not glob_list:
         return False
 
+    if not isinstance(glob_list, list):
+        glob_list = [glob_list]
+
     if meowuri in glob_list:
         return True
 
@@ -440,10 +450,26 @@ def eval_meowuri_glob(meowuri, glob_list):
             else:
                 continue
 
-        # Convert to regular expression to match wildcards. Simplest solution.
-        re_glob = re.compile(glob.replace('*', '.*'))
-        if re_glob.match(meowuri):
-            return True
+        if glob.startswith('*.') and glob.endswith('.*'):
+            # Check if the center piece is a match.
+            literal_glob_parts = [g for g in glob_parts if g != '*']
+            for literal_glob_part in literal_glob_parts:
+                # Put back periods to match whole parts and not substrings.
+                glob_center_part = '.{}.'.format(literal_glob_part)
+                if glob_center_part in meowuri:
+                    return True
+
+        # First part doesn't matter, check if trailing pieces match.
+        if glob.startswith('*.'):
+            stripped_glob = re.sub(r'^\*', '', glob)
+            if meowuri.endswith(stripped_glob):
+                return True
+
+        # Last part doesn't matter, check if leading pieces match.
+        if glob.endswith('.*'):
+            stripped_glob = re.sub(r'\*$', '', glob)
+            if meowuri.startswith(stripped_glob):
+                return True
 
     return False
 
@@ -471,3 +497,37 @@ FieldParserInstances = get_instantiated_field_parsers()
 # This is used for validating name templates. Dict is populated like this;
 #   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
 DATA_FIELDS = dict.fromkeys(constants.NAME_TEMPLATE_FIELDS, 'DUMMY')
+RE_VERSION_NUMBER = re.compile(r'v?(\d+)\.(\d+)\.(\d+)')
+
+
+def parse_versioning(semver_string):
+    """
+    Validates a "raw" version number string.
+
+    The version number is expected to be a Unicode string on the form 'v1.2.3',
+    where the initial 'v' is optional;  I.E. '111.222.333' is also valid.
+
+    Args:
+        semver_string: The version number to validate as a Unicode string.
+
+    Returns:
+        A tuple of three integers representing the "major", "minor" and
+        "patch" version numbers.  Or None if the validation fails.
+    """
+    if not semver_string or not isinstance(semver_string, str):
+        return None
+    if not semver_string.strip():
+        return None
+
+    match = RE_VERSION_NUMBER.search(semver_string)
+    if match:
+        try:
+            major = int(match.group(1))
+            minor = int(match.group(2))
+            patch = int(match.group(3))
+        except TypeError:
+            pass
+        else:
+            return major, minor, patch
+
+    return None

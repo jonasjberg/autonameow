@@ -228,7 +228,8 @@ class Autonameow(object):
             log.info('Listing session repository contents ..')
             cli.msg('Session Repository Data', style='heading',
                     add_info_log=True)
-            cli.msg(str(repository.SessionRepository))
+            # cli.msg(str(repository.SessionRepository))
+            cli.msg(repository.SessionRepository.human_readable_contents())
         # else:
         #     if self.opts.list_datetime:
         #         _list_analysis_results_field(analysis, 'datetime')
@@ -302,12 +303,19 @@ class Autonameow(object):
             self.exit_code = constants.EXIT_WARNING
             return
 
-        # Get a dict of data keyed by the name template placeholder fields.
-        templatefield_data_map = resolver.collect()
+        # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
+        # Add automatically resolving missing sources from possible candidates.
+        resolver.collect()
+        if not resolver.collected_data_for_all_fields():
+            # TODO: Abort if running in "batch mode". Otherwise, ask the user.
+            log.warning('Unable to populate name. Missing field data.')
+            self.exit_code = constants.EXIT_WARNING
+            return
+
         try:
             new_name = namebuilder.build(config=self.active_config,
                                          name_template=name_template,
-                                         field_data_map=templatefield_data_map)
+                                         field_data_map=resolver.fields_data)
         except exceptions.NameBuilderError as e:
             log.critical('Name assembly FAILED: {!s}'.format(e))
             raise exceptions.AutonameowException

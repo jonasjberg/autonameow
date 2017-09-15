@@ -190,13 +190,15 @@ def flatten_dict(d, parent_key='', sep='.'):
                   'contents': {
                       'mime_type': None,
                       'textual': {
-                          'raw_text': None,
+                          'text': {
+                              'full: None,
+                          }
                       }
                   }
               }
               OUTPUT = {
                   'contents.mime_type': None,
-                  'contents.textual.raw_text': None,
+                  'contents.textual.text.full': None,
               }
 
     Note that if the low-level values are empty dictionaries or lists,

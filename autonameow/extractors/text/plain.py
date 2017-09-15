@@ -40,7 +40,7 @@ DEFAULT_ENCODING = 'utf8'
 
 class PlainTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['text/plain']
-    meowuri_root = 'contents.textual.raw_text'
+    meowuri_root = 'contents.textual.text'
 
     def __init__(self):
         super(PlainTextExtractor, self).__init__()

@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-09-14
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0060]` Implement or remove the type wrapper classes `format` method.
+
 * 2017-09-11
 
     > Medium Priority

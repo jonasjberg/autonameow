@@ -139,3 +139,22 @@ class TestHasDataForPlaceholderFields(TestCase):
         actual = has_data_for_placeholder_fields(template, data)
         self.assertTrue(isinstance(actual, bool))
         self.assertFalse(actual)
+
+    def test_field_data_but_no_placeholder_fields_return_true(self):
+        data = {
+            'datetime': uu.str_to_datetime('2016-01-11 124132'),
+            'extension': None,
+            'title': 'Meow Gibson Rules Meow'
+        }
+        template = 'foo bar'
+        actual = has_data_for_placeholder_fields(template, data)
+        self.assertTrue(isinstance(actual, bool))
+        self.assertTrue(actual)
+
+    def test_empty_data_and_no_placeholder_fields_return_true(self):
+        data = {
+        }
+        template = 'foo bar'
+        actual = has_data_for_placeholder_fields(template, data)
+        self.assertTrue(isinstance(actual, bool))
+        self.assertTrue(actual)

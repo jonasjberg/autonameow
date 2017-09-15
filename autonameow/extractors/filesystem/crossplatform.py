@@ -61,7 +61,8 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             wrapper=types.AW_MIMETYPE,
             mapped_fields=[
                 fields.WeightedMapping(fields.extension, probability=1),
-            ]
+            ],
+            generic_field=fields.MimeType
         ),
         'date_accessed': ExtractedData(
             wrapper=types.AW_TIMEDATE,

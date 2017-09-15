@@ -67,6 +67,9 @@ DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR = ' -- '
 DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR = ' '
 DEFAULT_FILESYSTEM_SANITIZE_FILENAME = True
 DEFAULT_FILESYSTEM_SANITIZE_STRICT = False
+DEFAULT_DATETIME_FORMAT_DATETIME = '%Y-%m-%dT%H%M%S'
+DEFAULT_DATETIME_FORMAT_DATE = '%Y-%m-%d'
+DEFAULT_DATETIME_FORMAT_TIME = '%H-%M-%S'
 
 DEFAULT_FILESYSTEM_IGNORE_DARWIN = frozenset([
     # Metadata
@@ -186,3 +189,7 @@ YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
 EXIT_SUCCESS = 0    # Program finished successfully.
 EXIT_WARNING = 1    # Program execution completed but there were errors.
 EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.
+
+
+# Repository and internal data storage
+MEOWURI_NODE_GENERIC = 'generic'

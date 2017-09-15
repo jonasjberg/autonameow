@@ -23,6 +23,8 @@ import re
 
 from collections import namedtuple
 
+from core import constants
+
 
 # Original Dublin Core Metadata Element Set Version 1.1
 # Metadata Elements:
@@ -58,6 +60,59 @@ WeightedMapping = namedtuple('WeightedMapping', ['field', 'probability'])
 
 def todo_func(foo):
     pass
+
+
+class GenericField(object):
+    meowuri_root = 'NULL'
+    meowuri_node_generic = constants.MEOWURI_NODE_GENERIC.lower()
+    meowuri_leaf = 'NULL'
+
+    @classmethod
+    def uri(cls):
+        return '{}.{}.{}'.format(cls.meowuri_root.lower(),
+                                 cls.meowuri_node_generic,
+                                 cls.meowuri_leaf.lower())
+
+
+# TODO: [TD0090] Complete initial implementation of "generic" fields.
+class Author(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Author'
+
+
+class Creator(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Creator'
+
+
+class Description(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Description'
+
+
+class DateCreated(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'DateCreated'
+
+
+class DateModified(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'DateModified'
+
+
+class MimeType(GenericField):
+    meowuri_root = 'contents'
+    meowuri_leaf = 'MimeType'
+
+
+class Producer(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Producer'
+
+
+class Subject(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Subject'
 
 
 class NameTemplateField(object):

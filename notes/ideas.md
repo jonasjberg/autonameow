@@ -446,3 +446,82 @@ Additionally, the returned list could contain contextual information; weights,
 scores, priorities, etc.
 The less specific query would require the program to take responsibility for
 selecting the appropriate field.
+
+## Update 2017-09-13
+I'm currently in the process of adding some kind of "generic" field that,
+if defined, allows referencing data using two different "MeowURIs";
+*source-specific* and *generic*
+
+### Examples from the current implementation;
+These two data entries are stored in the repository with
+source-specific MeowURIs:
+
+* `metadata.exiftool.File:MIMEType: application/pdf`
+* `filesystem.contents.mime_type: application/pdf`
+
+They are also stored under a "generic URI":
+
+* `contents.generic: [application/pdf, application/pdf]`
+
+### Current conundrum
+I can't decide on how to lay out the "alternate" URIs.
+How should they be nested for usability and consistency?
+
+Below examples show different schemes specific and generic "MeowURIs"
+storing data "elements"; `D1`, `D2`, `D3`, `D4`.
+
+#### Current approach:
+
+* Source-specific URIs:
+    * `filesystem.contents.mime_type: D1`
+    * `metadata.exiftool.File:MIMEType: D2`
+    * `metadata.pypdf.CreationDate: D3`
+    * `metadata.exiftool.PDF:CreateDate: D4`
+* Generic URIs:
+    * `contents.generic.mimetype: [D1, D2]`
+    * `metadata.generic.datecreated: [D3, D4]`
+
+#### Alternative approach 1:
+
+* Source-specific URIs:
+    * `filesystem.contents.mime_type: D1`
+    * `metadata.exiftool.File:MIMEType: D2`
+    * `metadata.pypdf.CreationDate: D3`
+    * `metadata.exiftool.PDF:CreateDate: D4`
+* Generic URIs:
+    * `generic.contents.mimetype: [D1, D2]`
+    * `generic.metadata.datecreated: [D3, D4]`
+
+#### Alternative approach 2:
+
+* Source-specific URIs:
+    * `filesystem.contents.mime_type: D1`
+    * `metadata.exiftool.File:MIMEType: D2`
+    * `metadata.pypdf.CreationDate: D3`
+    * `metadata.exiftool.PDF:CreateDate: D4`
+* Generic URIs:
+    * `contents.mimetype: [D1, D2]`
+    * `metadata.datecreated: [D3, D4]`
+
+
+#### Pros/Cons
+I'm currently in favor of "Alternative approach 2" because it seems simpler
+to just leave out the source part .. (?)
+
+~~(It should also maybe possibly be easier to integrate into the existing
+codebase as it currently stands..)~~
+
+Going with "Alternative approach 2" would allow referring to data like this:
+
+* Specific retrieval: `metadata.pypdf.creator`
+    * Fetches specific data from a specific source.
+    * Returns either nothing at all or __one__ data "element".
+* Generic retrieval: `metadata.creator`
+    * Fetches "equivalent" data from any sources.
+    * Returns nothing, __or any number__ of data "elements".
+
+Also; it might make sense to keep a URI-node (like `.generic.`) in the MeowURIs
+to clearly separate the types, which might be helpful for the implementation.
+In this case, it probably wouldn't be very difficult to translate from a
+"internal" URI like `generic.contents.mimetype` or `contents.generic.mimetype`
+to a simplified form, used in all user interfaces; `contents.mime_type` ..

@@ -101,7 +101,7 @@ class TestImageOCRTextExtractorWithImageFile(unittest.TestCase):
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_expected_type(self):
         actual = self.e.execute(TEST_IMAGE_FILE)
-        self.assertTrue(isinstance(actual.value, str))
+        self.assertTrue(isinstance(actual, dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_all_result_contains_expected(self):
@@ -109,7 +109,7 @@ class TestImageOCRTextExtractorWithImageFile(unittest.TestCase):
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'"
         )
         actual = self.e.execute(TEST_IMAGE_FILE)
-        self.assertEqual(actual.value, TEST_IMAGE_FILE_TEXT)
+        self.assertEqual(actual['raw_text'].value, TEST_IMAGE_FILE_TEXT)
 
 
 class TestTesseractWrapper(unittest.TestCase):
