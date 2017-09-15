@@ -360,7 +360,7 @@ class String(BaseType):
         return self.__call__(value).strip()
 
     def format(self, value, **kwargs):
-        # raise NotImplementedError('TODO: Implement String.format()')
+        value = self.__call__(value)
         return value
 
 

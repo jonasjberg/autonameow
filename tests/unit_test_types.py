@@ -829,8 +829,28 @@ class TestTypeString(TestCase):
         _assert_coerces(True, 'True')
 
     def test_format(self):
-        # TODO: Add additional tests.
-        self.assertIsNotNone(types.AW_STRING.format)
+        def _assert_formats(test_data, expected):
+            self.assertEqual(types.AW_STRING.format(test_data), expected)
+
+        _assert_formats('', '')
+        _assert_formats(' ', ' ')
+        _assert_formats(b'', '')
+        _assert_formats(b' ', ' ')
+        _assert_formats(-1, '-1')
+        _assert_formats(0, '0')
+        _assert_formats(1, '1')
+        _assert_formats(-1.5, '-1.5')
+        _assert_formats(-1.0, '-1.0')
+        _assert_formats(1.0, '1.0')
+        _assert_formats(1.5, '1.5')
+        _assert_formats('-1', '-1')
+        _assert_formats('-1.0', '-1.0')
+        _assert_formats('0', '0')
+        _assert_formats('1', '1')
+        _assert_formats('foo', 'foo')
+        _assert_formats(None, '')
+        _assert_formats(False, 'False')
+        _assert_formats(True, 'True')
 
 
 class TestTypeMimeType(TestCase):
