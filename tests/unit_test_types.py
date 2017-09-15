@@ -1047,6 +1047,38 @@ class TestTryWrap(TestCase):
         self.assertTrue(isinstance(types.try_wrap(datetime.now()), datetime))
 
 
+class TestTryParseDateTime(TestCase):
+    def _assert_equal(self, test_data, expected):
+        actual = types.try_parse_datetime(test_data)
+        self.assertEqual(actual, expected)
+        self.assertTrue(isinstance(actual, datetime))
+
+    def test_parses_valid_datetime(self):
+        expected = uu.str_to_datetime('2017-07-12 205015')
+        self._assert_equal('2017-07-12T20:50:15', expected)
+        self._assert_equal('2017-07-12 20:50:15', expected)
+        self._assert_equal('2017:07:12 20:50:15', expected)
+        self._assert_equal('2017_07_12 20:50:15', expected)
+        self._assert_equal('2017_07_12 20-50-15', expected)
+
+    def test_parses_valid_datetime_with_microseconds(self):
+        expected = datetime.strptime('2017-07-12T20:50:15.641659',
+                                     '%Y-%m-%dT%H:%M:%S.%f')
+        self._assert_equal('2017-07-12T20:50:15.641659', expected)
+        self._assert_equal('2017-07-12_20:50:15.641659', expected)
+        self._assert_equal('2017-07-12_205015 641659', expected)
+        self._assert_equal('2017-07-12 205015 641659', expected)
+
+    def test_parses_valid_datetime_with_timezone(self):
+        expected = datetime.strptime('2017-07-12T20:50:15+0200',
+                                     '%Y-%m-%dT%H:%M:%S%z')
+
+        self._assert_equal('2017 07 12 20 50 15+0200', expected)
+        self._assert_equal('2017-07-12 20:50:15+0200', expected)
+        self._assert_equal('2017:07:12 20:50:15+0200', expected)
+        self._assert_equal('2017-07-12T20:50:15+0200', expected)
+
+
 class TestRegexLooseDate(TestCase):
     def test_matches_yyyy_mm_dd(self):
         def _assert_matches(test_data):

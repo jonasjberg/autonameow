@@ -489,7 +489,7 @@ class TimeDate(BaseType):
 
     def coerce(self, value):
         try:
-            return try_parse_full_datetime(value)
+            return try_parse_datetime(value)
         except (TypeError, ValueError) as e:
             self._fail_coercion(value, msg=e)
 
@@ -644,33 +644,39 @@ def normalize_datetime_with_microseconds(string):
     return None
 
 
-def try_parse_full_datetime(string):
-    _error_msg = 'Unable to parse full datetime from: "{!s}"'.format(string)
+def try_parse_datetime(string):
+    _error_msg = 'Unable to parse datetime: "{!s}" ({})'.format(string,
+                                                                type(string))
 
     if not string:
         raise ValueError(_error_msg)
     if not isinstance(string, str):
         raise ValueError(_error_msg)
 
-    string = re.sub(
-        r'(\d{4})[:-](\d{2})[:-](\d{2})[T ](\d{2})[:-]?(\d{2})[:-]?(\d{2})',
-        r'\1-\2-\3 \4:\5:\6',
-        string
-    )
-
     # Handles malformed dates produced by "Mac OS X 10.11.5 Quartz PDFContext".
     if string.endswith('Z'):
         string = string[:-1]
 
-    date_formats = ['%Y-%m-%d %H:%M:%S',
-                    '%Y-%m-%d %H:%M:%S.%f',  # %f: Microseconds
-                    '%Y-%m-%d %H:%M:%S %z',  # %z: UTC offset
-                    '%Y-%m-%d %H:%M:%S%z']
-    for date_format in date_formats:
+    match = normalize_datetime_with_timezone(string)
+    if match:
         try:
-            return datetime.strptime(string, date_format)
+            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S%z')
         except (ValueError, TypeError):
-            continue
+            pass
+
+    match = normalize_datetime_with_microseconds(string)
+    if match:
+        try:
+            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S.%f')
+        except (ValueError, TypeError):
+            pass
+
+    match = normalize_datetime(string)
+    if match:
+        try:
+            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S')
+        except (ValueError, TypeError):
+            pass
 
     raise ValueError(_error_msg)
 
