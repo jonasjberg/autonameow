@@ -52,7 +52,7 @@ class RuleMatcher(object):
         self._candidates = []
 
     def request_data(self, file_object, meowuri):
-        log.debug('requesting [{!s}][{!s}]'.format(file_object, meowuri))
+        log.debug('requesting [{!s}]->[{!s}]'.format(file_object, meowuri))
         response = repository.SessionRepository.query(file_object, meowuri)
         log.debug('Got response ({}): {!s}'.format(type(response), response))
 

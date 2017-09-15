@@ -150,7 +150,7 @@ class Repository(object):
                 'Unable to resolve empty meowURI'
             )
 
-        log.debug('Got request [{!s}] "{!s}" Mapped to Field: "{!s}"'.format(
+        log.debug('Got request [{!s}]->[{!s}] Mapped to Field: "{!s}"'.format(
             file_object, meowuri, mapped_to_field))
 
         try:
@@ -166,8 +166,8 @@ class Repository(object):
                         return data
                     else:
                         log.debug(
-                            'Repository request failed requirement; [{!s}] '
-                            '"{!s}" Mapped to Field: "{!s}"'.format(
+                            'Repository request failed requirement; [{!s}]->'
+                            '[{!s}] Mapped to Field: "{!s}"'.format(
                                 file_object, meowuri, mapped_to_field
                             )
                         )
