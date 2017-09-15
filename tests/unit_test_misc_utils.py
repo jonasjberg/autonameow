@@ -356,9 +356,6 @@ class TestExpandMeowURIDataDict(TestCase):
 
 
 class TestNestedDictGet(TestCase):
-    def test_nested_dict_get_is_defined(self):
-        self.assertIsNotNone(nested_dict_get)
-
     def test_get_nested_value_returns_expected(self):
         key_list = ['filesystem', 'contents', 'mime_type']
         actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)
@@ -406,9 +403,6 @@ class TestNestedDictGet(TestCase):
 
 
 class TestNestedDictSet(TestCase):
-    def test_nested_dict_set_is_defined(self):
-        self.assertIsNotNone(nested_dict_set)
-
     def _assert_sets(self, dictionary, list_of_keys, value, expected):
         _ = nested_dict_set(dictionary, list_of_keys, value)
         self.assertIsNone(_)
@@ -492,6 +486,26 @@ class TestNestedDictSet(TestCase):
         _assert_raises(key_list=['foo', None, 'a', 'b'])
         _assert_raises(key_list=['', 'a', 'b', None])
         _assert_raises(key_list=['', 'a', 'b', 'foo'])
+
+
+class TestNestedDictSetRetrieveLists(TestCase):
+    def test_stores_empty_list(self):
+        d = {}
+        nested_dict_set(d, ['a', 'b'], [])
+        actual = nested_dict_get(d, ['a', 'b'])
+        self.assertEqual(actual, [])
+
+    def test_stores_list_one_element(self):
+        d = {}
+        nested_dict_set(d, ['a', 'b'], [1])
+        actual = nested_dict_get(d, ['a', 'b'])
+        self.assertEqual(actual, [1])
+
+    def test_stores_list_two_elements(self):
+        d = {}
+        nested_dict_set(d, ['a', 'b'], [1, 2])
+        actual = nested_dict_get(d, ['a', 'b'])
+        self.assertEqual(actual, [1, 2])
 
 
 class TestEvalMagicGlob(TestCase):
