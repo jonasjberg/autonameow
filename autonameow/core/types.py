@@ -510,9 +510,22 @@ class TimeDate(BaseType):
         )
 
     def format(self, value, **kwargs):
-        _datetime_format = constants.DEFAULT_DATETIME_FORMAT_DATETIME
-        return datetime.strftime(value, _datetime_format)
-        # raise NotImplementedError('TODO: Implement TimeDate._meowuri_leaf()')
+        value = self.__call__(value)
+
+        format_string = kwargs.get('format_string')
+        if format_string is None:
+            format_string = constants.DEFAULT_DATETIME_FORMAT_DATETIME
+            if not isinstance(format_string, str):
+                raise AWTypeError('Expected "format_string" to be Unicode str')
+
+            try:
+                return datetime.strftime(value, format_string)
+            except TypeError:
+                pass
+
+        raise AWTypeError(
+            'Invalid "format_string": "{!s}"'.format(format_string)
+        )
 
 
 class ExifToolTimeDate(TimeDate):

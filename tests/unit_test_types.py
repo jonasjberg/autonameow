@@ -382,9 +382,25 @@ class TestTypeTimeDate(TestCase):
         _assert_raises([None])
         # TODO: Add testing additional input data.
 
-    def test_format(self):
-        # TODO: Add additional tests.
-        self.assertIsNotNone(types.AW_TIMEDATE.format)
+    def test_format_coercible_data(self):
+        def _assert_formats(test_data, expected):
+            self.assertEqual(types.AW_TIMEDATE.format(test_data), expected)
+
+        _assert_formats('2017:02:03 10:20:30', '2017-02-03T102030')
+        _assert_formats('2017-02-03 10:20:30', '2017-02-03T102030')
+        _assert_formats('2015:03:03 12:25:56-08:00', '2015-03-03T122556')
+
+    def test_format_noncoercible_data(self):
+        def _assert_raises(test_data):
+            with self.assertRaises(types.AWTypeError):
+                types.AW_TIMEDATE.format(test_data)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises('foo')
+        _assert_raises([])
+        _assert_raises([''])
+        _assert_raises([None])
 
 
 class TestTypeDate(TestCase):
