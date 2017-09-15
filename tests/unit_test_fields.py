@@ -23,8 +23,8 @@ from unittest import TestCase
 
 from core.fields import (
     GenericField,
-    DateCreated,
-    DateModified
+    GenericDateCreated,
+    GenericDateModified
 )
 
 
@@ -39,11 +39,9 @@ class TestGenericFieldBase(TestCase):
 
 class TestGenericFieldStr(TestCase):
     def test_uri_field_date_created(self):
-        actual = DateCreated.uri()
+        actual = GenericDateCreated.uri()
         self.assertEqual(actual, 'metadata.generic.datecreated')
 
     def test_uri_field_date_modified(self):
-        actual = DateModified.uri()
+        actual = GenericDateModified.uri()
         self.assertEqual(actual, 'metadata.generic.datemodified')
-
-
