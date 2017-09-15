@@ -457,7 +457,7 @@ class Date(BaseType):
     # instances. Otherwise, raise an exception to be handled by the caller.
     def _null(self):
         raise AWTypeError(
-            'Type wrapper "{!r}" should never EVER return null!'.format(self)
+            '"{!r}" got incoercible data'.format(self)
         )
 
     def format(self, value, **kwargs):
@@ -506,7 +506,7 @@ class TimeDate(BaseType):
     # instances. Otherwise, raise an exception to be handled by the caller.
     def _null(self):
         raise AWTypeError(
-            'Type wrapper "{!r}" should never EVER return null!'.format(self)
+            '"{!r}" got incoercible data'.format(self)
         )
 
     def format(self, value, **kwargs):
