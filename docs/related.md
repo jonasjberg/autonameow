@@ -192,6 +192,20 @@ file manager. movemetafs also lets users attach (unsearchable) textual
 description to files.
 
 
+`Apache Tika`
+-------------
+Apache Tika(TM) is a toolkit for detecting and extracting metadata and
+structured text content from various documents using existing parser libraries.
+<https://tika.apache.org>
+<https://gitbox.apache.org/repos/asf/tika.git>
+<https://github.com/apache/tika/>
+
+The Apache Tika(TM) toolkit detects and extracts metadata and text from over a
+thousand different file types (such as PPT, XLS, and PDF). All of these file
+types can be parsed through a single interface, making Tika useful for search
+engine indexing, content analysis, translation, and much more.
+
+
 [1]: http://karl-voit.at
 [2]: http://karl-voit.at/managing-digital-photographs/
 
