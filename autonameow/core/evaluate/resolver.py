@@ -66,7 +66,7 @@ class Resolver(object):
                       '[{!s}]'.format(field, self.file, meowuri))
             _data = self._request_data(self.file, meowuri)
             if _data is not None:
-                log.debug('Got data ({}): {!s}'.format(type(_data), _data))
+                log.debug('Got data "{!s}" ({})'.format(_data, type(_data)))
                 log.debug('Updated data for field "{!s}"'.format(field))
                 self.fields_data[field] = _data
             else:
