@@ -533,20 +533,10 @@ class ExifToolTimeDate(TimeDate):
         if re.match(r'.*0000:00:00 00:00:00.*', value):
             self._fail_coercion(value)
 
-        # Remove any ':' in timezone as to match strptime pattern.
-        if re.match(r'.*\+\d\d:\d\d$', value):
-            value = re.sub(r'\+(\d\d):(\d\d)$', r'+\1\2', value)
-        elif re.match(r'.*-\d\d:\d\d$', value):
-            value = re.sub(r'-(\d\d):(\d\d)$', r'-\1\2', value)
-
         try:
-            # TODO: Fix matching dates with timezone. Below is not working.
-            return datetime.strptime(value, '%Y:%m:%d %H:%M:%S%z')
-        except (ValueError, TypeError):
-            try:
-                return try_parse_full_datetime(value)
-            except (TypeError, ValueError) as e:
-                pass
+            return try_parse_datetime(value)
+        except ValueError:
+            pass
 
         self._fail_coercion(value)
 
