@@ -132,17 +132,18 @@ def pre_assemble_format(data, config):
     #          .. Instead of passing wrapped types, pass wrapped fields?
 
     for field, value in data.items():
+        log.debug('Pre-assembly formatting field "{!s}"'.format(field))
         if field == 'datetime':
             datetime_format = config.options['DATETIME_FORMAT']['datetime']
-            formatted[field] = formatted_datetime(data[field].value,
+            formatted[field] = formatted_datetime(data[field],
                                                   datetime_format)
         elif field == 'date':
             datetime_format = config.options['DATETIME_FORMAT']['date']
-            formatted[field] = formatted_datetime(data[field].value,
+            formatted[field] = formatted_datetime(data[field],
                                                   datetime_format)
         elif field == 'time':
             datetime_format = config.options['DATETIME_FORMAT']['time']
-            formatted[field] = formatted_datetime(data[field].value,
+            formatted[field] = formatted_datetime(data[field],
                                                   datetime_format)
 
         elif field == 'tags':
@@ -162,12 +163,9 @@ def pre_assemble_format(data, config):
 
 def format_field(field, data):
     # TODO: [TD0082] Integrate the 'ExtractedData' class.
-    if data is not None and isinstance(data, ExtractedData):
-        log.debug('Formatting data value "{!s}"'.format(data.value))
+    if isinstance(data, ExtractedData):
+        log.debug('Formatting data.value "{!s}"'.format(data.value))
 
-        # TODO: [TD0088] Handle case where 'ExtractedData' isn't provided
-        # with a 'wrapper' and then also fails to autodetect a proper
-        # 'wrapper' class from the raw file type ..
         if data.wrapper:
             formatted = data.wrapper.format(data.value, formatter=None)
             if formatted is not None and formatted != data.wrapper.null:
@@ -176,8 +174,20 @@ def format_field(field, data):
             else:
                 log.debug('Unable to format field "{!s}" with value '
                           '"{!s}"'.format(field, data.value))
+    elif data is not None:
+        log.warning('Missing formatting information, not wrapped in '
+                    'ExtractedData: "{!s}": "{!s}"'.format(field, data))
+        log.debug('Formatting data value "{!s}"'.format(data))
 
-        return None
+        # TODO: [TD0088] Handle case where 'ExtractedData' isn't provided
+        # with a 'wrapper' and then also fails to autodetect a proper
+        # 'wrapper' class from the raw file type ..
+
+        return data
+    else:
+        log.warning('"format_field" got None data (!)')
+
+    return None
 
 
 def formatted_datetime(datetime_object, format_string):
