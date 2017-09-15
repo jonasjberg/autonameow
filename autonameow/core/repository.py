@@ -132,8 +132,7 @@ class Repository(object):
 
     def _store(self, file_object, meowuri, data):
         try:
-            any_existing = util.nested_dict_get(self.data,
-                                                [file_object, meowuri])
+            any_existing = self.__get_data(file_object, meowuri)
         except KeyError:
             pass
         else:
@@ -160,7 +159,7 @@ class Repository(object):
             file_object, meowuri, mapped_to_field))
 
         try:
-            data = util.nested_dict_get(self.data, [file_object, meowuri])
+            data = self.__get_data(file_object, meowuri)
         except KeyError as e:
             log.debug('Repository request raised KeyError: {!s}'.format(e))
             return None
@@ -183,6 +182,9 @@ class Repository(object):
 
             else:
                 return data
+
+    def __get_data(self, file, meowuri):
+        return util.nested_dict_get(self.data, [file, meowuri])
 
     def resolvable(self, meowuri):
         if not meowuri:
