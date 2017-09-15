@@ -165,7 +165,7 @@ def regex_search_str(text):
             m_time = textutils.extract_digits(m_time)
             m_time_ms = textutils.extract_digits(m_time_ms)
 
-            if m_date is None or m_time is None:
+            if not m_date or not m_time:
                 continue
 
             # Check if m_date is actually m_date *AND* m_date.
@@ -486,7 +486,7 @@ def bruteforce_str(text, return_first_match=False):
     # Try another approach, start by extracting all digits.
     digits_only = textutils.extract_digits(text)
 
-    if len(digits_only) < 4:
+    if not digits_only or len(digits_only) < 4:
         return results
 
     year_first = True

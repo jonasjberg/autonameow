@@ -171,24 +171,22 @@ class TestIndent(unittest.TestCase):
 
 
 class TestExtractDigits(unittest.TestCase):
-    def test_extract_digits_is_defined(self):
-        self.assertIsNotNone(textutils.extract_digits)
+    def test_extract_digits_returns_empty_string_given_no_digits(self):
+        def _assert_empty(test_data):
+            actual = textutils.extract_digits(test_data)
+            self.assertEqual(actual, '')
 
-    def test_extract_digits_returns_none_if_input_has_no_digits(self):
-        def _assert_is_none(test_data):
-            self.assertIsNone(textutils.extract_digits(test_data))
+        _assert_empty('')
+        _assert_empty(' ')
+        _assert_empty('_')
+        _assert_empty('ö')
+        _assert_empty('foo')
 
-        _assert_is_none('')
-        _assert_is_none(' ')
-        _assert_is_none('_')
-        _assert_is_none('ö')
-        _assert_is_none('foo')
-
-    def test_extract_digits_returns_only_digits_of_input_string(self):
-        def _assert_equal(test_data, expect):
+    def test_extract_digits_returns_digits(self):
+        def _assert_equal(test_data, expected):
             actual = textutils.extract_digits(test_data)
             self.assertTrue(isinstance(actual, str))
-            self.assertEqual(actual, expect)
+            self.assertEqual(actual, expected)
 
         _assert_equal('0', '0')
         _assert_equal('1', '1')
@@ -200,6 +198,19 @@ class TestExtractDigits(unittest.TestCase):
         _assert_equal('1a2b3c4d', '1234')
         _assert_equal('  1a2b3c4d', '1234')
         _assert_equal('  1a2b3c4d  _', '1234')
+        _assert_equal('1.0', '10')
+        _assert_equal('2.3', '23')
+
+    def test_raises_exception_given_bad_arguments(self):
+        def _assert_raises(test_data):
+            with self.assertRaises(AssertionError):
+                textutils.extract_digits(test_data)
+
+        _assert_raises(None)
+        _assert_raises([])
+        _assert_raises(1)
+        _assert_raises(b'foo')
+        _assert_raises(b'1')
 
 
 @unittest.skipIf(chardet is None, 'Unable to import required module "chardet"')

@@ -24,23 +24,19 @@ try:
 except (ImportError, ModuleNotFoundError):
     chardet = None
 
-from core import util
-
 
 def extract_digits(string):
     """
-    Extracts digits from text string.
-    :param string: string to extract digits from
-    :return: digits in string or None if string contains no digits
+    Extracts and returns digits from a Unicode string, as a Unicode string.
     """
-    # TODO: [TD0004] Enforce encoding boundary for extracted data.
-    string = util.decode_(string)
+    assert(isinstance(string, str))
+
     digits = ''
     for char in string:
         if char.isdigit():
             digits += char
 
-    return digits if digits.strip() else None
+    return digits if digits.strip() else ''
 
 
 def remove_nonbreaking_spaces(text):
