@@ -1,8 +1,6 @@
 # `autonameow`
-## Design Document
 
 --------------------------------------------------------------------------------
-
 
 Similar and/or related projects
 ===============================
@@ -13,10 +11,10 @@ extracting/parsing metadata, etc.
 
 `hachoir-metadata`
 ------------------
-<http://bitbucket.org/haypo/hachoir/wiki/hachoir-metadata>
-
 hachoir-metadata extracts metadata from multimedia files: music, picture,
 video, but also archives.
+
+* Sources: <http://bitbucket.org/haypo/hachoir/wiki/hachoir-metadata>
 
 It tries to give as much information as possible. For some file formats, it
 gives more information than libextractor for example, such as the RIFF parser,
@@ -27,11 +25,11 @@ to compute duration of a music using frame size and file size.
 
 `metagoofil`
 ------------
-<https://code.google.com/archive/p/metagoofil/>
-
 Metagoofil is an information gathering tool designed for extracting metadata of
 public documents (pdf,doc,xls,ppt,docx,pptx,xlsx) belonging to a target
 company.
+
+* Sources: <https://code.google.com/archive/p/metagoofil/>
 
 The tool will perform a search in Google to identify and download the documents
 to local disk and then will extract the metadata with different libraries like
@@ -40,18 +38,20 @@ usernames, software versions and servers or machine names that will help
 Penetration testers in the information gathering phase.
 
 
-GNU `Libextractor`
+`GNU Libextractor`
 ------------------
-<https://www.gnu.org/software/libextractor/>
+* Website: <https://www.gnu.org/software/libextractor/>
+* Sources: <http://ftp.gnu.org/gnu/libextractor/>
 
-GNU Libextractor is a library used to extract meta data from files. 
+GNU Libextractor is a library used to extract meta data from files.
 The goal is to provide developers of file-sharing networks, browsers or
 WWW-indexing bots with a universal library to obtain simple keywords and meta
 data to match against queries and to show to users instead of only relying on
 filenames.
-libextractor contains the shell command `extract` that, similar to the well-known
-`file` command, can extract meta data from a file an print the results to stdout.
 
+libextractor contains the shell command `extract` that, similar to the
+well-known `file` command, can extract meta data from a file an print the
+results to stdout.
 
 * "Reading File Metadata with extract and libextractor"
     Christian Grothoff. Linux Journal, 2005-04-28  
@@ -60,7 +60,7 @@ libextractor contains the shell command `extract` that, similar to the well-know
 
 `meta-extractor`
 ----------------
-<http://meta-extractor.sourceforge.net/>
+* Sources: <http://meta-extractor.sourceforge.net/>
 
 Metadata Extraction Tool developed by the National Libary of New Zealand
 The Metadata Extraction Tool was developed by the National Library of New
@@ -71,11 +71,12 @@ documents, and many others.
 
 `guessit`
 ---------
-<https://github.com/guessit-io/guessit>
-<http://guessit.readthedocs.org/en/latest/>
+GuessIt is a python library that extracts as much information as possible
+from a video filename.
 
-GuessIt is a python library that extracts as much information as possible from
-a video filename.
+* Website: <https://github.com/guessit-io/guessit>
+* Sources: <https://github.com/guessit-io/guessit>
+* Documentation: <http://guessit.readthedocs.org/en/latest/>
 
 It has a very powerful matcher that allows to guess properties from a video
 using its filename only. This matcher works with both movies and tv shows
@@ -84,7 +85,7 @@ episodes.
 
 `Epinfer`
 ---------
-<https://github.com/skerit/epinfer>
+* Sources: <https://github.com/skerit/epinfer>
 
 Extract as much information as possible from a video filename.  
 Inspired by wackou's guessit python module, but in no way as feature complete.
@@ -92,28 +93,32 @@ Inspired by wackou's guessit python module, but in no way as feature complete.
 
 `guessfilename.py`
 ------------------
-<https://github.com/novoid/guess-filename.py>
+* Sources: <https://github.com/novoid/guess-filename.py>
 
 Tries to come up with a new file name for each file from command line argument.
 
-Part of a very interesting and very well thought out system, similar to what I
-want to accomplish. I have already stolen a lot of ideas from [this blog][1],
-starting when I found [this post][2] a couple of years ago.
+~~Part of a very interesting and very well thought out system, similar to what
+I want to accomplish. I have already stolen a lot of ideas from [this blog][1],
+starting when I found [this post][2] a couple of years ago.~~
 
 
 `tvnamer`
 ---------
-<https://github.com/dbr/tvnamer>
+* Sources: <https://github.com/dbr/tvnamer>
+
 tvnamer is a utility which to rename files from
 `some.show.s01e03.blah.abc.avi` to `Some Show - [01x03] - The Episode Name.avi`
 (by retrieving the episode name using data from tvdb_api)
 
-Similar functionality and overall idea of automated renaming.
+~~Similar functionality and overall idea of automated renaming.~~
 
 
 `beets`
 -------
-<https://github.com/beetbox/beets>
+Media library management system for obsessive-compulsive music geeks.
+
+* Website: <http://beets.io/>
+* Sources: <https://github.com/beetbox/beets>
 
 Beets is the media library management system for obsessive-compulsive music
 geeks.  The purpose of beets is to get your music collection right once and for
@@ -121,14 +126,15 @@ all. It catalogs your collection, automatically improving its metadata as it
 goes. It then provides a bouquet of tools for manipulating and accessing your
 music.
 
-I use this myself and it does work well for automatically restructuring a music
-collection.
+~~I use this myself and it does work well for automatically restructuring a
+music collection.~~
 
 
 `filebot`
 ---------
-<http://www.filebot.net>
-<https://github.com/filebot/filebot>
+* Website: <http://www.filebot.net>
+* Sources: <https://github.com/filebot/filebot>
+
 FileBot is the ultimate tool for organizing and renaming your movies, tv shows
 or anime, and music well as downloading subtitles and artwork. It's smart and
 just works.
@@ -136,17 +142,18 @@ just works.
 
 `Movie Renamer`
 ---------------
-<http://movie-renamer.fr>
-<https://code.google.com/archive/p/movie-renamer>
+* Website: <http://movie-renamer.fr>
+* Sources: <https://code.google.com/archive/p/movie-renamer>
+
 Movie Renamer is an Open Source application Windows/Linux/OSX, totally free
 written in java, for easily renaming movie files.
 
 
 `grobid`
 --------
-<https://github.com/kermitt2/grobid>
-
 A machine learning software for extracting information from scholarly documents.
+
+* Sources: <https://github.com/kermitt2/grobid>
 
 GROBID is a machine learning library for extracting, parsing and re-structuring
 raw documents such as PDF into structured TEI-encoded documents with a
@@ -155,9 +162,9 @@ particular focus on technical and scientific publications.
 
 `CERMINE`
 ---------
-<https://github.com/CeON/CERMINE>
-
 Content ExtRactor and MINEr.
+
+* Sources: <https://github.com/CeON/CERMINE>
 
 CERMINE is a Java library and a web service (cermine.ceon.pl) for extracting
 metadata and content from PDF files containing academic publications.  CERMINE
@@ -168,7 +175,8 @@ Mathematical and Computational Modelling, University of Warsaw.
 `Rexa metatagger`
 -----------------
 Scientific paper header and reference extraction.
-<https://github.com/iesl/rexa1-metatagger>
+
+* Sources: <https://github.com/iesl/rexa1-metatagger>
 
 Metatagger is a system which consumes the output of the Rexa's pstotext tool
 and produces an annotated version of the text, finishing by writing the results
@@ -180,7 +188,8 @@ body text), or finer-grained labelling, such as identifying reference fields.
 `movemetafs`
 ------------
 A searchable filesystem metadata store for Linux.
-<https://pts.50.hu>
+
+* Website: <https://pts.50.hu>
 
 movemetafs is a searchable filesystem metadata store for Linux (with MySQL,
 Perl and FUSE), which lets users tag local files (including image, video,
@@ -196,9 +205,10 @@ description to files.
 -------------
 Apache Tika(TM) is a toolkit for detecting and extracting metadata and
 structured text content from various documents using existing parser libraries.
-<https://tika.apache.org>
-<https://gitbox.apache.org/repos/asf/tika.git>
-<https://github.com/apache/tika/>
+
+* Website: <https://tika.apache.org>
+* Sources: <https://gitbox.apache.org/repos/asf/tika.git>
+* Sources: <https://github.com/apache/tika/>
 
 The Apache Tika(TM) toolkit detects and extracts metadata and text from over a
 thousand different file types (such as PPT, XLS, and PDF). All of these file
@@ -208,4 +218,3 @@ engine indexing, content analysis, translation, and much more.
 
 [1]: http://karl-voit.at
 [2]: http://karl-voit.at/managing-digital-photographs/
-
