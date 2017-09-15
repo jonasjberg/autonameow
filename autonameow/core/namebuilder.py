@@ -158,7 +158,7 @@ def pre_assemble_format(data, config):
                 if isinstance(_tag, ExtractedData):
                     _tag = _tag.value
                 else:
-                    _tag = _tag[0]
+                    log.critical('TODO: Fix lists of "ExtractedData"')
 
                 _tags.append(_tag)
 

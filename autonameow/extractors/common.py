@@ -242,6 +242,9 @@ class ExtractedData(object):
             self.generic_field = None
 
     def __call__(self, raw_value):
+        if self._data is not None:
+            log.critical('TODO: "{!s}"._data is _NOT_ None! Called with value:'
+                         ' {!s}"'.format(self, raw_value))
         if not self.wrapper:
             # Fall back automatic type detection if 'wrapper' is unspecified.
             _wrapper = types.wrapper_for(raw_value)

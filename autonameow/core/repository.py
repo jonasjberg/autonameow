@@ -113,6 +113,8 @@ class Repository(object):
                 self._store(file_object, merged_meowuri, v)
                 self._store_generic(file_object, v)
         else:
+            print('Repository got UNEXPECTED data: {{"{!s}": '
+                  '{{"{!s}": {!s}}}}}'.format(file_object, meowuri, data))
             self._store(file_object, meowuri, data)
             self._store_generic(file_object, data)
 
