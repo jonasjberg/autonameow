@@ -22,7 +22,10 @@
 from unittest import TestCase
 from datetime import datetime
 
-from analyzers.analyze_filename import FilenameAnalyzer
+from analyzers.analyze_filename import (
+    FilenameAnalyzer,
+    _find_edition
+)
 import unit_utils as uu
 
 
@@ -100,3 +103,17 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
         self.assertEqual([{'source': 'filetags',
                            'value': 'gmail',
                            'weight': 0.25}], self.fna.get_title())
+
+
+class TestFindEdition(TestCase):
+    def test_returns_expected_edition(self):
+        self.assertEqual(_find_edition('Foo, Bar - Baz._5th'), 5)
+        self.assertEqual(_find_edition('Foo,Bar-_Baz_-_3ed_2002'), 3)
+        self.assertEqual(_find_edition('Foo,Bar-_Baz_-_4ed_2003'), 4)
+        self.assertEqual(_find_edition('Embedded_Systems_6th_.2011'), 6)
+        self.assertEqual(_find_edition('Networking_4th'), 4)
+        self.assertEqual(_find_edition('Foo 2E - Bar B. 2001'), 2)
+
+    def test_returns_none_for_unavailable_editions(self):
+        self.assertIsNone(_find_edition('Foo, Bar - Baz._'))
+        self.assertIsNone(_find_edition('Foo, Bar 5 - Baz._'))
