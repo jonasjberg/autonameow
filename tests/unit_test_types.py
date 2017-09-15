@@ -416,7 +416,17 @@ class TestTypeDate(TestCase):
                                 'BaseType default "null" must be overridden')
 
     def test_normalize(self):
-        self.skipTest('TODO: Add tests for the "Date" type wrapper')
+        def _assert_equal(test_data, expected):
+            actual = types.AW_DATE.normalize(test_data)
+            self.assertEqual(actual, expected)
+            self.assertTrue(isinstance(actual, datetime))
+
+        expected = datetime.strptime('2017-07-12', '%Y-%m-%d')
+        _assert_equal('2017-07-12', expected)
+        _assert_equal('2017 07 12', expected)
+        _assert_equal('2017_07_12', expected)
+        _assert_equal('2017:07:12', expected)
+        _assert_equal('20170712', expected)
 
     def test_call_with_none(self):
         with self.assertRaises(types.AWTypeError):

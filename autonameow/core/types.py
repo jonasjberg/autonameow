@@ -443,7 +443,7 @@ class Date(BaseType):
         else:
             try:
                 return try_parse_date(string_value)
-            except (TypeError, ValueError) as e:
+            except ValueError as e:
                 self._fail_coercion(value, msg=e)
 
     def normalize(self, value):
