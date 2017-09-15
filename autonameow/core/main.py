@@ -24,6 +24,7 @@ import logging
 import sys
 import time
 
+import core
 from core import (
     analysis,
     config,
@@ -45,7 +46,6 @@ from core.util import (
     cli,
     diskutils
 )
-from . import version
 
 
 log = logging.getLogger(__name__)
@@ -166,7 +166,7 @@ class Autonameow(object):
                     '"{!s}"'.format(_displayable_config_path), style='info')
             cli.msg('Use this file to configure {}. '
                     'Refer to the documentation for additional '
-                    'information.'.format(version.__title__),
+                    'information.'.format(core.version.__title__),
                     style='info')
             self.exit_program(constants.EXIT_SUCCESS)
 
