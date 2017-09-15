@@ -636,7 +636,7 @@ class TestTypePyPDFTimeDate(TestCase):
 
     def test_format(self):
         # TODO: Add additional tests.
-        self.assertIsNotNone(types.AW_PYPDFTIMEDATE.format)
+        self.skipTest('TODO: Add additional tests ..')
 
 
 class TestTypePath(TestCase):
@@ -699,7 +699,7 @@ class TestTypePath(TestCase):
 
     def test_format(self):
         # TODO: Add additional tests.
-        self.assertIsNotNone(types.AW_PATH.format)
+        self.skipTest('TODO: Add additional tests ..')
 
 
 class TestTypePathComponent(TestCase):
@@ -774,7 +774,7 @@ class TestTypePathComponent(TestCase):
 
     def test_format(self):
         # TODO: Add additional tests.
-        self.assertIsNotNone(types.AW_PATHCOMPONENT.format)
+        self.skipTest('TODO: Add additional tests ..')
 
 
 class TestTypeString(TestCase):
