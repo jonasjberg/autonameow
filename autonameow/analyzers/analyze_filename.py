@@ -60,13 +60,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         return results if results else None
 
     def get_title(self):
-        results = []
-
-        fn_title = self._get_title_from_filename()
-        if fn_title:
-            results += fn_title
-
-        return results if results else None
+        return None
 
     def get_tags(self):
         # TODO: Remove! Duplicated 'FiletagsAnalyzer' functionality.
@@ -97,30 +91,6 @@ class FilenameAnalyzer(BaseAnalyzer):
                                      'filesystem.basename.prefix')
         if not basename:
             return
-
-    def _get_title_from_filename(self):
-        # TODO: Remove! Duplicated 'FiletagsAnalyzer' functionality.
-        fnp_tags = self.request_data(self.file_object,
-                                     'analysis.filetags.tags')
-        fnp_base = self.request_data(self.file_object,
-                                     'analysis.filetags.description')
-        fnp_ts = self.request_data(self.file_object,
-                                   'analysis.filetags.datetime')
-
-        # Weight cases with all "filetags" filename parts present higher.
-        weight = 0.1
-        if fnp_base and len(fnp_base) > 0:
-            weight = 0.25
-            if fnp_ts:
-                weight = 0.75
-                if fnp_tags and len(fnp_tags) > 0:
-                    weight = 1
-
-            return [{'value': fnp_base,
-                     'source': 'filetags',
-                     'weight': weight}]
-        else:
-            return None
 
     def _get_datetime_from_name(self):
         """
