@@ -163,19 +163,23 @@ def validate_path_argument(path):
     Raises:
         InvalidFileArgumentError: Provided path is not considered valid.
     """
-    path = util.syspath(path)
+    _path = util.syspath(path)
 
-    if not os.path.exists(path):
-        raise exceptions.InvalidFileArgumentError('Path does not exist')
-    elif os.path.isdir(path):
+    if not os.path.exists(_path):
+        raise exceptions.InvalidFileArgumentError(
+            'Path does not exist'
+        )
+    elif os.path.isdir(_path):
         # TODO: [TD0045] Implement handling/renaming directories.
         raise exceptions.InvalidFileArgumentError(
             'Safe handling of directories is not implemented yet'
         )
-    elif os.path.islink(path):
+    elif os.path.islink(_path):
         # TODO: [TD0026] Implement handling of symlinks.
         raise exceptions.InvalidFileArgumentError(
             'Safe handling of symbolic links is not implemented yet'
         )
-    elif not os.access(path, os.R_OK):
-        raise exceptions.InvalidFileArgumentError('Not authorized to read path')
+    elif not os.access(_path, os.R_OK):
+        raise exceptions.InvalidFileArgumentError(
+            'Not authorized to read path'
+        )
