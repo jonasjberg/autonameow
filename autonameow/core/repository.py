@@ -87,19 +87,21 @@ class Repository(object):
 
     def store(self, file_object, meowuri, data):
         """
-        Collects data. Should be passed to "non-core" components as a callback.
+        Primary global publicly available interface for data storage.
 
         Adds data related to a given 'file_object', at a storage location
         defined by the given 'meowuri'.
         """
-        if not meowuri:
+        def __meowuri_error(bad_meowuri):
             raise exceptions.InvalidDataSourceError(
-                'Missing required argument "meowuri"'
+                'Invalid MeowURI: "{!s}" ({})'.format(bad_meowuri,
+                                                      type(bad_meowuri))
             )
-        if not isinstance(meowuri, str):
-            raise exceptions.InvalidDataSourceError(
-                'Argument "meowuri" must be of type str'
-            )
+
+        if not meowuri or not isinstance(meowuri, str):
+            __meowuri_error(meowuri)
+        if not meowuri.strip():
+            __meowuri_error(meowuri)
 
         if data is None:
             log.warning('Attempted to add None data with meowURI'
