@@ -47,7 +47,6 @@ class FilenameAnalyzer(BaseAnalyzer):
         # Pass results through callback function provided by the 'Analysis'.
         self._add_results('datetime', self.get_datetime())
         self._add_results('title', self.get_title())
-        self._add_results('tags', self.get_tags())
         self._add_results('edition', self.get_edition())
 
     def get_datetime(self):
@@ -61,30 +60,6 @@ class FilenameAnalyzer(BaseAnalyzer):
 
     def get_title(self):
         return None
-
-    def get_tags(self):
-        # TODO: Remove! Duplicated 'FiletagsAnalyzer' functionality.
-        fnp_tags = self.request_data(self.file_object,
-                                     'analysis.filetags.tags')
-        fnp_base = self.request_data(self.file_object,
-                                     'analysis.filetags.description')
-        fnp_ts = self.request_data(self.file_object,
-                                   'analysis.filetags.datetime')
-
-        # Weight cases with all "filetags" filename parts present higher.
-        weight = 0.1
-        if fnp_tags and len(fnp_tags) > 0:
-            weight = 0.25
-            if fnp_base and len(fnp_base) > 0:
-                weight = 0.75
-                if fnp_ts:
-                    weight = 1
-
-        if not fnp_tags:
-            fnp_tags = []
-        return [{'value': fnp_tags,
-                 'source': 'filenamepart_tags',
-                 'weight': weight}]
 
     def get_edition(self):
         basename = self.request_data(self.file_object,
@@ -182,6 +157,7 @@ class FilenameAnalyzer(BaseAnalyzer):
 
 
 class FileNamePart(object):
+    # TODO: (?) Implement or remove ..
     def __init__(self, value):
         self.value = value
 

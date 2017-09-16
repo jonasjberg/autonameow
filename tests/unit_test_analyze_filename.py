@@ -60,17 +60,6 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
         expected = datetime.strptime('20100131 161251', '%Y%m%d %H%M%S')
         self.assertEqual(expected, dt_special.get('value'))
 
-    def test_get_tags_does_not_return_none(self):
-        self.assertIsNotNone(self.fna.get_tags())
-
-    def test_get_tags_returns_expected(self):
-        expected = [{'source': 'filenamepart_tags', 'value': [], 'weight': 0.1}]
-        self.assertEqual(expected, self.fna.get_tags())
-
-    def test_get_title_returns_empty_list(self):
-        self.skipTest('TODO')
-        self.assertEqual([], self.fna.get_title())
-
 
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def setUp(self):
@@ -88,21 +77,6 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def test_get_datetime_returns_empty_list(self):
         self.skipTest('TODO')
         self.assertEqual([], self.fna.get_datetime())
-
-    def test_get_tags_does_not_return_none(self):
-        self.assertIsNotNone(self.fna.get_tags())
-
-    def test_get_tags_returns_expected(self):
-        expected = [{'source': 'filenamepart_tags', 'value': [], 'weight': 0.1}]
-        self.assertEqual(expected, self.fna.get_tags())
-
-    def test_get_title_does_not_return_none(self):
-        self.assertIsNotNone(self.fna.get_title())
-
-    def test_get_title_return_is_valid(self):
-        self.assertEqual([{'source': 'filetags',
-                           'value': 'gmail',
-                           'weight': 0.25}], self.fna.get_title())
 
 
 class TestFindEdition(TestCase):
