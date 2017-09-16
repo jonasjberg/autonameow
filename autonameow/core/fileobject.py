@@ -187,3 +187,7 @@ def validate_path_argument(path):
         _raise('Safe handling of symbolic links is not implemented yet')
     if not os.access(_path, os.R_OK):
         _raise('Not authorized to read path')
+
+    # Check assumptions about implementation. Might detect future bugs.
+    if not os.path.isabs(_path):
+        _raise('Not an absolute path (?) This should not happen!')
