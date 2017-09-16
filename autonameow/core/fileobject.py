@@ -159,27 +159,31 @@ def validate_path_argument(path):
 
     Args:
         path: Alleged path in the "internal filename bytestring" format.
+              Unicode str paths seem to be handled equally well on MacOS,
+              at least for simple testing with trivial inputs.
+              But still; __assume 'path' is bytes__ and pass 'path' as bytes.
 
     Raises:
-        InvalidFileArgumentError: Provided path is not considered valid.
+        InvalidFileArgumentError: The given 'path' is not considered valid.
     """
+    def _raise(error_message):
+        raise exceptions.InvalidFileArgumentError(error_message)
+
+    if not isinstance(path, (str, bytes)):
+        _type = str(type(path))
+        _raise('Path is neither "str" or "bytes"; type: "{}"'.format(_type))
+    elif not path.strip():
+        _raise('Path is None/empty')
+
     _path = util.syspath(path)
 
     if not os.path.exists(_path):
-        raise exceptions.InvalidFileArgumentError(
-            'Path does not exist'
-        )
-    elif os.path.isdir(_path):
+        _raise('Path does not exist')
+    if os.path.isdir(_path):
         # TODO: [TD0045] Implement handling/renaming directories.
-        raise exceptions.InvalidFileArgumentError(
-            'Safe handling of directories is not implemented yet'
-        )
-    elif os.path.islink(_path):
+        _raise('Safe handling of directories is not implemented yet')
+    if os.path.islink(_path):
         # TODO: [TD0026] Implement handling of symlinks.
-        raise exceptions.InvalidFileArgumentError(
-            'Safe handling of symbolic links is not implemented yet'
-        )
-    elif not os.access(_path, os.R_OK):
-        raise exceptions.InvalidFileArgumentError(
-            'Not authorized to read path'
-        )
+        _raise('Safe handling of symbolic links is not implemented yet')
+    if not os.access(_path, os.R_OK):
+        _raise('Not authorized to read path')
