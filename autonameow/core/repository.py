@@ -37,6 +37,28 @@ log = logging.getLogger(__name__)
 
 
 class Repository(object):
+    """
+    The repository class is the central internal storage used by all parts
+    of the program. The repository stores data per file, cataloguing the
+    individual data elements using "MeowURIs".
+
+    The internal storage structure is laid out like this:
+
+            STORAGE = {
+                'file_object_A': {
+                    'meowuri_a': 1
+                    'meowuri_b': 'foo'
+                    'meowuri_c': ExtractedData(...)
+                }
+                'file_object_B': {
+                    'meowuri_a': ['bar']
+                    'meowuri_b': [2, 1]
+                }
+            }
+
+    The first level of the nested structure uses instances of 'file_object' as
+    keys into containing structures that use "MeowURIs" (Unicode strings) keys.
+    """
     def __init__(self):
         self.data = {}
         self.meowuri_class_map = {}
@@ -69,18 +91,6 @@ class Repository(object):
 
         Adds data related to a given 'file_object', at a storage location
         defined by the given 'meowuri'.
-
-            STORAGE = {
-                'file_object_A': {
-                    'meowuri_a': 1
-                    'meowuri_b': 'foo'
-                    'meowuri_c': ExtractedData(...)
-                }
-                'file_object_B': {
-                    'meowuri_a': ['bar']
-                    'meowuri_b': [2, 1]
-                }
-            }
         """
         if not meowuri:
             raise exceptions.InvalidDataSourceError(
