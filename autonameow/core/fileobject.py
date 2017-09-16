@@ -36,8 +36,8 @@ class FileObject(object):
         Creates a new FileObject instance representing a single path/file.
 
         Args:
-            path: The absolute normalized path to the file, as a bytestring.
-            opts: Configuration options as an instance of 'Configuration'.
+            path: The absolute normalized path to the file, as an
+                  "internal filename bytestring", I.E. bytes.
         """
         assert(isinstance(path, bytes))
         validate_path_argument(path)
@@ -154,13 +154,14 @@ def filetype_magic(file_path):
 
 def validate_path_argument(path):
     """
-    Validates a raw path option argument.
+    Checks that a "raw" argument from an unknown/untrusted source is a
+    valid path appropriate for instantiating a new 'FileObject' object.
 
     Args:
-        path: Path option argument as a string.
+        path: Alleged path in the "internal filename bytestring" format.
 
     Raises:
-        InvalidFileArgumentError: The given path is not considered valid.
+        InvalidFileArgumentError: Provided path is not considered valid.
     """
     path = util.syspath(path)
 
