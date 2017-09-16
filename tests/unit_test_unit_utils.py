@@ -27,6 +27,7 @@ from unittest import TestCase
 
 import analyzers
 from analyzers import BaseAnalyzer
+from core import util
 from core.config import rules
 from core.fileobject import FileObject
 
@@ -122,9 +123,6 @@ class TestUnitUtilityFileExists(TestCase):
 
 
 class TestUnitUtilityDirExists(TestCase):
-    def test_dir_exists_is_defined(self):
-        self.assertIsNotNone(uu.dir_exists)
-
     def _check_return(self, path_to_test):
         actual = uu.dir_exists(path_to_test)
         self.assertTrue(isinstance(actual, bool))
@@ -134,10 +132,11 @@ class TestUnitUtilityDirExists(TestCase):
 
     def test_returns_false_for_assumed_non_directory_paths(self):
         _dummy_paths = [
+            __file__,
             '/foo/bar/baz/mjao',
             '/tmp/this_isnt_a_file_right_or_huh',
+            b'/foo/bar/baz/mjao',
             b'/tmp/this_isnt_a_file_right_or_huh',
-            __file__
         ]
         for df in _dummy_paths:
             self._check_return(df)
@@ -146,7 +145,10 @@ class TestUnitUtilityDirExists(TestCase):
         _files = [
             os.path.dirname(__file__),
             uuconst.AUTONAMEOW_SRCROOT_DIR,
-            '/'
+            '/',
+            b'/',
+            util.bytestring_path(os.path.dirname(__file__)),
+            util.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
         ]
         for df in _files:
             self._check_return(df)
@@ -166,10 +168,11 @@ class TestUnitUtilityPathIsReadable(TestCase):
     def test_returns_false_for_paths_assumed_missing(self):
         _dummy_paths = [
             '',
-            b'',
             '/foo/bar/baz/mjao',
+            '/tmp/this_isnt_a_file_right_or_huh',
+            b'',
             b'/foo/bar/baz/mjao',
-            '/tmp/this_isnt_a_file_right_or_huh'
+            b'/tmp/this_isnt_a_file_right_or_huh'
         ]
         for df in _dummy_paths:
             self._check_return(df)
@@ -178,6 +181,8 @@ class TestUnitUtilityPathIsReadable(TestCase):
         _paths = [
             __file__,
             os.path.dirname(__file__),
+            util.bytestring_path(__file__),
+            util.bytestring_path(os.path.dirname(__file__)),
         ]
         for df in _paths:
             self._check_return(df)
