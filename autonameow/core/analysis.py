@@ -126,8 +126,8 @@ def collect_results(file_object, meowuri, data):
         for _key, _data in flat_data.items():
             _uri = '{}.{!s}'.format(meowuri, _key)
             repository.SessionRepository.store(file_object, _uri, _data)
-
-    repository.SessionRepository.store(file_object, meowuri, data)
+    else:
+        repository.SessionRepository.store(file_object, meowuri, data)
 
 
 def _instantiate_analyzers(file_object, klass_list):
