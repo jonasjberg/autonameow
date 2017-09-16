@@ -125,6 +125,9 @@ class Repository(object):
                 self._store(file_object, _gen_uri, data)
 
     def _store(self, file_object, meowuri, data):
+        log.debug('Repository storing: [{!s}]->[{!s}] :: "{!s}"'.format(
+            file_object, meowuri, data
+        ))
         try:
             any_existing = self.__get_data(file_object, meowuri)
         except KeyError:
@@ -139,9 +142,6 @@ class Repository(object):
                 data = any_existing + data
 
         self.__store_data(file_object, meowuri, data)
-        log.debug('Repository stored: {{"{!s}": {{"{!s}": {!s}}}}}'.format(
-            file_object, meowuri, data
-        ))
 
     def query(self, file_object, meowuri, mapped_to_field=None):
         if not meowuri:
