@@ -23,7 +23,8 @@ import logging
 
 import extractors
 from core import (
-    repository
+    repository,
+    util
 )
 from extractors import ExtractorError
 
@@ -31,16 +32,32 @@ from extractors import ExtractorError
 log = logging.getLogger(__name__)
 
 
-def collect_results(file_object, label, data):
+def collect_results(file_object, meowuri, data):
     """
     Collects extractor data, passes it the the session repository.
 
+    If argument "data" is a dictionary, it is "flattened" here.
+    Example:
+
+      Incoming arguments:
+        MeowURI: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
+
+      Would be "flattened" to:
+        MeowURI: 'metadata.exiftool.a'   DATA: 'b'
+        MeowURI: 'metadata.exiftool.c'   DATA: 'd'
+
     Args:
         file_object: File that produced the data to add.
-        label: Label that uniquely identifies the data.
+        meowuri: Label that uniquely identifies the data.
         data: The data to add.
     """
-    repository.SessionRepository.store(file_object, label, data)
+    if isinstance(data, dict):
+        flat_data = util.flatten_dict(data)
+        for _key, _data in flat_data.items():
+            _uri = '{}.{!s}'.format(meowuri, _key)
+            repository.SessionRepository.store(file_object, _uri, _data)
+
+    repository.SessionRepository.store(file_object, meowuri, data)
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):

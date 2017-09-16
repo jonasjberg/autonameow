@@ -72,25 +72,15 @@ class Repository(object):
 
             STORAGE = {
                 'file_object_A': {
-                    'meowuri_a': [1, 2]
-                    'meowuri_b': ['foo']
+                    'meowuri_a': 1
+                    'meowuri_b': 'foo'
+                    'meowuri_c': ExtractedData(...)
                 }
                 'file_object_B': {
                     'meowuri_a': ['bar']
                     'meowuri_b': [2, 1]
                 }
             }
-
-        If argument "data" is a dictionary, it is "flattened" here.
-        Example:
-
-          Incoming arguments:
-          LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
-
-          Would be "flattened" to:
-          LABEL: 'metadata.exiftool.a'   DATA: 'b'
-          LABEL: 'metadata.exiftool.c'   DATA: 'd'
-
         """
         if not meowuri:
             raise exceptions.InvalidDataSourceError(
@@ -106,17 +96,8 @@ class Repository(object):
                         ' "{!s}"'.format(meowuri))
             return
 
-        if isinstance(data, dict):
-            flat_data = util.flatten_dict(data)
-            for k, v in flat_data.items():
-                merged_meowuri = meowuri + '.' + str(k)
-                self._store(file_object, merged_meowuri, v)
-                self._store_generic(file_object, v)
-        else:
-            print('Repository got UNEXPECTED data: {{"{!s}": '
-                  '{{"{!s}": {!s}}}}}'.format(file_object, meowuri, data))
-            self._store(file_object, meowuri, data)
-            self._store_generic(file_object, data)
+        self._store(file_object, meowuri, data)
+        self._store_generic(file_object, data)
 
     def _store_generic(self, file_object, data):
         if not isinstance(data, extractors.ExtractedData):
