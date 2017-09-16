@@ -27,7 +27,6 @@ import plugins
 from core import (
     exceptions,
     util,
-    constants
 )
 from core.config.field_parsers import eval_meowuri_glob
 from core.util import textutils
