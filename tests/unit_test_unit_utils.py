@@ -68,9 +68,6 @@ class TestUnitUtilityConstants(TestCase):
 
 
 class TestUnitUtilityAbsPathTestFile(TestCase):
-    def test_abspath_testfile_is_defined(self):
-        self.assertIsNotNone(uu.abspath_testfile)
-
     def test_returns_expected_encoding(self):
         actual = uu.abspath_testfile('empty')
         self.assertTrue(isinstance(actual, str))
@@ -95,9 +92,6 @@ class TestUnitUtilityAllTestFiles(TestCase):
 
 
 class TestUnitUtilityFileExists(TestCase):
-    def test_file_exists_is_defined(self):
-        self.assertIsNotNone(uu.file_exists)
-
     def _check_return(self, file_to_test):
         actual = uu.file_exists(file_to_test)
         self.assertTrue(isinstance(actual, bool))
@@ -235,8 +229,7 @@ class TestUnitUtilityMakeTemporaryFile(TestCase):
 
 
 class TestUnitUtilityGetMockAnalyzer(TestCase):
-    def test_get_mock_analyzer_is_defined(self):
-        self.assertIsNotNone(uu.get_mock_analyzer)
+    def test_get_mock_analyzer_returns_something(self):
         self.assertIsNotNone(uu.get_mock_analyzer())
 
     def test_get_mock_analyzer_is_generator(self):
@@ -248,8 +241,7 @@ class TestUnitUtilityGetMockAnalyzer(TestCase):
 
 
 class TestUnitUtilityGetMockFileObject(TestCase):
-    def test_get_mock_fileobject_is_defined(self):
-        self.assertIsNotNone(uu.get_mock_fileobject)
+    def test_get_mock_fileobject_returns_something(self):
         self.assertIsNotNone(uu.get_mock_fileobject())
 
     def test_get_mock_fileobject_returns_expected_type(self):
@@ -310,9 +302,6 @@ class _DummyClass(object):
 
 
 class TestIsClass(TestCase):
-    def test_is_class_is_defined(self):
-        self.assertIsNotNone(uu.is_class)
-
     def _assert_not_class(self, thing):
         actual = uu.is_class(thing)
         self.assertFalse(actual)
@@ -349,9 +338,6 @@ class TestIsClass(TestCase):
 
 
 class TestIsClassInstance(TestCase):
-    def test_is_class_instance_is_defined(self):
-        self.assertIsNotNone(uu.is_class_instance)
-
     def _assert_not_class_instance(self, klass):
         actual = uu.is_class_instance(klass)
         self.assertFalse(actual)
@@ -389,9 +375,6 @@ class TestIsClassInstance(TestCase):
 
 
 class TestStrToDatetime(TestCase):
-    def test_str_to_datetime_is_defined(self):
-        self.assertIsNotNone(uu.str_to_datetime)
-
     def test_returns_expected_type(self):
         actual = uu.str_to_datetime('2017-08-09 001225')
         self.assertTrue(isinstance(actual, datetime))
