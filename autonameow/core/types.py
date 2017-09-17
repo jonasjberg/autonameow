@@ -391,9 +391,10 @@ class MimeType(BaseType):
 
     # Override "MIME-type to extension"-mappings here.
     MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
+    MIME_TYPE_LOOKUP_INV['image/jpeg'] = 'jpg'
 
-    KNOWN_EXTENSIONS = set(MIME_TYPE_LOOKUP.keys())
-    KNOWN_MIME_TYPES = set(MIME_TYPE_LOOKUP.values())
+    KNOWN_EXTENSIONS = frozenset(MIME_TYPE_LOOKUP.keys())
+    KNOWN_MIME_TYPES = frozenset(MIME_TYPE_LOOKUP.values())
 
     def __call__(self, value=None):
         # Overrides the 'BaseType' __call__ method as to not perform the test
