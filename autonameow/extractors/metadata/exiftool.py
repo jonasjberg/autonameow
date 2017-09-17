@@ -41,8 +41,20 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
     meowuri_root = 'metadata.exiftool'
 
     tagname_type_lookup = {
+        'ASF:CreationDate': ExtractedData(
+            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
+            ],
+            generic_field=fields.GenericDateCreated
+        ),
+        'ASF:ImageHeight': ExtractedData(types.AW_INTEGER),
+        'ASF:ImageWidth': ExtractedData(types.AW_INTEGER),
+        'ASF:VideoCodecName': ExtractedData(types.AW_STRING),
         'Composite:Aperture': ExtractedData(types.AW_FLOAT),
         'Composite:ImageSize': ExtractedData(types.AW_STRING),
+        'Composite:Megapixels': ExtractedData(types.AW_FLOAT),
         'Composite:HyperfocalDistance': ExtractedData(types.AW_FLOAT),
         #'ExifTool:ExifToolVersion': ExtractedData(types.AW_FLOAT),
         'EXIF:CreateDate': ExtractedData(
