@@ -97,3 +97,52 @@ class TestFindEdition(TestCase):
 
         self.assertIsNone(_find_edition('Foo, Bar - Baz._'))
         self.assertIsNone(_find_edition('Foo, Bar 5 - Baz._'))
+
+
+class IdentifyFields(TestCase):
+    def test__substrings(self):
+        f = SubstringFinder()
+
+        def _assert_splits(test_data, expected):
+            actual = f._substrings(test_data)
+            self.assertEqual(actual, expected)
+
+        _assert_splits('a', ['a'])
+        _assert_splits('a b', ['a', 'b'])
+        _assert_splits('a b ', ['a', 'b'])
+        _assert_splits(' a b ', ['a', 'b'])
+        _assert_splits('a b a', ['a', 'b', 'a'])
+
+    def test_identifies_fields(self):
+        self.skipTest('TODO: ..')
+
+        test_input = 'TheBeatles - PaperbackWriter.flac'
+
+        f = SubstringFinder()
+        # f.add_context('TheBeatles - ItsGettingBetter.flac')
+        actual = f.identify_fields(test_input, [fields.Creator, fields.Title])
+
+        self.assertTrue(isinstance(actual.get(fields.Creator), list))
+        self.assertEqual(actual.get(fields.Creator)[0], 'TheBeatles')
+        self.assertEqual(actual.get(fields.Creator)[1], 'PaperbackWriter')
+        self.assertNotIn(actual.get(fields.Creator), '.flac')
+        self.assertNotIn(actual.get(fields.Creator), 'flac')
+        self.assertNotIn(actual.get(fields.Creator), '-')
+
+        self.assertTrue(isinstance(actual.get(fields.Title), list))
+        self.assertEqual(actual.get(fields.Title)[0], 'PaperbackWriter')
+        self.assertEqual(actual.get(fields.Title)[1], 'TheBeatles')
+        self.assertNotIn(actual.get(fields.Title), '.flac')
+        self.assertNotIn(actual.get(fields.Title), 'flac')
+        self.assertNotIn(actual.get(fields.Title), '-')
+
+    def test_uses_constraints(self):
+        pass
+        # add_constraint(field.Author, matches=r'[\w]+')
+        # add_constraint(field.Title, matches=r'[\w]+')
+        # result = identify_fields(string, [field.Creator, field.Title])
+
+        # assert result[fields.Author] == ['The Beatles', 'Paperback Writer',
+        #                                   'flac']
+        # assert result[fields.Title] == ['Paperback Writer', 'The Beatles',
+        #                                 'flac']

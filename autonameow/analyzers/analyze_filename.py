@@ -156,10 +156,15 @@ class FilenameAnalyzer(BaseAnalyzer):
         return True
 
 
-class FileNamePart(object):
+class SubstringFinder(object):
     # TODO: (?) Implement or remove ..
-    def __init__(self, value):
-        self.value = value
+
+    def identify_fields(self, string, field_list):
+        substrings = self._substrings(string)
+
+    def _substrings(self, string):
+        s = re.split(r'\W', string)
+        return list(filter(None, s))
 
 
 def _find_datetime_isodate(text_line):
