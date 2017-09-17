@@ -28,6 +28,7 @@ from unittest import TestCase
 from core.config.default_config import DEFAULT_CONFIG
 from core.config.configuration import Configuration
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 def load_yaml(path):
@@ -81,6 +82,29 @@ class TestDefaultConfig(TestCase):
 
     def test_default_configuration_contain_name_templates(self):
         self.assertIsNotNone(self.configuration.name_templates)
+
+
+class TestDefaultConfigFromFile(TestCase):
+    def setUp(self):
+        self.config_path_unicode = uu.abspath_testfile(
+            uuconst.DEFAULT_YAML_CONFIG_BASENAME
+        )
+        uu.file_exists(self.config_path_unicode)
+        uu.path_is_readable(self.config_path_unicode)
+        self.assertTrue(isinstance(self.config_path_unicode, str))
+
+        self.config_path_bytestring = uu.normpath(self.config_path_unicode)
+        uu.file_exists(self.config_path_bytestring)
+        uu.path_is_readable(self.config_path_bytestring)
+        self.assertTrue(isinstance(self.config_path_bytestring, bytes))
+
+    def test_loads_default_config_from_bytestring_path(self):
+        config = Configuration.from_file(self.config_path_bytestring)
+        self.assertIsNotNone(config)
+
+    def test_loading_unicode_path_raises_exception(self):
+        with self.assertRaises(AssertionError):
+            config = Configuration.from_file(self.config_path_unicode)
 
 
 class TestWriteDefaultConfig(TestCase):

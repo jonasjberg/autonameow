@@ -160,3 +160,6 @@ VALID_DATA_SOURCES = list(__flat_results_data_structure.keys())
 # Sources to search for extractor classes.
 EXTRACTOR_CLASS_PACKAGES = ['filesystem', 'metadata', 'text']
 EXTRACTOR_CLASS_MODULES = []
+
+# Various test files (hopefully) included with the sources.
+DEFAULT_YAML_CONFIG_BASENAME = 'default_config.yaml'

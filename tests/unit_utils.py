@@ -63,6 +63,10 @@ def abspath_testfile(testfile_basename):
                                         testfile_basename))
 
 
+def normpath(path):
+    return util.normpath(path)
+
+
 def all_testfiles():
     """
     Returns: Absolute paths to all files in 'uuconst.TEST_FILES_DIR',

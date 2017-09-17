@@ -85,6 +85,10 @@ class Configuration(object):
                     'generated and then manually transfer rules to this file.'
                 )
 
+    @classmethod
+    def from_file(cls, path):
+        return cls(path)
+
     def _load_from_dict(self, data):
         if not data:
             raise exceptions.ConfigError('Attempted to load empty data')
