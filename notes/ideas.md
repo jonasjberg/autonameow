@@ -209,8 +209,8 @@ sum(len(rule.conditions) for rule in rules) # = 24
 
 Data Transformation
 -------------------
-Thoughts on interactions between data-users (`NameBuilder`, analyzers) and
-data-providers (extractors).
+Thoughts on interactions between data-users ("name builder", analyzers) and
+data-providers (extractors, analyzers).
 
 Data is collected by extractors and stored in the `SessionRepository`. This
 data is "raw", I.E. consists of primitives and `datetime`-objects.
@@ -218,9 +218,9 @@ data is "raw", I.E. consists of primitives and `datetime`-objects.
 Some contextual metadata should be kept along with each stored data item for;
 
 1. Conversion of "raw" data to fit a specific name template field.
-    * The byte string `.jpg` to could populate the `{extension}` field by
+    * The byte string `.jpg` could populate the `{extension}` field by
       Unicode-conversion.
-    * The MIME type (Unicode string) `image/jpeg` could also be used to
+    * The MIME type `image/jpeg` (Unicode string) could also be used to
       populate the `{extension}` field, but some sort of __transformation__
       must be performed. *Likely using a lookup-table of MIME-types to file
       extensions.*
@@ -263,7 +263,7 @@ to some format appropriate for populating the template field `{title}`.
 
 This specific example would probably require some kind of lookup-table or
 heuristic to convert MIME-types to a equivalent human-readable "title"-like
-form.
+form.  Alternatively, this conversion could simply not be permitted.
 
 
 Some "raw" data will not relate to certain name template fields in any
@@ -684,3 +684,4 @@ result = identify_fields(string, [field.Creator, field.Title])
 assert result[fields.Creator] == ['The Beatles', 'Paperback Writer', 'flac']
 assert result[fields.Title]   == ['Paperback Writer', 'The Beatles', 'flac']
 ```
+
