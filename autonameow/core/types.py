@@ -372,17 +372,24 @@ class MimeType(BaseType):
     equivalent_types = ()
     null = constants.MAGIC_TYPE_UNKNOWN
 
-    MIME_TYPE_LOOKUP = {
-        ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
-    }
+    try:
+        MIME_TYPE_LOOKUP = {
+            ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
+        }
+    except AttributeError:
+        MIME_TYPE_LOOKUP = {}
 
-    # Additional extension to MIME-type.
+    # TODO: Improve robustness of interfacing with 'mimetypes'.
+    assert len(MIME_TYPE_LOOKUP) > 0
+
+    # Any custom "extension to MIME-type"-mappings goes here.
     MIME_TYPE_LOOKUP['sh'] = 'text/x-shellscript'
+
     MIME_TYPE_LOOKUP_INV = {
         mime: ext for ext, mime in MIME_TYPE_LOOKUP.items()
     }
 
-    # Override MIME-type to extension mappings.
+    # Override "MIME-type to extension"-mappings here.
     MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
 
     KNOWN_EXTENSIONS = set(MIME_TYPE_LOOKUP.keys())
