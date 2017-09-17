@@ -117,7 +117,7 @@ def has_config_file():
     Returns:
         True if a configuration file is available, else False.
     """
-    config_path = util.syspath(ConfigFilePath)
+    config_path = util.syspath(DefaultConfigFilePath)
     if os.path.exists(config_path):
         if os.path.isfile(config_path) or os.path.islink(config_path):
             return True
@@ -132,7 +132,7 @@ def write_default_config():
     Raises:
         ConfigWriteError: The default configuration file could not be written.
     """
-    config_path = ConfigFilePath
+    config_path = DefaultConfigFilePath
 
     if os.path.exists(util.syspath(config_path)):
         log.warning(
@@ -194,4 +194,4 @@ def write_yaml_file(dest_path, yaml_data):
 
 
 # Variables listed here are intended for public, global use.
-ConfigFilePath = config_file_path()
+DefaultConfigFilePath = config_file_path()

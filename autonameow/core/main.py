@@ -36,6 +36,7 @@ from core import (
     repository,
     util,
 )
+from core.config import DefaultConfigFilePath
 from core.config.configuration import Configuration
 from core.evaluate.resolver import Resolver
 from core.evaluate.rulematcher import RuleMatcher
@@ -112,7 +113,7 @@ class Autonameow(object):
 
         if self.opts.dump_options:
             include_opts = {
-                'config_file_path': util.displayable_path(config.ConfigFilePath)
+                'config_file_path': util.displayable_path(DefaultConfigFilePath)
             }
             options.prettyprint_options(self.opts, include_opts)
 
@@ -135,9 +136,9 @@ class Autonameow(object):
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
 
-    def load_config(self, dict_or_yaml):
+    def load_config(self, path):
         try:
-            self.active_config = Configuration(dict_or_yaml)
+            self.active_config = Configuration(path)
         except exceptions.ConfigError as e:
             log.critical('Unable to load configuration: {!s}'.format(e))
 
@@ -148,13 +149,13 @@ class Autonameow(object):
         self.exit_program(constants.EXIT_SUCCESS)
 
     def _load_config_from_default_path(self):
-        _displayable_config_path = util.displayable_path(config.ConfigFilePath)
+        _displayable_config_path = util.displayable_path(DefaultConfigFilePath)
         log.info('Using configuration: "{}"'.format(_displayable_config_path))
-        self.load_config(config.ConfigFilePath)
+        self.load_config(DefaultConfigFilePath)
 
     def _write_template_config_to_default_path_and_exit(self):
         log.info('No configuration file was found. Writing default ..')
-        _displayable_config_path = util.displayable_path(config.ConfigFilePath)
+        _displayable_config_path = util.displayable_path(DefaultConfigFilePath)
         try:
             config.write_default_config()
         except exceptions.ConfigError:
