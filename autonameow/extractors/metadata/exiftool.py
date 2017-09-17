@@ -306,6 +306,8 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         for tag_name, value in raw_metadata.items():
             if tag_name in self.tagname_type_lookup:
                 wrapper = self.tagname_type_lookup[tag_name]
+            elif self._should_skip_binary_blob(value):
+                    continue
             else:
                 # Use a default 'ExtractedData' class.
                 wrapper = ExtractedData(wrapper=None, mapped_fields=None)
@@ -332,6 +334,9 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             except (AttributeError, ValueError, TypeError) as e:
                 # Raises ValueError if an ExifTool instance isn't running.
                 raise ExtractorError(e)
+
+    def _should_skip_binary_blob(self, value):
+        return isinstance(value, str) and 'use -b option to extract' in value
 
     @classmethod
     def check_dependencies(cls):
