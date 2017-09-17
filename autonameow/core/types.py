@@ -417,8 +417,6 @@ class MimeType(BaseType):
             elif string_value in self.KNOWN_EXTENSIONS:
                 return self.MIME_TYPE_LOOKUP[string_value]
 
-        # TODO: [TD0083] Return "NULL" or raise 'AWTypeError'..?
-        # self._fail_coercion(value)
         return self._null()
 
     def normalize(self, value):
