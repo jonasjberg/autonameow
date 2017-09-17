@@ -46,7 +46,7 @@ from core import constants
 #   - Rights
 
 
-# TODO: [TD0049]` Think about defining legal "placeholder fields".
+# TODO: [TD0049] Think about defining legal "placeholder fields".
 # Might be helpful to define all legal fields (such as `title`, `datetime`,
 # `author`, etc.) somewhere and keep references to type coercion wrappers,
 # maybe validation and/or formatting functionality; in the field definitions.
@@ -121,6 +121,7 @@ class GenericTags(GenericField):
 
 
 class NameTemplateField(object):
+    # TODO: [TD0049] Remove or implement ..
     def __init__(self, content):
         self._content = content
 
@@ -136,7 +137,7 @@ class NameTemplateField(object):
 
 
 class Title(NameTemplateField):
-    # TODO: Remove or implement ..
+    # TODO: [TD0049] Remove or implement ..
 
     def __init__(self, content):
         super(Title).__init__(content)
@@ -150,7 +151,7 @@ class Title(NameTemplateField):
 
 
 class Edition(NameTemplateField):
-    # TODO: Remove or implement ..
+    # TODO: [TD0049] Remove or implement ..
 
     REPLACE_ORDINALS = []
     for _find, _replace in (
@@ -193,35 +194,46 @@ class Extension(NameTemplateField):
 
 
 class Author(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
+    pass
+
+
+class Creator(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class DateTime(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Date(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Description(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Publisher(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Tags(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
-datetime = DateTime
-publisher = Publisher
-title = Title
-tags = Tags
 author = Author
 date = Date
+datetime = DateTime
 description = Description
 edition = Edition
 extension = Extension
+publisher = Publisher
+tags = Tags
+title = Title

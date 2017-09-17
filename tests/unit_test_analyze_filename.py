@@ -24,9 +24,11 @@ from datetime import datetime
 
 from analyzers.analyze_filename import (
     FilenameAnalyzer,
-    _find_edition
+    _find_edition,
+    SubstringFinder
 )
 import unit_utils as uu
+from core import fields
 
 
 def get_filename_analyzer(file_object):
