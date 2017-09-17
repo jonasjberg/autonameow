@@ -1370,6 +1370,10 @@ class TestNormalizeDate(TestCase):
         _assert_match('201709 14')
         _assert_match('2017 09 14')
 
+        # TODO: Handle other date formats?
+        # _assert_match('14.09.2017 3')
+        # _assert_match('14092017')
+
 
 class TestNormalizeDatetimeWithTimeZone(TestCase):
     def test_matches_expected(self):
@@ -1402,6 +1406,10 @@ class TestNormalizeDatetime(TestCase):
         _assert_match('2017:07:12 20:50:15')
         _assert_match('2017-07-12T20:50:15')
 
+        # TODO: Add handling more difficult patterns here?
+        # _assert_match('2017-07-12-kl.-20.50.15')
+        # _assert_match('07-12-2017 20-50-15 1XZx')
+
 
 class TestNormalizeDatetimeWithMicroseconds(TestCase):
     def test_matches_expected(self):
@@ -1422,3 +1430,6 @@ class TestNormalizeDatetimeWithMicroseconds(TestCase):
         _assert_match('2017_07_12 20_50_15 641659')
         _assert_match('2017_07_12 20_50_15_641659')
         _assert_match('2017 07 12 20 50 15 641659')
+
+        # TODO: Add handling more difficult patterns here?
+        # _assert_match('12_7_2017_20_50_15_641659')
