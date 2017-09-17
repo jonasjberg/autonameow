@@ -57,6 +57,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0092]` Add tracking history and ability to "undo" renames.
+
 * `[TD0083]` __Clean up the type wrapper classes.__  
     * Remove ambiguities around returning "NULL" and raising `AWTypeError`.
     * Clean up the "interface" to the type wrappers. If callers only use the
