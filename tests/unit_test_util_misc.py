@@ -27,6 +27,7 @@ from core import (
     exceptions,
     constants
 )
+from core.exceptions import EncodingBoundaryViolation
 from core.util import eval_magic_glob
 from core.util.misc import (
     unique_identifier,
@@ -536,10 +537,17 @@ class TestEvalMagicGlob(TestCase):
         _assert_raises(TypeError, b'application', ['*/*'])
         _assert_raises(ValueError, '1', ['*/*'])
         _assert_raises(TypeError, b'1', ['*/*'])
-        _assert_raises(AssertionError, 'image/jpeg', [b'*/jpeg'])
-        _assert_raises(AssertionError, 'image/jpeg', [b'*/jpeg', 'image/*'])
-        _assert_raises(AssertionError, 'image/jpeg', [1])
-        _assert_raises(AssertionError, 'image/jpeg', [1, 'image/jpeg'])
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [b'*/jpeg'])
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [b'*/jpeg', 'image/*'])
+
+        # TODO: Raising the encoding boundary exception here isn't right!
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [1])
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [1, 'image/jpeg'])
+
         _assert_raises(ValueError, 'application', ['*a'])
         _assert_raises(ValueError, 'application', ['a*'])
 

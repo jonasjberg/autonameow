@@ -120,7 +120,7 @@ class BaseExtractor(object):
         # Make sure the 'source' paths are in the "internal bytestring" format.
         # The is-None-check below is for unit tests that pass a None 'source'.
         if source is not None and not isinstance(source, FileObject):
-            assert(isinstance(source, bytes))
+            util.assert_internal_bytestring(source)
 
         extracted_data = self.execute(source, **kwargs)
         return extracted_data

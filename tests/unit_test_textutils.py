@@ -22,6 +22,7 @@
 import unittest
 
 from core import util
+from core.exceptions import EncodingBoundaryViolation
 from core.util import textutils
 
 try:
@@ -53,17 +54,19 @@ class TestRemoveNonBreakingSpaces(unittest.TestCase):
 
 class TestIndent(unittest.TestCase):
     def test_invalid_arguments_raises_exception(self):
-        def _assert_raises(*args, **kwargs):
-            with self.assertRaises(AssertionError):
+        def _assert_raises(exception_type, *args, **kwargs):
+            with self.assertRaises(exception_type):
                 textutils.indent(*args, **kwargs)
 
-        _assert_raises(None)
-        _assert_raises(b'')
-        _assert_raises('foo', amount=0)
-        _assert_raises('foo', amount=2, ch=None)
-        _assert_raises('foo', amount=2, ch=b'')
-        _assert_raises('foo', ch=None)
-        _assert_raises('foo', ch=b'')
+        _assert_raises(ValueError, None)
+        _assert_raises(EncodingBoundaryViolation, b'')
+        _assert_raises(ValueError, 'foo', amount=0)
+        _assert_raises(TypeError, 'foo', amount=object())
+
+        # TODO: Should raise 'TypeError' when given 'ch=1' (expects str)
+        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=1)
+        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=b'')
+        _assert_raises(EncodingBoundaryViolation, 'foo', ch=b'')
 
     def test_indents_single_line(self):
         self.assertEqual(textutils.indent('foo'), '    foo')
@@ -203,7 +206,7 @@ class TestExtractDigits(unittest.TestCase):
 
     def test_raises_exception_given_bad_arguments(self):
         def _assert_raises(test_data):
-            with self.assertRaises(AssertionError):
+            with self.assertRaises(EncodingBoundaryViolation):
                 textutils.extract_digits(test_data)
 
         _assert_raises(None)

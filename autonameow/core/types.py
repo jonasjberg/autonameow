@@ -706,7 +706,7 @@ def try_parse_date(string):
     # Assumes year, month, day is in ISO-date-like order.
     digits = textutils.extract_digits(string)
     if digits:
-        assert(isinstance(digits, str))
+        util.assert_internal_string(digits)
 
         date_formats = ['%Y%m%d', '%Y%m', '%Y']
         for date_format in date_formats:

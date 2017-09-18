@@ -215,9 +215,17 @@ class Autonameow(object):
                     e, util.displayable_path(file_path))
                 )
                 continue
+            except exceptions.AWAssertionError as e:
+                log.critical(str(e))
+                self.exit_code = constants.EXIT_ERROR
+                continue
 
             try:
                 self._handle_file(current_file)
+            except exceptions.AWAssertionError as e:
+                log.critical(str(e))
+                self.exit_code = constants.EXIT_ERROR
+                continue
             except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(file_path))
@@ -325,9 +333,13 @@ class Autonameow(object):
         log.info('New name: "{}"'.format(
             util.displayable_path(new_name))
         )
-        self.do_rename(from_path=current_file.abspath,
-                       new_basename=new_name,
-                       dry_run=self.opts.dry_run)
+        try:
+            self.do_rename(from_path=current_file.abspath,
+                           new_basename=new_name,
+                           dry_run=self.opts.dry_run)
+        except exceptions.AWAssertionError as e:
+            log.critical(str(e))
+            self.exit_code = constants.EXIT_ERROR
 
     def exit_program(self, exit_code_):
         """

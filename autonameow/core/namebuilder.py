@@ -59,7 +59,7 @@ def build(config, name_template, field_data_map):
             'Unable to assemble basename: {!s}'.format(e)
         )
 
-    assert(isinstance(new_name, str))
+    util.assert_internal_string(new_name)
     new_name = post_assemble_format(new_name)
     log.debug('Assembled basename: "{!s}"'.format(new_name))
 

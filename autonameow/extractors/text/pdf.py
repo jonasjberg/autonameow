@@ -22,8 +22,6 @@
 import logging
 import subprocess
 
-from core.util import textutils
-
 try:
     import PyPDF2
     from PyPDF2.utils import (
@@ -34,6 +32,7 @@ except ImportError:
     PyPDF2 = None
 
 from core import util
+from core.util import textutils
 from extractors import ExtractorError
 from extractors.text.common import (
     AbstractTextExtractor,
@@ -118,7 +117,7 @@ def extract_pdf_content_with_pdftotext(pdf_file):
     text = normalize_unicode(text)
     text = textutils.remove_nonbreaking_spaces(text)
     if text:
-        assert(isinstance(text, str))
+        util.assert_internal_string(text)
         return text
     else:
         return ''
@@ -164,7 +163,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
         content += file_reader.getPage(i).extractText()
 
     if content:
-        assert(isinstance(content, str))
+        util.assert_internal_string(content)
         return content
     else:
         log.debug('Unable to extract text with PyPDF2 ..')

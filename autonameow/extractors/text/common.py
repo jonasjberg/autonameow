@@ -53,7 +53,7 @@ class AbstractTextExtractor(BaseExtractor):
                            '{!s}'.format(self, e))
             raise ExtractorError
 
-        assert(isinstance(text, str))
+        util.assert_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
         return {'full': ExtractedData(wrapper=types.AW_STRING)(text)}

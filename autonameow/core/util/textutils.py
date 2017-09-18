@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from core import util
+
 try:
     import chardet
 except (ImportError, ModuleNotFoundError):
@@ -29,7 +31,7 @@ def extract_digits(string):
     """
     Extracts and returns digits from a Unicode string, as a Unicode string.
     """
-    assert(isinstance(string, str))
+    util.assert_internal_string(string)
 
     digits = ''
     for char in string:
@@ -105,7 +107,7 @@ def autodetect_decode(string):
         except ValueError:
             raise ValueError('Unable to autodetect encoding and decode string')
 
-    assert(isinstance(string, str))
+    util.assert_internal_string(string)
     return string
 
 

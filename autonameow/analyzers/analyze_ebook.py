@@ -220,7 +220,7 @@ def _search_initial_text(text, callback):
 
 
 def extract_isbns_from_text(text):
-    assert isinstance(text, str)
+    util.assert_internal_string(text)
 
     possible_isbns = isbnlib.get_isbnlike(text)
     if possible_isbns:
@@ -234,7 +234,7 @@ def validate_isbn(possible_isbn):
     if not possible_isbn:
         return None
 
-    assert isinstance(possible_isbn, str)
+    util.assert_internal_string(possible_isbn)
 
     isbn_number = isbnlib.clean(possible_isbn)
     if not isbn_number or isbnlib.notisbn(isbn_number):

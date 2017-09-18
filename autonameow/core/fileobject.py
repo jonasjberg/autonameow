@@ -39,7 +39,7 @@ class FileObject(object):
             path: The absolute normalized path to the file, as an
                   "internal filename bytestring", I.E. bytes.
         """
-        assert(isinstance(path, bytes))
+        util.assert_internal_bytestring(path)
         validate_path_argument(path)
         self.abspath = path
 
