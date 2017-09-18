@@ -113,14 +113,6 @@ def rename_file(source_path, new_basename):
         raise
 
 
-def _raise_path_encoding_violation(bad_arg=None):
-    _msg = 'Expected argument to be an "internal" bytestring.'
-    if bad_arg is not None:
-        _msg += ' Got "{!s}"'.format(type(bad_arg))
-
-    raise exceptions.EncodingBoundaryViolation(_msg)
-
-
 def split_basename(file_path):
     """
     Splits the basename of the specified path in two parts.
