@@ -22,8 +22,12 @@
 import os
 from unittest import TestCase
 
-from core import util
+from core import (
+    util,
+    exceptions
+)
 from core.constants import MAGIC_TYPE_LOOKUP
+from core.exceptions import EncodingBoundaryViolation
 from core.util import diskutils
 from core.util.diskutils import (
     sanitize_filename,
@@ -65,7 +69,7 @@ class TestSplitBasename(TestCase):
         self.assertTrue(isinstance(d, bytes))
 
     def test_passing_unicode_strings_raises_assertion_error(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(exceptions.EncodingBoundaryViolation):
             _, _ = diskutils.split_basename('a.b')
 
     def test_split_no_name(self):
@@ -558,22 +562,25 @@ class TestCompareBasenames(TestCase):
         self.assertIsNotNone(diskutils.compare_basenames)
 
     def test_compare_basenames_raises_exceptions_given_invalid_input(self):
-        with self.assertRaises(ValueError):
-            diskutils.compare_basenames(None, None)
-            diskutils.compare_basenames(None, [])
-            diskutils.compare_basenames([], None)
-            diskutils.compare_basenames(b'a', [])
-            diskutils.compare_basenames(b'', b'')
-            diskutils.compare_basenames(b'', b' ')
-            diskutils.compare_basenames(b'_', b'')
+        def _raises(exception_, a, b):
+            with self.assertRaises(exception_):
+                diskutils.compare_basenames(a, b)
 
-        with self.assertRaises(TypeError):
-            diskutils.compare_basenames(1, 2)
-            diskutils.compare_basenames('a', 1)
-            diskutils.compare_basenames(1, 'a')
-            diskutils.compare_basenames('a', 'a')
-            diskutils.compare_basenames('a', b'a')
-            diskutils.compare_basenames(b'a', 'a')
+        _raises(ValueError, None, None)
+        _raises(ValueError, None, None)
+        _raises(ValueError, None, [])
+        _raises(ValueError, [], None)
+        _raises(EncodingBoundaryViolation, b'a', [])
+        _raises(EncodingBoundaryViolation, b'', b'')
+        _raises(EncodingBoundaryViolation, b'', b' ')
+        _raises(EncodingBoundaryViolation, b'_', b'')
+
+        _raises(TypeError, 1, 2)
+        _raises(TypeError, 'a', 1)
+        _raises(TypeError, 1, 'a')
+        _raises(TypeError, 'a', 'a')
+        _raises(TypeError, 'a', b'a')
+        _raises(TypeError, b'a', 'a')
 
     def test_comparing_equal_basenames_returns_true(self):
         def _assert_true(first, second):

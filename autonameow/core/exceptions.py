@@ -26,6 +26,10 @@ class AutonameowException(Exception):
     """Base exception. All custom exceptions should subclass this."""
 
 
+class EncodingBoundaryViolation(AutonameowException):
+    """Error due to unexpected string encoding."""
+
+
 class InvalidFileArgumentError(AutonameowException):
     """The argument (file) is not suited for processing."""
 

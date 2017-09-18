@@ -69,7 +69,11 @@ class Configuration(object):
         if isinstance(source, dict):
             self._load_from_dict(source)
         else:
-            assert(isinstance(source, bytes))
+            if not isinstance(source, bytes):
+                raise exceptions.EncodingBoundaryViolation(
+                    'Configuration expected a "internal" bytestring path'
+                )
+
             self._load_from_disk(source)
 
         if self.version:

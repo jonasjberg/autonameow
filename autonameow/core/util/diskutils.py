@@ -26,7 +26,10 @@ import itertools
 import logging
 import tempfile
 
-from core import util
+from core import (
+    util,
+    exceptions
+)
 
 log = logging.getLogger(__name__)
 
@@ -110,6 +113,14 @@ def rename_file(source_path, new_basename):
         raise
 
 
+def _raise_path_encoding_violation(bad_arg=None):
+    _msg = 'Expected argument to be an "internal" bytestring.'
+    if bad_arg is not None:
+        _msg += ' Got "{!s}"'.format(type(bad_arg))
+
+    raise exceptions.EncodingBoundaryViolation(_msg)
+
+
 def split_basename(file_path):
     """
     Splits the basename of the specified path in two parts.
@@ -126,8 +137,11 @@ def split_basename(file_path):
     Returns:
         The basename of the given path split into two parts,
             as a tuple of bytestrings.
+    Raises:
+        EncodingBoundaryViolation: Got arguments of unexpected types.
     """
-    assert(isinstance(file_path, bytes))
+    if not isinstance(file_path, bytes):
+        _raise_path_encoding_violation(file_path)
 
     base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
     base = util.bytestring_path(base)
@@ -284,7 +298,10 @@ def get_files(search_path, recurse=False):
 
     if not search_path:
         raise FileNotFoundError
-    if not os.path.isfile(search_path) and not os.path.isdir(search_path):
+    if not isinstance(search_path, bytes):
+        _raise_path_encoding_violation(search_path)
+    if not (os.path.isfile(util.syspath(search_path))
+            or os.path.isdir(util.syspath(search_path))):
         raise FileNotFoundError
 
     out = []
@@ -353,17 +370,21 @@ def compare_basenames(basename_one, basename_two):
     Compares to file basenames in the "internal byte string" format.
 
     Args:
-        basename_one: The first basename to compare.
-        basename_two: The second basename to compare.
+        basename_one: The first basename to compare as a bytestring.
+        basename_two: The second basename to compare as a bytestring.
 
     Returns:
         True if the basenames are equal, otherwise False.
+    Raises:
+        ValueError: Any of the arguments is None.
+        EncodingBoundaryViolation: Any argument is not of type bytes.
     """
     if not basename_one or not basename_two:
         raise ValueError('Expected two non-empty arguments')
-    if (not isinstance(basename_one, bytes) or
-            not isinstance(basename_two, bytes)):
-        raise TypeError('Expected arguments to be "internal" byte strings')
+    if not isinstance(basename_one, bytes):
+        _raise_path_encoding_violation(basename_one)
+    if not isinstance(basename_two, bytes):
+        _raise_path_encoding_violation(basename_two)
 
     if basename_one == basename_two:
         return True

@@ -25,6 +25,7 @@ import yaml
 
 from unittest import TestCase
 
+from core import exceptions
 from core.config.default_config import DEFAULT_CONFIG
 from core.config.configuration import Configuration
 import unit_utils as uu
@@ -103,7 +104,7 @@ class TestDefaultConfigFromFile(TestCase):
         self.assertIsNotNone(config)
 
     def test_loading_unicode_path_raises_exception(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(exceptions.EncodingBoundaryViolation):
             config = Configuration.from_file(self.config_path_unicode)
 
 
