@@ -26,7 +26,7 @@ class AutonameowException(Exception):
     """Base exception. All custom exceptions should subclass this."""
 
 
-class AWAssertionError(AutonameowException):
+class AWAssertionError(Exception):
     """Error due to incorrect assumptions about internal interactions.
        Equivalent to assertions, intended to prevent bugs and regressions."""
 
