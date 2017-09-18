@@ -51,12 +51,11 @@ class Configuration(object):
         """
         Instantiates a new Configuration object.
 
-        Loads a configuration from either a dictionary or file path.
+        Loads configuration from a dictionary.
         All parsing and loading happens at instantiation.
 
         Args:
-            source: The configuration to load as either a dictionary or a
-                bytestring path.
+            source: Configuration data to load as a dict.
         """
         self._rules = []
         self._name_templates = {}
@@ -65,16 +64,10 @@ class Configuration(object):
         self._version = None
         self.referenced_meowuris = set()
 
-        # NOTE(jonas): Detecting type prior to loading could be improved ..
-        if isinstance(source, dict):
-            self._load_from_dict(source)
-        else:
-            if not isinstance(source, bytes):
-                raise exceptions.EncodingBoundaryViolation(
-                    'Configuration expected a "internal" bytestring path'
-                )
+        if not isinstance(source, dict):
+            raise TypeError('Expected Configuration source to be type dict')
 
-            self._load_from_disk(source)
+        self._load_from_dict(source)
 
         if self.version:
             if self.version != constants.PROGRAM_VERSION:
@@ -91,7 +84,29 @@ class Configuration(object):
 
     @classmethod
     def from_file(cls, path):
-        return cls(path)
+        """
+        Returns a new Configuration instantiated from data at a given path.
+
+        Args:
+            path: Path of the (YAML) file to read, as an "internal" bytestring.
+
+        Returns:
+            An instance of 'Configuration', created from the data at "path".
+
+        Raises:
+            EncodingBoundaryViolation: Argument "path" is not a bytestring.
+            ConfigReadError: The configuration file could not be read.
+            ConfigError: The configuration file is empty.
+        """
+        util.assert_internal_bytestring(path)
+
+        _loaded_data = config.load_yaml_file(path)
+        if not _loaded_data:
+            raise exceptions.ConfigError(
+                'Read empty config: "{!s}"'.format(util.displayable_path(path))
+            )
+
+        return cls(_loaded_data)
 
     def _load_from_dict(self, data):
         if not data:
@@ -108,20 +123,6 @@ class Configuration(object):
         for _meowuri in _referenced_meowuris:
             log.debug('Configuration Rule referenced meowURI'
                       ' "{!s}"'.format(_meowuri))
-
-    def _load_from_disk(self, load_path):
-        try:
-            _yaml_data = config.load_yaml_file(load_path)
-        except exceptions.ConfigReadError as e:
-            raise exceptions.ConfigError(e)
-        else:
-            if _yaml_data:
-                self._load_from_dict(_yaml_data)
-                return
-
-        raise exceptions.ConfigError('Bad (empty?) config: "{!s}"'.format(
-            util.displayable_path(load_path)
-        ))
 
     def write_to_disk(self, dest_path):
         # TODO: This method is currently unused. Remove?
