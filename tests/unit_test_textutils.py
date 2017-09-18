@@ -215,23 +215,60 @@ class TestExtractDigits(unittest.TestCase):
 
 @unittest.skipIf(chardet is None, 'Unable to import required module "chardet"')
 class TestAutodetectDecode(unittest.TestCase):
-    def _assert_encodes(self, encoding, unicode_text):
-        input = unicode_text.encode(encoding)
-        actual = textutils.autodetect_decode(input)
-        self.assertEqual(unicode_text, actual)
+    def _assert_encodes(self, encoding, string):
+        _encoded_text = string.encode(encoding)
+        self.assertTrue(isinstance(_encoded_text, bytes))
+
+        actual = textutils.autodetect_decode(_encoded_text)
+        self.assertEqual(string, actual)
+        self.assertEqual(type(string), type(actual))
+
+    def test_raises_exception_for_non_strings(self):
+        with self.assertRaises(TypeError):
+            textutils.autodetect_decode(object())
+
+        with self.assertRaises(TypeError):
+            textutils.autodetect_decode(None)
 
     def test_returns_expected_given_unicode(self):
         actual = textutils.autodetect_decode('foo bar')
         self.assertEqual('foo bar', actual)
 
     def test_returns_expected_given_ascii(self):
+        self._assert_encodes('ascii', '')
+        self._assert_encodes('ascii', ' ')
+        self._assert_encodes('ascii', '\n')
+        self._assert_encodes('ascii', '\n ')
+        self._assert_encodes('ascii', ' \n ')
         self._assert_encodes('ascii', 'foo bar')
+        self._assert_encodes('ascii', 'foo \n ')
 
     def test_returns_expected_given_ISO8859(self):
+        self._assert_encodes('iso-8859-1', '')
+        self._assert_encodes('iso-8859-1', ' ')
+        self._assert_encodes('iso-8859-1', '\n')
+        self._assert_encodes('iso-8859-1', '\n ')
+        self._assert_encodes('iso-8859-1', ' \n ')
         self._assert_encodes('iso-8859-1', 'foo bar')
+        self._assert_encodes('iso-8859-1', 'foo \n ')
 
     def test_returns_expected_given_cp1252(self):
+        self._assert_encodes('cp1252', '')
+        self._assert_encodes('cp1252', ' ')
+        self._assert_encodes('cp1252', '\n')
+        self._assert_encodes('cp1252', '\n ')
+        self._assert_encodes('cp1252', ' \n ')
         self._assert_encodes('cp1252', 'foo bar')
+        self._assert_encodes('cp1252', 'foo \n ')
+
+    def test_returns_expected_given_utf8(self):
+        self._assert_encodes('utf-8', '')
+        self._assert_encodes('utf-8', ' ')
+        self._assert_encodes('utf-8', '\n')
+        self._assert_encodes('utf-8', '\n ')
+        self._assert_encodes('utf-8', ' \n ')
+        self._assert_encodes('utf-8', 'foo bar')
+        self._assert_encodes('utf-8', 'foo \n ')
 
 
 class TestExtractLines(unittest.TestCase):

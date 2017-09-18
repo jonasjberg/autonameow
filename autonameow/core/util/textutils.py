@@ -70,24 +70,33 @@ def indent(text, amount=4, ch=' '):
 
 def autodetect_decode(string):
     """
-    Try to decode a string with an unknown encoding to a Unicode str.
+    Tries to decode a string with an unknown encoding to a Unicode str.
+
+    Unicode strings are passed through as-is.
 
     Args:
-        string: The string to decode.
+        string: The string to decode as a Unicode str or a bytestring.
 
     Returns:
-        The given string decoded to an "internal" Unicode string.
+        The given string decoded to an ("internal") Unicode string.
     Raises:
-        ValueError: The autodetection and/or decoding was unsuccessful.
+        ValueError: Autodetection and/or decoding was unsuccessful because
+                    the given string is None or not a string type,
+                    or the "chardet" module is not available.
     """
     if isinstance(string, str):
         return string
 
+    # Guard against chardet "expects a bytes object, not a unicode object".
+    # Although this check probably only applies if given a non-string arg.
+    if not isinstance(string, bytes):
+        raise TypeError('Module "chardet" expects bytestrings')
+
+    if string == b'':
+        return ''
+
     if chardet is None:
         raise ValueError('Required module "chardet" is not available!')
-
-    # chardet "expects a bytes object, not a unicode object".
-    assert(isinstance(string, bytes))
 
     detected_encoding = chardet.detect(string)
     if detected_encoding and 'encoding' in detected_encoding:
@@ -96,6 +105,7 @@ def autodetect_decode(string):
         except ValueError:
             raise ValueError('Unable to autodetect encoding and decode string')
 
+    assert(isinstance(string, str))
     return string
 
 
