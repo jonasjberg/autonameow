@@ -22,6 +22,11 @@
 import logging
 import re
 
+try:
+    import isbnlib
+except (ImportError, ModuleNotFoundError):
+    isbnlib = None
+
 from analyzers import BaseAnalyzer
 from core import (
     util,
@@ -30,11 +35,6 @@ from core import (
 )
 from core.util import textutils
 from extractors import ExtractedData
-
-try:
-    import isbnlib
-except (ImportError, ModuleNotFoundError):
-    isbnlib = None
 
 
 log = logging.getLogger(__name__)
