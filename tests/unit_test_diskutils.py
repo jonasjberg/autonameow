@@ -570,17 +570,18 @@ class TestCompareBasenames(TestCase):
         _raises(ValueError, None, None)
         _raises(ValueError, None, [])
         _raises(ValueError, [], None)
-        _raises(EncodingBoundaryViolation, b'a', [])
-        _raises(EncodingBoundaryViolation, b'', b'')
-        _raises(EncodingBoundaryViolation, b'', b' ')
-        _raises(EncodingBoundaryViolation, b'_', b'')
-
-        _raises(TypeError, 1, 2)
-        _raises(TypeError, 'a', 1)
-        _raises(TypeError, 1, 'a')
-        _raises(TypeError, 'a', 'a')
-        _raises(TypeError, 'a', b'a')
-        _raises(TypeError, b'a', 'a')
+        _raises(EncodingBoundaryViolation, 1, 2)
+        _raises(EncodingBoundaryViolation, [], [])
+        _raises(EncodingBoundaryViolation, object(), object())
+        _raises(EncodingBoundaryViolation, 'a', 'b')
+        _raises(EncodingBoundaryViolation, 'a', [])
+        _raises(EncodingBoundaryViolation, '', '')
+        _raises(EncodingBoundaryViolation, '', ' ')
+        _raises(EncodingBoundaryViolation, '_', '')
+        _raises(EncodingBoundaryViolation, 'a', 2)
+        _raises(EncodingBoundaryViolation, 1, 'b')
+        _raises(EncodingBoundaryViolation, 'a', b'a')
+        _raises(EncodingBoundaryViolation, b'a', 'a')
 
     def test_comparing_equal_basenames_returns_true(self):
         def _assert_true(first, second):
@@ -589,6 +590,7 @@ class TestCompareBasenames(TestCase):
                 isinstance(diskutils.compare_basenames(first, second), bool)
             )
 
+        _assert_true(b'', b'')
         _assert_true(b' ', b' ')
         _assert_true(b'a', b'a')
         _assert_true(b'foo', b'foo')

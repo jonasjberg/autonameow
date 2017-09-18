@@ -140,8 +140,7 @@ def split_basename(file_path):
     Raises:
         EncodingBoundaryViolation: Got arguments of unexpected types.
     """
-    if not isinstance(file_path, bytes):
-        _raise_path_encoding_violation(file_path)
+    util.assert_internal_bytestring(file_path)
 
     base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
     base = util.bytestring_path(base)
@@ -298,8 +297,9 @@ def get_files(search_path, recurse=False):
 
     if not search_path:
         raise FileNotFoundError
-    if not isinstance(search_path, bytes):
-        _raise_path_encoding_violation(search_path)
+
+    util.assert_internal_bytestring(search_path)
+
     if not (os.path.isfile(util.syspath(search_path))
             or os.path.isdir(util.syspath(search_path))):
         raise FileNotFoundError
@@ -307,7 +307,7 @@ def get_files(search_path, recurse=False):
     out = []
 
     def traverse(path):
-        assert(isinstance(path, bytes))
+        util.assert_internal_bytestring(path)
 
         if os.path.isfile(util.syspath(path)):
             out.append(path)
@@ -379,12 +379,11 @@ def compare_basenames(basename_one, basename_two):
         ValueError: Any of the arguments is None.
         EncodingBoundaryViolation: Any argument is not of type bytes.
     """
-    if not basename_one or not basename_two:
-        raise ValueError('Expected two non-empty arguments')
-    if not isinstance(basename_one, bytes):
-        _raise_path_encoding_violation(basename_one)
-    if not isinstance(basename_two, bytes):
-        _raise_path_encoding_violation(basename_two)
+    if None in (basename_one, basename_two):
+        raise ValueError('Expected two non-None bytestrings')
+
+    util.assert_internal_bytestring(basename_one)
+    util.assert_internal_bytestring(basename_two)
 
     if basename_one == basename_two:
         return True

@@ -362,16 +362,18 @@ class Autonameow(object):
         Returns:
             True if the rename succeeded or would be a NO-OP, otherwise False.
         """
-        assert(isinstance(from_path, bytes))
-        assert(isinstance(new_basename, str))
+        util.assert_internal_bytestring(from_path)
+        util.assert_internal_string(new_basename)
 
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = util.bytestring_path(new_basename)
         log.debug('Destination basename (bytestring): "{!s}"'.format(
             util.displayable_path(dest_basename))
         )
+        util.assert_internal_bytestring(dest_basename)
 
         from_basename = diskutils.file_basename(from_path)
+
         if diskutils.compare_basenames(from_basename, dest_basename):
             _msg = 'Skipped "{!s}" because the current name is the same as ' \
                    'the new name'.format(util.displayable_path(from_basename),
