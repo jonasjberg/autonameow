@@ -45,7 +45,7 @@ def remove_nonbreaking_spaces(text):
     return text.replace('\xa0', ' ')
 
 
-def indent(text, amount=4, ch=' '):
+def indent(text, amount=None, ch=None):
     """
     Indents (multi-line) text by a specified amount.
 
@@ -61,10 +61,28 @@ def indent(text, amount=4, ch=' '):
 
     Returns:
         An indented version of the given text as an Unicode str.
+    Raises:
+        ValueError: Given 'text' is None or a optional argument is set to None.
     """
-    assert isinstance(text, str)
-    assert isinstance(amount, int) and amount > 0
-    assert isinstance(ch, str)
+    DEFAULT_AMOUNT = 4
+    DEFAULT_PADDING = ' '
+
+    if amount is None:
+        amount = DEFAULT_AMOUNT
+    else:
+        if not isinstance(amount, int):
+            raise TypeError('Expected "amount" to be of type int')
+        elif amount <= 0:
+            raise ValueError('Expected "amount" to be greater than zero')
+
+    if ch is None:
+        ch = DEFAULT_PADDING
+
+    if text is None:
+        raise ValueError('Got None argument "text"')
+
+    util.assert_internal_string(text)
+    util.assert_internal_string(ch)
 
     padding = amount * ch
     return ''.join(padding + line for line in text.splitlines(True))
