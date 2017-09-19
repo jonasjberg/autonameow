@@ -186,6 +186,19 @@ DEFAULT_CONFIG = {
         'uppercase_filename': False
     },
 
+
+    #  Custom Post-Processing Replacements
+    #  ===================================
+    #  Pairs of substrings to match and replace during the last post-processing
+    #  just before the file is renamed. The syntax is 'MATCH: REPLACE'
+    #  For instance, using "'foo': 'bar'" would result in every occurrence of
+    #  "foo" in a file name to be replaced by "bar".
+    'POST_REPLACEMENTS': {
+        '__': '_',
+        '--': '-',
+        '..': '.'
+    },
+
     #  Filetags Options
     #  ================
     #  Options for functionality related to the "filetags" workflow.
