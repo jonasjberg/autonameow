@@ -438,9 +438,11 @@ class TestTypeDate(TestCase):
         self.assertEqual(types.AW_DATE('2017-07-12'), expected)
         self.assertEqual(types.AW_DATE('2017:07:12'), expected)
         self.assertEqual(types.AW_DATE('2017_07_12'), expected)
+        self.assertEqual(types.AW_DATE('2017 07 12'), expected)
         self.assertEqual(types.AW_DATE(b'2017-07-12'), expected)
         self.assertEqual(types.AW_DATE(b'2017:07:12'), expected)
         self.assertEqual(types.AW_DATE(b'2017_07_12'), expected)
+        self.assertEqual(types.AW_DATE(b'2017 07 12'), expected)
 
     def test_call_with_coercible_data_year_month(self):
         expected = datetime.strptime('2017-07', '%Y-%m')
@@ -851,30 +853,6 @@ class TestTypeString(TestCase):
         with self.assertRaises(types.AWTypeError):
             types.AW_STRING(datetime.now())
 
-    def test_coerce_with_coercible_data(self):
-        def _assert_coerces(test_data, expected):
-            self.assertEqual(types.AW_STRING.coerce(test_data), expected)
-
-        _assert_coerces('', '')
-        _assert_coerces(' ', ' ')
-        _assert_coerces(b'', '')
-        _assert_coerces(b' ', ' ')
-        _assert_coerces(-1, '-1')
-        _assert_coerces(0, '0')
-        _assert_coerces(1, '1')
-        _assert_coerces(-1.5, '-1.5')
-        _assert_coerces(-1.0, '-1.0')
-        _assert_coerces(1.0, '1.0')
-        _assert_coerces(1.5, '1.5')
-        _assert_coerces('-1', '-1')
-        _assert_coerces('-1.0', '-1.0')
-        _assert_coerces('0', '0')
-        _assert_coerces('1', '1')
-        _assert_coerces('foo', 'foo')
-        _assert_coerces(None, '')
-        _assert_coerces(False, 'False')
-        _assert_coerces(True, 'True')
-
     def test_format(self):
         def _assert_formats(test_data, expected):
             self.assertEqual(types.AW_STRING.format(test_data), expected)
@@ -986,10 +964,6 @@ class TestTypeMimeType(TestCase):
         def _assert_uncoercible(test_data):
             self.assertEqual(types.AW_MIMETYPE(test_data),
                              types.AW_MIMETYPE.null)
-
-            # TODO: [TD0083] Return "NULL" or raise 'AWTypeError'..?
-            # with self.assertRaises(exceptions.AWTypeError):
-            #     types.AW_MIMETYPE(test_data)
 
         _assert_uncoercible(None)
         _assert_uncoercible(False)
