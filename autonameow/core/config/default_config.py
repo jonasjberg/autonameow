@@ -177,7 +177,7 @@ DEFAULT_CONFIG = {
     #  Filesystem Options
     #  ==================
     #  Options for how filenames are written do disk. Allowed/blacklisted
-    #  characters and potentially custom replacements, etc.
+    #  characters, etc.
     'FILESYSTEM_OPTIONS': {
         'sanitize_filename': True,
         'sanitize_strict': False,
@@ -186,17 +186,18 @@ DEFAULT_CONFIG = {
         'uppercase_filename': False
     },
 
-
-    #  Custom Post-Processing Replacements
-    #  ===================================
+    #  Custom Post-Processing Options
+    #  ==============================
     #  Pairs of substrings to match and replace during the last post-processing
     #  just before the file is renamed. The syntax is 'MATCH: REPLACE'
     #  For instance, using "'foo': 'bar'" would result in every occurrence of
     #  "foo" in a file name to be replaced by "bar".
-    'POST_REPLACEMENTS': {
-        '__': '_',
-        '--': '-',
-        '..': '.'
+    'CUSTOM_POST_PROCESSING': {
+        'replacements': {
+            '_+': '_',
+            '-+': '-',
+            '\.{2,}': '.'
+        },
     },
 
     #  Filetags Options

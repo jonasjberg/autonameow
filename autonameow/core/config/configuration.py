@@ -21,12 +21,14 @@
 
 import logging
 import os
+import re
 
 from core import (
     config,
     constants,
     exceptions,
-    util
+    util,
+    types
 )
 from core.config import (
     rules
@@ -277,6 +279,39 @@ class Configuration(object):
                     self._options, ['FILESYSTEM_OPTIONS', option], default
                 )
 
+        def _try_load_custom_postprocessing_replacements():
+            if 'CUSTOM_POST_PROCESSING' in self._data:
+                _reps = self._data['CUSTOM_POST_PROCESSING'].get('replacements')
+                if not _reps or not isinstance(_reps, dict):
+                    return
+
+                match_replace_pairs = []
+                for regex, replacement in _reps.items():
+                    try:
+                        _match = types.AW_STRING(regex)
+                        _replace = types.AW_STRING(replacement)
+                    except types.AWTypeError as e:
+                        log.warning('Skipped bad replacement: "{!s}": '
+                                    '"{!s}"'.format(regex, replacement))
+                        continue
+
+                    try:
+                        compiled_pat = re.compile(_match)
+                    except re.error:
+                        log.warning('Malformed regular expression: '
+                                    '"{!s}"'.format(_match))
+                    else:
+                        log.debug(
+                            'Added post-processing replacement. Match: "{!s}" '
+                            'Replace: "{!s}"'.format(regex, replacement)
+                        )
+                        match_replace_pairs.append((compiled_pat, _replace))
+
+
+                util.nested_dict_set(self._options,
+                                     ['CUSTOM_POST_PROCESSING', 'replacements'],
+                                     match_replace_pairs)
+
         _try_load_datetime_format_option(
             'date', constants.DEFAULT_DATETIME_FORMAT_DATE
         )
@@ -312,7 +347,7 @@ class Configuration(object):
             constants.DEFAULT_FILESYSTEM_UPPERCASE_FILENAME
         )
 
-        # TODO: [TD0093] Parse 'POST_REPLACEMENTS'.
+        _try_load_custom_postprocessing_replacements()
 
         # Handle conflicting upper-case and lower-case options.
         if (self._options['FILESYSTEM_OPTIONS'].get('lowercase_filename') and

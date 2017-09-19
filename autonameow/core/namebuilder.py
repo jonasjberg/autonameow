@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import re
 from datetime import datetime
 
 from core import (
@@ -85,7 +86,14 @@ def build(config, name_template, field_data_map):
     elif config.get(['FILESYSTEM_OPTIONS', 'uppercase_filename']):
         new_name = new_name.upper()
 
-    # TODO: [TD0093] Do replacements as per config 'POST_REPLACEMENTS'.
+    # Do any user-defined "custom post-processing".
+    replacements = config.get(['CUSTOM_POST_PROCESSING', 'replacements'])
+    if replacements:
+        for regex, replacement in replacements:
+            if re.search(regex, new_name):
+                log.info('Applying custom replacement. Regex: "{!s}" '
+                         'Replacement: "{!s}"'.format(regex, replacement))
+                new_name = re.sub(regex, replacement, new_name)
 
     return new_name
 
