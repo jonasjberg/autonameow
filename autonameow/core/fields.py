@@ -57,15 +57,17 @@ from core import constants
 
 WeightedMapping = namedtuple('WeightedMapping', ['field', 'probability'])
 
+UNDEFINED_MEOWURI_PART = 'NULL'
+
 
 def todo_func(foo):
     pass
 
 
 class GenericField(object):
-    meowuri_root = 'NULL'
+    meowuri_root = UNDEFINED_MEOWURI_PART
     meowuri_node_generic = constants.MEOWURI_NODE_GENERIC.lower()
-    meowuri_leaf = 'NULL'
+    meowuri_leaf = UNDEFINED_MEOWURI_PART
 
     @classmethod
     def uri(cls):
@@ -73,51 +75,96 @@ class GenericField(object):
                                  cls.meowuri_node_generic,
                                  cls.meowuri_leaf.lower())
 
+    @classmethod
+    def evaluation_function(cls):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
 
 # TODO: [TD0090] Complete initial implementation of "generic" fields.
 class GenericAuthor(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'Author'
 
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
 
 class GenericCreator(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'Creator'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
 
 
 class GenericDescription(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'Description'
 
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
 
 class GenericDateCreated(GenericField):
     meowuri_root = 'metadata'
-    meowuri_leaf = 'DateCreated'
+    meowuri_leaf = 'Date_Created'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
 
 
 class GenericDateModified(GenericField):
     meowuri_root = 'metadata'
-    meowuri_leaf = 'DateModified'
+    meowuri_leaf = 'Date_Modified'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
 
 
 class GenericMimeType(GenericField):
     meowuri_root = 'contents'
-    meowuri_leaf = 'MimeType'
+    meowuri_leaf = 'Mime_Type'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
 
 
 class GenericProducer(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'Producer'
 
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
 
 class GenericSubject(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'Subject'
 
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
 
 class GenericTags(GenericField):
     meowuri_root = 'metadata'
     meowuri_leaf = 'Tags'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
+def meowuri_genericfield_map():
+    return {klass.uri(): klass
+            for klass in GenericField.__subclasses__()}
 
 
 class NameTemplateField(object):
