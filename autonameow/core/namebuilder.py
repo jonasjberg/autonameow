@@ -85,6 +85,8 @@ def build(config, name_template, field_data_map):
     elif config.get(['FILESYSTEM_OPTIONS', 'uppercase_filename']):
         new_name = new_name.upper()
 
+    # TODO: [TD0093] Do replacements as per config 'POST_REPLACEMENTS'.
+
     return new_name
 
 

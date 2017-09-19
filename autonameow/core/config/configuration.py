@@ -312,6 +312,8 @@ class Configuration(object):
             constants.DEFAULT_FILESYSTEM_UPPERCASE_FILENAME
         )
 
+        # TODO: [TD0093] Parse 'POST_REPLACEMENTS'.
+
         # Handle conflicting upper-case and lower-case options.
         if (self._options['FILESYSTEM_OPTIONS'].get('lowercase_filename') and
                 self._options['FILESYSTEM_OPTIONS'].get('uppercase_filename')):

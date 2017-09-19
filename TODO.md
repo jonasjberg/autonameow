@@ -57,6 +57,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0093]` Implement using config `POST_REPLACEMENTS` in name builder.
+
 * `[TD0092]` Add tracking history and ability to "undo" renames.
 
 * `[TD0083]` __Clean up the type wrapper classes.__  
