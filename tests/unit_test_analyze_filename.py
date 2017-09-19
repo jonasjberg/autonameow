@@ -25,7 +25,8 @@ from datetime import datetime
 from analyzers.analyze_filename import (
     FilenameAnalyzer,
     _find_edition,
-    SubstringFinder
+    SubstringFinder,
+    FilenameTokenizer
 )
 import unit_utils as uu
 from core import fields
@@ -99,7 +100,7 @@ class TestFindEdition(TestCase):
         self.assertIsNone(_find_edition('Foo, Bar 5 - Baz._'))
 
 
-class IdentifyFields(TestCase):
+class TestIdentifyFields(TestCase):
     def test__substrings(self):
         f = SubstringFinder()
 
@@ -146,3 +147,20 @@ class IdentifyFields(TestCase):
         #                                   'flac']
         # assert result[fields.Title] == ['Paperback Writer', 'The Beatles',
         #                                 'flac']
+
+
+class TestFilenameTokenizer(TestCase):
+    def test_guess_separators_simpler(self):
+        _filename = 'foo.bar.1234.baz'
+        self.tokenizer = FilenameTokenizer(_filename)
+        actual = self.tokenizer.separators
+
+        self.assertEqual(actual, ['.'])
+
+    def test_guess_separators_simple(self):
+        _filename = 'foo.bar.[1234].baz'
+        self.tokenizer = FilenameTokenizer(_filename)
+        actual = self.tokenizer.separators
+
+        self.assertEqual(actual, ['.'])
+

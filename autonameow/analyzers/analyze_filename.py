@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+from collections import defaultdict
 
 from analyzers import BaseAnalyzer
 from core import types
@@ -165,6 +166,25 @@ class SubstringFinder(object):
     def _substrings(self, string):
         s = re.split(r'\W', string)
         return list(filter(None, s))
+
+
+class FilenameTokenizer(object):
+    RE_NON_ALNUMS = re.compile(r'\w+')
+
+    def __init__(self, filename):
+        self.filename = filename
+
+    @property
+    def separators(self):
+        return self._guess_separators(self.filename)
+
+    def _guess_separators(self, string):
+        non_words = self.RE_NON_ALNUMS.split(string)
+
+        # for TODO: .........
+
+        char_count = defaultdict(int)
+        return s
 
 
 def _find_datetime_isodate(text_line):
