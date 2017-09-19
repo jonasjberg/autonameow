@@ -26,7 +26,6 @@ from core import (
     util,
     exceptions
 )
-from core.constants import MAGIC_TYPE_LOOKUP
 from core.exceptions import EncodingBoundaryViolation
 from core.util import diskutils
 from core.util.diskutils import (
@@ -35,27 +34,6 @@ from core.util.diskutils import (
     get_files_gen
 )
 import unit_utils as uu
-
-
-class TestMimeTypes(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-    def test_magic_type_lookup_table_exists(self):
-        self.assertIsNotNone(MAGIC_TYPE_LOOKUP,
-                             'MAGIC_TYPE_LOOKUP mime type lookup should exist')
-
-    def test_magic_type_lookup_table_is_instance_of_dict(self):
-        self.assertTrue(isinstance(MAGIC_TYPE_LOOKUP, dict),
-                        'MAGIC_TYPE_LOOKUP should be an instance of dict')
-
-    def test_magic_type_lookup_table_values_are_type_list(self):
-        for value in MAGIC_TYPE_LOOKUP.values():
-            self.assertTrue(isinstance(value, list),
-                            'MAGIC_TYPE_LOOKUP values should be lists')
-
-    def test_magic_type_lookup_arbitrarily_assert_image_is_jpeg(self):
-        self.assertEqual(['image/jpeg'], MAGIC_TYPE_LOOKUP['jpg'])
 
 
 class TestSplitBasename(TestCase):

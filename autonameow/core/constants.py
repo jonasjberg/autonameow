@@ -42,19 +42,6 @@ NAME_TEMPLATE_FIELDS = (
     ANALYSIS_RESULTS_FIELDS + ['date', 'description', 'edition', 'extension']
 )
 
-# File "magic" MIME type lookup table keyed by shorthand. Each value is a
-# list of file MIME types that is classified for that particular shorthand.
-MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
-                     'gif':   ['image/gif'],
-                     'jpg':   ['image/jpeg'],
-                     'mov':   ['video/quicktime'],
-                     'mp4':   ['video/mp4'],
-                     'ogg':   ['video/ogg'],
-                     'pdf':   ['application/pdf'],
-                     'png':   ['image/png'],
-                     'txt':   ['text/plain'],
-                     'empty': ['inode/x-empty']}
-
 # Default MIME type string used if the MIME type detection fails.
 MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
 
