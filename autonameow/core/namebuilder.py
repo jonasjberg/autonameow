@@ -80,8 +80,10 @@ def build(config, name_template, field_data_map):
         log.debug('Skipped sanitizing filename')
 
     # Do any case-transformations.
-    if config.get(['FILESYSTEM_OPTIONS', 'lowercase_filename']) == True:
+    if config.get(['FILESYSTEM_OPTIONS', 'lowercase_filename']):
         new_name = new_name.lower()
+    elif config.get(['FILESYSTEM_OPTIONS', 'uppercase_filename']):
+        new_name = new_name.upper()
 
     return new_name
 

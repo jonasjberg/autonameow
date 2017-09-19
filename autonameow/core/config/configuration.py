@@ -307,6 +307,18 @@ class Configuration(object):
             'lowercase_filename',
             constants.DEFAULT_FILESYSTEM_LOWERCASE_FILENAME
         )
+        _try_load_filesystem_option(
+            'uppercase_filename',
+            constants.DEFAULT_FILESYSTEM_UPPERCASE_FILENAME
+        )
+
+        # Handle conflicting upper-case and lower-case options.
+        if (self._options['FILESYSTEM_OPTIONS'].get('lowercase_filename') and
+                self._options['FILESYSTEM_OPTIONS'].get('uppercase_filename')):
+
+            log.warning('Conflicting options: "lowercase_filename" and '
+                        '"uppercase_filename". Ignoring "uppercase_filename".')
+            self._options['FILESYSTEM_OPTIONS']['uppercase_filename'] = False
 
         # Unlike the previous options; first load the default ignore patterns,
         # then combine these defaults with any user-specified patterns.

@@ -182,7 +182,8 @@ DEFAULT_CONFIG = {
         'sanitize_filename': True,
         'sanitize_strict': False,
         'ignore': ['*.swp', '*/.*'],
-        'lowercase_filename': False
+        'lowercase_filename': False,
+        'uppercase_filename': False
     },
 
     #  Filetags Options
