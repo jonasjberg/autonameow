@@ -375,14 +375,12 @@ class Rule(object):
         return _count_met_conditions
 
     def _evaluate_condition(self, condition, data_query_function):
-        # Fetch data at "meowuri" using the provided "data_query_function".
         data = data_query_function(condition.meowuri)
         if data is None:
             log.warning('Unable to evaluate condition due to missing data:'
                         ' "{!s}"'.format(condition))
             return False
 
-        # Evaluate the condition using actual data.
         return condition.evaluate(data)
 
     def __str__(self):

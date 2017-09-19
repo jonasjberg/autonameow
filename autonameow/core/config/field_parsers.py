@@ -88,7 +88,7 @@ class ConfigFieldParser(object):
     @classmethod
     def get_validation_function(cls):
         """
-        Used to check that the syntax of a configuration field expression.
+        Used to check the syntax of a configuration field expression.
 
         Returns:
             A class-specific function for validating a configuration field.
