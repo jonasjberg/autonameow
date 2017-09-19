@@ -86,7 +86,7 @@ class RuleMatcher(object):
         max_condition_count = max(len(rule.conditions)
                                   for rule in remaining_rules)
         for rule in remaining_rules:
-            met_conditions = rule.count_conditions_met(self._request_data)
+            met_conditions = rule.number_conditions_met(self._request_data)
 
             # Ratio of met conditions to the total number of conditions
             # for a single rule.

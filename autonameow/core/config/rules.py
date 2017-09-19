@@ -352,7 +352,7 @@ class Rule(object):
         log.debug('Exact match PASSED!')
         return True
 
-    def count_conditions_met(self, data_query_function):
+    def number_conditions_met(self, data_query_function):
         """
         Evaluates rule conditions using data provided by a callback function.
 
