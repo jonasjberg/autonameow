@@ -303,6 +303,10 @@ class Configuration(object):
             'sanitize_strict',
             constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
+        _try_load_filesystem_option(
+            'lowercase_filename',
+            constants.DEFAULT_FILESYSTEM_LOWERCASE_FILENAME
+        )
 
         # Unlike the previous options; first load the default ignore patterns,
         # then combine these defaults with any user-specified patterns.

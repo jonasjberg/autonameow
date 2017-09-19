@@ -181,7 +181,8 @@ DEFAULT_CONFIG = {
     'FILESYSTEM_OPTIONS': {
         'sanitize_filename': True,
         'sanitize_strict': False,
-        'ignore': ['*.swp', '*/.*']
+        'ignore': ['*.swp', '*/.*'],
+        'lowercase_filename': False
     },
 
     #  Filetags Options
