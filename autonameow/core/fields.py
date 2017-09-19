@@ -234,10 +234,7 @@ class Extension(NameTemplateField):
 
     @classmethod
     def normalize(cls, data):
-        # Normalize numeric titles
-        for _find, _replace in cls.ORDINALS:
-            data = _find.sub(_replace, data)
-        return data
+        pass
 
 
 class Author(NameTemplateField):
