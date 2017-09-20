@@ -81,7 +81,7 @@
               builder has access to user-defined formatting options.  Also, the
               name builder already performs very similar actions --- they
               should be consolidated and kept in one place.
-            - Modiy public 'Configuration' interface.
+            - Modify public 'Configuration' interface.
 
             Fixes:
             - Do not "rebuild magic" at every MIME-type test.
