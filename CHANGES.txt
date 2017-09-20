@@ -1,3 +1,117 @@
+2017-09-20  [autonameow v0.4.7]
+            Added custom "post-processing" replacements and case-changes.
+            Bugfixes and refactorings.
+
+            Additions:
+            - Implement type wrapper classes 'format' methods and remove the
+              'formatter' keyword argument.
+            - Add generic fields.
+            - Add improved date/time-parsing with utility functions.
+            - Improve argument validation robustness for user-facing functions.
+            - Add a new option for transforming filenames to all lower-case.
+
+              Adds new configuration field under 'FILESYSTEM_OPTIONS'.
+
+                  FILESYSTEM_OPTIONS:
+                      lowercase_filename: false
+
+              Default value is false.
+            - Add option for transforming filenames to all upper-case.
+
+              Adds new configuration field under 'FILESYSTEM_OPTIONS'.
+
+                  FILESYSTEM_OPTIONS:
+                      uppercase_filename: false
+
+              Default value is false.
+
+              If both 'uppercase_filename' and 'lowercase_filename' is enabled,
+              then 'uppercase_filename' is (not really) arbitrarily ignored.
+            - Add user-specified "post-processing" replacements.
+
+              Uses pairs of regular expressions patterns and replacement string
+              to perform last-minute replacements on the new file name.
+              Exampe:
+
+                  CUSTOM_POST_PROCESSING:
+                      replacements:
+                          \-\{2,\}+: '-'
+                          \.{2,}: .
+                          o[tk]: MEOW
+                          gmail: mjaomjao
+
+              1-2) Collapses repeating dashes and periods, respectively.
+                3) Replaces either 'ot' or 'ok' with 'MEOW'.
+                4) Replaces 'gmail' with 'mjaomjao'.
+
+            Changes:
+            - Add a new "to-string" method in the 'Repository' class.
+              Means that the '--list-all' formatting has changed.
+            - Modify text e
+            - Modify text extractors 'meowuri_root' and common return method.
+
+              The repository 'store' method (and '_store' method) handles too
+              many specific cases, this is part of an effort to have non-core
+              components use a more consistent format for the data to be
+              stored.
+
+              Instead of having the 'meowuri_root' be
+              'contents.textual.raw_text' and returning the data "as-is" from
+              the 'AbstractTextExtractor.excute()' method, this commit modifies
+              the 'meowuri_root' of all text extractors to 'contents.textual'
+              ('contents.visual' for the OCR-extractor..) and adds returning a
+              dict from the 'AbstractTextExtractor.excute()', with 'raw_text'
+              as key.
+            - Modify the "MeowURIs" used by text extractors.
+
+                  Previously:  'contents.textual.raw_text'
+                  Changed to:  'contents.textual.text.full'
+            - Modify terminal color scheme.
+            - Rename 'PdfAnalyzer' to 'DocumentAnalyzer'.
+
+              Renames the 'PdfAnalyzer' class to 'DocumentAnalyzer'.
+
+              Having filetype-specific analyzers no longer makes any sense.
+              The analyzer classes have been left behind while the overall
+              overarching goals and surrounding architecture has changed.
+            - Move getting a Unicode str representation of fields.
+
+              Instead of having the 'Resolver' class gather data and then do
+              formatting by calling the bundled wrapper and other contextual
+              information, it should be more appropriate to let the "name
+              builder" perform all formatting-related operations, as the name
+              builder has access to user-defined formatting options.  Also, the
+              name builder already performs very similar actions --- they
+              should be consolidated and kept in one place.
+            - Modiy public 'Configuration' interface.
+
+            Fixes:
+            - Do not "rebuild magic" at every MIME-type test.
+            - Improve reading version number from config.
+            - Fix bugs in the utility function 'eval_meowuri_glob'.
+            - Various fixes to 'Repository' methods.
+            - Fix logic error in 'decode_raw' that effectively disabled it.
+            - Fix crash when missing datetime-formatting options.
+
+              Adds falling back to default 'DATETIME_FORMAT' options.
+              If the configuration file did not specify the following options;
+
+                  DATETIME_FORMAT:
+                      date: '%Y-%m-%d'
+                      datetime: '%Y-%m-%dT%H%M%S'
+                      time: '%H-%M-%S'
+
+              .. the program would crash because no default values were used.
+              If any of the 'DATETIME_FORMAT' options are missing, the
+              following defaults, defined in 'constants.py', will be substituted:
+
+                  DEFAULT_DATETIME_FORMAT_DATETIME = '%Y-%m-%dT%H%M%S'
+                  DEFAULT_DATETIME_FORMAT_DATE = '%Y-%m-%d'
+                  DEFAULT_DATETIME_FORMAT_TIME = '%H-%M-%S'
+            - Add 'PIL' to 'ImageOCRTextExtractor' dependency checks.
+            - Fix intermittent bug in getting extension from MIME-type.
+
+
 2017-09-11  [autonameow v0.4.6]
             A lot of refactoring for improved robustness and stability.
             Removes the 'pytesseract' dependency. Adds dynamic handling of
