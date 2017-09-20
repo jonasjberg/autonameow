@@ -95,6 +95,8 @@ def build(config, name_template, field_data_map):
                          'Replacement: "{!s}"'.format(regex, replacement))
                 new_name = re.sub(regex, replacement, new_name)
 
+    # TODO: [TD0036] Allow per-field replacements and customization.
+
     return new_name
 
 

@@ -28,6 +28,16 @@ from extractors import ExtractedData
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0036] Allow per-field replacements and customization.
+
+# NOTE(jonas): This class might be a good candidate for handling fields.
+# If the 'Repository' class is tasked with storing and resolving queries
+# for "data".
+# Then this class could be tasked with the equivalent handling of "fields",
+# as the next level of refinement of data "transformation" in the overall
+# "pipeline" --- from "raw" data to the final new file name.
+
+
 class Resolver(object):
     def __init__(self, file_object, name_template):
         self.file = file_object
