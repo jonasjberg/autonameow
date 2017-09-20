@@ -19,13 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
 import sys
-from datetime import (
-    datetime,
-    timedelta
-)
 
 import core
+
 
 PYTHON_VERSION = sys.version.replace('\n', '')
 PROGRAM_VERSION = 'v{}'.format(core.version.__version__)
@@ -151,13 +149,13 @@ DEFAULT_FILESYSTEM_IGNORE = DEFAULT_FILESYSTEM_IGNORE_DARWIN.union(
 
 def next_year():
     # http://stackoverflow.com/a/11206511
-    _today = datetime.today()
+    _today = datetime.datetime.today()
     try:
         return _today.replace(year=_today.year + 1)
     except ValueError:
         # February 29th in a leap year
         # Add 365 days instead to arrive at March 1st
-        return _today + timedelta(days=365)
+        return _today + datetime.timedelta(days=365)
 
 
 # Ignore all date/time-information following the specified year (inclusive).
@@ -165,7 +163,7 @@ YEAR_UPPER_LIMIT = next_year()
 
 # TODO: [TD0043] Allow storing these in the configuration file.
 # Ignore all date/time-information for the specified year and years prior.
-YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
+YEAR_LOWER_LIMIT = datetime.datetime.strptime('1900', '%Y')
 
 
 # Exit code values returned to the executing shell or parent process.
