@@ -51,6 +51,12 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         sys.exit('\nReceived keyboard interrupt; Exiting ..')
     except AWAssertionError as e:
+        _, _, exc_traceback = sys.exc_info()
+
+        _filename = exc_traceback.tb_frame.f_code.co_filename
+        _linenum = exc_traceback.tb_lineno
+
+        print_error('')
         print_error('******************************************************')
         print_error('             INTERNAL SANITY-CHECK FAILED')
         print_error('Something that really should NOT happen just happened!')
@@ -59,6 +65,8 @@ if __name__ == '__main__':
         print_error('This is most likely a BUG that should be reported ..')
         print_error('.. TODO: Information on how to report issues.')
         print_error('')
+        print_error('______________________________________________________')
         print_error('')
+        print_error('Line {!s} in File: "{!s}"'.format(_linenum, _filename))
         print_error(str(e))
         sys.exit(3)
