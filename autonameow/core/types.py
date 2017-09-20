@@ -380,7 +380,7 @@ class MimeType(BaseType):
         MIME_TYPE_LOOKUP = {}
 
     # TODO: Improve robustness of interfacing with 'mimetypes'.
-    assert len(MIME_TYPE_LOOKUP) > 0
+    util.assertthat(len(MIME_TYPE_LOOKUP) > 0, 'MIME_TYPE_LOOKUP is empty')
 
     # Any custom "extension to MIME-type"-mappings goes here.
     MIME_TYPE_LOOKUP['sh'] = 'text/x-shellscript'

@@ -140,7 +140,13 @@ class RuleCondition(object):
         parsers = field_parsers.suitable_field_parser_for(meowuri)
         if parsers:
             # Assume only one parser can handle a "meowURI" for now.
-            assert(len(parsers) == 1)
+            util.assertthat(
+                len(parsers) == 1,
+                'Unexpectedly got {} parsers for meowURI "{!s}"'.format(
+                    len(parsers), meowuri
+                )
+            )
+
             self._parser = parsers[0]
             return self._parser
         else:
@@ -362,7 +368,8 @@ class Rule(object):
         Returns:
             The number of met conditions as an integer.
         """
-        assert(self.conditions and len(self.conditions) > 0)
+        util.assertthat(self.conditions and len(self.conditions) > 0,
+                        'Rule.conditions is missing or empty')
 
         _count_met_conditions = 0
         for condition in self.conditions:

@@ -169,7 +169,7 @@ def pre_assemble_format(data, config):
             formatted[field] = formatted_datetime(d, datetime_format)
 
         elif field == 'tags':
-            assert(isinstance(value, list))
+            util.assert_isinstance(value, list)
 
             _tags = []
             for _tag in value:
@@ -239,7 +239,7 @@ def formatted_datetime(datetime_object, format_string):
     Returns:
         A string in the specified format with the data from the given string.
     """
-    assert(isinstance(datetime_object, datetime))
+    util.assert_isinstance(datetime_object, datetime)
     return datetime_object.strftime(format_string)
 
 

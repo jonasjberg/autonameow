@@ -24,7 +24,8 @@ import logging
 import plugins
 from core import (
     repository,
-    exceptions
+    exceptions,
+    util
 )
 from extractors import ExtractedData
 
@@ -40,7 +41,7 @@ class PluginHandler(object):
 
         # Get instantiated and validated plugins.
         self.available_plugins = plugins.UsablePlugins
-        assert isinstance(self.available_plugins, list)
+        util.assert_isinstance(self.available_plugins, list)
 
         _p = ' '.join(map(lambda x: '"' + str(x) + '"', self.available_plugins))
         self.log.debug('Available plugins: {!s}'.format(_p))

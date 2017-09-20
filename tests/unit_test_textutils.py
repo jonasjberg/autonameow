@@ -22,7 +22,10 @@
 import unittest
 
 from core import util
-from core.exceptions import EncodingBoundaryViolation
+from core.exceptions import (
+    AWAssertionError,
+    EncodingBoundaryViolation
+)
 from core.util import textutils
 
 try:
@@ -368,14 +371,14 @@ class TestExtractLines(unittest.TestCase):
         self.assertEqual(textutils.extract_lines(' ', 0, 0), '')
 
     def test_raises_exceptions_given_bad_argument(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(EncodingBoundaryViolation):
             textutils.extract_lines(b'foo', 0, 0)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(EncodingBoundaryViolation):
             textutils.extract_lines(1, 0, 0)
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(AWAssertionError):
             textutils.extract_lines('foo', -1, 0)
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(AWAssertionError):
             textutils.extract_lines('foo', 0, -1)

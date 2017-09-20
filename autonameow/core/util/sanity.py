@@ -75,3 +75,13 @@ def assert_isinstance(value, expected):
                 expected, type(value)
             )
         )
+
+
+def assertthat(expression, msg=None):
+    if msg is None:
+        msg = 'Reason unknown'
+
+    if not expression:
+        raise exceptions.AWAssertionError(
+            'Assertion Failed - "{!s}"'.format(msg)
+        )

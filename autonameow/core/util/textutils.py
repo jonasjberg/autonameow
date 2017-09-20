@@ -147,16 +147,15 @@ def extract_lines(text, first_line, last_line):
         If 'text' is a Unicode str; lines between 'first_line' and 'last_line'.
         None if 'text' is None.
     Raises:
-        TypeError: Argument 'text' is not a Unicode string.
-        AssertionError: Either 'first_line' or 'last_line' is negative.
+        EncodingBoundaryViolation: Argument 'text' is not a Unicode string.
+        AWAssertionError: Either 'first_line' or 'last_line' is negative.
     """
     if text is None:
         return text
-    if not isinstance(text, str):
-        raise TypeError('Expected argument "text" to be a Unicode str')
 
-    assert(first_line >= 0)
-    assert(last_line >= 0)
+    util.assert_internal_string(text)
+    util.assertthat(first_line >= 0, 'Argument first_line is negative')
+    util.assertthat(last_line >= 0, 'Argument last_line is negative')
 
     lines = text.splitlines(keepends=True)
     if last_line > len(lines):
