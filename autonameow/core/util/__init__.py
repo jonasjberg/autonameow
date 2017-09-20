@@ -22,7 +22,7 @@
 from core.util.encoding import *
 from core.util.misc import *
 from core.util.queue import GenericQueue
-from core.util.sanity import *
+from core.util.sanitycheck import *
 from core.util.textutils import (
     indent,
     remove_nonbreaking_spaces
