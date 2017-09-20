@@ -31,7 +31,7 @@
 
               Uses pairs of regular expressions patterns and replacement string
               to perform last-minute replacements on the new file name.
-              Exampe:
+              Example:
 
                   CUSTOM_POST_PROCESSING:
                       replacements:
@@ -47,7 +47,6 @@
             Changes:
             - Add a new "to-string" method in the 'Repository' class.
               Means that the '--list-all' formatting has changed.
-            - Modify text e
             - Modify text extractors 'meowuri_root' and common return method.
 
               The repository 'store' method (and '_store' method) handles too
@@ -61,15 +60,14 @@
               the 'meowuri_root' of all text extractors to 'contents.textual'
               ('contents.visual' for the OCR-extractor..) and adds returning a
               dict from the 'AbstractTextExtractor.excute()', with 'raw_text'
-              as key.
+              as the only key.
             - Modify the "MeowURIs" used by text extractors.
 
                   Previously:  'contents.textual.raw_text'
                   Changed to:  'contents.textual.text.full'
+
             - Modify terminal color scheme.
             - Rename 'PdfAnalyzer' to 'DocumentAnalyzer'.
-
-              Renames the 'PdfAnalyzer' class to 'DocumentAnalyzer'.
 
               Having filetype-specific analyzers no longer makes any sense.
               The analyzer classes have been left behind while the overall
