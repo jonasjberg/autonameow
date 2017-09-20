@@ -181,17 +181,12 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
 
     def test_method_execute_returns_expected_type(self):
         actual = self.e.execute(self.test_file)
-        self.assertTrue(isinstance(actual.value, str))
+        self.assertTrue(isinstance(actual, dict))
 
     def test_method_execute_all_result_contains_expected(self):
         self.skipTest('Fix expected text encoding issue')
         actual = self.e.execute(self.test_file)
-        self.assertEqual(actual.value, self.EXPECT_TEXT)
-
-    def test_method_execute_arbitrary_field_result_contains_expected(self):
-        self.skipTest('Fix expected text encoding issue')
-        actual = self.e.execute(self.test_file, field='dummy_field')
-        self.assertEqual(actual.value, self.EXPECT_TEXT)
+        self.assertEqual(actual['raw_text'].value, self.EXPECT_TEXT)
 
     def test_class_method_can_handle_is_defined(self):
         self.assertIsNotNone(self.e.can_handle)

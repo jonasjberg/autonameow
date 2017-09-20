@@ -26,14 +26,38 @@ import extractors
 import plugins
 from core import (
     exceptions,
-    util
+    util,
 )
+from core.config.field_parsers import eval_meowuri_glob
+from core.util import textutils
 
 
 log = logging.getLogger(__name__)
 
 
 class Repository(object):
+    """
+    The repository class is the central internal storage used by all parts
+    of the program. The repository stores data per file, cataloguing the
+    individual data elements using "MeowURIs".
+
+    The internal storage structure is laid out like this:
+
+            STORAGE = {
+                'file_object_A': {
+                    'meowuri_a': 1
+                    'meowuri_b': 'foo'
+                    'meowuri_c': ExtractedData(...)
+                }
+                'file_object_B': {
+                    'meowuri_a': ['bar']
+                    'meowuri_b': [2, 1]
+                }
+            }
+
+    The first level of the nested structure uses instances of 'file_object' as
+    keys into containing structures that use "MeowURIs" (Unicode strings) keys.
+    """
     def __init__(self):
         self.data = {}
         self.meowuri_class_map = {}
@@ -62,59 +86,50 @@ class Repository(object):
 
     def store(self, file_object, meowuri, data):
         """
-        Collects data. Should be passed to "non-core" components as a callback.
+        Primary global publicly available interface for data storage.
 
         Adds data related to a given 'file_object', at a storage location
         defined by the given 'meowuri'.
-
-            STORAGE = {
-                'file_object_A': {
-                    'meowuri_a': [1, 2]
-                    'meowuri_b': ['foo']
-                }
-                'file_object_B': {
-                    'meowuri_a': ['bar']
-                    'meowuri_b': [2, 1]
-                }
-            }
-
-        If argument "data" is a dictionary, it is "flattened" here.
-        Example:
-
-          Incoming arguments:
-          LABEL: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
-
-          Would be "flattened" to:
-          LABEL: 'metadata.exiftool.a'   DATA: 'b'
-          LABEL: 'metadata.exiftool.c'   DATA: 'd'
-
         """
-        if not meowuri:
+        def __meowuri_error(bad_meowuri):
             raise exceptions.InvalidDataSourceError(
-                'Missing required argument "meowuri"'
+                'Invalid MeowURI: "{!s}" ({})'.format(bad_meowuri,
+                                                      type(bad_meowuri))
             )
-        if not isinstance(meowuri, str):
-            raise exceptions.InvalidDataSourceError(
-                'Argument "meowuri" must be of type str'
-            )
+
+        if not meowuri or not isinstance(meowuri, str):
+            __meowuri_error(meowuri)
+        if not meowuri.strip():
+            __meowuri_error(meowuri)
 
         if data is None:
             log.warning('Attempted to add None data with meowURI'
                         ' "{!s}"'.format(meowuri))
             return
 
-        if isinstance(data, dict):
-            flat_data = util.flatten_dict(data)
-            for k, v in flat_data.items():
-                merged_meowuri = meowuri + '.' + str(k)
-                self._store(file_object, merged_meowuri, v)
-        else:
-            self._store(file_object, meowuri, data)
+        self._store(file_object, meowuri, data)
+        self._store_generic(file_object, data)
+
+    def _store_generic(self, file_object, data):
+        if not isinstance(data, extractors.ExtractedData):
+            return
+
+        if data.generic_field is not None:
+            try:
+                _gen_uri = data.generic_field.uri()
+            except AttributeError:
+                # TODO: [TD0082] Integrate the 'ExtractedData' class.
+                self.log.critical('TODO: Fix missing "field.uri()" for some'
+                                  ' GenericField classes!')
+            else:
+                self._store(file_object, _gen_uri, data)
 
     def _store(self, file_object, meowuri, data):
+        log.debug('Repository storing: [{!s}]->[{!s}] :: "{!s}"'.format(
+            file_object, meowuri, data
+        ))
         try:
-            any_existing = util.nested_dict_get(self.data,
-                                                [file_object, meowuri])
+            any_existing = self.__get_data(file_object, meowuri)
         except KeyError:
             pass
         else:
@@ -126,10 +141,7 @@ class Repository(object):
 
                 data = any_existing + data
 
-        util.nested_dict_set(self.data, [file_object, meowuri], data)
-        log.debug('Repository stored: {{"{!s}": {{"{!s}": {!s}}}}}'.format(
-            file_object, meowuri, data
-        ))
+        self.__store_data(file_object, meowuri, data)
 
     def query(self, file_object, meowuri, mapped_to_field=None):
         if not meowuri:
@@ -137,11 +149,11 @@ class Repository(object):
                 'Unable to resolve empty meowURI'
             )
 
-        log.debug('Got request [{!s}] "{!s}" Mapped to Field: "{!s}"'.format(
+        log.debug('Got request [{!s}]->[{!s}] Mapped to Field: "{!s}"'.format(
             file_object, meowuri, mapped_to_field))
 
         try:
-            data = util.nested_dict_get(self.data, [file_object, meowuri])
+            data = self.__get_data(file_object, meowuri)
         except KeyError as e:
             log.debug('Repository request raised KeyError: {!s}'.format(e))
             return None
@@ -153,8 +165,8 @@ class Repository(object):
                         return data
                     else:
                         log.debug(
-                            'Repository request failed requirement; [{!s}] '
-                            '"{!s}" Mapped to Field: "{!s}"'.format(
+                            'Repository request failed requirement; [{!s}]->'
+                            '[{!s}] Mapped to Field: "{!s}"'.format(
                                 file_object, meowuri, mapped_to_field
                             )
                         )
@@ -165,6 +177,12 @@ class Repository(object):
             else:
                 return data
 
+    def __get_data(self, file, meowuri):
+        return util.nested_dict_get(self.data, [file, meowuri])
+
+    def __store_data(self, file, meowuri, data):
+        util.nested_dict_set(self.data, [file, meowuri], data)
+
     def resolvable(self, meowuri):
         if not meowuri:
             return False
@@ -173,6 +191,88 @@ class Repository(object):
         if any([meowuri.startswith(r) for r in resolvable]):
             return True
         return False
+
+    def human_readable_contents(self):
+        out = []
+        for file_object, data in self.data.items():
+            out.append('FileObject basename: "{!s}"'.format(file_object))
+
+            _abspath = util.displayable_path(file_object.abspath)
+            out.append('FileObject absolute path: "{!s}"'.format(_abspath))
+
+            out.append('')
+            out.extend(self._human_readable_contents(data))
+            out.append('\n')
+
+        return '\n'.join(out)
+
+    def _human_readable_contents(self, data):
+        def _fmt_list_entry(width, _value, _key=None):
+            if _key is None:
+                return '{: <{}}  * {!s}'.format('', width, _value)
+            else:
+                return '{: <{}}: * {!s}'.format(_key, width, _value)
+
+        def _fmt_text_line(width, _value, _key=None):
+            if _key is None:
+                return '{: <{}}  > {!s}'.format('', width, _value)
+            else:
+                return '{: <{}}: > {!s}'.format(_key, width, _value)
+
+        def _fmt_entry(_key, width, _value):
+            return '{: <{}}: {!s}'.format(_key, width, _value)
+
+        # TODO: [TD0066] Handle all encoding properly.
+        temp = {}
+        _max_len_meowuri = 20
+        for uri, data in data.items():
+            _max_len_meowuri = max(_max_len_meowuri, len(uri))
+
+            # TODO: [TD0082] Integrate the 'ExtractedData' class.
+            if isinstance(data, extractors.ExtractedData):
+                data = data.value
+
+            if isinstance(data, bytes):
+                temp[uri] = util.displayable_path(data)
+            elif isinstance(data, list):
+                log.debug('TODO: Improve robustness of handling this case')
+                temp_list = []
+                for v in data:
+                    if isinstance(v, bytes):
+                        temp_list.append(util.displayable_path(v))
+                    else:
+                        temp_list.append(v)
+
+                temp[uri] = temp_list
+            else:
+                temp[uri] = data
+
+            # Often *a lot* of text, trim to arbitrary size..
+            if eval_meowuri_glob(uri, '*.text.full'):
+                temp[uri] = truncate_text(temp[uri])
+
+        out = []
+        for uri, data in temp.items():
+            if isinstance(data, list):
+                if data:
+                    out.append(_fmt_list_entry(_max_len_meowuri, data[0], uri))
+                    for v in data[1:]:
+                        out.append(_fmt_list_entry(_max_len_meowuri, v))
+
+            else:
+                if eval_meowuri_glob(uri, '*.text.full'):
+                    _text = textutils.extract_lines(data, 0, 1)
+                    _text = _text.rstrip('\n')
+                    out.append(_fmt_text_line(_max_len_meowuri, _text, uri))
+                    _lines = textutils.extract_lines(
+                        data, 1, len(data.splitlines())
+                    )
+                    for _line in _lines.splitlines():
+                        out.append(_fmt_text_line(_max_len_meowuri, _line))
+                else:
+                    out.append(_fmt_entry(uri, _max_len_meowuri, data))
+
+        return out
 
     def __len__(self):
         return util.count_dict_recursive(self.data)
@@ -210,7 +310,7 @@ class Repository(object):
                     temp[key] = value
 
                 # Often *a lot* of text, trim to arbitrary size..
-                if key == 'contents.textual.raw_text':
+                if eval_meowuri_glob(key, '*.text.full'):
                     temp[key] = truncate_text(temp[key])
 
             expanded = util.expand_meowuri_data_dict(temp)

@@ -10,6 +10,33 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-09-20
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0093]` Implement using config `POST_REPLACEMENTS` in name builder.
+
+* 2017-09-17
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0083]` __Clean up the type wrapper classes.__  
+    >     * Remove ambiguities around returning "NULL" and raising `AWTypeError`.
+    >     * Clean up the "interface" to the type wrappers. If callers only use the
+    >       shared singleton module attributes, I.E. all data flows in through
+    >       `__call__`, then unit testing the `coerce` method is superfluous.
+    >     * Look at the `normalize` methods, think about removing them if they
+    >       continue to go unused.  See also, related entry: `[TD0060]`
+
+* 2017-09-14
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0060]` Implement or remove the type wrapper classes `format` method.
+
 * 2017-09-11
 
     > Medium Priority

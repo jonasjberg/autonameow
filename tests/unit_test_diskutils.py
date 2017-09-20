@@ -22,8 +22,11 @@
 import os
 from unittest import TestCase
 
-from core import util
-from core.constants import MAGIC_TYPE_LOOKUP
+from core import (
+    util,
+    exceptions
+)
+from core.exceptions import EncodingBoundaryViolation
 from core.util import diskutils
 from core.util.diskutils import (
     sanitize_filename,
@@ -31,27 +34,6 @@ from core.util.diskutils import (
     get_files_gen
 )
 import unit_utils as uu
-
-
-class TestMimeTypes(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-    def test_magic_type_lookup_table_exists(self):
-        self.assertIsNotNone(MAGIC_TYPE_LOOKUP,
-                             'MAGIC_TYPE_LOOKUP mime type lookup should exist')
-
-    def test_magic_type_lookup_table_is_instance_of_dict(self):
-        self.assertTrue(isinstance(MAGIC_TYPE_LOOKUP, dict),
-                        'MAGIC_TYPE_LOOKUP should be an instance of dict')
-
-    def test_magic_type_lookup_table_values_are_type_list(self):
-        for value in MAGIC_TYPE_LOOKUP.values():
-            self.assertTrue(isinstance(value, list),
-                            'MAGIC_TYPE_LOOKUP values should be lists')
-
-    def test_magic_type_lookup_arbitrarily_assert_image_is_jpeg(self):
-        self.assertEqual(['image/jpeg'], MAGIC_TYPE_LOOKUP['jpg'])
 
 
 class TestSplitBasename(TestCase):
@@ -65,7 +47,7 @@ class TestSplitBasename(TestCase):
         self.assertTrue(isinstance(d, bytes))
 
     def test_passing_unicode_strings_raises_assertion_error(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(exceptions.EncodingBoundaryViolation):
             _, _ = diskutils.split_basename('a.b')
 
     def test_split_no_name(self):
@@ -558,22 +540,26 @@ class TestCompareBasenames(TestCase):
         self.assertIsNotNone(diskutils.compare_basenames)
 
     def test_compare_basenames_raises_exceptions_given_invalid_input(self):
-        with self.assertRaises(ValueError):
-            diskutils.compare_basenames(None, None)
-            diskutils.compare_basenames(None, [])
-            diskutils.compare_basenames([], None)
-            diskutils.compare_basenames(b'a', [])
-            diskutils.compare_basenames(b'', b'')
-            diskutils.compare_basenames(b'', b' ')
-            diskutils.compare_basenames(b'_', b'')
+        def _raises(exception_, a, b):
+            with self.assertRaises(exception_):
+                diskutils.compare_basenames(a, b)
 
-        with self.assertRaises(TypeError):
-            diskutils.compare_basenames(1, 2)
-            diskutils.compare_basenames('a', 1)
-            diskutils.compare_basenames(1, 'a')
-            diskutils.compare_basenames('a', 'a')
-            diskutils.compare_basenames('a', b'a')
-            diskutils.compare_basenames(b'a', 'a')
+        _raises(ValueError, None, None)
+        _raises(ValueError, None, None)
+        _raises(ValueError, None, [])
+        _raises(ValueError, [], None)
+        _raises(EncodingBoundaryViolation, 1, 2)
+        _raises(EncodingBoundaryViolation, [], [])
+        _raises(EncodingBoundaryViolation, object(), object())
+        _raises(EncodingBoundaryViolation, 'a', 'b')
+        _raises(EncodingBoundaryViolation, 'a', [])
+        _raises(EncodingBoundaryViolation, '', '')
+        _raises(EncodingBoundaryViolation, '', ' ')
+        _raises(EncodingBoundaryViolation, '_', '')
+        _raises(EncodingBoundaryViolation, 'a', 2)
+        _raises(EncodingBoundaryViolation, 1, 'b')
+        _raises(EncodingBoundaryViolation, 'a', b'a')
+        _raises(EncodingBoundaryViolation, b'a', 'a')
 
     def test_comparing_equal_basenames_returns_true(self):
         def _assert_true(first, second):
@@ -582,6 +568,7 @@ class TestCompareBasenames(TestCase):
                 isinstance(diskutils.compare_basenames(first, second), bool)
             )
 
+        _assert_true(b'', b'')
         _assert_true(b' ', b' ')
         _assert_true(b'a', b'a')
         _assert_true(b'foo', b'foo')

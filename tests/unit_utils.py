@@ -47,11 +47,27 @@ class TestCase(unittest.TestCase):
         pass
 
 
+def ok_(expr, msg=None):
+    """
+    Shorthand for assert
+    """
+    if not expr:
+        raise AssertionError(msg)
+
+
+def eq_(a, b, msg=None):
+    """
+    Shorthand for 'assert a == b, "{!r} != {!r}".format(a, b)'
+    """
+    if not a == b:
+        raise AssertionError(msg or '{!r} != {!r}'.format(a, b))
+
+
 def abspath_testfile(testfile_basename):
     """
     Utility function used by tests to construct a full path to individual test
     files in the 'test_files' directory.
-    
+
     Args:
         testfile_basename: The basename of a file in the 'test_files' directory
             as a Unicode string (internal string format)
@@ -61,6 +77,10 @@ def abspath_testfile(testfile_basename):
     """
     return os.path.abspath(os.path.join(uuconst.TEST_FILES_DIR,
                                         testfile_basename))
+
+
+def normpath(path):
+    return util.normpath(path)
 
 
 def all_testfiles():
@@ -85,7 +105,7 @@ def file_exists(file_path):
     Returns:
         True if the file exists, else False.
     """
-    return os.path.isfile(file_path)
+    return os.path.isfile(util.syspath(file_path))
 
 
 def dir_exists(dir_path):
@@ -98,8 +118,9 @@ def dir_exists(dir_path):
     Returns:
         True if the directory exists and is readable, else False.
     """
+    _path = util.syspath(dir_path)
     try:
-        return os.path.exists(dir_path) and os.path.isdir(dir_path)
+        return os.path.exists(_path) and os.path.isdir(_path)
     except OSError:
         return False
 
@@ -116,7 +137,7 @@ def path_is_readable(file_path):
         False for any other case, including errors.
     """
     try:
-        return os.access(file_path, os.R_OK)
+        return os.access(util.syspath(file_path), os.R_OK)
     except OSError:
         return False
 

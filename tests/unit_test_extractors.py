@@ -65,9 +65,6 @@ class TestBaseExtractor(TestCase):
         with self.assertRaises(NotImplementedError):
             self.e.execute(self.test_file)
 
-        with self.assertRaises(NotImplementedError):
-            self.e.execute(self.test_file, field='some_field')
-
     def test_method_str_is_defined_and_reachable(self):
         self.assertIsNotNone(str(self.e))
         self.assertIsNotNone(self.e.__str__)

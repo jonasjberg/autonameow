@@ -41,6 +41,8 @@ from core import (
     exceptions,
     util
 )
+from core.util import textutils
+
 
 # TODO: [TD0084] Add handling collections to type wrapper classes.
 
@@ -108,7 +110,7 @@ class BaseType(object):
         except (ValueError, TypeError):
             self._fail_coercion(value)
 
-    def format(self, value, formatter=None):
+    def format(self, value, **kwargs):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def _fail_normalization(self, value, msg=None):
@@ -173,8 +175,7 @@ class Path(BaseType):
 
         self._fail_coercion(value)
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         parsed = self.__call__(value)
         return util.displayable_path(parsed)
 
@@ -199,8 +200,7 @@ class PathComponent(BaseType):
         except (ValueError, TypeError):
             self._fail_coercion(value)
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         value = self.__call__(value)
         return util.displayable_path(value)
 
@@ -246,8 +246,7 @@ class Boolean(BaseType):
         else:
             return False
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         value = self.__call__(value)
         return self.bool_to_string(value)
 
@@ -280,13 +279,25 @@ class Integer(BaseType):
     def normalize(self, value):
         return self.__call__(value)
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         value = self.__call__(value)
-        if not formatter:
-            return '{}'.format(value)
-        else:
-            return formatter.format(value)
+
+        if 'format_string' not in kwargs:
+            return '{}'.format(value or self._null())
+
+        format_string = kwargs.get('format_string')
+        if format_string:
+            if not isinstance(format_string, str):
+                raise AWTypeError('Expected "format_string" to be Unicode str')
+
+            try:
+                return format_string.format(value)
+            except TypeError:
+                pass
+
+        raise AWTypeError(
+            'Invalid "format_string": "{!s}"'.format(format_string)
+        )
 
 
 class Float(BaseType):
@@ -298,13 +309,25 @@ class Float(BaseType):
     def normalize(self, value):
         return self.__call__(value)
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         value = self.__call__(value)
-        if not formatter:
+
+        if 'format_string' not in kwargs:
             return '{0:.1f}'.format(value or self._null())
-        else:
-            return formatter.format(value or self._null())
+
+        format_string = kwargs.get('format_string')
+        if format_string:
+            if not isinstance(format_string, str):
+                raise AWTypeError('Expected "format_string" to be Unicode str')
+
+            try:
+                return format_string.format(value)
+            except TypeError:
+                pass
+
+        raise AWTypeError(
+            'Invalid "format_string": "{!s}"'.format(format_string)
+        )
 
 
 class String(BaseType):
@@ -338,9 +361,8 @@ class String(BaseType):
     def normalize(self, value):
         return self.__call__(value).strip()
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
-        # raise NotImplementedError('TODO: Implement String.format()')
+    def format(self, value, **kwargs):
+        value = self.__call__(value)
         return value
 
 
@@ -350,17 +372,29 @@ class MimeType(BaseType):
     equivalent_types = ()
     null = constants.MAGIC_TYPE_UNKNOWN
 
-    MIME_TYPE_LOOKUP = {
-        ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
-    }
+    try:
+        MIME_TYPE_LOOKUP = {
+            ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
+        }
+    except AttributeError:
+        MIME_TYPE_LOOKUP = {}
+
+    # TODO: Improve robustness of interfacing with 'mimetypes'.
+    assert len(MIME_TYPE_LOOKUP) > 0
+
+    # Any custom "extension to MIME-type"-mappings goes here.
+    MIME_TYPE_LOOKUP['sh'] = 'text/x-shellscript'
+
     MIME_TYPE_LOOKUP_INV = {
         mime: ext for ext, mime in MIME_TYPE_LOOKUP.items()
     }
+
+    # Override "MIME-type to extension"-mappings here.
     MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
-    KNOWN_EXTENSIONS = set(MIME_TYPE_LOOKUP.keys())
-    KNOWN_MIME_TYPES = set(MIME_TYPE_LOOKUP.values())
-    assert(len(KNOWN_EXTENSIONS) > 0)
-    assert(len(KNOWN_MIME_TYPES) > 0)
+    MIME_TYPE_LOOKUP_INV['image/jpeg'] = 'jpg'
+
+    KNOWN_EXTENSIONS = frozenset(MIME_TYPE_LOOKUP.keys())
+    KNOWN_MIME_TYPES = frozenset(MIME_TYPE_LOOKUP.values())
 
     def __call__(self, value=None):
         # Overrides the 'BaseType' __call__ method as to not perform the test
@@ -383,15 +417,12 @@ class MimeType(BaseType):
             elif string_value in self.KNOWN_EXTENSIONS:
                 return self.MIME_TYPE_LOOKUP[string_value]
 
-        # TODO: [TD0083] Return "NULL" or raise 'AWTypeError'..?
-        # self._fail_coercion(value)
         return self._null()
 
     def normalize(self, value):
         return self.__call__(value)
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
+    def format(self, value, **kwargs):
         if value == constants.MAGIC_TYPE_UNKNOWN:
             return ''
 
@@ -418,7 +449,7 @@ class Date(BaseType):
         else:
             try:
                 return try_parse_date(string_value)
-            except (TypeError, ValueError) as e:
+            except ValueError as e:
                 self._fail_coercion(value, msg=e)
 
     def normalize(self, value):
@@ -432,13 +463,26 @@ class Date(BaseType):
     # instances. Otherwise, raise an exception to be handled by the caller.
     def _null(self):
         raise AWTypeError(
-            'Type wrapper "{!r}" should never EVER return null!'.format(self)
+            '"{!r}" got incoercible data'.format(self)
         )
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
-        return value
-        # raise NotImplementedError('TODO: Implement TimeDate.format()')
+    def format(self, value, **kwargs):
+        value = self.__call__(value)
+
+        format_string = kwargs.get('format_string')
+        if format_string is None:
+            format_string = constants.DEFAULT_DATETIME_FORMAT_DATE
+            if not isinstance(format_string, str):
+                raise AWTypeError('Expected "format_string" to be Unicode str')
+
+            try:
+                return datetime.strftime(value, format_string)
+            except TypeError:
+                pass
+
+        raise AWTypeError(
+            'Invalid "format_string": "{!s}"'.format(format_string)
+        )
 
 
 class TimeDate(BaseType):
@@ -453,7 +497,7 @@ class TimeDate(BaseType):
 
     def coerce(self, value):
         try:
-            return try_parse_full_datetime(value)
+            return try_parse_datetime(value)
         except (TypeError, ValueError) as e:
             self._fail_coercion(value, msg=e)
 
@@ -468,13 +512,26 @@ class TimeDate(BaseType):
     # instances. Otherwise, raise an exception to be handled by the caller.
     def _null(self):
         raise AWTypeError(
-            'Type wrapper "{!r}" should never EVER return null!'.format(self)
+            '"{!r}" got incoercible data'.format(self)
         )
 
-    def format(self, value, formatter=None):
-        # TODO: [TD0060] Implement or remove the "formatter" argument.
-        return value
-        # raise NotImplementedError('TODO: Implement TimeDate.format()')
+    def format(self, value, **kwargs):
+        value = self.__call__(value)
+
+        format_string = kwargs.get('format_string')
+        if format_string is None:
+            format_string = constants.DEFAULT_DATETIME_FORMAT_DATETIME
+            if not isinstance(format_string, str):
+                raise AWTypeError('Expected "format_string" to be Unicode str')
+
+            try:
+                return datetime.strftime(value, format_string)
+            except TypeError:
+                pass
+
+        raise AWTypeError(
+            'Invalid "format_string": "{!s}"'.format(format_string)
+        )
 
 
 class ExifToolTimeDate(TimeDate):
@@ -482,20 +539,10 @@ class ExifToolTimeDate(TimeDate):
         if re.match(r'.*0000:00:00 00:00:00.*', value):
             self._fail_coercion(value)
 
-        # Remove any ':' in timezone as to match strptime pattern.
-        if re.match(r'.*\+\d\d:\d\d$', value):
-            value = re.sub(r'\+(\d\d):(\d\d)$', r'+\1\2', value)
-        elif re.match(r'.*-\d\d:\d\d$', value):
-            value = re.sub(r'-(\d\d):(\d\d)$', r'-\1\2', value)
-
         try:
-            # TODO: Fix matching dates with timezone. Below is not working.
-            return datetime.strptime(value, '%Y:%m:%d %H:%M:%S%z')
-        except (ValueError, TypeError):
-            try:
-                return try_parse_full_datetime(value)
-            except (TypeError, ValueError) as e:
-                pass
+            return try_parse_datetime(value)
+        except ValueError:
+            pass
 
         self._fail_coercion(value)
 
@@ -503,22 +550,26 @@ class ExifToolTimeDate(TimeDate):
 class PyPDFTimeDate(TimeDate):
     primitive_type = None
 
-    def coerce(self, value):
-        if "'" in value:
-            value = value.replace("'", '')
+    # Expected date/time format:      D:20121225235237 +05'30'
+    #                                   ^____________^ ^_____^
+    # Regex search matches two groups:        #1         #2
+    RE_DATETIME_TZ = re.compile(r'D:(\d{14}) ?(\+\d{2}\'?\d{2}\'?)')
 
-        # Expected date format:           D:20121225235237 +05'30'
-        #                                   ^____________^ ^_____^
-        # Regex search matches two groups:        #1         #2
-        re_datetime_tz = re.compile(r'D:(\d{14}) ?(\+\d{2}\'?\d{2}\'?)')
-        re_match_tz = re_datetime_tz.search(value)
+    # Date/time without timezone, alternate pattern:
+    RE_DATETIME = re.compile(r'D:(\d{14})')
+
+    # Only date, without timezone:
+    RE_DATE = re.compile(r'D:(\d{8})')
+
+    def coerce(self, value):
+        value = value.replace("'", '')
+
+        re_match_tz = self.RE_DATETIME_TZ.search(value)
         if re_match_tz:
             datetime_str = re_match_tz.group(1)
             timezone_str = re_match_tz.group(2)
-            timezone_str = timezone_str.replace("'", "")
 
             try:
-                # With timezone ('%z')
                 return datetime.strptime(str(datetime_str + timezone_str),
                                          '%Y%m%d%H%M%S%z')
             except ValueError:
@@ -529,75 +580,162 @@ class PyPDFTimeDate(TimeDate):
             except ValueError:
                 pass
 
-        # Try matching another pattern.
-        re_datetime_no_tz = re.compile(r'D:(\d{14})')
-        re_match = re_datetime_no_tz.search(value)
+        re_match = self.RE_DATETIME.search(value)
         if re_match:
             try:
                 return datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
             except ValueError:
                 pass
 
+        re_match = self.RE_DATE.search(value)
+        if re_match:
+            try:
+                return datetime.strptime(re_match.group(1), '%Y%m%d')
+            except ValueError:
+                pass
+
         self._fail_coercion(value)
 
 
-def try_parse_full_datetime(string):
-    _error_msg = 'Unable to parse full datetime from: "{!s}"'.format(string)
+_pat_loose_date = '{year}{sep}{month}{sep}{day}'.format(
+    year=r'(\d{4})', month=r'(\d{2})', day=r'(\d{2})', sep=r'[:_ \-]?'
+)
+_pat_loose_time = '{hour}{sep}{minute}{sep}{second}'.format(
+    hour=r'(\d{2})', minute=r'(\d{2})', second=r'(\d{2})', sep=r'[:_ \-]?'
+)
+_pat_datetime_sep = r'[:_ tT\-]?'
+_pat_timezone = r'([-+])?(\d{2}).?(\d{2})'
+_pat_microseconds = r'[\._ ]?(\d{6})'
+
+RE_LOOSE_TIME = re.compile(_pat_loose_time)
+RE_LOOSE_DATE = re.compile(_pat_loose_date)
+RE_LOOSE_DATETIME = re.compile(
+    _pat_loose_date + _pat_datetime_sep + _pat_loose_time
+)
+RE_LOOSE_DATETIME_TZ = re.compile(
+    _pat_loose_date + _pat_datetime_sep + _pat_loose_time + _pat_timezone
+)
+RE_LOOSE_DATETIME_US = re.compile(
+    _pat_loose_date + _pat_datetime_sep + _pat_loose_time + _pat_microseconds
+)
+
+
+def normalize_date(string):
+    match = RE_LOOSE_DATE.search(string)
+    if match:
+        _normalized = re.sub(RE_LOOSE_DATE, r'\1-\2-\3', string)
+        return _normalized
+    return None
+
+
+def normalize_datetime_with_timezone(string):
+    match = RE_LOOSE_DATETIME_TZ.search(string)
+    if match:
+        _normalized = re.sub(RE_LOOSE_DATETIME_TZ,
+                             r'\1-\2-\3T\4:\5:\6 \7\8\9',
+                             string)
+        return _normalized.replace(' ', '')
+    return None
+
+
+def normalize_datetime(string):
+    match = RE_LOOSE_DATETIME.search(string)
+    if match:
+        _normalized = re.sub(RE_LOOSE_DATETIME, r'\1-\2-\3T\4:\5:\6', string)
+        return _normalized.replace(' ', '')
+    return None
+
+
+def normalize_datetime_with_microseconds(string):
+    match = RE_LOOSE_DATETIME_US.search(string)
+    if match:
+        _normalized = re.sub(RE_LOOSE_DATETIME_US, r'\1-\2-\3T\4:\5:\6.\7',
+                             string)
+        return _normalized
+    return None
+
+
+def try_parse_datetime(string):
+    _error_msg = 'Unable to parse datetime: "{!s}" ({})'.format(string,
+                                                                type(string))
 
     if not string:
         raise ValueError(_error_msg)
     if not isinstance(string, str):
         raise ValueError(_error_msg)
-
-    string = re.sub(
-        r'(\d{4})[:-](\d{2})[:-](\d{2})[T ](\d{2})[:-]?(\d{2})[:-]?(\d{2})',
-        r'\1-\2-\3 \4:\5:\6',
-        string
-    )
 
     # Handles malformed dates produced by "Mac OS X 10.11.5 Quartz PDFContext".
     if string.endswith('Z'):
         string = string[:-1]
 
-    date_formats = ['%Y-%m-%d %H:%M:%S',
-                    '%Y-%m-%d %H:%M:%S.%f',  # %f: Microseconds
-                    '%Y-%m-%d %H:%M:%S %z',  # %z: UTC offset
-                    '%Y-%m-%d %H:%M:%S%z']
-    for date_format in date_formats:
+    match = normalize_datetime_with_timezone(string)
+    if match:
         try:
-            return datetime.strptime(string, date_format)
+            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S%z')
         except (ValueError, TypeError):
-            continue
+            pass
+
+    match = normalize_datetime_with_microseconds(string)
+    if match:
+        try:
+            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S.%f')
+        except (ValueError, TypeError):
+            pass
+
+    match = normalize_datetime(string)
+    if match:
+        try:
+            return datetime.strptime(match, '%Y-%m-%dT%H:%M:%S')
+        except (ValueError, TypeError):
+            pass
 
     raise ValueError(_error_msg)
 
 
 def try_parse_date(string):
-    _error_msg = 'Unable to parse date from: "{!s}"'.format(string)
+    _error_msg = 'Unable to parse date: "{!s}" ({})'.format(string,
+                                                            type(string))
 
     if not string:
         raise ValueError(_error_msg)
     if not isinstance(string, str):
         raise ValueError(_error_msg)
 
-    date_formats = ['%Y-%m-%d',
-                    '%Y-%m',
-                    '%Y']
-    for date_format in date_formats:
+    match = normalize_date(string)
+    if match:
         try:
-            return datetime.strptime(string, date_format)
+            return datetime.strptime(match, '%Y-%m-%d')
         except (ValueError, TypeError):
-            continue
+            pass
+
+    # Alternative, bruteforce method. Extract digits.
+    # Assumes year, month, day is in ISO-date-like order.
+    digits = textutils.extract_digits(string)
+    if digits:
+        util.assert_internal_string(digits)
+
+        date_formats = ['%Y%m%d', '%Y%m', '%Y']
+        for date_format in date_formats:
+            try:
+                return datetime.strptime(digits, date_format)
+            except (ValueError, TypeError):
+                pass
 
     raise ValueError(_error_msg)
 
 
 def try_wrap(value):
-    wrapper = PRIMITIVE_AW_TYPE_MAP.get(type(value))
+    wrapper = wrapper_for(value)
     if wrapper:
         return wrapper(value)
     else:
         return None
+
+
+def wrapper_for(value):
+    if value is None:
+        return None
+    return PRIMITIVE_AW_TYPE_MAP.get(type(value), None)
 
 
 # Singletons for actual use.

@@ -19,75 +19,104 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from core import util
+
 try:
     import chardet
 except (ImportError, ModuleNotFoundError):
     chardet = None
 
-from core import util
-
 
 def extract_digits(string):
     """
-    Extracts digits from text string.
-    :param string: string to extract digits from
-    :return: digits in string or None if string contains no digits
+    Extracts and returns digits from a Unicode string, as a Unicode string.
     """
-    # TODO: [TD0004] Enforce encoding boundary for extracted data.
-    string = util.decode_(string)
+    util.assert_internal_string(string)
+
     digits = ''
     for char in string:
         if char.isdigit():
             digits += char
 
-    return digits if digits.strip() else None
+    return digits if digits.strip() else ''
 
 
 def remove_nonbreaking_spaces(text):
     return text.replace('\xa0', ' ')
 
 
-def indent(text, amount=4, ch=' '):
+def indent(text, amount=None, ch=None):
     """
-    Indents (multi-line) text a specified amount.
+    Indents (multi-line) text by a specified amount.
 
-    Shift text right by the given "amount" (default 4) using the character
-    "ch", which default to a space if left unspecified.
+    Shifts text right by a given "amount" (default: 4) using the character
+    "ch" for padding (defaults to ' ').
 
     Based on this post; https://stackoverflow.com/a/8348914/7802196
 
     Args:
-        text: The text to indent. Single or multi-line.
-        amount: Optional number of columns of indentation. Default: 4
-        ch: Optional character to insert. Default: ' '
+        text: Single or multi-line text to indent, as a Unicode str.
+        amount: Optional padding character ('ch') multiple, as an integer.
+        ch: Optional character to use for padding.
 
     Returns:
-        An indented version of the given text.
+        An indented version of the given text as an Unicode str.
+    Raises:
+        ValueError: Given 'text' is None or a optional argument is set to None.
     """
+    DEFAULT_AMOUNT = 4
+    DEFAULT_PADDING = ' '
+
+    if amount is None:
+        amount = DEFAULT_AMOUNT
+    else:
+        if not isinstance(amount, int):
+            raise TypeError('Expected "amount" to be of type int')
+        elif amount <= 0:
+            raise ValueError('Expected "amount" to be greater than zero')
+
+    if ch is None:
+        ch = DEFAULT_PADDING
+
+    if text is None:
+        raise ValueError('Got None argument "text"')
+
+    util.assert_internal_string(text)
+    util.assert_internal_string(ch)
+
     padding = amount * ch
     return ''.join(padding + line for line in text.splitlines(True))
 
 
 def autodetect_decode(string):
     """
-    Try to decode a string with an unknown encoding to a Unicode str.
+    Tries to decode a string with an unknown encoding to a Unicode str.
+
+    Unicode strings are passed through as-is.
 
     Args:
-        string: The string to decode.
+        string: The string to decode as a Unicode str or a bytestring.
 
     Returns:
-        The given string decoded to an "internal" Unicode string.
+        The given string decoded to an ("internal") Unicode string.
     Raises:
-        ValueError: The autodetection and/or decoding was unsuccessful.
+        ValueError: Autodetection and/or decoding was unsuccessful because
+                    the given string is None or not a string type,
+                    or the "chardet" module is not available.
     """
     if isinstance(string, str):
         return string
 
+    # Guard against chardet "expects a bytes object, not a unicode object".
+    # Although this check probably only applies if given a non-string arg.
+    if not isinstance(string, bytes):
+        raise TypeError('Module "chardet" expects bytestrings')
+
+    if string == b'':
+        return ''
+
     if chardet is None:
         raise ValueError('Required module "chardet" is not available!')
-
-    # chardet "expects a bytes object, not a unicode object".
-    assert(isinstance(string, bytes))
 
     detected_encoding = chardet.detect(string)
     if detected_encoding and 'encoding' in detected_encoding:
@@ -96,6 +125,7 @@ def autodetect_decode(string):
         except ValueError:
             raise ValueError('Unable to autodetect encoding and decode string')
 
+    util.assert_internal_string(string)
     return string
 
 
@@ -114,20 +144,19 @@ def extract_lines(text, first_line, last_line):
         last_line: Last line to include, as a non-negative integer.
 
     Returns:
-        Lines between 'first_line' and 'last_line' from the given 'text'.
+        If 'text' is a Unicode str; lines between 'first_line' and 'last_line'.
+        None if 'text' is None.
+    Raises:
+        TypeError: Argument 'text' is not a Unicode string.
+        AssertionError: Either 'first_line' or 'last_line' is negative.
     """
     if text is None:
-        raise ValueError('Got None argument "text"')
+        return text
     if not isinstance(text, str):
         raise TypeError('Expected argument "text" to be a Unicode str')
 
     assert(first_line >= 0)
     assert(last_line >= 0)
-
-    #if text.endswith('\n'):
-    #    add_trailing_newline = True
-    #else:
-    #    add_trailing_newline = False
 
     lines = text.splitlines(keepends=True)
     if last_line > len(lines):
@@ -137,9 +166,4 @@ def extract_lines(text, first_line, last_line):
         first_line = last_line
 
     extracted = lines[first_line:last_line]
-    extracted = ''.join(extracted)
-
-    #if last_line == len(lines) and add_trailing_newline:
-    #    extracted += '\n'
-
-    return extracted
+    return ''.join(extracted)

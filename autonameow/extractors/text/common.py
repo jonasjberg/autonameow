@@ -46,21 +46,17 @@ class AbstractTextExtractor(BaseExtractor):
             self.log.debug('{!s} starting initial extraction'.format(self))
             text = self._get_text(source)
         except ExtractorError as e:
-            self.log.error('{!s}: extraction FAILED; {!s}'.format(self, e))
+            self.log.warning('{!s}: {!s}'.format(self, e))
             raise
         except NotImplementedError as e:
             self.log.debug('[WARNING] Called unimplemented code in {!s}: '
                            '{!s}'.format(self, e))
             raise ExtractorError
 
-        assert(isinstance(text, str))
-
-        if 'field' in kwargs:
-            self.log.debug('{!s} ignoring field (returning all fields):'
-                           ' "{!s}"'.format(self, kwargs.get('field')))
+        util.assert_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
-        return ExtractedData(wrapper=types.AW_STRING)(text)
+        return {'full': ExtractedData(wrapper=types.AW_STRING)(text)}
 
     def _get_text(self, source):
         raise NotImplementedError('Must be implemented by inheriting classes.')
@@ -75,13 +71,14 @@ def decode_raw(raw_text):
         text = types.AW_STRING(raw_text)
     except types.AWTypeError:
         try:
-            text = textutils.autodetect_decode(text)
+            text = textutils.autodetect_decode(raw_text)
         except ValueError:
             log.warning('Unable to decode raw text')
             return ''
 
-    text = util.remove_nonbreaking_spaces(text)
-    return text
+    if text:
+        text = util.remove_nonbreaking_spaces(text)
+        return text
 
 
 def normalize_unicode(text):

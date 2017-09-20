@@ -33,8 +33,8 @@ try:
 except ImportError:
     colorama = None
 
+import core
 from core import (
-    version,
     constants,
     util
 )
@@ -59,14 +59,14 @@ def print_ascii_banner():
 
     print(ascii_banner)
 
-    colortitle = colorize(' ' + version.__title__.lower() + ' ',
+    colortitle = colorize(' ' + core.version.__title__.lower() + ' ',
                           back='BLUE', fore='BLACK')
     toplineleft = ' {title}  version {v}'.format(title=colortitle,
                                                  v=constants.PROGRAM_VERSION)
-    toplineright = version.__copyright__
+    toplineright = core.version.__copyright__
     print(('{:<}{:>49}'.format(toplineleft, toplineright)))
-    print(('{:>78}'.format(version.__url__)))
-    print(('{:>78}'.format(version.__email__)))
+    print(('{:>78}'.format(core.version.__url__)))
+    print(('{:>78}'.format(core.version.__email__)))
     print('')
 
 
@@ -81,7 +81,7 @@ def print_start_info():
                  style='DIM')
     print(i)
 
-    log.debug('Started {} version {}'.format(version.__title__,
+    log.debug('Started {} version {}'.format(core.version.__title__,
                                              constants.PROGRAM_VERSION))
     log.debug('Running on Python {}'.format(constants.PYTHON_VERSION))
     log.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))

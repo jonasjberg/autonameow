@@ -61,7 +61,8 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             wrapper=types.AW_MIMETYPE,
             mapped_fields=[
                 fields.WeightedMapping(fields.extension, probability=1),
-            ]
+            ],
+            generic_field=fields.GenericMimeType
         ),
         'date_accessed': ExtractedData(
             wrapper=types.AW_TIMEDATE,
@@ -95,31 +96,15 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         except ExtractorError as e:
             self.log.error('{!s} extraction FAILED: {!s}'.format(self, e))
             raise
-
-        if 'field' not in kwargs:
+        else:
             self.log.debug('{!s} returning all extracted data'.format(self))
             return data
-        else:
-            field = kwargs.get('field')
-            self.log.debug('{!s} returning data matching field: '
-                           '"{!s}"'.format(self, field))
-            return data.get(field)
 
     def _get_data(self, file_object):
         if not isinstance(file_object, FileObject):
             raise ExtractorError(
                 'Expected source to be "FileObject" instance'
             )
-
-        # out = {
-        #     'basename.full': types.AW_PATHCOMPONENT(file_object.filename),
-        #     'basename.extension': types.AW_PATHCOMPONENT(file_object.basename_suffix),
-        #     'basename.suffix': types.AW_PATHCOMPONENT(file_object.basename_suffix),
-        #     'basename.prefix': types.AW_PATHCOMPONENT(file_object.basename_prefix),
-        #     'pathname.full': types.AW_PATH(file_object.pathname),
-        #     'pathname.parent': types.AW_PATH(file_object.pathparent),
-        #     'contents.mime_type': file_object.mime_type
-        # }
 
         meowuris_datasources = [
             ('abspath.full', file_object.abspath),

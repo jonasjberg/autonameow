@@ -46,7 +46,6 @@ class TestAbstractTextExtractor(TestCase):
     def test_query_raises_exception_with__get_raw_text_unimplemented(self):
         with self.assertRaises(ExtractorError):
             self.e.execute(self.test_file)
-            self.e.execute(field='some_field')
 
     def test_method_str_is_defined_and_reachable(self):
         self.assertIsNotNone(str(self.e))
@@ -65,6 +64,8 @@ class TestAbstractTextExtractor(TestCase):
     def test_class_method_can_handle_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.assertIsNotNone(self.e.can_handle(self.fo))
+
+        with self.assertRaises(NotImplementedError):
             self.assertFalse(self.e.can_handle(self.fo))
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):

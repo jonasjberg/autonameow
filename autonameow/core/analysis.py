@@ -82,7 +82,12 @@ def _execute_run_queue(analyzer_queue):
                   '{!s}'.format(i + 1, len(analyzer_queue), a))
 
         log.debug('Running Analyzer "{!s}"'.format(a))
-        a.run()
+        try:
+            a.run()
+        except analyzers.AnalyzerError as e:
+            log.error('Halted analyzer "{!s}": {!s}'.format(a, e))
+            continue
+
         log.debug('Finished running "{!s}"'.format(a))
 
 
@@ -95,18 +100,34 @@ def request_global_data(file_object, meowuri):
         return response
 
 
-def collect_results(file_object, label, data):
+def collect_results(file_object, meowuri, data):
     """
     Collects analysis results. Passed to analyzers as a callback.
 
     Analyzers call this to store results data in the session repository.
 
+    If argument "data" is a dictionary, it is "flattened" here.
+    Example:
+
+      Incoming arguments:
+        MeowURI: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
+
+      Would be "flattened" to:
+        MeowURI: 'metadata.exiftool.a'   DATA: 'b'
+        MeowURI: 'metadata.exiftool.c'   DATA: 'd'
+
     Args:
         file_object: Instance of 'file_object' that produced the data to add.
-        label: Label that uniquely identifies the data, as a Unicode str.
+        meowuri: Label that uniquely identifies the data, as a Unicode str.
         data: The data to add, as any type or container.
     """
-    repository.SessionRepository.store(file_object, label, data)
+    if isinstance(data, dict):
+        flat_data = util.flatten_dict(data)
+        for _key, _data in flat_data.items():
+            _uri = '{}.{!s}'.format(meowuri, _key)
+            repository.SessionRepository.store(file_object, _uri, _data)
+    else:
+        repository.SessionRepository.store(file_object, meowuri, data)
 
 
 def _instantiate_analyzers(file_object, klass_list):

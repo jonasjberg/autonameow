@@ -25,13 +25,10 @@ from datetime import (
     timedelta
 )
 
-from core import (
-    util,
-    version
-)
+import core
 
 PYTHON_VERSION = sys.version.replace('\n', '')
-PROGRAM_VERSION = 'v{}'.format(version.__version__)
+PROGRAM_VERSION = 'v{}'.format(core.version.__version__)
 
 
 # Each analyzer can be queried for these fields by calling either;
@@ -45,19 +42,6 @@ NAME_TEMPLATE_FIELDS = (
     ANALYSIS_RESULTS_FIELDS + ['date', 'description', 'edition', 'extension']
 )
 
-# File "magic" MIME type lookup table keyed by shorthand. Each value is a
-# list of file MIME types that is classified for that particular shorthand.
-MAGIC_TYPE_LOOKUP = {'bmp':   ['image/x-ms-bmp'],
-                     'gif':   ['image/gif'],
-                     'jpg':   ['image/jpeg'],
-                     'mov':   ['video/quicktime'],
-                     'mp4':   ['video/mp4'],
-                     'ogg':   ['video/ogg'],
-                     'pdf':   ['application/pdf'],
-                     'png':   ['image/png'],
-                     'txt':   ['text/plain'],
-                     'empty': ['inode/x-empty']}
-
 # Default MIME type string used if the MIME type detection fails.
 MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
 
@@ -67,6 +51,11 @@ DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR = ' -- '
 DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR = ' '
 DEFAULT_FILESYSTEM_SANITIZE_FILENAME = True
 DEFAULT_FILESYSTEM_SANITIZE_STRICT = False
+DEFAULT_FILESYSTEM_LOWERCASE_FILENAME = False
+DEFAULT_FILESYSTEM_UPPERCASE_FILENAME = False
+DEFAULT_DATETIME_FORMAT_DATETIME = '%Y-%m-%dT%H%M%S'
+DEFAULT_DATETIME_FORMAT_DATE = '%Y-%m-%d'
+DEFAULT_DATETIME_FORMAT_TIME = '%H-%M-%S'
 
 DEFAULT_FILESYSTEM_IGNORE_DARWIN = frozenset([
     # Metadata
@@ -186,3 +175,7 @@ YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
 EXIT_SUCCESS = 0    # Program finished successfully.
 EXIT_WARNING = 1    # Program execution completed but there were errors.
 EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.
+
+
+# Repository and internal data storage
+MEOWURI_NODE_GENERIC = 'generic'

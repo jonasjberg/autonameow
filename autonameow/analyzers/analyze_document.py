@@ -19,31 +19,36 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from analyzers import BaseAnalyzer
+from analyzers import (
+    AnalyzerError,
+    BaseAnalyzer
+)
 from core.util import dateandtime
 
 
-class PdfAnalyzer(BaseAnalyzer):
+class DocumentAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
-    handles_mime_types = ['application/pdf']
-    meowuri_root = 'analysis.pdf'
+    handles_mime_types = ['application/pdf', 'text/*']
+    meowuri_root = 'analysis.document'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
-        super(PdfAnalyzer, self).__init__(
+        super(DocumentAnalyzer, self).__init__(
             file_object, add_results_callback, request_data_callback
         )
 
         self.text = None
 
     def run(self):
-        self.text = self.request_data(self.file_object,
-                                      'contents.textual.raw_text')
+        _response = self.request_data(self.file_object,
+                                      'contents.textual.text.full')
+        if _response is None:
+            return
+            # raise AnalyzerError(
+            #     'Required data unavailable ("contents.textual.text.full")'
+            # )
 
-    # def request_data(self, file_object, label):
-    #     util.nested_dict_get(self.session_data, [file_object, label])
-
-        # Pass results through callback function provided by the 'Analysis'.
+        self.text = _response
         self._add_results('author', self.get_author())
         self._add_results('title', self.get_title())
         self._add_results('datetime', self.get_datetime())
@@ -60,13 +65,9 @@ class PdfAnalyzer(BaseAnalyzer):
         results = []
 
         possible_authors = [
-            ('metadata.exiftool.PDF:Author', 1),
-            ('metadata.exiftool.PDF:Creator', 0.8),
-            ('metadata.exiftool.PDF:Producer', 0.8),
-            ('metadata.exiftool.XMP:Creator', 0.8),
-            ('metadata.pypdf.Author', 1),
-            ('metadata.pypdf.Creator',  0.8),
-            ('metadata.pypdf.Producer',  0.5)
+            ('metadata.author', 1),
+            ('metadata.creator', 0.5),
+            ('metadata.producer', 0.1),
         ]
         for meowuri, weight, in possible_authors:
             results += self.__collect_results(meowuri, weight)
@@ -77,11 +78,8 @@ class PdfAnalyzer(BaseAnalyzer):
         results = []
 
         possible_titles = [
-            ('metadata.exiftool.PDF:Title', 1),
-            ('metadata.exiftool.XMP:Title', 8),
-            ('metadata.exiftool.PDF:Subject', 0.25),
-            ('metadata.pypdf.Title', 1),
-            ('metadata.pypdf.Subject', 0.25)
+            ('metadata.title', 1),
+            ('metadata.subject', 0.25),
         ]
         for meowuri, weight in possible_titles:
             results += self.__collect_results(meowuri, weight)

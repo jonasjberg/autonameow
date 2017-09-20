@@ -22,8 +22,14 @@
 from unittest import TestCase
 from datetime import datetime
 
-from analyzers.analyze_filename import FilenameAnalyzer
+from analyzers.analyze_filename import (
+    FilenameAnalyzer,
+    _find_edition,
+    SubstringFinder,
+    FilenameTokenizer
+)
 import unit_utils as uu
+from core import fields
 
 
 def get_filename_analyzer(file_object):
@@ -57,17 +63,6 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
         expected = datetime.strptime('20100131 161251', '%Y%m%d %H%M%S')
         self.assertEqual(expected, dt_special.get('value'))
 
-    def test_get_tags_does_not_return_none(self):
-        self.assertIsNotNone(self.fna.get_tags())
-
-    def test_get_tags_returns_expected(self):
-        expected = [{'source': 'filenamepart_tags', 'value': [], 'weight': 0.1}]
-        self.assertEqual(expected, self.fna.get_tags())
-
-    def test_get_title_returns_empty_list(self):
-        self.skipTest('TODO')
-        self.assertEqual([], self.fna.get_title())
-
 
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def setUp(self):
@@ -86,17 +81,86 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
         self.skipTest('TODO')
         self.assertEqual([], self.fna.get_datetime())
 
-    def test_get_tags_does_not_return_none(self):
-        self.assertIsNotNone(self.fna.get_tags())
 
-    def test_get_tags_returns_expected(self):
-        expected = [{'source': 'filenamepart_tags', 'value': [], 'weight': 0.1}]
-        self.assertEqual(expected, self.fna.get_tags())
+class TestFindEdition(TestCase):
+    def test_returns_expected_edition(self):
+        self.skipTest('TODO')
 
-    def test_get_title_does_not_return_none(self):
-        self.assertIsNotNone(self.fna.get_title())
+        self.assertEqual(_find_edition('Foo, Bar - Baz._5th'), 5)
+        self.assertEqual(_find_edition('Foo,Bar-_Baz_-_3ed_2002'), 3)
+        self.assertEqual(_find_edition('Foo,Bar-_Baz_-_4ed_2003'), 4)
+        self.assertEqual(_find_edition('Embedded_Systems_6th_.2011'), 6)
+        self.assertEqual(_find_edition('Networking_4th'), 4)
+        self.assertEqual(_find_edition('Foo 2E - Bar B. 2001'), 2)
 
-    def test_get_title_return_is_valid(self):
-        self.assertEqual([{'source': 'filetags',
-                           'value': 'gmail',
-                           'weight': 0.25}], self.fna.get_title())
+    def test_returns_none_for_unavailable_editions(self):
+        self.skipTest('TODO')
+
+        self.assertIsNone(_find_edition('Foo, Bar - Baz._'))
+        self.assertIsNone(_find_edition('Foo, Bar 5 - Baz._'))
+
+
+class TestIdentifyFields(TestCase):
+    def test__substrings(self):
+        f = SubstringFinder()
+
+        def _assert_splits(test_data, expected):
+            actual = f._substrings(test_data)
+            self.assertEqual(actual, expected)
+
+        _assert_splits('a', ['a'])
+        _assert_splits('a b', ['a', 'b'])
+        _assert_splits('a b ', ['a', 'b'])
+        _assert_splits(' a b ', ['a', 'b'])
+        _assert_splits('a b a', ['a', 'b', 'a'])
+
+    def test_identifies_fields(self):
+        self.skipTest('TODO: ..')
+
+        test_input = 'TheBeatles - PaperbackWriter.flac'
+
+        f = SubstringFinder()
+        # f.add_context('TheBeatles - ItsGettingBetter.flac')
+        actual = f.identify_fields(test_input, [fields.Creator, fields.Title])
+
+        self.assertTrue(isinstance(actual.get(fields.Creator), list))
+        self.assertEqual(actual.get(fields.Creator)[0], 'TheBeatles')
+        self.assertEqual(actual.get(fields.Creator)[1], 'PaperbackWriter')
+        self.assertNotIn(actual.get(fields.Creator), '.flac')
+        self.assertNotIn(actual.get(fields.Creator), 'flac')
+        self.assertNotIn(actual.get(fields.Creator), '-')
+
+        self.assertTrue(isinstance(actual.get(fields.Title), list))
+        self.assertEqual(actual.get(fields.Title)[0], 'PaperbackWriter')
+        self.assertEqual(actual.get(fields.Title)[1], 'TheBeatles')
+        self.assertNotIn(actual.get(fields.Title), '.flac')
+        self.assertNotIn(actual.get(fields.Title), 'flac')
+        self.assertNotIn(actual.get(fields.Title), '-')
+
+    def test_uses_constraints(self):
+        pass
+        # add_constraint(field.Author, matches=r'[\w]+')
+        # add_constraint(field.Title, matches=r'[\w]+')
+        # result = identify_fields(string, [field.Creator, field.Title])
+
+        # assert result[fields.Author] == ['The Beatles', 'Paperback Writer',
+        #                                   'flac']
+        # assert result[fields.Title] == ['Paperback Writer', 'The Beatles',
+        #                                 'flac']
+
+
+class TestFilenameTokenizer(TestCase):
+    def test_guess_separators_simpler(self):
+        _filename = 'foo.bar.1234.baz'
+        self.tokenizer = FilenameTokenizer(_filename)
+        actual = self.tokenizer.separators
+
+        self.assertEqual(actual, ['.'])
+
+    def test_guess_separators_simple(self):
+        _filename = 'foo.bar.[1234].baz'
+        self.tokenizer = FilenameTokenizer(_filename)
+        actual = self.tokenizer.separators
+
+        self.assertEqual(actual, ['.'])
+

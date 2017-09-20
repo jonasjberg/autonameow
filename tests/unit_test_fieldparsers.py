@@ -32,7 +32,8 @@ from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     suitable_field_parser_for,
     is_valid_template_field,
-    eval_meowuri_glob
+    eval_meowuri_glob,
+    parse_versioning
 )
 import unit_utils as uu
 
@@ -366,7 +367,7 @@ class TestSuitableFieldParserFor(TestCase):
         self.__expect_parser_for('RegexConfigFieldParser',
                                  'filesystem.basename.extension')
         self.__expect_parser_for('RegexConfigFieldParser',
-                                 'contents.textual.raw_text')
+                                 'contents.textual.text.full')
 
     def test_expect_mime_type_field_parser(self):
         self.__expect_parser_for('MimeTypeConfigFieldParser',
@@ -413,6 +414,9 @@ class TestEvalMeowURIGlob(TestCase):
             'filesystem.contents.mime_type', ['filesystem.pathname.full']
         ))
         self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.contents.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
             'filesystem.contents.mime_type', ['filesystem.pathname.*',
                                               'filesystem.pathname.full']
         ))
@@ -444,9 +448,25 @@ class TestEvalMeowURIGlob(TestCase):
             'filesystem.contents.mime_type', ['filesystem.pathname.full']
         ))
         self.assertFalse(eval_meowuri_glob(
-            'contents.textual.plain_text', ['filesystem.*',
-                                            'filesystem.pathname.*',
-                                            'filesystem.pathname.full']
+            'contents.textual.text.full', ['filesystem.*',
+                                           'filesystem.pathname.*',
+                                           'filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['contents.text.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['*.text.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['*.text', '*.text', '*.text.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['*.raw_*', '*.raw.*', '*.raw*.*'
+                                          '*.*raw*.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.abspath.full', ['*.text.full']
         ))
 
     def test_eval_meowuri_blob_returns_true_as_expected(self):
@@ -521,10 +541,100 @@ class TestEvalMeowURIGlob(TestCase):
              '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
              '*.EXIF:ModifyDate']
         ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['contents.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['*.textual.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['*.text.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['*.full']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['contents.*', '*.textual.*',
+                                           '*.text.*', '*.full']
+        ))
 
     def test_eval_meowuri_blob_returns_as_expected(self):
         self.assertTrue(eval_meowuri_glob(
             'filesystem.basename.full', ['*.pathname.*',
                                          '*.basename.*',
-                                         '*.raw_text']
+                                         '*.full']
         ))
+
+
+class TestValidateVersionNumber(TestCase):
+    def test_valid_version_number_returns_expected(self):
+        def _assert_equal(test_input, expected):
+            actual = parse_versioning(test_input)
+            self.assertTrue(isinstance(actual, tuple))
+            self.assertEqual(actual, expected)
+
+        _assert_equal('0.0.0', (0, 0, 0))
+        _assert_equal('0.4.6', (0, 4, 6))
+        _assert_equal('1.2.3', (1, 2, 3))
+        _assert_equal('9.9.9', (9, 9, 9))
+        _assert_equal('10.11.12', (10, 11, 12))
+        _assert_equal('1337.1337.1337', (1337, 1337, 1337))
+        _assert_equal('v0.0.0', (0, 0, 0))
+        _assert_equal('v0.4.6', (0, 4, 6))
+        _assert_equal('v1.2.3', (1, 2, 3))
+        _assert_equal('v9.9.9', (9, 9, 9))
+        _assert_equal('v10.11.12', (10, 11, 12))
+        _assert_equal('v1337.1337.1337', (1337, 1337, 1337))
+
+    def test_invalid_version_number_returns_none(self):
+        def _assert_none(test_data):
+            actual = parse_versioning(test_data)
+            self.assertIsNone(actual)
+
+        _assert_none(None)
+        _assert_none([])
+        _assert_none({})
+        _assert_none('')
+        _assert_none(b'')
+        _assert_none(' ')
+        _assert_none(b' ')
+        _assert_none('0.0')
+        _assert_none('1.2')
+        _assert_none('1.2.x')
+        _assert_none('1.2 x')
+        _assert_none('1.2 3')
+        _assert_none('1 2.3')
+        _assert_none('1 2 3')
+        _assert_none('€.2.3')
+        _assert_none('€.%.3')
+        _assert_none('€.%.&')
+        _assert_none(b'0.0')
+        _assert_none(b'1.2')
+        _assert_none(b'1.2.x')
+        _assert_none(b'1.2 x')
+        _assert_none(b'1.2 3')
+        _assert_none(b'1 2.3')
+        _assert_none(b'1 2 3')
+        _assert_none('€.2.3'.encode('utf-8'))
+        _assert_none('€.%.3'.encode('utf-8'))
+        _assert_none('€.%.&'.encode('utf-8'))
+        _assert_none('v0.0')
+        _assert_none('v1.2')
+        _assert_none('v1.2.x')
+        _assert_none('v1.2 x')
+        _assert_none('v1.2 3')
+        _assert_none('v1 2.3')
+        _assert_none('v1 2 3')
+        _assert_none('v€.2.3')
+        _assert_none('v€.%.3')
+        _assert_none('v€.%.&')
+        _assert_none(b'v0.0')
+        _assert_none(b'v1.2')
+        _assert_none(b'v1.2.x')
+        _assert_none(b'v1.2 x')
+        _assert_none(b'v1.2 3')
+        _assert_none(b'v1 2.3')
+        _assert_none(b'v1 2 3')
+        _assert_none('v€.2.3'.encode('utf-8'))
+        _assert_none('v€.%.3'.encode('utf-8'))
+        _assert_none('v€.%.&'.encode('utf-8'))

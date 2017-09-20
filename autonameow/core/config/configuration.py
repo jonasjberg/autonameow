@@ -21,19 +21,22 @@
 
 import logging
 import os
+import re
 
 from core import (
     config,
     constants,
     exceptions,
-    util
+    util,
+    types
 )
 from core.config import (
     rules
 )
 from core.config.field_parsers import (
     DateTimeConfigFieldParser,
-    NameFormatConfigFieldParser
+    NameFormatConfigFieldParser,
+    parse_versioning
 )
 
 
@@ -50,12 +53,11 @@ class Configuration(object):
         """
         Instantiates a new Configuration object.
 
-        Loads a configuration from either a dictionary or file path.
+        Loads configuration from a dictionary.
         All parsing and loading happens at instantiation.
 
         Args:
-            source: The configuration to load as either a dictionary or a
-                bytestring path.
+            source: Configuration data to load as a dict.
         """
         self._rules = []
         self._name_templates = {}
@@ -64,18 +66,16 @@ class Configuration(object):
         self._version = None
         self.referenced_meowuris = set()
 
-        # NOTE(jonas): Detecting type prior to loading could be improved ..
-        if isinstance(source, dict):
-            self._load_from_dict(source)
-        else:
-            assert(isinstance(source, bytes))
-            self._load_from_disk(source)
+        if not isinstance(source, dict):
+            raise TypeError('Expected Configuration source to be type dict')
 
-        if self._version:
-            if self._version != constants.PROGRAM_VERSION:
+        self._load_from_dict(source)
+
+        if self.version:
+            if self.version != constants.PROGRAM_VERSION:
                 log.warning('Possible configuration compatibility mismatch!')
                 log.warning('Loaded configuration created by {} (currently '
-                            'running {})'.format(self._version,
+                            'running {})'.format(self.version,
                                                  constants.PROGRAM_VERSION))
                 log.info(
                     'The current recommended procedure is to move the '
@@ -83,6 +83,32 @@ class Configuration(object):
                     'the program so that a new template config file is '
                     'generated and then manually transfer rules to this file.'
                 )
+
+    @classmethod
+    def from_file(cls, path):
+        """
+        Returns a new Configuration instantiated from data at a given path.
+
+        Args:
+            path: Path of the (YAML) file to read, as an "internal" bytestring.
+
+        Returns:
+            An instance of 'Configuration', created from the data at "path".
+
+        Raises:
+            EncodingBoundaryViolation: Argument "path" is not a bytestring.
+            ConfigReadError: The configuration file could not be read.
+            ConfigError: The configuration file is empty.
+        """
+        util.assert_internal_bytestring(path)
+
+        _loaded_data = config.load_yaml_file(path)
+        if not _loaded_data:
+            raise exceptions.ConfigError(
+                'Read empty config: "{!s}"'.format(util.displayable_path(path))
+            )
+
+        return cls(_loaded_data)
 
     def _load_from_dict(self, data):
         if not data:
@@ -99,20 +125,6 @@ class Configuration(object):
         for _meowuri in _referenced_meowuris:
             log.debug('Configuration Rule referenced meowURI'
                       ' "{!s}"'.format(_meowuri))
-
-    def _load_from_disk(self, load_path):
-        try:
-            _yaml_data = config.load_yaml_file(load_path)
-        except exceptions.ConfigReadError as e:
-            raise exceptions.ConfigError(e)
-        else:
-            if _yaml_data:
-                self._load_from_dict(_yaml_data)
-                return
-
-        raise exceptions.ConfigError('Bad (empty?) config: "{!s}"'.format(
-            util.displayable_path(load_path)
-        ))
 
     def write_to_disk(self, dest_path):
         # TODO: This method is currently unused. Remove?
@@ -227,14 +239,21 @@ class Configuration(object):
         return _rule
 
     def _load_options(self):
-        def _try_load_date_format_option(option):
+        def _try_load_datetime_format_option(option, default):
             if 'DATETIME_FORMAT' in self._data:
-                _value = self._data['DATETIME_FORMAT'].get(option)
+                _value = self._data['DATETIME_FORMAT'].get(option, None)
+                if (_value is not None and
+                        DateTimeConfigFieldParser.is_valid_datetime(_value)):
+                    self._options['DATETIME_FORMAT'][option] = _value
+                    return  # OK!
+
+            # Use verified default value.
+            if DateTimeConfigFieldParser.is_valid_datetime(default):
+                self._options['DATETIME_FORMAT'][option] = default
             else:
-                _value = None
-            if (_value is not None and
-                    DateTimeConfigFieldParser.is_valid_datetime(_value)):
-                self._options['DATETIME_FORMAT'][option] = _value
+                log.critical('Invalid internal default value "{!s}": '
+                             '"{!s}'.format(option, default))
+                log.critical('This should not happen!')
 
         def _try_load_filetags_option(option, default):
             if 'FILETAGS_OPTIONS' in self._data:
@@ -260,9 +279,48 @@ class Configuration(object):
                     self._options, ['FILESYSTEM_OPTIONS', option], default
                 )
 
-        _try_load_date_format_option('date')
-        _try_load_date_format_option('time')
-        _try_load_date_format_option('datetime')
+        def _try_load_custom_postprocessing_replacements():
+            if 'CUSTOM_POST_PROCESSING' in self._data:
+                _reps = self._data['CUSTOM_POST_PROCESSING'].get('replacements')
+                if not _reps or not isinstance(_reps, dict):
+                    return
+
+                match_replace_pairs = []
+                for regex, replacement in _reps.items():
+                    try:
+                        _match = types.AW_STRING(regex)
+                        _replace = types.AW_STRING(replacement)
+                    except types.AWTypeError as e:
+                        log.warning('Skipped bad replacement: "{!s}": '
+                                    '"{!s}"'.format(regex, replacement))
+                        continue
+
+                    try:
+                        compiled_pat = re.compile(_match)
+                    except re.error:
+                        log.warning('Malformed regular expression: '
+                                    '"{!s}"'.format(_match))
+                    else:
+                        log.debug(
+                            'Added post-processing replacement. Match: "{!s}" '
+                            'Replace: "{!s}"'.format(regex, replacement)
+                        )
+                        match_replace_pairs.append((compiled_pat, _replace))
+
+
+                util.nested_dict_set(self._options,
+                                     ['CUSTOM_POST_PROCESSING', 'replacements'],
+                                     match_replace_pairs)
+
+        _try_load_datetime_format_option(
+            'date', constants.DEFAULT_DATETIME_FORMAT_DATE
+        )
+        _try_load_datetime_format_option(
+            'time', constants.DEFAULT_DATETIME_FORMAT_TIME
+        )
+        _try_load_datetime_format_option(
+            'datetime', constants.DEFAULT_DATETIME_FORMAT_DATETIME
+        )
 
         _try_load_filetags_option(
             'filename_tag_separator',
@@ -280,8 +338,26 @@ class Configuration(object):
             'sanitize_strict',
             constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
+        _try_load_filesystem_option(
+            'lowercase_filename',
+            constants.DEFAULT_FILESYSTEM_LOWERCASE_FILENAME
+        )
+        _try_load_filesystem_option(
+            'uppercase_filename',
+            constants.DEFAULT_FILESYSTEM_UPPERCASE_FILENAME
+        )
 
-        # Unlikely the previous options; first load the default ignore patterns,
+        _try_load_custom_postprocessing_replacements()
+
+        # Handle conflicting upper-case and lower-case options.
+        if (self._options['FILESYSTEM_OPTIONS'].get('lowercase_filename') and
+                self._options['FILESYSTEM_OPTIONS'].get('uppercase_filename')):
+
+            log.warning('Conflicting options: "lowercase_filename" and '
+                        '"uppercase_filename". Ignoring "uppercase_filename".')
+            self._options['FILESYSTEM_OPTIONS']['uppercase_filename'] = False
+
+        # Unlike the previous options; first load the default ignore patterns,
         # then combine these defaults with any user-specified patterns.
         util.nested_dict_set(
             self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
@@ -303,11 +379,13 @@ class Configuration(object):
                     )
 
     def _load_version(self):
-        raw_version = self._data.get('autonameow_version')
-        if not raw_version:
-            log.error('Unable to read program version from configuration')
+        _raw_version = self._data.get('autonameow_version')
+        valid_version = parse_versioning(_raw_version)
+        if valid_version:
+            self._version = valid_version
         else:
-            self._version = raw_version
+            log.error('Unable to read program version from configuration.')
+            log.debug('Read invalid version: "{!s}"'.format(_raw_version))
 
     def get(self, key_list):
         return util.nested_dict_get(self._options, key_list)
@@ -315,9 +393,14 @@ class Configuration(object):
     @property
     def version(self):
         """
-        Returns: The program version that wrote the configuration.
+        Returns:
+            The version number of the program that wrote the configuration as
+            a Unicode string, if it is available.  Otherwise None.
         """
-        return self._version
+        if self._version:
+            return 'v' + '.'.join(map(str, self._version))
+        else:
+            return None
 
     @property
     def options(self):

@@ -27,6 +27,7 @@ from core import (
     exceptions,
     constants
 )
+from core.exceptions import EncodingBoundaryViolation
 from core.util import eval_magic_glob
 from core.util.misc import (
     unique_identifier,
@@ -356,9 +357,6 @@ class TestExpandMeowURIDataDict(TestCase):
 
 
 class TestNestedDictGet(TestCase):
-    def test_nested_dict_get_is_defined(self):
-        self.assertIsNotNone(nested_dict_get)
-
     def test_get_nested_value_returns_expected(self):
         key_list = ['filesystem', 'contents', 'mime_type']
         actual = nested_dict_get(DUMMY_RESULTS_DICT, key_list)
@@ -406,9 +404,6 @@ class TestNestedDictGet(TestCase):
 
 
 class TestNestedDictSet(TestCase):
-    def test_nested_dict_set_is_defined(self):
-        self.assertIsNotNone(nested_dict_set)
-
     def _assert_sets(self, dictionary, list_of_keys, value, expected):
         _ = nested_dict_set(dictionary, list_of_keys, value)
         self.assertIsNone(_)
@@ -494,6 +489,26 @@ class TestNestedDictSet(TestCase):
         _assert_raises(key_list=['', 'a', 'b', 'foo'])
 
 
+class TestNestedDictSetRetrieveLists(TestCase):
+    def test_stores_empty_list(self):
+        d = {}
+        nested_dict_set(d, ['a', 'b'], [])
+        actual = nested_dict_get(d, ['a', 'b'])
+        self.assertEqual(actual, [])
+
+    def test_stores_list_one_element(self):
+        d = {}
+        nested_dict_set(d, ['a', 'b'], [1])
+        actual = nested_dict_get(d, ['a', 'b'])
+        self.assertEqual(actual, [1])
+
+    def test_stores_list_two_elements(self):
+        d = {}
+        nested_dict_set(d, ['a', 'b'], [1, 2])
+        actual = nested_dict_get(d, ['a', 'b'])
+        self.assertEqual(actual, [1, 2])
+
+
 class TestEvalMagicGlob(TestCase):
     def _aF(self, mime_to_match, glob_list):
         actual = eval_magic_glob(mime_to_match, glob_list)
@@ -522,10 +537,17 @@ class TestEvalMagicGlob(TestCase):
         _assert_raises(TypeError, b'application', ['*/*'])
         _assert_raises(ValueError, '1', ['*/*'])
         _assert_raises(TypeError, b'1', ['*/*'])
-        _assert_raises(AssertionError, 'image/jpeg', [b'*/jpeg'])
-        _assert_raises(AssertionError, 'image/jpeg', [b'*/jpeg', 'image/*'])
-        _assert_raises(AssertionError, 'image/jpeg', [1])
-        _assert_raises(AssertionError, 'image/jpeg', [1, 'image/jpeg'])
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [b'*/jpeg'])
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [b'*/jpeg', 'image/*'])
+
+        # TODO: Raising the encoding boundary exception here isn't right!
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [1])
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [1, 'image/jpeg'])
+
         _assert_raises(ValueError, 'application', ['*a'])
         _assert_raises(ValueError, 'application', ['a*'])
 

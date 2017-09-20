@@ -209,8 +209,8 @@ sum(len(rule.conditions) for rule in rules) # = 24
 
 Data Transformation
 -------------------
-Thoughts on interactions between data-users (`NameBuilder`, analyzers) and
-data-providers (extractors).
+Thoughts on interactions between data-users ("name builder", analyzers) and
+data-providers (extractors, analyzers).
 
 Data is collected by extractors and stored in the `SessionRepository`. This
 data is "raw", I.E. consists of primitives and `datetime`-objects.
@@ -218,9 +218,9 @@ data is "raw", I.E. consists of primitives and `datetime`-objects.
 Some contextual metadata should be kept along with each stored data item for;
 
 1. Conversion of "raw" data to fit a specific name template field.
-    * The byte string `.jpg` to could populate the `{extension}` field by
+    * The byte string `.jpg` could populate the `{extension}` field by
       Unicode-conversion.
-    * The MIME type (Unicode string) `image/jpeg` could also be used to
+    * The MIME type `image/jpeg` (Unicode string) could also be used to
       populate the `{extension}` field, but some sort of __transformation__
       must be performed. *Likely using a lookup-table of MIME-types to file
       extensions.*
@@ -263,7 +263,7 @@ to some format appropriate for populating the template field `{title}`.
 
 This specific example would probably require some kind of lookup-table or
 heuristic to convert MIME-types to a equivalent human-readable "title"-like
-form.
+form.  Alternatively, this conversion could simply not be permitted.
 
 
 Some "raw" data will not relate to certain name template fields in any
@@ -446,3 +446,242 @@ Additionally, the returned list could contain contextual information; weights,
 scores, priorities, etc.
 The less specific query would require the program to take responsibility for
 selecting the appropriate field.
+
+## Update 2017-09-13
+I'm currently in the process of adding some kind of "generic" field that,
+if defined, allows referencing data using two different "MeowURIs";
+*source-specific* and *generic*
+
+### Examples from the current implementation;
+These two data entries are stored in the repository with
+source-specific MeowURIs:
+
+* `metadata.exiftool.File:MIMEType: application/pdf`
+* `filesystem.contents.mime_type: application/pdf`
+
+They are also stored under a "generic URI":
+
+* `contents.generic: [application/pdf, application/pdf]`
+
+### Current conundrum
+I can't decide on how to lay out the "alternate" URIs.
+How should they be nested for usability and consistency?
+
+Below examples show different schemes specific and generic "MeowURIs"
+storing data "elements"; `D1`, `D2`, `D3`, `D4`.
+
+#### Current approach:
+
+* Source-specific URIs:
+    * `filesystem.contents.mime_type: D1`
+    * `metadata.exiftool.File:MIMEType: D2`
+    * `metadata.pypdf.CreationDate: D3`
+    * `metadata.exiftool.PDF:CreateDate: D4`
+* Generic URIs:
+    * `contents.generic.mimetype: [D1, D2]`
+    * `metadata.generic.datecreated: [D3, D4]`
+
+#### Alternative approach 1:
+
+* Source-specific URIs:
+    * `filesystem.contents.mime_type: D1`
+    * `metadata.exiftool.File:MIMEType: D2`
+    * `metadata.pypdf.CreationDate: D3`
+    * `metadata.exiftool.PDF:CreateDate: D4`
+* Generic URIs:
+    * `generic.contents.mimetype: [D1, D2]`
+    * `generic.metadata.datecreated: [D3, D4]`
+
+#### Alternative approach 2:
+
+* Source-specific URIs:
+    * `filesystem.contents.mime_type: D1`
+    * `metadata.exiftool.File:MIMEType: D2`
+    * `metadata.pypdf.CreationDate: D3`
+    * `metadata.exiftool.PDF:CreateDate: D4`
+* Generic URIs:
+    * `contents.mimetype: [D1, D2]`
+    * `metadata.datecreated: [D3, D4]`
+
+
+#### Pros/Cons
+I'm currently in favor of "Alternative approach 2" because it seems simpler
+to just leave out the source part .. (?)
+
+~~(It should also maybe possibly be easier to integrate into the existing
+codebase as it currently stands..)~~
+
+Going with "Alternative approach 2" would allow referring to data like this:
+
+* Specific retrieval: `metadata.pypdf.creator`
+    * Fetches specific data from a specific source.
+    * Returns either nothing at all or __one__ data "element".
+* Generic retrieval: `metadata.creator`
+    * Fetches "equivalent" data from any sources.
+    * Returns nothing, __or any number__ of data "elements".
+
+Also; it might make sense to keep a URI-node (like `.generic.`) in the MeowURIs
+to clearly separate the types, which might be helpful for the implementation.
+In this case, it probably wouldn't be very difficult to translate from a
+"internal" URI like `generic.contents.mimetype` or `contents.generic.mimetype`
+to a simplified form, used in all user interfaces; `contents.mime_type` ..
+
+
+Thoughts on the "analyzers"
+---------------------------
+The "analyzer" classes was added very early in the development where it looked
+nothing like what its current state. The overall design ideas has changed
+dramatically, and so the analyzer classes, as they are current implemented,
+does not belong in the project.
+
+They should be rewritten and redesigned as to handle __specific content__, as
+opposed to the initial idea of having the handle *specific files*.
+
+The recent reworking of the `PdfAnalyzer` to a `DocumentAnalyzer` is the first
+example of updating the old analyzers.
+
+### Differences between extractors and analyzers:
+
+* __Extractors:__
+    * __Extracts data__ (content, metadata) from files on disk.
+    * __Handles specific MIME-types__. I.E. different extractors are used for
+      different __file formats__.
+    * __Converts data to an "internal format"__ or common representation that
+      is used by the rest of the program components, such as analyzers,
+      plugins, name builder, etc.
+
+* __Analyzers:__
+    * __Analyzes data__ (metadata) from data produced by extractors.
+    * __Handles specfic types of contents__. The `EbookAnalyzer` deals with
+      e-books, etc.
+    * __Provides a "bigger picture" understanding of extracted data__.
+      Finds most likely candidates using routines tailored for specific types
+      of content. Which date/time-information is most likely "correct"?
+
+### Contextual information
+The analyzers should be provided with *contextual information*.
+
+The "weighted field" that is currently part of the `ExtractedData` class is one possible method of providing context.
+Extractors are probably best suited to give initial "value judgements" on the
+data they extract. For any piece of extracted data; how likely is it correct?
+Is it really what it says it is?
+
+The analyzers should probably take this contextual information in consideration
+when prioritizing candidates, etc.
+
+
+Identify Fields in Strings
+--------------------------
+This is touched on in this TODO-list entry;
+
+> * `[TD0019]` Rework the `FilenameAnalyzer`
+>     * `[TD0020]` Identify data fields in file names.
+>         ```
+>         screencapture-github-jonasjberg-autonameow-1497964021919.png
+>         ^___________^ ^__________________________^ ^___________^
+>              tag            title/description        timestamp
+>         ```
+>         * Use some kind of iterative evaluation; split into parts at
+>           separators, assign field types to the parts and find a "best fit".
+>           Might have to try several times at different separators, re-evaluting
+>           partials after assuming that some part is a given type, etc.
+>         * __This is a non-trivial problem__, I would rather not re-implment
+>           existing solutions poorly.
+>         * Look into how `guessit` does it or possibility of modifying
+>           `guessit` to identify custom fields.
+
+
+### Ideas on Methods
+Possible strategies for mapping fields to parts of strings.
+
+#### Dates likely unique (date+time even more so)
+Use the fact that probable dates, especially date+time; are likely to be
+unique in a given context.
+
+Given this example string, find fields `{datetime}` and `{whatever_}`:
+```
+2017-09-17 17092017
+```
+
+A fuzzy date-parser might identify two `YYYY-MM-DD` date-patterns in this
+string, like so;
+
+```
+2017-09-17 17092017
+YYYY-MM-DD DDMMYYYY
+```
+With only this information, we have two equally likely candidates for the
+`{datetime}` field, and two equally unlikely candidates for the `{whatever_}`
+field. Additional information is required ..
+
+The context could be a common parent directory.
+Lets say that there are multiple files in the same directory, we got two
+example strings;
+```
+2017-09-17 17092017
+2017-10-22 17092017
+```
+
+Now, if one were to apply the rule that date/time-strings are more likely
+unique, the common substring `17092017` would be deemed less likely to be the
+date/time-part.
+
+#### Common "creator"/"artist"
+Given a number of strings from a shared context, shared substrings are probably
+often worth weighting.
+
+__This should be done depending on context.__ 
+*More stuff taken into account --> better accuracy.*
+
+For example, trying to find fields `{artist}` and `{title}` given the strings;
+```
+Beatles, The - Paperback Writer.flac
+Beatles, The - Getting Better.flac
+```
+
+Common substrings related to music files are probably more likely __artists__,
+__albums__, etc.  And they are probably less likely to be song titles.
+
+These assumptions will obviously prove incorrect a lot of times.
+
+Applying the rule that `{artist}` is likely found in all/multiple files in a
+given context;
+
+```
+Beatles The - Paperback Writer.flac
+{ creator }   {    title     }
+
+
+Beatles The - Getting Better.flac
+{ creator }   {   title    }
+```
+
+
+### Programming by Wishful Thinking
+Some yet non-existing system tries to identify specified fields in a given
+string. Returns a list of substrings, sorted by score/ranking/weight.
+
+```python
+string = 'The Beatles - Paperback Writer.flac'
+
+result = identify_fields(string, [field.Creator, field.Title])
+
+assert result[fields.Creator] == ['The Beatles', 'Paperback Writer', 'flac',
+                                  ' - ', '.']
+assert result[fields.Title]   == ['Paperback Writer', 'The Beatles', 'flac',
+                                  ' - ', '.']
+```
+
+Specifying __constraints__ or __rules__ --- require that both fields contain
+at least one word character;
+```python
+string = 'The Beatles - Paperback Writer.flac'
+
+add_constraint(field.Creator, matches=r'[\w]+')
+add_constraint(field.Title, matches=r'[\w]+')
+result = identify_fields(string, [field.Creator, field.Title])
+
+assert result[fields.Creator] == ['The Beatles', 'Paperback Writer', 'flac']
+assert result[fields.Title]   == ['Paperback Writer', 'The Beatles', 'flac']
+```
+

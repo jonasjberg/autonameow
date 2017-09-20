@@ -22,6 +22,11 @@
 import logging
 import re
 
+try:
+    import isbnlib
+except (ImportError, ModuleNotFoundError):
+    isbnlib = None
+
 from analyzers import BaseAnalyzer
 from core import (
     util,
@@ -30,11 +35,6 @@ from core import (
 )
 from core.util import textutils
 from extractors import ExtractedData
-
-try:
-    import isbnlib
-except (ImportError, ModuleNotFoundError):
-    isbnlib = None
 
 
 log = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ class EbookAnalyzer(BaseAnalyzer):
         )
 
     def run(self):
-        text = self.request_data(self.file_object, 'contents.textual.raw_text')
+        text = self.request_data(self.file_object, 'contents.textual.text.full')
         if not text:
             return
 
@@ -220,36 +220,42 @@ def _search_initial_text(text, callback):
 
 
 def extract_isbns_from_text(text):
-    isbns = [isbnlib.get_canonical_isbn(isbn)
-             for isbn in isbnlib.get_isbnlike(text)]
-    if isbns:
-        return [i for i in isbns if validate_isbn(i)]
+    util.assert_internal_string(text)
+
+    possible_isbns = isbnlib.get_isbnlike(text)
+    if possible_isbns:
+        return [isbnlib.get_canonical_isbn(i)
+                for i in possible_isbns if validate_isbn(i)]
     else:
         return []
 
 
-def validate_isbn(number):
-    if not number:
+def validate_isbn(possible_isbn):
+    if not possible_isbn:
         return None
 
-    n = isbnlib.clean(number)
-    if not n or isbnlib.notisbn(n):
+    util.assert_internal_string(possible_isbn)
+
+    isbn_number = isbnlib.clean(possible_isbn)
+    if not isbn_number or isbnlib.notisbn(isbn_number):
         return None
     else:
-        return n
+        return isbn_number
 
 
-def filter_isbns(numbers):
-    # Remove all characters except digits and dashes.
-    numbers = [re.sub(r'[^\d-]+', '', n) for n in numbers]
+def filter_isbns(isbn_list):
+    if not isbn_list:
+        return []
+
+    assert isinstance(isbn_list, list)
 
     # Remove any duplicates.
-    nums = list(set(numbers))
+    isbn_list = list(set(isbn_list))
 
     # Remove known bad ISBN numbers.
-    numbers = [n for n in nums
-               if n not in BLACKLISTED_ISBN_NUMBERS]
-    return numbers
+    isbn_list = [n for n in isbn_list if n
+                 and n not in BLACKLISTED_ISBN_NUMBERS]
+    return isbn_list
 
 
 def fetch_isbn_metadata(isbn_number):

@@ -19,14 +19,14 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-
 from unittest import TestCase
 
 from core import (
     fileobject,
-    constants
+    constants,
+    util
 )
+from core.exceptions import InvalidFileArgumentError
 import unit_utils as uu
 
 
@@ -127,3 +127,44 @@ class TestFileTypeMagic(TestCase):
     def test_filetype_magic_with_invalid_args(self):
         self.assertEqual(fileobject.filetype_magic(None),
                          constants.MAGIC_TYPE_UNKNOWN)
+
+
+class TestValidatePathArgument(TestCase):
+    def setUp(self):
+        _num_files = min(len(uu.all_testfiles()), 5)
+        self.unicode_paths = uu.all_testfiles()[:_num_files]
+        self.bytestr_paths = [
+            util.bytestring_path(p) for p in uu.all_testfiles()[:_num_files]
+        ]
+
+    def test_setup(self):
+        for upath in self.unicode_paths:
+            self.assertTrue(uu.file_exists(upath))
+            self.assertTrue(isinstance(upath, str))
+
+        for bpath in self.bytestr_paths:
+            self.assertTrue(uu.file_exists(bpath))
+            self.assertTrue(isinstance(bpath, bytes))
+
+    def test_valid_unicode_paths(self):
+        for upath in self.unicode_paths:
+            fileobject.validate_path_argument(upath)
+
+    def test_valid_bytes_paths(self):
+        for bpath in self.bytestr_paths:
+            fileobject.validate_path_argument(bpath)
+
+    def test_invalid_paths(self):
+        def _assert_raises(test_data):
+            with self.assertRaises(InvalidFileArgumentError):
+                fileobject.validate_path_argument(test_data)
+
+        _assert_raises(None)
+        _assert_raises('')
+        _assert_raises(' ')
+        _assert_raises('  ')
+        _assert_raises(b'')
+        _assert_raises(b' ')
+        _assert_raises(b'  ')
+        _assert_raises([])
+        _assert_raises({})

@@ -36,7 +36,7 @@ EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
                            'analyzers.analyze_filename.FilenameAnalyzer',
                            'analyzers.analyze_filetags.FiletagsAnalyzer',
                            'analyzers.analyze_video.VideoAnalyzer',
-                           'analyzers.analyze_pdf.PdfAnalyzer',
+                           'analyzers.analyze_document.DocumentAnalyzer',
                            'analyzers.analyze_text.TextAnalyzer',
                            'analyzers.analyze_ebook.EbookAnalyzer']
 EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
@@ -122,7 +122,7 @@ class TestFindAnalyzerSourceFiles(TestCase):
         self.assertIn('analyze_filename.py', actual)
         self.assertIn('analyze_filesystem.py', actual)
         self.assertIn('analyze_image.py', actual)
-        self.assertIn('analyze_pdf.py', actual)
+        self.assertIn('analyze_document.py', actual)
         self.assertIn('analyze_text.py', actual)
         self.assertIn('analyze_video.py', actual)
 
@@ -150,7 +150,7 @@ class TestSuitableAnalyzersForFile(TestCase):
                   analyzers.suitable_analyzers_for(self.fo)]
         self.assertIn('FilenameAnalyzer', actual)
         self.assertIn('FilesystemAnalyzer', actual)
-        self.assertIn('PdfAnalyzer', actual)
+        self.assertIn('DocumentAnalyzer', actual)
 
 
 class TestGetAnalyzerClasses(TestCase):

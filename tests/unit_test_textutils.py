@@ -22,6 +22,7 @@
 import unittest
 
 from core import util
+from core.exceptions import EncodingBoundaryViolation
 from core.util import textutils
 
 try:
@@ -52,6 +53,21 @@ class TestRemoveNonBreakingSpaces(unittest.TestCase):
 
 
 class TestIndent(unittest.TestCase):
+    def test_invalid_arguments_raises_exception(self):
+        def _assert_raises(exception_type, *args, **kwargs):
+            with self.assertRaises(exception_type):
+                textutils.indent(*args, **kwargs)
+
+        _assert_raises(ValueError, None)
+        _assert_raises(EncodingBoundaryViolation, b'')
+        _assert_raises(ValueError, 'foo', amount=0)
+        _assert_raises(TypeError, 'foo', amount=object())
+
+        # TODO: Should raise 'TypeError' when given 'ch=1' (expects str)
+        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=1)
+        _assert_raises(EncodingBoundaryViolation, 'foo', amount=2, ch=b'')
+        _assert_raises(EncodingBoundaryViolation, 'foo', ch=b'')
+
     def test_indents_single_line(self):
         self.assertEqual(textutils.indent('foo'), '    foo')
         self.assertEqual(textutils.indent('foo bar'), '    foo bar')
@@ -69,7 +85,10 @@ class TestIndent(unittest.TestCase):
         self.assertEqual(textutils.indent(input_), expect)
 
     def test_indents_single_line_specified_amount(self):
+        self.assertEqual(textutils.indent('foo', amount=1), ' foo')
         self.assertEqual(textutils.indent('foo', amount=2), '  foo')
+        self.assertEqual(textutils.indent('foo', amount=3), '   foo')
+        self.assertEqual(textutils.indent('foo', amount=4), '    foo')
         self.assertEqual(textutils.indent('foo bar', amount=2), '  foo bar')
 
     def test_indents_two_lines_specified_amount(self):
@@ -84,6 +103,14 @@ class TestIndent(unittest.TestCase):
                   '  baz\n')
         self.assertEqual(textutils.indent(input_, amount=2), expect)
 
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('   foo\n'
+                  '     bar\n'
+                  '   baz\n')
+        self.assertEqual(textutils.indent(input_, amount=3), expect)
+
     def test_indents_single_line_specified_padding(self):
         self.assertEqual(textutils.indent('foo', ch='X'), 'XXXXfoo')
         self.assertEqual(textutils.indent('foo bar', ch='X'), 'XXXXfoo bar')
@@ -91,6 +118,8 @@ class TestIndent(unittest.TestCase):
     def test_indents_two_lines_specified_padding(self):
         self.assertEqual(textutils.indent('foo\nbar', ch='X'),
                          'XXXXfoo\nXXXXbar')
+        self.assertEqual(textutils.indent('foo\nbar', ch='Xj'),
+                         'XjXjXjXjfoo\nXjXjXjXjbar')
 
     def test_indents_three_lines_specified_padding(self):
         input_ = ('foo\n'
@@ -101,7 +130,21 @@ class TestIndent(unittest.TestCase):
                   'XXXXbaz\n')
         self.assertEqual(textutils.indent(input_, ch='X'), expect)
 
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XjXjXjXjfoo\n'
+                  'XjXjXjXj  bar\n'
+                  'XjXjXjXjbaz\n')
+        self.assertEqual(textutils.indent(input_, ch='Xj'), expect)
+
     def test_indents_text_single_line_specified_padding_and_amount(self):
+        self.assertEqual(textutils.indent('foo', amount=1, ch='  '), '  foo')
+        self.assertEqual(textutils.indent('foo', amount=2, ch='  '), '    foo')
+        self.assertEqual(textutils.indent('foo', amount=1, ch=''), 'foo')
+        self.assertEqual(textutils.indent('foo', amount=2, ch=''), 'foo')
+        self.assertEqual(textutils.indent('foo', amount=3, ch=''), 'foo')
+        self.assertEqual(textutils.indent('foo', amount=4, ch=''), 'foo')
         self.assertEqual(textutils.indent('foo', ch='X', amount=2), 'XXfoo')
         self.assertEqual(textutils.indent('foo bar', ch='X', amount=2),
                          'XXfoo bar')
@@ -109,6 +152,8 @@ class TestIndent(unittest.TestCase):
     def test_indents_two_lines_specified_padding_and_amount(self):
         self.assertEqual(textutils.indent('foo\nbar', ch='X', amount=2),
                          'XXfoo\nXXbar')
+        self.assertEqual(textutils.indent('foo\nbar', ch='X', amount=4),
+                         'XXXXfoo\nXXXXbar')
 
     def test_indents_three_lines_specified_padding_and_amount(self):
         input_ = ('foo\n'
@@ -119,26 +164,32 @@ class TestIndent(unittest.TestCase):
                   'XXbaz\n')
         self.assertEqual(textutils.indent(input_, ch='X', amount=2), expect)
 
+        input_ = ('foo\n'
+                  '  bar\n'
+                  'baz\n')
+        expect = ('XXXfoo\n'
+                  'XXX  bar\n'
+                  'XXXbaz\n')
+        self.assertEqual(textutils.indent(input_, ch='X', amount=3), expect)
+
 
 class TestExtractDigits(unittest.TestCase):
-    def test_extract_digits_is_defined(self):
-        self.assertIsNotNone(textutils.extract_digits)
+    def test_extract_digits_returns_empty_string_given_no_digits(self):
+        def _assert_empty(test_data):
+            actual = textutils.extract_digits(test_data)
+            self.assertEqual(actual, '')
 
-    def test_extract_digits_returns_none_if_input_has_no_digits(self):
-        def _assert_is_none(test_data):
-            self.assertIsNone(textutils.extract_digits(test_data))
+        _assert_empty('')
+        _assert_empty(' ')
+        _assert_empty('_')
+        _assert_empty('ö')
+        _assert_empty('foo')
 
-        _assert_is_none('')
-        _assert_is_none(' ')
-        _assert_is_none('_')
-        _assert_is_none('ö')
-        _assert_is_none('foo')
-
-    def test_extract_digits_returns_only_digits_of_input_string(self):
-        def _assert_equal(test_data, expect):
+    def test_extract_digits_returns_digits(self):
+        def _assert_equal(test_data, expected):
             actual = textutils.extract_digits(test_data)
             self.assertTrue(isinstance(actual, str))
-            self.assertEqual(actual, expect)
+            self.assertEqual(actual, expected)
 
         _assert_equal('0', '0')
         _assert_equal('1', '1')
@@ -150,30 +201,86 @@ class TestExtractDigits(unittest.TestCase):
         _assert_equal('1a2b3c4d', '1234')
         _assert_equal('  1a2b3c4d', '1234')
         _assert_equal('  1a2b3c4d  _', '1234')
+        _assert_equal('1.0', '10')
+        _assert_equal('2.3', '23')
+
+    def test_raises_exception_given_bad_arguments(self):
+        def _assert_raises(test_data):
+            with self.assertRaises(EncodingBoundaryViolation):
+                textutils.extract_digits(test_data)
+
+        _assert_raises(None)
+        _assert_raises([])
+        _assert_raises(1)
+        _assert_raises(b'foo')
+        _assert_raises(b'1')
 
 
 @unittest.skipIf(chardet is None, 'Unable to import required module "chardet"')
 class TestAutodetectDecode(unittest.TestCase):
-    def _assert_encodes(self, encoding, unicode_text):
-        input = unicode_text.encode(encoding)
-        actual = textutils.autodetect_decode(input)
-        self.assertEqual(unicode_text, actual)
+    def _assert_encodes(self, encoding, string):
+        _encoded_text = string.encode(encoding)
+        self.assertTrue(isinstance(_encoded_text, bytes))
+
+        actual = textutils.autodetect_decode(_encoded_text)
+        self.assertEqual(string, actual)
+        self.assertEqual(type(string), type(actual))
+
+    def test_raises_exception_for_non_strings(self):
+        with self.assertRaises(TypeError):
+            textutils.autodetect_decode(object())
+
+        with self.assertRaises(TypeError):
+            textutils.autodetect_decode(None)
 
     def test_returns_expected_given_unicode(self):
         actual = textutils.autodetect_decode('foo bar')
         self.assertEqual('foo bar', actual)
 
     def test_returns_expected_given_ascii(self):
+        self._assert_encodes('ascii', '')
+        self._assert_encodes('ascii', ' ')
+        self._assert_encodes('ascii', '\n')
+        self._assert_encodes('ascii', '\n ')
+        self._assert_encodes('ascii', ' \n ')
         self._assert_encodes('ascii', 'foo bar')
+        self._assert_encodes('ascii', 'foo \n ')
 
     def test_returns_expected_given_ISO8859(self):
+        self._assert_encodes('iso-8859-1', '')
+        self._assert_encodes('iso-8859-1', ' ')
+        self._assert_encodes('iso-8859-1', '\n')
+        self._assert_encodes('iso-8859-1', '\n ')
+        self._assert_encodes('iso-8859-1', ' \n ')
         self._assert_encodes('iso-8859-1', 'foo bar')
+        self._assert_encodes('iso-8859-1', 'foo \n ')
 
     def test_returns_expected_given_cp1252(self):
+        self._assert_encodes('cp1252', '')
+        self._assert_encodes('cp1252', ' ')
+        self._assert_encodes('cp1252', '\n')
+        self._assert_encodes('cp1252', '\n ')
+        self._assert_encodes('cp1252', ' \n ')
         self._assert_encodes('cp1252', 'foo bar')
+        self._assert_encodes('cp1252', 'foo \n ')
+
+    def test_returns_expected_given_utf8(self):
+        self._assert_encodes('utf-8', '')
+        self._assert_encodes('utf-8', ' ')
+        self._assert_encodes('utf-8', '\n')
+        self._assert_encodes('utf-8', '\n ')
+        self._assert_encodes('utf-8', ' \n ')
+        self._assert_encodes('utf-8', 'foo bar')
+        self._assert_encodes('utf-8', 'foo \n ')
 
 
 class TestExtractLines(unittest.TestCase):
+    def test_returns_none_for_none_input(self):
+        self.assertIsNone(textutils.extract_lines(None, 0, 0))
+        self.assertIsNone(textutils.extract_lines(None, 0, 1))
+        self.assertIsNone(textutils.extract_lines(None, 1, 1))
+        self.assertIsNone(textutils.extract_lines(None, 1, 0))
+
     def test_extracts_lines_from_zero_to_any_last(self):
         sample_text = 'A\nB\nC\nD\nE\n'
 
@@ -261,11 +368,14 @@ class TestExtractLines(unittest.TestCase):
         self.assertEqual(textutils.extract_lines(' ', 0, 0), '')
 
     def test_raises_exceptions_given_bad_argument(self):
-        with self.assertRaises(ValueError):
-            textutils.extract_lines(None, 0, 0)
-
         with self.assertRaises(TypeError):
             textutils.extract_lines(b'foo', 0, 0)
 
         with self.assertRaises(TypeError):
             textutils.extract_lines(1, 0, 0)
+
+        with self.assertRaises(AssertionError):
+            textutils.extract_lines('foo', -1, 0)
+
+        with self.assertRaises(AssertionError):
+            textutils.extract_lines('foo', 0, -1)

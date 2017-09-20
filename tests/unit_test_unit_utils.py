@@ -27,6 +27,7 @@ from unittest import TestCase
 
 import analyzers
 from analyzers import BaseAnalyzer
+from core import util
 from core.config import rules
 from core.fileobject import FileObject
 
@@ -67,9 +68,6 @@ class TestUnitUtilityConstants(TestCase):
 
 
 class TestUnitUtilityAbsPathTestFile(TestCase):
-    def test_abspath_testfile_is_defined(self):
-        self.assertIsNotNone(uu.abspath_testfile)
-
     def test_returns_expected_encoding(self):
         actual = uu.abspath_testfile('empty')
         self.assertTrue(isinstance(actual, str))
@@ -94,9 +92,6 @@ class TestUnitUtilityAllTestFiles(TestCase):
 
 
 class TestUnitUtilityFileExists(TestCase):
-    def test_file_exists_is_defined(self):
-        self.assertIsNotNone(uu.file_exists)
-
     def _check_return(self, file_to_test):
         actual = uu.file_exists(file_to_test)
         self.assertTrue(isinstance(actual, bool))
@@ -122,9 +117,6 @@ class TestUnitUtilityFileExists(TestCase):
 
 
 class TestUnitUtilityDirExists(TestCase):
-    def test_dir_exists_is_defined(self):
-        self.assertIsNotNone(uu.dir_exists)
-
     def _check_return(self, path_to_test):
         actual = uu.dir_exists(path_to_test)
         self.assertTrue(isinstance(actual, bool))
@@ -134,10 +126,11 @@ class TestUnitUtilityDirExists(TestCase):
 
     def test_returns_false_for_assumed_non_directory_paths(self):
         _dummy_paths = [
+            __file__,
             '/foo/bar/baz/mjao',
             '/tmp/this_isnt_a_file_right_or_huh',
+            b'/foo/bar/baz/mjao',
             b'/tmp/this_isnt_a_file_right_or_huh',
-            __file__
         ]
         for df in _dummy_paths:
             self._check_return(df)
@@ -146,7 +139,10 @@ class TestUnitUtilityDirExists(TestCase):
         _files = [
             os.path.dirname(__file__),
             uuconst.AUTONAMEOW_SRCROOT_DIR,
-            '/'
+            '/',
+            b'/',
+            util.bytestring_path(os.path.dirname(__file__)),
+            util.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
         ]
         for df in _files:
             self._check_return(df)
@@ -166,10 +162,11 @@ class TestUnitUtilityPathIsReadable(TestCase):
     def test_returns_false_for_paths_assumed_missing(self):
         _dummy_paths = [
             '',
-            b'',
             '/foo/bar/baz/mjao',
+            '/tmp/this_isnt_a_file_right_or_huh',
+            b'',
             b'/foo/bar/baz/mjao',
-            '/tmp/this_isnt_a_file_right_or_huh'
+            b'/tmp/this_isnt_a_file_right_or_huh'
         ]
         for df in _dummy_paths:
             self._check_return(df)
@@ -178,6 +175,8 @@ class TestUnitUtilityPathIsReadable(TestCase):
         _paths = [
             __file__,
             os.path.dirname(__file__),
+            util.bytestring_path(__file__),
+            util.bytestring_path(os.path.dirname(__file__)),
         ]
         for df in _paths:
             self._check_return(df)
@@ -230,8 +229,7 @@ class TestUnitUtilityMakeTemporaryFile(TestCase):
 
 
 class TestUnitUtilityGetMockAnalyzer(TestCase):
-    def test_get_mock_analyzer_is_defined(self):
-        self.assertIsNotNone(uu.get_mock_analyzer)
+    def test_get_mock_analyzer_returns_something(self):
         self.assertIsNotNone(uu.get_mock_analyzer())
 
     def test_get_mock_analyzer_is_generator(self):
@@ -243,8 +241,7 @@ class TestUnitUtilityGetMockAnalyzer(TestCase):
 
 
 class TestUnitUtilityGetMockFileObject(TestCase):
-    def test_get_mock_fileobject_is_defined(self):
-        self.assertIsNotNone(uu.get_mock_fileobject)
+    def test_get_mock_fileobject_returns_something(self):
         self.assertIsNotNone(uu.get_mock_fileobject())
 
     def test_get_mock_fileobject_returns_expected_type(self):
@@ -305,9 +302,6 @@ class _DummyClass(object):
 
 
 class TestIsClass(TestCase):
-    def test_is_class_is_defined(self):
-        self.assertIsNotNone(uu.is_class)
-
     def _assert_not_class(self, thing):
         actual = uu.is_class(thing)
         self.assertFalse(actual)
@@ -344,9 +338,6 @@ class TestIsClass(TestCase):
 
 
 class TestIsClassInstance(TestCase):
-    def test_is_class_instance_is_defined(self):
-        self.assertIsNotNone(uu.is_class_instance)
-
     def _assert_not_class_instance(self, klass):
         actual = uu.is_class_instance(klass)
         self.assertFalse(actual)
@@ -384,9 +375,6 @@ class TestIsClassInstance(TestCase):
 
 
 class TestStrToDatetime(TestCase):
-    def test_str_to_datetime_is_defined(self):
-        self.assertIsNotNone(uu.str_to_datetime)
-
     def test_returns_expected_type(self):
         actual = uu.str_to_datetime('2017-08-09 001225')
         self.assertTrue(isinstance(actual, datetime))

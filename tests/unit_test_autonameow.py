@@ -28,6 +28,7 @@ from core import (
     constants,
     config
 )
+from core.config.configuration import Configuration
 from core.main import Autonameow
 import unit_utils as uu
 
@@ -91,7 +92,9 @@ class TestDoRename(TestCase):
     def setUp(self):
         self.amw = Autonameow('')
         self.assertIsNotNone(self.amw)
-        self.amw.load_config(config.DEFAULT_CONFIG)
+
+        _config = Configuration(config.DEFAULT_CONFIG)
+        self.amw.active_config = _config
 
     @mock.patch('core.util.diskutils.rename_file')
     def test_dry_run_true_will_not_call_diskutils_rename_file(self, mockrename):

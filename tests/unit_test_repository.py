@@ -26,7 +26,8 @@ from unittest import TestCase
 from core import (
     exceptions,
     constants,
-    repository
+    repository,
+    fields
 )
 from core.repository import Repository
 
@@ -366,3 +367,12 @@ class TestGetSourcesForMeowURIs(TestCase):
         actual = repository.get_sources_for_meowuris(self._all_meowuris,
                                                      includes=['plugins'])
         self._assert_maps(actual, 'GuessitPlugin')
+
+
+class TestRepositoryGenericStorage(TestCase):
+    def setUp(self):
+        self.r = Repository()
+        self.r.initialize()
+
+    def test_todo(self):
+        self.skipTest('TODO: Add tests for storing "generic fields" ..')

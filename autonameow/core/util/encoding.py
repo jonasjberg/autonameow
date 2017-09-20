@@ -186,14 +186,14 @@ def syspath(path, prefix=True):
     To disable the magic prefix on Windows, set `prefix` to False
     -- but only do this if you *really* know what you're doing.
 
-    Every argument to an OS function like open or listdir must pass through
-    the third utility: syspath. Think of this as converting from the
-    internal representation to the OS’s own representation. On Unix, this is
-    a no-op: the representations are the same. On Windows, this converts a
-    bytestring path back to Unicode and then adds the ridiculous \\?\ prefix,
-    which avoids problems with long names.
+      Every argument to an OS function like open or listdir must pass through
+      the third utility: syspath. Think of this as converting from the
+      internal representation to the OS’s own representation. On Unix, this is
+      a no-op: the representations are the same. On Windows, this converts a
+      bytestring path back to Unicode and then adds the ridiculous \\?\ prefix,
+      which avoids problems with long names.
 
-      Source: http://beets.io/blog/paths.html
+    Source: http://beets.io/blog/paths.html
 
     Args:
         path:

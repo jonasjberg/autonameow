@@ -23,6 +23,8 @@ import re
 
 from collections import namedtuple
 
+from core import constants
+
 
 # Original Dublin Core Metadata Element Set Version 1.1
 # Metadata Elements:
@@ -44,7 +46,7 @@ from collections import namedtuple
 #   - Rights
 
 
-# TODO: [TD0049]` Think about defining legal "placeholder fields".
+# TODO: [TD0049] Think about defining legal "placeholder fields".
 # Might be helpful to define all legal fields (such as `title`, `datetime`,
 # `author`, etc.) somewhere and keep references to type coercion wrappers,
 # maybe validation and/or formatting functionality; in the field definitions.
@@ -55,12 +57,118 @@ from collections import namedtuple
 
 WeightedMapping = namedtuple('WeightedMapping', ['field', 'probability'])
 
+UNDEFINED_MEOWURI_PART = 'NULL'
+
 
 def todo_func(foo):
     pass
 
 
+class GenericField(object):
+    meowuri_root = UNDEFINED_MEOWURI_PART
+    meowuri_node_generic = constants.MEOWURI_NODE_GENERIC.lower()
+    meowuri_leaf = UNDEFINED_MEOWURI_PART
+
+    @classmethod
+    def uri(cls):
+        return '{}.{}.{}'.format(cls.meowuri_root.lower(),
+                                 cls.meowuri_node_generic,
+                                 cls.meowuri_leaf.lower())
+
+    @classmethod
+    def evaluation_function(cls):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
+
+# TODO: [TD0090] Complete initial implementation of "generic" fields.
+class GenericAuthor(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Author'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
+class GenericCreator(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Creator'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
+class GenericDescription(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Description'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
+class GenericDateCreated(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Date_Created'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
+class GenericDateModified(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Date_Modified'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
+class GenericMimeType(GenericField):
+    meowuri_root = 'contents'
+    meowuri_leaf = 'Mime_Type'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
+class GenericProducer(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Producer'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
+class GenericSubject(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Subject'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
+class GenericTags(GenericField):
+    meowuri_root = 'metadata'
+    meowuri_leaf = 'Tags'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
+def meowuri_genericfield_map():
+    return {klass.uri(): klass
+            for klass in GenericField.__subclasses__()}
+
+
 class NameTemplateField(object):
+    # TODO: [TD0049] Remove or implement ..
     def __init__(self, content):
         self._content = content
 
@@ -76,7 +184,7 @@ class NameTemplateField(object):
 
 
 class Title(NameTemplateField):
-    # TODO: Remove or implement ..
+    # TODO: [TD0049] Remove or implement ..
 
     def __init__(self, content):
         super(Title).__init__(content)
@@ -90,7 +198,7 @@ class Title(NameTemplateField):
 
 
 class Edition(NameTemplateField):
-    # TODO: Remove or implement ..
+    # TODO: [TD0049] Remove or implement ..
 
     REPLACE_ORDINALS = []
     for _find, _replace in (
@@ -126,42 +234,50 @@ class Extension(NameTemplateField):
 
     @classmethod
     def normalize(cls, data):
-        # Normalize numeric titles
-        for _find, _replace in cls.ORDINALS:
-            data = _find.sub(_replace, data)
-        return data
+        pass
 
 
 class Author(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
+    pass
+
+
+class Creator(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class DateTime(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Date(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Description(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Publisher(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Tags(NameTemplateField):
+    # TODO: [TD0049] Remove or implement ..
     pass
 
 
-datetime = DateTime
-publisher = Publisher
-title = Title
-tags = Tags
 author = Author
 date = Date
+datetime = DateTime
 description = Description
 edition = Edition
 extension = Extension
+publisher = Publisher
+tags = Tags
+title = Title

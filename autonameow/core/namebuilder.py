@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import re
 from datetime import datetime
 
 from core import (
@@ -27,6 +28,7 @@ from core import (
     util,
 )
 from core.util import diskutils
+from extractors import ExtractedData
 
 log = logging.getLogger(__name__)
 
@@ -58,7 +60,7 @@ def build(config, name_template, field_data_map):
             'Unable to assemble basename: {!s}'.format(e)
         )
 
-    assert(isinstance(new_name, str))
+    util.assert_internal_string(new_name)
     new_name = post_assemble_format(new_name)
     log.debug('Assembled basename: "{!s}"'.format(new_name))
 
@@ -77,6 +79,21 @@ def build(config, name_template, field_data_map):
         )
     else:
         log.debug('Skipped sanitizing filename')
+
+    # Do any case-transformations.
+    if config.get(['FILESYSTEM_OPTIONS', 'lowercase_filename']):
+        new_name = new_name.lower()
+    elif config.get(['FILESYSTEM_OPTIONS', 'uppercase_filename']):
+        new_name = new_name.upper()
+
+    # Do any user-defined "custom post-processing".
+    replacements = config.get(['CUSTOM_POST_PROCESSING', 'replacements'])
+    if replacements:
+        for regex, replacement in replacements:
+            if re.search(regex, new_name):
+                log.info('Applying custom replacement. Regex: "{!s}" '
+                         'Replacement: "{!s}"'.format(regex, replacement))
+                new_name = re.sub(regex, replacement, new_name)
 
     return new_name
 
@@ -124,40 +141,84 @@ def populate_name_template(name_template, **kwargs):
 
 
 def pre_assemble_format(data, config):
-    out = {}
+    formatted = {}
 
     # TODO: [TD0017][TD0041] This needs refactoring, badly.
     # [TD0049] Think about defining legal "placeholder fields".
     #          .. Instead of passing wrapped types, pass wrapped fields?
 
-    for key, value in data.items():
-        if key == 'datetime':
-            datetime_format = config.options['DATETIME_FORMAT']['datetime']
-            out[key] = formatted_datetime(data[key], datetime_format)
-        elif key == 'date':
-            datetime_format = config.options['DATETIME_FORMAT']['date']
-            out[key] = formatted_datetime(data[key], datetime_format)
-        elif key == 'time':
-            datetime_format = config.options['DATETIME_FORMAT']['time']
-            out[key] = formatted_datetime(data[key], datetime_format)
+    for field, value in data.items():
+        log.debug('Pre-assembly formatting field "{!s}"'.format(field))
 
-        elif key == 'tags':
+        # TODO: [TD0082] Integrate the 'ExtractedData' class.
+        if isinstance(data[field], ExtractedData):
+            d = value.value
+        else:
+            d = value
+
+        if field == 'datetime':
+            datetime_format = config.options['DATETIME_FORMAT']['datetime']
+            formatted[field] = formatted_datetime(d, datetime_format)
+        elif field == 'date':
+            datetime_format = config.options['DATETIME_FORMAT']['date']
+            formatted[field] = formatted_datetime(d, datetime_format)
+        elif field == 'time':
+            datetime_format = config.options['DATETIME_FORMAT']['time']
+            formatted[field] = formatted_datetime(d, datetime_format)
+
+        elif field == 'tags':
             assert(isinstance(value, list))
-            out[key] = ' '.join(value)
+
+            _tags = []
+            for _tag in value:
+                if isinstance(_tag, ExtractedData):
+                    _tag = _tag.value
+                else:
+                    log.critical('TODO: Fix lists of "ExtractedData"')
+
+                _tags.append(_tag)
+
+            sep = config.options['FILETAGS_OPTIONS']['between_tag_separator']
+            formatted[field] = sep.join(_tags)
 
         # TODO: [TD0044] Rework converting "raw data" to an internal format.
         else:
-            # TODO: [TD0004] Take a look at this ad-hoc encoding boundary.
-            if isinstance(value, bytes):
-                log.error('Unexpectedly got "bytes": "{!s}"'.format(value))
-                value = util.decode_(value)
-                out[key] = value
-            else:
-                out[key] = data[key]
+            _formatted = format_field(field, value)
+            if _formatted is not None:
+                formatted[field] = _formatted
 
         # TODO: [TD0041] Other substitutions, etc ..
 
-    return out
+    return formatted
+
+
+def format_field(field, data):
+    # TODO: [TD0082] Integrate the 'ExtractedData' class.
+    if isinstance(data, ExtractedData):
+        log.debug('Formatting data.value "{!s}"'.format(data.value))
+
+        if data.wrapper:
+            formatted = data.wrapper.format(data.value, formatter=None)
+            if formatted is not None and formatted != data.wrapper.null:
+                log.debug('Formatted value: "{!s}"'.format(formatted))
+                return formatted
+            else:
+                log.debug('Unable to format field "{!s}" with value '
+                          '"{!s}"'.format(field, data.value))
+    elif data is not None:
+        log.warning('Missing formatting information, not wrapped in '
+                    'ExtractedData: "{!s}": "{!s}"'.format(field, data))
+        log.debug('Formatting data value "{!s}"'.format(data))
+
+        # TODO: [TD0088] Handle case where 'ExtractedData' isn't provided
+        # with a 'wrapper' and then also fails to autodetect a proper
+        # 'wrapper' class from the raw file type ..
+
+        return data
+    else:
+        log.warning('"format_field" got None data (!)')
+
+    return None
 
 
 def formatted_datetime(datetime_object, format_string):

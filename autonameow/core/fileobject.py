@@ -36,10 +36,10 @@ class FileObject(object):
         Creates a new FileObject instance representing a single path/file.
 
         Args:
-            path: The absolute normalized path to the file, as a bytestring.
-            opts: Configuration options as an instance of 'Configuration'.
+            path: The absolute normalized path to the file, as an
+                  "internal filename bytestring", I.E. bytes.
         """
-        assert(isinstance(path, bytes))
+        util.assert_internal_bytestring(path)
         validate_path_argument(path)
         self.abspath = path
 
@@ -59,12 +59,23 @@ class FileObject(object):
         self.basename_prefix = diskutils.basename_prefix(self.abspath)
         self.basename_suffix = diskutils.basename_suffix(self.abspath)
 
+        # Avoid round-tripping to the OS to decode strings.
+        self.__cached_str = None
+        self.__cached_repr = None
+
     def __str__(self):
-        return util.displayable_path(self.filename)
+        if self.__cached_str is None:
+            self.__cached_str = util.displayable_path(self.filename)
+
+        return self.__cached_str
 
     def __repr__(self):
-        return '<{} {}>'.format(self.__class__.__name__,
-                                util.displayable_path(self.abspath))
+        if self.__cached_repr is None:
+            self.__cached_repr = '<{} {}>'.format(
+                self.__class__.__name__, util.displayable_path(self.abspath)
+            )
+
+        return self.__cached_repr
 
     def __hash__(self):
         # NOTE(jonas): Might need to use a more robust method to avoid
@@ -82,11 +93,42 @@ class FileObject(object):
         return not (self == other)
 
 
+MY_MAGIC = None
+
+
+def _build_magic():
+    """
+    Workaround ambiguity about which magic library is actually used.
+
+    https://github.com/ahupp/python-magic
+      "There are, sadly, two libraries which use the module name magic.
+       Both have been around for quite a while.If you are using this
+       module and get an error using a method like open, your code is
+       expecting the other one."
+
+    http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
+      "The following code allows the rest of the script to work the same
+       way with either version of 'magic'"
+
+    Returns:
+        An instance of 'magic' as type 'Magic'.
+    """
+    try:
+        _magic = magic.open(magic.MAGIC_MIME_TYPE)
+        _magic.load()
+    except AttributeError:
+        _magic = magic.Magic(mime=True)
+        _magic.file = _magic.from_file
+
+    return _magic
+
+
 def filetype_magic(file_path):
     """
     Determine file type by reading "magic" header bytes.
 
     Should be equivalent to the 'file --mime-type' command in *NIX environments.
+    This functions sets the global 'MY_MAGIC' the first time it is called.
 
     Args:
         file_path: The path to the file to get the MIME type of as a string.
@@ -98,34 +140,12 @@ def filetype_magic(file_path):
     if not file_path:
         return constants.MAGIC_TYPE_UNKNOWN
 
-    def _build_magic():
-        """
-        Workaround ambiguity about which magic library is actually used.
+    global MY_MAGIC
+    if MY_MAGIC is None:
+        MY_MAGIC = _build_magic()
 
-        https://github.com/ahupp/python-magic
-          "There are, sadly, two libraries which use the module name magic.
-           Both have been around for quite a while.If you are using this
-           module and get an error using a method like open, your code is
-           expecting the other one."
-
-        http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
-          "The following code allows the rest of the script to work the same
-           way with either version of 'magic'"
-
-        Returns:
-            An instance of 'magic' as type 'Magic'.
-        """
-        try:
-            _my_magic = magic.open(magic.MAGIC_MIME_TYPE)
-            _my_magic.load()
-        except AttributeError:
-            _my_magic = magic.Magic(mime=True)
-            _my_magic.file = _my_magic.from_file
-        return _my_magic
-
-    magic_instance = _build_magic()
     try:
-        found_type = magic_instance.file(file_path)
+        found_type = MY_MAGIC.file(file_path)
     except (magic.MagicException, TypeError):
         found_type = constants.MAGIC_TYPE_UNKNOWN
 
@@ -134,27 +154,40 @@ def filetype_magic(file_path):
 
 def validate_path_argument(path):
     """
-    Validates a raw path option argument.
+    Checks that a "raw" argument from an unknown/untrusted source is a
+    valid path appropriate for instantiating a new 'FileObject' object.
 
     Args:
-        path: Path option argument as a string.
+        path: Alleged path in the "internal filename bytestring" format.
+              Unicode str paths seem to be handled equally well on MacOS,
+              at least for simple testing with trivial inputs.
+              But still; __assume 'path' is bytes__ and pass 'path' as bytes.
 
     Raises:
-        InvalidFileArgumentError: The given path is not considered valid.
+        InvalidFileArgumentError: The given 'path' is not considered valid.
     """
-    path = util.syspath(path)
+    def _raise(error_message):
+        raise exceptions.InvalidFileArgumentError(error_message)
 
-    if not os.path.exists(path):
-        raise exceptions.InvalidFileArgumentError('Path does not exist')
-    elif os.path.isdir(path):
+    if not isinstance(path, (str, bytes)):
+        _type = str(type(path))
+        _raise('Path is neither "str" or "bytes"; type: "{}"'.format(_type))
+    elif not path.strip():
+        _raise('Path is None/empty')
+
+    _path = util.syspath(path)
+
+    if not os.path.exists(_path):
+        _raise('Path does not exist')
+    if os.path.isdir(_path):
         # TODO: [TD0045] Implement handling/renaming directories.
-        raise exceptions.InvalidFileArgumentError(
-            'Safe handling of directories is not implemented yet'
-        )
-    elif os.path.islink(path):
+        _raise('Safe handling of directories is not implemented yet')
+    if os.path.islink(_path):
         # TODO: [TD0026] Implement handling of symlinks.
-        raise exceptions.InvalidFileArgumentError(
-            'Safe handling of symbolic links is not implemented yet'
-        )
-    elif not os.access(path, os.R_OK):
-        raise exceptions.InvalidFileArgumentError('Not authorized to read path')
+        _raise('Safe handling of symbolic links is not implemented yet')
+    if not os.access(_path, os.R_OK):
+        _raise('Not authorized to read path')
+
+    # Check assumptions about implementation. Might detect future bugs.
+    if not os.path.isabs(_path):
+        _raise('Not an absolute path (?) This should not happen!')

@@ -24,6 +24,7 @@ import logging
 import sys
 import time
 
+import core
 from core import (
     analysis,
     config,
@@ -35,6 +36,7 @@ from core import (
     repository,
     util,
 )
+from core.config import DefaultConfigFilePath
 from core.config.configuration import Configuration
 from core.evaluate.resolver import Resolver
 from core.evaluate.rulematcher import RuleMatcher
@@ -45,7 +47,6 @@ from core.util import (
     cli,
     diskutils
 )
-from . import version
 
 
 log = logging.getLogger(__name__)
@@ -112,7 +113,7 @@ class Autonameow(object):
 
         if self.opts.dump_options:
             include_opts = {
-                'config_file_path': util.displayable_path(config.ConfigFilePath)
+                'config_file_path': util.displayable_path(DefaultConfigFilePath)
             }
             options.prettyprint_options(self.opts, include_opts)
 
@@ -135,9 +136,9 @@ class Autonameow(object):
         self._handle_files(files_to_process)
         self.exit_program(self.exit_code)
 
-    def load_config(self, dict_or_yaml):
+    def load_config(self, path):
         try:
-            self.active_config = Configuration(dict_or_yaml)
+            self.active_config = Configuration.from_file(path)
         except exceptions.ConfigError as e:
             log.critical('Unable to load configuration: {!s}'.format(e))
 
@@ -148,13 +149,13 @@ class Autonameow(object):
         self.exit_program(constants.EXIT_SUCCESS)
 
     def _load_config_from_default_path(self):
-        _displayable_config_path = util.displayable_path(config.ConfigFilePath)
+        _displayable_config_path = util.displayable_path(DefaultConfigFilePath)
         log.info('Using configuration: "{}"'.format(_displayable_config_path))
-        self.load_config(config.ConfigFilePath)
+        self.load_config(DefaultConfigFilePath)
 
     def _write_template_config_to_default_path_and_exit(self):
         log.info('No configuration file was found. Writing default ..')
-        _displayable_config_path = util.displayable_path(config.ConfigFilePath)
+        _displayable_config_path = util.displayable_path(DefaultConfigFilePath)
         try:
             config.write_default_config()
         except exceptions.ConfigError:
@@ -166,7 +167,7 @@ class Autonameow(object):
                     '"{!s}"'.format(_displayable_config_path), style='info')
             cli.msg('Use this file to configure {}. '
                     'Refer to the documentation for additional '
-                    'information.'.format(version.__title__),
+                    'information.'.format(core.version.__title__),
                     style='info')
             self.exit_program(constants.EXIT_SUCCESS)
 
@@ -228,7 +229,8 @@ class Autonameow(object):
             log.info('Listing session repository contents ..')
             cli.msg('Session Repository Data', style='heading',
                     add_info_log=True)
-            cli.msg(str(repository.SessionRepository))
+            # cli.msg(str(repository.SessionRepository))
+            cli.msg(repository.SessionRepository.human_readable_contents())
         # else:
         #     if self.opts.list_datetime:
         #         _list_analysis_results_field(analysis, 'datetime')
@@ -302,12 +304,19 @@ class Autonameow(object):
             self.exit_code = constants.EXIT_WARNING
             return
 
-        # Get a dict of data keyed by the name template placeholder fields.
-        templatefield_data_map = resolver.collect()
+        # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
+        # Add automatically resolving missing sources from possible candidates.
+        resolver.collect()
+        if not resolver.collected_data_for_all_fields():
+            # TODO: Abort if running in "batch mode". Otherwise, ask the user.
+            log.warning('Unable to populate name. Missing field data.')
+            self.exit_code = constants.EXIT_WARNING
+            return
+
         try:
             new_name = namebuilder.build(config=self.active_config,
                                          name_template=name_template,
-                                         field_data_map=templatefield_data_map)
+                                         field_data_map=resolver.fields_data)
         except exceptions.NameBuilderError as e:
             log.critical('Name assembly FAILED: {!s}'.format(e))
             raise exceptions.AutonameowException
@@ -353,16 +362,18 @@ class Autonameow(object):
         Returns:
             True if the rename succeeded or would be a NO-OP, otherwise False.
         """
-        assert(isinstance(from_path, bytes))
-        assert(isinstance(new_basename, str))
+        util.assert_internal_bytestring(from_path)
+        util.assert_internal_string(new_basename)
 
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = util.bytestring_path(new_basename)
         log.debug('Destination basename (bytestring): "{!s}"'.format(
             util.displayable_path(dest_basename))
         )
+        util.assert_internal_bytestring(dest_basename)
 
         from_basename = diskutils.file_basename(from_path)
+
         if diskutils.compare_basenames(from_basename, dest_basename):
             _msg = 'Skipped "{!s}" because the current name is the same as ' \
                    'the new name'.format(util.displayable_path(from_basename),

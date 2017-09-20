@@ -57,22 +57,22 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
         self.assertEqual(str(self.e), 'ExiftoolMetadataExtractor')
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test__get_raw_metadata_returns_something(self):
-        self.assertIsNotNone(self.e._get_raw_metadata(temp_file))
+    def test__get_metadata_returns_something(self):
+        self.assertIsNotNone(self.e._get_metadata(temp_file))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test__get_raw_metadata_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e._get_raw_metadata(temp_file), dict))
+    def test__get_metadata_returns_expected_type(self):
+        self.assertTrue(isinstance(self.e._get_metadata(temp_file), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test__get_raw_metadata_raises_expected_exceptions(self):
+    def test__get_metadata_raises_expected_exceptions(self):
         with self.assertRaises(ExtractorError):
             e = ExiftoolMetadataExtractor()
-            e._get_raw_metadata(None)
+            e._get_metadata(None)
 
         with self.assertRaises(ExtractorError):
             f = ExiftoolMetadataExtractor()
-            f._get_raw_metadata('not_a_file_surely')
+            f._get_metadata('not_a_file_surely')
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_returns_something(self):
@@ -104,12 +104,6 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
     def test_method_execute_all_result_contains_file_size(self):
         actual = self.e.execute(temp_file)
         self.assertTrue('File:FileSize' in actual)
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_file_size_returns_expected(self):
-        actual = self.e.execute(temp_file, field='File:FileSize')
-        self.assertTrue(isinstance(actual, ExtractedData))
-        self.assertEqual(actual.value, 0)
 
 
 class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
@@ -146,11 +140,4 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
         actual_result = self.e.execute(self.test_file)
         for field, value in self.EXPECT_FIELD_VALUE:
             actual = actual_result.get(field)
-            self.assertEqual(actual.value, value)
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_field_returns_expected_value(self):
-        for field, value in self.EXPECT_FIELD_VALUE:
-            actual = self.e.execute(self.test_file, field=field)
-            self.assertTrue(isinstance(actual, ExtractedData))
             self.assertEqual(actual.value, value)

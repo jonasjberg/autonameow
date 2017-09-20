@@ -44,16 +44,13 @@ class TestAbstractMetadataExtractor(TestCase):
     def test_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
-    def test_method__get_raw_metadata_raises_not_implemented_error(self):
+    def test_method__get_metadata_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e._get_raw_metadata(self.test_file)
+            self.e._get_metadata(self.test_file)
 
-    def test_query_raises_exception_with__get_raw_metadata_unimplemented(self):
+    def test_query_raises_exception_with__get_metadata_unimplemented(self):
         with self.assertRaises(ExtractorError):
             self.assertIsNone(self.e(self.test_file))
-
-        with self.assertRaises(ExtractorError):
-            self.assertIsNone(self.e(self.test_file, field='some_field'))
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.handles_mime_types)

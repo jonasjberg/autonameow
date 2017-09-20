@@ -26,7 +26,10 @@ import itertools
 import logging
 import tempfile
 
-from core import util
+from core import (
+    util,
+    exceptions
+)
 
 log = logging.getLogger(__name__)
 
@@ -126,8 +129,10 @@ def split_basename(file_path):
     Returns:
         The basename of the given path split into two parts,
             as a tuple of bytestrings.
+    Raises:
+        EncodingBoundaryViolation: Got arguments of unexpected types.
     """
-    assert(isinstance(file_path, bytes))
+    util.assert_internal_bytestring(file_path)
 
     base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
     base = util.bytestring_path(base)
@@ -284,13 +289,17 @@ def get_files(search_path, recurse=False):
 
     if not search_path:
         raise FileNotFoundError
-    if not os.path.isfile(search_path) and not os.path.isdir(search_path):
+
+    util.assert_internal_bytestring(search_path)
+
+    if not (os.path.isfile(util.syspath(search_path))
+            or os.path.isdir(util.syspath(search_path))):
         raise FileNotFoundError
 
     out = []
 
     def traverse(path):
-        assert(isinstance(path, bytes))
+        util.assert_internal_bytestring(path)
 
         if os.path.isfile(util.syspath(path)):
             out.append(path)
@@ -353,17 +362,20 @@ def compare_basenames(basename_one, basename_two):
     Compares to file basenames in the "internal byte string" format.
 
     Args:
-        basename_one: The first basename to compare.
-        basename_two: The second basename to compare.
+        basename_one: The first basename to compare as a bytestring.
+        basename_two: The second basename to compare as a bytestring.
 
     Returns:
         True if the basenames are equal, otherwise False.
+    Raises:
+        ValueError: Any of the arguments is None.
+        EncodingBoundaryViolation: Any argument is not of type bytes.
     """
-    if not basename_one or not basename_two:
-        raise ValueError('Expected two non-empty arguments')
-    if (not isinstance(basename_one, bytes) or
-            not isinstance(basename_two, bytes)):
-        raise TypeError('Expected arguments to be "internal" byte strings')
+    if None in (basename_one, basename_two):
+        raise ValueError('Expected two non-None bytestrings')
+
+    util.assert_internal_bytestring(basename_one)
+    util.assert_internal_bytestring(basename_two)
 
     if basename_one == basename_two:
         return True

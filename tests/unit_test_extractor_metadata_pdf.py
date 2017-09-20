@@ -87,16 +87,3 @@ class TestPDFMetadataExtractor(unittest.TestCase):
         for field, value in self.EXPECT_FIELD_VALUE:
             self.assertEqual(actual.get(field).value, value)
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_field_returns_expected_value(self):
-        for field, value in self.EXPECT_FIELD_VALUE:
-            actual = self.e.execute(self.test_file, field=field)
-            self.assertTrue(isinstance(actual, ExtractedData))
-            self.assertEqual(actual.value, value)
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_field_returns_wrapped_data(self):
-        for field, value in self.EXPECT_WRAPPED_FIELD_VALUE:
-            actual = self.e.execute(self.test_file, field=field)
-            self.assertTrue(isinstance(actual, ExtractedData))
-            self.assertEqual(actual, value)

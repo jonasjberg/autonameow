@@ -30,7 +30,10 @@ import shutil
 
 import yaml
 
-from core import constants
+from core import (
+    constants,
+    util
+)
 from core.exceptions import InvalidMeowURIError
 
 
@@ -190,13 +193,15 @@ def flatten_dict(d, parent_key='', sep='.'):
                   'contents': {
                       'mime_type': None,
                       'textual': {
-                          'raw_text': None,
+                          'text': {
+                              'full: None,
+                          }
                       }
                   }
               }
               OUTPUT = {
                   'contents.mime_type': None,
-                  'contents.textual.raw_text': None,
+                  'contents.textual.text.full': None,
               }
 
     Note that if the low-level values are empty dictionaries or lists,
@@ -421,7 +426,8 @@ def eval_magic_glob(mime_to_match, glob_list):
     )
     mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
     for glob in glob_list:
-        assert(isinstance(glob, str))
+        util.assert_internal_string(glob)
+
         if glob == mime_to_match:
             return True
         elif '*' in glob:

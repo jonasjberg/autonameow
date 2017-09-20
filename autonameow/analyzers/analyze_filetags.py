@@ -25,11 +25,14 @@ from analyzers import BaseAnalyzer
 from core import (
     types,
     util,
+    fields
 )
 from core.util import diskutils
+from extractors import ExtractedData
 
 
 # TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
+
 DATE_SEP = b'[:\-._ ]?'
 TIME_SEP = b'[:\-._ T]?'
 DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'
@@ -55,6 +58,44 @@ class FiletagsAnalyzer(BaseAnalyzer):
     handles_mime_types = ['*/*']
     meowuri_root = 'analysis.filetags'
 
+    WRAPPER_LOOKUP = {
+        'datetime': ExtractedData(
+            wrapper=types.AW_TIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=0.75),
+            ],
+            generic_field=fields.GenericDateCreated
+        ),
+        'description': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.description, probability=1),
+                fields.WeightedMapping(fields.title, probability=0.5),
+            ],
+            generic_field=fields.GenericDescription
+        ),
+        'tags': ExtractedData(
+            wrapper=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.tags, probability=1),
+            ],
+            generic_field=fields.GenericTags
+        ),
+        'extension': ExtractedData(
+            wrapper=types.AW_MIMETYPE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.extension, probability=1),
+            ],
+            generic_field=fields.GenericMimeType
+        ),
+        'follows_filetags_convention': ExtractedData(
+            wrapper=types.AW_BOOLEAN,
+            mapped_fields=None,
+            generic_field=None
+        )
+    }
+
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
         super(FiletagsAnalyzer, self).__init__(
@@ -66,23 +107,30 @@ class FiletagsAnalyzer(BaseAnalyzer):
         self._tags = None
         self._extension = None
 
+    def __wrap_result(self, meowuri_leaf, data):
+        wrapper = self.WRAPPER_LOOKUP.get(meowuri_leaf)
+        if wrapper:
+            try:
+                wrapped = wrapper(data)
+            except types.AWTypeError:
+                return
+
+            self._add_results(meowuri_leaf, wrapped)
+
     def run(self):
         (self._timestamp, self._description, self._tags,
          self._extension) = partition_basename(self.file_object.abspath)
 
-        try:
-            self._add_results('datetime', types.AW_TIMEDATE(self._timestamp))
-        except types.AWTypeError as e:
-            pass
-        try:
-            self._add_results('description', types.AW_STRING(self._description))
-        except types.AWTypeError as e:
-            pass
+        self.__wrap_result('datetime', self._timestamp)
+        self.__wrap_result('description', self._description)
 
-        self._add_results('tags', sorted(self._tags))
-        self._add_results('extension', self._extension)
-        self._add_results('follows_filetags_convention',
-                          self.follows_filetags_convention())
+        self._tags = sorted(self._tags)
+        for tag in self._tags:
+            self.__wrap_result('tags', tag)
+
+        self.__wrap_result('extension', self._extension)
+        self.__wrap_result('follows_filetags_convention',
+                           self.follows_filetags_convention())
 
     def follows_filetags_convention(self):
         """

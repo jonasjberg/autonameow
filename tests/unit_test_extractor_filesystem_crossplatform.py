@@ -19,12 +19,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core.util.encoding import *
-from core.util.misc import *
-from core.util.queue import GenericQueue
-from core.util.sanity import *
-from core.util.textutils import (
-    indent,
-    remove_nonbreaking_spaces
-)
-from core.util import dateandtime
+from datetime import datetime
+from unittest import TestCase
+
+from extractors.filesystem import crossplatform
+import unit_utils as uu
+
+
+class TestDatetimeFromTimestamp(TestCase):
+    def test_returns_expected_type(self):
+        actual = crossplatform.datetime_from_timestamp(1505579505.0)
+        self.assertTrue(isinstance(actual, datetime))
+
+    def test_returns_expected_datetime(self):
+        actual = crossplatform.datetime_from_timestamp(1505579505.0)
+        expected = uu.str_to_datetime('2017-09-16 183145')
+        self.assertEqual(actual, expected)

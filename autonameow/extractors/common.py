@@ -44,8 +44,8 @@ class BaseExtractor(object):
     by inheriting extractor classes.
 
     All "extractors" must inherit from the 'BaseExtractor' class. This class
-    is never used directly -- it is an abstract class that defines interfaces
-    that must be implemented by inheriting classes.
+    is abstract and serves to define interfaces that actual extractor classes
+    must implement --- it is never used directly.
 
     Currently, there is also an additional layer of abstraction/inheritance/
     (indirection..) between the 'BaseExtractor' and the *actual *REAL**
@@ -90,62 +90,67 @@ class BaseExtractor(object):
 
     def __call__(self, source, **kwargs):
         """
-        Starts extracting data using the extractor.
+        Extracts and returns data using a specific extractor.
 
-        Keyword argument "field" is optional. All data is returned by default.
-        Returned data should be of obvious and "safe" internal formats/types.
+          NOTE: This method __MUST__ be implemented by inheriting classes!
+
+        The return value should be a dictionary keyed by "MeowURIs", storing
+        data. The stored data can be either single elements or lists.
+        The data should be "safe", I.E. validated and converted to a suitable
+        "internal format" --- text should be returned as Unicode strings.
+
+        Implementing classes should make sure to catch all exceptions and
+        re-raise an "ExtractorError", passing any valuable information along.
+
+        Only raise the "ExtractorError" exception for irrecoverable errors.
+        Otherwise, implementers should strive to return empty values of the
+        expected type. The type wrappers in 'types.py' could be useful here.
 
         Args:
             source: Source of data from which to extract information as a
                 byte string path (internal path format). A special case is the
                 'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
 
-        Keyword Args:
-            field: Return only data matching this field.
-                Field format and type is defined by the extractor class.
-
         Returns:
-            All data gathered by the extractor if no field is specified.
-            Else the data matching the specified field.
+            All data gathered by the extractor, as a dictionary.
 
         Raises:
             ExtractorError: The extraction could not be completed successfully.
         """
-
         # Make sure the 'source' paths are in the "internal bytestring" format.
         # The is-None-check below is for unit tests that pass a None 'source'.
         if source is not None and not isinstance(source, FileObject):
-            assert(isinstance(source, bytes))
+            util.assert_internal_bytestring(source)
 
         extracted_data = self.execute(source, **kwargs)
         return extracted_data
 
     def execute(self, source, **kwargs):
         """
-        Starts extracting data using a specific extractor.
+        Extracts and returns data using a specific extractor.
 
-        NOTE: This method *MUST* be implemented by inheriting classes!
+          NOTE: This method __MUST__ be implemented by inheriting classes!
 
-        Keyword argument "field" is optional. All data is returned by default.
-        If the data is text, is should be returned as Unicode strings.
+        The return value should be a dictionary keyed by "MeowURIs", storing
+        data. The stored data can be either single elements or lists.
+        The data should be "safe", I.E. validated and converted to a suitable
+        "internal format" --- text should be returned as Unicode strings.
 
         Implementing classes should make sure to catch all exceptions and
         re-raise an "ExtractorError", passing any valuable information along.
-        Only raise the "ExtractorError" exception for any irrecoverable errors.
+
+        Only raise the "ExtractorError" exception for irrecoverable errors.
         Otherwise, implementers should strive to return empty values of the
-        same type as that of the expected, valid data.
+        expected type. The type wrappers in 'types.py' could be useful here.
 
         Args:
             source: Source of data from which to extract information as a
                 byte string path (internal path format). A special case is the
                 'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
-        Keyword Args:
-            field: Return only data matching this field.
-                Field format and type is defined by the extractor class.
 
         Returns:
-            All data gathered by the extractor if no field is specified.
-            Else the data matching the specified field.
+            All data produced gathered by the extractor as a dict keyed by
+            "MeowURIs", storing arbitrary data or lists of arbitrary data.
 
         Raises:
             ExtractorError: The extraction could not be completed successfully.
@@ -155,14 +160,14 @@ class BaseExtractor(object):
     @classmethod
     def can_handle(cls, file_object):
         """
-        Tests if this extractor class can handle the given file.
+        Tests if a specific extractor class can handle a given file object.
 
-        The extractor is considered to be able to handle the given file if the
-        file MIME type is listed in the class attribute 'handles_mime_types'.
+        The extractor is considered to be able to handle the file if the
+        file MIME-type is listed in the class attribute 'handles_mime_types'.
 
         Inheriting extractor classes can override this method if they need
         to perform additional tests in order to determine if they can handle
-        the given file object.
+        a given file object.
 
         Args:
             file_object: The file to test as an instance of 'FileObject'.
@@ -191,13 +196,14 @@ class BaseExtractor(object):
         """
         Tests if the extractor can be used.
 
-        NOTE: This method *MUST* be implemented by inheriting classes!
+          NOTE: This method __MUST__ be implemented by inheriting classes!
 
         This should be used to test that any dependencies required by the
         extractor are met. This might be third party libraries or executables.
 
         Returns:
-            True if the extractor has everything it needs, else False.
+            True if any and all dependencies are satisfied and the extractor
+            is usable, else False.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
@@ -220,7 +226,7 @@ class ExtractedData(object):
     is compatible with. For instance, date/time-information is could be used
     to populate the 'datetime' name template field.
     """
-    def __init__(self, wrapper, mapped_fields=None):
+    def __init__(self, wrapper, mapped_fields=None, generic_field=None):
         self.wrapper = wrapper
 
         if mapped_fields is not None:
@@ -230,7 +236,21 @@ class ExtractedData(object):
 
         self._data = None
 
+        if generic_field is not None:
+            self.generic_field = generic_field
+        else:
+            self.generic_field = None
+
     def __call__(self, raw_value):
+        if self._data is not None:
+            log.critical('TODO: "{!s}"._data is _NOT_ None! Called with value:'
+                         ' {!s}"'.format(self, raw_value))
+        if not self.wrapper:
+            # Fall back automatic type detection if 'wrapper' is unspecified.
+            _wrapper = types.wrapper_for(raw_value)
+            if _wrapper:
+                self.wrapper = _wrapper
+
         if self.wrapper:
             try:
                 self._data = self.wrapper(raw_value)
@@ -238,14 +258,13 @@ class ExtractedData(object):
                 log.warning(e)
                 raise
         else:
-            # Fall back automatic type detection if 'wrapper' is unspecified.
-            from core.config.configuration import Configuration
-            wrapped = types.try_wrap(Configuration)
+            log.warning('Missing wrapper in ExtractedData: "{!s}"'.format(self))
+
+            # TODO: [TD0088] The "resolver" needs 'wrapper.format' ..
+            wrapped = types.try_wrap(raw_value)
             if wrapped is None:
-                # log.critical(
-                #     'Unhandled wrapping of tag name "{}" (type: {!s} '
-                #     ' value: "{!s}")'.format(tag_name, type(value), value)
-                # )
+                log.critical('Unhandled wrapping of raw value "{!s}" '
+                             '({!s})'.format(raw_value, type(raw_value)))
                 self._data = raw_value
             else:
                 self._data = wrapped
@@ -263,9 +282,16 @@ class ExtractedData(object):
         return False
 
     def __str__(self):
-        return '{!s}("{!s}")  FieldMap: {!s}"'.format(
-            self.wrapper, self.value, self.field_map
-        )
+        # 1) Detailed information, not suitable when listing to user ..
+        # return '{!s}("{!s}")  FieldMap: {!s}"'.format(
+        #     self.wrapper, self.value, self.field_map
+        # )
+
+        # 2) Simple default string representation of the data ..
+        return '{!s}'.format(self.value)
+
+        # 3) Use the format method of the wrapper ..
+        # return self.wrapper.format(self.value)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):

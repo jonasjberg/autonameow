@@ -19,9 +19,18 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from analyzers import BaseAnalyzer
+import re
+from collections import defaultdict
 
+from analyzers import BaseAnalyzer
+from core import types
 from core.util import dateandtime
+
+
+RE_EDITION = re.compile(r'([0-9])+((st|nd|rd|th)\w?(E|ed)?|(E|Ed))')
+EDITION_RE_LOOKUP = {
+    1: r'1st('
+}
 
 
 class FilenameAnalyzer(BaseAnalyzer):
@@ -39,7 +48,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         # Pass results through callback function provided by the 'Analysis'.
         self._add_results('datetime', self.get_datetime())
         self._add_results('title', self.get_title())
-        self._add_results('tags', self.get_tags())
+        self._add_results('edition', self.get_edition())
 
     def get_datetime(self):
         results = []
@@ -51,61 +60,13 @@ class FilenameAnalyzer(BaseAnalyzer):
         return results if results else None
 
     def get_title(self):
-        results = []
+        return None
 
-        fn_title = self._get_title_from_filename()
-        if fn_title:
-            results += fn_title
-
-        return results if results else None
-
-    def get_tags(self):
-        # TODO: Remove! Duplicated 'FiletagsAnalyzer' functionality.
-        fnp_tags = self.request_data(self.file_object,
-                                     'analysis.filetags.tags')
-        fnp_base = self.request_data(self.file_object,
-                                     'analysis.filetags.description')
-        fnp_ts = self.request_data(self.file_object,
-                                   'analysis.filetags.datetime')
-
-        # Weight cases with all "filetags" filename parts present higher.
-        weight = 0.1
-        if fnp_tags and len(fnp_tags) > 0:
-            weight = 0.25
-            if fnp_base and len(fnp_base) > 0:
-                weight = 0.75
-                if fnp_ts:
-                    weight = 1
-
-        if not fnp_tags:
-            fnp_tags = []
-        return [{'value': fnp_tags,
-                 'source': 'filenamepart_tags',
-                 'weight': weight}]
-
-    def _get_title_from_filename(self):
-        # TODO: Remove! Duplicated 'FiletagsAnalyzer' functionality.
-        fnp_tags = self.request_data(self.file_object,
-                                     'analysis.filetags.tags')
-        fnp_base = self.request_data(self.file_object,
-                                     'analysis.filetags.description')
-        fnp_ts = self.request_data(self.file_object,
-                                   'analysis.filetags.datetime')
-
-        # Weight cases with all "filetags" filename parts present higher.
-        weight = 0.1
-        if fnp_base and len(fnp_base) > 0:
-            weight = 0.25
-            if fnp_ts:
-                weight = 0.75
-                if fnp_tags and len(fnp_tags) > 0:
-                    weight = 1
-
-            return [{'value': fnp_base,
-                     'source': 'filetags',
-                     'weight': weight}]
-        else:
-            return None
+    def get_edition(self):
+        basename = self.request_data(self.file_object,
+                                     'filesystem.basename.prefix')
+        if not basename:
+            return
 
     def _get_datetime_from_name(self):
         """
@@ -196,6 +157,49 @@ class FilenameAnalyzer(BaseAnalyzer):
         return True
 
 
+class SubstringFinder(object):
+    # TODO: (?) Implement or remove ..
+
+    def identify_fields(self, string, field_list):
+        substrings = self._substrings(string)
+
+    def _substrings(self, string):
+        s = re.split(r'\W', string)
+        return list(filter(None, s))
+
+
+class FilenameTokenizer(object):
+    RE_NON_ALNUMS = re.compile(r'\w+')
+
+    def __init__(self, filename):
+        self.filename = filename
+
+    @property
+    def separators(self):
+        return self._guess_separators(self.filename)
+
+    def _guess_separators(self, string):
+        non_words = self.RE_NON_ALNUMS.split(string)
+
+        # for TODO: .........
+
+        char_count = defaultdict(int)
+        return s
+
+
 def _find_datetime_isodate(text_line):
     # TODO: [TD0070] Implement arbitrary basic personal use case.
     pass
+
+
+def _find_edition(text):
+    match = RE_EDITION.search(text)
+    if match:
+        e = match.group(1)
+        try:
+            edition = types.AW_INTEGER(e)
+            return edition
+        except types.AWTypeError:
+            pass
+
+    return None

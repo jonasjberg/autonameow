@@ -30,6 +30,7 @@ Execute autonameow by running either one of;
 
 import sys
 
+from core.exceptions import AWAssertionError
 from core.main import Autonameow
 
 if __package__ is None and not hasattr(sys, 'frozen'):
@@ -38,9 +39,26 @@ if __package__ is None and not hasattr(sys, 'frozen'):
     path = os.path.realpath(os.path.abspath(__file__))
     sys.path.insert(0, os.path.dirname(os.path.dirname(path)))
 
+
+def print_error(message):
+    print(message, file=sys.stderr)
+
+
 if __name__ == '__main__':
     try:
         autonameow = Autonameow(sys.argv[1:])
         autonameow.run()
     except KeyboardInterrupt:
         sys.exit('\nReceived keyboard interrupt; Exiting ..')
+    except AWAssertionError as e:
+        print_error('******************************************************')
+        print_error('             INTERNAL SANITY-CHECK FAILED')
+        print_error('Something that really should NOT happen just happened!')
+        print_error('******************************************************')
+        print_error('')
+        print_error('This is most likely a BUG that should be reported ..')
+        print_error('.. TODO: Information on how to report issues.')
+        print_error('')
+        print_error('')
+        print_error(str(e))
+        sys.exit(3)

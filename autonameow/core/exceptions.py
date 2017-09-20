@@ -26,6 +26,15 @@ class AutonameowException(Exception):
     """Base exception. All custom exceptions should subclass this."""
 
 
+class AWAssertionError(Exception):
+    """Error due to incorrect assumptions about internal interactions.
+       Equivalent to assertions, intended to prevent bugs and regressions."""
+
+
+class EncodingBoundaryViolation(AWAssertionError):
+    """Error due to unexpected string encoding."""
+
+
 class InvalidFileArgumentError(AutonameowException):
     """The argument (file) is not suited for processing."""
 
