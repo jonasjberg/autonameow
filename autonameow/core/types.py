@@ -41,8 +41,10 @@ from core import (
     exceptions,
     util
 )
-from core.util import textutils
-
+from core.util import (
+    sanity,
+    textutils
+)
 
 # TODO: [TD0084] Add handling collections to type wrapper classes.
 
@@ -380,7 +382,8 @@ class MimeType(BaseType):
         MIME_TYPE_LOOKUP = {}
 
     # TODO: Improve robustness of interfacing with 'mimetypes'.
-    util.assertthat(len(MIME_TYPE_LOOKUP) > 0, 'MIME_TYPE_LOOKUP is empty')
+    sanity.check(len(MIME_TYPE_LOOKUP) > 0,
+                 'MIME_TYPE_LOOKUP is empty')
 
     # Any custom "extension to MIME-type"-mappings goes here.
     MIME_TYPE_LOOKUP['sh'] = 'text/x-shellscript'
@@ -712,7 +715,7 @@ def try_parse_date(string):
     # Assumes year, month, day is in ISO-date-like order.
     digits = textutils.extract_digits(string)
     if digits:
-        util.assert_internal_string(digits)
+        sanity.check_internal_string(digits)
 
         date_formats = ['%Y%m%d', '%Y%m', '%Y']
         for date_format in date_formats:

@@ -27,7 +27,7 @@ from core import (
 )
 from core.exceptions import AutonameowException
 from core.fileobject import FileObject
-
+from core.util import sanity
 
 log = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ class BaseExtractor(object):
         # Make sure the 'source' paths are in the "internal bytestring" format.
         # The is-None-check below is for unit tests that pass a None 'source'.
         if source is not None and not isinstance(source, FileObject):
-            util.assert_internal_bytestring(source)
+            sanity.check_internal_bytestring(source)
 
         extracted_data = self.execute(source, **kwargs)
         return extracted_data

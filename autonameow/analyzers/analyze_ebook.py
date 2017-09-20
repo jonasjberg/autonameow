@@ -29,11 +29,14 @@ except (ImportError, ModuleNotFoundError):
 
 from analyzers import BaseAnalyzer
 from core import (
-    util,
+    fields,
     types,
-    fields
+    util
 )
-from core.util import textutils
+from core.util import (
+    sanity,
+    textutils
+)
 from extractors import ExtractedData
 
 
@@ -220,7 +223,7 @@ def _search_initial_text(text, callback):
 
 
 def extract_isbns_from_text(text):
-    util.assert_internal_string(text)
+    sanity.check_internal_string(text)
 
     possible_isbns = isbnlib.get_isbnlike(text)
     if possible_isbns:
@@ -234,7 +237,7 @@ def validate_isbn(possible_isbn):
     if not possible_isbn:
         return None
 
-    util.assert_internal_string(possible_isbn)
+    sanity.check_internal_string(possible_isbn)
 
     isbn_number = isbnlib.clean(possible_isbn)
     if not isbn_number or isbnlib.notisbn(isbn_number):
@@ -247,7 +250,7 @@ def filter_isbns(isbn_list):
     if not isbn_list:
         return []
 
-    util.assert_isinstance(isbn_list, list)
+    sanity.check_isinstance(isbn_list, list)
 
     # Remove any duplicates.
     isbn_list = list(set(isbn_list))

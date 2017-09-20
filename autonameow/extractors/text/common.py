@@ -26,7 +26,10 @@ from core import (
     types,
     util
 )
-from core.util import textutils
+from core.util import (
+    sanity,
+    textutils
+)
 from extractors import (
     BaseExtractor,
     ExtractorError,
@@ -53,7 +56,7 @@ class AbstractTextExtractor(BaseExtractor):
                            '{!s}'.format(self, e))
             raise ExtractorError
 
-        util.assert_internal_string(text)
+        sanity.check_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
         return {'full': ExtractedData(wrapper=types.AW_STRING)(text)}

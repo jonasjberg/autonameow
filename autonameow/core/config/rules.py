@@ -29,7 +29,7 @@ from core import (
     util,
 )
 from core.config import field_parsers
-
+from core.util import sanity
 
 log = logging.getLogger(__name__)
 
@@ -140,7 +140,7 @@ class RuleCondition(object):
         parsers = field_parsers.suitable_field_parser_for(meowuri)
         if parsers:
             # Assume only one parser can handle a "meowURI" for now.
-            util.assertthat(
+            sanity.check(
                 len(parsers) == 1,
                 'Unexpectedly got {} parsers for meowURI "{!s}"'.format(
                     len(parsers), meowuri
@@ -368,8 +368,8 @@ class Rule(object):
         Returns:
             The number of met conditions as an integer.
         """
-        util.assertthat(self.conditions and len(self.conditions) > 0,
-                        'Rule.conditions is missing or empty')
+        sanity.check(self.conditions and len(self.conditions) > 0,
+                     'Rule.conditions is missing or empty')
 
         _count_met_conditions = 0
         for condition in self.conditions:

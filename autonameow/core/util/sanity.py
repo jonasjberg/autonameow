@@ -22,7 +22,7 @@
 from core import exceptions
 
 
-def assert_internal_bytestring(value):
+def check_internal_bytestring(value):
     """
     Checks that a given value is an "internal bytestring", I.E. bytes.
 
@@ -39,7 +39,7 @@ def assert_internal_bytestring(value):
         raise exceptions.EncodingBoundaryViolation(_msg)
 
 
-def assert_internal_string(value):
+def check_internal_string(value):
     """
     Checks that a given value is an "internal string", I.E. Unicode str.
 
@@ -56,7 +56,7 @@ def assert_internal_string(value):
         raise exceptions.EncodingBoundaryViolation(_msg)
 
 
-def assert_isinstance(value, expected):
+def check_isinstance(value, expected):
     """
     Checks that argument 'value' is an instance of argument 'expected'.
     Args:
@@ -77,7 +77,7 @@ def assert_isinstance(value, expected):
         )
 
 
-def assertthat(expression, msg=None):
+def check(expression, msg=None):
     if msg is None:
         msg = 'Reason unknown'
 

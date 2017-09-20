@@ -30,12 +30,9 @@ import shutil
 
 import yaml
 
-from core import (
-    constants,
-    util
-)
+from core import constants
 from core.exceptions import InvalidMeowURIError
-
+from core.util import sanity
 
 log = logging.getLogger(__name__)
 
@@ -426,7 +423,7 @@ def eval_magic_glob(mime_to_match, glob_list):
     )
     mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
     for glob in glob_list:
-        util.assert_internal_string(glob)
+        sanity.check_internal_string(glob)
 
         if glob == mime_to_match:
             return True

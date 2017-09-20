@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core import util
+from core.util import sanity
 
 try:
     import chardet
@@ -31,7 +31,7 @@ def extract_digits(string):
     """
     Extracts and returns digits from a Unicode string, as a Unicode string.
     """
-    util.assert_internal_string(string)
+    sanity.check_internal_string(string)
 
     digits = ''
     for char in string:
@@ -81,8 +81,8 @@ def indent(text, amount=None, ch=None):
     if text is None:
         raise ValueError('Got None argument "text"')
 
-    util.assert_internal_string(text)
-    util.assert_internal_string(ch)
+    sanity.check_internal_string(text)
+    sanity.check_internal_string(ch)
 
     padding = amount * ch
     return ''.join(padding + line for line in text.splitlines(True))
@@ -125,7 +125,7 @@ def autodetect_decode(string):
         except ValueError:
             raise ValueError('Unable to autodetect encoding and decode string')
 
-    util.assert_internal_string(string)
+    sanity.check_internal_string(string)
     return string
 
 
@@ -153,9 +153,9 @@ def extract_lines(text, first_line, last_line):
     if text is None:
         return text
 
-    util.assert_internal_string(text)
-    util.assertthat(first_line >= 0, 'Argument first_line is negative')
-    util.assertthat(last_line >= 0, 'Argument last_line is negative')
+    sanity.check_internal_string(text)
+    sanity.check(first_line >= 0, 'Argument first_line is negative')
+    sanity.check(last_line >= 0, 'Argument last_line is negative')
 
     lines = text.splitlines(keepends=True)
     if last_line > len(lines):

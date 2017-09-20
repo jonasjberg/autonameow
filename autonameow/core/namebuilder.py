@@ -27,7 +27,10 @@ from core import (
     exceptions,
     util,
 )
-from core.util import diskutils
+from core.util import (
+    diskutils,
+    sanity
+)
 from extractors import ExtractedData
 
 log = logging.getLogger(__name__)
@@ -60,7 +63,7 @@ def build(config, name_template, field_data_map):
             'Unable to assemble basename: {!s}'.format(e)
         )
 
-    util.assert_internal_string(new_name)
+    sanity.check_internal_string(new_name)
     new_name = post_assemble_format(new_name)
     log.debug('Assembled basename: "{!s}"'.format(new_name))
 
@@ -169,7 +172,7 @@ def pre_assemble_format(data, config):
             formatted[field] = formatted_datetime(d, datetime_format)
 
         elif field == 'tags':
-            util.assert_isinstance(value, list)
+            sanity.check_isinstance(value, list)
 
             _tags = []
             for _tag in value:
@@ -239,7 +242,7 @@ def formatted_datetime(datetime_object, format_string):
     Returns:
         A string in the specified format with the data from the given string.
     """
-    util.assert_isinstance(datetime_object, datetime)
+    sanity.check_isinstance(datetime_object, datetime)
     return datetime_object.strftime(format_string)
 
 

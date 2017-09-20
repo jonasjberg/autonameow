@@ -45,7 +45,8 @@ from core.filter import ResultFilter
 from core.plugin_handler import PluginHandler
 from core.util import (
     cli,
-    diskutils
+    diskutils,
+    sanity
 )
 
 
@@ -362,15 +363,15 @@ class Autonameow(object):
         Returns:
             True if the rename succeeded or would be a NO-OP, otherwise False.
         """
-        util.assert_internal_bytestring(from_path)
-        util.assert_internal_string(new_basename)
+        sanity.check_internal_bytestring(from_path)
+        sanity.check_internal_string(new_basename)
 
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = util.bytestring_path(new_basename)
         log.debug('Destination basename (bytestring): "{!s}"'.format(
             util.displayable_path(dest_basename))
         )
-        util.assert_internal_bytestring(dest_basename)
+        sanity.check_internal_bytestring(dest_basename)
 
         from_basename = diskutils.file_basename(from_path)
 

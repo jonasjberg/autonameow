@@ -38,7 +38,7 @@ from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     parse_versioning
 )
-
+from core.util import sanity
 
 log = logging.getLogger(__name__)
 
@@ -100,7 +100,7 @@ class Configuration(object):
             ConfigReadError: The configuration file could not be read.
             ConfigError: The configuration file is empty.
         """
-        util.assert_internal_bytestring(path)
+        sanity.check_internal_bytestring(path)
 
         _loaded_data = config.load_yaml_file(path)
         if not _loaded_data:

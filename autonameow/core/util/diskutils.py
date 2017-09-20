@@ -30,6 +30,7 @@ from core import (
     util,
     exceptions
 )
+from core.util import sanity
 
 log = logging.getLogger(__name__)
 
@@ -132,7 +133,7 @@ def split_basename(file_path):
     Raises:
         EncodingBoundaryViolation: Got arguments of unexpected types.
     """
-    util.assert_internal_bytestring(file_path)
+    sanity.check_internal_bytestring(file_path)
 
     base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
     base = util.bytestring_path(base)
@@ -290,7 +291,7 @@ def get_files(search_path, recurse=False):
     if not search_path:
         raise FileNotFoundError
 
-    util.assert_internal_bytestring(search_path)
+    sanity.check_internal_bytestring(search_path)
 
     if not (os.path.isfile(util.syspath(search_path))
             or os.path.isdir(util.syspath(search_path))):
@@ -299,7 +300,7 @@ def get_files(search_path, recurse=False):
     out = []
 
     def traverse(path):
-        util.assert_internal_bytestring(path)
+        sanity.check_internal_bytestring(path)
 
         if os.path.isfile(util.syspath(path)):
             out.append(path)
@@ -374,8 +375,8 @@ def compare_basenames(basename_one, basename_two):
     if None in (basename_one, basename_two):
         raise ValueError('Expected two non-None bytestrings')
 
-    util.assert_internal_bytestring(basename_one)
-    util.assert_internal_bytestring(basename_two)
+    sanity.check_internal_bytestring(basename_one)
+    sanity.check_internal_bytestring(basename_two)
 
     if basename_one == basename_two:
         return True

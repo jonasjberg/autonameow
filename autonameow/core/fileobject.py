@@ -27,7 +27,10 @@ from core import (
     exceptions,
     util
 )
-from .util import diskutils
+from core.util import (
+    diskutils,
+    sanity
+)
 
 
 class FileObject(object):
@@ -39,7 +42,7 @@ class FileObject(object):
             path: The absolute normalized path to the file, as an
                   "internal filename bytestring", I.E. bytes.
         """
-        util.assert_internal_bytestring(path)
+        sanity.check_internal_bytestring(path)
         validate_path_argument(path)
         self.abspath = path
 

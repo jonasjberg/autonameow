@@ -1,0 +1,105 @@
+CUSTOM_POST_PROCESSING:
+    regex_replace:
+    -   match: __
+        regex: true
+        replace: _
+    -   match: --
+        regex: true
+        replace: '-'
+    -   match: ..
+        regex: true
+        replace: .
+    -   match: \.\.\.
+        regex: true
+        replace: ..
+DATETIME_FORMAT:
+    date: '%Y-%m-%d'
+    datetime: '%Y-%m-%dT%H%M%S'
+    time: '%H-%M-%S'
+FILESYSTEM_OPTIONS:
+    ignore:
+    - '*.swp'
+    - '*/.*'
+    lowercase_filename: false
+    sanitize_filename: true
+    sanitize_strict: false
+    uppercase_filename: false
+FILETAGS_OPTIONS:
+    between_tag_separator: ' '
+    filename_tag_separator: ' -- '
+NAME_TEMPLATES:
+    default_book: '{publisher} {title} {edition} - {author} {datetime}.{extension}'
+    default_document: '{title} - {author} {datetime}.{extension}'
+    default_photo: '{datetime} {description} -- {tags}.{extension}'
+RULES:
+-   CONDITIONS:
+        filesystem.basename.extension: pdf
+        filesystem.basename.full: gmail.pdf
+        filesystem.contents.mime_type: application/pdf
+    DATA_SOURCES:
+        datetime: metadata.exiftool.PDF:CreateDate
+        extension: filesystem.basename.extension
+        title: filesystem.basename.prefix
+    NAME_FORMAT: '{datetime} {title}.{extension}'
+    description: test_files Gmail print-to-pdf
+    exact_match: true
+    ranking_bias: null
+-   CONDITIONS:
+        filesystem.basename.full: smulan.jpg
+        filesystem.contents.mime_type: image/jpeg
+    DATA_SOURCES:
+        datetime: metadata.exiftool.EXIF:DateTimeOriginal
+        description: plugin.microsoft_vision.caption
+        extension: filesystem.basename.extension
+    NAME_FORMAT: '{datetime} {description}.{extension}'
+    description: test_files smulan.jpg
+    exact_match: true
+    ranking_bias: 1
+-   CONDITIONS:
+        filesystem.basename.full: simplest_pdf.md.pdf
+    DATA_SOURCES:
+        extension: filesystem.basename.extension
+    NAME_FORMAT: simplest_pdf.md.{extension}
+    description: test_files simplest_pdf.md.pdf
+    exact_match: true
+    ranking_bias: 1
+-   CONDITIONS:
+        filesystem.basename.extension: jpg
+        filesystem.basename.full: DCIM*
+        filesystem.contents.mime_type: image/jpeg
+        filesystem.pathname.full: ~/Pictures/incoming
+        metadata.exiftool.EXIF:DateTimeOriginal: Defined
+    DATA_SOURCES:
+        datetime:
+        - metadata.exiftool.EXIF:DateTimeOriginal
+        - metadata.exiftool.EXIF:DateTimeDigitized
+        - metadata.exiftool.EXIF:CreateDate
+        description: plugin.microsoft_vision.caption
+        extension: filesystem.basename.extension
+        tags: plugin.microsoft_vision.tags
+    NAME_FORMAT: '{datetime} {description} -- {tags}.{extension}'
+    description: Sample Entry for Photos with strict rules
+    exact_match: true
+    ranking_bias: 1
+-   CONDITIONS:
+        filesystem.basename.extension: epub
+        filesystem.basename.full: .*
+        filesystem.contents.mime_type: application/epub+zip
+        filesystem.pathname.full: .*
+        metadata.exiftool.XMP-dc:Creator: Defined
+    DATA_SOURCES:
+        author:
+        - metadata.exiftool.XMP-dc:Creator
+        - metadata.exiftool.XMP-dc:CreatorFile-as
+        datetime:
+        - metadata.exiftool.XMP-dc:PublicationDate
+        - metadata.exiftool.XMP-dc:Date
+        edition: null
+        extension: filesystem.basename.extension
+        publisher: metadata.exiftool.XMP-dc:Publisher
+        title: metadata.exiftool.XMP-dc:Title
+    NAME_FORMAT: default_book
+    description: Sample Entry for EPUB e-books
+    exact_match: true
+    ranking_bias: 1
+autonameow_version: v0.4.6

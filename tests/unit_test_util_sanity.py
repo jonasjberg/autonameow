@@ -25,17 +25,13 @@ from core.exceptions import (
     AWAssertionError,
     EncodingBoundaryViolation
 )
-from core.util import (
-    assert_internal_bytestring,
-    assert_internal_string,
-    assert_isinstance
-)
+from core.util import sanity
 
 
-class TestAssertInternalBytestring(TestCase):
-    def test_valid_values(self):
+class TestSanityCheckInternalBytestring(TestCase):
+    def test_check_passes(self):
         def _assert_valid(test_input):
-            assert_internal_bytestring(test_input)
+            sanity.check_internal_bytestring(test_input)
 
         _assert_valid(b'')
         _assert_valid(b'foo')
@@ -43,17 +39,17 @@ class TestAssertInternalBytestring(TestCase):
     def test_raises_exception_for_non_bytes_values(self):
         def _assert_raises(test_input):
             with self.assertRaises(EncodingBoundaryViolation):
-                assert_internal_bytestring(test_input)
+                sanity.check_internal_bytestring(test_input)
 
         _assert_raises(None)
         _assert_raises('')
         _assert_raises('foo')
 
 
-class TestAssertInternalString(TestCase):
-    def test_valid_values(self):
+class TestSanityCheckInternalString(TestCase):
+    def test_check_passes(self):
         def _assert_valid(test_input):
-            assert_internal_string(test_input)
+            sanity.check_internal_string(test_input)
 
         _assert_valid('')
         _assert_valid('foo')
@@ -62,17 +58,17 @@ class TestAssertInternalString(TestCase):
     def test_raises_exception_for_non_bytes_values(self):
         def _assert_raises(test_input):
             with self.assertRaises(EncodingBoundaryViolation):
-                assert_internal_string(test_input)
+                sanity.check_internal_string(test_input)
 
         _assert_raises(None)
         _assert_raises(b'')
         _assert_raises(b'foo')
 
 
-class TestAssertIsinstance(TestCase):
-    def test_assertion_passes(self):
+class TestSanityCheckIsinstance(TestCase):
+    def test_check_passes(self):
         def _assert_ok(test_input, expected):
-            assert_isinstance(test_input, expected)
+            sanity.check_isinstance(test_input, expected)
 
         _assert_ok('', str)
         _assert_ok(1, int)
@@ -84,7 +80,7 @@ class TestAssertIsinstance(TestCase):
     def test_assertion_failure_raises_exception(self):
         def _assert_raises(test_input, expected):
             with self.assertRaises(AWAssertionError):
-                assert_isinstance(test_input, expected)
+                sanity.check_isinstance(test_input, expected)
 
         _assert_raises(str, str)
         _assert_raises(b'', str)
@@ -110,3 +106,34 @@ class TestAssertIsinstance(TestCase):
         _assert_raises(str, None)
         _assert_raises(b'', None)
         _assert_raises(bytes, None)
+
+
+class TestSanityCheck(TestCase):
+    def test_check_passes(self):
+        def _assert_ok(test_input, msg=None):
+            if msg:
+                sanity.check(test_input, msg)
+            else:
+                sanity.check(test_input, msg)
+
+        _assert_ok(1 == 1)
+        _assert_ok(1 == 1, 'Expr: 1 == 1')
+        _assert_ok(True)
+        _assert_ok(True, 'Expr: True')
+        _assert_ok('a' == 'a' and 'a' != 'b')
+        _assert_ok('a' == 'a' and 'a' != 'b', 'Expr: foo')
+
+    def test_assertion_failure_raises_exception(self):
+        def _assert_raises(test_input, msg=None):
+            with self.assertRaises(AWAssertionError):
+                if msg:
+                    sanity.check(test_input, msg)
+                else:
+                    sanity.check(test_input, msg)
+
+        _assert_raises(1 == 2)
+        _assert_raises(1 == 2, 'Expr: 1 == 2')
+        _assert_raises(False)
+        _assert_raises(False, 'Expr: False')
+        _assert_raises('a' == 'X' and 'a' != 'Z')
+        _assert_raises('a' == 'X' and 'a' != 'Z', 'Expr: foo')

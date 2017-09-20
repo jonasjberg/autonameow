@@ -29,8 +29,10 @@ from core import (
     util,
 )
 from core.config.field_parsers import eval_meowuri_glob
-from core.util import textutils
-
+from core.util import (
+    sanity,
+    textutils
+)
 
 log = logging.getLogger(__name__)
 
@@ -349,8 +351,8 @@ def unique_map_meowuris(meowuri_class_map):
     # for key in ['extractors', 'analyzers', 'plugins'] ..
     for key in meowuri_class_map.keys():
         for meowuri in meowuri_class_map[key].keys():
-            util.assertthat(not isinstance(meowuri, list),
-                            'Unexpectedly "meowuri" of type list')
+            sanity.check(not isinstance(meowuri, list),
+                         'Unexpectedly "meowuri" of type list')
             out.add(meowuri)
 
     return out
