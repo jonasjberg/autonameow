@@ -59,7 +59,10 @@ class AbstractTextExtractor(BaseExtractor):
         sanity.check_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
-        return {'full': ExtractedData(wrapper=types.AW_STRING)(text)}
+
+        # TODO: [TD0087] Clean up messy (and duplicated) coercion of "raw" data.
+        wrapper = ExtractedData(coercer=types.AW_STRING)
+        return {'full': ExtractedData.from_raw(wrapper, text)}
 
     def _get_text(self, source):
         raise NotImplementedError('Must be implemented by inheriting classes.')

@@ -179,12 +179,11 @@ class FilenameTokenizer(object):
         return self._guess_separators(self.filename)
 
     def _guess_separators(self, string):
-        non_words = self.RE_NON_ALNUMS.split(string)
-
+        # non_words = self.RE_NON_ALNUMS.split(string)
         # for TODO: .........
-
-        char_count = defaultdict(int)
-        return s
+        # char_count = defaultdict(int)
+        # return s
+        pass
 
 
 def _find_datetime_isodate(text_line):

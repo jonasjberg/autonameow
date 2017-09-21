@@ -43,13 +43,13 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         'abspath.full': ExtractedData(types.AW_PATH),
         'basename.full': ExtractedData(types.AW_PATHCOMPONENT),
         'basename.extension': ExtractedData(
-            wrapper=types.AW_PATHCOMPONENT,
+            coercer=types.AW_PATHCOMPONENT,
             mapped_fields=[
                 fields.WeightedMapping(fields.extension, probability=1),
             ]
         ),
         'basename.suffix': ExtractedData(
-            wrapper=types.AW_PATHCOMPONENT,
+            coercer=types.AW_PATHCOMPONENT,
             mapped_fields=[
                 fields.WeightedMapping(fields.extension, probability=1),
             ]
@@ -58,32 +58,34 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         'pathname.full': ExtractedData(types.AW_PATH),
         'pathname.parent': ExtractedData(types.AW_PATH),
         'contents.mime_type': ExtractedData(
-            wrapper=types.AW_MIMETYPE,
+            coercer=types.AW_MIMETYPE,
             mapped_fields=[
                 fields.WeightedMapping(fields.extension, probability=1),
             ],
             generic_field=fields.GenericMimeType
         ),
         'date_accessed': ExtractedData(
-            wrapper=types.AW_TIMEDATE,
+            coercer=types.AW_TIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.date, probability=0.1),
                 fields.WeightedMapping(fields.datetime, probability=0.1),
             ]
         ),
         'date_created': ExtractedData(
-            wrapper=types.AW_TIMEDATE,
+            coercer=types.AW_TIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.date, probability=1),
                 fields.WeightedMapping(fields.datetime, probability=1),
-            ]
+            ],
+            generic_field=fields.GenericDateCreated
         ),
         'date_modified': ExtractedData(
-            wrapper=types.AW_TIMEDATE,
+            coercer=types.AW_TIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.date, probability=0.25),
                 fields.WeightedMapping(fields.datetime, probability=0.25),
-            ]
+            ],
+            generic_field=fields.GenericDateModified
         )
     }
 
@@ -139,7 +141,8 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
 
     def _to_internal_format(self, meowuri, data):
         wrapper = self.wrapper_lookup[meowuri]
-        return wrapper(data)
+        if wrapper:
+            return ExtractedData.from_raw(wrapper, data)
 
     @classmethod
     def check_dependencies(cls):

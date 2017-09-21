@@ -42,20 +42,20 @@ class GuessitPlugin(BasePlugin):
 
     tagname_type_lookup = {
         'date': ExtractedData(
-            wrapper=types.AW_TIMEDATE,
+            coercer=types.AW_TIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
             ]
         ),
         'title': ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping(fields.title, probability=1),
             ]
         ),
         'release_group': ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping(fields.publisher, probability=0.1),
                 fields.WeightedMapping(fields.description, probability=0.001),
@@ -83,23 +83,21 @@ class GuessitPlugin(BasePlugin):
         def _to_internal_format(raw_data):
             for tag_name, value in raw_data.items():
                 if tag_name in self.tagname_type_lookup:
-                    # Found a "template" 'Item' class.
                     wrapper = self.tagname_type_lookup[tag_name]
                 else:
-                    # Use a default 'Item' class.
-                    wrapper = ExtractedData(wrapper=None, mapped_fields=None)
+                    wrapper = ExtractedData(coercer=None, mapped_fields=None)
 
-                item = wrapper(value)
-                if item:
-                    self.add_results(file_object, tag_name, item)
+                wrapped = ExtractedData.from_raw(wrapper, value)
+                if wrapped:
+                    self.add_results(file_object, tag_name, wrapped)
 
-        def _wrap_and_add_result(raw_data, raw_key, wrapper_type, result_key):
+        def _coerce_and_add_result(raw_data, raw_key, coercer, result_key):
             raw_value = raw_data.get(raw_key)
             if not raw_value:
                 return
 
             try:
-                wrapped = wrapper_type(raw_value)
+                wrapped = coercer(raw_value)
             except types.AWTypeError as e:
                 self.log.warning(
                     'Wrapping guessit data FAILED for "{!s}" ({})'.format(
@@ -109,23 +107,26 @@ class GuessitPlugin(BasePlugin):
             else:
                 self.add_results(file_object, result_key, wrapped)
 
-        # self._wrap_and_add_result('date', types.AW_TIMEDATE, 'date')
-        # self._wrap_and_add_result('title', types.AW_STRING, 'title')
-        # self._wrap_and_add_result('release_group', types.AW_STRING, 'publisher')
+        # TODO: What is going on here? CLEANUP!
+        # self._coerce_and_add_result('date', types.AW_TIMEDATE, 'date')
+        # self._coerce_and_add_result('title', types.AW_STRING, 'title')
+        # self._coerce_and_add_result('release_group', types.AW_STRING, 'publisher')
         _to_internal_format(data)
 
-        _wrap_and_add_result(data, 'audio_codec', types.AW_STRING, 'tags')
-        _wrap_and_add_result(data, 'video_codec', types.AW_STRING, 'tags')
-        _wrap_and_add_result(data, 'format', types.AW_STRING, 'tags')
-        _wrap_and_add_result(data, 'screen_size', types.AW_STRING, 'tags')
-        _wrap_and_add_result(data, 'type', types.AW_STRING, 'tags')
-        _wrap_and_add_result(data, 'episode', types.AW_INTEGER, 'episode_number')
-        _wrap_and_add_result(data, 'season', types.AW_INTEGER, 'season_number')
-        _wrap_and_add_result(
+        _coerce_and_add_result(data, 'audio_codec', types.AW_STRING, 'tags')
+        _coerce_and_add_result(data, 'video_codec', types.AW_STRING, 'tags')
+        _coerce_and_add_result(data, 'format', types.AW_STRING, 'tags')
+        _coerce_and_add_result(data, 'screen_size', types.AW_STRING, 'tags')
+        _coerce_and_add_result(data, 'type', types.AW_STRING, 'tags')
+        _coerce_and_add_result(data, 'episode', types.AW_INTEGER,
+                               'episode_number')
+        _coerce_and_add_result(data, 'season', types.AW_INTEGER,
+                               'season_number')
+        _coerce_and_add_result(
             data,
             'year',
             ExtractedData(
-                wrapper=types.AW_DATE,
+                coercer=types.AW_DATE,
                 mapped_fields=[
                     fields.WeightedMapping(fields.datetime, probability=1),
                     fields.WeightedMapping(fields.date, probability=1)

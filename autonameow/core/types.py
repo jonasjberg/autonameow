@@ -21,13 +21,14 @@
 
 """
 Custom data types, used internally by autonameow.
-Wraps primitives to force safe defaults and extra functionality.
+Coerces incoming data with unreliable or unknown types to primitives.
+Provides "NULL" values and additional type-specific functionality.
 
-Use by passing through the singletons defined at the bottom of this file.
+Use by passing data through the singletons defined at the bottom of this file.
 The values are "passed through" the type classes and returned as primitive or
 standard library types (E.G. "datetime").
 These classes are meant to be used as "filters" for coercing values to known
-types, they are shared and should not retain any kind of state.
+types --- they are shared and should not retain any kind of state.
 """
 
 import os
@@ -46,13 +47,13 @@ from core.util import (
     textutils
 )
 
-# TODO: [TD0084] Add handling collections to type wrapper classes.
+# TODO: [TD0084] Add handling collections to type coercion classes.
 
 mimetypes.add_type('application/epub+zip', '.epub')
 
 
 class AWTypeError(exceptions.AutonameowException):
-    """Failure to coerce a value with one of the type wrappers."""
+    """Failure to coerce a value with one of the type coercers."""
 
 
 class BaseType(object):
@@ -727,15 +728,17 @@ def try_parse_date(string):
     raise ValueError(_error_msg)
 
 
-def try_wrap(value):
-    wrapper = wrapper_for(value)
-    if wrapper:
-        return wrapper(value)
-    else:
-        return None
+def try_coerce(value):
+    coercer = coercer_for(value)
+    if coercer:
+        try:
+            return coercer(value)
+        except AWTypeError:
+            pass
+    return None
 
 
-def wrapper_for(value):
+def coercer_for(value):
     if value is None:
         return None
     return PRIMITIVE_AW_TYPE_MAP.get(type(value), None)

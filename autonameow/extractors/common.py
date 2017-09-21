@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import copy
 import logging
 
 from core import (
@@ -104,7 +105,7 @@ class BaseExtractor(object):
 
         Only raise the "ExtractorError" exception for irrecoverable errors.
         Otherwise, implementers should strive to return empty values of the
-        expected type. The type wrappers in 'types.py' could be useful here.
+        expected type. The type coercers in 'types.py' could be useful here.
 
         Args:
             source: Source of data from which to extract information as a
@@ -141,7 +142,7 @@ class BaseExtractor(object):
 
         Only raise the "ExtractorError" exception for irrecoverable errors.
         Otherwise, implementers should strive to return empty values of the
-        expected type. The type wrappers in 'types.py' could be useful here.
+        expected type. The type coercers in 'types.py' could be useful here.
 
         Args:
             source: Source of data from which to extract information as a
@@ -226,8 +227,8 @@ class ExtractedData(object):
     is compatible with. For instance, date/time-information is could be used
     to populate the 'datetime' name template field.
     """
-    def __init__(self, wrapper, mapped_fields=None, generic_field=None):
-        self.wrapper = wrapper
+    def __init__(self, coercer, mapped_fields=None, generic_field=None):
+        self.coercer = coercer
 
         if mapped_fields is not None:
             self.field_map = mapped_fields
@@ -245,31 +246,40 @@ class ExtractedData(object):
         if self._data is not None:
             log.critical('TODO: "{!s}"._data is _NOT_ None! Called with value:'
                          ' {!s}"'.format(self, raw_value))
-        if not self.wrapper:
-            # Fall back automatic type detection if 'wrapper' is unspecified.
-            _wrapper = types.wrapper_for(raw_value)
-            if _wrapper:
-                self.wrapper = _wrapper
 
-        if self.wrapper:
+        if not self.coercer:
+            _candidate_coercer = types.coercer_for(raw_value)
+            if _candidate_coercer:
+                self.coercer = _candidate_coercer
+
+        if self.coercer:
             try:
-                self._data = self.wrapper(raw_value)
+                self._data = self.coercer(raw_value)
             except types.AWTypeError as e:
                 log.warning(e)
                 raise
         else:
-            log.warning('Missing wrapper in ExtractedData: "{!s}"'.format(self))
+            log.warning('Unknown coercer in ExtractedData: "{!s}"'.format(self))
+            # Fall back to automatic type detection.
+            # Note that this will coerce some types in unintended ways.
+            # Bytestring paths (bytes) is coerced to "str" --- NOT GOOD!
+            # Paths/filenames should be coerced with 'AW_PATH*' ..
 
-            # TODO: [TD0088] The "resolver" needs 'wrapper.format' ..
-            wrapped = types.try_wrap(raw_value)
-            if wrapped is None:
-                log.critical('Unhandled wrapping of raw value "{!s}" '
+            # TODO: [TD0088] The "resolver" needs 'coerce.format' ..
+            coerced = types.try_coerce(raw_value)
+            if coerced is None:
+                log.critical('Unhandled coercion of raw value "{!s}" '
                              '({!s})'.format(raw_value, type(raw_value)))
                 self._data = raw_value
             else:
-                self._data = wrapped
+                self._data = coerced
 
         return self
+
+    @classmethod
+    def from_raw(cls, instance, raw_value):
+        _instance_copy = copy.deepcopy(instance)
+        return _instance_copy(raw_value)
 
     @property
     def value(self):
@@ -284,19 +294,19 @@ class ExtractedData(object):
     def __str__(self):
         # 1) Detailed information, not suitable when listing to user ..
         # return '{!s}("{!s}")  FieldMap: {!s}"'.format(
-        #     self.wrapper, self.value, self.field_map
+        #     self.coercer, self.value, self.field_map
         # )
 
         # 2) Simple default string representation of the data ..
         return '{!s}'.format(self.value)
 
-        # 3) Use the format method of the wrapper ..
-        # return self.wrapper.format(self.value)
+        # 3) Use the format method of the coercer ..
+        # return self.coercer.format(self.value)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
-        if (self.wrapper == other.wrapper
+        if (self.coercer == other.coercer
                 and self.field_map == other.field_map
                 and self.value == other.value):
             return True
