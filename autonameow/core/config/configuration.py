@@ -307,7 +307,6 @@ class Configuration(object):
                         )
                         match_replace_pairs.append((compiled_pat, _replace))
 
-
                 util.nested_dict_set(self._options,
                                      ['CUSTOM_POST_PROCESSING', 'replacements'],
                                      match_replace_pairs)
@@ -388,7 +387,10 @@ class Configuration(object):
             log.debug('Read invalid version: "{!s}"'.format(_raw_version))
 
     def get(self, key_list):
-        return util.nested_dict_get(self._options, key_list)
+        try:
+            return util.nested_dict_get(self._options, key_list)
+        except KeyError:
+            return None
 
     @property
     def version(self):
