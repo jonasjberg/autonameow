@@ -50,14 +50,15 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
 
     tagname_type_lookup = {
         'Creator': ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
-            ]
+            ],
+            generic_field=fields.GenericCreator
         ),
         'CreationDate': ExtractedData(
-            wrapper=types.AW_PYPDFTIMEDATE,
+            coercer=types.AW_PYPDFTIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
@@ -65,11 +66,24 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
             generic_field=fields.GenericDateCreated
         ),
         'Encrypted': ExtractedData(types.AW_BOOLEAN),
-        'ModDate': ExtractedData(types.AW_PYPDFTIMEDATE),
+        'ModDate': ExtractedData(
+            coercer=types.AW_PYPDFTIMEDATE,
+            mapped_fields=[
+                fields.WeightedMapping(fields.datetime, probability=0.25),
+                fields.WeightedMapping(fields.date, probability=0.25),
+            ],
+            generic_field=fields.GenericDateModified
+        ),
         'NumberPages': ExtractedData(types.AW_INTEGER),
         'Paginated': ExtractedData(types.AW_BOOLEAN),
         'Producer': ExtractedData(types.AW_STRING),
-        'Title': ExtractedData(types.AW_STRING),
+        'Title': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.title, probability=1)
+            ],
+            # generic_field=fields.GenericTitle
+        ),
     }
 
     def __init__(self):
@@ -81,11 +95,11 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         except Exception as e:
             raise ExtractorError(e)
 
-        # Internal data format boundary.  Wrap "raw" data with type classes.
+        # Internal data format boundary.
         metadata = self._to_internal_format(_raw_metadata)
         return metadata
 
-    # TODO: [TD0087] Clean up messy (and duplicated) wrapping of "raw" data.
+    # TODO: [TD0087] Clean up messy (and duplicated) coercion of "raw" data.
     def _to_internal_format(self, raw_metadata):
         out = {}
 
@@ -94,15 +108,15 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
                 wrapper = self.tagname_type_lookup[tag_name]
             else:
                 # Use a default 'ExtractedData' class.
-                wrapper = ExtractedData(wrapper=None, mapped_fields=None)
+                wrapper = ExtractedData(coercer=None, mapped_fields=None)
 
             try:
-                item = wrapper(value)
+                wrapped = ExtractedData.from_raw(wrapper, value)
             except types.AWTypeError:
                 self.log.warning('Wrapping PyPDF data raised AWTypeError for '
                                  '"{!s}" ({})'.format(value, type(value)))
             else:
-                out[tag_name] = item
+                out[tag_name] = wrapped
 
         return out
 
@@ -115,7 +129,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         except (OSError, PyPdfError) as e:
             raise ExtractorError(e)
 
-        # TODO: [TD0087] Clean up messy (and duplicated) wrapping of "raw" data.
+        # TODO: [TD0087] Clean up messy (and duplicated) coercion of "raw" data.
 
         # Notes on 'getDocumentInfo' from the PyPDF2 source documentation:
         #
@@ -137,26 +151,26 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
             # Convert PyPDF values of type 'PyPDF2.generic.TextStringObject'
             out = {k: str(v) for k, v in out.items()}
 
-            self._wrap_pypdf_data(out, 'author',
-                                  doc_info.author, types.AW_STRING)
-            self._wrap_pypdf_data(out, 'creator',
-                                  doc_info.creator, types.AW_STRING)
-            self._wrap_pypdf_data(out, 'producer',
-                                  doc_info.producer, types.AW_STRING)
-            self._wrap_pypdf_data(out, 'subject',
-                                  doc_info.subject, types.AW_STRING)
-            self._wrap_pypdf_data(out, 'title',
-                                  doc_info.title, types.AW_STRING)
-            self._wrap_pypdf_data(out, 'author_raw',
-                                  doc_info.author_raw, types.AW_STRING)
-            self._wrap_pypdf_data(out, 'creator_raw',
-                                  doc_info.creator_raw, types.AW_STRING)
-            self._wrap_pypdf_data(out, 'producer_raw',
-                                  doc_info.producer_raw, types.AW_STRING)
-            self._wrap_pypdf_data(out, 'subject_raw',
-                                  doc_info.subject_raw, types.AW_STRING)
-            self._wrap_pypdf_data(out, 'title_raw',
-                                  doc_info.title_raw, types.AW_STRING)
+            self._coerce_pypdf_data(out, 'author', doc_info.author,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'creator', doc_info.creator,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'producer', doc_info.producer,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'subject', doc_info.subject,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'title', doc_info.title,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'author_raw', doc_info.author_raw,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'creator_raw', doc_info.creator_raw,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'producer_raw', doc_info.producer_raw,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'subject_raw', doc_info.subject_raw,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'title_raw', doc_info.title_raw,
+                                    types.AW_STRING)
 
         out.update({'Encrypted': file_reader.isEncrypted})
 
@@ -177,31 +191,31 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         # https://pythonhosted.org/PyPDF2/XmpInformation.html
         xmp_metadata = file_reader.getXmpMetadata()
         if xmp_metadata:
-            self._wrap_pypdf_data(out, 'xmp_createDate',
-                                  xmp_metadata.xmp_createDate,
-                                  types.AW_TIMEDATE)
-            self._wrap_pypdf_data(out, 'xmp_creatorTool',
-                                  xmp_metadata.xmp_creatorTool,
-                                  types.AW_STRING)
-            self._wrap_pypdf_data(out, 'xmp_metadataDate',
-                                  xmp_metadata.xmp_metadataDate,
-                                  types.AW_TIMEDATE)
-            self._wrap_pypdf_data(out, 'xmp_modifyDate',
-                                  xmp_metadata.xmp_modifyDate,
-                                  types.AW_TIMEDATE)
-            self._wrap_pypdf_data(out, 'pdf_keywords',
-                                  xmp_metadata.pdf_keywords,
-                                  types.AW_STRING)
-            self._wrap_pypdf_data(out, 'pdf_producer',
-                                  xmp_metadata.pdf_producer,
-                                  types.AW_STRING)
-            self._wrap_pypdf_data(out, 'pdf_title',
-                                  xmp_metadata.pdf_producer,
-                                  types.AW_STRING)
+            self._coerce_pypdf_data(out, 'xmp_createDate',
+                                    xmp_metadata.xmp_createDate,
+                                    types.AW_TIMEDATE)
+            self._coerce_pypdf_data(out, 'xmp_creatorTool',
+                                    xmp_metadata.xmp_creatorTool,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'xmp_metadataDate',
+                                    xmp_metadata.xmp_metadataDate,
+                                    types.AW_TIMEDATE)
+            self._coerce_pypdf_data(out, 'xmp_modifyDate',
+                                    xmp_metadata.xmp_modifyDate,
+                                    types.AW_TIMEDATE)
+            self._coerce_pypdf_data(out, 'pdf_keywords',
+                                    xmp_metadata.pdf_keywords,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'pdf_producer',
+                                    xmp_metadata.pdf_producer,
+                                    types.AW_STRING)
+            self._coerce_pypdf_data(out, 'pdf_title',
+                                    xmp_metadata.pdf_producer,
+                                    types.AW_STRING)
 
         return out
 
-    def _wrap_pypdf_data(self, out_dict, out_key, pypdf_data, wrapper):
+    def _coerce_pypdf_data(self, out_dict, out_key, pypdf_data, coercer):
         if pypdf_data is None:
             return
         if isinstance(pypdf_data, IndirectObject):
@@ -210,9 +224,9 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
             out_dict[out_key] = str(pypdf_data)
             return
 
-        # TODO: [TD0087] Clean up messy (and duplicated) wrapping of "raw" data.
+        # TODO: [TD0087] Clean up messy (and duplicated) coercion of "raw" data.
         try:
-            wrapped = wrapper(pypdf_data)
+            coerced = coercer(pypdf_data)
         except types.AWTypeError:
             self.log.warning(
                 'Wrapping PyPDF data raised AWTypeError for "{!s}" ({})'.format(
@@ -221,10 +235,10 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
             return
         else:
             self.log.debug(
-                'Wrapped PyPDF data "{!s}" ({}) into "{!s}" ({})'.format(
-                    pypdf_data, type(pypdf_data), wrapped, type(wrapped))
+                'Coerced PyPDF data "{!s}" ({}) into "{!s}" ({})'.format(
+                    pypdf_data, type(pypdf_data), coerced, type(coerced))
             )
-            out_dict[out_key] = wrapped
+            out_dict[out_key] = coerced
 
     @classmethod
     def check_dependencies(cls):

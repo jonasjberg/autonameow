@@ -63,7 +63,7 @@ class TestPDFMetadataExtractor(unittest.TestCase):
              ),
             ('Creator',
                 ExtractedData(
-                   wrapper=types.AW_STRING,
+                   coercer=types.AW_STRING,
                    mapped_fields=[
                        fields.WeightedMapping(fields.datetime, probability=1),
                        fields.WeightedMapping(fields.date, probability=1)

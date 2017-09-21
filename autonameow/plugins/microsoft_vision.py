@@ -196,7 +196,7 @@ class MicrosoftVisionPlugin(BasePlugin):
                 file_object,
                 'caption',
                 ExtractedData(
-                    wrapper=types.AW_STRING,
+                    coercer=types.AW_STRING,
                     mapped_fields=[
                         fields.WeightedMapping(fields.title,
                                                probability=1),
@@ -214,7 +214,7 @@ class MicrosoftVisionPlugin(BasePlugin):
                 file_object,
                 'tags',
                 ExtractedData(
-                    wrapper=types.AW_STRING,
+                    coercer=types.AW_STRING,
                     mapped_fields=[
                         fields.WeightedMapping(fields.tags, probability=1),
                     ]

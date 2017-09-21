@@ -70,7 +70,7 @@ class TestAbstractMetadataExtractor(TestCase):
 class TestExtractedData(TestCase):
     def test_call(self):
         m = ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping('foo_field_a', probability=1.0),
                 fields.WeightedMapping('foo_field_b', probability=0.8)

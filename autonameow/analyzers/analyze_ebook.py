@@ -93,7 +93,7 @@ class EbookAnalyzer(BaseAnalyzer):
 
                 maybe_authors = metadata.get('Authors')
                 if maybe_authors:
-                    # TODO: [TD0084] Use a "list-of-strings" wrapper ..
+                    # TODO: [TD0084] Use a "list-of-strings" coercer ..
                     if isinstance(maybe_authors, list):
                         for maybe_author in maybe_authors:
                             _author = self._filter_author(maybe_author)
@@ -128,7 +128,7 @@ class EbookAnalyzer(BaseAnalyzer):
 
     def _wrap_author(self, author_string):
         return ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping(fields.author, probability=1),
             ]
@@ -144,7 +144,7 @@ class EbookAnalyzer(BaseAnalyzer):
 
     def _wrap_date(self, date_string):
         return ExtractedData(
-            wrapper=types.AW_DATE,
+            coercer=types.AW_DATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.date, probability=1),
             ]
@@ -165,7 +165,7 @@ class EbookAnalyzer(BaseAnalyzer):
 
     def _wrap_publisher(self, publisher_string):
         return ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping(fields.publisher, probability=1),
             ]
@@ -186,7 +186,7 @@ class EbookAnalyzer(BaseAnalyzer):
 
     def _wrap_title(self, title_string):
         return ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping(fields.title, probability=1),
             ]

@@ -60,7 +60,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
 
     WRAPPER_LOOKUP = {
         'datetime': ExtractedData(
-            wrapper=types.AW_TIMEDATE,
+            coercer=types.AW_TIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=0.75),
@@ -68,7 +68,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
             generic_field=fields.GenericDateCreated
         ),
         'description': ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping(fields.description, probability=1),
                 fields.WeightedMapping(fields.title, probability=0.5),
@@ -76,21 +76,21 @@ class FiletagsAnalyzer(BaseAnalyzer):
             generic_field=fields.GenericDescription
         ),
         'tags': ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
                 fields.WeightedMapping(fields.tags, probability=1),
             ],
             generic_field=fields.GenericTags
         ),
         'extension': ExtractedData(
-            wrapper=types.AW_MIMETYPE,
+            coercer=types.AW_MIMETYPE,
             mapped_fields=[
                 fields.WeightedMapping(fields.extension, probability=1),
             ],
             generic_field=fields.GenericMimeType
         ),
         'follows_filetags_convention': ExtractedData(
-            wrapper=types.AW_BOOLEAN,
+            coercer=types.AW_BOOLEAN,
             mapped_fields=None,
             generic_field=None
         )
@@ -111,7 +111,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
         wrapper = self.WRAPPER_LOOKUP.get(meowuri_leaf)
         if wrapper:
             try:
-                wrapped = wrapper(data)
+                wrapped = ExtractedData.from_raw(wrapper, data)
             except types.AWTypeError:
                 return
 

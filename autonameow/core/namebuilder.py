@@ -202,22 +202,21 @@ def format_field(field, data):
     if isinstance(data, ExtractedData):
         log.debug('Formatting data.value "{!s}"'.format(data.value))
 
-        if data.wrapper:
-            formatted = data.wrapper.format(data.value, formatter=None)
-            if formatted is not None and formatted != data.wrapper.null:
+        if data.coercer:
+            formatted = data.coercer.format(data.value, formatter=None)
+            if formatted is not None and formatted != data.coercer.null:
                 log.debug('Formatted value: "{!s}"'.format(formatted))
                 return formatted
             else:
                 log.debug('Unable to format field "{!s}" with value '
                           '"{!s}"'.format(field, data.value))
     elif data is not None:
-        log.warning('Missing formatting information, not wrapped in '
+        log.warning('Missing formatting information, not coerced in '
                     'ExtractedData: "{!s}": "{!s}"'.format(field, data))
-        log.debug('Formatting data value "{!s}"'.format(data))
 
         # TODO: [TD0088] Handle case where 'ExtractedData' isn't provided
-        # with a 'wrapper' and then also fails to autodetect a proper
-        # 'wrapper' class from the raw file type ..
+        # with a 'coercer' and then also fails to autodetect a proper
+        # 'coercer' class from the raw file type ..
 
         return data
     else:

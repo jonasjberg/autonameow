@@ -59,7 +59,7 @@ class TestBaseType(TestCase):
 
 
 class TestTypeBoolean(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_BOOLEAN(None)), bool)
 
     def test_null(self):
@@ -163,7 +163,7 @@ class TestTypeBoolean(TestCase):
 
 
 class TestTypeInteger(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_INTEGER(None)), int)
 
     def test_null(self):
@@ -251,7 +251,7 @@ class TestTypeInteger(TestCase):
 
 
 class TestTypeFloat(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_FLOAT(None)), float)
 
     def test_null(self):
@@ -331,7 +331,7 @@ class TestTypeFloat(TestCase):
 
 
 class TestTypeTimeDate(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_TIMEDATE(None)), str)
 
@@ -404,7 +404,7 @@ class TestTypeTimeDate(TestCase):
 
 
 class TestTypeDate(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_DATE(None)), datetime)
 
@@ -499,7 +499,7 @@ class TestTypeDate(TestCase):
 
 
 class TestTypeExiftoolTimeDate(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_EXIFTOOLTIMEDATE(None)), str)
 
@@ -584,7 +584,7 @@ class TestTypeExiftoolTimeDate(TestCase):
 
 
 class TestTypePyPDFTimeDate(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_PYPDFTIMEDATE(None)), str)
 
@@ -642,7 +642,7 @@ class TestTypePyPDFTimeDate(TestCase):
 
 
 class TestTypePath(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_PATH(None)), None)
 
@@ -705,7 +705,7 @@ class TestTypePath(TestCase):
 
 
 class TestTypePathComponent(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_PATHCOMPONENT(None)), bytes)
 
     def test_null(self):
@@ -781,7 +781,7 @@ class TestTypePathComponent(TestCase):
 
 
 class TestTypeString(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_STRING(None)), str)
 
     def test_null(self):
@@ -879,7 +879,7 @@ class TestTypeString(TestCase):
 
 
 class TestTypeMimeType(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_MIMETYPE(None)), str)
 
     def test_null(self):
@@ -1021,51 +1021,51 @@ class TestTypeMimeType(TestCase):
         _assert_formats(b'application/epub+zip', 'epub')
 
 
-class TestTryWrap(TestCase):
-    def test_try_wrap_none(self):
-        self.assertIsNone(types.try_wrap(None))
+class TestTryCoerce(TestCase):
+    def test_try_coerce_none(self):
+        self.assertIsNone(types.try_coerce(None))
 
-    def test_try_wrap_list(self):
-        # TODO: [TD0084] Add handling collections to type wrapper classes.
-        self.assertIsNone(types.try_wrap([]))
-        self.assertIsNone(types.try_wrap(['foo', 'bar']))
-        self.assertIsNone(types.try_wrap([1, 2]))
+    def test_try_coerce_list(self):
+        # TODO: [TD0084] Add handling collections to type coercion classes.
+        self.assertIsNone(types.try_coerce([]))
+        self.assertIsNone(types.try_coerce(['foo', 'bar']))
+        self.assertIsNone(types.try_coerce([1, 2]))
 
-    def test_try_wrap_primitive_bool(self):
-        self.assertEqual(types.try_wrap(False), False)
-        self.assertEqual(types.try_wrap(True), True)
-        self.assertTrue(isinstance(types.try_wrap(False), bool))
-        self.assertTrue(isinstance(types.try_wrap(True), bool))
+    def test_try_coerce_primitive_bool(self):
+        self.assertEqual(types.try_coerce(False), False)
+        self.assertEqual(types.try_coerce(True), True)
+        self.assertTrue(isinstance(types.try_coerce(False), bool))
+        self.assertTrue(isinstance(types.try_coerce(True), bool))
 
-    def test_try_wrap_primitive_int(self):
-        self.assertEqual(types.try_wrap(1), 1)
-        self.assertEqual(types.try_wrap(0), 0)
-        self.assertTrue(isinstance(types.try_wrap(1), int))
-        self.assertTrue(isinstance(types.try_wrap(0), int))
+    def test_try_coerce_primitive_int(self):
+        self.assertEqual(types.try_coerce(1), 1)
+        self.assertEqual(types.try_coerce(0), 0)
+        self.assertTrue(isinstance(types.try_coerce(1), int))
+        self.assertTrue(isinstance(types.try_coerce(0), int))
 
-    def test_try_wrap_primitive_float(self):
-        self.assertEqual(types.try_wrap(1.0), 1.0)
-        self.assertEqual(types.try_wrap(0.0), 0.0)
-        self.assertTrue(isinstance(types.try_wrap(1.0), float))
-        self.assertTrue(isinstance(types.try_wrap(0.0), float))
+    def test_try_coerce_primitive_float(self):
+        self.assertEqual(types.try_coerce(1.0), 1.0)
+        self.assertEqual(types.try_coerce(0.0), 0.0)
+        self.assertTrue(isinstance(types.try_coerce(1.0), float))
+        self.assertTrue(isinstance(types.try_coerce(0.0), float))
 
-    def test_try_wrap_primitive_str(self):
-        self.assertEqual(types.try_wrap('foo'), 'foo')
-        self.assertEqual(types.try_wrap(''), '')
-        self.assertTrue(isinstance(types.try_wrap('foo'), str))
-        self.assertTrue(isinstance(types.try_wrap(''), str))
+    def test_try_coerce_primitive_str(self):
+        self.assertEqual(types.try_coerce('foo'), 'foo')
+        self.assertEqual(types.try_coerce(''), '')
+        self.assertTrue(isinstance(types.try_coerce('foo'), str))
+        self.assertTrue(isinstance(types.try_coerce(''), str))
 
-    def test_try_wrap_primitive_bytes(self):
-        self.assertEqual(types.try_wrap(b'foo'), 'foo')
-        self.assertEqual(types.try_wrap(b''), '')
-        self.assertTrue(isinstance(types.try_wrap(b'foo'), str))
-        self.assertTrue(isinstance(types.try_wrap(b''), str))
+    def test_try_coerce_primitive_bytes(self):
+        self.assertEqual(types.try_coerce(b'foo'), 'foo')
+        self.assertEqual(types.try_coerce(b''), '')
+        self.assertTrue(isinstance(types.try_coerce(b'foo'), str))
+        self.assertTrue(isinstance(types.try_coerce(b''), str))
 
-    def test_try_wrap_datetime(self):
+    def test_try_coerce_datetime(self):
         dt = datetime.now()
-        self.assertEqual(types.try_wrap(dt), dt)
-        self.assertTrue(isinstance(types.try_wrap(dt), datetime))
-        self.assertTrue(isinstance(types.try_wrap(datetime.now()), datetime))
+        self.assertEqual(types.try_coerce(dt), dt)
+        self.assertTrue(isinstance(types.try_coerce(dt), datetime))
+        self.assertTrue(isinstance(types.try_coerce(datetime.now()), datetime))
 
 
 class TestTryParseDate(TestCase):
