@@ -40,7 +40,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
                           'application/epub+zip', 'text/*']
     meowuri_root = 'metadata.exiftool'
 
-    tagname_type_lookup = {
+    EXTRACTEDDATA_WRAPPER_LOOKUP = {
         'ASF:CreationDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
@@ -304,8 +304,8 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         out = {}
 
         for tag_name, value in raw_metadata.items():
-            if tag_name in self.tagname_type_lookup:
-                wrapper = self.tagname_type_lookup[tag_name]
+            if tag_name in self.EXTRACTEDDATA_WRAPPER_LOOKUP:
+                wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP[tag_name]
             elif self._should_skip_binary_blob(value):
                     continue
             else:

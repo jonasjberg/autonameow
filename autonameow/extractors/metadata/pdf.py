@@ -48,7 +48,7 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
     handles_mime_types = ['application/pdf']
     meowuri_root = 'metadata.pypdf'
 
-    tagname_type_lookup = {
+    EXTRACTEDDATA_WRAPPER_LOOKUP = {
         'Creator': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
@@ -104,8 +104,8 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
         out = {}
 
         for tag_name, value in raw_metadata.items():
-            if tag_name in self.tagname_type_lookup:
-                wrapper = self.tagname_type_lookup[tag_name]
+            if tag_name in self.EXTRACTEDDATA_WRAPPER_LOOKUP:
+                wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP[tag_name]
             else:
                 # Use a default 'ExtractedData' class.
                 wrapper = ExtractedData(coercer=None, mapped_fields=None)

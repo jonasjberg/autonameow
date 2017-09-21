@@ -27,7 +27,7 @@ from extractors import (
 
 class AbstractMetadataExtractor(BaseExtractor):
     # Lookup table that maps extractor-specific field names to wrapper classes.
-    tagname_type_lookup = {}
+    EXTRACTEDDATA_WRAPPER_LOOKUP = {}
 
     def __init__(self):
         super(AbstractMetadataExtractor, self).__init__()

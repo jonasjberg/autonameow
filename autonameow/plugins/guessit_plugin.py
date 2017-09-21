@@ -82,8 +82,8 @@ class GuessitPlugin(BasePlugin):
 
         def _to_internal_format(raw_data):
             for tag_name, value in raw_data.items():
-                if tag_name in self.tagname_type_lookup:
-                    wrapper = self.tagname_type_lookup[tag_name]
+                if tag_name in self.EXTRACTEDDATA_WRAPPER_LOOKUP:
+                    wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP[tag_name]
                 else:
                     wrapper = ExtractedData(coercer=None, mapped_fields=None)
 
