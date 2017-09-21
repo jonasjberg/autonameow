@@ -283,6 +283,10 @@ Low Priority
       missing sources might be filled in by a more targeted approach using data
       gathered during the first run.
 
+* `[TD0094]` __Search text for DOIs and query external services__
+  Example DOI: `10.1109/TPDS.2010.125`.  Could be used to query external
+  services for publication metadata, as with ISBN-numbers.
+
 
 Wishlist
 --------
