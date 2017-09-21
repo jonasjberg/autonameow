@@ -47,8 +47,6 @@ def is_readable_file(file_path):
     return os.path.isfile(file_path) and os.access(file_path, os.R_OK)
 
 
-found_ids = set()
-
 todo_path = os.path.join(AUTONAMEOW_SRC_ROOT, TODO_BASENAME)
 done_path = os.path.join(AUTONAMEOW_SRC_ROOT, DONE_BASENAME)
 
@@ -56,7 +54,7 @@ for _path in (todo_path, done_path):
     if not is_readable_file(_path):
         sys.exit('File does not exist or is not readable: "{!s}"'.format(_path))
 
-
+found_ids = set()
 find_todo_ids_in_file(todo_path)
 find_todo_ids_in_file(done_path)
 
@@ -65,3 +63,6 @@ if found_ids:
     next_unused_id = TODO_IDENTIFIER_FORMAT.format(int(last_id) + 1)
 
     print(next_unused_id)
+    sys.exit(0)
+else:
+    sys.exit(1)
