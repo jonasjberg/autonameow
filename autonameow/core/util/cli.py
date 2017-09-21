@@ -59,7 +59,7 @@ def print_ascii_banner():
 
     print(ascii_banner)
 
-    colortitle = colorize(' ' + core.version.__title__.lower() + ' ',
+    colortitle = colorize(' ' + constants.PROGRAM_NAME + ' ',
                           back='BLUE', fore='BLACK')
     toplineleft = ' {title}  version {v}'.format(title=colortitle,
                                                  v=constants.PROGRAM_VERSION)
@@ -81,7 +81,7 @@ def print_start_info():
                  style='DIM')
     print(i)
 
-    log.debug('Started {} version {}'.format(core.version.__title__,
+    log.debug('Started {} version {}'.format(constants.PROGRAM_NAME,
                                              constants.PROGRAM_VERSION))
     log.debug('Running on Python {}'.format(constants.PYTHON_VERSION))
     log.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))

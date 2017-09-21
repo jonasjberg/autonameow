@@ -27,6 +27,7 @@ import core
 
 PYTHON_VERSION = sys.version.replace('\n', '')
 PROGRAM_VERSION = 'v{}'.format(core.version.__version__)
+PROGRAM_NAME = core.version.__title__.lower()
 
 
 # Each analyzer can be queried for these fields by calling either;

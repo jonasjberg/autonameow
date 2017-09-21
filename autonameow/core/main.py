@@ -168,7 +168,7 @@ class Autonameow(object):
                     '"{!s}"'.format(_displayable_config_path), style='info')
             cli.msg('Use this file to configure {}. '
                     'Refer to the documentation for additional '
-                    'information.'.format(core.version.__title__),
+                    'information.'.format(constants.PROGRAM_NAME),
                     style='info')
             self.exit_program(constants.EXIT_SUCCESS)
 
