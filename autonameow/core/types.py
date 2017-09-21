@@ -547,6 +547,10 @@ class ExifToolTimeDate(TimeDate):
             return try_parse_datetime(value)
         except ValueError:
             pass
+        try:
+            return try_parse_date(value)
+        except ValueError:
+            pass
 
         self._fail_coercion(value)
 

@@ -315,8 +315,8 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
             try:
                 wrapped = ExtractedData.from_raw(wrapper, value)
             except types.AWTypeError:
-                self.log.warning('Wrapping exiftool data raised AWTypeError '
-                                 'for "{!s}" ({})'.format(value, type(value)))
+                self.log.debug('Wrapping exiftool data raised AWTypeError '
+                               'for "{!s}" ({})'.format(value, type(value)))
                 pass
             else:
                 out[tag_name] = wrapped
