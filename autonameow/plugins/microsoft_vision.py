@@ -191,34 +191,28 @@ class MicrosoftVisionPlugin(BasePlugin):
 
         _caption = get_caption_text(response)
         if _caption:
-            self.log.debug('Returning caption: "{!s}"'.format(_caption))
-            self.add_results(
-                file_object,
-                'caption',
-                ExtractedData(
-                    coercer=types.AW_STRING,
-                    mapped_fields=[
-                        fields.WeightedMapping(fields.title,
-                                               probability=1),
-                        fields.WeightedMapping(fields.description,
-                                               probability=1)
-                    ]
-                )(_caption)
+            wrapper = ExtractedData(
+                coercer=types.AW_STRING,
+                mapped_fields=[
+                    fields.WeightedMapping(fields.title, probability=1),
+                    fields.WeightedMapping(fields.description, probability=1)
+                ]
             )
+            self.log.debug('Returning caption: "{!s}"'.format(_caption))
+            self.add_results(file_object, 'caption',
+                             ExtractedData.from_raw(wrapper, _caption))
 
         _tags = get_tags(response)
         if _tags:
+            wrapper = ExtractedData(
+                coercer=types.AW_STRING,
+                mapped_fields=[
+                    fields.WeightedMapping(fields.tags, probability=1),
+                ]
+            )
             _tags_pretty = ' '.join(map(lambda x: '"' + x + '"', _tags))
             self.log.debug('Returning tags: {}'.format(_tags_pretty))
-            self.add_results(
-                file_object,
-                'tags',
-                ExtractedData(
-                    coercer=types.AW_STRING,
-                    mapped_fields=[
-                        fields.WeightedMapping(fields.tags, probability=1),
-                    ]
-                )(_tags)
-            )
+            self.add_results(file_object, 'tags',
+                             ExtractedData.from_raw(wrapper, _tags))
 
 
