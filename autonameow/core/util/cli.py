@@ -28,7 +28,6 @@ import logging
 
 try:
     import colorama
-
     colorama.init()
 except ImportError:
     colorama = None
@@ -65,8 +64,9 @@ def print_ascii_banner():
                                                  v=constants.PROGRAM_VERSION)
     toplineright = core.version.__copyright__
     print(('{:<}{:>49}'.format(toplineleft, toplineright)))
-    print(('{:>78}'.format(core.version.__url__)))
     print(('{:>78}'.format(core.version.__email__)))
+    print(('{:>78}'.format(core.version.__url__)))
+    print(('{:>78}'.format(core.version.__url_repo__)))
     print('')
 
 

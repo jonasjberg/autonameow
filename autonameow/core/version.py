@@ -32,5 +32,6 @@ __version__ = '.'.join(map(str, __version_info__))
 __author__ = 'Jonas Sjöberg'
 __email__ = 'jomeganas[at]gmail.com'
 __url__ = 'www.jonasjberg.com'
+__url_repo__ = 'www.github.com/jonasjberg/autonameow'
 __license__ = 'GNU General Public License Version 2'
 __copyright__ = 'Copyright \N{COPYRIGHT SIGN} 2016-2017 {}'.format(__author__)
