@@ -40,13 +40,46 @@ class GuessitPlugin(BasePlugin):
     meowuri_root = 'plugin.guessit'
     DISPLAY_NAME = 'Guessit'
 
-    tagname_type_lookup = {
+    EXTRACTEDDATA_WRAPPER_LOOKUP = {
+        'audio_codec': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[],
+            generic_field=None
+        ),
         'date': ExtractedData(
             coercer=types.AW_TIMEDATE,
             mapped_fields=[
                 fields.WeightedMapping(fields.datetime, probability=1),
                 fields.WeightedMapping(fields.date, probability=1)
+            ],
+            generic_field=fields.GenericDateCreated
+        ),
+        'episode': ExtractedData(
+            coercer=types.AW_INTEGER,
+            mapped_fields=[],
+            generic_field=None
+        ),
+        'format': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[],
+            generic_field=None
+        ),
+        'release_group': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping(fields.publisher, probability=0.1),
+                fields.WeightedMapping(fields.description, probability=0.001),
             ]
+        ),
+        'screen_size': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[],
+            generic_field=None
+        ),
+        'season': ExtractedData(
+            coercer=types.AW_INTEGER,
+            mapped_fields=[],
+            generic_field=None
         ),
         'title': ExtractedData(
             coercer=types.AW_STRING,
@@ -54,11 +87,21 @@ class GuessitPlugin(BasePlugin):
                 fields.WeightedMapping(fields.title, probability=1),
             ]
         ),
-        'release_group': ExtractedData(
+        'type': ExtractedData(
             coercer=types.AW_STRING,
+            mapped_fields=[],
+            generic_field=None
+        ),
+        'video_codec': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[],
+            generic_field=None
+        ),
+        'year': ExtractedData(
+            coercer=types.AW_DATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.publisher, probability=0.1),
-                fields.WeightedMapping(fields.description, probability=0.001),
+                fields.WeightedMapping(fields.datetime, probability=1),
+                fields.WeightedMapping(fields.date, probability=1)
             ]
         ),
     }
@@ -72,7 +115,8 @@ class GuessitPlugin(BasePlugin):
         return util.eval_magic_glob(_mime_type, 'video/*')
 
     def execute(self, file_object):
-        _file_basename = self.request_data(file_object, 'filesystem.basename.full')
+        _file_basename = self.request_data(file_object,
+                                           'filesystem.basename.full')
         if _file_basename is None:
             raise exceptions.AutonameowPluginError('Required data unavailable')
 
@@ -91,48 +135,7 @@ class GuessitPlugin(BasePlugin):
                 if wrapped:
                     self.add_results(file_object, tag_name, wrapped)
 
-        def _coerce_and_add_result(raw_data, raw_key, coercer, result_key):
-            raw_value = raw_data.get(raw_key)
-            if not raw_value:
-                return
-
-            try:
-                wrapped = coercer(raw_value)
-            except types.AWTypeError as e:
-                self.log.warning(
-                    'Wrapping guessit data FAILED for "{!s}" ({})'.format(
-                        raw_value, type(type(raw_value)))
-                )
-                self.log.debug('Wrapping guessit data FAILED; {!s}'.format(e))
-            else:
-                self.add_results(file_object, result_key, wrapped)
-
-        # TODO: What is going on here? CLEANUP!
-        # self._coerce_and_add_result('date', types.AW_TIMEDATE, 'date')
-        # self._coerce_and_add_result('title', types.AW_STRING, 'title')
-        # self._coerce_and_add_result('release_group', types.AW_STRING, 'publisher')
         _to_internal_format(data)
-
-        _coerce_and_add_result(data, 'audio_codec', types.AW_STRING, 'tags')
-        _coerce_and_add_result(data, 'video_codec', types.AW_STRING, 'tags')
-        _coerce_and_add_result(data, 'format', types.AW_STRING, 'tags')
-        _coerce_and_add_result(data, 'screen_size', types.AW_STRING, 'tags')
-        _coerce_and_add_result(data, 'type', types.AW_STRING, 'tags')
-        _coerce_and_add_result(data, 'episode', types.AW_INTEGER,
-                               'episode_number')
-        _coerce_and_add_result(data, 'season', types.AW_INTEGER,
-                               'season_number')
-        _coerce_and_add_result(
-            data,
-            'year',
-            ExtractedData(
-                coercer=types.AW_DATE,
-                mapped_fields=[
-                    fields.WeightedMapping(fields.datetime, probability=1),
-                    fields.WeightedMapping(fields.date, probability=1)
-                ]),
-            'date'
-        )
 
     @classmethod
     def test_init(cls):
