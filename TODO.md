@@ -184,6 +184,8 @@ Medium Priority
 * `[TD0025]` Add additional option to force interactive mode (`--interactive`?)
     * This mode would require the user to confirm actions/choices (which?)
 
+* `[TD0095]` Provide information on reporting bugs/issues.
+
 
 Low Priority
 ------------

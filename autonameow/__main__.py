@@ -29,6 +29,7 @@ Execute autonameow by running either one of;
 """
 
 import sys
+import traceback
 
 from core.exceptions import AWAssertionError
 from core.main import Autonameow
@@ -44,6 +45,42 @@ def print_error(message):
     print(message, file=sys.stderr)
 
 
+def format_sanitycheck_error(string):
+    ERROR_MSG_TEMPLATE = '''
+******************************************************
+            SANITY-CHECK ASSERTION FAILURE
+******************************************************
+Something that really should NOT happen just happened!
+
+This is most likely a BUG that should be reported ..
+.. TODO: [TD0095] Information on how to report issues.
+______________________________________________________
+
+ Running: {_program} version {_version}
+Platform: {_platform}
+  Python: {_python}
+______________________________________________________
+
+{message}
+
+{traceback}
+'''
+    # TODO: [TD0095] Clean this up. Try to minimize imports.
+    import platform
+    from core import constants
+    typ, val, tb = sys.exc_info()
+    msg = ERROR_MSG_TEMPLATE.format(
+        _program='autonameow',  # core.version.__title__
+        _version=constants.PROGRAM_VERSION,
+        _platform=platform.platform(),
+        _python='{!s} {!s}'.format(platform.python_implementation(),
+                                   platform.python_version()),
+        traceback=''.join(traceback.format_exception(typ, val, tb)),
+        message=string
+    )
+    return msg
+
+
 if __name__ == '__main__':
     try:
         autonameow = Autonameow(sys.argv[1:])
@@ -51,22 +88,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         sys.exit('\nReceived keyboard interrupt; Exiting ..')
     except AWAssertionError as e:
-        _, _, exc_traceback = sys.exc_info()
-
-        _filename = exc_traceback.tb_frame.f_code.co_filename
-        _linenum = exc_traceback.tb_lineno
-
-        print_error('')
-        print_error('******************************************************')
-        print_error('             INTERNAL SANITY-CHECK FAILED')
-        print_error('Something that really should NOT happen just happened!')
-        print_error('******************************************************')
-        print_error('')
-        print_error('This is most likely a BUG that should be reported ..')
-        print_error('.. TODO: Information on how to report issues.')
-        print_error('')
-        print_error('______________________________________________________')
-        print_error('')
-        print_error('Line {!s} in File: "{!s}"'.format(_linenum, _filename))
-        print_error(str(e))
+        _error_msg = format_sanitycheck_error(str(e))
+        print_error(_error_msg)
         sys.exit(3)
