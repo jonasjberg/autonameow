@@ -253,11 +253,7 @@ class ExtractedData(object):
                 self.coercer = _candidate_coercer
 
         if self.coercer:
-            try:
-                self._data = self.coercer(raw_value)
-            except types.AWTypeError as e:
-                log.warning(e)
-                raise
+            self._data = self.coercer(raw_value)
         else:
             log.warning('Unknown coercer in ExtractedData: "{!s}"'.format(self))
             # Fall back to automatic type detection.
@@ -279,7 +275,11 @@ class ExtractedData(object):
     @classmethod
     def from_raw(cls, instance, raw_value):
         _instance_copy = copy.deepcopy(instance)
-        return _instance_copy(raw_value)
+        try:
+            return _instance_copy(raw_value)
+        except types.AWTypeError as e:
+            log.debug(str(e))
+            return None
 
     @property
     def value(self):

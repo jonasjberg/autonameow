@@ -110,13 +110,12 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
                 # Use a default 'ExtractedData' class.
                 wrapper = ExtractedData(coercer=None, mapped_fields=None)
 
-            try:
-                wrapped = ExtractedData.from_raw(wrapper, value)
-            except types.AWTypeError:
-                self.log.warning('Wrapping PyPDF data raised AWTypeError for '
-                                 '"{!s}" ({})'.format(value, type(value)))
-            else:
+            wrapped = ExtractedData.from_raw(wrapper, value)
+            if wrapped:
                 out[tag_name] = wrapped
+            else:
+                self.log.warning('Wrapping PyPDF data returned None for '
+                                 '"{!s}" ({})'.format(value, type(value)))
 
         return out
 

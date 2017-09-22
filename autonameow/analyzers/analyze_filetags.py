@@ -110,12 +110,9 @@ class FiletagsAnalyzer(BaseAnalyzer):
     def __wrap_result(self, meowuri_leaf, data):
         wrapper = self.WRAPPER_LOOKUP.get(meowuri_leaf)
         if wrapper:
-            try:
-                wrapped = ExtractedData.from_raw(wrapper, data)
-            except types.AWTypeError:
-                return
-
-            self._add_results(meowuri_leaf, wrapped)
+            wrapped = ExtractedData.from_raw(wrapper, data)
+            if wrapped:
+                self._add_results(meowuri_leaf, wrapped)
 
     def run(self):
         (self._timestamp, self._description, self._tags,
