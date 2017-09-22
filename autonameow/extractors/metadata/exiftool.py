@@ -304,12 +304,13 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         out = {}
 
         for tag_name, value in raw_metadata.items():
-            if tag_name in self.EXTRACTEDDATA_WRAPPER_LOOKUP:
-                wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP[tag_name]
-            elif self._should_skip_binary_blob(value):
-                    continue
-            else:
-                # Use a default 'ExtractedData' class.
+            if value is None:
+                continue
+            if self._should_skip_binary_blob(value):
+                continue
+
+            wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(tag_name)
+            if not wrapper:
                 wrapper = ExtractedData(coercer=None, mapped_fields=None)
 
             wrapped = ExtractedData.from_raw(wrapper, value)
