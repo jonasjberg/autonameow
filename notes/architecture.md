@@ -2,6 +2,8 @@ Notes on High-Level Architecture
 ================================
 Written 2017-08-17 by Jonas Sjöberg
 
+* Revised 2017-09-22 -- Added notes from `ideas.md`
+
 
 Modular Design
 ==============
@@ -72,3 +74,41 @@ unimplemented..) included:
         4. Check that all name template fields have been assigned a known source.
 
 <!-- TODO: .. -->
+
+
+On future frontends/GUIs
+========================
+
+### What is going on?
+
+* __Program Operates on input:__ file(s)
+* __Program Provides:__ New file names for the file(s)
+
+Where/when are options presented and choices made?
+Which could be presented in a GUI or in an *interactive mode*?
+
+For any given file, how does the program come up with a new name?
+
+What is required to come up with a new file name?
+
+1. Select a __name template__
+2. Populate the __placeholder fields__ in the template
+
+
+#### Selecting a __name template__
+
+* Chosen by the user
+* Determined by the active configuration rule, chosen by the `RuleMatcher`
+
+#### Populating the __placeholder fields__
+How are the fields populated?
+
+For each placeholder field, get some data that can be formatted to the fields
+requirement (?).
+The data could be either;
+
+* Interactively chosen by the user
+* Determined by the active configuration rule, chosen by the `RuleMatcher`
+
+Which choices are presented to the user?
+How are possible candidates collected?
