@@ -31,7 +31,7 @@ STRING_PROGRAM_VERSION_PREFIX = 'v'
 STRING_PROGRAM_VERSION = '{}{}'.format(STRING_PROGRAM_VERSION_PREFIX,
                                        core.version.__version__)
 
-PROGRAM_NAME = core.version.__title__.lower()
+STRING_PROGRAM_NAME = core.version.__title__.lower()
 
 
 # Each analyzer can be queried for these fields by calling either;
