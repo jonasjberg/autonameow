@@ -1,7 +1,8 @@
 Notes on extracting metadata from electronic books
 ==================================================
-Jonas Sjöberg 2017-08-10 
+Jonas Sjöberg 2017-08-10
 
+* Revised 2017-09-22 -- Added notes on DOIs.
 
 ISBN
 ----
@@ -13,7 +14,7 @@ service for information.
 
 ### Methods for finding ISBN-numbers more likely to be correct
 
-* Weight ISBN-numbers found in the first few pages higher 
+* Weight ISBN-numbers found in the first few pages higher
 * Weight ISBN-numbers found in the last few pages higher. But watch out for
   list of references to other books!
 * If some metadata is already known, weight ISBN numbers located close to say
@@ -22,6 +23,11 @@ service for information.
   in the text higher. Often, more than one type of ISBN-number is listed.
   ISBN-10, ISBN-13, ISBN for the e-book, etc.
 
+DOI
+---
+DOI (Digital Object Identifiers) are unique identifiers similar to ISBN-numbers.
+They are commonly used in scientific literature.
+Would be integrated into `autonameow` in a manner close to that of ISBN-numbers.
 
 Date/Time
 ---------
@@ -32,4 +38,3 @@ published in the latest mentioned year? (biggest number, if sorted numerically)
 Could also search the entire text for `\b[0-9]{4}\b`, sort and assume the
 biggest resulting number to be at least indicative to the correct year of
 publication. One could use this to weight other results.
-
