@@ -11,7 +11,7 @@ categories; __core__ or __non-core__.
 The idea is that the __non-core__-components should be "pluggable" and
 "hotloaded" depending on availability and suitability.
 
-It should be easy to add functionality and custom behaviour to the program,
+It should be easy to add functionality and custom behavior to the program,
 communication between the *core* and *non-core* components should follow some
 well-defined interface to allow the *core* to change without affecting the
 *non-core* components.
