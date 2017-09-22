@@ -244,7 +244,7 @@ class ExtractedData(object):
 
     def __call__(self, raw_value):
         if self._data is not None:
-            log.critical('TODO: "{!s}"._data is _NOT_ None! Called with value:'
+            log.critical('"{!s}"._data is *NOT* None! Called with value:'
                          ' {!s}"'.format(self, raw_value))
 
         if not self.coercer:
