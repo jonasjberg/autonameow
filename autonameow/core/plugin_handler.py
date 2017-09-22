@@ -69,8 +69,8 @@ class PluginHandler(object):
                     '"{!s}" plugin CAN handle file "{!s}"'.format(
                         plugin, file_object)
                 )
+                self.log.debug('Executing plugin: "{!s}" ..'.format(plugin))
                 try:
-                    self.log.debug('Executing plugin: "{!s}" ..'.format(plugin))
                     plugin(file_object)
                 except exceptions.AutonameowPluginError:
                     # log.critical('Plugin instance "{!s}" execution '
