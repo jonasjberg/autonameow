@@ -122,20 +122,19 @@ class GuessitPlugin(BasePlugin):
 
         data = run_guessit(_file_basename)
         if not data:
-            raise exceptions.AutonameowPluginError('TODO: ..')
+            raise exceptions.AutonameowPluginError('Got no data from "guessit"')
 
-        def _to_internal_format(raw_data):
-            for tag_name, value in raw_data.items():
-                if tag_name in self.EXTRACTEDDATA_WRAPPER_LOOKUP:
-                    wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP[tag_name]
-                else:
-                    wrapper = ExtractedData(coercer=None, mapped_fields=None)
+        for field, value in data.items():
+            _wrapped = self._add_context(field, value)
+            if _wrapped:
+                self.add_results(file_object, field, _wrapped)
 
-                wrapped = ExtractedData.from_raw(wrapper, value)
-                if wrapped:
-                    self.add_results(file_object, tag_name, wrapped)
+    def _add_context(self, field, value):
+        context = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(field)
+        if not context:
+            context = ExtractedData(coercer=None, mapped_fields=None)
 
-        _to_internal_format(data)
+        return ExtractedData.from_raw(context, value)
 
     @classmethod
     def test_init(cls):
