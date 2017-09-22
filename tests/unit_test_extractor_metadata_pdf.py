@@ -54,20 +54,23 @@ class TestPDFMetadataExtractor(unittest.TestCase):
 
         self.EXPECT_WRAPPED_FIELD_VALUE = [
             ('CreationDate',
-             ExtractedData(types.AW_PYPDFTIMEDATE)(
-                 self._to_datetime('2016-01-11 12:41:32+0000'))
+             ExtractedData(
+                 types.AW_PYPDFTIMEDATE
+             )(self._to_datetime('2016-01-11 12:41:32+0000'))
              ),
             ('ModDate',
-             ExtractedData(types.AW_PYPDFTIMEDATE)(
-                 self._to_datetime('2016-01-11 12:41:32+0000'))
+             ExtractedData(
+                 types.AW_PYPDFTIMEDATE
+             )(self._to_datetime('2016-01-11 12:41:32+0000'))
              ),
             ('Creator',
-                ExtractedData(
-                   coercer=types.AW_STRING,
-                   mapped_fields=[
-                       fields.WeightedMapping(fields.datetime, probability=1),
-                       fields.WeightedMapping(fields.date, probability=1)
-                   ])('Chromium')),
+             ExtractedData(
+                 coercer=types.AW_STRING,
+                 mapped_fields=[
+                    fields.WeightedMapping(fields.datetime, probability=1),
+                    fields.WeightedMapping(fields.date, probability=1)
+                 ]
+             )('Chromium')),
             ('Producer', ExtractedData(types.AW_STRING)('Skia/PDF')),
             ('NumberPages', ExtractedData(types.AW_INTEGER)(2)),
             ('Encrypted', ExtractedData(types.AW_BOOLEAN)(False))
