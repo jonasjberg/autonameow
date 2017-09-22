@@ -72,11 +72,11 @@ class Configuration(object):
         self._load_from_dict(source)
 
         if self.version:
-            if self.version != C.PROGRAM_VERSION:
+            if self.version != C.STRING_PROGRAM_VERSION:
                 log.warning('Possible configuration compatibility mismatch!')
                 log.warning('Loaded configuration created by {} (currently '
                             'running {})'.format(self.version,
-                                                 C.PROGRAM_VERSION))
+                                                 C.STRING_PROGRAM_VERSION))
                 log.info(
                     'The current recommended procedure is to move the '
                     'current config to a temporary location, re-run '

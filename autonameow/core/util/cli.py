@@ -61,7 +61,7 @@ def print_ascii_banner():
     colortitle = colorize(' ' + C.PROGRAM_NAME + ' ',
                           back='BLUE', fore='BLACK')
     toplineleft = ' {title}  version {v}'.format(title=colortitle,
-                                                 v=C.PROGRAM_VERSION)
+                                                 v=C.STRING_PROGRAM_VERSION)
     toplineright = core.version.__copyright__
     print(('{:<}{:>49}'.format(toplineleft, toplineright)))
     print(('{:>78}'.format(core.version.__email__)))
@@ -82,7 +82,7 @@ def print_start_info():
     print(i)
 
     log.debug('Started {} version {}'.format(C.PROGRAM_NAME,
-                                             C.PROGRAM_VERSION))
+                                             C.STRING_PROGRAM_VERSION))
     log.debug('Running on Python {}'.format(C.PYTHON_VERSION))
     log.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
     log.debug('Process ID: {}'.format(os.getpid()))

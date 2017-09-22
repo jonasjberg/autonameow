@@ -72,7 +72,7 @@ ______________________________________________________
     typ, val, tb = sys.exc_info()
     msg = ERROR_MSG_TEMPLATE.format(
         _program='autonameow',  # core.version.__title__
-        _version=C.PROGRAM_VERSION,
+        _version=C.STRING_PROGRAM_VERSION,
         _platform=platform.platform(),
         _python='{!s} {!s}'.format(platform.python_implementation(),
                                    platform.python_version()),

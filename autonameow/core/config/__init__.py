@@ -140,7 +140,7 @@ def write_default_config():
         raise exceptions.ConfigWriteError
 
     _default_config = DEFAULT_CONFIG.copy()
-    _default_config['autonameow_version'] = C.PROGRAM_VERSION
+    _default_config['autonameow_version'] = C.STRING_PROGRAM_VERSION
 
     write_yaml_file(config_path, _default_config)
 

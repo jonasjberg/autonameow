@@ -26,7 +26,7 @@ import core
 
 
 PYTHON_VERSION = sys.version.replace('\n', '')
-PROGRAM_VERSION = 'v{}'.format(core.version.__version__)
+STRING_PROGRAM_VERSION = 'v{}'.format(core.version.__version__)
 PROGRAM_NAME = core.version.__title__.lower()
 
 

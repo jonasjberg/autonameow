@@ -209,7 +209,7 @@ DEFAULT_CONFIG = {
         'between_tag_separator': ' '
     },
 
-    'autonameow_version': C.PROGRAM_VERSION
+    'autonameow_version': C.STRING_PROGRAM_VERSION
 }
 
 
