@@ -62,8 +62,8 @@ class TestConstants(TestCase):
         )
 
     def test_constants_contains_python_version(self):
-        self.assertIsNotNone(C.PYTHON_VERSION)
-        self.assertTrue(isinstance(C.PYTHON_VERSION, str))
+        self.assertIsNotNone(C.STRING_PYTHON_VERSION)
+        self.assertTrue(isinstance(C.STRING_PYTHON_VERSION, str))
 
     def test_constants_contains_analysis_results_fields(self):
         self.assertIsNotNone(C.ANALYSIS_RESULTS_FIELDS)

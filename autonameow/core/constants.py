@@ -25,7 +25,7 @@ import sys
 import core
 
 
-PYTHON_VERSION = sys.version.replace('\n', '')
+STRING_PYTHON_VERSION = sys.version.replace('\n', '')
 
 STRING_PROGRAM_VERSION_PREFIX = 'v'
 STRING_PROGRAM_VERSION = '{}{}'.format(STRING_PROGRAM_VERSION_PREFIX,

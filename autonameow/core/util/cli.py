@@ -83,7 +83,7 @@ def print_start_info():
 
     log.debug('Started {} version {}'.format(C.STRING_PROGRAM_NAME,
                                              C.STRING_PROGRAM_VERSION))
-    log.debug('Running on Python {}'.format(C.PYTHON_VERSION))
+    log.debug('Running on Python {}'.format(C.STRING_PYTHON_VERSION))
     log.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
     log.debug('Process ID: {}'.format(os.getpid()))
 
