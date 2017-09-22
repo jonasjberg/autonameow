@@ -24,7 +24,7 @@ from core import (
     util,
     fields
 )
-from core.util import wrap_exiftool
+from thirdparty import pyexiftool
 from extractors import (
     ExtractorError,
     ExtractedData
@@ -328,7 +328,7 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         Returns:
             Exiftool results as a dictionary of strings/ints/floats.
         """
-        with wrap_exiftool.ExifTool() as et:
+        with pyexiftool.ExifTool() as et:
             try:
                 return et.get_metadata(source)
             except (AttributeError, ValueError, TypeError) as e:
@@ -340,4 +340,4 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        return util.is_executable('exiftool')
+        return util.is_executable('exiftool') and pyexiftool is not None

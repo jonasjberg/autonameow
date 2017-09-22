@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-09-22
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0081]` Bundle the `pyexiftool` dependency. Add to `autonameow/thirdparty`.
+
 * 2017-09-20
 
     > Medium Priority

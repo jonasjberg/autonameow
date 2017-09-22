@@ -19,12 +19,28 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    from .epubzilla.epubzilla import epubzilla
-except (ImportError, ModuleNotFoundError):
-    epubzilla = None
+import os
 
-try:
-    from .pyexiftool import exiftool as pyexiftool
-except (ImportError, ModuleNotFoundError):
-    pyexiftool = None
+from unittest import TestCase
+
+import unit_utils as uu
+import unit_utils_constants as uuconst
+
+
+THIRDPARTY_ROOT_DIR = os.path.join(uuconst.AUTONAMEOW_SRCROOT_DIR, 'thirdparty')
+
+
+class TestThirdPartyPath(TestCase):
+    def test_thirdparty_root_dir_exists(self):
+        self.assertTrue(uu.dir_exists(THIRDPARTY_ROOT_DIR))
+
+    def test_thirdparty_root_dir_is_readable(self):
+        self.assertTrue(uu.path_is_readable(THIRDPARTY_ROOT_DIR))
+
+
+class TestThirdPartyImports(TestCase):
+    def test_import_or_return_none_pyexiftool(self):
+        from thirdparty import pyexiftool as _
+
+    def test_import_or_return_none_epubzilla(self):
+        from thirdparty import epubzilla as _
