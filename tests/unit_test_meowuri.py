@@ -55,4 +55,44 @@ class TestMeowURI(TestCase):
         self.assertEqual(a.filesystem, 'abspath')
         self.assertEqual(a.filesystem.abspath, 'full')
 
+    def _is_node(self, thing):
+        pass
+
+    def _is_root(self, thing):
+        pass
+
+    def _is_leaf(self, thing):
+        pass
+
+    def test_TODO(self):
+        self.skipTest('TODO: Implement or remove ..')
+
+        a = MeowURI('analysis.filetags.datetime')
+        self._is_root(a['analysis'])
+        self._is_node(a['analysis']['filetags'])
+        self._is_leaf(a['analysis']['filetags']['datetime'])
+
+        b = MeowURI('filesystem.basename.extension')
+        self._is_root(b['filesystem'])
+        self._is_node(b['filesystem']['basename'])
+        self._is_leaf(b['filesystem']['basename']['extension'])
+
+        c = MeowURI('filesystem.contents.mime_type')
+        self._is_root(c['filesystem'])
+        self._is_node(c['filesystem']['contents'])
+        self._is_leaf(c['filesystem']['contents']['mime_type'])
+
+        d = MeowURI('metadata.exiftool.EXIF:DateTimeOriginal')
+
+        # metadata.exiftool.PDF:CreateDate
+        # metadata.exiftool.QuickTime:CreationDate
+        # metadata.exiftool.XMP - dc:Creator
+        # metadata.exiftool.XMP - dc:CreatorFile -as
+        # metadata.exiftool.XMP - dc:Date
+        # metadata.exiftool.XMP - dc:PublicationDate
+        # metadata.exiftool.XMP - dc:Publisher
+        # metadata.exiftool.XMP - dc:Title
+        # plugin.guessit.date
+        # plugin.guessit.title
+        # plugin.microsoft_vision.caption
 

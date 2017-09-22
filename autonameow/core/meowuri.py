@@ -23,8 +23,8 @@ from core import util
 
 
 class MeowURI(object):
-    def __init__(self, content_string):
-        _parts = util.meowuri_list(content_string)
+    def __init__(self, string):
+        _parts = util.meowuri_list(string)
         _root = MeowURIRoot(_parts.pop(0))
         _leaf = MeowURILeaf(_parts.pop())
 
