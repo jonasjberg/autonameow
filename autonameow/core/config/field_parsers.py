@@ -24,8 +24,8 @@ import re
 import unicodedata
 from datetime import datetime
 
+from core import constants as C
 from core import (
-    constants,
     exceptions,
     namebuilder,
     types,
@@ -486,7 +486,7 @@ def is_valid_template_field(template_field):
     """
     if not template_field:
         return False
-    if template_field in constants.NAME_TEMPLATE_FIELDS:
+    if template_field in C.NAME_TEMPLATE_FIELDS:
         return True
     return False
 
@@ -496,7 +496,7 @@ FieldParserInstances = get_instantiated_field_parsers()
 
 # This is used for validating name templates. Dict is populated like this;
 #   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
-DATA_FIELDS = dict.fromkeys(constants.NAME_TEMPLATE_FIELDS, 'DUMMY')
+DATA_FIELDS = dict.fromkeys(C.NAME_TEMPLATE_FIELDS, 'DUMMY')
 RE_VERSION_NUMBER = re.compile(r'v?(\d+)\.(\d+)\.(\d+)')
 
 

@@ -23,9 +23,9 @@ import logging
 import os
 import re
 
+from core import constants as C
 from core import (
     config,
-    constants,
     exceptions,
     util,
     types
@@ -72,11 +72,11 @@ class Configuration(object):
         self._load_from_dict(source)
 
         if self.version:
-            if self.version != constants.PROGRAM_VERSION:
+            if self.version != C.PROGRAM_VERSION:
                 log.warning('Possible configuration compatibility mismatch!')
                 log.warning('Loaded configuration created by {} (currently '
                             'running {})'.format(self.version,
-                                                 constants.PROGRAM_VERSION))
+                                                 C.PROGRAM_VERSION))
                 log.info(
                     'The current recommended procedure is to move the '
                     'current config to a temporary location, re-run '
@@ -312,38 +312,38 @@ class Configuration(object):
                                      match_replace_pairs)
 
         _try_load_datetime_format_option(
-            'date', constants.DEFAULT_DATETIME_FORMAT_DATE
+            'date', C.DEFAULT_DATETIME_FORMAT_DATE
         )
         _try_load_datetime_format_option(
-            'time', constants.DEFAULT_DATETIME_FORMAT_TIME
+            'time', C.DEFAULT_DATETIME_FORMAT_TIME
         )
         _try_load_datetime_format_option(
-            'datetime', constants.DEFAULT_DATETIME_FORMAT_DATETIME
+            'datetime', C.DEFAULT_DATETIME_FORMAT_DATETIME
         )
 
         _try_load_filetags_option(
             'filename_tag_separator',
-            constants.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR
+            C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR
         )
         _try_load_filetags_option(
             'between_tag_separator',
-            constants.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
+            C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
         )
         _try_load_filesystem_option(
             'sanitize_filename',
-            constants.DEFAULT_FILESYSTEM_SANITIZE_FILENAME
+            C.DEFAULT_FILESYSTEM_SANITIZE_FILENAME
         )
         _try_load_filesystem_option(
             'sanitize_strict',
-            constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT
+            C.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
         _try_load_filesystem_option(
             'lowercase_filename',
-            constants.DEFAULT_FILESYSTEM_LOWERCASE_FILENAME
+            C.DEFAULT_FILESYSTEM_LOWERCASE_FILENAME
         )
         _try_load_filesystem_option(
             'uppercase_filename',
-            constants.DEFAULT_FILESYSTEM_UPPERCASE_FILENAME
+            C.DEFAULT_FILESYSTEM_UPPERCASE_FILENAME
         )
 
         _try_load_custom_postprocessing_replacements()
@@ -360,7 +360,7 @@ class Configuration(object):
         # then combine these defaults with any user-specified patterns.
         util.nested_dict_set(
             self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
-            constants.DEFAULT_FILESYSTEM_IGNORE
+            C.DEFAULT_FILESYSTEM_IGNORE
         )
         if 'FILESYSTEM_OPTIONS' in self._data:
             _user_ignores = self._data['FILESYSTEM_OPTIONS'].get('ignore')

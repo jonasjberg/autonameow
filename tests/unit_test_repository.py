@@ -25,10 +25,10 @@ from unittest import TestCase
 
 from core import (
     exceptions,
-    constants,
     repository,
     fields
 )
+from core import constants as C
 from core.repository import Repository
 
 import unit_utils as uu
@@ -78,15 +78,15 @@ class TestRepositoryMethodStore(TestCase):
         self.assertEqual(len(self.r), 2)
 
     def test_adding_one_result_increments_len_once(self):
-        _field = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _field = C.ANALYSIS_RESULTS_FIELDS[0]
         _results = ['foo']
         self.r.store(self.file_object, _field, _results)
 
         self.assertEqual(len(self.r), 1)
 
     def test_adding_two_results_increments_len_twice(self):
-        _field_one = constants.ANALYSIS_RESULTS_FIELDS[0]
-        _field_two = constants.ANALYSIS_RESULTS_FIELDS[1]
+        _field_one = C.ANALYSIS_RESULTS_FIELDS[0]
+        _field_two = C.ANALYSIS_RESULTS_FIELDS[1]
         _result_one = ['foo']
         _result_two = ['bar']
         self.r.store(self.file_object, _field_one, _result_one)
@@ -95,21 +95,21 @@ class TestRepositoryMethodStore(TestCase):
         self.assertEqual(len(self.r), 2)
 
     def test_adding_list_of_two_results_increments_len_twice(self):
-        _field_one = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _field_one = C.ANALYSIS_RESULTS_FIELDS[0]
         _result_one = ['foo', 'bar']
         self.r.store(self.file_object, _field_one, _result_one)
 
         self.assertEqual(len(self.r), 2)
 
     def test_adding_dict_of_two_results_increments_len_twice(self):
-        _field_one = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _field_one = C.ANALYSIS_RESULTS_FIELDS[0]
         _result_one = {'baz': ['foo', 'bar']}
         self.r.store(self.file_object, _field_one, _result_one)
 
         self.assertEqual(len(self.r), 2)
 
     def test_add_empty_does_not_increment_len(self):
-        _field = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _field = C.ANALYSIS_RESULTS_FIELDS[0]
         _results = []
         self.r.store(self.file_object, _field, _results)
 

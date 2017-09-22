@@ -24,11 +24,9 @@ import logging
 import sys
 import time
 
-import core
 from core import (
     analysis,
     config,
-    constants,
     exceptions,
     extraction,
     namebuilder,
@@ -48,6 +46,7 @@ from core.util import (
     diskutils,
     sanity
 )
+from core import constants as C
 
 
 log = logging.getLogger(__name__)
@@ -65,7 +64,7 @@ class Autonameow(object):
         Args:
             args: Option arguments as a list of strings.
         """
-        self._exit_code = constants.EXIT_SUCCESS
+        self._exit_code = C.EXIT_SUCCESS
 
         # For calculating the total runtime.
         self.start_time = time.time()
@@ -80,7 +79,7 @@ class Autonameow(object):
         # Display help/usage information if no arguments are provided.
         if not self.args:
             print('Add "--help" to display usage information.')
-            self.exit_program(constants.EXIT_SUCCESS)
+            self.exit_program(C.EXIT_SUCCESS)
 
         # Handle the command line arguments and setup logging.
         self.opts = options.parse_args(self.args)
@@ -92,7 +91,7 @@ class Autonameow(object):
         # Display startup banner with program version and exit.
         if self.opts.show_version:
             cli.print_ascii_banner()
-            self.exit_program(constants.EXIT_SUCCESS)
+            self.exit_program(C.EXIT_SUCCESS)
 
         # Check configuration file. If no alternate config file path is
         # provided and no config file is found at default paths; copy the
@@ -107,7 +106,7 @@ class Autonameow(object):
 
         if not self.active_config:
             log.critical('Unable to load configuration -- Aborting ..')
-            self.exit_program(constants.EXIT_ERROR)
+            self.exit_program(C.EXIT_ERROR)
 
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
@@ -124,7 +123,7 @@ class Autonameow(object):
         # Handle any input paths/files. Abort early if input paths are missing.
         if not self.opts.input_paths:
             log.warning('No input files specified ..')
-            self.exit_program(constants.EXIT_SUCCESS)
+            self.exit_program(C.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
         files_to_process = diskutils.normpaths_from_opts(
@@ -147,7 +146,7 @@ class Autonameow(object):
         log.info('Dumping active configuration ..')
         cli.msg('Active Configuration:', style='heading')
         cli.msg(str(self.active_config))
-        self.exit_program(constants.EXIT_SUCCESS)
+        self.exit_program(C.EXIT_SUCCESS)
 
     def _load_config_from_default_path(self):
         _displayable_config_path = util.displayable_path(DefaultConfigFilePath)
@@ -162,15 +161,15 @@ class Autonameow(object):
         except exceptions.ConfigError:
             log.critical('Unable to write template configuration file to path: '
                          '"{!s}"'.format(_displayable_config_path))
-            self.exit_program(constants.EXIT_ERROR)
+            self.exit_program(C.EXIT_ERROR)
         else:
             cli.msg('A template configuration file was written to '
                     '"{!s}"'.format(_displayable_config_path), style='info')
             cli.msg('Use this file to configure {}. '
                     'Refer to the documentation for additional '
-                    'information.'.format(constants.PROGRAM_NAME),
+                    'information.'.format(C.PROGRAM_NAME),
                     style='info')
-            self.exit_program(constants.EXIT_SUCCESS)
+            self.exit_program(C.EXIT_SUCCESS)
 
     def _load_config_from_alternate_path(self):
         log.info('Using configuration file: "{!s}"'.format(
@@ -223,7 +222,7 @@ class Autonameow(object):
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(file_path))
                 )
-                self.exit_code = constants.EXIT_WARNING
+                self.exit_code = C.EXIT_WARNING
                 continue
 
         if self.opts.list_all:
@@ -302,7 +301,7 @@ class Autonameow(object):
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
             log.error('All name template placeholder fields must be '
                       'given a data source; Check the configuration!')
-            self.exit_code = constants.EXIT_WARNING
+            self.exit_code = C.EXIT_WARNING
             return
 
         # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
@@ -311,7 +310,7 @@ class Autonameow(object):
         if not resolver.collected_data_for_all_fields():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
             log.warning('Unable to populate name. Missing field data.')
-            self.exit_code = constants.EXIT_WARNING
+            self.exit_code = C.EXIT_WARNING
             return
 
         try:

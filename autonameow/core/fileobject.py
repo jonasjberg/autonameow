@@ -22,8 +22,8 @@
 import os
 import magic
 
+from core import constants as C
 from core import (
-    constants,
     exceptions,
     util
 )
@@ -138,10 +138,10 @@ def filetype_magic(file_path):
 
     Returns:
         The MIME type of the file at the given path ('application/pdf') or
-        'constants.MAGIC_TYPE_UNKNOWN' if the MIME type can not be determined.
+        'C.MAGIC_TYPE_UNKNOWN' if the MIME type can not be determined.
     """
     if not file_path:
-        return constants.MAGIC_TYPE_UNKNOWN
+        return C.MAGIC_TYPE_UNKNOWN
 
     global MY_MAGIC
     if MY_MAGIC is None:
@@ -150,7 +150,7 @@ def filetype_magic(file_path):
     try:
         found_type = MY_MAGIC.file(file_path)
     except (magic.MagicException, TypeError):
-        found_type = constants.MAGIC_TYPE_UNKNOWN
+        found_type = C.MAGIC_TYPE_UNKNOWN
 
     return found_type
 

@@ -25,8 +25,8 @@ from unittest import TestCase
 import analyzers
 from core import (
     exceptions,
-    constants
 )
+from core import constants as C
 import unit_utils as uu
 
 
@@ -70,12 +70,12 @@ class TestBaseAnalyzer(TestCase):
             self.a.get(None)
 
     def test_get_with_valid_field_name_raises_attribute_error(self):
-        _field_name = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _field_name = C.ANALYSIS_RESULTS_FIELDS[0]
         with self.assertRaises(NotImplementedError):
             self.a.get(_field_name)
 
     def test_get_with_valid_field_names_raises_not_implemented_error(self):
-        for _field_name in constants.ANALYSIS_RESULTS_FIELDS:
+        for _field_name in C.ANALYSIS_RESULTS_FIELDS:
             with self.assertRaises(NotImplementedError):
                 self.a.get(_field_name)
 

@@ -29,10 +29,10 @@ import pytz
 from dateutil import parser
 
 from core import (
-    constants,
     util
 )
 from core.util import textutils
+from core import constants as C
 
 
 log = logging.getLogger(__name__)
@@ -88,9 +88,9 @@ def _year_is_probable(year):
                         'to datetime-object.'.format(year))
             return False
 
-    if year.year > constants.YEAR_UPPER_LIMIT.year:
+    if year.year > C.YEAR_UPPER_LIMIT.year:
         return False
-    elif year.year < constants.YEAR_LOWER_LIMIT.year:
+    elif year.year < C.YEAR_LOWER_LIMIT.year:
         return False
     else:
         # Year lies within window, assume it is OK.
@@ -113,9 +113,9 @@ def date_is_probable(date):
                     '(expected datetime)'.format(type(date)))
         return False
 
-    if date.year > constants.YEAR_UPPER_LIMIT.year:
+    if date.year > C.YEAR_UPPER_LIMIT.year:
         return False
-    elif date.year < constants.YEAR_LOWER_LIMIT.year:
+    elif date.year < C.YEAR_LOWER_LIMIT.year:
         return False
     else:
         # Date lies within window, assume it is OK.

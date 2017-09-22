@@ -38,7 +38,6 @@ import re
 from datetime import datetime
 
 from core import (
-    constants,
     exceptions,
     util
 )
@@ -46,6 +45,7 @@ from core.util import (
     sanity,
     textutils
 )
+from core import constants as C
 
 # TODO: [TD0084] Add handling collections to type coercion classes.
 
@@ -373,7 +373,7 @@ class MimeType(BaseType):
     primitive_type = str
     coercible_types = (str, bytes)
     equivalent_types = ()
-    null = constants.MAGIC_TYPE_UNKNOWN
+    null = C.MAGIC_TYPE_UNKNOWN
 
     try:
         MIME_TYPE_LOOKUP = {
@@ -427,7 +427,7 @@ class MimeType(BaseType):
         return self.__call__(value)
 
     def format(self, value, **kwargs):
-        if value == constants.MAGIC_TYPE_UNKNOWN:
+        if value == C.MAGIC_TYPE_UNKNOWN:
             return ''
 
         value = self.__call__(value)
@@ -475,7 +475,7 @@ class Date(BaseType):
 
         format_string = kwargs.get('format_string')
         if format_string is None:
-            format_string = constants.DEFAULT_DATETIME_FORMAT_DATE
+            format_string = C.DEFAULT_DATETIME_FORMAT_DATE
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 
@@ -524,7 +524,7 @@ class TimeDate(BaseType):
 
         format_string = kwargs.get('format_string')
         if format_string is None:
-            format_string = constants.DEFAULT_DATETIME_FORMAT_DATETIME
+            format_string = C.DEFAULT_DATETIME_FORMAT_DATETIME
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 

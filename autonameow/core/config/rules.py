@@ -22,12 +22,12 @@
 import logging
 
 from core import (
-    constants,
     exceptions,
     repository,
     types,
     util,
 )
+from core import constants as C
 from core.config import field_parsers
 from core.util import sanity
 
@@ -265,7 +265,7 @@ class Rule(object):
         if self._ranking_bias:
             return self._ranking_bias
         else:
-            return constants.DEFAULT_RULE_RANKING_BIAS
+            return C.DEFAULT_RULE_RANKING_BIAS
 
     @ranking_bias.setter
     def ranking_bias(self, raw_ranking_bias):
@@ -273,7 +273,7 @@ class Rule(object):
             self._ranking_bias = parse_ranking_bias(raw_ranking_bias)
         except exceptions.ConfigurationSyntaxError as e:
             log.warning(e)
-            self._ranking_bias = constants.DEFAULT_RULE_RANKING_BIAS
+            self._ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
 
     @property
     def name_template(self):
@@ -453,7 +453,7 @@ def parse_ranking_bias(value):
     ERROR_MSG = 'Expected float in range 0-1. Got: "{}"'.format(value)
 
     if value is None:
-        return constants.DEFAULT_RULE_RANKING_BIAS
+        return C.DEFAULT_RULE_RANKING_BIAS
     if not isinstance(value, (int, float)):
         raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
 

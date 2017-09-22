@@ -23,9 +23,9 @@ from unittest import TestCase
 
 from core import (
     fileobject,
-    constants,
     util
 )
+from core import constants as C
 from core.exceptions import InvalidFileArgumentError
 import unit_utils as uu
 
@@ -126,7 +126,7 @@ class TestFileTypeMagic(TestCase):
 
     def test_filetype_magic_with_invalid_args(self):
         self.assertEqual(fileobject.filetype_magic(None),
-                         constants.MAGIC_TYPE_UNKNOWN)
+                         C.MAGIC_TYPE_UNKNOWN)
 
 
 class TestValidatePathArgument(TestCase):

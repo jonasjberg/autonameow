@@ -22,14 +22,13 @@
 import logging
 import os
 import platform
-
 import yaml
 
+from core import constants as C
 from core.config.default_config import DEFAULT_CONFIG
 from core import (
     exceptions,
     util,
-    constants
 )
 
 log = logging.getLogger(__name__)
@@ -141,7 +140,7 @@ def write_default_config():
         raise exceptions.ConfigWriteError
 
     _default_config = DEFAULT_CONFIG.copy()
-    _default_config['autonameow_version'] = constants.PROGRAM_VERSION
+    _default_config['autonameow_version'] = C.PROGRAM_VERSION
 
     write_yaml_file(config_path, _default_config)
 

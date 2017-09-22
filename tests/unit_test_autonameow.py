@@ -24,10 +24,8 @@ from unittest import (
     mock
 )
 
-from core import (
-    constants,
-    config
-)
+from core import config
+from core import constants as C
 from core.config.configuration import Configuration
 from core.main import Autonameow
 import unit_utils as uu
@@ -50,13 +48,13 @@ class TestAutonameowWithoutOptions(TestCase):
 
     def test_exits_program_successfully_when_started_without_args(self):
         self.autonameow.run()
-        self.autonameow.exit_program.assert_called_with(constants.EXIT_SUCCESS)
+        self.autonameow.exit_program.assert_called_with(C.EXIT_SUCCESS)
 
 
 class TestSetAutonameowExitCode(TestCase):
     def setUp(self):
         self.amw = Autonameow('')
-        self.expected_initial = constants.EXIT_SUCCESS
+        self.expected_initial = C.EXIT_SUCCESS
 
     def test_exit_code_has_expected_type(self):
         self.assertTrue(isinstance(self.amw.exit_code, int))
@@ -65,18 +63,18 @@ class TestSetAutonameowExitCode(TestCase):
         self.assertEqual(self.expected_initial, self.amw.exit_code)
 
     def test_exit_code_is_not_changed_when_set_to_lower_value(self):
-        self.amw.exit_code = constants.EXIT_WARNING
-        self.assertEqual(self.amw.exit_code, constants.EXIT_WARNING)
+        self.amw.exit_code = C.EXIT_WARNING
+        self.assertEqual(self.amw.exit_code, C.EXIT_WARNING)
 
-        self.amw.exit_code = constants.EXIT_SUCCESS
-        self.assertEqual(self.amw.exit_code, constants.EXIT_WARNING)
+        self.amw.exit_code = C.EXIT_SUCCESS
+        self.assertEqual(self.amw.exit_code, C.EXIT_WARNING)
 
     def test_exit_code_is_changed_when_set_to_higher_value(self):
-        self.amw.exit_code = constants.EXIT_WARNING
-        self.assertEqual(self.amw.exit_code, constants.EXIT_WARNING)
+        self.amw.exit_code = C.EXIT_WARNING
+        self.assertEqual(self.amw.exit_code, C.EXIT_WARNING)
 
-        self.amw.exit_code = constants.EXIT_ERROR
-        self.assertEqual(self.amw.exit_code, constants.EXIT_ERROR)
+        self.amw.exit_code = C.EXIT_ERROR
+        self.assertEqual(self.amw.exit_code, C.EXIT_ERROR)
 
     def test_exit_code_ignores_invalid_values(self):
         self.assertEqual(self.expected_initial, self.amw.exit_code)

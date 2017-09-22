@@ -25,8 +25,8 @@ from unittest import TestCase
 from core import (
     util,
     exceptions,
-    constants
 )
+from core import constants as C
 from core.exceptions import EncodingBoundaryViolation
 from core.util import eval_magic_glob
 from core.util.misc import (
@@ -570,7 +570,7 @@ class TestEvalMagicGlob(TestCase):
         self._aF('application/epub+zip', ['image/jpeg'])
         self._aF('application/epub+zip', 'video/*')
         self._aF('application/epub+zip', ['video/*'])
-        self._aF('application/epub+zip', constants.MAGIC_TYPE_UNKNOWN)
+        self._aF('application/epub+zip', C.MAGIC_TYPE_UNKNOWN)
 
     def test_eval_magic_blob_returns_true_as_expected(self):
         self._aT('image/jpeg', '*/*')

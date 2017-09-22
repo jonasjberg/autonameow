@@ -67,11 +67,12 @@ ______________________________________________________
 '''
     # TODO: [TD0095] Clean this up. Try to minimize imports.
     import platform
-    from core import constants
+    from core import constants as C
+
     typ, val, tb = sys.exc_info()
     msg = ERROR_MSG_TEMPLATE.format(
         _program='autonameow',  # core.version.__title__
-        _version=constants.PROGRAM_VERSION,
+        _version=C.PROGRAM_VERSION,
         _platform=platform.platform(),
         _python='{!s} {!s}'.format(platform.python_implementation(),
                                    platform.python_version()),

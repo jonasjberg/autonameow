@@ -27,10 +27,9 @@ import collections
 import itertools
 import logging
 import shutil
-
 import yaml
 
-from core import constants
+from core import constants as C
 from core.exceptions import InvalidMeowURIError
 from core.util import sanity
 
@@ -406,7 +405,7 @@ def eval_magic_glob(mime_to_match, glob_list):
     """
     if not mime_to_match or not glob_list:
         return False
-    if mime_to_match == constants.MAGIC_TYPE_UNKNOWN:
+    if mime_to_match == C.MAGIC_TYPE_UNKNOWN:
         return False
 
     if not (isinstance(mime_to_match, str)):

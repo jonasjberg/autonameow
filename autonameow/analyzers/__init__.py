@@ -24,8 +24,8 @@ import logging
 import os
 import sys
 
+from core import constants as C
 from core import (
-    constants,
     exceptions,
     util
 )
@@ -95,7 +95,7 @@ class BaseAnalyzer(object):
             AnalysisResultsFieldError: Error caused by invalid argument "field",
                 which must be included in ANALYSIS_RESULTS_FIELDS.
         """
-        if field not in constants.ANALYSIS_RESULTS_FIELDS:
+        if field not in C.ANALYSIS_RESULTS_FIELDS:
             raise exceptions.AnalysisResultsFieldError(field)
 
         _func_name = 'get_{}'.format(field)

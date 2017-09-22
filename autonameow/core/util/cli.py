@@ -34,9 +34,9 @@ except ImportError:
 
 import core
 from core import (
-    constants,
     util
 )
+from core import constants as C
 
 log = logging.getLogger(__name__)
 
@@ -58,10 +58,10 @@ def print_ascii_banner():
 
     print(ascii_banner)
 
-    colortitle = colorize(' ' + constants.PROGRAM_NAME + ' ',
+    colortitle = colorize(' ' + C.PROGRAM_NAME + ' ',
                           back='BLUE', fore='BLACK')
     toplineleft = ' {title}  version {v}'.format(title=colortitle,
-                                                 v=constants.PROGRAM_VERSION)
+                                                 v=C.PROGRAM_VERSION)
     toplineright = core.version.__copyright__
     print(('{:<}{:>49}'.format(toplineleft, toplineright)))
     print(('{:>78}'.format(core.version.__email__)))
@@ -81,9 +81,9 @@ def print_start_info():
                  style='DIM')
     print(i)
 
-    log.debug('Started {} version {}'.format(constants.PROGRAM_NAME,
-                                             constants.PROGRAM_VERSION))
-    log.debug('Running on Python {}'.format(constants.PYTHON_VERSION))
+    log.debug('Started {} version {}'.format(C.PROGRAM_NAME,
+                                             C.PROGRAM_VERSION))
+    log.debug('Running on Python {}'.format(C.PYTHON_VERSION))
     log.debug('Hostname: {}'.format(' '.join(platform.uname()[:3])))
     log.debug('Process ID: {}'.format(os.getpid()))
 

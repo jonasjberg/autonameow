@@ -24,10 +24,10 @@ from unittest import TestCase
 from datetime import datetime
 
 from core import (
-    constants,
     types,
     util,
 )
+from core import constants as C
 
 import unit_utils as uu
 
@@ -883,7 +883,7 @@ class TestTypeMimeType(TestCase):
         self.assertEqual(type(types.AW_MIMETYPE(None)), str)
 
     def test_null(self):
-        self.assertEqual(types.AW_MIMETYPE.null, constants.MAGIC_TYPE_UNKNOWN)
+        self.assertEqual(types.AW_MIMETYPE.null, C.MAGIC_TYPE_UNKNOWN)
         self.assertNotEqual(types.AW_MIMETYPE(None), 'NULL',
                             'BaseType default "null" must be overridden')
 

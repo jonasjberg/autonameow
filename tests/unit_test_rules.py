@@ -23,8 +23,8 @@ from unittest import TestCase
 
 from core import (
     exceptions,
-    constants
 )
+from core import constants as C
 from core.config import rules
 import unit_utils as uu
 
@@ -289,7 +289,7 @@ class TestParseRankingBias(TestCase):
 
     def test_none_value_returns_default_weight(self):
         self.assertEqual(rules.parse_ranking_bias(None),
-                         constants.DEFAULT_RULE_RANKING_BIAS)
+                         C.DEFAULT_RULE_RANKING_BIAS)
 
     def test_value_within_range_zero_to_one_returns_value(self):
         input_values = [0, 0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 1]

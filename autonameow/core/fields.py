@@ -23,7 +23,7 @@ import re
 
 from collections import namedtuple
 
-from core import constants
+from core import constants as C
 
 
 # Original Dublin Core Metadata Element Set Version 1.1
@@ -66,7 +66,7 @@ def todo_func(foo):
 
 class GenericField(object):
     meowuri_root = UNDEFINED_MEOWURI_PART
-    meowuri_node_generic = constants.MEOWURI_NODE_GENERIC.lower()
+    meowuri_node_generic = C.MEOWURI_NODE_GENERIC.lower()
     meowuri_leaf = UNDEFINED_MEOWURI_PART
 
     @classmethod

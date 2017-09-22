@@ -22,13 +22,13 @@
 from unittest import TestCase
 
 import unit_utils as uu
-from core import constants
 from core.config.configuration import Configuration
 from core.config import DEFAULT_CONFIG
 from core.evaluate.rulematcher import (
     RuleMatcher,
     prioritize_rules,
 )
+from core import constants as C
 
 dummy_config = Configuration(DEFAULT_CONFIG)
 
@@ -112,7 +112,7 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
 class DummyRule(object):
     def __init__(self, exact_match):
         self.exact_match = exact_match
-        self.ranking_bias = constants.DEFAULT_RULE_RANKING_BIAS
+        self.ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
 
 
 class TestPrioritizeRules(TestCase):
