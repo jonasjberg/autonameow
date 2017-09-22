@@ -23,7 +23,7 @@ from core.util import sanity
 
 try:
     import chardet
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     chardet = None
 
 

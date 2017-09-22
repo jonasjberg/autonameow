@@ -23,7 +23,7 @@ import logging
 
 try:
     import chardet
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     chardet = None
 
 from core.util import (

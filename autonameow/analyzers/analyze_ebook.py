@@ -24,7 +24,7 @@ import re
 
 try:
     import isbnlib
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     isbnlib = None
 
 from analyzers import BaseAnalyzer

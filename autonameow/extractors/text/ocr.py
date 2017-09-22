@@ -30,7 +30,7 @@ import tempfile
 
 try:
     from PIL import Image
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     Image = None
 
 from core import (

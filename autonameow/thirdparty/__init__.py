@@ -21,10 +21,10 @@
 
 try:
     from .epubzilla.epubzilla import epubzilla
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     epubzilla = None
 
 try:
     from .pyexiftool import exiftool as pyexiftool
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     pyexiftool = None

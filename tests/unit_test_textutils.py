@@ -30,7 +30,7 @@ from core.util import textutils
 
 try:
     import chardet
-except (ModuleNotFoundError, ImportError):
+except ImportError:
     chardet = None
 
 
