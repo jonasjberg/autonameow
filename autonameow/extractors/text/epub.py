@@ -21,11 +21,7 @@
 
 import logging
 
-try:
-    from thirdparty import epubzilla
-except ImportError:
-    epubzilla = None
-
+from thirdparty import epubzilla
 from extractors.text.common import AbstractTextExtractor
 
 
