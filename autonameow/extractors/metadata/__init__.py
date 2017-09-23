@@ -21,4 +21,4 @@
 
 
 from .exiftool import ExiftoolMetadataExtractor
-from .pdf import PyPDFMetadataExtractor
+from .pypdf import PyPDFMetadataExtractor

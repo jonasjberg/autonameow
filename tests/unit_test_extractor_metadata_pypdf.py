@@ -35,7 +35,7 @@ unmet_dependencies = PyPDFMetadataExtractor.check_dependencies() is False
 dependency_error = 'Extractor dependencies not satisfied'
 
 
-class TestPDFMetadataExtractor(unittest.TestCase):
+class TestPyPDFMetadataExtractor(unittest.TestCase):
     def _to_datetime(self, value):
         return datetime.strptime(value, '%Y-%m-%d %H:%M:%S%z')
 
