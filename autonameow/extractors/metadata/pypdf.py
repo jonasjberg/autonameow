@@ -39,9 +39,9 @@ from core import (
 )
 from extractors import (
     ExtractorError,
-    ExtractedData,
     BaseExtractor
 )
+from core.model import ExtractedData
 
 
 class PyPDFMetadataExtractor(BaseExtractor):

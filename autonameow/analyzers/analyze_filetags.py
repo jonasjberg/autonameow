@@ -28,8 +28,7 @@ from core import (
     fields
 )
 from core.util import diskutils
-from extractors import ExtractedData
-
+from core.model import ExtractedData
 
 # TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
 

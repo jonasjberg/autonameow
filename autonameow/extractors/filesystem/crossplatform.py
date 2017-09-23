@@ -25,9 +25,9 @@ from datetime import datetime
 
 from extractors import (
     BaseExtractor,
-    ExtractorError,
-    ExtractedData
+    ExtractorError
 )
+from core.model import ExtractedData
 from core import (
     types,
     fields

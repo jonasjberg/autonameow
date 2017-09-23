@@ -32,10 +32,9 @@ from core.util import (
 )
 from extractors import (
     BaseExtractor,
-    ExtractorError,
-    ExtractedData
+    ExtractorError
 )
-
+from core.model import ExtractedData
 
 log = logging.getLogger(__name__)
 

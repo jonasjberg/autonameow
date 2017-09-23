@@ -27,9 +27,9 @@ from core import (
 from thirdparty import pyexiftool
 from extractors import (
     ExtractorError,
-    ExtractedData,
     BaseExtractor
 )
+from core.model import ExtractedData
 
 
 class ExiftoolMetadataExtractor(BaseExtractor):

@@ -23,10 +23,7 @@ import unittest
 from datetime import datetime
 
 from core import util
-from extractors import (
-    ExtractorError,
-    ExtractedData
-)
+from extractors import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor
 
 import unit_utils as uu

@@ -28,7 +28,7 @@ from core import (
     types,
     fields
 )
-from extractors import ExtractedData
+from core.model import ExtractedData
 from extractors.metadata import PyPDFMetadataExtractor
 
 unmet_dependencies = PyPDFMetadataExtractor.check_dependencies() is False

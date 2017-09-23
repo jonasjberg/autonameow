@@ -28,7 +28,7 @@ from core import (
     repository
 )
 from core.fileobject import FileObject
-from extractors import ExtractedData
+from core.model import ExtractedData
 
 log = logging.getLogger(__name__)
 

@@ -29,10 +29,12 @@ from core import (
     util,
 )
 from core.config.field_parsers import eval_meowuri_glob
+from core.model import ExtractedData
 from core.util import (
     sanity,
     textutils
 )
+
 
 log = logging.getLogger(__name__)
 
@@ -113,7 +115,7 @@ class Repository(object):
         self._store_generic(file_object, data)
 
     def _store_generic(self, file_object, data):
-        if not isinstance(data, extractors.ExtractedData):
+        if not isinstance(data, ExtractedData):
             return
 
         if data.generic_field is not None:
@@ -161,7 +163,7 @@ class Repository(object):
             return None
         else:
             # TODO: [TD0082] Integrate the 'ExtractedData' class.
-            if isinstance(data, extractors.ExtractedData):
+            if isinstance(data, ExtractedData):
                 if mapped_to_field is not None:
                     if data.maps_field(mapped_to_field):
                         return data
@@ -231,7 +233,7 @@ class Repository(object):
             _max_len_meowuri = max(_max_len_meowuri, len(uri))
 
             # TODO: [TD0082] Integrate the 'ExtractedData' class.
-            if isinstance(data, extractors.ExtractedData):
+            if isinstance(data, ExtractedData):
                 data = data.value
 
             if isinstance(data, bytes):
@@ -291,7 +293,7 @@ class Repository(object):
             temp = {}
             for key, value in data.items():
                 # TODO: [TD0082] Integrate the 'ExtractedData' class.
-                if isinstance(value, extractors.ExtractedData):
+                if isinstance(value, ExtractedData):
                     value = value.value
 
                 if isinstance(value, bytes):

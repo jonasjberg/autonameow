@@ -31,7 +31,7 @@ from core.util import (
     diskutils,
     sanity
 )
-from extractors import ExtractedData
+from core.model import ExtractedData
 
 log = logging.getLogger(__name__)
 

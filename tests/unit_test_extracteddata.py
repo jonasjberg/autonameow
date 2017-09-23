@@ -21,8 +21,11 @@
 
 from unittest import TestCase
 
-from core import types
-from extractors import ExtractedData
+from core import (
+    fields,
+    types
+)
+from core.model import ExtractedData
 
 
 class TestExtractedData(TestCase):
@@ -52,13 +55,12 @@ class TestExtractedData(TestCase):
         self.assertTrue(isinstance(b.coercer, types.String))
         self.assertEqual(b.coercer, types.AW_STRING)
 
-    def test_todo(self):
-        self.skipTest('TODO: ..')
-        d = ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            # mapped_fields=[
-            #     fields.WeightedMapping(fields.datetime, probability=1),
-            #     fields.WeightedMapping(fields.date, probability=1)
-            # ],
-            # generic_field=fields.GenericDateCreated
-        )
+    def test_call(self):
+        m = ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                fields.WeightedMapping('foo_field_a', probability=1.0),
+                fields.WeightedMapping('foo_field_b', probability=0.8)
+            ])
+
+        self.assertIsNotNone(m)

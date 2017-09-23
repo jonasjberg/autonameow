@@ -23,7 +23,6 @@ import logging
 import re
 
 from core import repository
-from extractors import ExtractedData
 
 log = logging.getLogger(__name__)
 

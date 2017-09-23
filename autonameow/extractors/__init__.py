@@ -26,10 +26,8 @@ import sys
 
 from .common import (
     BaseExtractor,
-    ExtractedData,
     ExtractorError,
 )
-
 
 log = logging.getLogger(__name__)
 

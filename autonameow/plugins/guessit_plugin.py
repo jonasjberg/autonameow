@@ -27,7 +27,7 @@ from core import (
     util,
     fields
 )
-from extractors import ExtractedData
+from core.model import ExtractedData
 from plugins import BasePlugin
 
 try:

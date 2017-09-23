@@ -19,15 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-import operator
-
 import copy
+import logging
 
-from core import (
-    repository
-)
-from extractors import ExtractedData
+from core import repository
+from core.model import ExtractedData
+
 
 log = logging.getLogger(__name__)
 

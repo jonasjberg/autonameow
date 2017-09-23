@@ -19,22 +19,5 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
 
-from core import (
-    types,
-    fields
-)
-from extractors import ExtractedData
-
-
-class TestExtractedData(TestCase):
-    def test_call(self):
-        m = ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
-                fields.WeightedMapping('foo_field_a', probability=1.0),
-                fields.WeightedMapping('foo_field_b', probability=0.8)
-            ])
-
-        self.assertIsNotNone(m)
+from .extracteddata import ExtractedData

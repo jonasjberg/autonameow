@@ -35,7 +35,7 @@ from core import (
     fields,
     types
 )
-from extractors import ExtractedData
+from core.model import ExtractedData
 from plugins import BasePlugin
 from core.exceptions import AutonameowPluginError
 

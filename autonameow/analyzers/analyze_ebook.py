@@ -37,8 +37,7 @@ from core.util import (
     sanity,
     textutils
 )
-from extractors import ExtractedData
-
+from core.model import ExtractedData
 
 log = logging.getLogger(__name__)
 
