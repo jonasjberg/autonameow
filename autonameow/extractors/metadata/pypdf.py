@@ -90,13 +90,13 @@ class PyPDFMetadataExtractor(BaseExtractor):
         super(PyPDFMetadataExtractor, self).__init__()
 
     def execute(self, source, **kwargs):
-        self.log.debug('{!s} starting initial extraction ..'.format(self))
+        self.log.debug('{!s}: Starting extraction'.format(self))
 
         try:
             _metadata = self._get_metadata(source)
         except ExtractorError as e:
             self.log.error(
-                '{!s}: extraction FAILED: {!s}'.format(self, e)
+                '{!s}: FAILED extraction: {!s}'.format(self, e)
             )
             raise
         except NotImplementedError as e:
@@ -104,7 +104,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
                            '{!s}'.format(self, e))
             raise ExtractorError
 
-        self.log.debug('{!s} returning all extracted data'.format(self))
+        self.log.debug('{!s}: Completed extraction'.format(self))
         return _metadata
 
     def _get_metadata(self, source):
