@@ -201,3 +201,29 @@ to clearly separate the types, which might be helpful for the implementation.
 In this case, it probably wouldn't be very difficult to translate from a
 "internal" URI like `generic.contents.mimetype` or `contents.generic.mimetype`
 to a simplified form, used in all user interfaces; `contents.mime_type` ..
+
+
+Update 2017-09-23
+-----------------
+Going the "Alternative approach 2" mentioned above means having to solve;
+
+* __Validating MeowURIs__, E.G. when parsing the configuration.
+* Handling MeowURIs when __storing data in the repository__.
+* Handling MeowURIs when __retrieving data from the repository__.
+
+### Breaking up MeowURIs into parts
+
+Source-specific URIs:
+`filesystem.contents.mime_type`
+`metadata.exiftool.File:MIMEType`
+
+Generic URIs:
+`contents.mimetype`
+
+
+Source-specific URIs:
+`filesystem.contents.mime_type`
+` metadata .exiftool.File:MIMEType`
+
+Generic URIs:
+`contents.mimetype`
