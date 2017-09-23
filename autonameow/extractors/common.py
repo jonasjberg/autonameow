@@ -179,10 +179,9 @@ class BaseExtractor(object):
             return util.eval_magic_glob(file_object.mime_type,
                                         cls.handles_mime_types)
         except (TypeError, ValueError) as e:
-            log.error(
+            raise ExtractorError(
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
             )
-            return False
 
     @classmethod
     def check_dependencies(cls):
