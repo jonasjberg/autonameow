@@ -20,11 +20,19 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-
 from collections import namedtuple
 
 from core import constants as C
 
+
+# TODO: [TD0049] Think about defining legal "placeholder fields".
+# Might be helpful to define all legal fields (such as `title`, `datetime`,
+# `author`, etc.) somewhere and keep references to type coercion wrappers,
+# maybe validation and/or formatting functionality; in the field definitions.
+#
+# NOTE(jonas): This should probably be done where both the Extraction data and
+# the Analysis results data is "joined"; the sum total of data available for a
+# given file.
 
 # Original Dublin Core Metadata Element Set Version 1.1
 # Metadata Elements:
@@ -46,18 +54,7 @@ from core import constants as C
 #   - Rights
 
 
-# TODO: [TD0049] Think about defining legal "placeholder fields".
-# Might be helpful to define all legal fields (such as `title`, `datetime`,
-# `author`, etc.) somewhere and keep references to type coercion wrappers,
-# maybe validation and/or formatting functionality; in the field definitions.
-#
-# NOTE(jonas): This should probably be done where both the Extraction data and
-# the Analysis results data is "joined"; the sum total of data available for a
-# given file.
-
 WeightedMapping = namedtuple('WeightedMapping', ['field', 'probability'])
-
-UNDEFINED_MEOWURI_PART = 'NULL'
 
 
 def todo_func(foo):
@@ -65,9 +62,9 @@ def todo_func(foo):
 
 
 class GenericField(object):
-    meowuri_root = UNDEFINED_MEOWURI_PART
+    meowuri_root = C.UNDEFINED_MEOWURI_PART
     meowuri_node_generic = C.MEOWURI_NODE_GENERIC.lower()
-    meowuri_leaf = UNDEFINED_MEOWURI_PART
+    meowuri_leaf = C.UNDEFINED_MEOWURI_PART
 
     @classmethod
     def uri(cls):

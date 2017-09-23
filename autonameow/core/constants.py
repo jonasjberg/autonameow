@@ -182,3 +182,4 @@ EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.
 
 # Repository and internal data storage
 MEOWURI_NODE_GENERIC = 'generic'
+UNDEFINED_MEOWURI_PART = 'NULL'

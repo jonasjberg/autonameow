@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 
+from core import constants as C
 from core import fields
 from core.fields import (
     GenericAuthor,
@@ -46,11 +47,11 @@ class TestGenericFieldBase(TestCase):
 
     def test_base_class_uri_root_is_undefined(self):
         self.assertEqual(GenericField.meowuri_root,
-                         fields.UNDEFINED_MEOWURI_PART)
+                         C.UNDEFINED_MEOWURI_PART)
 
     def test_base_class_uri_leaf_is_undefined(self):
         self.assertEqual(GenericField.meowuri_leaf,
-                         fields.UNDEFINED_MEOWURI_PART)
+                         C.UNDEFINED_MEOWURI_PART)
 
 
 class TestGenericFieldStr(TestCase):
