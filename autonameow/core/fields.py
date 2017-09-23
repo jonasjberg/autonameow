@@ -159,6 +159,15 @@ class GenericTags(GenericField):
         pass
 
 
+class GenericText(GenericField):
+    meowuri_root = 'contents'
+    meowuri_leaf = 'text'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
 def meowuri_genericfield_map():
     return {klass.uri(): klass
             for klass in GenericField.__subclasses__()}

@@ -61,7 +61,11 @@ class AbstractTextExtractor(BaseExtractor):
         self.log.debug('{!s} returning all extracted data'.format(self))
 
         # TODO: [TD0087] Clean up messy (and duplicated) coercion of "raw" data.
-        wrapper = ExtractedData(coercer=types.AW_STRING)
+        wrapper = ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=None,
+            generic_field=fields.GenericText,
+        )
         return {'full': ExtractedData.from_raw(wrapper, text)}
 
     def _get_text(self, source):
