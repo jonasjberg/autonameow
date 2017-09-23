@@ -118,37 +118,6 @@ class BaseExtractor(object):
         extracted_data = self.execute(source, **kwargs)
         return extracted_data
 
-    def execute(self, source, **kwargs):
-        """
-        Extracts and returns data using a specific extractor.
-
-          NOTE: This method __MUST__ be implemented by inheriting classes!
-
-        The return value should be a dictionary keyed by "MeowURIs", storing
-        data. The stored data can be either single elements or lists.
-        The data should be "safe", I.E. validated and converted to a suitable
-        "internal format" --- text should be returned as Unicode strings.
-
-        Implementing classes should make sure to catch all exceptions and
-        re-raise an "ExtractorError", passing any valuable information along.
-
-        Only raise the "ExtractorError" exception for irrecoverable errors.
-        Otherwise, implementers should strive to return empty values of the
-        expected type. The type coercers in 'types.py' could be useful here.
-
-        Args:
-            source: Source of data from which to extract information as a
-                byte string path (internal path format). A special case is the
-                'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
-
-        Returns:
-            All data produced gathered by the extractor as a dict keyed by
-            "MeowURIs", storing arbitrary data or lists of arbitrary data.
-
-        Raises:
-            ExtractorError: The extraction could not be completed successfully.
-        """
-        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
     def can_handle(cls, file_object):
@@ -182,6 +151,38 @@ class BaseExtractor(object):
             raise ExtractorError(
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
             )
+
+    def execute(self, source, **kwargs):
+        """
+        Extracts and returns data using a specific extractor.
+
+          NOTE: This method __MUST__ be implemented by inheriting classes!
+
+        The return value should be a dictionary keyed by "MeowURIs", storing
+        data. The stored data can be either single elements or lists.
+        The data should be "safe", I.E. validated and converted to a suitable
+        "internal format" --- text should be returned as Unicode strings.
+
+        Implementing classes should make sure to catch all exceptions and
+        re-raise an "ExtractorError", passing any valuable information along.
+
+        Only raise the "ExtractorError" exception for irrecoverable errors.
+        Otherwise, implementers should strive to return empty values of the
+        expected type. The type coercers in 'types.py' could be useful here.
+
+        Args:
+            source: Source of data from which to extract information as a
+                byte string path (internal path format). A special case is the
+                'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
+
+        Returns:
+            All data produced gathered by the extractor as a dict keyed by
+            "MeowURIs", storing arbitrary data or lists of arbitrary data.
+
+        Raises:
+            ExtractorError: The extraction could not be completed successfully.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
     def check_dependencies(cls):
