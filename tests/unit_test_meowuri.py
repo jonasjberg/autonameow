@@ -22,12 +22,43 @@
 
 from unittest import TestCase
 
+from core.exceptions import InvalidMeowURIError
 from core.meowuri import (
     MeowURI,
     MeowURIRoot,
     MeowURILeaf,
     MeowURINode
 )
+
+
+class TestMeowURIRoot(TestCase):
+    def test_from_valid_input(self):
+        def _ok(test_input):
+            a = MeowURIRoot(test_input)
+            self.assertIsNotNone(a)
+
+        _ok('analysis')
+        _ok('filesystem')
+        _ok('metadata')
+        _ok('plugin')
+        _ok(' analysis')
+        _ok(' filesystem')
+        _ok(' metadata')
+        _ok(' plugin')
+        _ok(' analysis ')
+        _ok(' filesystem ')
+        _ok(' metadata ')
+        _ok(' plugin ')
+
+    def test_from_invalid_input(self):
+        def _f(test_input):
+            with self.assertRaises(InvalidMeowURIError):
+                a = MeowURIRoot(test_input)
+
+        _f(None)
+        _f('')
+        _f('foo')
+        _f('plugins')
 
 
 class TestMeowURI(TestCase):
@@ -95,4 +126,179 @@ class TestMeowURI(TestCase):
         # plugin.guessit.date
         # plugin.guessit.title
         # plugin.microsoft_vision.caption
+
+
+class TestEvalMeowURIGlob(TestCase):
+    def test_eval_meowuri_blob_returns_false_given_bad_arguments(self):
+        m = MeowURI('a.b.c')
+        actual = m.eval_glob(None)
+        self.assertIsNotNone(actual)
+        self.assertFalse(actual)
+
+
+class TestEvalMeowURIGlobA(TestCase):
+    def setUp(self):
+        self.g = MeowURI('filesystem.contents.mime_type')
+
+    def test_evaluates_false(self):
+        def _f(test_input):
+            self.assertFalse(self.g.eval_glob(test_input))
+
+        _f(['filesystem.pathname.*'])
+        _f(['filesystem.pathname.full'])
+        _f(['filesystem.contents.full'])
+        _f(['filesystem.pathname.*', 'filesystem.pathname.full'])
+        _f(['NAME_FORMAT'])
+        _f(['filesystem.pathname.*'])
+        _f(['filesystem.pathname.full'])
+
+    def test_evaluates_true(self):
+        def _t(test_input):
+            self.assertTrue(self.g.eval_glob(test_input))
+
+        _t(['filesystem.*'])
+        _t(['filesystem.contents.*'])
+        _t(['filesystem.*', 'filesystem.pathname.*',
+            'filesystem.pathname.full'])
+
+
+class TestEvalMeowURIGlobB(TestCase):
+    def setUp(self):
+        self.g = MeowURI('filesystem.basename.full')
+
+    def test_evaluates_false(self):
+        def _f(test_input):
+            self.assertFalse(self.g.eval_glob(test_input))
+
+        _f(['*.pathname.*'])
+        _f(['filesystem.pathname.full'])
+        _f(['filesystem.contents.full'])
+        _f(['filesystem.pathname.*', 'filesystem.pathname.full'])
+        _f(['NAME_FORMAT'])
+        _f(['filesystem.pathname.*'])
+        _f(['filesystem.pathname.full'])
+
+    def test_evaluates_true(self):
+        def _t(test_input):
+            self.assertTrue(self.g.eval_glob(test_input))
+
+        _t(['*.pathname.*', '*.basename.*', '*.full'])
+
+
+    # def test_eval_glob_b(self):
+    #     self.assertFalse(eval_meowuri_glob(
+    #         'filesystem.pathname.extension', ['*.basename.*',
+    #                                           '*.basename.extension',
+    #                                           'filesystem.basename.extension']
+    #     ))
+    #     self.assertFalse(eval_meowuri_glob(
+    #         'filesystem.pathname.parent', ['*.pathname.full',
+    #                                        'filesystem.*.full']
+    #     ))
+    #     self.assertFalse(eval_meowuri_glob(
+    #         'metadata.exiftool.PDF:Creator',
+    #         ['datetime', 'date_accessed', 'date_created', 'date_modified',
+    #          '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
+    #          '*.EXIF:ModifyDate']
+    #     ))
+    #     self.assertFalse(eval_meowuri_glob(
+    #         'contents.textual.text.full', ['filesystem.*',
+    #                                        'filesystem.pathname.*',
+    #                                        'filesystem.pathname.full']
+    #     ))
+    #     self.assertFalse(eval_meowuri_glob(
+    #         'contents.textual.raw_text', ['contents.text.*']
+    #     ))
+    #     self.assertFalse(eval_meowuri_glob(
+    #         'contents.textual.raw_text', ['*.text.*']
+    #     ))
+    #     self.assertFalse(eval_meowuri_glob(
+    #         'contents.textual.raw_text', ['*.text', '*.text', '*.text.*']
+    #     ))
+    #     self.assertFalse(eval_meowuri_glob(
+    #         'contents.textual.raw_text', ['*.raw_*', '*.raw.*', '*.raw*.*'
+    #                                                             '*.*raw*.*']
+    #     ))
+    #     self.assertFalse(eval_meowuri_glob(
+    #         'filesystem.abspath.full', ['*.text.full']
+    #     ))
+    #
+    # def test_eval_meowuri_blob_returns_true_as_expected(self):
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'filesystem.pathname.full', ['*']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'filesystem.pathname.full', ['filesystem.*']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'filesystem.pathname.full', ['filesystem.pathname.*']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'filesystem.pathname.full', ['filesystem.pathname.full']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'filesystem.pathname.full', ['filesystem.*',
+    #                                      'filesystem.pathname.*',
+    #                                      'filesystem.pathname.full']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'filesystem.pathname.full', ['*',
+    #                                      'filesystem.*',
+    #                                      'filesystem.pathname.*',
+    #                                      'filesystem.pathname.full']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'filesystem.pathname.full', ['*.pathname.*']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'filesystem.basename.extension', ['*.basename.*',
+    #                                           '*.basename.extension',
+    #                                           'filesystem.basename.extension']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'filesystem.basename.extension', ['*',
+    #                                           '*.basename.*',
+    #                                           '*.basename.extension',
+    #                                           'filesystem.basename.extension']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'filesystem.basename.extension', ['*.extension']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'filesystem.basename.extension', ['*',
+    #                                           '*.extension']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'metadata.exiftool.PDF:CreateDate',
+    #         ['metadata.exiftool.PDF:CreateDate']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'metadata.exiftool.PDF:CreateDate', ['metadata.exiftool.*']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'metadata.exiftool.PDF:CreateDate', ['metadata.*']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'metadata.exiftool.PDF:CreateDate',
+    #         ['datetime', 'date_accessed', 'date_created', 'date_modified',
+    #          '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
+    #          '*.EXIF:ModifyDate']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'contents.textual.text.full', ['contents.*']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'contents.textual.text.full', ['*.textual.*']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'contents.textual.text.full', ['*.text.*']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'contents.textual.text.full', ['*.full']
+    #     ))
+    #     self.assertTrue(eval_meowuri_glob(
+    #         'contents.textual.text.full', ['contents.*', '*.textual.*',
+    #                                        '*.text.*', '*.full']
+    #     ))
+
 
