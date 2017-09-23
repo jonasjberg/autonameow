@@ -63,13 +63,13 @@ def todo_func(foo):
 
 class GenericField(object):
     meowuri_root = C.UNDEFINED_MEOWURI_PART
-    meowuri_node_generic = C.MEOWURI_NODE_GENERIC.lower()
+    meowuri_node = C.MEOWURI_NODE_GENERIC
     meowuri_leaf = C.UNDEFINED_MEOWURI_PART
 
     @classmethod
     def uri(cls):
         return '{}.{}.{}'.format(cls.meowuri_root.lower(),
-                                 cls.meowuri_node_generic,
+                                 cls.meowuri_node.lower(),
                                  cls.meowuri_leaf.lower())
 
     @classmethod

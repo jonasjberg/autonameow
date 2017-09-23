@@ -41,7 +41,7 @@ class TestGenericFieldBase(TestCase):
     def test_uri_returns_expected(self):
         actual = GenericField.uri()
         expected = '{}.{}.{}'.format(GenericField.meowuri_root.lower(),
-                                     GenericField.meowuri_node_generic,
+                                     GenericField.meowuri_node.lower(),
                                      GenericField.meowuri_leaf.lower())
         self.assertEqual(actual, expected)
 
