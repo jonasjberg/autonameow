@@ -68,7 +68,7 @@ class BaseExtractor(object):
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
     # Example:  'metadata.exiftool'
-    meowuri_root = None
+    MEOWURI_ROOT = None
 
     # Controls whether the extractor is enabled and used by default.
     # Used to exclude slow running extractors from always being executed.

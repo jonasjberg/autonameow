@@ -37,7 +37,7 @@ except ImportError:
 
 
 class GuessitPlugin(BasePlugin):
-    meowuri_root = 'plugin.guessit'
+    MEOWURI_ROOT = 'plugin.guessit'
     DISPLAY_NAME = 'Guessit'
 
     EXTRACTEDDATA_WRAPPER_LOOKUP = {

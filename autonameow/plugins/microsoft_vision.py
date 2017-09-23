@@ -137,7 +137,7 @@ def _read_api_key_from_file(file_path):
 
 
 class MicrosoftVisionPlugin(BasePlugin):
-    meowuri_root = 'plugin.microsoft_vision'
+    MEOWURI_ROOT = 'plugin.microsoft_vision'
     DISPLAY_NAME = 'MicrosoftVision'
 
     """

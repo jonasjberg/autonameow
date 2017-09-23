@@ -86,7 +86,7 @@ class TestBaseExtractor(TestCase):
         self.assertIsNone(self.e.handles_mime_types)
 
     def test_abstract_class_does_not_specify_meowuri_root(self):
-        self.assertIsNone(self.e.meowuri_root)
+        self.assertIsNone(self.e.MEOWURI_ROOT)
 
 
 class TestFindExtractorModuleSourceFiles(TestCase):

@@ -59,7 +59,7 @@ class BaseAnalyzer(object):
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
     # Example:  'analysis.filesystem'
-    meowuri_root = None
+    MEOWURI_ROOT = None
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -110,9 +110,9 @@ class BaseAnalyzer(object):
         Used by analyzer classes to store results data in the repository.
 
         Constructs a full "MeowURI" from the given 'meowuri_leaf' and the
-        extractor class attribute 'meowuri_root'.
+        extractor class attribute 'MEOWURI_ROOT'.
 
-        Example:  The FilenameAnalyzer 'meowuri_root' is 'analysis.filename'.
+        Example:  The FilenameAnalyzer 'MEOWURI_ROOT' is 'analysis.filename'.
         If this analyzer calls this method with 'meowuri_leaf' = 'datetime',
         'data' would be stored in the repository under the full "MeowURI":
         'analysis.filename.datetime'
@@ -125,7 +125,7 @@ class BaseAnalyzer(object):
         if data is None:
             return
 
-        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
+        meowuri = '{}.{}'.format(self.MEOWURI_ROOT, meowuri_leaf)
         self.log.debug(
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
@@ -243,7 +243,7 @@ def map_meowuri_to_analyzers():
     """
     Returns a mapping of the analyzer classes "meowURIs" and classes.
 
-    Each analyzer class defines 'meowuri_root' which is used as the
+    Each analyzer class defines 'MEOWURI_ROOT' which is used as the
     first part of all data returned by the analyzer.
 
     Returns: A dictionary where the keys are "meowURIs" and the values
@@ -252,9 +252,9 @@ def map_meowuri_to_analyzers():
     out = {}
 
     for klass in AnalyzerClasses:
-        meowuri_root = klass.meowuri_root
+        meowuri_root = klass.MEOWURI_ROOT
         if not meowuri_root:
-            log.debug('Missing attribute "meowuri_root" for class'
+            log.debug('Missing attribute "MEOWURI_ROOT" for class'
                       ' "{!s}"'.format(klass))
             continue
 

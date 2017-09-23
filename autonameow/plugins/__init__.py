@@ -97,7 +97,7 @@ def map_meowuri_to_plugins():
     """
     Returns a mapping of the plugin classes "meowURIs" and actual classes.
 
-    Each plugin class defines 'meowuri_root' which is used as the
+    Each plugin class defines 'MEOWURI_ROOT' which is used as the
     first part of all data returned by the plugin.
 
     Returns: A dictionary where the keys are "meowURIs" and the values
@@ -106,14 +106,14 @@ def map_meowuri_to_plugins():
     out = {}
 
     for klass in UsablePlugins:
-        meowuri = klass.meowuri_root
-        if not meowuri:
+        meowuri_root = klass.MEOWURI_ROOT
+        if not meowuri_root:
             continue
 
-        if meowuri in out:
-            out[meowuri].append(klass)
+        if meowuri_root in out:
+            out[meowuri_root].append(klass)
         else:
-            out[meowuri] = [klass]
+            out[meowuri_root] = [klass]
 
     return out
 

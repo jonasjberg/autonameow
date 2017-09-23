@@ -72,7 +72,7 @@ class TestAbstractTextExtractor(TestCase):
         self.assertIsNone(self.e.handles_mime_types)
 
     def test_abstract_class_does_not_specify_meowuri_root(self):
-        self.assertIsNone(self.e.meowuri_root)
+        self.assertIsNone(self.e.MEOWURI_ROOT)
 
     def test__get_raw_text_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

@@ -140,9 +140,9 @@ def map_meowuri_to_extractors():
     """
     Returns a mapping of the extractor "meowURIs" and extractor classes.
 
-    Each extractor class defines 'meowuri_root' which is used as the
+    Each extractor class defines 'MEOWURI_ROOT' which is used as the
     first part of all data returned by the extractor.
-    Multiple extractors can use the same 'meowuri_root'; for instance,
+    Multiple extractors can use the same 'MEOWURI_ROOT'; for instance,
     the 'PdfTextExtractor' and 'PlainTextExtractor' classes both define the
     same meowURI, 'contents.textual.text'.
 
@@ -152,14 +152,15 @@ def map_meowuri_to_extractors():
     out = {}
 
     for klass in ExtractorClasses:
-        if not klass.meowuri_root:
-            log.critical('"{!s}" does not specify "meowuri_root"'.format(klass))
+        meowuri_root = klass.MEOWURI_ROOT
+        if not meowuri_root:
+            log.critical('"{!s}" does not specify "MEOWURI_ROOT"'.format(klass))
             continue
 
-        if klass.meowuri_root in out:
-            out[klass.meowuri_root].append(klass)
+        if meowuri_root in out:
+            out[meowuri_root].append(klass)
         else:
-            out[klass.meowuri_root] = [klass]
+            out[meowuri_root] = [klass]
 
     return out
 

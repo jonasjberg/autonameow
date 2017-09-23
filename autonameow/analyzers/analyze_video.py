@@ -26,7 +26,7 @@ from analyzers import BaseAnalyzer
 class VideoAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.1
     handles_mime_types = ['video/*']
-    meowuri_root = 'analysis.video'
+    MEOWURI_ROOT = 'analysis.video'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):

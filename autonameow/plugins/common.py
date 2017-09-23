@@ -27,7 +27,7 @@ from core import plugin_handler
 class BasePlugin(object):
     # Resource identifier ("MeowURI") for the data returned by this plugin.
     # Example:  'plugin.guessit'
-    meowuri_root = None
+    MEOWURI_ROOT = None
 
     def __init__(self, display_name=None):
         if display_name:
@@ -45,7 +45,7 @@ class BasePlugin(object):
         if data is None:
             return
 
-        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
+        meowuri = '{}.{}'.format(self.MEOWURI_ROOT, meowuri_leaf)
         #self.log.debug(
         #    '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         #)

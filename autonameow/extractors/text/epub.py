@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 
 class EpubTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['application/epub+zip']
-    meowuri_root = 'contents.textual.text'
+    MEOWURI_ROOT = 'contents.textual.text'
 
     # TODO: [TD0028] Implement extractor for E-books (pdf/epub/mobi/..)
 

@@ -52,7 +52,7 @@ BLACKLISTED_ISBN_NUMBERS = ['0000000000', '1111111111', '2222222222',
 class EbookAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['application/pdf', 'application/epub+zip']
-    meowuri_root = 'analysis.ebook'
+    MEOWURI_ROOT = 'analysis.ebook'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
