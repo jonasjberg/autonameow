@@ -21,12 +21,12 @@
 
 import re
 
-from core import util, types
-from core.exceptions import InvalidMeowURIError
-
-VALID_MEOWURI_ROOTS = frozenset(
-    ['plugin', 'contents', 'metadata', 'filesystem']
+from core import (
+    types,
+    util
 )
+from core import constants as C
+from core.exceptions import InvalidMeowURIError
 
 
 class MeowURI(object):
@@ -34,17 +34,33 @@ class MeowURI(object):
     The "meowURI" consist of a lower case words, separated by periods.
     For instance; "contents.mime_type" or "filesystem.basename.extension".
     """
-    def __init__(self, string):
-        self._raw_string = string
-        _raw_parts = util.meowuri_list(string)
-        _root = MeowURIRoot(_raw_parts.pop(0))
-        _leaf = MeowURILeaf(_raw_parts.pop())
+    def __init__(self, *args):
+        if len(args) == 1:
+            _raw_parts = self._split(args[0])
+        else:
+            _raw_parts = list(args)
+
+        try:
+            _root = MeowURIRoot(_raw_parts.pop(0))
+        except InvalidMeowURIError:
+            _root = None
+
+        try:
+            _leaf = MeowURILeaf(_raw_parts.pop())
+        except InvalidMeowURIError:
+            _leaf = None
 
         _mids = []
         if _raw_parts:
             _mids = [MeowURINode(p) for p in _raw_parts]
 
         self._parts = [_root] + _mids + [_leaf]
+
+    def _split(self, string):
+        return util.meowuri_list(string)
+
+    def __str__(self):
+        return C.MEOWURI_SEPARATOR.join(str(p) for p in self._parts)
 
     @property
     def root(self):
@@ -130,17 +146,31 @@ class MeowURI(object):
 class MeowURINode(object):
     def __init__(self, raw_string):
         string = _normalize_string(raw_string)
+        self._validate(string)
+
+        self._value = string
 
     def _validate(self, string):
-        raise NotImplementedError
+        # TODO: ..
+        pass
 
     def __str__(self):
-        return str(self.string) or 'NONE'
+        return self._value
 
 
 class MeowURILeaf(object):
     def __init__(self, raw_string):
-        pass
+        string = _normalize_string(raw_string)
+        self._validate(string)
+
+        self._value = string
+
+    def _validate(self, string):
+        if not string:
+            raise InvalidMeowURIError
+
+    def __str__(self):
+        return self._value
 
 
 class MeowURIRoot(object):
@@ -148,11 +178,16 @@ class MeowURIRoot(object):
         string = _normalize_string(raw_string)
         self._validate(string)
 
+        self._value = string
+
     def _validate(self, string):
         if not string:
             raise InvalidMeowURIError
-        if string not in VALID_MEOWURI_ROOTS:
+        if string not in C.MEOWURI_ROOTS:
             raise InvalidMeowURIError
+
+    def __str__(self):
+        return self._value
 
 
 def _normalize_string(raw_string):

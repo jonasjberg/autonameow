@@ -66,6 +66,49 @@ class TestMeowURIRoot(TestCase):
         _f('plugins')
 
 
+class TestMeowURIwithValidInput(TestCase):
+    def _format_expected(self, root=None, node=None, leaf=None):
+        if root is None and node is None and leaf is None:
+            raise AssertionError('This should not happen')
+        elif node is None and leaf is None:
+            return '{root}'.format(root=root)
+        elif leaf is None:
+            return '{root}{sep}{node}'.format(
+                root=root, sep=C.MEOWURI_SEPARATOR, node=node
+            )
+        else:
+            return '{root}{sep}{node}{sep}{leaf}'.format(
+                root=root, sep=C.MEOWURI_SEPARATOR, node=node, leaf=leaf
+            )
+
+    def test_multiple_arguments(self):
+        a = MeowURI('extractor', 'filesystem', 'xplat')
+        ea = self._format_expected(
+            root='extractor', node='filesystem', leaf='xplat'
+        )
+        self.assertEqual(ea, str(a))
+
+        b = MeowURI('extractor', 'filesystem')
+        eb = self._format_expected(
+            root='extractor', node='filesystem'
+        )
+        self.assertEqual(eb, str(b))
+
+    def test_single_argument(self):
+        a = MeowURI('extractor.filesystem.xplat')
+        ea = self._format_expected(
+            root='extractor', node='filesystem', leaf='xplat'
+        )
+        self.assertEqual(ea, str(a))
+
+        b = MeowURI('extractor.filesystem')
+        eb = self._format_expected(
+            root='extractor', node='filesystem'
+        )
+        self.assertEqual(eb, str(b))
+
+
+
 class TestMeowURI(TestCase):
     def test_partitions_parts(self):
         self.skipTest('TODO: Implement or remove ..')
