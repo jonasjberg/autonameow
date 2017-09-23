@@ -312,7 +312,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         return _metadata
 
     def _get_metadata(self, source):
-        _raw_metadata = self._get_exiftool_data(source)
+        _raw_metadata = _get_exiftool_data(source)
         if _raw_metadata:
             # Internal data format boundary.  Wrap "raw" data with type classes.
             metadata = self._to_internal_format(_raw_metadata)
@@ -324,7 +324,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         for tag_name, value in raw_metadata.items():
             if value is None:
                 continue
-            if self._should_skip_binary_blob(value):
+            if _should_skip_binary_blob(value):
                 continue
 
             wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(tag_name)
@@ -340,21 +340,23 @@ class ExiftoolMetadataExtractor(BaseExtractor):
 
         return out
 
-    def _get_exiftool_data(self, source):
-        """
-        Returns:
-            Exiftool results as a dictionary of strings/ints/floats.
-        """
-        with pyexiftool.ExifTool() as et:
-            try:
-                return et.get_metadata(source)
-            except (AttributeError, ValueError, TypeError) as e:
-                # Raises ValueError if an ExifTool instance isn't running.
-                raise ExtractorError(e)
-
-    def _should_skip_binary_blob(self, value):
-        return isinstance(value, str) and 'use -b option to extract' in value
-
     @classmethod
     def check_dependencies(cls):
         return util.is_executable('exiftool') and pyexiftool is not None
+
+
+def _should_skip_binary_blob(value):
+    return isinstance(value, str) and 'use -b option to extract' in value
+
+
+def _get_exiftool_data(source):
+    """
+    Returns:
+        Exiftool results as a dictionary of strings/ints/floats.
+    """
+    with pyexiftool.ExifTool() as et:
+        try:
+            return et.get_metadata(source)
+        except (AttributeError, ValueError, TypeError) as e:
+            # Raises ValueError if an ExifTool instance isn't running.
+            raise ExtractorError(e)

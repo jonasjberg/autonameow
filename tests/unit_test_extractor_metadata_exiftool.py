@@ -25,6 +25,7 @@ from datetime import datetime
 from core import util
 from extractors import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor
+from extractors.metadata.exiftool import _get_exiftool_data
 
 import unit_utils as uu
 
@@ -73,21 +74,21 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_returns_something(self):
-        self.assertIsNotNone(self.e._get_exiftool_data(temp_file))
+        self.assertIsNotNone(_get_exiftool_data(temp_file))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e._get_exiftool_data(temp_file), dict))
+        self.assertTrue(isinstance(_get_exiftool_data(temp_file), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_raises_expected_exception(self):
         with self.assertRaises(ExtractorError):
             e = ExiftoolMetadataExtractor()
-            e._get_exiftool_data(None)
+            _get_exiftool_data(None)
 
         with self.assertRaises(ExtractorError):
             f = ExiftoolMetadataExtractor()
-            f._get_exiftool_data('not_a_file_surely')
+            _get_exiftool_data('not_a_file_surely')
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_something(self):
