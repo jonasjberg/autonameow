@@ -37,7 +37,7 @@ from core.fileobject import FileObject
 
 class CrossPlatformFileSystemExtractor(BaseExtractor):
     handles_mime_types = ['*/*']
-    MEOWURI_ROOT = 'filesystem'
+    MEOWURI_LEAF = 'xplat'
 
     wrapper_lookup = {
         'abspath.full': ExtractedData(types.AW_PATH),

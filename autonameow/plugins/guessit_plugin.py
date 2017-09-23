@@ -37,7 +37,6 @@ except ImportError:
 
 
 class GuessitPlugin(BasePlugin):
-    MEOWURI_ROOT = 'plugin.guessit'
     DISPLAY_NAME = 'Guessit'
 
     EXTRACTEDDATA_WRAPPER_LOOKUP = {
@@ -110,13 +109,15 @@ class GuessitPlugin(BasePlugin):
         super(GuessitPlugin, self).__init__(self.DISPLAY_NAME)
 
     def can_handle(self, file_object):
-        _mime_type = self.request_data(file_object,
-                                       'filesystem.contents.mime_type')
+        _mime_type = self.request_data(
+            file_object, 'extractor.filesystem.xplat.contents.mime_type'
+        )
         return util.eval_magic_glob(_mime_type, 'video/*')
 
     def execute(self, file_object):
-        _file_basename = self.request_data(file_object,
-                                           'filesystem.basename.full')
+        _file_basename = self.request_data(
+            file_object, 'extractor.filesystem.xplat.basename.full'
+        )
         if _file_basename is None:
             raise exceptions.AutonameowPluginError('Required data unavailable')
 

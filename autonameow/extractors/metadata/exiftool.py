@@ -38,7 +38,6 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     """
     handles_mime_types = ['video/*', 'application/pdf', 'image/*',
                           'application/epub+zip', 'text/*']
-    MEOWURI_ROOT = 'extractor.metadata.exiftool'
 
     EXTRACTEDDATA_WRAPPER_LOOKUP = {
         'ASF:CreationDate': ExtractedData(

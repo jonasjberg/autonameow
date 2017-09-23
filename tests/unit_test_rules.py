@@ -41,31 +41,31 @@ class TestRuleConditionFromValidInput(TestCase):
         self.assertTrue(isinstance(actual, rules.RuleCondition))
 
     def test_condition_contents_mime_type(self):
-        self._valid('filesystem.contents.mime_type', 'text/rtf')
-        self._valid('filesystem.contents.mime_type', 'text/*')
-        self._valid('filesystem.contents.mime_type', '*/application')
-        self._valid('filesystem.contents.mime_type', '*/*')
+        self._valid('extractor.filesystem.xplat.contents.mime_type', 'text/rtf')
+        self._valid('extractor.filesystem.xplat.contents.mime_type', 'text/*')
+        self._valid('extractor.filesystem.xplat.contents.mime_type', '*/application')
+        self._valid('extractor.filesystem.xplat.contents.mime_type', '*/*')
 
     def test_condition_filesystem_basename_full(self):
-        self._valid('filesystem.basename.full', 'foo.tar.gz')
-        self._valid('filesystem.basename.full', 'foo.*')
-        self._valid('filesystem.basename.full', '.*foo.*')
-        self._valid('filesystem.basename.full', '.*')
+        self._valid('extractor.filesystem.xplat.basename.full', 'foo.tar.gz')
+        self._valid('extractor.filesystem.xplat.basename.full', 'foo.*')
+        self._valid('extractor.filesystem.xplat.basename.full', '.*foo.*')
+        self._valid('extractor.filesystem.xplat.basename.full', '.*')
 
     def test_condition_filesystem_basename_prefix(self):
-        self._valid('filesystem.basename.prefix', 'foo')
-        self._valid('filesystem.basename.prefix', '.*')
-        self._valid('filesystem.basename.prefix', 'foo(bar)?')
+        self._valid('extractor.filesystem.xplat.basename.prefix', 'foo')
+        self._valid('extractor.filesystem.xplat.basename.prefix', '.*')
+        self._valid('extractor.filesystem.xplat.basename.prefix', 'foo(bar)?')
 
     def test_condition_filesystem_basename_suffix(self):
-        self._valid('filesystem.basename.suffix', 'tar.gz')
-        self._valid('filesystem.basename.suffix', 'tar.*')
+        self._valid('extractor.filesystem.xplat.basename.suffix', 'tar.gz')
+        self._valid('extractor.filesystem.xplat.basename.suffix', 'tar.*')
 
     def test_condition_filesystem_extension(self):
-        self._valid('filesystem.basename.extension', 'pdf')
-        self._valid('filesystem.basename.extension', '.*')
-        self._valid('filesystem.basename.extension', '.?')
-        self._valid('filesystem.basename.extension', 'pdf?')
+        self._valid('extractor.filesystem.xplat.basename.extension', 'pdf')
+        self._valid('extractor.filesystem.xplat.basename.extension', '.*')
+        self._valid('extractor.filesystem.xplat.basename.extension', '.?')
+        self._valid('extractor.filesystem.xplat.basename.extension', 'pdf?')
 
     def test_condition_metadata_exiftool(self):
         self._valid('extractor.metadata.exiftool.PDF:CreateDate', '1996')
@@ -83,40 +83,41 @@ class TestRuleConditionFromInvalidInput(TestCase):
             _ = rules.get_valid_rule_condition(query, data)
 
     def test_invalid_condition_contents_mime_type(self):
-        self._assert_invalid('filesystem.contents.mime_type', None)
-        self._assert_invalid('filesystem.contents.mime_type', '')
-        self._assert_invalid('filesystem.contents.mime_type', '/')
-        self._assert_invalid('filesystem.contents.mime_type', 'application/*//pdf')
-        self._assert_invalid('filesystem.contents.mime_type', 'application///pdf')
-        self._assert_invalid('filesystem.contents.mime_type', 'text/')
+        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', None)
+        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', '')
+        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', '/')
+        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', 'application/*//pdf')
+        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', 'application///pdf')
+        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', 'text/')
 
     def test_invalid_condition_filesystem_basename_full(self):
-        self._assert_invalid('filesystem.basename.full', None)
-        self._assert_invalid('filesystem.basename.full', '')
+        self._assert_invalid('extractor.filesystem.xplat.basename.full', None)
+        self._assert_invalid('extractor.filesystem.xplat.basename.full', '')
 
     def test_invalid_condition_filesystem_basename_prefix(self):
-        self._assert_invalid('filesystem.basename.prefix', None)
-        self._assert_invalid('filesystem.basename.prefix', '')
+        self._assert_invalid('extractor.filesystem.xplat.basename.prefix', None)
+        self._assert_invalid('extractor.filesystem.xplat.basename.prefix', '')
 
     def test_invalid_condition_filesystem_basename_suffix(self):
-        self._assert_invalid('filesystem.basename.suffix', None)
-        self._assert_invalid('filesystem.basename.suffix', '')
+        self._assert_invalid('extractor.filesystem.xplat.basename.suffix', None)
+        self._assert_invalid('extractor.filesystem.xplat.basename.suffix', '')
 
     def test_invalid_condition_filesystem_extension(self):
-        self._assert_invalid('filesystem.basename.extension', None)
-        self._assert_invalid('filesystem.basename.extension', '')
+        self._assert_invalid('extractor.filesystem.xplat.basename.extension', None)
+        self._assert_invalid('extractor.filesystem.xplat.basename.extension', '')
 
 
 class TestRuleConditionMethods(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.a = rules.RuleCondition('filesystem.contents.mime_type',
-                                     'application/pdf')
+        self.a = rules.RuleCondition(
+            'extractor.filesystem.xplat.contents.mime_type', 'application/pdf'
+        )
 
     def test_rule___repr__(self):
         self.assertEqual(
             repr(self.a),
-            'RuleCondition("filesystem.contents.mime_type", "application/pdf")'
+            'RuleCondition("extractor.filesystem.xplat.contents.mime_type", "application/pdf")'
         )
 
     def test_rule___repr__exhaustive(self):
@@ -131,39 +132,6 @@ class TestRuleConditionMethods(TestCase):
         for condition, expect in zip(uu.get_dummy_rulecondition_instances(),
                                      expected_reprs):
             self.assertEqual(repr(condition), expect)
-
-
-RULE_CONTENTS = {
-    'description': 'First Entry in the Default Configuration',
-    'exact_match': False,
-    'weight': 0.5,
-    'name_template': 'default_template_name',
-    'conditions': {
-        'filesystem': {
-            'basename': {
-                'extension': 'bar',
-                'full': 'foo.bar',
-                'prefix': 'foo',
-                'suffix': 'bar',
-            },
-            'pathname': {
-                'full': '~/foo',
-                'parent': '~',
-            },
-            'contents': {
-                'mime_type': '*/*'
-            }
-        },
-    },
-    'data_sources': {
-        'datetime': None,
-        'description': None,
-        'title': None,
-        'author': None,
-        'publisher': None,
-        'extension': 'filename.extension'
-    }
-}
 
 
 class TestRuleMethods(TestCase):
@@ -190,12 +158,18 @@ class TestGetValidRuleCondition(TestCase):
             _ = rules.get_valid_rule_condition(query, data)
 
     def test_returns_valid_rule_condition_for_valid_query_valid_data(self):
-        self._assert_valid('filesystem.contents.mime_type', 'application/pdf')
-        self._assert_valid('filesystem.contents.mime_type', 'text/rtf')
-        self._assert_valid('filesystem.contents.mime_type', 'image/*')
-        self._assert_valid('filesystem.basename.extension', 'pdf')
-        self._assert_valid('filesystem.basename.full', 'foo.pdf')
-        self._assert_valid('filesystem.pathname.full', '~/temp/foo')
+        self._assert_valid('extractor.filesystem.xplat.contents.mime_type',
+                           'application/pdf')
+        self._assert_valid('extractor.filesystem.xplat.contents.mime_type',
+                           'text/rtf')
+        self._assert_valid('extractor.filesystem.xplat.contents.mime_type',
+                           'image/*')
+        self._assert_valid('extractor.filesystem.xplat.basename.extension',
+                           'pdf')
+        self._assert_valid('extractor.filesystem.xplat.basename.full',
+                           'foo.pdf')
+        self._assert_valid('extractor.filesystem.xplat.pathname.full',
+                           '~/temp/foo')
 
     def test_returns_false_for_invalid_query_valid_data(self):
         self._assert_invalid('', 'application/pdf')
@@ -206,12 +180,18 @@ class TestGetValidRuleCondition(TestCase):
         self._assert_invalid('foo', '~/temp/foo')
 
     def test_returns_false_for_valid_query_invalid_data(self):
-        self._assert_invalid('filesystem.contents.mime_type', 'application/*//pdf')
-        self._assert_invalid('filesystem.contents.mime_type', 'application///pdf')
-        self._assert_invalid('filesystem.contents.mime_type', 'text/')
-        self._assert_invalid('filesystem.basename.extension', '')
-        self._assert_invalid('filesystem.basename.full', None)
-        self._assert_invalid('filesystem.pathname.full', '')
+        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type',
+                             'application/*//pdf')
+        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type',
+                             'application///pdf')
+        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type',
+                             'text/')
+        self._assert_invalid('extractor.filesystem.xplat.basename.extension',
+                             '')
+        self._assert_invalid('extractor.filesystem.xplat.basename.full',
+                             None)
+        self._assert_invalid('extractor.filesystem.xplat.pathname.full',
+                             '')
 
     def test_returns_false_for_invalid_query_invalid_data(self):
         self._assert_invalid('', 'application///pdf')
@@ -246,9 +226,9 @@ class TestIsValidSourceSpecification(TestCase):
 
         _aT('extractor.metadata.exiftool')
         _aT('extractor.metadata.exiftool.PDF:CreateDate')
-        _aT('filesystem.basename.full')
-        _aT('filesystem.basename.extension')
-        _aT('filesystem.contents.mime_type')
+        _aT('extractor.filesystem.xplat.basename.full')
+        _aT('extractor.filesystem.xplat.basename.extension')
+        _aT('extractor.filesystem.xplat.contents.mime_type')
 
 
 class TestParseConditions(TestCase):
@@ -256,16 +236,21 @@ class TestParseConditions(TestCase):
         self.maxDiff = None
 
     def test_parse_condition_filesystem_pathname_is_valid(self):
-        raw_conditions = {'filesystem.pathname.full': '~/.config'}
+        raw_conditions = {
+            'extractor.filesystem.xplat.pathname.full': '~/.config'
+        }
         actual = rules.parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].meowuri, 'filesystem.pathname.full')
+        self.assertEqual(actual[0].meowuri,
+                         'extractor.filesystem.xplat.pathname.full')
         self.assertEqual(actual[0].expression, '~/.config')
 
     def test_parse_condition_contents_mime_type_is_valid(self):
-        raw_conditions = {'filesystem.contents.mime_type': 'image/jpeg'}
+        raw_conditions = {
+            'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg'
+        }
         actual = rules.parse_conditions(raw_conditions)
         self.assertEqual(actual[0].meowuri,
-                         'filesystem.contents.mime_type')
+                         'extractor.filesystem.xplat.contents.mime_type')
         self.assertEqual(actual[0].expression,
                          'image/jpeg')
 
@@ -273,11 +258,11 @@ class TestParseConditions(TestCase):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
         raw_conditions = {
-            'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
+            'extractor.metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
         }
         actual = rules.parse_conditions(raw_conditions)
         self.assertEqual(actual[0].meowuri,
-                         'metadata.exiftool.EXIF:DateTimeOriginal')
+                         'extractor.metadata.exiftool.EXIF:DateTimeOriginal')
         self.assertEqual(actual[0].expression, 'Defined')
 
 

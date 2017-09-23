@@ -29,7 +29,6 @@ from core.util import dateandtime
 class DocumentAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['application/pdf', 'text/*']
-    MEOWURI_ROOT = 'analysis.document'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):

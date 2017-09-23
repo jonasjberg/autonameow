@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 
+from core import constants as C
 import extractors
 from extractors import (
     BaseExtractor
@@ -85,8 +86,11 @@ class TestBaseExtractor(TestCase):
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.handles_mime_types)
 
-    def test_abstract_class_does_not_specify_meowuri_root(self):
-        self.assertIsNone(self.e.MEOWURI_ROOT)
+    def test_abstract_class_does_not_specify_meowuri_node(self):
+        self.assertEqual(self.e.MEOWURI_NODE, C.UNDEFINED_MEOWURI_PART)
+
+    def test_abstract_class_does_not_specify_meowuri_leaf(self):
+        self.assertEqual(self.e.MEOWURI_LEAF, C.UNDEFINED_MEOWURI_PART)
 
 
 class TestFindExtractorModuleSourceFiles(TestCase):

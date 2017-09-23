@@ -183,3 +183,12 @@ EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.
 # Repository and internal data storage
 MEOWURI_NODE_GENERIC = 'generic'
 UNDEFINED_MEOWURI_PART = 'NULL'
+MEOWURI_SEPARATOR = '.'
+
+MEOWURI_ROOT_ANALYZERS = 'analyzer'
+MEOWURI_ROOT_EXTRACTORS = 'extractor'
+MEOWURI_ROOT_PLUGINS = 'plugin'
+
+MEOWURI_ROOTS = frozenset([MEOWURI_ROOT_ANALYZERS] +
+                          [MEOWURI_ROOT_EXTRACTORS] +
+                          [MEOWURI_ROOT_PLUGINS])

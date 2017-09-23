@@ -176,9 +176,9 @@ class TestRepositoryMethodResolvable(TestCase):
 
         _aT('extractor.metadata.exiftool')
         _aT('extractor.metadata.exiftool.PDF:CreateDate')
-        _aT('filesystem.basename.full')
-        _aT('filesystem.basename.extension')
-        _aT('filesystem.contents.mime_type')
+        _aT('extractor.filesystem.xplat.basename.full')
+        _aT('extractor.filesystem.xplat.basename.extension')
+        _aT('extractor.filesystem.xplat.contents.mime_type')
 
 
 class TestMapMeowURItoSourceClass(TestCase):
@@ -187,18 +187,18 @@ class TestMapMeowURItoSourceClass(TestCase):
 
     def setUp(self):
         self._analyzer_meowURI_sourcemap = [
-            (['analysis.filetags.datetime',
-              'analysis.filetags.description',
-              'analysis.filetags.follows_filetags_convention',
-              'analysis.filetags.tags'],
+            (['analyzer.filetags.datetime',
+              'analyzer.filetags.description',
+              'analyzer.filetags.follows_filetags_convention',
+              'analyzer.filetags.tags'],
              'FiletagsAnalyzer'),
         ]
         self._extractor_meowURI_sourcemap = [
-            (['filesystem.basename.extension',
-              'filesystem.basename.full',
-              'filesystem.basename.prefix',
-              'filesystem.contents.mime_type',
-              'filesystem.pathname.full'],
+            (['extractor.filesystem.xplat.basename.extension',
+              'extractor.filesystem.xplat.basename.full',
+              'extractor.filesystem.xplat.basename.prefix',
+              'extractor.filesystem.xplat.contents.mime_type',
+              'extractor.filesystem.xplat.pathname.full'],
              'CrossPlatformFileSystemExtractor'),
             (['extractor.metadata.exiftool.EXIF:CreateDate',
               'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
@@ -280,17 +280,17 @@ class TestMapMeowURItoSourceClass(TestCase):
 class TestGetSourcesForMeowURIs(TestCase):
     def setUp(self):
         self._meowuris_filetags = [
-            'analysis.filetags.datetime',
-            'analysis.filetags.description',
-            'analysis.filetags.follows_filetags_convention',
-            'analysis.filetags.tags',
+            'analyzer.filetags.datetime',
+            'analyzer.filetags.description',
+            'analyzer.filetags.follows_filetags_convention',
+            'analyzer.filetags.tags',
         ]
         self._meowuris_filesystem = [
-            'filesystem.basename.extension',
-            'filesystem.basename.full',
-            'filesystem.basename.prefix',
-            'filesystem.contents.mime_type',
-            'filesystem.pathname.full',
+            'extractor.filesystem.xplat.basename.extension',
+            'extractor.filesystem.xplat.basename.full',
+            'extractor.filesystem.xplat.basename.prefix',
+            'extractor.filesystem.xplat.contents.mime_type',
+            'extractor.filesystem.xplat.pathname.full',
         ]
         self._meowuris_exiftool = [
             'extractor.metadata.exiftool.EXIF:CreateDate',

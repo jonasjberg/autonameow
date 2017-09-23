@@ -22,12 +22,12 @@
 import logging
 
 from core import plugin_handler
+from core import constants as C
 
 
 class BasePlugin(object):
-    # Resource identifier ("MeowURI") for the data returned by this plugin.
-    # Example:  'plugin.guessit'
-    MEOWURI_ROOT = None
+    # Last part of the full MeowURI ('guessit', 'microsoft_vision', ..)
+    MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
     def __init__(self, display_name=None):
         if display_name:
@@ -45,7 +45,7 @@ class BasePlugin(object):
         if data is None:
             return
 
-        meowuri = '{}.{}'.format(self.MEOWURI_ROOT, meowuri_leaf)
+        meowuri = '{}.{}'.format(self.meowuri(), meowuri_leaf)
         #self.log.debug(
         #    '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         #)
@@ -53,6 +53,15 @@ class BasePlugin(object):
 
     def __call__(self, source, *args, **kwargs):
         self.execute(source)
+
+    @classmethod
+    def meowuri(cls):
+        _leaf = cls.__module__.split('_')[0] or cls.MEOWURI_LEAF
+
+        return '{root}{sep}{leaf}'.format(
+            root=C.MEOWURI_ROOT_PLUGINS, sep=C.MEOWURI_SEPARATOR,
+            leaf=_leaf
+        )
 
     def can_handle(self, file_object):
         """

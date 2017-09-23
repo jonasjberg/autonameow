@@ -130,7 +130,7 @@ def start(file_object,
         _extractor_instance = klass()
         try:
             collect_results(
-                file_object, klass.MEOWURI_ROOT, _extractor_instance(_source)
+                file_object, klass.meowuri(), _extractor_instance(_source)
             )
         except ExtractorError as e:
             log.error(

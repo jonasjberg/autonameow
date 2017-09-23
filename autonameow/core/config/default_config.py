@@ -24,13 +24,13 @@ from core import constants as C
 
 # ALL_CONDITIONS_FIELDS
 # =====================
-# 'filesystem.basename.full'        Regular expression
-# 'filesystem.basename.extension'   Regular expression
-# 'filesystem.pathname.full'        Regular expression
-# 'filesystem.date_accessed'        Python "datetime" format
-# 'filesystem.date_created'         Python "datetime" format
-# 'filesystem.date_modified'        Python "datetime" format
-# 'filesystem.contents.mime_type'   Supports simple "globbing" ('*/jpeg')
+# 'extractor.filesystem.xplat.basename.full'        Regular expression
+# 'extractor.filesystem.xplat.basename.extension'   Regular expression
+# 'extractor.filesystem.xplat.pathname.full'        Regular expression
+# 'extractor.filesystem.xplat.date_accessed'        Python "datetime" format
+# 'extractor.filesystem.xplat.date_created'         Python "datetime" format
+# 'extractor.filesystem.xplat.date_modified'        Python "datetime" format
+# 'extractor.filesystem.xplat.contents.mime_type'   Supports simple "globbing" ('*/jpeg')
 # 'extractor.metadata.exiftool'     See note below.
 
 #   NOTE:  See this link for all available exiftool fields.
@@ -61,14 +61,14 @@ DEFAULT_CONFIG = {
          'ranking_bias': None,
          'NAME_FORMAT': '{datetime} {title}.{extension}',
          'CONDITIONS': {
-             'filesystem.basename.full': 'gmail.pdf',
-             'filesystem.basename.extension': 'pdf',
-             'filesystem.contents.mime_type': 'application/pdf',
+             'extractor.filesystem.xplat.basename.full': 'gmail.pdf',
+             'extractor.filesystem.xplat.basename.extension': 'pdf',
+             'extractor.filesystem.xplat.contents.mime_type': 'application/pdf',
          },
          'DATA_SOURCES': {
              'datetime': 'extractor.metadata.exiftool.PDF:CreateDate',
-             'title': 'filesystem.basename.prefix',
-             'extension': 'filesystem.basename.extension'
+             'title': 'extractor.filesystem.xplat.basename.prefix',
+             'extension': 'extractor.filesystem.xplat.basename.extension'
          }
          },
         # ____________________________________________________________________
@@ -77,13 +77,13 @@ DEFAULT_CONFIG = {
          'ranking_bias': 1,
          'NAME_FORMAT': '{datetime} {description}.{extension}',
          'CONDITIONS': {
-             'filesystem.basename.full': 'smulan.jpg',
-             'filesystem.contents.mime_type': 'image/jpeg',
+             'extractor.filesystem.xplat.basename.full': 'smulan.jpg',
+             'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
          },
          'DATA_SOURCES': {
              'datetime': 'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
              'description': 'plugin.microsoft_vision.caption',
-             'extension': 'filesystem.basename.extension'
+             'extension': 'extractor.filesystem.xplat.basename.extension'
          }
          },
         # ____________________________________________________________________
@@ -92,10 +92,10 @@ DEFAULT_CONFIG = {
          'ranking_bias': 1,
          'NAME_FORMAT': 'simplest_pdf.md.{extension}',
          'CONDITIONS': {
-             'filesystem.basename.full': 'simplest_pdf.md.pdf',
+             'extractor.filesystem.xplat.basename.full': 'simplest_pdf.md.pdf',
          },
          'DATA_SOURCES': {
-             'extension': 'filesystem.basename.extension'
+             'extension': 'extractor.filesystem.xplat.basename.extension'
          }
          },
         # ____________________________________________________________________
@@ -104,10 +104,10 @@ DEFAULT_CONFIG = {
          'ranking_bias': 1,
          'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
          'CONDITIONS': {
-             'filesystem.pathname.full': '~/Pictures/incoming',
-             'filesystem.basename.full': 'DCIM*',
-             'filesystem.basename.extension': 'jpg',
-             'filesystem.contents.mime_type': 'image/jpeg',
+             'extractor.filesystem.xplat.pathname.full': '~/Pictures/incoming',
+             'extractor.filesystem.xplat.basename.full': 'DCIM*',
+             'extractor.filesystem.xplat.basename.extension': 'jpg',
+             'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
              # TODO: [TD0015] Ensure proper validation of entry below.
              'extractor.metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
          },
@@ -116,7 +116,7 @@ DEFAULT_CONFIG = {
                           'extractor.metadata.exiftool.EXIF:DateTimeDigitized',
                           'extractor.metadata.exiftool.EXIF:CreateDate'],
              'description': 'plugin.microsoft_vision.caption',
-             'extension': 'filesystem.basename.extension',
+             'extension': 'extractor.filesystem.xplat.basename.extension',
              'tags': 'plugin.microsoft_vision.tags'
          }
          },
@@ -126,10 +126,10 @@ DEFAULT_CONFIG = {
          'ranking_bias': 1,
          'NAME_FORMAT': 'default_book',
          'CONDITIONS': {
-             'filesystem.pathname.full': '.*',
-             'filesystem.basename.full': '.*',
-             'filesystem.basename.extension': 'epub',
-             'filesystem.contents.mime_type': 'application/epub+zip',
+             'extractor.filesystem.xplat.pathname.full': '.*',
+             'extractor.filesystem.xplat.basename.full': '.*',
+             'extractor.filesystem.xplat.basename.extension': 'epub',
+             'extractor.filesystem.xplat.contents.mime_type': 'application/epub+zip',
              # TODO: [TD0015] Ensure proper validation of entry below.
              'extractor.metadata.exiftool.XMP-dc:Creator': 'Defined',
          },
@@ -141,7 +141,7 @@ DEFAULT_CONFIG = {
                         'extractor.metadata.exiftool.XMP-dc:CreatorFile-as'],
              'publisher': 'extractor.metadata.exiftool.XMP-dc:Publisher',
              'edition': None,
-             'extension': 'filesystem.basename.extension',
+             'extension': 'extractor.filesystem.xplat.basename.extension',
          }
          },
     ],

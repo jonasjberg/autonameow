@@ -44,7 +44,6 @@ TESSERACT_COMMAND = 'tesseract'
 
 class ImageOCRTextExtractor(AbstractTextExtractor):
     handles_mime_types = ['image/*']
-    MEOWURI_ROOT = 'contents.visual.text'
     is_slow = True
 
     def __init__(self):

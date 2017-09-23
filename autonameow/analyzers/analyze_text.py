@@ -26,7 +26,6 @@ from core.util import dateandtime
 class TextAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     handles_mime_types = ['text/plain']
-    MEOWURI_ROOT = 'analysis.text'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):

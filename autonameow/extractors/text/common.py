@@ -24,7 +24,8 @@ import unicodedata
 
 from core import (
     types,
-    util
+    util,
+    fields
 )
 from core.util import (
     sanity,

@@ -25,6 +25,7 @@ from core import util
 from core.exceptions import AutonameowException
 from core.fileobject import FileObject
 from core.util import sanity
+from core import constants as C
 
 
 class ExtractorError(AutonameowException):
@@ -67,8 +68,11 @@ class BaseExtractor(object):
     handles_mime_types = None
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
-    # Example:  'extractor.metadata.exiftool'
-    MEOWURI_ROOT = None
+    # Middle part of the full MeowURI ('metadata', 'contents', 'filesystem', ..)
+    MEOWURI_NODE = C.UNDEFINED_MEOWURI_PART
+
+    # Last part of the full MeowURI ('exiftool', 'pypdf', 'xplat', ..)
+    MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
     # Controls whether the extractor is enabled and used by default.
     # Used to exclude slow running extractors from always being executed.
@@ -118,6 +122,25 @@ class BaseExtractor(object):
         extracted_data = self.execute(source, **kwargs)
         return extracted_data
 
+    @classmethod
+    def meowuri(cls):
+        def _undefined(attribute):
+            return attribute == C.UNDEFINED_MEOWURI_PART
+
+        if _undefined(cls.MEOWURI_NODE):
+            _node = cls.__module__.split('.')[-2]
+        else:
+            _node = cls.MEOWURI_NODE
+
+        if _undefined(cls.MEOWURI_LEAF):
+            _leaf = cls.__module__.split('.')[-1]
+        else:
+            _leaf = cls.MEOWURI_LEAF
+
+        return '{root}{sep}{node}{sep}{leaf}'.format(
+            root=C.MEOWURI_ROOT_EXTRACTORS, sep=C.MEOWURI_SEPARATOR,
+            node=_node, leaf=_leaf
+        )
 
     @classmethod
     def can_handle(cls, file_object):

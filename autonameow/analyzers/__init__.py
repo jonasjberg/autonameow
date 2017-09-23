@@ -57,9 +57,8 @@ class BaseAnalyzer(object):
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
     handles_mime_types = None
 
-    # Resource identifier "MeowURI" for the data returned by this extractor.
-    # Example:  'analysis.filesystem'
-    MEOWURI_ROOT = None
+    # Last part of the full MeowURI ('filetags', 'filename', ..)
+    MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -110,12 +109,7 @@ class BaseAnalyzer(object):
         Used by analyzer classes to store results data in the repository.
 
         Constructs a full "MeowURI" from the given 'meowuri_leaf' and the
-        extractor class attribute 'MEOWURI_ROOT'.
-
-        Example:  The FilenameAnalyzer 'MEOWURI_ROOT' is 'analysis.filename'.
-        If this analyzer calls this method with 'meowuri_leaf' = 'datetime',
-        'data' would be stored in the repository under the full "MeowURI":
-        'analysis.filename.datetime'
+        analyzer-specific MeowURI.
 
         Args:
             meowuri_leaf: Last part of the "MeowURI"; for example 'author',
@@ -125,11 +119,23 @@ class BaseAnalyzer(object):
         if data is None:
             return
 
-        meowuri = '{}.{}'.format(self.MEOWURI_ROOT, meowuri_leaf)
+        meowuri = '{}.{}'.format(self.meowuri(), meowuri_leaf)
         self.log.debug(
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
         self.add_results(self.file_object, meowuri, data)
+
+    @classmethod
+    def meowuri(cls):
+        """
+        Returns: Analyzer-specific "MeowURI" root/prefix as a Unicode string.
+        """
+        _leaf = cls.__module__.split('_')[-1] or cls.MEOWURI_LEAF
+
+        return '{root}{sep}{leaf}'.format(
+            root=C.MEOWURI_ROOT_ANALYZERS, sep=C.MEOWURI_SEPARATOR,
+            leaf=_leaf
+        )
 
     @classmethod
     def can_handle(cls, file_object):
@@ -252,16 +258,14 @@ def map_meowuri_to_analyzers():
     out = {}
 
     for klass in AnalyzerClasses:
-        meowuri_root = klass.MEOWURI_ROOT
-        if not meowuri_root:
-            log.debug('Missing attribute "MEOWURI_ROOT" for class'
-                      ' "{!s}"'.format(klass))
+        _meowuri = klass.meowuri()
+        if not _meowuri:
             continue
 
-        if meowuri_root in out:
-            out[meowuri_root].append(klass)
+        if _meowuri in out:
+            out[_meowuri].append(klass)
         else:
-            out[meowuri_root] = [klass]
+            out[_meowuri] = [klass]
 
     return out
 

@@ -46,7 +46,6 @@ from core.model import ExtractedData
 
 class PyPDFMetadataExtractor(BaseExtractor):
     handles_mime_types = ['application/pdf']
-    MEOWURI_ROOT = 'metadata.pypdf'
 
     EXTRACTEDDATA_WRAPPER_LOOKUP = {
         'Creator': ExtractedData(

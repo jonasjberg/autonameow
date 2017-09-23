@@ -52,7 +52,6 @@ BLACKLISTED_ISBN_NUMBERS = ['0000000000', '1111111111', '2222222222',
 class EbookAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     handles_mime_types = ['application/pdf', 'application/epub+zip']
-    MEOWURI_ROOT = 'analysis.ebook'
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -61,7 +60,10 @@ class EbookAnalyzer(BaseAnalyzer):
         )
 
     def run(self):
-        text = self.request_data(self.file_object, 'contents.textual.text.full')
+        text = self.request_data(self.file_object, 'extractor.text.pdf.full')
+        if not text:
+            # TODO: Allow querying for text from any source.
+            text = self.request_data(self.file_object, 'extractor.text.*.full')
         if not text:
             return
 
