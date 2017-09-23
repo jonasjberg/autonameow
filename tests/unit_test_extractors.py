@@ -25,7 +25,6 @@ import extractors
 from extractors import (
     BaseExtractor
 )
-from extractors.metadata.common import AbstractMetadataExtractor
 from extractors.text.common import AbstractTextExtractor
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -154,7 +153,6 @@ class TestGetImplementedExtractorClasses(TestCase):
         self.assertNotIn(BaseExtractor, self.actual)
 
     def test_get_extractor_classes_does_not_include_abstract_extractors(self):
-        self.assertNotIn(AbstractMetadataExtractor, self.actual)
         self.assertNotIn(AbstractTextExtractor, self.actual)
 
 

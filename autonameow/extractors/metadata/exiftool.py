@@ -27,12 +27,12 @@ from core import (
 from thirdparty import pyexiftool
 from extractors import (
     ExtractorError,
-    ExtractedData
+    ExtractedData,
+    BaseExtractor
 )
-from extractors.metadata.common import AbstractMetadataExtractor
 
 
-class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
+class ExiftoolMetadataExtractor(BaseExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """
@@ -292,6 +292,24 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
 
     def __init__(self):
         super(ExiftoolMetadataExtractor, self).__init__()
+
+    def execute(self, source, **kwargs):
+        self.log.debug('{!s} starting initial extraction ..'.format(self))
+
+        try:
+            _metadata = self._get_metadata(source)
+        except ExtractorError as e:
+            self.log.error(
+                '{!s}: extraction FAILED: {!s}'.format(self, e)
+            )
+            raise
+        except NotImplementedError as e:
+            self.log.debug('[WARNING] Called unimplemented code in {!s}: '
+                           '{!s}'.format(self, e))
+            raise ExtractorError
+
+        self.log.debug('{!s} returning all extracted data'.format(self))
+        return _metadata
 
     def _get_metadata(self, source):
         _raw_metadata = self._get_exiftool_data(source)

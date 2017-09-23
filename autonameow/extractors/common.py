@@ -61,10 +61,8 @@ class BaseExtractor(object):
                     |  +--* ImageOCRTextExtractor
                     |  '--* PdfTextExtractor
                     |
-        (abstract)  '--* AbstractMetadataExtractor
-                       |
-                       +--* ExiftoolMetadataExtractor
-                       '--* PyPDFMetadataExtractor
+                    +--* ExiftoolMetadataExtractor
+                    '--* PyPDFMetadataExtractor
 
     The abstract extractors defines additional interfaces, extending the base.
     It is pretty messy and should be redesigned and simplified at some point ..

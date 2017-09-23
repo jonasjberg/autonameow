@@ -40,11 +40,11 @@ from core import (
 from extractors import (
     ExtractorError,
     ExtractedData,
+    BaseExtractor
 )
-from extractors.metadata.common import AbstractMetadataExtractor
 
 
-class PyPDFMetadataExtractor(AbstractMetadataExtractor):
+class PyPDFMetadataExtractor(BaseExtractor):
     handles_mime_types = ['application/pdf']
     meowuri_root = 'metadata.pypdf'
 
@@ -88,6 +88,24 @@ class PyPDFMetadataExtractor(AbstractMetadataExtractor):
 
     def __init__(self):
         super(PyPDFMetadataExtractor, self).__init__()
+
+    def execute(self, source, **kwargs):
+        self.log.debug('{!s} starting initial extraction ..'.format(self))
+
+        try:
+            _metadata = self._get_metadata(source)
+        except ExtractorError as e:
+            self.log.error(
+                '{!s}: extraction FAILED: {!s}'.format(self, e)
+            )
+            raise
+        except NotImplementedError as e:
+            self.log.debug('[WARNING] Called unimplemented code in {!s}: '
+                           '{!s}'.format(self, e))
+            raise ExtractorError
+
+        self.log.debug('{!s} returning all extracted data'.format(self))
+        return _metadata
 
     def _get_metadata(self, source):
         try:

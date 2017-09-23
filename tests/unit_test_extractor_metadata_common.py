@@ -25,46 +25,7 @@ from core import (
     types,
     fields
 )
-from extractors import (
-    ExtractedData,
-    ExtractorError
-)
-from extractors.metadata.common import AbstractMetadataExtractor
-import unit_utils as uu
-
-
-class TestAbstractMetadataExtractor(TestCase):
-    def setUp(self):
-        self.test_file = uu.make_temporary_file()
-        self.e = AbstractMetadataExtractor()
-
-    def test_class_is_available(self):
-        self.assertIsNotNone(AbstractMetadataExtractor)
-
-    def test_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test_method__get_metadata_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
-            self.e._get_metadata(self.test_file)
-
-    def test_query_raises_exception_with__get_metadata_unimplemented(self):
-        with self.assertRaises(ExtractorError):
-            self.assertIsNone(self.e(self.test_file))
-
-    def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
-        self.assertIsNone(self.e.handles_mime_types)
-
-    def test_abstract_class_does_not_specify_meowuri_root(self):
-        self.assertIsNone(self.e.meowuri_root)
-
-    def test__perform_initial_extraction_raises_extractor_error(self):
-        with self.assertRaises(ExtractorError):
-            _ = self.e.execute(self.test_file)
-
-    def test_check_dependencies_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
-            self.e.check_dependencies()
+from extractors import ExtractedData
 
 
 class TestExtractedData(TestCase):
