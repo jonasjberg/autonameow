@@ -67,7 +67,7 @@ class BaseExtractor(object):
     handles_mime_types = None
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
-    # Example:  'metadata.exiftool'
+    # Example:  'extractor.metadata.exiftool'
     MEOWURI_ROOT = None
 
     # Controls whether the extractor is enabled and used by default.

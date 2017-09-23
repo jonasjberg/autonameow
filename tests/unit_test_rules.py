@@ -35,46 +35,46 @@ class TestRuleCondition(TestCase):
 
 
 class TestRuleConditionFromValidInput(TestCase):
-    def _assert_valid(self, query, data):
+    def _valid(self, query, data):
         actual = rules.RuleCondition(query, data)
         self.assertIsNotNone(actual)
         self.assertTrue(isinstance(actual, rules.RuleCondition))
 
     def test_condition_contents_mime_type(self):
-        self._assert_valid('filesystem.contents.mime_type', 'text/rtf')
-        self._assert_valid('filesystem.contents.mime_type', 'text/*')
-        self._assert_valid('filesystem.contents.mime_type', '*/application')
-        self._assert_valid('filesystem.contents.mime_type', '*/*')
+        self._valid('filesystem.contents.mime_type', 'text/rtf')
+        self._valid('filesystem.contents.mime_type', 'text/*')
+        self._valid('filesystem.contents.mime_type', '*/application')
+        self._valid('filesystem.contents.mime_type', '*/*')
 
     def test_condition_filesystem_basename_full(self):
-        self._assert_valid('filesystem.basename.full', 'foo.tar.gz')
-        self._assert_valid('filesystem.basename.full', 'foo.*')
-        self._assert_valid('filesystem.basename.full', '.*foo.*')
-        self._assert_valid('filesystem.basename.full', '.*')
+        self._valid('filesystem.basename.full', 'foo.tar.gz')
+        self._valid('filesystem.basename.full', 'foo.*')
+        self._valid('filesystem.basename.full', '.*foo.*')
+        self._valid('filesystem.basename.full', '.*')
 
     def test_condition_filesystem_basename_prefix(self):
-        self._assert_valid('filesystem.basename.prefix', 'foo')
-        self._assert_valid('filesystem.basename.prefix', '.*')
-        self._assert_valid('filesystem.basename.prefix', 'foo(bar)?')
+        self._valid('filesystem.basename.prefix', 'foo')
+        self._valid('filesystem.basename.prefix', '.*')
+        self._valid('filesystem.basename.prefix', 'foo(bar)?')
 
     def test_condition_filesystem_basename_suffix(self):
-        self._assert_valid('filesystem.basename.suffix', 'tar.gz')
-        self._assert_valid('filesystem.basename.suffix', 'tar.*')
+        self._valid('filesystem.basename.suffix', 'tar.gz')
+        self._valid('filesystem.basename.suffix', 'tar.*')
 
     def test_condition_filesystem_extension(self):
-        self._assert_valid('filesystem.basename.extension', 'pdf')
-        self._assert_valid('filesystem.basename.extension', '.*')
-        self._assert_valid('filesystem.basename.extension', '.?')
-        self._assert_valid('filesystem.basename.extension', 'pdf?')
+        self._valid('filesystem.basename.extension', 'pdf')
+        self._valid('filesystem.basename.extension', '.*')
+        self._valid('filesystem.basename.extension', '.?')
+        self._valid('filesystem.basename.extension', 'pdf?')
 
     def test_condition_metadata_exiftool(self):
-        self._assert_valid('metadata.exiftool.PDF:CreateDate', '1996')
-        self._assert_valid('metadata.exiftool.PDF:Creator', 'foo')
-        self._assert_valid('metadata.exiftool.PDF:ModifyDate', '1996-01-20')
-        self._assert_valid('metadata.exiftool.PDF:Producer', 'foo')
-        self._assert_valid('metadata.exiftool.XMP-dc:Creator', 'foo')
-        self._assert_valid('metadata.exiftool.XMP-dc:Publisher', 'foo')
-        self._assert_valid('metadata.exiftool.XMP-dc:Title', 'foo')
+        self._valid('extractor.metadata.exiftool.PDF:CreateDate', '1996')
+        self._valid('extractor.metadata.exiftool.PDF:Creator', 'foo')
+        self._valid('extractor.metadata.exiftool.PDF:ModifyDate', '1996-01-20')
+        self._valid('extractor.metadata.exiftool.PDF:Producer', 'foo')
+        self._valid('extractor.metadata.exiftool.XMP-dc:Creator', 'foo')
+        self._valid('extractor.metadata.exiftool.XMP-dc:Publisher', 'foo')
+        self._valid('extractor.metadata.exiftool.XMP-dc:Title', 'foo')
 
 
 class TestRuleConditionFromInvalidInput(TestCase):
@@ -223,19 +223,32 @@ class TestGetValidRuleCondition(TestCase):
 
 class TestIsValidSourceSpecification(TestCase):
     def test_empty_source_returns_false(self):
-        self.assertFalse(rules.is_valid_source(None))
-        self.assertFalse(rules.is_valid_source(''))
+        def _aF(test_input):
+            self.assertFalse(rules.is_valid_source(test_input))
+
+        _aF(None)
+        _aF('')
 
     def test_bad_source_returns_false(self):
-        self.assertFalse(rules.is_valid_source('not.a.valid.source.surely'))
-        self.assertFalse(rules.is_valid_source('foobar'))
+        def _aF(test_input):
+            self.assertFalse(rules.is_valid_source(test_input))
+
+        _aF('not.a.valid.source.surely')
+        _aF('foobar')
+        _aF('exiftool')
+        _aF('exiftool.PDF:CreateDate')
+        _aF('metadata.exiftool')
+        _aF('metadata.exiftool.PDF:CreateDate')
 
     def test_good_source_returns_true(self):
-        self.assertTrue(rules.is_valid_source('metadata.exiftool.PDF:CreateDate'))
-        self.assertTrue(rules.is_valid_source('metadata.exiftool'))
-        self.assertTrue(rules.is_valid_source('filesystem.basename.full'))
-        self.assertTrue(rules.is_valid_source('filesystem.basename.extension'))
-        self.assertTrue(rules.is_valid_source('filesystem.contents.mime_type'))
+        def _aT(test_input):
+            self.assertTrue(rules.is_valid_source(test_input))
+
+        _aT('extractor.metadata.exiftool')
+        _aT('extractor.metadata.exiftool.PDF:CreateDate')
+        _aT('filesystem.basename.full')
+        _aT('filesystem.basename.extension')
+        _aT('filesystem.contents.mime_type')
 
 
 class TestParseConditions(TestCase):

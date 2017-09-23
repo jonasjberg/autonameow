@@ -81,7 +81,7 @@ class ImageAnalyzer(BaseAnalyzer):
 
     def _request_exiftool_metadata(self, field):
         return self.request_data(self.file_object,
-                                 'metadata.exiftool.{}'.format(field))
+                                 'extractor.metadata.exiftool.{}'.format(field))
 
     def _get_exif_datetime(self):
         """

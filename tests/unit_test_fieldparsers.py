@@ -355,9 +355,11 @@ class TestSuitableFieldParserFor(TestCase):
         self.__expect_parser_for('DateTimeConfigFieldParser', 'date_created')
         self.__expect_parser_for('DateTimeConfigFieldParser', 'date_modified')
         self.__expect_parser_for('DateTimeConfigFieldParser',
-                                 'metadata.exiftool.PDF:CreateDate')
-        self.__expect_parser_for('DateTimeConfigFieldParser',
-                                 'metadata.exiftool.EXIF:DateTimeOriginal')
+                                 'extractor.metadata.exiftool.PDF:CreateDate')
+        self.__expect_parser_for(
+            'DateTimeConfigFieldParser',
+            'extractor.metadata.exiftool.EXIF:DateTimeOriginal'
+        )
 
     def test_expect_regex_field_parser(self):
         self.__expect_parser_for('RegexConfigFieldParser',
@@ -433,7 +435,7 @@ class TestEvalMeowURIGlob(TestCase):
                                            'filesystem.*.full']
         ))
         self.assertFalse(eval_meowuri_glob(
-            'metadata.exiftool.PDF:Creator',
+            'extractor.metadata.exiftool.PDF:Creator',
             ['datetime', 'date_accessed', 'date_created', 'date_modified',
              '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
              '*.EXIF:ModifyDate']
@@ -467,6 +469,9 @@ class TestEvalMeowURIGlob(TestCase):
         ))
         self.assertFalse(eval_meowuri_glob(
             'filesystem.abspath.full', ['*.text.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'extractor.metadata.exiftool.PDF:CreateDate', ['metadata.*']
         ))
 
     def test_eval_meowuri_blob_returns_true_as_expected(self):
@@ -526,17 +531,19 @@ class TestEvalMeowURIGlob(TestCase):
                                               '*.extension']
         ))
         self.assertTrue(eval_meowuri_glob(
-            'metadata.exiftool.PDF:CreateDate',
-            ['metadata.exiftool.PDF:CreateDate']
+            'extractor.metadata.exiftool.PDF:CreateDate',
+            ['extractor.metadata.exiftool.PDF:CreateDate']
         ))
         self.assertTrue(eval_meowuri_glob(
-            'metadata.exiftool.PDF:CreateDate', ['metadata.exiftool.*']
+            'extractor.metadata.exiftool.PDF:CreateDate',
+            ['extractor.metadata.exiftool.*']
         ))
         self.assertTrue(eval_meowuri_glob(
-            'metadata.exiftool.PDF:CreateDate', ['metadata.*']
+            'extractor.metadata.exiftool.PDF:CreateDate',
+            ['extractor.metadata.*']
         ))
         self.assertTrue(eval_meowuri_glob(
-            'metadata.exiftool.PDF:CreateDate',
+            'extractor.metadata.exiftool.PDF:CreateDate',
             ['datetime', 'date_accessed', 'date_created', 'date_modified',
              '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
              '*.EXIF:ModifyDate']

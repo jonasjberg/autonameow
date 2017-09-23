@@ -103,8 +103,8 @@ class DocumentAnalyzer(BaseAnalyzer):
         results = []
 
         possible_publishers = [
-            ('metadata.exiftool.PDF:EBX_PUBLISHER', 1),
-            ('metadata.exiftool.XMP:EbxPublisher', 1),
+            ('extractor.metadata.exiftool.PDF:EBX_PUBLISHER', 1),
+            ('extractor.metadata.exiftool.XMP:EbxPublisher', 1),
             ('metadata.pypdf.EBX_PUBLISHER', 1)
         ]
         for meowuri, weight in possible_publishers:

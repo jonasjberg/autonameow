@@ -21,7 +21,7 @@ RULES:
         filesystem.basename.full: gmail.pdf
         filesystem.contents.mime_type: application/pdf
     DATA_SOURCES:
-        datetime: metadata.exiftool.PDF:CreateDate
+        datetime: extractor.metadata.exiftool.PDF:CreateDate
         extension: filesystem.basename.extension
         title: filesystem.basename.prefix
     NAME_FORMAT: '{datetime} {title}.{extension}'
@@ -32,7 +32,7 @@ RULES:
         filesystem.basename.full: smulan.jpg
         filesystem.contents.mime_type: image/jpeg
     DATA_SOURCES:
-        datetime: metadata.exiftool.EXIF:DateTimeOriginal
+        datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
         description: plugin.microsoft_vision.caption
         extension: filesystem.basename.extension
     NAME_FORMAT: '{datetime} {description}.{extension}'

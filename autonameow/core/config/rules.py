@@ -99,11 +99,11 @@ class RuleCondition(object):
             )
 
         # NOTE(jonas): No parser can currently handle these "meowURIs" ..
-        if self.meowuri.startswith('metadata.exiftool'):
+        if self.meowuri.startswith('extractor.metadata.exiftool'):
             # TODO: [TD0015] Handle expression in 'condition_value'
             #                ('Defined', '> 2017', etc)
             log.warning('Validation of this condition is not yet implemented!'
-                        ' (starts with "metadata.exiftool")')
+                        ' (starts with "extractor.metadata.exiftool")')
 
         if not self._get_parser(self.meowuri):
             raise ValueError('Found no suitable parsers for meowURI: '
@@ -546,8 +546,9 @@ def is_valid_source(source_value):
     Tests if the given source starts with the same text as any of the
     date source "meowURIs" stored in the 'SessionRepository'.
 
-    For example, the source value "metadata.exiftool.PDF:CreateDate" would
-    be considered valid if "metadata.exiftool" was registered by a source.
+    For example, the source value "extractor.metadata.exiftool.PDF:CreateDate"
+    would be considered valid if "extractor.metadata.exiftool" was registered
+    by a source.
 
     Args:
         source_value: The source to test as a text string.

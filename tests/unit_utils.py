@@ -259,12 +259,16 @@ def mock_session_data_pool(file_object):
     util.nested_dict_set(data,
                          [file_object, 'filesystem.contents.mime_type'],
                          'application/pdf')
-    util.nested_dict_set(data,
-                         [file_object, 'metadata.exiftool.PDF:Creator'],
-                         'Chromium')
-    util.nested_dict_set(data,
-                         [file_object, 'metadata.exiftool'],
-                         {'File:MIMEType': 'application/bar'})
+    util.nested_dict_set(
+        data,
+        [file_object, 'extractor.metadata.exiftool.PDF:Creator'],
+        'Chromium'
+    )
+    util.nested_dict_set(
+        data,
+        [file_object, 'extractor.metadata.exiftool'],
+        {'File:MIMEType': 'application/bar'}
+    )
 
     return data
 
@@ -335,12 +339,16 @@ def mock_session_data_pool_with_extractor_and_analysis_data(file_object):
     util.nested_dict_set(data,
                          [file_object, 'filesystem.contents.mime_type'],
                          'application/pdf')
-    util.nested_dict_set(data,
-                         [file_object, 'metadata.exiftool.PDF:Creator'],
-                         'Chromium')
-    util.nested_dict_set(data,
-                         [file_object, 'metadata.exiftool'],
-                         {'File:MIMEType': 'application/bar'})
+    util.nested_dict_set(
+        data,
+        [file_object, 'extractor.metadata.exiftool.PDF:Creator'],
+        'Chromium'
+    )
+    util.nested_dict_set(
+        data,
+        [file_object, 'extractor.metadata.exiftool'],
+        {'File:MIMEType': 'application/bar'}
+    )
     util.nested_dict_set(data,
                          [file_object, 'analysis.filename_analyzer.tags'],
                          [{'source': 'filenamepart_tags',

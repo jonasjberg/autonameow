@@ -31,7 +31,7 @@ from core import constants as C
 # 'filesystem.date_created'         Python "datetime" format
 # 'filesystem.date_modified'        Python "datetime" format
 # 'filesystem.contents.mime_type'   Supports simple "globbing" ('*/jpeg')
-# 'metadata.exiftool'               See note below.
+# 'extractor.metadata.exiftool'     See note below.
 
 #   NOTE:  See this link for all available exiftool fields.
 #   http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
@@ -66,7 +66,7 @@ DEFAULT_CONFIG = {
              'filesystem.contents.mime_type': 'application/pdf',
          },
          'DATA_SOURCES': {
-             'datetime': 'metadata.exiftool.PDF:CreateDate',
+             'datetime': 'extractor.metadata.exiftool.PDF:CreateDate',
              'title': 'filesystem.basename.prefix',
              'extension': 'filesystem.basename.extension'
          }
@@ -81,7 +81,7 @@ DEFAULT_CONFIG = {
              'filesystem.contents.mime_type': 'image/jpeg',
          },
          'DATA_SOURCES': {
-             'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
+             'datetime': 'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
              'description': 'plugin.microsoft_vision.caption',
              'extension': 'filesystem.basename.extension'
          }
@@ -109,12 +109,12 @@ DEFAULT_CONFIG = {
              'filesystem.basename.extension': 'jpg',
              'filesystem.contents.mime_type': 'image/jpeg',
              # TODO: [TD0015] Ensure proper validation of entry below.
-             'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
+             'extractor.metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
          },
          'DATA_SOURCES': {
-             'datetime': ['metadata.exiftool.EXIF:DateTimeOriginal',
-                          'metadata.exiftool.EXIF:DateTimeDigitized',
-                          'metadata.exiftool.EXIF:CreateDate'],
+             'datetime': ['extractor.metadata.exiftool.EXIF:DateTimeOriginal',
+                          'extractor.metadata.exiftool.EXIF:DateTimeDigitized',
+                          'extractor.metadata.exiftool.EXIF:CreateDate'],
              'description': 'plugin.microsoft_vision.caption',
              'extension': 'filesystem.basename.extension',
              'tags': 'plugin.microsoft_vision.tags'
@@ -131,15 +131,15 @@ DEFAULT_CONFIG = {
              'filesystem.basename.extension': 'epub',
              'filesystem.contents.mime_type': 'application/epub+zip',
              # TODO: [TD0015] Ensure proper validation of entry below.
-             'metadata.exiftool.XMP-dc:Creator': 'Defined',
+             'extractor.metadata.exiftool.XMP-dc:Creator': 'Defined',
          },
          'DATA_SOURCES': {
-             'datetime': ['metadata.exiftool.XMP-dc:PublicationDate',
-                          'metadata.exiftool.XMP-dc:Date'],
-             'title': 'metadata.exiftool.XMP-dc:Title',
-             'author': ['metadata.exiftool.XMP-dc:Creator',
-                        'metadata.exiftool.XMP-dc:CreatorFile-as'],
-             'publisher': 'metadata.exiftool.XMP-dc:Publisher',
+             'datetime': ['extractor.metadata.exiftool.XMP-dc:PublicationDate',
+                          'extractor.metadata.exiftool.XMP-dc:Date'],
+             'title': 'extractor.metadata.exiftool.XMP-dc:Title',
+             'author': ['extractor.metadata.exiftool.XMP-dc:Creator',
+                        'extractor.metadata.exiftool.XMP-dc:CreatorFile-as'],
+             'publisher': 'extractor.metadata.exiftool.XMP-dc:Publisher',
              'edition': None,
              'extension': 'filesystem.basename.extension',
          }

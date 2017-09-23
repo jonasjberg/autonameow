@@ -160,14 +160,25 @@ class TestRepositoryMethodResolvable(TestCase):
         self.assertFalse(self.r.resolvable(''))
 
     def test_bad_meowuri_returns_false(self):
-        self.assertFalse(self.r.resolvable('not.a.valid.source.surely'))
+        def _aF(test_input):
+            self.assertFalse(self.r.resolvable(test_input))
+
+        _aF('')
+        _aF(' ')
+        _aF('foo')
+        _aF('not.a.valid.source.surely')
+        _aF('metadata.exiftool')
+        _aF('metadata.exiftool.PDF:CreateDate')
 
     def test_good_meowuri_returns_true(self):
-        self.assertTrue(self.r.resolvable('metadata.exiftool.PDF:CreateDate'))
-        self.assertTrue(self.r.resolvable('metadata.exiftool'))
-        self.assertTrue(self.r.resolvable('filesystem.basename.full'))
-        self.assertTrue(self.r.resolvable('filesystem.basename.extension'))
-        self.assertTrue(self.r.resolvable('filesystem.contents.mime_type'))
+        def _aT(test_input):
+            self.assertTrue(self.r.resolvable(test_input))
+
+        _aT('extractor.metadata.exiftool')
+        _aT('extractor.metadata.exiftool.PDF:CreateDate')
+        _aT('filesystem.basename.full')
+        _aT('filesystem.basename.extension')
+        _aT('filesystem.contents.mime_type')
 
 
 class TestMapMeowURItoSourceClass(TestCase):
@@ -189,14 +200,14 @@ class TestMapMeowURItoSourceClass(TestCase):
               'filesystem.contents.mime_type',
               'filesystem.pathname.full'],
              'CrossPlatformFileSystemExtractor'),
-            (['metadata.exiftool.EXIF:CreateDate',
-              'metadata.exiftool.EXIF:DateTimeOriginal',
-              'metadata.exiftool.PDF:CreateDate',
-              'metadata.exiftool.XMP-dc:Creator',
-              'metadata.exiftool.XMP-dc:CreatorFile-as',
-              'metadata.exiftool.XMP-dc:Date',
-              'metadata.exiftool.XMP-dc:Publisher',
-              'metadata.exiftool.XMP-dc:Title'],
+            (['extractor.metadata.exiftool.EXIF:CreateDate',
+              'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
+              'extractor.metadata.exiftool.PDF:CreateDate',
+              'extractor.metadata.exiftool.XMP-dc:Creator',
+              'extractor.metadata.exiftool.XMP-dc:CreatorFile-as',
+              'extractor.metadata.exiftool.XMP-dc:Date',
+              'extractor.metadata.exiftool.XMP-dc:Publisher',
+              'extractor.metadata.exiftool.XMP-dc:Title'],
              'ExiftoolMetadataExtractor')
         ]
         self._all_meowURI_sourcemap = (self._analyzer_meowURI_sourcemap
@@ -282,14 +293,14 @@ class TestGetSourcesForMeowURIs(TestCase):
             'filesystem.pathname.full',
         ]
         self._meowuris_exiftool = [
-            'metadata.exiftool.EXIF:CreateDate',
-            'metadata.exiftool.EXIF:DateTimeOriginal',
-            'metadata.exiftool.PDF:CreateDate',
-            'metadata.exiftool.QuickTime:CreationDate',
-            'metadata.exiftool.XMP-dc:Creator',
-            'metadata.exiftool.XMP-dc:Date',
-            'metadata.exiftool.XMP-dc:Publisher',
-            'metadata.exiftool.XMP-dc:Title',
+            'extractor.metadata.exiftool.EXIF:CreateDate',
+            'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
+            'extractor.metadata.exiftool.PDF:CreateDate',
+            'extractor.metadata.exiftool.QuickTime:CreationDate',
+            'extractor.metadata.exiftool.XMP-dc:Creator',
+            'extractor.metadata.exiftool.XMP-dc:Date',
+            'extractor.metadata.exiftool.XMP-dc:Publisher',
+            'extractor.metadata.exiftool.XMP-dc:Title',
         ]
         self._meowuris_guessit = [
             'plugin.guessit.date',

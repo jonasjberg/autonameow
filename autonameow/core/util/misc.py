@@ -144,8 +144,8 @@ def meowuri_list(meowuri):
     """
     Converts a "meowURI" to a list suited for traversing nested dicts.
 
-    Example meowURI:    'metadata.exiftool.datetimeoriginal'
-    Resulting output:   ['metadata', 'exiftool', 'datetimeoriginal']
+    Example meowURI:    'extractor.metadata.exiftool.createdate'
+    Resulting output:   ['extractor', 'metadata', 'exiftool', 'createdate']
 
     Args:
         meowuri: The "meowURI" to convert.

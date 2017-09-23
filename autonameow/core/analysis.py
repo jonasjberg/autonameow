@@ -110,11 +110,11 @@ def collect_results(file_object, meowuri, data):
     Example:
 
       Incoming arguments:
-        MeowURI: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
+        MeowURI: 'extractor.metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
 
       Would be "flattened" to:
-        MeowURI: 'metadata.exiftool.a'   DATA: 'b'
-        MeowURI: 'metadata.exiftool.c'   DATA: 'd'
+        MeowURI: 'extractor.metadata.exiftool.a'   DATA: 'b'
+        MeowURI: 'extractor.metadata.exiftool.c'   DATA: 'd'
 
     Args:
         file_object: Instance of 'file_object' that produced the data to add.
