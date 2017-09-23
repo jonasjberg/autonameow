@@ -298,15 +298,9 @@ class ExiftoolMetadataExtractor(BaseExtractor):
 
         try:
             _metadata = self._get_metadata(source)
-        except ExtractorError as e:
-            self.log.error(
-                '{!s}: FAILED extraction: {!s}'.format(self, e)
-            )
-            raise
         except NotImplementedError as e:
-            self.log.debug('[WARNING] Called unimplemented code in {!s}: '
-                           '{!s}'.format(self, e))
-            raise ExtractorError
+            raise ExtractorError('Called unimplemented code in {!s}: '
+                                 '{!s}'.format(self, e))
 
         self.log.debug('{!s}: Completed extraction'.format(self))
         return _metadata
