@@ -40,7 +40,7 @@ RULES:
     exact_match: true
     ranking_bias: 1
 -   CONDITIONS:
-        filesystem.basename.full: simplest_pdf.md.pdf
+        extractor.filesystem.xplat.basename.full: simplest_pdf.md.pdf
     DATA_SOURCES:
         extension: extractor.filesystem.xplat.basename.extension
     NAME_FORMAT: simplest_pdf.md.{extension}
