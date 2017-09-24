@@ -166,3 +166,38 @@ def extract_lines(text, first_line, last_line):
 
     extracted = lines[first_line:last_line]
     return ''.join(extracted)
+
+
+IGNORED_AUTHOR_WORDS = frozenset([
+    'van'
+])
+
+
+def format_name_lastname_initials(full_name):
+    """
+    Formats a full name to LAST_NAME, INITIALS..
+
+    Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
+
+    Args:
+        full_name: The full name to format as a Unicode string.
+
+    Returns:
+        The specified name written as LAST_NAME, INITIAL, INITIAL..
+    """
+    words = full_name.split(' ')
+    words = [w for w in words if w not in IGNORED_AUTHOR_WORDS]
+
+    lastname = words.pop()
+    if words:
+        initials = [w[0] for w in words]
+        _initials = '{0}{1}'.format('.'.join(initials), '.')
+        return lastname + ' ' + _initials
+    else:
+        return lastname
+
+
+def format_names_lastname_initials(list_of_full_names):
+    _formatted_authors = [format_name_lastname_initials(a)
+                          for a in list_of_full_names]
+    return sorted(_formatted_authors, key=str.lower)

@@ -382,3 +382,74 @@ class TestExtractLines(unittest.TestCase):
 
         with self.assertRaises(AWAssertionError):
             textutils.extract_lines('foo', 0, -1)
+
+
+class TestFormatNameLastnameInitials(unittest.TestCase):
+    def test_formats_author(self):
+        def _aE(input_, expect):
+            actual = textutils.format_name_lastname_initials(input_)
+            self.assertEqual(actual, expect)
+
+        _aE('Gibson', 'Gibson')
+        _aE('David B. Makofske', 'Makofske D.B.')
+        _aE('Michael J. Donahoo', 'Donahoo M.J.')
+        _aE('Kenneth L. Calvert', 'Calvert K.L.')
+        _aE('Zhiguo Gong', 'Gong Z.')
+        _aE('Dickson K. W. Chiu', 'Chiu D.K.W.')
+        _aE('Di Zou', 'Zou D.')
+        _aE('Muhammad Younas', 'Younas M.')
+        _aE('Katt Smulan', 'Smulan K.')
+        _aE('Hatt Katt Smulan', 'Smulan H.K.')
+        _aE('Irfan Awan', 'Awan I.')
+        _aE('Natalia Kryvinska', 'Kryvinska N.')
+        _aE('Christine Strauss', 'Strauss C.')
+        _aE('Do van Thanh', 'Thanh D.')
+        _aE('William T. Ziemba','Ziemba W.T.')
+        _aE('Raymond G. Vickson','Vickson R.G.')
+        _aE('Yimin Wei', 'Wei Y.')
+        _aE('Weiyang Ding', 'Ding W.')
+        _aE('David Simchi-Levi', 'Simchi-Levi D.')
+        _aE('Antonio J. Tallon-Ballesteros', 'Tallon-Ballesteros A.J.')
+
+
+class TestFormatNamesLastnameInitials(unittest.TestCase):
+    def test_formats_authors(self):
+        def _aE(input_, expect):
+            actual = textutils.format_names_lastname_initials(input_)
+            self.assertEqual(actual, expect)
+
+        _aE(input_=['David B. Makofske', 'Michael J. Donahoo',
+                    'Kenneth L. Calvert'],
+            expect=['Calvert K.L.', 'Donahoo M.J.', 'Makofske D.B.'])
+
+        _aE(input_=['Zhiguo Gong', 'Dickson K. W. Chiu', 'Di Zou'],
+            expect=['Chiu D.K.W.', 'Gong Z.', 'Zou D.'])
+
+        _aE(input_=['Muhammad Younas', 'Irfan Awan', 'Natalia Kryvinska',
+                    'Christine Strauss', 'Do van Thanh'],
+            expect=['Awan I.', 'Kryvinska N.', 'Strauss C.', 'Thanh D.',
+                    'Younas M.'])
+
+        _aE(input_=['William T. Ziemba', 'Raymond G. Vickson'],
+            expect=['Vickson R.G.', 'Ziemba W.T.'])
+
+        _aE(input_=['Yimin Wei', 'Weiyang Ding'],
+            expect=['Ding W.', 'Wei Y.'])
+
+        _aE(input_=['Charles Miller', 'Dino Dai Zovi'],
+            expect=['Miller C.', 'Zovi D.D.'])
+
+        _aE(input_=['Chrisina Jayne', 'Lazaros Iliadis'],
+            expect=['Iliadis L.', 'Jayne C.'])
+
+        _aE(input_=['Nihad Ahmad Hassan', 'Rami Hijazi'],
+            expect=['Hassan N.A.', 'Hijazi R.'])
+
+        _aE(input_=['David Simchi-Levi', 'Xin Chen', 'Julien Bramel'],
+            expect=['Bramel J.', 'Chen X.', 'Simchi-Levi D.'])
+
+        _aE(input_=['Hujun Yin', 'Yang Gao', 'Bin Li', 'Daoqiang Zhang',
+                    'Ming Yang', 'Yun Li', 'Frank Klawonn',
+                    'Antonio J. Tallon-Ballesteros'],
+            expect=['Gao Y.', 'Klawonn F.', 'Li B.', 'Li Y.',
+                    'Tallon-Ballesteros A.J.', 'Yang M.', 'Yin H.', 'Zhang D.'])
