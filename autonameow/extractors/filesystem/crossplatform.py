@@ -93,14 +93,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         super(CrossPlatformFileSystemExtractor, self).__init__()
 
     def execute(self, source, **kwargs):
-        try:
-            data = self._get_data(source)
-        except ExtractorError as e:
-            self.log.error('{!s} extraction FAILED: {!s}'.format(self, e))
-            raise
-        else:
-            self.log.debug('{!s} returning all extracted data'.format(self))
-            return data
+        return self._get_data(source)
 
     def _get_data(self, file_object):
         if not isinstance(file_object, FileObject):
