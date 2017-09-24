@@ -10,12 +10,12 @@ FILESYSTEM_OPTIONS:
     sanitize_strict: false
 RULES:
 -   CONDITIONS:
-        filesystem.contents.mime_type: '*/*'
+        extractor.filesystem.xplat.contents.mime_type: '*/*'
     DATA_SOURCES:
-        extension: filesystem.contents.mime_type
-        title: filesystem.basename.prefix
+        extension: extractor.filesystem.xplat.contents.mime_type
+        title: extractor.filesystem.xplat.basename.prefix
     NAME_FORMAT: '{title}.{extension}'
     description: Fix incorrect extensions
     exact_match: false
     ranking_bias: 0.01
-autonameow_version: v0.4.6
+autonameow_version: v0.4.7
