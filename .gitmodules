@@ -4,3 +4,6 @@
 [submodule "autonameow/thirdparty/pyexiftool"]
 	path = autonameow/thirdparty/pyexiftool
 	url = git://github.com/smarnach/pyexiftool.git
+[submodule "autonameow/thirdparty/nameparser"]
+	path = autonameow/thirdparty/nameparser
+	url = git@github.com:derek73/python-nameparser.git
