@@ -215,7 +215,7 @@ class BaseExtractor(object):
           NOTE: This method __MUST__ be implemented by inheriting classes!
 
         This should be used to test that any dependencies required by the
-        extractor are met. This might be third party libraries or executables.
+        extractor are met, like third party libraries or executables.
 
         Returns:
             True if any and all dependencies are satisfied and the extractor
