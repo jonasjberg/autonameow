@@ -186,7 +186,9 @@ def parse_name(full_name):
     Returns:
         The parsed name as an instance of the 'HumanName' class.
     """
-    return nameparser.HumanName(full_name)
+    if nameparser:
+        return nameparser.HumanName(full_name)
+    return None
 
 
 def format_name_lastname_initials(full_name):

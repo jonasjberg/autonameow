@@ -416,6 +416,8 @@ class TestFormatNameLastnameInitials(unittest.TestCase):
         # _aE('Makofske D.B.', 'Makofske D.B.')
 
 
+@unittest.skipIf(_nameparser is None,
+                 'Failed to import "thirdparty.nameparser"')
 class TestFormatNameLastnameInitials2(unittest.TestCase):
     def test_formats_author(self):
         def _aE(input_, expect):
