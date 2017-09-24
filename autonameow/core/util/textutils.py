@@ -19,12 +19,15 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core.util import sanity
+import re
 
 try:
     import chardet
 except ImportError:
     chardet = None
+
+from core.util import sanity
+from thirdparty import nameparser
 
 
 def extract_digits(string):
@@ -173,6 +176,19 @@ IGNORED_AUTHOR_WORDS = frozenset([
 ])
 
 
+def parse_name(full_name):
+    """
+    Thin wrapper around 'nameparser'.
+
+    Args:
+        full_name: The name to parse as a Unicode string.
+
+    Returns:
+        The parsed name as an instance of the 'HumanName' class.
+    """
+    return nameparser.HumanName(full_name)
+
+
 def format_name_lastname_initials(full_name):
     """
     Formats a full name to LAST_NAME, INITIALS..
@@ -195,6 +211,49 @@ def format_name_lastname_initials(full_name):
         return lastname + ' ' + _initials
     else:
         return lastname
+
+
+def format_name_lastname_initials2(full_name):
+    """
+    Formats a full name to LAST_NAME, INITIALS..
+
+    Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
+
+    Args:
+        full_name: The full name to format as a Unicode string.
+
+    Returns:
+        The specified name written as LAST_NAME, INITIAL, INITIAL..
+    """
+    sanity.check_internal_string(full_name)
+
+    full_name = full_name.strip()
+
+    # Return names already in the output format as-is.
+    if re.match(r'[\w]+ (\w\.)+$', full_name):
+        return full_name
+
+    # Using the third-party 'nameparser' module.
+    _human_name = parse_name(full_name)
+    if not _human_name:
+        return ''
+
+    # Some first names are misinterpreted as titles.
+    if _human_name.first == '':
+        first_list = _human_name.title_list
+    else:
+        first_list = _human_name.first_list
+
+    def _to_initial(string):
+        string = string.strip('.')
+        return string[0]
+
+    initials = [_to_initial(f) for f in first_list]
+    initials += [_to_initial(m) for m in _human_name.middle_list]
+    _initials = '{0}{1}'.format('.'.join(initials), '.')
+
+    last_name = _human_name.last.replace(' ', '')
+    return '{} {}'.format(last_name, _initials)
 
 
 def format_names_lastname_initials(list_of_full_names):
