@@ -31,6 +31,10 @@ try:
     )
 except ImportError:
     PyPDF2 = None
+    IndirectObject = None
+    TextStringObject = None
+    PyPdfError = None
+    PdfReadError = None
 
 from core import (
     fields,

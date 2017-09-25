@@ -30,6 +30,8 @@ try:
     )
 except ImportError:
     PyPDF2 = None
+    PyPdfError = None
+    PdfReadError = None
 
 from core import util
 from core.util import (
