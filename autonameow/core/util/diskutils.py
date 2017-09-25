@@ -388,22 +388,16 @@ def filter_paths(path_list, ignore_globs):
 
     ignore_globs = [util.bytestring_path(i) for i in ignore_globs]
 
-    remain = []
-    for path in path_list:
-        skip = False
-        for pattern in ignore_globs:
+    def _no_match(path, globs):
+        for pattern in globs:
             if fnmatch.fnmatch(path, pattern):
-                skip = True
-                log.info(
-                    'Ignored path: "{!s}"'.format(util.displayable_path(path))
+                log.info('Ignored path: "{!s}" (Glob: "{!s}")'.format(
+                    util.displayable_path(path), pattern)
                 )
-                break
-        if skip:
-            continue
+                return None
+        return path
 
-        remain.append(path)
-
-    return remain
+    return [p for p in path_list if _no_match(p, ignore_globs)]
 
 
 def normpaths_from_opts(path_list, ignore_globs, recurse):
