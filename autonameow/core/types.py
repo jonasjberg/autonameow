@@ -64,8 +64,8 @@ class BaseType(object):
     # Default "None" value to fall back to.
     NULL = 'NULL'
 
-    # Types that can be coerced with the "parse" method.
-    coercible_types = (str, )
+    # Types that can be coerced with the "coerce" method.
+    COERCIBLE_TYPES = (str,)
 
     # Types that are "equivalent", does not require coercion.
     equivalent_types = (str, )
@@ -76,7 +76,7 @@ class BaseType(object):
         elif self.test(value):
             # Pass through if type is "equivalent" without coercion.
             return value
-        elif isinstance(value, self.coercible_types):
+        elif isinstance(value, self.COERCIBLE_TYPES):
             # Type can be coerced, test after coercion to make sure.
             value = self.coerce(value)
             if self.test(value):
@@ -92,9 +92,9 @@ class BaseType(object):
 
     def coerce(self, value):
         """
-        Coerces values whose types are included in "coercible_types".
+        Coerces values whose types are included in "COERCIBLE_TYPES".
 
-        If the value is not part of the specific class "coercible_types",
+        If the value is not part of the specific class "COERCIBLE_TYPES",
         the coercion fails and a class-specific "null" value is returned.
 
         Args:
@@ -156,7 +156,7 @@ class BaseType(object):
 
 
 class Path(BaseType):
-    coercible_types = (str, bytes)
+    COERCIBLE_TYPES = (str, bytes)
 
     # Always force coercion so that all incoming data is properly normalized.
     equivalent_types = ()
@@ -169,7 +169,7 @@ class Path(BaseType):
         # after the the value coercion. This is because the path could be a
         # byte string and still not be properly normalized.
         if (value is not None
-                and isinstance(value, self.coercible_types)):
+                and isinstance(value, self.COERCIBLE_TYPES)):
             if value.strip() is not None:
                 value = self.coerce(value)
                 return value
@@ -198,7 +198,7 @@ class Path(BaseType):
 
 
 class PathComponent(BaseType):
-    coercible_types = (str, bytes)
+    COERCIBLE_TYPES = (str, bytes)
     equivalent_types = (bytes, )
     NULL = b''
 
@@ -222,7 +222,7 @@ class PathComponent(BaseType):
 
 
 class Boolean(BaseType):
-    coercible_types = (bytes, str, int, float, object)
+    COERCIBLE_TYPES = (bytes, str, int, float, object)
     equivalent_types = (bool, )
     NULL = False
 
@@ -275,7 +275,7 @@ class Boolean(BaseType):
 
 
 class Integer(BaseType):
-    coercible_types = (bytes, str, float)
+    COERCIBLE_TYPES = (bytes, str, float)
     equivalent_types = (int, )
     NULL = 0
 
@@ -323,7 +323,7 @@ class Integer(BaseType):
 
 
 class Float(BaseType):
-    coercible_types = (bytes, str, int)
+    COERCIBLE_TYPES = (bytes, str, int)
     equivalent_types = (float, )
     NULL = 0.0
 
@@ -358,10 +358,10 @@ class Float(BaseType):
 
 
 class String(BaseType):
-    coercible_types = (str, bytes, int, float, bool)
+    COERCIBLE_TYPES = (str, bytes, int, float, bool)
     try:
         from PyPDF2.generic import TextStringObject
-        coercible_types = coercible_types + (TextStringObject, )
+        COERCIBLE_TYPES = COERCIBLE_TYPES + (TextStringObject,)
     except ImportError:
         pass
 
@@ -378,7 +378,7 @@ class String(BaseType):
             except Exception:
                 return self._null()
 
-        if isinstance(value, self.coercible_types):
+        if isinstance(value, self.COERCIBLE_TYPES):
             try:
                 return str(value)
             except (ValueError, TypeError):
@@ -393,7 +393,7 @@ class String(BaseType):
 
 
 class MimeType(BaseType):
-    coercible_types = (str, bytes)
+    COERCIBLE_TYPES = (str, bytes)
     equivalent_types = ()
     NULL = C.MAGIC_TYPE_UNKNOWN
 
@@ -427,7 +427,7 @@ class MimeType(BaseType):
         # after the the value coercion. A valid MIME-type can not be determined
         # by looking at the primitive type alone.
         if (value is not None
-                and isinstance(value, self.coercible_types)):
+                and isinstance(value, self.COERCIBLE_TYPES)):
             if value.strip() is not None:
                 value = self.coerce(value)
                 return value
@@ -458,7 +458,7 @@ class MimeType(BaseType):
 
 
 class Date(BaseType):
-    coercible_types = (str, bytes, int, float)
+    COERCIBLE_TYPES = (str, bytes, int, float)
     equivalent_types = (datetime, )
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
@@ -511,7 +511,7 @@ class Date(BaseType):
 
 
 class TimeDate(BaseType):
-    coercible_types = (str, bytes, int, float)
+    COERCIBLE_TYPES = (str, bytes, int, float)
     equivalent_types = (datetime, )
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
