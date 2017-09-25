@@ -73,13 +73,13 @@ class BaseType(object):
     def __call__(self, value=None):
         if value is None:
             return self.null()
-        elif self.test(value):
+        elif self.equivalent(value):
             # Pass through if type is "equivalent" without coercion.
             return value
         elif isinstance(value, self.COERCIBLE_TYPES):
             # Type can be coerced, test after coercion to make sure.
             value = self.coerce(value)
-            if self.test(value):
+            if self.equivalent(value):
                 return value
 
         self._fail_coercion(value)
@@ -87,7 +87,7 @@ class BaseType(object):
     def null(self):
         return self.NULL
 
-    def test(self, value):
+    def equivalent(self, value):
         return isinstance(value, self.EQUIVALENT_TYPES)
 
     def coerce(self, value):

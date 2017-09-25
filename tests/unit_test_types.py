@@ -52,10 +52,10 @@ class TestBaseType(TestCase):
             self.base_type.format(None)
 
     def test_testing_equivalency(self):
-        self.assertTrue(self.base_type.test('foo'))
-        self.assertFalse(self.base_type.test(b'foo'))
-        self.assertFalse(self.base_type.test(False))
-        self.assertFalse(self.base_type.test(1))
+        self.assertTrue(self.base_type.equivalent('foo'))
+        self.assertFalse(self.base_type.equivalent(b'foo'))
+        self.assertFalse(self.base_type.equivalent(False))
+        self.assertFalse(self.base_type.equivalent(1))
 
 
 class TestTypeBoolean(TestCase):
