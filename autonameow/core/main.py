@@ -234,11 +234,6 @@ class Autonameow(object):
                     add_info_log=True)
             # cli.msg(str(repository.SessionRepository))
             cli.msg(repository.SessionRepository.human_readable_contents())
-        # else:
-        #     if self.opts.list_datetime:
-        #         _list_analysis_results_field(analysis, 'datetime')
-        #     if self.opts.list_title:
-        #         _list_analysis_results_field(analysis, 'title')
 
     def _handle_file(self, current_file):
         should_list_any_results = (self.opts.list_datetime
@@ -506,11 +501,3 @@ def _run_rule_matcher(file_object, active_config):
         raise
     else:
         return matcher
-
-
-def _list_analysis_results_field(analysis, results_field):
-    log.info('Listing "{}" analysis results ..'.format(results_field))
-    # TODO: [TD0066] Handle all encoding properly.
-
-    cli.msg('TODO: Re-implement this after moving to shared data pool storage.')
-    # cli.msg(util.dump(analysis.results.get(results_field)))
