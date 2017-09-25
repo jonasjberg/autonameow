@@ -61,10 +61,6 @@ class BaseType(object):
     Base class for all custom types. Provides type coercion and known defaults.
     Does not store values -- intended to act as filters.
     """
-    # Underlying primitive type.
-    # NOTE(jonas): Why revert to "str"? Assume BaseType won't be instantiated?
-    primitive_type = str
-
     # Default "None" value to fall back to.
     NULL = 'NULL'
 
@@ -160,7 +156,6 @@ class BaseType(object):
 
 
 class Path(BaseType):
-    primitive_type = str
     coercible_types = (str, bytes)
 
     # Always force coercion so that all incoming data is properly normalized.
@@ -203,7 +198,6 @@ class Path(BaseType):
 
 
 class PathComponent(BaseType):
-    primitive_type = str
     coercible_types = (str, bytes)
     equivalent_types = (bytes, )
     NULL = b''
@@ -228,7 +222,6 @@ class PathComponent(BaseType):
 
 
 class Boolean(BaseType):
-    primitive_type = bool
     coercible_types = (bytes, str, int, float, object)
     equivalent_types = (bool, )
     NULL = False
@@ -282,7 +275,6 @@ class Boolean(BaseType):
 
 
 class Integer(BaseType):
-    primitive_type = int
     coercible_types = (bytes, str, float)
     equivalent_types = (int, )
     NULL = 0
@@ -331,7 +323,6 @@ class Integer(BaseType):
 
 
 class Float(BaseType):
-    primitive_type = float
     coercible_types = (bytes, str, int)
     equivalent_types = (float, )
     NULL = 0.0
@@ -367,7 +358,6 @@ class Float(BaseType):
 
 
 class String(BaseType):
-    primitive_type = str
     coercible_types = (str, bytes, int, float, bool)
     try:
         from PyPDF2.generic import TextStringObject
@@ -390,7 +380,7 @@ class String(BaseType):
 
         if isinstance(value, self.coercible_types):
             try:
-                return self.primitive_type(value)
+                return str(value)
             except (ValueError, TypeError):
                 self._fail_coercion(value)
 
@@ -403,7 +393,6 @@ class String(BaseType):
 
 
 class MimeType(BaseType):
-    primitive_type = str
     coercible_types = (str, bytes)
     equivalent_types = ()
     NULL = C.MAGIC_TYPE_UNKNOWN
@@ -469,7 +458,6 @@ class MimeType(BaseType):
 
 
 class Date(BaseType):
-    primitive_type = None
     coercible_types = (str, bytes, int, float)
     equivalent_types = (datetime, )
 
@@ -523,7 +511,6 @@ class Date(BaseType):
 
 
 class TimeDate(BaseType):
-    primitive_type = None
     coercible_types = (str, bytes, int, float)
     equivalent_types = (datetime, )
 
@@ -589,8 +576,6 @@ class ExifToolTimeDate(TimeDate):
 
 
 class PyPDFTimeDate(TimeDate):
-    primitive_type = None
-
     # Expected date/time format:      D:20121225235237 +05'30'
     #                                   ^____________^ ^_____^
     # Regex search matches two groups:        #1         #2
