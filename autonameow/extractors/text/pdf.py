@@ -79,7 +79,7 @@ class PdfTextExtractor(AbstractTextExtractor):
                 break
 
         if text:
-            self.log.debug('Extracted text with: {}'.format(extractor.__name__))
+            self.log.debug('Returning extracted text')
             return text
         else:
             self.log.debug('Unable to extract textual content from PDF')

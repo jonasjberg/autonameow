@@ -156,9 +156,10 @@ def regex_search_str(text):
         log.error(str(e))
         dt_pattern_1 = False
 
+    matches = 0
+
     # TODO: [hack] Fix this!
     if dt_pattern_1:
-        matches = 0
         for m_date, m_time, m_time_ms in re.findall(dt_pattern_1, text):
             # Skip if entries doesn't contain digits.
             m_date = textutils.extract_digits(m_date)

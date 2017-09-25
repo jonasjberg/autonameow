@@ -46,9 +46,6 @@ class BasePlugin(object):
             return
 
         meowuri = '{}.{}'.format(self.meowuri(), meowuri_leaf)
-        #self.log.debug(
-        #    '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
-        #)
         plugin_handler.collect_results(file_object, meowuri, data)
 
     def __call__(self, source, *args, **kwargs):

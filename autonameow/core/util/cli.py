@@ -246,7 +246,7 @@ if __name__ == '__main__':
     msg('text printed by msg()')
     msg('text printed by msg() with type="info"', style='info')
     msg('text printed by msg() with type="info", log=True',
-        style='info', log=True)
+        style='info', add_info_log=True)
     msg('text printed by msg() with type="color_quoted" no "yes" no',
         style='color_quoted')
 

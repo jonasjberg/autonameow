@@ -293,6 +293,7 @@ class Configuration(object):
                     except types.AWTypeError as e:
                         log.warning('Skipped bad replacement: "{!s}": '
                                     '"{!s}"'.format(regex, replacement))
+                        log.debug(str(e))
                         continue
 
                     try:

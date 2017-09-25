@@ -39,10 +39,10 @@ class DocumentAnalyzer(BaseAnalyzer):
         _response = self.request_data(self.file_object,
                                       'contents.textual.text.full')
         if _response is None:
+            self.log.info(
+                'Required data unavailable ("contents.textual.text.full")'
+            )
             return
-            # raise AnalyzerError(
-            #     'Required data unavailable ("contents.textual.text.full")'
-            # )
 
         self.text = _response
         self._add_results('author', self.get_author())
