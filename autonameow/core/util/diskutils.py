@@ -24,15 +24,13 @@ import os
 import re
 import itertools
 import logging
-import tempfile
 
-from core import (
-    util,
-    exceptions
-)
+from core import util
 from core.util import sanity
 
+
 log = logging.getLogger(__name__)
+
 
 # Needed by 'sanitize_filename' for sanitizing filenames in restricted mode.
 ACCENT_CHARS = dict(zip('ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ',

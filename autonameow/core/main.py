@@ -446,6 +446,7 @@ def _run_plugins(file_object, required_plugins=None):
 
     Returns:
         An instance of the 'PluginHandler' class that has executed successfully.
+
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
@@ -487,6 +488,7 @@ def _run_rule_matcher(file_object, active_config):
 
     Returns:
         An instance of the 'RuleMatcher' class that has executed successfully.
+
     Raises:
         AutonameowException: An unrecoverable error occurred during execution.
     """

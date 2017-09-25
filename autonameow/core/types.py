@@ -64,10 +64,10 @@ class BaseType(object):
     # Default "None" value to fall back to.
     NULL = 'NULL'
 
-    # Types that can be coerced with the "coerce" method.
+    # Types that can be coerced with the 'coerce' method.
     COERCIBLE_TYPES = (str,)
 
-    # Used by the "test" method to test if value types are "equivalent".
+    # Used by the 'equivalent' method to check if types are "equivalent".
     EQUIVALENT_TYPES = (str, )
 
     def __call__(self, value=None):
@@ -77,7 +77,7 @@ class BaseType(object):
             # Pass through if type is "equivalent" without coercion.
             return value
         elif isinstance(value, self.COERCIBLE_TYPES):
-            # Type can be coerced, test after coercion to make sure.
+            # Type can be coerced, check after coercion to make sure.
             value = self.coerce(value)
             if self.equivalent(value):
                 return value
@@ -92,9 +92,9 @@ class BaseType(object):
 
     def coerce(self, value):
         """
-        Coerces values whose types are included in "COERCIBLE_TYPES".
+        Coerces values whose types are included in 'COERCIBLE_TYPES'.
 
-        If the value is not part of the specific class "COERCIBLE_TYPES",
+        If the value is not part of the specific class 'COERCIBLE_TYPES',
         the coercion fails and a class-specific "null" value is returned.
 
         Args:
@@ -104,6 +104,7 @@ class BaseType(object):
             A representation of the original value coerced to the type
             represented by the specific class, or the class "null" value if
             coercion fails.
+
         Raises:
             AWTypeError: The value could not be coerced.
         """
@@ -123,6 +124,7 @@ class BaseType(object):
         Returns:
             A "normalized" version of the given value if the value can be
             coerced and normalized, or the class "null" value.
+
         Raises:
             AWTypeError: The value could not be coerced and/or normalized.
         """

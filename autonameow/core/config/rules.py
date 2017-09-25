@@ -523,14 +523,12 @@ def parse_data_sources(raw_sources):
             meowuris = [meowuris]
         for meowuri in meowuris:
             if is_valid_source(meowuri):
-                log.debug(
-                    'Validated data source: [{}]: {}'.format(template_field, meowuri)
-                )
+                log.debug('Validated data source: [{}]: {}'.format(
+                    template_field, meowuri))
                 passed[template_field] = meowuri
             else:
-                log.debug(
-                    'Invalid data source: [{}]: {}'.format(template_field, meowuri)
-                )
+                log.debug('Invalid data source: [{}]: {}'.format(
+                    template_field, meowuri))
 
     log.debug(
         'Returning {} (out of {}) valid data sources'.format(len(passed),

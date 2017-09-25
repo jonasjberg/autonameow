@@ -39,6 +39,7 @@ from core.util import (
 )
 from core.model import ExtractedData
 
+
 log = logging.getLogger(__name__)
 
 
@@ -99,9 +100,11 @@ class EbookAnalyzer(BaseAnalyzer):
                         for maybe_author in maybe_authors:
                             _author = self._filter_author(maybe_author)
                             if _author:
-                                self._add_results('author', self._wrap_author(_author))
+                                self._add_results('author',
+                                                  self._wrap_author(_author))
                     else:
-                        self._add_results('author', self._wrap_author(maybe_authors))
+                        self._add_results('author',
+                                          self._wrap_author(maybe_authors))
 
                 maybe_publisher = self._filter_publisher(
                     metadata.get('Publisher')

@@ -55,7 +55,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'Composite:ImageSize': ExtractedData(types.AW_STRING),
         'Composite:Megapixels': ExtractedData(types.AW_FLOAT),
         'Composite:HyperfocalDistance': ExtractedData(types.AW_FLOAT),
-        #'ExifTool:ExifToolVersion': ExtractedData(types.AW_FLOAT),
+        # 'ExifTool:ExifToolVersion': ExtractedData(types.AW_FLOAT),
         'EXIF:CreateDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[

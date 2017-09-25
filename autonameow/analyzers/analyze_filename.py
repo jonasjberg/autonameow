@@ -135,7 +135,7 @@ class FilenameAnalyzer(BaseAnalyzer):
                                 'weight': 0.25})
         else:
             self.log.debug('Unable to extract date/time-information '
-                      'from file name using regex search.')
+                           'from file name using regex search.')
 
         # Lastly, an iterative brute force search.
         # TODO: Collapse duplicate results with 'util.misc.multiset_count'..?
