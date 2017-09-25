@@ -98,20 +98,39 @@ class BaseType(object):
         """
         Processes the given value to a form suitable for serialization/storage.
 
+        Calling this method should be equivalent to calling 'coerce' followed
+        by some processing that produces a "simplified" representation of
+        the value.  Strings might be converted to lower-case, etc.
+
         Args:
-            value: The value to normalize.
+            value: The value to coerce as any type, including None.
 
         Returns:
-            A "normalized" version of the given value in this class type if
-            the value can be normalized, otherwise the class "null" value.
+            A "normalized" version of the given value if the value can be
+            coerced and normalized, or the class "null" value.
+        Raises:
+            AWTypeError: The value could not be coerced and/or normalized.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def coerce(self, value):
-        try:
-            return self.primitive_type(value)
-        except (ValueError, TypeError):
-            self._fail_coercion(value)
+        """
+        Coerces values whose types are included in "coercible_types".
+
+        If the value is not part of the specific class "coercible_types",
+        the coercion fails and a class-specific "null" value is returned.
+
+        Args:
+            value: The value to coerce as any type, including None.
+
+        Returns:
+            A representation of the original value coerced to the type
+            represented by the specific class, or the class "null" value if
+            coercion fails.
+        Raises:
+            AWTypeError: The value could not be coerced.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def format(self, value, **kwargs):
         raise NotImplementedError('Must be implemented by inheriting classes.')
@@ -316,6 +335,12 @@ class Float(BaseType):
     coercible_types = (bytes, str, int)
     equivalent_types = (float, )
     null = 0.0
+
+    def coerce(self, value):
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            self._fail_coercion(value)
 
     def normalize(self, value):
         return self.__call__(value)
