@@ -10,6 +10,16 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-09-25
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0086]` __Use one `SessionRepository` per `Autonameow` instance.__  
+    >   The `Autonameow` class "manages a running instance of the program" should
+    >   have its own instance of the `Repository` class. This is fine for now but
+    >   should be fixed to avoid confusion and future problems.
+
 * 2017-09-22
 
     > Low Priority

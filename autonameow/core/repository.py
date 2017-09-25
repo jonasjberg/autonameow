@@ -416,6 +416,55 @@ def get_sources_for_meowuris(meowuri_list, includes=None):
     return list(out)
 
 
-# TODO: [TD0086] Keep one global 'SessionRepository' per 'Autonameow' instance.
-SessionRepository = Repository()
-SessionRepository.initialize()
+def _create_repository():
+    repository = Repository()
+    repository.initialize()
+    return repository
+
+
+class RepositoryPool(object):
+    DEFAULT_SESSION_ID = 'DEFAULT_SESSION'
+
+    def __init__(self):
+        self._repositories = {}
+
+    def get(self, id_=None):
+        if id_ is None:
+            id_ = self.DEFAULT_SESSION_ID
+
+        if id_ not in self._repositories:
+            raise KeyError('{} does not contain ID "{!s}'.format(self, id_))
+
+        return self._repositories.get(id_)
+
+    def add(self, repository=None, id_=None):
+        if id_ is None:
+            id_ = self.DEFAULT_SESSION_ID
+
+        if id_ in self._repositories:
+            raise KeyError('{} already contains ID "{!s}'.format(self, id_))
+
+        if repository is None:
+            _repo = _create_repository()
+        else:
+            _repo = repository
+
+        self._repositories[id_] = _repo
+
+    def _get_default(self):
+        if len(self._repositories) == 0:
+            pass
+
+
+def initialize(id_):
+    # Keep one global 'SessionRepository' per 'Autonameow' instance.
+    global Pool
+    Pool = RepositoryPool()
+    Pool.add(id_=id_)
+
+    global SessionRepository
+    SessionRepository = Pool.get(id_=id_)
+
+
+Pool = None
+SessionRepository = None

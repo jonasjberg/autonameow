@@ -93,6 +93,9 @@ class Autonameow(object):
             cli.print_ascii_banner()
             self.exit_program(C.EXIT_SUCCESS)
 
+        # Set up a session repository for this process.
+        repository.initialize(self)
+
         # Check configuration file. If no alternate config file path is
         # provided and no config file is found at default paths; copy the
         # template config and tell the user.
@@ -414,6 +417,9 @@ class Autonameow(object):
             log.debug('Exit code updated: {} -> {}'.format(self._exit_code,
                                                            value))
             self._exit_code = value
+
+    def __hash__(self):
+        return hash(util.process_id()) + hash(self.start_time)
 
 
 def _run_extraction(file_object, require_extractors, run_all_extractors=False):

@@ -26,6 +26,7 @@ Miscellaneous utility functions.
 import collections
 import itertools
 import logging
+import os
 import shutil
 import yaml
 
@@ -470,3 +471,7 @@ def filter_none(iterable):
     Removes any None values from the given iterable and returns the result.
     """
     return [item for item in iterable if item is not None]
+
+
+def process_id():
+    return os.getpid()
