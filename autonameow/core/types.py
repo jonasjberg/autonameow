@@ -257,13 +257,19 @@ class Boolean(BaseType):
                 return _maybe_bool
 
         try:
-            int_value = AW_INTEGER(value)
+            float_value = AW_FLOAT(value)
         except AWTypeError:
             pass
         else:
-            return bool(int_value > 0)
+            return bool(float_value > 0)
 
-        # TODO: Handle classes implementing '__bool__'.
+        if hasattr(value, '__bool__'):
+            try:
+                return bool(value)
+            except (AttributeError, LookupError, NotImplementedError,
+                    TypeError, ValueError):
+                self._fail_coercion(value)
+
         return self._null()
 
     def normalize(self, value):

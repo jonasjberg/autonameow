@@ -76,9 +76,16 @@ class TestTypeBoolean(TestCase):
         _assert_normalizes(-1, False)
         _assert_normalizes(0, False)
         _assert_normalizes(1, True)
+        _assert_normalizes(-1.5, False)
+        _assert_normalizes(-1.0001, False)
         _assert_normalizes(-1.0, False)
+        _assert_normalizes(-0.05, False)
+        _assert_normalizes(-0.0, False)
         _assert_normalizes(0.0, False)
+        _assert_normalizes(0.05, True)
         _assert_normalizes(1.0, True)
+        _assert_normalizes(1.0001, True)
+        _assert_normalizes(1.5, True)
         _assert_normalizes('true', True)
         _assert_normalizes('True', True)
         _assert_normalizes('yes', True)
@@ -127,22 +134,51 @@ class TestTypeBoolean(TestCase):
         _assert_returns(0, False)
         _assert_returns(1, True)
         _assert_returns(-1.5, False)
+        _assert_returns(-1.0001, False)
         _assert_returns(-1.0, False)
         _assert_returns(-0.05, False)
         _assert_returns(-0.0, False)
+        _assert_returns(0.0, False)
+        _assert_returns(0.05, True)
         _assert_returns(1.0, True)
         _assert_returns(1.0001, True)
         _assert_returns(1.5, True)
+
+        class _AlwaysTrue(object):
+            def __bool__(self):
+                return True
+
+        _assert_returns(_AlwaysTrue(), True)
+        _at = _AlwaysTrue()
+        _assert_returns(_at, True)
+
+        class _AlwaysFalse(object):
+            def __bool__(self):
+                return False
+
+        _assert_returns(_AlwaysFalse(), False)
+        _af = _AlwaysFalse()
+        _assert_returns(_af, False)
+
+        _datetime_object = uu.str_to_datetime('2017-09-25 100951')
+        _assert_returns(_datetime_object, False)
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(test_data):
             with self.assertRaises(types.AWTypeError):
                 types.AW_BOOLEAN(test_data)
 
-        # _assert_raises(-0.0)
-
         self.assertEqual(types.AW_BOOLEAN('foo'), types.AW_BOOLEAN.NULL)
         self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.NULL)
+
+        class _NoBool(object):
+            def __raise(self):
+                raise ValueError
+
+            def __bool__(self):
+                return self.__raise()
+
+        _assert_raises(_NoBool())
 
     def test_format(self):
         def _assert_formats(test_data, expected):
