@@ -372,10 +372,12 @@ def map_meowuri_to_source_class(meowuri, includes=None):
         A list of classes that "could" produce and store data with a MeowURI
         that matches the given MeowURI.
     """
+    meowuri_class_map = meowuri_class_map_dict()
+
     def _search_source_type(key):
-        for k, v in SessionRepository.meowuri_class_map[key].items():
+        for k, v in meowuri_class_map[key].items():
             if meowuri.startswith(k):
-                return SessionRepository.meowuri_class_map[key][k]
+                return meowuri_class_map[key][k]
         return None
 
     if not meowuri:
