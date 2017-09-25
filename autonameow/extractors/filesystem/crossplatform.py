@@ -54,7 +54,12 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
                 fields.WeightedMapping(fields.extension, probability=1),
             ]
         ),
-        'basename.prefix': ExtractedData(types.AW_PATHCOMPONENT),
+        'basename.prefix': ExtractedData(
+            coercer=types.AW_PATHCOMPONENT,
+            mapped_fields=[
+                # fields.WeightedMapping(fields.)
+            ]
+        ),
         'pathname.full': ExtractedData(types.AW_PATH),
         'pathname.parent': ExtractedData(types.AW_PATH),
         'contents.mime_type': ExtractedData(
