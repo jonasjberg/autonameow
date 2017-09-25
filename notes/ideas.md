@@ -11,6 +11,8 @@ Ideas and Notes
 ===============
 Various ideas on possible upcoming features and changes to `autonameow`.
 
+* Revised 2017-09-25 -- Add notes on the "Resolver"
+
 
 Field Candidates
 ----------------
@@ -391,3 +393,131 @@ Is it really what it says it is?
 
 The analyzers should probably take this contextual information in consideration
 when prioritizing candidates, etc.
+
+
+The "Resolver"
+--------------
+Jonas Sjöberg, 2017-09-25.
+
+
+Modified excerpt from `autonameow/core/main.py` with a lot of added
+"programming by wishful thinking", but still pretty close to the actual
+current code:
+
+```python
+def _perform_automagic_actions(self, current_file, rule_matcher):
+    # Using the highest ranked rule
+    name_template = rule_matcher.best_match.name_template
+
+    resolver = Resolver(current_file, name_template)
+    for _field, _meowuri in rule_matcher.best_match.data_sources.items():
+        resolver.add_known_source(_field, _meowuri)
+
+    if not resolver.mapped_all_template_fields():
+        if self.opts.batch_mode:
+            log.error('All name template placeholder fields must be '
+                      'given a data source; Check the configuration!')
+            self.exit_code = C.EXIT_WARNING
+            return
+
+        elif self.opts.interactive:
+            cli.msg(
+                'Unknown data sources: ' + ','.join(resolver.unmapped_fields())
+            )
+            for field in resolver.unmapped_fields():
+                candidates = resolver.lookup_candidates(field)
+                choice = cli.prompt_selection(
+                    heading='Field "{}" candidates:'.format(field),
+                    choices=candidates
+                )
+                if choice in candidates:
+                    resolver.add_known_source(field, choice)
+
+    resolver.collect()
+    if not resolver.collected_data_for_all_fields():
+        if self.opts.batch_mode:
+            log.warning('Unable to populate name. Missing field data.')
+            self.exit_code = C.EXIT_WARNING
+            return
+        elif self.opts.interactive:
+            for field in resolver.missing_fields():
+                candidates = resolver.lookup_candidates(field)
+                choice = cli.prompt_selection(
+                    heading='Field "{}" candidates:'.format(field),
+                    choices=candidates
+                )
+                if choice in candidates:
+                    resolver.add_known_source(field, choice)
+
+    try:
+        new_name = namebuilder.build(config=self.active_config,
+                                     name_template=name_template,
+                                     field_data_map=resolver.fields_data)
+    except exceptions.NameBuilderError as e:
+        log.critical('Name assembly FAILED: {!s}'.format(e))
+        raise exceptions.AutonameowException
+
+    self.do_rename(from_path=current_file.abspath,
+                   new_basename=new_name,
+                   dry_run=self.opts.dry_run)
+```
+
+
+Alternative, more wishful and optimistic version:
+```python
+def _perform_automagic_actions(self, current_file, rule_matcher):
+    # Using the highest ranked rule
+    name_template = rule_matcher.best_match.name_template
+
+    resolver = Resolver(current_file, name_template)
+    for _field, _meowuri in rule_matcher.best_match.data_sources.items():
+        resolver.add_known_source(_field, _meowuri)
+
+    if not resolver.mapped_all_template_fields():
+        if self.opts.batch_mode:
+            log.error('All name template placeholder fields must be '
+                      'given a data source; Check the configuration!')
+            self.exit_code = C.EXIT_WARNING
+            return
+
+        elif self.opts.interactive:
+            cli.msg(
+                'Unknown data sources: ' + ','.join(resolver.unmapped_fields())
+            )
+            for field in resolver.unmapped_fields():
+                candidates = resolver.lookup_candidates(field)
+                choice = cli.prompt_selection(
+                    heading='Field "{}" candidates:'.format(field),
+                    choices=candidates
+                )
+                if choice in candidates:
+                    resolver.add_known_source(field, choice)
+
+    resolver.collect()
+    if not resolver.collected_data_for_all_fields():
+        if self.opts.batch_mode:
+            log.warning('Unable to populate name. Missing field data.')
+            self.exit_code = C.EXIT_WARNING
+            return
+        elif self.opts.interactive:
+            for field in resolver.missing_fields():
+                candidates = resolver.lookup_candidates(field)
+                choice = cli.prompt_selection(
+                    heading='Field "{}" candidates:'.format(field),
+                    choices=candidates
+                )
+                if choice in candidates:
+                    resolver.add_known_source(field, choice)
+
+    try:
+        new_name = namebuilder.build(config=self.active_config,
+                                     name_template=name_template,
+                                     field_data_map=resolver.fields_data)
+    except exceptions.NameBuilderError as e:
+        log.critical('Name assembly FAILED: {!s}'.format(e))
+        raise exceptions.AutonameowException
+
+    self.do_rename(from_path=current_file.abspath,
+                   new_basename=new_name,
+                   dry_run=self.opts.dry_run)
+```
