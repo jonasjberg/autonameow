@@ -313,7 +313,7 @@ class Integer(BaseType):
 
 class Float(BaseType):
     primitive_type = float
-    coercible_types = (str, int)
+    coercible_types = (bytes, str, int)
     equivalent_types = (float, )
     null = 0.0
 

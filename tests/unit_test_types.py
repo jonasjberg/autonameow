@@ -286,6 +286,12 @@ class TestTypeFloat(TestCase):
         _assert_returns('0', 0.0)
         _assert_returns('1', 1.0)
         _assert_returns('1.5', 1.5)
+        _assert_returns(b'-1.5', -1.5)
+        _assert_returns(b'-1.0', -1.0)
+        _assert_returns(b'-1', -1.0)
+        _assert_returns(b'0', 0.0)
+        _assert_returns(b'1', 1.0)
+        _assert_returns(b'1.5', 1.5)
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(test_data):
@@ -302,6 +308,10 @@ class TestTypeFloat(TestCase):
         _assert_formats(None, '0.0')
         _assert_formats(1, '1.0')
         _assert_formats(20, '20.0')
+        _assert_formats('1', '1.0')
+        _assert_formats('20', '20.0')
+        _assert_formats(b'1', '1.0')
+        _assert_formats(b'20', '20.0')
 
     def test_format_valid_data_with_format_string(self):
         def _assert_formats(test_data, format_string, expected):
@@ -314,10 +324,22 @@ class TestTypeFloat(TestCase):
         _assert_formats(1, '{0:.1f}', '1.0')
         _assert_formats(2, '{0:.2f}', '2.00')
         _assert_formats(33, '{0:.3f}', '33.000')
+        _assert_formats('1', '{0:.1f}', '1.0')
+        _assert_formats('2', '{0:.2f}', '2.00')
+        _assert_formats('33', '{0:.3f}', '33.000')
+        _assert_formats(b'1', '{0:.1f}', '1.0')
+        _assert_formats(b'2', '{0:.2f}', '2.00')
+        _assert_formats(b'33', '{0:.3f}', '33.000')
         _assert_formats(None, 'x', 'x')
         _assert_formats(1, 'x', 'x')
         _assert_formats(2, 'x', 'x')
         _assert_formats(33, 'x', 'x')
+        _assert_formats('1', 'x', 'x')
+        _assert_formats('2', 'x', 'x')
+        _assert_formats('33', 'x', 'x')
+        _assert_formats(b'1', 'x', 'x')
+        _assert_formats(b'2', 'x', 'x')
+        _assert_formats(b'33', 'x', 'x')
 
     def test_format_raises_exception_for_invalid_format_strings(self):
         def _assert_raises(test_data, format_string):
