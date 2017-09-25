@@ -72,7 +72,7 @@ class BaseType(object):
 
     def __call__(self, value=None):
         if value is None:
-            return self._null()
+            return self.null()
         elif self.test(value):
             # Pass through if type is "equivalent" without coercion.
             return value
@@ -84,7 +84,7 @@ class BaseType(object):
 
         self._fail_coercion(value)
 
-    def _null(self):
+    def null(self):
         return self.NULL
 
     def test(self, value):
@@ -245,7 +245,7 @@ class Boolean(BaseType):
 
     def coerce(self, value):
         if value is None:
-            return self._null()
+            return self.null()
 
         try:
             string_value = AW_STRING(value)
@@ -270,7 +270,7 @@ class Boolean(BaseType):
                     TypeError, ValueError):
                 self._fail_coercion(value)
 
-        return self._null()
+        return self.null()
 
     def normalize(self, value):
         return self.__call__(value)
@@ -311,7 +311,7 @@ class Integer(BaseType):
         value = self.__call__(value)
 
         if 'format_string' not in kwargs:
-            return '{}'.format(value or self._null())
+            return '{}'.format(value or self.null())
 
         format_string = kwargs.get('format_string')
         if format_string:
@@ -346,7 +346,7 @@ class Float(BaseType):
         value = self.__call__(value)
 
         if 'format_string' not in kwargs:
-            return '{0:.1f}'.format(value or self._null())
+            return '{0:.1f}'.format(value or self.null())
 
         format_string = kwargs.get('format_string')
         if format_string:
@@ -376,13 +376,13 @@ class String(BaseType):
 
     def coerce(self, value):
         if value is None:
-            return self._null()
+            return self.null()
 
         if isinstance(value, bytes):
             try:
                 return util.decode_(value)
             except Exception:
-                return self._null()
+                return self.null()
 
         if isinstance(value, self.COERCIBLE_TYPES):
             try:
@@ -437,7 +437,7 @@ class MimeType(BaseType):
             if value.strip() is not None:
                 value = self.coerce(value)
                 return value
-        return self._null()
+        return self.null()
 
     def coerce(self, value):
         string_value = AW_STRING(value)
@@ -449,7 +449,7 @@ class MimeType(BaseType):
             elif string_value in self.KNOWN_EXTENSIONS:
                 return self.MIME_TYPE_LOOKUP[string_value]
 
-        return self._null()
+        return self.null()
 
     def normalize(self, value):
         return self.__call__(value)
@@ -460,7 +460,7 @@ class MimeType(BaseType):
 
         value = self.__call__(value)
         formatted = self.MIME_TYPE_LOOKUP_INV.get(value)
-        return formatted if formatted is not None else self._null()
+        return formatted if formatted is not None else self.null()
 
 
 class Date(BaseType):
@@ -472,9 +472,9 @@ class Date(BaseType):
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
 
-    # Override parent '_null' method to force returning only valid 'datetime'
+    # Override parent 'null' method to force returning only valid 'datetime'
     # instances. Otherwise, raise an exception to be handled by the caller.
-    def _null(self):
+    def null(self):
         raise AWTypeError(
             '"{!r}" got incoercible data'.format(self)
         )
@@ -525,9 +525,9 @@ class TimeDate(BaseType):
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
 
-    # Override parent '_null' method to force returning only valid 'datetime'
+    # Override parent 'null' method to force returning only valid 'datetime'
     # instances. Otherwise, raise an exception to be handled by the caller.
-    def _null(self):
+    def null(self):
         raise AWTypeError(
             '"{!r}" got incoercible data'.format(self)
         )
