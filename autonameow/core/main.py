@@ -267,12 +267,6 @@ class Autonameow(object):
         # Determine matching rule.
         matcher = _run_rule_matcher(current_file, self.active_config)
 
-        # # Present results.
-        # if should_list_any_results:
-        #     cli.msg(('File: "{}"\n'.format(
-        #         util.displayable_path(current_file.abspath)))
-        #     )
-
         # Perform actions.
         if self.opts.automagic:
             self._perform_automagic_actions(current_file, matcher)
