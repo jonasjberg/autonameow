@@ -450,22 +450,23 @@ def parse_ranking_bias(value):
         ConfigurationSyntaxError: The value is of an unexpected type or not
             within the range 0-1.
     """
-    ERROR_MSG = 'Expected float in range 0-1. Got: "{}"'.format(value)
-
     if value is None:
         return C.DEFAULT_RULE_RANKING_BIAS
-    if not isinstance(value, (int, float)):
-        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
 
     try:
-        w = float(value)
-    except TypeError:
-        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
+        _value = types.AW_FLOAT(value)
+    except types.AWTypeError:
+        raise exceptions.ConfigurationSyntaxError(
+            'Expected float but got "{!s}" ({!s})'.format(value, type(value))
+        )
     else:
-        if float(0) <= w <= float(1):
-            return w
+        if float(0) <= _value <= float(1):
+            return _value
         else:
-            raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
+            raise exceptions.ConfigurationSyntaxError(
+                'Expected float within 0.0-1.0 but got {} -- Using default:'
+                ' {}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
+            )
 
 
 def parse_conditions(raw_conditions):
