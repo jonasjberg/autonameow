@@ -210,18 +210,18 @@ class PathComponent(BaseType):
 
 class Boolean(BaseType):
     primitive_type = bool
-    coercible_types = (str, bytes)
+    coercible_types = (bytes, str, int, float, object)
     equivalent_types = (bool, )
     null = False
 
-    @staticmethod
-    def string_to_bool(string_value):
+    STR_TRUE = frozenset('positive true yes'.split())
+    STR_FALSE = frozenset('negative false no'.split())
+
+    def string_to_bool(self, string_value):
         value = string_value.lower().strip()
-        if value in ('yes', 'true'):
+        if value in self.STR_TRUE:
             return True
-        elif value in ('no', 'false'):
-            return False
-        else:
+        if value in self.STR_FALSE:
             return False
 
     @staticmethod
@@ -233,21 +233,29 @@ class Boolean(BaseType):
 
     def coerce(self, value):
         if value is None:
-            return False
-        if isinstance(value, bytes):
-            value = util.decode_(value)
-        if isinstance(value, str):
-            return self.string_to_bool(value)
+            return self._null()
+
+        try:
+            string_value = AW_STRING(value)
+        except AWTypeError:
+            pass
         else:
-            return False
+            _maybe_bool = self.string_to_bool(string_value)
+            if _maybe_bool is not None:
+                return _maybe_bool
+
+        try:
+            int_value = AW_INTEGER(value)
+        except AWTypeError:
+            pass
+        else:
+            return bool(int_value > 0)
+
+        # TODO: Handle classes implementing '__bool__'.
+        return self._null()
 
     def normalize(self, value):
-        if value is None:
-            return False
-        if isinstance(value, bool):
-            return bool(value)
-        else:
-            return False
+        return self.__call__(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -256,7 +264,7 @@ class Boolean(BaseType):
 
 class Integer(BaseType):
     primitive_type = int
-    coercible_types = (str, float, bytes)
+    coercible_types = (bytes, str, float)
     equivalent_types = (int, )
     null = 0
 
