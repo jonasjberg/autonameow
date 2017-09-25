@@ -30,7 +30,6 @@ from core.exceptions import EncodingBoundaryViolation
 from core.util import diskutils
 from core.util.diskutils import (
     sanitize_filename,
-    get_files,
     get_files_gen
 )
 import unit_utils as uu
@@ -285,193 +284,127 @@ def to_abspath(path_list):
         return paths
 
 
-class TestGetFiles(TestCase):
-    def setUp(self):
-        self.FILES_SUBDIR = [
-            'subdir/file_1', 'subdir/file_2', 'subdir/file_3'
-        ]
-        self.FILES_SUBSUBDIR_A = [
-            'subdir/subsubdir_A/file_A1', 'subdir/subsubdir_A/file_A2'
-        ]
-        self.FILES_SUBSUBDIR_B = [
-            'subdir/subsubdir_B/file_A3', 'subdir/subsubdir_B/file_B1',
-            'subdir/subsubdir_B/file_B2'
-        ]
-        self.ALL_FILES = (self.FILES_SUBDIR + self.FILES_SUBSUBDIR_A
-                          + self.FILES_SUBSUBDIR_B)
+FILES_SUBDIR = [
+    'subdir/file_1', 'subdir/file_2', 'subdir/file_3'
+]
+FILES_SUBSUBDIR_A = [
+    'subdir/subsubdir_A/file_A1', 'subdir/subsubdir_A/file_A2'
+]
+FILES_SUBSUBDIR_B = [
+    'subdir/subsubdir_B/file_A3', 'subdir/subsubdir_B/file_B1',
+    'subdir/subsubdir_B/file_B2'
+]
+FILES_ALL = (FILES_SUBDIR + FILES_SUBSUBDIR_A + FILES_SUBSUBDIR_B)
+ABSPATH_FILES_SUBDIR = to_abspath(FILES_SUBDIR)
+ABSPATH_FILES_SUBSUBDIR_A = to_abspath(FILES_SUBSUBDIR_A)
+ABSPATH_FILES_SUBSUBDIR_B = to_abspath(FILES_SUBSUBDIR_B)
+ABSPATH_FILES_ALL = to_abspath(FILES_ALL)
+EXPECT_FILES_SUBDIR = [util.bytestring_path(p) for p in FILES_SUBDIR]
+EXPECT_FILES_SUBSUBDIR_A = [util.bytestring_path(p) for p in FILES_SUBSUBDIR_A]
+EXPECT_FILES_SUBSUBDIR_B = [util.bytestring_path(p) for p in FILES_SUBSUBDIR_B]
 
-        self.abspath_files_subdir = to_abspath(self.FILES_SUBDIR)
-        self.abspath_files_subsubdir_a = to_abspath(self.FILES_SUBSUBDIR_A)
-        self.abspath_files_subsubdir_b = to_abspath(self.FILES_SUBSUBDIR_B)
-        self.abspath_all_files = to_abspath(self.ALL_FILES)
 
-        self.EXPECT_FILES_SUBDIR = [util.bytestring_path(p)
-                                    for p in self.FILES_SUBDIR]
-        self.EXPECT_FILES_SUBSUBDIR_A = [util.bytestring_path(p)
-                                         for p in self.FILES_SUBSUBDIR_A]
-        self.EXPECT_FILES_SUBSUBDIR_B = [util.bytestring_path(p)
-                                         for p in self.FILES_SUBSUBDIR_B]
-
-    def test_setup(self):
-        for tf in self.abspath_all_files:
+class TestTestFiles(TestCase):
+    def test_all(self):
+        for tf in ABSPATH_FILES_ALL:
             self.assertTrue(uu.file_exists(tf),
                             'Expected file: "{}"'.format(tf))
+            self.assertTrue(isinstance(tf, bytes))
 
-        self.assertEqual(len(self.abspath_all_files), 8)
+        self.assertEqual(len(ABSPATH_FILES_ALL), 8)
 
-    def test_get_files_is_defined_and_available(self):
-        self.assertIsNotNone(get_files)
+    def test_abspath_subdir(self):
+        for tf in ABSPATH_FILES_SUBDIR:
+            self.assertTrue(uu.file_exists(tf),
+                            'Expected file: "{}"'.format(tf))
+            self.assertTrue(isinstance(tf, bytes))
 
-    def test_raises_errors_for_invalid_paths(self):
-        with self.assertRaises((FileNotFoundError, TypeError)):
-            get_files(None)
-            get_files('')
-            get_files(' ')
+    def test_abspath_subsubdir_a(self):
+        for tf in ABSPATH_FILES_SUBSUBDIR_A:
+            self.assertTrue(uu.file_exists(tf),
+                            'Expected file: "{}"'.format(tf))
+            self.assertTrue(isinstance(tf, bytes))
 
-    def test_returns_expected_number_of_files_non_recursive(self):
-        actual = get_files(to_abspath(['subdir']))
-        self.assertEqual(len(actual), 3)
-
-    def test_returns_expected_files_non_recursive(self):
-        actual = get_files(to_abspath(['subdir']))
-
-        for f in actual:
-            self.assertTrue(uu.file_exists(f))
-            self.assertIn(shorten_path(f), self.EXPECT_FILES_SUBDIR)
-            self.assertNotIn(shorten_path(f), self.EXPECT_FILES_SUBSUBDIR_A)
-            self.assertNotIn(shorten_path(f), self.EXPECT_FILES_SUBSUBDIR_B)
-
-    def test_returns_expected_number_of_files_recursive(self):
-        actual = get_files(to_abspath(['subdir']), recurse=True)
-        self.assertEqual(len(actual), 8)
-
-    def test_returns_expected_files_recursive(self):
-        actual = get_files(to_abspath(['subdir']), recurse=True)
-
-        for f in actual:
-            self.assertTrue(uu.file_exists(f))
-            self.assertIn(f, self.abspath_all_files)
-
-    def test_returns_expected_number_of_files_recursive_from_subsubdir_a(self):
-        actual = get_files(to_abspath(['subdir/subsubdir_A']),
-                           recurse=True)
-        self.assertEqual(len(actual), 2)
-
-    def test_returns_expected_files_recursive_from_subsubdir_a(self):
-        actual = get_files(to_abspath(['subdir/subsubdir_A']),
-                           recurse=True)
-
-        for f in actual:
-            self.assertTrue(uu.file_exists(f))
-            self.assertIn(f, self.abspath_files_subsubdir_a)
-            self.assertNotIn(f, self.abspath_files_subsubdir_b)
-            self.assertNotIn(f, self.abspath_files_subdir)
-
-    def test_returns_expected_files_recursive_from_subsubdir_b(self):
-        actual = get_files(to_abspath(['subdir/subsubdir_B']),
-                           recurse=True)
-
-        for f in actual:
-            self.assertTrue(uu.file_exists(f))
-            self.assertIn(f, self.abspath_files_subsubdir_b)
-            self.assertNotIn(f, self.abspath_files_subsubdir_a)
-            self.assertNotIn(f, self.abspath_files_subdir)
+    def test_abspath_subsubdir_b(self):
+        for tf in ABSPATH_FILES_SUBSUBDIR_B:
+            self.assertTrue(uu.file_exists(tf),
+                            'Expected file: "{}"'.format(tf))
+            self.assertTrue(isinstance(tf, bytes))
 
 
 class TestGetFilesGen(TestCase):
-    def setUp(self):
-        self.FILES_SUBDIR = [
-            'subdir/file_1', 'subdir/file_2', 'subdir/file_3'
-        ]
-        self.FILES_SUBSUBDIR_A = [
-            'subdir/subsubdir_A/file_A1', 'subdir/subsubdir_A/file_A2'
-        ]
-        self.FILES_SUBSUBDIR_B = [
-            'subdir/subsubdir_B/file_A3', 'subdir/subsubdir_B/file_B1',
-            'subdir/subsubdir_B/file_B2'
-        ]
-        self.ALL_FILES = (self.FILES_SUBDIR + self.FILES_SUBSUBDIR_A
-                          + self.FILES_SUBSUBDIR_B)
-
-        self.abspath_files_subdir = to_abspath(self.FILES_SUBDIR)
-        self.abspath_files_subsubdir_a = to_abspath(self.FILES_SUBSUBDIR_A)
-        self.abspath_files_subsubdir_b = to_abspath(self.FILES_SUBSUBDIR_B)
-        self.abspath_all_files = to_abspath(self.ALL_FILES)
-
-        self.EXPECT_FILES_SUBDIR = [util.bytestring_path(p)
-                                    for p in self.FILES_SUBDIR]
-        self.EXPECT_FILES_SUBSUBDIR_A = [util.bytestring_path(p)
-                                         for p in self.FILES_SUBSUBDIR_A]
-        self.EXPECT_FILES_SUBSUBDIR_B = [util.bytestring_path(p)
-                                         for p in self.FILES_SUBSUBDIR_B]
-
-    def test_setup(self):
-        for tf in self.abspath_all_files:
-            self.assertTrue(uu.file_exists(tf),
-                            'Expected file: "{}"'.format(tf))
-
-        self.assertEqual(len(self.abspath_all_files), 8)
-
-    def test_get_files_gen_is_defined_and_available(self):
-        self.assertIsNotNone(get_files_gen)
-
     def test_raises_errors_for_none_paths(self):
-        with self.assertRaises((FileNotFoundError, TypeError)):
-            list(get_files_gen(None))
-            list(get_files_gen(''))
+        with self.assertRaises(FileNotFoundError):
+            _ = list(get_files_gen(None))
 
     def test_raises_errors_for_invalid_paths(self):
-        with self.assertRaises(FileNotFoundError):
-            list(get_files_gen(' '))
+        def _aR(test_input):
+            with self.assertRaises(FileNotFoundError):
+                _ = list(get_files_gen(test_input))
+
+        _aR(b'')
+        _aR(b' ')
+        _aR(b'  ')
+        _aR(b'x')
+        _aR(b' x ')
 
     def test_returns_expected_number_of_files_non_recursive(self):
         actual = list(get_files_gen(to_abspath(['subdir'])))
         self.assertEqual(len(actual), 3)
 
     def test_returns_expected_files_non_recursive(self):
-        actual = list(get_files_gen(to_abspath(['subdir'])))
+        actual = get_files_gen(to_abspath(['subdir']))
 
         for f in actual:
             self.assertTrue(uu.file_exists(f))
-            self.assertIn(shorten_path(f), self.EXPECT_FILES_SUBDIR)
-            self.assertNotIn(shorten_path(f), self.EXPECT_FILES_SUBSUBDIR_A)
-            self.assertNotIn(shorten_path(f), self.EXPECT_FILES_SUBSUBDIR_B)
+            self.assertIn(shorten_path(f), EXPECT_FILES_SUBDIR)
+            self.assertNotIn(shorten_path(f), EXPECT_FILES_SUBSUBDIR_A)
+            self.assertNotIn(shorten_path(f), EXPECT_FILES_SUBSUBDIR_B)
+            self.assertTrue(isinstance(f, bytes))
 
     def test_returns_expected_number_of_files_recursive(self):
-        actual = list(get_files_gen(to_abspath(['subdir']), recurse=True))
+        actual = list(
+            get_files_gen(to_abspath(['subdir']), recurse=True)
+        )
         self.assertEqual(len(actual), 8)
 
     def test_returns_expected_files_recursive(self):
-        actual = list(get_files_gen(to_abspath(['subdir']), recurse=True))
+        actual = get_files_gen(to_abspath(['subdir']), recurse=True)
 
         for f in actual:
             self.assertTrue(uu.file_exists(f))
-            self.assertIn(f, self.abspath_all_files)
+            self.assertIn(f, ABSPATH_FILES_ALL)
+            self.assertTrue(isinstance(f, bytes))
 
     def test_returns_expected_number_of_files_recursive_from_subsubdir_a(self):
-        actual = list(get_files_gen(to_abspath(['subdir/subsubdir_A']),
-                           recurse=True))
+        actual = list(
+            get_files_gen(to_abspath(['subdir/subsubdir_A']), recurse=True)
+        )
         self.assertEqual(len(actual), 2)
 
     def test_returns_expected_files_recursive_from_subsubdir_a(self):
-        actual = list(get_files_gen(to_abspath(['subdir/subsubdir_A']),
-                           recurse=True))
+        actual = list(
+            get_files_gen(to_abspath(['subdir/subsubdir_A']), recurse=True)
+        )
 
         for f in actual:
             self.assertTrue(uu.file_exists(f))
-            self.assertIn(f, self.abspath_files_subsubdir_a)
-            self.assertNotIn(f, self.abspath_files_subsubdir_b)
-            self.assertNotIn(f, self.abspath_files_subdir)
+            self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_A)
+            self.assertNotIn(f, ABSPATH_FILES_SUBSUBDIR_B)
+            self.assertNotIn(f, ABSPATH_FILES_SUBDIR)
+            self.assertTrue(isinstance(f, bytes))
 
     def test_returns_expected_files_recursive_from_subsubdir_b(self):
-        actual = list(get_files_gen(to_abspath(['subdir/subsubdir_B']),
-                                    recurse=True))
+        actual = list(
+            get_files_gen(to_abspath(['subdir/subsubdir_B']), recurse=True)
+        )
 
         for f in actual:
             self.assertTrue(uu.file_exists(f))
-            self.assertIn(f, self.abspath_files_subsubdir_b)
-            self.assertNotIn(f, self.abspath_files_subsubdir_a)
-            self.assertNotIn(f, self.abspath_files_subdir)
+            self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_B)
+            self.assertNotIn(f, ABSPATH_FILES_SUBSUBDIR_A)
+            self.assertNotIn(f, ABSPATH_FILES_SUBDIR)
+            self.assertTrue(isinstance(f, bytes))
 
 
 class TestPathAncestry(TestCase):
@@ -598,6 +531,90 @@ class TestCompareBasenames(TestCase):
             '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode('utf-8'),
             '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode('utf-8')
         )
+
+
+class TestPathCollector(TestCase):
+    def setUp(self):
+        self.pc = diskutils.PathCollector()
+
+    def test_raises_errors_for_invalid_paths(self):
+        def _assert_raises(test_input):
+            with self.assertRaises((FileNotFoundError, TypeError)):
+                self.pc.get_paths(test_input)
+
+        _assert_raises('x')
+        _assert_raises(' x ')
+
+    def test_returns_empty_list_given_invalid_paths(self):
+        def _aE(test_input):
+            actual = self.pc.get_paths(test_input)
+            self.assertEqual(actual, [])
+
+        _aE(None)
+        _aE('')
+        _aE(' ')
+
+    def test_returns_expected_number_of_files_non_recursive(self):
+        _search_path = [to_abspath(['subdir'])]
+        actual = self.pc.get_paths(_search_path)
+        self.assertEqual(len(actual), 3)
+
+    def test_returns_expected_files_non_recursive(self):
+        _search_path = [to_abspath(['subdir'])]
+        actual = self.pc.get_paths(_search_path)
+
+        for f in actual:
+            self.assertTrue(uu.file_exists(f))
+            self.assertIn(shorten_path(f), EXPECT_FILES_SUBDIR)
+            self.assertNotIn(shorten_path(f), EXPECT_FILES_SUBSUBDIR_A)
+            self.assertNotIn(shorten_path(f), EXPECT_FILES_SUBSUBDIR_B)
+            self.assertTrue(isinstance(f, bytes))
+
+    def test_returns_expected_number_of_files_recursive(self):
+        _search_paths = [to_abspath(['subdir'])]
+        pc = diskutils.PathCollector(recurse=True)
+        actual = pc.get_paths(_search_paths)
+        self.assertEqual(len(actual), 8)
+
+    def test_returns_expected_files_recursive(self):
+        _search_paths = [to_abspath(['subdir'])]
+        pc = diskutils.PathCollector(recurse=True)
+        actual = pc.get_paths(_search_paths)
+
+        for f in actual:
+            self.assertTrue(uu.file_exists(f))
+            self.assertIn(f, ABSPATH_FILES_ALL)
+            self.assertTrue(isinstance(f, bytes))
+
+    def test_returns_expected_number_of_files_recursive_from_subsubdir_a(self):
+        _search_paths = [to_abspath(['subdir/subsubdir_A'])]
+        pc = diskutils.PathCollector(recurse=True)
+        actual = pc.get_paths(_search_paths)
+        self.assertEqual(len(actual), 2)
+
+    def test_returns_expected_files_recursive_from_subsubdir_a(self):
+        _search_paths = [to_abspath(['subdir/subsubdir_A'])]
+        pc = diskutils.PathCollector(recurse=True)
+        actual = pc.get_paths(_search_paths)
+
+        for f in actual:
+            self.assertTrue(uu.file_exists(f))
+            self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_A)
+            self.assertNotIn(f, ABSPATH_FILES_SUBSUBDIR_B)
+            self.assertNotIn(f, ABSPATH_FILES_SUBDIR)
+            self.assertTrue(isinstance(f, bytes))
+
+    def test_returns_expected_files_recursive_from_subsubdir_b(self):
+        _search_paths = [to_abspath(['subdir/subsubdir_B'])]
+        pc = diskutils.PathCollector(recurse=True)
+        actual = pc.get_paths(_search_paths)
+
+        for f in actual:
+            self.assertTrue(uu.file_exists(f))
+            self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_B)
+            self.assertNotIn(f, ABSPATH_FILES_SUBSUBDIR_A)
+            self.assertNotIn(f, ABSPATH_FILES_SUBDIR)
+            self.assertTrue(isinstance(f, bytes))
 
 
 class UnitTestIgnorePaths(TestCase):
