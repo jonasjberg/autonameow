@@ -33,7 +33,7 @@ from core import repository
 
 
 def init_repository():
-    repository.initialize('foo')
+    repository.initialize()
 
 
 init_repository()

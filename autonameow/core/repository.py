@@ -451,12 +451,8 @@ class RepositoryPool(object):
 
         self._repositories[id_] = _repo
 
-    def _get_default(self):
-        if len(self._repositories) == 0:
-            pass
 
-
-def initialize(id_):
+def initialize(id_=None):
     # Keep one global 'SessionRepository' per 'Autonameow' instance.
     global Pool
     Pool = RepositoryPool()
