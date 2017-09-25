@@ -388,6 +388,104 @@ class TestTypeFloat(TestCase):
         _assert_raises(1.0, b'')
         _assert_raises(1.0, b'x')
 
+    def test_bounded_low(self):
+        def _aE(test_input, low, expected):
+            actual = types.AW_FLOAT.bounded(test_input, low=low)
+            self.assertEqual(actual, expected)
+
+        _aE(10.0,    0, 10.0)
+        _aE(1.0,     0,  1.0)
+        _aE(-0.0001, 0,  0.0)
+        _aE(-1.0,    0,  0.0)
+        _aE(-10.0,   0,  0.0)
+
+        _aE(10.0,    1, 10.0)
+        _aE(1.0,     1,  1.0)
+        _aE(-0.0001, 1,  1.0)
+        _aE(-1.0,    1,  1.0)
+        _aE(-10.0,   1,  1.0)
+
+        _aE(10.0,    2, 10.0)
+        _aE(1.0,     2,  2.0)
+        _aE(-0.0001, 2,  2.0)
+        _aE(-1.0,    2,  2.0)
+        _aE(-10.0,   2,  2.0)
+
+    def test_bounded_high(self):
+        def _aE(test_input, high, expected):
+            actual = types.AW_FLOAT.bounded(test_input, high=high)
+            self.assertEqual(actual, expected)
+
+        _aE(10.0,    0,   0.0)
+        _aE(1.0,     0,   0.0)
+        _aE(-0.001,  0,  -0.001)
+        _aE(-1.0,    0,  -1.0)
+        _aE(-10.0,   0, -10.0)
+
+        _aE(10.0,    1,   1.0)
+        _aE(1.0,     1,   1.0)
+        _aE(-0.0001, 1,  -0.0001)
+        _aE(-1.0,    1,  -1.0)
+        _aE(-10.0,   1, -10.0)
+
+        _aE(10.0,    2,   2.0)
+        _aE(1.0,     2,   1.0)
+        _aE(-0.0001, 2,  -0.0001)
+        _aE(-1.0,    2,  -1.0)
+        _aE(-10.0,   2, -10.0)
+
+    def test_bounded_low_and_high(self):
+        def _aE(test_input, low, high, expected):
+            actual = types.AW_FLOAT.bounded(test_input, low=low, high=high)
+            self.assertEqual(actual, expected)
+
+        _aE(10.0,    0,  0,  0.0)
+        _aE(1.0,     0,  0,  0.0)
+        _aE(-0.0001, 0,  0,  0.0)
+        _aE(-1.0,    0,  0,  0.0)
+        _aE(-10.0,   0,  0,  0.0)
+        _aE(10.0,    0,  1,  1.0)
+        _aE(1.0,     0,  1,  1.0)
+        _aE(-0.0001, 0,  1,  0.0)
+        _aE(-1.0,    0,  1,  0.0)
+        _aE(-10.0,   0,  1,  0.0)
+        _aE(10.0,    0,  2,  2.0)
+        _aE(1.0,     0,  2,  1.0)
+        _aE(-0.0001, 0,  2,  0.0)
+        _aE(-1.0,    0,  2,  0.0)
+        _aE(-10.0,   0,  2,  0.0)
+        _aE(10.0,    0, 10, 10.0)
+        _aE(1.0,     0, 10,  1.0)
+        _aE(-0.0001, 0, 10,  0.0)
+        _aE(-1.0,    0, 10,  0.0)
+        _aE(-10.0,   0, 10,  0.0)
+        _aE(10.0,    1,  1,  1.0)
+        _aE(1.0,     1,  1,  1.0)
+        _aE(-0.0001, 1,  1,  1.0)
+        _aE(-1.0,    1,  1,  1.0)
+        _aE(-10.0,   1,  1,  1.0)
+        _aE(10.0,    1,  2,  2.0)
+        _aE(1.0,     1,  2,  1.0)
+        _aE(-0.0001, 1,  2,  1.0)
+        _aE(-1.0,    1,  2,  1.0)
+        _aE(-10.0,   1,  2,  1.0)
+        _aE(10.0,    1, 10, 10.0)
+        _aE(1.0,     1, 10,  1.0)
+        _aE(-0.0001, 1, 10,  1.0)
+        _aE(-1.0,    1, 10,  1.0)
+        _aE(-10.0,   1, 10,  1.0)
+        _aE(10.0,    2,  2,  2.0)
+        _aE(1.0,     2,  2,  2.0)
+        _aE(-0.0001, 2,  2,  2.0)
+        _aE(-1.0,    2,  2,  2.0)
+        _aE(-10.0,   2,  2,  2.0)
+        _aE(10.0,    2, 10, 10.0)
+        _aE(1.0,     2, 10,  2.0)
+        _aE(-0.0001, 2, 10,  2.0)
+        _aE(-1.0,    2, 10,  2.0)
+        _aE(-10.0,   2, 10,  2.0)
+        _aE(1.01,   0.0, 1.0,  1.0)
+
 
 class TestTypeTimeDate(TestCase):
     def test_coerces_expected_primitive(self):

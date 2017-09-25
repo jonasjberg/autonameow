@@ -346,6 +346,25 @@ class Float(BaseType):
     def normalize(self, value):
         return self.__call__(value)
 
+    def bounded(self, value, low=None, high=None):
+        _value = self.__call__(value)
+
+        if low is not None:
+            low = float(low)
+        if high is not None:
+            high = float(high)
+
+        if None not in (low, high):
+            if low > high:
+                raise ValueError('Expected "low" < "high"')
+
+        if low is not None and _value <= low:
+            return low
+        elif high is not None and _value >= high:
+            return high
+        else:
+            return _value
+
     def format(self, value, **kwargs):
         value = self.__call__(value)
 
