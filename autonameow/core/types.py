@@ -67,8 +67,8 @@ class BaseType(object):
     # Types that can be coerced with the "coerce" method.
     COERCIBLE_TYPES = (str,)
 
-    # Types that are "equivalent", does not require coercion.
-    equivalent_types = (str, )
+    # Used by the "test" method to test if value types are "equivalent".
+    EQUIVALENT_TYPES = (str, )
 
     def __call__(self, value=None):
         if value is None:
@@ -88,7 +88,7 @@ class BaseType(object):
         return self.NULL
 
     def test(self, value):
-        return isinstance(value, self.equivalent_types)
+        return isinstance(value, self.EQUIVALENT_TYPES)
 
     def coerce(self, value):
         """
@@ -159,7 +159,7 @@ class Path(BaseType):
     COERCIBLE_TYPES = (str, bytes)
 
     # Always force coercion so that all incoming data is properly normalized.
-    equivalent_types = ()
+    EQUIVALENT_TYPES = ()
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
     NULL = 'INVALID PATH'
@@ -199,7 +199,7 @@ class Path(BaseType):
 
 class PathComponent(BaseType):
     COERCIBLE_TYPES = (str, bytes)
-    equivalent_types = (bytes, )
+    EQUIVALENT_TYPES = (bytes, )
     NULL = b''
 
     def coerce(self, value):
@@ -223,7 +223,7 @@ class PathComponent(BaseType):
 
 class Boolean(BaseType):
     COERCIBLE_TYPES = (bytes, str, int, float, object)
-    equivalent_types = (bool, )
+    EQUIVALENT_TYPES = (bool, )
     NULL = False
 
     STR_TRUE = frozenset('positive true yes'.split())
@@ -276,7 +276,7 @@ class Boolean(BaseType):
 
 class Integer(BaseType):
     COERCIBLE_TYPES = (bytes, str, float)
-    equivalent_types = (int, )
+    EQUIVALENT_TYPES = (int, )
     NULL = 0
 
     def coerce(self, value):
@@ -324,7 +324,7 @@ class Integer(BaseType):
 
 class Float(BaseType):
     COERCIBLE_TYPES = (bytes, str, int)
-    equivalent_types = (float, )
+    EQUIVALENT_TYPES = (float, )
     NULL = 0.0
 
     def coerce(self, value):
@@ -365,7 +365,7 @@ class String(BaseType):
     except ImportError:
         pass
 
-    equivalent_types = (str, )
+    EQUIVALENT_TYPES = (str, )
     NULL = ''
 
     def coerce(self, value):
@@ -394,7 +394,7 @@ class String(BaseType):
 
 class MimeType(BaseType):
     COERCIBLE_TYPES = (str, bytes)
-    equivalent_types = ()
+    EQUIVALENT_TYPES = ()
     NULL = C.MAGIC_TYPE_UNKNOWN
 
     try:
@@ -459,7 +459,7 @@ class MimeType(BaseType):
 
 class Date(BaseType):
     COERCIBLE_TYPES = (str, bytes, int, float)
-    equivalent_types = (datetime, )
+    EQUIVALENT_TYPES = (datetime, )
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
     NULL = 'INVALID DATE'
@@ -512,7 +512,7 @@ class Date(BaseType):
 
 class TimeDate(BaseType):
     COERCIBLE_TYPES = (str, bytes, int, float)
-    equivalent_types = (datetime, )
+    EQUIVALENT_TYPES = (datetime, )
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
     NULL = 'INVALID DATE'
