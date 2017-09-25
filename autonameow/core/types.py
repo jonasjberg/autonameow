@@ -66,7 +66,7 @@ class BaseType(object):
     primitive_type = str
 
     # Default "None" value to fall back to.
-    null = 'NULL'
+    NULL = 'NULL'
 
     # Types that can be coerced with the "parse" method.
     coercible_types = (str, )
@@ -89,7 +89,7 @@ class BaseType(object):
         self._fail_coercion(value)
 
     def _null(self):
-        return self.null
+        return self.NULL
 
     def test(self, value):
         return isinstance(value, self.equivalent_types)
@@ -167,7 +167,7 @@ class Path(BaseType):
     equivalent_types = ()
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
-    null = 'INVALID PATH'
+    NULL = 'INVALID PATH'
 
     def __call__(self, value=None):
         # Overrides the 'BaseType' __call__ method as to not perform the test
@@ -206,7 +206,7 @@ class PathComponent(BaseType):
     primitive_type = str
     coercible_types = (str, bytes)
     equivalent_types = (bytes, )
-    null = b''
+    NULL = b''
 
     def coerce(self, value):
         try:
@@ -231,7 +231,7 @@ class Boolean(BaseType):
     primitive_type = bool
     coercible_types = (bytes, str, int, float, object)
     equivalent_types = (bool, )
-    null = False
+    NULL = False
 
     STR_TRUE = frozenset('positive true yes'.split())
     STR_FALSE = frozenset('negative false no'.split())
@@ -285,7 +285,7 @@ class Integer(BaseType):
     primitive_type = int
     coercible_types = (bytes, str, float)
     equivalent_types = (int, )
-    null = 0
+    NULL = 0
 
     def coerce(self, value):
         # If casting to int directly fails, try first converting to float,
@@ -334,7 +334,7 @@ class Float(BaseType):
     primitive_type = float
     coercible_types = (bytes, str, int)
     equivalent_types = (float, )
-    null = 0.0
+    NULL = 0.0
 
     def coerce(self, value):
         try:
@@ -376,7 +376,7 @@ class String(BaseType):
         pass
 
     equivalent_types = (str, )
-    null = ''
+    NULL = ''
 
     def coerce(self, value):
         if value is None:
@@ -406,7 +406,7 @@ class MimeType(BaseType):
     primitive_type = str
     coercible_types = (str, bytes)
     equivalent_types = ()
-    null = C.MAGIC_TYPE_UNKNOWN
+    NULL = C.MAGIC_TYPE_UNKNOWN
 
     try:
         MIME_TYPE_LOOKUP = {
@@ -474,7 +474,7 @@ class Date(BaseType):
     equivalent_types = (datetime, )
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
-    null = 'INVALID DATE'
+    NULL = 'INVALID DATE'
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
 
@@ -528,7 +528,7 @@ class TimeDate(BaseType):
     equivalent_types = (datetime, )
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
-    null = 'INVALID DATE'
+    NULL = 'INVALID DATE'
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
 
