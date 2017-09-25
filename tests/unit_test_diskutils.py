@@ -691,7 +691,8 @@ class UnitTestIgnorePaths(TestCase):
             self.assertTrue(os.path.isabs(util.syspath(path)))
 
     def test_passes_all_paths_if_no_ignore_globs_are_provided(self):
-        actual = diskutils.filter_paths(self.input_paths, [])
+        pc = diskutils.PathCollector(ignore_globs=[])
+        actual = pc.filter_paths(self.input_paths)
         self.assertEqual(actual, self.input_paths)
         self.assertEqual(len(actual), len(self.input_paths))
 
@@ -702,7 +703,8 @@ class UnitTestIgnorePaths(TestCase):
         for path in missing + remain:
             self.assertIn(util.normpath(path), self.input_paths)
 
-        actual = diskutils.filter_paths(self.input_paths, ignore_globs)
+        pc = diskutils.PathCollector(ignore_globs=ignore_globs)
+        actual = pc.filter_paths(self.input_paths)
         self.assertIsNotNone(actual)
 
         self.assertTrue(isinstance(actual, list))

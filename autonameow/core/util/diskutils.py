@@ -342,24 +342,6 @@ def compare_basenames(basename_one, basename_two):
         return False
 
 
-def filter_paths(path_list, ignore_globs):
-    if not ignore_globs:
-        return path_list
-
-    ignore_globs = [util.bytestring_path(i) for i in ignore_globs]
-
-    def _no_match(path, globs):
-        for pattern in globs:
-            if fnmatch.fnmatch(path, pattern):
-                log.info('Ignored path: "{!s}" (Glob: "{!s}")'.format(
-                    util.displayable_path(path), pattern)
-                )
-                return None
-        return path
-
-    return [p for p in path_list if _no_match(p, ignore_globs)]
-
-
 def normpaths_from_opts(path_list, ignore_globs, recurse):
     pc = PathCollector(ignore_globs, recurse)
     return pc.get_paths(path_list)
