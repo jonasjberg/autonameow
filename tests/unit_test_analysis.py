@@ -23,16 +23,13 @@ from unittest import TestCase
 import unit_utils as uu
 
 import analyzers
-from core import (
-    analysis,
-    repository
-)
+from core import analysis
 
 
 class TestAnalysis(TestCase):
     def setUp(self):
         self.fo = uu.get_mock_fileobject()
-        repository.initialize()
+        uu.init_session_repository()
 
     def test_analysis_start_requires_file_object_argument(self):
         with self.assertRaises(TypeError):

@@ -574,3 +574,8 @@ def is_importable(module_name):
         return False
     else:
         return True
+
+
+def init_session_repository():
+    from core import repository
+    repository.initialize()

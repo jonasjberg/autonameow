@@ -29,14 +29,9 @@ from core.evaluate.rulematcher import (
     prioritize_rules,
 )
 from core import constants as C
-from core import repository
 
 
-def init_repository():
-    repository.initialize()
-
-
-init_repository()
+uu.init_session_repository()
 dummy_config = Configuration(DEFAULT_CONFIG)
 
 
