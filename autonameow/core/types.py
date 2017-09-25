@@ -94,25 +94,6 @@ class BaseType(object):
     def test(self, value):
         return isinstance(value, self.equivalent_types)
 
-    def normalize(self, value):
-        """
-        Processes the given value to a form suitable for serialization/storage.
-
-        Calling this method should be equivalent to calling 'coerce' followed
-        by some processing that produces a "simplified" representation of
-        the value.  Strings might be converted to lower-case, etc.
-
-        Args:
-            value: The value to coerce as any type, including None.
-
-        Returns:
-            A "normalized" version of the given value if the value can be
-            coerced and normalized, or the class "null" value.
-        Raises:
-            AWTypeError: The value could not be coerced and/or normalized.
-        """
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
     def coerce(self, value):
         """
         Coerces values whose types are included in "coercible_types".
@@ -129,6 +110,25 @@ class BaseType(object):
             coercion fails.
         Raises:
             AWTypeError: The value could not be coerced.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def normalize(self, value):
+        """
+        Processes the given value to a form suitable for serialization/storage.
+
+        Calling this method should be equivalent to calling 'coerce' followed
+        by some processing that produces a "simplified" representation of
+        the value.  Strings might be converted to lower-case, etc.
+
+        Args:
+            value: The value to coerce as any type, including None.
+
+        Returns:
+            A "normalized" version of the given value if the value can be
+            coerced and normalized, or the class "null" value.
+        Raises:
+            AWTypeError: The value could not be coerced and/or normalized.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
@@ -181,13 +181,6 @@ class Path(BaseType):
 
         self._fail_coercion(value)
 
-    def normalize(self, value):
-        value = self.__call__(value)
-        if value:
-            return util.normpath(value)
-
-        self._fail_normalization(value)
-
     def coerce(self, value):
         if value:
             try:
@@ -196,6 +189,13 @@ class Path(BaseType):
                 pass
 
         self._fail_coercion(value)
+
+    def normalize(self, value):
+        value = self.__call__(value)
+        if value:
+            return util.normpath(value)
+
+        self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         parsed = self.__call__(value)
@@ -208,6 +208,12 @@ class PathComponent(BaseType):
     equivalent_types = (bytes, )
     null = b''
 
+    def coerce(self, value):
+        try:
+            return util.bytestring_path(value)
+        except (ValueError, TypeError):
+            self._fail_coercion(value)
+
     def normalize(self, value):
         value = self.__call__(value)
         if value:
@@ -215,12 +221,6 @@ class PathComponent(BaseType):
             return os.path.normpath(os.path.expanduser(util.syspath(value)))
 
         self._fail_normalization(value)
-
-    def coerce(self, value):
-        try:
-            return util.bytestring_path(value)
-        except (ValueError, TypeError):
-            self._fail_coercion(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -478,6 +478,13 @@ class Date(BaseType):
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
 
+    # Override parent '_null' method to force returning only valid 'datetime'
+    # instances. Otherwise, raise an exception to be handled by the caller.
+    def _null(self):
+        raise AWTypeError(
+            '"{!r}" got incoercible data'.format(self)
+        )
+
     def coerce(self, value):
         try:
             string_value = AW_STRING(value)
@@ -495,13 +502,6 @@ class Date(BaseType):
             return value.replace(microsecond=0)
 
         self._fail_normalization(value)
-
-    # Override parent '_null' method to force returning only valid 'datetime'
-    # instances. Otherwise, raise an exception to be handled by the caller.
-    def _null(self):
-        raise AWTypeError(
-            '"{!r}" got incoercible data'.format(self)
-        )
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -532,6 +532,13 @@ class TimeDate(BaseType):
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
 
+    # Override parent '_null' method to force returning only valid 'datetime'
+    # instances. Otherwise, raise an exception to be handled by the caller.
+    def _null(self):
+        raise AWTypeError(
+            '"{!r}" got incoercible data'.format(self)
+        )
+
     def coerce(self, value):
         try:
             return try_parse_datetime(value)
@@ -544,13 +551,6 @@ class TimeDate(BaseType):
             return value.replace(microsecond=0)
 
         self._fail_normalization(value)
-
-    # Override parent '_null' method to force returning only valid 'datetime'
-    # instances. Otherwise, raise an exception to be handled by the caller.
-    def _null(self):
-        raise AWTypeError(
-            '"{!r}" got incoercible data'.format(self)
-        )
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
