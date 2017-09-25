@@ -368,6 +368,10 @@ def normpaths_from_opts(path_list, ignore_globs, recurse):
 class PathCollector(object):
     def __init__(self, ignore_globs=None, recurse=False):
         if ignore_globs:
+            if not isinstance(ignore_globs, (list, frozenset)):
+                ignore_globs = [ignore_globs]
+
+            # Convert globs to internal format.
             self.ignore_globs = [util.bytestring_path(i) for i in ignore_globs]
         else:
             self.ignore_globs = []
@@ -377,6 +381,8 @@ class PathCollector(object):
     def get_paths(self, path_list):
         if not path_list:
             return []
+        if not isinstance(path_list, list):
+            path_list = [path_list]
 
         file_list = set()
 

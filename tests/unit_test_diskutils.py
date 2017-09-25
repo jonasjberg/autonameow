@@ -597,6 +597,7 @@ class TestPathCollector(TestCase):
         pc = diskutils.PathCollector(recurse=True)
         actual = pc.get_paths(_search_paths)
 
+        self.assertEqual(len(actual), len(ABSPATH_FILES_SUBSUBDIR_A))
         for f in actual:
             self.assertTrue(uu.file_exists(f))
             self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_A)
@@ -609,12 +610,65 @@ class TestPathCollector(TestCase):
         pc = diskutils.PathCollector(recurse=True)
         actual = pc.get_paths(_search_paths)
 
+        self.assertEqual(len(actual), len(ABSPATH_FILES_SUBSUBDIR_B))
         for f in actual:
             self.assertTrue(uu.file_exists(f))
             self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_B)
             self.assertNotIn(f, ABSPATH_FILES_SUBSUBDIR_A)
             self.assertNotIn(f, ABSPATH_FILES_SUBDIR)
             self.assertTrue(isinstance(f, bytes))
+
+    def test_returns_empty_list_for_catch_all_glob(self):
+        _search_paths = [to_abspath(['subdir'])]
+
+        pc = diskutils.PathCollector(recurse=False, ignore_globs=['*'])
+        a = pc.get_paths(_search_paths)
+        self.assertEqual(len(a), 0)
+
+        pc = diskutils.PathCollector(recurse=True, ignore_globs=['*'])
+        b = pc.get_paths(_search_paths)
+        self.assertEqual(len(b), 0)
+
+    def test_returns_all_for_non_matching_glob(self):
+        _search_paths = [to_abspath(['subdir'])]
+        pc = diskutils.PathCollector(recurse=True, ignore_globs=['*foobar*'])
+        actual = pc.get_paths(_search_paths)
+
+        self.assertEqual(len(actual), len(ABSPATH_FILES_ALL))
+        for f in actual:
+            self.assertTrue(uu.file_exists(f))
+            self.assertIn(f, ABSPATH_FILES_ALL)
+            self.assertTrue(isinstance(f, bytes))
+
+    def test_returns_expected_for_glob_a(self):
+        _search_paths = uu.abspath_testfile('configs')
+        pc = diskutils.PathCollector(ignore_globs=['*'])
+        actual = pc.get_paths(_search_paths)
+        self.assertEqual(len(actual), 0)
+
+    def test_returns_expected_for_glob_b(self):
+        _search_paths = uu.abspath_testfile('configs')
+        pc = diskutils.PathCollector(ignore_globs=['*.yaml'])
+        actual = pc.get_paths(_search_paths)
+        self.assertEqual(len(actual), 0)
+
+    def test_returns_expected_for_glob_c(self):
+        _search_paths = uu.abspath_testfile('configs')
+        pc = diskutils.PathCollector(ignore_globs=None)
+        actual = pc.get_paths(_search_paths)
+        self.assertEqual(len(actual), 3)
+
+    def test_returns_expected_for_glob_d(self):
+        _search_paths = uu.abspath_testfile('configs')
+        pc = diskutils.PathCollector(ignore_globs=['*_filetags.yaml'])
+        actual = pc.get_paths(_search_paths)
+        self.assertEqual(len(actual), 2)
+
+    def test_returns_expected_for_glob_e(self):
+        _search_paths = uu.abspath_testfile('configs')
+        pc = diskutils.PathCollector(ignore_globs=['*/integration_test_config_*a*.yaml'])
+        actual = pc.get_paths(_search_paths)
+        self.assertEqual(len(actual), 1)
 
 
 class UnitTestIgnorePaths(TestCase):
