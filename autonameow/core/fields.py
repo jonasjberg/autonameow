@@ -278,6 +278,26 @@ class Tags(NameTemplateField):
     pass
 
 
+def format_string_placeholders(format_string):
+    """
+    Gets the format string placeholder fields from a text string.
+
+    The text "{foo} mjao baz {bar}" would return ['foo', 'bar'].
+
+    Args:
+        format_string: Format string to get placeholders from.
+
+    Returns:
+        Any format string placeholder fields as a list of unicode strings.
+    """
+    if not isinstance(format_string, str):
+        raise TypeError('Expected "format_string" to be of type str')
+    if not format_string.strip():
+        return []
+
+    return re.findall(r'{(\w+)}', format_string)
+
+
 author = Author
 date = Date
 datetime = DateTime

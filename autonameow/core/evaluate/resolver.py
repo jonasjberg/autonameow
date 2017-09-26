@@ -20,9 +20,9 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import re
 
 from core import repository
+from core.fields import format_string_placeholders
 
 log = logging.getLogger(__name__)
 
@@ -117,26 +117,6 @@ def all_template_fields_defined(template, data_sources):
             log.error('Field "{}" has not been assigned a source'.format(field))
             return False
     return True
-
-
-def format_string_placeholders(format_string):
-    """
-    Gets the format string placeholder fields from a text string.
-
-    The text "{foo} mjao baz {bar}" would return ['foo', 'bar'].
-
-    Args:
-        format_string: Format string to get placeholders from.
-
-    Returns:
-        Any format string placeholder fields as a list of unicode strings.
-    """
-    if not isinstance(format_string, str):
-        raise TypeError('Expected "format_string" to be of type str')
-    if not format_string.strip():
-        return []
-
-    return re.findall(r'{(\w+)}', format_string)
 
 
 def has_data_for_placeholder_fields(template, data):
