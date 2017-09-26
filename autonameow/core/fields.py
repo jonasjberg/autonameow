@@ -348,6 +348,27 @@ def nametemplatefield_class_from_string(string):
     return None
 
 
+def nametemplatefield_classes_in_formatstring(format_string):
+    """
+    Gets any name template field classes from format string.
+
+    Args:
+        format_string: The format string to search as a Unicode string.
+                       Example: "[{datetime}] foo -- {author} bar.{extension}"
+
+    Returns:
+        Any name template field classes contained in the string as a list of
+        classes, or an empty list if none are found.
+    """
+    if not format_string or not isinstance(format_string, str):
+        return []
+    if not format_string.strip():
+        return []
+
+    placeholders = format_string_placeholders(format_string)
+    return [nametemplatefield_class_from_string(p) for p in placeholders]
+
+
 author = Author
 date = Date
 datetime = DateTime

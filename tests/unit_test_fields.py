@@ -36,6 +36,7 @@ from core.fields import (
     GenericSubject,
     GenericTags,
     is_valid_template_field,
+    nametemplatefield_classes_in_formatstring,
     nametemplatefield_class_from_string
 )
 import unit_utils as uu
@@ -190,5 +191,37 @@ class TestNametemplatefieldClassFromString(TestCase):
         self.assertEqual(actual, expected)
 
     def test_returns_expected_classes(self):
+        self._aE('', None)
+        self._aE('auuuthoorrr', None)
         self._aE('author', fields.Author)
         self._aE('title', fields.Title)
+
+
+class TestNametemplatefieldClassesInFormatstring(TestCase):
+    def _aC(self, string, klass_list):
+        actual = nametemplatefield_classes_in_formatstring(string)
+        for klass in klass_list:
+            self.assertIn(klass, actual)
+
+    def test_contains_none(self):
+        self._aC('', [])
+        self._aC('foo', [])
+
+    def test_contains_expected_1(self):
+        self._aC('{title}', [fields.Title])
+        self._aC('{title} foo', [fields.Title])
+        self._aC('{title} title', [fields.Title])
+
+    def test_contains_expected_2(self):
+        self._aC('{title} {author}',
+                 [fields.Title, fields.Author])
+        self._aC('{title} foo {author}',
+                 [fields.Title, fields.Author])
+        self._aC('{title} title {author} author',
+                 [fields.Title, fields.Author])
+
+    def test_contains_expected_3(self):
+        self._aC('{title} {author} {description}',
+                 [fields.Title, fields.Author, fields.Description])
+        self._aC('foo {title} {author} - {description}.foo',
+                 [fields.Title, fields.Author, fields.Description])
