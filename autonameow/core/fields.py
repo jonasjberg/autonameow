@@ -324,10 +324,7 @@ def is_valid_template_field(template_field):
     Returns:
         True if the given string is a legal name template field, else False.
     """
-    if template_field:
-        if template_field in NAMETEMPLATEFIELD_CLASS_STRING_LOOKUP:
-            return True
-    return False
+    return nametemplatefield_class_from_string(template_field) is not None
 
 
 def nametemplatefield_class_from_string(string):
