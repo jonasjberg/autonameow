@@ -29,11 +29,12 @@ from core import (
     config,
     exceptions,
     extraction,
-    namebuilder,
     options,
+    namebuilder,
     repository,
     util,
 )
+from core import constants as C
 from core.config import DefaultConfigFilePath
 from core.config.configuration import Configuration
 from core.evaluate.resolver import Resolver
@@ -46,8 +47,6 @@ from core.util import (
     diskutils,
     sanity
 )
-from core import constants as C
-
 
 log = logging.getLogger(__name__)
 

@@ -43,20 +43,23 @@ def build(config, name_template, field_data_map):
     """
     log.debug('Using name template: "{}"'.format(name_template))
 
+    # TODO: Move to use name template field classes as keys.
+    data = _with_simple_string_keys(field_data_map)
+
     if not field_data_map:
         log.error('Name builder got empty data map! This should not happen ..')
         raise exceptions.NameBuilderError('Unable to assemble basename')
 
     # TODO: [TD0017][TD0041] Format ALL data before assembly!
     # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
-    data = pre_assemble_format(field_data_map, config)
+    data = pre_assemble_format(data, config)
     log.debug('After pre-assembly formatting;')
     log.debug(str(data))
 
     # Construct the new file name
     try:
         new_name = populate_name_template(name_template, **data)
-    except exceptions.NameTemplateSyntaxError as e:
+    except (exceptions.NameTemplateSyntaxError, TypeError) as e:
         log.debug('Unable to assemble basename with template "{!s}" and '
                   'data: {!s}'.format(name_template, data))
         raise exceptions.NameBuilderError(
@@ -101,6 +104,10 @@ def build(config, name_template, field_data_map):
     # TODO: [TD0036] Allow per-field replacements and customization.
 
     return new_name
+
+
+def _with_simple_string_keys(data_dict):
+    return {k.as_placeholder(): v for k, v in data_dict.items()}
 
 
 def post_assemble_format(new_name):
