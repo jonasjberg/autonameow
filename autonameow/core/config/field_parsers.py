@@ -337,7 +337,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['NAME_FORMAT']
 
     @staticmethod
-    def is_valid_format_string(expression):
+    def is_valid_nametemplate_string(expression):
         if not expression:
             return False
 
@@ -350,7 +350,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
     @classmethod
     def get_validation_function(cls):
-        return cls.is_valid_format_string
+        return cls.is_valid_nametemplate_string
 
     @classmethod
     def get_evaluation_function(cls):

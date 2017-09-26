@@ -147,7 +147,7 @@ class Configuration(object):
             # Remove any non-breaking spaces in the name template.
             v = util.remove_nonbreaking_spaces(v)
 
-            if NameFormatConfigFieldParser.is_valid_format_string(v):
+            if NameFormatConfigFieldParser.is_valid_nametemplate_string(v):
                 loaded_templates[k] = v
             else:
                 msg = 'invalid name template "{}": "{}"'.format(k, v)
@@ -214,7 +214,7 @@ class Configuration(object):
         if name_format in self.name_templates:
             valid_format = self.name_templates.get(name_format, False)
         else:
-            if NameFormatConfigFieldParser.is_valid_format_string(name_format):
+            if NameFormatConfigFieldParser.is_valid_nametemplate_string(name_format):
                 valid_format = util.remove_nonbreaking_spaces(name_format)
             else:
                 valid_format = False
