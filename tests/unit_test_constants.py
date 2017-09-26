@@ -68,7 +68,3 @@ class TestConstants(TestCase):
     def test_constants_contains_analysis_results_fields(self):
         self.assertIsNotNone(C.ANALYSIS_RESULTS_FIELDS)
         self.assertTrue(isinstance(C.ANALYSIS_RESULTS_FIELDS, list))
-
-    def test_constants_contains_legal_name_template_fields(self):
-        self.assertIsNotNone(C.NAME_TEMPLATE_FIELDS)
-        self.assertTrue(isinstance(C.NAME_TEMPLATE_FIELDS, list))

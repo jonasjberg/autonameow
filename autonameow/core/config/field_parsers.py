@@ -26,6 +26,7 @@ from datetime import datetime
 
 from core import constants as C
 from core import (
+    fields,
     exceptions,
     namebuilder,
     types,
@@ -333,6 +334,13 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         return lambda *_: True
 
 
+# Used for validating name templates. Populated like so;
+#   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
+DATA_FIELDS = dict.fromkeys(
+    fields.NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS, 'DUMMY'
+)
+
+
 class NameFormatConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['NAME_FORMAT']
 
@@ -477,9 +485,6 @@ def eval_meowuri_glob(meowuri, glob_list):
 # Instantiate rule parsers inheriting from the 'Parser' class.
 FieldParserInstances = get_instantiated_field_parsers()
 
-# This is used for validating name templates. Dict is populated like this;
-#   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
-DATA_FIELDS = dict.fromkeys(C.NAME_TEMPLATE_FIELDS, 'DUMMY')
 RE_VERSION_NUMBER = re.compile(r'v?(\d+)\.(\d+)\.(\d+)')
 
 

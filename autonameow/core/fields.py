@@ -313,6 +313,11 @@ NAMETEMPLATEFIELD_CLASS_STRING_LOOKUP = {
     k.as_placeholder(): k for k in available_nametemplatefield_classes()
 }
 
+# This defines legal name template fields.
+NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS = [
+    f.as_placeholder() for f in available_nametemplatefield_classes()
+]
+
 
 def is_valid_template_field(template_field):
     """

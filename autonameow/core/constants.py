@@ -39,12 +39,6 @@ STRING_PROGRAM_NAME = core.version.__title__.lower()
 ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 
 
-# Legal name template fields are defined here.
-# These are used when constructing the file names and for unit tests.
-NAME_TEMPLATE_FIELDS = (
-    ANALYSIS_RESULTS_FIELDS + ['date', 'description', 'edition', 'extension']
-)
-
 # Default MIME type string used if the MIME type detection fails.
 MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
 
