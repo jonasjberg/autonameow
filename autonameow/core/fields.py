@@ -23,6 +23,7 @@ import re
 from collections import namedtuple
 
 from core import constants as C
+from core import types
 
 
 # TODO: [TD0049] Think about defining legal "placeholder fields".
@@ -192,9 +193,16 @@ class NameTemplateField(object):
     def as_placeholder(cls):
         return cls.__name__.lower()
 
+    def __str__(self):
+        return self.__class__.__name__.lower()
+
 
 class Title(NameTemplateField):
     # TODO: [TD0049] Remove or implement ..
+    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
+                        types.AW_PATH,
+                        types.AW_STRING,
+                        types.AW_INTEGER)
 
     def __init__(self, content):
         super(Title).__init__(content)

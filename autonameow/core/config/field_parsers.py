@@ -24,15 +24,13 @@ import re
 import unicodedata
 from datetime import datetime
 
-from core import constants as C
 from core import (
-    fields,
     exceptions,
+    fields,
     namebuilder,
     types,
-    util,
+    util
 )
-
 
 log = logging.getLogger(__name__)
 

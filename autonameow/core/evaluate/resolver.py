@@ -22,7 +22,10 @@
 import logging
 
 from core import repository
-from core.fields import format_string_placeholders
+from core.fields import (
+    format_string_placeholders,
+    nametemplatefield_classes_in_formatstring
+)
 
 log = logging.getLogger(__name__)
 
@@ -41,25 +44,37 @@ class Resolver(object):
     def __init__(self, file_object, name_template):
         self.file = file_object
         self.name_template = name_template
+
+        self._fields = nametemplatefield_classes_in_formatstring(name_template)
+
         self.data_sources = {}
         self.fields_data = {}
 
     def mapped_all_template_fields(self):
-        return all_template_fields_defined(self.name_template,
-                                           self.data_sources)
+        return all(field in self.data_sources for field in self._fields)
 
     def add_known_source(self, field, meowuri):
         self.data_sources[field] = meowuri
 
     def collect(self):
         self._gather_data()
+        self._verify_types()
 
     def collected_data_for_all_fields(self):
         if not self.fields_data:
             return False
 
-        return has_data_for_placeholder_fields(self.name_template,
-                                               self.fields_data)
+        return self._has_data_for_placeholder_fields()
+
+    def _has_data_for_placeholder_fields(self):
+        for field in self._fields:
+            if field not in self.fields_data.keys():
+                log.error('Missing placeholder field "{}"'.format(field))
+                return False
+            elif self.fields_data.get(field) is None:
+                log.error('None data for placeholder field "{}"'.format(field))
+                return False
+        return True
 
     def _gather_data(self):
         # TODO: [TD0017] Rethink source specifications relation to source data.
@@ -88,58 +103,14 @@ class Resolver(object):
                 )
                 self.data_sources[field] = None
 
+    def _verify_types(self):
+        for field, data in self.fields_data.items():
+            print('Field: {!s}'.format(field))
+            print('Data:  {!s}'.format(data))
+
     def _request_data(self, file, meowuri):
         log.debug('{} requesting [{!s}]->[{!s}]'.format(self, file, meowuri))
         return repository.SessionRepository.query(file, meowuri)
 
     def __str__(self):
         return self.__class__.__name__
-
-
-def all_template_fields_defined(template, data_sources):
-    """
-    Tests if all name template placeholder fields is included in the sources.
-
-    This tests only the keys of the sources, for instance "datetime".
-    But the value stored for the key could still be invalid.
-
-    Args:
-        template: The name template to compare against.
-        data_sources: The sources to check.
-
-    Returns:
-        True if all placeholder fields in the template is accounted for in
-        the sources. else False.
-    """
-    format_fields = format_string_placeholders(template)
-    for field in format_fields:
-        if field not in data_sources.keys():
-            log.error('Field "{}" has not been assigned a source'.format(field))
-            return False
-    return True
-
-
-def has_data_for_placeholder_fields(template, data):
-    """
-    Tests if all placeholder fields in the given 'template' has data in 'data'.
-
-    Data should be a dict keyed by placeholder fields in 'template'.
-    If any of the fields are missing or None, the test fails.
-
-    Args:
-        template: Name template to test, as a Unicode string.
-        data: Dict keyed by Unicode strings, storing arbitrary data.
-
-    Returns:
-        True if all placeholder fields in 'template' is present in 'data' and
-        the values stored in 'data' is not None. Else False.
-    """
-    placeholder_fields = format_string_placeholders(template)
-    for field in placeholder_fields:
-        if field not in data.keys():
-            log.error('Missing placeholder field "{}"'.format(field))
-            return False
-        elif data.get(field) is None:
-            log.error('None data for placeholder field "{}"'.format(field))
-            return False
-    return True

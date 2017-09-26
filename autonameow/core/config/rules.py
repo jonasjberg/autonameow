@@ -504,37 +504,41 @@ def parse_conditions(raw_conditions):
 def parse_data_sources(raw_sources):
     passed = {}
 
-    log.debug('Parsing {} raw data sources ..'.format(len(raw_sources)))
+    log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
 
-    for template_field, meowuris in raw_sources.items():
-        if not meowuris:
-            log.debug('Skipped data source with empty meowURI '
-                      '(template field: "{!s}")'.format(template_field))
+    for raw_templatefield, raw_meowuris in raw_sources.items():
+        if not raw_meowuris:
+            log.debug('Skipped source with empty meowURI '
+                      '(template field: "{!s}")'.format(raw_templatefield))
             continue
-        elif not template_field:
-            log.debug('Skipped data source with empty name template field '
-                      '(meowURI: "{!s}")'.format(meowuris))
-            continue
-
-        if not fields.is_valid_template_field(template_field):
-            log.warning('Skipped data source with invalid name template field '
-                        '(meowURI: "{!s}")'.format(meowuris))
+        elif not raw_templatefield:
+            log.debug('Skipped source with empty name template field '
+                      '(meowURI: "{!s}")'.format(raw_meowuris))
             continue
 
-        if not isinstance(meowuris, list):
-            meowuris = [meowuris]
-        for meowuri in meowuris:
+        if not fields.is_valid_template_field(raw_templatefield):
+            log.warning('Skipped source with invalid name template field '
+                        '(meowURI: "{!s}")'.format(raw_meowuris))
+            continue
+
+        tf = fields.nametemplatefield_class_from_string(raw_templatefield)
+
+        if not isinstance(raw_meowuris, list):
+            raw_meowuris = [raw_meowuris]
+        for meowuri in raw_meowuris:
             if is_valid_source(meowuri):
-                log.debug('Validated data source: [{}]: {}'.format(
-                    template_field, meowuri))
-                passed[template_field] = meowuri
+                log.debug('Validated source: [{!s}]: {}'.format(
+                    tf.as_placeholder(), meowuri)
+                )
+                passed[tf] = meowuri
             else:
-                log.debug('Invalid data source: [{}]: {}'.format(
-                    template_field, meowuri))
+                log.debug('Invalid source: [{!s}]: {}'.format(
+                    tf.as_placeholder(), meowuri)
+                )
 
     log.debug(
-        'Returning {} (out of {}) valid data sources'.format(len(passed),
-                                                             len(raw_sources))
+        'Returning {} (out of {}) valid sources'.format(len(passed),
+                                                        len(raw_sources))
     )
     return passed
 
