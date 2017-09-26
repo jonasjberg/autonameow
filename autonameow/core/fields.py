@@ -188,6 +188,10 @@ class NameTemplateField(object):
         target_field_type = type(target_field)
         result = self._transforms[target_field_type](self._content)
 
+    @classmethod
+    def as_placeholder(cls):
+        return cls.__name__.lower()
+
 
 class Title(NameTemplateField):
     # TODO: [TD0049] Remove or implement ..
@@ -303,6 +307,29 @@ def available_nametemplatefield_classes():
     Returns: All available name template field classes as a list of classes.
     """
     return [k for k in globals()['NameTemplateField'].__subclasses__()]
+
+
+NAMETEMPLATEFIELD_CLASS_STRING_LOOKUP = {
+    k.as_placeholder(): k for k in available_nametemplatefield_classes()
+}
+
+
+def nametemplatefield_class_from_string(string):
+    """
+    Get a name template field class from a Unicode string.
+
+    Provides mapping strings used in user-defined format strings to classes.
+    String examples:  "title", "author", etc.
+
+    Args:
+        string: The string representation of the name template field class.
+
+    Returns: The associated name template field class or None.
+    """
+    if string and isinstance(string, str):
+        s = string.lower().strip()
+        return NAMETEMPLATEFIELD_CLASS_STRING_LOOKUP.get(s, None)
+    return None
 
 
 author = Author

@@ -34,7 +34,8 @@ from core.fields import (
     GenericMimeType,
     GenericProducer,
     GenericSubject,
-    GenericTags
+    GenericTags,
+    nametemplatefield_class_from_string
 )
 import unit_utils as uu
 
@@ -162,3 +163,13 @@ class TestAvailableNametemplatefieldClasses(TestCase):
         self.assertIn(fields.Publisher, actual)
         self.assertIn(fields.Tags, actual)
         self.assertIn(fields.Title, actual)
+
+
+class TestNametemplatefieldClassFromString(TestCase):
+    def _aE(self, string, expected):
+        actual = nametemplatefield_class_from_string(string)
+        self.assertEqual(actual, expected)
+
+    def test_returns_expected_classes(self):
+        self._aE('author', fields.Author)
+        self._aE('title', fields.Title)
