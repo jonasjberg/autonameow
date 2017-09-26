@@ -303,9 +303,11 @@ class Autonameow(object):
             return
 
         try:
-            new_name = namebuilder.build(config=self.active_config,
-                                         name_template=name_template,
-                                         field_data_map=resolver.fields_data)
+            new_name = namebuilder.build(
+                config=self.active_config,
+                name_template=name_template,
+                field_data_map=resolver.fields_data
+            )
         except exceptions.NameBuilderError as e:
             log.critical('Name assembly FAILED: {!s}'.format(e))
             raise exceptions.AutonameowException
@@ -314,9 +316,11 @@ class Autonameow(object):
         log.info('New name: "{}"'.format(
             util.displayable_path(new_name))
         )
-        self.do_rename(from_path=current_file.abspath,
-                       new_basename=new_name,
-                       dry_run=self.opts.dry_run)
+        self.do_rename(
+            from_path=current_file.abspath,
+            new_basename=new_name,
+            dry_run=self.opts.dry_run
+        )
 
     def exit_program(self, exit_code_):
         """
