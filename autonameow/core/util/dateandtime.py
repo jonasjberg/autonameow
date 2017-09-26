@@ -140,9 +140,6 @@ def regex_search_str(text):
 
     # TODO: [TD0091] This code should be removed and/or rewritten ..
 
-    # TODO: [TD0004] Enforce encoding boundary for extracted data.
-    text = util.decode_(text)
-
     DATE_SEP = r'[:\-._ /]?'
     TIME_SEP = r'[T:\-. _]?'
     DATE_REGEX = r'[12]\d{3}' + DATE_SEP + r'[01]\d' + DATE_SEP + r'[0123]\d'
@@ -196,8 +193,6 @@ def regex_search_str(text):
     dt_pattern_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
     for dt_str in re.findall(dt_pattern_2, text):
-        # TODO: [TD0004] Enforce encoding boundary for extracted data.
-        dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_2)
         except (TypeError, ValueError):
@@ -212,8 +207,6 @@ def regex_search_str(text):
     dt_pattern_3 = re.compile(r'\( ?[Cc] ?\) ?([12]\d{3})')
     dt_fmt_3 = '%Y'
     for dt_str in re.findall(dt_pattern_3, text):
-        # TODO: [TD0004] Enforce encoding boundary for extracted data.
-        dt_str = util.decode_(dt_str)
         try:
             dt = datetime.strptime(dt_str, dt_fmt_3)
         except (TypeError, ValueError):
@@ -239,9 +232,6 @@ def match_special_case(text):
     # TODO: [TD0043] Allow the user to tweak hardcoded settings.
     if text is None or text.strip() is None:
         return None
-
-    # TODO: [TD0004] Enforce encoding boundary for extracted data.
-    text = util.decode_(text)
 
     # TODO: [TD0043] Allow specifying custom matching patterns in the config.
     match_patterns = [('%Y-%m-%d_%H%M%S', 17),
@@ -298,9 +288,6 @@ def match_android_messenger_filename(text):
     #   2016-01-22 15:34:46+01:00
     # $ 1453473286723
 
-    # TODO: [TD0004] Enforce encoding boundary for extracted data.
-    text = util.decode_(text)
-
     results = []
 
     dt_pattern = re.compile(r'.*(received_)(\d{17})(\.jpe?g)?')
@@ -329,9 +316,6 @@ def match_any_unix_timestamp(text):
     """
     if text is None or text.strip() is None:
         return None
-
-    # TODO: [TD0004] Enforce encoding boundary for extracted data.
-    text = util.decode_(text)
 
     match_iter = re.finditer(r'(\d{10,13})', text)
     if match_iter is None:
@@ -672,9 +656,7 @@ def special_datetime_ocr_search(text):
     OCR returns result:       2016702708
     :return:
     """
-    # TODO: [TD0004] Enforce encoding boundary for extracted data.
     # TODO: [TD0091] Take a look at old, untested code ..
-    text = util.decode_(text)
 
     pattern = re.compile(r'(\d{4}7[01]\d7[0123]\d)')
     dt_fmt = '%Y7%m7%d'
@@ -697,7 +679,6 @@ def match_screencapture_unixtime(text):
     :param text: text to search for UNIX timestamp
     :return: datetime-object if a match is found, else None
     """
-    # TODO: [TD0004] Enforce encoding boundary for extracted data.
     text = util.decode_(text)
 
     pattern = re.compile(r'.*(\d{13}).*')

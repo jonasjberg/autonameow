@@ -77,6 +77,11 @@ class FilenameAnalyzer(BaseAnalyzer):
                    }, .. ]
         """
         fn = self.file_object.basename_prefix
+        try:
+            fn = types.AW_STRING(fn)
+        except types.AWTypeError:
+            return []
+
         results = []
 
         # 1. The Very Special Case

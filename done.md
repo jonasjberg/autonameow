@@ -12,6 +12,18 @@ University mail: `js224eh[a]student.lnu.se`
 
 * 2017-09-27
 
+    > High Priority
+    > -------------
+    >
+    > * `[TD0004]` __Text encoding issues__
+    >     * Enforce strict boundaries between all external systems and an internal
+    >       text data representation.
+    >     * Store original filename parts as both bytestrings and the internal
+    >       representation?  If the user wants to use a part of the original file
+    >       name in the result, the conversion can not be lossy. Best way to prevent
+    >       issues is to store bytestrings and perform any processing on copies that
+    >       have __not__ been converted to the internal format?
+    >
     > Medium Priority
     > ---------------
     >

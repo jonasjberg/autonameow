@@ -29,15 +29,6 @@ High Priority
   displayed properly due to them not being handled properly before being passed
   to `yaml.dump` which performs the formatting of the results dict.
 
-* `[TD0004]` __Text encoding issues__
-    * Enforce strict boundaries between all external systems and an internal
-      text data representation.
-    * Store original filename parts as both bytestrings and the internal
-      representation?  If the user wants to use a part of the original file
-      name in the result, the conversion can not be lossy. Best way to prevent
-      issues is to store bytestrings and perform any processing on copies that
-      have __not__ been converted to the internal format?
-
 * `[TD0044]` __Rework converting "raw data" to internal representations__
     * Converting raw data to internal representations is currently implemented
       very poorly and must be reworked.
