@@ -51,7 +51,11 @@ class Resolver(object):
         return all(field in self.data_sources for field in self._fields)
 
     def add_known_source(self, field, meowuri):
-        self.data_sources[field] = meowuri
+        if field in self._fields:
+            self.data_sources[field] = meowuri
+        else:
+            log.debug('Attempted to add source for unused name template field '
+                      '"{!s}": {!s}'.format(field, meowuri))
 
     def add_known_sources(self, source_dict):
         for _field, _meowuri in source_dict.items():
