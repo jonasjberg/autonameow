@@ -53,6 +53,10 @@ class Resolver(object):
     def add_known_source(self, field, meowuri):
         self.data_sources[field] = meowuri
 
+    def add_known_sources(self, source_dict):
+        for _field, _meowuri in source_dict.items():
+            self.add_known_source(_field, _meowuri)
+
     def collect(self):
         self._gather_data()
         self._verify_types()
