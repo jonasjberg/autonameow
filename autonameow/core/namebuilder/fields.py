@@ -26,6 +26,8 @@ from core import types
 
 class NameTemplateField(object):
     # TODO: [TD0049] Remove or implement ..
+    COMPATIBLE_TYPES = (None, )
+
     def __init__(self, content):
         self._content = content
 
@@ -43,6 +45,10 @@ class NameTemplateField(object):
     @classmethod
     def as_placeholder(cls):
         return cls.__name__.lower()
+
+    @classmethod
+    def type_compatible(cls, type_class):
+        return type_class in cls.COMPATIBLE_TYPES
 
     def __str__(self):
         return self.__class__.__name__.lower()
@@ -68,6 +74,10 @@ class Title(NameTemplateField):
 
 class Edition(NameTemplateField):
     # TODO: [TD0049] Remove or implement ..
+    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
+                        types.AW_PATH,
+                        types.AW_STRING,
+                        types.AW_INTEGER)
 
     REPLACE_ORDINALS = []
     for _find, _replace in (
@@ -96,6 +106,10 @@ class Edition(NameTemplateField):
 
 
 class Extension(NameTemplateField):
+    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
+                        types.AW_PATH,
+                        types.AW_STRING,
+                        types.AW_MIMETYPE)
     # TODO: Remove or implement ..
 
     def __init__(self, content):
@@ -117,26 +131,47 @@ class Creator(NameTemplateField):
 
 
 class DateTime(NameTemplateField):
+    COMPATIBLE_TYPES = (types.AW_DATE,
+                        types.AW_TIMEDATE,
+                        types.AW_EXIFTOOLTIMEDATE,
+                        types.AW_PYPDFTIMEDATE)
     # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Date(NameTemplateField):
+    COMPATIBLE_TYPES = (types.AW_DATE,
+                        types.AW_TIMEDATE,
+                        types.AW_EXIFTOOLTIMEDATE,
+                        types.AW_PYPDFTIMEDATE)
     # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Description(NameTemplateField):
+    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
+                        types.AW_PATH,
+                        types.AW_STRING,
+                        types.AW_INTEGER,
+                        types.AW_FLOAT)
     # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Publisher(NameTemplateField):
+    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
+                        types.AW_PATH,
+                        types.AW_STRING,
+                        types.AW_INTEGER)
     # TODO: [TD0049] Remove or implement ..
     pass
 
 
 class Tags(NameTemplateField):
+    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
+                        types.AW_PATH,
+                        types.AW_STRING,
+                        types.AW_INTEGER)
     # TODO: [TD0049] Remove or implement ..
     pass
 

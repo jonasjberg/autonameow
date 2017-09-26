@@ -102,8 +102,13 @@ class Resolver(object):
 
     def _verify_types(self):
         for field, data in self.fields_data.items():
-            print('Field: {!s}'.format(field))
-            print('Data:  {!s}'.format(data))
+            log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
+            _compatible = field.type_compatible(data.coercer)
+            if _compatible:
+                log.debug('Verified Field-Data Compatibility  OK!')
+            else:
+                self.fields_data[field] = None
+                log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
 
     def _request_data(self, file, meowuri):
         log.debug('{} requesting [{!s}]->[{!s}]'.format(self, file, meowuri))
