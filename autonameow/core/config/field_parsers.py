@@ -474,23 +474,6 @@ def eval_meowuri_glob(meowuri, glob_list):
     return False
 
 
-def is_valid_template_field(template_field):
-    """
-    Checks whether the given string is a legal name template placeholder field.
-
-    Args:
-        template_field: The field to test as type str.
-
-    Returns:
-        True if the given string is a legal name template field, else False.
-    """
-    if not template_field:
-        return False
-    if template_field in C.NAME_TEMPLATE_FIELDS:
-        return True
-    return False
-
-
 # Instantiate rule parsers inheriting from the 'Parser' class.
 FieldParserInstances = get_instantiated_field_parsers()
 

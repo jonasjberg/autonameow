@@ -31,7 +31,6 @@ from core.config.field_parsers import (
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser,
     suitable_field_parser_for,
-    is_valid_template_field,
     eval_meowuri_glob,
     parse_versioning
 )
@@ -380,24 +379,6 @@ class TestFieldParserConstants(TestCase):
     def test_has_dummy_data_fields_constant(self):
         self.assertIsNotNone(field_parsers.DATA_FIELDS)
         self.assertTrue(isinstance(field_parsers.DATA_FIELDS, dict))
-
-
-class TestIsValidTemplateField(TestCase):
-    def test_invalid_fields_returns_false(self):
-        self.assertFalse(is_valid_template_field(None))
-        self.assertFalse(is_valid_template_field(''))
-        self.assertFalse(is_valid_template_field('foo'))
-
-    def test_valid_fields_return_true(self):
-        self.assertTrue(is_valid_template_field('author'))
-        self.assertTrue(is_valid_template_field('date'))
-        self.assertTrue(is_valid_template_field('datetime'))
-        self.assertTrue(is_valid_template_field('description'))
-        self.assertTrue(is_valid_template_field('edition'))
-        self.assertTrue(is_valid_template_field('extension'))
-        self.assertTrue(is_valid_template_field('publisher'))
-        self.assertTrue(is_valid_template_field('tags'))
-        self.assertTrue(is_valid_template_field('title'))
 
 
 class TestEvalMeowURIGlob(TestCase):

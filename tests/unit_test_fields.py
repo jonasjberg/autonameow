@@ -35,6 +35,7 @@ from core.fields import (
     GenericProducer,
     GenericSubject,
     GenericTags,
+    is_valid_template_field,
     nametemplatefield_class_from_string
 )
 import unit_utils as uu
@@ -163,6 +164,24 @@ class TestAvailableNametemplatefieldClasses(TestCase):
         self.assertIn(fields.Publisher, actual)
         self.assertIn(fields.Tags, actual)
         self.assertIn(fields.Title, actual)
+
+
+class TestIsValidTemplateField(TestCase):
+    def test_invalid_fields_returns_false(self):
+        self.assertFalse(is_valid_template_field(None))
+        self.assertFalse(is_valid_template_field(''))
+        self.assertFalse(is_valid_template_field('foo'))
+
+    def test_valid_fields_return_true(self):
+        self.assertTrue(is_valid_template_field('author'))
+        self.assertTrue(is_valid_template_field('date'))
+        self.assertTrue(is_valid_template_field('datetime'))
+        self.assertTrue(is_valid_template_field('description'))
+        self.assertTrue(is_valid_template_field('edition'))
+        self.assertTrue(is_valid_template_field('extension'))
+        self.assertTrue(is_valid_template_field('publisher'))
+        self.assertTrue(is_valid_template_field('tags'))
+        self.assertTrue(is_valid_template_field('title'))
 
 
 class TestNametemplatefieldClassFromString(TestCase):

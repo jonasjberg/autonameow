@@ -314,6 +314,22 @@ NAMETEMPLATEFIELD_CLASS_STRING_LOOKUP = {
 }
 
 
+def is_valid_template_field(template_field):
+    """
+    Checks whether the given string is a legal name template placeholder field.
+
+    Args:
+        template_field: The field to test as type str.
+
+    Returns:
+        True if the given string is a legal name template field, else False.
+    """
+    if template_field:
+        if template_field in NAMETEMPLATEFIELD_CLASS_STRING_LOOKUP:
+            return True
+    return False
+
+
 def nametemplatefield_class_from_string(string):
     """
     Get a name template field class from a Unicode string.

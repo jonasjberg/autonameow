@@ -23,6 +23,7 @@ import logging
 
 from core import (
     exceptions,
+    fields,
     repository,
     types,
     util,
@@ -515,7 +516,7 @@ def parse_data_sources(raw_sources):
                       '(meowURI: "{!s}")'.format(meowuris))
             continue
 
-        if not field_parsers.is_valid_template_field(template_field):
+        if not fields.is_valid_template_field(template_field):
             log.warning('Skipped data source with invalid name template field '
                         '(meowURI: "{!s}")'.format(meowuris))
             continue
