@@ -35,6 +35,33 @@ University mail: `js224eh[a]student.lnu.se`
     >   Might be helpful to define all legal fields (such as `title`, `datetime`,
     >   `author`, etc.) somewhere and keep references to type coercion wrappers,
     >   maybe validation and/or formatting functionality; in the field definitions.
+    >
+    > * `[TD0018]` There are more cases like the above that should be thought about.
+    >   A common case is the slight modification to the current file name.
+    >   Original file name:
+    >     ```
+    >     2017-06-20_00-49-56 Working on autonameow.png
+    >     ```
+    >   Desired file name:
+    >     ```
+    >     2017-06-20T004956 Working on autonameow.png
+    >     ```
+    >   How should this be specified in the configuration?
+    >   A simple alternative is to specify the filename analyzer as the source.
+    >   The `DATETIME_FORMAT` makes sure that the timestamp format is changed.
+    >
+    >     ```yaml
+    >     RULES:
+    >     -   DATA_SOURCES:
+    >             extension: contents.basename.extension
+    >             datetime: analysis.filename.{?????}
+    >             title: filesystem.basename.prefix
+    >         NAME_FORMAT: "{datetime} {title}.{extension}"
+    >     DATETIME_FORMAT:
+    >         datetime: '%Y-%m-%dT%H%M%S'
+    >     ```
+    >   But this is not configurable -- how would the filename analyzer know
+    >   which of many possible datetime results to use?
 
 * 2017-09-25
 

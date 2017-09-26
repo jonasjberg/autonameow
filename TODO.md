@@ -101,33 +101,6 @@ Medium Priority
   `image/png`, etc can't be used as a file extension without some
   pre-processing -- converting `image/png` to `png`.
 
-* `[TD0018]` There are more cases like the above that should be thought about.
-  A common case is the slight modification to the current file name.
-  Original file name:
-    ```
-    2017-06-20_00-49-56 Working on autonameow.png
-    ```
-  Desired file name:
-    ```
-    2017-06-20T004956 Working on autonameow.png
-    ```
-  How should this be specified in the configuration?
-  A simple alternative is to specify the filename analyzer as the source.
-  The `DATETIME_FORMAT` makes sure that the timestamp format is changed.
-
-    ```yaml
-    RULES:
-    -   DATA_SOURCES:
-            extension: contents.basename.extension
-            datetime: analysis.filename.{?????}
-            title: filesystem.basename.prefix
-        NAME_FORMAT: "{datetime} {title}.{extension}"
-    DATETIME_FORMAT:
-        datetime: '%Y-%m-%dT%H%M%S'
-    ```
-  But this is not configurable -- how would the filename analyzer know
-  which of many possible datetime results to use?
-
 * `[TD0070]` Implement arbitrary common personal use case.
 
 * `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
