@@ -24,6 +24,7 @@ from unittest import TestCase
 from core import constants as C
 from core import fields
 from core.fields import (
+    available_nametemplatefield_classes,
     format_string_placeholders,
     GenericAuthor,
     GenericCreator,
@@ -138,3 +139,26 @@ class TestFormatStringPlaceholders(TestCase):
         self._assert_contains('{foo} {abc } {foo}', ['foo', 'foo'])
         self._assert_contains('{foo} {abc} {foo}', ['foo', 'abc', 'foo'])
         self._assert_contains('{abc} {abc} {foo}', ['abc', 'abc', 'foo'])
+
+
+class TestAvailableNametemplatefieldClasses(TestCase):
+    def test_returns_something(self):
+        actual = available_nametemplatefield_classes()
+        self.assertGreater(len(actual), 0)
+
+    def test_does_not_return_base_class(self):
+        actual = available_nametemplatefield_classes()
+        self.assertNotIn(fields.NameTemplateField, actual)
+
+    def test_returns_subset_of_expected(self):
+        actual = available_nametemplatefield_classes()
+        self.assertIn(fields.Author, actual)
+        self.assertIn(fields.Creator, actual)
+        self.assertIn(fields.Date, actual)
+        self.assertIn(fields.DateTime, actual)
+        self.assertIn(fields.Description, actual)
+        self.assertIn(fields.Edition, actual)
+        self.assertIn(fields.Extension, actual)
+        self.assertIn(fields.Publisher, actual)
+        self.assertIn(fields.Tags, actual)
+        self.assertIn(fields.Title, actual)

@@ -298,6 +298,13 @@ def format_string_placeholders(format_string):
     return re.findall(r'{(\w+)}', format_string)
 
 
+def available_nametemplatefield_classes():
+    """
+    Returns: All available name template field classes as a list of classes.
+    """
+    return [k for k in globals()['NameTemplateField'].__subclasses__()]
+
+
 author = Author
 date = Date
 datetime = DateTime
