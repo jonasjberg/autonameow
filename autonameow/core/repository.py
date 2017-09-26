@@ -282,46 +282,7 @@ class Repository(object):
         return util.count_dict_recursive(self.data)
 
     def __str__(self):
-        out = []
-        for file_object, data in self.data.items():
-            out.append('FileObject basename: "{!s}"'.format(file_object))
-            _abspath = util.displayable_path(file_object.abspath)
-            out.append('FileObject absolute path: "{!s}"'.format(_abspath))
-            out.append('')
-
-            # TODO: [TD0066] Handle all encoding properly.
-            temp = {}
-            for key, value in data.items():
-                # TODO: [TD0082] Integrate the 'ExtractedData' class.
-                if isinstance(value, ExtractedData):
-                    value = value.value
-
-                if isinstance(value, bytes):
-                    temp[key] = util.displayable_path(value)
-                elif isinstance(value, list):
-                    log.debug('TODO: Improve robustness of handling this case')
-                    # temp_list = [util.displayable_path(v) for v in value
-                    #              if isinstance(v, bytes)]
-                    temp_list = []
-                    for v in value:
-                        if isinstance(v, bytes):
-                            temp_list.append(util.displayable_path(v))
-                        else:
-                            temp_list.append(v)
-
-                    temp[key] = temp_list
-                else:
-                    temp[key] = value
-
-                # Often *a lot* of text, trim to arbitrary size..
-                if eval_meowuri_glob(key, '*.text.full'):
-                    temp[key] = truncate_text(temp[key])
-
-            expanded = util.expand_meowuri_data_dict(temp)
-            out.append(util.dump(expanded))
-            out.append('\n')
-
-        return '\n'.join(out)
+        return self.human_readable_contents()
 
     # def __repr__(self):
     #     # TODO: Implement this properly.

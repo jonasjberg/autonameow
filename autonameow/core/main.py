@@ -231,8 +231,7 @@ class Autonameow(object):
             log.info('Listing session repository contents ..')
             cli.msg('Session Repository Data', style='heading',
                     add_info_log=True)
-            # cli.msg(str(repository.SessionRepository))
-            cli.msg(repository.SessionRepository.human_readable_contents())
+            cli.msg(str(repository.SessionRepository))
 
     def _handle_file(self, current_file):
         should_list_any_results = (self.opts.list_datetime
