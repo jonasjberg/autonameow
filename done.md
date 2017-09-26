@@ -18,6 +18,11 @@ University mail: `js224eh[a]student.lnu.se`
     > * `[TD0062]` Look at testing that all name template fields are mapped to data
     >   sources. This could be done when reading the configuration, instead of later
     >   on in the name builder.
+    >
+    > * `[TD0049]` __Think about defining legal "placeholder fields".__
+    >   Might be helpful to define all legal fields (such as `title`, `datetime`,
+    >   `author`, etc.) somewhere and keep references to type coercion wrappers,
+    >   maybe validation and/or formatting functionality; in the field definitions.
 
 * 2017-09-25
 

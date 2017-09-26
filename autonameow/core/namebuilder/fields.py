@@ -25,7 +25,6 @@ from core import types
 
 
 class NameTemplateField(object):
-    # TODO: [TD0049] Remove or implement ..
     COMPATIBLE_TYPES = (None, )
 
     def __init__(self, content):
@@ -55,7 +54,6 @@ class NameTemplateField(object):
 
 
 class Title(NameTemplateField):
-    # TODO: [TD0049] Remove or implement ..
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
                         types.AW_STRING,
@@ -73,7 +71,6 @@ class Title(NameTemplateField):
 
 
 class Edition(NameTemplateField):
-    # TODO: [TD0049] Remove or implement ..
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
                         types.AW_STRING,
@@ -110,7 +107,6 @@ class Extension(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_MIMETYPE)
-    # TODO: Remove or implement ..
 
     def __init__(self, content):
         super(Extension).__init__(content)
@@ -121,13 +117,19 @@ class Extension(NameTemplateField):
 
 
 class Author(NameTemplateField):
-    # TODO: [TD0049] Remove or implement ..
-    pass
+    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
+                        types.AW_PATH,
+                        types.AW_STRING,
+                        types.AW_INTEGER,
+                        types.AW_FLOAT)
 
 
 class Creator(NameTemplateField):
-    # TODO: [TD0049] Remove or implement ..
-    pass
+    COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
+                        types.AW_PATH,
+                        types.AW_STRING,
+                        types.AW_INTEGER,
+                        types.AW_FLOAT)
 
 
 class DateTime(NameTemplateField):
@@ -135,7 +137,6 @@ class DateTime(NameTemplateField):
                         types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE,
                         types.AW_PYPDFTIMEDATE)
-    # TODO: [TD0049] Remove or implement ..
     pass
 
 
@@ -144,7 +145,6 @@ class Date(NameTemplateField):
                         types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE,
                         types.AW_PYPDFTIMEDATE)
-    # TODO: [TD0049] Remove or implement ..
     pass
 
 
@@ -154,7 +154,6 @@ class Description(NameTemplateField):
                         types.AW_STRING,
                         types.AW_INTEGER,
                         types.AW_FLOAT)
-    # TODO: [TD0049] Remove or implement ..
     pass
 
 
@@ -163,7 +162,6 @@ class Publisher(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
-    # TODO: [TD0049] Remove or implement ..
     pass
 
 
@@ -172,7 +170,6 @@ class Tags(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
-    # TODO: [TD0049] Remove or implement ..
     pass
 
 

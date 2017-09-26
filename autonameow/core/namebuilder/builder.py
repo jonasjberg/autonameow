@@ -156,8 +156,6 @@ def pre_assemble_format(data, config):
     formatted = {}
 
     # TODO: [TD0017][TD0041] This needs refactoring, badly.
-    # [TD0049] Think about defining legal "placeholder fields".
-    #          .. Instead of passing wrapped types, pass wrapped fields?
 
     for field, value in data.items():
         log.debug('Pre-assembly formatting field "{!s}"'.format(field))

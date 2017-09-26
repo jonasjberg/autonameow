@@ -62,11 +62,6 @@ Medium Priority
 * `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time
   to UTC and convert to local time as a final step before presentation or use.
 
-* `[TD0049]` __Think about defining legal "placeholder fields".__
-  Might be helpful to define all legal fields (such as `title`, `datetime`,
-  `author`, etc.) somewhere and keep references to type coercion wrappers,
-  maybe validation and/or formatting functionality; in the field definitions.
-
 * `[TD0008]` Simplify installation.
     * Add support for `pip` or similar package manager.
 
