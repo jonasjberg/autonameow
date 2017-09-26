@@ -37,15 +37,19 @@ except ImportError:
     PdfReadError = None
 
 from core import (
-    fields,
+    model,
     types,
     util
 )
-from extractors import (
-    ExtractorError,
-    BaseExtractor
+from core.model import (
+    ExtractedData,
+    WeightedMapping
 )
-from core.model import ExtractedData
+from core.namebuilder import fields
+from extractors import (
+    BaseExtractor,
+    ExtractorError
+)
 
 
 class PyPDFMetadataExtractor(BaseExtractor):
@@ -55,27 +59,27 @@ class PyPDFMetadataExtractor(BaseExtractor):
         'Creator': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericCreator
+            generic_field=model.GenericCreator
         ),
         'CreationDate': ExtractedData(
             coercer=types.AW_PYPDFTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'Encrypted': ExtractedData(types.AW_BOOLEAN),
         'ModDate': ExtractedData(
             coercer=types.AW_PYPDFTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=0.25),
-                fields.WeightedMapping(fields.date, probability=0.25),
+                WeightedMapping(fields.DateTime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25),
             ],
-            generic_field=fields.GenericDateModified
+            generic_field=model.GenericDateModified
         ),
         'NumberPages': ExtractedData(types.AW_INTEGER),
         'Paginated': ExtractedData(types.AW_BOOLEAN),
@@ -83,9 +87,9 @@ class PyPDFMetadataExtractor(BaseExtractor):
         'Title': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.title, probability=1)
+                WeightedMapping(fields.Title, probability=1)
             ],
-            # generic_field=fields.GenericTitle
+            # generic_field=model.GenericTitle
         ),
     }
 

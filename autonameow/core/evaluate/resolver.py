@@ -22,10 +22,7 @@
 import logging
 
 from core import repository
-from core.fields import (
-    format_string_placeholders,
-    nametemplatefield_classes_in_formatstring
-)
+from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
 
 log = logging.getLogger(__name__)
 

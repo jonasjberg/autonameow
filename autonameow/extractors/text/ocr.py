@@ -39,6 +39,7 @@ from core import (
 from extractors import ExtractorError
 from extractors.text.common import AbstractTextExtractor
 
+
 TESSERACT_COMMAND = 'tesseract'
 
 

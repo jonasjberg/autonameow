@@ -19,17 +19,17 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
 from datetime import datetime
+from unittest import TestCase
 
 from analyzers.analyze_filename import (
     FilenameAnalyzer,
-    _find_edition,
+    FilenameTokenizer,
     SubstringFinder,
-    FilenameTokenizer
+    _find_edition
 )
 import unit_utils as uu
-from core import fields
+from core.namebuilder import fields
 
 
 def get_filename_analyzer(file_object):
@@ -139,9 +139,9 @@ class TestIdentifyFields(TestCase):
 
     def test_uses_constraints(self):
         pass
-        # add_constraint(field.Author, matches=r'[\w]+')
-        # add_constraint(field.Title, matches=r'[\w]+')
-        # result = identify_fields(string, [field.Creator, field.Title])
+        # add_constraint(fields.Author, matches=r'[\w]+')
+        # add_constraint(fields.Title, matches=r'[\w]+')
+        # result = identify_fields(string, [fields.Creator, fields.Title])
 
         # assert result[fields.Author] == ['The Beatles', 'Paperback Writer',
         #                                   'flac']

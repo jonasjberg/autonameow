@@ -26,11 +26,12 @@ from datetime import datetime
 
 from core import (
     exceptions,
-    fields,
     namebuilder,
     types,
     util
 )
+from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
+
 
 log = logging.getLogger(__name__)
 
@@ -335,7 +336,7 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
 # Used for validating name templates. Populated like so;
 #   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
 DATA_FIELDS = dict.fromkeys(
-    fields.NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS, 'DUMMY'
+    NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS, 'DUMMY'
 )
 
 

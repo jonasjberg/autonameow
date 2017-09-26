@@ -36,7 +36,9 @@ from extractors.text.common import (
     normalize_unicode
 )
 
+
 log = logging.getLogger(__name__)
+
 
 DEFAULT_ENCODING = 'utf8'
 

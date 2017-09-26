@@ -22,14 +22,18 @@
 import unittest
 from datetime import datetime
 
-import unit_utils as uu
 from core import (
-    util,
     types,
-    fields
+    util
 )
-from core.model import ExtractedData
+from core.model import (
+    ExtractedData,
+    WeightedMapping
+)
+from core.namebuilder import fields
 from extractors.metadata import PyPDFMetadataExtractor
+import unit_utils as uu
+
 
 unmet_dependencies = PyPDFMetadataExtractor.check_dependencies() is False
 dependency_error = 'Extractor dependencies not satisfied'
@@ -67,8 +71,8 @@ class TestPyPDFMetadataExtractor(unittest.TestCase):
              ExtractedData(
                  coercer=types.AW_STRING,
                  mapped_fields=[
-                    fields.WeightedMapping(fields.datetime, probability=1),
-                    fields.WeightedMapping(fields.date, probability=1)
+                    WeightedMapping(fields.DateTime, probability=1),
+                    WeightedMapping(fields.Date, probability=1)
                  ]
              )('Chromium')),
             ('Producer', ExtractedData(types.AW_STRING)('Skia/PDF')),

@@ -25,8 +25,9 @@ import unicodedata
 from core import (
     types,
     util,
-    fields
+    model
 )
+from core.model import ExtractedData
 from core.util import (
     sanity,
     textutils
@@ -35,7 +36,6 @@ from extractors import (
     BaseExtractor,
     ExtractorError
 )
-from core.model import ExtractedData
 
 log = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class AbstractTextExtractor(BaseExtractor):
         wrapper = ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=None,
-            generic_field=fields.GenericText,
+            generic_field=model.GenericText,
         )
         return {'full': ExtractedData.from_raw(wrapper, text)}
 

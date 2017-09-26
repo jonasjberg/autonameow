@@ -23,11 +23,15 @@ import logging
 
 from core import (
     exceptions,
+    model,
     types,
     util,
-    fields
 )
-from core.model import ExtractedData
+from core.model import (
+    ExtractedData,
+    WeightedMapping
+)
+from core.namebuilder import fields
 from plugins import BasePlugin
 
 try:
@@ -48,10 +52,10 @@ class GuessitPlugin(BasePlugin):
         'date': ExtractedData(
             coercer=types.AW_TIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'episode': ExtractedData(
             coercer=types.AW_INTEGER,
@@ -66,8 +70,8 @@ class GuessitPlugin(BasePlugin):
         'release_group': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.publisher, probability=0.1),
-                fields.WeightedMapping(fields.description, probability=0.001),
+                WeightedMapping(fields.Publisher, probability=0.1),
+                WeightedMapping(fields.Description, probability=0.001),
             ]
         ),
         'screen_size': ExtractedData(
@@ -83,7 +87,7 @@ class GuessitPlugin(BasePlugin):
         'title': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.title, probability=1),
+                WeightedMapping(fields.Title, probability=1),
             ]
         ),
         'type': ExtractedData(
@@ -99,8 +103,8 @@ class GuessitPlugin(BasePlugin):
         'year': ExtractedData(
             coercer=types.AW_DATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ]
         ),
     }

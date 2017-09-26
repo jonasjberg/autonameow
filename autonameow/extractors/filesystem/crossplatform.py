@@ -20,19 +20,22 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
 from datetime import datetime
 
+from core import (
+    model,
+    types
+)
+from core.fileobject import FileObject
+from core.model import (
+    ExtractedData,
+    WeightedMapping
+)
+from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
     ExtractorError
 )
-from core.model import ExtractedData
-from core import (
-    types,
-    fields
-)
-from core.fileobject import FileObject
 
 
 class CrossPlatformFileSystemExtractor(BaseExtractor):
@@ -45,13 +48,13 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         'basename.extension': ExtractedData(
             coercer=types.AW_PATHCOMPONENT,
             mapped_fields=[
-                fields.WeightedMapping(fields.extension, probability=1),
+                WeightedMapping(fields.Extension, probability=1),
             ]
         ),
         'basename.suffix': ExtractedData(
             coercer=types.AW_PATHCOMPONENT,
             mapped_fields=[
-                fields.WeightedMapping(fields.extension, probability=1),
+                WeightedMapping(fields.Extension, probability=1),
             ]
         ),
         'basename.prefix': ExtractedData(
@@ -65,32 +68,32 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         'contents.mime_type': ExtractedData(
             coercer=types.AW_MIMETYPE,
             mapped_fields=[
-                fields.WeightedMapping(fields.extension, probability=1),
+                WeightedMapping(fields.Extension, probability=1),
             ],
-            generic_field=fields.GenericMimeType
+            generic_field=model.GenericMimeType
         ),
         'date_accessed': ExtractedData(
             coercer=types.AW_TIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.date, probability=0.1),
-                fields.WeightedMapping(fields.datetime, probability=0.1),
+                WeightedMapping(fields.Date, probability=0.1),
+                WeightedMapping(fields.DateTime, probability=0.1),
             ]
         ),
         'date_created': ExtractedData(
             coercer=types.AW_TIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.date, probability=1),
-                fields.WeightedMapping(fields.datetime, probability=1),
+                WeightedMapping(fields.Date, probability=1),
+                WeightedMapping(fields.DateTime, probability=1),
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'date_modified': ExtractedData(
             coercer=types.AW_TIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.date, probability=0.25),
-                fields.WeightedMapping(fields.datetime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25),
+                WeightedMapping(fields.DateTime, probability=0.25),
             ],
-            generic_field=fields.GenericDateModified
+            generic_field=model.GenericDateModified
         )
     }
 

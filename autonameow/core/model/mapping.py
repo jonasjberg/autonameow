@@ -19,18 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections import namedtuple
 
-from .extracteddata import ExtractedData
-from .mapping import WeightedMapping
-from .genericfields import (
-    GenericAuthor,
-    GenericCreator,
-    GenericDateCreated,
-    GenericDateModified,
-    GenericDescription,
-    GenericMimeType,
-    GenericProducer,
-    GenericSubject,
-    GenericTags,
-    GenericText,
-)
+
+WeightedMapping = namedtuple('WeightedMapping', ['field', 'probability'])

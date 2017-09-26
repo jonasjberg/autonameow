@@ -21,11 +21,11 @@
 
 from unittest import TestCase
 
-from core import (
-    fields,
-    types
+from core import types
+from core.model import (
+    ExtractedData,
+    WeightedMapping
 )
-from core.model import ExtractedData
 
 
 class TestExtractedData(TestCase):
@@ -59,8 +59,8 @@ class TestExtractedData(TestCase):
         m = ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping('foo_field_a', probability=1.0),
-                fields.WeightedMapping('foo_field_b', probability=0.8)
+                WeightedMapping('foo_field_a', probability=1.0),
+                WeightedMapping('foo_field_b', probability=0.8)
             ])
 
         self.assertIsNotNone(m)

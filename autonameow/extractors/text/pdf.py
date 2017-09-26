@@ -45,6 +45,7 @@ from extractors.text.common import (
     normalize_unicode
 )
 
+
 log = logging.getLogger(__name__)
 
 

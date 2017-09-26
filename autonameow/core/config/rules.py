@@ -21,16 +21,17 @@
 
 import logging
 
+from core import constants as C
 from core import (
     exceptions,
-    fields,
     repository,
     types,
-    util,
+    util
 )
-from core import constants as C
 from core.config import field_parsers
+from core.namebuilder import fields
 from core.util import sanity
+
 
 log = logging.getLogger(__name__)
 

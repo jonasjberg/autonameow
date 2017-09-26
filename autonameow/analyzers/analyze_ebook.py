@@ -28,15 +28,19 @@ except ImportError:
 
 from analyzers import BaseAnalyzer
 from core import (
-    fields,
+#    model,
     types,
     util
+)
+from core.namebuilder import fields
+from core.model import (
+    ExtractedData,
+    WeightedMapping
 )
 from core.util import (
     sanity,
     textutils
 )
-from core.model import ExtractedData
 
 
 log = logging.getLogger(__name__)
@@ -133,8 +137,9 @@ class EbookAnalyzer(BaseAnalyzer):
         return ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.author, probability=1),
-            ]
+                WeightedMapping(fields.Author, probability=1),
+            ],
+            # generic_field=model.GenericAuthor
         )(author_string)
 
     def _filter_date(self, raw_string):
@@ -149,8 +154,9 @@ class EbookAnalyzer(BaseAnalyzer):
         return ExtractedData(
             coercer=types.AW_DATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.date, probability=1),
-            ]
+                WeightedMapping(fields.Date, probability=1),
+            ],
+            # generic_field=model.GenericDateCreated
         )(date_string)
 
     def _filter_publisher(self, raw_string):
@@ -170,7 +176,7 @@ class EbookAnalyzer(BaseAnalyzer):
         return ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.publisher, probability=1),
+                WeightedMapping(fields.Publisher, probability=1),
             ]
         )(publisher_string)
 
@@ -191,7 +197,7 @@ class EbookAnalyzer(BaseAnalyzer):
         return ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.title, probability=1),
+                WeightedMapping(fields.Title, probability=1),
             ]
         )(title_string)
 

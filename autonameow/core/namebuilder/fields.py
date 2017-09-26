@@ -20,158 +20,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-from collections import namedtuple
 
-from core import constants as C
 from core import types
-
-
-# TODO: [TD0049] Think about defining legal "placeholder fields".
-# Might be helpful to define all legal fields (such as `title`, `datetime`,
-# `author`, etc.) somewhere and keep references to type coercion wrappers,
-# maybe validation and/or formatting functionality; in the field definitions.
-#
-# NOTE(jonas): This should probably be done where both the Extraction data and
-# the Analysis results data is "joined"; the sum total of data available for a
-# given file.
-
-# Original Dublin Core Metadata Element Set Version 1.1
-# Metadata Elements:
-#
-#   - Title
-#   - Creator
-#   - Subject
-#   - Description
-#   - Publisher
-#   - Contributor
-#   - Date
-#   - Type
-#   - Format
-#   - Identifier
-#   - Source
-#   - Language
-#   - Relation
-#   - Coverage
-#   - Rights
-
-
-WeightedMapping = namedtuple('WeightedMapping', ['field', 'probability'])
-
-
-def todo_func(foo):
-    pass
-
-
-class GenericField(object):
-    meowuri_root = C.UNDEFINED_MEOWURI_PART
-    meowuri_node = C.MEOWURI_NODE_GENERIC
-    meowuri_leaf = C.UNDEFINED_MEOWURI_PART
-
-    @classmethod
-    def uri(cls):
-        return '{}.{}.{}'.format(cls.meowuri_root.lower(),
-                                 cls.meowuri_node.lower(),
-                                 cls.meowuri_leaf.lower())
-
-    @classmethod
-    def evaluation_function(cls):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
-
-
-# TODO: [TD0090] Complete initial implementation of "generic" fields.
-class GenericAuthor(GenericField):
-    meowuri_root = 'metadata'
-    meowuri_leaf = 'Author'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
-
-class GenericCreator(GenericField):
-    meowuri_root = 'metadata'
-    meowuri_leaf = 'Creator'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
-
-class GenericDescription(GenericField):
-    meowuri_root = 'metadata'
-    meowuri_leaf = 'Description'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
-
-class GenericDateCreated(GenericField):
-    meowuri_root = 'metadata'
-    meowuri_leaf = 'Date_Created'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
-
-class GenericDateModified(GenericField):
-    meowuri_root = 'metadata'
-    meowuri_leaf = 'Date_Modified'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
-
-class GenericMimeType(GenericField):
-    meowuri_root = 'contents'
-    meowuri_leaf = 'Mime_Type'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
-
-class GenericProducer(GenericField):
-    meowuri_root = 'metadata'
-    meowuri_leaf = 'Producer'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
-
-class GenericSubject(GenericField):
-    meowuri_root = 'metadata'
-    meowuri_leaf = 'Subject'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
-
-class GenericTags(GenericField):
-    meowuri_root = 'metadata'
-    meowuri_leaf = 'Tags'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
-
-class GenericText(GenericField):
-    meowuri_root = 'contents'
-    meowuri_leaf = 'text'
-
-    @classmethod
-    def evaluation_function(cls):
-        pass
-
-
-def meowuri_genericfield_map():
-    return {klass.uri(): klass
-            for klass in GenericField.__subclasses__()}
 
 
 class NameTemplateField(object):
@@ -180,14 +30,15 @@ class NameTemplateField(object):
         self._content = content
 
         self._transforms = {
-            Title: todo_func,
-            Edition: todo_func
+            Title: None,  # TODO: Function?
+            Edition: None,  # TODO: Function?
         }
 
     def transform(self, target_field):
         # TODO: Implement transforming data between field types, if possible.
-        target_field_type = type(target_field)
-        result = self._transforms[target_field_type](self._content)
+        # target_field_type = type(target_field)
+        # result = self._transforms[target_field_type](self._content)
+        pass
 
     @classmethod
     def as_placeholder(cls):
@@ -377,14 +228,3 @@ def nametemplatefield_classes_in_formatstring(format_string):
 
     placeholders = format_string_placeholders(format_string)
     return [nametemplatefield_class_from_string(p) for p in placeholders]
-
-
-author = Author
-date = Date
-datetime = DateTime
-description = Description
-edition = Edition
-extension = Extension
-publisher = Publisher
-tags = Tags
-title = Title

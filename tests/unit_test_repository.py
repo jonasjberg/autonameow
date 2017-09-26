@@ -20,15 +20,13 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import collections
-
 from unittest import TestCase
 
+from core import constants as C
 from core import (
     exceptions,
-    repository,
-    fields
+    repository
 )
-from core import constants as C
 from core.repository import Repository
 
 import unit_utils as uu
