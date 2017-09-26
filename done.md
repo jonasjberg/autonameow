@@ -10,6 +10,15 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-09-27
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0062]` Look at testing that all name template fields are mapped to data
+    >   sources. This could be done when reading the configuration, instead of later
+    >   on in the name builder.
+
 * 2017-09-25
 
     > Low Priority

@@ -59,10 +59,6 @@ Medium Priority
 
 * `[TD0092]` Add tracking history and ability to "undo" renames.
 
-* `[TD0062]` Look at testing that all name template fields are mapped to data
-  sources. This could be done when reading the configuration, instead of later
-  on in the name builder.
-
 * `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time
   to UTC and convert to local time as a final step before presentation or use.
 
