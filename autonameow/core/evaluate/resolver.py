@@ -23,6 +23,7 @@ import logging
 
 from core import repository
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
+from core.util import sanity
 
 log = logging.getLogger(__name__)
 
@@ -110,13 +111,23 @@ class Resolver(object):
 
     def _verify_types(self):
         for field, data in self.fields_data.items():
-            log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
-            _compatible = field.type_compatible(data.coercer)
-            if _compatible:
-                log.debug('Verified Field-Data Compatibility  OK!')
+            if isinstance(data, list):
+                for d in data:
+                    self._verify_type(field, d)
             else:
-                self.fields_data[field] = None
-                log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
+                self._verify_type(field, data)
+
+    def _verify_type(self, field, data):
+        sanity.check(not isinstance(data, list),
+                     'Expected "data" not to be a list')
+
+        log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
+        _compatible = field.type_compatible(data.coercer)
+        if _compatible:
+            log.debug('Verified Field-Data Compatibility  OK!')
+        else:
+            self.fields_data[field] = None
+            log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
 
     def _request_data(self, file, meowuri):
         log.debug('{} requesting [{!s}]->[{!s}]'.format(self, file, meowuri))
