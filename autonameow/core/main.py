@@ -142,7 +142,7 @@ class Autonameow(object):
         try:
             self.active_config = Configuration.from_file(path)
         except exceptions.ConfigError as e:
-            log.critical('Unable to load configuration: {!s}'.format(e))
+            log.critical('Unable to load configuration -- {!s}'.format(e))
 
     def _dump_active_config_and_exit(self):
         log.info('Dumping active configuration ..')
