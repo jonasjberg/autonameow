@@ -205,7 +205,8 @@ Low Priority
   configuration with `--dump-config`.
 
 * `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF
-  GPS data.
+  GPS data. Look into comparing coordinates with the
+  [Haversine formula](http://en.wikipedia.org/wiki/Haversine_formula).
 
 * `[TD0042]` Respect the `--quiet` option. Suppress (all but critical?) output.
 
