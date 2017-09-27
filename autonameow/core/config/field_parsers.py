@@ -189,6 +189,9 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
     @staticmethod
     def is_valid_regex(expression):
+        if not expression:
+            return False
+
         try:
             re.compile(expression)
         except (re.error, TypeError):
@@ -275,6 +278,9 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
     @staticmethod
     def evaluate_mime_type_globs(expression, mime_to_match):
+        if not expression:
+            return False
+
         if not isinstance(expression, list):
             expression = [expression]
 
@@ -312,6 +318,9 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
 
     @staticmethod
     def is_valid_datetime(expression):
+        if not expression:
+            return False
+
         try:
             _ = datetime.today().strftime(expression)
         except (ValueError, TypeError) as e:
