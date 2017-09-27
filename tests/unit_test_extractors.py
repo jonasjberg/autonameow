@@ -21,12 +21,9 @@
 
 from unittest import TestCase
 
-from core import constants as C
 import extractors
-from extractors import (
-    BaseExtractor
-)
 from extractors.text.common import AbstractTextExtractor
+from core import constants as C
 import unit_utils as uu
 import unit_utils_constants as uuconst
 
@@ -48,7 +45,7 @@ class TestExtractorsConstants(TestCase):
 class TestBaseExtractor(TestCase):
     def setUp(self):
         self.test_file = uu.make_temporary_file()
-        self.e = BaseExtractor()
+        self.e = extractors.BaseExtractor()
 
         class DummyFileObject(object):
             def __init__(self):
@@ -56,7 +53,7 @@ class TestBaseExtractor(TestCase):
         self.fo = DummyFileObject()
 
     def test_base_extractor_class_is_available(self):
-        self.assertIsNotNone(BaseExtractor)
+        self.assertIsNotNone(extractors.BaseExtractor)
 
     def test_base_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
@@ -110,7 +107,7 @@ class TestFindExtractorModuleSourceFiles(TestCase):
 
 
 def subclasses_base_extractor(klass):
-    return uu.is_class(klass) and issubclass(klass, BaseExtractor)
+    return uu.is_class(klass) and issubclass(klass, extractors.BaseExtractor)
 
 
 class TestGetAllExtractorClasses(TestCase):
@@ -134,8 +131,8 @@ class TestGetAllExtractorClasses(TestCase):
 
     def test_get_extractor_classes_does_not_include_base_extractor(self):
         abstract, implemented = extractors._get_package_classes(self.sources)
-        self.assertNotIn(BaseExtractor, abstract)
-        self.assertNotIn(BaseExtractor, implemented)
+        self.assertNotIn(extractors.BaseExtractor, abstract)
+        self.assertNotIn(extractors.BaseExtractor, implemented)
 
 
 class TestGetImplementedExtractorClasses(TestCase):
@@ -151,10 +148,10 @@ class TestGetImplementedExtractorClasses(TestCase):
     def test_get_extractor_classes_returns_subclasses_of_base_extractor(self):
         for klass in self.actual:
             self.assertTrue(uu.is_class(klass))
-            self.assertTrue(issubclass(klass, BaseExtractor))
+            self.assertTrue(issubclass(klass, extractors.BaseExtractor))
 
     def test_get_extractor_classes_does_not_include_base_extractor(self):
-        self.assertNotIn(BaseExtractor, self.actual)
+        self.assertNotIn(extractors.BaseExtractor, self.actual)
 
     def test_get_extractor_classes_does_not_include_abstract_extractors(self):
         self.assertNotIn(AbstractTextExtractor, self.actual)
