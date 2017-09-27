@@ -108,24 +108,36 @@ class TestMeowURIwithValidInput(TestCase):
         self.assertEqual(eb, str(b))
 
 
-
 class TestMeowURI(TestCase):
     def test_partitions_parts(self):
-        self.skipTest('TODO: Implement or remove ..')
-
         a = MeowURI('generic.contents.mimetype')
-        self.assertTrue(isinstance(a.root, MeowURIRoot))
-        self.assertTrue(isinstance(a.mids, list))
-        self.assertTrue(isinstance(a.mids[0], MeowURINode))
-        self.assertTrue(isinstance(a.leaf, MeowURILeaf))
+        self.assertTrue(isinstance(a._root, MeowURIRoot))
+        self.assertTrue(isinstance(a._nodes, list))
+        self.assertTrue(isinstance(a._nodes[0], MeowURINode))
+        self.assertTrue(isinstance(a._leaf, MeowURILeaf))
 
-        self.assertEqual(a.root.name, 'generic')
-        self.assertEqual(a.mids[0].name, 'contents')
-        self.assertEqual(a.leaf.name, 'mimetype')
+        b = MeowURI('extractor.metadata.exiftool.File:MIMEType')
+        self.assertTrue(isinstance(b._root, MeowURIRoot))
+        self.assertTrue(isinstance(b._nodes, list))
+        self.assertTrue(isinstance(b._nodes[0], MeowURINode))
+        self.assertTrue(isinstance(b._nodes[1], MeowURINode))
+        self.assertTrue(isinstance(b._leaf, MeowURILeaf))
 
-        b = MeowURI('contents.mimetype')
-        self.assertTrue(isinstance(b.root, MeowURIRoot))
-        self.assertTrue(isinstance(b.leaf, MeowURILeaf))
+    def test_returns_partitioned_parts_as_strings(self):
+        a = MeowURI('generic.contents.mimetype')
+        self.assertTrue(isinstance(a.root, str))
+        self.assertTrue(isinstance(a.nodes, list))
+        self.assertTrue(isinstance(a.nodes[0], str))
+        self.assertTrue(isinstance(a.leaf, str))
+        self.assertEqual(a.root, 'generic')
+        self.assertEqual(a.nodes[0], 'contents')
+        self.assertEqual(a.leaf, 'mimetype')
+
+        b = MeowURI('extractor.metadata.exiftool.File:MIMEType')
+        self.assertEqual(b.root, 'extractor')
+        self.assertEqual(b.nodes[0], 'metadata')
+        self.assertEqual(b.nodes[1], 'exiftool')
+        self.assertEqual(b.leaf, 'File:MIMEType')
 
     def test___getattr__(self):
         self.skipTest('TODO: Implement or remove ..')
@@ -134,46 +146,23 @@ class TestMeowURI(TestCase):
         self.assertEqual(a.filesystem, 'abspath')
         self.assertEqual(a.filesystem.abspath, 'full')
 
-    def _is_node(self, thing):
-        pass
 
-    def _is_root(self, thing):
-        pass
+class TestMeowURIClassMethodGeneric(TestCase):
+    def test_returns_expected_from_string(self):
+        actual = MeowURI.generic('contents.text')
+        self.assertEqual(str(actual), 'generic.contents.text')
 
-    def _is_leaf(self, thing):
-        pass
+    def test_returns_expected_from_string_with_root(self):
+        actual = MeowURI.generic('generic.contents.text')
+        self.assertEqual(str(actual), 'generic.contents.text')
 
-    def test_TODO(self):
-        self.skipTest('TODO: Implement or remove ..')
+    def test_returns_expected_from_multiple_strings(self):
+        actual = MeowURI.generic('contents', 'text')
+        self.assertEqual(str(actual), 'generic.contents.text')
 
-        a = MeowURI('analysis.filetags.datetime')
-        self._is_root(a['analysis'])
-        self._is_node(a['analysis']['filetags'])
-        self._is_leaf(a['analysis']['filetags']['datetime'])
-
-        b = MeowURI('filesystem.basename.extension')
-        self._is_root(b['filesystem'])
-        self._is_node(b['filesystem']['basename'])
-        self._is_leaf(b['filesystem']['basename']['extension'])
-
-        c = MeowURI('filesystem.contents.mime_type')
-        self._is_root(c['filesystem'])
-        self._is_node(c['filesystem']['contents'])
-        self._is_leaf(c['filesystem']['contents']['mime_type'])
-
-        d = MeowURI('extractor.metadata.exiftool.EXIF:DateTimeOriginal')
-
-        # extractor.metadata.exiftool.PDF:CreateDate
-        # extractor.metadata.exiftool.QuickTime:CreationDate
-        # extractor.metadata.exiftool.XMP - dc:Creator
-        # extractor.metadata.exiftool.XMP - dc:CreatorFile -as
-        # extractor.metadata.exiftool.XMP - dc:Date
-        # extractor.metadata.exiftool.XMP - dc:PublicationDate
-        # extractor.metadata.exiftool.XMP - dc:Publisher
-        # extractor.metadata.exiftool.XMP - dc:Title
-        # plugin.guessit.date
-        # plugin.guessit.title
-        # plugin.microsoft_vision.caption
+    def test_returns_expected_from_multiple_strings_with_root(self):
+        actual = MeowURI.generic('generic', 'contents', 'text')
+        self.assertEqual(str(actual), 'generic.contents.text')
 
 
 class TestEvalMeowURIGlob(TestCase):

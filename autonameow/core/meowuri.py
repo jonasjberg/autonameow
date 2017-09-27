@@ -41,34 +41,63 @@ class MeowURI(object):
             _raw_parts = list(args)
 
         try:
-            _root = MeowURIRoot(_raw_parts.pop(0))
+            self._root = MeowURIRoot(_raw_parts.pop(0))
         except InvalidMeowURIError:
-            _root = None
+            self._root = None
 
         try:
-            _leaf = MeowURILeaf(_raw_parts.pop())
+            self._leaf = MeowURILeaf(_raw_parts.pop())
         except InvalidMeowURIError:
-            _leaf = None
+            self._leaf = None
 
-        _mids = []
+        self._nodes = []
         if _raw_parts:
-            _mids = [MeowURINode(p) for p in _raw_parts]
+            self._nodes = [MeowURINode(p) for p in _raw_parts]
 
-        self._parts = [_root] + _mids + [_leaf]
+        self._parts = [self._root] + self._nodes + [self._leaf]
 
-    def _split(self, string):
-        return util.meowuri_list(string)
+    @staticmethod
+    def _split(string):
+        try:
+            s = types.AW_STRING(string)
+        except types.AWTypeError:
+            return []
+        else:
+            return util.meowuri_list(s)
 
-    def __str__(self):
-        return C.MEOWURI_SEPARATOR.join(str(p) for p in self._parts)
+    @classmethod
+    def generic(cls, *args):
+        if len(args) == 1:
+            _raw_parts = cls._split(args[0])
+        else:
+            _raw_parts = list(args)
+
+        if _raw_parts[0] != C.MEOWURI_ROOT_GENERIC:
+            _parts = [C.MEOWURI_ROOT_GENERIC] + _raw_parts
+            return cls(*_parts)
+        else:
+            return cls(*_raw_parts)
 
     @property
     def root(self):
-        return self._root
+        if self._root:
+            return str(self._root)
+        else:
+            return C.UNDEFINED_MEOWURI_PART
 
-    def __getattr__(self, item):
-        print('getattr: "{!s}"'.format(item))
-        return 'FOO'
+    @property
+    def nodes(self):
+        if self._nodes:
+            return [str(n) for n in self._nodes]
+        else:
+            return C.UNDEFINED_MEOWURI_PART
+
+    @property
+    def leaf(self):
+        if self._leaf:
+            return str(self._leaf)
+        else:
+            return C.UNDEFINED_MEOWURI_PART
 
     def eval_glob(self, glob_list):
         """
@@ -142,6 +171,9 @@ class MeowURI(object):
 
         return False
 
+    def __str__(self):
+        return C.MEOWURI_SEPARATOR.join(str(p) for p in self._parts)
+
 
 class MeowURINode(object):
     def __init__(self, raw_string):
@@ -151,8 +183,12 @@ class MeowURINode(object):
         self._value = string
 
     def _validate(self, string):
-        # TODO: ..
-        pass
+        if not string:
+            raise InvalidMeowURIError('Got empty string')
+        if string in C.MEOWURI_ROOTS:
+            raise InvalidMeowURIError(
+                'Leaf must not contain root-node: "{!s}"'.format(string)
+            )
 
     def __str__(self):
         return self._value
@@ -160,14 +196,18 @@ class MeowURINode(object):
 
 class MeowURILeaf(object):
     def __init__(self, raw_string):
-        string = _normalize_string(raw_string)
+        string = raw_string.strip()
         self._validate(string)
 
         self._value = string
 
     def _validate(self, string):
         if not string:
-            raise InvalidMeowURIError
+            raise InvalidMeowURIError('Got empty string')
+        if string in C.MEOWURI_ROOTS:
+            raise InvalidMeowURIError(
+                'Leaf must not contain root-node: "{!s}"'.format(string)
+            )
 
     def __str__(self):
         return self._value
@@ -182,18 +222,15 @@ class MeowURIRoot(object):
 
     def _validate(self, string):
         if not string:
-            raise InvalidMeowURIError
+            raise InvalidMeowURIError('Got empty string')
         if string not in C.MEOWURI_ROOTS:
-            raise InvalidMeowURIError
+            raise InvalidMeowURIError(
+                'Not a valid MeowURI root: "{!s}"'.format(string)
+            )
 
     def __str__(self):
         return self._value
 
 
-def _normalize_string(raw_string):
-    try:
-        string = types.AW_STRING(raw_string)
-    except types.AWTypeError:
-        return None
-    else:
-        return string.lower().strip()
+def _normalize_string(string):
+    return string.lower().strip()
