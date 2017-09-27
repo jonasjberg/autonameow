@@ -350,7 +350,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
         try:
             namebuilder.populate_name_template(expression, **DATA_FIELDS)
-        except exceptions.NameTemplateSyntaxError:
+        except (exceptions.NameTemplateSyntaxError, TypeError):
             return False
         else:
             return True

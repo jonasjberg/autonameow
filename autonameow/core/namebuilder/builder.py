@@ -165,7 +165,7 @@ def populate_name_template(name_template, **kwargs):
     # NOTE: Used to validate name formatting strings in the configuration file.
     try:
         out = name_template.format(**kwargs)
-    except (TypeError, KeyError) as e:
+    except (TypeError, KeyError, ValueError) as e:
         raise exceptions.NameTemplateSyntaxError(e)
     else:
         return out
