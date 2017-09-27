@@ -172,12 +172,17 @@ class Configuration(object):
             )
 
         for rule in raw_rules:
+            description = force_string(rule.get('description'))
+            description = description or C.DEFAULT_RULE_DESCRIPTION
+            log.debug('Validating rule "{!s}" ..'.format(description))
+
             try:
                 valid_rule = self._validate_rule_data(rule)
             except exceptions.ConfigurationSyntaxError as e:
-                rule_description = rule.get('description', 'UNDESCRIBED')
-                log.error('Bad rule "{!s}"; {!s}'.format(rule_description, e))
+                log.error('Bad rule "{!s}"; {!s}'.format(description, e))
             else:
+                log.debug('Validated rule "{!s}" .. OK!'.format(description))
+
                 # Create and populate "Rule" objects with *validated* data.
                 self._rules.append(valid_rule)
 
@@ -203,15 +208,7 @@ class Configuration(object):
                 Note that the message will be used in the following sentence:
                 "Bad rule "x"; {message}"
         """
-        # Get a description for referring to the rule in any log messages.
-        description = raw_rule.get('description')
-        if description is None:
-            description = 'UNDESCRIBED'
-
-        log.debug('Validating rule "{!s}" ..'.format(description))
-
         if 'NAME_FORMAT' not in raw_rule:
-            log.debug('Rule contains no name format data' + str(raw_rule))
             raise exceptions.ConfigurationSyntaxError(
                 'is missing name template format'
             )
@@ -229,13 +226,12 @@ class Configuration(object):
                 valid_format = False
 
         if not valid_format:
-            log.debug('Rule name format is invalid: ' + str(raw_rule))
             raise exceptions.ConfigurationSyntaxError(
                 'uses invalid name template format'
             )
 
         try:
-            _rule = rules.Rule(description=description,
+            _rule = rules.Rule(description=raw_rule.get('description'),
                                exact_match=raw_rule.get('exact_match'),
                                ranking_bias=raw_rule.get('ranking_bias'),
                                name_template=valid_format,
@@ -244,7 +240,6 @@ class Configuration(object):
         except exceptions.InvalidRuleError as e:
             raise exceptions.ConfigurationSyntaxError(e)
 
-        log.debug('Validated rule "{!s}" .. OK!'.format(description))
         return _rule
 
     def _load_options(self):

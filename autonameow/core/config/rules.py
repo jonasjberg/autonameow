@@ -244,12 +244,12 @@ class Rule(object):
         try:
             description = types.AW_STRING(raw_description)
         except types.AWTypeError:
-            description = ''
+            description = None
 
         if description:
             self._description = description
         else:
-            self._description = 'UNDESCRIBED'
+            self._description = C.DEFAULT_RULE_DESCRIPTION
 
     @property
     def exact_match(self):
