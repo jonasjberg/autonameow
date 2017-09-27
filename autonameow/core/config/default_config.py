@@ -176,14 +176,10 @@ DEFAULT_CONFIG = {
 
     #  Filesystem Options
     #  ==================
-    #  Options for how filenames are written do disk. Allowed/blacklisted
-    #  characters, etc.
+    #  Specify patterns for files to be ignored.
+    #  These are added on to the defaults specified in 'constants.py'.
     'FILESYSTEM_OPTIONS': {
-        'sanitize_filename': True,
-        'sanitize_strict': False,
         'ignore': ['*.swp', '*/.*'],
-        'lowercase_filename': False,
-        'uppercase_filename': False
     },
 
     #  Custom Post-Processing Options
@@ -198,6 +194,10 @@ DEFAULT_CONFIG = {
             '-{2,}': '-',
             '\.{2,}': '.'
         },
+        'lowercase_filename': False,
+        'uppercase_filename': False,
+        'sanitize_filename': True,
+        'sanitize_strict': False
     },
 
     #  Filetags Options

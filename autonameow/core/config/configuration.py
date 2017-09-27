@@ -247,11 +247,15 @@ class Configuration(object):
                 _value = self._data['DATETIME_FORMAT'].get(option, None)
                 if (_value is not None and
                         DateTimeConfigFieldParser.is_valid_datetime(_value)):
+                    log.debug('Added datetime format option :: '
+                              '{!s}: "{!s}"'.format(option, _value))
                     self._options['DATETIME_FORMAT'][option] = _value
                     return  # OK!
 
             # Use verified default value.
             if DateTimeConfigFieldParser.is_valid_datetime(default):
+                log.debug('Using default datetime format option :: '
+                          '{!s}: "{!s}"'.format(option, default))
                 self._options['DATETIME_FORMAT'][option] = default
             else:
                 sanity.check(
@@ -266,22 +270,30 @@ class Configuration(object):
             else:
                 _value = None
             if _value is not None:
+                log.debug('Added filetags option :: '
+                          '{!s}: "{!s}"'.format(option, _value))
                 self._options['FILETAGS_OPTIONS'][option] = _value
             else:
+                log.debug('Using default filetags option :: '
+                          '{!s}: "{!s}"'.format(option, _value))
                 self._options['FILETAGS_OPTIONS'][option] = default
 
-        def _try_load_filesystem_option(option, default):
-            if 'FILESYSTEM_OPTIONS' in self._data:
-                _value = self._data['FILESYSTEM_OPTIONS'].get(option)
+        def _try_load_custom_postprocessing_option(option, default):
+            if 'CUSTOM_POST_PROCESSING' in self._data:
+                _value = self._data['CUSTOM_POST_PROCESSING'].get(option)
             else:
                 _value = None
             if _value is not None:
+                log.debug('Added post-processing option :: '
+                          '{!s}: {!s}'.format(option, _value))
                 util.nested_dict_set(
-                    self._options, ['FILESYSTEM_OPTIONS', option], _value
+                    self._options, ['CUSTOM_POST_PROCESSING', option], _value
                 )
             else:
+                log.debug('Using default post-processing option :: '
+                          '{!s}: {!s}'.format(option, default))
                 util.nested_dict_set(
-                    self._options, ['FILESYSTEM_OPTIONS', option], default
+                    self._options, ['CUSTOM_POST_PROCESSING', option], default
                 )
 
         def _try_load_custom_postprocessing_replacements():
@@ -308,8 +320,8 @@ class Configuration(object):
                                     '"{!s}"'.format(_match))
                     else:
                         log.debug(
-                            'Added post-processing replacement. Match: "{!s}" '
-                            'Replace: "{!s}"'.format(regex, replacement)
+                            'Added post-processing replacement :: Match: "{!s}"'
+                            ' Replace: "{!s}"'.format(regex, replacement)
                         )
                         match_replace_pairs.append((compiled_pat, _replace))
 
@@ -335,19 +347,19 @@ class Configuration(object):
             'between_tag_separator',
             C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
         )
-        _try_load_filesystem_option(
+        _try_load_custom_postprocessing_option(
             'sanitize_filename',
             C.DEFAULT_FILESYSTEM_SANITIZE_FILENAME
         )
-        _try_load_filesystem_option(
+        _try_load_custom_postprocessing_option(
             'sanitize_strict',
             C.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
-        _try_load_filesystem_option(
+        _try_load_custom_postprocessing_option(
             'lowercase_filename',
             C.DEFAULT_FILESYSTEM_LOWERCASE_FILENAME
         )
-        _try_load_filesystem_option(
+        _try_load_custom_postprocessing_option(
             'uppercase_filename',
             C.DEFAULT_FILESYSTEM_UPPERCASE_FILENAME
         )
@@ -355,12 +367,12 @@ class Configuration(object):
         _try_load_custom_postprocessing_replacements()
 
         # Handle conflicting upper-case and lower-case options.
-        if (self._options['FILESYSTEM_OPTIONS'].get('lowercase_filename') and
-                self._options['FILESYSTEM_OPTIONS'].get('uppercase_filename')):
+        if (self._options['CUSTOM_POST_PROCESSING'].get('lowercase_filename')
+                and self._options['CUSTOM_POST_PROCESSING'].get('uppercase_filename')):
 
             log.warning('Conflicting options: "lowercase_filename" and '
                         '"uppercase_filename". Ignoring "uppercase_filename".')
-            self._options['FILESYSTEM_OPTIONS']['uppercase_filename'] = False
+            self._options['CUSTOM_POST_PROCESSING']['uppercase_filename'] = False
 
         # Unlike the previous options; first load the default ignore patterns,
         # then combine these defaults with any user-specified patterns.
@@ -373,11 +385,19 @@ class Configuration(object):
             if isinstance(_user_ignores, list):
                 _user_ignores = util.filter_none(_user_ignores)
                 if _user_ignores:
+                    for _ui in _user_ignores:
+                        log.debug('Added filesystem option :: '
+                                  '{!s}: {!s}'.format('ignore', _ui))
+
                     _defaults = util.nested_dict_get(
                         self._options, ['FILESYSTEM_OPTIONS', 'ignore']
                     )
+                    log.debug('Adding {} default filesystem ignore '
+                              'patterns'.format(len(_defaults)))
 
                     _combined = _defaults.union(frozenset(_user_ignores))
+                    log.debug('Using combined total of {} filesystem ignore '
+                              'patterns'.format(len(_combined)))
                     util.nested_dict_set(
                         self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
                         _combined

@@ -74,8 +74,8 @@ def build(config, name_template, field_data_map):
     log.debug('Assembled basename: "{!s}"'.format(new_name))
 
     # Do any file name "sanitation".
-    if config.get(['FILESYSTEM_OPTIONS', 'sanitize_filename']):
-        if config.get(['FILESYSTEM_OPTIONS', 'sanitize_strict']):
+    if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_filename']):
+        if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_strict']):
             log.debug('Sanitizing filename (restricted=True)')
             new_name = diskutils.sanitize_filename(new_name,
                                                    restricted=True)
@@ -90,9 +90,9 @@ def build(config, name_template, field_data_map):
         log.debug('Skipped sanitizing filename')
 
     # Do any case-transformations.
-    if config.get(['FILESYSTEM_OPTIONS', 'lowercase_filename']):
+    if config.get(['CUSTOM_POST_PROCESSING', 'lowercase_filename']):
         new_name = new_name.lower()
-    elif config.get(['FILESYSTEM_OPTIONS', 'uppercase_filename']):
+    elif config.get(['CUSTOM_POST_PROCESSING', 'uppercase_filename']):
         new_name = new_name.upper()
 
     # Do any user-defined "custom post-processing".
