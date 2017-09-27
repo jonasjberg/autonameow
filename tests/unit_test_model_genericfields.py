@@ -45,8 +45,12 @@ class TestGenericFieldBase(TestCase):
                                      GenericField.meowuri_leaf.lower())
         self.assertEqual(actual, expected)
 
-    def test_base_class_uri_root_is_undefined(self):
+    def test_base_class_uri_root_is_defined(self):
         self.assertEqual(GenericField.meowuri_root,
+                         C.MEOWURI_ROOT_GENERIC)
+
+    def test_base_class_uri_node_is_undefined(self):
+        self.assertEqual(GenericField.meowuri_node,
                          C.UNDEFINED_MEOWURI_PART)
 
     def test_base_class_uri_leaf_is_undefined(self):
@@ -56,19 +60,19 @@ class TestGenericFieldBase(TestCase):
 
 class TestGenericFieldStr(TestCase):
     def setUp(self):
-        self.test_data = [
-            (GenericAuthor, 'metadata.generic.author'),
-            (GenericCreator, 'metadata.generic.creator'),
-            (GenericDateCreated, 'metadata.generic.date_created'),
-            (GenericDateModified, 'metadata.generic.date_modified'),
-            (GenericMimeType, 'contents.generic.mime_type'),
-            (GenericProducer, 'metadata.generic.producer'),
-            (GenericSubject, 'metadata.generic.subject'),
-            (GenericTags, 'metadata.generic.tags'),
+        self.klass_expected = [
+            (GenericAuthor, 'generic.metadata.author'),
+            (GenericCreator, 'generic.metadata.creator'),
+            (GenericDateCreated, 'generic.metadata.date_created'),
+            (GenericDateModified, 'generic.metadata.date_modified'),
+            (GenericMimeType, 'generic.contents.mime_type'),
+            (GenericProducer, 'generic.metadata.producer'),
+            (GenericSubject, 'generic.metadata.subject'),
+            (GenericTags, 'generic.metadata.tags'),
         ]
 
     def test_returns_expected_uri_string(self):
-        for generic_field, expected_uri in self.test_data:
+        for generic_field, expected_uri in self.klass_expected:
             actual = generic_field.uri()
             self.assertEqual(actual, expected_uri)
 

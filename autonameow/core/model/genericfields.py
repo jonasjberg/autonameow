@@ -44,8 +44,8 @@ from core import constants as C
 
 
 class GenericField(object):
-    meowuri_root = C.UNDEFINED_MEOWURI_PART
-    meowuri_node = C.MEOWURI_NODE_GENERIC
+    meowuri_root = C.MEOWURI_ROOT_GENERIC
+    meowuri_node = C.UNDEFINED_MEOWURI_PART
     meowuri_leaf = C.UNDEFINED_MEOWURI_PART
 
     @classmethod
@@ -61,7 +61,7 @@ class GenericField(object):
 
 # TODO: [TD0090] Complete initial implementation of "generic" fields.
 class GenericAuthor(GenericField):
-    meowuri_root = 'metadata'
+    meowuri_node = 'metadata'
     meowuri_leaf = 'Author'
 
     @classmethod
@@ -70,7 +70,7 @@ class GenericAuthor(GenericField):
 
 
 class GenericCreator(GenericField):
-    meowuri_root = 'metadata'
+    meowuri_node = 'metadata'
     meowuri_leaf = 'Creator'
 
     @classmethod
@@ -79,7 +79,7 @@ class GenericCreator(GenericField):
 
 
 class GenericDescription(GenericField):
-    meowuri_root = 'metadata'
+    meowuri_node = 'metadata'
     meowuri_leaf = 'Description'
 
     @classmethod
@@ -88,7 +88,7 @@ class GenericDescription(GenericField):
 
 
 class GenericDateCreated(GenericField):
-    meowuri_root = 'metadata'
+    meowuri_node = 'metadata'
     meowuri_leaf = 'Date_Created'
 
     @classmethod
@@ -97,7 +97,7 @@ class GenericDateCreated(GenericField):
 
 
 class GenericDateModified(GenericField):
-    meowuri_root = 'metadata'
+    meowuri_node = 'metadata'
     meowuri_leaf = 'Date_Modified'
 
     @classmethod
@@ -106,7 +106,7 @@ class GenericDateModified(GenericField):
 
 
 class GenericMimeType(GenericField):
-    meowuri_root = 'contents'
+    meowuri_node = 'contents'
     meowuri_leaf = 'Mime_Type'
 
     @classmethod
@@ -115,7 +115,7 @@ class GenericMimeType(GenericField):
 
 
 class GenericProducer(GenericField):
-    meowuri_root = 'metadata'
+    meowuri_node = 'metadata'
     meowuri_leaf = 'Producer'
 
     @classmethod
@@ -124,7 +124,7 @@ class GenericProducer(GenericField):
 
 
 class GenericSubject(GenericField):
-    meowuri_root = 'metadata'
+    meowuri_node = 'metadata'
     meowuri_leaf = 'Subject'
 
     @classmethod
@@ -133,7 +133,7 @@ class GenericSubject(GenericField):
 
 
 class GenericTags(GenericField):
-    meowuri_root = 'metadata'
+    meowuri_node = 'metadata'
     meowuri_leaf = 'Tags'
 
     @classmethod
@@ -142,7 +142,7 @@ class GenericTags(GenericField):
 
 
 class GenericText(GenericField):
-    meowuri_root = 'contents'
+    meowuri_node = 'contents'
     meowuri_leaf = 'text'
 
     @classmethod

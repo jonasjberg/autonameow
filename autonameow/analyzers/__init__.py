@@ -133,7 +133,7 @@ class BaseAnalyzer(object):
         _leaf = cls.__module__.split('_')[-1] or cls.MEOWURI_LEAF
 
         return '{root}{sep}{leaf}'.format(
-            root=C.MEOWURI_ROOT_ANALYZERS, sep=C.MEOWURI_SEPARATOR,
+            root=C.MEOWURI_ROOT_SOURCE_ANALYZERS, sep=C.MEOWURI_SEPARATOR,
             leaf=_leaf
         )
 

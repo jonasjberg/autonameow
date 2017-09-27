@@ -37,10 +37,10 @@ class DocumentAnalyzer(BaseAnalyzer):
 
     def run(self):
         _response = self.request_data(self.file_object,
-                                      'contents.generic.text')
+                                      'generic.contents.text')
         if _response is None:
             self.log.info(
-                'Required data unavailable ("contents.generic.text")'
+                'Required data unavailable ("generic.contents.text")'
             )
             return
 
@@ -61,9 +61,9 @@ class DocumentAnalyzer(BaseAnalyzer):
         results = []
 
         possible_authors = [
-            ('metadata.generic.author', 1),
-            ('metadata.generic.creator', 0.5),
-            ('metadata.generic.producer', 0.1),
+            ('generic.metadata.author', 1),
+            ('generic.metadata.creator', 0.5),
+            ('generic.metadata.producer', 0.1),
         ]
         for meowuri, weight, in possible_authors:
             results += self.__collect_results(meowuri, weight)
@@ -74,8 +74,8 @@ class DocumentAnalyzer(BaseAnalyzer):
         results = []
 
         possible_titles = [
-            ('metadata.generic.title', 1),
-            ('metadata.generic.subject', 0.25),
+            ('generic.metadata.title', 1),
+            ('generic.metadata.subject', 0.25),
         ]
         for meowuri, weight in possible_titles:
             results += self.__collect_results(meowuri, weight)

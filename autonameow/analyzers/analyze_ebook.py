@@ -64,7 +64,7 @@ class EbookAnalyzer(BaseAnalyzer):
         )
 
     def run(self):
-        text = self.request_data(self.file_object, 'contents.generic.text')
+        text = self.request_data(self.file_object, 'generic.contents.text')
         if not text:
             return
 

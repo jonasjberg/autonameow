@@ -138,7 +138,7 @@ class BaseExtractor(object):
             _leaf = cls.MEOWURI_LEAF
 
         return '{root}{sep}{node}{sep}{leaf}'.format(
-            root=C.MEOWURI_ROOT_EXTRACTORS, sep=C.MEOWURI_SEPARATOR,
+            root=C.MEOWURI_ROOT_SOURCE_EXTRACTORS, sep=C.MEOWURI_SEPARATOR,
             node=_node, leaf=_leaf
         )
 
