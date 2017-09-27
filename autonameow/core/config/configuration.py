@@ -213,17 +213,16 @@ class Configuration(object):
                 'is missing name template format'
             )
 
+        valid_format = None
+        name_format = force_string(raw_rule.get('NAME_FORMAT'))
         # First test if the field data is a valid name template entry,
-        # If it is, use the format string defined in that entry.
-        # If not, try to use 'name_template' as a format string.
-        name_format = raw_rule.get('NAME_FORMAT')
         if name_format in self.name_templates:
-            valid_format = self.name_templates.get(name_format, False)
+            # If it is, use the format string defined in that entry.
+            valid_format = self.name_templates.get(name_format)
         else:
+            # If not, try to use 'name_template' as a format string.
             if NameFormatConfigFieldParser.is_valid_nametemplate_string(name_format):
                 valid_format = util.remove_nonbreaking_spaces(name_format)
-            else:
-                valid_format = False
 
         if not valid_format:
             raise exceptions.ConfigurationSyntaxError(
@@ -239,8 +238,8 @@ class Configuration(object):
                                data_sources=raw_rule.get('DATA_SOURCES'))
         except exceptions.InvalidRuleError as e:
             raise exceptions.ConfigurationSyntaxError(e)
-
-        return _rule
+        else:
+            return _rule
 
     def _load_options(self):
         def _try_load_datetime_format_option(option, default):
