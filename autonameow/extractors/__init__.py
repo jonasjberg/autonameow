@@ -123,7 +123,7 @@ def get_extractor_classes(packages, modules):
     return out
 
 
-def suitable_data_extractors_for(file_object):
+def suitable_extractors_for(file_object):
     """
     Returns extractor classes that can handle the given file object.
 

@@ -107,7 +107,7 @@ def start(file_object,
         required_extractors = []
     log.debug('Required extractors: {!s}'.format(required_extractors))
 
-    klasses = extractors.suitable_data_extractors_for(file_object)
+    klasses = extractors.suitable_extractors_for(file_object)
     log.debug('Extractors able to handle the file: {}'.format(len(klasses)))
 
     if not require_all_extractors:
