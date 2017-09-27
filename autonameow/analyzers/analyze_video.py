@@ -25,7 +25,7 @@ from analyzers import BaseAnalyzer
 
 class VideoAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.1
-    handles_mime_types = ['video/*']
+    HANDLES_MIME_TYPES = ['video/*']
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):

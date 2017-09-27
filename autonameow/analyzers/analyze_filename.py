@@ -35,7 +35,7 @@ EDITION_RE_LOOKUP = {
 
 class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
-    handles_mime_types = ['*/*']
+    HANDLES_MIME_TYPES = ['*/*']
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):

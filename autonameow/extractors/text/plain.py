@@ -44,7 +44,7 @@ DEFAULT_ENCODING = 'utf8'
 
 
 class PlainTextExtractor(AbstractTextExtractor):
-    handles_mime_types = ['text/plain']
+    HANDLES_MIME_TYPES = ['text/plain']
 
     def __init__(self):
         super(PlainTextExtractor, self).__init__()

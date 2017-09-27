@@ -65,7 +65,7 @@ class BaseExtractor(object):
 
     # List of MIME types that this extractor can extract information from.
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
-    handles_mime_types = None
+    HANDLES_MIME_TYPES = None
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
     # Middle part of the full MeowURI ('metadata', 'contents', 'filesystem', ..)
@@ -148,7 +148,7 @@ class BaseExtractor(object):
         Tests if a specific extractor class can handle a given file object.
 
         The extractor is considered to be able to handle the file if the
-        file MIME-type is listed in the class attribute 'handles_mime_types'.
+        file MIME-type is listed in the class attribute 'HANDLES_MIME_TYPES'.
 
         Inheriting extractor classes can override this method if they need
         to perform additional tests in order to determine if they can handle
@@ -161,15 +161,15 @@ class BaseExtractor(object):
             True if the extractor class can extract data from the given file,
             else False.
         """
-        if cls.handles_mime_types is None:
+        if cls.HANDLES_MIME_TYPES is None:
             raise NotImplementedError(
-                'Classes without class attribute "handles_mime_types" must '
+                'Classes without class attribute "HANDLES_MIME_TYPES" must '
                 'implement (override) class method "can_handle"!'
             )
 
         try:
             return util.eval_magic_glob(file_object.mime_type,
-                                        cls.handles_mime_types)
+                                        cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
             raise ExtractorError(
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)

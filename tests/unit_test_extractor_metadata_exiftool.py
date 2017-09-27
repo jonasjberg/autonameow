@@ -48,8 +48,8 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
         self.assertIsNotNone(self.e)
 
     def test_specifies_handles_mime_types(self):
-        self.assertIsNotNone(self.e.handles_mime_types)
-        self.assertTrue(isinstance(self.e.handles_mime_types, list))
+        self.assertIsNotNone(self.e.HANDLES_MIME_TYPES)
+        self.assertTrue(isinstance(self.e.HANDLES_MIME_TYPES, list))
 
     def test_method_str_returns_expected(self):
         self.assertEqual(str(self.e), 'ExiftoolMetadataExtractor')

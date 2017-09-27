@@ -58,7 +58,7 @@ FILENAME_TAG_SEPARATOR = util.bytestring_path(' -- ')
 
 class FiletagsAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
-    handles_mime_types = ['*/*']
+    HANDLES_MIME_TYPES = ['*/*']
 
     WRAPPER_LOOKUP = {
         'datetime': ExtractedData(

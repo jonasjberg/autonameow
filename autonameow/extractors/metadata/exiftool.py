@@ -40,7 +40,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """
-    handles_mime_types = ['video/*', 'application/pdf', 'image/*',
+    HANDLES_MIME_TYPES = ['video/*', 'application/pdf', 'image/*',
                           'application/epub+zip', 'text/*']
 
     EXTRACTEDDATA_WRAPPER_LOOKUP = {

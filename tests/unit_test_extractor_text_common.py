@@ -69,7 +69,7 @@ class TestAbstractTextExtractor(TestCase):
             self.assertFalse(self.e.can_handle(self.fo))
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
-        self.assertIsNone(self.e.handles_mime_types)
+        self.assertIsNone(self.e.HANDLES_MIME_TYPES)
 
     def test_abstract_class_does_not_specify_meowuri_node(self):
         self.assertEqual(self.e.MEOWURI_NODE, C.UNDEFINED_MEOWURI_PART)

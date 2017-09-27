@@ -39,7 +39,7 @@ from extractors import (
 
 
 class CrossPlatformFileSystemExtractor(BaseExtractor):
-    handles_mime_types = ['*/*']
+    HANDLES_MIME_TYPES = ['*/*']
     MEOWURI_LEAF = 'xplat'
 
     wrapper_lookup = {

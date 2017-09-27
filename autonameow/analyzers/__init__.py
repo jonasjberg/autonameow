@@ -55,7 +55,7 @@ class BaseAnalyzer(object):
 
     # List of MIME types that this analyzer can handle.
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
-    handles_mime_types = None
+    HANDLES_MIME_TYPES = None
 
     # Last part of the full MeowURI ('filetags', 'filename', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
@@ -143,7 +143,7 @@ class BaseAnalyzer(object):
         Tests if this analyzer class can handle the given file.
 
         The analyzer is considered to be able to handle the given file if the
-        file MIME type is listed in the class attribute 'handles_mime_types'.
+        file MIME type is listed in the class attribute 'HANDLES_MIME_TYPES'.
 
         Inheriting analyzer classes can override this method if they need
         to perform additional tests in order to determine if they can handle
@@ -155,7 +155,7 @@ class BaseAnalyzer(object):
         Returns:
             True if the analyzer class can handle the given file, else False.
         """
-        if util.eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
+        if util.eval_magic_glob(file_object.mime_type, cls.HANDLES_MIME_TYPES):
             return True
         else:
             return False

@@ -53,7 +53,7 @@ from extractors import (
 
 
 class PyPDFMetadataExtractor(BaseExtractor):
-    handles_mime_types = ['application/pdf']
+    HANDLES_MIME_TYPES = ['application/pdf']
 
     EXTRACTEDDATA_WRAPPER_LOOKUP = {
         'Creator': ExtractedData(
