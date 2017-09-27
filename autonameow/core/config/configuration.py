@@ -143,15 +143,24 @@ class Configuration(object):
             return
 
         loaded_templates = {}
-        for k, v in raw_templates.items():
-            # Remove any non-breaking spaces in the name template.
-            v = util.remove_nonbreaking_spaces(v)
+        for raw_key, raw_value in raw_templates.items():
+            _error = 'Got invalid name template: "{!s}: {!s}"'.format(raw_key,
+                                                                      raw_value)
+            key = force_string(raw_key)
+            if not key:
+                raise exceptions.ConfigurationSyntaxError(_error)
 
-            if NameFormatConfigFieldParser.is_valid_nametemplate_string(v):
-                loaded_templates[k] = v
+            value = force_string(raw_value)
+            if not value:
+                raise exceptions.ConfigurationSyntaxError(_error)
+
+            # Remove any non-breaking spaces in the name template.
+            value = util.remove_nonbreaking_spaces(value)
+
+            if NameFormatConfigFieldParser.is_valid_nametemplate_string(value):
+                loaded_templates[key] = value
             else:
-                msg = 'invalid name template "{}": "{}"'.format(k, v)
-                raise exceptions.ConfigurationSyntaxError(msg)
+                raise exceptions.ConfigurationSyntaxError(_error)
 
         self._name_templates.update(loaded_templates)
 
@@ -449,3 +458,14 @@ class Configuration(object):
         out.append(util.indent(util.dump(self.options), amount=4))
 
         return ''.join(out)
+
+
+def force_string(raw_value):
+    try:
+        str_value = types.AW_STRING(raw_value)
+    except types.AWTypeError:
+        pass
+    else:
+        if str_value != types.AW_STRING.NULL:
+            return str_value
+    return None

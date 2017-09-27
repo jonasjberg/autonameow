@@ -345,7 +345,7 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
 
     @staticmethod
     def is_valid_nametemplate_string(expression):
-        if not expression:
+        if not expression or not expression.strip():
             return False
 
         try:
