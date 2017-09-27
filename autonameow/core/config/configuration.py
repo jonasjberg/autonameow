@@ -304,13 +304,11 @@ class Configuration(object):
 
                 match_replace_pairs = []
                 for regex, replacement in _reps.items():
-                    try:
-                        _match = types.AW_STRING(regex)
-                        _replace = types.AW_STRING(replacement)
-                    except types.AWTypeError as e:
+                    _match = force_string(regex)
+                    _replace = force_string(replacement)
+                    if None in (_match, _replace):
                         log.warning('Skipped bad replacement: "{!s}": '
                                     '"{!s}"'.format(regex, replacement))
-                        log.debug(str(e))
                         continue
 
                     try:
@@ -325,9 +323,12 @@ class Configuration(object):
                         )
                         match_replace_pairs.append((compiled_pat, _replace))
 
-                util.nested_dict_set(self._options,
-                                     ['CUSTOM_POST_PROCESSING', 'replacements'],
-                                     match_replace_pairs)
+                if match_replace_pairs:
+                    util.nested_dict_set(
+                        self._options,
+                        ['CUSTOM_POST_PROCESSING', 'replacements'],
+                        match_replace_pairs
+                    )
 
         _try_load_datetime_format_option(
             'date', C.DEFAULT_DATETIME_FORMAT_DATE
