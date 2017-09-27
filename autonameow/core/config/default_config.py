@@ -194,8 +194,8 @@ DEFAULT_CONFIG = {
     #  "foo" in a file name to be replaced by "bar".
     'CUSTOM_POST_PROCESSING': {
         'replacements': {
-            '_+': '_',
-            '-+': '-',
+            '_{2,}': '_',
+            '-{2,}': '-',
             '\.{2,}': '.'
         },
     },
