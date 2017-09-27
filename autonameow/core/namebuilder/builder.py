@@ -118,7 +118,12 @@ def msg_replacement(original, replacement, regex, color):
     _name_new = _colorize_replacement(original, replacement, regex, color)
     log.info('Applying custom replacement: "{!s}" -> "{!s}"'.format(_name_old,
                                                                     _name_new))
-
+    # TODO: [TD0096] Fix invalid colouring if the replacement is the last character.
+    #
+    # Applying custom replacement. Regex: "re.compile('\\.$')" Replacement: ""
+    # Applying custom replacement: "2007-04-23_12-comments.png." -> "2007-04-23_12-comments.png"
+    #                                                     ^   ^
+    #                 Should not be colored red, but is --'   '-- Should be red, but isn't ..
 
 def _colorize_replacement(original, replacement, regex, color):
     _colored_replacement = cli.colorize(replacement, fore=color)
