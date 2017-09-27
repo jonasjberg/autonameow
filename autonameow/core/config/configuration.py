@@ -254,9 +254,11 @@ class Configuration(object):
             if DateTimeConfigFieldParser.is_valid_datetime(default):
                 self._options['DATETIME_FORMAT'][option] = default
             else:
-                log.critical('Invalid internal default value "{!s}": '
-                             '"{!s}'.format(option, default))
-                log.critical('This should not happen!')
+                sanity.check(
+                    False,
+                    'Invalid internal default value "{!s}: {!s}"'.format(
+                        option, default)
+                )
 
         def _try_load_filetags_option(option, default):
             if 'FILETAGS_OPTIONS' in self._data:
