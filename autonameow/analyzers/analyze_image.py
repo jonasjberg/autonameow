@@ -41,7 +41,7 @@ class ImageAnalyzer(BaseAnalyzer):
 
     def run(self):
         self.ocr_text = self.request_data(self.file_object,
-                                          'contents.visual.ocr_text')
+                                          'extractor.text.ocr.full')
 
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)

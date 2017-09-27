@@ -62,8 +62,10 @@ class FilenameAnalyzer(BaseAnalyzer):
         return None
 
     def get_edition(self):
-        basename = self.request_data(self.file_object,
-                                     'filesystem.basename.prefix')
+        basename = self.request_data(
+            self.file_object,
+            'extractor.filesystem.xplat.basename.prefix'
+        )
         if not basename:
             return
 
