@@ -110,7 +110,7 @@ class TestMeowURIwithValidInput(TestCase):
 
 class TestMeowURI(TestCase):
     def test_partitions_parts(self):
-        a = MeowURI('generic.contents.mimetype')
+        a = MeowURI('generic.contents.mime_type')
         self.assertTrue(isinstance(a._root, MeowURIRoot))
         self.assertTrue(isinstance(a._nodes, list))
         self.assertTrue(isinstance(a._nodes[0], MeowURINode))
@@ -124,14 +124,14 @@ class TestMeowURI(TestCase):
         self.assertTrue(isinstance(b._leaf, MeowURILeaf))
 
     def test_returns_partitioned_parts_as_strings(self):
-        a = MeowURI('generic.contents.mimetype')
+        a = MeowURI('generic.contents.mime_type')
         self.assertTrue(isinstance(a.root, str))
         self.assertTrue(isinstance(a.nodes, list))
         self.assertTrue(isinstance(a.nodes[0], str))
         self.assertTrue(isinstance(a.leaf, str))
         self.assertEqual(a.root, 'generic')
         self.assertEqual(a.nodes[0], 'contents')
-        self.assertEqual(a.leaf, 'mimetype')
+        self.assertEqual(a.leaf, 'mime_type')
 
         b = MeowURI('extractor.metadata.exiftool.File:MIMEType')
         self.assertEqual(b.root, 'extractor')
@@ -167,9 +167,7 @@ class TestMeowURIClassMethodGeneric(TestCase):
 
 class TestEvalMeowURIGlob(TestCase):
     def test_eval_meowuri_blob_returns_false_given_bad_arguments(self):
-        self.skipTest('TODO: ..')
-
-        m = MeowURI('a.b.c')
+        m = MeowURI('generic.metadata.foo')
         actual = m.eval_glob(None)
         self.assertIsNotNone(actual)
         self.assertFalse(actual)
@@ -177,49 +175,49 @@ class TestEvalMeowURIGlob(TestCase):
 
 class TestEvalMeowURIGlobA(TestCase):
     def setUp(self):
-        self.skipTest('TODO')
-
-        self.g = MeowURI('filesystem.contents.mime_type')
+        self.g = MeowURI('extractor.filesystem.xplat.contents.mime_type')
 
     def test_evaluates_false(self):
         def _f(test_input):
             self.assertFalse(self.g.eval_glob(test_input))
 
-        _f(['filesystem.pathname.*'])
-        _f(['filesystem.pathname.full'])
-        _f(['filesystem.contents.full'])
-        _f(['filesystem.pathname.*', 'filesystem.pathname.full'])
+        _f(['extractor.filesystem.xplat.pathname.*'])
+        _f(['extractor.filesystem.xplat.pathname.full'])
+        _f(['extractor.filesystem.xplat.contents.full'])
+        _f(['extractor.filesystem.xplat.pathname.*', 'filesystem.pathname.full'])
         _f(['NAME_FORMAT'])
-        _f(['filesystem.pathname.*'])
-        _f(['filesystem.pathname.full'])
+        _f(['extractor.filesystem.xplat.pathname.*'])
+        _f(['extractor.filesystem.xplat.pathname.full'])
 
     def test_evaluates_true(self):
         def _t(test_input):
             self.assertTrue(self.g.eval_glob(test_input))
 
-        _t(['filesystem.*'])
-        _t(['filesystem.contents.*'])
-        _t(['filesystem.*', 'filesystem.pathname.*',
-            'filesystem.pathname.full'])
+        _t(['extractor.*'])
+        _t(['extractor.filesystem.*'])
+        _t(['extractor.filesystem.xplat.contents.*'])
+        _t(['extractor.*', 'extractor.filesystem.xplat.pathname.*',
+            'extractor.filesystem.xplat.pathname.full'])
 
 
 class TestEvalMeowURIGlobB(TestCase):
     def setUp(self):
-        self.skipTest('TODO')
-
-        self.g = MeowURI('filesystem.basename.full')
+        self.g = MeowURI('extractor.filesystem.xplat.basename.full')
 
     def test_evaluates_false(self):
         def _f(test_input):
             self.assertFalse(self.g.eval_glob(test_input))
 
         _f(['*.pathname.*'])
-        _f(['filesystem.pathname.full'])
-        _f(['filesystem.contents.full'])
-        _f(['filesystem.pathname.*', 'filesystem.pathname.full'])
+        _f(['extractor.filesystem.xplat.pathname.full'])
+        _f(['extractor.filesystem.xplat.contents.full'])
+        _f(['extractor.filesystem.xplat.pathname.*',
+            'extractor.filesystem.xplat.pathname.full'])
         _f(['NAME_FORMAT'])
-        _f(['filesystem.pathname.*'])
-        _f(['filesystem.pathname.full'])
+        _f(['extractor.filesystem.pathname.*'])
+        _f(['extractor.filesystem.pathname.full'])
+        _f(['extractor.filesystem.xplat.pathname.*'])
+        _f(['extractor.filesystem.xplat.pathname.full'])
 
     def test_evaluates_true(self):
         def _t(test_input):
@@ -228,21 +226,133 @@ class TestEvalMeowURIGlobB(TestCase):
         _t(['*.pathname.*', '*.basename.*', '*.full'])
 
 
+class TestEvalMeowURIGlobC(TestCase):
+    def setUp(self):
+        self.g = MeowURI('generic.contents.textual.raw_text')
+
+    def test_evaluates_false(self):
+        def _f(test_input):
+            self.assertFalse(self.g.eval_glob(test_input))
+
+        _f(['contents.text.*'])
+        _f(['*.text.*'])
+        _f(['*.text', '*.text', '*.text.*'])
+        _f(['*.raw_*', '*.raw.*', '*.raw*.*', '*.*raw*.*'])
+
+    def test_evaluates_true(self):
+        def _t(test_input):
+            self.assertTrue(self.g.eval_glob(test_input))
+
+        _t(['generic.*'])
+        _t(['*.contents.*'])
+        _t(['*.textual.*'])
+        _t(['*.pathname.*', '*.basename.*', '*.raw_text'])
+        _t(['*.pathname.*', '*.textual.*', '*.foo'])
+
+
+class TestEvalMeowURIGlobD(TestCase):
+    def setUp(self):
+        self.g = MeowURI('extractor.filesystem.xplat.basename.extension')
+
+    def test_evaluates_false(self):
+        def _f(test_input):
+            self.assertFalse(self.g.eval_glob(test_input))
+
+        _f(['generic.*'])
+        _f(['generic.contents.*'])
+        _f(['generic.contents.mime_type'])
+        _f(['*.contents.mime_type'])
+        _f(['*.mime_type'])
+        _f(['extractor.filesystem.xplat.pathname.extension'])
+        _f(['extractor.filesystem.xplat.pathname.*'])
+        _f(['*.pathname.*'])
+        _f(['extractor.filesystem.xplat.basename.full'])
+
+    def test_evaluates_true(self):
+        def _t(test_input):
+            self.assertTrue(self.g.eval_glob(test_input))
+
+        _t(['*'])
+        _t(['*.basename.*', '*.basename.extension',
+            'extractor.filesystem.xplat.basename.extension'])
+        _t(['*.basename.extension'])
+        _t(['*.basename.*', '*.basename.extension'])
+        _t(['*', '*.basename.*', '*.basename.extension'])
+        _t(['*.extension'])
+        _t(['*', '*.extension'])
+
+
+class TestEvalMeowURIGlobE(TestCase):
+    def setUp(self):
+        self.g = MeowURI('extractor.filesystem.xplat.pathname.full')
+
+    def test_evaluates_false(self):
+        def _f(test_input):
+            self.assertFalse(self.g.eval_glob(test_input))
+
+        _f(['generic.*'])
+        _f(['generic.contents.*'])
+        _f(['generic.contents.mime_type'])
+        _f(['*.contents.mime_type'])
+        _f(['*.mime_type'])
+
+    def test_evaluates_true(self):
+        def _t(test_input):
+            self.assertTrue(self.g.eval_glob(test_input))
+
+        _t(['*'])
+        _t(['extractor.*'])
+        _t(['extractor.filesystem.*'])
+        _t(['extractor.filesystem.xplat.*'])
+        _t(['extractor.filesystem.xplat.pathname.*'])
+        _t(['extractor.filesystem.xplat.pathname.full'])
+        _t(['extractor.filesystem.xplat.*',
+            'extractor.filesystem.xplat.pathname.*',
+            'extractor.filesystem.xplat.pathname.full'])
+        _t(['*.pathname.*'])
+
+
+class TestEvalMeowURIGlobF(TestCase):
+    def setUp(self):
+        self.g = MeowURI('extractor.metadata.exiftool.PDF:Creator')
+
+    def test_evaluates_false(self):
+        def _f(test_input):
+            self.assertFalse(self.g.eval_glob(test_input))
+
+        _f(['datetime', 'date_accessed', 'date_created', 'date_modified',
+            '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
+            '*.EXIF:ModifyDate'])
+        _f(['generic.*'])
+        _f(['extractor.filesystem.*'])
+        _f(['extractor.filesystem.xplat.*'])
+        _f(['extractor.filesystem.xplat.pathname.*'])
+        _f(['extractor.filesystem.xplat.pathname.full'])
+        _f(['extractor.filesystem.xplat.*',
+            'extractor.filesystem.xplat.pathname.*',
+            'extractor.filesystem.xplat.pathname.full'])
+        _f(['*.pathname.*'])
+
+    def test_evaluates_true(self):
+        def _t(test_input):
+            self.assertTrue(self.g.eval_glob(test_input))
+
+        _t(['*'])
+        _t(['extractor.*'])
+        _t(['extractor.metadata.*'])
+        _t(['extractor.metadata.exiftool.*'])
+        _t(['extractor.metadata.exiftool.PDF:Creator'])
+        _t(['extractor.metadata.exiftool.*',
+            'extractor.metadata.exiftool.PDF:Creator'])
+        _t(['*.metadata.exiftool.PDF:Creator'])
+        _t(['*.exiftool.PDF:Creator'])
+        _t(['*.PDF:Creator'])
+
+
     # def test_eval_glob_b(self):
-    #     self.assertFalse(eval_meowuri_glob(
-    #         'filesystem.pathname.extension', ['*.basename.*',
-    #                                           '*.basename.extension',
-    #                                           'filesystem.basename.extension']
-    #     ))
     #     self.assertFalse(eval_meowuri_glob(
     #         'filesystem.pathname.parent', ['*.pathname.full',
     #                                        'filesystem.*.full']
-    #     ))
-    #     self.assertFalse(eval_meowuri_glob(
-    #         'extractor.metadata.exiftool.PDF:Creator',
-    #         ['datetime', 'date_accessed', 'date_created', 'date_modified',
-    #          '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
-    #          '*.EXIF:ModifyDate']
     #     ))
     #     self.assertFalse(eval_meowuri_glob(
     #         'contents.textual.text.full', ['filesystem.*',
@@ -250,67 +360,9 @@ class TestEvalMeowURIGlobB(TestCase):
     #                                        'filesystem.pathname.full']
     #     ))
     #     self.assertFalse(eval_meowuri_glob(
-    #         'contents.textual.raw_text', ['contents.text.*']
-    #     ))
-    #     self.assertFalse(eval_meowuri_glob(
-    #         'contents.textual.raw_text', ['*.text.*']
-    #     ))
-    #     self.assertFalse(eval_meowuri_glob(
-    #         'contents.textual.raw_text', ['*.text', '*.text', '*.text.*']
-    #     ))
-    #     self.assertFalse(eval_meowuri_glob(
-    #         'contents.textual.raw_text', ['*.raw_*', '*.raw.*', '*.raw*.*'
-    #                                                             '*.*raw*.*']
-    #     ))
-    #     self.assertFalse(eval_meowuri_glob(
     #         'filesystem.abspath.full', ['*.text.full']
     #     ))
     #
-    # def test_eval_meowuri_blob_returns_true_as_expected(self):
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'filesystem.pathname.full', ['*']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'filesystem.pathname.full', ['filesystem.*']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'filesystem.pathname.full', ['filesystem.pathname.*']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'filesystem.pathname.full', ['filesystem.pathname.full']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'filesystem.pathname.full', ['filesystem.*',
-    #                                      'filesystem.pathname.*',
-    #                                      'filesystem.pathname.full']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'filesystem.pathname.full', ['*',
-    #                                      'filesystem.*',
-    #                                      'filesystem.pathname.*',
-    #                                      'filesystem.pathname.full']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'filesystem.pathname.full', ['*.pathname.*']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'filesystem.basename.extension', ['*.basename.*',
-    #                                           '*.basename.extension',
-    #                                           'filesystem.basename.extension']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'filesystem.basename.extension', ['*',
-    #                                           '*.basename.*',
-    #                                           '*.basename.extension',
-    #                                           'filesystem.basename.extension']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'filesystem.basename.extension', ['*.extension']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'filesystem.basename.extension', ['*',
-    #                                           '*.extension']
-    #     ))
     #     self.assertTrue(eval_meowuri_glob(
     #         'extractor.metadata.exiftool.PDF:CreateDate',
     #         ['extractor.metadata.exiftool.PDF:CreateDate']
@@ -328,22 +380,6 @@ class TestEvalMeowURIGlobB(TestCase):
     #         ['datetime', 'date_accessed', 'date_created', 'date_modified',
     #          '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
     #          '*.EXIF:ModifyDate']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'contents.textual.text.full', ['contents.*']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'contents.textual.text.full', ['*.textual.*']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'contents.textual.text.full', ['*.text.*']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'contents.textual.text.full', ['*.full']
-    #     ))
-    #     self.assertTrue(eval_meowuri_glob(
-    #         'contents.textual.text.full', ['contents.*', '*.textual.*',
-    #                                        '*.text.*', '*.full']
     #     ))
 
 

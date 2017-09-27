@@ -40,10 +40,12 @@ class MeowURI(object):
         else:
             _raw_parts = list(args)
 
+        self._raw_parts = _raw_parts
+
         try:
             self._root = MeowURIRoot(_raw_parts.pop(0))
         except InvalidMeowURIError:
-            self._root = None
+            raise
 
         try:
             self._leaf = MeowURILeaf(_raw_parts.pop())
@@ -63,6 +65,7 @@ class MeowURI(object):
         except types.AWTypeError:
             return []
         else:
+            # Split the "meowURI" by periods to a list of strings.
             return util.meowuri_list(s)
 
     @classmethod
@@ -120,7 +123,7 @@ class MeowURI(object):
         Returns:
             True if any of the given globs matches, else False.
         """
-        meowuri = self._raw_string
+        meowuri = str(self)
 
         if not meowuri or not glob_list:
             return False
@@ -131,9 +134,6 @@ class MeowURI(object):
         if meowuri in glob_list:
             return True
 
-        # Split the "meowURI" by periods to a list of strings.
-        meowuri_parts = util.meowuri_list(meowuri)
-
         for glob in glob_list:
             glob_parts = glob.split('.')
 
@@ -143,7 +143,7 @@ class MeowURI(object):
 
             # No wildcards, do direct comparison.
             if '*' not in glob_parts:
-                if glob_parts == meowuri_parts:
+                if glob_parts == self._raw_parts:
                     return True
                 else:
                     continue
