@@ -37,7 +37,7 @@ class TextAnalyzer(BaseAnalyzer):
 
     def run(self):
         self.text = self.request_data(self.file_object,
-                                      'contents.textual.text.full')
+                                      'contents.generic.text')
 
         # Pass results through callback function provided by the 'Analysis'.
         self._add_results('author', self.get_author())

@@ -37,10 +37,10 @@ class DocumentAnalyzer(BaseAnalyzer):
 
     def run(self):
         _response = self.request_data(self.file_object,
-                                      'contents.textual.text.full')
+                                      'contents.generic.text')
         if _response is None:
             self.log.info(
-                'Required data unavailable ("contents.textual.text.full")'
+                'Required data unavailable ("contents.generic.text")'
             )
             return
 

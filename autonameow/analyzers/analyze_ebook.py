@@ -64,10 +64,7 @@ class EbookAnalyzer(BaseAnalyzer):
         )
 
     def run(self):
-        text = self.request_data(self.file_object, 'extractor.text.pdf.full')
-        if not text:
-            # TODO: Allow querying for text from any source.
-            text = self.request_data(self.file_object, 'extractor.text.*.full')
+        text = self.request_data(self.file_object, 'contents.generic.text')
         if not text:
             return
 
