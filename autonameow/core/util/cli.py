@@ -26,6 +26,8 @@ import platform
 from datetime import datetime
 import logging
 
+from core.util import sanity
+
 try:
     import colorama
     colorama.init()
@@ -34,9 +36,11 @@ except ImportError:
 
 import core
 from core import (
-    util
+    util,
+    types
 )
 from core import constants as C
+
 
 log = logging.getLogger(__name__)
 
@@ -158,20 +162,21 @@ def colorize(text, fore=None, back=None, style=None):
     return ''.join(buffer)
 
 
-def colorize_quoted(text, color=None):
+def colorize_re_match(text, regex, color=None):
+    sanity.check_isinstance(regex, types.BUILTIN_REGEX_TYPE)
+
     if color is not None:
         _color = color
     else:
         _color = 'LIGHTGREEN_EX'
 
     replacements = []
-    match_iter = re.findall(r'"([^"]*)"', text)
+    match_iter = regex.findall(text)
     for match in match_iter:
         replacements.append((match, colorize(match, fore=_color)))
 
     out = ''
     for old, new in replacements:
-        #
         # Find position of the first match:  text = a "B" b "B"
         #                                              ^
         # Work on a bit at a time to avoid replacing the same match.
@@ -183,7 +188,6 @@ def colorize_quoted(text, color=None):
         #
         # Do replacement in temp_text, append to 'out'. Continue to work
         # on the rest of the text:  text = ' b "B"'
-        #
         old_pos = text.find(old)
         strip_to = old_pos + len(old) + 1
         temp_text = text[:strip_to]
@@ -197,6 +201,13 @@ def colorize_quoted(text, color=None):
         out = out + text
 
     return out
+
+
+RE_ANYTHING_QUOTED = re.compile(r'"([^"]*)"')
+
+
+def colorize_quoted(text, color=None):
+    return colorize_re_match(text, RE_ANYTHING_QUOTED, color)
 
 
 def msg(message, style=None, add_info_log=False):

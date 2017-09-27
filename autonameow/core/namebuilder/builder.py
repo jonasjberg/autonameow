@@ -29,9 +29,12 @@ from core import (
 )
 from core.util import (
     diskutils,
-    sanity
+    sanity,
+    cli
 )
+from core import constants as C
 from core.model import ExtractedData
+
 
 log = logging.getLogger(__name__)
 
@@ -96,14 +99,30 @@ def build(config, name_template, field_data_map):
     replacements = config.get(['CUSTOM_POST_PROCESSING', 'replacements'])
     if replacements:
         for regex, replacement in replacements:
-            if re.search(regex, new_name):
-                log.info('Applying custom replacement. Regex: "{!s}" '
-                         'Replacement: "{!s}"'.format(regex, replacement))
+            _match = re.search(regex, new_name)
+            if _match:
+                log.debug('Applying custom replacement. Regex: "{!s}" '
+                          'Replacement: "{!s}"'.format(regex, replacement))
+                msg_replacement(new_name, replacement, regex,
+                                color=C.REPLACEMENT_HIGHLIGHT_COLOR)
+
                 new_name = re.sub(regex, replacement, new_name)
 
     # TODO: [TD0036] Allow per-field replacements and customization.
 
     return new_name
+
+
+def msg_replacement(original, replacement, regex, color):
+    _name_old = cli.colorize_re_match(original, regex=regex, color=color)
+    _name_new = _colorize_replacement(original, replacement, regex, color)
+    log.info('Applying custom replacement: "{!s}" -> "{!s}"'.format(_name_old,
+                                                                    _name_new))
+
+
+def _colorize_replacement(original, replacement, regex, color):
+    _colored_replacement = cli.colorize(replacement, fore=color)
+    return re.sub(regex, _colored_replacement, original)
 
 
 def _with_simple_string_keys(data_dict):

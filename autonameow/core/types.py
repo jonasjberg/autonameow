@@ -808,6 +808,10 @@ AW_EXIFTOOLTIMEDATE = ExifToolTimeDate()
 AW_PYPDFTIMEDATE = PyPDFTimeDate()
 
 
+# This is not clearly defined otherwise.
+BUILTIN_REGEX_TYPE = type(re.compile(''))
+
+
 # NOTE: Wrapping paths (potentially bytes) with this automatic type
 #       detection would coerce them to Unicode strings when we actually
 #       want to do path coercion with one the "AW_Path"-types ..
