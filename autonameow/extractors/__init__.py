@@ -140,8 +140,8 @@ def map_meowuri_to_extractors():
     """
     Returns a mapping of the extractor "meowURIs" and extractor classes.
 
-    Returns: A dictionary where the keys are "meowURIs" and the values
-        are lists of extractor classes.
+    Returns: A dictionary where the keys are Unicode string "meowURIs",
+             with values beings lists of extractor classes.
     """
     out = {}
 
