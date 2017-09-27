@@ -61,9 +61,9 @@ class DocumentAnalyzer(BaseAnalyzer):
         results = []
 
         possible_authors = [
-            ('metadata.author', 1),
-            ('metadata.creator', 0.5),
-            ('metadata.producer', 0.1),
+            ('metadata.generic.author', 1),
+            ('metadata.generic.creator', 0.5),
+            ('metadata.generic.producer', 0.1),
         ]
         for meowuri, weight, in possible_authors:
             results += self.__collect_results(meowuri, weight)
@@ -74,8 +74,8 @@ class DocumentAnalyzer(BaseAnalyzer):
         results = []
 
         possible_titles = [
-            ('metadata.title', 1),
-            ('metadata.subject', 0.25),
+            ('metadata.generic.title', 1),
+            ('metadata.generic.subject', 0.25),
         ]
         for meowuri, weight in possible_titles:
             results += self.__collect_results(meowuri, weight)
