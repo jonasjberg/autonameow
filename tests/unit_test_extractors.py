@@ -219,7 +219,50 @@ class TestMapMeowURIToExtractors(TestCase):
         self.assertIsNotNone(self.actual)
         self.assertTrue(isinstance(self.actual, dict))
 
-        for key, value in self.actual.items():
-            self.assertTrue(isinstance(key, str))
-            for v in value:
-                self.assertTrue(subclasses_base_extractor(v))
+        for meowuri, klass_list in self.actual.items():
+            self.assertTrue(isinstance(meowuri, str))
+            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
+
+            for klass in klass_list:
+                self.assertTrue(subclasses_base_extractor(klass))
+                self.assertTrue(uu.is_class(klass))
+
+    def test_returns_one_extractor_per_meowuri(self):
+        # This assumption is likely bound to change some time soon.
+        for meowuri, klass_list in self.actual.items():
+            self.assertEqual(len(klass_list), 1)
+
+
+class TestExtractorClassMeowURIs(TestCase):
+    extractor_class_names = [e.__name__ for e in extractors.ExtractorClasses]
+
+    def setUp(self):
+        self.actual = [k.meowuri() for k in extractors.ExtractorClasses]
+
+    def test_returns_expected_type(self):
+        for meowuri in self.actual:
+            self.assertTrue(isinstance(meowuri, str))
+            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
+
+    def test_returns_meowuris_for_extractors_assumed_always_available(self):
+        def _assert_in(member):
+            self.assertIn(member, self.actual)
+
+        _assert_in('extractor.filesystem.xplat')
+        _assert_in('extractor.text.plain')
+
+    def test_returns_meowuris_for_available_extractors(self):
+        def _conditional_assert_in(klass, member):
+            if klass in self.extractor_class_names:
+                self.assertIn(member, self.actual)
+
+        _conditional_assert_in('CrossPlatformFileSystemExtractor',
+                               'extractor.filesystem.xplat')
+        _conditional_assert_in('ExiftoolMetadataExtractor',
+                               'extractor.metadata.exiftool')
+        _conditional_assert_in('PyPDFMetadataExtractor',
+                               'extractor.metadata.pypdf')
+        _conditional_assert_in('PdfTextExtractor',
+                               'extractor.text.pdf')
+        _conditional_assert_in('ImageOCRTextExtractor',
+                               'extractor.text.ocr')
