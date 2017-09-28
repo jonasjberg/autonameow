@@ -22,12 +22,12 @@
 import unittest
 
 from core import util
-from extractors.text import PyPdfTextExtractor
+from extractors.text import PyPDFTextExtractor
 from extractors.text.pypdf import extract_pdf_content_with_pypdf
 import unit_utils as uu
 
 
-unmet_dependencies = PyPdfTextExtractor.check_dependencies() is False
+unmet_dependencies = PyPDFTextExtractor.check_dependencies() is False
 dependency_error = 'Extractor dependencies not satisfied'
 
 TESTFILE_GMAIL_PATH = util.normpath(uu.abspath_testfile('gmail.pdf'))
@@ -140,7 +140,7 @@ class TestExtractPdfContentWithPyPdf(unittest.TestCase):
 class TestPyPdfTextExtractor(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.e = PyPdfTextExtractor()
+        self.e = PyPDFTextExtractor()
 
         class DummyFileObject(object):
             def __init__(self, mime):
@@ -150,7 +150,7 @@ class TestPyPdfTextExtractor(unittest.TestCase):
         self.fo_pdf = DummyFileObject(mime='application/pdf')
 
     def test_pdf_text_extractor_class_is_available(self):
-        self.assertIsNotNone(PyPdfTextExtractor)
+        self.assertIsNotNone(PyPDFTextExtractor)
 
     def test_pdf_text_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
@@ -194,7 +194,7 @@ class TestPyPdfTextExtractor(unittest.TestCase):
 class TestPyPdfTextExtractorSimplePdf(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.e = PyPdfTextExtractor()
+        self.e = PyPDFTextExtractor()
 
     def test__get_text_returns_something(self):
         self.assertIsNotNone(self.e._get_text(TESTFILE_SIMPLEST_PATH))

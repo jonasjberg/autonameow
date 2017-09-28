@@ -22,6 +22,6 @@
 from .epub import EpubTextExtractor
 from .ocr import ImageOCRTextExtractor
 from .pdftotext import PdftotextTextExtractor
-from .pypdf import PyPdfTextExtractor
+from .pypdf import PyPDFTextExtractor
 from .plain import PlainTextExtractor
 

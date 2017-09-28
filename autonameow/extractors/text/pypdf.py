@@ -41,11 +41,11 @@ from extractors.text.common import AbstractTextExtractor
 log = logging.getLogger(__name__)
 
 
-class PyPdfTextExtractor(AbstractTextExtractor):
+class PyPDFTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
 
     def __init__(self):
-        super(PyPdfTextExtractor, self).__init__()
+        super(PyPDFTextExtractor, self).__init__()
 
     def _get_text(self, source):
         text = extract_pdf_content_with_pypdf(source)
