@@ -4,6 +4,7 @@ Jonas Sjöberg, 2017-09-09.
 
 * Revised 2017-09-23 -- Added notes from `ideas.md`
 * Revised 2017-09-27 -- Added "Breaking up MeowURIs into Parts"
+* Revised 2017-09-28 -- Added "Alternative approach 3"
 
 
 Data Storage
@@ -219,7 +220,14 @@ Going the "Alternative approach 2" mentioned above means having to solve;
   MeowURI:      extractor . metadata . exiftool . File:MIMEType
               |-----------|----------|----------|---------------|
 Part Type:    '   ROOT    '   NODE   '   NODE   '     LEAF      '
-   Origin:     (constant)  (package)  (package)    (dict key)
+   Origin:     (constant)  (package)   (module)    (dict key)
+```
+
+```
+  MeowURI:      extractor .  text  .  plain  . full
+              |-----------|--------|---------|------|
+Part Type:    '   ROOT    '  NODE  '   NODE  ' LEAF '
+   Origin:     (constant)  (package)(module) (dict key)
 ```
 
 Example of inconsistencies when the last two parts of a MeowURI from from
@@ -239,3 +247,46 @@ Part Type:    '   ROOT    '    NODE    ' NODE  '  NODE?   '   LEAF    '
 Part Type:    '   Root  '   NODE   '   LEAF   '
    Origin:     (constant)   (??)       (??)
 ```
+
+Introducing "Alternative approach 3"
+------------------------------------
+I have thought about this and performed some more experiments.
+
+### Extractors
+Lets say there are two main types of MeowURIs for extractors;
+__source-specific__ and __generic__.
+
+#### Extractor --- Source-Specific
+The current implementation uses the Python package hierarchy to construct the
+center MeowURI nodes for source-specific MeowURIs.
+
+Take for instance `extractor.metadata.exiftool.File:MIMEType`, consisting of;
+
+* `extractor` -- all classes inheriting from `BaseExtractor` use this prefix
+* `metadata` -- Python package name
+* `exiftool` -- Python module name
+* `File:MIMEType` -- Derived from dictionary key returned by the extractor
+
+It might be better to drop the unneeded parts.
+
+__Suggested new form:__  `extractor.exiftool.file:MIMEType`
+
+#### Extractor --- Generic
+The current generic form is constructed from definitions in subclasses of
+`GenericField`. They all share the prefix `generic` defined by a constant.
+
+Take for instance `generic.metadata.description`, consisting of;
+
+* `generic` -- all classes inheriting from `GenericField` use this prefix
+* `metadata` -- class attribute in the `GenericDescription` class
+* `description` -- class attribute in the `GenericDescription` class
+
+The source-specific MeowURIs start with either `extractor`, `plugin` or `analyzer`.
+So there really is no need for the `generic`-part to distinguish the types.
+
+__Suggested new form:__  `metadata.description`
+
+### Analyzers
+Analyzers only really expose a internal naming convention.
+
+There might not be any need to use "generic" analyzer-URIs (?)
