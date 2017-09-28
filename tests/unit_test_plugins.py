@@ -21,6 +21,7 @@
 
 from unittest import TestCase
 
+from core import constants as C
 import plugins
 import unit_utils as uu
 
@@ -65,3 +66,58 @@ class TestGetPluginClasses(TestCase):
     def test_get_plugin_classes_does_not_include_abstract_classes(self):
         self.assertNotIn(plugins.BasePlugin, self.klasses)
 
+
+def subclasses_base_plugin(klass):
+    return uu.is_class(klass) and issubclass(klass, plugins.BasePlugin)
+
+
+class TestMapMeowURIToPlugins(TestCase):
+    def setUp(self):
+        self.actual = plugins.map_meowuri_to_plugins()
+
+    def test_returns_expected_type(self):
+        self.assertIsNotNone(self.actual)
+        self.assertTrue(isinstance(self.actual, dict))
+
+        for meowuri, klass_list in self.actual.items():
+            self.assertTrue(uu.is_internalstring(meowuri))
+            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
+
+            for klass in klass_list:
+                self.assertTrue(subclasses_base_plugin(klass))
+                self.assertTrue(uu.is_class(klass))
+
+    def test_returns_one_plugin_per_meowuri(self):
+        # This assumption is likely bound to change some time soon.
+        for meowuri, klass_list in self.actual.items():
+            self.assertEqual(len(klass_list), 1)
+
+
+class TestPluginClassMeowURIs(TestCase):
+    plugin_class_names = [p.__name__ for p in plugins.UsablePlugins]
+
+    def setUp(self):
+        self.actual = [k.meowuri() for k in plugins.UsablePlugins]
+
+    def test_returns_expected_type(self):
+        for meowuri in self.actual:
+            self.assertTrue(uu.is_internalstring(meowuri))
+            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
+
+    # def test_returns_meowuris_for_extractors_assumed_always_available(self):
+    #     self.skipTest('TODO: Add plugins that should be always available')
+    #
+    #     def _assert_in(member):
+    #         self.assertIn(member, self.actual)
+    #
+    #     _assert_in(None)
+
+    def test_returns_meowuris_for_available_extractors(self):
+        def _conditional_assert_in(klass, member):
+            if klass in self.plugin_class_names:
+                self.assertIn(member, self.actual)
+
+        _conditional_assert_in('GuessitPlugin',
+                               'plugin.guessit')
+        _conditional_assert_in('MicrosoftVision',
+                               'plugin.microsoftvision')
