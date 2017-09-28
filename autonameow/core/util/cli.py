@@ -136,8 +136,10 @@ def colorize(text, fore=None, back=None, style=None):
     Returns:
         The given string with the specified coloring and style options applied.
         If no options are specified or if "colorama" is not available, the
-        text is returned as-is.
+        text is returned as-is. If "text" is None, an empty string is returned.
     """
+    if text is None:
+        return ''
     if not (fore or back or style) or not colorama:
         return text
 
@@ -237,16 +239,23 @@ def msg(message, style=None, add_info_log=False):
         print_default_msg(message)
         if add_info_log:
             log.info(message)
+
     elif style == 'info':
         print_info_msg(message)
         if add_info_log:
             log.info(message)
+
     elif style == 'heading':
-        print_default_msg('')
-        print_default_msg(message)
-        print_default_msg('=' * len(message))
+        _heading_underline = C.CLI_MSG_HEADING_CHAR * len(message)
+        _colored_heading_underline = colorize(_heading_underline, style='DIM')
+        _colored_heading_text = colorize(message, style='BRIGHT')
+        print('\n')
+        print(_colored_heading_text)
+        print(_colored_heading_underline)
+
     elif style == 'color_quoted':
         print(colorize_quoted(message))
+
     else:
         print_default_msg(message)
         if add_info_log:

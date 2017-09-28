@@ -37,6 +37,9 @@ STRING_PROGRAM_NAME = core.version.__title__.lower()
 # Color used to highlight post-processing replacements.
 REPLACEMENT_HIGHLIGHT_COLOR = 'RED'
 
+# Used by command-line interface functions.
+CLI_MSG_HEADING_CHAR = '='
+
 
 # Each analyzer can be queried for these fields by calling either;
 #   the_analyzer.get_FIELD()   or   the_analyzer.get('FIELD')
