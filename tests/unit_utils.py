@@ -582,6 +582,10 @@ def init_session_repository():
     repository.initialize()
 
 
+def is_extracteddata(thing):
+    return bool(thing and isinstance(thing, model.ExtractedData))
+
+
 def is_internalstring(thing):
     if thing is None:
         return False
