@@ -12,6 +12,7 @@ Ideas and Notes
 Various ideas on possible upcoming features and changes to `autonameow`.
 
 * Revised 2017-09-25 -- Add notes on the "Resolver"
+* Revised 2017-09-28 -- Add notes on auto-completing MeowURIs.
 
 
 Field Candidates
@@ -548,30 +549,52 @@ def _perform_automagic_actions(self, current_file, rule_matcher):
 ```
 
 Updated alternative, more wishful and optimistic version:
+
 ```python
 def _perform_automagic_actions(self, current_file, rule_matcher):
-    # Using the highest ranked rule
-    name_template = rule_matcher.best_match.name_template
+    if rule_matcher.best_match:
+        # Using the highest ranked rule
+        name_template = rule_matcher.best_match.name_template
+    else:
+        if self.opts.batch_mode:
+            log.warning('No rule matched, name template unknown.')
+            self.exit_code = C.EXIT_WARNING
+            return
+        else:
+            choice = cli.prompt_selection(
+                heading='Select a name template',
+                choice=rule_matcher.candidates
+            )
+            if choice != cli.action.ABORT:
+                name_template = choice
 
     resolver = Resolver(current_file, name_template)
     resolver.add_known_sources(rule_matcher.best_match.data_sources)
 
-    if not resolver.mapped_all_template_fields():
-        # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-        log.error('All name template placeholder fields must be '
-                  'given a data source; Check the configuration!')
-        self.exit_code = C.EXIT_WARNING
-        return
-
-    # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
-    # Add automatically resolving missing sources from possible candidates.
     resolver.collect()
-    if not resolver.collected_data_for_all_fields():
-        # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-        log.warning('Unable to populate name. Missing field data.')
-        self.exit_code = C.EXIT_WARNING
-        return
 
+    if not resolver.collected_all():
+        if self.opts.batch_mode:
+            log.warning('Unable to populate name.')
+            self.exit_code = C.EXIT_WARNING
+            return
+        else:
+            while not resolver.collected_all():
+                for unresolved in resolver.unresolved():
+                    candidates = resolver.lookup_candidates(unresolved)
+                    if candidates:
+                        choice = cli.prompt_selection(
+                            heading='Field {}'.format(unresolved.field)
+                            choices=candidates
+                        )
+                    else:
+                        choice = cli.prompt_meowuri(
+                            heading='Enter a MeowURI'
+                        )
+                    if choice != cli.action.ABORT:
+                        resolver.add_known_source(choice)
+
+                resolver.collect()
     try:
         new_name = namebuilder.build(
             config=self.active_config,
@@ -582,10 +605,6 @@ def _perform_automagic_actions(self, current_file, rule_matcher):
         log.critical('Name assembly FAILED: {!s}'.format(e))
         raise exceptions.AutonameowException
 
-    # TODO: [TD0042] Respect '--quiet' option. Suppress output.
-    log.info('New name: "{}"'.format(
-        util.displayable_path(new_name))
-    )
     self.do_rename(
         from_path=current_file.abspath,
         new_basename=new_name,
@@ -594,3 +613,36 @@ def _perform_automagic_actions(self, current_file, rule_matcher):
 ```
 
 
+
+Auto-Completion of MeowURIs
+---------------------------
+When in a mode that allows querying the user, choices of data using MeowURIs
+should support auto-completion. Pressing `<TAB>` should display all possible
+choices.
+
+Empty prompt:
+```
+>
+```
+
+After pressing `<TAB>`:
+```
+>
+  (analysis, extractor, plugin, contents, metadata, ..)
+```
+
+Entering `e` without pressing `<ENTER>`
+```
+> e
+```
+
+After pressing `<TAB>`:
+```
+> extractor
+```
+
+Entering `.` and then pressing `<TAB>`:
+```
+> extractor.
+  (exiftool, filesystem, pypdf, tesseract, ..)
+```
