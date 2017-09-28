@@ -122,6 +122,9 @@ class Autonameow(object):
         if self.opts.dump_config:
             self._dump_active_config_and_exit()
 
+        if self.opts.dump_meowuris:
+            self._dump_registered_meowuris()
+
         # Handle any input paths/files. Abort early if input paths are missing.
         if not self.opts.input_paths:
             log.warning('No input files specified ..')
@@ -149,6 +152,26 @@ class Autonameow(object):
         cli.msg('Active Configuration:', style='heading')
         cli.msg(str(self.active_config))
         self.exit_program(C.EXIT_SUCCESS)
+
+    def _dump_registered_meowuris(self):
+        cli.msg('Registered MeowURIs', style='heading')
+
+        if not self.opts.debug:
+            _meowuris = sorted(repository.SessionRepository.mapped_meowuris)
+            for _meowuri in _meowuris:
+                cli.msg(str(_meowuri))
+        else:
+            cf = cli.ColumnFormatter()
+            for _type in ['analyzers', 'extractors', 'plugins']:
+                klasses = repository.SessionRepository.meowuri_class_map.get(_type, {})
+                for _meowuri, _klasses in klasses.items():
+                    cf.add(_meowuri, str(_klasses.pop()))
+                    if _klasses:
+                        for k in _klasses:
+                            cf.add(None, str(k))
+            cli.msg(str(cf))
+
+        cli.msg('\n')
 
     def _load_config_from_default_path(self):
         _displayable_config_path = util.displayable_path(DefaultConfigFilePath)

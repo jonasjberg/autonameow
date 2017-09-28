@@ -253,6 +253,14 @@ def init_argparser():
         action='store_true',
         help='Dump active configuration to stdout.'
     )
+    optgrp_debug.add_argument(
+        '--dump-meowuris',
+        dest='dump_meowuris',
+        action='store_true',
+        help='Dump all MeowURIs registered to the "Repository" at startup. '
+             'NOTE: Some sources require explict inclusion and might therefore'
+             ' not be included.  Use "--debug" for more information.'
+    )
 
     return parser
 
