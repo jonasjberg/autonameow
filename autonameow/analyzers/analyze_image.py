@@ -37,11 +37,17 @@ class ImageAnalyzer(BaseAnalyzer):
         )
 
         self.exiftool = None
-        self.ocr_text = None
+        self.text = None
 
     def run(self):
-        self.ocr_text = self.request_data(self.file_object,
-                                          'extractor.text.ocr.full')
+        # self.text = self.request_data(self.file_object,
+        #                               'extractor.text.ocr.full')
+
+        _maybe_text = self.request_any_textual_content()
+        if not _maybe_text:
+            return
+
+        self.text = _maybe_text
 
         # TODO: Run (text) analysis on any text produced by OCR.
         #       (I.E. extract date/time, titles, authors, etc.)
@@ -181,12 +187,12 @@ class ImageAnalyzer(BaseAnalyzer):
                      'weight'  : 0.1
                    }, .. ]
         """
-        if not self.ocr_text:
+        if not self.text:
             self.log.debug('Found no date/time-information in OCR text.')
             return None
 
         results = []
-        text = self.ocr_text
+        text = self.text
         if type(text) == list:
             text = ' '.join(text)
 

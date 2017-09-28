@@ -30,6 +30,8 @@ from core import (
     util
 )
 from core.exceptions import AutonameowException
+from core.model import ExtractedData
+from core.util import sanity
 
 
 # Analyzers are assumed to be located in the same directory as this file.
@@ -124,6 +126,31 @@ class BaseAnalyzer(object):
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
         self.add_results(self.file_object, meowuri, data)
+
+    def request_any_textual_content(self):
+        _response = self.request_data(self.file_object,
+                                      'generic.contents.text')
+        if _response is None:
+            return None
+
+        text = None
+        if isinstance(_response, list):
+            for _r in _response:
+                sanity.check_isinstance(_r, ExtractedData)
+                if _r.value and len(_r.value) > 0:
+                    text = _r.value
+                    break
+        else:
+            sanity.check_isinstance(_response, ExtractedData)
+            if _response.value and len(_response.value) > 0:
+                text = _response.value
+
+        if text is not None:
+            return text
+        else:
+            self.log.info(
+                'Required data unavailable ("generic.contents.text")'
+            )
 
     @classmethod
     def meowuri(cls):
