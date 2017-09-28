@@ -69,7 +69,7 @@ class Repository(object):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
-        self.log.setLevel(logging.DEBUG)
+        # self.log.setLevel(logging.DEBUG)
 
     def initialize(self):
         self.meowuri_class_map = meowuri_class_map_dict()
