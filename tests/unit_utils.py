@@ -30,11 +30,12 @@ from contextlib import contextmanager
 from datetime import datetime
 
 import analyzers
-
-from core import util
+from core import (
+    model,
+    util
+)
 from core.config import rules
 from core.fileobject import FileObject
-
 import unit_utils_constants as uuconst
 
 
@@ -579,3 +580,15 @@ def is_importable(module_name):
 def init_session_repository():
     from core import repository
     repository.initialize()
+
+
+def is_internalstring(thing):
+    if thing is None:
+        return False
+    return bool(isinstance(thing, str))
+
+
+def is_internalbytestring(thing):
+    if thing is None:
+        return False
+    return bool(isinstance(thing, bytes))
