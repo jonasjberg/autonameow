@@ -82,6 +82,9 @@ def extract_pdf_content_with_pdftotext(pdf_file):
         )
 
     text = decode_raw(stdout)
+    if not text:
+        return ''
+
     text = textutils.normalize_unicode(text)
     text = textutils.remove_nonbreaking_spaces(text)
     if text:
