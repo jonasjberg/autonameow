@@ -199,7 +199,7 @@ class TestSuitableExtractorsForFile(TestCase):
                   extractors.suitable_extractors_for(self.fo)]
         self.assertIn('CrossPlatformFileSystemExtractor', actual)
         self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
-        self.assert_in_if_available('ImageOCRTextExtractor', actual)
+        self.assert_in_if_available('TesseractOCRTextExtractor', actual)
 
     def test_returns_expected_extractors_for_pdf_file(self):
         self.fo = uu.get_mock_fileobject(mime_type='application/pdf')
@@ -267,5 +267,5 @@ class TestExtractorClassMeowURIs(TestCase):
                                'extractor.metadata.pypdf')
         _conditional_assert_in('PyPDFTextExtractor',
                                'extractor.text.pypdf')
-        _conditional_assert_in('ImageOCRTextExtractor',
+        _conditional_assert_in('TesseractOCRTextExtractor',
                                'extractor.text.ocr')

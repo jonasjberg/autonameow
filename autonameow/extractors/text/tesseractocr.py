@@ -49,12 +49,12 @@ from extractors.text.common import (
 TESSERACT_COMMAND = 'tesseract'
 
 
-class ImageOCRTextExtractor(AbstractTextExtractor):
+class TesseractOCRTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['image/*']
     is_slow = True
 
     def __init__(self):
-        super(ImageOCRTextExtractor, self).__init__()
+        super(TesseractOCRTextExtractor, self).__init__()
 
     def _get_text(self, source):
         # NOTE: Tesseract behaviour will likely need tweaking depending

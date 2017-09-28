@@ -53,7 +53,7 @@ class BaseExtractor(object):
                     |
         (abstract)  +--* AbstractTextExtractor
                     |  |
-                    |  +--* ImageOCRTextExtractor
+                    |  +--* TesseractOCRTextExtractor
                     |  '--* PdfTextExtractor
                     |
                     +--* ExiftoolMetadataExtractor
