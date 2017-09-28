@@ -93,11 +93,7 @@ def _execute_run_queue(analyzer_queue):
 
 def request_global_data(file_object, meowuri):
     response = repository.SessionRepository.query(file_object, meowuri)
-    # TODO: [TD0082] Integrate the 'ExtractedData' class.
-    if response is not None and isinstance(response, ExtractedData):
-        return response.value
-    else:
-        return response
+    return response
 
 
 def collect_results(file_object, meowuri, data):
