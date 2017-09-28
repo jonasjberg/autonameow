@@ -22,29 +22,13 @@
 import unittest
 
 from core import util
-from extractors.text import PdfTextExtractor
-from extractors.text.pdf import (
-    extract_pdf_content_with_pdftotext,
-    extract_pdf_content_with_pypdf
-)
+from extractors.text import PyPdfTextExtractor
+from extractors.text.pypdf import extract_pdf_content_with_pypdf
 import unit_utils as uu
 
 
-unmet_dependencies = PdfTextExtractor.check_dependencies() is False
+unmet_dependencies = PyPdfTextExtractor.check_dependencies() is False
 dependency_error = 'Extractor dependencies not satisfied'
-
-
-class TestExtractPdfContentWithPdfTotext(unittest.TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-    def test_extract_pdf_content_with_pdftotext_returns_expected_type(self):
-        self.assertEqual(type(extract_pdf_content_with_pdftotext(pdf_file)),
-                         str)
-
-    def test_extract_pdf_content_with_pdftotext_returns_expected_text(self):
-        self.assertEqual(extract_pdf_content_with_pdftotext(pdf_file),
-                         expected_text)
 
 
 pdf_file = uu.abspath_testfile('simplest_pdf.md.pdf')
@@ -88,7 +72,7 @@ class TestPdfTextExtractor(unittest.TestCase):
         self.maxDiff = None
 
         self.test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
-        self.e = PdfTextExtractor()
+        self.e = PyPdfTextExtractor()
 
         class DummyFileObject(object):
             def __init__(self, mime):
@@ -165,7 +149,7 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
 '''
 
     def test_pdf_text_extractor_class_is_available(self):
-        self.assertIsNotNone(PdfTextExtractor)
+        self.assertIsNotNone(PyPdfTextExtractor)
 
     def test_pdf_text_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)

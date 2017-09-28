@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import subprocess
 
 try:
     import PyPDF2
@@ -34,55 +33,23 @@ except ImportError:
     PdfReadError = None
 
 from core import util
-from core.util import (
-    sanity,
-    textutils
-)
+from core.util import sanity
 from extractors import ExtractorError
-from extractors.text.common import (
-    AbstractTextExtractor,
-    decode_raw,
-    normalize_unicode
-)
+from extractors.text.common import AbstractTextExtractor
 
 
 log = logging.getLogger(__name__)
 
 
-class PdfTextExtractor(AbstractTextExtractor):
+class PyPdfTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
 
     def __init__(self):
-        super(PdfTextExtractor, self).__init__()
+        super(PyPdfTextExtractor, self).__init__()
 
     def _get_text(self, source):
-        """
-        Extracts the plain text contents of a PDF document.
-
-        Returns:
-            The textual contents of the PDF document as a unicode string.
-        Raises:
-            ExtractorError: The extraction failed.
-        """
-        text = None
-        text_extractors = [extract_pdf_content_with_pdftotext,
-                           extract_pdf_content_with_pypdf]
-        for i, extractor in enumerate(text_extractors):
-            self.log.debug('Running PDF text extractor {}/{}: {!s}'.format(
-                    i + 1, len(text_extractors), extractor
-            ))
-            try:
-                text = extractor(source)
-            except ExtractorError as e:
-                self.log.error('Error while extracting PDF content with '
-                               '"{!s}": "{!s}"'.format(extractor, e))
-                continue
-
-            if text and len(text) > 1:
-                break
-
-        if text:
-            self.log.debug('Returning extracted text')
+        text = extract_pdf_content_with_pypdf(source)
+        if text and len(text) > 1:
             return text
         else:
             self.log.debug('Unable to extract textual content from PDF')
@@ -90,42 +57,7 @@ class PdfTextExtractor(AbstractTextExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        pdftotext_available = util.is_executable('pdftotext')
-        return pdftotext_available or PyPDF2 is not None
-
-
-def extract_pdf_content_with_pdftotext(pdf_file):
-    """
-    Extract the plain text contents of a PDF document using "pdftotext".
-
-    Returns:
-        Any textual content of the given PDF file, as Unicode strings.
-    Raises:
-        ExtractorError: The extraction failed and could not be completed.
-    """
-    try:
-        process = subprocess.Popen(
-            ['pdftotext', '-nopgbrk', '-enc', 'UTF-8', pdf_file, '-'],
-            shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-        )
-        stdout, stderr = process.communicate()
-    except (OSError, ValueError, subprocess.SubprocessError) as e:
-        raise ExtractorError(e)
-
-    if process.returncode != 0:
-        raise ExtractorError(
-            'pdftotext returned {!s} with STDERR: "{!s}"'.format(
-                process.returncode, stderr)
-        )
-
-    text = decode_raw(stdout)
-    text = normalize_unicode(text)
-    text = textutils.remove_nonbreaking_spaces(text)
-    if text:
-        sanity.check_internal_string(text)
-        return text
-    else:
-        return ''
+        return PyPDF2 is not None
 
 
 def extract_pdf_content_with_pypdf(pdf_file):
