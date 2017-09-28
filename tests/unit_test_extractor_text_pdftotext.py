@@ -27,15 +27,15 @@ from extractors.text.pdftotext import extract_pdf_content_with_pdftotext
 import unit_utils as uu
 
 
-class TestExtractPdfContentWithPdfTotext(unittest.TestCase):
+class TestExtractPdfContentWithPdftotext(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-    def test_extract_pdf_content_with_pdftotext_returns_expected_type(self):
+    def test_returns_expected_type(self):
         self.assertEqual(type(extract_pdf_content_with_pdftotext(pdf_file)),
                          str)
 
-    def test_extract_pdf_content_with_pdftotext_returns_expected_text(self):
+    def test_returns_expected_text(self):
         self.assertEqual(extract_pdf_content_with_pdftotext(pdf_file),
                          expected_text)
 
@@ -61,7 +61,7 @@ class TestSetup(unittest.TestCase):
         self.assertTrue(uu.file_exists(pdf_file))
 
 
-class TestPdfTextExtractor(unittest.TestCase):
+class TestPdftotextTextExtractor(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -140,16 +140,16 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
 
 '''
 
-    def test_pdf_text_extractor_class_is_available(self):
+    def test_class_is_available(self):
         self.assertIsNotNone(PdftotextTextExtractor)
 
-    def test_pdf_text_extractor_class_can_be_instantiated(self):
+    def test_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
-    def test__get_raw_text_returns_something(self):
+    def test__get_text_returns_something(self):
         self.assertIsNotNone(self.e._get_text(self.test_file))
 
-    def test__get_raw_text_returns_expected_type(self):
+    def test__get_text_returns_expected_type(self):
         self.assertEqual(type(self.e._get_text(self.test_file)), str)
 
     def test_method_execute_returns_something(self):
@@ -159,7 +159,7 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
         actual = self.e.execute(self.test_file)
         self.assertTrue(isinstance(actual, dict))
 
-    def test_method_execute_all_result_contains_expected(self):
+    def test_method_execute_contains_expected(self):
         actual = self.e.execute(self.test_file)
         self.assertEqual(actual['full'].value, self.EXPECT_TEXT)
 
