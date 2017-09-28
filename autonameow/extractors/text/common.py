@@ -20,12 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import unicodedata
 
 from core import (
+    model,
     types,
-    util,
-    model
+    util
 )
 from core.model import ExtractedData
 from core.util import (
@@ -91,5 +90,3 @@ def decode_raw(raw_text):
         return text
 
 
-def normalize_unicode(text):
-    return unicodedata.normalize('NFKC', text)

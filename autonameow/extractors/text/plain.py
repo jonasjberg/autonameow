@@ -31,10 +31,7 @@ from core.util import (
     textutils
 )
 from extractors import ExtractorError
-from extractors.text.common import (
-    AbstractTextExtractor,
-    normalize_unicode
-)
+from extractors.text.common import AbstractTextExtractor
 
 
 log = logging.getLogger(__name__)
@@ -52,7 +49,7 @@ class PlainTextExtractor(AbstractTextExtractor):
     def _get_text(self, source):
         self.log.debug('Extracting raw text from plain text file ..')
         result = read_entire_text_file(source)
-        text = normalize_unicode(result)
+        text = textutils.normalize_unicode(result)
         text = textutils.remove_nonbreaking_spaces(text)
         sanity.check_internal_string(text)
         return text

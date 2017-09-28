@@ -23,10 +23,7 @@ from unittest import TestCase
 
 from core import constants as C
 from extractors import ExtractorError
-from extractors.text.common import (
-    AbstractTextExtractor,
-    normalize_unicode
-)
+from extractors.text.common import AbstractTextExtractor
 import unit_utils as uu
 
 
@@ -87,15 +84,3 @@ class TestAbstractTextExtractor(TestCase):
     def test_check_dependencies_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.e.check_dependencies()
-
-
-class TestNormalizeUnicode(TestCase):
-    def test_returns_expected(self):
-        actual = normalize_unicode('...')
-        expected = '...'
-        self.assertEqual(actual, expected)
-
-    def test_simplifies_three_periods(self):
-        actual = normalize_unicode('…')
-        expected = '...'
-        self.assertEqual(actual, expected)

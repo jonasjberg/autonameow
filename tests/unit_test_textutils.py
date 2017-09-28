@@ -524,3 +524,36 @@ class TestParseName(unittest.TestCase):
         self.assertEqual(actual.first, 'Gibson')
         self.assertEqual(actual.last, 'Catson')
         self.assertEqual(actual.suffix, 'Ph.D.')
+
+
+class TestNormalizeUnicode(unittest.TestCase):
+    def _aE(self, test_input, expected):
+        actual = textutils.normalize_unicode(test_input)
+        self.assertEqual(actual, expected)
+
+    def test_raises_exception_given_bad_input(self):
+        def _aR(test_input):
+            with self.assertRaises(TypeError):
+                textutils.normalize_unicode(test_input)
+
+        _aR(None)
+        _aR([])
+        _aR(['foo'])
+        _aR({})
+        _aR({'foo': 'bar'})
+        _aR(object())
+        _aR(1)
+        _aR(1.0)
+        _aR(b'')
+        _aR(b'foo')
+
+    def test_returns_expected(self):
+        self._aE('', '')
+        self._aE(' ', ' ')
+        self._aE('foo', 'foo')
+        self._aE('...', '...')
+
+    def test_simplifies_three_periods(self):
+        self._aE('…', '...')
+        self._aE(' …', ' ...')
+        self._aE(' … ', ' ... ')

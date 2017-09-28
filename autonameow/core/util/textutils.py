@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+import unicodedata
 
 try:
     import chardet
@@ -262,3 +263,10 @@ def format_names_lastname_initials(list_of_full_names):
     _formatted_authors = [format_name_lastname_initials(a)
                           for a in list_of_full_names]
     return sorted(_formatted_authors, key=str.lower)
+
+
+def normalize_unicode(text):
+    if not isinstance(text, str):
+        raise TypeError('Expected "text" to be a Unicode str')
+
+    return unicodedata.normalize('NFKC', text)

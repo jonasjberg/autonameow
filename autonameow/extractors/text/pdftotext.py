@@ -30,8 +30,7 @@ from core.util import (
 from extractors import ExtractorError
 from extractors.text.common import (
     AbstractTextExtractor,
-    decode_raw,
-    normalize_unicode
+    decode_raw
 )
 
 
@@ -83,7 +82,7 @@ def extract_pdf_content_with_pdftotext(pdf_file):
         )
 
     text = decode_raw(stdout)
-    text = normalize_unicode(text)
+    text = textutils.normalize_unicode(text)
     text = textutils.remove_nonbreaking_spaces(text)
     if text:
         sanity.check_internal_string(text)
