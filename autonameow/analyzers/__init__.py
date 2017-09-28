@@ -203,6 +203,10 @@ class BaseAnalyzer(object):
     def __str__(self):
         return self.__class__.__name__
 
+    @classmethod
+    def __str__(cls):
+        return cls.__name__
+
 
 def find_analyzer_files():
     """
