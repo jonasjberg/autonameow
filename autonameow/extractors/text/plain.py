@@ -26,6 +26,7 @@ try:
 except ImportError:
     chardet = None
 
+from core import util
 from core.util import (
     sanity,
     textutils
@@ -49,10 +50,17 @@ class PlainTextExtractor(AbstractTextExtractor):
     def _get_text(self, source):
         self.log.debug('Extracting raw text from plain text file ..')
         result = read_entire_text_file(source)
-        text = textutils.normalize_unicode(result)
+        if not result:
+            return ''
+
+        sanity.check_internal_string(result)
+        text = result
+        text = textutils.normalize_unicode(text)
         text = textutils.remove_nonbreaking_spaces(text)
-        sanity.check_internal_string(text)
-        return text
+        if text:
+            return text
+        else:
+            return ''
 
     @classmethod
     def check_dependencies(cls):
@@ -78,9 +86,9 @@ def read_entire_text_file(file_path):
     if contents:
         log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
                                                                   file_path))
-        contents = ''.join(contents)
-        sanity.check_internal_string(contents)
-        return contents
+        text = ''.join(contents)
+        sanity.check_internal_string(text)
+        return text
     else:
         log.debug('Read NOTHING from file "{!s}"'.format(file_path))
         return ''

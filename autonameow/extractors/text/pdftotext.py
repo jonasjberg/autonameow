@@ -44,12 +44,17 @@ class PdftotextTextExtractor(AbstractTextExtractor):
         super(PdftotextTextExtractor, self).__init__()
 
     def _get_text(self, source):
-        text = extract_pdf_content_with_pdftotext(source)
-        if text and len(text) > 1:
-            self.log.debug('Returning extracted text')
+        result = extract_pdf_content_with_pdftotext(source)
+        if not result:
+            return ''
+
+        sanity.check_internal_string(result)
+        text = result
+        text = textutils.normalize_unicode(text)
+        text = textutils.remove_nonbreaking_spaces(text)
+        if text:
             return text
         else:
-            self.log.debug('Unable to extract textual content from PDF')
             return ''
 
     @classmethod
@@ -81,14 +86,8 @@ def extract_pdf_content_with_pdftotext(pdf_file):
                 process.returncode, stderr)
         )
 
-    text = decode_raw(stdout)
-    if not text:
+    result = decode_raw(stdout)
+    if not result:
         return ''
+    return result
 
-    text = textutils.normalize_unicode(text)
-    text = textutils.remove_nonbreaking_spaces(text)
-    if text:
-        sanity.check_internal_string(text)
-        return text
-    else:
-        return ''

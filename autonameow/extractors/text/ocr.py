@@ -33,11 +33,17 @@ try:
 except ImportError:
     Image = None
 
-from core import (
-    util
+from core import util
+from core.util import (
+    sanity,
+    textutils
 )
+
 from extractors import ExtractorError
-from extractors.text.common import AbstractTextExtractor
+from extractors.text.common import (
+    AbstractTextExtractor,
+    decode_raw
+)
 
 
 TESSERACT_COMMAND = 'tesseract'
@@ -61,9 +67,17 @@ class ImageOCRTextExtractor(AbstractTextExtractor):
             tesseract_args, util.displayable_path(source)
         ))
         result = get_text_from_ocr(source, tesseract_args=tesseract_args)
+        if not result:
+            return ''
 
-        self.log.debug('Tesseract returned {} (?) of text'.format(len(result)))
-        return result
+        sanity.check_internal_string(result)
+        text = result
+        text = textutils.normalize_unicode(text)
+        text = textutils.remove_nonbreaking_spaces(text)
+        if text:
+            return text
+        else:
+            return ''
 
     @classmethod
     def check_dependencies(cls):
@@ -117,16 +131,16 @@ def get_text_from_ocr(image_path, tesseract_args=None):
 
     try:
         # TODO: [TD0068] Let the user configure which languages to use with OCR.
-        text = image_to_string(image, lang='swe+eng',
-                               config=tesseract_args)
+        stdout = image_to_string(image, lang='swe+eng',
+                                 config=tesseract_args)
     except (ExtractorError, TypeError) as e:
         # TODO: Cleanup exception handling.
         raise ExtractorError('tesseract ERROR: {}'.format(str(e)))
     else:
-        if text:
-            text = text.strip()
-            return util.decode_(text)
-        return ''
+        result = decode_raw(stdout)
+        if not result:
+            return ''
+        return result
 
 
 def run_tesseract(input_filename, output_filename_base,
