@@ -320,3 +320,66 @@ def msg_rename(from_basename, dest_basename, dry_run):
         _message = 'Renamed {!s} -> {!s}'
 
     msg(_message.format(_name_old, _name_new))
+
+
+class ColumnFormatter(object):
+    """
+    Utility formatter for printing columns of string.
+    All column widths are set to the widest entry in any column.
+    """
+    COLUMN_PADDING = 2
+
+    def __init__(self):
+        self._columns = 0
+        self._data = []
+
+    @property
+    def number_columns(self):
+        return self._columns
+
+    @number_columns.setter
+    def number_columns(self, count):
+        if isinstance(count, int) and count > self._columns:
+            self._columns = count
+
+    def add(self, *args):
+        maybe_strings = list(args)
+
+        strings = self._check_types_replace_none(maybe_strings)
+
+        self.number_columns = len(strings)
+        self._data.append(strings)
+
+    @staticmethod
+    def _check_types_replace_none(maybe_strings):
+        out = []
+
+        if not maybe_strings:
+            return out
+
+        for _element in maybe_strings:
+            if _element is None:
+                out.append('')
+            elif not isinstance(_element, str):
+                raise TypeError(
+                    'Expected Unicode str. Got "{!s}"'.format(type(_element))
+                )
+            else:
+                out.append(_element.strip())
+
+        return out
+
+    def __str__(self):
+        if not self._data:
+            return ''
+
+        column_width = (
+            max(len(string) for row in self._data for string in row)
+            + self.COLUMN_PADDING
+        )
+
+        out = []
+        for row in self._data:
+            out.append("".join(word.ljust(column_width) for word in row))
+
+        return '\n'.join(out)
