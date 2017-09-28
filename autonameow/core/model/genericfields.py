@@ -59,7 +59,6 @@ class GenericField(object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
 
-# TODO: [TD0090] Complete initial implementation of "generic" fields.
 class GenericAuthor(GenericField):
     meowuri_node = 'metadata'
     meowuri_leaf = 'Author'

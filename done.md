@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-09-28
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0090]` Complete initial implementation of "generic" data fields.
+
 * 2017-09-27
 
     > High Priority
