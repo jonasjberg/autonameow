@@ -42,6 +42,7 @@ except ImportError:
 
 class GuessitPlugin(BasePlugin):
     DISPLAY_NAME = 'Guessit'
+    MEOWURI_LEAF = DISPLAY_NAME.lower()
 
     EXTRACTEDDATA_WRAPPER_LOOKUP = {
         'audio_codec': ExtractedData(

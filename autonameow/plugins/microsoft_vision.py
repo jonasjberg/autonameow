@@ -140,6 +140,7 @@ def _read_api_key_from_file(file_path):
 
 class MicrosoftVisionPlugin(BasePlugin):
     DISPLAY_NAME = 'MicrosoftVision'
+    MEOWURI_LEAF = DISPLAY_NAME.lower()
 
     """
     'microsoft_vision.py'
