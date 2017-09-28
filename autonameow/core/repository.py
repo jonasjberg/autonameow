@@ -115,6 +115,7 @@ class Repository(object):
         self._store_generic(file_object, data)
 
     def _store_generic(self, file_object, data):
+        # TODO: [TD0082] Integrate the 'ExtractedData' class.
         if not isinstance(data, ExtractedData):
             return
 
@@ -232,28 +233,43 @@ class Repository(object):
         for uri, data in data.items():
             _max_len_meowuri = max(_max_len_meowuri, len(uri))
 
-            # TODO: [TD0082] Integrate the 'ExtractedData' class.
-            if isinstance(data, ExtractedData):
-                data = data.value
-
-            if isinstance(data, bytes):
-                temp[uri] = util.displayable_path(data)
-            elif isinstance(data, list):
+            if isinstance(data, list):
                 log.debug('TODO: Improve robustness of handling this case')
                 temp_list = []
-                for v in data:
+                for element in data:
+                    # TODO: [TD0082] Integrate the 'ExtractedData' class.
+                    if isinstance(element, ExtractedData):
+                        v = element.value
+                    else:
+                        v = element
+
                     if isinstance(v, bytes):
                         temp_list.append(util.displayable_path(v))
+                    elif eval_meowuri_glob(uri, ['generic.contents.text',
+                                                 'extractor.text.*']):
+                        # Often *a lot* of text, trim to arbitrary size..
+                        _truncated = truncate_text(v)
+                        temp_list.append(_truncated)
                     else:
-                        temp_list.append(v)
+                        temp_list.append(str(v))
 
                 temp[uri] = temp_list
-            else:
-                temp[uri] = data
 
-            # Often *a lot* of text, trim to arbitrary size..
-            if eval_meowuri_glob(uri, '*.text.full'):
-                temp[uri] = truncate_text(temp[uri])
+            else:
+                # TODO: [TD0082] Integrate the 'ExtractedData' class.
+                if isinstance(data, ExtractedData):
+                    v = data.value
+                else:
+                    v = data
+
+                if isinstance(v, bytes):
+                    temp[uri] = util.displayable_path(v)
+                # Often *a lot* of text, trim to arbitrary size..
+                elif eval_meowuri_glob(uri, ['generic.contents.text',
+                                             'extractor.text.*']):
+                    temp[uri] = truncate_text(v)
+                else:
+                    temp[uri] = str(v)
 
         out = []
         for uri, data in temp.items():
@@ -264,7 +280,8 @@ class Repository(object):
                         out.append(_fmt_list_entry(_max_len_meowuri, v))
 
             else:
-                if eval_meowuri_glob(uri, '*.text.full'):
+                if eval_meowuri_glob(uri, ['generic.contents.text',
+                                           'extractor.text.*']):
                     _text = textutils.extract_lines(data, 0, 1)
                     _text = _text.rstrip('\n')
                     out.append(_fmt_text_line(_max_len_meowuri, _text, uri))
