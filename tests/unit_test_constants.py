@@ -22,6 +22,7 @@
 from unittest import TestCase
 
 from core import constants as C
+import unit_utils as uu
 
 
 class TestConstants(TestCase):
@@ -35,7 +36,7 @@ class TestConstants(TestCase):
 
     def test_constants_contains_default_file_mime_type(self):
         self.assertIsNotNone(C.MAGIC_TYPE_UNKNOWN)
-        self.assertTrue(isinstance(C.MAGIC_TYPE_UNKNOWN, str))
+        self.assertTrue(uu.is_internalstring(C.MAGIC_TYPE_UNKNOWN))
 
     def test_constants_contains_default_rule_ranking_bias(self):
         self.assertIsNotNone(C.DEFAULT_RULE_RANKING_BIAS)
@@ -44,11 +45,11 @@ class TestConstants(TestCase):
     def test_constants_contains_default_file_tags_options(self):
         self.assertIsNotNone(C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR)
         self.assertTrue(
-            isinstance(C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR, str)
+            uu.is_internalstring(C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR)
         )
         self.assertIsNotNone(C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR)
         self.assertTrue(
-            isinstance(C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR, str)
+            uu.is_internalstring(C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR)
         )
 
     def test_constants_contains_default_filesystem_options(self):
@@ -63,7 +64,7 @@ class TestConstants(TestCase):
 
     def test_constants_contains_python_version(self):
         self.assertIsNotNone(C.STRING_PYTHON_VERSION)
-        self.assertTrue(isinstance(C.STRING_PYTHON_VERSION, str))
+        self.assertTrue(uu.is_internalstring(C.STRING_PYTHON_VERSION))
 
     def test_constants_contains_analysis_results_fields(self):
         self.assertIsNotNone(C.ANALYSIS_RESULTS_FIELDS)

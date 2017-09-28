@@ -35,28 +35,28 @@ class TestFileObjectTypes(TestCase):
         self.fo = uu.get_named_file_object('20160722 Descriptive name.txt')
 
     def test_internal_bytestring_path_type_abspath(self):
-        self.assertTrue(isinstance(self.fo.abspath, bytes))
+        self.assertTrue(uu.is_internalbytestring(self.fo.abspath))
 
     def test_internal_bytestring_path_type_suffix(self):
-        self.assertTrue(isinstance(self.fo.basename_suffix, bytes))
+        self.assertTrue(uu.is_internalbytestring(self.fo.basename_suffix))
 
     def test_internal_bytestring_path_type_filename(self):
-        self.assertTrue(isinstance(self.fo.filename, bytes))
+        self.assertTrue(uu.is_internalbytestring(self.fo.filename))
 
     def test_internal_bytestring_path_type_basename_prefix(self):
-        self.assertTrue(isinstance(self.fo.basename_prefix, bytes))
+        self.assertTrue(uu.is_internalbytestring(self.fo.basename_prefix))
 
     def test_internal_bytestring_path_type_pathname(self):
-        self.assertTrue(isinstance(self.fo.pathname, bytes))
+        self.assertTrue(uu.is_internalbytestring(self.fo.pathname))
 
     def test_internal_bytestring_path_type_pathparent(self):
-        self.assertTrue(isinstance(self.fo.pathparent, bytes))
+        self.assertTrue(uu.is_internalbytestring(self.fo.pathparent))
 
     def test_internal_type_mime_type(self):
-        self.assertTrue(isinstance(self.fo.mime_type, str))
+        self.assertTrue(uu.is_internalstring(self.fo.mime_type))
 
     def test_internal_type_str(self):
-        self.assertTrue(isinstance(str(self.fo), str))
+        self.assertTrue(uu.is_internalstring(str(self.fo)))
 
 
 class TestFileObjectEquivalence(TestCase):
@@ -140,11 +140,11 @@ class TestValidatePathArgument(TestCase):
     def test_setup(self):
         for upath in self.unicode_paths:
             self.assertTrue(uu.file_exists(upath))
-            self.assertTrue(isinstance(upath, str))
+            self.assertTrue(uu.is_internalstring(upath))
 
         for bpath in self.bytestr_paths:
             self.assertTrue(uu.file_exists(bpath))
-            self.assertTrue(isinstance(bpath, bytes))
+            self.assertTrue(uu.is_internalbytestring(bpath))
 
     def test_valid_unicode_paths(self):
         for upath in self.unicode_paths:

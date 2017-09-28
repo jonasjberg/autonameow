@@ -52,8 +52,8 @@ class TestAbstractTextExtractor(TestCase):
         self.assertIsNotNone(self.e.__str__)
 
     def test_method_str_returns_type_string(self):
-        self.assertTrue(isinstance(str(self.e), str))
-        self.assertTrue(isinstance(str(self.e.__str__), str))
+        self.assertTrue(uu.is_internalstring(str(self.e)))
+        self.assertTrue(uu.is_internalstring(str(self.e.__str__)))
 
     def test_method_str_returns_expected(self):
         self.assertEqual(str(self.e), 'AbstractTextExtractor')

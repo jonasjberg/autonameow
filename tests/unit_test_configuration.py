@@ -92,12 +92,12 @@ class TestDefaultConfigFromFile(TestCase):
         )
         uu.file_exists(self.config_path_unicode)
         uu.path_is_readable(self.config_path_unicode)
-        self.assertTrue(isinstance(self.config_path_unicode, str))
+        self.assertTrue(uu.is_internalstring(self.config_path_unicode))
 
         self.config_path_bytestring = uu.normpath(self.config_path_unicode)
         uu.file_exists(self.config_path_bytestring)
         uu.path_is_readable(self.config_path_bytestring)
-        self.assertTrue(isinstance(self.config_path_bytestring, bytes))
+        self.assertTrue(uu.is_internalbytestring(self.config_path_bytestring))
 
     def test_loads_default_config_from_bytestring_path(self):
         config = Configuration.from_file(self.config_path_bytestring)

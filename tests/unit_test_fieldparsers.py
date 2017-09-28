@@ -90,7 +90,7 @@ class TestFieldParser(TestCase):
             self.p.evaluate(None, None)
 
     def test_str_returns_expected_expected_type(self):
-        self.assertTrue(isinstance(str(self.p), str))
+        self.assertTrue(uu.is_internalstring(str(self.p)))
 
 
 class TestFieldParserSubclasses(TestCase):

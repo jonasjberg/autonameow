@@ -21,17 +21,18 @@
 
 import unittest
 
+try:
+    import chardet
+except ImportError:
+    chardet = None
+
 from core import util
 from core.exceptions import (
     AWAssertionError,
     EncodingBoundaryViolation
 )
 from core.util import textutils
-
-try:
-    import chardet
-except ImportError:
-    chardet = None
+import unit_utils as uu
 
 
 from thirdparty import nameparser as _nameparser
@@ -194,7 +195,7 @@ class TestExtractDigits(unittest.TestCase):
     def test_extract_digits_returns_digits(self):
         def _assert_equal(test_data, expected):
             actual = textutils.extract_digits(test_data)
-            self.assertTrue(isinstance(actual, str))
+            self.assertTrue(uu.is_internalstring(actual))
             self.assertEqual(actual, expected)
 
         _assert_equal('0', '0')
@@ -226,7 +227,7 @@ class TestExtractDigits(unittest.TestCase):
 class TestAutodetectDecode(unittest.TestCase):
     def _assert_encodes(self, encoding, string):
         _encoded_text = string.encode(encoding)
-        self.assertTrue(isinstance(_encoded_text, bytes))
+        self.assertTrue(uu.is_internalbytestring(_encoded_text))
 
         actual = textutils.autodetect_decode(_encoded_text)
         self.assertEqual(string, actual)

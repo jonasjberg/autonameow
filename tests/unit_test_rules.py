@@ -141,7 +141,7 @@ class TestRuleMethods(TestCase):
 
     def test_rule_string(self):
         actual = str(self.rule)
-        self.assertTrue(isinstance(actual, str))
+        self.assertTrue(uu.is_internalstring(actual))
 
 
 class TestGetValidRuleCondition(TestCase):

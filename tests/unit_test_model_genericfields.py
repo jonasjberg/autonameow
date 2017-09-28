@@ -83,7 +83,7 @@ class TestGenericMeowURIs(TestCase):
         self.assertTrue(isinstance(actual, dict))
 
         for meowuri, field_klass in actual.items():
-            self.assertTrue(isinstance(meowuri, str))
+            self.assertTrue(uu.is_internalstring(meowuri))
 
             self.assertTrue(uu.is_class(field_klass))
             self.assertTrue(issubclass(field_klass, GenericField))

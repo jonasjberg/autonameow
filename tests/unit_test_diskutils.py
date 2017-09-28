@@ -42,8 +42,8 @@ class TestSplitBasename(TestCase):
 
     def test_returns_bytestrings(self):
         c, d = diskutils.split_basename(b'c.d')
-        self.assertTrue(isinstance(c, bytes))
-        self.assertTrue(isinstance(d, bytes))
+        self.assertTrue(uu.is_internalbytestring(c))
+        self.assertTrue(uu.is_internalbytestring(d))
 
     def test_passing_unicode_strings_raises_assertion_error(self):
         with self.assertRaises(exceptions.EncodingBoundaryViolation):
@@ -309,7 +309,7 @@ class TestTestFiles(TestCase):
         for tf in ABSPATH_FILES_ALL:
             self.assertTrue(uu.file_exists(tf),
                             'Expected file: "{}"'.format(tf))
-            self.assertTrue(isinstance(tf, bytes))
+            self.assertTrue(uu.is_internalbytestring(tf))
 
         self.assertEqual(len(ABSPATH_FILES_ALL), 8)
 
@@ -317,19 +317,19 @@ class TestTestFiles(TestCase):
         for tf in ABSPATH_FILES_SUBDIR:
             self.assertTrue(uu.file_exists(tf),
                             'Expected file: "{}"'.format(tf))
-            self.assertTrue(isinstance(tf, bytes))
+            self.assertTrue(uu.is_internalbytestring(tf))
 
     def test_abspath_subsubdir_a(self):
         for tf in ABSPATH_FILES_SUBSUBDIR_A:
             self.assertTrue(uu.file_exists(tf),
                             'Expected file: "{}"'.format(tf))
-            self.assertTrue(isinstance(tf, bytes))
+            self.assertTrue(uu.is_internalbytestring(tf))
 
     def test_abspath_subsubdir_b(self):
         for tf in ABSPATH_FILES_SUBSUBDIR_B:
             self.assertTrue(uu.file_exists(tf),
                             'Expected file: "{}"'.format(tf))
-            self.assertTrue(isinstance(tf, bytes))
+            self.assertTrue(uu.is_internalbytestring(tf))
 
 
 class TestGetFilesGen(TestCase):
@@ -360,7 +360,7 @@ class TestGetFilesGen(TestCase):
             self.assertIn(shorten_path(f), EXPECT_FILES_SUBDIR)
             self.assertNotIn(shorten_path(f), EXPECT_FILES_SUBSUBDIR_A)
             self.assertNotIn(shorten_path(f), EXPECT_FILES_SUBSUBDIR_B)
-            self.assertTrue(isinstance(f, bytes))
+            self.assertTrue(uu.is_internalbytestring(f))
 
     def test_returns_expected_number_of_files_recursive(self):
         actual = list(
@@ -374,7 +374,7 @@ class TestGetFilesGen(TestCase):
         for f in actual:
             self.assertTrue(uu.file_exists(f))
             self.assertIn(f, ABSPATH_FILES_ALL)
-            self.assertTrue(isinstance(f, bytes))
+            self.assertTrue(uu.is_internalbytestring(f))
 
     def test_returns_expected_number_of_files_recursive_from_subsubdir_a(self):
         actual = list(
@@ -392,7 +392,7 @@ class TestGetFilesGen(TestCase):
             self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_A)
             self.assertNotIn(f, ABSPATH_FILES_SUBSUBDIR_B)
             self.assertNotIn(f, ABSPATH_FILES_SUBDIR)
-            self.assertTrue(isinstance(f, bytes))
+            self.assertTrue(uu.is_internalbytestring(f))
 
     def test_returns_expected_files_recursive_from_subsubdir_b(self):
         actual = list(
@@ -404,7 +404,7 @@ class TestGetFilesGen(TestCase):
             self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_B)
             self.assertNotIn(f, ABSPATH_FILES_SUBSUBDIR_A)
             self.assertNotIn(f, ABSPATH_FILES_SUBDIR)
-            self.assertTrue(isinstance(f, bytes))
+            self.assertTrue(uu.is_internalbytestring(f))
 
 
 class TestPathAncestry(TestCase):
@@ -568,7 +568,7 @@ class TestPathCollector(TestCase):
             self.assertIn(shorten_path(f), EXPECT_FILES_SUBDIR)
             self.assertNotIn(shorten_path(f), EXPECT_FILES_SUBSUBDIR_A)
             self.assertNotIn(shorten_path(f), EXPECT_FILES_SUBSUBDIR_B)
-            self.assertTrue(isinstance(f, bytes))
+            self.assertTrue(uu.is_internalbytestring(f))
 
     def test_returns_expected_number_of_files_recursive(self):
         _search_paths = [to_abspath(['subdir'])]
@@ -584,7 +584,7 @@ class TestPathCollector(TestCase):
         for f in actual:
             self.assertTrue(uu.file_exists(f))
             self.assertIn(f, ABSPATH_FILES_ALL)
-            self.assertTrue(isinstance(f, bytes))
+            self.assertTrue(uu.is_internalbytestring(f))
 
     def test_returns_expected_number_of_files_recursive_from_subsubdir_a(self):
         _search_paths = [to_abspath(['subdir/subsubdir_A'])]
@@ -603,7 +603,7 @@ class TestPathCollector(TestCase):
             self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_A)
             self.assertNotIn(f, ABSPATH_FILES_SUBSUBDIR_B)
             self.assertNotIn(f, ABSPATH_FILES_SUBDIR)
-            self.assertTrue(isinstance(f, bytes))
+            self.assertTrue(uu.is_internalbytestring(f))
 
     def test_returns_expected_files_recursive_from_subsubdir_b(self):
         _search_paths = [to_abspath(['subdir/subsubdir_B'])]
@@ -616,7 +616,7 @@ class TestPathCollector(TestCase):
             self.assertIn(f, ABSPATH_FILES_SUBSUBDIR_B)
             self.assertNotIn(f, ABSPATH_FILES_SUBSUBDIR_A)
             self.assertNotIn(f, ABSPATH_FILES_SUBDIR)
-            self.assertTrue(isinstance(f, bytes))
+            self.assertTrue(uu.is_internalbytestring(f))
 
     def test_returns_empty_list_for_catch_all_glob(self):
         _search_paths = [to_abspath(['subdir'])]
@@ -638,7 +638,7 @@ class TestPathCollector(TestCase):
         for f in actual:
             self.assertTrue(uu.file_exists(f))
             self.assertIn(f, ABSPATH_FILES_ALL)
-            self.assertTrue(isinstance(f, bytes))
+            self.assertTrue(uu.is_internalbytestring(f))
 
     def test_returns_expected_for_glob_a(self):
         _search_paths = uu.abspath_testfile('configs')
@@ -687,7 +687,7 @@ class UnitTestIgnorePaths(TestCase):
 
     def test_setup(self):
         for path in self.input_paths:
-            self.assertTrue(isinstance(path, bytes))
+            self.assertTrue(uu.is_internalbytestring(path))
             self.assertTrue(os.path.isabs(util.syspath(path)))
 
     def test_passes_all_paths_if_no_ignore_globs_are_provided(self):
@@ -709,7 +709,7 @@ class UnitTestIgnorePaths(TestCase):
 
         self.assertTrue(isinstance(actual, list))
         for p in actual:
-            self.assertTrue(isinstance(p, bytes))
+            self.assertTrue(uu.is_internalbytestring(p))
 
         for m in missing:
             self.assertNotIn(util.normpath(m), actual)

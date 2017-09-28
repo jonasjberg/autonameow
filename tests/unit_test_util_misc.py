@@ -89,7 +89,7 @@ class TestUniqueIdentifier(TestCase):
 
     def test_unique_identifier_returns_string(self):
         uuid = unique_identifier()
-        self.assertTrue(isinstance(uuid, str))
+        self.assertTrue(uu.is_internalstring(uuid))
 
     def test_unique_identifier_returns_100_unique_values(self):
         seen = set()

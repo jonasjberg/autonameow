@@ -67,8 +67,8 @@ class TestBaseExtractor(TestCase):
         self.assertIsNotNone(self.e.__str__)
 
     def test_method_str_returns_type_string(self):
-        self.assertTrue(isinstance(str(self.e), str))
-        self.assertTrue(isinstance(str(self.e.__str__), str))
+        self.assertTrue(uu.is_internalstring(str(self.e)))
+        self.assertTrue(uu.is_internalstring(str(self.e.__str__)))
 
     def test_method_str_returns_expected(self):
         self.assertEqual(str(self.e), 'BaseExtractor')
@@ -220,7 +220,7 @@ class TestMapMeowURIToExtractors(TestCase):
         self.assertTrue(isinstance(self.actual, dict))
 
         for meowuri, klass_list in self.actual.items():
-            self.assertTrue(isinstance(meowuri, str))
+            self.assertTrue(uu.is_internalstring(meowuri))
             self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
 
             for klass in klass_list:
@@ -241,7 +241,7 @@ class TestExtractorClassMeowURIs(TestCase):
 
     def test_returns_expected_type(self):
         for meowuri in self.actual:
-            self.assertTrue(isinstance(meowuri, str))
+            self.assertTrue(uu.is_internalstring(meowuri))
             self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
 
     def test_returns_meowuris_for_extractors_assumed_always_available(self):

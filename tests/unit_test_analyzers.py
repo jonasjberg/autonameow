@@ -219,7 +219,7 @@ class TestMapMeowURIToAnalyzers(TestCase):
         self.assertTrue(isinstance(self.actual, dict))
 
         for meowuri, klass_list in self.actual.items():
-            self.assertTrue(isinstance(meowuri, str))
+            self.assertTrue(uu.is_internalstring(meowuri))
             self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
 
             for klass in klass_list:
@@ -240,7 +240,7 @@ class TestAnalyzerClassMeowURIs(TestCase):
 
     def test_returns_expected_type(self):
         for meowuri in self.actual:
-            self.assertTrue(isinstance(meowuri, str))
+            self.assertTrue(uu.is_internalstring(meowuri))
             self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
 
     def test_returns_meowuris_for_analyzers_assumed_always_available(self):

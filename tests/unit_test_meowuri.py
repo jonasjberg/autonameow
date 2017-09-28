@@ -30,6 +30,7 @@ from core.meowuri import (
     MeowURILeaf,
     MeowURINode
 )
+import unit_utils as uu
 
 
 class TestMeowURIRoot(TestCase):
@@ -125,10 +126,10 @@ class TestMeowURI(TestCase):
 
     def test_returns_partitioned_parts_as_strings(self):
         a = MeowURI('generic.contents.mime_type')
-        self.assertTrue(isinstance(a.root, str))
+        self.assertTrue(uu.is_internalstring(a.root))
         self.assertTrue(isinstance(a.nodes, list))
-        self.assertTrue(isinstance(a.nodes[0], str))
-        self.assertTrue(isinstance(a.leaf, str))
+        self.assertTrue(uu.is_internalstring(a.nodes[0]))
+        self.assertTrue(uu.is_internalstring(a.leaf))
         self.assertEqual(a.root, 'generic')
         self.assertEqual(a.nodes[0], 'contents')
         self.assertEqual(a.leaf, 'mime_type')

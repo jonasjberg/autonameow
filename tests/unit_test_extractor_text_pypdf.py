@@ -123,7 +123,8 @@ class TestExtractPdfContentWithPyPdf(unittest.TestCase):
         self.maxDiff = None
 
     def test_extract_pdf_content_with_pypdf_returns_expected_type(self):
-        self.assertEqual(type(extract_pdf_content_with_pypdf(TESTFILE_SIMPLEST_PATH)), str)
+        actual = extract_pdf_content_with_pypdf(TESTFILE_SIMPLEST_PATH)
+        self.assertTrue(uu.is_internalstring(actual))
 
     def test_extract_pdf_content_with_pypdf_returns_expected_text(self):
         self.skipTest(
