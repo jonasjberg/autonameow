@@ -116,6 +116,32 @@ files.
     This way separates the sources from the candidates. The expressions in
     `match` could also be given as a list of expressions.
 
+* There are more cases like the above that should be thought about.
+  A common case is the slight modification to the current file name.
+  Original file name:
+    ```
+    2017-06-20_00-49-56 Working on autonameow.png
+    ```
+  Desired file name:
+    ```
+    2017-06-20T004956 Working on autonameow.png
+    ```
+  How should this be specified in the configuration?
+  A simple alternative is to specify the filename analyzer as the source.
+  The `DATETIME_FORMAT` makes sure that the timestamp format is changed.
+
+    ```yaml
+    RULES:
+    -   DATA_SOURCES:
+            extension: contents.basename.extension
+            datetime: analysis.filename.{?????}
+            title: filesystem.basename.prefix
+        NAME_FORMAT: "{datetime} {title}.{extension}"
+    DATETIME_FORMAT:
+        datetime: '%Y-%m-%dT%H%M%S'
+    ```
+  But this is not configurable -- how would the filename analyzer know
+  which of many possible datetime results to use?
 
 
 Rule Matching Calculations
@@ -462,7 +488,6 @@ def _perform_automagic_actions(self, current_file, rule_matcher):
                    dry_run=self.opts.dry_run)
 ```
 
-
 Alternative, more wishful and optimistic version:
 ```python
 def _perform_automagic_actions(self, current_file, rule_matcher):
@@ -521,3 +546,51 @@ def _perform_automagic_actions(self, current_file, rule_matcher):
                    new_basename=new_name,
                    dry_run=self.opts.dry_run)
 ```
+
+Updated alternative, more wishful and optimistic version:
+```python
+def _perform_automagic_actions(self, current_file, rule_matcher):
+    # Using the highest ranked rule
+    name_template = rule_matcher.best_match.name_template
+
+    resolver = Resolver(current_file, name_template)
+    resolver.add_known_sources(rule_matcher.best_match.data_sources)
+
+    if not resolver.mapped_all_template_fields():
+        # TODO: Abort if running in "batch mode". Otherwise, ask the user.
+        log.error('All name template placeholder fields must be '
+                  'given a data source; Check the configuration!')
+        self.exit_code = C.EXIT_WARNING
+        return
+
+    # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
+    # Add automatically resolving missing sources from possible candidates.
+    resolver.collect()
+    if not resolver.collected_data_for_all_fields():
+        # TODO: Abort if running in "batch mode". Otherwise, ask the user.
+        log.warning('Unable to populate name. Missing field data.')
+        self.exit_code = C.EXIT_WARNING
+        return
+
+    try:
+        new_name = namebuilder.build(
+            config=self.active_config,
+            name_template=name_template,
+            field_data_map=resolver.fields_data
+        )
+    except exceptions.NameBuilderError as e:
+        log.critical('Name assembly FAILED: {!s}'.format(e))
+        raise exceptions.AutonameowException
+
+    # TODO: [TD0042] Respect '--quiet' option. Suppress output.
+    log.info('New name: "{}"'.format(
+        util.displayable_path(new_name))
+    )
+    self.do_rename(
+        from_path=current_file.abspath,
+        new_basename=new_name,
+        dry_run=self.opts.dry_run
+    )
+```
+
+
