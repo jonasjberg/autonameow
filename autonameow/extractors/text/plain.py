@@ -81,7 +81,7 @@ def read_entire_text_file(file_path):
     if contents:
         log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
                                                                   file_path))
-        contents = '\n'.join(contents)
+        contents = ''.join(contents)
         sanity.check_internal_string(contents)
         return contents
     else:
