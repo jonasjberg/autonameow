@@ -36,8 +36,28 @@ class TextAnalyzer(BaseAnalyzer):
         self.text = None
 
     def run(self):
-        self.text = self.request_data(self.file_object,
+        _response = self.request_data(self.file_object,
                                       'generic.contents.text')
+        if _response is None:
+            self.log.info(
+                'Required data unavailable ("generic.contents.text")'
+            )
+            return
+
+        if isinstance(_response, list):
+            for _r in _response:
+                if _r.value and len(_r.value) > 0:
+                    self.text = _r.value
+                    break
+        else:
+            if _response.value and len(_response.value) > 0:
+                self.text = _response.value
+
+        if self.text is None:
+            self.log.info(
+                'Required data unavailable ("generic.contents.text")'
+            )
+            return
 
         # Pass results through callback function provided by the 'Analysis'.
         self._add_results('author', self.get_author())
