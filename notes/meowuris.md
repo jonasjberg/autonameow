@@ -3,6 +3,7 @@ Notes on Data Identifiers ("meowURIs")
 Jonas Sjöberg, 2017-09-09.
 
 * Revised 2017-09-23 -- Added notes from `ideas.md`
+* Revised 2017-09-27 -- Added "Breaking up MeowURIs into Parts"
 
 
 Data Storage
@@ -203,27 +204,38 @@ In this case, it probably wouldn't be very difficult to translate from a
 to a simplified form, used in all user interfaces; `contents.mime_type` ..
 
 
-Update 2017-09-23
------------------
+Going with "Alternative approach 2"
+-----------------------------------
 Going the "Alternative approach 2" mentioned above means having to solve;
 
 * __Validating MeowURIs__, E.G. when parsing the configuration.
 * Handling MeowURIs when __storing data in the repository__.
 * Handling MeowURIs when __retrieving data from the repository__.
 
-### Breaking up MeowURIs into parts
+### Breaking up MeowURIs into Parts
 
-Source-specific URIs:
-`filesystem.contents.mime_type`
-`metadata.exiftool.File:MIMEType`
+#### Source-specific URIs:
+```
+  MeowURI:      extractor . metadata . exiftool . File:MIMEType
+              |-----------|----------|----------|---------------|
+Part Type:    '   ROOT    '   NODE   '   NODE   '     LEAF      '
+   Origin:     (constant)  (package)  (package)    (dict key)
+```
 
-Generic URIs:
-`contents.mimetype`
+Example of inconsistencies when the last two parts of a MeowURI from from
+a dictionary:
+```
+  MeowURI:      extractor . filesystem . xplat . contents . mime_type
+              |-----------|------------|-------|----------|-----------|
+Part Type:    '   ROOT    '    NODE    ' NODE  '  NODE?   '   LEAF    '
+                                                   LEAF?
+   Origin:     (constant)    (package)   (??)    ^--- (dict keys) ---^
+```
 
-
-Source-specific URIs:
-`filesystem.contents.mime_type`
-` metadata .exiftool.File:MIMEType`
-
-Generic URIs:
-`contents.mimetype`
+#### Generic URIs:
+```
+  MeowURI:      generic . contents . mimetype
+              |---------|----------|----------|
+Part Type:    '   Root  '   NODE   '   LEAF   '
+   Origin:     (constant)   (??)       (??)
+```
