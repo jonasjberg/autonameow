@@ -44,7 +44,21 @@ class DocumentAnalyzer(BaseAnalyzer):
             )
             return
 
-        self.text = _response
+        if isinstance(_response, list):
+            for _r in _response:
+                if _r.value and len(_r.value) > 0:
+                    self.text = _r.value
+                    break
+        else:
+            if _response.value and len(_response.value) > 0:
+                self.text = _response.value
+
+        if self.text is None:
+            self.log.info(
+                'Required data unavailable ("generic.contents.text")'
+            )
+            return
+
         self._add_results('author', self.get_author())
         self._add_results('title', self.get_title())
         self._add_results('datetime', self.get_datetime())

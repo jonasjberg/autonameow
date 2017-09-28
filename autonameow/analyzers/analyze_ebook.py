@@ -63,12 +63,33 @@ class EbookAnalyzer(BaseAnalyzer):
             file_object, add_results_callback, request_data_callback
         )
 
+        self.text = None
+
     def run(self):
-        text = self.request_data(self.file_object, 'generic.contents.text')
-        if not text:
+        _response = self.request_data(self.file_object,
+                                      'generic.contents.text')
+        if _response is None:
+            self.log.info(
+                'Required data unavailable ("generic.contents.text")'
+            )
             return
 
-        isbns = _search_initial_text(text, extract_isbns_from_text)
+        if isinstance(_response, list):
+            for _r in _response:
+                if _r.value and len(_r.value) > 0:
+                    self.text = _r.value
+                    break
+        else:
+            if _response.value and len(_response.value) > 0:
+                self.text = _response.value
+
+        if self.text is None:
+            self.log.info(
+                'Required data unavailable ("generic.contents.text")'
+            )
+            return
+
+        isbns = _search_initial_text(self.text, extract_isbns_from_text)
         if isbns:
             isbns = filter_isbns(isbns)
             for isbn in isbns:
