@@ -84,7 +84,7 @@ class Repository(object):
         for key in self.meowuri_class_map.keys():
             for meowuri, klass in self.meowuri_class_map[key].items():
                 self.log.debug(
-                    'Mapped meowURI <{!s}> to "{!s}" ({!s})'.format(meowuri,
+                    'Mapped meowURI "{!s}" to "{!s}" ({!s})'.format(meowuri,
                                                                     klass, key)
                 )
 
