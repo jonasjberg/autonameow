@@ -268,4 +268,4 @@ class TestExtractorClassMeowURIs(TestCase):
         _conditional_assert_in('PyPDFTextExtractor',
                                'extractor.text.pypdf')
         _conditional_assert_in('TesseractOCRTextExtractor',
-                               'extractor.text.ocr')
+                               'extractor.text.tesseractocr')
