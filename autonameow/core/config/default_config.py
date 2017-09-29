@@ -121,27 +121,25 @@ DEFAULT_CONFIG = {
          }
          },
         # ____________________________________________________________________
-        {'description': 'Sample Entry for EPUB e-books',
+        {'description': 'Sample Entry for E-books',
          'exact_match': True,
-         'ranking_bias': 1,
+         'ranking_bias': 0.1,
          'NAME_FORMAT': 'default_book',
          'CONDITIONS': {
-             'extractor.filesystem.xplat.pathname.full': '.*',
-             'extractor.filesystem.xplat.basename.full': '.*',
-             'extractor.filesystem.xplat.basename.extension': 'epub',
-             'extractor.filesystem.xplat.contents.mime_type': 'application/epub+zip',
-             # TODO: [TD0015] Ensure proper validation of entry below.
-             'extractor.metadata.exiftool.XMP-dc:Creator': 'Defined',
+             'extractor.filesystem.xplat.contents.mime_type': [
+                 'application/pdf',
+                 'application/epub+zip',
+                 'image/vnd.djvu',
+             ],
+             'extractor.filesystem.xplat.pathname.full': '.*book.*'
          },
          'DATA_SOURCES': {
-             'datetime': ['extractor.metadata.exiftool.XMP-dc:PublicationDate',
-                          'extractor.metadata.exiftool.XMP-dc:Date'],
-             'title': 'extractor.metadata.exiftool.XMP-dc:Title',
-             'author': ['extractor.metadata.exiftool.XMP-dc:Creator',
-                        'extractor.metadata.exiftool.XMP-dc:CreatorFile-as'],
-             'publisher': 'extractor.metadata.exiftool.XMP-dc:Publisher',
-             'edition': None,
-             'extension': 'extractor.filesystem.xplat.basename.extension',
+             'author': 'analysis.ebook.author',
+             'extension': 'extractor.filesystem.xplat.contents.mime_type',
+             'date': 'analysis.ebook.date',
+             'edition': 'analysis.ebook.edition',
+             'publisher': 'analysis.ebook.publisher',
+             'title': 'analysis.ebook.title',
          }
          },
     ],
@@ -156,7 +154,7 @@ DEFAULT_CONFIG = {
     #
     'NAME_TEMPLATES': {
         'default_document': '{title} - {author} {datetime}.{extension}',
-        'default_book': '{publisher} {title} {edition} - {author} {datetime}.{extension}',
+        'default_book': '{publisher} {title} {edition} - {author} {date}.{extension}',
         'default_photo': '{datetime} {description} -- {tags}.{extension}'
     },
 
