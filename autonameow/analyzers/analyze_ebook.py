@@ -28,7 +28,7 @@ except ImportError:
 
 from analyzers import BaseAnalyzer
 from core import (
-#    model,
+    cache,
     types,
     util
 )
@@ -66,6 +66,12 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self.text = None
 
+        self.cache = cache.get_cache(str(self))
+        try:
+            self._isbn_metadata = self.cache.get('isbnlib_meta')
+        except (KeyError, cache.CacheError):
+            self._isbn_metadata = {}
+
     def run(self):
         _maybe_text = self.request_any_textual_content()
         if not _maybe_text:
@@ -78,15 +84,15 @@ class EbookAnalyzer(BaseAnalyzer):
             isbns = filter_isbns(isbns)
             for isbn in isbns:
                 self.log.debug('Extracted ISBN: {!s}'.format(isbn))
-                self.log.debug('Querying external service for ISBN metadata ..')
-                metadata = fetch_isbn_metadata(isbn)
+
+                metadata = self._get_isbn_metadata(isbn)
                 if not metadata:
                     self.log.warning(
                         'Unable to get metadata for ISBN: "{}"'.format(isbn)
                     )
                     continue
 
-                self.log.info('Fetched metadata for ISBN: {}'.format(isbn))
+                self.log.info('Metadata for ISBN: {}'.format(isbn))
                 self.log.info('Title     : {}'.format(metadata['Title']))
                 self.log.info('Authors   : {}'.format(metadata['Authors']))
                 self.log.info('Publisher : {}'.format(metadata['Publisher']))
@@ -121,6 +127,28 @@ class EbookAnalyzer(BaseAnalyzer):
                 maybe_date = self._filter_date(metadata.get('Year'))
                 if maybe_date:
                     self._add_results('date', self._wrap_date(maybe_date))
+
+    def _get_isbn_metadata(self, isbn):
+        if isbn in self._isbn_metadata:
+            self.log.info(
+                'Using cached metadata for ISBN: {!s}'.format(isbn)
+            )
+            return self._isbn_metadata.get(isbn)
+
+        self.log.debug('Querying external service for ISBN: {!s}'.format(isbn))
+        metadata = fetch_isbn_metadata(isbn)
+        if metadata:
+            self.log.info(
+                'Caching metadata for ISBN: {!s}'.format(isbn)
+            )
+            # Add new metadata to local cache.
+            self._isbn_metadata.update({isbn: metadata})
+            try:
+                self.cache.set('isbnlib_meta', self._isbn_metadata)
+            except cache.CacheError:
+                pass
+
+        return metadata
 
     def _filter_author(self, raw_string):
         try:

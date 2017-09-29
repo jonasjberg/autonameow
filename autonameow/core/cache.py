@@ -207,5 +207,9 @@ class PickleCache(BaseCache):
             pickle.dump(value, fh, pickle.HIGHEST_PROTOCOL)
 
 
+def get_cache(cachefile_prefix):
+    return PickleCache(cachefile_prefix)
+
+
 class CacheError(exceptions.AutonameowException):
     """Irrecoverable error while reading or writing to caches."""
