@@ -10,6 +10,18 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-09-29
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0012]` Add some type of caching.
+    >     * Extracting text from a PDF should only have to happen once, at most.
+    >       Preferably not at all, unless a rule conditional tests the text content
+    >       or the text is needed elsewhere.
+    >     * Image OCR is very slow, should only be executed when needed, caching the
+    >       results for all accesses.
+
 * 2017-09-28
 
     > High Priority

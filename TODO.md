@@ -65,13 +65,6 @@ Medium Priority
         * Means of executing the plugin.
         * Means of querying for all or a specific field.
 
-* `[TD0012]` Add some type of caching.
-    * Extracting text from a PDF should only have to happen once, at most.
-      Preferably not at all, unless a rule conditional tests the text content
-      or the text is needed elsewhere.
-    * Image OCR is very slow, should only be executed when needed, caching the
-      results for all accesses.
-
 * `[TD0014]` Possibly redesign high-level handling of a "configuration".
     * Decouple the `Configuration` instance from I/O.
     * Think about separating validation and parsing of incoming

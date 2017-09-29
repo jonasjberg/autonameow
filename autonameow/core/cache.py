@@ -53,10 +53,31 @@ CACHE_DIR_ABSPATH = util.normpath(
 )
 
 
-# TODO: [TD0012] Add some type of caching.
-
-
 class BaseCache(object):
+    """
+    Abstract base class for all file-based cache implementations.
+
+    Example initialization and storage:
+
+        c = AutonameowCache('mycache')
+        c.set('mydata', {'a': 1, 'b': 2})
+
+    This will cache the data in memory by storing in a class instance dict,
+    and also write the data to disk using the path:
+
+        "CACHE_DIR_ABSPATH/mycache_mydata"
+
+    Example retrieval:
+
+        cached_data = c.get('mydata')
+        assert cached_data == {'a': 1, 'b': 2}
+
+    The idea is to keep many smaller files instead of a single shared file
+    for possibly easier pruning of old date, file size limits, etc.
+
+    Inheriting class must implement '_load' and '_dump' which does the actual
+    serialization and reading/writing to disk.
+    """
     CACHEFILE_PREFIX_SEPARATOR = '_'
 
     def __init__(self, cachefile_prefix):

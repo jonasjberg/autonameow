@@ -103,20 +103,38 @@ class TestBaseCache(TestCase):
     @patch.object(cache.BaseCache, '_dump', mock__dump)
     def test_set(self):
         c = cache.BaseCache('foo')
-        c.set('key_a', 'value')
+        c.set('key_a', 'mjaooajm')
 
-    @patch.object(cache.BaseCache, '_load', mock__load)
     @patch.object(cache.BaseCache, '_dump', mock__dump)
     def test_set_get(self):
         c = cache.BaseCache('foo')
-        c.set('key_a', 'value')
+        c.set('key_a', 'mjaooajm')
 
         actual = c.get('key_a')
-        self.assertEqual(actual, 'value')
+        self.assertEqual(actual, 'mjaooajm')
 
 
+class TestPickleCache(TestCase):
+    def setUp(self):
+        # TODO: [TD0097] Add proper setup and teardown!
+        pass
 
+    def tearDown(self):
+        # TODO: [TD0097] Add proper setup and teardown!
+        pass
 
+    def test_set(self):
+        c = cache.PickleCache('foo')
+        c.set('key_a', 'mjaooajm')
 
+    def test_get(self):
+        c = cache.PickleCache('foo')
+        actual = c.get('key_a')
+        self.assertEqual(actual, 'mjaooajm')
 
+    def test_set_get(self):
+        c = cache.PickleCache('bar')
+        c.set('key_a', {'1': 'mjaooajm', '2': 2})
 
+        actual = c.get('key_a')
+        self.assertEqual(actual, {'1': 'mjaooajm', '2': 2})
