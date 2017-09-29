@@ -27,11 +27,10 @@ try:
 except ImportError:
     import pickle
 
-from core.exceptions import CacheError
 from core import (
-    config,
-    util,
-    types
+    exceptions,
+    types,
+    util
 )
 from core import constants as C
 
@@ -206,3 +205,7 @@ class PickleCache(BaseCache):
     def _dump(self, value, file_path):
         with open(util.syspath(file_path), 'wb') as fh:
             pickle.dump(value, fh, pickle.HIGHEST_PROTOCOL)
+
+
+class CacheError(exceptions.AutonameowException):
+    """Irrecoverable error while reading or writing to caches."""

@@ -39,10 +39,6 @@ class InvalidFileArgumentError(AutonameowException):
     """The argument (file) is not suited for processing."""
 
 
-class CacheError(AutonameowException):
-    """Irrecoverable error while reading or writing to caches."""
-
-
 class ConfigError(AutonameowException):
     """Base class for exceptions raised when querying a configuration."""
 
