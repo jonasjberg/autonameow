@@ -58,9 +58,8 @@ class PyPDFTextExtractor(AbstractTextExtractor):
 
     def _cache_read(self, source):
         if source in self._cached_text:
-            self.log.info(
-                'Using cached text from source: {!s}'.format(source)
-            )
+            _dp = util.displayable_path(source)
+            self.log.info('Using cached text from source: {!s}'.format(_dp))
             return self._cached_text.get(source)
         return None
 
