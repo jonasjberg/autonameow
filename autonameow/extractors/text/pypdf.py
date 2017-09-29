@@ -87,7 +87,13 @@ class PyPDFTextExtractor(AbstractTextExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        return PyPDF2 is not None
+        # PyPDF2 strips all whitespace, or does not insert spaces when the PDF
+        # does not contain printable spaces. This a apparently a known issue.
+
+        # Skip for now.
+        # TODO: Remove PyPDF2?
+        # return PyPDF2 is not None
+        return False
 
 
 def extract_pdf_content_with_pypdf(pdf_file):
@@ -127,7 +133,10 @@ def extract_pdf_content_with_pypdf(pdf_file):
 
     content = file_reader.pages[0].extractText()
     for i in range(1, num_pages):
-        content += file_reader.getPage(i).extractText()
+        try:
+            content += file_reader.getPage(i).extractText()
+        except KeyError:
+            pass
 
     if content:
         sanity.check_internal_string(content)
