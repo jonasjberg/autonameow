@@ -164,7 +164,7 @@ class BaseCache(object):
                 )
                 self.delete(key)
             except OSError as e:
-                log.error(
+                log.warning(
                     'Error while trying to read key "{!s}" from cache file '
                     '"{!s}"; {!s}'.format(key, _dp, e)
                 )
