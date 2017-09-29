@@ -206,6 +206,7 @@ class TestMimeTypeFieldParser(TestCase):
         self.assertTrue(self.val_func('text/plain'))
         self.assertTrue(self.val_func('inode/x-empty'))
         self.assertTrue(self.val_func('application/epub+zip'))
+        self.assertTrue(self.val_func('image/vnd.djvu'))
 
     def test_expect_pass_for_valid_globs(self):
         self.assertTrue(self.val_func('*/*'))
