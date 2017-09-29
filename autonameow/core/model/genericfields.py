@@ -104,6 +104,19 @@ class GenericDateModified(GenericField):
         pass
 
 
+class GenericHealth(GenericField):
+    """
+    Measure of file corruption/integrity/"health" as a float in range 0-1.
+    Where 0 is severely corrupted and 1 is a seemingly valid, intact file.
+    """
+    meowuri_node = 'contents'
+    meowuri_leaf = 'health'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
 class GenericMimeType(GenericField):
     meowuri_node = 'contents'
     meowuri_leaf = 'Mime_Type'
