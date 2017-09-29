@@ -456,7 +456,7 @@ class Configuration(object):
         if self._rules and len(self._rules) > 0:
             return self._rules
         else:
-            return False
+            return []
 
     @property
     def reusable_nametemplates(self):
