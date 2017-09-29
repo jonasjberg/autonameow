@@ -297,29 +297,71 @@ class Autonameow(object):
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
     def _perform_automagic_actions(self, current_file, rule_matcher):
-        if not rule_matcher.best_match:
-            log.info('None of the rules seem to apply')
-            return
+        if rule_matcher.best_match:
+            # Using the highest ranked rule
+            name_template = rule_matcher.best_match.name_template
+            log.info(
+                'Using rule: "{!s}"'.format(rule_matcher.best_match.description)
+            )
+        else:
+            if self.opts.mode_batch:
+                log.warning('No rule matched, name template unknown.')
+                self.exit_code = C.EXIT_WARNING
+                return
+            else:
+                log.warning('TODO: Implement user name template selection')
+                return
 
-        log.info(
-            'Using rule: "{!s}"'.format(rule_matcher.best_match.description)
-        )
-        name_template = rule_matcher.best_match.name_template
+                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                # choice = cli.prompt_selection(
+                #     heading='Select a name template',
+                #     choice=rule_matcher.candidates
+                # )
+                # if choice != cli.action.ABORT:
+                #     name_template = choice
 
         resolver = Resolver(current_file, name_template)
         resolver.add_known_sources(rule_matcher.best_match.data_sources)
 
-        if not resolver.mapped_all_template_fields():
-            # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-            log.error('All name template placeholder fields must be '
-                      'given a data source; Check the configuration!')
-            self.exit_code = C.EXIT_WARNING
-            return
+        if self.opts.mode_batch:
+            if not resolver.mapped_all_template_fields():
+                log.error('All name template placeholder fields must be '
+                          'given a data source; Check the configuration!')
+                self.exit_code = C.EXIT_WARNING
+                return
+
+        resolver.collect()
+
+        if not resolver.collected_all():
+            if self.opts.mode_batch:
+                log.warning('Unable to populate name.')
+                self.exit_code = C.EXIT_WARNING
+                return
+            else:
+                log.warning('TODO: Implement user name template selection')
+                return
+
+                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                # while not resolver.collected_all():
+                #     for unresolved in resolver.unresolved():
+                #         candidates = resolver.lookup_candidates(unresolved)
+                #         if candidates:
+                #             choice = cli.prompt_selection(
+                #                 heading='Field {}'.format(unresolved.field)
+                #             choices=candidates
+                #             )
+                #             else:
+                #             choice = cli.prompt_meowuri(
+                #                 heading='Enter a MeowURI'
+                #             )
+                #         if choice != cli.action.ABORT:
+                #             resolver.add_known_source(choice)
+                #
+                #     resolver.collect()
 
         # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
-        resolver.collect()
-        if not resolver.collected_data_for_all_fields():
+        if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
             log.warning('Unable to populate name. Missing field data.')
             self.exit_code = C.EXIT_WARNING

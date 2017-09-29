@@ -121,6 +121,11 @@ class RuleMatcher(object):
             return False
         return self._candidates[0]
 
+    def candidates(self):
+        if not self._candidates:
+            return []
+        return self._candidates
+
 
 def prioritize_rules(rules):
     """

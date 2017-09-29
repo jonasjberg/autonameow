@@ -66,7 +66,7 @@ class Resolver(object):
         self._gather_data()
         self._verify_types()
 
-    def collected_data_for_all_fields(self):
+    def collected_all(self):
         if not self.fields_data:
             return False
 
