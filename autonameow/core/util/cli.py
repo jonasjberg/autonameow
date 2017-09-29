@@ -262,40 +262,6 @@ def msg(message, style=None, add_info_log=False):
             log.info(message)
 
 
-if __name__ == '__main__':
-    msg('text printed by msg()')
-    msg('text printed by msg() with type="info"', style='info')
-    msg('text printed by msg() with type="info", log=True',
-        style='info', add_info_log=True)
-    msg('text printed by msg() with type="color_quoted" no "yes" no',
-        style='color_quoted')
-
-    msg('Word "1234-56 word" -> "1234-56 word"', style='color_quoted')
-    msg('Word "word 1234-56" -> "1234-56 word"', style='color_quoted')
-
-    msg('A "b 123" -> A "b 123"', style='color_quoted')
-    print(colorize('foo', fore='RED'))
-    print(colorize('foo', fore='GREEN'))
-    print(colorize('foo', fore='BLUE'))
-    print(colorize('foo', back='RED'))
-    print(colorize('foo', back='GREEN'))
-    print(colorize('foo', back='BLUE'))
-
-    print(colorize('foo', style='NORMAL'))
-    print(colorize('foo', style='DIM'))
-    print(colorize('foo', style='BRIGHT'))
-
-    print(colorize('foo', fore='RED', back='RED'))
-    print(colorize('foo', fore='GREEN', back='RED'))
-    print(colorize('foo', fore='BLUE', back='RED'))
-    print(colorize('foo', fore='RED', back='GREEN'))
-    print(colorize('foo', fore='GREEN', back='GREEN'))
-    print(colorize('foo', fore='BLUE', back='GREEN'))
-    print(colorize('foo', fore='RED', back='BLUE'))
-    print(colorize('foo', fore='GREEN', back='BLUE'))
-    print(colorize('foo', fore='BLUE', back='BLUE'))
-
-
 def msg_rename(from_basename, dest_basename, dry_run):
     """
     Displays a message about a rename operation to the user.
@@ -383,3 +349,37 @@ class ColumnFormatter(object):
             out.append("".join(word.ljust(column_width) for word in row))
 
         return '\n'.join(out)
+
+
+if __name__ == '__main__':
+    msg('text printed by msg()')
+    msg('text printed by msg() with type="info"', style='info')
+    msg('text printed by msg() with type="info", log=True',
+        style='info', add_info_log=True)
+    msg('text printed by msg() with type="color_quoted" no "yes" no',
+        style='color_quoted')
+
+    msg('Word "1234-56 word" -> "1234-56 word"', style='color_quoted')
+    msg('Word "word 1234-56" -> "1234-56 word"', style='color_quoted')
+
+    msg('A "b 123" -> A "b 123"', style='color_quoted')
+    print(colorize('foo', fore='RED'))
+    print(colorize('foo', fore='GREEN'))
+    print(colorize('foo', fore='BLUE'))
+    print(colorize('foo', back='RED'))
+    print(colorize('foo', back='GREEN'))
+    print(colorize('foo', back='BLUE'))
+
+    print(colorize('foo', style='NORMAL'))
+    print(colorize('foo', style='DIM'))
+    print(colorize('foo', style='BRIGHT'))
+
+    print(colorize('foo', fore='RED', back='RED'))
+    print(colorize('foo', fore='GREEN', back='RED'))
+    print(colorize('foo', fore='BLUE', back='RED'))
+    print(colorize('foo', fore='RED', back='GREEN'))
+    print(colorize('foo', fore='GREEN', back='GREEN'))
+    print(colorize('foo', fore='BLUE', back='GREEN'))
+    print(colorize('foo', fore='RED', back='BLUE'))
+    print(colorize('foo', fore='GREEN', back='BLUE'))
+    print(colorize('foo', fore='BLUE', back='BLUE'))
