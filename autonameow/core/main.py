@@ -29,10 +29,11 @@ from core import (
     config,
     exceptions,
     extraction,
+    interactive,
     options,
     namebuilder,
     repository,
-    util,
+    util
 )
 from core import constants as C
 from core.config import DefaultConfigFilePath
@@ -309,16 +310,10 @@ class Autonameow(object):
                 self.exit_code = C.EXIT_WARNING
                 return
             else:
-                log.warning('TODO: Implement user name template selection')
-                return
-
                 # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-                # choice = cli.prompt_selection(
-                #     heading='Select a name template',
-                #     choice=rule_matcher.candidates
-                # )
-                # if choice != cli.action.ABORT:
-                #     name_template = choice
+                choice = interactive.select_template()
+                if choice != cli.action.ABORT:
+                    name_template = choice
 
         resolver = Resolver(current_file, name_template)
         resolver.add_known_sources(rule_matcher.best_match.data_sources)
@@ -338,46 +333,24 @@ class Autonameow(object):
                 self.exit_code = C.EXIT_WARNING
                 return
             else:
-                log.warning('TODO: Implement interactive field selection')
-                # return
-
                 # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-                i = 0
                 while not resolver.collected_all():
                     log.info('Resolver has not collected all fields ..')
-                    for unresolved in resolver.unresolved:
-                        cli.msg('Unresolved Field: {!s}'.format(unresolved.as_placeholder()))
-                        candidates = resolver.lookup_candidates(unresolved)
+                    for field in resolver.unresolved:
+                        candidates = resolver.lookup_candidates(field)
                         if candidates:
-                            cli.msg('Candidates:')
-                            for c in candidates:
-                                _probs = []
-                                for fm in c.field_map:
-                                    if fm.field == unresolved:
-                                        _probs.append(fm.probability)
-
-                                _prob = ['probability: {}'.format(p) for p in _probs]
-                                cli.msg(
-                                    '{!s} ({})'.format(c.coercer.format(c.value), ' '.join(_prob))
-                                )
-                            # choice = cli.prompt_selection(
-                            #     heading='Field {}'.format(unresolved.field),
-                            #     choices=candidates
-                            # )
+                            log.info('Resolver found {} candidates'.format(len(candidates)))
+                            choice = interactive.select_field(field, candidates)
                         else:
                             log.info('Resolver did not find any candidates ..')
-                            log.warning('TODO: Implement MeowURI prompt')
-                            # choice = cli.prompt_meowuri(
-                            #     heading='Enter a MeowURI'
-                            # )
-                        # if choice != cli.action.ABORT:
-                        #     resolver.add_known_source(choice)
+                            choice = interactive.meowuri_prompt()
+
+                        if not choice or choice == interactive.Choice.ABORT:
+                            return
+
+                        resolver.add_known_source(field, choice)
 
                     resolver.collect()
-
-                    i += 1
-                    if i == 1:
-                        break
 
         # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.

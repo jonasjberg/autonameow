@@ -20,11 +20,51 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import logging
+import sys
+
+from core.util import cli
 
 
 log = logging.getLogger(__name__)
+
+
+class Choice(object):
+    ABORT = 0
+
+
+def select_field(templatefield, candidates):
+    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+    log.warning('TODO: Implement interactive field selection')
+
+    cli.msg('Unresolved Field: {!s}'.format(templatefield.as_placeholder()))
+    cli.msg('Candidates:')
+    for c in candidates:
+        _probs = []
+        for fm in c.field_map:
+            if fm.field == templatefield:
+                _probs.append(fm.probability)
+
+        _prob = ['probability: {}'.format(p) for p in _probs]
+        cli.msg(
+            '{!s} ({})'.format(c.coercer.format(c.value), ' '.join(_prob))
+        )
+
+    return None
+
+
+def select_template(candidates):
+    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+    log.warning('TODO: Implement user name template selection')
+
+    return None
+
+
+def meowuri_prompt():
+    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+    log.warning('TODO: Implement MeowURI prompt')
+
+    return None
 
 
 class InteractiveCLI(object):
@@ -38,7 +78,8 @@ class InteractiveCLI(object):
             # TODO: Assume running with Python 3+. Add checks/asserts elsewhere.
             if sys.version_info[0] < 3:
                 log.warning('Using potentially unsafe Python 2 "raw_input"')
-                answer = raw_input(question + ' [Yes|No]').lower()
+                answer = None
+                # answer = raw_input(question + ' [Yes|No]').lower()
             else:
                 answer = input(question + ' (Yes|No)').lower()
 
