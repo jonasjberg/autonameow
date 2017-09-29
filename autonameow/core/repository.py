@@ -420,7 +420,7 @@ def _create_repository():
 
 
 class RepositoryPool(object):
-    DEFAULT_SESSION_ID = 'DEFAULT_SESSION'
+    DEFAULT_SESSION_ID = 'SINGLETON_SESSION'
 
     def __init__(self):
         self._repositories = {}
