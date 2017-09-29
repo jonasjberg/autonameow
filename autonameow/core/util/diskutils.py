@@ -399,4 +399,7 @@ class PathCollector(object):
                     return None
             return path
 
-        return [p for p in path_list if _no_match(p, self.ignore_globs)]
+        try:
+            return [p for p in path_list if _no_match(p, self.ignore_globs)]
+        except FileNotFoundError:
+            return []
