@@ -60,7 +60,7 @@ class Configuration(object):
             source: Configuration data to load as a dict.
         """
         self._rules = []
-        self._name_templates = {}
+        self._reusable_nametemplates = {}
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
         self._version = None
@@ -115,7 +115,7 @@ class Configuration(object):
             raise exceptions.ConfigError('Attempted to load empty data')
 
         self._data = data
-        self._load_name_templates()
+        self._load_reusable_nametemplates()
         self._load_rules()
         self._load_options()
         self._load_version()
@@ -133,36 +133,37 @@ class Configuration(object):
         else:
             config.write_yaml_file(dest_path, self._data)
 
-    def _load_name_templates(self):
+    def _load_reusable_nametemplates(self):
         raw_templates = self._data.get('NAME_TEMPLATES')
         if not raw_templates:
-            log.debug('Configuration does not contain any name templates')
+            log.debug('Configuration does not contain any name reusable name '
+                      'templates')
             return
         if not isinstance(raw_templates, dict):
             log.debug('Configuration templates is not of type dict')
             return
 
-        loaded_templates = {}
-        for raw_key, raw_value in raw_templates.items():
-            _error = 'Got invalid name template: "{!s}: {!s}"'.format(raw_key,
-                                                                      raw_value)
-            key = types.force_string(raw_key)
-            if not key:
+        validated = {}
+        for raw_name, raw_templ in raw_templates.items():
+            _error = 'Got invalid name template: "{!s}: {!s}"'.format(raw_name,
+                                                                      raw_templ)
+            name = types.force_string(raw_name)
+            if not name:
                 raise exceptions.ConfigurationSyntaxError(_error)
 
-            value = types.force_string(raw_value)
-            if not value:
+            templ = types.force_string(raw_templ)
+            if not templ:
                 raise exceptions.ConfigurationSyntaxError(_error)
 
             # Remove any non-breaking spaces in the name template.
-            value = util.remove_nonbreaking_spaces(value)
+            templ = util.remove_nonbreaking_spaces(templ)
 
-            if NameFormatConfigFieldParser.is_valid_nametemplate_string(value):
-                loaded_templates[key] = value
+            if NameFormatConfigFieldParser.is_valid_nametemplate_string(templ):
+                validated[name] = templ
             else:
                 raise exceptions.ConfigurationSyntaxError(_error)
 
-        self._name_templates.update(loaded_templates)
+        self._reusable_nametemplates.update(validated)
 
     def _load_rules(self):
         raw_rules = self._data.get('RULES')
@@ -216,9 +217,9 @@ class Configuration(object):
         valid_format = None
         name_format = types.force_string(raw_rule.get('NAME_FORMAT'))
         # First test if the field data is a valid name template entry,
-        if name_format in self.name_templates:
+        if name_format in self.reusable_nametemplates:
             # If it is, use the format string defined in that entry.
-            valid_format = self.name_templates.get(name_format)
+            valid_format = self.reusable_nametemplates.get(name_format)
         else:
             # If not, try to use 'name_template' as a format string.
             if NameFormatConfigFieldParser.is_valid_nametemplate_string(name_format):
@@ -458,6 +459,10 @@ class Configuration(object):
             return False
 
     @property
+    def reusable_nametemplates(self):
+        return self._reusable_nametemplates
+
+    @property
     def name_templates(self):
         return self._name_templates
 
@@ -468,8 +473,10 @@ class Configuration(object):
             out.append('Rule {}:\n'.format(number + 1))
             out.append(util.indent(str(rule), amount=4) + '\n')
 
-        out.append('\nName Templates:\n')
-        out.append(util.indent(util.dump(self.name_templates), amount=4))
+        out.append('\nReusable Name Templates:\n')
+        out.append(
+            util.indent(util.dump(self.reusable_nametemplates), amount=4)
+        )
 
         out.append('\nMiscellaneous Options:\n')
         out.append(util.indent(util.dump(self.options), amount=4))

@@ -82,7 +82,7 @@ class TestDefaultConfig(TestCase):
                                 'Arbitrary rule count test')
 
     def test_default_configuration_contain_name_templates(self):
-        self.assertIsNotNone(self.configuration.name_templates)
+        self.assertIsNotNone(self.configuration.reusable_nametemplates)
 
 
 class TestDefaultConfigFromFile(TestCase):
