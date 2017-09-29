@@ -30,7 +30,9 @@ from .genericfields import (
     GenericDescription,
     GenericMimeType,
     GenericProducer,
+    GenericPublisher,
     GenericSubject,
     GenericTags,
     GenericText,
+    GenericTitle,
 )

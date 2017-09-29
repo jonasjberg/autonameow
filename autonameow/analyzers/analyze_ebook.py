@@ -30,7 +30,8 @@ from analyzers import BaseAnalyzer
 from core import (
     cache,
     types,
-    util
+    util,
+    model
 )
 from core.namebuilder import fields
 from core.model import (
@@ -169,7 +170,7 @@ class EbookAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Author, probability=1),
             ],
-            # generic_field=model.GenericAuthor
+            generic_field=model.GenericAuthor
         )(author_string)
 
     def _filter_date(self, raw_string):
@@ -186,7 +187,7 @@ class EbookAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Date, probability=1),
             ],
-            # generic_field=model.GenericDateCreated
+            generic_field=model.GenericDateCreated
         )(date_string)
 
     def _filter_publisher(self, raw_string):
@@ -207,7 +208,8 @@ class EbookAnalyzer(BaseAnalyzer):
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Publisher, probability=1),
-            ]
+            ],
+            generic_field=model.GenericPublisher
         )(publisher_string)
 
     def _filter_title(self, raw_string):
@@ -228,7 +230,8 @@ class EbookAnalyzer(BaseAnalyzer):
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Title, probability=1),
-            ]
+            ],
+            generic_field=model.GenericTitle
         )(title_string)
 
     @classmethod

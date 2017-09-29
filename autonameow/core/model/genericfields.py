@@ -122,6 +122,15 @@ class GenericProducer(GenericField):
         pass
 
 
+class GenericPublisher(GenericField):
+    meowuri_node = 'metadata'
+    meowuri_leaf = 'Publisher'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
 class GenericSubject(GenericField):
     meowuri_node = 'metadata'
     meowuri_leaf = 'Subject'
@@ -143,6 +152,15 @@ class GenericTags(GenericField):
 class GenericText(GenericField):
     meowuri_node = 'contents'
     meowuri_leaf = 'text'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
+class GenericTitle(GenericField):
+    meowuri_node = 'contents'
+    meowuri_leaf = 'Title'
 
     @classmethod
     def evaluation_function(cls):
