@@ -154,23 +154,28 @@ def init_argparser():
         '--automagic',
         dest='mode_automagic',
         action='store_true',
-        help='Perform renames without requiring any user interaction. '
-             'Matches the given paths against the available rules. '
-             'Paths matched to a rule is renamed in accordance with the rule.'
+        help='Enable AUTOMAGIC MODE. Try to perform renames without user '
+             'interaction by matching the given paths against available rules.'
+             ' The information provided by the highest ranked rule is used '
+             ' when performing any actions on that path. '
+             'The user might still be asked to resolve any uncertainties. '
+             'Use the "--batch" option to force non-interactive mode and '
+             'skip paths with unresolved queries.'
     )
     optgrp_mode.add_argument(
         '--interactive',
         dest='mode_interactive',
         action='store_true',
-        help='(DEFAULT) Enable interactive mode. User selects which of the '
+        help='(DEFAULT) Enable INTERACTIVE MODE. User selects which of the '
              'analysis results is to make up the new filename.'
     )
     optgrp_mode.add_argument(
         '--batch',
+        default=False,
         dest='mode_batch',
         action='store_true',
-        help='(DEFAULT) Enable interactive mode. User selects which of the '
-             'analysis results is to make up the new filename.'
+        help='Enable BATCH MODE. Ignores any and all queries, does not '
+             'require any user interaction. Suitable for scripting, etc.'
     )
 
     optgrp_filter = parser.add_argument_group('Processing options')
