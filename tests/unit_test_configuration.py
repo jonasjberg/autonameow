@@ -32,6 +32,9 @@ import unit_utils as uu
 import unit_utils_constants as uuconst
 
 
+uu.init_session_repository()
+
+
 def load_yaml(path):
     with open(path, 'r', encoding='utf-8') as fh:
         data = yaml.safe_load(fh)
