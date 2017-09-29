@@ -62,10 +62,12 @@ class BaseCache(object):
     def __init__(self, cachefile_prefix):
         self._data = {}
 
-        if not cachefile_prefix:
-            raise ValueError('Missing required argument "cachefile_prefix"')
-        else:
-            self.cachefile_prefix = cachefile_prefix
+        _prefix = types.force_string(cachefile_prefix)
+        if not _prefix.strip():
+            raise ValueError(
+                'Argument "cachefile_prefix" must be a valid string'
+            )
+        self.cachefile_prefix = _prefix
 
         if not os.path.exists(util.syspath(CACHE_DIR_ABSPATH)):
             raise CacheError(
@@ -110,22 +112,44 @@ class BaseCache(object):
         return _p
 
     def get(self, key):
-        if key not in self._data:
-            if not key:
-                raise KeyError
+        if not key:
+            raise KeyError
 
+        if key not in self._data:
             _file_path = self._cache_file_abspath(key)
+            _dp = util.displayable_path(_file_path)
             try:
                 value = self._load(_file_path)
                 self._data[key] = value
             except ValueError as e:
                 log.error(
-                    'Error when trying to read "{!s}" from cache file "{!s}";'
-                    ' {!s}'.format(key, util.displayable_path(_file_path), e)
+                    'Error when reading key "{!s}" from cache file "{!s}" '
+                    '(corrupt file?); {!s}'.format(key, _dp, e)
                 )
                 self.delete(key)
+            except OSError as e:
+                log.error(
+                    'Error while trying to read key "{!s}" from cache file '
+                    '"{!s}"; {!s}'.format(key, _dp, e)
+                )
+                raise KeyError
+            except Exception as e:
+                raise CacheError('Error while reading cache; {!s}'.format(e))
 
         return self._data.get(key)
+
+    def set(self, key, value):
+        self._data[key] = value
+
+        _file_path = self._cache_file_abspath(key)
+        try:
+            self._dump(value, _file_path)
+        except OSError as e:
+            _dp = util.displayable_path(_file_path)
+            log.error(
+                'Error while trying to write key "{!s}" with value "{!s}" to '
+                'cache file "{!s}"; {!s}'.format(key, value, _dp, e)
+            )
 
     def delete(self, key):
         try:
@@ -155,9 +179,9 @@ class BaseCache(object):
 
 class PickleCache(BaseCache):
     def _load(self, file_path):
-        with open(file_path, 'rb') as fh:
+        with open(util.syspath(file_path), 'rb') as fh:
             return pickle.load(fh, encoding='bytes')
 
     def _dump(self, value, file_path):
-        with open(file_path, 'wb') as fh:
+        with open(util.syspath(file_path), 'wb') as fh:
             pickle.dump(value, fh, pickle.HIGHEST_PROTOCOL)
