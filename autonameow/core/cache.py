@@ -41,7 +41,7 @@ log = logging.getLogger(__name__)
 
 
 # TODO: [TD0097] Add proper handling of cache directories.
-DEFAULT_CACHE_DIRECTORY_ROOT = '/Users/jonas/temp/'
+DEFAULT_CACHE_DIRECTORY_ROOT = '/tmp'
 DEFAULT_CACHE_DIRECTORY_LEAF = 'autonameow_cache'
 assert DEFAULT_CACHE_DIRECTORY_ROOT not in ('', '/', None)
 assert DEFAULT_CACHE_DIRECTORY_ROOT not in ('', None)
