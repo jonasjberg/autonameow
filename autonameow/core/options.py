@@ -152,7 +152,7 @@ def init_argparser():
     )
     optgrp_mode.add_argument(
         '--automagic',
-        dest='automagic',
+        dest='mode_automagic',
         action='store_true',
         help='Perform renames without requiring any user interaction. '
              'Matches the given paths against the available rules. '
@@ -160,7 +160,14 @@ def init_argparser():
     )
     optgrp_mode.add_argument(
         '--interactive',
-        dest='interactive',
+        dest='mode_interactive',
+        action='store_true',
+        help='(DEFAULT) Enable interactive mode. User selects which of the '
+             'analysis results is to make up the new filename.'
+    )
+    optgrp_mode.add_argument(
+        '--batch',
+        dest='mode_batch',
         action='store_true',
         help='(DEFAULT) Enable interactive mode. User selects which of the '
              'analysis results is to make up the new filename.'
@@ -282,15 +289,15 @@ def parse_args(raw_args):
 
     logs.init_logging(args)
 
-    if args.automagic and args.interactive:
+    if args.mode_automagic and args.mode_interactive:
         log.critical('Operating mode must be either one of "automagic" or '
                      '"interactive", not both. Reverting to default: '
                      '[interactive mode].')
-        args.automagic = False
-        args.interactive = True
-    if not args.automagic and not args.interactive:
+        args.mode_automagic = False
+        args.mode_interactive = True
+    if not args.mode_automagic and not args.mode_interactive:
         log.debug('Using default operating mode: [interactive mode].')
-        args.interactive = True
+        args.mode_interactive = True
 
     return args
 

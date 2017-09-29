@@ -289,9 +289,9 @@ class Autonameow(object):
         matcher = _run_rule_matcher(current_file, self.active_config)
 
         # Perform actions.
-        if self.opts.automagic:
+        if self.opts.mode_automagic:
             self._perform_automagic_actions(current_file, matcher)
-        elif self.opts.interactive:
+        elif self.opts.mode_interactive:
             # TODO: Create a interactive interface.
             # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
