@@ -1225,6 +1225,23 @@ class TestTryCoerce(TestCase):
         self.assertTrue(isinstance(types.try_coerce(datetime.now()), datetime))
 
 
+class TestForceString(TestCase):
+    def test_returns_strings(self):
+        def _aS(test_input):
+            actual = types.force_string(test_input)
+            self.assertTrue(isinstance(actual, str))
+
+        _aS(1)
+        _aS(1.0)
+        _aS('')
+        _aS(b'')
+        _aS('foo')
+        _aS(b'foo')
+        _aS([])
+        _aS({})
+        _aS(None)
+
+
 class TestTryParseDate(TestCase):
     def test_parses_valid_date(self):
         expected = datetime.strptime('2017-09-14', '%Y-%m-%d')

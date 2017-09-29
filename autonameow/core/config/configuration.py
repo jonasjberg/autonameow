@@ -146,11 +146,11 @@ class Configuration(object):
         for raw_key, raw_value in raw_templates.items():
             _error = 'Got invalid name template: "{!s}: {!s}"'.format(raw_key,
                                                                       raw_value)
-            key = force_string(raw_key)
+            key = types.force_string(raw_key)
             if not key:
                 raise exceptions.ConfigurationSyntaxError(_error)
 
-            value = force_string(raw_value)
+            value = types.force_string(raw_value)
             if not value:
                 raise exceptions.ConfigurationSyntaxError(_error)
 
@@ -172,7 +172,7 @@ class Configuration(object):
             )
 
         for rule in raw_rules:
-            description = force_string(rule.get('description'))
+            description = types.force_string(rule.get('description'))
             description = description or C.DEFAULT_RULE_DESCRIPTION
             log.debug('Validating rule "{!s}" ..'.format(description))
 
@@ -214,7 +214,7 @@ class Configuration(object):
             )
 
         valid_format = None
-        name_format = force_string(raw_rule.get('NAME_FORMAT'))
+        name_format = types.force_string(raw_rule.get('NAME_FORMAT'))
         # First test if the field data is a valid name template entry,
         if name_format in self.name_templates:
             # If it is, use the format string defined in that entry.
@@ -304,8 +304,8 @@ class Configuration(object):
 
                 match_replace_pairs = []
                 for regex, replacement in _reps.items():
-                    _match = force_string(regex)
-                    _replace = force_string(replacement)
+                    _match = types.force_string(regex)
+                    _replace = types.force_string(replacement)
                     if None in (_match, _replace):
                         log.warning('Skipped bad replacement: "{!s}": '
                                     '"{!s}"'.format(regex, replacement))
@@ -475,14 +475,3 @@ class Configuration(object):
         out.append(util.indent(util.dump(self.options), amount=4))
 
         return ''.join(out)
-
-
-def force_string(raw_value):
-    try:
-        str_value = types.AW_STRING(raw_value)
-    except types.AWTypeError:
-        pass
-    else:
-        if str_value != types.AW_STRING.NULL:
-            return str_value
-    return None

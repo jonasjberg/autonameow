@@ -794,6 +794,15 @@ def coercer_for(value):
     return PRIMITIVE_AW_TYPE_MAP.get(type(value), None)
 
 
+def force_string(raw_value):
+    try:
+        str_value = AW_STRING(raw_value)
+    except AWTypeError:
+        return AW_STRING.null()
+    else:
+        return str_value
+
+
 # Singletons for actual use.
 AW_BOOLEAN = Boolean()
 AW_DATE = Date()

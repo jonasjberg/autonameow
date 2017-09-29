@@ -267,7 +267,8 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
             expression = [expression]
 
         for expr in expression:
-            if not expr or not isinstance(expr, (str, bytes)):
+            string_expr = types.force_string(expr)
+            if not string_expr:
                 return False
 
             # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
