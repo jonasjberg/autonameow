@@ -22,6 +22,8 @@
 import logging
 import os
 
+from core.util import diskutils
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -39,7 +41,7 @@ log = logging.getLogger(__name__)
 
 
 # TODO: [TD0097] Add proper handling of cache directories.
-DEFAULT_CACHE_DIRECTORY_ROOT = '/tmp'
+DEFAULT_CACHE_DIRECTORY_ROOT = '/Users/jonas/temp/'
 DEFAULT_CACHE_DIRECTORY_LEAF = 'autonameow_cache'
 assert DEFAULT_CACHE_DIRECTORY_ROOT not in ('', '/', None)
 assert DEFAULT_CACHE_DIRECTORY_ROOT not in ('', None)
@@ -105,12 +107,11 @@ class BaseCache(object):
             #         '{!s}'.format(util.displayable_path(self._cache_dir), e)
             #     )
         else:
-            for x in (os.R_OK, os.W_OK, os.X_OK):
-                if not os.access(util.syspath(CACHE_DIR_ABSPATH), x):
-                    raise CacheError(
-                        'Cache directory path requires RWX-permissions: '
-                        '"{!s}'.format(util.displayable_path(CACHE_DIR_ABSPATH))
-                    )
+            if not diskutils.has_permissions(CACHE_DIR_ABSPATH, 'rwx'):
+                raise CacheError(
+                    'Cache directory path requires RWX-permissions: '
+                    '"{!s}'.format(util.displayable_path(CACHE_DIR_ABSPATH))
+                )
         log.debug('{!s} Using _cache_dir "{!s}'.format(
             self, util.displayable_path(CACHE_DIR_ABSPATH))
         )
