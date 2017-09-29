@@ -133,6 +133,21 @@ class BaseCache(object):
         return _p
 
     def get(self, key):
+        """
+        Returns data from the cache.
+
+        Args:
+            key (str): The key of the data to retrieve.
+                       Postfix of the cache file that is written to disk.
+
+        Returns:
+            Any cached data stored with the given key, as any serializable type.
+        Raises:
+            KeyError: The given 'key' is not a valid non-empty string,
+                      or the key is not found in the cached data.
+            CacheError: Failed to read cached data for some reason;
+                        data corruption, encoding errors, missing files, etc..
+        """
         if not key:
             raise KeyError
 
@@ -160,6 +175,14 @@ class BaseCache(object):
         return self._data.get(key)
 
     def set(self, key, value):
+        """
+        Stores data in the cache.
+
+        Args:
+            key (str): The key to store the data under.
+                       Postfix of the cache file that is written to disk.
+            value: The data to store, as any serializable type.
+        """
         self._data[key] = value
 
         _file_path = self._cache_file_abspath(key)
