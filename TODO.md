@@ -203,8 +203,6 @@ Low Priority
   GPS data. Look into comparing coordinates with the
   [Haversine formula](http://en.wikipedia.org/wiki/Haversine_formula).
 
-* `[TD0042]` Respect the `--quiet` option. Suppress (all but critical?) output.
-
 * `[TD0043]` Allow the user to tweak hardcoded settings using the
   configuration.
 

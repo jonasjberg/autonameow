@@ -118,7 +118,7 @@ def init_argparser():
         dest='quiet',
         action='store_true',
         default=False,
-        help='Enables quiet mode, suppress all but critical errors.'
+        help='Enables quiet mode, suppress all but messages on renames.'
     )
 
     optgrp_action = parser.add_argument_group(

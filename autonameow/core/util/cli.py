@@ -45,6 +45,9 @@ from core import constants as C
 log = logging.getLogger(__name__)
 
 
+BE_QUIET = False
+
+
 def print_ascii_banner():
     """
     Prints a "banner" with some ASCII art, program information and credits.
@@ -212,7 +215,7 @@ def colorize_quoted(text, color=None):
     return colorize_re_match(text, RE_ANYTHING_QUOTED, color)
 
 
-def msg(message, style=None, add_info_log=False):
+def msg(message, style=None, add_info_log=False, ignore_quiet=False):
     """
     Displays a message to the user using preset formatting options.
 
@@ -221,6 +224,10 @@ def msg(message, style=None, add_info_log=False):
         style: Optional message type.
         add_info_log: Displays and logs the message if True. Defaults to False.
     """
+    if not ignore_quiet:
+        global BE_QUIET
+        if BE_QUIET:
+            return
 
     def print_default_msg(text):
         print(colorize(text))
@@ -229,8 +236,6 @@ def msg(message, style=None, add_info_log=False):
         prefix = colorize('[info]', fore='LIGHTBLACK_EX')
         colored_text = colorize(text)
         print(prefix + ' ' + colored_text)
-
-    # TODO: [TD0042] Respect '--quiet' option. Suppress output.
 
     if not message:
         return
@@ -285,7 +290,7 @@ def msg_rename(from_basename, dest_basename, dry_run):
     else:
         _message = 'Renamed {!s} -> {!s}'
 
-    msg(_message.format(_name_old, _name_new))
+    msg(_message.format(_name_old, _name_new), ignore_quiet=True)
 
 
 class ColumnFormatter(object):
@@ -349,6 +354,18 @@ class ColumnFormatter(object):
             out.append("".join(word.ljust(column_width) for word in row))
 
         return '\n'.join(out)
+
+
+def silence():
+    global BE_QUIET
+    log.disabled = True
+    BE_QUIET = True
+
+
+def unsilence():
+    global BE_QUIET
+    log.disabled = False
+    BE_QUIET = False
 
 
 if __name__ == '__main__':

@@ -84,6 +84,10 @@ class Autonameow(object):
         # Handle the command line arguments and setup logging.
         self.opts = options.parse_args(self.args)
 
+        if self.opts.quiet:
+            options.logs.silence()
+            cli.silence()
+
         # Display various information depending on verbosity level.
         if self.opts.verbose or self.opts.debug:
             cli.print_start_info()
@@ -370,7 +374,6 @@ class Autonameow(object):
             log.critical('Name assembly FAILED: {!s}'.format(e))
             raise exceptions.AutonameowException
 
-        # TODO: [TD0042] Respect '--quiet' option. Suppress output.
         log.info('New name: "{}"'.format(
             util.displayable_path(new_name))
         )

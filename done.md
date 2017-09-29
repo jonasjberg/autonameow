@@ -21,6 +21,11 @@ University mail: `js224eh[a]student.lnu.se`
     >       or the text is needed elsewhere.
     >     * Image OCR is very slow, should only be executed when needed, caching the
     >       results for all accesses.
+    >
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0042]` Respect the `--quiet` option. Suppress (all but critical?) output.
 
 * 2017-09-28
 
