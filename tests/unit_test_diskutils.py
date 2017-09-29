@@ -765,7 +765,7 @@ OWNER_X = stat.S_IXUSR
 
 class TestHasPermissions(TestCase):
     def _test(self, path, perms, expected):
-        actual = diskutils.require_permissions(path, perms)
+        actual = diskutils.has_permissions(path, perms)
         self.assertEqual(actual, expected)
         self.assertTrue(isinstance(actual, bool))
 
@@ -774,7 +774,7 @@ class TestHasPermissions(TestCase):
 
         def _aR(path, perms):
             with self.assertRaises(TypeError):
-                _ = diskutils.require_permissions(path, perms)
+                _ = diskutils.has_permissions(path, perms)
 
         _aR(path, None)
         _aR(path, [])

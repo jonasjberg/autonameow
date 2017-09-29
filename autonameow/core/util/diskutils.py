@@ -412,7 +412,7 @@ CHAR_PERMISSION_LOOKUP = {
 }
 
 
-def require_permissions(path, permissions):
+def has_permissions(path, permissions):
     """
     Tests if a path has the specified permissions.
 
