@@ -464,7 +464,9 @@ class Configuration(object):
 
     @property
     def name_templates(self):
-        return self._name_templates
+        _rule_templates = [r.name_template for r in self.rules]
+        _reusable_templates = [t for t in self.reusable_nametemplates.values()]
+        return _rule_templates + _reusable_templates
 
     def __str__(self):
         out = ['Written by autonameow version v{}\n\n'.format(self.version)]

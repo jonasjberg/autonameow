@@ -151,14 +151,17 @@ class TestConfigurationDataAccess(TestCase):
         self.configuration = Configuration(DEFAULT_CONFIG)
         self.maxDiff = None
 
-    def test_get_data_does_not_return_none(self):
+    def test_data_does_not_return_none(self):
         self.assertIsNotNone(self.configuration.data)
 
-    def test_get_rules_does_not_return_none(self):
+    def test_rules_does_not_return_none(self):
         self.assertIsNotNone(self.configuration.rules)
 
-    def test_get_rules_returns_expected_type(self):
+    def test_rules_returns_expected_type(self):
         self.assertTrue(isinstance(self.configuration.rules, list))
 
-    def test_get_rules_returns_expected_rule_count(self):
+    def test_rules_returns_expected_rule_count(self):
         self.assertGreaterEqual(len(self.configuration.rules), 3)
+
+    def test_name_templates_returns_expected_type(self):
+        self.assertTrue(isinstance(self.configuration.name_templates, list))
