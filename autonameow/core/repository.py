@@ -148,6 +148,23 @@ class Repository(object):
 
         self.__store_data(file_object, meowuri, data)
 
+    def query_mapped(self, file_object, field):
+        out = []
+
+        _data = self.data.get(file_object)
+        for meowuri, data in _data.items():
+            if isinstance(data, list):
+                for d in data:
+                    if isinstance(d, ExtractedData):
+                        if d.maps_field(field):
+                            out.append(d)
+            else:
+                if isinstance(data, ExtractedData):
+                    if data.maps_field(field):
+                        out.append(data)
+
+        return out
+
     def query(self, file_object, meowuri, mapped_to_field=None):
         if not meowuri:
             raise exceptions.InvalidDataSourceError(

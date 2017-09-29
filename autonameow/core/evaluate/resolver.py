@@ -62,6 +62,10 @@ class Resolver(object):
         for _field, _meowuri in source_dict.items():
             self.add_known_source(_field, _meowuri)
 
+    @property
+    def unresolved(self):
+        return [f for f in self._fields if f not in self.fields_data.keys()]
+
     def collect(self):
         self._gather_data()
         self._verify_types()
@@ -71,6 +75,11 @@ class Resolver(object):
             return False
 
         return self._has_data_for_placeholder_fields()
+
+    def lookup_candidates(self, field):
+        # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+        candidates = repository.SessionRepository.query_mapped(self.file, field)
+        return candidates if candidates else []
 
     def _has_data_for_placeholder_fields(self):
         for field in self._fields:
@@ -90,6 +99,12 @@ class Resolver(object):
                     and self.fields_data.get(field) is not None):
                 log.debug('Skipping previously gathered data for field '
                           '"{!s}"'.format(field))
+                continue
+
+            if not meowuri:
+                log.debug(
+                    'Resolver attempted to gather data with empty MeowURI!'
+                )
                 continue
 
             log.debug('Gathering data for field "{!s}" from source [{!s}]->'
@@ -116,6 +131,12 @@ class Resolver(object):
                     self._verify_type(field, d)
             else:
                 self._verify_type(field, data)
+
+        # Remove data type is incompatible with associated field.
+        _fields_data = self.fields_data.copy()
+        for field, data in _fields_data.items():
+            if data is None:
+                self.fields_data.pop(field)
 
     def _verify_type(self, field, data):
         sanity.check(not isinstance(data, list),

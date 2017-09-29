@@ -186,6 +186,7 @@ class EbookAnalyzer(BaseAnalyzer):
             coercer=types.AW_DATE,
             mapped_fields=[
                 WeightedMapping(fields.Date, probability=1),
+                WeightedMapping(fields.DateTime, probability=1),
             ],
             generic_field=model.GenericDateCreated
         )(date_string)

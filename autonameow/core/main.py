@@ -338,26 +338,46 @@ class Autonameow(object):
                 self.exit_code = C.EXIT_WARNING
                 return
             else:
-                log.warning('TODO: Implement user name template selection')
-                return
+                log.warning('TODO: Implement interactive field selection')
+                # return
 
                 # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-                # while not resolver.collected_all():
-                #     for unresolved in resolver.unresolved():
-                #         candidates = resolver.lookup_candidates(unresolved)
-                #         if candidates:
-                #             choice = cli.prompt_selection(
-                #                 heading='Field {}'.format(unresolved.field)
-                #             choices=candidates
-                #             )
-                #             else:
-                #             choice = cli.prompt_meowuri(
-                #                 heading='Enter a MeowURI'
-                #             )
-                #         if choice != cli.action.ABORT:
-                #             resolver.add_known_source(choice)
-                #
-                #     resolver.collect()
+                i = 0
+                while not resolver.collected_all():
+                    log.info('Resolver has not collected all fields ..')
+                    for unresolved in resolver.unresolved:
+                        cli.msg('Unresolved Field: {!s}'.format(unresolved.as_placeholder()))
+                        candidates = resolver.lookup_candidates(unresolved)
+                        if candidates:
+                            cli.msg('Candidates:')
+                            for c in candidates:
+                                _probs = []
+                                for fm in c.field_map:
+                                    if fm.field == unresolved:
+                                        _probs.append(fm.probability)
+
+                                _prob = ['probability: {}'.format(p) for p in _probs]
+                                cli.msg(
+                                    '{!s} ({})'.format(c.coercer.format(c.value), ' '.join(_prob))
+                                )
+                            # choice = cli.prompt_selection(
+                            #     heading='Field {}'.format(unresolved.field),
+                            #     choices=candidates
+                            # )
+                        else:
+                            log.info('Resolver did not find any candidates ..')
+                            log.warning('TODO: Implement MeowURI prompt')
+                            # choice = cli.prompt_meowuri(
+                            #     heading='Enter a MeowURI'
+                            # )
+                        # if choice != cli.action.ABORT:
+                        #     resolver.add_known_source(choice)
+
+                    resolver.collect()
+
+                    i += 1
+                    if i == 1:
+                        break
 
         # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
