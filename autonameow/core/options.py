@@ -295,13 +295,22 @@ def parse_args(raw_args):
     logs.init_logging(args)
 
     if args.mode_automagic and args.mode_interactive:
-        log.critical('Operating mode must be either one of "automagic" or '
-                     '"interactive", not both. Reverting to default: '
-                     '[interactive mode].')
+        log.warning('Operating mode must be either one of "automagic" or '
+                    '"interactive", not both. Reverting to default: '
+                    '[interactive mode].')
         args.mode_automagic = False
         args.mode_interactive = True
+    if not args.mode_automagic and args.mode_batch:
+        log.warning('Running in "batch" mode without "automagic" mode does'
+                    'not make any sense. Nothing to do!')
+    if args.mode_batch and args.mode_interactive:
+        log.warning('Operating mode must be either one of "batch" or '
+                    '"interactive", not both. Reverting to default: '
+                    '[interactive mode].')
+        args.mode_batch = False
+        args.mode_interactive = True
     if not args.mode_automagic and not args.mode_interactive:
-        log.debug('Using default operating mode: [interactive mode].')
+        log.info('Using default operating mode: [interactive mode].')
         args.mode_interactive = True
 
     return args
