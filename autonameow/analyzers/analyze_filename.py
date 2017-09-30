@@ -189,28 +189,36 @@ class FilenameAnalyzer(BaseAnalyzer):
         return True
 
 
-MIMETYPE_SUFFIX_EXTENSION_MAP = {
+MIMETYPE_EXTENSION_SUFFIX_MAP = {
+    # Note that the inner-most values are set-literals.
     'text/plain': {
-        'txt': 'txt',
-        'md': 'md',
-        'mkd': 'md',
-        'markdown': 'md',
-        'sh': 'sh',
-        'yaml': 'yaml'
+        'c': {'c'},
+        'cpp': {'cpp'},
+        'h': {'h'},
+        'js': {'js'},
+        'json': {'json'},
+        'md': {'markdown', 'md', 'mkd'},
+        'puml': {'puml'},
+        'py': {'py', 'python'},
+        'sh': {'bash', 'sh'},
+        'txt': {'txt'},
+        'yaml': {'yaml'},
     },
     'text/x-shellscript': {
-        'txt': 'sh',
-        'sh': 'sh',
+        'sh': {'bash', 'sh', 'txt'},
+        'py': {'py'},
     },
 }
 
 
 def likely_extension(basename_suffix, mime_type):
-    if mime_type in MIMETYPE_SUFFIX_EXTENSION_MAP:
-        _match = MIMETYPE_SUFFIX_EXTENSION_MAP[mime_type].get(basename_suffix)
-        return _match
-    else:
-        return types.AW_MIMETYPE.format(mime_type)
+    mimetype_ext_sfx_map = MIMETYPE_EXTENSION_SUFFIX_MAP.get(mime_type)
+    if mimetype_ext_sfx_map:
+        for ext, suffix_set in mimetype_ext_sfx_map.items():
+            if basename_suffix in suffix_set:
+                return ext
+
+    return types.AW_MIMETYPE.format(mime_type)
 
 
 class SubstringFinder(object):

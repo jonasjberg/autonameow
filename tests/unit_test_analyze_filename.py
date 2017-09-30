@@ -108,6 +108,12 @@ class TestLikelyExtension(TestCase):
              Given(suffix='markdown', mime='text/plain')),
             (Expect('yaml'),
              Given(suffix='yaml', mime='text/plain')),
+            (Expect('py'),
+             Given(suffix='py', mime='text/x-shellscript')),
+            (Expect('py'),
+             Given(suffix='py', mime='text/x-python')),
+            (Expect('py'),
+             Given(suffix='', mime='text/x-python')),
         ]
 
     def test_returns_expected(self):
