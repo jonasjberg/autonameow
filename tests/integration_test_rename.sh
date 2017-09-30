@@ -231,8 +231,8 @@ SAMPLE_MAGICTXTMD_FILE_EXPECTED='magic_txt.md'
 assert_true '[ -e "$SAMPLE_NOEXT_FILE" ]' \
             "Sample file \"${SAMPLE_MAGICTXTMD_FILE}\" exists. Substitute a suitable sample file if this test fails!"
 
-test_automagic_rename 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_NOEXT_MAGICTXTMD_EXPECTED"
-test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_NOEXT_MAGICTXTMD_EXPECTED"
+test_automagic_rename 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_EXPECTED"
 
 
 
