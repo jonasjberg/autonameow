@@ -253,72 +253,108 @@ class TestMsgRename(TestCase):
 class TestColumnFormatter(TestCase):
     def setUp(self):
         self.padding = ' ' * cli.ColumnFormatter.COLUMN_PADDING
+        self.cf = cli.ColumnFormatter()
+        self.cf.addrow('foo', 'fooooooooo')
+        self.cf.addrow('a', 'b')
+        self.cf.addrow('kjhdsfkjhsdfgkjhsdfg', 'mjao')
+        self.cf.addrow('3', '666')
+        print(self.cf)
 
     def test_column_counter(self):
         cf = cli.ColumnFormatter()
         self.assertEqual(cf.number_columns, 0)
 
-        cf.add('foo')
+        cf.addrow('foo')
         self.assertEqual(cf.number_columns, 1)
-        cf.add('foo')
+        cf.addrow('foo')
         self.assertEqual(cf.number_columns, 1)
-        cf.add('foo', 'bar')
+        cf.addrow('foo', 'bar')
         self.assertEqual(cf.number_columns, 2)
-        cf.add('foo')
+        cf.addrow('foo')
         self.assertEqual(cf.number_columns, 2)
-        cf.add('foo', 'bar', 'baz')
+        cf.addrow('foo', 'bar', 'baz')
         self.assertEqual(cf.number_columns, 3)
+
+    def test_column_widths(self):
+        cf = cli.ColumnFormatter()
+        self.assertEqual(cf.column_widths, [])
+
+        cf.addrow('foo')
+        self.assertEqual(cf.column_widths, [3])
+        cf.addrow('foo')
+        self.assertEqual(cf.column_widths, [3])
+        cf.addrow('foo', 'bar')
+        self.assertEqual(cf.column_widths, [3, 3])
+        cf.addrow('AAAAHH')
+        self.assertEqual(cf.column_widths, [6, 3])
+        cf.addrow('foo', 'bar', 'baz')
+        self.assertEqual(cf.column_widths, [6, 3, 3])
+        cf.addrow('a', 'b', 'MJAOOOOAJM')
+        self.assertEqual(cf.column_widths, [6, 3, 10])
 
     def test_formats_single_column(self):
         cf = cli.ColumnFormatter()
-        cf.add('foo')
-        cf.add('bar')
-        cf.add('baz')
+        cf.addrow('foo')
+        cf.addrow('bar')
+        cf.addrow('baz')
 
         actual = str(cf)
-        expected = 'foo  \nbar  \nbaz  '
+        # expected = 'foo  \nbar  \nbaz  '
+        expected = 'foo\nbar\nbaz'
         self.assertEqual(actual, expected)
 
     def test_formats_single_column_with_empty_strings(self):
         cf = cli.ColumnFormatter()
-        cf.add('foo')
-        cf.add('')
-        cf.add('baz')
+        cf.addrow('foo')
+        cf.addrow(' ')
+        cf.addrow('baz')
 
         actual = str(cf)
-        expected = 'foo{p}\n{p}{p} \nbaz{p}'.format(p=self.padding)
+        expected = 'foo\nbaz'.format(p=self.padding)
         self.assertEqual(actual, expected)
 
     def test_formats_single_column_with_none_elements(self):
         cf = cli.ColumnFormatter()
-        cf.add('foo')
-        cf.add(None)
-        cf.add('baz')
+        cf.addrow('foo')
+        cf.addrow(None)
+        cf.addrow('baz')
 
         actual = str(cf)
-        expected = 'foo{p}\n{p} {p}\nbaz{p}'.format(p=self.padding)
+        expected = 'foo\nbaz'.format(p=self.padding)
         self.assertEqual(actual, expected)
 
     def test_formats_two_columns(self):
         cf = cli.ColumnFormatter()
-        cf.add('foo_A', 'foo_B')
-        cf.add('bar_A', 'bar_B')
-        cf.add('baz_A', 'baz_B')
+        cf.addrow('foo_A', 'foo_B')
+        cf.addrow('bar_A', 'bar_B')
+        cf.addrow('baz_A', 'baz_B')
 
         actual = str(cf)
-        expect = 'foo_A{p}foo_B{p}\nbar_A{p}bar_B{p}\nbaz_A{p}baz_B{p}'.format(
+        expect = 'foo_A{p}foo_B\nbar_A{p}bar_B\nbaz_A{p}baz_B'.format(
             p=self.padding
         )
         self.assertEqual(actual, expect)
 
     def test_format_two_columns_expands_width(self):
         cf = cli.ColumnFormatter()
-        cf.add('foo_A')
-        cf.add('bar_A', 'bar_B')
-        cf.add('baz_A', 'baz_B')
+        cf.addrow('foo_A')
+        cf.addrow('bar_A', 'bar_B')
+        cf.addrow('baz_A', 'baz_B')
 
         actual = str(cf)
-        expected = 'foo_A{p}\nbar_A{p}bar_B{p}\nbaz_A{p}baz_B{p}'.format(
+        expected = 'foo_A\nbar_A{p}bar_B\nbaz_A{p}baz_B'.format(
+            p=self.padding
+        )
+        self.assertEqual(actual, expected)
+
+    def test_format_three_columns(self):
+        cf = cli.ColumnFormatter()
+        cf.addrow('A1', 'BB1', 'CC11')
+        cf.addrow('A2', 'BB2', 'CC22')
+        cf.addrow('A3', 'BB3', 'CC33')
+
+        actual = str(cf)
+        expected = 'A1{p}BB1{p}CC11\nA2{p}BB2{p}CC22\nA3{p}BB3{p}CC33'.format(
             p=self.padding
         )
         self.assertEqual(actual, expected)

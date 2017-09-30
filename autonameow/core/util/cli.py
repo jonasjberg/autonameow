@@ -300,9 +300,11 @@ class ColumnFormatter(object):
     """
     COLUMN_PADDING = 2
 
-    def __init__(self):
+    def __init__(self, align='left'):
         self._columns = 0
         self._data = []
+        self._column_widths = []
+        self._align = 'ljust' if align == 'left' else 'rjust'
 
     @property
     def number_columns(self):
@@ -313,13 +315,44 @@ class ColumnFormatter(object):
         if isinstance(count, int) and count > self._columns:
             self._columns = count
 
-    def add(self, *args):
+    def addrow(self, *args):
         maybe_strings = list(args)
 
         strings = self._check_types_replace_none(maybe_strings)
 
         self.number_columns = len(strings)
+        self._update_column_widths(strings)
         self._data.append(strings)
+
+    def _update_column_widths(self, strings):
+        new_widths = [len(s) for s in strings]
+
+        if not self._column_widths:
+            self._column_widths = new_widths
+        else:
+            new_column_count = len(new_widths)
+            old_column_count = len(self._column_widths)
+
+            # Use the longest array as the "base".
+            if new_column_count > old_column_count:
+                _max_widths = new_widths
+            else:
+                _max_widths = self._column_widths
+
+            #   Array A:   [9]  [1]
+            #   Array B:   [3]  [7]  [2]  [4]
+            #       OUT:   [9]  [7]  [2]  [4]
+            #
+            # Compare array elements from index 0..len(A) and store the
+            # maximum element value in the longer array.
+            for i in range(0, min(new_column_count, old_column_count)):
+                _max_widths[i] = max(new_widths[i], self._column_widths[i])
+
+            self._column_widths = _max_widths
+
+    @property
+    def column_widths(self):
+        return self._column_widths
 
     @staticmethod
     def _check_types_replace_none(maybe_strings):
@@ -344,16 +377,14 @@ class ColumnFormatter(object):
         if not self._data:
             return ''
 
-        column_width = (
-            max(len(string) for row in self._data for string in row)
-            + self.COLUMN_PADDING
-        )
-
         out = []
         for row in self._data:
-            out.append("".join(word.ljust(column_width) for word in row))
+            out.append(
+                "".join(getattr(word, self._align)(width + self.COLUMN_PADDING)
+                        for word, width in zip(row, self._column_widths))
+            )
 
-        return '\n'.join(out)
+        return '\n'.join(s.rstrip() for s in out if s.strip())
 
 
 def silence():

@@ -170,10 +170,10 @@ class Autonameow(object):
             for _type in ['analyzers', 'extractors', 'plugins']:
                 klasses = repository.SessionRepository.meowuri_class_map.get(_type, {})
                 for _meowuri, _klasses in klasses.items():
-                    cf.add(_meowuri, str(_klasses.pop()))
+                    cf.addrow(_meowuri, str(_klasses.pop()))
                     if _klasses:
                         for k in _klasses:
-                            cf.add(None, str(k))
+                            cf.addrow(None, str(k))
             cli.msg(str(cf))
 
         cli.msg('\n')
