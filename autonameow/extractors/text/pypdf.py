@@ -76,7 +76,8 @@ class PyPDFTextExtractor(AbstractTextExtractor):
 
         text = extract_pdf_content_with_pypdf(source)
         if text and len(text) > 1:
-            # Add result to local cache.
+            # TODO: [TD0098] Use checksums as keys for cached data, not paths.
+            #       .. I.E. use a more robust identifier as "source" below.
             self._cached_text.update({source: text})
             self._cache_write()
             return text

@@ -101,7 +101,8 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         text = textutils.normalize_unicode(text)
         text = textutils.remove_nonbreaking_spaces(text)
         if text:
-            # Add result to local cache.
+            # TODO: [TD0098] Use checksums as keys for cached data, not paths.
+            #       .. I.E. use a more robust identifier as "source" below.
             self._cached_text.update({source: text})
             self._cache_write()
             return text
