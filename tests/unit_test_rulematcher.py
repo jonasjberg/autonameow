@@ -60,31 +60,31 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
     def test_query_data_returns_something(self):
         self.skipTest('TODO: Fix broken unit tests')
         self.assertIsNotNone(
-            self.rm._request_data('analysis.filename_analyzer.tags')
+            self.rm.request_data('analysis.filename_analyzer.tags')
         )
         self.assertIsNotNone(
-            self.rm._request_data('filesystem.contents.mime_type')
+            self.rm.request_data('filesystem.contents.mime_type')
         )
 
     def test_querying_available_data_returns_expected_type(self):
         self.skipTest('TODO: Fix broken unit tests')
         self.assertTrue(
-            isinstance(self.rm._request_data('analysis.filename_analyzer.tags'),
+            isinstance(self.rm.request_data('analysis.filename_analyzer.tags'),
                        list)
         )
         self.assertTrue(
-            isinstance(self.rm._request_data('filesystem.contents.mime_type'),
+            isinstance(self.rm.request_data('filesystem.contents.mime_type'),
                        str)
         )
 
     def test_querying_available_data_returns_expected(self):
         self.skipTest('TODO: Fix broken unit tests')
-        actual_result = self.rm._request_data('analysis.filename_analyzer.tags')
+        actual_result = self.rm.request_data('analysis.filename_analyzer.tags')
         actual_tags = actual_result[0].get('value', [])
         expected_tags = ['tagfoo', 'tagbar']
         self.assertEqual(expected_tags, actual_tags)
 
-        self.assertEqual(self.rm._request_data('filesystem.contents.mime_type'),
+        self.assertEqual(self.rm.request_data('filesystem.contents.mime_type'),
                          'application/pdf')
 
 
@@ -95,19 +95,19 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
 
     def test_querying_unavailable_data_returns_false(self):
         self.assertFalse(
-            self.rm._request_data('analysis.filename_analyzer.publisher')
+            self.rm.request_data('analysis.filename_analyzer.publisher')
         )
 
     def test_querying_available_data_returns_expected_type(self):
         self.skipTest('TODO: Fix broken unit tests')
         self.assertTrue(
-            isinstance(self.rm._request_data('filesystem.contents.mime_type'),
+            isinstance(self.rm.request_data('filesystem.contents.mime_type'),
                        str)
         )
 
     def test_querying_available_data_returns_expected(self):
         self.skipTest('TODO: Fix broken unit tests')
-        actual = self.rm._request_data('filesystem.contents.mime_type')
+        actual = self.rm.request_data('filesystem.contents.mime_type')
         self.assertEqual(actual, 'application/pdf')
 
 
