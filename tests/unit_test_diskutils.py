@@ -657,13 +657,13 @@ class TestPathCollector(TestCase):
         _search_paths = uu.abspath_testfile('configs')
         pc = diskutils.PathCollector(ignore_globs=None)
         actual = pc.get_paths(_search_paths)
-        self.assertEqual(len(actual), 3)
+        self.assertEqual(len(actual), 4)
 
     def test_returns_expected_for_glob_d(self):
         _search_paths = uu.abspath_testfile('configs')
         pc = diskutils.PathCollector(ignore_globs=['*_filetags.yaml'])
         actual = pc.get_paths(_search_paths)
-        self.assertEqual(len(actual), 2)
+        self.assertEqual(len(actual), 3)
 
     def test_returns_expected_for_glob_e(self):
         _search_paths = uu.abspath_testfile('configs')

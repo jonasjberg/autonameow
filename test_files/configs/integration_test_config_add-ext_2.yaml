@@ -9,11 +9,11 @@ FILESYSTEM_OPTIONS:
     sanitize_filename: true
     sanitize_strict: false
 RULES:
-    Fix incorrect extensions:
+    Fix incorrect extensions with filename analyzer:
         CONDITIONS:
             extractor.filesystem.xplat.contents.mime_type: '*/*'
         DATA_SOURCES:
-            extension: extractor.filesystem.xplat.contents.mime_type
+            extension: analyzer.filename.extension
             title: extractor.filesystem.xplat.basename.prefix
         NAME_FORMAT: '{title}.{extension}'
         exact_match: false

@@ -20,10 +20,16 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-from collections import defaultdict
 
 from analyzers import BaseAnalyzer
-from core import types
+from core import (
+    types
+)
+from core.model import (
+    ExtractedData,
+    WeightedMapping
+)
+from core.namebuilder import fields
 from core.util import dateandtime
 
 
@@ -48,6 +54,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._add_results('datetime', self.get_datetime())
         self._add_results('title', self.get_title())
         self._add_results('edition', self.get_edition())
+        self._add_results('extension', self.get_extension())
 
     def get_datetime(self):
         results = []
@@ -65,9 +72,28 @@ class FilenameAnalyzer(BaseAnalyzer):
         basename = self.request_data(
             self.file_object,
             'extractor.filesystem.xplat.basename.prefix'
-        )
+        ).value
         if not basename:
             return
+
+    def get_extension(self):
+        ed_basename_suffix = self.request_data(
+            self.file_object,
+            'extractor.filesystem.xplat.basename.suffix'
+        )
+        ed_file_mimetype = self.request_data(
+            self.file_object,
+            'extractor.filesystem.xplat.contents.mime_type'
+        )
+        file_basename_suffix = ed_basename_suffix.as_string()
+        file_mimetype = ed_file_mimetype.value
+        result = likely_extension(file_basename_suffix, file_mimetype)
+        return ExtractedData(
+            coercer=types.AW_PATHCOMPONENT,
+            mapped_fields=[
+                WeightedMapping(fields.Extension, probability=1),
+            ]
+        )(result)
 
     def _get_datetime_from_name(self):
         """
@@ -161,6 +187,30 @@ class FilenameAnalyzer(BaseAnalyzer):
     @classmethod
     def check_dependencies(cls):
         return True
+
+
+MIMETYPE_SUFFIX_EXTENSION_MAP = {
+    'text/plain': {
+        'txt': 'txt',
+        'md': 'md',
+        'mkd': 'md',
+        'markdown': 'md',
+        'sh': 'sh',
+        'yaml': 'yaml'
+    },
+    'text/x-shellscript': {
+        'txt': 'sh',
+        'sh': 'sh',
+    },
+}
+
+
+def likely_extension(basename_suffix, mime_type):
+    if mime_type in MIMETYPE_SUFFIX_EXTENSION_MAP:
+        _match = MIMETYPE_SUFFIX_EXTENSION_MAP[mime_type].get(basename_suffix)
+        return _match
+    else:
+        return types.AW_MIMETYPE.format(mime_type)
 
 
 class SubstringFinder(object):

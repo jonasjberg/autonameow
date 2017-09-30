@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections import namedtuple
 from datetime import datetime
 from unittest import TestCase
 
@@ -26,10 +27,11 @@ from analyzers.analyze_filename import (
     FilenameAnalyzer,
     FilenameTokenizer,
     SubstringFinder,
-    _find_edition
+    _find_edition,
+    likely_extension
 )
-import unit_utils as uu
 from core.namebuilder import fields
+import unit_utils as uu
 
 
 def get_filename_analyzer(file_object):
@@ -80,6 +82,41 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def test_get_datetime_returns_empty_list(self):
         self.skipTest('TODO')
         self.assertEqual([], self.fna.get_datetime())
+
+
+class TestLikelyExtension(TestCase):
+    def setUp(self):
+        Given = namedtuple('Given', 'suffix mime')
+        Expect = namedtuple('Expect', 'expected')
+
+        self.expect_testinput = [
+            (Expect('txt'),
+             Given(suffix='txt', mime='text/plain')),
+            (Expect('sh'),
+             Given(suffix='sh', mime='text/plain')),
+            (Expect('sh'),
+             Given(suffix='sh', mime='text/x-shellscript')),
+            (Expect('sh'),
+             Given(suffix='txt', mime='text/x-shellscript')),
+            (Expect('pdf'),
+             Given(suffix='pdf', mime='application/pdf')),
+            (Expect('md'),
+             Given(suffix='md', mime='text/plain')),
+            (Expect('md'),
+             Given(suffix='mkd', mime='text/plain')),
+            (Expect('md'),
+             Given(suffix='markdown', mime='text/plain')),
+            (Expect('yaml'),
+             Given(suffix='yaml', mime='text/plain')),
+        ]
+
+    def test_returns_expected(self):
+        for expect, input_args in self.expect_testinput:
+            actual = likely_extension(*input_args)
+            _m = 'Expected: "{!s}"  Actual: "{!s}”  ("{!s}”)'.format(
+                expect.expected, actual, input_args
+            )
+            self.assertEqual(actual, expect.expected, _m)
 
 
 class TestFindEdition(TestCase):
