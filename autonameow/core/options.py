@@ -118,7 +118,7 @@ def init_argparser():
         dest='quiet',
         action='store_true',
         default=False,
-        help='Enables quiet mode, suppress all but messages on renames.'
+        help='Enables quiet mode, suppress all but renames.'
     )
 
     optgrp_action = parser.add_argument_group(
@@ -218,7 +218,13 @@ def init_argparser():
         dest='input_paths',
         metavar='INPUT_PATH',
         nargs='*',
-        help='Path(s) to file(s) to process.'
+        help='Path(s) to file(s) and/or directories of files to process. '
+             'If the path is a directory, all files in the directory are '
+             'included but any containing directories are not traversed. '
+             'Use "--recurse" to enable recursive traversal. '
+             'NOTE: Some files (defined in "constants.py") are silently '
+             'ignored.  Additional ignore patterns can also be specified in '
+             'the config.  Use "--dump-config" to list all ignore patterns.'
     )
     parser.add_argument(
         '-d', '--dry-run',
