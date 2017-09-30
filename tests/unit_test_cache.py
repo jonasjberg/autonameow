@@ -115,21 +115,40 @@ class TestBaseCache(TestCase):
 
 
 class TestPickleCache(TestCase):
+    CACHE_KEY = 'foo'
+
     def setUp(self):
-        # TODO: [TD0097] Add proper setup and teardown!
-        pass
+        self.c = cache.PickleCache(self.CACHE_KEY)
 
     def tearDown(self):
-        # TODO: [TD0097] Add proper setup and teardown!
-        pass
+        self.c.delete(self.CACHE_KEY)
+
+    def test_delete(self):
+        d = cache.PickleCache('to_be_deleted')
+        d.set('dummy', 'data')
+
+        # TODO:  FIX THIS!
+        d.delete('dummy')
+
+        # TODO:  FIX THIS!
+        _cache_file_path = d._cache_file_abspath('to_be_deleted')
+        self.assertFalse(uu.file_exists(_cache_file_path))
 
     def test_set(self):
-        c = cache.PickleCache('foo')
-        c.set('key_a', 'mjaooajm')
+        datakey = 'key_a'
+        datavalue = 'mjaooajm'
+        self.c.set(datakey, datavalue)
+
+        # TODO:  FIX THIS!
+        _cache_file_path = self.c._cache_file_abspath(datakey)
+        self.assertTrue(uu.file_exists(_cache_file_path))
+
+        actual = self.c.get(datakey)
+        self.assertEqual(actual, datavalue)
 
     def test_get(self):
-        c = cache.PickleCache('foo')
-        actual = c.get('key_a')
+        self.c = cache.PickleCache(self.CACHE_KEY)
+        actual = self.c.get('key_a')
         self.assertEqual(actual, 'mjaooajm')
 
     def test_set_get(self):

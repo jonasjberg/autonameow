@@ -211,6 +211,19 @@ class BaseCache(object):
                 'Error when trying to delete "{!s}"; {!s}'.format(_dp, e)
             )
 
+    def has(self, key):
+        # TODO: [TD0097] Test this ..
+        if key in self._data:
+            return True
+
+        _file_path = self._cache_file_abspath(key)
+        try:
+            os.path.exists(_file_path)
+        except OSError:
+            return False
+        else:
+            return True
+
     def _load(self, file_path):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
