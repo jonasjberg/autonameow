@@ -216,21 +216,52 @@ DEFAULT_CONFIG = {
 
 
 if __name__ == '__main__':
+    """
+    Run as stand-alone to write DEFAULT_CONFIG to a YAML-file.
+
+    NOTE: Relative imports require PYTHONPATH to be set ..
+          Workaround wrapper-script at "devscripts/write-default-config.sh"
+    """
+    from datetime import datetime
+    import os
     import sys
+    from core.config import write_yaml_file
 
-    if len(sys.argv) >= 2 and '--write-default' in sys.argv:
-        import os
-        from datetime import datetime
-        from core.config import write_yaml_file
+    def default_destpath():
+        basename = 'default_config_{}.yaml'.format(
+            datetime.now().strftime('%Y-%m-%dT%H%M%S')
+        )
+        this_dir = os.path.dirname(os.path.realpath(__file__))
+        return os.path.normpath(os.path.join(this_dir, basename))
 
-        _this_dir = os.path.dirname(os.path.realpath(__file__))
-        _basename = 'default_config_{}.yaml'.format(datetime.now().strftime('%Y-%m-%dT%H%M%S'))
-        _dest = os.path.join(_this_dir, _basename)
+    if len(sys.argv) > 1 and sys.argv[1] == '--write-default':
+        if len(sys.argv) > 2:
+            dest_path = sys.argv[2]
+        else:
+            dest_path = default_destpath()
+
+        if os.path.exists(dest_path):
+            print('[ERROR] Destination exists: "{!s}”'.format(dest_path))
+            sys.exit(1)
 
         try:
-            write_yaml_file(_dest, DEFAULT_CONFIG)
-        except Exception:
-            print('Unable to write DEFAULT_CONFIG to disk')
+            write_yaml_file(dest_path, DEFAULT_CONFIG)
+        except Exception as e:
+            print('[ERROR] Unable to write DEFAULT_CONFIG to disk!')
+            print('Destination path: "{!s}”'.format(dest_path))
+            print(str(e))
         else:
-            print('Wrote DEFAULT_CONFIG to file: "{}"'.format(_dest))
+            print('Wrote DEFAULT_CONFIG: "{}"'.format(dest_path))
+            sys.exit(0)
 
+    else:
+        print('''
+Writes the default configuration to a YAML-file.
+
+USAGE:  {progname} --write-default ([PATH])
+
+Argument [PATH] is optional and defaults to:
+"{default_path}"
+
+Returns exit code 0 if the file is written successfully.
+'''.format(progname=__file__, default_path=default_destpath()))
