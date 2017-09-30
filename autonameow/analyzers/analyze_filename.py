@@ -189,7 +189,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         return True
 
 
-MIMETYPE_EXTENSION_SUFFIX_MAP = {
+MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     # Note that the inner-most values are set-literals.
     'text/plain': {
         'c': {'c'},
@@ -212,10 +212,10 @@ MIMETYPE_EXTENSION_SUFFIX_MAP = {
 
 
 def likely_extension(basename_suffix, mime_type):
-    mimetype_ext_sfx_map = MIMETYPE_EXTENSION_SUFFIX_MAP.get(mime_type)
-    if mimetype_ext_sfx_map:
-        for ext, suffix_set in mimetype_ext_sfx_map.items():
-            if basename_suffix in suffix_set:
+    ext_suffixes_map = MIMETYPE_EXTENSION_SUFFIXES_MAP.get(mime_type)
+    if ext_suffixes_map:
+        for ext, suffixes in ext_suffixes_map.items():
+            if basename_suffix in suffixes:
                 return ext
 
     return types.AW_MIMETYPE.format(mime_type)
