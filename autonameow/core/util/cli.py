@@ -285,11 +285,14 @@ def msg_rename(from_basename, dest_basename, dry_run):
         color='LIGHTGREEN_EX'
     )
 
+    cf = ColumnFormatter(align='right')
     if dry_run:
-        _message = 'Would have renamed {!s} -> {!s}'
+        cf.addrow('Would have renamed', '{!s}')
     else:
-        _message = 'Renamed {!s} -> {!s}'
+        cf.addrow('Renamed', '{!s}')
 
+    cf.addrow('->', '{!s}')
+    _message = str(cf)
     msg(_message.format(_name_old, _name_new), ignore_quiet=True)
 
 
