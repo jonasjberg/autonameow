@@ -81,6 +81,16 @@ class ExtractedData(object):
 
         return self
 
+    def as_string(self):
+        try:
+            string = self.coercer.format(self.value)
+        except types.AWTypeError:
+            pass
+        else:
+            if string is not None:
+                return string
+        return None
+
     @classmethod
     def from_raw(cls, instance, raw_value):
         _instance_copy = copy.deepcopy(instance)
