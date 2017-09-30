@@ -313,8 +313,9 @@ class ColumnFormatter(object):
     def number_columns(self):
         return self._columns
 
-    def _update_number_columns(self, count):
-        if isinstance(count, int) and count > self._columns:
+    def _update_number_columns(self, strings):
+        count = len(strings)
+        if count > self._columns:
             self._columns = count
 
     def addrow(self, *args):
@@ -322,7 +323,7 @@ class ColumnFormatter(object):
 
         strings = self._check_types_replace_none(maybe_strings)
 
-        self._update_number_columns(len(strings))
+        self._update_number_columns(strings)
         self._update_column_widths(strings)
         self._data.append(strings)
 
