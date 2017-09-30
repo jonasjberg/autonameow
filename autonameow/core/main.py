@@ -442,7 +442,7 @@ class Autonameow(object):
                    'the new name'.format(util.displayable_path(from_basename),
                                          util.displayable_path(dest_basename))
             log.debug(_msg)
-            cli.msg(_msg, style='color_quoted')
+            cli.msg(_msg)
         else:
             if dry_run is False:
                 try:
