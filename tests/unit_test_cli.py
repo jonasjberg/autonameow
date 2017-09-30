@@ -255,12 +255,6 @@ class TestMsgRename(TestCase):
 class TestColumnFormatter(TestCase):
     def setUp(self):
         self.padding = ' ' * cli.ColumnFormatter.COLUMN_PADDING
-        self.cf = cli.ColumnFormatter()
-        self.cf.addrow('foo', 'fooooooooo')
-        self.cf.addrow('a', 'b')
-        self.cf.addrow('kjhdsfkjhsdfgkjhsdfg', 'mjao')
-        self.cf.addrow('3', '666')
-        print(self.cf)
 
     def test_column_counter(self):
         cf = cli.ColumnFormatter()

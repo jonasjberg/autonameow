@@ -313,8 +313,7 @@ class ColumnFormatter(object):
     def number_columns(self):
         return self._columns
 
-    @number_columns.setter
-    def number_columns(self, count):
+    def _update_number_columns(self, count):
         if isinstance(count, int) and count > self._columns:
             self._columns = count
 
@@ -323,7 +322,7 @@ class ColumnFormatter(object):
 
         strings = self._check_types_replace_none(maybe_strings)
 
-        self.number_columns = len(strings)
+        self._update_number_columns(len(strings))
         self._update_column_widths(strings)
         self._data.append(strings)
 
