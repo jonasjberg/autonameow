@@ -29,4 +29,5 @@ RULES:
         NAME_FORMAT: '{datetime} {description} -- {tags}.{extension}'
         exact_match: true
         ranking_bias: 1
-autonameow_version: v0.4.7
+COMPATIBILITY:
+    autonameow_version: v0.4.7

@@ -415,13 +415,16 @@ class Configuration(object):
                     )
 
     def _load_version(self):
-        _raw_version = self._data.get('autonameow_version')
-        valid_version = parse_versioning(_raw_version)
-        if valid_version:
-            self._version = valid_version
-        else:
-            log.error('Unable to read program version from configuration.')
-            log.debug('Read invalid version: "{!s}"'.format(_raw_version))
+        if 'COMPATIBILITY' in self._data:
+            _raw_version = self._data['COMPATIBILITY'].get('autonameow_version')
+            valid_version = parse_versioning(_raw_version)
+            if valid_version:
+                self._version = valid_version
+                return
+            else:
+                log.debug('Read invalid version: "{!s}"'.format(_raw_version))
+
+        log.error('Unable to read program version from configuration.')
 
     def get(self, key_list):
         try:

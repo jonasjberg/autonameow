@@ -49,4 +49,5 @@ test_files simplest_pdf.md.pdf:
         NAME_FORMAT: simplest_pdf.md.{extension}
         exact_match: true
         ranking_bias: 1
-autonameow_version: v0.4.7
+COMPATIBILITY:
+    autonameow_version: v0.4.7

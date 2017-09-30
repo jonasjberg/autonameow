@@ -1,3 +1,5 @@
+COMPATIBILITY:
+    autonameow_version: v0.4.7
 CUSTOM_POST_PROCESSING:
     lowercase_filename: false
     replacements:
@@ -31,12 +33,12 @@ RULES:
             - image/vnd.djvu
             extractor.filesystem.xplat.pathname.full: .*book.*
         DATA_SOURCES:
-            author: analysis.ebook.author
-            date: analysis.ebook.date
-            edition: analysis.ebook.edition
+            author: analyzer.ebook.author
+            date: analyzer.ebook.date
+            edition: analyzer.ebook.edition
             extension: extractor.filesystem.xplat.contents.mime_type
-            publisher: analysis.ebook.publisher
-            title: analysis.ebook.title
+            publisher: analyzer.ebook.publisher
+            title: analyzer.ebook.title
         NAME_FORMAT: default_book
         exact_match: true
         ranking_bias: 0.1
@@ -89,4 +91,3 @@ RULES:
         NAME_FORMAT: '{datetime} {description}.{extension}'
         exact_match: true
         ranking_bias: 1
-autonameow_version: v0.4.7

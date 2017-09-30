@@ -18,4 +18,5 @@ RULES:
         NAME_FORMAT: '{title}.{extension}'
         exact_match: false
         ranking_bias: 0.01
-autonameow_version: v0.4.7
+COMPATIBILITY:
+    autonameow_version: v0.4.7

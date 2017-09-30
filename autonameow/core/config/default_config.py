@@ -211,7 +211,9 @@ DEFAULT_CONFIG = {
         'between_tag_separator': ' '
     },
 
-    'autonameow_version': C.STRING_PROGRAM_VERSION
+    'COMPATIBILITY': {
+        '{}_version'.format(C.STRING_PROGRAM_NAME): C.STRING_PROGRAM_VERSION
+    }
 }
 
 
