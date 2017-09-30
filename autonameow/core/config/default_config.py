@@ -138,12 +138,12 @@ DEFAULT_CONFIG = {
                 'extractor.filesystem.xplat.pathname.full': '.*book.*'
             },
             'DATA_SOURCES': {
-                'author': 'analysis.ebook.author',
+                'author': 'analyzer.ebook.author',
                 'extension': 'extractor.filesystem.xplat.contents.mime_type',
-                'date': 'analysis.ebook.date',
-                'edition': 'analysis.ebook.edition',
-                'publisher': 'analysis.ebook.publisher',
-                'title': 'analysis.ebook.title',
+                'date': 'analyzer.ebook.date',
+                'edition': 'analyzer.ebook.edition',
+                'publisher': 'analyzer.ebook.publisher',
+                'title': 'analyzer.ebook.title',
             },
         },
     },
