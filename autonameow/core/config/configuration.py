@@ -172,17 +172,20 @@ class Configuration(object):
                 'The configuration file does not contain any rules'
             )
 
-        for rule in raw_rules:
-            description = types.force_string(rule.get('description'))
-            description = description or C.DEFAULT_RULE_DESCRIPTION
-            log.debug('Validating rule "{!s}" ..'.format(description))
+        for raw_name, raw_contents in raw_rules.items():
+            name = types.force_string(raw_name)
+            if not name:
+                log.error('Skipped rule with bad name: "{!s}"'.format(raw_name))
+                continue
 
+            raw_contents.update({'description': name})
+            log.debug('Validating rule "{!s}" ..'.format(name))
             try:
-                valid_rule = self._validate_rule_data(rule)
+                valid_rule = self.to_rule_instance(raw_contents)
             except exceptions.ConfigurationSyntaxError as e:
-                log.error('Bad rule "{!s}"; {!s}'.format(description, e))
+                log.error('Bad rule "{!s}"; {!s}'.format(name, e))
             else:
-                log.debug('Validated rule "{!s}" .. OK!'.format(description))
+                log.debug('Validated rule "{!s}" .. OK!'.format(name))
 
                 # Create and populate "Rule" objects with *validated* data.
                 self._rules.append(valid_rule)
@@ -192,7 +195,23 @@ class Configuration(object):
                     valid_rule.referenced_meowuris()
                 )
 
-    def _validate_rule_data(self, raw_rule):
+    def _validate_name_format(self, _raw_name_format):
+        _format = types.force_string(_raw_name_format)
+        if not _format:
+            return None
+
+        # First test if the field data is a valid name template entry,
+        if _format in self.reusable_nametemplates:
+            # If it is, use the format string defined in that entry.
+            return self.reusable_nametemplates.get(_format)
+        else:
+            # If not, check if it is a valid format string.
+            if NameFormatConfigFieldParser.is_valid_nametemplate_string(_format):
+                return _format
+
+        return None
+
+    def to_rule_instance(self, raw_rule):
         """
         Validates one "raw" rule from a configuration and returns an
         instance of the 'Rule' class, representing the "raw" rule.
@@ -213,28 +232,18 @@ class Configuration(object):
             raise exceptions.ConfigurationSyntaxError(
                 'is missing name template format'
             )
-
-        valid_format = None
-        name_format = types.force_string(raw_rule.get('NAME_FORMAT'))
-        # First test if the field data is a valid name template entry,
-        if name_format in self.reusable_nametemplates:
-            # If it is, use the format string defined in that entry.
-            valid_format = self.reusable_nametemplates.get(name_format)
-        else:
-            # If not, try to use 'name_template' as a format string.
-            if NameFormatConfigFieldParser.is_valid_nametemplate_string(name_format):
-                valid_format = util.remove_nonbreaking_spaces(name_format)
-
+        valid_format = self._validate_name_format(raw_rule.get('NAME_FORMAT'))
         if not valid_format:
             raise exceptions.ConfigurationSyntaxError(
                 'uses invalid name template format'
             )
+        name_template = util.remove_nonbreaking_spaces(valid_format)
 
         try:
             _rule = rules.Rule(description=raw_rule.get('description'),
                                exact_match=raw_rule.get('exact_match'),
                                ranking_bias=raw_rule.get('ranking_bias'),
-                               name_template=valid_format,
+                               name_template=name_template,
                                conditions=raw_rule.get('CONDITIONS'),
                                data_sources=raw_rule.get('DATA_SOURCES'))
         except exceptions.InvalidRuleError as e:

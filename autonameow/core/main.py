@@ -315,9 +315,18 @@ class Autonameow(object):
                 return
             else:
                 # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-                choice = interactive.select_template()
-                if choice != cli.action.ABORT:
-                    name_template = choice
+                candidates = None
+                choice = interactive.select_template(candidates)
+                #if choice != cli.action.ABORT:
+                #    name_template = choice
+                #else:
+                #    name_template = None
+                name_template = None
+
+        if not name_template:
+            log.warning('No valid name template chosen. Aborting.')
+           #  self.exit_code = C.EXIT_WARNING
+            return
 
         resolver = Resolver(current_file, name_template)
         resolver.add_known_sources(rule_matcher.best_match.data_sources)

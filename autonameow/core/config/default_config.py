@@ -33,6 +33,8 @@ from core import constants as C
 # 'extractor.filesystem.xplat.contents.mime_type'   Supports simple "globbing" ('*/jpeg')
 # 'extractor.metadata.exiftool'     See note below.
 
+#   TODO: Document all fields ..
+
 #   NOTE:  See this link for all available exiftool fields.
 #   http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
 
@@ -55,94 +57,96 @@ DEFAULT_CONFIG = {
     #
     #   TODO: Document all fields ..
     #
-    'RULES': [
-        {'description': 'test_files Gmail print-to-pdf',
-         'exact_match': True,
-         'ranking_bias': None,
-         'NAME_FORMAT': '{datetime} {title}.{extension}',
-         'CONDITIONS': {
-             'extractor.filesystem.xplat.basename.full': 'gmail.pdf',
-             'extractor.filesystem.xplat.basename.extension': 'pdf',
-             'extractor.filesystem.xplat.contents.mime_type': 'application/pdf',
-         },
-         'DATA_SOURCES': {
-             'datetime': 'extractor.metadata.exiftool.PDF:CreateDate',
-             'title': 'extractor.filesystem.xplat.basename.prefix',
-             'extension': 'extractor.filesystem.xplat.basename.extension'
-         }
-         },
+    'RULES': {
+        'test_files Gmail print-to-pdf': {
+            'exact_match': True,
+            'ranking_bias': None,
+            'NAME_FORMAT': '{datetime} {title}.{extension}',
+            'CONDITIONS': {
+                'extractor.filesystem.xplat.basename.full': 'gmail.pdf',
+                'extractor.filesystem.xplat.basename.extension': 'pdf',
+                'extractor.filesystem.xplat.contents.mime_type': 'application/pdf',
+            },
+            'DATA_SOURCES': {
+                'datetime': 'extractor.metadata.exiftool.PDF:CreateDate',
+                'title': 'extractor.filesystem.xplat.basename.prefix',
+                'extension': 'extractor.filesystem.xplat.basename.extension'
+            }
+        },
         # ____________________________________________________________________
-        {'description': 'test_files smulan.jpg',
-         'exact_match': True,
-         'ranking_bias': 1,
-         'NAME_FORMAT': '{datetime} {description}.{extension}',
-         'CONDITIONS': {
-             'extractor.filesystem.xplat.basename.full': 'smulan.jpg',
-             'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
-         },
-         'DATA_SOURCES': {
-             'datetime': 'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
-             'description': 'plugin.microsoft_vision.caption',
-             'extension': 'extractor.filesystem.xplat.basename.extension'
-         }
-         },
+        'test_files smulan.jpg': {
+            'exact_match': True,
+            'ranking_bias': 1,
+            'NAME_FORMAT': '{datetime} {description}.{extension}',
+            'CONDITIONS': {
+                'extractor.filesystem.xplat.basename.full': 'smulan.jpg',
+                'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
+            },
+            'DATA_SOURCES': {
+                'datetime': 'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
+                'description': 'plugin.microsoft_vision.caption',
+                'extension': 'extractor.filesystem.xplat.basename.extension'
+            }
+        },
         # ____________________________________________________________________
-        {'description': 'test_files simplest_pdf.md.pdf',
-         'exact_match': True,
-         'ranking_bias': 1,
-         'NAME_FORMAT': 'simplest_pdf.md.{extension}',
-         'CONDITIONS': {
-             'extractor.filesystem.xplat.basename.full': 'simplest_pdf.md.pdf',
-         },
-         'DATA_SOURCES': {
-             'extension': 'extractor.filesystem.xplat.basename.extension'
-         }
-         },
+        'test_files simplest_pdf.md.pdf': {
+            'exact_match': True,
+            'ranking_bias': 1,
+            'NAME_FORMAT': 'simplest_pdf.md.{extension}',
+            'CONDITIONS': {
+                'extractor.filesystem.xplat.basename.full': 'simplest_pdf.md.pdf',
+            },
+            'DATA_SOURCES': {
+                'extension': 'extractor.filesystem.xplat.basename.extension'
+            }
+        },
         # ____________________________________________________________________
-        {'description': 'Sample Entry for Photos with strict rules',
-         'exact_match': True,
-         'ranking_bias': 1,
-         'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
-         'CONDITIONS': {
-             'extractor.filesystem.xplat.pathname.full': '~/Pictures/incoming',
-             'extractor.filesystem.xplat.basename.full': 'DCIM*',
-             'extractor.filesystem.xplat.basename.extension': 'jpg',
-             'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
-             # TODO: [TD0015] Ensure proper validation of entry below.
-             'extractor.metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
-         },
-         'DATA_SOURCES': {
-             'datetime': ['extractor.metadata.exiftool.EXIF:DateTimeOriginal',
-                          'extractor.metadata.exiftool.EXIF:DateTimeDigitized',
-                          'extractor.metadata.exiftool.EXIF:CreateDate'],
-             'description': 'plugin.microsoft_vision.caption',
-             'extension': 'extractor.filesystem.xplat.basename.extension',
-             'tags': 'plugin.microsoft_vision.tags'
-         }
-         },
+        'Sample Entry for Photos with strict rules': {
+            'exact_match': True,
+            'ranking_bias': 1,
+            'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
+            'CONDITIONS': {
+                'extractor.filesystem.xplat.pathname.full': '~/Pictures/incoming',
+                'extractor.filesystem.xplat.basename.full': 'DCIM*',
+                'extractor.filesystem.xplat.basename.extension': 'jpg',
+                'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
+                # TODO: [TD0015] Ensure proper validation of entry below.
+                'extractor.metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
+            },
+            'DATA_SOURCES': {
+                'datetime': [
+                    'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
+                    'extractor.metadata.exiftool.EXIF:DateTimeDigitized',
+                    'extractor.metadata.exiftool.EXIF:CreateDate'
+                ],
+                'description': 'plugin.microsoft_vision.caption',
+                'extension': 'extractor.filesystem.xplat.basename.extension',
+                'tags': 'plugin.microsoft_vision.tags'
+            }
+        },
         # ____________________________________________________________________
-        {'description': 'Sample Entry for E-books',
-         'exact_match': True,
-         'ranking_bias': 0.1,
-         'NAME_FORMAT': 'default_book',
-         'CONDITIONS': {
-             'extractor.filesystem.xplat.contents.mime_type': [
-                 'application/pdf',
-                 'application/epub+zip',
-                 'image/vnd.djvu',
-             ],
-             'extractor.filesystem.xplat.pathname.full': '.*book.*'
-         },
-         'DATA_SOURCES': {
-             'author': 'analysis.ebook.author',
-             'extension': 'extractor.filesystem.xplat.contents.mime_type',
-             'date': 'analysis.ebook.date',
-             'edition': 'analysis.ebook.edition',
-             'publisher': 'analysis.ebook.publisher',
-             'title': 'analysis.ebook.title',
-         }
-         },
-    ],
+        'Sample Entry for E-books': {
+            'exact_match': True,
+            'ranking_bias': 0.1,
+            'NAME_FORMAT': 'default_book',
+            'CONDITIONS': {
+                'extractor.filesystem.xplat.contents.mime_type': [
+                    'application/pdf',
+                    'application/epub+zip',
+                    'image/vnd.djvu',
+                ],
+                'extractor.filesystem.xplat.pathname.full': '.*book.*'
+            },
+            'DATA_SOURCES': {
+                'author': 'analysis.ebook.author',
+                'extension': 'extractor.filesystem.xplat.contents.mime_type',
+                'date': 'analysis.ebook.date',
+                'edition': 'analysis.ebook.edition',
+                'publisher': 'analysis.ebook.publisher',
+                'title': 'analysis.ebook.title',
+            },
+        },
+    },
 
     #  File Name Templates
     #  ===================
