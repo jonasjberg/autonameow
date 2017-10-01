@@ -84,7 +84,7 @@ class Resolver(object):
     def _has_data_for_placeholder_fields(self):
         for field in self._fields:
             if field not in self.fields_data.keys():
-                log.error('Missing placeholder field "{}"'.format(field))
+                log.warning('Missing placeholder field "{}"'.format(field))
                 return False
             elif self.fields_data.get(field) is None:
                 log.error('None data for placeholder field "{}"'.format(field))
