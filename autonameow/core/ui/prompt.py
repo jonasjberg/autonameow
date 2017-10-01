@@ -19,17 +19,31 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import (
     Completer,
     Completion
 )
-from prompt_toolkit.history import InMemoryHistory
+from prompt_toolkit.history import InMemoryHistory, FileHistory
 from prompt_toolkit.interface import AbortAction
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 from core import constants as C
-from core import repository
+from core import (
+    cache,
+    repository,
+    util
+)
+from core.ui import cli
+
+
+PERSISTANT_HISTORY_BASENAME = b'prompt_history'
+PERSISTANT_HISTORY_FILE = os.path.join(
+    util.syspath(cache.CACHE_DIR_ABSPATH),
+    util.syspath(PERSISTANT_HISTORY_BASENAME)
+)
 
 
 class MeowURICompleter(Completer):
@@ -55,20 +69,20 @@ class MeowURICompleter(Completer):
 
 def meowuri_prompt(message=None):
     # TODO: [TD0099] Use actual data for autosuggest/autocomplete ..
-    history = InMemoryHistory()
-    history.append('extractor.filesystem.xplat.basename.full')
-    history.append('analyzer.filetags.tags')
-    history.append('extractor.metadata.exiftool.EXIF:DateTimeOriginal')
-    history.append('generic.metadata.author')
-    history.append('generic.contents.author')
-
+    # history = InMemoryHistory()
+    history = FileHistory(PERSISTANT_HISTORY_FILE)
     meowuri_completer = MeowURICompleter()
 
-    print('')
+    cli.msg('\n', ignore_quiet=True)
     if message is not None:
-        print(message)
+        cli.msg(message, style='info', ignore_quiet=True)
 
-    print('Use <TAB> to autocomplete and <RIGHT ARROW> for history completion.')
+    cli.msg(
+        'Use <TAB> to autocomplete and <RIGHT ARROW> for history completion.',
+        style='info', ignore_quiet=True
+    )
+    cli.msg('\n', ignore_quiet=True)
+
     text = prompt('Enter MeowURI: ', history=history,
                   auto_suggest=AutoSuggestFromHistory(),
                   completer=meowuri_completer,

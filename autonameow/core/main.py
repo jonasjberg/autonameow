@@ -352,15 +352,19 @@ class Autonameow(object):
                     log.info('Resolver has not collected all fields ..')
                     for field in resolver.unresolved:
                         candidates = resolver.lookup_candidates(field)
+                        choice = None
                         if candidates:
                             log.info('Resolver found {} candidates'.format(len(candidates)))
                             choice = interactive.select_field(field, candidates)
                         else:
                             log.info('Resolver did not find any candidates ..')
+
+                        if choice is None:
                             _m = 'Specify source for field {!s}'.format(field)
                             choice = interactive.meowuri_prompt(_m)
 
                         if not choice or choice == interactive.Choice.ABORT:
+                            log.info('Aborting ..')
                             return
 
                         resolver.add_known_source(field, choice)

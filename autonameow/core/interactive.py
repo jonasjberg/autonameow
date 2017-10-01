@@ -37,7 +37,6 @@ class Choice(object):
 
 def select_field(templatefield, candidates):
     # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-    log.warning('TODO: Implement interactive field selection')
 
     cli.msg('Unresolved Field: {!s}'.format(templatefield.as_placeholder()))
     cli.msg('Candidates:')
@@ -49,9 +48,10 @@ def select_field(templatefield, candidates):
 
         _prob = ['probability: {}'.format(p) for p in _probs]
         cli.msg(
-            '{!s} ({})'.format(c.coercer.format(c.value), ' '.join(_prob))
+            '- "{!s}" ({})'.format(c.coercer.format(c.value), ' '.join(_prob))
         )
 
+    log.warning('TODO: Implement interactive field selection')
     return None
 
 
@@ -64,7 +64,9 @@ def select_template(candidates):
 
 def meowuri_prompt(message):
     # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-    log.warning('TODO: Implement MeowURI prompt')
-
-    return prompt.meowuri_prompt(message)
+    response = prompt.meowuri_prompt(message)
+    if response:
+        return response
+    else:
+        return Choice.ABORT
 
