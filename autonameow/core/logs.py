@@ -21,7 +21,7 @@
 
 import logging
 
-from core.util import cli
+from core.ui import cli
 
 
 def init_logging(args):

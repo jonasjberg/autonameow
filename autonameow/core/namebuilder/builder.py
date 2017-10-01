@@ -23,17 +23,17 @@ import logging
 import re
 from datetime import datetime
 
+from core import constants as C
 from core import (
     exceptions,
-    util,
+    util
 )
+from core.model import ExtractedData
+from core.ui import cli
 from core.util import (
     diskutils,
-    sanity,
-    cli
+    sanity
 )
-from core import constants as C
-from core.model import ExtractedData
 
 
 log = logging.getLogger(__name__)

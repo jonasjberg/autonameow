@@ -23,7 +23,7 @@
 import logging
 import sys
 
-from core.util import cli
+from core.ui import cli
 
 
 log = logging.getLogger(__name__)

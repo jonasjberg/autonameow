@@ -35,11 +35,11 @@ except ImportError:
     colorama = None
 
 import core
+from core import constants as C
 from core import (
     util,
     types
 )
-from core import constants as C
 
 
 log = logging.getLogger(__name__)

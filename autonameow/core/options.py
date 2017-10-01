@@ -23,13 +23,12 @@ import argparse
 import logging
 import os
 
-from core import (
-    util,
-    logs
-)
-from core.util import cli
 from core import constants as C
-
+from core import (
+    logs,
+    util
+)
+from core.ui import cli
 
 log = logging.getLogger(__name__)
 

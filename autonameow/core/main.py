@@ -30,8 +30,8 @@ from core import (
     exceptions,
     extraction,
     interactive,
-    options,
     namebuilder,
+    options,
     repository,
     util
 )
@@ -43,11 +43,12 @@ from core.evaluate.rulematcher import RuleMatcher
 from core.fileobject import FileObject
 from core.filter import ResultFilter
 from core.plugin_handler import PluginHandler
+from core.ui import cli
 from core.util import (
-    cli,
     diskutils,
     sanity
 )
+
 
 log = logging.getLogger(__name__)
 
