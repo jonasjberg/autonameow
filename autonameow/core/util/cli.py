@@ -298,8 +298,22 @@ def msg_rename(from_basename, dest_basename, dry_run):
 
 class ColumnFormatter(object):
     """
-    Utility formatter for printing columns of string.
-    All column widths are set to the widest entry in any column.
+    Utility formatter for aligning columns of strings.
+    The individual column widths are expanded dynamically when
+    strings are added. New strings are added a column at a time.
+
+    Each column width is as wide as the widest string contained
+    in that column + 'COLUMN_PADDING'.
+
+    Example Usage:    ColumnFormatter cf = ColumnFormatter()
+                      cf.addrow('foo', 'bar')
+                      cf.addrow('MJAO OAJM', 'baz')
+                      cf.addrow('1337', '4E4F4F42')
+                      print(str(cf))
+
+    Which would print something like:    foo        bar
+                                         MJAO OAJM  baz
+                                         1337       4E4F4F42
     """
     COLUMN_PADDING = 2
 
