@@ -172,7 +172,7 @@ class GenericText(GenericField):
 
 
 class GenericTitle(GenericField):
-    meowuri_node = 'contents'
+    meowuri_node = 'metadata'
     meowuri_leaf = 'Title'
 
     @classmethod
