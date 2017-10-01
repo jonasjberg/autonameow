@@ -28,11 +28,14 @@ import itertools
 import logging
 import os
 import shutil
+import subprocess
 import yaml
 
 from core import constants as C
+from core import types
 from core.exceptions import InvalidMeowURIError
 from core.util import sanity
+
 
 log = logging.getLogger(__name__)
 
@@ -475,3 +478,20 @@ def filter_none(iterable):
 
 def process_id():
     return os.getpid()
+
+
+def git_commit_hash():
+    if not is_executable('git'):
+        return None
+
+    try:
+        process = subprocess.Popen(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
+        stdout, stderr = process.communicate()
+    except (OSError, ValueError, TypeError, subprocess.SubprocessError):
+        return None
+    else:
+        string = types.force_string(stdout).strip()
+        return string if string else None
