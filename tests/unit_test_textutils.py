@@ -567,3 +567,14 @@ class TestNormalizeUnicode(unittest.TestCase):
         self._aE('\u2010', '-')
         self._aE('\u2015', '-')
         self._aE('\u30fb', '-')
+
+
+class TestStripAnsiEscape(unittest.TestCase):
+    def _aE(self, test_input, expected):
+        actual = textutils.strip_ansiescape(test_input)
+        self.assertEqual(actual, expected)
+
+    def test_strips_ansi_escape_codes(self):
+        self._aE('', '')
+        self._aE('a', 'a')
+        self._aE('[30m[44mautonameow[49m[39m', 'autonameow')

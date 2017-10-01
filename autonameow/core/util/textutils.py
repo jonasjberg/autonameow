@@ -282,3 +282,11 @@ def normalize_unicode(text):
     text = re.sub(RE_UNICODE_DASHES, '-', text)
 
     return unicodedata.normalize(NORMALIZATION_FORM, text)
+
+
+RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+
+
+def strip_ansiescape(string):
+    stripped = re.sub(RE_ANSI_ESCAPE, '', string)
+    return stripped
