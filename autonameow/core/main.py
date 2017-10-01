@@ -357,7 +357,8 @@ class Autonameow(object):
                             choice = interactive.select_field(field, candidates)
                         else:
                             log.info('Resolver did not find any candidates ..')
-                            choice = interactive.meowuri_prompt()
+                            _m = 'Specify source for field {!s}'.format(field)
+                            choice = interactive.meowuri_prompt(_m)
 
                         if not choice or choice == interactive.Choice.ABORT:
                             return

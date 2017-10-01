@@ -355,6 +355,12 @@ def unique_map_meowuris(meowuri_class_map):
     return out
 
 
+def all_meowuris():
+    # TODO: [TD0099] FIX THIS! Temporary hack for 'prompt_toolkit' experiments.
+    meowuri_class_map = meowuri_class_map_dict()
+    return unique_map_meowuris(meowuri_class_map)
+
+
 def map_meowuri_to_source_class(meowuri, includes=None):
     """
     Returns a list of classes that could store data using the given "MeowURI".

@@ -21,9 +21,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import sys
 
-from core.ui import cli
+from core.ui import (
+    cli,
+    prompt
+)
 
 
 log = logging.getLogger(__name__)
@@ -60,34 +62,9 @@ def select_template(candidates):
     return None
 
 
-def meowuri_prompt():
+def meowuri_prompt(message):
     # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
     log.warning('TODO: Implement MeowURI prompt')
 
-    return None
+    return prompt.meowuri_prompt(message)
 
-
-class InteractiveCLI(object):
-    # TODO: Implement this class.
-    def __init__(self):
-        pass
-
-    def confirm(self, question):
-        while True:
-            # Possibly redundant check for Python 2.
-            # TODO: Assume running with Python 3+. Add checks/asserts elsewhere.
-            if sys.version_info[0] < 3:
-                log.warning('Using potentially unsafe Python 2 "raw_input"')
-                answer = None
-                # answer = raw_input(question + ' [Yes|No]').lower()
-            else:
-                answer = input(question + ' (Yes|No)').lower()
-
-            if answer == 'yes' or answer == 'y':
-                confirmed = True
-                break
-            if answer == 'no' or answer == 'n':
-                confirmed = False
-                break
-
-        return confirmed

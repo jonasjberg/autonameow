@@ -26,8 +26,6 @@ import platform
 from datetime import datetime
 import logging
 
-from core.util import sanity
-
 try:
     import colorama
     colorama.init()
@@ -40,6 +38,7 @@ from core import (
     util,
     types
 )
+from core.util import sanity
 
 
 log = logging.getLogger(__name__)
