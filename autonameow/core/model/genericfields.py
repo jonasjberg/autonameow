@@ -104,6 +104,15 @@ class GenericDateModified(GenericField):
         pass
 
 
+class GenericEdition(GenericField):
+    meowuri_node = 'metadata'
+    meowuri_leaf = 'Edition'
+
+    @classmethod
+    def evaluation_function(cls):
+        pass
+
+
 class GenericHealth(GenericField):
     """
     Measure of file corruption/integrity/"health" as a float in range 0-1.
