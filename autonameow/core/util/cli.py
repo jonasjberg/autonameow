@@ -52,28 +52,33 @@ def print_ascii_banner():
     """
     Prints a "banner" with some ASCII art, program information and credits.
     """
-    # TODO: [hardcoded] Text alignment depends on manually hardcoding spaces.
+    def divider_string(length):
+        return colorize('-' * length, fore='LIGHTBLACK_EX', style='DIM')
 
-    ascii_banner = colorize(
-        '''
-   ###   ### ### ####### #####  ###  ##   ###   ##   ## ####### #####  ### ###
-  #####  ### ###   ###  ### ### #### ##  #####  # # ### ####   ####### ### ###
- ### ### ### ###   ###  ### ### ####### ### ### ####### ###### ### ### #######
- ####### #######   ###  ####### ### ### ####### ### ### ####   ### ### ### ###
- ### ###  ### ##   ###   #####  ### ### ### ### ### ### ####### #####  ##   ##
-    ''', fore='LIGHTBLUE_EX')
+    print('')
+    print(colorize('  {}  '.format(C.STRING_PROGRAM_NAME),
+                   back='BLUE', fore='BLACK')
+          + colorize('  Automagic File Renamer by Cats for Cats', fore='BLUE'))
 
-    print(ascii_banner)
+    _commit_info = util.git_commit_hash()
+    if _commit_info:
+        _commit = '(commit {!s})'.format(_commit_info)
+    else:
+        _commit = ''
 
-    colortitle = colorize(' ' + C.STRING_PROGRAM_NAME + ' ',
-                          back='BLUE', fore='BLACK')
-    toplineleft = ' {title}  version {v}'.format(title=colortitle,
-                                                 v=C.STRING_PROGRAM_VERSION)
-    toplineright = core.version.__copyright__
-    print(('{:<}{:>49}'.format(toplineleft, toplineright)))
-    print(('{:>78}'.format(core.version.__email__)))
-    print(('{:>78}'.format(core.version.__url__)))
-    print(('{:>78}'.format(core.version.__url_repo__)))
+    cf = ColumnFormatter()
+    cf.addrow(C.STRING_PROGRAM_NAME, core.version.__copyright__)
+    cf.addrow('version {}'.format(C.STRING_PROGRAM_VERSION),
+              core.version.__email__)
+    cf.addrow(_commit, core.version.__url__)
+    cf.addrow('', core.version.__url_repo__)
+    cf.setalignment('left', 'right')
+    columnated_text = str(cf)
+    columnated_text_width = cf.max_column_width()
+
+    print(divider_string(columnated_text_width))
+    print(columnated_text)
+    print(divider_string(columnated_text_width))
     print('')
 
 
@@ -375,6 +380,8 @@ class ColumnFormatter(object):
         self._data.append(strings)
 
     def _update_column_widths(self, strings):
+        # strings = [textutils.strip_ansiescape(s) for s in strings]
+        # strings = [textutils.normalize_unicode(s) for s in strings]
         new_widths = [len(s) for s in strings]
 
         if not self._column_widths:
