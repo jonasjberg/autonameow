@@ -216,5 +216,17 @@ types can be parsed through a single interface, making Tika useful for search
 engine indexing, content analysis, translation, and much more.
 
 
+`yargy`
+-------
+Tiny package for information extraction
+
+* Sources: <https://github.com/natasha/yargy>
+* Documentation: <http://yargy.readthedocs.io/en/latest/>
+
+Yargy is a Earley parser, that uses russian morphology for facts extraction
+process, and written in pure python
+
+
+
 [1]: http://karl-voit.at
 [2]: http://karl-voit.at/managing-digital-photographs/
