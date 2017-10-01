@@ -333,14 +333,15 @@ class TestColumnFormatter(TestCase):
 
     def test_format_two_columns_expands_width(self):
         cf = cli.ColumnFormatter()
-        cf.addrow('foo_A')
-        cf.addrow('bar_A', 'bar_B')
-        cf.addrow('baz_A', 'baz_B')
+        cf.addrow('A')
+        cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        cf.addrow('OOOOOOOOOOAAAAJM', 'B')
 
         actual = str(cf)
-        expected = 'foo_A\nbar_A{p}bar_B\nbaz_A{p}baz_B'.format(
-            p=self.padding
-        )
+        print(actual)
+        expected = '''A
+tuna            {p}MJAAAAOOOOOOOOOO
+OOOOOOOOOOAAAAJM{p}B'''.format(p=self.padding)
         self.assertEqual(actual, expected)
 
     def test_format_three_columns(self):
@@ -353,4 +354,21 @@ class TestColumnFormatter(TestCase):
         expected = 'A1{p}BB1{p}CC11\nA2{p}BB2{p}CC22\nA3{p}BB3{p}CC33'.format(
             p=self.padding
         )
+        self.assertEqual(actual, expected)
+
+    def test_format_three_columns_expands_width(self):
+        cf = cli.ColumnFormatter()
+        cf.addrow('A')
+        cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        cf.addrow('OOOOOOOOOOAAAAJM', 'B')
+        cf.addrow('42', '0x4E4F4F42')
+        cf.addrow('C')
+
+        actual = str(cf)
+        print(actual)
+        expected = '''A
+tuna            {p}MJAAAAOOOOOOOOOO
+OOOOOOOOOOAAAAJM{p}B
+42              {p}0x4E4F4F42
+C'''.format(p=self.padding)
         self.assertEqual(actual, expected)
