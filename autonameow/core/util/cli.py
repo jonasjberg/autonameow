@@ -311,17 +311,50 @@ class ColumnFormatter(object):
                       cf.addrow('1337', '4E4F4F42')
                       print(str(cf))
 
-    Which would print something like:    foo        bar
-                                         MJAO OAJM  baz
-                                         1337       4E4F4F42
+    Which would print something like:              foo        bar
+                                                   MJAO OAJM  baz
+                                                   1337       4E4F4F42
+
+    With 'cf.setalignment('right', 'left'):              foo  bar
+                                                   MJAO OAJM  baz
+                                                        1337  4E4F4F42
     """
     COLUMN_PADDING = 2
+    ALIGNMENT_STRINGS = {
+        'left': 'ljust',
+        'right': 'rjust'
+    }
 
     def __init__(self, align='left'):
         self._columns = 0
         self._data = []
         self._column_widths = []
-        self._align = 'ljust' if align == 'left' else 'rjust'
+        self._default_align = self.ALIGNMENT_STRINGS.get(align, 'ljust')
+        self._column_align = []
+
+    def setalignment(self, *args):
+        maybe_strings = list(args)
+        strings = self._check_types_replace_none(maybe_strings)
+        if not strings:
+            return
+
+        _column_alignment = []
+        for i in range(0, self.number_columns):
+            if i < len(strings) and [s in self.ALIGNMENT_STRINGS.keys() for s in strings]:
+                _column_alignment.append(self.ALIGNMENT_STRINGS.get(strings[i]))
+            else:
+                _column_alignment.append(self._default_align)
+
+        self._column_align = _column_alignment
+
+    @property
+    def alignment(self):
+        if not self._column_align:
+            out = []
+            out.extend(self._default_align for _ in range(self.number_columns))
+            return out
+        else:
+            return self._column_align
 
     @property
     def number_columns(self):
@@ -397,8 +430,8 @@ class ColumnFormatter(object):
         out = []
         for row in self._data:
             out.append(
-                "".join(getattr(word, self._align)(width + self.COLUMN_PADDING)
-                        for word, width in zip(row, self._column_widths))
+                "".join(getattr(word, align)(width + self.COLUMN_PADDING)
+                        for word, width, align in zip(row, self._column_widths, self.alignment))
             )
 
         return '\n'.join(s.rstrip() for s in out if s.strip())

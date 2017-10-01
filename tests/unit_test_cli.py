@@ -338,10 +338,29 @@ class TestColumnFormatter(TestCase):
         cf.addrow('OOOOOOOOOOAAAAJM', 'B')
 
         actual = str(cf)
-        print(actual)
         expected = '''A
 tuna            {p}MJAAAAOOOOOOOOOO
 OOOOOOOOOOAAAAJM{p}B'''.format(p=self.padding)
+        self.assertEqual(actual, expected)
+
+    def test_format_two_columns_align_all_left(self):
+        cf = cli.ColumnFormatter()
+        cf.addrow('a',    'bbb')
+        cf.addrow('cccc', 'd')
+        cf.setalignment('left', 'left', 'left')
+
+        actual = str(cf)
+        expected = '''a   {p}bbb\ncccc{p}d'''.format(p=self.padding)
+        self.assertEqual(actual, expected)
+
+    def test_format_two_columns_align_all_right(self):
+        cf = cli.ColumnFormatter()
+        cf.addrow('a',    'bbb')
+        cf.addrow('cccc', 'd')
+        cf.setalignment('right', 'right', 'right')
+
+        actual = str(cf)
+        expected = '''   a{p}bbb\ncccc{p}d'''.format(p=self.padding)
         self.assertEqual(actual, expected)
 
     def test_format_three_columns(self):
@@ -365,7 +384,6 @@ OOOOOOOOOOAAAAJM{p}B'''.format(p=self.padding)
         cf.addrow('C')
 
         actual = str(cf)
-        print(actual)
         expected = '''A
 tuna            {p}MJAAAAOOOOOOOOOO
 OOOOOOOOOOAAAAJM{p}B
