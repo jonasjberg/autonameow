@@ -558,3 +558,12 @@ class TestNormalizeUnicode(unittest.TestCase):
         self._aE('…', '...')
         self._aE(' …', ' ...')
         self._aE(' … ', ' ... ')
+
+    def test_dashes(self):
+        self._aE('\u2212', '-')
+        self._aE('\u2013', '-')
+        self._aE('\u2014', '-')
+        self._aE('\u05be', '-')
+        self._aE('\u2010', '-')
+        self._aE('\u2015', '-')
+        self._aE('\u30fb', '-')

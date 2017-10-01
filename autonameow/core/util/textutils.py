@@ -265,8 +265,20 @@ def format_names_lastname_initials(list_of_full_names):
     return sorted(_formatted_authors, key=str.lower)
 
 
+RE_UNICODE_DASHES = re.compile(
+    '[\u2212\u2013\u2014\u05be\u2010\u2015\u30fb]'
+)
+
+
 def normalize_unicode(text):
+    # Normalization Form KC (NFKC)
+    # Compatibility Decomposition, followed by Canonical Composition.
+    # http://unicode.org/reports/tr15/
+    NORMALIZATION_FORM = 'NFKC'
+
     if not isinstance(text, str):
         raise TypeError('Expected "text" to be a Unicode str')
 
-    return unicodedata.normalize('NFKC', text)
+    text = re.sub(RE_UNICODE_DASHES, '-', text)
+
+    return unicodedata.normalize(NORMALIZATION_FORM, text)
