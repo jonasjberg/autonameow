@@ -84,8 +84,8 @@ def _year_is_probable(year):
         try:
             year = datetime.strptime(str(year), '%Y')
         except (ValueError, TypeError):
-            log.warning('Failed converting "{}" '
-                        'to datetime-object.'.format(year))
+            log.debug('Failed converting "{}" '
+                      'to datetime-object.'.format(year))
             return False
 
     if year.year > C.YEAR_UPPER_LIMIT.year:
