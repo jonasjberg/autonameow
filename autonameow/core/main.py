@@ -303,14 +303,18 @@ class Autonameow(object):
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
     def _select_nametemplate(self, current_file):
+        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
         if self.opts.mode_batch:
             # if not rule_matcher.best_match:
             pass
         elif self.opts.mode_interactive:
             pass
 
-
     def _perform_automagic_actions(self, current_file, rule_matcher):
+        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        best_match = None
+        name_template = None
+
         if self.opts.mode_batch:
             if not rule_matcher.best_match:
                 log.warning('No rule matched, name template unknown.')
