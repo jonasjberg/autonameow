@@ -524,6 +524,7 @@ class TestTypeTimeDate(TestCase):
         self.assertEqual(types.AW_TIMEDATE(expected), expected)
         self.assertEqual(types.AW_TIMEDATE('2017-07-12T20:50:15'), expected)
         self.assertEqual(types.AW_TIMEDATE('2017-07-12T205015'), expected)
+        # TODO: Handle things like 'Thu Aug 31 11:51:57 2017 +0200'
         # TODO: Add testing additional input data.
 
     def test_call_with_noncoercible_data(self):
