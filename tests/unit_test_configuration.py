@@ -21,8 +21,17 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import yaml
+import sys
 
+try:
+    import yaml
+except ImportError:
+    yaml = None
+    print('Missing required module "yaml". '
+          'Make sure "pyyaml" is available before running this program.',
+          file=sys.stderr)
+
+import unittest
 from unittest import TestCase
 
 from core import exceptions
@@ -35,12 +44,20 @@ import unit_utils_constants as uuconst
 uu.init_session_repository()
 
 
+def yaml_unavailable():
+    return yaml is None, 'Failed to import "yaml"'
+
+
 def load_yaml(path):
+    if yaml is None:
+        raise AssertionError('Missing required module "yaml". Install "pyyaml"')
+
     with open(path, 'r', encoding='utf-8') as fh:
         data = yaml.safe_load(fh)
     return data
 
 
+@unittest.skipIf(*yaml_unavailable())
 class TestWriteConfig(TestCase):
     def setUp(self):
         self.dest_path = os.path.join(uu.make_temp_dir(), 'test_config.yaml')
@@ -69,6 +86,7 @@ class TestWriteConfig(TestCase):
                          'Loaded, written and then re-read data should match')
 
 
+@unittest.skipIf(*yaml_unavailable())
 class TestDefaultConfig(TestCase):
     def setUp(self):
         self.configuration = Configuration(DEFAULT_CONFIG)
@@ -88,6 +106,7 @@ class TestDefaultConfig(TestCase):
         self.assertIsNotNone(self.configuration.reusable_nametemplates)
 
 
+@unittest.skipIf(*yaml_unavailable())
 class TestDefaultConfigFromFile(TestCase):
     def setUp(self):
         self.config_path_unicode = uu.abspath_testfile(
@@ -111,6 +130,7 @@ class TestDefaultConfigFromFile(TestCase):
             config = Configuration.from_file(self.config_path_unicode)
 
 
+@unittest.skipIf(*yaml_unavailable())
 class TestWriteDefaultConfig(TestCase):
     # Show contents of most recent temporary log on Mac OS;
     # cat "$(find /var/folders -type f -name "test_default_config.yaml" -exec stat -f %m %N {} \; 2>/dev/null | sort -n | cut -f2 -d  | tail -n 1)"
@@ -140,12 +160,14 @@ class TestWriteDefaultConfig(TestCase):
                          'Loaded, written and then re-read data should match')
 
 
+@unittest.skipIf(*yaml_unavailable())
 class TestConfigurationInit(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.configuration = Configuration(DEFAULT_CONFIG)
 
 
+@unittest.skipIf(*yaml_unavailable())
 class TestConfigurationDataAccess(TestCase):
     def setUp(self):
         self.configuration = Configuration(DEFAULT_CONFIG)

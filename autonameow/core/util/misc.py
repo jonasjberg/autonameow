@@ -29,7 +29,14 @@ import logging
 import os
 import shutil
 import subprocess
-import yaml
+
+try:
+    import yaml
+except ImportError:
+    raise SystemExit(
+        'Missing required module "yaml". '
+        'Make sure "pyyaml" is available before running this program.'
+    )
 
 from core import constants as C
 from core import types

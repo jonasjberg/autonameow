@@ -22,7 +22,14 @@
 import logging
 import os
 import platform
-import yaml
+
+try:
+    import yaml
+except ImportError:
+    raise SystemExit(
+        'Missing required module "yaml". '
+        'Make sure "pyyaml" is available before running this program.'
+    )
 
 from core import constants as C
 from core.config.default_config import DEFAULT_CONFIG
@@ -31,15 +38,42 @@ from core import (
     util,
 )
 
+
 log = logging.getLogger(__name__)
+
 
 CONFDIR_MAC = '~/Library/Application Support'
 CONFDIR_UNIX_VAR = 'XDG_CONFIG_HOME'
 CONFDIR_UNIX_FALLBACK = '~/.config'
 CONFDIR_WINDOWS_VAR = 'APPDATA'
 CONFDIR_WINDOWS_FALLBACK = '~\\AppData\\Roaming'
-
 CONFIG_BASENAME = 'autonameow.yaml'
+YAML_TAB_PROBLEM = "found character '\\t' that cannot start any token"
+
+
+class ConfigReadError(exceptions.ConfigError):
+    """A configuration file could not be read."""
+    def __init__(self, filename, reason=None):
+        self.filename = filename
+        self.reason = reason
+
+        message = 'file {} could not be read'.format(filename)
+        if (isinstance(reason, yaml.scanner.ScannerError)
+            and reason.problem == YAML_TAB_PROBLEM):
+            # Special-case error message for tab indentation in YAML markup.
+            message += ': found tab character at line {}, column {}'.format(
+                reason.problem_mark.line + 1,
+                reason.problem_mark.column + 1,
+                )
+        elif reason:
+            # Generic error message uses exception's message.
+            message += ': {}'.format(reason)
+
+        super(ConfigReadError, self).__init__(message)
+
+
+class ConfigWriteError(exceptions.ConfigError):
+    """A configuration file could not be written."""
 
 
 def config_dirs():
@@ -137,7 +171,7 @@ def write_default_config():
         log.warning(
             'Path exists: "{}"'.format(util.displayable_path(config_path))
         )
-        raise exceptions.ConfigWriteError
+        raise ConfigWriteError
 
     _default_config = DEFAULT_CONFIG.copy()
     _default_config['autonameow_version'] = C.STRING_PROGRAM_VERSION
@@ -165,7 +199,7 @@ def load_yaml_file(file_path):
         with open(util.syspath(file_path), 'r', encoding='utf-8') as fh:
             return yaml.safe_load(fh)
     except (OSError, yaml.YAMLError, UnicodeDecodeError) as e:
-        raise exceptions.ConfigReadError(file_path, e)
+        raise ConfigReadError(file_path, e)
 
 
 def write_yaml_file(dest_path, yaml_data):
@@ -182,14 +216,14 @@ def write_yaml_file(dest_path, yaml_data):
         ConfigWriteError: The yaml file could not be written.
     """
     if not os.access(os.path.dirname(dest_path), os.W_OK):
-        raise exceptions.ConfigWriteError(dest_path, 'Insufficient permissions')
+        raise ConfigWriteError(dest_path, 'Insufficient permissions')
 
     try:
         with open(util.syspath(dest_path), 'w', encoding='utf-8') as fh:
             yaml.dump(yaml_data, fh, default_flow_style=False, encoding='utf-8',
                       width=160, indent=4)
     except (OSError, yaml.YAMLError) as e:
-        raise exceptions.ConfigWriteError(dest_path, e)
+        raise ConfigWriteError(dest_path, e)
 
 
 # Variables listed here are intended for public, global use.
