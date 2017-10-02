@@ -302,27 +302,44 @@ class Autonameow(object):
             # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
+    def _select_nametemplate(self, current_file):
+        if self.opts.mode_batch:
+            # if not rule_matcher.best_match:
+            pass
+        elif self.opts.mode_interactive:
+            pass
+
+
     def _perform_automagic_actions(self, current_file, rule_matcher):
+        if self.opts.mode_batch:
+            if not rule_matcher.best_match:
+                log.warning('No rule matched, name template unknown.')
+                self.exit_code = C.EXIT_WARNING
+                return
+
+            else:
+                _best_match_score = rule_matcher.best_match_score()
+                if _best_match_score == 0:
+                    log.warning(
+                        'Best matched rule score: {} --- User should confirm. '
+                        'TODO: Implement ..'.format(_best_match_score)
+                    )
+        else:
+            # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+            candidates = None
+            choice = interactive.select_template(candidates)
+            #if choice != cli.action.ABORT:
+            #    name_template = choice
+            #else:
+            #    name_template = None
+            name_template = None
+
         if rule_matcher.best_match:
             # Using the highest ranked rule
             name_template = rule_matcher.best_match.name_template
             log.info(
                 'Using rule: "{!s}"'.format(rule_matcher.best_match.description)
             )
-        else:
-            if self.opts.mode_batch:
-                log.warning('No rule matched, name template unknown.')
-                self.exit_code = C.EXIT_WARNING
-                return
-            else:
-                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-                candidates = None
-                choice = interactive.select_template(candidates)
-                #if choice != cli.action.ABORT:
-                #    name_template = choice
-                #else:
-                #    name_template = None
-                name_template = None
 
         if not name_template:
             log.warning('No valid name template chosen. Aborting.')

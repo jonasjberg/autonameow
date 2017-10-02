@@ -126,6 +126,14 @@ class RuleMatcher(object):
             return []
         return self._candidates
 
+    def best_match_score(self):
+        best = self.best_match
+        if best:
+            rule = self._scored_rules.get(best)
+            if rule:
+                return rule.get('score')
+        return 0
+
 
 def prioritize_rules(rules):
     """
