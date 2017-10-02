@@ -70,3 +70,13 @@ def meowuri_prompt(message):
     else:
         return Choice.ABORT
 
+
+def ask_confirm(message=None):
+    if message is None:
+        msg = 'Please Confirm (unspecified action)? [y/n]'
+    else:
+        msg = '\n{}  [y/n]'.format(message)
+
+    response = prompt.ask_confirm(msg)
+    assert isinstance(response, bool)
+    return response
