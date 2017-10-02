@@ -324,6 +324,7 @@ class ColumnFormatter(object):
                                                         1337  4E4F4F42
     """
     COLUMN_PADDING = 2
+    PADDING_CHAR = ' '
     ALIGNMENT_STRINGS = {
         'left': 'ljust',
         'right': 'rjust'
@@ -438,14 +439,21 @@ class ColumnFormatter(object):
         if not self._data:
             return ''
 
-        out = []
+        padding = self.PADDING_CHAR * self.COLUMN_PADDING
+
+        lines = []
         for row in self._data:
-            out.append(
-                "".join(getattr(word, align)(width + self.COLUMN_PADDING)
-                        for word, width, align in zip(row, self._column_widths, self.alignment))
+            lines.append(
+                padding.join(
+                    getattr(word, align)(width)
+                    for word, width, align in zip(
+                        row, self._column_widths,
+                        self.alignment
+                    )
+                )
             )
 
-        return '\n'.join(s.rstrip() for s in out if s.strip())
+        return '\n'.join(l.rstrip() for l in lines if l.strip())
 
 
 def silence():

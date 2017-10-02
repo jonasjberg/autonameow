@@ -220,7 +220,7 @@ class TestMsgRename(TestCase):
                            '2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=True)
 
-            self.assertEqual('Would have renamed  "\x1b[37msmulan.jpg\x1b[39m"\n                  ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+            self.assertEqual('Would have renamed  "\x1b[37msmulan.jpg\x1b[39m"\n                ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
                              out.getvalue().strip())
 
     def test_valid_args_dry_run_false_gives_expected_output(self):
@@ -229,7 +229,7 @@ class TestMsgRename(TestCase):
                            '2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=False)
             self.assertEqual(
-                'Renamed  "\x1b[37msmulan.jpg\x1b[39m"\n       ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+                'Renamed  "\x1b[37msmulan.jpg\x1b[39m"\n     ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
                  out.getvalue().strip()
             )
 
@@ -239,7 +239,7 @@ class TestMsgRename(TestCase):
                            b'2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=True)
 
-            self.assertEqual('Would have renamed  "\x1b[37msmulan.jpg\x1b[39m"\n                  ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+            self.assertEqual('Would have renamed  "\x1b[37msmulan.jpg\x1b[39m"\n                ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
                              out.getvalue().strip())
 
     def test_valid_bytestring_args_dry_run_false_gives_expected_output(self):
@@ -248,14 +248,15 @@ class TestMsgRename(TestCase):
                            b'2010-0131T161251 a cat lying on a rug.jpg',
                            dry_run=False)
             self.assertEqual(
-                'Renamed  "\x1b[37msmulan.jpg\x1b[39m"\n       ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+                'Renamed  "\x1b[37msmulan.jpg\x1b[39m"\n     ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
                 out.getvalue().strip()
             )
 
 
 class TestColumnFormatter(TestCase):
     def setUp(self):
-        self.padding = ' ' * cli.ColumnFormatter.COLUMN_PADDING
+        self.padding = (cli.ColumnFormatter.PADDING_CHAR
+                        * cli.ColumnFormatter.COLUMN_PADDING)
 
     def test_column_counter(self):
         cf = cli.ColumnFormatter()
@@ -289,6 +290,12 @@ class TestColumnFormatter(TestCase):
         cf.addrow('a', 'b', 'MJAOOOOAJM')
         self.assertEqual(cf.column_widths, [6, 3, 10])
 
+
+class TestColumnFormatterOneColumn(TestCase):
+    def setUp(self):
+        self.padding = (cli.ColumnFormatter.PADDING_CHAR
+                        * cli.ColumnFormatter.COLUMN_PADDING)
+
     def test_formats_single_column(self):
         cf = cli.ColumnFormatter()
         cf.addrow('foo')
@@ -296,7 +303,6 @@ class TestColumnFormatter(TestCase):
         cf.addrow('baz')
 
         actual = str(cf)
-        # expected = 'foo  \nbar  \nbaz  '
         expected = 'foo\nbar\nbaz'
         self.assertEqual(actual, expected)
 
@@ -320,6 +326,12 @@ class TestColumnFormatter(TestCase):
         expected = 'foo\nbaz'.format(p=self.padding)
         self.assertEqual(actual, expected)
 
+
+class TestColumnFormatterTwoColumns(TestCase):
+    def setUp(self):
+        self.padding = (cli.ColumnFormatter.PADDING_CHAR
+                        * cli.ColumnFormatter.COLUMN_PADDING)
+
     def test_formats_two_columns(self):
         cf = cli.ColumnFormatter()
         cf.addrow('foo_A', 'foo_B')
@@ -337,11 +349,13 @@ class TestColumnFormatter(TestCase):
         cf.addrow('A')
         cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
         cf.addrow('OOOOOOOOOOAAAAJM', 'B')
-
         actual = str(cf)
-        expected = '''A
+
+        expected = '''
+A
 tuna            {p}MJAAAAOOOOOOOOOO
-OOOOOOOOOOAAAAJM{p}B'''.format(p=self.padding)
+OOOOOOOOOOAAAAJM{p}B'''.format(p=self.padding).lstrip('\n')
+
         self.assertEqual(actual, expected)
 
     def test_format_two_columns_align_all_left(self):
@@ -349,31 +363,44 @@ OOOOOOOOOOAAAAJM{p}B'''.format(p=self.padding)
         cf.addrow('a',    'bbb')
         cf.addrow('cccc', 'd')
         cf.setalignment('left', 'left', 'left')
-
         actual = str(cf)
-        expected = '''a   {p}bbb\ncccc{p}d'''.format(p=self.padding)
+
+        expected = 'a   {p}bbb\ncccc{p}d'.format(p=self.padding)
+
         self.assertEqual(actual, expected)
 
     def test_format_two_columns_align_all_right(self):
         cf = cli.ColumnFormatter()
+        cf.addrow('A',    'B')
         cf.addrow('a',    'bbb')
         cf.addrow('cccc', 'd')
         cf.setalignment('right', 'right', 'right')
-
         actual = str(cf)
-        expected = '''   a{p}bbb\ncccc{p}d'''.format(p=self.padding)
+
+        expected = '''
+   A{p}  B
+   a{p}bbb
+cccc{p}  d'''.format(p=self.padding).lstrip('\n')
+
         self.assertEqual(actual, expected)
+
+
+class TestColumnFormatterThreeColumns(TestCase):
+    def setUp(self):
+        self.padding = (cli.ColumnFormatter.PADDING_CHAR
+                        * cli.ColumnFormatter.COLUMN_PADDING)
 
     def test_format_three_columns(self):
         cf = cli.ColumnFormatter()
         cf.addrow('A1', 'BB1', 'CC11')
         cf.addrow('A2', 'BB2', 'CC22')
         cf.addrow('A3', 'BB3', 'CC33')
-
         actual = str(cf)
+
         expected = 'A1{p}BB1{p}CC11\nA2{p}BB2{p}CC22\nA3{p}BB3{p}CC33'.format(
             p=self.padding
         )
+
         self.assertEqual(actual, expected)
 
     def test_format_three_columns_expands_width(self):
@@ -382,12 +409,71 @@ OOOOOOOOOOAAAAJM{p}B'''.format(p=self.padding)
         cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
         cf.addrow('OOOOOOOOOOAAAAJM', 'B')
         cf.addrow('42', '0x4E4F4F42')
-        cf.addrow('C')
-
+        cf.addrow('C', 'D', 'E')
         actual = str(cf)
-        expected = '''A
+
+        expected = '''
+A
 tuna            {p}MJAAAAOOOOOOOOOO
 OOOOOOOOOOAAAAJM{p}B
 42              {p}0x4E4F4F42
-C'''.format(p=self.padding)
+C               {p}D               {p}E'''.format(p=self.padding).lstrip('\n')
+
+        self.assertEqual(actual, expected)
+
+    def test_format_three_columns_align_all_left(self):
+        cf = cli.ColumnFormatter()
+        cf.addrow('A')
+        cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        cf.addrow('OOOOOOOOOOAAAAJM', 'B')
+        cf.addrow('42', '0x4E4F4F42')
+        cf.addrow('C', 'D', 'E')
+        cf.setalignment('left', 'left', 'left')
+        actual = str(cf)
+
+        expected = '''
+A
+tuna            {p}MJAAAAOOOOOOOOOO
+OOOOOOOOOOAAAAJM{p}B
+42              {p}0x4E4F4F42
+C               {p}D               {p}E'''.format(p=self.padding).lstrip('\n')
+
+        self.assertEqual(actual, expected)
+
+    def test_format_three_columns_align_all_right(self):
+        cf = cli.ColumnFormatter()
+        cf.addrow('A')
+        cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        cf.addrow('OOOOOOOOOOAAAAJM', 'B')
+        cf.addrow('42', '0x4E4F4F42')
+        cf.addrow('C', 'D', 'E')
+        cf.setalignment('right', 'right', 'right')
+        actual = str(cf)
+
+        expected = '''
+               A
+            tuna{p}MJAAAAOOOOOOOOOO
+OOOOOOOOOOAAAAJM{p}               B
+              42{p}      0x4E4F4F42
+               C{p}               D{p}E'''.format(p=self.padding).lstrip('\n')
+
+        self.assertEqual(actual, expected)
+
+    def test_format_three_columns_align_mixed(self):
+        cf = cli.ColumnFormatter()
+        cf.addrow('A')
+        cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
+        cf.addrow('OOOOOOOOOOAAAAJM', 'B')
+        cf.addrow('42', '0x4E4F4F42')
+        cf.addrow('C', 'D', 'E')
+        cf.setalignment('right', 'left', 'right')
+        actual = str(cf)
+
+        expected = '''
+               A
+            tuna{p}MJAAAAOOOOOOOOOO
+OOOOOOOOOOAAAAJM{p}B
+              42{p}0x4E4F4F42
+               C{p}D               {p}E'''.format(p=self.padding).lstrip('\n')
+
         self.assertEqual(actual, expected)
