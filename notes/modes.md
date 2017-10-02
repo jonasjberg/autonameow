@@ -32,6 +32,50 @@ has not been at all obvious.
 
 The plan has been the same for quite som time. High-level Goals:
 
-* Let the user run the program in different *operating modes*
-* Provide different means of controlling and accessing the program core.
-* Provide a "hands-off" 
+* __Try to do "the right" thing__
+
+    * Primarily through configuration rules but also hopefully other heuristics
+      for finding most suitable candidates, implemented in the "analyzers".
+
+* __Let the user run the program in different *operating modes*__
+
+    * __Non-interactive/"batch"__ --- For scripting and executing as an
+      external program from E.G.  file managers, etc.
+    * __Interactive__ --- Some kind of user control, primarily a command-line
+      interface. *Maybe allow adding on other GUI wrappers in the future?*
+
+
+Operating Modes
+---------------
+
+
+### `--automagic`
+Try to rename without user interaction by using the highest ranked
+configuration rule.
+
+* __Name Template__ --- If the rule matching does not result in a valid name
+  template: __ask the user__.
+
+* __Template Fields__ --- If any name templates fields are not mapped to data
+  sources, or the mapped sources are missing or incompatible: __ask the user__.
+
+### `--automagic` and `--batch`
+Try to rename without user interaction by using the highest ranked
+configuration rule.
+
+* __Name Template__ --- If the rule matching does not result in a valid name
+  template: __skip the file__.
+
+* __Template Fields__ --- If any name templates fields are not mapped to data
+  sources, or the mapped sources are missing or incompatible: __skip the file__.
+
+### `--interactive`
+Leave all choices to the user.
+
+* __Name Template__ --- Ask the user which rule (containing a name template) or
+  name template to use.
+
+* __Template Fields__ --- Ask the user which data sources (or rule containing
+  data sources) to use.
+
+
