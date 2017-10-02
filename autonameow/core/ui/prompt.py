@@ -99,6 +99,17 @@ def meowuri_prompt(message=None):
     return text
 
 
+def ask_confirm(message=None):
+    # TODO: Test this!
+    if message is None:
+        msg = 'Please Confirm (unspecified action)? [y/n]'
+    else:
+        msg = message
+
+    answer = confirm(msg + ' ')
+    return answer
+
+
 if __name__ == '__main__':
     response = meowuri_prompt()
     print('Got: {!s}'.format(response))
