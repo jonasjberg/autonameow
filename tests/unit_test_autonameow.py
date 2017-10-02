@@ -19,20 +19,37 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+import unittest
 from unittest import (
     TestCase,
     mock
 )
 
+try:
+    import prompt_toolkit
+except ImportError:
+    prompt_toolkit = None
+    print(
+        'Missing required module "prompt_toolkit". '
+        'Make sure "prompt_toolkit" is available before running this program.',
+        file=sys.stderr
+    )
+
 from core import config
 from core import constants as C
 from core.config.configuration import Configuration
-from core.main import Autonameow
 import unit_utils as uu
 
 
+def prompt_toolkit_unavailable():
+    return prompt_toolkit is None, 'Failed to import "prompt_toolkit"'
+
+
+@unittest.skipIf(*prompt_toolkit_unavailable())
 class TestAutonameowWithoutOptions(TestCase):
     def setUp(self):
+        from core.main import Autonameow
         self.autonameow = Autonameow('')
         self.autonameow.exit_program = mock.MagicMock()
 
@@ -51,8 +68,10 @@ class TestAutonameowWithoutOptions(TestCase):
         self.autonameow.exit_program.assert_called_with(C.EXIT_SUCCESS)
 
 
+@unittest.skipIf(*prompt_toolkit_unavailable())
 class TestSetAutonameowExitCode(TestCase):
     def setUp(self):
+        from core.main import Autonameow
         self.amw = Autonameow('')
         self.expected_initial = C.EXIT_SUCCESS
 
@@ -86,8 +105,10 @@ class TestSetAutonameowExitCode(TestCase):
         self.assertEqual(self.expected_initial, self.amw.exit_code)
 
 
+@unittest.skipIf(*prompt_toolkit_unavailable())
 class TestDoRename(TestCase):
     def setUp(self):
+        from core.main import Autonameow
         self.amw = Autonameow('')
         self.assertIsNotNone(self.amw)
 

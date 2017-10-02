@@ -21,14 +21,22 @@
 
 import os
 
-from prompt_toolkit import prompt
-from prompt_toolkit.completion import (
-    Completer,
-    Completion
-)
-from prompt_toolkit.history import InMemoryHistory, FileHistory
-from prompt_toolkit.interface import AbortAction
-from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+try:
+    from prompt_toolkit import prompt
+    from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+    from prompt_toolkit.completion import (
+        Completer,
+        Completion
+    )
+    from prompt_toolkit.history import InMemoryHistory, FileHistory
+    from prompt_toolkit.interface import AbortAction
+    from prompt_toolkit.shortcuts import confirm
+except ImportError:
+    raise SystemExit(
+        'Missing required module "prompt_toolkit". '
+        'Make sure "prompt_toolkit" is available before running this program.'
+    )
+
 
 from core import constants as C
 from core import (
