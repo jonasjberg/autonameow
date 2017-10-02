@@ -324,30 +324,53 @@ class Autonameow(object):
             else:
                 _best_match_score = rule_matcher.best_match_score()
                 if _best_match_score == 0:
-                    log.warning(
-                        'Best matched rule score: {} --- User should confirm. '
-                        'TODO: Implement ..'.format(_best_match_score)
-                    )
-        else:
-            # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-            candidates = None
-            choice = interactive.select_template(candidates)
-            #if choice != cli.action.ABORT:
-            #    name_template = choice
-            #else:
-            #    name_template = None
-            name_template = None
+                    log.warning('Best matched rule score: {} --- Require user '
+                                'confirmmation.'.format(_best_match_score))
+                    log.info('Skipping file ..')
+                    return
+                else:
+                    best_match = rule_matcher.best_match
 
-        if rule_matcher.best_match:
-            # Using the highest ranked rule
-            name_template = rule_matcher.best_match.name_template
+        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        else:
+            if rule_matcher.best_match:
+                _best_match_score = rule_matcher.best_match_score()
+                if _best_match_score > 0:
+                    best_match = rule_matcher.best_match
+                else:
+                    log.debug('Best matched rule score: {} --- Require user '
+                              'confirmation.'.format(_best_match_score))
+                    ok = interactive.ask_confirm(
+                        'Best matched rule "{!s}" score: {}\n'
+                        'Proceed with this rule?'.format(
+                            rule_matcher.best_match.description,
+                            _best_match_score
+                        )
+                    )
+                    log.debug('User response: "{!s}"'.format(ok))
+                    if ok:
+                        best_match = rule_matcher.best_match
+            else:
+                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                candidates = None
+                choice = interactive.select_template(candidates)
+                #if choice != cli.action.ABORT:
+                #    name_template = choice
+                #else:
+                #    name_template = None
+                name_template = None
+
+                best_match = rule_matcher.best_match
+
+        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        if best_match and not name_template:
+            name_template = best_match.name_template
             log.info(
                 'Using rule: "{!s}"'.format(rule_matcher.best_match.description)
             )
 
         if not name_template:
             log.warning('No valid name template chosen. Aborting.')
-           #  self.exit_code = C.EXIT_WARNING
             return
 
         resolver = Resolver(current_file, name_template)
@@ -362,6 +385,7 @@ class Autonameow(object):
 
         resolver.collect()
 
+        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
         if not resolver.collected_all():
             if self.opts.mode_batch:
                 log.warning('Unable to populate name.')
