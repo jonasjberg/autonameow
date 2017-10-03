@@ -142,6 +142,10 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0101]` __Add ability to limit sizes of persistent storage/caches.__  
+  Store timestamps with stored data and remove oldest entries when exceeding
+  the file size limit.
+
 * `[TD0097]` Improve and fully implement caching to files on disk.
 
 * `[TD0096]` Fix some replacements cause incorrect color highlighting.
