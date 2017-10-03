@@ -27,6 +27,7 @@
 # environment, other scripts, etc.  You could also launch autonameow by
 # invoking Python directly, like so:  python3 <absolute path to main module>
 
+set -o nounset -o pipefail
 
 # Make sure that Python 3 is available.
 if ! command -v python3 >/dev/null 2>&1
