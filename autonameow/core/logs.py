@@ -55,8 +55,7 @@ def init_logging(args):
     #       command-line. For instance, verbosity levels 1 and 3 would be
     #       enabled with '-v' and '-vvv', respectively.
 
-    _colored_timestamp = cli.colorize('%(asctime)s', fore='LIGHTBLACK_EX',
-                                      style='DIM')
+    _colored_timestamp = cli.colorize('%(asctime)s', style='DIM')
     if args.debug:
         fmt = (
             _colored_timestamp
