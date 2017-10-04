@@ -31,12 +31,15 @@ try:
     from prompt_toolkit.history import InMemoryHistory, FileHistory
     from prompt_toolkit.interface import AbortAction
     from prompt_toolkit.shortcuts import confirm
+    from prompt_toolkit.validation import (
+        Validator,
+        ValidationError
+    )
 except ImportError:
     raise SystemExit(
         'Missing required module "prompt_toolkit". '
         'Make sure "prompt_toolkit" is available before running this program.'
     )
-
 
 from core import constants as C
 from core import (
@@ -44,6 +47,8 @@ from core import (
     repository,
     util
 )
+from core.exceptions import InvalidMeowURIError
+from core.meowuri import MeowURI
 from core.ui import cli
 
 
@@ -52,6 +57,18 @@ PERSISTANT_HISTORY_FILE = os.path.join(
     util.syspath(cache.CACHE_DIR_ABSPATH),
     util.syspath(PERSISTANT_HISTORY_BASENAME)
 )
+
+
+class MeowURIValidator(Validator):
+    def validate(self, document):
+        _text = document.text
+        try:
+            MeowURI(_text)
+        except InvalidMeowURIError as e:
+            raise ValidationError(
+                message=str(e),
+                cursor_position=len(_text)  # Move cursor to end of input.
+            )
 
 
 class MeowURICompleter(Completer):
@@ -76,8 +93,6 @@ class MeowURICompleter(Completer):
 
 
 def meowuri_prompt(message=None):
-    # TODO: [TD0099] Use actual data for autosuggest/autocomplete ..
-    # history = InMemoryHistory()
     history = FileHistory(PERSISTANT_HISTORY_FILE)
     meowuri_completer = MeowURICompleter()
 
@@ -91,11 +106,15 @@ def meowuri_prompt(message=None):
     )
     cli.msg('\n', ignore_quiet=True)
 
-    text = prompt('Enter MeowURI: ', history=history,
-                  auto_suggest=AutoSuggestFromHistory(),
-                  completer=meowuri_completer,
-                  enable_history_search=True,
-                  on_abort=AbortAction.RETRY)
+    text = prompt(
+        'Enter MeowURI: ',
+        history=history,
+        auto_suggest=AutoSuggestFromHistory(),
+        completer=meowuri_completer,
+        enable_history_search=True,
+        on_abort=AbortAction.RETURN_NONE,
+        validator=MeowURIValidator()
+    )
     return text
 
 
