@@ -1,5 +1,5 @@
 COMPATIBILITY:
-    autonameow_version: v0.4.7
+    autonameow_version: v0.4.8
 CUSTOM_POST_PROCESSING:
     lowercase_filename: false
     replacements:
