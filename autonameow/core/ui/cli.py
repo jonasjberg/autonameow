@@ -331,7 +331,7 @@ class ColumnFormatter(object):
     }
 
     def __init__(self, align='left'):
-        self._columns = 0
+        self._column_count = 0
         self._data = []
         self._column_widths = []
         self._default_align = self.ALIGNMENT_STRINGS.get(align, 'ljust')
@@ -363,12 +363,12 @@ class ColumnFormatter(object):
 
     @property
     def number_columns(self):
-        return self._columns
+        return self._column_count
 
     def _update_number_columns(self, strings):
         count = len(strings)
-        if count > self._columns:
-            self._columns = count
+        if count > self._column_count:
+            self._column_count = count
 
     def addrow(self, *args):
         maybe_strings = list(args)
