@@ -33,6 +33,9 @@ STRING_PROGRAM_VERSION = '{}{}'.format(STRING_PROGRAM_VERSION_PREFIX,
 
 STRING_PROGRAM_NAME = core.version.__title__.lower()
 
+STRING_COPYRIGHT_NOTICE = str(core.version.__copyright__)
+STRING_REPO_URL = str(core.version.__url_repo__)
+
 
 # Color used to highlight post-processing replacements.
 REPLACEMENT_HIGHLIGHT_COLOR = 'RED'

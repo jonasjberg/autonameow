@@ -80,9 +80,11 @@ def init_argparser():
     """
     parser = argparse.ArgumentParser(
         prog='autonameow',
-        description='Automatic renaming of files from analysis of '
-                    'several sources of information.',
-        epilog='',
+        description='{} {}'.format(C.STRING_PROGRAM_NAME,
+                                         C.STRING_PROGRAM_VERSION),
+        epilog='Automatic renaming of files from analysis of '
+               'several sources of information.' +
+               '\n Project website:  {}'.format(C.STRING_REPO_URL),
         formatter_class=CapitalisedHelpFormatter,
         add_help=False
     )
