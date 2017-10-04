@@ -225,7 +225,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         for meowuris, expected_source in self._analyzer_meowURI_sourcemap:
             for uri in meowuris:
                 actual = repository.map_meowuri_to_source_class(
-                    uri, includes='analyzers'
+                    uri, includes='analyzer'
                 )
                 self.assertEqual(len(actual), 1)
 
@@ -236,7 +236,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         for meowuris, expected_source in self._extractor_meowURI_sourcemap:
             for uri in meowuris:
                 actual = repository.map_meowuri_to_source_class(
-                    uri, includes='analyzers'
+                    uri, includes='analyzer'
                 )
                 self.assertEqual(len(actual), 0)
 
@@ -244,7 +244,7 @@ class TestMapMeowURItoSourceClass(TestCase):
         for meowuris, expected_source in self._extractor_meowURI_sourcemap:
             for uri in meowuris:
                 actual = repository.map_meowuri_to_source_class(
-                    uri, includes='extractors'
+                    uri, includes='extractor'
                 )
                 self.assertEqual(len(actual), 1)
 
