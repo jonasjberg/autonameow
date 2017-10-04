@@ -35,28 +35,22 @@ import unit_utils as uu
 
 class TestMeowURIRoot(TestCase):
     def test_from_valid_input(self):
-        self.skipTest('TODO: ..')
 
         def _ok(test_input):
             a = MeowURIRoot(test_input)
             self.assertIsNotNone(a)
 
-        _ok('analysis')
-        _ok('filesystem')
-        _ok('metadata')
+        _ok('analyzer')
+        _ok('generic')
         _ok('plugin')
-        _ok(' analysis')
-        _ok(' filesystem')
-        _ok(' metadata')
+        _ok(' analyzer')
+        _ok(' generic')
         _ok(' plugin')
-        _ok(' analysis ')
-        _ok(' filesystem ')
-        _ok(' metadata ')
+        _ok(' analyzer ')
+        _ok(' generic ')
         _ok(' plugin ')
 
     def test_from_invalid_input(self):
-        self.skipTest('TODO: ..')
-
         def _f(test_input):
             with self.assertRaises(InvalidMeowURIError):
                 a = MeowURIRoot(test_input)
@@ -64,14 +58,19 @@ class TestMeowURIRoot(TestCase):
         _f(None)
         _f('')
         _f('foo')
+        _f('analysis')
+        _f('filesystem')
         _f('plugins')
+        _f('metadata')
 
 
 class TestMeowURIwithValidInput(TestCase):
-    def _format_expected(self, root=None, node=None, leaf=None):
+    @staticmethod
+    def _format_expected(root=None, node=None, leaf=None):
         if root is None and node is None and leaf is None:
-            raise AssertionError('This should not happen')
-        elif node is None and leaf is None:
+            raise AssertionError('This should not happen. Bad test input.')
+
+        if node is None and leaf is None:
             return '{root}'.format(root=root)
         elif leaf is None:
             return '{root}{sep}{node}'.format(

@@ -42,13 +42,22 @@ class MeowURI(object):
 
         self._raw_parts = _raw_parts
 
+        if not _raw_parts:
+            raise InvalidMeowURIError('Insufficient input')
+
         try:
             self._root = MeowURIRoot(_raw_parts.pop(0))
         except InvalidMeowURIError:
             raise
 
+        _p = None
         try:
-            self._leaf = MeowURILeaf(_raw_parts.pop())
+            _p = _raw_parts.pop()
+        except IndexError:
+            raise InvalidMeowURIError('MeowURI is incomplete')
+
+        try:
+            self._leaf = MeowURILeaf(_p)
         except InvalidMeowURIError:
             self._leaf = None
 
@@ -59,14 +68,13 @@ class MeowURI(object):
         self._parts = [self._root] + self._nodes + [self._leaf]
 
     @staticmethod
-    def _split(string):
-        try:
-            s = types.AW_STRING(string)
-        except types.AWTypeError:
+    def _split(raw_string):
+        string = types.force_string(raw_string)
+        if not string:
             return []
         else:
             # Split the "meowURI" by periods to a list of strings.
-            return util.meowuri_list(s)
+            return util.meowuri_list(string)
 
     @classmethod
     def generic(cls, *args):
@@ -215,9 +223,11 @@ class MeowURILeaf(object):
 
 class MeowURIRoot(object):
     def __init__(self, raw_string):
-        string = _normalize_string(raw_string)
-        self._validate(string)
+        string = types.force_string(raw_string)
+        if string:
+            string = _normalize_string(raw_string)
 
+        self._validate(string)
         self._value = string
 
     def _validate(self, string):
