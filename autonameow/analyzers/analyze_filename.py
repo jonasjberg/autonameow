@@ -115,6 +115,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         # 1. The Very Special Case
         # ========================
         # If this matches, it is very likely to be relevant, so test it first.
+        # TODO: [TD0102] Look at how results are stored and named.
         dt_special = dateandtime.match_special_case(fn)
         if dt_special:
             results.append({'value': dt_special,
@@ -130,7 +131,8 @@ class FilenameAnalyzer(BaseAnalyzer):
         # 2. Common patterns
         # ==================
         # Try more common patterns, starting with the most common.
-        # TODO: [TD0019][TD0044] This is not the way to do it!
+        # TODO: [TD0102] Look at how results are stored and named.
+        # TODO: [TD0019] This is not the way to do it!
         dt_android = dateandtime.match_android_messenger_filename(fn)
         if dt_android:
             results.append({'value': dt_android,
@@ -140,7 +142,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         # Match UNIX timestamp
         dt_unix = dateandtime.match_any_unix_timestamp(fn)
         if dt_unix:
-            # TODO: [TD0044] Look at how results are stored and named.
+            # TODO: [TD0102] Look at how results are stored and named.
             # TODO: [TD0019] Rework The FilenameAnalyzer class.
             results.append(
                 {'value': dt_unix,
@@ -151,7 +153,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         # Match screencapture-prefixed UNIX timestamp
         dt_screencapture_unix = dateandtime.match_screencapture_unixtime(fn)
         if dt_screencapture_unix:
-            # TODO: [TD0044] Look at how results are stored and named.
+            # TODO: [TD0102] Look at how results are stored and named.
             # TODO: [TD0019] Rework The FilenameAnalyzer class.
             results.append({'value': dt_screencapture_unix,
                             'source': 'screencapture_unixtime',

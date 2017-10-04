@@ -215,7 +215,6 @@ def pre_assemble_format(data, config):
             sep = config.options['FILETAGS_OPTIONS']['between_tag_separator']
             formatted[field] = sep.join(_tags)
 
-        # TODO: [TD0044] Rework converting "raw data" to an internal format.
         else:
             _formatted = format_field(field, value)
             if _formatted is not None:

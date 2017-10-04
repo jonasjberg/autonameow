@@ -31,18 +31,7 @@ High Priority
   displayed properly due to them not being handled properly before being passed
   to `yaml.dump` which performs the formatting of the results dict.
 
-* `[TD0044]` __Rework converting "raw data" to internal representations__
-    * Converting raw data to internal representations is currently implemented
-      very poorly and must be reworked.
-    * Think about how to handle translation in the "general" sense; high-level,
-      abstract. Would it be wise to let data extractors convert raw data to
-      internal types? (For example; messy OCR text to `datetime` object)
-        * A "general solution" using some new entity tasked with translating
-          data *might be too "general"* considering the likely granularity of
-          operations needed to perform the conversion.  That is, if the
-          required operations differs greatly between data sources, abstracting
-          the process would mostly add yet another layer of indirection ..
-    * Think about how wrapped data types (`[TD0002]`) relates to this.
+* `[TD0102]` Fix inconsistencies in results passed back by analyzers.
 
 * `[TD0087]` Clean up messy and sometimes duplicated wrapping of "raw" data.
 
