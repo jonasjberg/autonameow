@@ -403,6 +403,8 @@ def eval_magic_glob(mime_to_match, glob_list):
     likely to be used by third party developers. It is also exposed to possibly
     malformed configuration entries.
 
+    Unknown MIME-types evaluate to True only for '*/*', otherwise always False.
+
     Args:
         mime_to_match: The MIME to match against the globs as a Unicode string.
         glob_list: A list of globs as Unicode strings.
@@ -416,11 +418,17 @@ def eval_magic_glob(mime_to_match, glob_list):
     """
     if not mime_to_match or not glob_list:
         return False
-    if mime_to_match == C.MAGIC_TYPE_UNKNOWN:
-        return False
 
     if not (isinstance(mime_to_match, str)):
         raise TypeError('Expected "mime_to_match" to be of type str')
+
+    # Unknown MIME-type evaluates True if a glob matches anything, else False.
+    if mime_to_match == C.MAGIC_TYPE_UNKNOWN:
+        if '*/*' in glob_list:
+            return True
+        else:
+            return False
+
     if '/' not in mime_to_match:
         raise ValueError('Expected "mime_to_match" to be on the form "foo/bar"')
 

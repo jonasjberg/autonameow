@@ -588,6 +588,16 @@ class TestEvalMagicGlob(TestCase):
         self._aT('application/epub+zip', ['application/*'])
         self._aT('application/epub+zip', ['*/epub+zip'])
 
+    def test_unknown_mime_type_evaluates_true_for_any_glob(self):
+        self._aT(C.MAGIC_TYPE_UNKNOWN, '*/*')
+        self._aT(C.MAGIC_TYPE_UNKNOWN, ['*/*'])
+        self._aT(C.MAGIC_TYPE_UNKNOWN, ['*/*', '*/jpeg'])
+
+    def test_unknown_mime_type_evaluates_false(self):
+        self._aF(C.MAGIC_TYPE_UNKNOWN, 'image/jpeg')
+        self._aF(C.MAGIC_TYPE_UNKNOWN, ['image/jpeg'])
+        self._aF(C.MAGIC_TYPE_UNKNOWN, ['application/*', '*/jpeg'])
+
 
 class TestWhichExecutable(TestCase):
     def test_returns_true_for_executable_commands(self):
