@@ -379,6 +379,9 @@ class ColumnFormatter(object):
         self._update_column_widths(strings)
         self._data.append(strings)
 
+    def addemptyrow(self):
+        self.addrow(' ')
+
     def _update_column_widths(self, strings):
         # strings = [textutils.strip_ansiescape(s) for s in strings]
         # strings = [textutils.normalize_unicode(s) for s in strings]
@@ -453,7 +456,7 @@ class ColumnFormatter(object):
                 )
             )
 
-        return '\n'.join(l.rstrip() for l in lines if l.strip())
+        return '\n'.join(l.rstrip() for l in lines)
 
 
 def silence():
