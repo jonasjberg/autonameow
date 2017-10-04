@@ -41,7 +41,7 @@ RULES:
         description: 
         exact_match: true
         ranking_bias: 1
-test_files simplest_pdf.md.pdf:
+    test_files simplest_pdf.md.pdf:
         CONDITIONS:
             extractor.filesystem.xplat.basename.full: simplest_pdf.md.pdf
         DATA_SOURCES:
