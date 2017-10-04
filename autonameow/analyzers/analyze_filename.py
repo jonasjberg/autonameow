@@ -258,11 +258,6 @@ class FilenameTokenizer(object):
         pass
 
 
-def _find_datetime_isodate(text_line):
-    # TODO: [TD0070] Implement arbitrary basic personal use case.
-    pass
-
-
 def _find_edition(text):
     match = RE_EDITION.search(text)
     if match:

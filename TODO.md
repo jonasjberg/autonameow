@@ -87,8 +87,6 @@ Medium Priority
   `image/png`, etc can't be used as a file extension without some
   pre-processing -- converting `image/png` to `png`.
 
-* `[TD0070]` Implement arbitrary common personal use case.
-
 * `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
 
 * `[TD0019]` Rework the `FilenameAnalyzer`

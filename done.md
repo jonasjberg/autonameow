@@ -27,6 +27,11 @@ University mail: `js224eh[a]student.lnu.se`
     >           required operations differs greatly between data sources, abstracting
     >           the process would mostly add yet another layer of indirection ..
     >     * Think about how wrapped data types (`[TD0002]`) relates to this.
+    >
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0070]` Implement arbitrary common personal use case.
 
 * 2017-09-29
 
