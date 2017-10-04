@@ -170,6 +170,7 @@ class Autonameow(object):
             cf = cli.ColumnFormatter()
 
             for _type in C.MEOWURI_ROOTS_SOURCES:
+                cf.addemptyrow()
                 klasses = repository.SessionRepository.meowuri_class_map.get(_type, {})
                 for _meowuri, _klasses in klasses.items():
                     cf.addrow(_meowuri, str(_klasses.pop()))
