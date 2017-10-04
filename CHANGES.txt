@@ -1,3 +1,284 @@
+2017-10-05  [autonameow v0.4.8]
+            Adds first implementation of an "interactive" mode with a
+            MeowURI-prompt. Contains major rework of the 'Resolver' and
+            high-level program flow, which is still a work in progress.
+
+            NOTE: This version changes the configuration syntax ---
+                  config files written by previous version will *NOT* work!
+
+            Additions:
+            - Initial implementation of an interactive mode based on the
+              'python-prompt-toolkit'.
+            - Add custom assertion "sanity checks" that raises a special kind
+              of exception intended for bug reports.
+            - Initial abstraction of "MeowURIs" in the 'MeowURI' class.
+            - Add Git submodule 'python-nameparser' to 'thirdparty/nameparser'.
+            - Add functions to format full names to "LAST_NAME, initials".
+
+              Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
+
+              The 'format_name_lastname_initials' Function formats single names
+              and 'format_names_lastname_initials' formats and sorts lists of
+              names lexicographically.
+
+            - Add color highlighting "post-processing replacements".
+
+              Refactors 'colorize_quoted' into a more general function
+              'colorize_re_match' that adds colors to parts of text that
+              matches a given compiled regular expression.
+
+              Modifies 'colorize_quoted' to simply pass 'colorize_re_match' a
+              regular expression that matches anything within quotes.
+
+            - Add utility 'ColumnFormatter' class to 'cli.py'.
+              Utility formatter for printing columns of string.
+              All column widths are set to the widest entry in any column.
+
+            - Adds a new command-line option '--dump-meowuris'.
+
+              Dump all MeowURIs registered to the "Repository" at startup.
+              Some sources require explicit inclusion and might therefore not
+              be included. Combine with  "--debug" for more information.
+
+            - Add caching system with pickle-backend.
+            - Add caching ISBN metadata requests.
+            - Add caching text extracted by the 'PdftotextTextExtractor'.
+            - Add caching text extracted by the 'PyPDFTextExtractor'.
+            - Add caching text extracted by the 'TesseractOCRTextExtractor'.
+            - Add new generic fields.
+              'GenericAuthor',  'GenericPublisher' and 'GenericHealth'
+
+            - Add a new extractor class 'JpeginfoMetadataExtractor'.
+
+              Returns a new type of generic field; 'health', that represents
+              the integrity or 1/corruption of a file as a float in range 0-1.
+
+              It also returns a related boolean result 'is_jpeg' that could be
+              used to verify file types, ensure quality and detect corrupt
+              files.  Which is very useful when dealing with jpegs ..
+
+            - [TD0042] Implement the '--quiet' option.
+            - Add 'devscripts/write-default-config.sh'.
+              Script for writing the default configuration to YAML-file.
+              Writes the config in 'core/config/default_config.py' to
+              'test_files/default_config.yaml'.
+
+            Changes:
+            - Modify the configuration file format in a non-trivial way.
+
+              Adds storing the 'Rules' in a dictionary instead of list.
+              The new dictionary is keyed by the old 'description'-field.
+
+              Example of the OLD format:
+
+                  RULES:
+                  -   CONDITIONS:
+                          extractor.fs.xplat.basename.full: foo_pdf.md.pdf
+                      DATA_SOURCES:
+                          extension: extractor.fs.xplat.basename.extension
+                      NAME_FORMAT: foo_pdf.md.{extension}
+                      description: test_files foo_pdf.md.pdf
+                      exact_match: true
+                      ranking_bias: 1
+
+              Example of the NEW format:
+
+                  RULES:
+                      test_files foo_pdf.md.pdf:
+                          CONDITIONS:
+                              extractor.fs.xplat.basename.full: foo_pdf.md.pdf
+                          DATA_SOURCES:
+                              extension: extractor.fs.xplat.basename.extension
+                          NAME_FORMAT: foo_pdf.md.{extension}
+                          description: test_files foo_pdf.md.pdf
+                          exact_match: true
+                          ranking_bias: 1
+
+              This should make the configuration file easier to read for humans.
+
+            - Moves 'autonameow_version' to a new section in the config.
+            - Modify contents and formatting of '--version' output.
+            - [TD0081] Add 'pyexiftool' as a Git submodule.
+              Replaces 'wrap_exiftool.py' with a 'pyexiftool' submodule.
+            - Add convention of importing 'constants.py' as 'C'.
+            - Rename constant variables in 'constants.py'.
+            - Remove the 'AbstractMetadataExtractor' class.
+              Modify 'ExiftoolMetadataExtractor' and 'PyPDFMetadataExtractor'
+              to inherit directly from 'BaseExtractor' class.
+            - Move 'ExtractedData' to new file 'extracteddata.py'.
+            - Various changes to how "sources" register "MeowURIs".
+            - Prepend 'extractor' to the 'ExiftoolMetadataExtractor' MeowURI.
+
+                  Previous MEOWURI_ROOT = 'metadata.exiftool'
+                   Current MEOWURI_ROOT = 'extractor.metadata.exiftool'
+
+            - Modify overall handling of "MeowURIs".
+
+              Instead of hard-coding a "MEOWURI_ROOT" in the source classes,
+              this new method uses the Python module hierarchy to construct
+              default MeowURIs.
+
+              It is still possible for source classes to override either parts
+              or the entire MeowURI.
+
+              The new convention is to always include the type of sources in
+              "source-specific" MeowURIs.
+
+              The first part is either 'extractor', 'plugin' or 'analyzer'.
+
+              Example:  'extractor.metadata.exiftool.EXIF:DateTimeOriginal'
+
+              This makes a clear distinction between the specific MeowURIs and
+              the "generic" URIs, which will be simpler; 'metadata.DateCreated'
+
+            - Refactor retrieving paths in 'diskutils.py'.
+
+              Substitutes 'get_files' with the similar generator version
+              'get_files_gen'.
+
+              Adds a new class 'PathCollector' to store the "globs" that are
+              to be converted to bytestrings". The class was intended to act
+              as a container or encapsulated namespace.
+
+            - Refactor configuration parsing and validation.
+            - Add new 'namebuilder' package.
+              Move 'namebuilder.py' to 'namebuilder/builder.py'.
+
+            - Separate name template fields from "generic" fields.
+
+              Moves the content from 'core/fields.py' and moves it to the two
+              new files 'namebuilder/fields.py' and 'model/genericfields.py'.
+
+              The original 'core/fields.py' is deleted.
+
+            - Add initial implementation of verifying name template data.
+
+              Adds checking if subclasses of 'NameTemplateField' is
+              "compatible" with data collected by the resolver.
+              This is part of moving towards providing the name builder with
+              validated data.
+              The name template field classes attribute 'COMPATIBLE_TYPES' list
+              the "coercion"/type-wrapper types whose data format can be used
+              to populate the relevant field.
+
+            - Modify default configuration.
+              Moves options from section 'FILESYSTEM_OPTIONS' to "post-processing".
+
+              Moves the following options from the 'FILESYSTEM_OPTIONS' section:
+
+                  'lowercase_filename': False,
+                  'uppercase_filename': False,
+                  'sanitize_filename': True,
+                  'sanitize_strict': False
+
+              .. to the 'CUSTOM_POST_PROCESSING' section.
+
+            - Modify "generic" MeowURIs.
+
+              Renames constants for MeowURI roots. Adds 'MEOWURI_ROOT_GENERIC'.
+
+              Modifies the format of "generic" MeowURIs from the previous
+              'metadata.generic.author' to 'generic.metadata.author'.
+
+            - Split PDF text extractors into separate files.
+
+              Separates 'pdf.py' into 'pypdf.py' and 'pdftotext.py'.
+
+              In order to fit with the current scheme of devising MeowURIs from
+              the module/package names in the hierarchy, these two extractors
+              should be separated into different files.
+
+              This makes source-specific queries possible, I.E.
+              'extractor.text.pypdf' or 'extractor.text.pdftotext'; which was
+              previously impossible because the query 'extractor.text.pdf'
+              would return text produced by either of these two extractors.
+
+            - Refactor unit tests add shared utility functions.
+            - Rename 'PyPdfTextExtractor' to 'PyPDFTextExtractor'.
+            - Rework how data is passed from/to analyzer classes.
+            - Rename 'ImageOCRTextExtractor' to 'TesseractOCRTextExtractor'.
+
+              Renames the source file from 'ocr.py' to 'tesseractocr.py'.
+
+              Part of moving towards the new scheme of devising MeowURIs from
+              the module/package names in the hierarchy.
+
+              The new names distinguish this exact extractor, as opposed to the
+              old names that was intended to work with any OCR backend.
+
+            - Disable 'PyPDF2' text extraction because of poor results.
+            - Modify colors, content and formatting of many messages.
+            - Add method 'as_string' to 'ExtractedData'.
+
+              This works around having to "round-trip" like so:
+
+                  assert isinstance(ed, ExtractedData)
+                  s = ed.coercer.format(ed.value)
+
+              Now this does the same thing:
+
+                  assert isinstance(ed, ExtractedData)
+                  s = ed.as_string()
+
+            - Add new package 'ui'. Move 'cli.py'.
+            - Add returning probable extensions from 'FilenameAnalyzer'.
+
+            Fixes:
+            - Return None from 'Configuration.get()'.
+
+              Replaces raising 'KeyError' with returning None for bad accesses.
+
+              Fixes bug causing program crashing when the name builder calls
+              'config.get(['CUSTOM_POST_PROCESSING', 'replacements'])' and the
+              configuration file does not contain these sections.
+
+              The configuration usually substitutes default values to prevent
+              this, but in this case it really should be up to the user to
+              decide if any substitutions should be made.
+
+            - Fix serious bug in 'ExtractedData'. Fix namespace.
+
+              The 'ExtractedData' instances would be shared when called
+              multiple times from the same "wrapper_tag_lookup" dictionary.
+
+              This commit adds a hack fix class method that uses 'deepcopy'
+              to make a copy of the instance before calling and returning it.
+
+              The type "wrappers" are renamed to "coercers" to avoid namespace
+              issues with instances of 'ExtractedData', that also are referred
+              to as "wrappers".
+
+            - Add various fixes to the 'GuessitPlugin'.
+            - Add various fixes to the 'MicrosoftVisionPlugin'.
+            - Add handling more date/time-information returned by 'exiftool'-
+            - Fix crashing when some dependencies are unavailable.
+            - Fix bugs in the type coercion classes.
+            - Fix bugs and improve performance of the 'filter_paths' function.
+            - [TD0086] Use one "SessionRepository" per autonameow instance.
+
+              Adds a 'RepositoryPool' class to handle repositories.
+
+              The active repository is registered to the start time and process
+              ID registered by the 'Autonameow' class.
+              This solution is pretty overkill but does solve the problem.
+            - Fix various bugs and improve robustness of configuration parsing.
+            - Prevent 'Resolver' adding sources for unused template fields.
+            - [TD0004] Clean up text decoding.
+
+            - Fix unhandled exceptions in 'populate_name_template'.
+              Adds catching 'TypeError' at the call-site.
+              The try/catch-block around 'name_template.format(**kwargs)' does
+              not seem to catch any 'TypeError' exceptions caused by the
+              keywords in kwargs not being Unicode strings.
+
+            - Fix invalid data requests to generic text.
+              Changes generic text content requests to 'contents.generic.text'.
+            - Fix analyzers not expecting instances of 'ExtractedData'.
+            - Fix crash due to missing None-check in 'pdftotext.py'.
+            - Fix missing 'MEOWURI_LEAF' attribute in plugins.
+            - Fix incorrect validation in the MIME-type field parser.
+
+
 2017-09-20  [autonameow v0.4.7]
             Added custom "post-processing" replacements and case-changes.
             Bugfixes and refactorings.
