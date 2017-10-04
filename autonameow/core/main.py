@@ -168,7 +168,8 @@ class Autonameow(object):
                 cli.msg(str(_meowuri))
         else:
             cf = cli.ColumnFormatter()
-            for _type in ['analyzers', 'extractors', 'plugins']:
+
+            for _type in C.MEOWURI_ROOTS_SOURCES:
                 klasses = repository.SessionRepository.meowuri_class_map.get(_type, {})
                 for _meowuri, _klasses in klasses.items():
                     cf.addrow(_meowuri, str(_klasses.pop()))
