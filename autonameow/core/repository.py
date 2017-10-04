@@ -335,9 +335,9 @@ def meowuri_class_map_dict():
     # component uses when storing data and the contained values are lists of
     # classes mapped to the "meowURI".
     _meowuri_class_map = {
-        'extractors': extractors.MeowURIClassMap,
-        'analyzers': analyzers.MeowURIClassMap,
-        'plugins': plugins.MeowURIClassMap
+        'extractor': extractors.MeowURIClassMap,
+        'analyzer': analyzers.MeowURIClassMap,
+        'plugin': plugins.MeowURIClassMap
     }
     return _meowuri_class_map
 
@@ -345,7 +345,7 @@ def meowuri_class_map_dict():
 def unique_map_meowuris(meowuri_class_map):
     out = set()
 
-    # for key in ['extractors', 'analyzers', 'plugins'] ..
+    # for key in ['extractors', 'analyzer', 'plugin'] ..
     for key in meowuri_class_map.keys():
         for meowuri in meowuri_class_map[key].keys():
             sanity.check(not isinstance(meowuri, list),
@@ -385,15 +385,15 @@ def map_meowuri_to_source_class(meowuri, includes=None):
         return []
 
     if includes is None:
-        return (_search_source_type('extractors')
-                or _search_source_type('analyzers')
-                or _search_source_type('plugins')
+        return (_search_source_type('extractor')
+                or _search_source_type('analyzer')
+                or _search_source_type('plugin')
                 or [])
     else:
         if not isinstance(includes, list):
             includes = [includes]
         for include in includes:
-            if include not in ('analyzers', 'extractors', 'plugins'):
+            if include not in ('analyzer', 'extractor', 'plugin'):
                 continue
 
             result = _search_source_type(include)
@@ -403,13 +403,13 @@ def map_meowuri_to_source_class(meowuri, includes=None):
         return []
 
 
-def get_sources_for_meowuris(meowuri_list, includes=None):
+def get_sources_for_meowuris(meowuri_list, include_roots=None):
     if not meowuri_list:
         return []
 
     out = set()
     for uri in meowuri_list:
-        source_classes = map_meowuri_to_source_class(uri, includes)
+        source_classes = map_meowuri_to_source_class(uri, include_roots)
 
         # TODO: Improve robustness of linking "MeowURIs" to data source classes.
         if source_classes:

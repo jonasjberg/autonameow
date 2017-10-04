@@ -270,7 +270,7 @@ class Autonameow(object):
         # Extract data from the file.
         required_extractors = repository.get_sources_for_meowuris(
             self.active_config.referenced_meowuris,
-            includes=['extractors']
+            include_roots=['extractor']
         )
         _run_extraction(
             current_file,
@@ -287,7 +287,7 @@ class Autonameow(object):
         # Run plugins.
         required_plugins = repository.get_sources_for_meowuris(
             self.active_config.referenced_meowuris,
-            includes=['plugins']
+            include_roots=['plugin']
         )
         _run_plugins(current_file, required_plugins)
 

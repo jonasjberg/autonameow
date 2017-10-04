@@ -362,19 +362,22 @@ class TestGetSourcesForMeowURIs(TestCase):
                                    'GuessitPlugin'])
 
     def test_returns_included_sources_analyzers(self):
-        actual = repository.get_sources_for_meowuris(self._all_meowuris,
-                                                     includes=['analyzers'])
+        actual = repository.get_sources_for_meowuris(
+            self._all_meowuris, include_roots=['analyzer']
+        )
         self._assert_maps(actual, 'FiletagsAnalyzer')
 
     def test_returns_included_sources_extractorss(self):
-        actual = repository.get_sources_for_meowuris(self._all_meowuris,
-                                                     includes=['extractors'])
+        actual = repository.get_sources_for_meowuris(
+            self._all_meowuris, include_roots=['extractor']
+        )
         self._assert_maps(actual, ['CrossPlatformFileSystemExtractor',
                                    'ExiftoolMetadataExtractor'])
 
     def test_returns_included_sources_plugins(self):
-        actual = repository.get_sources_for_meowuris(self._all_meowuris,
-                                                     includes=['plugins'])
+        actual = repository.get_sources_for_meowuris(
+            self._all_meowuris, include_roots=['plugin']
+        )
         self._assert_maps(actual, 'GuessitPlugin')
 
 
