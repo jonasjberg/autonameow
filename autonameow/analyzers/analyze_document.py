@@ -19,17 +19,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from analyzers import (
-    AnalyzerError,
-    BaseAnalyzer
-)
+from analyzers import BaseAnalyzer
 from core.util import dateandtime
 
 
 class DocumentAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
-    handles_mime_types = ['application/pdf', 'text/*']
-    meowuri_root = 'analysis.document'
+    HANDLES_MIME_TYPES = ['application/pdf', 'text/*']
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -40,15 +36,12 @@ class DocumentAnalyzer(BaseAnalyzer):
         self.text = None
 
     def run(self):
-        _response = self.request_data(self.file_object,
-                                      'contents.textual.text.full')
-        if _response is None:
+        _maybe_text = self.request_any_textual_content()
+        if not _maybe_text:
             return
-            # raise AnalyzerError(
-            #     'Required data unavailable ("contents.textual.text.full")'
-            # )
 
-        self.text = _response
+        self.text = _maybe_text
+
         self._add_results('author', self.get_author())
         self._add_results('title', self.get_title())
         self._add_results('datetime', self.get_datetime())
@@ -65,9 +58,9 @@ class DocumentAnalyzer(BaseAnalyzer):
         results = []
 
         possible_authors = [
-            ('metadata.author', 1),
-            ('metadata.creator', 0.5),
-            ('metadata.producer', 0.1),
+            ('generic.metadata.author', 1),
+            ('generic.metadata.creator', 0.5),
+            ('generic.metadata.producer', 0.1),
         ]
         for meowuri, weight, in possible_authors:
             results += self.__collect_results(meowuri, weight)
@@ -78,8 +71,8 @@ class DocumentAnalyzer(BaseAnalyzer):
         results = []
 
         possible_titles = [
-            ('metadata.title', 1),
-            ('metadata.subject', 0.25),
+            ('generic.metadata.title', 1),
+            ('generic.metadata.subject', 0.25),
         ]
         for meowuri, weight in possible_titles:
             results += self.__collect_results(meowuri, weight)
@@ -103,9 +96,9 @@ class DocumentAnalyzer(BaseAnalyzer):
         results = []
 
         possible_publishers = [
-            ('metadata.exiftool.PDF:EBX_PUBLISHER', 1),
-            ('metadata.exiftool.XMP:EbxPublisher', 1),
-            ('metadata.pypdf.EBX_PUBLISHER', 1)
+            ('extractor.metadata.exiftool.PDF:EBX_PUBLISHER', 1),
+            ('extractor.metadata.exiftool.XMP:EbxPublisher', 1),
+            ('extractor.metadata.pypdf.EBX_PUBLISHER', 1)
         ]
         for meowuri, weight in possible_publishers:
             results += self.__collect_results(meowuri, weight)

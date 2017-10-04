@@ -23,25 +23,26 @@ import logging
 
 try:
     import chardet
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     chardet = None
 
 from core import util
-from core.util import textutils
-from extractors import ExtractorError
-from extractors.text.common import (
-    AbstractTextExtractor,
-    normalize_unicode
+from core.util import (
+    sanity,
+    textutils
 )
+from extractors import ExtractorError
+from extractors.text.common import AbstractTextExtractor
+
 
 log = logging.getLogger(__name__)
+
 
 DEFAULT_ENCODING = 'utf8'
 
 
 class PlainTextExtractor(AbstractTextExtractor):
-    handles_mime_types = ['text/plain']
-    meowuri_root = 'contents.textual.text'
+    HANDLES_MIME_TYPES = ['text/plain']
 
     def __init__(self):
         super(PlainTextExtractor, self).__init__()
@@ -49,10 +50,17 @@ class PlainTextExtractor(AbstractTextExtractor):
     def _get_text(self, source):
         self.log.debug('Extracting raw text from plain text file ..')
         result = read_entire_text_file(source)
-        text = normalize_unicode(result)
+        if not result:
+            return ''
+
+        sanity.check_internal_string(result)
+        text = result
+        text = textutils.normalize_unicode(text)
         text = textutils.remove_nonbreaking_spaces(text)
-        util.assert_internal_string(text)
-        return text
+        if text:
+            return text
+        else:
+            return ''
 
     @classmethod
     def check_dependencies(cls):
@@ -78,9 +86,9 @@ def read_entire_text_file(file_path):
     if contents:
         log.debug('Successfully read {} lines from "{!s}"'.format(len(contents),
                                                                   file_path))
-        contents = '\n'.join(contents)
-        util.assert_internal_string(contents)
-        return contents
+        text = ''.join(contents)
+        sanity.check_internal_string(text)
+        return text
     else:
         log.debug('Read NOTHING from file "{!s}"'.format(file_path))
         return ''

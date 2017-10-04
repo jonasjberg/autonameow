@@ -21,54 +21,51 @@
 
 from unittest import TestCase
 
-from core import constants
+from core import constants as C
+import unit_utils as uu
 
 
 class TestConstants(TestCase):
     def test_constants_contains_program_exit_codes(self):
-        self.assertIsNotNone(constants.EXIT_ERROR)
-        self.assertTrue(isinstance(constants.EXIT_ERROR, int))
-        self.assertIsNotNone(constants.EXIT_WARNING)
-        self.assertTrue(isinstance(constants.EXIT_WARNING, int))
-        self.assertIsNotNone(constants.EXIT_SUCCESS)
-        self.assertTrue(isinstance(constants.EXIT_SUCCESS, int))
+        self.assertIsNotNone(C.EXIT_ERROR)
+        self.assertTrue(isinstance(C.EXIT_ERROR, int))
+        self.assertIsNotNone(C.EXIT_WARNING)
+        self.assertTrue(isinstance(C.EXIT_WARNING, int))
+        self.assertIsNotNone(C.EXIT_SUCCESS)
+        self.assertTrue(isinstance(C.EXIT_SUCCESS, int))
 
     def test_constants_contains_default_file_mime_type(self):
-        self.assertIsNotNone(constants.MAGIC_TYPE_UNKNOWN)
-        self.assertTrue(isinstance(constants.MAGIC_TYPE_UNKNOWN, str))
+        self.assertIsNotNone(C.MAGIC_TYPE_UNKNOWN)
+        self.assertTrue(uu.is_internalstring(C.MAGIC_TYPE_UNKNOWN))
 
     def test_constants_contains_default_rule_ranking_bias(self):
-        self.assertIsNotNone(constants.DEFAULT_RULE_RANKING_BIAS)
-        self.assertTrue(isinstance(constants.DEFAULT_RULE_RANKING_BIAS, float))
+        self.assertIsNotNone(C.DEFAULT_RULE_RANKING_BIAS)
+        self.assertTrue(isinstance(C.DEFAULT_RULE_RANKING_BIAS, float))
 
     def test_constants_contains_default_file_tags_options(self):
-        self.assertIsNotNone(constants.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR)
+        self.assertIsNotNone(C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR)
         self.assertTrue(
-            isinstance(constants.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR, str)
+            uu.is_internalstring(C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR)
         )
-        self.assertIsNotNone(constants.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR)
+        self.assertIsNotNone(C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR)
         self.assertTrue(
-            isinstance(constants.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR, str)
+            uu.is_internalstring(C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR)
         )
 
     def test_constants_contains_default_filesystem_options(self):
-        self.assertIsNotNone(constants.DEFAULT_FILESYSTEM_SANITIZE_FILENAME)
+        self.assertIsNotNone(C.DEFAULT_FILESYSTEM_SANITIZE_FILENAME)
         self.assertTrue(
-            isinstance(constants.DEFAULT_FILESYSTEM_SANITIZE_FILENAME, bool)
+            isinstance(C.DEFAULT_FILESYSTEM_SANITIZE_FILENAME, bool)
         )
-        self.assertIsNotNone(constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT)
+        self.assertIsNotNone(C.DEFAULT_FILESYSTEM_SANITIZE_STRICT)
         self.assertTrue(
-            isinstance(constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT, bool)
+            isinstance(C.DEFAULT_FILESYSTEM_SANITIZE_STRICT, bool)
         )
 
     def test_constants_contains_python_version(self):
-        self.assertIsNotNone(constants.PYTHON_VERSION)
-        self.assertTrue(isinstance(constants.PYTHON_VERSION, str))
+        self.assertIsNotNone(C.STRING_PYTHON_VERSION)
+        self.assertTrue(uu.is_internalstring(C.STRING_PYTHON_VERSION))
 
     def test_constants_contains_analysis_results_fields(self):
-        self.assertIsNotNone(constants.ANALYSIS_RESULTS_FIELDS)
-        self.assertTrue(isinstance(constants.ANALYSIS_RESULTS_FIELDS, list))
-
-    def test_constants_contains_legal_name_template_fields(self):
-        self.assertIsNotNone(constants.NAME_TEMPLATE_FIELDS)
-        self.assertTrue(isinstance(constants.NAME_TEMPLATE_FIELDS, list))
+        self.assertIsNotNone(C.ANALYSIS_RESULTS_FIELDS)
+        self.assertTrue(isinstance(C.ANALYSIS_RESULTS_FIELDS, list))

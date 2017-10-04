@@ -20,33 +20,63 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import logging
+
+from core.ui import (
+    cli,
+    prompt
+)
 
 
 log = logging.getLogger(__name__)
 
 
-class InteractiveCLI(object):
-    # TODO: Implement this class.
-    def __init__(self):
-        pass
+class Choice(object):
+    ABORT = 0
 
-    def confirm(self, question):
-        while True:
-            # Possibly redundant check for Python 2.
-            # TODO: Assume running with Python 3+. Add checks/asserts elsewhere.
-            if sys.version_info[0] < 3:
-                log.warning('Using potentially unsafe Python 2 "raw_input"')
-                answer = raw_input(question + ' [Yes|No]').lower()
-            else:
-                answer = input(question + ' (Yes|No)').lower()
 
-            if answer == 'yes' or answer == 'y':
-                confirmed = True
-                break
-            if answer == 'no' or answer == 'n':
-                confirmed = False
-                break
+def select_field(templatefield, candidates):
+    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
 
-        return confirmed
+    cli.msg('Unresolved Field: {!s}'.format(templatefield.as_placeholder()))
+    cli.msg('Candidates:')
+    for c in candidates:
+        _probs = []
+        for fm in c.field_map:
+            if fm.field == templatefield:
+                _probs.append(fm.probability)
+
+        _prob = ['probability: {}'.format(p) for p in _probs]
+        cli.msg(
+            '- "{!s}" ({})'.format(c.coercer.format(c.value), ' '.join(_prob))
+        )
+
+    log.warning('TODO: Implement interactive field selection')
+    return None
+
+
+def select_template(candidates):
+    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+    log.warning('TODO: Implement user name template selection')
+
+    return None
+
+
+def meowuri_prompt(message):
+    # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+    response = prompt.meowuri_prompt(message)
+    if response:
+        return response
+    else:
+        return Choice.ABORT
+
+
+def ask_confirm(message=None):
+    if message is None:
+        msg = 'Please Confirm (unspecified action)? [y/n]'
+    else:
+        msg = '\n{}  [y/n]'.format(message)
+
+    response = prompt.ask_confirm(msg)
+    assert isinstance(response, bool)
+    return response

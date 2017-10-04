@@ -20,9 +20,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
-
 import os
+from unittest import TestCase
 from unittest.mock import (
     MagicMock,
     patch
@@ -32,12 +31,13 @@ from core import (
     config,
     util
 )
+import unit_utils as uu
 
 
 class TestConfigDirs(TestCase):
     def _assert_unicode_encoding(self, path_list):
         for path in path_list:
-            self.assertTrue(isinstance(path, str))
+            self.assertTrue(uu.is_internalstring(path))
 
     def test_config_dirs_on_mac(self):
         with patch('platform.system', MagicMock(return_value='Darwin')):
@@ -81,7 +81,7 @@ class TestConfigFilePath(TestCase):
         self.assertEqual(expect_basename, actual_basename)
 
     def _assert_expected_encoding(self, config_path):
-        self.assertTrue(isinstance(config_path, bytes))
+        self.assertTrue(uu.is_internalbytestring(config_path))
 
     def test_config_dirs_on_mac(self):
         with patch('platform.system', MagicMock(return_value='Darwin')):

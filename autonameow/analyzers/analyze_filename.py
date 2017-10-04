@@ -20,10 +20,16 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-from collections import defaultdict
 
 from analyzers import BaseAnalyzer
-from core import types
+from core import (
+    types
+)
+from core.model import (
+    ExtractedData,
+    WeightedMapping
+)
+from core.namebuilder import fields
 from core.util import dateandtime
 
 
@@ -35,8 +41,7 @@ EDITION_RE_LOOKUP = {
 
 class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
-    handles_mime_types = ['*/*']
-    meowuri_root = 'analysis.filename'
+    HANDLES_MIME_TYPES = ['*/*']
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -49,6 +54,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._add_results('datetime', self.get_datetime())
         self._add_results('title', self.get_title())
         self._add_results('edition', self.get_edition())
+        self._add_results('extension', self.get_extension())
 
     def get_datetime(self):
         results = []
@@ -63,10 +69,31 @@ class FilenameAnalyzer(BaseAnalyzer):
         return None
 
     def get_edition(self):
-        basename = self.request_data(self.file_object,
-                                     'filesystem.basename.prefix')
+        basename = self.request_data(
+            self.file_object,
+            'extractor.filesystem.xplat.basename.prefix'
+        ).value
         if not basename:
             return
+
+    def get_extension(self):
+        ed_basename_suffix = self.request_data(
+            self.file_object,
+            'extractor.filesystem.xplat.basename.suffix'
+        )
+        ed_file_mimetype = self.request_data(
+            self.file_object,
+            'extractor.filesystem.xplat.contents.mime_type'
+        )
+        file_basename_suffix = ed_basename_suffix.as_string()
+        file_mimetype = ed_file_mimetype.value
+        result = likely_extension(file_basename_suffix, file_mimetype)
+        return ExtractedData(
+            coercer=types.AW_PATHCOMPONENT,
+            mapped_fields=[
+                WeightedMapping(fields.Extension, probability=1),
+            ]
+        )(result)
 
     def _get_datetime_from_name(self):
         """
@@ -78,6 +105,11 @@ class FilenameAnalyzer(BaseAnalyzer):
                    }, .. ]
         """
         fn = self.file_object.basename_prefix
+        try:
+            fn = types.AW_STRING(fn)
+        except types.AWTypeError:
+            return []
+
         results = []
 
         # 1. The Very Special Case
@@ -136,7 +168,7 @@ class FilenameAnalyzer(BaseAnalyzer):
                                 'weight': 0.25})
         else:
             self.log.debug('Unable to extract date/time-information '
-                      'from file name using regex search.')
+                           'from file name using regex search.')
 
         # Lastly, an iterative brute force search.
         # TODO: Collapse duplicate results with 'util.misc.multiset_count'..?
@@ -155,6 +187,44 @@ class FilenameAnalyzer(BaseAnalyzer):
     @classmethod
     def check_dependencies(cls):
         return True
+
+
+MIMETYPE_EXTENSION_SUFFIXES_MAP = {
+    # Note that the inner-most values are set-literals.
+    'text/plain': {
+        'c': {'c'},
+        'cpp': {'cpp'},
+        'csv': {'csv'},
+        'gemspec': {'gemspec'},
+        'h': {'h'},
+        'java': {'java'},
+        'js': {'js'},
+        'json': {'json'},
+        'key': {'key'},
+        'md': {'markdown', 'md', 'mkd'},
+        'puml': {'puml'},
+        'py': {'py', 'python'},
+        'rake': {'rake'},
+        'spec': {'spec'},
+        'sh': {'bash', 'sh'},
+        'txt': {'txt'},
+        'yaml': {'yaml'},
+    },
+    'text/x-shellscript': {
+        'sh': {'bash', 'sh', 'txt'},
+        'py': {'py'},
+    },
+}
+
+
+def likely_extension(basename_suffix, mime_type):
+    ext_suffixes_map = MIMETYPE_EXTENSION_SUFFIXES_MAP.get(mime_type)
+    if ext_suffixes_map:
+        for ext, suffixes in ext_suffixes_map.items():
+            if basename_suffix in suffixes:
+                return ext
+
+    return types.AW_MIMETYPE.format(mime_type)
 
 
 class SubstringFinder(object):
@@ -179,12 +249,11 @@ class FilenameTokenizer(object):
         return self._guess_separators(self.filename)
 
     def _guess_separators(self, string):
-        non_words = self.RE_NON_ALNUMS.split(string)
-
+        # non_words = self.RE_NON_ALNUMS.split(string)
         # for TODO: .........
-
-        char_count = defaultdict(int)
-        return s
+        # char_count = defaultdict(int)
+        # return s
+        pass
 
 
 def _find_datetime_isodate(text_line):

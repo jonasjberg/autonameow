@@ -24,20 +24,22 @@
 
 # This is me playing around with the Microsoft Vision API on a friday night.
 
+import http.client as httplib
 import os
 import json
-
 from urllib.parse import urlencode
-import http.client as httplib
 
 from core import (
-    util,
-    fields,
-    types
+    types,
+    util
 )
-from extractors import ExtractedData
-from plugins import BasePlugin
 from core.exceptions import AutonameowPluginError
+from core.model import (
+    ExtractedData,
+    WeightedMapping
+)
+from core.namebuilder import fields
+from plugins import BasePlugin
 
 
 def query_api(image_file, api_key):
@@ -137,8 +139,8 @@ def _read_api_key_from_file(file_path):
 
 
 class MicrosoftVisionPlugin(BasePlugin):
-    meowuri_root = 'plugin.microsoft_vision'
     DISPLAY_NAME = 'MicrosoftVision'
+    MEOWURI_LEAF = DISPLAY_NAME.lower()
 
     """
     'microsoft_vision.py'
@@ -191,34 +193,28 @@ class MicrosoftVisionPlugin(BasePlugin):
 
         _caption = get_caption_text(response)
         if _caption:
-            self.log.debug('Returning caption: "{!s}"'.format(_caption))
-            self.add_results(
-                file_object,
-                'caption',
-                ExtractedData(
-                    wrapper=types.AW_STRING,
-                    mapped_fields=[
-                        fields.WeightedMapping(fields.title,
-                                               probability=1),
-                        fields.WeightedMapping(fields.description,
-                                               probability=1)
-                    ]
-                )(_caption)
+            wrapper = ExtractedData(
+                coercer=types.AW_STRING,
+                mapped_fields=[
+                    WeightedMapping(fields.Title, probability=1),
+                    WeightedMapping(fields.Description, probability=1)
+                ]
             )
+            self.log.debug('Returning caption: "{!s}"'.format(_caption))
+            self.add_results(file_object, 'caption',
+                             ExtractedData.from_raw(wrapper, _caption))
 
         _tags = get_tags(response)
         if _tags:
+            wrapper = ExtractedData(
+                coercer=types.AW_STRING,
+                mapped_fields=[
+                    WeightedMapping(fields.Tags, probability=1),
+                ]
+            )
             _tags_pretty = ' '.join(map(lambda x: '"' + x + '"', _tags))
             self.log.debug('Returning tags: {}'.format(_tags_pretty))
-            self.add_results(
-                file_object,
-                'tags',
-                ExtractedData(
-                    wrapper=types.AW_STRING,
-                    mapped_fields=[
-                        fields.WeightedMapping(fields.tags, probability=1),
-                    ]
-                )(_tags)
-            )
+            self.add_results(file_object, 'tags',
+                             ExtractedData.from_raw(wrapper, _tags))
 
 

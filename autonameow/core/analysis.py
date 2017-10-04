@@ -28,7 +28,7 @@ from core import (
     repository
 )
 from core.fileobject import FileObject
-from extractors import ExtractedData
+from core.model import ExtractedData
 
 log = logging.getLogger(__name__)
 
@@ -93,11 +93,7 @@ def _execute_run_queue(analyzer_queue):
 
 def request_global_data(file_object, meowuri):
     response = repository.SessionRepository.query(file_object, meowuri)
-    # TODO: [TD0082] Integrate the 'ExtractedData' class.
-    if response is not None and isinstance(response, ExtractedData):
-        return response.value
-    else:
-        return response
+    return response
 
 
 def collect_results(file_object, meowuri, data):
@@ -110,11 +106,11 @@ def collect_results(file_object, meowuri, data):
     Example:
 
       Incoming arguments:
-        MeowURI: 'metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
+        MeowURI: 'extractor.metadata.exiftool'     DATA: {'a': 'b', 'c': 'd'}
 
       Would be "flattened" to:
-        MeowURI: 'metadata.exiftool.a'   DATA: 'b'
-        MeowURI: 'metadata.exiftool.c'   DATA: 'd'
+        MeowURI: 'extractor.metadata.exiftool.a'   DATA: 'b'
+        MeowURI: 'extractor.metadata.exiftool.c'   DATA: 'd'
 
     Args:
         file_object: Instance of 'file_object' that produced the data to add.

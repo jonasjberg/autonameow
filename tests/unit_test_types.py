@@ -24,10 +24,10 @@ from unittest import TestCase
 from datetime import datetime
 
 from core import (
-    constants,
     types,
     util,
 )
+from core import constants as C
 
 import unit_utils as uu
 
@@ -37,7 +37,7 @@ class TestBaseType(TestCase):
         self.base_type = types.BaseType()
 
     def test_null(self):
-        self.assertEqual(self.base_type(None), self.base_type.null)
+        self.assertEqual(self.base_type(None), self.base_type.NULL)
 
     def test_normalize(self):
         with self.assertRaises(NotImplementedError):
@@ -52,18 +52,18 @@ class TestBaseType(TestCase):
             self.base_type.format(None)
 
     def test_testing_equivalency(self):
-        self.assertTrue(self.base_type.test('foo'))
-        self.assertFalse(self.base_type.test(b'foo'))
-        self.assertFalse(self.base_type.test(False))
-        self.assertFalse(self.base_type.test(1))
+        self.assertTrue(self.base_type.equivalent('foo'))
+        self.assertFalse(self.base_type.equivalent(b'foo'))
+        self.assertFalse(self.base_type.equivalent(False))
+        self.assertFalse(self.base_type.equivalent(1))
 
 
 class TestTypeBoolean(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_BOOLEAN(None)), bool)
 
     def test_null(self):
-        self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.null)
+        self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.NULL)
         self.assertNotEqual(types.AW_BOOLEAN(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
@@ -75,22 +75,29 @@ class TestTypeBoolean(TestCase):
         _assert_normalizes(False, False)
         _assert_normalizes(-1, False)
         _assert_normalizes(0, False)
-        _assert_normalizes(1, False)
+        _assert_normalizes(1, True)
+        _assert_normalizes(-1.5, False)
+        _assert_normalizes(-1.0001, False)
         _assert_normalizes(-1.0, False)
+        _assert_normalizes(-0.05, False)
+        _assert_normalizes(-0.0, False)
         _assert_normalizes(0.0, False)
-        _assert_normalizes(1.0, False)
-        _assert_normalizes('true', False)
-        _assert_normalizes('True', False)
-        _assert_normalizes('yes', False)
-        _assert_normalizes('Yes', False)
+        _assert_normalizes(0.05, True)
+        _assert_normalizes(1.0, True)
+        _assert_normalizes(1.0001, True)
+        _assert_normalizes(1.5, True)
+        _assert_normalizes('true', True)
+        _assert_normalizes('True', True)
+        _assert_normalizes('yes', True)
+        _assert_normalizes('Yes', True)
         _assert_normalizes('no', False)
         _assert_normalizes('No', False)
         _assert_normalizes('false', False)
         _assert_normalizes('False', False)
-        _assert_normalizes(b'true', False)
-        _assert_normalizes(b'True', False)
-        _assert_normalizes(b'yes', False)
-        _assert_normalizes(b'Yes', False)
+        _assert_normalizes(b'true', True)
+        _assert_normalizes(b'True', True)
+        _assert_normalizes(b'yes', True)
+        _assert_normalizes(b'Yes', True)
         _assert_normalizes(b'no', False)
         _assert_normalizes(b'No', False)
         _assert_normalizes(b'false', False)
@@ -123,25 +130,55 @@ class TestTypeBoolean(TestCase):
         _assert_returns(b'No', False)
         _assert_returns(b'false', False)
         _assert_returns(b'False', False)
+        _assert_returns(-1, False)
+        _assert_returns(0, False)
+        _assert_returns(1, True)
+        _assert_returns(-1.5, False)
+        _assert_returns(-1.0001, False)
+        _assert_returns(-1.0, False)
+        _assert_returns(-0.05, False)
+        _assert_returns(-0.0, False)
+        _assert_returns(0.0, False)
+        _assert_returns(0.05, True)
+        _assert_returns(1.0, True)
+        _assert_returns(1.0001, True)
+        _assert_returns(1.5, True)
+
+        class _AlwaysTrue(object):
+            def __bool__(self):
+                return True
+
+        _assert_returns(_AlwaysTrue(), True)
+        _at = _AlwaysTrue()
+        _assert_returns(_at, True)
+
+        class _AlwaysFalse(object):
+            def __bool__(self):
+                return False
+
+        _assert_returns(_AlwaysFalse(), False)
+        _af = _AlwaysFalse()
+        _assert_returns(_af, False)
+
+        _datetime_object = uu.str_to_datetime('2017-09-25 100951')
+        _assert_returns(_datetime_object, False)
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(test_data):
             with self.assertRaises(types.AWTypeError):
                 types.AW_BOOLEAN(test_data)
 
-        _assert_raises(-1)
-        _assert_raises(0)
-        _assert_raises(1)
-        _assert_raises(-1.5)
-        _assert_raises(-1.0)
-        _assert_raises(-0.05)
-        _assert_raises(-0.0)
-        _assert_raises(1.0)
-        _assert_raises(1.0001)
-        _assert_raises(1.5)
+        self.assertEqual(types.AW_BOOLEAN('foo'), types.AW_BOOLEAN.NULL)
+        self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.NULL)
 
-        self.assertEqual(types.AW_BOOLEAN('foo'), types.AW_BOOLEAN.null)
-        self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.null)
+        class _NoBool(object):
+            def __raise(self):
+                raise ValueError
+
+            def __bool__(self):
+                return self.__raise()
+
+        _assert_raises(_NoBool())
 
     def test_format(self):
         def _assert_formats(test_data, expected):
@@ -163,17 +200,17 @@ class TestTypeBoolean(TestCase):
 
 
 class TestTypeInteger(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_INTEGER(None)), int)
 
     def test_null(self):
-        self.assertEqual(types.AW_INTEGER(None), types.AW_INTEGER.null)
+        self.assertEqual(types.AW_INTEGER(None), types.AW_INTEGER.NULL)
         self.assertNotEqual(types.AW_INTEGER(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
         self.assertEqual(types.AW_INTEGER.normalize(None),
-                         types.AW_INTEGER.null)
+                         types.AW_INTEGER.NULL)
         self.assertEqual(types.AW_INTEGER.normalize(-1), -1)
         self.assertEqual(types.AW_INTEGER.normalize(0), 0)
         self.assertEqual(types.AW_INTEGER.normalize(1), 1)
@@ -251,11 +288,11 @@ class TestTypeInteger(TestCase):
 
 
 class TestTypeFloat(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_FLOAT(None)), float)
 
     def test_null(self):
-        self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.null)
+        self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.NULL)
         self.assertNotEqual(types.AW_FLOAT(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
@@ -265,7 +302,7 @@ class TestTypeFloat(TestCase):
         self.assertEqual(types.AW_FLOAT.normalize(1), 1)
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.null)
+        self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.NULL)
 
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
@@ -285,6 +322,12 @@ class TestTypeFloat(TestCase):
         _assert_returns('0', 0.0)
         _assert_returns('1', 1.0)
         _assert_returns('1.5', 1.5)
+        _assert_returns(b'-1.5', -1.5)
+        _assert_returns(b'-1.0', -1.0)
+        _assert_returns(b'-1', -1.0)
+        _assert_returns(b'0', 0.0)
+        _assert_returns(b'1', 1.0)
+        _assert_returns(b'1.5', 1.5)
 
     def test_call_with_noncoercible_data(self):
         def _assert_raises(test_data):
@@ -301,6 +344,10 @@ class TestTypeFloat(TestCase):
         _assert_formats(None, '0.0')
         _assert_formats(1, '1.0')
         _assert_formats(20, '20.0')
+        _assert_formats('1', '1.0')
+        _assert_formats('20', '20.0')
+        _assert_formats(b'1', '1.0')
+        _assert_formats(b'20', '20.0')
 
     def test_format_valid_data_with_format_string(self):
         def _assert_formats(test_data, format_string, expected):
@@ -313,10 +360,22 @@ class TestTypeFloat(TestCase):
         _assert_formats(1, '{0:.1f}', '1.0')
         _assert_formats(2, '{0:.2f}', '2.00')
         _assert_formats(33, '{0:.3f}', '33.000')
+        _assert_formats('1', '{0:.1f}', '1.0')
+        _assert_formats('2', '{0:.2f}', '2.00')
+        _assert_formats('33', '{0:.3f}', '33.000')
+        _assert_formats(b'1', '{0:.1f}', '1.0')
+        _assert_formats(b'2', '{0:.2f}', '2.00')
+        _assert_formats(b'33', '{0:.3f}', '33.000')
         _assert_formats(None, 'x', 'x')
         _assert_formats(1, 'x', 'x')
         _assert_formats(2, 'x', 'x')
         _assert_formats(33, 'x', 'x')
+        _assert_formats('1', 'x', 'x')
+        _assert_formats('2', 'x', 'x')
+        _assert_formats('33', 'x', 'x')
+        _assert_formats(b'1', 'x', 'x')
+        _assert_formats(b'2', 'x', 'x')
+        _assert_formats(b'33', 'x', 'x')
 
     def test_format_raises_exception_for_invalid_format_strings(self):
         def _assert_raises(test_data, format_string):
@@ -329,14 +388,112 @@ class TestTypeFloat(TestCase):
         _assert_raises(1.0, b'')
         _assert_raises(1.0, b'x')
 
+    def test_bounded_low(self):
+        def _aE(test_input, low, expected):
+            actual = types.AW_FLOAT.bounded(test_input, low=low)
+            self.assertEqual(actual, expected)
+
+        _aE(10.0,    0, 10.0)
+        _aE(1.0,     0,  1.0)
+        _aE(-0.0001, 0,  0.0)
+        _aE(-1.0,    0,  0.0)
+        _aE(-10.0,   0,  0.0)
+
+        _aE(10.0,    1, 10.0)
+        _aE(1.0,     1,  1.0)
+        _aE(-0.0001, 1,  1.0)
+        _aE(-1.0,    1,  1.0)
+        _aE(-10.0,   1,  1.0)
+
+        _aE(10.0,    2, 10.0)
+        _aE(1.0,     2,  2.0)
+        _aE(-0.0001, 2,  2.0)
+        _aE(-1.0,    2,  2.0)
+        _aE(-10.0,   2,  2.0)
+
+    def test_bounded_high(self):
+        def _aE(test_input, high, expected):
+            actual = types.AW_FLOAT.bounded(test_input, high=high)
+            self.assertEqual(actual, expected)
+
+        _aE(10.0,    0,   0.0)
+        _aE(1.0,     0,   0.0)
+        _aE(-0.001,  0,  -0.001)
+        _aE(-1.0,    0,  -1.0)
+        _aE(-10.0,   0, -10.0)
+
+        _aE(10.0,    1,   1.0)
+        _aE(1.0,     1,   1.0)
+        _aE(-0.0001, 1,  -0.0001)
+        _aE(-1.0,    1,  -1.0)
+        _aE(-10.0,   1, -10.0)
+
+        _aE(10.0,    2,   2.0)
+        _aE(1.0,     2,   1.0)
+        _aE(-0.0001, 2,  -0.0001)
+        _aE(-1.0,    2,  -1.0)
+        _aE(-10.0,   2, -10.0)
+
+    def test_bounded_low_and_high(self):
+        def _aE(test_input, low, high, expected):
+            actual = types.AW_FLOAT.bounded(test_input, low=low, high=high)
+            self.assertEqual(actual, expected)
+
+        _aE(10.0,    0,  0,  0.0)
+        _aE(1.0,     0,  0,  0.0)
+        _aE(-0.0001, 0,  0,  0.0)
+        _aE(-1.0,    0,  0,  0.0)
+        _aE(-10.0,   0,  0,  0.0)
+        _aE(10.0,    0,  1,  1.0)
+        _aE(1.0,     0,  1,  1.0)
+        _aE(-0.0001, 0,  1,  0.0)
+        _aE(-1.0,    0,  1,  0.0)
+        _aE(-10.0,   0,  1,  0.0)
+        _aE(10.0,    0,  2,  2.0)
+        _aE(1.0,     0,  2,  1.0)
+        _aE(-0.0001, 0,  2,  0.0)
+        _aE(-1.0,    0,  2,  0.0)
+        _aE(-10.0,   0,  2,  0.0)
+        _aE(10.0,    0, 10, 10.0)
+        _aE(1.0,     0, 10,  1.0)
+        _aE(-0.0001, 0, 10,  0.0)
+        _aE(-1.0,    0, 10,  0.0)
+        _aE(-10.0,   0, 10,  0.0)
+        _aE(10.0,    1,  1,  1.0)
+        _aE(1.0,     1,  1,  1.0)
+        _aE(-0.0001, 1,  1,  1.0)
+        _aE(-1.0,    1,  1,  1.0)
+        _aE(-10.0,   1,  1,  1.0)
+        _aE(10.0,    1,  2,  2.0)
+        _aE(1.0,     1,  2,  1.0)
+        _aE(-0.0001, 1,  2,  1.0)
+        _aE(-1.0,    1,  2,  1.0)
+        _aE(-10.0,   1,  2,  1.0)
+        _aE(10.0,    1, 10, 10.0)
+        _aE(1.0,     1, 10,  1.0)
+        _aE(-0.0001, 1, 10,  1.0)
+        _aE(-1.0,    1, 10,  1.0)
+        _aE(-10.0,   1, 10,  1.0)
+        _aE(10.0,    2,  2,  2.0)
+        _aE(1.0,     2,  2,  2.0)
+        _aE(-0.0001, 2,  2,  2.0)
+        _aE(-1.0,    2,  2,  2.0)
+        _aE(-10.0,   2,  2,  2.0)
+        _aE(10.0,    2, 10, 10.0)
+        _aE(1.0,     2, 10,  2.0)
+        _aE(-0.0001, 2, 10,  2.0)
+        _aE(-1.0,    2, 10,  2.0)
+        _aE(-10.0,   2, 10,  2.0)
+        _aE(1.01,   0.0, 1.0,  1.0)
+
 
 class TestTypeTimeDate(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_TIMEDATE(None)), str)
 
     def test_null(self):
-        self.assertEqual(types.AW_TIMEDATE.null, 'INVALID DATE')
+        self.assertEqual(types.AW_TIMEDATE.NULL, 'INVALID DATE')
 
         with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_TIMEDATE(None), 'NULL',
@@ -360,13 +517,14 @@ class TestTypeTimeDate(TestCase):
 
     def test_call_with_none(self):
         with self.assertRaises(types.AWTypeError):
-            self.assertEqual(types.AW_TIMEDATE(None), types.AW_TIMEDATE.null)
+            self.assertEqual(types.AW_TIMEDATE(None), types.AW_TIMEDATE.NULL)
 
     def test_call_with_coercible_data(self):
         expected = datetime.strptime('2017-07-12T20:50:15', '%Y-%m-%dT%H:%M:%S')
         self.assertEqual(types.AW_TIMEDATE(expected), expected)
         self.assertEqual(types.AW_TIMEDATE('2017-07-12T20:50:15'), expected)
         self.assertEqual(types.AW_TIMEDATE('2017-07-12T205015'), expected)
+        # TODO: Handle things like 'Thu Aug 31 11:51:57 2017 +0200'
         # TODO: Add testing additional input data.
 
     def test_call_with_noncoercible_data(self):
@@ -404,12 +562,12 @@ class TestTypeTimeDate(TestCase):
 
 
 class TestTypeDate(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_DATE(None)), datetime)
 
     def test_null(self):
-        self.assertEqual(types.AW_DATE.null, 'INVALID DATE')
+        self.assertEqual(types.AW_DATE.NULL, 'INVALID DATE')
 
         with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_DATE(None), 'NULL',
@@ -499,12 +657,12 @@ class TestTypeDate(TestCase):
 
 
 class TestTypeExiftoolTimeDate(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_EXIFTOOLTIMEDATE(None)), str)
 
     def test_null(self):
-        self.assertEqual(types.AW_EXIFTOOLTIMEDATE.null, 'INVALID DATE')
+        self.assertEqual(types.AW_EXIFTOOLTIMEDATE.NULL, 'INVALID DATE')
 
         with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_EXIFTOOLTIMEDATE(None), 'NULL',
@@ -584,12 +742,12 @@ class TestTypeExiftoolTimeDate(TestCase):
 
 
 class TestTypePyPDFTimeDate(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_PYPDFTIMEDATE(None)), str)
 
     def test_null(self):
-        self.assertEqual(types.AW_PYPDFTIMEDATE.null, 'INVALID DATE')
+        self.assertEqual(types.AW_PYPDFTIMEDATE.NULL, 'INVALID DATE')
 
         with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_PYPDFTIMEDATE(None), 'NULL',
@@ -642,7 +800,7 @@ class TestTypePyPDFTimeDate(TestCase):
 
 
 class TestTypePath(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):
             self.assertEqual(type(types.AW_PATH(None)), None)
 
@@ -651,7 +809,7 @@ class TestTypePath(TestCase):
             self.assertEqual(types.AW_PATH(None), 'INVALID PATH')
 
         with self.assertRaises(types.AWTypeError):
-            self.assertEqual(types.AW_PATH(None), types.AW_PATH.null)
+            self.assertEqual(types.AW_PATH(None), types.AW_PATH.NULL)
 
         with self.assertRaises(types.AWTypeError):
             self.assertNotEqual(types.AW_PATH(None), 'NULL',
@@ -705,13 +863,13 @@ class TestTypePath(TestCase):
 
 
 class TestTypePathComponent(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_PATHCOMPONENT(None)), bytes)
 
     def test_null(self):
         self.assertEqual(types.AW_PATHCOMPONENT(None), b'')
         self.assertEqual(types.AW_PATHCOMPONENT(None),
-                         types.AW_PATHCOMPONENT.null)
+                         types.AW_PATHCOMPONENT.NULL)
 
         self.assertNotEqual(types.AW_PATHCOMPONENT(None), 'NULL',
                             'BaseType default "null" must be overridden')
@@ -781,11 +939,11 @@ class TestTypePathComponent(TestCase):
 
 
 class TestTypeString(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_STRING(None)), str)
 
     def test_null(self):
-        self.assertEqual(types.AW_STRING.null, '')
+        self.assertEqual(types.AW_STRING.NULL, '')
 
         self.assertNotEqual(types.AW_STRING(None), 'NULL',
                             'BaseType default "null" must be overridden')
@@ -823,7 +981,7 @@ class TestTypeString(TestCase):
         _assert_normalizes(True, 'True')
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_STRING(None), types.AW_STRING.null)
+        self.assertEqual(types.AW_STRING(None), types.AW_STRING.NULL)
 
     def test_call_with_coercible_data(self):
         def _assert_returns(test_data, expected):
@@ -879,11 +1037,11 @@ class TestTypeString(TestCase):
 
 
 class TestTypeMimeType(TestCase):
-    def test_wraps_expected_primitive(self):
+    def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_MIMETYPE(None)), str)
 
     def test_null(self):
-        self.assertEqual(types.AW_MIMETYPE.null, constants.MAGIC_TYPE_UNKNOWN)
+        self.assertEqual(types.AW_MIMETYPE.NULL, C.MAGIC_TYPE_UNKNOWN)
         self.assertNotEqual(types.AW_MIMETYPE(None), 'NULL',
                             'BaseType default "null" must be overridden')
 
@@ -925,7 +1083,7 @@ class TestTypeMimeType(TestCase):
         _assert_normalizes(b'APPLICATION/EPUB+ZIP', 'application/epub+zip')
 
     def test_call_with_none(self):
-        self.assertEqual(types.AW_MIMETYPE(None), types.AW_MIMETYPE.null)
+        self.assertEqual(types.AW_MIMETYPE(None), types.AW_MIMETYPE.NULL)
 
     def test_call_with_coercible_data(self):
         def _assert_coerces(test_data, expected):
@@ -963,7 +1121,7 @@ class TestTypeMimeType(TestCase):
     def test_call_with_noncoercible_data(self):
         def _assert_uncoercible(test_data):
             self.assertEqual(types.AW_MIMETYPE(test_data),
-                             types.AW_MIMETYPE.null)
+                             types.AW_MIMETYPE.NULL)
 
         _assert_uncoercible(None)
         _assert_uncoercible(False)
@@ -1021,51 +1179,68 @@ class TestTypeMimeType(TestCase):
         _assert_formats(b'application/epub+zip', 'epub')
 
 
-class TestTryWrap(TestCase):
-    def test_try_wrap_none(self):
-        self.assertIsNone(types.try_wrap(None))
+class TestTryCoerce(TestCase):
+    def test_try_coerce_none(self):
+        self.assertIsNone(types.try_coerce(None))
 
-    def test_try_wrap_list(self):
-        # TODO: [TD0084] Add handling collections to type wrapper classes.
-        self.assertIsNone(types.try_wrap([]))
-        self.assertIsNone(types.try_wrap(['foo', 'bar']))
-        self.assertIsNone(types.try_wrap([1, 2]))
+    def test_try_coerce_list(self):
+        # TODO: [TD0084] Add handling collections to type coercion classes.
+        self.assertIsNone(types.try_coerce([]))
+        self.assertIsNone(types.try_coerce(['foo', 'bar']))
+        self.assertIsNone(types.try_coerce([1, 2]))
 
-    def test_try_wrap_primitive_bool(self):
-        self.assertEqual(types.try_wrap(False), False)
-        self.assertEqual(types.try_wrap(True), True)
-        self.assertTrue(isinstance(types.try_wrap(False), bool))
-        self.assertTrue(isinstance(types.try_wrap(True), bool))
+    def test_try_coerce_primitive_bool(self):
+        self.assertEqual(types.try_coerce(False), False)
+        self.assertEqual(types.try_coerce(True), True)
+        self.assertTrue(isinstance(types.try_coerce(False), bool))
+        self.assertTrue(isinstance(types.try_coerce(True), bool))
 
-    def test_try_wrap_primitive_int(self):
-        self.assertEqual(types.try_wrap(1), 1)
-        self.assertEqual(types.try_wrap(0), 0)
-        self.assertTrue(isinstance(types.try_wrap(1), int))
-        self.assertTrue(isinstance(types.try_wrap(0), int))
+    def test_try_coerce_primitive_int(self):
+        self.assertEqual(types.try_coerce(1), 1)
+        self.assertEqual(types.try_coerce(0), 0)
+        self.assertTrue(isinstance(types.try_coerce(1), int))
+        self.assertTrue(isinstance(types.try_coerce(0), int))
 
-    def test_try_wrap_primitive_float(self):
-        self.assertEqual(types.try_wrap(1.0), 1.0)
-        self.assertEqual(types.try_wrap(0.0), 0.0)
-        self.assertTrue(isinstance(types.try_wrap(1.0), float))
-        self.assertTrue(isinstance(types.try_wrap(0.0), float))
+    def test_try_coerce_primitive_float(self):
+        self.assertEqual(types.try_coerce(1.0), 1.0)
+        self.assertEqual(types.try_coerce(0.0), 0.0)
+        self.assertTrue(isinstance(types.try_coerce(1.0), float))
+        self.assertTrue(isinstance(types.try_coerce(0.0), float))
 
-    def test_try_wrap_primitive_str(self):
-        self.assertEqual(types.try_wrap('foo'), 'foo')
-        self.assertEqual(types.try_wrap(''), '')
-        self.assertTrue(isinstance(types.try_wrap('foo'), str))
-        self.assertTrue(isinstance(types.try_wrap(''), str))
+    def test_try_coerce_primitive_str(self):
+        self.assertEqual(types.try_coerce('foo'), 'foo')
+        self.assertEqual(types.try_coerce(''), '')
+        self.assertTrue(isinstance(types.try_coerce('foo'), str))
+        self.assertTrue(isinstance(types.try_coerce(''), str))
 
-    def test_try_wrap_primitive_bytes(self):
-        self.assertEqual(types.try_wrap(b'foo'), 'foo')
-        self.assertEqual(types.try_wrap(b''), '')
-        self.assertTrue(isinstance(types.try_wrap(b'foo'), str))
-        self.assertTrue(isinstance(types.try_wrap(b''), str))
+    def test_try_coerce_primitive_bytes(self):
+        self.assertEqual(types.try_coerce(b'foo'), 'foo')
+        self.assertEqual(types.try_coerce(b''), '')
+        self.assertTrue(isinstance(types.try_coerce(b'foo'), str))
+        self.assertTrue(isinstance(types.try_coerce(b''), str))
 
-    def test_try_wrap_datetime(self):
+    def test_try_coerce_datetime(self):
         dt = datetime.now()
-        self.assertEqual(types.try_wrap(dt), dt)
-        self.assertTrue(isinstance(types.try_wrap(dt), datetime))
-        self.assertTrue(isinstance(types.try_wrap(datetime.now()), datetime))
+        self.assertEqual(types.try_coerce(dt), dt)
+        self.assertTrue(isinstance(types.try_coerce(dt), datetime))
+        self.assertTrue(isinstance(types.try_coerce(datetime.now()), datetime))
+
+
+class TestForceString(TestCase):
+    def test_returns_strings(self):
+        def _aS(test_input):
+            actual = types.force_string(test_input)
+            self.assertTrue(isinstance(actual, str))
+
+        _aS(1)
+        _aS(1.0)
+        _aS('')
+        _aS(b'')
+        _aS('foo')
+        _aS(b'foo')
+        _aS([])
+        _aS({})
+        _aS(None)
 
 
 class TestTryParseDate(TestCase):

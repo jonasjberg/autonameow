@@ -23,13 +23,16 @@ import re
 
 from analyzers import BaseAnalyzer
 from core import (
+    model,
     types,
-    util,
-    fields
+    util
+)
+from core.namebuilder import fields
+from core.model import (
+    ExtractedData,
+    WeightedMapping
 )
 from core.util import diskutils
-from extractors import ExtractedData
-
 
 # TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
 
@@ -55,42 +58,41 @@ FILENAME_TAG_SEPARATOR = util.bytestring_path(' -- ')
 
 class FiletagsAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
-    handles_mime_types = ['*/*']
-    meowuri_root = 'analysis.filetags'
+    HANDLES_MIME_TYPES = ['*/*']
 
     WRAPPER_LOOKUP = {
         'datetime': ExtractedData(
-            wrapper=types.AW_TIMEDATE,
+            coercer=types.AW_TIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=0.75),
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=0.75),
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'description': ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.description, probability=1),
-                fields.WeightedMapping(fields.title, probability=0.5),
+                WeightedMapping(fields.Description, probability=1),
+                WeightedMapping(fields.Title, probability=0.5),
             ],
-            generic_field=fields.GenericDescription
+            generic_field=model.GenericDescription
         ),
         'tags': ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.tags, probability=1),
+                WeightedMapping(fields.Tags, probability=1),
             ],
-            generic_field=fields.GenericTags
+            generic_field=model.GenericTags
         ),
         'extension': ExtractedData(
-            wrapper=types.AW_MIMETYPE,
+            coercer=types.AW_MIMETYPE,
             mapped_fields=[
-                fields.WeightedMapping(fields.extension, probability=1),
+                WeightedMapping(fields.Extension, probability=1),
             ],
-            generic_field=fields.GenericMimeType
+            generic_field=model.GenericMimeType
         ),
         'follows_filetags_convention': ExtractedData(
-            wrapper=types.AW_BOOLEAN,
+            coercer=types.AW_BOOLEAN,
             mapped_fields=None,
             generic_field=None
         )
@@ -110,12 +112,9 @@ class FiletagsAnalyzer(BaseAnalyzer):
     def __wrap_result(self, meowuri_leaf, data):
         wrapper = self.WRAPPER_LOOKUP.get(meowuri_leaf)
         if wrapper:
-            try:
-                wrapped = wrapper(data)
-            except types.AWTypeError:
-                return
-
-            self._add_results(meowuri_leaf, wrapped)
+            wrapped = ExtractedData.from_raw(wrapper, data)
+            if wrapped:
+                self._add_results(meowuri_leaf, wrapped)
 
     def run(self):
         (self._timestamp, self._description, self._tags,

@@ -19,19 +19,23 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core import util
+import re
+import unicodedata
 
 try:
     import chardet
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     chardet = None
+
+from core.util import sanity
+from thirdparty import nameparser
 
 
 def extract_digits(string):
     """
     Extracts and returns digits from a Unicode string, as a Unicode string.
     """
-    util.assert_internal_string(string)
+    sanity.check_internal_string(string)
 
     digits = ''
     for char in string:
@@ -81,8 +85,8 @@ def indent(text, amount=None, ch=None):
     if text is None:
         raise ValueError('Got None argument "text"')
 
-    util.assert_internal_string(text)
-    util.assert_internal_string(ch)
+    sanity.check_internal_string(text)
+    sanity.check_internal_string(ch)
 
     padding = amount * ch
     return ''.join(padding + line for line in text.splitlines(True))
@@ -125,7 +129,7 @@ def autodetect_decode(string):
         except ValueError:
             raise ValueError('Unable to autodetect encoding and decode string')
 
-    util.assert_internal_string(string)
+    sanity.check_internal_string(string)
     return string
 
 
@@ -147,16 +151,15 @@ def extract_lines(text, first_line, last_line):
         If 'text' is a Unicode str; lines between 'first_line' and 'last_line'.
         None if 'text' is None.
     Raises:
-        TypeError: Argument 'text' is not a Unicode string.
-        AssertionError: Either 'first_line' or 'last_line' is negative.
+        EncodingBoundaryViolation: Argument 'text' is not a Unicode string.
+        AWAssertionError: Either 'first_line' or 'last_line' is negative.
     """
     if text is None:
         return text
-    if not isinstance(text, str):
-        raise TypeError('Expected argument "text" to be a Unicode str')
 
-    assert(first_line >= 0)
-    assert(last_line >= 0)
+    sanity.check_internal_string(text)
+    sanity.check(first_line >= 0, 'Argument first_line is negative')
+    sanity.check(last_line >= 0, 'Argument last_line is negative')
 
     lines = text.splitlines(keepends=True)
     if last_line > len(lines):
@@ -167,3 +170,123 @@ def extract_lines(text, first_line, last_line):
 
     extracted = lines[first_line:last_line]
     return ''.join(extracted)
+
+
+IGNORED_AUTHOR_WORDS = frozenset([
+    'van'
+])
+
+
+def parse_name(full_name):
+    """
+    Thin wrapper around 'nameparser'.
+
+    Args:
+        full_name: The name to parse as a Unicode string.
+
+    Returns:
+        The parsed name as an instance of the 'HumanName' class.
+    """
+    if nameparser:
+        return nameparser.HumanName(full_name)
+    return None
+
+
+def format_name_lastname_initials(full_name):
+    """
+    Formats a full name to LAST_NAME, INITIALS..
+
+    Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
+
+    Args:
+        full_name: The full name to format as a Unicode string.
+
+    Returns:
+        The specified name written as LAST_NAME, INITIAL, INITIAL..
+    """
+    words = full_name.split(' ')
+    words = [w for w in words if w not in IGNORED_AUTHOR_WORDS]
+
+    lastname = words.pop()
+    if words:
+        initials = [w[0] for w in words]
+        _initials = '{0}{1}'.format('.'.join(initials), '.')
+        return lastname + ' ' + _initials
+    else:
+        return lastname
+
+
+def format_name_lastname_initials2(full_name):
+    """
+    Formats a full name to LAST_NAME, INITIALS..
+
+    Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
+
+    Args:
+        full_name: The full name to format as a Unicode string.
+
+    Returns:
+        The specified name written as LAST_NAME, INITIAL, INITIAL..
+    """
+    sanity.check_internal_string(full_name)
+
+    full_name = full_name.strip()
+
+    # Return names already in the output format as-is.
+    if re.match(r'[\w]+ (\w\.)+$', full_name):
+        return full_name
+
+    # Using the third-party 'nameparser' module.
+    _human_name = parse_name(full_name)
+    if not _human_name:
+        return ''
+
+    # Some first names are misinterpreted as titles.
+    if _human_name.first == '':
+        first_list = _human_name.title_list
+    else:
+        first_list = _human_name.first_list
+
+    def _to_initial(string):
+        string = string.strip('.')
+        return string[0]
+
+    initials = [_to_initial(f) for f in first_list]
+    initials += [_to_initial(m) for m in _human_name.middle_list]
+    _initials = '{0}{1}'.format('.'.join(initials), '.')
+
+    last_name = _human_name.last.replace(' ', '')
+    return '{} {}'.format(last_name, _initials)
+
+
+def format_names_lastname_initials(list_of_full_names):
+    _formatted_authors = [format_name_lastname_initials(a)
+                          for a in list_of_full_names]
+    return sorted(_formatted_authors, key=str.lower)
+
+
+RE_UNICODE_DASHES = re.compile(
+    '[\u2212\u2013\u2014\u05be\u2010\u2015\u30fb]'
+)
+
+
+def normalize_unicode(text):
+    # Normalization Form KC (NFKC)
+    # Compatibility Decomposition, followed by Canonical Composition.
+    # http://unicode.org/reports/tr15/
+    NORMALIZATION_FORM = 'NFKC'
+
+    if not isinstance(text, str):
+        raise TypeError('Expected "text" to be a Unicode str')
+
+    text = re.sub(RE_UNICODE_DASHES, '-', text)
+
+    return unicodedata.normalize(NORMALIZATION_FORM, text)
+
+
+RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+
+
+def strip_ansiescape(string):
+    stripped = re.sub(RE_ANSI_ESCAPE, '', string)
+    return stripped

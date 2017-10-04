@@ -25,8 +25,8 @@ from unittest import TestCase
 import analyzers
 from core import (
     exceptions,
-    constants
 )
+from core import constants as C
 import unit_utils as uu
 
 
@@ -41,6 +41,10 @@ EXPECT_ANALYZER_CLASSES = ['analyzers.analyze_image.ImageAnalyzer',
                            'analyzers.analyze_ebook.EbookAnalyzer']
 EXPECT_ANALYZER_CLASSES_BASENAME = [c.split('.')[-1]
                                     for c in EXPECT_ANALYZER_CLASSES]
+
+
+def subclasses_base_analyzer(klass):
+    return uu.is_class(klass) and issubclass(klass, analyzers.BaseAnalyzer)
 
 
 class TestBaseAnalyzer(TestCase):
@@ -70,12 +74,12 @@ class TestBaseAnalyzer(TestCase):
             self.a.get(None)
 
     def test_get_with_valid_field_name_raises_attribute_error(self):
-        _field_name = constants.ANALYSIS_RESULTS_FIELDS[0]
+        _field_name = C.ANALYSIS_RESULTS_FIELDS[0]
         with self.assertRaises(NotImplementedError):
             self.a.get(_field_name)
 
     def test_get_with_valid_field_names_raises_not_implemented_error(self):
-        for _field_name in constants.ANALYSIS_RESULTS_FIELDS:
+        for _field_name in C.ANALYSIS_RESULTS_FIELDS:
             with self.assertRaises(NotImplementedError):
                 self.a.get(_field_name)
 
@@ -204,4 +208,58 @@ class TestNumberOfAvailableAnalyzerClasses(TestCase):
     # TODO: [hardcoded] Likely to break; fixed analyzer names!
     def test_get_analyzer_classes_returns_expected_count(self):
         self.assertEqual(len(self.actual), len(EXPECT_ANALYZER_CLASSES))
+
+
+class TestMapMeowURIToAnalyzers(TestCase):
+    def setUp(self):
+        self.actual = analyzers.map_meowuri_to_analyzers()
+
+    def test_returns_expected_type(self):
+        self.assertIsNotNone(self.actual)
+        self.assertTrue(isinstance(self.actual, dict))
+
+        for meowuri, klass_list in self.actual.items():
+            self.assertTrue(uu.is_internalstring(meowuri))
+            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
+
+            for klass in klass_list:
+                self.assertTrue(subclasses_base_analyzer(klass))
+                self.assertTrue(uu.is_class(klass))
+
+    def test_returns_one_analyzer_per_meowuri(self):
+        # This assumption is likely bound to change some time soon.
+        for meowuri, klass_list in self.actual.items():
+            self.assertEqual(len(klass_list), 1)
+
+
+class TestAnalyzerClassMeowURIs(TestCase):
+    analyzer_class_names = [a.__name__ for a in analyzers.AnalyzerClasses]
+
+    def setUp(self):
+        self.actual = [a.meowuri() for a in analyzers.AnalyzerClasses]
+
+    def test_returns_expected_type(self):
+        for meowuri in self.actual:
+            self.assertTrue(uu.is_internalstring(meowuri))
+            self.assertTrue(C.UNDEFINED_MEOWURI_PART not in meowuri)
+
+    def test_returns_meowuris_for_analyzers_assumed_always_available(self):
+        def _assert_in(member):
+            self.assertIn(member, self.actual)
+
+        _assert_in('analyzer.document')
+        _assert_in('analyzer.filename')
+        _assert_in('analyzer.filesystem')
+        _assert_in('analyzer.filetags')
+        _assert_in('analyzer.image')
+        _assert_in('analyzer.text')
+        _assert_in('analyzer.video')
+
+    def test_returns_meowuris_for_available_analyzers(self):
+        def _conditional_assert_in(klass, member):
+            if klass in self.analyzer_class_names:
+                self.assertIn(member, self.actual)
+
+        _conditional_assert_in('EbookAnalyzer',
+                               'analyzer.ebook')
 

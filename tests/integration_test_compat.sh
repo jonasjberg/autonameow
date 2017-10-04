@@ -96,10 +96,10 @@ AUTONAMEOW_CONFIG_PATH="${AUTONAMEOW_CONFIG_PATH//\"/}"
 assert_true '[ -f "$AUTONAMEOW_CONFIG_PATH" ]' \
             'The path of the used configuration file should be a existing file.'
 
-assert_true 'grep -oE -- "^autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH"' \
-            "The retrieved configuration file contents should match \"^autonameow_version: X.X.X$\""
+assert_true 'grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH"' \
+            "The retrieved configuration file contents should match \"autonameow_version: X.X.X$\""
 
-CONFIG_FILE_VERSION="$(grep -oE -- "^autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
+CONFIG_FILE_VERSION="$(grep -oE -- "autonameow_version: v?[0-9]\.[0-9]\.[0-9]$" "$AUTONAMEOW_CONFIG_PATH" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
 assert_false '[ -z "$CONFIG_FILE_VERSION" ]' \
              'This test script should be able to retrieve the configuration file version.'
 

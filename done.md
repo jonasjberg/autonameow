@@ -10,6 +10,100 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-09-29
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0012]` Add some type of caching.
+    >     * Extracting text from a PDF should only have to happen once, at most.
+    >       Preferably not at all, unless a rule conditional tests the text content
+    >       or the text is needed elsewhere.
+    >     * Image OCR is very slow, should only be executed when needed, caching the
+    >       results for all accesses.
+    >
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0042]` Respect the `--quiet` option. Suppress (all but critical?) output.
+
+* 2017-09-28
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0090]` Complete initial implementation of "generic" data fields.
+
+* 2017-09-27
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0004]` __Text encoding issues__
+    >     * Enforce strict boundaries between all external systems and an internal
+    >       text data representation.
+    >     * Store original filename parts as both bytestrings and the internal
+    >       representation?  If the user wants to use a part of the original file
+    >       name in the result, the conversion can not be lossy. Best way to prevent
+    >       issues is to store bytestrings and perform any processing on copies that
+    >       have __not__ been converted to the internal format?
+    >
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0062]` Look at testing that all name template fields are mapped to data
+    >   sources. This could be done when reading the configuration, instead of later
+    >   on in the name builder.
+    >
+    > * `[TD0049]` __Think about defining legal "placeholder fields".__
+    >   Might be helpful to define all legal fields (such as `title`, `datetime`,
+    >   `author`, etc.) somewhere and keep references to type coercion wrappers,
+    >   maybe validation and/or formatting functionality; in the field definitions.
+    >
+    > * `[TD0018]` There are more cases like the above that should be thought about.
+    >   A common case is the slight modification to the current file name.
+    >   Original file name:
+    >     ```
+    >     2017-06-20_00-49-56 Working on autonameow.png
+    >     ```
+    >   Desired file name:
+    >     ```
+    >     2017-06-20T004956 Working on autonameow.png
+    >     ```
+    >   How should this be specified in the configuration?
+    >   A simple alternative is to specify the filename analyzer as the source.
+    >   The `DATETIME_FORMAT` makes sure that the timestamp format is changed.
+    >
+    >     ```yaml
+    >     RULES:
+    >     -   DATA_SOURCES:
+    >             extension: contents.basename.extension
+    >             datetime: analysis.filename.{?????}
+    >             title: filesystem.basename.prefix
+    >         NAME_FORMAT: "{datetime} {title}.{extension}"
+    >     DATETIME_FORMAT:
+    >         datetime: '%Y-%m-%dT%H%M%S'
+    >     ```
+    >   But this is not configurable -- how would the filename analyzer know
+    >   which of many possible datetime results to use?
+
+* 2017-09-25
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0086]` __Use one `SessionRepository` per `Autonameow` instance.__  
+    >   The `Autonameow` class "manages a running instance of the program" should
+    >   have its own instance of the `Repository` class. This is fine for now but
+    >   should be fixed to avoid confusion and future problems.
+
+* 2017-09-22
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0081]` Bundle the `pyexiftool` dependency. Add to `autonameow/thirdparty`.
+
 * 2017-09-20
 
     > Medium Priority

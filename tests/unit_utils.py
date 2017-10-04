@@ -30,11 +30,12 @@ from contextlib import contextmanager
 from datetime import datetime
 
 import analyzers
-
-from core import util
+from core import (
+    model,
+    util
+)
 from core.config import rules
 from core.fileobject import FileObject
-
 import unit_utils_constants as uuconst
 
 
@@ -259,12 +260,16 @@ def mock_session_data_pool(file_object):
     util.nested_dict_set(data,
                          [file_object, 'filesystem.contents.mime_type'],
                          'application/pdf')
-    util.nested_dict_set(data,
-                         [file_object, 'metadata.exiftool.PDF:Creator'],
-                         'Chromium')
-    util.nested_dict_set(data,
-                         [file_object, 'metadata.exiftool'],
-                         {'File:MIMEType': 'application/bar'})
+    util.nested_dict_set(
+        data,
+        [file_object, 'extractor.metadata.exiftool.PDF:Creator'],
+        'Chromium'
+    )
+    util.nested_dict_set(
+        data,
+        [file_object, 'extractor.metadata.exiftool'],
+        {'File:MIMEType': 'application/bar'}
+    )
 
     return data
 
@@ -335,12 +340,16 @@ def mock_session_data_pool_with_extractor_and_analysis_data(file_object):
     util.nested_dict_set(data,
                          [file_object, 'filesystem.contents.mime_type'],
                          'application/pdf')
-    util.nested_dict_set(data,
-                         [file_object, 'metadata.exiftool.PDF:Creator'],
-                         'Chromium')
-    util.nested_dict_set(data,
-                         [file_object, 'metadata.exiftool'],
-                         {'File:MIMEType': 'application/bar'})
+    util.nested_dict_set(
+        data,
+        [file_object, 'extractor.metadata.exiftool.PDF:Creator'],
+        'Chromium'
+    )
+    util.nested_dict_set(
+        data,
+        [file_object, 'extractor.metadata.exiftool'],
+        {'File:MIMEType': 'application/bar'}
+    )
     util.nested_dict_set(data,
                          [file_object, 'analysis.filename_analyzer.tags'],
                          [{'source': 'filenamepart_tags',
@@ -566,3 +575,24 @@ def is_importable(module_name):
         return False
     else:
         return True
+
+
+def init_session_repository():
+    from core import repository
+    repository.initialize()
+
+
+def is_extracteddata(thing):
+    return bool(thing and isinstance(thing, model.ExtractedData))
+
+
+def is_internalstring(thing):
+    if thing is None:
+        return False
+    return bool(isinstance(thing, str))
+
+
+def is_internalbytestring(thing):
+    if thing is None:
+        return False
+    return bool(isinstance(thing, bytes))

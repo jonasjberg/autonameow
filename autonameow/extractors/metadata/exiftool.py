@@ -20,34 +20,37 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from core import (
+    model,
     types,
-    util,
-    fields
+    util
 )
-from core.util import wrap_exiftool
+from core.model import (
+    ExtractedData,
+    WeightedMapping
+)
+from core.namebuilder import fields
 from extractors import (
-    ExtractorError,
-    ExtractedData
+    BaseExtractor,
+    ExtractorError
 )
-from extractors.metadata.common import AbstractMetadataExtractor
+from thirdparty import pyexiftool
 
 
-class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
+class ExiftoolMetadataExtractor(BaseExtractor):
     """
     Extracts various types of metadata using "exiftool".
     """
-    handles_mime_types = ['video/*', 'application/pdf', 'image/*',
+    HANDLES_MIME_TYPES = ['video/*', 'application/pdf', 'image/*',
                           'application/epub+zip', 'text/*']
-    meowuri_root = 'metadata.exiftool'
 
-    tagname_type_lookup = {
+    EXTRACTEDDATA_WRAPPER_LOOKUP = {
         'ASF:CreationDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'ASF:ImageHeight': ExtractedData(types.AW_INTEGER),
         'ASF:ImageWidth': ExtractedData(types.AW_INTEGER),
@@ -56,30 +59,30 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         'Composite:ImageSize': ExtractedData(types.AW_STRING),
         'Composite:Megapixels': ExtractedData(types.AW_FLOAT),
         'Composite:HyperfocalDistance': ExtractedData(types.AW_FLOAT),
-        #'ExifTool:ExifToolVersion': ExtractedData(types.AW_FLOAT),
+        # 'ExifTool:ExifToolVersion': ExtractedData(types.AW_FLOAT),
         'EXIF:CreateDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'EXIF:DateTimeDigitized': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'EXIF:DateTimeOriginal': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'EXIF:ExifVersion': ExtractedData(types.AW_INTEGER),
         'EXIF:GainControl': ExtractedData(types.AW_INTEGER),
@@ -88,70 +91,70 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         #       EXIF:GPSDateStamp: '2016:03:26'
 
         # 'EXIF:GPSTimeStamp': ExtractedData(
-        #     wrapper=types.AW_EXIFTOOLTIMEDATE,
+        #     coercer=types.AW_EXIFTOOLTIMEDATE,
         #     mapped_fields=[
-        #         fields.WeightedMapping(fields.time, probability=1),
+        #         fields.WeightedMapping(fields.Time, probability=1),
         #     ]
         # ),
         'EXIF:GPSDateStamp': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.date, probability=1),
+                WeightedMapping(fields.Date, probability=1),
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'EXIF:ImageDescription': ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.description, probability=1),
-                fields.WeightedMapping(fields.tags, probability=0.5),
-                fields.WeightedMapping(fields.title, probability=0.25)
+                WeightedMapping(fields.Description, probability=1),
+                WeightedMapping(fields.Tags, probability=0.5),
+                WeightedMapping(fields.Title, probability=0.25)
             ],
-            generic_field=fields.GenericDescription
+            generic_field=model.GenericDescription
         ),
         'EXIF:Make': ExtractedData(types.AW_STRING),
         'EXIF:Model': ExtractedData(types.AW_STRING),
         'EXIF:ModifyDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=0.25),
-                fields.WeightedMapping(fields.date, probability=0.25)
+                WeightedMapping(fields.DateTime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=fields.GenericDateModified
+            generic_field=model.GenericDateModified
         ),
         'EXIF:Software': ExtractedData(types.AW_STRING),
         'EXIF:UserComment': ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.description, probability=0.5),
-                fields.WeightedMapping(fields.tags, probability=0.5)
+                WeightedMapping(fields.Description, probability=0.5),
+                WeightedMapping(fields.Tags, probability=0.5)
             ],
-            generic_field=fields.GenericDateModified
+            generic_field=model.GenericDateModified
         ),
         'File:Directory': ExtractedData(types.AW_PATH),
         'File:FileAccessDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=0.01),
-                fields.WeightedMapping(fields.date, probability=0.01)
+                WeightedMapping(fields.DateTime, probability=0.01),
+                WeightedMapping(fields.Date, probability=0.01)
             ],
-            generic_field=fields.GenericDateModified
+            generic_field=model.GenericDateModified
         ),
         'File:FileInodeChangeDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=0.01),
-                fields.WeightedMapping(fields.date, probability=0.01)
+                WeightedMapping(fields.DateTime, probability=0.01),
+                WeightedMapping(fields.Date, probability=0.01)
             ],
-            generic_field=fields.GenericDateModified
+            generic_field=model.GenericDateModified
         ),
         'File:FileModifyDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=0.25),
-                fields.WeightedMapping(fields.date, probability=0.25)
+                WeightedMapping(fields.DateTime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=fields.GenericDateModified
+            generic_field=model.GenericDateModified
         ),
         'File:FileName': ExtractedData(types.AW_PATH),
         'File:FilePermissions': ExtractedData(types.AW_INTEGER),
@@ -161,131 +164,131 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         'File:ImageHeight': ExtractedData(types.AW_INTEGER),
         'File:ImageWidth': ExtractedData(types.AW_INTEGER),
         'File:MIMEType': ExtractedData(
-            wrapper=types.AW_MIMETYPE,
+            coercer=types.AW_MIMETYPE,
             mapped_fields=[
-                fields.WeightedMapping(fields.extension, probability=1)
+                WeightedMapping(fields.Extension, probability=1)
             ],
-            generic_field=fields.GenericMimeType
+            generic_field=model.GenericMimeType
         ),
         'PDF:CreateDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'PDF:Creator': ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.author, probability=0.025),
-                fields.WeightedMapping(fields.publisher, probability=0.02),
-                fields.WeightedMapping(fields.title, probability=0.01)
+                WeightedMapping(fields.Author, probability=0.025),
+                WeightedMapping(fields.Publisher, probability=0.02),
+                WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=fields.GenericCreator
+            generic_field=model.GenericCreator
         ),
         'PDF:Linearized': ExtractedData(types.AW_BOOLEAN),
         'PDF:ModifyDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=0.25),
-                fields.WeightedMapping(fields.date, probability=0.25)
+                WeightedMapping(fields.DateTime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=fields.GenericDateModified
+            generic_field=model.GenericDateModified
         ),
         'PDF:PDFVersion': ExtractedData(types.AW_FLOAT),
         'PDF:PageCount': ExtractedData(types.AW_INTEGER),
         'PDF:Producer': ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.publisher, probability=0.25),
-                fields.WeightedMapping(fields.author, probability=0.02),
-                fields.WeightedMapping(fields.title, probability=0.01)
+                WeightedMapping(fields.Publisher, probability=0.25),
+                WeightedMapping(fields.Author, probability=0.02),
+                WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=fields.GenericProducer
+            generic_field=model.GenericProducer
         ),
         'SourceFile': ExtractedData(types.AW_PATH),
         'QuickTime:CreateDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'QuickTime:CreationDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'QuickTime:ModifyDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=0.5),
-                fields.WeightedMapping(fields.date, probability=0.5)
+                WeightedMapping(fields.DateTime, probability=0.5),
+                WeightedMapping(fields.Date, probability=0.5)
             ],
-            generic_field=fields.GenericDateModified
+            generic_field=model.GenericDateModified
         ),
         'QuickTime:CreationDate-und-SE': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'QuickTime:TrackCreateDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'QuickTime:TrackModifyDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=0.5),
-                fields.WeightedMapping(fields.date, probability=0.5)
+                WeightedMapping(fields.DateTime, probability=0.5),
+                WeightedMapping(fields.Date, probability=0.5)
             ],
-            generic_field=fields.GenericDateModified
+            generic_field=model.GenericDateModified
         ),
         'QuickTime:MediaCreateDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=1),
-                fields.WeightedMapping(fields.date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=fields.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'QuickTime:MediaModifyDate': ExtractedData(
-            wrapper=types.AW_EXIFTOOLTIMEDATE,
+            coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.datetime, probability=0.5),
-                fields.WeightedMapping(fields.date, probability=0.5)
+                WeightedMapping(fields.DateTime, probability=0.5),
+                WeightedMapping(fields.Date, probability=0.5)
             ],
-            generic_field=fields.GenericDateModified
+            generic_field=model.GenericDateModified
         ),
 
         # TODO: [TD0084] Add handling collections to type wrapper classes.
         # 'XMP:Subject': ExtractedData(
-        #     wrapper=types.AW_STRINGLIST,
+        #     coercer=types.AW_STRINGLIST,
         #     mapped_fields=[
-        #         fields.WeightedMapping(fields.tags, probability=1),
-        #         fields.WeightedMapping(fields.title, probability=0.9)
-        #         fields.WeightedMapping(fields.description, probability=0.8)
+        #         fields.WeightedMapping(fields.Tags, probability=1),
+        #         fields.WeightedMapping(fields.Title, probability=0.9)
+        #         fields.WeightedMapping(fields.Description, probability=0.8)
         #     ]
         # ),
         # TODO: [TD0084] Add handling collections to type wrapper classes.
         # 'XMP:TagsList': ExtractedData(
-        #     wrapper=types.AW_STRINGLIST,
+        #     coercer=types.AW_STRINGLIST,
         #     mapped_fields=[
-        #         fields.WeightedMapping(fields.tags, probability=1),
-        #         fields.WeightedMapping(fields.title, probability=0.9)
-        #         fields.WeightedMapping(fields.description, probability=0.8)
+        #         fields.WeightedMapping(fields.Tags, probability=1),
+        #         fields.WeightedMapping(fields.Title, probability=0.9)
+        #         fields.WeightedMapping(fields.Description, probability=0.8)
         #     ]
         # )
     }
@@ -293,8 +296,20 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
     def __init__(self):
         super(ExiftoolMetadataExtractor, self).__init__()
 
+    def execute(self, source, **kwargs):
+        self.log.debug('{!s}: Starting extraction'.format(self))
+
+        try:
+            _metadata = self._get_metadata(source)
+        except NotImplementedError as e:
+            raise ExtractorError('Called unimplemented code in {!s}: '
+                                 '{!s}'.format(self, e))
+
+        self.log.debug('{!s}: Completed extraction'.format(self))
+        return _metadata
+
     def _get_metadata(self, source):
-        _raw_metadata = self._get_exiftool_data(source)
+        _raw_metadata = _get_exiftool_data(source)
         if _raw_metadata:
             # Internal data format boundary.  Wrap "raw" data with type classes.
             metadata = self._to_internal_format(_raw_metadata)
@@ -304,40 +319,41 @@ class ExiftoolMetadataExtractor(AbstractMetadataExtractor):
         out = {}
 
         for tag_name, value in raw_metadata.items():
-            if tag_name in self.tagname_type_lookup:
-                wrapper = self.tagname_type_lookup[tag_name]
-            elif self._should_skip_binary_blob(value):
-                    continue
-            else:
-                # Use a default 'ExtractedData' class.
-                wrapper = ExtractedData(wrapper=None, mapped_fields=None)
+            if value is None:
+                continue
+            if _should_skip_binary_blob(value):
+                continue
 
-            try:
-                item = wrapper(value)
-            except types.AWTypeError:
-                self.log.warning('Wrapping exiftool data raised AWTypeError '
-                                 'for "{!s}" ({})'.format(value, type(value)))
-                pass
+            wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(tag_name)
+            if not wrapper:
+                wrapper = ExtractedData(coercer=None, mapped_fields=None)
+
+            wrapped = ExtractedData.from_raw(wrapper, value)
+            if wrapped:
+                out[tag_name] = wrapped
             else:
-                out[tag_name] = item
+                self.log.debug('Wrapping exiftool data returned None '
+                               'for "{!s}" ({})'.format(value, type(value)))
 
         return out
 
-    def _get_exiftool_data(self, source):
-        """
-        Returns:
-            Exiftool results as a dictionary of strings/ints/floats.
-        """
-        with wrap_exiftool.ExifTool() as et:
-            try:
-                return et.get_metadata(source)
-            except (AttributeError, ValueError, TypeError) as e:
-                # Raises ValueError if an ExifTool instance isn't running.
-                raise ExtractorError(e)
-
-    def _should_skip_binary_blob(self, value):
-        return isinstance(value, str) and 'use -b option to extract' in value
-
     @classmethod
     def check_dependencies(cls):
-        return util.is_executable('exiftool')
+        return util.is_executable('exiftool') and pyexiftool is not None
+
+
+def _should_skip_binary_blob(value):
+    return isinstance(value, str) and 'use -b option to extract' in value
+
+
+def _get_exiftool_data(source):
+    """
+    Returns:
+        Exiftool results as a dictionary of strings/ints/floats.
+    """
+    with pyexiftool.ExifTool() as et:
+        try:
+            return et.get_metadata(source)
+        except (AttributeError, ValueError, TypeError) as e:
+            # Raises ValueError if an ExifTool instance isn't running.
+            raise ExtractorError(e)

@@ -65,7 +65,7 @@ test_automagic_rename()
         return -1
     fi
 
-    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic -- "${_temp_file}" && [ -e "$_expected_name" ]' \
+    assert_true '"$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic -- "${_temp_file}" && [ -e "$_expected_name" ]' \
                 "(${_test_name}) Should be renamed to \"${_expected_basename}\""
 
     assert_true '[ -f "${_temp_file}" ] && rm -- "${_temp_file}" ; [ -f "$_expected_name" ] && rm -- "$_expected_name" || true' \
@@ -92,19 +92,19 @@ test_automagic_dryrun()
         return -1
     fi
 
-    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
+    assert_true '"$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
                 "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run\""
 
-    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}"' \
+    assert_true '"$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}"' \
                 "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run --verbose\""
 
-    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "${_sample_file}"' \
+    assert_true '"$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "${_sample_file}"' \
                 "(${_test_name}) Expect exit code 0 when started with \"--automagic --dry-run --debug\""
 
-    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}" | grep -- "${_expected_basename}"' \
+    assert_true '"$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}" | grep -- "${_expected_basename}"' \
                 "(${_test_name}) Expect output to include \"${_expected_basename}\" when started with \"--dry-run\""
 
-    assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null | grep -- "${_expected_basename}"' \
+    assert_true '"$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null | grep -- "${_expected_basename}"' \
                 "(${_test_name}) Expect output to include \"${_expected_basename}\" when started with \"--dry-run --verbose\""
 
     assert_true '[ -f "${_sample_file}" ]' \
@@ -189,7 +189,7 @@ test_automagic_dryrun 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SA
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext.yaml")"
+ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext_1.yaml")"
 assert_false '[ -z "$ACTIVE_CONFIG" ]' \
              'Variable "ACTIVE_CONFIG" should not be unset'
 
@@ -201,8 +201,8 @@ SAMPLE_EMPTY_FILE_EXPECTED='empty'
 assert_true '[ -e "$SAMPLE_EMPTY_FILE" ]' \
             "Sample file \"${SAMPLE_EMPTY_FILE}\" exists. Substitute a suitable sample file if this test fails!"
 
-test_automagic_rename 'Fix incorrect extensions test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
-test_automagic_dryrun 'Fix incorrect extensions test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_rename 'Fix incorrect extensions Method 1 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
 
 
 SAMPLE_NOEXT_FILE="$(abspath_testfile "simple-lexical-analysis")"
@@ -210,8 +210,29 @@ SAMPLE_NOEXT_FILE_EXPECTED='simple-lexical-analysis.png'
 assert_true '[ -e "$SAMPLE_NOEXT_FILE" ]' \
             "Sample file \"${SAMPLE_NOEXT_FILE}\" exists. Substitute a suitable sample file if this test fails!"
 
-test_automagic_rename 'Fix incorrect extensions test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
-test_automagic_dryrun 'Fix incorrect extensions test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
+test_automagic_rename 'Fix incorrect extensions Method 1 test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
+
+
+# ==============================================================================
+ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext_2.yaml")"
+assert_false '[ -z "$ACTIVE_CONFIG" ]' \
+             'Variable "ACTIVE_CONFIG" should not be unset'
+
+assert_true '[ -e "$ACTIVE_CONFIG" ]' \
+            "The config file \""$(basename -- "$ACTIVE_CONFIG")"\" exists"
+
+test_automagic_rename 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+
+
+SAMPLE_MAGICTXTMD_FILE="$(abspath_testfile "magic_txt.md")"
+SAMPLE_MAGICTXTMD_FILE_EXPECTED='magic_txt.md'
+assert_true '[ -e "$SAMPLE_NOEXT_FILE" ]' \
+            "Sample file \"${SAMPLE_MAGICTXTMD_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+
+test_automagic_rename 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
 
 
 

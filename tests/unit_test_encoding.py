@@ -64,7 +64,7 @@ class PathConversionTest(uu.TestCase):
         with platform_windows():
             path = os.path.join('a', 'b', 'c')
             outpath = encoding.syspath(path)
-        self.assertTrue(isinstance(outpath, str))
+        self.assertTrue(uu.is_internalstring(outpath))
         self.assertTrue(outpath.startswith('\\\\?\\'))
 
     def test_syspath_windows_format_unc_path(self):
@@ -73,7 +73,7 @@ class PathConversionTest(uu.TestCase):
         path = '\\\\server\\share\\file.mp3'
         with platform_windows():
             outpath = encoding.syspath(path)
-        self.assertTrue(isinstance(outpath, str))
+        self.assertTrue(uu.is_internalstring(outpath))
         self.assertEqual(outpath, '\\\\?\\UNC\\server\\share\\file.mp3')
 
     def test_syspath_posix_unchanged(self):

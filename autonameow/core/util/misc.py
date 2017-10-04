@@ -26,15 +26,22 @@ Miscellaneous utility functions.
 import collections
 import itertools
 import logging
+import os
 import shutil
+import subprocess
 
-import yaml
+try:
+    import yaml
+except ImportError:
+    raise SystemExit(
+        'Missing required module "yaml". '
+        'Make sure "pyyaml" is available before running this program.'
+    )
 
-from core import (
-    constants,
-    util
-)
+from core import constants as C
+from core import types
 from core.exceptions import InvalidMeowURIError
+from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -148,8 +155,8 @@ def meowuri_list(meowuri):
     """
     Converts a "meowURI" to a list suited for traversing nested dicts.
 
-    Example meowURI:    'metadata.exiftool.datetimeoriginal'
-    Resulting output:   ['metadata', 'exiftool', 'datetimeoriginal']
+    Example meowURI:    'extractor.metadata.exiftool.createdate'
+    Resulting output:   ['extractor', 'metadata', 'exiftool', 'createdate']
 
     Args:
         meowuri: The "meowURI" to convert.
@@ -396,6 +403,8 @@ def eval_magic_glob(mime_to_match, glob_list):
     likely to be used by third party developers. It is also exposed to possibly
     malformed configuration entries.
 
+    Unknown MIME-types evaluate to True only for '*/*', otherwise always False.
+
     Args:
         mime_to_match: The MIME to match against the globs as a Unicode string.
         glob_list: A list of globs as Unicode strings.
@@ -409,11 +418,17 @@ def eval_magic_glob(mime_to_match, glob_list):
     """
     if not mime_to_match or not glob_list:
         return False
-    if mime_to_match == constants.MAGIC_TYPE_UNKNOWN:
-        return False
 
     if not (isinstance(mime_to_match, str)):
         raise TypeError('Expected "mime_to_match" to be of type str')
+
+    # Unknown MIME-type evaluates True if a glob matches anything, else False.
+    if mime_to_match == C.MAGIC_TYPE_UNKNOWN:
+        if '*/*' in glob_list:
+            return True
+        else:
+            return False
+
     if '/' not in mime_to_match:
         raise ValueError('Expected "mime_to_match" to be on the form "foo/bar"')
 
@@ -426,7 +441,7 @@ def eval_magic_glob(mime_to_match, glob_list):
     )
     mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
     for glob in glob_list:
-        util.assert_internal_string(glob)
+        sanity.check_internal_string(glob)
 
         if glob == mime_to_match:
             return True
@@ -474,3 +489,24 @@ def filter_none(iterable):
     Removes any None values from the given iterable and returns the result.
     """
     return [item for item in iterable if item is not None]
+
+
+def process_id():
+    return os.getpid()
+
+
+def git_commit_hash():
+    if not is_executable('git'):
+        return None
+
+    try:
+        process = subprocess.Popen(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
+        stdout, stderr = process.communicate()
+    except (OSError, ValueError, TypeError, subprocess.SubprocessError):
+        return None
+    else:
+        string = types.force_string(stdout).strip()
+        return string if string else None

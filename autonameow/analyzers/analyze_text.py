@@ -25,8 +25,7 @@ from core.util import dateandtime
 
 class TextAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
-    handles_mime_types = ['text/plain']
-    meowuri_root = 'analysis.text'
+    HANDLES_MIME_TYPES = ['text/plain']
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -37,8 +36,11 @@ class TextAnalyzer(BaseAnalyzer):
         self.text = None
 
     def run(self):
-        self.text = self.request_data(self.file_object,
-                                      'contents.textual.text.full')
+        _maybe_text = self.request_any_textual_content()
+        if not _maybe_text:
+            return
+
+        self.text = _maybe_text
 
         # Pass results through callback function provided by the 'Analysis'.
         self._add_results('author', self.get_author())

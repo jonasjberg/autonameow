@@ -24,12 +24,14 @@ import logging
 import os
 import sys
 
+from core import constants as C
 from core import (
-    constants,
     exceptions,
     util
 )
 from core.exceptions import AutonameowException
+from core.model import ExtractedData
+from core.util import sanity
 
 
 # Analyzers are assumed to be located in the same directory as this file.
@@ -55,11 +57,10 @@ class BaseAnalyzer(object):
 
     # List of MIME types that this analyzer can handle.
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
-    handles_mime_types = None
+    HANDLES_MIME_TYPES = None
 
-    # Resource identifier "MeowURI" for the data returned by this extractor.
-    # Example:  'analysis.filesystem'
-    meowuri_root = None
+    # Last part of the full MeowURI ('filetags', 'filename', ..)
+    MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -95,7 +96,7 @@ class BaseAnalyzer(object):
             AnalysisResultsFieldError: Error caused by invalid argument "field",
                 which must be included in ANALYSIS_RESULTS_FIELDS.
         """
-        if field not in constants.ANALYSIS_RESULTS_FIELDS:
+        if field not in C.ANALYSIS_RESULTS_FIELDS:
             raise exceptions.AnalysisResultsFieldError(field)
 
         _func_name = 'get_{}'.format(field)
@@ -110,12 +111,7 @@ class BaseAnalyzer(object):
         Used by analyzer classes to store results data in the repository.
 
         Constructs a full "MeowURI" from the given 'meowuri_leaf' and the
-        extractor class attribute 'meowuri_root'.
-
-        Example:  The FilenameAnalyzer 'meowuri_root' is 'analysis.filename'.
-        If this analyzer calls this method with 'meowuri_leaf' = 'datetime',
-        'data' would be stored in the repository under the full "MeowURI":
-        'analysis.filename.datetime'
+        analyzer-specific MeowURI.
 
         Args:
             meowuri_leaf: Last part of the "MeowURI"; for example 'author',
@@ -125,11 +121,48 @@ class BaseAnalyzer(object):
         if data is None:
             return
 
-        meowuri = '{}.{}'.format(self.meowuri_root, meowuri_leaf)
+        meowuri = '{}.{}'.format(self.meowuri(), meowuri_leaf)
         self.log.debug(
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
         self.add_results(self.file_object, meowuri, data)
+
+    def request_any_textual_content(self):
+        _response = self.request_data(self.file_object,
+                                      'generic.contents.text')
+        if _response is None:
+            return None
+
+        text = None
+        if isinstance(_response, list):
+            for _r in _response:
+                sanity.check_isinstance(_r, ExtractedData)
+                if _r.value and len(_r.value) > 0:
+                    text = _r.value
+                    break
+        else:
+            sanity.check_isinstance(_response, ExtractedData)
+            if _response.value and len(_response.value) > 0:
+                text = _response.value
+
+        if text is not None:
+            return text
+        else:
+            self.log.info(
+                'Required data unavailable ("generic.contents.text")'
+            )
+
+    @classmethod
+    def meowuri(cls):
+        """
+        Returns: Analyzer-specific "MeowURI" root/prefix as a Unicode string.
+        """
+        _leaf = cls.__module__.split('_')[-1] or cls.MEOWURI_LEAF
+
+        return '{root}{sep}{leaf}'.format(
+            root=C.MEOWURI_ROOT_SOURCE_ANALYZERS, sep=C.MEOWURI_SEPARATOR,
+            leaf=_leaf
+        )
 
     @classmethod
     def can_handle(cls, file_object):
@@ -137,7 +170,7 @@ class BaseAnalyzer(object):
         Tests if this analyzer class can handle the given file.
 
         The analyzer is considered to be able to handle the given file if the
-        file MIME type is listed in the class attribute 'handles_mime_types'.
+        file MIME type is listed in the class attribute 'HANDLES_MIME_TYPES'.
 
         Inheriting analyzer classes can override this method if they need
         to perform additional tests in order to determine if they can handle
@@ -149,7 +182,7 @@ class BaseAnalyzer(object):
         Returns:
             True if the analyzer class can handle the given file, else False.
         """
-        if util.eval_magic_glob(file_object.mime_type, cls.handles_mime_types):
+        if util.eval_magic_glob(file_object.mime_type, cls.HANDLES_MIME_TYPES):
             return True
         else:
             return False
@@ -169,6 +202,10 @@ class BaseAnalyzer(object):
 
     def __str__(self):
         return self.__class__.__name__
+
+    @classmethod
+    def __str__(cls):
+        return cls.__name__
 
 
 def find_analyzer_files():
@@ -243,7 +280,7 @@ def map_meowuri_to_analyzers():
     """
     Returns a mapping of the analyzer classes "meowURIs" and classes.
 
-    Each analyzer class defines 'meowuri_root' which is used as the
+    Each analyzer class defines 'MEOWURI_ROOT' which is used as the
     first part of all data returned by the analyzer.
 
     Returns: A dictionary where the keys are "meowURIs" and the values
@@ -252,16 +289,14 @@ def map_meowuri_to_analyzers():
     out = {}
 
     for klass in AnalyzerClasses:
-        meowuri_root = klass.meowuri_root
-        if not meowuri_root:
-            log.debug('Missing attribute "meowuri_root" for class'
-                      ' "{!s}"'.format(klass))
+        _meowuri = klass.meowuri()
+        if not _meowuri:
             continue
 
-        if meowuri_root in out:
-            out[meowuri_root].append(klass)
+        if _meowuri in out:
+            out[_meowuri].append(klass)
         else:
-            out[meowuri_root] = [klass]
+            out[_meowuri] = [klass]
 
     return out
 

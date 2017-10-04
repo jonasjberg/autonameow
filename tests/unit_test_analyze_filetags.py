@@ -47,6 +47,7 @@ class TestFiletagsAnalyzer(TestCase):
 
 class TestPartitionBasename(TestCase):
     def setUp(self):
+        self.maxDiff = None
         Expect = namedtuple('Expect', 'timestamp description tags extension')
 
         self.testdata_expected = [
@@ -105,6 +106,14 @@ class TestPartitionBasename(TestCase):
 
             (b'20160722 Descriptive name.txt',
              Expect('20160722', 'Descriptive name', [], 'txt')),
+
+            (b'2017-09-29_06-04-15 Running autonameow on a lot of files with empty caches -- dev projects.png',
+             Expect('2017-09-29_06-04-15', 'Running autonameow on a lot of files with empty caches',
+                    ['dev', 'projects'], 'png')),
+
+            (b'2017-09-01T215342 People make people UML reflexive assocation -- 1dv607 lnu screenshot macbookpro.png',
+             Expect('2017-09-01T215342', 'People make people UML reflexive assocation',
+                    ['1dv607', 'lnu', 'screenshot', 'macbookpro'], 'png')),
         ]
 
     def test_partitions_basenames(self):

@@ -21,14 +21,16 @@
 
 import logging
 
+from core import constants as C
 from core import (
-    constants,
     exceptions,
     repository,
     types,
-    util,
+    util
 )
 from core.config import field_parsers
+from core.namebuilder import fields
+from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -99,11 +101,11 @@ class RuleCondition(object):
             )
 
         # NOTE(jonas): No parser can currently handle these "meowURIs" ..
-        if self.meowuri.startswith('metadata.exiftool'):
+        if self.meowuri.startswith('extractor.metadata.exiftool'):
             # TODO: [TD0015] Handle expression in 'condition_value'
             #                ('Defined', '> 2017', etc)
             log.warning('Validation of this condition is not yet implemented!'
-                        ' (starts with "metadata.exiftool")')
+                        ' (starts with "extractor.metadata.exiftool")')
 
         if not self._get_parser(self.meowuri):
             raise ValueError('Found no suitable parsers for meowURI: '
@@ -140,7 +142,13 @@ class RuleCondition(object):
         parsers = field_parsers.suitable_field_parser_for(meowuri)
         if parsers:
             # Assume only one parser can handle a "meowURI" for now.
-            assert(len(parsers) == 1)
+            sanity.check(
+                len(parsers) == 1,
+                'Unexpectedly got {} parsers for meowURI "{!s}"'.format(
+                    len(parsers), meowuri
+                )
+            )
+
             self._parser = parsers[0]
             return self._parser
         else:
@@ -236,12 +244,12 @@ class Rule(object):
         try:
             description = types.AW_STRING(raw_description)
         except types.AWTypeError:
-            description = ''
+            description = None
 
         if description:
             self._description = description
         else:
-            self._description = 'UNDESCRIBED'
+            self._description = C.DEFAULT_RULE_DESCRIPTION
 
     @property
     def exact_match(self):
@@ -259,7 +267,7 @@ class Rule(object):
         if self._ranking_bias:
             return self._ranking_bias
         else:
-            return constants.DEFAULT_RULE_RANKING_BIAS
+            return C.DEFAULT_RULE_RANKING_BIAS
 
     @ranking_bias.setter
     def ranking_bias(self, raw_ranking_bias):
@@ -267,7 +275,7 @@ class Rule(object):
             self._ranking_bias = parse_ranking_bias(raw_ranking_bias)
         except exceptions.ConfigurationSyntaxError as e:
             log.warning(e)
-            self._ranking_bias = constants.DEFAULT_RULE_RANKING_BIAS
+            self._ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
 
     @property
     def name_template(self):
@@ -362,7 +370,8 @@ class Rule(object):
         Returns:
             The number of met conditions as an integer.
         """
-        assert(self.conditions and len(self.conditions) > 0)
+        sanity.check(self.conditions and len(self.conditions) > 0,
+                     'Rule.conditions is missing or empty')
 
         _count_met_conditions = 0
         for condition in self.conditions:
@@ -443,22 +452,23 @@ def parse_ranking_bias(value):
         ConfigurationSyntaxError: The value is of an unexpected type or not
             within the range 0-1.
     """
-    ERROR_MSG = 'Expected float in range 0-1. Got: "{}"'.format(value)
-
     if value is None:
-        return constants.DEFAULT_RULE_RANKING_BIAS
-    if not isinstance(value, (int, float)):
-        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
+        return C.DEFAULT_RULE_RANKING_BIAS
 
     try:
-        w = float(value)
-    except TypeError:
-        raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
+        _value = types.AW_FLOAT(value)
+    except types.AWTypeError:
+        raise exceptions.ConfigurationSyntaxError(
+            'Expected float but got "{!s}" ({!s})'.format(value, type(value))
+        )
     else:
-        if float(0) <= w <= float(1):
-            return w
+        if float(0) <= _value <= float(1):
+            return _value
         else:
-            raise exceptions.ConfigurationSyntaxError(ERROR_MSG)
+            raise exceptions.ConfigurationSyntaxError(
+                'Expected float within 0.0-1.0 but got {} -- Using default:'
+                ' {}'.format(value, C.DEFAULT_RULE_RANKING_BIAS)
+            )
 
 
 def parse_conditions(raw_conditions):
@@ -495,39 +505,41 @@ def parse_conditions(raw_conditions):
 def parse_data_sources(raw_sources):
     passed = {}
 
-    log.debug('Parsing {} raw data sources ..'.format(len(raw_sources)))
+    log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
 
-    for template_field, meowuris in raw_sources.items():
-        if not meowuris:
-            log.debug('Skipped data source with empty meowURI '
-                      '(template field: "{!s}")'.format(template_field))
+    for raw_templatefield, raw_meowuris in raw_sources.items():
+        if not raw_meowuris:
+            log.debug('Skipped source with empty meowURI '
+                      '(template field: "{!s}")'.format(raw_templatefield))
             continue
-        elif not template_field:
-            log.debug('Skipped data source with empty name template field '
-                      '(meowURI: "{!s}")'.format(meowuris))
-            continue
-
-        if not field_parsers.is_valid_template_field(template_field):
-            log.warning('Skipped data source with invalid name template field '
-                        '(meowURI: "{!s}")'.format(meowuris))
+        elif not raw_templatefield:
+            log.debug('Skipped source with empty name template field '
+                      '(meowURI: "{!s}")'.format(raw_meowuris))
             continue
 
-        if not isinstance(meowuris, list):
-            meowuris = [meowuris]
-        for meowuri in meowuris:
+        if not fields.is_valid_template_field(raw_templatefield):
+            log.warning('Skipped source with invalid name template field '
+                        '(meowURI: "{!s}")'.format(raw_meowuris))
+            continue
+
+        tf = fields.nametemplatefield_class_from_string(raw_templatefield)
+
+        if not isinstance(raw_meowuris, list):
+            raw_meowuris = [raw_meowuris]
+        for meowuri in raw_meowuris:
             if is_valid_source(meowuri):
-                log.debug(
-                    'Validated data source: [{}]: {}'.format(template_field, meowuri)
+                log.debug('Validated source: [{!s}]: {}'.format(
+                    tf.as_placeholder(), meowuri)
                 )
-                passed[template_field] = meowuri
+                passed[tf] = meowuri
             else:
-                log.debug(
-                    'Invalid data source: [{}]: {}'.format(template_field, meowuri)
+                log.debug('Invalid source: [{!s}]: {}'.format(
+                    tf.as_placeholder(), meowuri)
                 )
 
     log.debug(
-        'Returning {} (out of {}) valid data sources'.format(len(passed),
-                                                             len(raw_sources))
+        'Returning {} (out of {}) valid sources'.format(len(passed),
+                                                        len(raw_sources))
     )
     return passed
 
@@ -539,8 +551,9 @@ def is_valid_source(source_value):
     Tests if the given source starts with the same text as any of the
     date source "meowURIs" stored in the 'SessionRepository'.
 
-    For example, the source value "metadata.exiftool.PDF:CreateDate" would
-    be considered valid if "metadata.exiftool" was registered by a source.
+    For example, the source value "extractor.metadata.exiftool.PDF:CreateDate"
+    would be considered valid if "extractor.metadata.exiftool" was registered
+    by a source.
 
     Args:
         source_value: The source to test as a text string.

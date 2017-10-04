@@ -21,10 +21,10 @@
 
 from unittest import TestCase
 
-import unit_utils as uu
-
+from core import constants as C
 from extractors import ExtractorError
 from extractors.text.common import AbstractTextExtractor
+import unit_utils as uu
 
 
 class TestAbstractTextExtractor(TestCase):
@@ -52,8 +52,8 @@ class TestAbstractTextExtractor(TestCase):
         self.assertIsNotNone(self.e.__str__)
 
     def test_method_str_returns_type_string(self):
-        self.assertTrue(isinstance(str(self.e), str))
-        self.assertTrue(isinstance(str(self.e.__str__), str))
+        self.assertTrue(uu.is_internalstring(str(self.e)))
+        self.assertTrue(uu.is_internalstring(str(self.e.__str__)))
 
     def test_method_str_returns_expected(self):
         self.assertEqual(str(self.e), 'AbstractTextExtractor')
@@ -69,10 +69,13 @@ class TestAbstractTextExtractor(TestCase):
             self.assertFalse(self.e.can_handle(self.fo))
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
-        self.assertIsNone(self.e.handles_mime_types)
+        self.assertIsNone(self.e.HANDLES_MIME_TYPES)
 
-    def test_abstract_class_does_not_specify_meowuri_root(self):
-        self.assertIsNone(self.e.meowuri_root)
+    def test_abstract_class_does_not_specify_meowuri_node(self):
+        self.assertEqual(self.e.MEOWURI_NODE, C.UNDEFINED_MEOWURI_PART)
+
+    def test_abstract_class_does_not_specify_meowuri_leaf(self):
+        self.assertEqual(self.e.MEOWURI_LEAF, C.UNDEFINED_MEOWURI_PART)
 
     def test__get_raw_text_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

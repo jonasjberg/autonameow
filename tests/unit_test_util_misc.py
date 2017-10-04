@@ -25,8 +25,8 @@ from unittest import TestCase
 from core import (
     util,
     exceptions,
-    constants
 )
+from core import constants as C
 from core.exceptions import EncodingBoundaryViolation
 from core.util import eval_magic_glob
 from core.util.misc import (
@@ -89,7 +89,7 @@ class TestUniqueIdentifier(TestCase):
 
     def test_unique_identifier_returns_string(self):
         uuid = unique_identifier()
-        self.assertTrue(isinstance(uuid, str))
+        self.assertTrue(uu.is_internalstring(uuid))
 
     def test_unique_identifier_returns_100_unique_values(self):
         seen = set()
@@ -570,7 +570,7 @@ class TestEvalMagicGlob(TestCase):
         self._aF('application/epub+zip', ['image/jpeg'])
         self._aF('application/epub+zip', 'video/*')
         self._aF('application/epub+zip', ['video/*'])
-        self._aF('application/epub+zip', constants.MAGIC_TYPE_UNKNOWN)
+        self._aF('application/epub+zip', C.MAGIC_TYPE_UNKNOWN)
 
     def test_eval_magic_blob_returns_true_as_expected(self):
         self._aT('image/jpeg', '*/*')
@@ -587,6 +587,16 @@ class TestEvalMagicGlob(TestCase):
         self._aT('application/epub+zip', ['application/epub+zip'])
         self._aT('application/epub+zip', ['application/*'])
         self._aT('application/epub+zip', ['*/epub+zip'])
+
+    def test_unknown_mime_type_evaluates_true_for_any_glob(self):
+        self._aT(C.MAGIC_TYPE_UNKNOWN, '*/*')
+        self._aT(C.MAGIC_TYPE_UNKNOWN, ['*/*'])
+        self._aT(C.MAGIC_TYPE_UNKNOWN, ['*/*', '*/jpeg'])
+
+    def test_unknown_mime_type_evaluates_false(self):
+        self._aF(C.MAGIC_TYPE_UNKNOWN, 'image/jpeg')
+        self._aF(C.MAGIC_TYPE_UNKNOWN, ['image/jpeg'])
+        self._aF(C.MAGIC_TYPE_UNKNOWN, ['application/*', '*/jpeg'])
 
 
 class TestWhichExecutable(TestCase):

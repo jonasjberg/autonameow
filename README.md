@@ -13,7 +13,7 @@ apply a strict file naming convention uniformly and consistently.
 
 
 #### PLEASE NOTE
-__This software is still undergoing heavy development; NOT READY FOR USE!__
+__This software is still undergoing active development --- NOT READY FOR USE!__
 
 
 Installing
@@ -23,6 +23,11 @@ probably version `v1.0.0`.
 
 Don't feel like waiting?  See [`install.md`](./install.md) for a *(temporary)*
 guide to installing under Linux and MacOS.
+
+
+Running
+-------
+Use the wrapper script `run.sh` to start `autonameow`.
 
 
 Documentation

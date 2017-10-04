@@ -24,18 +24,18 @@ import logging
 import sys
 import time
 
-import core
 from core import (
     analysis,
     config,
-    constants,
     exceptions,
     extraction,
+    interactive,
     namebuilder,
     options,
     repository,
-    util,
+    util
 )
+from core import constants as C
 from core.config import DefaultConfigFilePath
 from core.config.configuration import Configuration
 from core.evaluate.resolver import Resolver
@@ -43,9 +43,10 @@ from core.evaluate.rulematcher import RuleMatcher
 from core.fileobject import FileObject
 from core.filter import ResultFilter
 from core.plugin_handler import PluginHandler
+from core.ui import cli
 from core.util import (
-    cli,
-    diskutils
+    diskutils,
+    sanity
 )
 
 
@@ -64,7 +65,7 @@ class Autonameow(object):
         Args:
             args: Option arguments as a list of strings.
         """
-        self._exit_code = constants.EXIT_SUCCESS
+        self._exit_code = C.EXIT_SUCCESS
 
         # For calculating the total runtime.
         self.start_time = time.time()
@@ -79,10 +80,14 @@ class Autonameow(object):
         # Display help/usage information if no arguments are provided.
         if not self.args:
             print('Add "--help" to display usage information.')
-            self.exit_program(constants.EXIT_SUCCESS)
+            self.exit_program(C.EXIT_SUCCESS)
 
         # Handle the command line arguments and setup logging.
         self.opts = options.parse_args(self.args)
+
+        if self.opts.quiet:
+            options.logs.silence()
+            cli.silence()
 
         # Display various information depending on verbosity level.
         if self.opts.verbose or self.opts.debug:
@@ -91,7 +96,10 @@ class Autonameow(object):
         # Display startup banner with program version and exit.
         if self.opts.show_version:
             cli.print_ascii_banner()
-            self.exit_program(constants.EXIT_SUCCESS)
+            self.exit_program(C.EXIT_SUCCESS)
+
+        # Set up a session repository for this process.
+        repository.initialize(self)
 
         # Check configuration file. If no alternate config file path is
         # provided and no config file is found at default paths; copy the
@@ -106,7 +114,7 @@ class Autonameow(object):
 
         if not self.active_config:
             log.critical('Unable to load configuration -- Aborting ..')
-            self.exit_program(constants.EXIT_ERROR)
+            self.exit_program(C.EXIT_ERROR)
 
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
@@ -120,10 +128,13 @@ class Autonameow(object):
         if self.opts.dump_config:
             self._dump_active_config_and_exit()
 
+        if self.opts.dump_meowuris:
+            self._dump_registered_meowuris()
+
         # Handle any input paths/files. Abort early if input paths are missing.
         if not self.opts.input_paths:
             log.warning('No input files specified ..')
-            self.exit_program(constants.EXIT_SUCCESS)
+            self.exit_program(C.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
         files_to_process = diskutils.normpaths_from_opts(
@@ -140,13 +151,33 @@ class Autonameow(object):
         try:
             self.active_config = Configuration.from_file(path)
         except exceptions.ConfigError as e:
-            log.critical('Unable to load configuration: {!s}'.format(e))
+            log.critical('Unable to load configuration -- {!s}'.format(e))
 
     def _dump_active_config_and_exit(self):
         log.info('Dumping active configuration ..')
         cli.msg('Active Configuration:', style='heading')
         cli.msg(str(self.active_config))
-        self.exit_program(constants.EXIT_SUCCESS)
+        self.exit_program(C.EXIT_SUCCESS)
+
+    def _dump_registered_meowuris(self):
+        cli.msg('Registered MeowURIs', style='heading')
+
+        if not self.opts.debug:
+            _meowuris = sorted(repository.SessionRepository.mapped_meowuris)
+            for _meowuri in _meowuris:
+                cli.msg(str(_meowuri))
+        else:
+            cf = cli.ColumnFormatter()
+            for _type in ['analyzers', 'extractors', 'plugins']:
+                klasses = repository.SessionRepository.meowuri_class_map.get(_type, {})
+                for _meowuri, _klasses in klasses.items():
+                    cf.addrow(_meowuri, str(_klasses.pop()))
+                    if _klasses:
+                        for k in _klasses:
+                            cf.addrow(None, str(k))
+            cli.msg(str(cf))
+
+        cli.msg('\n')
 
     def _load_config_from_default_path(self):
         _displayable_config_path = util.displayable_path(DefaultConfigFilePath)
@@ -161,15 +192,15 @@ class Autonameow(object):
         except exceptions.ConfigError:
             log.critical('Unable to write template configuration file to path: '
                          '"{!s}"'.format(_displayable_config_path))
-            self.exit_program(constants.EXIT_ERROR)
+            self.exit_program(C.EXIT_ERROR)
         else:
             cli.msg('A template configuration file was written to '
                     '"{!s}"'.format(_displayable_config_path), style='info')
             cli.msg('Use this file to configure {}. '
                     'Refer to the documentation for additional '
-                    'information.'.format(core.version.__title__),
+                    'information.'.format(C.STRING_PROGRAM_NAME),
                     style='info')
-            self.exit_program(constants.EXIT_SUCCESS)
+            self.exit_program(C.EXIT_SUCCESS)
 
     def _load_config_from_alternate_path(self):
         log.info('Using configuration file: "{!s}"'.format(
@@ -222,20 +253,14 @@ class Autonameow(object):
                 log.critical('Skipping file "{}" ..'.format(
                     util.displayable_path(file_path))
                 )
-                self.exit_code = constants.EXIT_WARNING
+                self.exit_code = C.EXIT_WARNING
                 continue
 
         if self.opts.list_all:
             log.info('Listing session repository contents ..')
             cli.msg('Session Repository Data', style='heading',
                     add_info_log=True)
-            # cli.msg(str(repository.SessionRepository))
-            cli.msg(repository.SessionRepository.human_readable_contents())
-        # else:
-        #     if self.opts.list_datetime:
-        #         _list_analysis_results_field(analysis, 'datetime')
-        #     if self.opts.list_title:
-        #         _list_analysis_results_field(analysis, 'title')
+            cli.msg(str(repository.SessionRepository))
 
     def _handle_file(self, current_file):
         should_list_any_results = (self.opts.list_datetime
@@ -245,7 +270,7 @@ class Autonameow(object):
         # Extract data from the file.
         required_extractors = repository.get_sources_for_meowuris(
             self.active_config.referenced_meowuris,
-            includes=['extractors']
+            include_roots=['extractor']
         )
         _run_extraction(
             current_file,
@@ -262,72 +287,161 @@ class Autonameow(object):
         # Run plugins.
         required_plugins = repository.get_sources_for_meowuris(
             self.active_config.referenced_meowuris,
-            includes=['plugins']
+            include_roots=['plugin']
         )
         _run_plugins(current_file, required_plugins)
 
         # Determine matching rule.
         matcher = _run_rule_matcher(current_file, self.active_config)
 
-        # # Present results.
-        # if should_list_any_results:
-        #     cli.msg(('File: "{}"\n'.format(
-        #         util.displayable_path(current_file.abspath)))
-        #     )
-
         # Perform actions.
-        if self.opts.automagic:
+        if self.opts.mode_automagic:
             self._perform_automagic_actions(current_file, matcher)
-        elif self.opts.interactive:
+        elif self.opts.mode_interactive:
             # TODO: Create a interactive interface.
             # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
-    def _perform_automagic_actions(self, current_file, rule_matcher):
-        if not rule_matcher.best_match:
-            log.info('None of the rules seem to apply')
-            return
+    def _select_nametemplate(self, current_file):
+        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        if self.opts.mode_batch:
+            # if not rule_matcher.best_match:
+            pass
+        elif self.opts.mode_interactive:
+            pass
 
-        log.info(
-            'Using rule: "{!s}"'.format(rule_matcher.best_match.description)
-        )
-        name_template = rule_matcher.best_match.name_template
+    def _perform_automagic_actions(self, current_file, rule_matcher):
+        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        best_match = None
+        name_template = None
+
+        if self.opts.mode_batch:
+            if not rule_matcher.best_match:
+                log.warning('No rule matched, name template unknown.')
+                self.exit_code = C.EXIT_WARNING
+                return
+
+            else:
+                _best_match_score = rule_matcher.best_match_score()
+                if _best_match_score == 0:
+                    log.warning('Best matched rule score: {} --- Require user '
+                                'confirmmation.'.format(_best_match_score))
+                    log.info('Skipping file ..')
+                    return
+                else:
+                    best_match = rule_matcher.best_match
+
+        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        else:
+            if rule_matcher.best_match:
+                _best_match_score = rule_matcher.best_match_score()
+                if _best_match_score > 0:
+                    best_match = rule_matcher.best_match
+                else:
+                    log.debug('Best matched rule score: {} --- Require user '
+                              'confirmation.'.format(_best_match_score))
+                    ok = interactive.ask_confirm(
+                        'Best matched rule "{!s}" score: {}\n'
+                        'Proceed with this rule?'.format(
+                            rule_matcher.best_match.description,
+                            _best_match_score
+                        )
+                    )
+                    log.debug('User response: "{!s}"'.format(ok))
+                    if ok:
+                        best_match = rule_matcher.best_match
+            else:
+                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                candidates = None
+                choice = interactive.select_template(candidates)
+                #if choice != cli.action.ABORT:
+                #    name_template = choice
+                #else:
+                #    name_template = None
+                name_template = None
+
+                best_match = rule_matcher.best_match
+
+        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        if best_match and not name_template:
+            name_template = best_match.name_template
+            log.info(
+                'Using rule: "{!s}"'.format(rule_matcher.best_match.description)
+            )
+
+        if not name_template:
+            log.warning('No valid name template chosen. Aborting.')
+            return
 
         resolver = Resolver(current_file, name_template)
-        for _field, _meowuri in rule_matcher.best_match.data_sources.items():
-            resolver.add_known_source(_field, _meowuri)
+        resolver.add_known_sources(rule_matcher.best_match.data_sources)
 
-        if not resolver.mapped_all_template_fields():
-            # TODO: Abort if running in "batch mode". Otherwise, ask the user.
-            log.error('All name template placeholder fields must be '
-                      'given a data source; Check the configuration!')
-            self.exit_code = constants.EXIT_WARNING
-            return
+        if self.opts.mode_batch:
+            if not resolver.mapped_all_template_fields():
+                log.error('All name template placeholder fields must be '
+                          'given a data source; Check the configuration!')
+                self.exit_code = C.EXIT_WARNING
+                return
+
+        resolver.collect()
+
+        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        if not resolver.collected_all():
+            if self.opts.mode_batch:
+                log.warning('Unable to populate name.')
+                self.exit_code = C.EXIT_WARNING
+                return
+            else:
+                # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+                while not resolver.collected_all():
+                    log.info('Resolver has not collected all fields ..')
+                    for field in resolver.unresolved:
+                        candidates = resolver.lookup_candidates(field)
+                        choice = None
+                        if candidates:
+                            log.info('Resolver found {} candidates'.format(len(candidates)))
+                            choice = interactive.select_field(field, candidates)
+                        else:
+                            log.info('Resolver did not find any candidates ..')
+
+                        if choice is None:
+                            _m = 'Specify source for field {!s}'.format(field)
+                            choice = interactive.meowuri_prompt(_m)
+
+                        if not choice or choice == interactive.Choice.ABORT:
+                            log.info('Aborting ..')
+                            return
+
+                        resolver.add_known_source(field, choice)
+
+                    resolver.collect()
 
         # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
-        resolver.collect()
-        if not resolver.collected_data_for_all_fields():
+        if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
             log.warning('Unable to populate name. Missing field data.')
-            self.exit_code = constants.EXIT_WARNING
+            self.exit_code = C.EXIT_WARNING
             return
 
         try:
-            new_name = namebuilder.build(config=self.active_config,
-                                         name_template=name_template,
-                                         field_data_map=resolver.fields_data)
+            new_name = namebuilder.build(
+                config=self.active_config,
+                name_template=name_template,
+                field_data_map=resolver.fields_data
+            )
         except exceptions.NameBuilderError as e:
             log.critical('Name assembly FAILED: {!s}'.format(e))
             raise exceptions.AutonameowException
 
-        # TODO: [TD0042] Respect '--quiet' option. Suppress output.
         log.info('New name: "{}"'.format(
             util.displayable_path(new_name))
         )
-        self.do_rename(from_path=current_file.abspath,
-                       new_basename=new_name,
-                       dry_run=self.opts.dry_run)
+        self.do_rename(
+            from_path=current_file.abspath,
+            new_basename=new_name,
+            dry_run=self.opts.dry_run
+        )
 
     def exit_program(self, exit_code_):
         """
@@ -362,15 +476,15 @@ class Autonameow(object):
         Returns:
             True if the rename succeeded or would be a NO-OP, otherwise False.
         """
-        util.assert_internal_bytestring(from_path)
-        util.assert_internal_string(new_basename)
+        sanity.check_internal_bytestring(from_path)
+        sanity.check_internal_string(new_basename)
 
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = util.bytestring_path(new_basename)
         log.debug('Destination basename (bytestring): "{!s}"'.format(
             util.displayable_path(dest_basename))
         )
-        util.assert_internal_bytestring(dest_basename)
+        sanity.check_internal_bytestring(dest_basename)
 
         from_basename = diskutils.file_basename(from_path)
 
@@ -379,7 +493,7 @@ class Autonameow(object):
                    'the new name'.format(util.displayable_path(from_basename),
                                          util.displayable_path(dest_basename))
             log.debug(_msg)
-            cli.msg(_msg, style='color_quoted')
+            cli.msg(_msg)
         else:
             if dry_run is False:
                 try:
@@ -415,6 +529,9 @@ class Autonameow(object):
                                                            value))
             self._exit_code = value
 
+    def __hash__(self):
+        return hash(util.process_id()) + hash(self.start_time)
+
 
 def _run_extraction(file_object, require_extractors, run_all_extractors=False):
     """
@@ -446,6 +563,7 @@ def _run_plugins(file_object, required_plugins=None):
 
     Returns:
         An instance of the 'PluginHandler' class that has executed successfully.
+
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
@@ -487,6 +605,7 @@ def _run_rule_matcher(file_object, active_config):
 
     Returns:
         An instance of the 'RuleMatcher' class that has executed successfully.
+
     Raises:
         AutonameowException: An unrecoverable error occurred during execution.
     """
@@ -498,11 +617,3 @@ def _run_rule_matcher(file_object, active_config):
         raise
     else:
         return matcher
-
-
-def _list_analysis_results_field(analysis, results_field):
-    log.info('Listing "{}" analysis results ..'.format(results_field))
-    # TODO: [TD0066] Handle all encoding properly.
-
-    cli.msg('TODO: Re-implement this after moving to shared data pool storage.')
-    # cli.msg(util.dump(analysis.results.get(results_field)))

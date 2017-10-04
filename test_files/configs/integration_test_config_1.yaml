@@ -16,35 +16,38 @@ NAME_TEMPLATES:
     default_document: '{title} - {author} {datetime}.{extension}'
     default_photo: '{datetime} {description} -- {tags}.{extension}'
 RULES:
--   CONDITIONS:
-        filesystem.basename.extension: pdf
-        filesystem.basename.full: gmail.pdf
-        filesystem.contents.mime_type: application/pdf
-    DATA_SOURCES:
-        datetime: metadata.exiftool.PDF:CreateDate
-        extension: filesystem.basename.extension
-        title: filesystem.basename.prefix
-    NAME_FORMAT: '{datetime} {title}.{extension}'
-    description: test_files Gmail print-to-pdf
-    exact_match: true
-    ranking_bias: null
--   CONDITIONS:
-        filesystem.basename.full: smulan.jpg
-        filesystem.contents.mime_type: image/jpeg
-    DATA_SOURCES:
-        datetime: metadata.exiftool.EXIF:DateTimeOriginal
-        description: plugin.microsoft_vision.caption
-        extension: filesystem.basename.extension
-    NAME_FORMAT: '{datetime} {description}.{extension}'
-    description: test_files smulan.jpg
-    exact_match: true
-    ranking_bias: 1
--   CONDITIONS:
-        filesystem.basename.full: simplest_pdf.md.pdf
-    DATA_SOURCES:
-        extension: filesystem.basename.extension
-    NAME_FORMAT: simplest_pdf.md.{extension}
-    description: test_files simplest_pdf.md.pdf
-    exact_match: true
-    ranking_bias: 1
-autonameow_version: v0.4.5
+    test_files Gmail print-to-pdf:
+        CONDITIONS:
+            extractor.filesystem.xplat.basename.extension: pdf
+            extractor.filesystem.xplat.basename.full: gmail.pdf
+            extractor.filesystem.xplat.contents.mime_type: application/pdf
+        DATA_SOURCES:
+            datetime: extractor.metadata.exiftool.PDF:CreateDate
+            extension: extractor.filesystem.xplat.basename.extension
+            title: extractor.filesystem.xplat.basename.prefix
+        NAME_FORMAT: '{datetime} {title}.{extension}'
+        description: 
+        exact_match: true
+        ranking_bias: null
+    test_files smulan.jpg:
+        CONDITIONS:
+            extractor.filesystem.xplat.basename.full: smulan.jpg
+            extractor.filesystem.xplat.contents.mime_type: image/jpeg
+        DATA_SOURCES:
+            datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
+            description: plugin.microsoft_vision.caption
+            extension: extractor.filesystem.xplat.basename.extension
+        NAME_FORMAT: '{datetime} {description}.{extension}'
+        description: 
+        exact_match: true
+        ranking_bias: 1
+    test_files simplest_pdf.md.pdf:
+        CONDITIONS:
+            extractor.filesystem.xplat.basename.full: simplest_pdf.md.pdf
+        DATA_SOURCES:
+            extension: extractor.filesystem.xplat.basename.extension
+        NAME_FORMAT: simplest_pdf.md.{extension}
+        exact_match: true
+        ranking_bias: 1
+COMPATIBILITY:
+    autonameow_version: v0.4.8

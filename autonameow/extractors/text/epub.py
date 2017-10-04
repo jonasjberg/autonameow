@@ -21,11 +21,7 @@
 
 import logging
 
-try:
-    from thirdparty import epubzilla
-except ImportError:
-    epubzilla = None
-
+from thirdparty import epubzilla
 from extractors.text.common import AbstractTextExtractor
 
 
@@ -33,8 +29,7 @@ log = logging.getLogger(__name__)
 
 
 class EpubTextExtractor(AbstractTextExtractor):
-    handles_mime_types = ['application/epub+zip']
-    meowuri_root = 'contents.textual.text'
+    HANDLES_MIME_TYPES = ['application/epub+zip']
 
     # TODO: [TD0028] Implement extractor for E-books (pdf/epub/mobi/..)
 

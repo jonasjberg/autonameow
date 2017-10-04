@@ -23,12 +23,12 @@ import argparse
 import logging
 import os
 
+from core import constants as C
 from core import (
-    constants,
-    util,
-    logs
+    logs,
+    util
 )
-from core.util import cli
+from core.ui import cli
 
 log = logging.getLogger(__name__)
 
@@ -80,9 +80,11 @@ def init_argparser():
     """
     parser = argparse.ArgumentParser(
         prog='autonameow',
-        description='Automatic renaming of files from analysis of '
-                    'several sources of information.',
-        epilog='',
+        description='{} {}'.format(C.STRING_PROGRAM_NAME,
+                                         C.STRING_PROGRAM_VERSION),
+        epilog='Automatic renaming of files from analysis of '
+               'several sources of information.' +
+               '\n Project website:  {}'.format(C.STRING_REPO_URL),
         formatter_class=CapitalisedHelpFormatter,
         add_help=False
     )
@@ -117,7 +119,7 @@ def init_argparser():
         dest='quiet',
         action='store_true',
         default=False,
-        help='Enables quiet mode, suppress all but critical errors.'
+        help='Enables quiet mode, suppress all but renames.'
     )
 
     optgrp_action = parser.add_argument_group(
@@ -151,23 +153,35 @@ def init_argparser():
     )
     optgrp_mode.add_argument(
         '--automagic',
-        dest='automagic',
+        dest='mode_automagic',
         action='store_true',
-        help='Perform renames without requiring any user interaction. '
-             'Matches the given paths against the available rules. '
-             'Paths matched to a rule is renamed in accordance with the rule.'
+        help='Enable AUTOMAGIC MODE. Try to perform renames without user '
+             'interaction by matching the given paths against available rules.'
+             ' The information provided by the highest ranked rule is used '
+             ' when performing any actions on that path. '
+             'The user might still be asked to resolve any uncertainties. '
+             'Use the "--batch" option to force non-interactive mode and '
+             'skip paths with unresolved queries.'
     )
     optgrp_mode.add_argument(
         '--interactive',
-        dest='interactive',
+        dest='mode_interactive',
         action='store_true',
-        help='(DEFAULT) Enable interactive mode. User selects which of the '
+        help='(DEFAULT) Enable INTERACTIVE MODE. User selects which of the '
              'analysis results is to make up the new filename.'
+    )
+    optgrp_mode.add_argument(
+        '--batch',
+        default=False,
+        dest='mode_batch',
+        action='store_true',
+        help='Enable BATCH MODE. Ignores any and all queries, does not '
+             'require any user interaction. Suitable for scripting, etc.'
     )
 
     optgrp_filter = parser.add_argument_group('Processing options')
 
-    ignore_to_year_default = constants.YEAR_LOWER_LIMIT.strftime('%Y')
+    ignore_to_year_default = C.YEAR_LOWER_LIMIT.strftime('%Y')
     optgrp_filter.add_argument(
         '--ignore-to-year',
         metavar='YYYY',
@@ -179,7 +193,7 @@ def init_argparser():
              'years prior. Default: {}'.format(ignore_to_year_default)
     )
 
-    ignore_from_year_default = constants.YEAR_UPPER_LIMIT.strftime('%Y')
+    ignore_from_year_default = C.YEAR_UPPER_LIMIT.strftime('%Y')
     optgrp_filter.add_argument(
         '--ignore-from-year',
         metavar='YYYY',
@@ -205,7 +219,13 @@ def init_argparser():
         dest='input_paths',
         metavar='INPUT_PATH',
         nargs='*',
-        help='Path(s) to file(s) to process.'
+        help='Path(s) to file(s) and/or directories of files to process. '
+             'If the path is a directory, all files in the directory are '
+             'included but any containing directories are not traversed. '
+             'Use "--recurse" to enable recursive traversal. '
+             'NOTE: Some files (defined in "constants.py") are silently '
+             'ignored.  Additional ignore patterns can also be specified in '
+             'the config.  Use "--dump-config" to list all ignore patterns.'
     )
     parser.add_argument(
         '-d', '--dry-run',
@@ -252,6 +272,14 @@ def init_argparser():
         action='store_true',
         help='Dump active configuration to stdout.'
     )
+    optgrp_debug.add_argument(
+        '--dump-meowuris',
+        dest='dump_meowuris',
+        action='store_true',
+        help='Dump all MeowURIs registered to the "Repository" at startup. '
+             'NOTE: Some sources require explict inclusion and might therefore'
+             ' not be included.  Use "--debug" for more information.'
+    )
 
     return parser
 
@@ -273,15 +301,24 @@ def parse_args(raw_args):
 
     logs.init_logging(args)
 
-    if args.automagic and args.interactive:
-        log.critical('Operating mode must be either one of "automagic" or '
-                     '"interactive", not both. Reverting to default: '
-                     '[interactive mode].')
-        args.automagic = False
-        args.interactive = True
-    if not args.automagic and not args.interactive:
-        log.debug('Using default operating mode: [interactive mode].')
-        args.interactive = True
+    if args.mode_automagic and args.mode_interactive:
+        log.warning('Operating mode must be either one of "automagic" or '
+                    '"interactive", not both. Reverting to default: '
+                    '[interactive mode].')
+        args.mode_automagic = False
+        args.mode_interactive = True
+    if not args.mode_automagic and args.mode_batch:
+        log.warning('Running in "batch" mode without "automagic" mode does'
+                    'not make any sense. Nothing to do!')
+    if args.mode_batch and args.mode_interactive:
+        log.warning('Operating mode must be either one of "batch" or '
+                    '"interactive", not both. Reverting to default: '
+                    '[interactive mode].')
+        args.mode_batch = False
+        args.mode_interactive = True
+    if not args.mode_automagic and not args.mode_interactive:
+        log.info('Using default operating mode: [interactive mode].')
+        args.mode_interactive = True
 
     return args
 

@@ -31,7 +31,6 @@ from core.config.field_parsers import (
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser,
     suitable_field_parser_for,
-    is_valid_template_field,
     eval_meowuri_glob,
     parse_versioning
 )
@@ -91,7 +90,7 @@ class TestFieldParser(TestCase):
             self.p.evaluate(None, None)
 
     def test_str_returns_expected_expected_type(self):
-        self.assertTrue(isinstance(str(self.p), str))
+        self.assertTrue(uu.is_internalstring(str(self.p)))
 
 
 class TestFieldParserSubclasses(TestCase):
@@ -207,6 +206,7 @@ class TestMimeTypeFieldParser(TestCase):
         self.assertTrue(self.val_func('text/plain'))
         self.assertTrue(self.val_func('inode/x-empty'))
         self.assertTrue(self.val_func('application/epub+zip'))
+        self.assertTrue(self.val_func('image/vnd.djvu'))
 
     def test_expect_pass_for_valid_globs(self):
         self.assertTrue(self.val_func('*/*'))
@@ -290,10 +290,10 @@ class TestDateTimeFieldParser(TestCase):
     def test_validation_function_expect_fail(self):
         self.assertFalse(self.val_func(None))
         self.assertFalse(self.val_func(1))
+        self.assertFalse(self.val_func(''))
 
     def test_validation_function_expect_pass(self):
         self.assertTrue(self.val_func('%Y-%m-%d %H:%M:%S'))
-        self.assertTrue(self.val_func(''))
         self.assertTrue(self.val_func('_'))
 
 
@@ -355,9 +355,11 @@ class TestSuitableFieldParserFor(TestCase):
         self.__expect_parser_for('DateTimeConfigFieldParser', 'date_created')
         self.__expect_parser_for('DateTimeConfigFieldParser', 'date_modified')
         self.__expect_parser_for('DateTimeConfigFieldParser',
-                                 'metadata.exiftool.PDF:CreateDate')
-        self.__expect_parser_for('DateTimeConfigFieldParser',
-                                 'metadata.exiftool.EXIF:DateTimeOriginal')
+                                 'extractor.metadata.exiftool.PDF:CreateDate')
+        self.__expect_parser_for(
+            'DateTimeConfigFieldParser',
+            'extractor.metadata.exiftool.EXIF:DateTimeOriginal'
+        )
 
     def test_expect_regex_field_parser(self):
         self.__expect_parser_for('RegexConfigFieldParser',
@@ -378,24 +380,6 @@ class TestFieldParserConstants(TestCase):
     def test_has_dummy_data_fields_constant(self):
         self.assertIsNotNone(field_parsers.DATA_FIELDS)
         self.assertTrue(isinstance(field_parsers.DATA_FIELDS, dict))
-
-
-class TestIsValidTemplateField(TestCase):
-    def test_invalid_fields_returns_false(self):
-        self.assertFalse(is_valid_template_field(None))
-        self.assertFalse(is_valid_template_field(''))
-        self.assertFalse(is_valid_template_field('foo'))
-
-    def test_valid_fields_return_true(self):
-        self.assertTrue(is_valid_template_field('author'))
-        self.assertTrue(is_valid_template_field('date'))
-        self.assertTrue(is_valid_template_field('datetime'))
-        self.assertTrue(is_valid_template_field('description'))
-        self.assertTrue(is_valid_template_field('edition'))
-        self.assertTrue(is_valid_template_field('extension'))
-        self.assertTrue(is_valid_template_field('publisher'))
-        self.assertTrue(is_valid_template_field('tags'))
-        self.assertTrue(is_valid_template_field('title'))
 
 
 class TestEvalMeowURIGlob(TestCase):
@@ -433,7 +417,7 @@ class TestEvalMeowURIGlob(TestCase):
                                            'filesystem.*.full']
         ))
         self.assertFalse(eval_meowuri_glob(
-            'metadata.exiftool.PDF:Creator',
+            'extractor.metadata.exiftool.PDF:Creator',
             ['datetime', 'date_accessed', 'date_created', 'date_modified',
              '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
              '*.EXIF:ModifyDate']
@@ -467,6 +451,9 @@ class TestEvalMeowURIGlob(TestCase):
         ))
         self.assertFalse(eval_meowuri_glob(
             'filesystem.abspath.full', ['*.text.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'extractor.metadata.exiftool.PDF:CreateDate', ['metadata.*']
         ))
 
     def test_eval_meowuri_blob_returns_true_as_expected(self):
@@ -526,17 +513,19 @@ class TestEvalMeowURIGlob(TestCase):
                                               '*.extension']
         ))
         self.assertTrue(eval_meowuri_glob(
-            'metadata.exiftool.PDF:CreateDate',
-            ['metadata.exiftool.PDF:CreateDate']
+            'extractor.metadata.exiftool.PDF:CreateDate',
+            ['extractor.metadata.exiftool.PDF:CreateDate']
         ))
         self.assertTrue(eval_meowuri_glob(
-            'metadata.exiftool.PDF:CreateDate', ['metadata.exiftool.*']
+            'extractor.metadata.exiftool.PDF:CreateDate',
+            ['extractor.metadata.exiftool.*']
         ))
         self.assertTrue(eval_meowuri_glob(
-            'metadata.exiftool.PDF:CreateDate', ['metadata.*']
+            'extractor.metadata.exiftool.PDF:CreateDate',
+            ['extractor.metadata.*']
         ))
         self.assertTrue(eval_meowuri_glob(
-            'metadata.exiftool.PDF:CreateDate',
+            'extractor.metadata.exiftool.PDF:CreateDate',
             ['datetime', 'date_accessed', 'date_created', 'date_modified',
              '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
              '*.EXIF:ModifyDate']

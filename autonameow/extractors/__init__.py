@@ -26,10 +26,8 @@ import sys
 
 from .common import (
     BaseExtractor,
-    ExtractedData,
     ExtractorError,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -125,7 +123,7 @@ def get_extractor_classes(packages, modules):
     return out
 
 
-def suitable_data_extractors_for(file_object):
+def suitable_extractors_for(file_object):
     """
     Returns extractor classes that can handle the given file object.
 
@@ -142,26 +140,20 @@ def map_meowuri_to_extractors():
     """
     Returns a mapping of the extractor "meowURIs" and extractor classes.
 
-    Each extractor class defines 'meowuri_root' which is used as the
-    first part of all data returned by the extractor.
-    Multiple extractors can use the same 'meowuri_root'; for instance,
-    the 'PdfTextExtractor' and 'PlainTextExtractor' classes both define the
-    same meowURI, 'contents.textual.text'.
-
-    Returns: A dictionary where the keys are "meowURIs" and the values
-        are lists of extractor classes.
+    Returns: A dictionary where the keys are Unicode string "meowURIs",
+             with values beings lists of extractor classes.
     """
     out = {}
 
     for klass in ExtractorClasses:
-        if not klass.meowuri_root:
-            log.critical('"{!s}" does not specify "meowuri_root"'.format(klass))
+        _meowuri = klass.meowuri()
+        if not _meowuri:
             continue
 
-        if klass.meowuri_root in out:
-            out[klass.meowuri_root].append(klass)
+        if _meowuri in out:
+            out[_meowuri].append(klass)
         else:
-            out[klass.meowuri_root] = [klass]
+            out[_meowuri] = [klass]
 
     return out
 

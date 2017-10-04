@@ -19,15 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-import operator
-
 import copy
+import logging
 
-from core import (
-    repository
-)
-from extractors import ExtractedData
+from core import repository
+from core.model import ExtractedData
+
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +48,7 @@ class RuleMatcher(object):
         self._scored_rules = {}
         self._candidates = []
 
-    def request_data(self, file_object, meowuri):
+    def _request_data(self, file_object, meowuri):
         log.debug('requesting [{!s}]->[{!s}]'.format(file_object, meowuri))
         response = repository.SessionRepository.query(file_object, meowuri)
         log.debug('Got response ({}): {!s}'.format(type(response), response))
@@ -62,16 +59,16 @@ class RuleMatcher(object):
         else:
             return response
 
-    def _request_data(self, meowuri):
+    def request_data(self, meowuri):
         # Functions that use this does not have access to 'self.file_object'.
         # This method, which calls a callback, is itself passed as a callback..
-        return self.request_data(self.file_object, meowuri)
+        return self._request_data(self.file_object, meowuri)
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))
 
         remaining_rules = remove_rules_failing_exact_match(self._rules,
-                                                           self._request_data)
+                                                           self.request_data)
         if len(remaining_rules) == 0:
             log.debug('No rules remain after discarding those who requires an'
                       ' exact match but failed evaluation ..')
@@ -86,7 +83,7 @@ class RuleMatcher(object):
         max_condition_count = max(len(rule.conditions)
                                   for rule in remaining_rules)
         for rule in remaining_rules:
-            met_conditions = rule.number_conditions_met(self._request_data)
+            met_conditions = rule.number_conditions_met(self.request_data)
 
             # Ratio of met conditions to the total number of conditions
             # for a single rule.
@@ -123,6 +120,19 @@ class RuleMatcher(object):
         if not self._candidates:
             return False
         return self._candidates[0]
+
+    def candidates(self):
+        if not self._candidates:
+            return []
+        return self._candidates
+
+    def best_match_score(self):
+        best = self.best_match
+        if best:
+            rule = self._scored_rules.get(best)
+            if rule:
+                return rule.get('score')
+        return 0
 
 
 def prioritize_rules(rules):

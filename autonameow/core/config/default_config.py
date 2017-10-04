@@ -19,19 +19,21 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core import constants
+from core import constants as C
 
 
 # ALL_CONDITIONS_FIELDS
 # =====================
-# 'filesystem.basename.full'        Regular expression
-# 'filesystem.basename.extension'   Regular expression
-# 'filesystem.pathname.full'        Regular expression
-# 'filesystem.date_accessed'        Python "datetime" format
-# 'filesystem.date_created'         Python "datetime" format
-# 'filesystem.date_modified'        Python "datetime" format
-# 'filesystem.contents.mime_type'   Supports simple "globbing" ('*/jpeg')
-# 'metadata.exiftool'               See note below.
+# 'extractor.filesystem.xplat.basename.full'        Regular expression
+# 'extractor.filesystem.xplat.basename.extension'   Regular expression
+# 'extractor.filesystem.xplat.pathname.full'        Regular expression
+# 'extractor.filesystem.xplat.date_accessed'        Python "datetime" format
+# 'extractor.filesystem.xplat.date_created'         Python "datetime" format
+# 'extractor.filesystem.xplat.date_modified'        Python "datetime" format
+# 'extractor.filesystem.xplat.contents.mime_type'   Supports simple "globbing" ('*/jpeg')
+# 'extractor.metadata.exiftool'     See note below.
+
+#   TODO: Document all fields ..
 
 #   NOTE:  See this link for all available exiftool fields.
 #   http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
@@ -55,96 +57,96 @@ DEFAULT_CONFIG = {
     #
     #   TODO: Document all fields ..
     #
-    'RULES': [
-        {'description': 'test_files Gmail print-to-pdf',
-         'exact_match': True,
-         'ranking_bias': None,
-         'NAME_FORMAT': '{datetime} {title}.{extension}',
-         'CONDITIONS': {
-             'filesystem.basename.full': 'gmail.pdf',
-             'filesystem.basename.extension': 'pdf',
-             'filesystem.contents.mime_type': 'application/pdf',
-         },
-         'DATA_SOURCES': {
-             'datetime': 'metadata.exiftool.PDF:CreateDate',
-             'title': 'filesystem.basename.prefix',
-             'extension': 'filesystem.basename.extension'
-         }
-         },
+    'RULES': {
+        'test_files Gmail print-to-pdf': {
+            'exact_match': True,
+            'ranking_bias': None,
+            'NAME_FORMAT': '{datetime} {title}.{extension}',
+            'CONDITIONS': {
+                'extractor.filesystem.xplat.basename.full': 'gmail.pdf',
+                'extractor.filesystem.xplat.basename.extension': 'pdf',
+                'extractor.filesystem.xplat.contents.mime_type': 'application/pdf',
+            },
+            'DATA_SOURCES': {
+                'datetime': 'extractor.metadata.exiftool.PDF:CreateDate',
+                'title': 'extractor.filesystem.xplat.basename.prefix',
+                'extension': 'extractor.filesystem.xplat.basename.extension'
+            }
+        },
         # ____________________________________________________________________
-        {'description': 'test_files smulan.jpg',
-         'exact_match': True,
-         'ranking_bias': 1,
-         'NAME_FORMAT': '{datetime} {description}.{extension}',
-         'CONDITIONS': {
-             'filesystem.basename.full': 'smulan.jpg',
-             'filesystem.contents.mime_type': 'image/jpeg',
-         },
-         'DATA_SOURCES': {
-             'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
-             'description': 'plugin.microsoft_vision.caption',
-             'extension': 'filesystem.basename.extension'
-         }
-         },
+        'test_files smulan.jpg': {
+            'exact_match': True,
+            'ranking_bias': 1,
+            'NAME_FORMAT': '{datetime} {description}.{extension}',
+            'CONDITIONS': {
+                'extractor.filesystem.xplat.basename.full': 'smulan.jpg',
+                'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
+            },
+            'DATA_SOURCES': {
+                'datetime': 'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
+                'description': 'plugin.microsoft_vision.caption',
+                'extension': 'extractor.filesystem.xplat.basename.extension'
+            }
+        },
         # ____________________________________________________________________
-        {'description': 'test_files simplest_pdf.md.pdf',
-         'exact_match': True,
-         'ranking_bias': 1,
-         'NAME_FORMAT': 'simplest_pdf.md.{extension}',
-         'CONDITIONS': {
-             'filesystem.basename.full': 'simplest_pdf.md.pdf',
-         },
-         'DATA_SOURCES': {
-             'extension': 'filesystem.basename.extension'
-         }
-         },
+        'test_files simplest_pdf.md.pdf': {
+            'exact_match': True,
+            'ranking_bias': 1,
+            'NAME_FORMAT': 'simplest_pdf.md.{extension}',
+            'CONDITIONS': {
+                'extractor.filesystem.xplat.basename.full': 'simplest_pdf.md.pdf',
+            },
+            'DATA_SOURCES': {
+                'extension': 'extractor.filesystem.xplat.basename.extension'
+            }
+        },
         # ____________________________________________________________________
-        {'description': 'Sample Entry for Photos with strict rules',
-         'exact_match': True,
-         'ranking_bias': 1,
-         'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
-         'CONDITIONS': {
-             'filesystem.pathname.full': '~/Pictures/incoming',
-             'filesystem.basename.full': 'DCIM*',
-             'filesystem.basename.extension': 'jpg',
-             'filesystem.contents.mime_type': 'image/jpeg',
-             # TODO: [TD0015] Ensure proper validation of entry below.
-             'metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
-         },
-         'DATA_SOURCES': {
-             'datetime': ['metadata.exiftool.EXIF:DateTimeOriginal',
-                          'metadata.exiftool.EXIF:DateTimeDigitized',
-                          'metadata.exiftool.EXIF:CreateDate'],
-             'description': 'plugin.microsoft_vision.caption',
-             'extension': 'filesystem.basename.extension',
-             'tags': 'plugin.microsoft_vision.tags'
-         }
-         },
+        'Sample Entry for Photos with strict rules': {
+            'exact_match': True,
+            'ranking_bias': 1,
+            'NAME_FORMAT': '{datetime} {description} -- {tags}.{extension}',
+            'CONDITIONS': {
+                'extractor.filesystem.xplat.pathname.full': '~/Pictures/incoming',
+                'extractor.filesystem.xplat.basename.full': 'DCIM*',
+                'extractor.filesystem.xplat.basename.extension': 'jpg',
+                'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg',
+                # TODO: [TD0015] Ensure proper validation of entry below.
+                'extractor.metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
+            },
+            'DATA_SOURCES': {
+                'datetime': [
+                    'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
+                    'extractor.metadata.exiftool.EXIF:DateTimeDigitized',
+                    'extractor.metadata.exiftool.EXIF:CreateDate'
+                ],
+                'description': 'plugin.microsoft_vision.caption',
+                'extension': 'extractor.filesystem.xplat.basename.extension',
+                'tags': 'plugin.microsoft_vision.tags'
+            }
+        },
         # ____________________________________________________________________
-        {'description': 'Sample Entry for EPUB e-books',
-         'exact_match': True,
-         'ranking_bias': 1,
-         'NAME_FORMAT': 'default_book',
-         'CONDITIONS': {
-             'filesystem.pathname.full': '.*',
-             'filesystem.basename.full': '.*',
-             'filesystem.basename.extension': 'epub',
-             'filesystem.contents.mime_type': 'application/epub+zip',
-             # TODO: [TD0015] Ensure proper validation of entry below.
-             'metadata.exiftool.XMP-dc:Creator': 'Defined',
-         },
-         'DATA_SOURCES': {
-             'datetime': ['metadata.exiftool.XMP-dc:PublicationDate',
-                          'metadata.exiftool.XMP-dc:Date'],
-             'title': 'metadata.exiftool.XMP-dc:Title',
-             'author': ['metadata.exiftool.XMP-dc:Creator',
-                        'metadata.exiftool.XMP-dc:CreatorFile-as'],
-             'publisher': 'metadata.exiftool.XMP-dc:Publisher',
-             'edition': None,
-             'extension': 'filesystem.basename.extension',
-         }
-         },
-    ],
+        'Sample Entry for E-books': {
+            'exact_match': True,
+            'ranking_bias': 0.1,
+            'NAME_FORMAT': 'default_book',
+            'CONDITIONS': {
+                'extractor.filesystem.xplat.contents.mime_type': [
+                    'application/pdf',
+                    'application/epub+zip',
+                    'image/vnd.djvu',
+                ],
+                'extractor.filesystem.xplat.pathname.full': '.*book.*'
+            },
+            'DATA_SOURCES': {
+                'author': 'analyzer.ebook.author',
+                'extension': 'extractor.filesystem.xplat.contents.mime_type',
+                'date': 'analyzer.ebook.date',
+                'edition': 'analyzer.ebook.edition',
+                'publisher': 'analyzer.ebook.publisher',
+                'title': 'analyzer.ebook.title',
+            },
+        },
+    },
 
     #  File Name Templates
     #  ===================
@@ -156,7 +158,7 @@ DEFAULT_CONFIG = {
     #
     'NAME_TEMPLATES': {
         'default_document': '{title} - {author} {datetime}.{extension}',
-        'default_book': '{publisher} {title} {edition} - {author} {datetime}.{extension}',
+        'default_book': '{publisher} {title} {edition} - {author} {date}.{extension}',
         'default_photo': '{datetime} {description} -- {tags}.{extension}'
     },
 
@@ -176,14 +178,10 @@ DEFAULT_CONFIG = {
 
     #  Filesystem Options
     #  ==================
-    #  Options for how filenames are written do disk. Allowed/blacklisted
-    #  characters, etc.
+    #  Specify patterns for files to be ignored.
+    #  These are added on to the defaults specified in 'constants.py'.
     'FILESYSTEM_OPTIONS': {
-        'sanitize_filename': True,
-        'sanitize_strict': False,
         'ignore': ['*.swp', '*/.*'],
-        'lowercase_filename': False,
-        'uppercase_filename': False
     },
 
     #  Custom Post-Processing Options
@@ -194,10 +192,14 @@ DEFAULT_CONFIG = {
     #  "foo" in a file name to be replaced by "bar".
     'CUSTOM_POST_PROCESSING': {
         'replacements': {
-            '_+': '_',
-            '-+': '-',
+            '_{2,}': '_',
+            '-{2,}': '-',
             '\.{2,}': '.'
         },
+        'lowercase_filename': False,
+        'uppercase_filename': False,
+        'sanitize_filename': True,
+        'sanitize_strict': False
     },
 
     #  Filetags Options
@@ -209,26 +211,59 @@ DEFAULT_CONFIG = {
         'between_tag_separator': ' '
     },
 
-    'autonameow_version': constants.PROGRAM_VERSION
+    'COMPATIBILITY': {
+        '{}_version'.format(C.STRING_PROGRAM_NAME): C.STRING_PROGRAM_VERSION
+    }
 }
 
 
 if __name__ == '__main__':
+    """
+    Run as stand-alone to write DEFAULT_CONFIG to a YAML-file.
+
+    NOTE: Relative imports require PYTHONPATH to be set ..
+          Workaround wrapper-script at "devscripts/write-default-config.sh"
+    """
+    from datetime import datetime
+    import os
     import sys
+    from core.config import write_yaml_file
 
-    if len(sys.argv) >= 2 and '--write-default' in sys.argv:
-        import os
-        from datetime import datetime
-        from core.config import write_yaml_file
+    def default_destpath():
+        basename = 'default_config_{}.yaml'.format(
+            datetime.now().strftime('%Y-%m-%dT%H%M%S')
+        )
+        this_dir = os.path.dirname(os.path.realpath(__file__))
+        return os.path.normpath(os.path.join(this_dir, basename))
 
-        _this_dir = os.path.dirname(os.path.realpath(__file__))
-        _basename = 'default_config_{}.yaml'.format(datetime.now().strftime('%Y-%m-%dT%H%M%S'))
-        _dest = os.path.join(_this_dir, _basename)
+    if len(sys.argv) > 1 and sys.argv[1] == '--write-default':
+        if len(sys.argv) > 2:
+            dest_path = sys.argv[2]
+        else:
+            dest_path = default_destpath()
+
+        if os.path.exists(dest_path):
+            print('[ERROR] Destination exists: "{!s}”'.format(dest_path))
+            sys.exit(1)
 
         try:
-            write_yaml_file(_dest, DEFAULT_CONFIG)
-        except Exception:
-            print('Unable to write DEFAULT_CONFIG to disk')
+            write_yaml_file(dest_path, DEFAULT_CONFIG)
+        except Exception as e:
+            print('[ERROR] Unable to write DEFAULT_CONFIG to disk!')
+            print('Destination path: "{!s}”'.format(dest_path))
+            print(str(e))
         else:
-            print('Wrote DEFAULT_CONFIG to file: "{}"'.format(_dest))
+            print('Wrote DEFAULT_CONFIG: "{}"'.format(dest_path))
+            sys.exit(0)
 
+    else:
+        print('''
+Writes the default configuration to a YAML-file.
+
+USAGE:  {progname} --write-default ([PATH])
+
+Argument [PATH] is optional and defaults to:
+"{default_path}"
+
+Returns exit code 0 if the file is written successfully.
+'''.format(progname=__file__, default_path=default_destpath()))

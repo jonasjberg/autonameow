@@ -21,14 +21,21 @@
 
 import unittest
 
-from core import util
-from core.exceptions import EncodingBoundaryViolation
-from core.util import textutils
-
 try:
     import chardet
-except (ModuleNotFoundError, ImportError):
+except ImportError:
     chardet = None
+
+from core import util
+from core.exceptions import (
+    AWAssertionError,
+    EncodingBoundaryViolation
+)
+from core.util import textutils
+import unit_utils as uu
+
+
+from thirdparty import nameparser as _nameparser
 
 
 class TestRemoveNonBreakingSpaces(unittest.TestCase):
@@ -188,7 +195,7 @@ class TestExtractDigits(unittest.TestCase):
     def test_extract_digits_returns_digits(self):
         def _assert_equal(test_data, expected):
             actual = textutils.extract_digits(test_data)
-            self.assertTrue(isinstance(actual, str))
+            self.assertTrue(uu.is_internalstring(actual))
             self.assertEqual(actual, expected)
 
         _assert_equal('0', '0')
@@ -220,7 +227,7 @@ class TestExtractDigits(unittest.TestCase):
 class TestAutodetectDecode(unittest.TestCase):
     def _assert_encodes(self, encoding, string):
         _encoded_text = string.encode(encoding)
-        self.assertTrue(isinstance(_encoded_text, bytes))
+        self.assertTrue(uu.is_internalbytestring(_encoded_text))
 
         actual = textutils.autodetect_decode(_encoded_text)
         self.assertEqual(string, actual)
@@ -368,14 +375,206 @@ class TestExtractLines(unittest.TestCase):
         self.assertEqual(textutils.extract_lines(' ', 0, 0), '')
 
     def test_raises_exceptions_given_bad_argument(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(EncodingBoundaryViolation):
             textutils.extract_lines(b'foo', 0, 0)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(EncodingBoundaryViolation):
             textutils.extract_lines(1, 0, 0)
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(AWAssertionError):
             textutils.extract_lines('foo', -1, 0)
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(AWAssertionError):
             textutils.extract_lines('foo', 0, -1)
+
+
+class TestFormatNameLastnameInitials(unittest.TestCase):
+    def test_formats_author(self):
+        def _aE(input_, expect):
+            actual = textutils.format_name_lastname_initials(input_)
+            self.assertEqual(actual, expect)
+
+        _aE('Gibson', 'Gibson')
+        _aE('David B. Makofske', 'Makofske D.B.')
+        _aE('Michael J. Donahoo', 'Donahoo M.J.')
+        _aE('Kenneth L. Calvert', 'Calvert K.L.')
+        _aE('Zhiguo Gong', 'Gong Z.')
+        _aE('Dickson K. W. Chiu', 'Chiu D.K.W.')
+        _aE('Di Zou', 'Zou D.')
+        _aE('Muhammad Younas', 'Younas M.')
+        _aE('Katt Smulan', 'Smulan K.')
+        _aE('Hatt Katt Smulan', 'Smulan H.K.')
+        _aE('Irfan Awan', 'Awan I.')
+        _aE('Natalia Kryvinska', 'Kryvinska N.')
+        _aE('Christine Strauss', 'Strauss C.')
+        _aE('Do van Thanh', 'Thanh D.')
+        _aE('William T. Ziemba', 'Ziemba W.T.')
+        _aE('Raymond G. Vickson', 'Vickson R.G.')
+        _aE('Yimin Wei', 'Wei Y.')
+        _aE('Weiyang Ding', 'Ding W.')
+        _aE('David Simchi-Levi', 'Simchi-Levi D.')
+        _aE('Antonio J. Tallon-Ballesteros', 'Tallon-Ballesteros A.J.')
+        # _aE('Makofske D.B.', 'Makofske D.B.')
+
+
+@unittest.skipIf(_nameparser is None,
+                 'Failed to import "thirdparty.nameparser"')
+class TestFormatNameLastnameInitials2(unittest.TestCase):
+    def test_formats_author(self):
+        def _aE(input_, expect):
+            actual = textutils.format_name_lastname_initials2(input_)
+            self.assertEqual(actual, expect)
+
+        # _aE('Gibson', 'Gibson')
+        _aE('David B. Makofske', 'Makofske D.B.')
+        _aE('Michael J. Donahoo', 'Donahoo M.J.')
+        _aE('Kenneth L. Calvert', 'Calvert K.L.')
+        _aE('Zhiguo Gong', 'Gong Z.')
+        _aE('Dickson K. W. Chiu', 'Chiu D.K.W.')
+        _aE('Di Zou', 'Zou D.')
+        _aE('Muhammad Younas', 'Younas M.')
+        _aE('Katt Smulan', 'Smulan K.')
+        _aE('Hatt Katt Smulan', 'Smulan H.K.')
+        _aE('Irfan Awan', 'Awan I.')
+        _aE('Natalia Kryvinska', 'Kryvinska N.')
+        _aE('Christine Strauss', 'Strauss C.')
+        _aE('Do van Thanh', 'vanThanh D.')
+        _aE('William T. Ziemba', 'Ziemba W.T.')
+        _aE('Raymond G. Vickson', 'Vickson R.G.')
+        _aE('Yimin Wei', 'Wei Y.')
+        _aE('Weiyang Ding', 'Ding W.')
+        _aE('David Simchi-Levi', 'Simchi-Levi D.')
+        _aE('Antonio J. Tallon-Ballesteros', 'Tallon-Ballesteros A.J.')
+        _aE('Makofske D.B.', 'Makofske D.B.')
+        _aE('Donahoo M.J.', 'Donahoo M.J.')
+        _aE('Calvert K.L.', 'Calvert K.L.')
+        _aE('Gong Z.', 'Gong Z.')
+        _aE('Chiu D.K.W.', 'Chiu D.K.W.')
+        _aE('Zou D.', 'Zou D.')
+        _aE('Younas M.', 'Younas M.')
+        _aE('Smulan K.', 'Smulan K.')
+        _aE('Smulan H.K.', 'Smulan H.K.')
+        _aE('Awan I.', 'Awan I.')
+        _aE('Kryvinska N.', 'Kryvinska N.')
+        _aE('Strauss C.', 'Strauss C.')
+        _aE('vanThanh D.', 'vanThanh D.')
+        _aE('Ziemba W.T.', 'Ziemba W.T.')
+        _aE('Vickson R.G.', 'Vickson R.G.')
+        _aE('Wei Y.', 'Wei Y.')
+        _aE('Ding W.', 'Ding W.')
+
+        # TODO: Handle these ..
+        # _aE('Simchi-Levi D.', 'Simchi-Levi D.')
+        # _aE('Tallon-Ballesteros A.J.', 'Tallon-Ballesteros A.J.')
+
+
+class TestFormatNamesLastnameInitials(unittest.TestCase):
+    def test_formats_authors(self):
+        def _aE(input_, expect):
+            actual = textutils.format_names_lastname_initials(input_)
+            self.assertEqual(actual, expect)
+
+        _aE(input_=['David B. Makofske', 'Michael J. Donahoo',
+                    'Kenneth L. Calvert'],
+            expect=['Calvert K.L.', 'Donahoo M.J.', 'Makofske D.B.'])
+
+        _aE(input_=['Zhiguo Gong', 'Dickson K. W. Chiu', 'Di Zou'],
+            expect=['Chiu D.K.W.', 'Gong Z.', 'Zou D.'])
+
+        _aE(input_=['Muhammad Younas', 'Irfan Awan', 'Natalia Kryvinska',
+                    'Christine Strauss', 'Do van Thanh'],
+            expect=['Awan I.', 'Kryvinska N.', 'Strauss C.', 'Thanh D.',
+                    'Younas M.'])
+
+        _aE(input_=['William T. Ziemba', 'Raymond G. Vickson'],
+            expect=['Vickson R.G.', 'Ziemba W.T.'])
+
+        _aE(input_=['Yimin Wei', 'Weiyang Ding'],
+            expect=['Ding W.', 'Wei Y.'])
+
+        _aE(input_=['Charles Miller', 'Dino Dai Zovi'],
+            expect=['Miller C.', 'Zovi D.D.'])
+
+        _aE(input_=['Chrisina Jayne', 'Lazaros Iliadis'],
+            expect=['Iliadis L.', 'Jayne C.'])
+
+        _aE(input_=['Nihad Ahmad Hassan', 'Rami Hijazi'],
+            expect=['Hassan N.A.', 'Hijazi R.'])
+
+        _aE(input_=['David Simchi-Levi', 'Xin Chen', 'Julien Bramel'],
+            expect=['Bramel J.', 'Chen X.', 'Simchi-Levi D.'])
+
+        _aE(input_=['Hujun Yin', 'Yang Gao', 'Bin Li', 'Daoqiang Zhang',
+                    'Ming Yang', 'Yun Li', 'Frank Klawonn',
+                    'Antonio J. Tallon-Ballesteros'],
+            expect=['Gao Y.', 'Klawonn F.', 'Li B.', 'Li Y.',
+                    'Tallon-Ballesteros A.J.', 'Yang M.', 'Yin H.', 'Zhang D.'])
+
+
+@unittest.skipIf(_nameparser is None,
+                 'Failed to import "thirdparty.nameparser"')
+class TestParseName(unittest.TestCase):
+    def test_parses_strings(self):
+        actual = textutils.parse_name('foo')
+        self.assertIsNotNone(actual)
+        self.assertEqual(actual.original, 'foo')
+
+    def test_parses_name(self):
+        actual = textutils.parse_name('Gibson Catson, Ph.D.')
+        self.assertIsNotNone(actual)
+        self.assertEqual(actual.first, 'Gibson')
+        self.assertEqual(actual.last, 'Catson')
+        self.assertEqual(actual.suffix, 'Ph.D.')
+
+
+class TestNormalizeUnicode(unittest.TestCase):
+    def _aE(self, test_input, expected):
+        actual = textutils.normalize_unicode(test_input)
+        self.assertEqual(actual, expected)
+
+    def test_raises_exception_given_bad_input(self):
+        def _aR(test_input):
+            with self.assertRaises(TypeError):
+                textutils.normalize_unicode(test_input)
+
+        _aR(None)
+        _aR([])
+        _aR(['foo'])
+        _aR({})
+        _aR({'foo': 'bar'})
+        _aR(object())
+        _aR(1)
+        _aR(1.0)
+        _aR(b'')
+        _aR(b'foo')
+
+    def test_returns_expected(self):
+        self._aE('', '')
+        self._aE(' ', ' ')
+        self._aE('foo', 'foo')
+        self._aE('...', '...')
+
+    def test_simplifies_three_periods(self):
+        self._aE('…', '...')
+        self._aE(' …', ' ...')
+        self._aE(' … ', ' ... ')
+
+    def test_dashes(self):
+        self._aE('\u2212', '-')
+        self._aE('\u2013', '-')
+        self._aE('\u2014', '-')
+        self._aE('\u05be', '-')
+        self._aE('\u2010', '-')
+        self._aE('\u2015', '-')
+        self._aE('\u30fb', '-')
+
+
+class TestStripAnsiEscape(unittest.TestCase):
+    def _aE(self, test_input, expected):
+        actual = textutils.strip_ansiescape(test_input)
+        self.assertEqual(actual, expected)
+
+    def test_strips_ansi_escape_codes(self):
+        self._aE('', '')
+        self._aE('a', 'a')
+        self._aE('[30m[44mautonameow[49m[39m', 'autonameow')

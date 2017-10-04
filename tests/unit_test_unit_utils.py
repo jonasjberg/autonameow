@@ -30,6 +30,7 @@ from analyzers import BaseAnalyzer
 from core import util
 from core.config import rules
 from core.fileobject import FileObject
+from core.model import ExtractedData
 
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -441,3 +442,68 @@ class TestGetDummyRawConditions(TestCase):
         expected = len(uuconst.DUMMY_RAW_RULE_CONDITIONS)
         actual = len(uu.get_dummy_rulecondition_instances())
         self.assertEqual(actual, expected)
+
+
+class TestIsExtractedData(TestCase):
+    def test_returns_false_as_expected(self):
+        def _aF(test_input):
+            actual = uu.is_extracteddata(test_input)
+            self.assertFalse(actual)
+            self.assertTrue(isinstance(actual, bool))
+
+        _aF(None)
+        _aF(object())
+        _aF(b'foo')
+        _aF('foo')
+
+    def test_returns_true_as_expected(self):
+        def _aT(test_input):
+            actual = uu.is_extracteddata(test_input)
+            self.assertTrue(actual)
+            self.assertTrue(isinstance(actual, bool))
+
+        ed = ExtractedData(coercer=None)
+        _aT(ed)
+
+
+class TestIsInternalString(TestCase):
+    def test_returns_false_as_expected(self):
+        def _aF(test_input):
+            actual = uu.is_internalstring(test_input)
+            self.assertFalse(actual)
+            self.assertTrue(isinstance(actual, bool))
+
+        _aF(None)
+        _aF(object())
+        _aF(b'')
+
+    def test_returns_true_as_expected(self):
+        def _aT(test_input):
+            actual = uu.is_internalstring(test_input)
+            self.assertTrue(actual)
+            self.assertTrue(isinstance(actual, bool))
+
+        _aT('')
+        _aT('foo')
+
+
+class TestIsInternalByteString(TestCase):
+    def test_returns_false_as_expected(self):
+        def _aF(test_input):
+            actual = uu.is_internalbytestring(test_input)
+            self.assertFalse(actual)
+            self.assertTrue(isinstance(actual, bool))
+
+        _aF(None)
+        _aF(object())
+        _aF('')
+        _aF('foo')
+
+    def test_returns_true_as_expected(self):
+        def _aT(test_input):
+            actual = uu.is_internalbytestring(test_input)
+            self.assertTrue(actual)
+            self.assertTrue(isinstance(actual, bool))
+
+        _aT(b'')
+        _aT(b'foo')

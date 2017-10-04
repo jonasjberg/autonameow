@@ -20,18 +20,18 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import fnmatch
+import hashlib
 import os
 import re
 import itertools
 import logging
-import tempfile
 
-from core import (
-    util,
-    exceptions
-)
+from core import util
+from core.util import sanity
+
 
 log = logging.getLogger(__name__)
+
 
 # Needed by 'sanitize_filename' for sanitizing filenames in restricted mode.
 ACCENT_CHARS = dict(zip('ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ',
@@ -132,7 +132,7 @@ def split_basename(file_path):
     Raises:
         EncodingBoundaryViolation: Got arguments of unexpected types.
     """
-    util.assert_internal_bytestring(file_path)
+    sanity.check_internal_bytestring(file_path)
 
     base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
     base = util.bytestring_path(base)
@@ -263,62 +263,6 @@ def path_components(path):
     return out
 
 
-def get_files(search_path, recurse=False):
-    """
-    Returns all files in the specified path as a list of strings.
-
-    The specified search path is traversed non-recursively by default.
-    If the keyword argument "recurse" is set to True, the search path is
-    walked recursively.
-
-        NOTE: Does not currently handle symlinks.
-
-    Args:
-        search_path: The path to collect files from as an "internal bytestring".
-        recurse: Whether to traverse the path recursively or not.
-
-    Returns:
-        Absolute paths to files in the specified path, as a list of bytestrings.
-    """
-    # TODO: [TD0026] Follow symlinks? Add option for following symlinks?
-    # NOTE(jonas): If one were to have "out" be a set instead of a list, some
-    # information might get lost when unravelling symlinks. One might want to
-    # rename a symbolic link and the file that this link points to in the same
-    # run. Resolving the full ("real") paths of these two args might return two
-    # identical paths, which would be merged into just one if stored in a set.
-
-    if not search_path:
-        raise FileNotFoundError
-
-    util.assert_internal_bytestring(search_path)
-
-    if not (os.path.isfile(util.syspath(search_path))
-            or os.path.isdir(util.syspath(search_path))):
-        raise FileNotFoundError
-
-    out = []
-
-    def traverse(path):
-        util.assert_internal_bytestring(path)
-
-        if os.path.isfile(util.syspath(path)):
-            out.append(path)
-
-        elif os.path.isdir(util.syspath(path)):
-            for entry in os.listdir(util.syspath(path)):
-                entry_path = os.path.join(util.syspath(path),
-                                          util.syspath(entry))
-                entry_path = util.bytestring_path(entry_path)
-                if os.path.isfile(util.syspath(entry_path)):
-                    out.append(entry_path)
-                elif recurse and os.path.isdir(util.syspath(entry_path)):
-                    traverse(entry_path)
-
-    traverse(search_path)
-
-    return out
-
-
 def get_files_gen(search_path, recurse=False):
     """
     Returns all files in the specified path as a list of strings.
@@ -337,23 +281,39 @@ def get_files_gen(search_path, recurse=False):
         Absolute paths to files in the specified path, as a generator object.
     """
     # TODO: [TD0026] Follow symlinks? Add option for following symlinks?
+    # NOTE(jonas): If one were to have "out" be a set instead of a list, some
+    # information might get lost when unravelling symlinks. One might want to
+    # rename a symbolic link and the file that this link points to in the same
+    # run. Resolving the full ("real") paths of these two args might return two
+    # identical paths, which would be merged into just one if stored in a set.
+
     if not search_path:
         raise FileNotFoundError
-    if not os.path.isfile(search_path) and not os.path.isdir(search_path):
+    if not search_path.strip():
         raise FileNotFoundError
 
-    if os.path.isfile(search_path):
-        yield search_path
-    elif os.path.isdir(search_path):
-        for entry in os.listdir(search_path):
-            entry_path = os.path.join(search_path, entry)
+    sanity.check_internal_bytestring(search_path)
 
-            if not os.path.isfile(entry_path) and not os.path.isdir(entry_path):
+    if not (os.path.isfile(util.syspath(search_path))
+            or os.path.isdir(util.syspath(search_path))):
+        raise FileNotFoundError
+
+    if os.path.isfile(util.syspath(search_path)):
+        sanity.check_internal_bytestring(search_path)
+        yield search_path
+    elif os.path.isdir(util.syspath(search_path)):
+        for entry in os.listdir(util.syspath(search_path)):
+            entry_path = os.path.join(util.syspath(search_path),
+                                      util.syspath(entry))
+            if not os.path.exists(util.syspath(entry_path)):
                 raise FileNotFoundError
-            elif os.path.isfile(entry_path):
+
+            if os.path.isfile(entry_path):
+                sanity.check_internal_bytestring(entry_path)
                 yield entry_path
             elif recurse and os.path.isdir(entry_path):
                 for f in get_files_gen(entry_path, recurse=recurse):
+                    sanity.check_internal_bytestring(f)
                     yield f
 
 
@@ -374,8 +334,8 @@ def compare_basenames(basename_one, basename_two):
     if None in (basename_one, basename_two):
         raise ValueError('Expected two non-None bytestrings')
 
-    util.assert_internal_bytestring(basename_one)
-    util.assert_internal_bytestring(basename_two)
+    sanity.check_internal_bytestring(basename_one)
+    sanity.check_internal_bytestring(basename_two)
 
     if basename_one == basename_two:
         return True
@@ -383,48 +343,131 @@ def compare_basenames(basename_one, basename_two):
         return False
 
 
-def filter_paths(path_list, ignore_globs):
-    if not ignore_globs:
-        return path_list
-
-    ignore_globs = [util.bytestring_path(i) for i in ignore_globs]
-
-    remain = []
-    for path in path_list:
-        skip = False
-        for pattern in ignore_globs:
-            if fnmatch.fnmatch(path, pattern):
-                skip = True
-                log.info(
-                    'Ignored path: "{!s}"'.format(util.displayable_path(path))
-                )
-                break
-        if skip:
-            continue
-
-        remain.append(path)
-
-    return remain
-
-
 def normpaths_from_opts(path_list, ignore_globs, recurse):
-    file_list = set()
+    pc = PathCollector(ignore_globs, recurse)
+    return pc.get_paths(path_list)
 
-    for path in path_list:
-        if not path:
-            continue
 
-        # Path name encoding boundary. Convert to internal format.
-        path = util.normpath(path)
-        try:
-            found_files = get_files(path, recurse)
-        except FileNotFoundError:
-            log.error('File(s) not found: "{}"'.format(
-                util.displayable_path(path))
-            )
+class PathCollector(object):
+    def __init__(self, ignore_globs=None, recurse=False):
+        if ignore_globs:
+            if not isinstance(ignore_globs, (list, frozenset)):
+                ignore_globs = [ignore_globs]
+
+            # Convert globs to internal format.
+            self.ignore_globs = [util.bytestring_path(i) for i in ignore_globs]
         else:
-            for f in filter_paths(found_files, ignore_globs):
-                file_list.add(f)
+            self.ignore_globs = []
 
-    return list(file_list)
+        self.recurse = recurse
 
+    def get_paths(self, path_list):
+        if not path_list:
+            return []
+        if not isinstance(path_list, list):
+            path_list = [path_list]
+
+        file_list = set()
+
+        for path in path_list:
+            if not path or not path.strip():
+                continue
+
+            # Path name encoding boundary. Convert to internal format.
+            path = util.normpath(path)
+            try:
+                _files = get_files_gen(path, self.recurse)
+            except FileNotFoundError:
+                log.error('File(s) not found: "{}"'.format(
+                    util.displayable_path(path))
+                )
+            else:
+                for f in self.filter_paths(_files):
+                    file_list.add(f)
+
+        return list(file_list)
+
+    def filter_paths(self, path_list):
+        if not self.ignore_globs:
+            return path_list
+
+        def _no_match(path, globs):
+            for pattern in globs:
+                if fnmatch.fnmatch(path, pattern):
+                    log.info('Ignored path: "{!s}" (Glob: "{!s}")'.format(
+                        util.displayable_path(path), pattern)
+                    )
+                    return None
+            return path
+
+        try:
+            return [p for p in path_list if _no_match(p, self.ignore_globs)]
+        except FileNotFoundError:
+            return []
+
+
+CHAR_PERMISSION_LOOKUP = {
+    'r': os.R_OK,
+    'w': os.W_OK,
+    'x': os.X_OK
+}
+
+
+def has_permissions(path, permissions):
+    """
+    Tests if a path has the specified permissions.
+
+    The required permissions should be given as a single Unicode string.
+    Examples:
+                      Required      Required Permissions
+                     Permissions    READ  WRITE  EXECUTE
+
+                         'r'         X      -       -
+                         'w'         -      X       -
+                         'x'         -      -       X
+                         'RW'        X      X       -
+                         'WwxX'      -      X       X
+
+    Args:
+        path: The path to the file to test.
+        permissions: The required permissions as a Unicode string
+                             containing any of characters 'r', 'w' and 'x'.
+
+    Returns:
+        True if the given path has the given permissions, else False.
+    """
+    if not isinstance(permissions, str):
+        raise TypeError('Expected "permissions" to be a Unicode string')
+    if not isinstance(path, bytes):
+        raise TypeError('Expected "path" to be a bytestring path')
+
+    if not permissions.strip():
+        return True
+
+    perms = permissions.lower()
+    for char in CHAR_PERMISSION_LOOKUP.keys():
+        if char in perms:
+            try:
+                ok = os.access(util.syspath(path), CHAR_PERMISSION_LOOKUP[char])
+            except OSError:
+                return False
+            else:
+                if not ok:
+                    return False
+
+    return True
+
+
+def hash_hexdigest(file_path):
+    # TODO:  This is INCOMPLETE! Implement and test.
+    hash_function = hashlib.sha256()
+
+    try:
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
+            hash_function.update(file_data)
+    except IOError as e:
+        # TODO: Implement.
+        raise e
+
+    return hash_function.hexdigest().upper()

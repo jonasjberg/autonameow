@@ -21,13 +21,14 @@
 
 """
 Custom data types, used internally by autonameow.
-Wraps primitives to force safe defaults and extra functionality.
+Coerces incoming data with unreliable or unknown types to primitives.
+Provides "NULL" values and additional type-specific functionality.
 
-Use by passing through the singletons defined at the bottom of this file.
+Use by passing data through the singletons defined at the bottom of this file.
 The values are "passed through" the type classes and returned as primitive or
 standard library types (E.G. "datetime").
 These classes are meant to be used as "filters" for coercing values to known
-types, they are shared and should not retain any kind of state.
+types --- they are shared and should not retain any kind of state.
 """
 
 import os
@@ -37,20 +38,22 @@ import re
 from datetime import datetime
 
 from core import (
-    constants,
     exceptions,
     util
 )
-from core.util import textutils
+from core.util import (
+    sanity,
+    textutils
+)
+from core import constants as C
 
-
-# TODO: [TD0084] Add handling collections to type wrapper classes.
+# TODO: [TD0084] Add handling collections to type coercion classes.
 
 mimetypes.add_type('application/epub+zip', '.epub')
 
 
 class AWTypeError(exceptions.AutonameowException):
-    """Failure to coerce a value with one of the type wrappers."""
+    """Failure to coerce a value with one of the type coercers."""
 
 
 class BaseType(object):
@@ -58,57 +61,77 @@ class BaseType(object):
     Base class for all custom types. Provides type coercion and known defaults.
     Does not store values -- intended to act as filters.
     """
-    # Underlying primitive type.
-    # NOTE(jonas): Why revert to "str"? Assume BaseType won't be instantiated?
-    primitive_type = str
-
     # Default "None" value to fall back to.
-    null = 'NULL'
+    NULL = 'NULL'
 
-    # Types that can be coerced with the "parse" method.
-    coercible_types = (str, )
+    # Types that can be coerced with the 'coerce' method.
+    COERCIBLE_TYPES = (str,)
 
-    # Types that are "equivalent", does not require coercion.
-    equivalent_types = (str, )
+    # Used by the 'equivalent' method to check if types are "equivalent".
+    EQUIVALENT_TYPES = (str, )
 
     def __call__(self, value=None):
         if value is None:
-            return self._null()
-        elif self.test(value):
+            return self.null()
+        elif self.equivalent(value):
             # Pass through if type is "equivalent" without coercion.
             return value
-        elif isinstance(value, self.coercible_types):
-            # Type can be coerced, test after coercion to make sure.
+        elif self.acquiescent(value):
+            # Type can be coerced, check after coercion to make sure.
             value = self.coerce(value)
-            if self.test(value):
+            if self.equivalent(value):
                 return value
 
         self._fail_coercion(value)
 
-    def _null(self):
-        return self.null
+    def null(self):
+        return self.NULL
 
-    def test(self, value):
-        return isinstance(value, self.equivalent_types)
+    def equivalent(self, value):
+        return isinstance(value, self.EQUIVALENT_TYPES)
+
+    def acquiescent(self, value):
+        return isinstance(value, self.COERCIBLE_TYPES)
+
+    def coerce(self, value):
+        """
+        Coerces values whose types are included in 'COERCIBLE_TYPES'.
+
+        If the value is not part of the specific class 'COERCIBLE_TYPES',
+        the coercion fails and a class-specific "null" value is returned.
+
+        Args:
+            value: The value to coerce as any type, including None.
+
+        Returns:
+            A representation of the original value coerced to the type
+            represented by the specific class, or the class "null" value if
+            coercion fails.
+
+        Raises:
+            AWTypeError: The value could not be coerced.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def normalize(self, value):
         """
         Processes the given value to a form suitable for serialization/storage.
 
+        Calling this method should be equivalent to calling 'coerce' followed
+        by some processing that produces a "simplified" representation of
+        the value.  Strings might be converted to lower-case, etc.
+
         Args:
-            value: The value to normalize.
+            value: The value to coerce as any type, including None.
 
         Returns:
-            A "normalized" version of the given value in this class type if
-            the value can be normalized, otherwise the class "null" value.
+            A "normalized" version of the given value if the value can be
+            coerced and normalized, or the class "null" value.
+
+        Raises:
+            AWTypeError: The value could not be coerced and/or normalized.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
-
-    def coerce(self, value):
-        try:
-            return self.primitive_type(value)
-        except (ValueError, TypeError):
-            self._fail_coercion(value)
 
     def format(self, value, **kwargs):
         raise NotImplementedError('Must be implemented by inheriting classes.')
@@ -138,33 +161,24 @@ class BaseType(object):
 
 
 class Path(BaseType):
-    primitive_type = str
-    coercible_types = (str, bytes)
+    COERCIBLE_TYPES = (str, bytes)
 
     # Always force coercion so that all incoming data is properly normalized.
-    equivalent_types = ()
+    EQUIVALENT_TYPES = ()
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
-    null = 'INVALID PATH'
+    NULL = 'INVALID PATH'
 
     def __call__(self, value=None):
         # Overrides the 'BaseType' __call__ method as to not perform the test
         # after the the value coercion. This is because the path could be a
         # byte string and still not be properly normalized.
-        if (value is not None
-                and isinstance(value, self.coercible_types)):
+        if value is not None and self.acquiescent(value):
             if value.strip() is not None:
                 value = self.coerce(value)
                 return value
 
         self._fail_coercion(value)
-
-    def normalize(self, value):
-        value = self.__call__(value)
-        if value:
-            return util.normpath(value)
-
-        self._fail_normalization(value)
 
     def coerce(self, value):
         if value:
@@ -175,16 +189,28 @@ class Path(BaseType):
 
         self._fail_coercion(value)
 
+    def normalize(self, value):
+        value = self.__call__(value)
+        if value:
+            return util.normpath(value)
+
+        self._fail_normalization(value)
+
     def format(self, value, **kwargs):
         parsed = self.__call__(value)
         return util.displayable_path(parsed)
 
 
 class PathComponent(BaseType):
-    primitive_type = str
-    coercible_types = (str, bytes)
-    equivalent_types = (bytes, )
-    null = b''
+    COERCIBLE_TYPES = (str, bytes)
+    EQUIVALENT_TYPES = (bytes, )
+    NULL = b''
+
+    def coerce(self, value):
+        try:
+            return util.bytestring_path(value)
+        except (ValueError, TypeError):
+            self._fail_coercion(value)
 
     def normalize(self, value):
         value = self.__call__(value)
@@ -194,31 +220,24 @@ class PathComponent(BaseType):
 
         self._fail_normalization(value)
 
-    def coerce(self, value):
-        try:
-            return util.bytestring_path(value)
-        except (ValueError, TypeError):
-            self._fail_coercion(value)
-
     def format(self, value, **kwargs):
         value = self.__call__(value)
         return util.displayable_path(value)
 
 
 class Boolean(BaseType):
-    primitive_type = bool
-    coercible_types = (str, bytes)
-    equivalent_types = (bool, )
-    null = False
+    COERCIBLE_TYPES = (bytes, str, int, float, object)
+    EQUIVALENT_TYPES = (bool, )
+    NULL = False
 
-    @staticmethod
-    def string_to_bool(string_value):
+    STR_TRUE = frozenset('positive true yes'.split())
+    STR_FALSE = frozenset('negative false no'.split())
+
+    def string_to_bool(self, string_value):
         value = string_value.lower().strip()
-        if value in ('yes', 'true'):
+        if value in self.STR_TRUE:
             return True
-        elif value in ('no', 'false'):
-            return False
-        else:
+        if value in self.STR_FALSE:
             return False
 
     @staticmethod
@@ -230,21 +249,35 @@ class Boolean(BaseType):
 
     def coerce(self, value):
         if value is None:
-            return False
-        if isinstance(value, bytes):
-            value = util.decode_(value)
-        if isinstance(value, str):
-            return self.string_to_bool(value)
+            return self.null()
+
+        try:
+            string_value = AW_STRING(value)
+        except AWTypeError:
+            pass
         else:
-            return False
+            _maybe_bool = self.string_to_bool(string_value)
+            if _maybe_bool is not None:
+                return _maybe_bool
+
+        try:
+            float_value = AW_FLOAT(value)
+        except AWTypeError:
+            pass
+        else:
+            return bool(float_value > 0)
+
+        if hasattr(value, '__bool__'):
+            try:
+                return bool(value)
+            except (AttributeError, LookupError, NotImplementedError,
+                    TypeError, ValueError):
+                self._fail_coercion(value)
+
+        return self.null()
 
     def normalize(self, value):
-        if value is None:
-            return False
-        if isinstance(value, bool):
-            return bool(value)
-        else:
-            return False
+        return self.__call__(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
@@ -252,10 +285,9 @@ class Boolean(BaseType):
 
 
 class Integer(BaseType):
-    primitive_type = int
-    coercible_types = (str, float, bytes)
-    equivalent_types = (int, )
-    null = 0
+    COERCIBLE_TYPES = (bytes, str, float)
+    EQUIVALENT_TYPES = (int, )
+    NULL = 0
 
     def coerce(self, value):
         # If casting to int directly fails, try first converting to float,
@@ -283,7 +315,7 @@ class Integer(BaseType):
         value = self.__call__(value)
 
         if 'format_string' not in kwargs:
-            return '{}'.format(value or self._null())
+            return '{}'.format(value or self.null())
 
         format_string = kwargs.get('format_string')
         if format_string:
@@ -301,19 +333,43 @@ class Integer(BaseType):
 
 
 class Float(BaseType):
-    primitive_type = float
-    coercible_types = (str, int)
-    equivalent_types = (float, )
-    null = 0.0
+    COERCIBLE_TYPES = (bytes, str, int)
+    EQUIVALENT_TYPES = (float, )
+    NULL = 0.0
+
+    def coerce(self, value):
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            self._fail_coercion(value)
 
     def normalize(self, value):
         return self.__call__(value)
+
+    def bounded(self, value, low=None, high=None):
+        _value = self.__call__(value)
+
+        if low is not None:
+            low = float(low)
+        if high is not None:
+            high = float(high)
+
+        if None not in (low, high):
+            if low > high:
+                raise ValueError('Expected "low" < "high"')
+
+        if low is not None and _value <= low:
+            return low
+        elif high is not None and _value >= high:
+            return high
+        else:
+            return _value
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
 
         if 'format_string' not in kwargs:
-            return '{0:.1f}'.format(value or self._null())
+            return '{0:.1f}'.format(value or self.null())
 
         format_string = kwargs.get('format_string')
         if format_string:
@@ -331,30 +387,29 @@ class Float(BaseType):
 
 
 class String(BaseType):
-    primitive_type = str
-    coercible_types = (str, bytes, int, float, bool)
+    COERCIBLE_TYPES = (str, bytes, int, float, bool)
     try:
         from PyPDF2.generic import TextStringObject
-        coercible_types = coercible_types + (TextStringObject, )
+        COERCIBLE_TYPES = COERCIBLE_TYPES + (TextStringObject,)
     except ImportError:
         pass
 
-    equivalent_types = (str, )
-    null = ''
+    EQUIVALENT_TYPES = (str, )
+    NULL = ''
 
     def coerce(self, value):
         if value is None:
-            return self._null()
+            return self.null()
 
         if isinstance(value, bytes):
             try:
                 return util.decode_(value)
             except Exception:
-                return self._null()
+                return self.null()
 
-        if isinstance(value, self.coercible_types):
+        if self.acquiescent(value):
             try:
-                return self.primitive_type(value)
+                return str(value)
             except (ValueError, TypeError):
                 self._fail_coercion(value)
 
@@ -367,10 +422,9 @@ class String(BaseType):
 
 
 class MimeType(BaseType):
-    primitive_type = str
-    coercible_types = (str, bytes)
-    equivalent_types = ()
-    null = constants.MAGIC_TYPE_UNKNOWN
+    COERCIBLE_TYPES = (str, bytes)
+    EQUIVALENT_TYPES = ()
+    NULL = C.MAGIC_TYPE_UNKNOWN
 
     try:
         MIME_TYPE_LOOKUP = {
@@ -380,7 +434,8 @@ class MimeType(BaseType):
         MIME_TYPE_LOOKUP = {}
 
     # TODO: Improve robustness of interfacing with 'mimetypes'.
-    assert len(MIME_TYPE_LOOKUP) > 0
+    sanity.check(len(MIME_TYPE_LOOKUP) > 0,
+                 'MIME_TYPE_LOOKUP is empty')
 
     # Any custom "extension to MIME-type"-mappings goes here.
     MIME_TYPE_LOOKUP['sh'] = 'text/x-shellscript'
@@ -392,6 +447,7 @@ class MimeType(BaseType):
     # Override "MIME-type to extension"-mappings here.
     MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
     MIME_TYPE_LOOKUP_INV['image/jpeg'] = 'jpg'
+    MIME_TYPE_LOOKUP_INV['video/quicktime'] = 'mov'
 
     KNOWN_EXTENSIONS = frozenset(MIME_TYPE_LOOKUP.keys())
     KNOWN_MIME_TYPES = frozenset(MIME_TYPE_LOOKUP.values())
@@ -400,12 +456,11 @@ class MimeType(BaseType):
         # Overrides the 'BaseType' __call__ method as to not perform the test
         # after the the value coercion. A valid MIME-type can not be determined
         # by looking at the primitive type alone.
-        if (value is not None
-                and isinstance(value, self.coercible_types)):
+        if value is not None and self.acquiescent(value):
             if value.strip() is not None:
                 value = self.coerce(value)
                 return value
-        return self._null()
+        return self.null()
 
     def coerce(self, value):
         string_value = AW_STRING(value)
@@ -417,29 +472,35 @@ class MimeType(BaseType):
             elif string_value in self.KNOWN_EXTENSIONS:
                 return self.MIME_TYPE_LOOKUP[string_value]
 
-        return self._null()
+        return self.null()
 
     def normalize(self, value):
         return self.__call__(value)
 
     def format(self, value, **kwargs):
-        if value == constants.MAGIC_TYPE_UNKNOWN:
+        if value == C.MAGIC_TYPE_UNKNOWN:
             return ''
 
         value = self.__call__(value)
         formatted = self.MIME_TYPE_LOOKUP_INV.get(value)
-        return formatted if formatted is not None else self._null()
+        return formatted if formatted is not None else self.null()
 
 
 class Date(BaseType):
-    primitive_type = None
-    coercible_types = (str, bytes, int, float)
-    equivalent_types = (datetime, )
+    COERCIBLE_TYPES = (str, bytes, int, float)
+    EQUIVALENT_TYPES = (datetime, )
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
-    null = 'INVALID DATE'
+    NULL = 'INVALID DATE'
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
+
+    # Override parent 'null' method to force returning only valid 'datetime'
+    # instances. Otherwise, raise an exception to be handled by the caller.
+    def null(self):
+        raise AWTypeError(
+            '"{!r}" got incoercible data'.format(self)
+        )
 
     def coerce(self, value):
         try:
@@ -459,19 +520,12 @@ class Date(BaseType):
 
         self._fail_normalization(value)
 
-    # Override parent '_null' method to force returning only valid 'datetime'
-    # instances. Otherwise, raise an exception to be handled by the caller.
-    def _null(self):
-        raise AWTypeError(
-            '"{!r}" got incoercible data'.format(self)
-        )
-
     def format(self, value, **kwargs):
         value = self.__call__(value)
 
         format_string = kwargs.get('format_string')
         if format_string is None:
-            format_string = constants.DEFAULT_DATETIME_FORMAT_DATE
+            format_string = C.DEFAULT_DATETIME_FORMAT_DATE
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 
@@ -486,14 +540,20 @@ class Date(BaseType):
 
 
 class TimeDate(BaseType):
-    primitive_type = None
-    coercible_types = (str, bytes, int, float)
-    equivalent_types = (datetime, )
+    COERCIBLE_TYPES = (str, bytes, int, float)
+    EQUIVALENT_TYPES = (datetime, )
 
     # Make sure to never return "null" -- raise a 'AWTypeError' exception.
-    null = 'INVALID DATE'
+    NULL = 'INVALID DATE'
 
     # TODO: [TD0054] Represent datetime as UTC within autonameow.
+
+    # Override parent 'null' method to force returning only valid 'datetime'
+    # instances. Otherwise, raise an exception to be handled by the caller.
+    def null(self):
+        raise AWTypeError(
+            '"{!r}" got incoercible data'.format(self)
+        )
 
     def coerce(self, value):
         try:
@@ -508,19 +568,12 @@ class TimeDate(BaseType):
 
         self._fail_normalization(value)
 
-    # Override parent '_null' method to force returning only valid 'datetime'
-    # instances. Otherwise, raise an exception to be handled by the caller.
-    def _null(self):
-        raise AWTypeError(
-            '"{!r}" got incoercible data'.format(self)
-        )
-
     def format(self, value, **kwargs):
         value = self.__call__(value)
 
         format_string = kwargs.get('format_string')
         if format_string is None:
-            format_string = constants.DEFAULT_DATETIME_FORMAT_DATETIME
+            format_string = C.DEFAULT_DATETIME_FORMAT_DATETIME
             if not isinstance(format_string, str):
                 raise AWTypeError('Expected "format_string" to be Unicode str')
 
@@ -543,13 +596,15 @@ class ExifToolTimeDate(TimeDate):
             return try_parse_datetime(value)
         except ValueError:
             pass
+        try:
+            return try_parse_date(value)
+        except ValueError:
+            pass
 
         self._fail_coercion(value)
 
 
 class PyPDFTimeDate(TimeDate):
-    primitive_type = None
-
     # Expected date/time format:      D:20121225235237 +05'30'
     #                                   ^____________^ ^_____^
     # Regex search matches two groups:        #1         #2
@@ -712,7 +767,7 @@ def try_parse_date(string):
     # Assumes year, month, day is in ISO-date-like order.
     digits = textutils.extract_digits(string)
     if digits:
-        util.assert_internal_string(digits)
+        sanity.check_internal_string(digits)
 
         date_formats = ['%Y%m%d', '%Y%m', '%Y']
         for date_format in date_formats:
@@ -724,18 +779,29 @@ def try_parse_date(string):
     raise ValueError(_error_msg)
 
 
-def try_wrap(value):
-    wrapper = wrapper_for(value)
-    if wrapper:
-        return wrapper(value)
-    else:
-        return None
+def try_coerce(value):
+    coercer = coercer_for(value)
+    if coercer:
+        try:
+            return coercer(value)
+        except AWTypeError:
+            pass
+    return None
 
 
-def wrapper_for(value):
+def coercer_for(value):
     if value is None:
         return None
     return PRIMITIVE_AW_TYPE_MAP.get(type(value), None)
+
+
+def force_string(raw_value):
+    try:
+        str_value = AW_STRING(raw_value)
+    except AWTypeError:
+        return AW_STRING.null()
+    else:
+        return str_value
 
 
 # Singletons for actual use.
@@ -750,6 +816,10 @@ AW_MIMETYPE = MimeType()
 AW_TIMEDATE = TimeDate()
 AW_EXIFTOOLTIMEDATE = ExifToolTimeDate()
 AW_PYPDFTIMEDATE = PyPDFTimeDate()
+
+
+# This is not clearly defined otherwise.
+BUILTIN_REGEX_TYPE = type(re.compile(''))
 
 
 # NOTE: Wrapping paths (potentially bytes) with this automatic type

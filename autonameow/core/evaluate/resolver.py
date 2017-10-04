@@ -20,37 +20,76 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import re
 
 from core import repository
-from extractors import ExtractedData
+from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
+from core.util import sanity
 
 log = logging.getLogger(__name__)
+
+
+# TODO: [TD0036] Allow per-field replacements and customization.
+
+# NOTE(jonas): This class might be a good candidate for handling fields.
+# If the 'Repository' class is tasked with storing and resolving queries
+# for "data".
+# Then this class could be tasked with the equivalent handling of "fields",
+# as the next level of refinement of data "transformation" in the overall
+# "pipeline" --- from "raw" data to the final new file name.
 
 
 class Resolver(object):
     def __init__(self, file_object, name_template):
         self.file = file_object
         self.name_template = name_template
+
+        self._fields = nametemplatefield_classes_in_formatstring(name_template)
+
         self.data_sources = {}
         self.fields_data = {}
 
     def mapped_all_template_fields(self):
-        return all_template_fields_defined(self.name_template,
-                                           self.data_sources)
+        return all(field in self.data_sources for field in self._fields)
 
     def add_known_source(self, field, meowuri):
-        self.data_sources[field] = meowuri
+        if field in self._fields:
+            self.data_sources[field] = meowuri
+        else:
+            log.debug('Attempted to add source for unused name template field '
+                      '"{!s}": {!s}'.format(field, meowuri))
+
+    def add_known_sources(self, source_dict):
+        for _field, _meowuri in source_dict.items():
+            self.add_known_source(_field, _meowuri)
+
+    @property
+    def unresolved(self):
+        return [f for f in self._fields if f not in self.fields_data.keys()]
 
     def collect(self):
         self._gather_data()
+        self._verify_types()
 
-    def collected_data_for_all_fields(self):
+    def collected_all(self):
         if not self.fields_data:
             return False
 
-        return has_data_for_placeholder_fields(self.name_template,
-                                               self.fields_data)
+        return self._has_data_for_placeholder_fields()
+
+    def lookup_candidates(self, field):
+        # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
+        candidates = repository.SessionRepository.query_mapped(self.file, field)
+        return candidates if candidates else []
+
+    def _has_data_for_placeholder_fields(self):
+        for field in self._fields:
+            if field not in self.fields_data.keys():
+                log.warning('Missing placeholder field "{}"'.format(field))
+                return False
+            elif self.fields_data.get(field) is None:
+                log.error('None data for placeholder field "{}"'.format(field))
+                return False
+        return True
 
     def _gather_data(self):
         # TODO: [TD0017] Rethink source specifications relation to source data.
@@ -60,6 +99,12 @@ class Resolver(object):
                     and self.fields_data.get(field) is not None):
                 log.debug('Skipping previously gathered data for field '
                           '"{!s}"'.format(field))
+                continue
+
+            if not meowuri:
+                log.debug(
+                    'Resolver attempted to gather data with empty MeowURI!'
+                )
                 continue
 
             log.debug('Gathering data for field "{!s}" from source [{!s}]->'
@@ -79,78 +124,35 @@ class Resolver(object):
                 )
                 self.data_sources[field] = None
 
+    def _verify_types(self):
+        for field, data in self.fields_data.items():
+            if isinstance(data, list):
+                for d in data:
+                    self._verify_type(field, d)
+            else:
+                self._verify_type(field, data)
+
+        # Remove data type is incompatible with associated field.
+        _fields_data = self.fields_data.copy()
+        for field, data in _fields_data.items():
+            if data is None:
+                self.fields_data.pop(field)
+
+    def _verify_type(self, field, data):
+        sanity.check(not isinstance(data, list),
+                     'Expected "data" not to be a list')
+
+        log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
+        _compatible = field.type_compatible(data.coercer)
+        if _compatible:
+            log.debug('Verified Field-Data Compatibility  OK!')
+        else:
+            self.fields_data[field] = None
+            log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
+
     def _request_data(self, file, meowuri):
         log.debug('{} requesting [{!s}]->[{!s}]'.format(self, file, meowuri))
         return repository.SessionRepository.query(file, meowuri)
 
     def __str__(self):
         return self.__class__.__name__
-
-
-def all_template_fields_defined(template, data_sources):
-    """
-    Tests if all name template placeholder fields is included in the sources.
-
-    This tests only the keys of the sources, for instance "datetime".
-    But the value stored for the key could still be invalid.
-
-    Args:
-        template: The name template to compare against.
-        data_sources: The sources to check.
-
-    Returns:
-        True if all placeholder fields in the template is accounted for in
-        the sources. else False.
-    """
-    format_fields = format_string_placeholders(template)
-    for field in format_fields:
-        if field not in data_sources.keys():
-            log.error('Field "{}" has not been assigned a source'.format(field))
-            return False
-    return True
-
-
-def format_string_placeholders(format_string):
-    """
-    Gets the format string placeholder fields from a text string.
-
-    The text "{foo} mjao baz {bar}" would return ['foo', 'bar'].
-
-    Args:
-        format_string: Format string to get placeholders from.
-
-    Returns:
-        Any format string placeholder fields as a list of unicode strings.
-    """
-    if not isinstance(format_string, str):
-        raise TypeError('Expected "format_string" to be of type str')
-    if not format_string.strip():
-        return []
-
-    return re.findall(r'{(\w+)}', format_string)
-
-
-def has_data_for_placeholder_fields(template, data):
-    """
-    Tests if all placeholder fields in the given 'template' has data in 'data'.
-
-    Data should be a dict keyed by placeholder fields in 'template'.
-    If any of the fields are missing or None, the test fails.
-
-    Args:
-        template: Name template to test, as a Unicode string.
-        data: Dict keyed by Unicode strings, storing arbitrary data.
-
-    Returns:
-        True if all placeholder fields in 'template' is present in 'data' and
-        the values stored in 'data' is not None. Else False.
-    """
-    placeholder_fields = format_string_placeholders(template)
-    for field in placeholder_fields:
-        if field not in data.keys():
-            log.error('Missing placeholder field "{}"'.format(field))
-            return False
-        elif data.get(field) is None:
-            log.error('None data for placeholder field "{}"'.format(field))
-            return False
-    return True

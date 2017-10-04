@@ -19,17 +19,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
+from collections import namedtuple
 from datetime import datetime
+from unittest import TestCase
 
 from analyzers.analyze_filename import (
     FilenameAnalyzer,
-    _find_edition,
+    FilenameTokenizer,
     SubstringFinder,
-    FilenameTokenizer
+    _find_edition,
+    likely_extension
 )
+from core.namebuilder import fields
 import unit_utils as uu
-from core import fields
 
 
 def get_filename_analyzer(file_object):
@@ -80,6 +82,47 @@ class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def test_get_datetime_returns_empty_list(self):
         self.skipTest('TODO')
         self.assertEqual([], self.fna.get_datetime())
+
+
+class TestLikelyExtension(TestCase):
+    def setUp(self):
+        Given = namedtuple('Given', 'suffix mime')
+        Expect = namedtuple('Expect', 'expected')
+
+        self.expect_testinput = [
+            (Expect('txt'),
+             Given(suffix='txt', mime='text/plain')),
+            (Expect('sh'),
+             Given(suffix='sh', mime='text/plain')),
+            (Expect('sh'),
+             Given(suffix='sh', mime='text/x-shellscript')),
+            (Expect('sh'),
+             Given(suffix='txt', mime='text/x-shellscript')),
+            (Expect('pdf'),
+             Given(suffix='pdf', mime='application/pdf')),
+            (Expect('md'),
+             Given(suffix='md', mime='text/plain')),
+            (Expect('md'),
+             Given(suffix='mkd', mime='text/plain')),
+            (Expect('md'),
+             Given(suffix='markdown', mime='text/plain')),
+            (Expect('yaml'),
+             Given(suffix='yaml', mime='text/plain')),
+            (Expect('py'),
+             Given(suffix='py', mime='text/x-shellscript')),
+            (Expect('py'),
+             Given(suffix='py', mime='text/x-python')),
+            (Expect('py'),
+             Given(suffix='', mime='text/x-python')),
+        ]
+
+    def test_returns_expected(self):
+        for expect, input_args in self.expect_testinput:
+            actual = likely_extension(*input_args)
+            _m = 'Expected: "{!s}"  Actual: "{!s}”  ("{!s}”)'.format(
+                expect.expected, actual, input_args
+            )
+            self.assertEqual(actual, expect.expected, _m)
 
 
 class TestFindEdition(TestCase):
@@ -139,9 +182,9 @@ class TestIdentifyFields(TestCase):
 
     def test_uses_constraints(self):
         pass
-        # add_constraint(field.Author, matches=r'[\w]+')
-        # add_constraint(field.Title, matches=r'[\w]+')
-        # result = identify_fields(string, [field.Creator, field.Title])
+        # add_constraint(fields.Author, matches=r'[\w]+')
+        # add_constraint(fields.Title, matches=r'[\w]+')
+        # result = identify_fields(string, [fields.Creator, fields.Title])
 
         # assert result[fields.Author] == ['The Beatles', 'Paperback Writer',
         #                                   'flac']
@@ -151,6 +194,8 @@ class TestIdentifyFields(TestCase):
 
 class TestFilenameTokenizer(TestCase):
     def test_guess_separators_simpler(self):
+        self.skipTest('TODO: Implement or remove ..')
+
         _filename = 'foo.bar.1234.baz'
         self.tokenizer = FilenameTokenizer(_filename)
         actual = self.tokenizer.separators
@@ -158,6 +203,8 @@ class TestFilenameTokenizer(TestCase):
         self.assertEqual(actual, ['.'])
 
     def test_guess_separators_simple(self):
+        self.skipTest('TODO: Implement or remove ..')
+
         _filename = 'foo.bar.[1234].baz'
         self.tokenizer = FilenameTokenizer(_filename)
         actual = self.tokenizer.separators

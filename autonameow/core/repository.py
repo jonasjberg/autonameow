@@ -29,7 +29,11 @@ from core import (
     util,
 )
 from core.config.field_parsers import eval_meowuri_glob
-from core.util import textutils
+from core.model import ExtractedData
+from core.util import (
+    sanity,
+    textutils
+)
 
 
 log = logging.getLogger(__name__)
@@ -65,7 +69,7 @@ class Repository(object):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
-        self.log.setLevel(logging.DEBUG)
+        # self.log.setLevel(logging.DEBUG)
 
     def initialize(self):
         self.meowuri_class_map = meowuri_class_map_dict()
@@ -80,7 +84,7 @@ class Repository(object):
         for key in self.meowuri_class_map.keys():
             for meowuri, klass in self.meowuri_class_map[key].items():
                 self.log.debug(
-                    'Mapped meowURI <{!s}> to "{!s}" ({!s})'.format(meowuri,
+                    'Mapped meowURI "{!s}" to "{!s}" ({!s})'.format(meowuri,
                                                                     klass, key)
                 )
 
@@ -111,7 +115,8 @@ class Repository(object):
         self._store_generic(file_object, data)
 
     def _store_generic(self, file_object, data):
-        if not isinstance(data, extractors.ExtractedData):
+        # TODO: [TD0082] Integrate the 'ExtractedData' class.
+        if not isinstance(data, ExtractedData):
             return
 
         if data.generic_field is not None:
@@ -143,6 +148,23 @@ class Repository(object):
 
         self.__store_data(file_object, meowuri, data)
 
+    def query_mapped(self, file_object, field):
+        out = []
+
+        _data = self.data.get(file_object)
+        for meowuri, data in _data.items():
+            if isinstance(data, list):
+                for d in data:
+                    if isinstance(d, ExtractedData):
+                        if d.maps_field(field):
+                            out.append(d)
+            else:
+                if isinstance(data, ExtractedData):
+                    if data.maps_field(field):
+                        out.append(data)
+
+        return out
+
     def query(self, file_object, meowuri, mapped_to_field=None):
         if not meowuri:
             raise exceptions.InvalidDataSourceError(
@@ -159,7 +181,7 @@ class Repository(object):
             return None
         else:
             # TODO: [TD0082] Integrate the 'ExtractedData' class.
-            if isinstance(data, extractors.ExtractedData):
+            if isinstance(data, ExtractedData):
                 if mapped_to_field is not None:
                     if data.maps_field(mapped_to_field):
                         return data
@@ -228,28 +250,43 @@ class Repository(object):
         for uri, data in data.items():
             _max_len_meowuri = max(_max_len_meowuri, len(uri))
 
-            # TODO: [TD0082] Integrate the 'ExtractedData' class.
-            if isinstance(data, extractors.ExtractedData):
-                data = data.value
-
-            if isinstance(data, bytes):
-                temp[uri] = util.displayable_path(data)
-            elif isinstance(data, list):
+            if isinstance(data, list):
                 log.debug('TODO: Improve robustness of handling this case')
                 temp_list = []
-                for v in data:
+                for element in data:
+                    # TODO: [TD0082] Integrate the 'ExtractedData' class.
+                    if isinstance(element, ExtractedData):
+                        v = element.value
+                    else:
+                        v = element
+
                     if isinstance(v, bytes):
                         temp_list.append(util.displayable_path(v))
+                    elif eval_meowuri_glob(uri, ['generic.contents.text',
+                                                 'extractor.text.*']):
+                        # Often *a lot* of text, trim to arbitrary size..
+                        _truncated = truncate_text(v)
+                        temp_list.append(_truncated)
                     else:
-                        temp_list.append(v)
+                        temp_list.append(str(v))
 
                 temp[uri] = temp_list
-            else:
-                temp[uri] = data
 
-            # Often *a lot* of text, trim to arbitrary size..
-            if eval_meowuri_glob(uri, '*.text.full'):
-                temp[uri] = truncate_text(temp[uri])
+            else:
+                # TODO: [TD0082] Integrate the 'ExtractedData' class.
+                if isinstance(data, ExtractedData):
+                    v = data.value
+                else:
+                    v = data
+
+                if isinstance(v, bytes):
+                    temp[uri] = util.displayable_path(v)
+                # Often *a lot* of text, trim to arbitrary size..
+                elif eval_meowuri_glob(uri, ['generic.contents.text',
+                                             'extractor.text.*']):
+                    temp[uri] = truncate_text(v)
+                else:
+                    temp[uri] = str(v)
 
         out = []
         for uri, data in temp.items():
@@ -260,7 +297,8 @@ class Repository(object):
                         out.append(_fmt_list_entry(_max_len_meowuri, v))
 
             else:
-                if eval_meowuri_glob(uri, '*.text.full'):
+                if eval_meowuri_glob(uri, ['generic.contents.text',
+                                           'extractor.text.*']):
                     _text = textutils.extract_lines(data, 0, 1)
                     _text = _text.rstrip('\n')
                     out.append(_fmt_text_line(_max_len_meowuri, _text, uri))
@@ -278,46 +316,7 @@ class Repository(object):
         return util.count_dict_recursive(self.data)
 
     def __str__(self):
-        out = []
-        for file_object, data in self.data.items():
-            out.append('FileObject basename: "{!s}"'.format(file_object))
-            _abspath = util.displayable_path(file_object.abspath)
-            out.append('FileObject absolute path: "{!s}"'.format(_abspath))
-            out.append('')
-
-            # TODO: [TD0066] Handle all encoding properly.
-            temp = {}
-            for key, value in data.items():
-                # TODO: [TD0082] Integrate the 'ExtractedData' class.
-                if isinstance(value, extractors.ExtractedData):
-                    value = value.value
-
-                if isinstance(value, bytes):
-                    temp[key] = util.displayable_path(value)
-                elif isinstance(value, list):
-                    log.debug('TODO: Improve robustness of handling this case')
-                    # temp_list = [util.displayable_path(v) for v in value
-                    #              if isinstance(v, bytes)]
-                    temp_list = []
-                    for v in value:
-                        if isinstance(v, bytes):
-                            temp_list.append(util.displayable_path(v))
-                        else:
-                            temp_list.append(v)
-
-                    temp[key] = temp_list
-                else:
-                    temp[key] = value
-
-                # Often *a lot* of text, trim to arbitrary size..
-                if eval_meowuri_glob(key, '*.text.full'):
-                    temp[key] = truncate_text(temp[key])
-
-            expanded = util.expand_meowuri_data_dict(temp)
-            out.append(util.dump(expanded))
-            out.append('\n')
-
-        return '\n'.join(out)
+        return self.human_readable_contents()
 
     # def __repr__(self):
     #     # TODO: Implement this properly.
@@ -336,9 +335,9 @@ def meowuri_class_map_dict():
     # component uses when storing data and the contained values are lists of
     # classes mapped to the "meowURI".
     _meowuri_class_map = {
-        'extractors': extractors.MeowURIClassMap,
-        'analyzers': analyzers.MeowURIClassMap,
-        'plugins': plugins.MeowURIClassMap
+        'extractor': extractors.MeowURIClassMap,
+        'analyzer': analyzers.MeowURIClassMap,
+        'plugin': plugins.MeowURIClassMap
     }
     return _meowuri_class_map
 
@@ -346,13 +345,20 @@ def meowuri_class_map_dict():
 def unique_map_meowuris(meowuri_class_map):
     out = set()
 
-    # for key in ['extractors', 'analyzers', 'plugins'] ..
+    # for key in ['extractors', 'analyzer', 'plugin'] ..
     for key in meowuri_class_map.keys():
         for meowuri in meowuri_class_map[key].keys():
-            assert not (isinstance(meowuri, list))
+            sanity.check(not isinstance(meowuri, list),
+                         'Unexpectedly got "meowuri" of type list')
             out.add(meowuri)
 
     return out
+
+
+def all_meowuris():
+    # TODO: [TD0099] FIX THIS! Temporary hack for 'prompt_toolkit' experiments.
+    meowuri_class_map = meowuri_class_map_dict()
+    return unique_map_meowuris(meowuri_class_map)
 
 
 def map_meowuri_to_source_class(meowuri, includes=None):
@@ -367,25 +373,27 @@ def map_meowuri_to_source_class(meowuri, includes=None):
         A list of classes that "could" produce and store data with a MeowURI
         that matches the given MeowURI.
     """
+    meowuri_class_map = meowuri_class_map_dict()
+
     def _search_source_type(key):
-        for k, v in SessionRepository.meowuri_class_map[key].items():
+        for k, v in meowuri_class_map[key].items():
             if meowuri.startswith(k):
-                return SessionRepository.meowuri_class_map[key][k]
+                return meowuri_class_map[key][k]
         return None
 
     if not meowuri:
         return []
 
     if includes is None:
-        return (_search_source_type('extractors')
-                or _search_source_type('analyzers')
-                or _search_source_type('plugins')
+        return (_search_source_type('extractor')
+                or _search_source_type('analyzer')
+                or _search_source_type('plugin')
                 or [])
     else:
         if not isinstance(includes, list):
             includes = [includes]
         for include in includes:
-            if include not in ('analyzers', 'extractors', 'plugins'):
+            if include not in ('analyzer', 'extractor', 'plugin'):
                 continue
 
             result = _search_source_type(include)
@@ -395,13 +403,13 @@ def map_meowuri_to_source_class(meowuri, includes=None):
         return []
 
 
-def get_sources_for_meowuris(meowuri_list, includes=None):
+def get_sources_for_meowuris(meowuri_list, include_roots=None):
     if not meowuri_list:
         return []
 
     out = set()
     for uri in meowuri_list:
-        source_classes = map_meowuri_to_source_class(uri, includes)
+        source_classes = map_meowuri_to_source_class(uri, include_roots)
 
         # TODO: Improve robustness of linking "MeowURIs" to data source classes.
         if source_classes:
@@ -411,6 +419,51 @@ def get_sources_for_meowuris(meowuri_list, includes=None):
     return list(out)
 
 
-# TODO: [TD0086] Keep one global 'SessionRepository' per 'Autonameow' instance.
-SessionRepository = Repository()
-SessionRepository.initialize()
+def _create_repository():
+    repository = Repository()
+    repository.initialize()
+    return repository
+
+
+class RepositoryPool(object):
+    DEFAULT_SESSION_ID = 'SINGLETON_SESSION'
+
+    def __init__(self):
+        self._repositories = {}
+
+    def get(self, id_=None):
+        if id_ is None:
+            id_ = self.DEFAULT_SESSION_ID
+
+        if id_ not in self._repositories:
+            raise KeyError('{} does not contain ID "{!s}'.format(self, id_))
+
+        return self._repositories.get(id_)
+
+    def add(self, repository=None, id_=None):
+        if id_ is None:
+            id_ = self.DEFAULT_SESSION_ID
+
+        if id_ in self._repositories:
+            raise KeyError('{} already contains ID "{!s}'.format(self, id_))
+
+        if repository is None:
+            _repo = _create_repository()
+        else:
+            _repo = repository
+
+        self._repositories[id_] = _repo
+
+
+def initialize(id_=None):
+    # Keep one global 'SessionRepository' per 'Autonameow' instance.
+    global Pool
+    Pool = RepositoryPool()
+    Pool.add(id_=id_)
+
+    global SessionRepository
+    SessionRepository = Pool.get(id_=id_)
+
+
+Pool = None
+SessionRepository = None

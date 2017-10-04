@@ -30,22 +30,60 @@ from extractors.text.plain import (
 )
 
 
-class TestReadEntireTextFile(TestCase):
+class TestReadEntireTextFileA(TestCase):
     def setUp(self):
         self.sample_file = uu.abspath_testfile('magic_txt.txt')
         self.assertTrue(uu.file_exists(self.sample_file))
 
-    def test_read_entire_text_file(self):
+    def test_read_entire_text_file_returns_something(self):
         actual = read_entire_text_file(self.sample_file)
         self.assertIsNotNone(actual)
 
     def test_returns_expected_encoding(self):
         actual = read_entire_text_file(self.sample_file)
-        self.assertTrue(isinstance(actual, str))
+        self.assertTrue(uu.is_internalstring(actual))
 
     def test_returns_expected_contents(self):
         actual = read_entire_text_file(self.sample_file)
         self.assertEqual(actual, 'text\n')
+
+
+class TestReadEntireTextFileB(TestCase):
+    def setUp(self):
+        self.sample_file = uu.abspath_testfile('simplest_pdf.md.pdf.txt')
+        self.expected_text = '''Probably a title
+Text following the title, probably.
+
+
+Chapter One
+
+First chapter text is missing!
+
+
+Chapter Two
+
+Second chapter depends on Chapter one ..
+Test test. This file contains no digits whatsoever.
+
+
+
+
+                                        1
+'''
+
+        self.assertTrue(uu.file_exists(self.sample_file))
+
+    def test_read_entire_text_file_returns_something(self):
+        actual = read_entire_text_file(self.sample_file)
+        self.assertIsNotNone(actual)
+
+    def test_returns_expected_encoding(self):
+        actual = read_entire_text_file(self.sample_file)
+        self.assertTrue(uu.is_internalstring(actual))
+
+    def test_returns_expected_contents(self):
+        actual = read_entire_text_file(self.sample_file)
+        self.assertEqual(actual, self.expected_text)
 
 
 class TestReadEntireTextFileStressTest(TestCase):
@@ -57,7 +95,7 @@ class TestReadEntireTextFileStressTest(TestCase):
         for f in self.sample_files:
             self.assertTrue(uu.file_exists(f))
             actual = read_entire_text_file(f)
-            self.assertTrue(isinstance(actual, str))
+            self.assertTrue(uu.is_internalstring(actual))
 
 
 def get_sample_text_files(prefix, suffix='.txt'):
@@ -95,7 +133,8 @@ class TestAutodetectEncoding(TestCase):
         testfile_encoding = get_sample_text_files(prefix='text_git_')
         self.assertGreater(len(testfile_encoding), 0)
         self.assertTrue(uu.file_exists(f) for f, _ in testfile_encoding)
-        self.assertTrue(isinstance(e, str) for _, e in testfile_encoding)
+        self.assertTrue(uu.is_internalstring(e)
+                        for _, e in testfile_encoding)
 
         for testfile, expected_encoding in testfile_encoding:
             actual = autodetect_encoding(testfile).lower()
@@ -144,7 +183,8 @@ class TestAutoDetectsEncodingFromAlphaNumerics(TestCase):
     def test_setup(self):
         self.assertGreaterEqual(len(self.testfile_encoding), 0)
         self.assertTrue(uu.file_exists(f) for f, _ in self.testfile_encoding)
-        self.assertTrue(isinstance(e, str) for _, e in self.testfile_encoding)
+        self.assertTrue(uu.is_internalstring(e)
+                        for _, e in self.testfile_encoding)
 
     def test_detects_encodings(self):
         self.skipTest('TODO: Improve auto-detecting encodings ..')
@@ -166,7 +206,8 @@ class TestAutoDetectsEncodingFromSampleText(TestCase):
     def test_setup(self):
         self.assertGreater(len(self.testfile_encoding), 0)
         self.assertTrue(uu.file_exists(f) for f, _ in self.testfile_encoding)
-        self.assertTrue(isinstance(e, str) for _, e in self.testfile_encoding)
+        self.assertTrue(uu.is_internalstring(e,)
+                        for _, e in self.testfile_encoding)
 
     def test_detects_encodings(self):
         for testfile, expected_encoding in self.testfile_encoding:

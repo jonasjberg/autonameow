@@ -11,6 +11,9 @@ Ideas and Notes
 ===============
 Various ideas on possible upcoming features and changes to `autonameow`.
 
+* Revised 2017-09-25 -- Add notes on the "Resolver"
+* Revised 2017-09-28 -- Add notes on auto-completing MeowURIs.
+
 
 Field Candidates
 ----------------
@@ -114,46 +117,32 @@ files.
     This way separates the sources from the candidates. The expressions in
     `match` could also be given as a list of expressions.
 
+* There are more cases like the above that should be thought about.
+  A common case is the slight modification to the current file name.
+  Original file name:
+    ```
+    2017-06-20_00-49-56 Working on autonameow.png
+    ```
+  Desired file name:
+    ```
+    2017-06-20T004956 Working on autonameow.png
+    ```
+  How should this be specified in the configuration?
+  A simple alternative is to specify the filename analyzer as the source.
+  The `DATETIME_FORMAT` makes sure that the timestamp format is changed.
 
-
-Notes on High-level Architecture
---------------------------------
-About future additions of a frontends/GUIs.
-
-### What is going on?
-
-* __Program Operates on input:__ file(s)
-* __Program Provides:__ New file names for the file(s)
-
-Where/when are options presented and choices made?
-Which could be presented in a GUI or in an *interactive mode*?
-
-For any given file, how does the program come up with a new name?
-
-What is required to come up with a new file name?
-
-1. Select a __name template__
-2. Populate the __placeholder fields__ in the template
-
-
-#### Selecting a __name template__
-
-* Chosen by the user
-* Determined by the active configuration rule, chosen by the `RuleMatcher`
-
-#### Populating the __placeholder fields__
-How are the fields populated?
-
-For each placeholder field, get some data that can be formatted to the fields
-requirement (?).
-The data could be either;
-
-* Interactively chosen by the user
-* Determined by the active configuration rule, chosen by the `RuleMatcher`
-
-Which choices are presented to the user?
-How are possible candidates collected?
-
+    ```yaml
+    RULES:
+    -   DATA_SOURCES:
+            extension: contents.basename.extension
+            datetime: analysis.filename.{?????}
+            title: filesystem.basename.prefix
+        NAME_FORMAT: "{datetime} {title}.{extension}"
+    DATETIME_FORMAT:
+        datetime: '%Y-%m-%dT%H%M%S'
+    ```
+  But this is not configurable -- how would the filename analyzer know
+  which of many possible datetime results to use?
 
 
 Rule Matching Calculations
@@ -390,143 +379,6 @@ SessionRepository.data = {
 
 
 
-Data Identifiers ("meowURIs")
------------------------------
-Currently, the available identifiers strings, a.k.a. "meowURIs" use
-extractor-specific "leaf-nodes", I.E. last period-separated part.
-
-For instance;
-
-```
-metadata.exiftool.PDF:CreateDate
-                  |____________|___.--< Last part
-                                        ("leaf node")
-```
-
-The usability of this arrangement is very poor ..
-Users might not care about which specific extractor produced the field data,
-but rather that *some* information about the date of creation is available.
-
-This would require translating extractor-specific fields with roughly
-equivalent semantic meanings.
-One possibility is to translate extractor-specific identifiers to a common
-higher-level interface to fields.
-
-For example;
-```
-Extractor-specific "meowURIs", references specific fields:
-    metadata.pypdf.CreationDate
-    metadata.exiftool.PDF:CreateDate
-
-Proposed interface, alternate access to "any" equivalent field:
-    metadata.DateCreated
-```
-
-Note that the proposed field query still only references metadata sources.
-
-If the session repository contains the following data for a given file object:
-
-| "MeowURI"                            | Raw Data                            |
-|:-------------------------------------|:------------------------------------|
-| `'metadata.pypdf.CreationDate'`      | `datetime(1972, 2, 23, 11, 22, 33)` |
-| `'metadata.exiftool.PDF:CreateDate'` | `datetime(2017, 9,  5, 14, 07, 31)` |
-
-
-Querying the repository for;
-
-* `'metadata.pypdf.CreationDate'` returns `datetime(1972, 2, 23, 11, 22, 33)`
-* `'metadata.exiftool.PDF:CreateDate'` returns `datetime(2017, 9,  5, 14, 07, 31)`
-
-And additionally, the proposed change would allow querying for;
-
-* `'metadata.DateCreated'` returns `[datetime(1972, 2, 23, 11, 22, 33),
-  datetime(2017, 9,  5, 14, 07, 31)]`
-
-Additionally, the returned list could contain contextual information; weights,
-scores, priorities, etc.
-The less specific query would require the program to take responsibility for
-selecting the appropriate field.
-
-## Update 2017-09-13
-I'm currently in the process of adding some kind of "generic" field that,
-if defined, allows referencing data using two different "MeowURIs";
-*source-specific* and *generic*
-
-### Examples from the current implementation;
-These two data entries are stored in the repository with
-source-specific MeowURIs:
-
-* `metadata.exiftool.File:MIMEType: application/pdf`
-* `filesystem.contents.mime_type: application/pdf`
-
-They are also stored under a "generic URI":
-
-* `contents.generic: [application/pdf, application/pdf]`
-
-### Current conundrum
-I can't decide on how to lay out the "alternate" URIs.
-How should they be nested for usability and consistency?
-
-Below examples show different schemes specific and generic "MeowURIs"
-storing data "elements"; `D1`, `D2`, `D3`, `D4`.
-
-#### Current approach:
-
-* Source-specific URIs:
-    * `filesystem.contents.mime_type: D1`
-    * `metadata.exiftool.File:MIMEType: D2`
-    * `metadata.pypdf.CreationDate: D3`
-    * `metadata.exiftool.PDF:CreateDate: D4`
-* Generic URIs:
-    * `contents.generic.mimetype: [D1, D2]`
-    * `metadata.generic.datecreated: [D3, D4]`
-
-#### Alternative approach 1:
-
-* Source-specific URIs:
-    * `filesystem.contents.mime_type: D1`
-    * `metadata.exiftool.File:MIMEType: D2`
-    * `metadata.pypdf.CreationDate: D3`
-    * `metadata.exiftool.PDF:CreateDate: D4`
-* Generic URIs:
-    * `generic.contents.mimetype: [D1, D2]`
-    * `generic.metadata.datecreated: [D3, D4]`
-
-#### Alternative approach 2:
-
-* Source-specific URIs:
-    * `filesystem.contents.mime_type: D1`
-    * `metadata.exiftool.File:MIMEType: D2`
-    * `metadata.pypdf.CreationDate: D3`
-    * `metadata.exiftool.PDF:CreateDate: D4`
-* Generic URIs:
-    * `contents.mimetype: [D1, D2]`
-    * `metadata.datecreated: [D3, D4]`
-
-
-#### Pros/Cons
-I'm currently in favor of "Alternative approach 2" because it seems simpler
-to just leave out the source part .. (?)
-
-~~(It should also maybe possibly be easier to integrate into the existing
-codebase as it currently stands..)~~
-
-Going with "Alternative approach 2" would allow referring to data like this:
-
-* Specific retrieval: `metadata.pypdf.creator`
-    * Fetches specific data from a specific source.
-    * Returns either nothing at all or __one__ data "element".
-* Generic retrieval: `metadata.creator`
-    * Fetches "equivalent" data from any sources.
-    * Returns nothing, __or any number__ of data "elements".
-
-Also; it might make sense to keep a URI-node (like `.generic.`) in the MeowURIs
-to clearly separate the types, which might be helpful for the implementation.
-In this case, it probably wouldn't be very difficult to translate from a
-"internal" URI like `generic.contents.mimetype` or `contents.generic.mimetype`
-to a simplified form, used in all user interfaces; `contents.mime_type` ..
-
-
 Thoughts on the "analyzers"
 ---------------------------
 The "analyzer" classes was added very early in the development where it looked
@@ -570,118 +422,227 @@ The analyzers should probably take this contextual information in consideration
 when prioritizing candidates, etc.
 
 
-Identify Fields in Strings
---------------------------
-This is touched on in this TODO-list entry;
-
-> * `[TD0019]` Rework the `FilenameAnalyzer`
->     * `[TD0020]` Identify data fields in file names.
->         ```
->         screencapture-github-jonasjberg-autonameow-1497964021919.png
->         ^___________^ ^__________________________^ ^___________^
->              tag            title/description        timestamp
->         ```
->         * Use some kind of iterative evaluation; split into parts at
->           separators, assign field types to the parts and find a "best fit".
->           Might have to try several times at different separators, re-evaluting
->           partials after assuming that some part is a given type, etc.
->         * __This is a non-trivial problem__, I would rather not re-implment
->           existing solutions poorly.
->         * Look into how `guessit` does it or possibility of modifying
->           `guessit` to identify custom fields.
+The "Resolver"
+--------------
+Jonas Sjöberg, 2017-09-25.
 
 
-### Ideas on Methods
-Possible strategies for mapping fields to parts of strings.
-
-#### Dates likely unique (date+time even more so)
-Use the fact that probable dates, especially date+time; are likely to be
-unique in a given context.
-
-Given this example string, find fields `{datetime}` and `{whatever_}`:
-```
-2017-09-17 17092017
-```
-
-A fuzzy date-parser might identify two `YYYY-MM-DD` date-patterns in this
-string, like so;
-
-```
-2017-09-17 17092017
-YYYY-MM-DD DDMMYYYY
-```
-With only this information, we have two equally likely candidates for the
-`{datetime}` field, and two equally unlikely candidates for the `{whatever_}`
-field. Additional information is required ..
-
-The context could be a common parent directory.
-Lets say that there are multiple files in the same directory, we got two
-example strings;
-```
-2017-09-17 17092017
-2017-10-22 17092017
-```
-
-Now, if one were to apply the rule that date/time-strings are more likely
-unique, the common substring `17092017` would be deemed less likely to be the
-date/time-part.
-
-#### Common "creator"/"artist"
-Given a number of strings from a shared context, shared substrings are probably
-often worth weighting.
-
-__This should be done depending on context.__ 
-*More stuff taken into account --> better accuracy.*
-
-For example, trying to find fields `{artist}` and `{title}` given the strings;
-```
-Beatles, The - Paperback Writer.flac
-Beatles, The - Getting Better.flac
-```
-
-Common substrings related to music files are probably more likely __artists__,
-__albums__, etc.  And they are probably less likely to be song titles.
-
-These assumptions will obviously prove incorrect a lot of times.
-
-Applying the rule that `{artist}` is likely found in all/multiple files in a
-given context;
-
-```
-Beatles The - Paperback Writer.flac
-{ creator }   {    title     }
-
-
-Beatles The - Getting Better.flac
-{ creator }   {   title    }
-```
-
-
-### Programming by Wishful Thinking
-Some yet non-existing system tries to identify specified fields in a given
-string. Returns a list of substrings, sorted by score/ranking/weight.
+Modified excerpt from `autonameow/core/main.py` with a lot of added
+"programming by wishful thinking", but still pretty close to the actual
+current code:
 
 ```python
-string = 'The Beatles - Paperback Writer.flac'
+def _perform_automagic_actions(self, current_file, rule_matcher):
+    # Using the highest ranked rule
+    name_template = rule_matcher.best_match.name_template
 
-result = identify_fields(string, [field.Creator, field.Title])
+    resolver = Resolver(current_file, name_template)
+    for _field, _meowuri in rule_matcher.best_match.data_sources.items():
+        resolver.add_known_source(_field, _meowuri)
 
-assert result[fields.Creator] == ['The Beatles', 'Paperback Writer', 'flac',
-                                  ' - ', '.']
-assert result[fields.Title]   == ['Paperback Writer', 'The Beatles', 'flac',
-                                  ' - ', '.']
+    if not resolver.mapped_all_template_fields():
+        if self.opts.batch_mode:
+            log.error('All name template placeholder fields must be '
+                      'given a data source; Check the configuration!')
+            self.exit_code = C.EXIT_WARNING
+            return
+
+        elif self.opts.interactive:
+            cli.msg(
+                'Unknown data sources: ' + ','.join(resolver.unmapped_fields())
+            )
+            for field in resolver.unmapped_fields():
+                candidates = resolver.lookup_candidates(field)
+                choice = cli.prompt_selection(
+                    heading='Field "{}" candidates:'.format(field),
+                    choices=candidates
+                )
+                if choice in candidates:
+                    resolver.add_known_source(field, choice)
+
+    resolver.collect()
+    if not resolver.collected_data_for_all_fields():
+        if self.opts.batch_mode:
+            log.warning('Unable to populate name. Missing field data.')
+            self.exit_code = C.EXIT_WARNING
+            return
+        elif self.opts.interactive:
+            for field in resolver.missing_fields():
+                candidates = resolver.lookup_candidates(field)
+                choice = cli.prompt_selection(
+                    heading='Field "{}" candidates:'.format(field),
+                    choices=candidates
+                )
+                if choice in candidates:
+                    resolver.add_known_source(field, choice)
+
+    try:
+        new_name = namebuilder.build(config=self.active_config,
+                                     name_template=name_template,
+                                     field_data_map=resolver.fields_data)
+    except exceptions.NameBuilderError as e:
+        log.critical('Name assembly FAILED: {!s}'.format(e))
+        raise exceptions.AutonameowException
+
+    self.do_rename(from_path=current_file.abspath,
+                   new_basename=new_name,
+                   dry_run=self.opts.dry_run)
 ```
 
-Specifying __constraints__ or __rules__ --- require that both fields contain
-at least one word character;
+Alternative, more wishful and optimistic version:
 ```python
-string = 'The Beatles - Paperback Writer.flac'
+def _perform_automagic_actions(self, current_file, rule_matcher):
+    # Using the highest ranked rule
+    name_template = rule_matcher.best_match.name_template
 
-add_constraint(field.Creator, matches=r'[\w]+')
-add_constraint(field.Title, matches=r'[\w]+')
-result = identify_fields(string, [field.Creator, field.Title])
+    resolver = Resolver(current_file, name_template)
+    for _field, _meowuri in rule_matcher.best_match.data_sources.items():
+        resolver.add_known_source(_field, _meowuri)
 
-assert result[fields.Creator] == ['The Beatles', 'Paperback Writer', 'flac']
-assert result[fields.Title]   == ['Paperback Writer', 'The Beatles', 'flac']
+    if not resolver.mapped_all_template_fields():
+        if self.opts.batch_mode:
+            log.error('All name template placeholder fields must be '
+                      'given a data source; Check the configuration!')
+            self.exit_code = C.EXIT_WARNING
+            return
+
+        elif self.opts.interactive:
+            cli.msg(
+                'Unknown data sources: ' + ','.join(resolver.unmapped_fields())
+            )
+            for field in resolver.unmapped_fields():
+                candidates = resolver.lookup_candidates(field)
+                choice = cli.prompt_selection(
+                    heading='Field "{}" candidates:'.format(field),
+                    choices=candidates
+                )
+                if choice in candidates:
+                    resolver.add_known_source(field, choice)
+
+    resolver.collect()
+    if not resolver.collected_data_for_all_fields():
+        if self.opts.batch_mode:
+            log.warning('Unable to populate name. Missing field data.')
+            self.exit_code = C.EXIT_WARNING
+            return
+        elif self.opts.interactive:
+            for field in resolver.missing_fields():
+                candidates = resolver.lookup_candidates(field)
+                choice = cli.prompt_selection(
+                    heading='Field "{}" candidates:'.format(field),
+                    choices=candidates
+                )
+                if choice in candidates:
+                    resolver.add_known_source(field, choice)
+
+    try:
+        new_name = namebuilder.build(config=self.active_config,
+                                     name_template=name_template,
+                                     field_data_map=resolver.fields_data)
+    except exceptions.NameBuilderError as e:
+        log.critical('Name assembly FAILED: {!s}'.format(e))
+        raise exceptions.AutonameowException
+
+    self.do_rename(from_path=current_file.abspath,
+                   new_basename=new_name,
+                   dry_run=self.opts.dry_run)
 ```
 
+Updated alternative, more wishful and optimistic version:
+
+```python
+def _perform_automagic_actions(self, current_file, rule_matcher):
+    if rule_matcher.best_match:
+        # Using the highest ranked rule
+        name_template = rule_matcher.best_match.name_template
+    else:
+        if self.opts.batch_mode:
+            log.warning('No rule matched, name template unknown.')
+            self.exit_code = C.EXIT_WARNING
+            return
+        else:
+            choice = cli.prompt_selection(
+                heading='Select a name template',
+                choice=rule_matcher.candidates
+            )
+            if choice != cli.action.ABORT:
+                name_template = choice
+
+    resolver = Resolver(current_file, name_template)
+    resolver.add_known_sources(rule_matcher.best_match.data_sources)
+
+    resolver.collect()
+
+    if not resolver.collected_all():
+        if self.opts.batch_mode:
+            log.warning('Unable to populate name.')
+            self.exit_code = C.EXIT_WARNING
+            return
+        else:
+            while not resolver.collected_all():
+                for unresolved in resolver.unresolved():
+                    candidates = resolver.lookup_candidates(unresolved)
+                    if candidates:
+                        choice = cli.prompt_selection(
+                            heading='Field {}'.format(unresolved.field)
+                            choices=candidates
+                        )
+                    else:
+                        choice = cli.prompt_meowuri(
+                            heading='Enter a MeowURI'
+                        )
+                    if choice != cli.action.ABORT:
+                        resolver.add_known_source(choice)
+
+                resolver.collect()
+    try:
+        new_name = namebuilder.build(
+            config=self.active_config,
+            name_template=name_template,
+            field_data_map=resolver.fields_data
+        )
+    except exceptions.NameBuilderError as e:
+        log.critical('Name assembly FAILED: {!s}'.format(e))
+        raise exceptions.AutonameowException
+
+    self.do_rename(
+        from_path=current_file.abspath,
+        new_basename=new_name,
+        dry_run=self.opts.dry_run
+    )
+```
+
+
+
+Auto-Completion of MeowURIs
+---------------------------
+When in a mode that allows querying the user, choices of data using MeowURIs
+should support auto-completion. Pressing `<TAB>` should display all possible
+choices.
+
+Empty prompt:
+```
+>
+```
+
+After pressing `<TAB>`:
+```
+>
+  (analysis, extractor, plugin, contents, metadata, ..)
+```
+
+Entering `e` without pressing `<ENTER>`
+```
+> e
+```
+
+After pressing `<TAB>`:
+```
+> extractor
+```
+
+Entering `.` and then pressing `<TAB>`:
+```
+> extractor.
+  (exiftool, filesystem, pypdf, tesseract, ..)
+```

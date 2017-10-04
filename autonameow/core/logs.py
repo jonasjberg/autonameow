@@ -21,7 +21,7 @@
 
 import logging
 
-from core.util import cli
+from core.ui import cli
 
 
 def init_logging(args):
@@ -55,8 +55,7 @@ def init_logging(args):
     #       command-line. For instance, verbosity levels 1 and 3 would be
     #       enabled with '-v' and '-vvv', respectively.
 
-    _colored_timestamp = cli.colorize('%(asctime)s', fore='LIGHTBLACK_EX',
-                                      style='DIM')
+    _colored_timestamp = cli.colorize('%(asctime)s', style='DIM')
     if args.debug:
         fmt = (
             _colored_timestamp
@@ -75,3 +74,15 @@ def init_logging(args):
     else:
         fmt = '%(levelname)s %(message)s'
         logging.basicConfig(level=logging.WARNING, format=fmt)
+
+
+def silence():
+    logging.disable(logging.DEBUG)
+    logging.disable(logging.INFO)
+    logging.disable(logging.WARNING)
+    logging.disable(logging.CRITICAL)
+    logging.disabled = True
+
+
+def unsilence():
+    logging.disabled = False

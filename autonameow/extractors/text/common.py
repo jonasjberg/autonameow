@@ -20,19 +20,21 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import unicodedata
 
 from core import (
+    model,
     types,
     util
 )
-from core.util import textutils
+from core.model import ExtractedData
+from core.util import (
+    sanity,
+    textutils
+)
 from extractors import (
     BaseExtractor,
-    ExtractorError,
-    ExtractedData
+    ExtractorError
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -53,10 +55,17 @@ class AbstractTextExtractor(BaseExtractor):
                            '{!s}'.format(self, e))
             raise ExtractorError
 
-        util.assert_internal_string(text)
+        sanity.check_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
-        return {'full': ExtractedData(wrapper=types.AW_STRING)(text)}
+
+        # TODO: [TD0087] Clean up messy (and duplicated) coercion of "raw" data.
+        wrapper = ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=None,
+            generic_field=model.GenericText,
+        )
+        return {'full': ExtractedData.from_raw(wrapper, text)}
 
     def _get_text(self, source):
         raise NotImplementedError('Must be implemented by inheriting classes.')
@@ -81,5 +90,3 @@ def decode_raw(raw_text):
         return text
 
 
-def normalize_unicode(text):
-    return unicodedata.normalize('NFKC', text)

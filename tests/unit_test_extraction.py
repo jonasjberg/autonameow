@@ -21,7 +21,6 @@
 
 from unittest import TestCase
 
-import extractors
 from core import extraction
 import unit_utils as uu
 import unit_utils_constants as uuconst

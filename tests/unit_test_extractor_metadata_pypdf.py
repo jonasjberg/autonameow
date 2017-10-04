@@ -1,0 +1,96 @@
+# -*- coding: utf-8 -*-
+
+#   Copyright(c) 2016-2017 Jonas Sjöberg
+#   Personal site:   http://www.jonasjberg.com
+#   GitHub:          https://github.com/jonasjberg
+#   University mail: js224eh[a]student.lnu.se
+#
+#   This file is part of autonameow.
+#
+#   autonameow is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation.
+#
+#   autonameow is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
+
+import unittest
+from datetime import datetime
+
+from core import (
+    types,
+    util
+)
+from core.model import (
+    ExtractedData,
+    WeightedMapping
+)
+from core.namebuilder import fields
+from extractors.metadata import PyPDFMetadataExtractor
+import unit_utils as uu
+
+
+unmet_dependencies = PyPDFMetadataExtractor.check_dependencies() is False
+dependency_error = 'Extractor dependencies not satisfied'
+
+
+class TestPyPDFMetadataExtractor(unittest.TestCase):
+    def _to_datetime(self, value):
+        return datetime.strptime(value, '%Y-%m-%d %H:%M:%S%z')
+
+    def setUp(self):
+        self.test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
+        self.e = PyPDFMetadataExtractor()
+
+        self.EXPECT_FIELD_VALUE = [
+            ('CreationDate', self._to_datetime('2016-01-11 12:41:32+0000')),
+            ('ModDate', self._to_datetime('2016-01-11 12:41:32+0000')),
+            ('Creator', 'Chromium'),
+            ('Producer', 'Skia/PDF'),
+            ('NumberPages', 2),
+            ('Encrypted', False)
+        ]
+
+        self.EXPECT_WRAPPED_FIELD_VALUE = [
+            ('CreationDate',
+             ExtractedData(
+                 types.AW_PYPDFTIMEDATE
+             )(self._to_datetime('2016-01-11 12:41:32+0000'))
+             ),
+            ('ModDate',
+             ExtractedData(
+                 types.AW_PYPDFTIMEDATE
+             )(self._to_datetime('2016-01-11 12:41:32+0000'))
+             ),
+            ('Creator',
+             ExtractedData(
+                 coercer=types.AW_STRING,
+                 mapped_fields=[
+                    WeightedMapping(fields.DateTime, probability=1),
+                    WeightedMapping(fields.Date, probability=1)
+                 ]
+             )('Chromium')),
+            ('Producer', ExtractedData(types.AW_STRING)('Skia/PDF')),
+            ('NumberPages', ExtractedData(types.AW_INTEGER)(2)),
+            ('Encrypted', ExtractedData(types.AW_BOOLEAN)(False))
+        ]
+
+    @unittest.skipIf(unmet_dependencies, dependency_error)
+    def test_method_execute_returns_something(self):
+        self.assertIsNotNone(self.e.execute(self.test_file))
+
+    @unittest.skipIf(unmet_dependencies, dependency_error)
+    def test_method_execute_returns_expected_type(self):
+        self.assertTrue(isinstance(self.e.execute(self.test_file), dict))
+
+    @unittest.skipIf(unmet_dependencies, dependency_error)
+    def test_method_execute_all_result_contains_expected_values(self):
+        actual = self.e.execute(self.test_file)
+        for field, value in self.EXPECT_FIELD_VALUE:
+            self.assertEqual(actual.get(field).value, value)
+

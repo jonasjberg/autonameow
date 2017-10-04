@@ -25,12 +25,12 @@ import unicodedata
 from datetime import datetime
 
 from core import (
-    constants,
     exceptions,
     namebuilder,
     types,
-    util,
+    util
 )
+from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
 
 
 log = logging.getLogger(__name__)
@@ -189,6 +189,9 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
     @staticmethod
     def is_valid_regex(expression):
+        if not expression:
+            return False
+
         try:
             re.compile(expression)
         except (re.error, TypeError):
@@ -264,17 +267,21 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
             expression = [expression]
 
         for expr in expression:
-            if not expr or not isinstance(expr, (str, bytes)):
+            string_expr = types.force_string(expr)
+            if not string_expr:
                 return False
 
             # Match with or without globs; 'inode/x-empty', '*/jpeg', 'image/*'
-            if not re.match(r'^([a-z]+|\*)/([a-z0-9\-+]+|\*)$', expr):
+            if not re.match(r'^([a-z]+|\*)/([a-z0-9\-.+]+|\*)$', expr):
                 return False
 
         return True
 
     @staticmethod
     def evaluate_mime_type_globs(expression, mime_to_match):
+        if not expression:
+            return False
+
         if not isinstance(expression, list):
             expression = [expression]
 
@@ -312,6 +319,9 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
 
     @staticmethod
     def is_valid_datetime(expression):
+        if not expression:
+            return False
+
         try:
             _ = datetime.today().strftime(expression)
         except (ValueError, TypeError) as e:
@@ -333,24 +343,31 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
         return lambda *_: True
 
 
+# Used for validating name templates. Populated like so;
+#   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
+DATA_FIELDS = dict.fromkeys(
+    NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS, 'DUMMY'
+)
+
+
 class NameFormatConfigFieldParser(ConfigFieldParser):
     applies_to_field = ['NAME_FORMAT']
 
     @staticmethod
-    def is_valid_format_string(expression):
-        if not expression:
+    def is_valid_nametemplate_string(expression):
+        if not expression or not expression.strip():
             return False
 
         try:
             namebuilder.populate_name_template(expression, **DATA_FIELDS)
-        except exceptions.NameTemplateSyntaxError:
+        except (exceptions.NameTemplateSyntaxError, TypeError):
             return False
         else:
             return True
 
     @classmethod
     def get_validation_function(cls):
-        return cls.is_valid_format_string
+        return cls.is_valid_nametemplate_string
 
     @classmethod
     def get_evaluation_function(cls):
@@ -474,29 +491,9 @@ def eval_meowuri_glob(meowuri, glob_list):
     return False
 
 
-def is_valid_template_field(template_field):
-    """
-    Checks whether the given string is a legal name template placeholder field.
-
-    Args:
-        template_field: The field to test as type str.
-
-    Returns:
-        True if the given string is a legal name template field, else False.
-    """
-    if not template_field:
-        return False
-    if template_field in constants.NAME_TEMPLATE_FIELDS:
-        return True
-    return False
-
-
 # Instantiate rule parsers inheriting from the 'Parser' class.
 FieldParserInstances = get_instantiated_field_parsers()
 
-# This is used for validating name templates. Dict is populated like this;
-#   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
-DATA_FIELDS = dict.fromkeys(constants.NAME_TEMPLATE_FIELDS, 'DUMMY')
 RE_VERSION_NUMBER = re.compile(r'v?(\d+)\.(\d+)\.(\d+)')
 
 

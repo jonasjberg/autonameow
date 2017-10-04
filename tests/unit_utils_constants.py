@@ -48,39 +48,39 @@ DUMMY_RAW_RULE_CONDITIONS = [
     ('filesystem.basename.extension', 'jpg'),
     ('filesystem.basename.full', 'DCIM*'),
     ('filesystem.pathname.full', '~/Pictures/incoming'),
-    ('metadata.exiftool.EXIF:DateTimeOriginal', 'Defined'),
+    ('extractor.metadata.exiftool.EXIF:DateTimeOriginal', 'Defined'),
 
     # Part of Rule 4
     ('filesystem.contents.mime_type', 'application/epub+zip'),
     ('filesystem.basename.extension', 'epub'),
     ('filesystem.basename.full', '.*'),
     ('filesystem.pathname.full', '.*'),
-    ('metadata.exiftool.XMP-dc:Creator', 'Defined'),
+    ('extractor.metadata.exiftool.XMP-dc:Creator', 'Defined'),
 ]
 
 
 DUMMY_RAW_RULE_DATA_SOURCES = [
     # Part of Rule 1
-    {'datetime': 'metadata.exiftool.PDF:CreateDate',
+    {'datetime': 'extractor.metadata.exiftool.PDF:CreateDate',
      'extension': 'filesystem.basename.extension',
      'title': 'filesystem.basename.prefix'},
 
     # Part of Rule 2
-    {'datetime': 'metadata.exiftool.EXIF:DateTimeOriginal',
+    {'datetime': 'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
      'description': 'plugin.microsoft_vision.caption',
      'extension': 'filesystem.basename.extension'},
 
     # Part of Rule 3
-    {'datetime': 'metadata.exiftool.EXIF:CreateDate',
+    {'datetime': 'extractor.metadata.exiftool.EXIF:CreateDate',
      'description': 'plugin.microsoft_vision.caption',
      'extension': 'filesystem.basename.extension'},
 
     # Part of Rule 4
-    {'author': 'metadata.exiftool.XMP-dc:CreatorFile-as',
-     'datetime': 'metadata.exiftool.XMP-dc:Date',
+    {'author': 'extractor.metadata.exiftool.XMP-dc:CreatorFile-as',
+     'datetime': 'extractor.metadata.exiftool.XMP-dc:Date',
      'extension': 'filesystem.basename.extension',
-     'publisher': 'metadata.exiftool.XMP-dc:Publisher',
-     'title': 'metadata.exiftool.XMP-dc:Title'},
+     'publisher': 'extractor.metadata.exiftool.XMP-dc:Publisher',
+     'title': 'extractor.metadata.exiftool.XMP-dc:Title'},
 ]
 
 
@@ -120,23 +120,27 @@ RESULTS_DATA_STRUCTURE = {
             'placeholder_field': None,
         }
     },
+    'extractor': {
+        'metadata': {
+            'exiftool': {
+                'EXIF:DateTimeOriginal': None,
+                'PDF:Author': None,
+                'PDF:CreateDate': None,
+                'PDF:Creator': None,
+                'PDF:EBX_PUBLISHER': None,
+                'PDF:Producer': None,
+                'PDF:Subject': None,
+                'PDF:Title': None,
+                'XMP:Creator': None,
+                'XMP:EbxPublisher': None,
+                'XMP:Title': None,
+                'XMP-dc:Creator': None,
+                'XMP-dc:EbxPublisher': None,
+                'XMP-dc:Title': None,
+            },
+        }
+    },
     'metadata': {
-        'exiftool': {
-            'EXIF:DateTimeOriginal': None,
-            'PDF:Author': None,
-            'PDF:CreateDate': None,
-            'PDF:Creator': None,
-            'PDF:EBX_PUBLISHER': None,
-            'PDF:Producer': None,
-            'PDF:Subject': None,
-            'PDF:Title': None,
-            'XMP:Creator': None,
-            'XMP:EbxPublisher': None,
-            'XMP:Title': None,
-            'XMP-dc:Creator': None,
-            'XMP-dc:EbxPublisher': None,
-            'XMP-dc:Title': None,
-        },
         'pypdf': {
             'Author': None,
             'Creator': None,

@@ -32,7 +32,7 @@ import unit_utils as uu
 
 try:
     import isbnlib
-except (ModuleNotFoundError, ImportError):
+except ImportError:
     isbnlib = None
 
 

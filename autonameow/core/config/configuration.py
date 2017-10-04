@@ -23,9 +23,9 @@ import logging
 import os
 import re
 
+from core import constants as C
 from core import (
     config,
-    constants,
     exceptions,
     util,
     types
@@ -38,7 +38,7 @@ from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     parse_versioning
 )
-
+from core.util import sanity
 
 log = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class Configuration(object):
             source: Configuration data to load as a dict.
         """
         self._rules = []
-        self._name_templates = {}
+        self._reusable_nametemplates = {}
         self._options = {'DATETIME_FORMAT': {},
                          'FILETAGS_OPTIONS': {}}
         self._version = None
@@ -72,11 +72,11 @@ class Configuration(object):
         self._load_from_dict(source)
 
         if self.version:
-            if self.version != constants.PROGRAM_VERSION:
+            if self.version != C.STRING_PROGRAM_VERSION:
                 log.warning('Possible configuration compatibility mismatch!')
                 log.warning('Loaded configuration created by {} (currently '
                             'running {})'.format(self.version,
-                                                 constants.PROGRAM_VERSION))
+                                                 C.STRING_PROGRAM_VERSION))
                 log.info(
                     'The current recommended procedure is to move the '
                     'current config to a temporary location, re-run '
@@ -100,7 +100,7 @@ class Configuration(object):
             ConfigReadError: The configuration file could not be read.
             ConfigError: The configuration file is empty.
         """
-        util.assert_internal_bytestring(path)
+        sanity.check_internal_bytestring(path)
 
         _loaded_data = config.load_yaml_file(path)
         if not _loaded_data:
@@ -115,7 +115,7 @@ class Configuration(object):
             raise exceptions.ConfigError('Attempted to load empty data')
 
         self._data = data
-        self._load_name_templates()
+        self._load_reusable_nametemplates()
         self._load_rules()
         self._load_options()
         self._load_version()
@@ -133,27 +133,37 @@ class Configuration(object):
         else:
             config.write_yaml_file(dest_path, self._data)
 
-    def _load_name_templates(self):
+    def _load_reusable_nametemplates(self):
         raw_templates = self._data.get('NAME_TEMPLATES')
         if not raw_templates:
-            log.debug('Configuration does not contain any name templates')
+            log.debug('Configuration does not contain any name reusable name '
+                      'templates')
             return
         if not isinstance(raw_templates, dict):
             log.debug('Configuration templates is not of type dict')
             return
 
-        loaded_templates = {}
-        for k, v in raw_templates.items():
+        validated = {}
+        for raw_name, raw_templ in raw_templates.items():
+            _error = 'Got invalid name template: "{!s}: {!s}"'.format(raw_name,
+                                                                      raw_templ)
+            name = types.force_string(raw_name)
+            if not name:
+                raise exceptions.ConfigurationSyntaxError(_error)
+
+            templ = types.force_string(raw_templ)
+            if not templ:
+                raise exceptions.ConfigurationSyntaxError(_error)
+
             # Remove any non-breaking spaces in the name template.
-            v = util.remove_nonbreaking_spaces(v)
+            templ = util.remove_nonbreaking_spaces(templ)
 
-            if NameFormatConfigFieldParser.is_valid_format_string(v):
-                loaded_templates[k] = v
+            if NameFormatConfigFieldParser.is_valid_nametemplate_string(templ):
+                validated[name] = templ
             else:
-                msg = 'invalid name template "{}": "{}"'.format(k, v)
-                raise exceptions.ConfigurationSyntaxError(msg)
+                raise exceptions.ConfigurationSyntaxError(_error)
 
-        self._name_templates.update(loaded_templates)
+        self._reusable_nametemplates.update(validated)
 
     def _load_rules(self):
         raw_rules = self._data.get('RULES')
@@ -162,13 +172,21 @@ class Configuration(object):
                 'The configuration file does not contain any rules'
             )
 
-        for rule in raw_rules:
+        for raw_name, raw_contents in raw_rules.items():
+            name = types.force_string(raw_name)
+            if not name:
+                log.error('Skipped rule with bad name: "{!s}"'.format(raw_name))
+                continue
+
+            raw_contents.update({'description': name})
+            log.debug('Validating rule "{!s}" ..'.format(name))
             try:
-                valid_rule = self._validate_rule_data(rule)
+                valid_rule = self.to_rule_instance(raw_contents)
             except exceptions.ConfigurationSyntaxError as e:
-                rule_description = rule.get('description', 'UNDESCRIBED')
-                log.error('Bad rule "{!s}"; {!s}'.format(rule_description, e))
+                log.error('Bad rule "{!s}"; {!s}'.format(name, e))
             else:
+                log.debug('Validated rule "{!s}" .. OK!'.format(name))
+
                 # Create and populate "Rule" objects with *validated* data.
                 self._rules.append(valid_rule)
 
@@ -177,7 +195,23 @@ class Configuration(object):
                     valid_rule.referenced_meowuris()
                 )
 
-    def _validate_rule_data(self, raw_rule):
+    def _validate_name_format(self, _raw_name_format):
+        _format = types.force_string(_raw_name_format)
+        if not _format:
+            return None
+
+        # First test if the field data is a valid name template entry,
+        if _format in self.reusable_nametemplates:
+            # If it is, use the format string defined in that entry.
+            return self.reusable_nametemplates.get(_format)
+        else:
+            # If not, check if it is a valid format string.
+            if NameFormatConfigFieldParser.is_valid_nametemplate_string(_format):
+                return _format
+
+        return None
+
+    def to_rule_instance(self, raw_rule):
         """
         Validates one "raw" rule from a configuration and returns an
         instance of the 'Rule' class, representing the "raw" rule.
@@ -194,49 +228,28 @@ class Configuration(object):
                 Note that the message will be used in the following sentence:
                 "Bad rule "x"; {message}"
         """
-        # Get a description for referring to the rule in any log messages.
-        description = raw_rule.get('description')
-        if description is None:
-            description = 'UNDESCRIBED'
-
-        log.debug('Validating rule "{!s}" ..'.format(description))
-
         if 'NAME_FORMAT' not in raw_rule:
-            log.debug('Rule contains no name format data' + str(raw_rule))
             raise exceptions.ConfigurationSyntaxError(
                 'is missing name template format'
             )
-
-        # First test if the field data is a valid name template entry,
-        # If it is, use the format string defined in that entry.
-        # If not, try to use 'name_template' as a format string.
-        name_format = raw_rule.get('NAME_FORMAT')
-        if name_format in self.name_templates:
-            valid_format = self.name_templates.get(name_format, False)
-        else:
-            if NameFormatConfigFieldParser.is_valid_format_string(name_format):
-                valid_format = util.remove_nonbreaking_spaces(name_format)
-            else:
-                valid_format = False
-
+        valid_format = self._validate_name_format(raw_rule.get('NAME_FORMAT'))
         if not valid_format:
-            log.debug('Rule name format is invalid: ' + str(raw_rule))
             raise exceptions.ConfigurationSyntaxError(
                 'uses invalid name template format'
             )
+        name_template = util.remove_nonbreaking_spaces(valid_format)
 
         try:
-            _rule = rules.Rule(description=description,
+            _rule = rules.Rule(description=raw_rule.get('description'),
                                exact_match=raw_rule.get('exact_match'),
                                ranking_bias=raw_rule.get('ranking_bias'),
-                               name_template=valid_format,
+                               name_template=name_template,
                                conditions=raw_rule.get('CONDITIONS'),
                                data_sources=raw_rule.get('DATA_SOURCES'))
         except exceptions.InvalidRuleError as e:
             raise exceptions.ConfigurationSyntaxError(e)
-
-        log.debug('Validated rule "{!s}" .. OK!'.format(description))
-        return _rule
+        else:
+            return _rule
 
     def _load_options(self):
         def _try_load_datetime_format_option(option, default):
@@ -244,16 +257,22 @@ class Configuration(object):
                 _value = self._data['DATETIME_FORMAT'].get(option, None)
                 if (_value is not None and
                         DateTimeConfigFieldParser.is_valid_datetime(_value)):
+                    log.debug('Added datetime format option :: '
+                              '{!s}: "{!s}"'.format(option, _value))
                     self._options['DATETIME_FORMAT'][option] = _value
                     return  # OK!
 
             # Use verified default value.
             if DateTimeConfigFieldParser.is_valid_datetime(default):
+                log.debug('Using default datetime format option :: '
+                          '{!s}: "{!s}"'.format(option, default))
                 self._options['DATETIME_FORMAT'][option] = default
             else:
-                log.critical('Invalid internal default value "{!s}": '
-                             '"{!s}'.format(option, default))
-                log.critical('This should not happen!')
+                sanity.check(
+                    False,
+                    'Invalid internal default value "{!s}: {!s}"'.format(
+                        option, default)
+                )
 
         def _try_load_filetags_option(option, default):
             if 'FILETAGS_OPTIONS' in self._data:
@@ -261,22 +280,30 @@ class Configuration(object):
             else:
                 _value = None
             if _value is not None:
+                log.debug('Added filetags option :: '
+                          '{!s}: "{!s}"'.format(option, _value))
                 self._options['FILETAGS_OPTIONS'][option] = _value
             else:
+                log.debug('Using default filetags option :: '
+                          '{!s}: "{!s}"'.format(option, _value))
                 self._options['FILETAGS_OPTIONS'][option] = default
 
-        def _try_load_filesystem_option(option, default):
-            if 'FILESYSTEM_OPTIONS' in self._data:
-                _value = self._data['FILESYSTEM_OPTIONS'].get(option)
+        def _try_load_custom_postprocessing_option(option, default):
+            if 'CUSTOM_POST_PROCESSING' in self._data:
+                _value = self._data['CUSTOM_POST_PROCESSING'].get(option)
             else:
                 _value = None
             if _value is not None:
+                log.debug('Added post-processing option :: '
+                          '{!s}: {!s}'.format(option, _value))
                 util.nested_dict_set(
-                    self._options, ['FILESYSTEM_OPTIONS', option], _value
+                    self._options, ['CUSTOM_POST_PROCESSING', option], _value
                 )
             else:
+                log.debug('Using default post-processing option :: '
+                          '{!s}: {!s}'.format(option, default))
                 util.nested_dict_set(
-                    self._options, ['FILESYSTEM_OPTIONS', option], default
+                    self._options, ['CUSTOM_POST_PROCESSING', option], default
                 )
 
         def _try_load_custom_postprocessing_replacements():
@@ -287,10 +314,9 @@ class Configuration(object):
 
                 match_replace_pairs = []
                 for regex, replacement in _reps.items():
-                    try:
-                        _match = types.AW_STRING(regex)
-                        _replace = types.AW_STRING(replacement)
-                    except types.AWTypeError as e:
+                    _match = types.force_string(regex)
+                    _replace = types.force_string(replacement)
+                    if None in (_match, _replace):
                         log.warning('Skipped bad replacement: "{!s}": '
                                     '"{!s}"'.format(regex, replacement))
                         continue
@@ -302,93 +328,109 @@ class Configuration(object):
                                     '"{!s}"'.format(_match))
                     else:
                         log.debug(
-                            'Added post-processing replacement. Match: "{!s}" '
-                            'Replace: "{!s}"'.format(regex, replacement)
+                            'Added post-processing replacement :: Match: "{!s}"'
+                            ' Replace: "{!s}"'.format(regex, replacement)
                         )
                         match_replace_pairs.append((compiled_pat, _replace))
 
-
-                util.nested_dict_set(self._options,
-                                     ['CUSTOM_POST_PROCESSING', 'replacements'],
-                                     match_replace_pairs)
+                if match_replace_pairs:
+                    util.nested_dict_set(
+                        self._options,
+                        ['CUSTOM_POST_PROCESSING', 'replacements'],
+                        match_replace_pairs
+                    )
 
         _try_load_datetime_format_option(
-            'date', constants.DEFAULT_DATETIME_FORMAT_DATE
+            'date', C.DEFAULT_DATETIME_FORMAT_DATE
         )
         _try_load_datetime_format_option(
-            'time', constants.DEFAULT_DATETIME_FORMAT_TIME
+            'time', C.DEFAULT_DATETIME_FORMAT_TIME
         )
         _try_load_datetime_format_option(
-            'datetime', constants.DEFAULT_DATETIME_FORMAT_DATETIME
+            'datetime', C.DEFAULT_DATETIME_FORMAT_DATETIME
         )
 
         _try_load_filetags_option(
             'filename_tag_separator',
-            constants.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR
+            C.DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR
         )
         _try_load_filetags_option(
             'between_tag_separator',
-            constants.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
+            C.DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR
         )
-        _try_load_filesystem_option(
+        _try_load_custom_postprocessing_option(
             'sanitize_filename',
-            constants.DEFAULT_FILESYSTEM_SANITIZE_FILENAME
+            C.DEFAULT_FILESYSTEM_SANITIZE_FILENAME
         )
-        _try_load_filesystem_option(
+        _try_load_custom_postprocessing_option(
             'sanitize_strict',
-            constants.DEFAULT_FILESYSTEM_SANITIZE_STRICT
+            C.DEFAULT_FILESYSTEM_SANITIZE_STRICT
         )
-        _try_load_filesystem_option(
+        _try_load_custom_postprocessing_option(
             'lowercase_filename',
-            constants.DEFAULT_FILESYSTEM_LOWERCASE_FILENAME
+            C.DEFAULT_FILESYSTEM_LOWERCASE_FILENAME
         )
-        _try_load_filesystem_option(
+        _try_load_custom_postprocessing_option(
             'uppercase_filename',
-            constants.DEFAULT_FILESYSTEM_UPPERCASE_FILENAME
+            C.DEFAULT_FILESYSTEM_UPPERCASE_FILENAME
         )
 
         _try_load_custom_postprocessing_replacements()
 
         # Handle conflicting upper-case and lower-case options.
-        if (self._options['FILESYSTEM_OPTIONS'].get('lowercase_filename') and
-                self._options['FILESYSTEM_OPTIONS'].get('uppercase_filename')):
+        if (self._options['CUSTOM_POST_PROCESSING'].get('lowercase_filename')
+                and self._options['CUSTOM_POST_PROCESSING'].get('uppercase_filename')):
 
             log.warning('Conflicting options: "lowercase_filename" and '
                         '"uppercase_filename". Ignoring "uppercase_filename".')
-            self._options['FILESYSTEM_OPTIONS']['uppercase_filename'] = False
+            self._options['CUSTOM_POST_PROCESSING']['uppercase_filename'] = False
 
         # Unlike the previous options; first load the default ignore patterns,
         # then combine these defaults with any user-specified patterns.
         util.nested_dict_set(
             self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
-            constants.DEFAULT_FILESYSTEM_IGNORE
+            C.DEFAULT_FILESYSTEM_IGNORE
         )
         if 'FILESYSTEM_OPTIONS' in self._data:
             _user_ignores = self._data['FILESYSTEM_OPTIONS'].get('ignore')
             if isinstance(_user_ignores, list):
                 _user_ignores = util.filter_none(_user_ignores)
                 if _user_ignores:
+                    for _ui in _user_ignores:
+                        log.debug('Added filesystem option :: '
+                                  '{!s}: {!s}'.format('ignore', _ui))
+
                     _defaults = util.nested_dict_get(
                         self._options, ['FILESYSTEM_OPTIONS', 'ignore']
                     )
+                    log.debug('Adding {} default filesystem ignore '
+                              'patterns'.format(len(_defaults)))
 
                     _combined = _defaults.union(frozenset(_user_ignores))
+                    log.debug('Using combined total of {} filesystem ignore '
+                              'patterns'.format(len(_combined)))
                     util.nested_dict_set(
                         self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
                         _combined
                     )
 
     def _load_version(self):
-        _raw_version = self._data.get('autonameow_version')
-        valid_version = parse_versioning(_raw_version)
-        if valid_version:
-            self._version = valid_version
-        else:
-            log.error('Unable to read program version from configuration.')
-            log.debug('Read invalid version: "{!s}"'.format(_raw_version))
+        if 'COMPATIBILITY' in self._data:
+            _raw_version = self._data['COMPATIBILITY'].get('autonameow_version')
+            valid_version = parse_versioning(_raw_version)
+            if valid_version:
+                self._version = valid_version
+                return
+            else:
+                log.debug('Read invalid version: "{!s}"'.format(_raw_version))
+
+        log.error('Unable to read program version from configuration.')
 
     def get(self, key_list):
-        return util.nested_dict_get(self._options, key_list)
+        try:
+            return util.nested_dict_get(self._options, key_list)
+        except KeyError:
+            return None
 
     @property
     def version(self):
@@ -426,11 +468,17 @@ class Configuration(object):
         if self._rules and len(self._rules) > 0:
             return self._rules
         else:
-            return False
+            return []
+
+    @property
+    def reusable_nametemplates(self):
+        return self._reusable_nametemplates
 
     @property
     def name_templates(self):
-        return self._name_templates
+        _rule_templates = [r.name_template for r in self.rules]
+        _reusable_templates = [t for t in self.reusable_nametemplates.values()]
+        return _rule_templates + _reusable_templates
 
     def __str__(self):
         out = ['Written by autonameow version v{}\n\n'.format(self.version)]
@@ -439,8 +487,10 @@ class Configuration(object):
             out.append('Rule {}:\n'.format(number + 1))
             out.append(util.indent(str(rule), amount=4) + '\n')
 
-        out.append('\nName Templates:\n')
-        out.append(util.indent(util.dump(self.name_templates), amount=4))
+        out.append('\nReusable Name Templates:\n')
+        out.append(
+            util.indent(util.dump(self.reusable_nametemplates), amount=4)
+        )
 
         out.append('\nMiscellaneous Options:\n')
         out.append(util.indent(util.dump(self.options), amount=4))

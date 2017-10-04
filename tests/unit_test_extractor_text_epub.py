@@ -22,11 +22,7 @@
 import unittest
 
 import unit_utils as uu
-
-try:
-    from thirdparty import epubzilla
-except (ModuleNotFoundError, ImportError):
-    epubzilla = None
+from thirdparty import epubzilla
 
 
 @unittest.skipIf(epubzilla is None, 'Failed to import "thirdparty.epubzilla"')

@@ -20,7 +20,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from .epub import EpubTextExtractor
-from .ocr import ImageOCRTextExtractor
-from .pdf import PdfTextExtractor
+from .tesseractocr import TesseractOCRTextExtractor
+from .pdftotext import PdftotextTextExtractor
+from .pypdf import PyPDFTextExtractor
 from .plain import PlainTextExtractor
 

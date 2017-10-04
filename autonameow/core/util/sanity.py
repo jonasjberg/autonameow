@@ -22,7 +22,7 @@
 from core import exceptions
 
 
-def assert_internal_bytestring(value):
+def check_internal_bytestring(value):
     """
     Checks that a given value is an "internal bytestring", I.E. bytes.
 
@@ -39,7 +39,7 @@ def assert_internal_bytestring(value):
         raise exceptions.EncodingBoundaryViolation(_msg)
 
 
-def assert_internal_string(value):
+def check_internal_string(value):
     """
     Checks that a given value is an "internal string", I.E. Unicode str.
 
@@ -54,3 +54,34 @@ def assert_internal_string(value):
         _msg = ('Assertion Failed - Expected a Unicode string.'
                 '  Got "{!s}" ("{!s}")'.format(type(value), value))
         raise exceptions.EncodingBoundaryViolation(_msg)
+
+
+def check_isinstance(value, expected):
+    """
+    Checks that argument 'value' is an instance of argument 'expected'.
+    Args:
+        value: The value to test.
+        expected: The expected type.
+    Raises:
+        AWAssertionError: The given value is not an instance of 'expected'.
+    """
+    if expected is None:
+        # Intended to prevent false positives. Probably a bad idea.
+        expected = type(None)
+
+    if not isinstance(value, expected):
+        raise exceptions.AWAssertionError(
+            'Assertion Failed - Expected type "{!s}". Got type "{!s}"'.format(
+                expected, type(value)
+            )
+        )
+
+
+def check(expression, msg=None):
+    if msg is None:
+        msg = 'Reason unknown'
+
+    if not expression:
+        raise exceptions.AWAssertionError(
+            'Assertion Failed - "{!s}"'.format(msg)
+        )

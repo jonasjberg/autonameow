@@ -14,7 +14,9 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0090]` Complete initial implementation of "generic" data fields.
+* `[TD0100]` Spec out "operating modes" and functionality requirements.
+
+* `[TD0099]` Use `python-prompt-toolkit` for the interactive cli UI.
 
 * `[TD0089]` Validate only "generic" data fields when reading config.
 
@@ -28,15 +30,6 @@ High Priority
   When listing results with any of the `--list-*` options, paths are not
   displayed properly due to them not being handled properly before being passed
   to `yaml.dump` which performs the formatting of the results dict.
-
-* `[TD0004]` __Text encoding issues__
-    * Enforce strict boundaries between all external systems and an internal
-      text data representation.
-    * Store original filename parts as both bytestrings and the internal
-      representation?  If the user wants to use a part of the original file
-      name in the result, the conversion can not be lossy. Best way to prevent
-      issues is to store bytestrings and perform any processing on copies that
-      have __not__ been converted to the internal format?
 
 * `[TD0044]` __Rework converting "raw data" to internal representations__
     * Converting raw data to internal representations is currently implemented
@@ -57,27 +50,12 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0098]` Use checksums as keys for cached data, not paths.
+
 * `[TD0092]` Add tracking history and ability to "undo" renames.
-
-* `[TD0083]` __Clean up the type wrapper classes.__  
-    * Remove ambiguities around returning "NULL" and raising `AWTypeError`.
-    * Clean up the "interface" to the type wrappers. If callers only use the
-      shared singleton module attributes, I.E. all data flows in through
-      `__call__`, then unit testing the `coerce` method is superfluous.
-    * Look at the `normalize` methods, think about removing them if they
-      continue to go unused.  See also, related entry: `[TD0060]`
-
-* `[TD0062]` Look at testing that all name template fields are mapped to data
-  sources. This could be done when reading the configuration, instead of later
-  on in the name builder.
 
 * `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time
   to UTC and convert to local time as a final step before presentation or use.
-
-* `[TD0049]` __Think about defining legal "placeholder fields".__
-  Might be helpful to define all legal fields (such as `title`, `datetime`,
-  `author`, etc.) somewhere and keep references to type coercion wrappers,
-  maybe validation and/or formatting functionality; in the field definitions.
 
 * `[TD0008]` Simplify installation.
     * Add support for `pip` or similar package manager.
@@ -92,13 +70,6 @@ Medium Priority
         * Means of providing input data to the plugin.
         * Means of executing the plugin.
         * Means of querying for all or a specific field.
-
-* `[TD0012]` Add some type of caching.
-    * Extracting text from a PDF should only have to happen once, at most.
-      Preferably not at all, unless a rule conditional tests the text content
-      or the text is needed elsewhere.
-    * Image OCR is very slow, should only be executed when needed, caching the
-      results for all accesses.
 
 * `[TD0014]` Possibly redesign high-level handling of a "configuration".
     * Decouple the `Configuration` instance from I/O.
@@ -126,33 +97,6 @@ Medium Priority
   This will fail, or *should fail* as MIME types on the form `image/jpeg`,
   `image/png`, etc can't be used as a file extension without some
   pre-processing -- converting `image/png` to `png`.
-
-* `[TD0018]` There are more cases like the above that should be thought about.
-  A common case is the slight modification to the current file name.
-  Original file name:
-    ```
-    2017-06-20_00-49-56 Working on autonameow.png
-    ```
-  Desired file name:
-    ```
-    2017-06-20T004956 Working on autonameow.png
-    ```
-  How should this be specified in the configuration?
-  A simple alternative is to specify the filename analyzer as the source.
-  The `DATETIME_FORMAT` makes sure that the timestamp format is changed.
-
-    ```yaml
-    RULES:
-    -   DATA_SOURCES:
-            extension: contents.basename.extension
-            datetime: analysis.filename.{?????}
-            title: filesystem.basename.prefix
-        NAME_FORMAT: "{datetime} {title}.{extension}"
-    DATETIME_FORMAT:
-        datetime: '%Y-%m-%dT%H%M%S'
-    ```
-  But this is not configurable -- how would the filename analyzer know
-  which of many possible datetime results to use?
 
 * `[TD0070]` Implement arbitrary common personal use case.
 
@@ -192,18 +136,21 @@ Medium Priority
 * `[TD0025]` Add additional option to force interactive mode (`--interactive`?)
     * This mode would require the user to confirm actions/choices (which?)
 
+* `[TD0095]` Provide information on reporting bugs/issues.
+
 
 Low Priority
 ------------
 
+* `[TD0101]` __Add ability to limit sizes of persistent storage/caches.__  
+  Store timestamps with stored data and remove oldest entries when exceeding
+  the file size limit.
+
+* `[TD0097]` Improve and fully implement caching to files on disk.
+
+* `[TD0096]` Fix some replacements cause incorrect color highlighting.
+
 * `[TD0091]` Take a look at old code in `util/dateandtime.py`.
-
-* `[TD0086]` __Use one `SessionRepository` per `Autonameow` instance.__  
-  The `Autonameow` class "manages a running instance of the program" should
-  have its own instance of the `Repository` class. This is fine for now but
-  should be fixed to avoid confusion and future problems.
-
-* `[TD0081]` Bundle the `pyexiftool` dependency. Add to `autonameow/thirdparty`.
 
 * `[TD0068]` Let the user specify which languages to use for OCR.
 
@@ -263,9 +210,8 @@ Low Priority
   configuration with `--dump-config`.
 
 * `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF
-  GPS data.
-
-* `[TD0042]` Respect the `--quiet` option. Suppress (all but critical?) output.
+  GPS data. Look into comparing coordinates with the
+  [Haversine formula](http://en.wikipedia.org/wiki/Haversine_formula).
 
 * `[TD0043]` Allow the user to tweak hardcoded settings using the
   configuration.
@@ -282,6 +228,10 @@ Low Priority
     * If a matched and active rule does not specify all required sources; the
       missing sources might be filled in by a more targeted approach using data
       gathered during the first run.
+
+* `[TD0094]` __Search text for DOIs and query external services__  
+  Example DOI: `10.1109/TPDS.2010.125`.  Could be used to query external
+  services for publication metadata, as with ISBN-numbers.
 
 
 Wishlist

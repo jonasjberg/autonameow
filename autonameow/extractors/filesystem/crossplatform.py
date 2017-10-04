@@ -20,70 +20,80 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
 from datetime import datetime
 
-from extractors import (
-    BaseExtractor,
-    ExtractorError,
-    ExtractedData
-)
 from core import (
-    types,
-    fields
+    model,
+    types
 )
 from core.fileobject import FileObject
+from core.model import (
+    ExtractedData,
+    WeightedMapping
+)
+from core.namebuilder import fields
+from extractors import (
+    BaseExtractor,
+    ExtractorError
+)
 
 
 class CrossPlatformFileSystemExtractor(BaseExtractor):
-    handles_mime_types = ['*/*']
-    meowuri_root = 'filesystem'
+    HANDLES_MIME_TYPES = ['*/*']
+    MEOWURI_LEAF = 'xplat'
 
     wrapper_lookup = {
         'abspath.full': ExtractedData(types.AW_PATH),
         'basename.full': ExtractedData(types.AW_PATHCOMPONENT),
         'basename.extension': ExtractedData(
-            wrapper=types.AW_PATHCOMPONENT,
+            coercer=types.AW_PATHCOMPONENT,
             mapped_fields=[
-                fields.WeightedMapping(fields.extension, probability=1),
+                WeightedMapping(fields.Extension, probability=1),
             ]
         ),
         'basename.suffix': ExtractedData(
-            wrapper=types.AW_PATHCOMPONENT,
+            coercer=types.AW_PATHCOMPONENT,
             mapped_fields=[
-                fields.WeightedMapping(fields.extension, probability=1),
+                WeightedMapping(fields.Extension, probability=1),
             ]
         ),
-        'basename.prefix': ExtractedData(types.AW_PATHCOMPONENT),
+        'basename.prefix': ExtractedData(
+            coercer=types.AW_PATHCOMPONENT,
+            mapped_fields=[
+                # fields.WeightedMapping(fields.)
+            ]
+        ),
         'pathname.full': ExtractedData(types.AW_PATH),
         'pathname.parent': ExtractedData(types.AW_PATH),
         'contents.mime_type': ExtractedData(
-            wrapper=types.AW_MIMETYPE,
+            coercer=types.AW_MIMETYPE,
             mapped_fields=[
-                fields.WeightedMapping(fields.extension, probability=1),
+                WeightedMapping(fields.Extension, probability=1),
             ],
-            generic_field=fields.GenericMimeType
+            generic_field=model.GenericMimeType
         ),
         'date_accessed': ExtractedData(
-            wrapper=types.AW_TIMEDATE,
+            coercer=types.AW_TIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.date, probability=0.1),
-                fields.WeightedMapping(fields.datetime, probability=0.1),
+                WeightedMapping(fields.Date, probability=0.1),
+                WeightedMapping(fields.DateTime, probability=0.1),
             ]
         ),
         'date_created': ExtractedData(
-            wrapper=types.AW_TIMEDATE,
+            coercer=types.AW_TIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.date, probability=1),
-                fields.WeightedMapping(fields.datetime, probability=1),
-            ]
+                WeightedMapping(fields.Date, probability=1),
+                WeightedMapping(fields.DateTime, probability=1),
+            ],
+            generic_field=model.GenericDateCreated
         ),
         'date_modified': ExtractedData(
-            wrapper=types.AW_TIMEDATE,
+            coercer=types.AW_TIMEDATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.date, probability=0.25),
-                fields.WeightedMapping(fields.datetime, probability=0.25),
-            ]
+                WeightedMapping(fields.Date, probability=0.25),
+                WeightedMapping(fields.DateTime, probability=0.25),
+            ],
+            generic_field=model.GenericDateModified
         )
     }
 
@@ -91,14 +101,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         super(CrossPlatformFileSystemExtractor, self).__init__()
 
     def execute(self, source, **kwargs):
-        try:
-            data = self._get_data(source)
-        except ExtractorError as e:
-            self.log.error('{!s} extraction FAILED: {!s}'.format(self, e))
-            raise
-        else:
-            self.log.debug('{!s} returning all extracted data'.format(self))
-            return data
+        return self._get_data(source)
 
     def _get_data(self, file_object):
         if not isinstance(file_object, FileObject):
@@ -139,7 +142,8 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
 
     def _to_internal_format(self, meowuri, data):
         wrapper = self.wrapper_lookup[meowuri]
-        return wrapper(data)
+        if wrapper:
+            return ExtractedData.from_raw(wrapper, data)
 
     @classmethod
     def check_dependencies(cls):

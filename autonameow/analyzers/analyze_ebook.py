@@ -20,21 +20,28 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import re
 
 try:
     import isbnlib
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     isbnlib = None
 
 from analyzers import BaseAnalyzer
 from core import (
-    util,
+    cache,
     types,
-    fields
+    util,
+    model
 )
-from core.util import textutils
-from extractors import ExtractedData
+from core.namebuilder import fields
+from core.model import (
+    ExtractedData,
+    WeightedMapping
+)
+from core.util import (
+    sanity,
+    textutils
+)
 
 
 log = logging.getLogger(__name__)
@@ -49,8 +56,8 @@ BLACKLISTED_ISBN_NUMBERS = ['0000000000', '1111111111', '2222222222',
 
 class EbookAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
-    handles_mime_types = ['application/pdf', 'application/epub+zip']
-    meowuri_root = 'analysis.ebook'
+    HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
+                          'image/vnd.djvu']
 
     def __init__(self, file_object, add_results_callback,
                  request_data_callback):
@@ -58,25 +65,35 @@ class EbookAnalyzer(BaseAnalyzer):
             file_object, add_results_callback, request_data_callback
         )
 
+        self.text = None
+
+        self.cache = cache.get_cache(str(self))
+        try:
+            self._isbn_metadata = self.cache.get('isbnlib_meta')
+        except (KeyError, cache.CacheError):
+            self._isbn_metadata = {}
+
     def run(self):
-        text = self.request_data(self.file_object, 'contents.textual.text.full')
-        if not text:
+        _maybe_text = self.request_any_textual_content()
+        if not _maybe_text:
             return
 
-        isbns = _search_initial_text(text, extract_isbns_from_text)
+        self.text = _maybe_text
+
+        isbns = _search_initial_text(self.text, extract_isbns_from_text)
         if isbns:
             isbns = filter_isbns(isbns)
             for isbn in isbns:
                 self.log.debug('Extracted ISBN: {!s}'.format(isbn))
-                self.log.debug('Querying external service for ISBN metadata ..')
-                metadata = fetch_isbn_metadata(isbn)
+
+                metadata = self._get_isbn_metadata(isbn)
                 if not metadata:
                     self.log.warning(
                         'Unable to get metadata for ISBN: "{}"'.format(isbn)
                     )
                     continue
 
-                self.log.info('Fetched metadata for ISBN: {}'.format(isbn))
+                self.log.info('Metadata for ISBN: {}'.format(isbn))
                 self.log.info('Title     : {}'.format(metadata['Title']))
                 self.log.info('Authors   : {}'.format(metadata['Authors']))
                 self.log.info('Publisher : {}'.format(metadata['Publisher']))
@@ -90,14 +107,16 @@ class EbookAnalyzer(BaseAnalyzer):
 
                 maybe_authors = metadata.get('Authors')
                 if maybe_authors:
-                    # TODO: [TD0084] Use a "list-of-strings" wrapper ..
+                    # TODO: [TD0084] Use a "list-of-strings" coercer ..
                     if isinstance(maybe_authors, list):
                         for maybe_author in maybe_authors:
                             _author = self._filter_author(maybe_author)
                             if _author:
-                                self._add_results('author', self._wrap_author(_author))
+                                self._add_results('author',
+                                                  self._wrap_author(_author))
                     else:
-                        self._add_results('author', self._wrap_author(maybe_authors))
+                        self._add_results('author',
+                                          self._wrap_author(maybe_authors))
 
                 maybe_publisher = self._filter_publisher(
                     metadata.get('Publisher')
@@ -109,6 +128,28 @@ class EbookAnalyzer(BaseAnalyzer):
                 maybe_date = self._filter_date(metadata.get('Year'))
                 if maybe_date:
                     self._add_results('date', self._wrap_date(maybe_date))
+
+    def _get_isbn_metadata(self, isbn):
+        if isbn in self._isbn_metadata:
+            self.log.info(
+                'Using cached metadata for ISBN: {!s}'.format(isbn)
+            )
+            return self._isbn_metadata.get(isbn)
+
+        self.log.debug('Querying external service for ISBN: {!s}'.format(isbn))
+        metadata = fetch_isbn_metadata(isbn)
+        if metadata:
+            self.log.info(
+                'Caching metadata for ISBN: {!s}'.format(isbn)
+            )
+            # Add new metadata to local cache.
+            self._isbn_metadata.update({isbn: metadata})
+            try:
+                self.cache.set('isbnlib_meta', self._isbn_metadata)
+            except cache.CacheError:
+                pass
+
+        return metadata
 
     def _filter_author(self, raw_string):
         try:
@@ -125,10 +166,11 @@ class EbookAnalyzer(BaseAnalyzer):
 
     def _wrap_author(self, author_string):
         return ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.author, probability=1),
-            ]
+                WeightedMapping(fields.Author, probability=1),
+            ],
+            generic_field=model.GenericAuthor
         )(author_string)
 
     def _filter_date(self, raw_string):
@@ -141,10 +183,12 @@ class EbookAnalyzer(BaseAnalyzer):
 
     def _wrap_date(self, date_string):
         return ExtractedData(
-            wrapper=types.AW_DATE,
+            coercer=types.AW_DATE,
             mapped_fields=[
-                fields.WeightedMapping(fields.date, probability=1),
-            ]
+                WeightedMapping(fields.Date, probability=1),
+                WeightedMapping(fields.DateTime, probability=1),
+            ],
+            generic_field=model.GenericDateCreated
         )(date_string)
 
     def _filter_publisher(self, raw_string):
@@ -162,10 +206,11 @@ class EbookAnalyzer(BaseAnalyzer):
 
     def _wrap_publisher(self, publisher_string):
         return ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.publisher, probability=1),
-            ]
+                WeightedMapping(fields.Publisher, probability=1),
+            ],
+            generic_field=model.GenericPublisher
         )(publisher_string)
 
     def _filter_title(self, raw_string):
@@ -183,17 +228,18 @@ class EbookAnalyzer(BaseAnalyzer):
 
     def _wrap_title(self, title_string):
         return ExtractedData(
-            wrapper=types.AW_STRING,
+            coercer=types.AW_STRING,
             mapped_fields=[
-                fields.WeightedMapping(fields.title, probability=1),
-            ]
+                WeightedMapping(fields.Title, probability=1),
+            ],
+            generic_field=model.GenericTitle
         )(title_string)
 
     @classmethod
     def can_handle(cls, file_object):
         try:
             return util.eval_magic_glob(file_object.mime_type,
-                                        cls.handles_mime_types)
+                                        cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
             log.error('Error evaluating "{!s}" MIME handling; {!s}'.format(cls,
                                                                            e))
@@ -220,7 +266,7 @@ def _search_initial_text(text, callback):
 
 
 def extract_isbns_from_text(text):
-    util.assert_internal_string(text)
+    sanity.check_internal_string(text)
 
     possible_isbns = isbnlib.get_isbnlike(text)
     if possible_isbns:
@@ -234,7 +280,7 @@ def validate_isbn(possible_isbn):
     if not possible_isbn:
         return None
 
-    util.assert_internal_string(possible_isbn)
+    sanity.check_internal_string(possible_isbn)
 
     isbn_number = isbnlib.clean(possible_isbn)
     if not isbn_number or isbnlib.notisbn(isbn_number):
@@ -247,7 +293,7 @@ def filter_isbns(isbn_list):
     if not isbn_list:
         return []
 
-    assert isinstance(isbn_list, list)
+    sanity.check_isinstance(isbn_list, list)
 
     # Remove any duplicates.
     isbn_list = list(set(isbn_list))

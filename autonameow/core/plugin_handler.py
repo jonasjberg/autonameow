@@ -23,10 +23,11 @@ import logging
 
 import plugins
 from core import (
-    repository,
-    exceptions
+    exceptions,
+    repository
 )
-from extractors import ExtractedData
+from core.util import sanity
+from core.model import ExtractedData
 
 
 # TODO: [TD0009] Implement a proper plugin interface.
@@ -40,7 +41,7 @@ class PluginHandler(object):
 
         # Get instantiated and validated plugins.
         self.available_plugins = plugins.UsablePlugins
-        assert isinstance(self.available_plugins, list)
+        sanity.check_isinstance(self.available_plugins, list)
 
         _p = ' '.join(map(lambda x: '"' + str(x) + '"', self.available_plugins))
         self.log.debug('Available plugins: {!s}'.format(_p))
@@ -68,8 +69,8 @@ class PluginHandler(object):
                     '"{!s}" plugin CAN handle file "{!s}"'.format(
                         plugin, file_object)
                 )
+                self.log.debug('Executing plugin: "{!s}" ..'.format(plugin))
                 try:
-                    self.log.debug('Executing plugin: "{!s}" ..'.format(plugin))
                     plugin(file_object)
                 except exceptions.AutonameowPluginError:
                     # log.critical('Plugin instance "{!s}" execution '

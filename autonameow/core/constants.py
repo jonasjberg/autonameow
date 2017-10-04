@@ -19,16 +19,29 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
 import sys
-from datetime import (
-    datetime,
-    timedelta
-)
 
 import core
 
-PYTHON_VERSION = sys.version.replace('\n', '')
-PROGRAM_VERSION = 'v{}'.format(core.version.__version__)
+
+STRING_PYTHON_VERSION = sys.version.replace('\n', '')
+
+STRING_PROGRAM_VERSION_PREFIX = 'v'
+STRING_PROGRAM_VERSION = '{}{}'.format(STRING_PROGRAM_VERSION_PREFIX,
+                                       core.version.__version__)
+
+STRING_PROGRAM_NAME = core.version.__title__.lower()
+
+STRING_COPYRIGHT_NOTICE = str(core.version.__copyright__)
+STRING_REPO_URL = str(core.version.__url_repo__)
+
+
+# Color used to highlight post-processing replacements.
+REPLACEMENT_HIGHLIGHT_COLOR = 'RED'
+
+# Used by command-line interface functions.
+CLI_MSG_HEADING_CHAR = '='
 
 
 # Each analyzer can be queried for these fields by calling either;
@@ -36,17 +49,12 @@ PROGRAM_VERSION = 'v{}'.format(core.version.__version__)
 ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 
 
-# Legal name template fields are defined here.
-# These are used when constructing the file names and for unit tests.
-NAME_TEMPLATE_FIELDS = (
-    ANALYSIS_RESULTS_FIELDS + ['date', 'description', 'edition', 'extension']
-)
-
 # Default MIME type string used if the MIME type detection fails.
 MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
 
 # Default values for required configuration fields.
 DEFAULT_RULE_RANKING_BIAS = 0.5
+DEFAULT_RULE_DESCRIPTION = 'UNDESCRIBED'
 DEFAULT_FILETAGS_FILENAME_TAG_SEPARATOR = ' -- '
 DEFAULT_FILETAGS_BETWEEN_TAG_SEPARATOR = ' '
 DEFAULT_FILESYSTEM_SANITIZE_FILENAME = True
@@ -56,6 +64,7 @@ DEFAULT_FILESYSTEM_UPPERCASE_FILENAME = False
 DEFAULT_DATETIME_FORMAT_DATETIME = '%Y-%m-%dT%H%M%S'
 DEFAULT_DATETIME_FORMAT_DATE = '%Y-%m-%d'
 DEFAULT_DATETIME_FORMAT_TIME = '%H-%M-%S'
+
 
 DEFAULT_FILESYSTEM_IGNORE_DARWIN = frozenset([
     # Metadata
@@ -151,13 +160,13 @@ DEFAULT_FILESYSTEM_IGNORE = DEFAULT_FILESYSTEM_IGNORE_DARWIN.union(
 
 def next_year():
     # http://stackoverflow.com/a/11206511
-    _today = datetime.today()
+    _today = datetime.datetime.today()
     try:
         return _today.replace(year=_today.year + 1)
     except ValueError:
         # February 29th in a leap year
         # Add 365 days instead to arrive at March 1st
-        return _today + timedelta(days=365)
+        return _today + datetime.timedelta(days=365)
 
 
 # Ignore all date/time-information following the specified year (inclusive).
@@ -165,7 +174,7 @@ YEAR_UPPER_LIMIT = next_year()
 
 # TODO: [TD0043] Allow storing these in the configuration file.
 # Ignore all date/time-information for the specified year and years prior.
-YEAR_LOWER_LIMIT = datetime.strptime('1900', '%Y')
+YEAR_LOWER_LIMIT = datetime.datetime.strptime('1900', '%Y')
 
 
 # Exit code values returned to the executing shell or parent process.
@@ -179,3 +188,17 @@ EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.
 
 # Repository and internal data storage
 MEOWURI_NODE_GENERIC = 'generic'
+UNDEFINED_MEOWURI_PART = 'NULL'
+MEOWURI_SEPARATOR = '.'
+
+MEOWURI_ROOT_SOURCE_ANALYZERS = 'analyzer'
+MEOWURI_ROOT_SOURCE_EXTRACTORS = 'extractor'
+MEOWURI_ROOT_SOURCE_PLUGINS = 'plugin'
+MEOWURI_ROOT_GENERIC = 'generic'
+
+MEOWURI_ROOTS_SOURCES = frozenset([
+    MEOWURI_ROOT_SOURCE_ANALYZERS,
+    MEOWURI_ROOT_SOURCE_EXTRACTORS,
+    MEOWURI_ROOT_SOURCE_PLUGINS
+])
+MEOWURI_ROOTS = frozenset([MEOWURI_ROOT_GENERIC]).union(MEOWURI_ROOTS_SOURCES)

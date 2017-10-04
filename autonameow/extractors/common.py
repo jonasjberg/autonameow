@@ -21,15 +21,11 @@
 
 import logging
 
-from core import (
-    util,
-    types
-)
+from core import util
 from core.exceptions import AutonameowException
 from core.fileobject import FileObject
-
-
-log = logging.getLogger(__name__)
+from core.util import sanity
+from core import constants as C
 
 
 class ExtractorError(AutonameowException):
@@ -57,13 +53,11 @@ class BaseExtractor(object):
                     |
         (abstract)  +--* AbstractTextExtractor
                     |  |
-                    |  +--* ImageOCRTextExtractor
+                    |  +--* TesseractOCRTextExtractor
                     |  '--* PdfTextExtractor
                     |
-        (abstract)  '--* AbstractMetadataExtractor
-                       |
-                       +--* ExiftoolMetadataExtractor
-                       '--* PyPDFMetadataExtractor
+                    +--* ExiftoolMetadataExtractor
+                    '--* PyPDFMetadataExtractor
 
     The abstract extractors defines additional interfaces, extending the base.
     It is pretty messy and should be redesigned and simplified at some point ..
@@ -71,11 +65,14 @@ class BaseExtractor(object):
 
     # List of MIME types that this extractor can extract information from.
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']
-    handles_mime_types = None
+    HANDLES_MIME_TYPES = None
 
     # Resource identifier "MeowURI" for the data returned by this extractor.
-    # Example:  'metadata.exiftool'
-    meowuri_root = None
+    # Middle part of the full MeowURI ('metadata', 'contents', 'filesystem', ..)
+    MEOWURI_NODE = C.UNDEFINED_MEOWURI_PART
+
+    # Last part of the full MeowURI ('exiftool', 'pypdf', 'xplat', ..)
+    MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
     # Controls whether the extractor is enabled and used by default.
     # Used to exclude slow running extractors from always being executed.
@@ -104,7 +101,7 @@ class BaseExtractor(object):
 
         Only raise the "ExtractorError" exception for irrecoverable errors.
         Otherwise, implementers should strive to return empty values of the
-        expected type. The type wrappers in 'types.py' could be useful here.
+        expected type. The type coercers in 'types.py' could be useful here.
 
         Args:
             source: Source of data from which to extract information as a
@@ -120,10 +117,63 @@ class BaseExtractor(object):
         # Make sure the 'source' paths are in the "internal bytestring" format.
         # The is-None-check below is for unit tests that pass a None 'source'.
         if source is not None and not isinstance(source, FileObject):
-            util.assert_internal_bytestring(source)
+            sanity.check_internal_bytestring(source)
 
         extracted_data = self.execute(source, **kwargs)
         return extracted_data
+
+    @classmethod
+    def meowuri(cls):
+        def _undefined(attribute):
+            return attribute == C.UNDEFINED_MEOWURI_PART
+
+        if _undefined(cls.MEOWURI_NODE):
+            _node = cls.__module__.split('.')[-2]
+        else:
+            _node = cls.MEOWURI_NODE
+
+        if _undefined(cls.MEOWURI_LEAF):
+            _leaf = cls.__module__.split('.')[-1]
+        else:
+            _leaf = cls.MEOWURI_LEAF
+
+        return '{root}{sep}{node}{sep}{leaf}'.format(
+            root=C.MEOWURI_ROOT_SOURCE_EXTRACTORS, sep=C.MEOWURI_SEPARATOR,
+            node=_node, leaf=_leaf
+        )
+
+    @classmethod
+    def can_handle(cls, file_object):
+        """
+        Tests if a specific extractor class can handle a given file object.
+
+        The extractor is considered to be able to handle the file if the
+        file MIME-type is listed in the class attribute 'HANDLES_MIME_TYPES'.
+
+        Inheriting extractor classes can override this method if they need
+        to perform additional tests in order to determine if they can handle
+        a given file object.
+
+        Args:
+            file_object: The file to test as an instance of 'FileObject'.
+
+        Returns:
+            True if the extractor class can extract data from the given file,
+            else False.
+        """
+        if cls.HANDLES_MIME_TYPES is None:
+            raise NotImplementedError(
+                'Classes without class attribute "HANDLES_MIME_TYPES" must '
+                'implement (override) class method "can_handle"!'
+            )
+
+        try:
+            return util.eval_magic_glob(file_object.mime_type,
+                                        cls.HANDLES_MIME_TYPES)
+        except (TypeError, ValueError) as e:
+            raise ExtractorError(
+                'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
+            )
 
     def execute(self, source, **kwargs):
         """
@@ -141,7 +191,7 @@ class BaseExtractor(object):
 
         Only raise the "ExtractorError" exception for irrecoverable errors.
         Otherwise, implementers should strive to return empty values of the
-        expected type. The type wrappers in 'types.py' could be useful here.
+        expected type. The type coercers in 'types.py' could be useful here.
 
         Args:
             source: Source of data from which to extract information as a
@@ -158,40 +208,6 @@ class BaseExtractor(object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
-    def can_handle(cls, file_object):
-        """
-        Tests if a specific extractor class can handle a given file object.
-
-        The extractor is considered to be able to handle the file if the
-        file MIME-type is listed in the class attribute 'handles_mime_types'.
-
-        Inheriting extractor classes can override this method if they need
-        to perform additional tests in order to determine if they can handle
-        a given file object.
-
-        Args:
-            file_object: The file to test as an instance of 'FileObject'.
-
-        Returns:
-            True if the extractor class can extract data from the given file,
-            else False.
-        """
-        if cls.handles_mime_types is None:
-            raise NotImplementedError(
-                'Classes without class attribute "handles_mime_types" must '
-                'implement (override) class method "can_handle"!'
-            )
-
-        try:
-            return util.eval_magic_glob(file_object.mime_type,
-                                        cls.handles_mime_types)
-        except (TypeError, ValueError) as e:
-            log.error(
-                'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
-            )
-            return False
-
-    @classmethod
     def check_dependencies(cls):
         """
         Tests if the extractor can be used.
@@ -199,7 +215,7 @@ class BaseExtractor(object):
           NOTE: This method __MUST__ be implemented by inheriting classes!
 
         This should be used to test that any dependencies required by the
-        extractor are met. This might be third party libraries or executables.
+        extractor are met, like third party libraries or executables.
 
         Returns:
             True if any and all dependencies are satisfied and the extractor
@@ -216,88 +232,3 @@ class BaseExtractor(object):
 
     def __repr__(self):
         return '<{}>'.format(self.__class__.__name__)
-
-
-class ExtractedData(object):
-    """
-    Instances of this class wrap some extracted data with extra information.
-
-    Extractors can specify which (if any) name template fields that the item
-    is compatible with. For instance, date/time-information is could be used
-    to populate the 'datetime' name template field.
-    """
-    def __init__(self, wrapper, mapped_fields=None, generic_field=None):
-        self.wrapper = wrapper
-
-        if mapped_fields is not None:
-            self.field_map = mapped_fields
-        else:
-            self.field_map = []
-
-        self._data = None
-
-        if generic_field is not None:
-            self.generic_field = generic_field
-        else:
-            self.generic_field = None
-
-    def __call__(self, raw_value):
-        if self._data is not None:
-            log.critical('TODO: "{!s}"._data is _NOT_ None! Called with value:'
-                         ' {!s}"'.format(self, raw_value))
-        if not self.wrapper:
-            # Fall back automatic type detection if 'wrapper' is unspecified.
-            _wrapper = types.wrapper_for(raw_value)
-            if _wrapper:
-                self.wrapper = _wrapper
-
-        if self.wrapper:
-            try:
-                self._data = self.wrapper(raw_value)
-            except types.AWTypeError as e:
-                log.warning(e)
-                raise
-        else:
-            log.warning('Missing wrapper in ExtractedData: "{!s}"'.format(self))
-
-            # TODO: [TD0088] The "resolver" needs 'wrapper.format' ..
-            wrapped = types.try_wrap(raw_value)
-            if wrapped is None:
-                log.critical('Unhandled wrapping of raw value "{!s}" '
-                             '({!s})'.format(raw_value, type(raw_value)))
-                self._data = raw_value
-            else:
-                self._data = wrapped
-
-        return self
-
-    @property
-    def value(self):
-        return self._data
-
-    def maps_field(self, field):
-        for mapping in self.field_map:
-            if field == mapping.field:
-                return True
-        return False
-
-    def __str__(self):
-        # 1) Detailed information, not suitable when listing to user ..
-        # return '{!s}("{!s}")  FieldMap: {!s}"'.format(
-        #     self.wrapper, self.value, self.field_map
-        # )
-
-        # 2) Simple default string representation of the data ..
-        return '{!s}'.format(self.value)
-
-        # 3) Use the format method of the wrapper ..
-        # return self.wrapper.format(self.value)
-
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return False
-        if (self.wrapper == other.wrapper
-                and self.field_map == other.field_map
-                and self.value == other.value):
-            return True
-        return False
