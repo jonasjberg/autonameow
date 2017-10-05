@@ -325,3 +325,120 @@ def fetch_isbn_metadata(isbn_number):
 
     logging.disable(logging.NOTSET)
     return isbn_metadata
+
+
+class ISBNMetadata(object):
+    VALID_ATTRIBUTES = frozenset([
+        'authors', 'isbn-10', 'isbn-13', 'language', 'publisher', 'title',
+        'year'
+    ])
+
+    def __init__(self, *args, **kwargs):
+        valid_kwargs = {}
+
+        for arg in args:
+            for key in arg:
+                lowerkey = key.lower()
+                if lowerkey in self.VALID_ATTRIBUTES:
+                    if lowerkey == 'isbn-10':
+                        lowerkey = 'isbn10'
+                    elif lowerkey == 'isbn-13':
+                        lowerkey = 'isbn13'
+
+                    valid_kwargs[lowerkey] = arg[key]
+                else:
+                    raise KeyError(
+                        'Unexpected attribute "{!s}". Expected one of '
+                        '{!s}'.format(key, self.VALID_ATTRIBUTES))
+
+        for key, value in kwargs.items():
+            key = key.lower()
+            if key in self.VALID_ATTRIBUTES:
+                if key == 'isbn-10':
+                    key = 'isbn10'
+                elif key == 'isbn-13':
+                    key = 'isbn13'
+
+                valid_kwargs[key] = value
+            else:
+                raise KeyError('Unexpected attribute "{!s}". Expected one of '
+                               '{!s}'.format(key, self.VALID_ATTRIBUTES))
+
+        self.__dict__.update(valid_kwargs)
+
+    @property
+    def authors(self):
+        return self.__dict__.get('authors') or []
+
+    @authors.setter
+    def authors(self, value):
+        if value and isinstance(value, list):
+            self.__dict__['authors'] = value
+
+    @property
+    def isbn10(self):
+        return self.__dict__.get('isbn10') or ''
+
+    @isbn10.setter
+    def isbn10(self, value):
+        if value and isinstance(value, str):
+            self.__dict__['isbn10'] = value
+
+    @property
+    def isbn13(self):
+        return self.__dict__.get('isbn13') or ''
+
+    @isbn13.setter
+    def isbn13(self, value):
+        if value and isinstance(value, str):
+            self.__dict__['isbn13'] = value
+
+    @property
+    def language(self):
+        return self.__dict__.get('language') or ''
+
+    @language.setter
+    def language(self, value):
+        if value and isinstance(value, str):
+            self.__dict__['language'] = value
+
+    @property
+    def publisher(self):
+        return self.__dict__.get('publisher') or ''
+
+    @publisher.setter
+    def publisher(self, value):
+        if value and isinstance(value, str):
+            self.__dict__['publisher'] = value
+
+    @property
+    def year(self):
+        return self.__dict__.get('year') or ''
+
+    @year.setter
+    def year(self, value):
+        if value and isinstance(value, str):
+            self.__dict__['year'] = value
+
+    @property
+    def title(self):
+        return self.__dict__.get('title') or ''
+
+    @title.setter
+    def title(self, value):
+        if value and isinstance(value, str):
+            self.__dict__['title'] = value
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        if self.isbn10 == other.isbn10:
+            return True
+        if self.isbn13 == other.isbn13:
+            return True
+        if (self.title == other.title
+                and self.authors == other.authors
+                and self.publisher == other.publisher
+                and self.year == other.year
+                and self.language == other.language):
+            return True

@@ -25,7 +25,8 @@ from analyzers import analyze_ebook
 from analyzers.analyze_ebook import (
     extract_isbns_from_text,
     validate_isbn,
-    filter_isbns
+    filter_isbns,
+    ISBNMetadata
 )
 
 import unit_utils as uu
@@ -136,3 +137,69 @@ class TestFilterISBN(unittest.TestCase):
         ]
         for sample_isbn in sample_invalid_isbns:
             self.assertEqual(filter_isbns(sample_isbn), [])
+
+
+class TestISBNMetadata(unittest.TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+        self.m1 = {
+            'Title': 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java',
+            'Authors': ['George F. Luger', 'William A. Stubblefield'],
+            'Publisher': 'Pearson Addison-Wesley',
+            'Year': '2009',
+            'Language': 'eng',
+            'ISBN-10': '0136070477',
+            'ISBN-13': '9780136070474'
+        }
+
+        self.m2 = {
+            'Title': 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java',
+            'Authors': ['George F. Luger', 'William A. Stubblefield'],
+            'Publisher': 'Pearson Addison-Wesley',
+            'Year': '2009',
+            'Language': 'eng',
+            'ISBN-13': '9780136070474'
+        }
+
+    def test_isbn_metadata_from_args(self):
+        isbn_metadata = ISBNMetadata(self.m1)
+        self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
+        self.assertEqual(isbn_metadata.authors, ['George F. Luger', 'William A. Stubblefield'])
+        self.assertEqual(isbn_metadata.year, '2009')
+        self.assertEqual(isbn_metadata.language, 'eng')
+        self.assertEqual(isbn_metadata.isbn10, '0136070477')
+        self.assertEqual(isbn_metadata.isbn13, '9780136070474')
+
+    def test_isbn_metadata_from_kwargs(self):
+        isbn_metadata = ISBNMetadata(**self.m1)
+        self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
+        self.assertEqual(isbn_metadata.authors, ['George F. Luger', 'William A. Stubblefield'])
+        self.assertEqual(isbn_metadata.year, '2009')
+        self.assertEqual(isbn_metadata.language, 'eng')
+        self.assertEqual(isbn_metadata.isbn10, '0136070477')
+        self.assertEqual(isbn_metadata.isbn13, '9780136070474')
+
+    def test_equaliy(self):
+        self.assertEqual(ISBNMetadata(self.m1), ISBNMetadata(self.m2))
+        self.assertEqual(ISBNMetadata(self.m1), ISBNMetadata(**self.m2))
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(self.m2))
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
+
+    def test_equality_based_on_isbn_numbers(self):
+        m3 = {
+            'Title': None,
+            'Authors': [],
+            'Publisher': None,
+            'Year': None,
+            'Language': None,
+            'ISBN-13': '9780136070474'
+        }
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**m3))
+        self.assertEqual(ISBNMetadata(**self.m2), ISBNMetadata(**m3))
+
+        m4 = {
+            'ISBN-10': '0136070477',
+        }
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**m4))
+        self.assertNotEqual(ISBNMetadata(**self.m2), ISBNMetadata(**m4))
