@@ -20,18 +20,27 @@
 
 * 'pg38145-images.epub'
 
-  "Human, All Too Human: A Book for Free Spirits by Friedrich Wilhelm Nietzsche"
-  Source    : https://www.gutenberg.org/ebooks/38145
-  Author    : Nietzsche, Friedrich Wilhelm, 1844-1900
-  Title     : Human, All Too Human: A Book for Free Spirits
-  Copyright : Public domain in the USA.
+    "Human, All Too Human: A Book for Free Spirits by Friedrich Wilhelm Nietzsche"
+    Source    : https://www.gutenberg.org/ebooks/38145
+    Author    : Nietzsche, Friedrich Wilhelm, 1844-1900
+    Title     : Human, All Too Human: A Book for Free Spirits
+    Copyright : Public domain in the USA.
 
 * 'simplest_pdf.md.pdf'
   
-  Dummy pdf created from 'simplest_pdf.md' with 'pandoc'. 
-  Source    : N/A
-  Author    : Jonas Sjöberg
-  Title     : N/A
-  Copyright : N/A
+    Dummy pdf created from 'simplest_pdf.md' with 'pandoc'. 
+    Source    : N/A
+    Author    : Jonas Sjöberg
+    Title     : N/A
+    Copyright : N/A
 
 * 'smulan.jpg'
+
+* 'UTF-8-demo.txt'
+
+    Source    : http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-demo.txt
+    Author    : Markus Kuhn
+    Title     : UTF-8 encoded sample plain-text file
+    Copyright : N/A
+
+
