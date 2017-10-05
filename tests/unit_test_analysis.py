@@ -31,7 +31,7 @@ class TestAnalysis(TestCase):
         self.fo = uu.get_mock_fileobject()
         uu.init_session_repository()
 
-    def test_analysis_start_requires_file_object_argument(self):
+    def test_analysis_start_requires_fileobject_argument(self):
         with self.assertRaises(TypeError):
             analysis.start(None)
 

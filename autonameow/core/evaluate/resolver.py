@@ -40,8 +40,8 @@ log = logging.getLogger(__name__)
 
 
 class Resolver(object):
-    def __init__(self, file_object, name_template):
-        self.file = file_object
+    def __init__(self, fileobject, name_template):
+        self.file = fileobject
         self.name_template = name_template
 
         self._fields = nametemplatefield_classes_in_formatstring(name_template)

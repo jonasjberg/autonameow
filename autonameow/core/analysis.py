@@ -91,12 +91,12 @@ def _execute_run_queue(analyzer_queue):
         log.debug('Finished running "{!s}"'.format(a))
 
 
-def request_global_data(file_object, meowuri):
-    response = repository.SessionRepository.query(file_object, meowuri)
+def request_global_data(fileobject, meowuri):
+    response = repository.SessionRepository.query(fileobject, meowuri)
     return response
 
 
-def collect_results(file_object, meowuri, data):
+def collect_results(fileobject, meowuri, data):
     """
     Collects analysis results. Passed to analyzers as a callback.
 
@@ -113,7 +113,7 @@ def collect_results(file_object, meowuri, data):
         MeowURI: 'extractor.metadata.exiftool.c'   DATA: 'd'
 
     Args:
-        file_object: Instance of 'file_object' that produced the data to add.
+        fileobject: Instance of 'fileobject' that produced the data to add.
         meowuri: Label that uniquely identifies the data, as a Unicode str.
         data: The data to add, as any type or container.
     """
@@ -121,43 +121,43 @@ def collect_results(file_object, meowuri, data):
         flat_data = util.flatten_dict(data)
         for _key, _data in flat_data.items():
             _uri = '{}.{!s}'.format(meowuri, _key)
-            repository.SessionRepository.store(file_object, _uri, _data)
+            repository.SessionRepository.store(fileobject, _uri, _data)
     else:
-        repository.SessionRepository.store(file_object, meowuri, data)
+        repository.SessionRepository.store(fileobject, meowuri, data)
 
 
-def _instantiate_analyzers(file_object, klass_list):
+def _instantiate_analyzers(fileobject, klass_list):
     """
     Get a list of class instances from a given list of classes.
 
     Args:
-        file_object: The file to analyze.
+        fileobject: The file to analyze.
         klass_list: The classes to instantiate as a list of type 'class'.
 
     Returns:
         One instance of each of the given classes as a list of objects.
     """
-    return [analyzer(file_object,
+    return [analyzer(fileobject,
                      add_results_callback=collect_results,
                      request_data_callback=request_global_data)
             for analyzer in klass_list]
 
 
-def start(file_object):
+def start(fileobject):
     """
-    Starts analyzing 'file_object' using all analyzers deemed "suitable".
+    Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
-    if not isinstance(file_object, FileObject):
+    if not isinstance(fileobject, FileObject):
         raise TypeError('Argument must be an instance of "FileObject"')
 
-    klasses = analyzers.suitable_analyzers_for(file_object)
+    klasses = analyzers.suitable_analyzers_for(fileobject)
     if not klasses:
         raise exceptions.AutonameowException(
             'None of the analyzers applies (!)'
         )
 
     analyzer_queue = AnalysisRunQueue()
-    for a in _instantiate_analyzers(file_object, klasses):
+    for a in _instantiate_analyzers(fileobject, klasses):
         analyzer_queue.enqueue(a)
     log.debug('Enqueued analyzers: {!s}'.format(analyzer_queue))
 

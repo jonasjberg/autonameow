@@ -168,13 +168,13 @@ class MicrosoftVisionPlugin(BasePlugin):
     def test_init(cls):
         return cls.API_KEY is not None
 
-    def can_handle(self, file_object):
-        _mime_type = self.request_data(file_object,
+    def can_handle(self, fileobject):
+        _mime_type = self.request_data(fileobject,
                                        'filesystem.contents.mime_type')
         return util.eval_magic_glob(_mime_type, ['image/png', 'image/jpeg'])
 
-    def execute(self, file_object):
-        _source_path = self.request_data(file_object, 'filesystem.abspath.full')
+    def execute(self, fileobject):
+        _source_path = self.request_data(fileobject, 'filesystem.abspath.full')
         if _source_path is None:
             raise AutonameowPluginError('Required data unavailable')
 
@@ -201,7 +201,7 @@ class MicrosoftVisionPlugin(BasePlugin):
                 ]
             )
             self.log.debug('Returning caption: "{!s}"'.format(_caption))
-            self.add_results(file_object, 'caption',
+            self.add_results(fileobject, 'caption',
                              ExtractedData.from_raw(wrapper, _caption))
 
         _tags = get_tags(response)
@@ -214,7 +214,7 @@ class MicrosoftVisionPlugin(BasePlugin):
             )
             _tags_pretty = ' '.join(map(lambda x: '"' + x + '"', _tags))
             self.log.debug('Returning tags: {}'.format(_tags_pretty))
-            self.add_results(file_object, 'tags',
+            self.add_results(fileobject, 'tags',
                              ExtractedData.from_raw(wrapper, _tags))
 
 

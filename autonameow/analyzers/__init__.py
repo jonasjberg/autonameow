@@ -62,9 +62,9 @@ class BaseAnalyzer(object):
     # Last part of the full MeowURI ('filetags', 'filename', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
-    def __init__(self, file_object, add_results_callback,
+    def __init__(self, fileobject, add_results_callback,
                  request_data_callback):
-        self.file_object = file_object
+        self.fileobject = fileobject
         self.add_results = add_results_callback
         self.request_data = request_data_callback
 
@@ -125,10 +125,10 @@ class BaseAnalyzer(object):
         self.log.debug(
             '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
         )
-        self.add_results(self.file_object, meowuri, data)
+        self.add_results(self.fileobject, meowuri, data)
 
     def request_any_textual_content(self):
-        _response = self.request_data(self.file_object,
+        _response = self.request_data(self.fileobject,
                                       'generic.contents.text')
         if _response is None:
             return None
@@ -165,7 +165,7 @@ class BaseAnalyzer(object):
         )
 
     @classmethod
-    def can_handle(cls, file_object):
+    def can_handle(cls, fileobject):
         """
         Tests if this analyzer class can handle the given file.
 
@@ -177,12 +177,12 @@ class BaseAnalyzer(object):
         the given file object.
 
         Args:
-            file_object: The file to test as an instance of 'FileObject'.
+            fileobject: The file to test as an instance of 'FileObject'.
 
         Returns:
             True if the analyzer class can handle the given file, else False.
         """
-        if util.eval_magic_glob(file_object.mime_type, cls.HANDLES_MIME_TYPES):
+        if util.eval_magic_glob(fileobject.mime_type, cls.HANDLES_MIME_TYPES):
             return True
         else:
             return False
@@ -220,17 +220,17 @@ def find_analyzer_files():
     return analyzer_files
 
 
-def suitable_analyzers_for(file_object):
+def suitable_analyzers_for(fileobject):
     """
     Returns analyzer classes that can handle the given file object.
 
     Args:
-        file_object: File to get analyzers for as an instance of 'FileObject'.
+        fileobject: File to get analyzers for as an instance of 'FileObject'.
 
     Returns:
         A list of analyzer classes that can analyze the given file.
     """
-    return [a for a in AnalyzerClasses if a.can_handle(file_object)]
+    return [a for a in AnalyzerClasses if a.can_handle(fileobject)]
 
 
 def _get_implemented_analyzer_classes(analyzer_files):

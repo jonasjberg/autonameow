@@ -48,18 +48,18 @@ class Repository(object):
     The internal storage structure is laid out like this:
 
             STORAGE = {
-                'file_object_A': {
+                'fileobject_A': {
                     'meowuri_a': 1
                     'meowuri_b': 'foo'
                     'meowuri_c': ExtractedData(...)
                 }
-                'file_object_B': {
+                'fileobject_B': {
                     'meowuri_a': ['bar']
                     'meowuri_b': [2, 1]
                 }
             }
 
-    The first level of the nested structure uses instances of 'file_object' as
+    The first level of the nested structure uses instances of 'fileobject' as
     keys into containing structures that use "MeowURIs" (Unicode strings) keys.
     """
     def __init__(self):
@@ -88,11 +88,11 @@ class Repository(object):
                                                                     klass, key)
                 )
 
-    def store(self, file_object, meowuri, data):
+    def store(self, fileobject, meowuri, data):
         """
         Primary global publicly available interface for data storage.
 
-        Adds data related to a given 'file_object', at a storage location
+        Adds data related to a given 'fileobject', at a storage location
         defined by the given 'meowuri'.
         """
         def __meowuri_error(bad_meowuri):
@@ -111,10 +111,10 @@ class Repository(object):
                         ' "{!s}"'.format(meowuri))
             return
 
-        self._store(file_object, meowuri, data)
-        self._store_generic(file_object, data)
+        self._store(fileobject, meowuri, data)
+        self._store_generic(fileobject, data)
 
-    def _store_generic(self, file_object, data):
+    def _store_generic(self, fileobject, data):
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
         if not isinstance(data, ExtractedData):
             return
@@ -127,14 +127,14 @@ class Repository(object):
                 self.log.critical('TODO: Fix missing "field.uri()" for some'
                                   ' GenericField classes!')
             else:
-                self._store(file_object, _gen_uri, data)
+                self._store(fileobject, _gen_uri, data)
 
-    def _store(self, file_object, meowuri, data):
+    def _store(self, fileobject, meowuri, data):
         log.debug('Repository storing: [{!s}]->[{!s}] :: "{!s}"'.format(
-            file_object, meowuri, data
+            fileobject, meowuri, data
         ))
         try:
-            any_existing = self.__get_data(file_object, meowuri)
+            any_existing = self.__get_data(fileobject, meowuri)
         except KeyError:
             pass
         else:
@@ -146,12 +146,12 @@ class Repository(object):
 
                 data = any_existing + data
 
-        self.__store_data(file_object, meowuri, data)
+        self.__store_data(fileobject, meowuri, data)
 
-    def query_mapped(self, file_object, field):
+    def query_mapped(self, fileobject, field):
         out = []
 
-        _data = self.data.get(file_object)
+        _data = self.data.get(fileobject)
         for meowuri, data in _data.items():
             if isinstance(data, list):
                 for d in data:
@@ -165,17 +165,17 @@ class Repository(object):
 
         return out
 
-    def query(self, file_object, meowuri, mapped_to_field=None):
+    def query(self, fileobject, meowuri, mapped_to_field=None):
         if not meowuri:
             raise exceptions.InvalidDataSourceError(
                 'Unable to resolve empty meowURI'
             )
 
         log.debug('Got request [{!s}]->[{!s}] Mapped to Field: "{!s}"'.format(
-            file_object, meowuri, mapped_to_field))
+            fileobject, meowuri, mapped_to_field))
 
         try:
-            data = self.__get_data(file_object, meowuri)
+            data = self.__get_data(fileobject, meowuri)
         except KeyError as e:
             log.debug('Repository request raised KeyError: {!s}'.format(e))
             return None
@@ -189,7 +189,7 @@ class Repository(object):
                         log.debug(
                             'Repository request failed requirement; [{!s}]->'
                             '[{!s}] Mapped to Field: "{!s}"'.format(
-                                file_object, meowuri, mapped_to_field
+                                fileobject, meowuri, mapped_to_field
                             )
                         )
                         return None
@@ -216,10 +216,10 @@ class Repository(object):
 
     def human_readable_contents(self):
         out = []
-        for file_object, data in self.data.items():
-            out.append('FileObject basename: "{!s}"'.format(file_object))
+        for fileobject, data in self.data.items():
+            out.append('FileObject basename: "{!s}"'.format(fileobject))
 
-            _abspath = util.displayable_path(file_object.abspath)
+            _abspath = util.displayable_path(fileobject.abspath)
             out.append('FileObject absolute path: "{!s}"'.format(_abspath))
 
             out.append('')

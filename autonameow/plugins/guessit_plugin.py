@@ -113,15 +113,15 @@ class GuessitPlugin(BasePlugin):
     def __init__(self):
         super(GuessitPlugin, self).__init__(self.DISPLAY_NAME)
 
-    def can_handle(self, file_object):
+    def can_handle(self, fileobject):
         _mime_type = self.request_data(
-            file_object, 'extractor.filesystem.xplat.contents.mime_type'
+            fileobject, 'extractor.filesystem.xplat.contents.mime_type'
         )
         return util.eval_magic_glob(_mime_type, 'video/*')
 
-    def execute(self, file_object):
+    def execute(self, fileobject):
         _file_basename = self.request_data(
-            file_object, 'extractor.filesystem.xplat.basename.full'
+            fileobject, 'extractor.filesystem.xplat.basename.full'
         )
         if _file_basename is None:
             raise exceptions.AutonameowPluginError('Required data unavailable')
@@ -133,7 +133,7 @@ class GuessitPlugin(BasePlugin):
         for field, value in data.items():
             _wrapped = self._add_context(field, value)
             if _wrapped:
-                self.add_results(file_object, field, _wrapped)
+                self.add_results(fileobject, field, _wrapped)
 
     def _add_context(self, field, value):
         context = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(field)

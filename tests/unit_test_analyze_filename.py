@@ -34,15 +34,15 @@ from core.namebuilder import fields
 import unit_utils as uu
 
 
-def get_filename_analyzer(file_object):
-    return FilenameAnalyzer(file_object,
+def get_filename_analyzer(fileobject):
+    return FilenameAnalyzer(fileobject,
                             add_results_callback=uu.mock_add_results_callback,
                             request_data_callback=uu.mock_request_data_callback)
 
 
 class TestFilenameAnalyzerWithImageFile(TestCase):
     def setUp(self):
-        self.fo = uu.get_named_file_object('2010-01-31_161251.jpg')
+        self.fo = uu.get_named_fileobject('2010-01-31_161251.jpg')
         self.fna = get_filename_analyzer(self.fo)
 
     def test_setup(self):
@@ -68,7 +68,7 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
 
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def setUp(self):
-        self.fo = uu.get_named_file_object('gmail.pdf')
+        self.fo = uu.get_named_fileobject('gmail.pdf')
         self.fna = get_filename_analyzer(self.fo)
 
     def test_setup(self):

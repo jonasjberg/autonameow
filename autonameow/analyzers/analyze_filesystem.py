@@ -27,10 +27,10 @@ class FilesystemAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     HANDLES_MIME_TYPES = ['*/*']
 
-    def __init__(self, file_object, add_results_callback,
+    def __init__(self, fileobject, add_results_callback,
                  request_data_callback):
         super(FilesystemAnalyzer, self).__init__(
-            file_object, add_results_callback, request_data_callback
+            fileobject, add_results_callback, request_data_callback
         )
 
     def run(self):

@@ -103,30 +103,30 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
     def execute(self, source, **kwargs):
         return self._get_data(source)
 
-    def _get_data(self, file_object):
-        if not isinstance(file_object, FileObject):
+    def _get_data(self, fileobject):
+        if not isinstance(fileobject, FileObject):
             raise ExtractorError(
                 'Expected source to be "FileObject" instance'
             )
 
         meowuris_datasources = [
-            ('abspath.full', file_object.abspath),
-            ('basename.full', file_object.filename),
-            ('basename.extension', file_object.basename_suffix),
-            ('basename.suffix', file_object.basename_suffix),
-            ('basename.prefix', file_object.basename_prefix),
-            ('pathname.full', file_object.pathname),
-            ('pathname.parent', file_object.pathparent),
-            ('contents.mime_type', file_object.mime_type)
+            ('abspath.full', fileobject.abspath),
+            ('basename.full', fileobject.filename),
+            ('basename.extension', fileobject.basename_suffix),
+            ('basename.suffix', fileobject.basename_suffix),
+            ('basename.prefix', fileobject.basename_prefix),
+            ('pathname.full', fileobject.pathname),
+            ('pathname.parent', fileobject.pathparent),
+            ('contents.mime_type', fileobject.mime_type)
         ]
         out = {}
         for meowuri, datasource in meowuris_datasources:
             out[meowuri] = self._to_internal_format(meowuri, datasource)
 
         try:
-            access_time = _get_access_time(file_object.abspath)
-            create_time = _get_create_time(file_object.abspath)
-            modify_time = _get_modify_time(file_object.abspath)
+            access_time = _get_access_time(fileobject.abspath)
+            create_time = _get_create_time(fileobject.abspath)
+            modify_time = _get_modify_time(fileobject.abspath)
         except OSError as e:
             self.log.error('Unable to get timestamps from filesystem:'
                            ' {!s}'.format(e))

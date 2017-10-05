@@ -30,8 +30,8 @@ log = logging.getLogger(__name__)
 
 
 class RuleMatcher(object):
-    def __init__(self, file_object, active_config):
-        self.file_object = file_object
+    def __init__(self, fileobject, active_config):
+        self.fileobject = fileobject
 
         if not active_config or not active_config.rules:
             log.error('Configuration does not contain any rules to evaluate')
@@ -48,9 +48,9 @@ class RuleMatcher(object):
         self._scored_rules = {}
         self._candidates = []
 
-    def _request_data(self, file_object, meowuri):
-        log.debug('requesting [{!s}]->[{!s}]'.format(file_object, meowuri))
-        response = repository.SessionRepository.query(file_object, meowuri)
+    def _request_data(self, fileobject, meowuri):
+        log.debug('requesting [{!s}]->[{!s}]'.format(fileobject, meowuri))
+        response = repository.SessionRepository.query(fileobject, meowuri)
         log.debug('Got response ({}): {!s}'.format(type(response), response))
 
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
@@ -60,9 +60,9 @@ class RuleMatcher(object):
             return response
 
     def request_data(self, meowuri):
-        # Functions that use this does not have access to 'self.file_object'.
+        # Functions that use this does not have access to 'self.fileobject'.
         # This method, which calls a callback, is itself passed as a callback..
-        return self._request_data(self.file_object, meowuri)
+        return self._request_data(self.fileobject, meowuri)
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))

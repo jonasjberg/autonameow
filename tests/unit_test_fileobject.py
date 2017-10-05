@@ -32,7 +32,7 @@ import unit_utils as uu
 
 class TestFileObjectTypes(TestCase):
     def setUp(self):
-        self.fo = uu.get_named_file_object('20160722 Descriptive name.txt')
+        self.fo = uu.get_named_fileobject('20160722 Descriptive name.txt')
 
     def test_internal_bytestring_path_type_abspath(self):
         self.assertTrue(uu.is_internalbytestring(self.fo.abspath))
@@ -86,7 +86,7 @@ class TestFileObjectEquivalence(TestCase):
         hash_c = hash(self.fo_dupe_2)
         self.assertEqual(hash_b, hash_c)
 
-    def test_file_object_as_dictionary_key(self):
+    def test_fileobject_as_dictionary_key(self):
         d = {self.fo_unique: 'a',
              self.fo_dupe_1: 'b',
              self.fo_dupe_2: 'c'}

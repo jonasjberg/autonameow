@@ -535,12 +535,12 @@ class Autonameow(object):
         return hash(util.process_id()) + hash(self.start_time)
 
 
-def _run_extraction(file_object, require_extractors, run_all_extractors=False):
+def _run_extraction(fileobject, require_extractors, run_all_extractors=False):
     """
     Sets up and executes data extraction for the given file.
 
     Args:
-        file_object: The file object to extract data from.
+        fileobject: The file object to extract data from.
         require_extractors: List of extractor classes that should be included.
         run_all_extractors: Whether all data extractors should be included.
 
@@ -548,7 +548,7 @@ def _run_extraction(file_object, require_extractors, run_all_extractors=False):
         AutonameowException: An unrecoverable error occurred during extraction.
     """
     try:
-        extraction.start(file_object,
+        extraction.start(fileobject,
                          require_extractors=require_extractors,
                          require_all_extractors=run_all_extractors is True)
     except exceptions.AutonameowException as e:
@@ -556,12 +556,12 @@ def _run_extraction(file_object, require_extractors, run_all_extractors=False):
         raise
 
 
-def _run_plugins(file_object, required_plugins=None):
+def _run_plugins(fileobject, required_plugins=None):
     """
     Instantiates, executes and returns a 'PluginHandler' instance.
 
     Args:
-        file_object: The current file object to pass to plugins.
+        fileobject: The current file object to pass to plugins.
 
     Returns:
         An instance of the 'PluginHandler' class that has executed successfully.
@@ -575,30 +575,30 @@ def _run_plugins(file_object, required_plugins=None):
     plugin_handler = PluginHandler()
     plugin_handler.use_plugins(required_plugins)
     try:
-        plugin_handler.execute_plugins(file_object)
+        plugin_handler.execute_plugins(fileobject)
     except exceptions.AutonameowPluginError as e:
         log.critical('Plugins FAILED: {!s}'.format(e))
         raise exceptions.AutonameowException(e)
 
 
-def _run_analysis(file_object):
+def _run_analysis(fileobject):
     """
     Sets up and executes "analysis" of the given file.
 
     Args:
-        file_object: The file object to analyze.
+        fileobject: The file object to analyze.
 
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
     try:
-        analysis.start(file_object)
+        analysis.start(fileobject)
     except exceptions.AutonameowException as e:
         log.critical('Analysis FAILED: {!s}'.format(e))
         raise
 
 
-def _run_rule_matcher(file_object, active_config):
+def _run_rule_matcher(fileobject, active_config):
     """
     Instantiates, executes and returns a 'RuleMatcher' instance.
 
@@ -611,7 +611,7 @@ def _run_rule_matcher(file_object, active_config):
     Raises:
         AutonameowException: An unrecoverable error occurred during execution.
     """
-    matcher = RuleMatcher(file_object, active_config)
+    matcher = RuleMatcher(fileobject, active_config)
     try:
         matcher.start()
     except exceptions.AutonameowException as e:

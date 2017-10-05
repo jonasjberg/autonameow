@@ -25,8 +25,8 @@ from analyzers.analyze_filesystem import FilesystemAnalyzer
 import unit_utils as uu
 
 
-def get_filesystem_analyzer(file_object):
-    return FilesystemAnalyzer(file_object, None, None)
+def get_filesystem_analyzer(fileobject):
+    return FilesystemAnalyzer(fileobject, None, None)
 
 
 class TestFilesystemAnalyzerWithEmptyFile(TestCase):

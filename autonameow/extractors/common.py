@@ -162,7 +162,7 @@ class BaseExtractor(object):
             return C.UNDEFINED_MEOWURI_PART
 
     @classmethod
-    def can_handle(cls, file_object):
+    def can_handle(cls, fileobject):
         """
         Tests if a specific extractor class can handle a given file object.
 
@@ -174,7 +174,7 @@ class BaseExtractor(object):
         a given file object.
 
         Args:
-            file_object: The file to test as an instance of 'FileObject'.
+            fileobject: The file to test as an instance of 'FileObject'.
 
         Returns:
             True if the extractor class can extract data from the given file,
@@ -187,7 +187,7 @@ class BaseExtractor(object):
             )
 
         try:
-            return util.eval_magic_glob(file_object.mime_type,
+            return util.eval_magic_glob(fileobject.mime_type,
                                         cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
             raise ExtractorError(

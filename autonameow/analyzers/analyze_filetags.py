@@ -98,10 +98,10 @@ class FiletagsAnalyzer(BaseAnalyzer):
         )
     }
 
-    def __init__(self, file_object, add_results_callback,
+    def __init__(self, fileobject, add_results_callback,
                  request_data_callback):
         super(FiletagsAnalyzer, self).__init__(
-            file_object, add_results_callback, request_data_callback
+            fileobject, add_results_callback, request_data_callback
         )
 
         self._timestamp = None
@@ -118,7 +118,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
 
     def run(self):
         (self._timestamp, self._description, self._tags,
-         self._extension) = partition_basename(self.file_object.abspath)
+         self._extension) = partition_basename(self.fileobject.abspath)
 
         self.__wrap_result('datetime', self._timestamp)
         self.__wrap_result('description', self._description)
@@ -154,7 +154,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
             return False
 
     @classmethod
-    def can_handle(cls, file_object):
+    def can_handle(cls, fileobject):
         # Assume 'FileObject' has a path and a basename.
         return True
 

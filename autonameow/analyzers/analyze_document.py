@@ -39,10 +39,10 @@ class DocumentAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     HANDLES_MIME_TYPES = ['application/pdf', 'text/*']
 
-    def __init__(self, file_object, add_results_callback,
+    def __init__(self, fileobject, add_results_callback,
                  request_data_callback):
         super(DocumentAnalyzer, self).__init__(
-            file_object, add_results_callback, request_data_callback
+            fileobject, add_results_callback, request_data_callback
         )
 
         self.text = None
@@ -62,7 +62,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         self._add_title_from_text_to_results()
 
     def __collect_results(self, meowuri, weight):
-        value = self.request_data(self.file_object, meowuri)
+        value = self.request_data(self.fileobject, meowuri)
         if value:
             return result_list_add(value, meowuri, weight)
         else:

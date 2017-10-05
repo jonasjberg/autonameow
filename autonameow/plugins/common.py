@@ -41,12 +41,12 @@ class BasePlugin(object):
 
         self.request_data = plugin_handler.request_data
 
-    def add_results(self, file_object, meowuri_leaf, data):
+    def add_results(self, fileobject, meowuri_leaf, data):
         if data is None:
             return
 
         meowuri = '{}.{}'.format(self.meowuri(), meowuri_leaf)
-        plugin_handler.collect_results(file_object, meowuri, data)
+        plugin_handler.collect_results(fileobject, meowuri, data)
 
     def __call__(self, source, *args, **kwargs):
         self.execute(source)
@@ -60,19 +60,19 @@ class BasePlugin(object):
             leaf=_leaf
         )
 
-    def can_handle(self, file_object):
+    def can_handle(self, fileobject):
         """
         Tests if this plugin class can handle the given file object.
 
         Args:
-            file_object: The file to test as an instance of 'FileObject'.
+            fileobject: The file to test as an instance of 'FileObject'.
 
         Returns:
             True if the plugin class can handle the given file, else False.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def execute(self, file_object):
+    def execute(self, fileobject):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):

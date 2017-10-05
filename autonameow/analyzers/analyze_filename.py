@@ -45,10 +45,10 @@ class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     HANDLES_MIME_TYPES = ['*/*']
 
-    def __init__(self, file_object, add_results_callback,
+    def __init__(self, fileobject, add_results_callback,
                  request_data_callback):
         super(FilenameAnalyzer, self).__init__(
-            file_object, add_results_callback, request_data_callback
+            fileobject, add_results_callback, request_data_callback
         )
 
     def run(self):
@@ -72,7 +72,7 @@ class FilenameAnalyzer(BaseAnalyzer):
 
     def get_edition(self):
         basename = self.request_data(
-            self.file_object,
+            self.fileobject,
             'extractor.filesystem.xplat.basename.prefix'
         )
         if not basename:
@@ -82,14 +82,14 @@ class FilenameAnalyzer(BaseAnalyzer):
 
     def get_extension(self):
         ed_basename_suffix = self.request_data(
-            self.file_object,
+            self.fileobject,
             'extractor.filesystem.xplat.basename.suffix'
         )
         if not ed_basename_suffix:
             return
 
         ed_file_mimetype = self.request_data(
-            self.file_object,
+            self.fileobject,
             'extractor.filesystem.xplat.contents.mime_type'
         )
         if not ed_file_mimetype:
@@ -114,7 +114,7 @@ class FilenameAnalyzer(BaseAnalyzer):
                      'weight'  : 1
                    }, .. ]
         """
-        fn = self.file_object.basename_prefix
+        fn = self.fileobject.basename_prefix
         try:
             fn = types.AW_STRING(fn)
         except types.AWTypeError:
