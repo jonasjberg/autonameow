@@ -160,10 +160,6 @@ Low Priority
 
 * `[TD0029]` Add support for extracting MacOS Spotlight metadata (`mdls`)
 
-* __Add additional plugins__
-    * `[TD0030]` Plugin for querying APIs with ISBN numbers.
-      (Already implemented in `autoname_pdf.py` and `isbn_query.py`)
-
 * `[TD0033]` Refactor unit tests.
     * Mitigate superlinear increase in unit test execution speed.
     * Try to rewrite tests that operate on actual files

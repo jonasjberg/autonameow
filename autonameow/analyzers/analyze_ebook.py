@@ -262,9 +262,6 @@ class EbookAnalyzer(BaseAnalyzer):
         return isbnlib is not None
 
 
-# TODO: [TD0030] Plugin for querying APIs with ISBN numbers.
-
-
 def _search_initial_text(text, callback):
     initial_text_start = 0
     initial_text_end = 100

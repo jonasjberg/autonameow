@@ -168,6 +168,15 @@ University mail: `js224eh[a]student.lnu.se`
     >
     > * `[TD0061]` Re-implement basic queries to the "microsoft vision" plugin.
 
+* 2017-09-08
+
+    > Low Priority
+    > ------------
+    >
+    > * __Add additional plugins__
+    >     * `[TD0030]` Plugin for querying APIs with ISBN numbers.
+    >       (Already implemented in `autoname_pdf.py` and `isbn_query.py`)
+
 * 2017-08-25
 
     > High Priority
