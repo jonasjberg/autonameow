@@ -127,20 +127,39 @@ class BaseExtractor(object):
         def _undefined(attribute):
             return attribute == C.UNDEFINED_MEOWURI_PART
 
-        if _undefined(cls.MEOWURI_NODE):
-            _node = cls.__module__.split('.')[-2]
-        else:
-            _node = cls.MEOWURI_NODE
+        _node = cls.MEOWURI_NODE
+        if _undefined(_node):
+            _node = cls._meowuri_node_from_module_name()
 
-        if _undefined(cls.MEOWURI_LEAF):
-            _leaf = cls.__module__.split('.')[-1]
-        else:
-            _leaf = cls.MEOWURI_LEAF
+        _leaf = cls.MEOWURI_LEAF
+        if _undefined(_leaf):
+            _leaf = cls._meowuri_leaf_from_module_name()
 
         return '{root}{sep}{node}{sep}{leaf}'.format(
             root=C.MEOWURI_ROOT_SOURCE_EXTRACTORS, sep=C.MEOWURI_SEPARATOR,
             node=_node, leaf=_leaf
         )
+
+    @classmethod
+    def _meowuri_node_from_module_name(cls):
+        try:
+            _name = cls.__module__.split('.')[-2]
+
+            # De-pluralize; 'extractors' --> 'extractor', etc.
+            if _name.endswith('s'):
+                return _name[:-1]
+            else:
+                return _name
+
+        except LookupError:
+            return C.UNDEFINED_MEOWURI_PART
+
+    @classmethod
+    def _meowuri_leaf_from_module_name(cls):
+        try:
+            return cls.__module__.split('.')[-1]
+        except LookupError:
+            return C.UNDEFINED_MEOWURI_PART
 
     @classmethod
     def can_handle(cls, file_object):

@@ -89,6 +89,15 @@ class TestBaseExtractor(TestCase):
     def test_abstract_class_does_not_specify_meowuri_leaf(self):
         self.assertEqual(self.e.MEOWURI_LEAF, C.UNDEFINED_MEOWURI_PART)
 
+    def test__meowuri_node_from_module_name(self):
+        actual = self.e._meowuri_node_from_module_name()
+        self.assertEqual(actual, C.MEOWURI_ROOT_SOURCE_EXTRACTORS)
+
+    def test__meowuri_leaf_from_module_name(self):
+        actual = self.e._meowuri_leaf_from_module_name()
+        expect = 'common'
+        self.assertEqual(actual, expect)
+
 
 class TestFindExtractorModuleSourceFiles(TestCase):
     def test_find_extractor_module_files_is_defined(self):
