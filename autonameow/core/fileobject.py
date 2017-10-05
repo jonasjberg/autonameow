@@ -108,7 +108,7 @@ class FileObject(object):
     def __hash__(self):
         # NOTE(jonas): Might need to use a more robust method to avoid
         #              collisions. Use "proper" cryptographic checksum?
-        return hash((self.abspath, self.mime_type))
+        return hash((self.abspath, self.mime_type, self.bytesize))
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
