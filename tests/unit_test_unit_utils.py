@@ -78,6 +78,13 @@ class TestUnitUtilityAbsPathTestFile(TestCase):
         self.assertTrue(os.path.isabs(actual))
 
 
+class TestUnitUtilityFileObjectTestFile(TestCase):
+    def test_returns_expected_type(self):
+        actual = uu.fileobject_testfile('empty')
+        self.assertTrue(isinstance(actual, FileObject))
+        self.assertTrue(os.path.isabs(actual.abspath))
+
+
 class TestUnitUtilityAllTestFiles(TestCase):
     def test_returns_expected_encoding(self):
         actual = uu.all_testfiles()

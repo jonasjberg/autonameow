@@ -219,6 +219,13 @@ def get_mock_fileobject(mime_type=None):
     return FileObject(util.normpath(temp_file))
 
 
+def fileobject_testfile(testfile_basename):
+    """
+    Like 'abspath_testfile' but wraps the result in a 'FileObject' instance.
+    """
+    return FileObject(util.normpath(abspath_testfile(testfile_basename)))
+
+
 def get_mock_empty_extractor_data():
     """
     Returns: Mock extracted (empty) data from an 'Extraction' instance.
