@@ -22,6 +22,7 @@
 import logging
 
 from core import repository
+from core.model import ExtractedData
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
 from core.util import sanity
 
@@ -139,8 +140,16 @@ class Resolver(object):
                 self.fields_data.pop(field)
 
     def _verify_type(self, field, data):
-        sanity.check(not isinstance(data, list),
-                     'Expected "data" not to be a list')
+        _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
+        sanity.check(
+            not isinstance(data, list),
+            'Expected "data" not to be a list. Got: {}'.format(_data_info)
+        )
+        sanity.check(
+            isinstance(data, ExtractedData),
+            'Expected "data" to be an instance of "ExtractedData".'
+            'Got: {}'.format(_data_info)
+        )
 
         log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
         _compatible = field.type_compatible(data.coercer)
