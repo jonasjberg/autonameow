@@ -104,7 +104,14 @@ class TestUnitUtilityFileExists(TestCase):
         actual = uu.file_exists(file_to_test)
         self.assertTrue(isinstance(actual, bool))
 
-        expected = os.path.isfile(file_to_test)
+        if not file_to_test:
+            expected = False
+        else:
+            try:
+                expected = os.path.isfile(file_to_test)
+            except (OSError, TypeError, ValueError):
+                expected = False
+
         self.assertEqual(actual, expected)
 
     def test_returns_false_for_files_assumed_missing(self):
@@ -115,6 +122,14 @@ class TestUnitUtilityFileExists(TestCase):
         ]
         for df in _dummy_paths:
             self._check_return(df)
+
+    def test_returns_false_for_empty_argument(self):
+        def _aF(test_input):
+            self.assertFalse(uu.file_exists(test_input))
+
+        _aF(None)
+        _aF('')
+        _aF(' ')
 
     def test_returns_true_for_files_likely_to_exist(self):
         _files = [
@@ -129,7 +144,14 @@ class TestUnitUtilityDirExists(TestCase):
         actual = uu.dir_exists(path_to_test)
         self.assertTrue(isinstance(actual, bool))
 
-        expected = os.path.isdir(path_to_test)
+        if not path_to_test:
+            expected = False
+        else:
+            try:
+                expected = os.path.isdir(path_to_test)
+            except (OSError, TypeError, ValueError):
+                expected = False
+
         self.assertEqual(actual, expected)
 
     def test_returns_false_for_assumed_non_directory_paths(self):
@@ -142,6 +164,14 @@ class TestUnitUtilityDirExists(TestCase):
         ]
         for df in _dummy_paths:
             self._check_return(df)
+
+    def test_returns_false_for_empty_argument(self):
+        def _aF(test_input):
+            self.assertFalse(uu.dir_exists(test_input))
+
+        _aF(None)
+        _aF('')
+        _aF(' ')
 
     def test_returns_true_for_likely_directory_paths(self):
         _files = [
@@ -161,10 +191,14 @@ class TestUnitUtilityPathIsReadable(TestCase):
         actual = uu.path_is_readable(path_to_test)
         self.assertTrue(isinstance(actual, bool))
 
-        try:
-            expected = os.access(path_to_test, os.R_OK)
-        except OSError:
+        if not path_to_test:
             expected = False
+        else:
+            try:
+                expected = os.access(path_to_test, os.R_OK)
+            except (OSError, TypeError, ValueError):
+                expected = False
+
         self.assertEqual(actual, expected)
 
     def test_returns_false_for_paths_assumed_missing(self):
@@ -178,6 +212,14 @@ class TestUnitUtilityPathIsReadable(TestCase):
         ]
         for df in _dummy_paths:
             self._check_return(df)
+
+    def test_returns_false_for_empty_argument(self):
+        def _aF(test_input):
+            self.assertFalse(uu.path_is_readable(test_input))
+
+        _aF(None)
+        _aF('')
+        _aF(' ')
 
     def test_returns_true_for_paths_likely_to_exist(self):
         _paths = [

@@ -106,7 +106,10 @@ def file_exists(file_path):
     Returns:
         True if the file exists, else False.
     """
-    return os.path.isfile(util.syspath(file_path))
+    try:
+        return os.path.isfile(util.syspath(file_path))
+    except (OSError, TypeError, ValueError):
+        return False
 
 
 def dir_exists(dir_path):
@@ -122,7 +125,7 @@ def dir_exists(dir_path):
     _path = util.syspath(dir_path)
     try:
         return os.path.exists(_path) and os.path.isdir(_path)
-    except OSError:
+    except (OSError, TypeError, ValueError):
         return False
 
 
@@ -139,7 +142,7 @@ def path_is_readable(file_path):
     """
     try:
         return os.access(util.syspath(file_path), os.R_OK)
-    except OSError:
+    except (OSError, TypeError, ValueError):
         return False
 
 
