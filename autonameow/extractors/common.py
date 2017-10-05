@@ -85,7 +85,7 @@ class BaseExtractor(object):
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-    def __call__(self, source, **kwargs):
+    def __call__(self, fileobject, **kwargs):
         """
         Extracts and returns data using a specific extractor.
 
@@ -104,9 +104,8 @@ class BaseExtractor(object):
         expected type. The type coercers in 'types.py' could be useful here.
 
         Args:
-            source: Source of data from which to extract information as a
-                byte string path (internal path format). A special case is the
-                'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
+            fileobject: Source of data from which to extract information as an
+                        instance of 'FileObject'.
 
         Returns:
             All data gathered by the extractor, as a dictionary.
@@ -114,12 +113,9 @@ class BaseExtractor(object):
         Raises:
             ExtractorError: The extraction could not be completed successfully.
         """
-        # Make sure the 'source' paths are in the "internal bytestring" format.
-        # The is-None-check below is for unit tests that pass a None 'source'.
-        if source is not None and not isinstance(source, FileObject):
-            sanity.check_internal_bytestring(source)
+        sanity.check_isinstance(fileobject, FileObject)
 
-        extracted_data = self.execute(source, **kwargs)
+        extracted_data = self.execute(fileobject, **kwargs)
         return extracted_data
 
     @classmethod
@@ -194,7 +190,7 @@ class BaseExtractor(object):
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
             )
 
-    def execute(self, source, **kwargs):
+    def execute(self, fileobject, **kwargs):
         """
         Extracts and returns data using a specific extractor.
 
@@ -213,9 +209,8 @@ class BaseExtractor(object):
         expected type. The type coercers in 'types.py' could be useful here.
 
         Args:
-            source: Source of data from which to extract information as a
-                byte string path (internal path format). A special case is the
-                'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
+            fileobject: Source of data from which to extract information as an
+                        instance of 'FileObject'.
 
         Returns:
             All data produced gathered by the extractor as a dict keyed by

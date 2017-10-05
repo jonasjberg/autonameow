@@ -107,16 +107,10 @@ def start(fileobject,
 
     log.debug('Running {} extractors'.format(len(klasses)))
     for klass in klasses:
-        if klass.__name__ == 'CrossPlatformFileSystemExtractor':
-            # Special case where the source should be a 'FileObject'.
-            _source = fileobject
-        else:
-            _source = fileobject.abspath
-
         _extractor_instance = klass()
         try:
             collect_results(
-                fileobject, klass.meowuri(), _extractor_instance(_source)
+                fileobject, klass.meowuri(), _extractor_instance(fileobject)
             )
         except ExtractorError as e:
             log.error(

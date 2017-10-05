@@ -47,8 +47,9 @@ class PlainTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(PlainTextExtractor, self).__init__()
 
-    def _get_text(self, source):
+    def _get_text(self, fileobject):
         self.log.debug('Extracting raw text from plain text file ..')
+        source = fileobject.abspath
         result = read_entire_text_file(source)
         if not result:
             return ''

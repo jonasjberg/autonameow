@@ -96,9 +96,10 @@ class PyPDFMetadataExtractor(BaseExtractor):
     def __init__(self):
         super(PyPDFMetadataExtractor, self).__init__()
 
-    def execute(self, source, **kwargs):
+    def execute(self, fileobject, **kwargs):
         self.log.debug('{!s}: Starting extraction'.format(self))
 
+        source = fileobject.abspath
         try:
             _metadata = self._get_metadata(source)
         except NotImplementedError as e:

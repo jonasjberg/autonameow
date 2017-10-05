@@ -100,8 +100,8 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
     def __init__(self):
         super(CrossPlatformFileSystemExtractor, self).__init__()
 
-    def execute(self, source, **kwargs):
-        return self._get_data(source)
+    def execute(self, fileobject, **kwargs):
+        return self._get_data(fileobject)
 
     def _get_data(self, fileobject):
         if not isinstance(fileobject, FileObject):

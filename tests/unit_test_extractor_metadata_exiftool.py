@@ -34,6 +34,7 @@ unmet_dependencies = not ExiftoolMetadataExtractor.check_dependencies()
 dependency_error = 'Extractor dependencies not satisfied'
 
 
+temp_fileobject = uu.get_mock_fileobject()
 temp_file = uu.make_temporary_file()
 
 
@@ -92,15 +93,15 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute(temp_file))
+        self.assertIsNotNone(self.e.execute(temp_fileobject))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.execute(temp_file), dict))
+        self.assertTrue(isinstance(self.e.execute(temp_fileobject), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_all_result_contains_file_size(self):
-        actual = self.e.execute(temp_file)
+        actual = self.e.execute(temp_fileobject)
         self.assertTrue('File:FileSize' in actual)
 
 
@@ -109,7 +110,7 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
         return datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
 
     def setUp(self):
-        self.test_file = util.normpath(uu.abspath_testfile('smulan.jpg'))
+        self.test_file = uu.fileobject_testfile('smulan.jpg')
         self.e = ExiftoolMetadataExtractor()
 
         self.EXPECT_FIELD_VALUE = [

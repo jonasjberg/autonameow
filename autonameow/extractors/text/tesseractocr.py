@@ -78,7 +78,8 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         except cache.CacheError:
             pass
 
-    def _get_text(self, source):
+    def _get_text(self, fileobject):
+        source = fileobject.abspath
         _cached = self._cache_read(source)
         if _cached is not None:
             return _cached
