@@ -50,11 +50,17 @@ class PyPDFTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(PyPDFTextExtractor, self).__init__()
 
-        self.cache = cache.get_cache(str(self))
-        try:
-            self._cached_text = self.cache.get('text')
-        except (KeyError, cache.CacheError):
-            self._cached_text = {}
+        self._cached_text = {}
+
+        _cache = cache.get_cache(str(self))
+        if _cache:
+            self.cache = _cache
+            try:
+                self._cached_text = self.cache.get('text')
+            except (KeyError, cache.CacheError):
+                pass
+        else:
+            self.cache = None
 
     def _cache_read(self, source):
         if source in self._cached_text:
@@ -64,6 +70,9 @@ class PyPDFTextExtractor(AbstractTextExtractor):
         return None
 
     def _cache_write(self):
+        if not self.cache:
+            return
+
         try:
             self.cache.set('text', self._cached_text)
         except cache.CacheError:

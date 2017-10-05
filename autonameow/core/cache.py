@@ -87,6 +87,8 @@ class BaseCache(object):
 
     def __init__(self, cachefile_prefix):
         self._data = {}
+        self.cachedir_abspath = CACHE_DIR_ABSPATH
+        self._dp = util.displayable_path(self.cachedir_abspath)
 
         _prefix = types.force_string(cachefile_prefix)
         if not _prefix.strip():
@@ -95,30 +97,35 @@ class BaseCache(object):
             )
         self.cachefile_prefix = _prefix
 
-        if not os.path.exists(util.syspath(CACHE_DIR_ABSPATH)):
-            raise CacheError(
-                'Cache directory does not exist: "{!s}"'.format(
-                    util.displayable_path(CACHE_DIR_ABSPATH)
-                )
-            )
+        if not self.has_cachedir():
+            log.debug('Cache directory does not exist: "{!s}"'.format(self._dp))
 
-            # TODO: [TD0097] Add proper handling of cache directories.
-            # try:
-            #     os.makedirs(util.syspath(self._cache_dir))
-            # except OSError as e:
-            #     raise CacheError(
-            #         'Error while creating cache directory "{!s}": '
-            #         '{!s}'.format(util.displayable_path(self._cache_dir), e)
-            #     )
-        else:
-            if not diskutils.has_permissions(CACHE_DIR_ABSPATH, 'rwx'):
-                raise CacheError(
-                    'Cache directory path requires RWX-permissions: '
-                    '"{!s}'.format(util.displayable_path(CACHE_DIR_ABSPATH))
-                )
-        log.debug('{!s} Using _cache_dir "{!s}'.format(
-            self, util.displayable_path(CACHE_DIR_ABSPATH))
-        )
+            try:
+                diskutils.makedirs(self.cachedir_abspath)
+            except exceptions.FilesystemError as e:
+                raise CacheError('Unable to create cache directory "{!s}": '
+                                 '{!s}'.format(self._dp, e))
+            else:
+                log.info('Created cache directory: "{!s}"'.format(self._dp))
+
+        if not self.has_cachedir_permissions():
+            raise CacheError('Cache directory requires RWX-permissions: '
+                             '"{!s}'.format(self._dp))
+
+        log.debug('{!s} using cache directory "{!s}"'.format(self, self._dp))
+
+    def has_cachedir_permissions(self):
+        try:
+            return diskutils.has_permissions(self.cachedir_abspath, 'rwx')
+        except (TypeError, ValueError):
+            return False
+
+    def has_cachedir(self):
+        _path = util.syspath(self.cachedir_abspath)
+        try:
+            return bool(os.path.exists(_path) and os.path.isdir(_path))
+        except (OSError, ValueError, TypeError):
+            return False
 
     def _cache_file_abspath(self, key):
         string_key = types.force_string(key)
@@ -157,17 +164,22 @@ class BaseCache(object):
 
         if key not in self._data:
             _file_path = self._cache_file_abspath(key)
-            _dp = util.displayable_path(_file_path)
+            if not os.path.exists(util.syspath(_file_path)):
+                # Avoid displaying errors on first use.
+                raise KeyError
+
             try:
                 value = self._load(_file_path)
                 self._data[key] = value
             except ValueError as e:
+                _dp = util.displayable_path(_file_path)
                 log.error(
                     'Error when reading key "{!s}" from cache file "{!s}" '
                     '(corrupt file?); {!s}'.format(key, _dp, e)
                 )
                 self.delete(key)
             except OSError as e:
+                _dp = util.displayable_path(_file_path)
                 log.warning(
                     'Error while trying to read key "{!s}" from cache file '
                     '"{!s}"; {!s}'.format(key, _dp, e)
@@ -249,7 +261,11 @@ class PickleCache(BaseCache):
 
 
 def get_cache(cachefile_prefix):
-    return PickleCache(cachefile_prefix)
+    try:
+        return PickleCache(cachefile_prefix)
+    except CacheError as e:
+        log.error('Cache unavailable :: {!s}'.format(e))
+        return None
 
 
 class CacheError(exceptions.AutonameowException):

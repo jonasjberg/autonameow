@@ -66,12 +66,17 @@ class EbookAnalyzer(BaseAnalyzer):
         )
 
         self.text = None
+        self._isbn_metadata = {}
 
-        self.cache = cache.get_cache(str(self))
-        try:
-            self._isbn_metadata = self.cache.get('isbnlib_meta')
-        except (KeyError, cache.CacheError):
-            self._isbn_metadata = {}
+        _cache = cache.get_cache(str(self))
+        if _cache:
+            self.cache = _cache
+            try:
+                self._isbn_metadata = self.cache.get('isbnlib_meta')
+            except (KeyError, cache.CacheError):
+                pass
+        else:
+            self.cache = None
 
     def run(self):
         _maybe_text = self.request_any_textual_content()
@@ -144,10 +149,11 @@ class EbookAnalyzer(BaseAnalyzer):
             )
             # Add new metadata to local cache.
             self._isbn_metadata.update({isbn: metadata})
-            try:
-                self.cache.set('isbnlib_meta', self._isbn_metadata)
-            except cache.CacheError:
-                pass
+            if self.cache:
+                try:
+                    self.cache.set('isbnlib_meta', self._isbn_metadata)
+                except cache.CacheError:
+                    pass
 
         return metadata
 

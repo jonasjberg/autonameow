@@ -61,6 +61,11 @@ class RuleMatcherError(AutonameowException):
     """An error occurred while matching rules. Unable to proceed."""
 
 
+class FilesystemError(AutonameowException):
+    """Errors occured while reading/writing files on disk. Should be used by
+    the filesystem abstraction layer as a catch-all for failed operations."""
+
+
 class InvalidMeowURIError(ConfigError):
     """An error caused by an invalid "meowURI"."""
 
