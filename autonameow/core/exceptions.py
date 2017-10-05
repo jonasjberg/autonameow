@@ -82,5 +82,3 @@ class ConfigurationSyntaxError(ConfigError):
 class InvalidRuleError(ConfigError):
     """The Rule is in a bad state. The Rule state should only be set
     with known good data. This error implies data validation has failed."""
-
-

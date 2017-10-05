@@ -20,12 +20,15 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import fnmatch
-import os
-import re
 import itertools
 import logging
+import os
+import re
 
-from core import util
+from core import (
+    exceptions,
+    util
+)
 from core.util import sanity
 
 
@@ -457,3 +460,13 @@ def has_permissions(path, permissions):
     return True
 
 
+def makedirs(path):
+    if not isinstance(path, bytes):
+        raise TypeError('Expected "path" to be a bytestring path')
+    if not path or not path.strip():
+        raise ValueError('Got empty argument "path"')
+
+    try:
+        os.makedirs(util.syspath(path))
+    except (OSError, ValueError, TypeError) as e:
+        raise exceptions.FilesystemError(e)
