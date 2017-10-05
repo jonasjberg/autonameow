@@ -39,6 +39,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0103]` Handle duplicate metadata results from different ISBNs.
+
 * `[TD0098]` Use checksums as keys for cached data, not paths.
 
 * `[TD0092]` Add tracking history and ability to "undo" renames.

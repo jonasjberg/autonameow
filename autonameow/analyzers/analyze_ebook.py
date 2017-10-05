@@ -98,6 +98,8 @@ class EbookAnalyzer(BaseAnalyzer):
                     )
                     continue
 
+                # TODO: [TD0103] Add "de-duplication" of ISBN metadata.
+
                 self.log.info('Metadata for ISBN: {}'.format(isbn))
                 self.log.info('Title     : {}'.format(metadata['Title']))
                 self.log.info('Authors   : {}'.format(metadata['Authors']))
