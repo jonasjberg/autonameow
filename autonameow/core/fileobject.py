@@ -33,6 +33,8 @@ from core.util import (
     sanity
 )
 
+UNKNOWN_BYTESIZE = 0
+
 
 class FileObject(object):
     def __init__(self, path):
@@ -67,8 +69,27 @@ class FileObject(object):
         self.__cached_str = None
         self.__cached_repr = None
 
+        # Set only when needed.
+        self._bytesize = None
+
+    @property
+    def bytesize(self):
+        if self._bytesize is None:
+            self._bytesize = self._get_bytesize()
+        return self._bytesize
+
     def __check_equality_fast(self, other):
         return filecmp.cmp(self.abspath, other.abspath, shallow=True)
+
+    def _get_bytesize(self):
+        try:
+            statinfo = os.stat(util.syspath(self.abspath))
+            if statinfo:
+                return statinfo.st_size
+        except OSError:
+            pass
+
+        return UNKNOWN_BYTESIZE
 
     def __str__(self):
         if self.__cached_str is None:
