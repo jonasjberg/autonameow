@@ -100,6 +100,12 @@ class TestFileObjectEquivalence(TestCase):
         self.assertEqual(d.get(self.fo_dupe_2), 'c')
 
 
+class TestFileObjectDoesNotHandleSymlinks(TestCase):
+    def test_raises_exception_given_symlinks(self):
+        with self.assertRaises(InvalidFileArgumentError):
+            testfile_symlink = uu.fileobject_testfile('empty.symlink')
+
+
 class TestFileTypeMagic(TestCase):
     TEST_FILES = [('magic_bmp.bmp', 'image/x-ms-bmp'),
                   ('magic_gif.gif', 'image/gif'),
