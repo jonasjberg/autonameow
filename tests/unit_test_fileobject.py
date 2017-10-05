@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from unittest import TestCase
 
 from core import (
@@ -28,6 +29,7 @@ from core import (
 from core import constants as C
 from core.exceptions import InvalidFileArgumentError
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestFileObjectTypes(TestCase):
@@ -62,6 +64,53 @@ class TestFileObjectTypes(TestCase):
         self.assertTrue(isinstance(self.fo.bytesize, int))
 
 
+class TestFileObject(TestCase):
+    def setUp(self):
+        self.fo = uu.fileobject_testfile('magic_txt.txt')
+
+    def test_abspath(self):
+        actual = self.fo.abspath
+        self.assertTrue(uu.file_exists(actual))
+        self.assertTrue(os.path.isabs(util.syspath(actual)))
+
+    def test_basename_suffix(self):
+        actual = self.fo.basename_suffix
+        expect = b'txt'
+        self.assertEqual(actual, expect)
+
+    def test_basename_prefix(self):
+        actual = self.fo.basename_prefix
+        expect = b'magic_txt'
+        self.assertEqual(actual, expect)
+
+    def test_filename(self):
+        actual = self.fo.filename
+        expect = b'magic_txt.txt'
+        self.assertEqual(actual, expect)
+
+    def test_pathname(self):
+        actual = self.fo.pathname
+        expect = util.normpath(uuconst.TEST_FILES_DIR)
+        self.assertEqual(actual, expect)
+
+    def test_pathparent(self):
+        actual = self.fo.pathparent
+        expect = util.encode_(os.path.basename(os.path.normpath(
+            util.syspath(uuconst.TEST_FILES_DIR)
+        )))
+        self.assertEqual(actual, expect)
+
+    def test_mime_type(self):
+        actual = self.fo.mime_type
+        expect = 'text/plain'
+        self.assertEqual(actual, expect)
+
+    def test_bytesize(self):
+        actual = self.fo.bytesize
+        expect = 5
+        self.assertEqual(actual, expect)
+
+
 class TestFileObjectEquivalence(TestCase):
     def setUp(self):
         self.fo_unique = uu.get_mock_fileobject(mime_type='image/png')
@@ -71,6 +120,7 @@ class TestFileObjectEquivalence(TestCase):
     def test_setup(self):
         self.assertTrue(uu.file_exists(self.fo_unique.abspath))
         self.assertTrue(uu.file_exists(self.fo_dupe_1.abspath))
+        self.assertTrue(uu.file_exists(self.fo_dupe_2.abspath))
 
     def test_equivalence_expect_unequal(self):
         self.assertFalse(self.fo_unique == self.fo_dupe_1)
@@ -98,6 +148,17 @@ class TestFileObjectEquivalence(TestCase):
         self.assertEqual(d.get(self.fo_unique), 'a')
         self.assertEqual(d.get(self.fo_dupe_1), 'c')
         self.assertEqual(d.get(self.fo_dupe_2), 'c')
+
+
+class TestFileObjectHash(TestCase):
+    def setUp(self):
+        self.fo_a = uu.fileobject_testfile('empty')
+        self.fo_b = uu.fileobject_testfile('empty')
+
+    def test_same_file_returns_same_hash(self):
+        hash_fo_a = hash(self.fo_a)
+        hash_fo_b = hash(self.fo_b)
+        self.assertEqual(hash_fo_a, hash_fo_b)
 
 
 class TestFileObjectDoesNotHandleSymlinks(TestCase):
