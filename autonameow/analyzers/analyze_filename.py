@@ -74,19 +74,27 @@ class FilenameAnalyzer(BaseAnalyzer):
         basename = self.request_data(
             self.file_object,
             'extractor.filesystem.xplat.basename.prefix'
-        ).value
+        )
         if not basename:
-            return
+            return None
+        else:
+            return basename.value
 
     def get_extension(self):
         ed_basename_suffix = self.request_data(
             self.file_object,
             'extractor.filesystem.xplat.basename.suffix'
         )
+        if not ed_basename_suffix:
+            return
+
         ed_file_mimetype = self.request_data(
             self.file_object,
             'extractor.filesystem.xplat.contents.mime_type'
         )
+        if not ed_file_mimetype:
+            return
+
         file_basename_suffix = ed_basename_suffix.as_string()
         file_mimetype = ed_file_mimetype.value
         result = likely_extension(file_basename_suffix, file_mimetype)
