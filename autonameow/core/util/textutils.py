@@ -268,6 +268,9 @@ def format_names_lastname_initials(list_of_full_names):
 RE_UNICODE_DASHES = re.compile(
     '[\u2212\u2013\u2014\u05be\u2010\u2015\u30fb]'
 )
+RE_UNICODE_OVERLINES = re.compile(
+    '[\u0305\u203e]'
+)
 
 
 def normalize_unicode(text):
@@ -280,6 +283,7 @@ def normalize_unicode(text):
         raise TypeError('Expected "text" to be a Unicode str')
 
     text = re.sub(RE_UNICODE_DASHES, '-', text)
+    text = re.sub(RE_UNICODE_OVERLINES, '-', text)
 
     return unicodedata.normalize(NORMALIZATION_FORM, text)
 
