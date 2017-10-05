@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import filecmp
 import os
 import magic
 
@@ -66,6 +67,9 @@ class FileObject(object):
         self.__cached_str = None
         self.__cached_repr = None
 
+    def __check_equality_fast(self, other):
+        return filecmp.cmp(self.abspath, other.abspath, shallow=True)
+
     def __str__(self):
         if self.__cached_str is None:
             self.__cached_str = util.displayable_path(self.filename)
@@ -89,8 +93,7 @@ class FileObject(object):
         if not isinstance(other, self.__class__):
             return False
         else:
-            return (self.abspath, self.mime_type) == (other.abspath,
-                                                      other.mime_type)
+            return self.__check_equality_fast(other)
 
     def __ne__(self, other):
         return not (self == other)
