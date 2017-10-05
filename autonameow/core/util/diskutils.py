@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import fnmatch
-import hashlib
 import os
 import re
 import itertools
@@ -458,16 +457,3 @@ def has_permissions(path, permissions):
     return True
 
 
-def hash_hexdigest(file_path):
-    # TODO:  This is INCOMPLETE! Implement and test.
-    hash_function = hashlib.sha256()
-
-    try:
-        with open(file_path, 'rb') as f:
-            file_data = f.read()
-            hash_function.update(file_data)
-    except IOError as e:
-        # TODO: Implement.
-        raise e
-
-    return hash_function.hexdigest().upper()
