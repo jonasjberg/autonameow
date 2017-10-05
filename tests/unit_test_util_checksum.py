@@ -28,23 +28,35 @@ import unit_utils as uu
 
 TESTFILE_REALLY_BIG_FILE = 'TODO: Insert path to huge file here'
 
+TESTFILE_EMPTY = uu.abspath_testfile('empty')
+TESTFILE_EMPTY_MD5 = 'd41d8cd98f00b204e9800998ecf8427e'
+TESTFILE_EMPTY_SHA1 = 'da39a3ee5e6b4b0d3255bfef95601890afd80709'
+TESTFILE_EMPTY_SHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+
+TESTFILE_MAGICTXT = uu.abspath_testfile('magic_txt.txt')
+TESTFILE_MAGICTXT_MD5 = 'e1cbb0c3879af8347246f12c559a86b5'
+TESTFILE_MAGICTXT_SHA1 = 'aa785adca3fcdfe1884ae840e13c6d294a2414e8'
+TESTFILE_MAGICTXT_SHA256 = 'b9e68e1bea3e5b19ca6b2f98b73a54b73daafaa250484902e09982e07a12e733'
+
+TESTFILE_MAGICPNG = uu.abspath_testfile('magic_png.png')
+TESTFILE_MAGICPNG_MD5 = '995b55fce80c125771c40a42a297b4ea'
+TESTFILE_MAGICPNG_SHA1 = '63679a1a5a1f177effbc58cf1cd0dfabc5bd5120'
+TESTFILE_MAGICPNG_SHA256 = '9c138627d827a2efd5ab835098ea3363cc8e13ec6d1745b94663b41e810a6448'
+
 
 def really_big_testfile_unavailable():
     _file_ok = (
         uu.file_exists(TESTFILE_REALLY_BIG_FILE) and
         uu.path_is_readable(TESTFILE_REALLY_BIG_FILE)
     )
-    return _file_ok is None, 'TESTFILE_REALLY_BIG_FILE is not a readable file'
+    return not _file_ok, 'TESTFILE_REALLY_BIG_FILE is not set'
 
 
 class TestHashlibDigest(TestCase):
-    def setUp(self):
-        self.testfile_empty = uu.abspath_testfile('empty')
-
     def test_raises_value_error_given_bad_algorithm(self):
         def _aR(algorithm):
             with self.assertRaises(ValueError):
-                checksum.hashlib_digest(self.testfile_empty, algorithm)
+                checksum.hashlib_digest(TESTFILE_MAGICTXT, algorithm)
 
         _aR('')
         _aR('sha529')
@@ -52,33 +64,29 @@ class TestHashlibDigest(TestCase):
 
 
 class TestSha256Digest(TestCase):
-    def setUp(self):
-        self.testfile_empty = uu.abspath_testfile('empty')
-        self.testfile_magictxt = uu.abspath_testfile('magic_txt.txt')
-
     def test_returns_expected(self):
-        a = checksum.sha256digest(self.testfile_empty)
-        self.assertEqual(
-            a,
-            'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-        )
+        a = checksum.sha256digest(TESTFILE_MAGICTXT)
+        self.assertEqual(a, TESTFILE_MAGICTXT_SHA256)
 
-        b = checksum.sha256digest(self.testfile_magictxt)
-        self.assertEqual(
-            b,
-            'b9e68e1bea3e5b19ca6b2f98b73a54b73daafaa250484902e09982e07a12e733'
-        )
+        b = checksum.sha256digest(TESTFILE_MAGICPNG)
+        self.assertEqual(b, TESTFILE_MAGICPNG_SHA256)
+
+        c = checksum.sha256digest(TESTFILE_EMPTY)
+        self.assertEqual(c, TESTFILE_EMPTY_SHA256)
 
     def test_returns_expected_type(self):
-        a = checksum.sha256digest(self.testfile_empty)
+        a = checksum.sha256digest(TESTFILE_MAGICTXT)
         self.assertTrue(uu.is_internalstring(a))
 
-        b = checksum.sha256digest(self.testfile_magictxt)
+        b = checksum.sha256digest(TESTFILE_MAGICPNG)
         self.assertTrue(uu.is_internalstring(b))
 
+        c = checksum.sha256digest(TESTFILE_EMPTY)
+        self.assertTrue(uu.is_internalstring(c))
+
     def test_returns_unique_values(self):
-        a = checksum.sha256digest(self.testfile_empty)
-        b = checksum.sha256digest(self.testfile_magictxt)
+        a = checksum.sha256digest(TESTFILE_MAGICTXT)
+        b = checksum.sha256digest(TESTFILE_MAGICPNG)
 
         self.assertNotEqual(a, b)
 
@@ -88,3 +96,67 @@ class TestSha256Digest(TestCase):
         self.assertTrue(uu.is_internalstring(a))
 
 
+class TestSha1Digest(TestCase):
+    def test_returns_expected(self):
+        a = checksum.sha1digest(TESTFILE_MAGICTXT)
+        self.assertEqual(a, TESTFILE_MAGICTXT_SHA1)
+
+        b = checksum.sha1digest(TESTFILE_MAGICPNG)
+        self.assertEqual(b, TESTFILE_MAGICPNG_SHA1)
+
+        c = checksum.sha1digest(TESTFILE_EMPTY)
+        self.assertEqual(c, TESTFILE_EMPTY_SHA1)
+
+    def test_returns_expected_type(self):
+        a = checksum.sha1digest(TESTFILE_MAGICTXT)
+        self.assertTrue(uu.is_internalstring(a))
+
+        b = checksum.sha1digest(TESTFILE_MAGICPNG)
+        self.assertTrue(uu.is_internalstring(b))
+
+        c = checksum.sha1digest(TESTFILE_EMPTY)
+        self.assertTrue(uu.is_internalstring(c))
+
+    def test_returns_unique_values(self):
+        a = checksum.sha1digest(TESTFILE_MAGICTXT)
+        b = checksum.sha1digest(TESTFILE_MAGICPNG)
+
+        self.assertNotEqual(a, b)
+
+    @unittest.skipIf(*really_big_testfile_unavailable())
+    def test_big_file(self):
+        a = checksum.sha1digest(TESTFILE_REALLY_BIG_FILE)
+        self.assertTrue(uu.is_internalstring(a))
+
+
+class TestMD5Digest(TestCase):
+    def test_returns_expected(self):
+        a = checksum.md5digest(TESTFILE_MAGICTXT)
+        self.assertEqual(a, TESTFILE_MAGICTXT_MD5)
+
+        b = checksum.md5digest(TESTFILE_MAGICPNG)
+        self.assertEqual(b, TESTFILE_MAGICPNG_MD5)
+
+        c = checksum.md5digest(TESTFILE_EMPTY)
+        self.assertEqual(c, TESTFILE_EMPTY_MD5)
+
+    def test_returns_expected_type(self):
+        a = checksum.md5digest(TESTFILE_MAGICTXT)
+        self.assertTrue(uu.is_internalstring(a))
+
+        b = checksum.md5digest(TESTFILE_MAGICPNG)
+        self.assertTrue(uu.is_internalstring(b))
+
+        c = checksum.md5digest(TESTFILE_EMPTY)
+        self.assertTrue(uu.is_internalstring(c))
+
+    def test_returns_unique_values(self):
+        a = checksum.md5digest(TESTFILE_MAGICTXT)
+        b = checksum.md5digest(TESTFILE_MAGICPNG)
+
+        self.assertNotEqual(a, b)
+
+    @unittest.skipIf(*really_big_testfile_unavailable())
+    def test_big_file(self):
+        a = checksum.md5digest(TESTFILE_REALLY_BIG_FILE)
+        self.assertTrue(uu.is_internalstring(a))

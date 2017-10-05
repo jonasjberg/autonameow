@@ -45,7 +45,7 @@ def hashlib_digest(file_path, algorithm=None):
     if not _hash_function:
         _bad_algorithm()
 
-    hasher = hashlib.sha256()
+    hasher = _hash_function()
     try:
         with open(file_path, 'rb', buffering=0) as fh:
             for b in iter(lambda: fh.read(CHUNK_SIZE), b''):
@@ -57,3 +57,11 @@ def hashlib_digest(file_path, algorithm=None):
 
 def sha256digest(file_path):
     return hashlib_digest(file_path, algorithm='sha256')
+
+
+def sha1digest(file_path):
+    return hashlib_digest(file_path, algorithm='sha1')
+
+
+def md5digest(file_path):
+    return hashlib_digest(file_path, algorithm='md5')
