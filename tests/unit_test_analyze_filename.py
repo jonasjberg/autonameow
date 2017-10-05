@@ -193,21 +193,37 @@ class TestIdentifyFields(TestCase):
 
 
 class TestFilenameTokenizer(TestCase):
-    def test_guess_separators_simpler(self):
-        self.skipTest('TODO: Implement or remove ..')
-
-        _filename = 'foo.bar.1234.baz'
-        self.tokenizer = FilenameTokenizer(_filename)
+    def _t(self, filename, expected):
+        self.tokenizer = FilenameTokenizer(filename)
         actual = self.tokenizer.separators
+        self.assertEqual(actual, expected)
 
-        self.assertEqual(actual, ['.'])
+    def test_find_separators_all_periods(self):
+        self._t(
+            filename='foo.bar.1234.baz',
+            expected=[('.', 3)]
+        )
 
-    def test_guess_separators_simple(self):
-        self.skipTest('TODO: Implement or remove ..')
+    def test_find_separators_periods_and_brackets(self):
+        self._t(
+            filename='foo.bar.[1234].baz',
+            expected=[('.', 3), ('[', 1), (']', 1)]
+        )
 
-        _filename = 'foo.bar.[1234].baz'
-        self.tokenizer = FilenameTokenizer(_filename)
-        actual = self.tokenizer.separators
+    def test_find_separators_underlines(self):
+        self._t(
+            filename='foo_bar_1234_baz',
+            expected=[('_', 3)]
+        )
 
-        self.assertEqual(actual, ['.'])
+    def test_find_separators_dashes(self):
+        self._t(
+            filename='foo-bar-1234-baz',
+            expected=[('-', 3)]
+        )
 
+    def test_find_separators_underlines_and_dashes(self):
+        self._t(
+            filename='foo-bar_1234_baz',
+            expected=[('_', 2), ('-', 1)]
+        )

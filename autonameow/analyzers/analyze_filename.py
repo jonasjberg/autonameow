@@ -19,11 +19,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections import Counter
 import re
 
 from analyzers import BaseAnalyzer
 from core import (
-    types
+    types,
+    util
 )
 from core.model import (
     ExtractedData,
@@ -240,22 +242,35 @@ class SubstringFinder(object):
         return list(filter(None, s))
 
 
+# TODO: Implement or remove ..
 class FilenameTokenizer(object):
-    RE_NON_ALNUMS = re.compile(r'\w+')
+    RE_UNICODE_WORDS = re.compile(r'\w')
 
     def __init__(self, filename):
         self.filename = filename
 
     @property
     def separators(self):
-        return self._guess_separators(self.filename)
+        return self._find_separators(self.filename) or []
 
-    def _guess_separators(self, string):
-        # non_words = self.RE_NON_ALNUMS.split(string)
-        # for TODO: .........
-        # char_count = defaultdict(int)
-        # return s
-        pass
+    def _find_separators(self, string):
+        non_words = self.RE_UNICODE_WORDS.split(string)
+        seps = [s for s in non_words if s is not None and s.strip()]
+
+        sep_chars = []
+        for sep in seps:
+            if len(sep) > 1:
+                sep_chars.extend(list(sep))
+            else:
+                sep_chars.append(sep)
+
+        if not sep_chars:
+            return None
+
+        counts = Counter(sep_chars)
+        # TODO: Implement or remove ..
+        _most_common = counts.most_common(3)
+        return _most_common
 
 
 def _find_edition(text):
