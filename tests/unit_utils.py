@@ -151,9 +151,9 @@ def make_temp_dir():
     Creates and returns a temporary directory.
 
     Returns:
-        A new temporary directory.
+        The path to a new temporary directory, as an "internal" bytestring.
     """
-    return tempfile.mkdtemp()
+    return util.normpath(tempfile.mkdtemp())
 
 
 def make_temporary_file(prefix=None, suffix=None, basename=None):

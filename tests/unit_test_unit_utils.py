@@ -233,10 +233,28 @@ class TestUnitUtilityPathIsReadable(TestCase):
 
 
 class TestUnitUtilityMakeTempDir(TestCase):
-    def test_make_temp_dir(self):
-        self.assertIsNotNone(uu.make_temp_dir())
-        self.assertTrue(os.path.exists(uu.make_temp_dir()))
-        self.assertTrue(os.path.isdir(uu.make_temp_dir()))
+    def setUp(self):
+        self.actual = uu.make_temp_dir()
+
+    def test_returns_existing_directory(self):
+        self.assertIsNotNone(self.actual)
+        self.assertTrue(os.path.exists(self.actual))
+        self.assertTrue(os.path.isdir(self.actual))
+
+    def test_returns_expected_type(self):
+        self.assertTrue(uu.is_internalbytestring(self.actual))
+
+    def test_returns_absolute_paths(self):
+        self.assertTrue(os.path.isabs(self.actual))
+
+    def test_returns_unique_directories(self):
+        NUM_DIRS = 5
+
+        s = set()
+        for _ in range(0, NUM_DIRS):
+            s.add(uu.make_temp_dir())
+
+        self.assertEqual(len(s), NUM_DIRS)
 
 
 class TestUnitUtilityMakeTemporaryFile(TestCase):

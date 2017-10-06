@@ -34,7 +34,10 @@ except ImportError:
 import unittest
 from unittest import TestCase
 
-from core import exceptions
+from core import (
+    exceptions,
+    util
+)
 from core.config.default_config import DEFAULT_CONFIG
 from core.config.configuration import Configuration
 import unit_utils as uu
@@ -57,11 +60,17 @@ def load_yaml(path):
     return data
 
 
+def get_temporary_config_path():
+    return util.normpath(
+        os.path.join(util.syspath(uu.make_temp_dir()),
+                     util.syspath(b'test_config.yaml'))
+    )
+
+
 @unittest.skipIf(*yaml_unavailable())
 class TestWriteConfig(TestCase):
     def setUp(self):
-        self.dest_path = os.path.join(uu.make_temp_dir(), 'test_config.yaml')
-
+        self.dest_path = get_temporary_config_path()
         self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_setup(self):
@@ -136,9 +145,7 @@ class TestWriteDefaultConfig(TestCase):
     # cat "$(find /var/folders -type f -name "test_default_config.yaml" -exec stat -f %m %N {} \; 2>/dev/null | sort -n | cut -f2 -d  | tail -n 1)"
 
     def setUp(self):
-        self.dest_path = os.path.join(uu.make_temp_dir(),
-                                      'test_default_config.yaml')
-
+        self.dest_path = get_temporary_config_path()
         self.configuration = Configuration(DEFAULT_CONFIG)
 
     def test_setup(self):

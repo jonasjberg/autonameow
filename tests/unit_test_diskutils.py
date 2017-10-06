@@ -846,8 +846,10 @@ class TestMakedirs(TestCase):
     def setUp(self):
         self.parentdir = uu.make_temp_dir()
 
-        destbase = 'foobar'
-        self.destpath = util.normpath(os.path.join(self.parentdir, destbase))
+        destbase = b'foobar'
+        self.destpath = util.normpath(
+            os.path.join(util.syspath(self.parentdir), util.syspath(destbase))
+        )
 
     def test_creates_directory(self):
         self.assertFalse(uu.dir_exists(self.destpath))
