@@ -99,7 +99,7 @@ class FileObject(object):
 
     def __repr__(self):
         if self.__cached_repr is None:
-            self.__cached_repr = '<{} {}>'.format(
+            self.__cached_repr = '<{!s}("{!s}")>'.format(
                 self.__class__.__name__, util.displayable_path(self.abspath)
             )
 
