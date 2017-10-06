@@ -117,9 +117,11 @@ class FileObject(object):
         return self.__cached_repr
 
     def __hash__(self):
-        # NOTE(jonas): Might need to use a more robust method to avoid
-        #              collisions. Use "proper" cryptographic checksum?
-        return hash((self.abspath, self.mime_type, self.bytesize))
+        # NOTE(jonas): Theoretical risk of hash collisions due to the "partial"
+        #              hashes.. Might add conditionally hashing the entire file?
+        return hash(
+            (self.abspath, self.mime_type, self.bytesize, self.hash_partial)
+        )
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):

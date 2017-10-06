@@ -129,21 +129,47 @@ class TestFileObjectEquivalence(TestCase):
         self.assertTrue(uu.file_exists(self.fo_dupe_2.abspath))
 
     def test_equivalence_expect_unequal(self):
-        self.assertFalse(self.fo_unique == self.fo_dupe_1)
-        self.assertFalse(self.fo_unique == self.fo_dupe_2)
+        self.assertNotEqual(self.fo_unique, self.fo_dupe_1)
+        self.assertNotEqual(self.fo_unique, self.fo_dupe_2)
 
     def test_equivalence_expect_equal(self):
-        self.assertTrue(self.fo_dupe_1 == self.fo_dupe_2)
+        self.assertEqual(self.fo_dupe_1, self.fo_dupe_2)
+
+
+class TestFileObjectHash(TestCase):
+    def setUp(self):
+        self.fo_unique = uu.get_mock_fileobject(mime_type='image/png')
+        self.fo_dupe_1 = uu.get_mock_fileobject(mime_type='text/plain')
+        self.fo_dupe_2 = uu.get_mock_fileobject(mime_type='text/plain')
+
+    def test_setup(self):
+        self.assertTrue(uu.file_exists(self.fo_unique.abspath))
+        self.assertTrue(uu.file_exists(self.fo_dupe_1.abspath))
+        self.assertTrue(uu.file_exists(self.fo_dupe_2.abspath))
 
     def test_hash_expect_unequal(self):
-        hash_a = hash(self.fo_unique)
-        hash_b = hash(self.fo_dupe_1)
-        self.assertNotEqual(hash_a, hash_b)
+        a = hash(self.fo_unique)
+        b = hash(self.fo_dupe_1)
+        c = hash(self.fo_dupe_2)
+        self.assertNotEqual(a, b)
+        self.assertNotEqual(a, c)
 
     def test_hash_expect_equal(self):
-        hash_b = hash(self.fo_dupe_1)
-        hash_c = hash(self.fo_dupe_2)
-        self.assertEqual(hash_b, hash_c)
+        b = hash(self.fo_dupe_1)
+        c = hash(self.fo_dupe_2)
+        self.assertEqual(b, c)
+
+
+class TestFileObjectMembership(TestCase):
+    def setUp(self):
+        self.fo_unique = uu.get_mock_fileobject(mime_type='image/png')
+        self.fo_dupe_1 = uu.get_mock_fileobject(mime_type='text/plain')
+        self.fo_dupe_2 = uu.get_mock_fileobject(mime_type='text/plain')
+
+    def test_setup(self):
+        self.assertTrue(uu.file_exists(self.fo_unique.abspath))
+        self.assertTrue(uu.file_exists(self.fo_dupe_1.abspath))
+        self.assertTrue(uu.file_exists(self.fo_dupe_2.abspath))
 
     def test_fileobject_as_dictionary_key(self):
         d = {self.fo_unique: 'a',
@@ -154,6 +180,29 @@ class TestFileObjectEquivalence(TestCase):
         self.assertEqual(d.get(self.fo_unique), 'a')
         self.assertEqual(d.get(self.fo_dupe_1), 'c')
         self.assertEqual(d.get(self.fo_dupe_2), 'c')
+
+    def test_membership_with_same(self):
+        s = set()
+        s.add(self.fo_unique)
+        self.assertEqual(len(s), 1)
+        s.add(self.fo_unique)
+        self.assertEqual(len(s), 1)
+
+    def test_membership_with_duplicates(self):
+        s = set()
+        s.add(self.fo_dupe_1)
+        self.assertEqual(len(s), 1)
+        s.add(self.fo_dupe_2)
+        self.assertEqual(len(s), 1)
+
+    def test_membership_with_different(self):
+        s = set()
+        s.add(self.fo_unique)
+        self.assertEqual(len(s), 1)
+        s.add(self.fo_dupe_1)
+        self.assertEqual(len(s), 2)
+        s.add(self.fo_dupe_2)
+        self.assertEqual(len(s), 2)
 
 
 class TestFileObjectHash(TestCase):
