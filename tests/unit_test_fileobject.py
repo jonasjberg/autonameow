@@ -205,6 +205,38 @@ class TestFileObjectMembership(TestCase):
         self.assertEqual(len(s), 2)
 
 
+@unittest.skip('TODO: [TD0026] Implement safe handling of symlinks.')
+class TestFileObjectFromSymlink(TestCase):
+    def setUp(self):
+        self.fo_orig = uu.fileobject_testfile('empty')
+        self.fo_link = uu.fileobject_testfile('empty.symlink')
+
+    def test_setup(self):
+        self.assertIsNotNone(self.fo_orig)
+        self.assertIsNotNone(self.fo_link)
+
+        self.assertTrue(uu.file_exists(self.fo_orig.abspath))
+        self.assertTrue(uu.file_exists(self.fo_link.abspath))
+
+    def test_equality(self):
+        # TODO: [TD0026] Should these be considered equal or not?
+        self.assertNotEqual(self.fo_orig, self.fo_link)
+
+    def test_membership(self):
+        s = set()
+
+        s.add(self.fo_orig)
+        self.assertEqual(len(s), 1)
+
+        s.add(self.fo_link)
+        # TODO: [TD0026] Expect 1 or 2?
+        self.assertEqual(len(s), 2)
+
+        # TODO: [TD0026] Should this fail or not?
+        self.assertIn(self.fo_orig, s)
+        self.assertIn(self.fo_link, s)
+
+
 class TestFileObjectHash(TestCase):
     def setUp(self):
         self.fo_a = uu.fileobject_testfile('empty')
@@ -217,6 +249,7 @@ class TestFileObjectHash(TestCase):
 
 
 class TestFileObjectDoesNotHandleSymlinks(TestCase):
+    # TODO: [TD0026] Implement safe handling of symlinks.
     def test_raises_exception_given_symlinks(self):
         with self.assertRaises(InvalidFileArgumentError):
             testfile_symlink = uu.fileobject_testfile('empty.symlink')
