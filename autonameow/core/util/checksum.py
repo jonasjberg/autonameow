@@ -32,7 +32,7 @@ __all__ = [
 AVAILABLE_ALGORITHMS = getattr(hashlib, 'algorithms_guaranteed', set())
 KIBIBYTE = 1024
 CHUNK_SIZE = 128 * KIBIBYTE
-PARTIAL_SIZE = 10 * KIBIBYTE**2
+PARTIAL_SIZE = 10 * KIBIBYTE**2  # ~10MB
 
 
 def hashlib_digest(file_path, algorithm=None, maxbytes=None):

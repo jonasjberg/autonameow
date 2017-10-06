@@ -26,6 +26,7 @@ from core.util import checksum
 import unit_utils as uu
 
 
+# NOTE(jonas): Optionally add the absolute path to some big file here.
 TESTFILE_REALLY_BIG_FILE = 'TODO: Insert path to huge file here'
 
 TESTFILE_EMPTY = uu.abspath_testfile('empty')
