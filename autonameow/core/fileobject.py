@@ -71,12 +71,19 @@ class FileObject(object):
 
         # Set only when needed.
         self._bytesize = None
+        self._hash_partial = None
 
     @property
     def bytesize(self):
         if self._bytesize is None:
             self._bytesize = self._get_bytesize()
         return self._bytesize
+
+    @property
+    def hash_partial(self):
+        if self._hash_partial is None:
+            self._hash_partial = self._get_hash_partial()
+        return self._hash_partial
 
     def __check_equality_fast(self, other):
         return filecmp.cmp(self.abspath, other.abspath, shallow=True)
@@ -90,6 +97,10 @@ class FileObject(object):
             pass
 
         return UNKNOWN_BYTESIZE
+
+    def _get_hash_partial(self):
+        # Raises FilesystemError for any "real" errors.
+        return util.partial_sha256digest(self.abspath)
 
     def __str__(self):
         if self.__cached_str is None:

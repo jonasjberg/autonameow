@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import unittest
 from unittest import TestCase
 
 from core import (
@@ -108,6 +109,11 @@ class TestFileObject(TestCase):
     def test_bytesize(self):
         actual = self.fo.bytesize
         expect = 5
+        self.assertEqual(actual, expect)
+
+    def test_hash_partial(self):
+        actual = self.fo.hash_partial
+        expect = 'b9e68e1bea3e5b19ca6b2f98b73a54b73daafaa250484902e09982e07a12e733'
         self.assertEqual(actual, expect)
 
 
