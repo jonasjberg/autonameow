@@ -164,9 +164,6 @@ class EbookAnalyzer(BaseAnalyzer):
         self.log.debug('Querying external service for ISBN: {!s}'.format(isbn))
         metadata = fetch_isbn_metadata(isbn)
         if metadata:
-            if isbn != metadata.isbn13:
-                if isbnlib.is_isbn10(isbn):
-                    metadata['ISBN-10'] = isbn
             self.log.info(
                 'Caching metadata for ISBN: {!s}'.format(isbn)
             )
