@@ -48,16 +48,6 @@ DOC_PATH="$( ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e "./docs/" ) )"
 assert_true '[ -d "$DOC_PATH" ]' \
             "Documentation directory \""$(basename -- "$DOC_PATH")"\" should exist"
 
-FORMATS_DOC="${DOC_PATH}/formats.md"
-assert_true '[ -f "$FORMATS_DOC" ]' \
-            "Data formats docs \""$(basename -- "$FORMATS_DOC")"\" should exist"
-
-assert_true '[ "$(cat "$FORMATS_DOC" | wc -l)" -gt "50" ]' \
-            "[TC006][TC008] Data formats docs contains at least 50 lines"
-
-assert_false 'grep -q "\(TODO\|FIXME\|XXX\).*" "$FORMATS_DOC"' \
-             "[TC006][TC008] Data formats docs does not contain TODOs"
-
 _srcroot_readme="${AUTONAMEOW_ROOT_DIR}/README.md"
 assert_true '[ -f "$_srcroot_readme" ]' \
             'The root source directory should contain a "README.md"'
@@ -68,9 +58,6 @@ assert_false 'grep_todos "$_srcroot_readme"' \
 _wiki_report_results="${AUTONAMEOW_WIKI_ROOT_DIR}/Test-Results.md"
 assert_true '[ -f "$_wiki_report_results" ]' \
             'The project Wiki should contain "Test-Results.md"'
-
-assert_false 'grep_todos "$FORMATS_DOC"' \
-             "[TC012] Data formats docs does not contain TODOs"
 
 
 
