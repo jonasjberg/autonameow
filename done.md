@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-10-06
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0103]` Handle duplicate metadata results from different ISBNs.
+
 * 2017-10-05
 
     > High Priority

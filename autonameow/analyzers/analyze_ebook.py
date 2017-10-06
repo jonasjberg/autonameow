@@ -66,13 +66,14 @@ class EbookAnalyzer(BaseAnalyzer):
         )
 
         self.text = None
-        self._isbn_metadata = {}
+        self._cached_isbn_metadata = {}
+        self._isbn_metadata = set()
 
         _cache = cache.get_cache(str(self))
         if _cache:
             self.cache = _cache
             try:
-                self._isbn_metadata = self.cache.get('isbnlib_meta')
+                self._cached_isbn_metadata = self.cache.get('isbnlib_meta')
             except (KeyError, cache.CacheError):
                 pass
         else:
@@ -91,28 +92,39 @@ class EbookAnalyzer(BaseAnalyzer):
             for isbn in isbns:
                 self.log.debug('Extracted ISBN: {!s}'.format(isbn))
 
-                metadata = self._get_isbn_metadata(isbn)
-                if not metadata:
+                metadata_dict = self._get_isbn_metadata(isbn)
+                if not metadata_dict:
                     self.log.warning(
                         'Unable to get metadata for ISBN: "{}"'.format(isbn)
                     )
                     continue
 
-                # TODO: [TD0103] Add "de-duplication" of ISBN metadata.
-
+                metadata = ISBNMetadata(
+                    authors=metadata_dict.get('Authors'),
+                    language=metadata_dict.get('Language'),
+                    publisher=metadata_dict.get('Publisher'),
+                    isbn10=metadata_dict.get('ISBN-10'),
+                    isbn13=metadata_dict.get('ISBN-13'),
+                    title=metadata_dict.get('Title'),
+                    year=metadata_dict.get('Year')
+                )
                 self.log.info('Metadata for ISBN: {}'.format(isbn))
-                self.log.info('Title     : {}'.format(metadata['Title']))
-                self.log.info('Authors   : {}'.format(metadata['Authors']))
-                self.log.info('Publisher : {}'.format(metadata['Publisher']))
-                self.log.info('Year      : {}'.format(metadata['Year']))
-                self.log.info('Language  : {}'.format(metadata['Language']))
-                self.log.info('ISBN-13   : {}'.format(metadata['ISBN-13']))
+                self.log.info('Title     : {}'.format(metadata.title))
+                self.log.info('Authors   : {}'.format(metadata.authors))
+                self.log.info('Publisher : {}'.format(metadata.publisher))
+                self.log.info('Year      : {}'.format(metadata.year))
+                self.log.info('Language  : {}'.format(metadata.language))
+                self.log.info('ISBN-10   : {}'.format(metadata.isbn10))
+                self.log.info('ISBN-13   : {}'.format(metadata.isbn13))
 
-                maybe_title = self._filter_title(metadata.get('Title'))
+                self._isbn_metadata.add(metadata)
+
+            for _isbn_metadata in self._isbn_metadata:
+                maybe_title = self._filter_title(_isbn_metadata.title)
                 if maybe_title:
                     self._add_results('title', self._wrap_title(maybe_title))
 
-                maybe_authors = metadata.get('Authors')
+                maybe_authors = _isbn_metadata.authors
                 if maybe_authors:
                     # TODO: [TD0084] Use a "list-of-strings" coercer ..
                     if isinstance(maybe_authors, list):
@@ -126,37 +138,37 @@ class EbookAnalyzer(BaseAnalyzer):
                                           self._wrap_author(maybe_authors))
 
                 maybe_publisher = self._filter_publisher(
-                    metadata.get('Publisher')
+                    _isbn_metadata.publisher
                 )
                 if maybe_publisher:
                     self._add_results('publisher',
                                       self._wrap_publisher(maybe_publisher))
 
-                maybe_date = self._filter_date(metadata.get('Year'))
+                maybe_date = self._filter_date(_isbn_metadata.year)
                 if maybe_date:
                     self._add_results('date', self._wrap_date(maybe_date))
 
     def _get_isbn_metadata(self, isbn):
-        if isbn in self._isbn_metadata:
+        if isbn in self._cached_isbn_metadata:
             self.log.info(
                 'Using cached metadata for ISBN: {!s}'.format(isbn)
             )
-            return self._isbn_metadata.get(isbn)
+            return self._cached_isbn_metadata.get(isbn)
 
         self.log.debug('Querying external service for ISBN: {!s}'.format(isbn))
         metadata = fetch_isbn_metadata(isbn)
         if metadata:
-            if isbn != metadata.get('ISBN-13'):
+            if isbn != metadata.isbn13:
                 if isbnlib.is_isbn10(isbn):
                     metadata['ISBN-10'] = isbn
             self.log.info(
                 'Caching metadata for ISBN: {!s}'.format(isbn)
             )
             # Add new metadata to local cache.
-            self._isbn_metadata.update({isbn: metadata})
+            self._cached_isbn_metadata.update({isbn: metadata})
             if self.cache:
                 try:
-                    self.cache.set('isbnlib_meta', self._isbn_metadata)
+                    self.cache.set('isbnlib_meta', self._cached_isbn_metadata)
                 except cache.CacheError:
                     pass
 
