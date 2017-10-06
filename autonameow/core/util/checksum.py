@@ -21,15 +21,21 @@
 
 import hashlib
 
+from core import exceptions
 
-AVAILABLE_ALGORITHMS = hashlib.algorithms_guaranteed
+__all__ = [
+    'sha256digest', 'sha1digest', 'md5digest', 'partial_sha256digest',
+    'partial_sha1digest', 'partial_md5digest'
+]
 
 
+AVAILABLE_ALGORITHMS = getattr(hashlib, 'algorithms_guaranteed', set())
 KIBIBYTE = 1024
 CHUNK_SIZE = 128 * KIBIBYTE
+PARTIAL_SIZE = 10 * KIBIBYTE**2
 
 
-def hashlib_digest(file_path, algorithm=None):
+def hashlib_digest(file_path, algorithm=None, maxbytes=None):
     def _bad_algorithm():
         raise ValueError(
             '"algorithm" must be one of {!s}'.format(AVAILABLE_ALGORITHMS)
@@ -38,21 +44,37 @@ def hashlib_digest(file_path, algorithm=None):
     if algorithm is None:
         algorithm = 'sha256'
 
-    if not algorithm in AVAILABLE_ALGORITHMS:
+    if algorithm not in AVAILABLE_ALGORITHMS:
         _bad_algorithm()
 
     _hash_function = getattr(hashlib, algorithm, None)
     if not _hash_function:
         _bad_algorithm()
 
+    if maxbytes is not None:
+        _msg_bad_maxbytes = 'Expected "maxbytes" to be a positive integer'
+        if not isinstance(maxbytes, int):
+            raise TypeError(_msg_bad_maxbytes)
+        if maxbytes <= 0:
+            raise ValueError(_msg_bad_maxbytes)
+    _maxbytes = maxbytes
+
     hasher = _hash_function()
     try:
+        _bytesread = 0
         with open(file_path, 'rb', buffering=0) as fh:
             for b in iter(lambda: fh.read(CHUNK_SIZE), b''):
+                if _maxbytes:
+                    _bytesread += len(b)
+                    if _bytesread >= _maxbytes:
+                        break
+
                 hasher.update(b)
+
             return hasher.hexdigest()
-    except IOError as e:
-        raise e
+
+    except OSError as e:
+        raise exceptions.FilesystemError(e)
 
 
 def sha256digest(file_path):
@@ -65,3 +87,15 @@ def sha1digest(file_path):
 
 def md5digest(file_path):
     return hashlib_digest(file_path, algorithm='md5')
+
+
+def partial_sha256digest(file_path):
+    return hashlib_digest(file_path, algorithm='sha256', maxbytes=PARTIAL_SIZE)
+
+
+def partial_sha1digest(file_path):
+    return hashlib_digest(file_path, algorithm='sha1', maxbytes=PARTIAL_SIZE)
+
+
+def partial_md5digest(file_path):
+    return hashlib_digest(file_path, algorithm='md5', maxbytes=PARTIAL_SIZE)
