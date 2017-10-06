@@ -86,7 +86,8 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
-        isbns = _search_initial_text(self.text, extract_isbns_from_text)
+        isbns = within_text_do(extract_isbns_from_text, self.text,
+                               fromline=0, toline=100)
         if isbns:
             isbns = filter_isbns(isbns)
             for isbn in isbns:
@@ -280,10 +281,8 @@ class EbookAnalyzer(BaseAnalyzer):
         return isbnlib is not None
 
 
-def _search_initial_text(text, callback):
-    initial_text_start = 0
-    initial_text_end = 100
-    lines = textutils.extract_lines(text, initial_text_start, initial_text_end)
+def within_text_do(callback, text, fromline=0, toline=100):
+    lines = textutils.extract_lines(text, fromline, toline)
 
     return callback(lines)
 
