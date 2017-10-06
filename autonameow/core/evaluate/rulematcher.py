@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import copy
 import logging
 
 from core import repository
@@ -37,13 +36,7 @@ class RuleMatcher(object):
             log.error('Configuration does not contain any rules to evaluate')
             self._rules = []
         else:
-            # NOTE(jonas): Check a copy of all rules.
-            # Temporary fix for mutable state in the 'Rule' instances,
-            # which are initialized *once* when the configuration is loaded.
-            # This same configuration instance is used when iterating over the
-            # files. The 'Rule' scores were not reset between files.
-            # TODO: Double-check that this isn't needed anymore, then remove.
-            self._rules = copy.deepcopy(active_config.rules)
+            self._rules = list(active_config.rules)
 
         self._scored_rules = {}
         self._candidates = []
