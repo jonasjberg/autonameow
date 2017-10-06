@@ -108,17 +108,23 @@ class EbookAnalyzer(BaseAnalyzer):
                     title=metadata_dict.get('Title'),
                     year=metadata_dict.get('Year')
                 )
-                self.log.info('Metadata for ISBN: {}'.format(isbn))
-                self.log.info('Title     : {}'.format(metadata.title))
-                self.log.info('Authors   : {}'.format(metadata.authors))
-                self.log.info('Publisher : {}'.format(metadata.publisher))
-                self.log.info('Year      : {}'.format(metadata.year))
-                self.log.info('Language  : {}'.format(metadata.language))
-                self.log.info('ISBN-10   : {}'.format(metadata.isbn10))
-                self.log.info('ISBN-13   : {}'.format(metadata.isbn13))
+                self.log.debug('Metadata for ISBN: {}'.format(isbn))
+                self.log.debug('Title     : {}'.format(metadata.title))
+                self.log.debug('Authors   : {}'.format(metadata.authors))
+                self.log.debug('Publisher : {}'.format(metadata.publisher))
+                self.log.debug('Year      : {}'.format(metadata.year))
+                self.log.debug('Language  : {}'.format(metadata.language))
+                self.log.debug('ISBN-10   : {}'.format(metadata.isbn10))
+                self.log.debug('ISBN-13   : {}'.format(metadata.isbn13))
 
+                # Duplicates are removed here. When both ISBN-10 and ISBN-13
+                # text is found and two queries are made, the two metadata
+                # results are "joined" when being added to this set.
                 self._isbn_metadata.add(metadata)
 
+            self.log.info('Got {} instances of ISBN metadata'.format(
+                len(self._isbn_metadata)
+            ))
             for _isbn_metadata in self._isbn_metadata:
                 maybe_title = self._filter_title(_isbn_metadata.title)
                 if maybe_title:
