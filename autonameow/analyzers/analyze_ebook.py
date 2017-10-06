@@ -38,10 +38,8 @@ from core.model import (
     ExtractedData,
     WeightedMapping
 )
-from core.util import (
-    sanity,
-    textutils
-)
+from core.util import sanity
+from core.util.textutils import extractlines_do
 
 
 log = logging.getLogger(__name__)
@@ -86,8 +84,8 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
-        isbns = within_text_do(extract_isbns_from_text, self.text,
-                               fromline=0, toline=100)
+        isbns = extractlines_do(extract_isbns_from_text, self.text,
+                                fromline=0, toline=100)
         if isbns:
             isbns = filter_isbns(isbns)
             for isbn in isbns:
@@ -281,10 +279,6 @@ class EbookAnalyzer(BaseAnalyzer):
         return isbnlib is not None
 
 
-def within_text_do(callback, text, fromline=0, toline=100):
-    lines = textutils.extract_lines(text, fromline, toline)
-
-    return callback(lines)
 
 
 def extract_isbns_from_text(text):

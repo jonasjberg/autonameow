@@ -294,3 +294,25 @@ RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 def strip_ansiescape(string):
     stripped = re.sub(RE_ANSI_ESCAPE, '', string)
     return stripped
+
+
+def extractlines_do(callback, text, fromline, toline):
+    """
+    Perform an action within certain lines of some given text.
+
+    Args:
+        callback: The callable to pass the extracted lines to.
+        text: The Text to extract lines from, as a Unicode string.
+        fromline: First line number of the text to be extracted, as an integer.
+        toline: Last line number of the text to be extracted, as an integer.
+
+    Returns:
+        The result of calling "callback" with the contents in "text" between
+        lines "fromline" and "toline".
+    """
+    sanity.check(callable(callback), 'Argument "callback" must be callable')
+    sanity.check_isinstance(fromline, int)
+    sanity.check_isinstance(toline, int)
+
+    lines = extract_lines(text, fromline, toline)
+    return callback(lines)

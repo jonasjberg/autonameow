@@ -582,3 +582,34 @@ class TestStripAnsiEscape(unittest.TestCase):
         self._aE('', '')
         self._aE('a', 'a')
         self._aE('[30m[44mautonameow[49m[39m', 'autonameow')
+
+
+class TestExtractlinesDo(unittest.TestCase):
+    def setUp(self):
+        self.text = '''foo
+2. bar
+3. baz
+4. foo
+'''
+
+    def test_transforms_all_lines(self):
+        actual = textutils.extractlines_do(
+            lambda t: t.upper(),
+            self.text, fromline=0, toline=4
+        )
+        expect = '''FOO
+2. BAR
+3. BAZ
+4. FOO
+'''
+        self.assertEqual(actual, expect)
+
+    def test_transforms_subset_of_lines(self):
+        actual = textutils.extractlines_do(
+            lambda t: t.upper(),
+            self.text, fromline=1, toline=3
+        )
+        expect = '''2. BAR
+3. BAZ
+'''
+        self.assertEqual(actual, expect)
