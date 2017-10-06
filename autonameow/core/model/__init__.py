@@ -28,6 +28,7 @@ from .genericfields import (
     GenericDateCreated,
     GenericDateModified,
     GenericDescription,
+    GenericEdition,
     GenericHealth,
     GenericMimeType,
     GenericProducer,
