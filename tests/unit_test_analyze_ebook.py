@@ -26,7 +26,8 @@ from analyzers.analyze_ebook import (
     extract_isbns_from_text,
     validate_isbn,
     filter_isbns,
-    ISBNMetadata
+    ISBNMetadata,
+    remove_ignored_textlines
 )
 
 import unit_utils as uu
@@ -137,6 +138,18 @@ class TestFilterISBN(unittest.TestCase):
         ]
         for sample_isbn in sample_invalid_isbns:
             self.assertEqual(filter_isbns(sample_isbn), [])
+
+
+class TestRemoveIgnoredTextLines(unittest.TestCase):
+    def test_removes_lines_as_expected(self):
+        input_text = '''Foo Bar: A Modern Approach
+This page intentionally left blank
+Foo Bar'''
+        expect_text = '''Foo Bar: A Modern Approach
+Foo Bar'''
+
+        actual = remove_ignored_textlines(input_text)
+        self.assertEqual(actual, expect_text)
 
 
 class TestISBNMetadata(unittest.TestCase):

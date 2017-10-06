@@ -51,6 +51,10 @@ BLACKLISTED_ISBN_NUMBERS = ['0000000000', '1111111111', '2222222222',
                             '6666666666', '7777777777', '8888888888',
                             '9999999999', '0123456789']
 
+IGNORED_TEXTLINES = frozenset([
+    'This page intentionally left blank'
+])
+
 
 class EbookAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
@@ -279,6 +283,25 @@ class EbookAnalyzer(BaseAnalyzer):
         return isbnlib is not None
 
 
+def remove_ignored_textlines(text):
+    """
+    Removes any text lines that match those in 'IGNORED_TEXTLINES'.
+
+    Args:
+        text: The text to process as a Unicode string.
+
+    Returns:
+        The given text with any lines matching those in 'IGNORED_TEXTLINES'
+        removed, as a Unicode string.
+    """
+    out = []
+
+    for line in text.splitlines():
+        if line in IGNORED_TEXTLINES:
+            continue
+        out.append(line)
+
+    return '\n'.join(out)
 
 
 def extract_isbns_from_text(text):
