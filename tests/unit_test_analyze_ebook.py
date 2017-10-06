@@ -144,26 +144,38 @@ class TestISBNMetadata(unittest.TestCase):
         self.maxDiff = None
 
         self.m1 = {
-            'Title': 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java',
-            'Authors': ['George F. Luger', 'William A. Stubblefield'],
-            'Publisher': 'Pearson Addison-Wesley',
-            'Year': '2009',
-            'Language': 'eng',
-            'ISBN-10': '0136070477',
-            'ISBN-13': '9780136070474'
+            'title': 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java',
+            'authors': ['George F. Luger', 'William A. Stubblefield'],
+            'publisher': 'Pearson Addison-Wesley',
+            'year': '2009',
+            'language': 'eng',
+            'isbn10': '0136070477',
+            'isbn13': '9780136070474'
         }
 
         self.m2 = {
-            'Title': 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java',
-            'Authors': ['George F. Luger', 'William A. Stubblefield'],
-            'Publisher': 'Pearson Addison-Wesley',
-            'Year': '2009',
-            'Language': 'eng',
-            'ISBN-13': '9780136070474'
+            'title': 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java',
+            'authors': ['George F. Luger', 'William A. Stubblefield'],
+            'publisher': 'Pearson Addison-Wesley',
+            'year': '2009',
+            'language': 'eng',
+            'isbn13': '9780136070474'
+        }
+        self.m3 = {
+            'title': None,
+            'authors': [],
+            'publisher': None,
+            'year': None,
+            'language': None,
+            'isbn13': '9780136070474'
+        }
+
+        self.m4 = {
+            'isbn10': '0136070477',
         }
 
     def test_isbn_metadata_from_args(self):
-        isbn_metadata = ISBNMetadata(self.m1)
+        isbn_metadata = ISBNMetadata(**self.m1)
         self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
         self.assertEqual(isbn_metadata.authors, ['George F. Luger', 'William A. Stubblefield'])
         self.assertEqual(isbn_metadata.year, '2009')
@@ -181,25 +193,26 @@ class TestISBNMetadata(unittest.TestCase):
         self.assertEqual(isbn_metadata.isbn13, '9780136070474')
 
     def test_equaliy(self):
-        self.assertEqual(ISBNMetadata(self.m1), ISBNMetadata(self.m2))
-        self.assertEqual(ISBNMetadata(self.m1), ISBNMetadata(**self.m2))
-        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(self.m2))
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
         self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
 
     def test_equality_based_on_isbn_numbers(self):
-        m3 = {
-            'Title': None,
-            'Authors': [],
-            'Publisher': None,
-            'Year': None,
-            'Language': None,
-            'ISBN-13': '9780136070474'
-        }
-        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**m3))
-        self.assertEqual(ISBNMetadata(**self.m2), ISBNMetadata(**m3))
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m3))
+        self.assertEqual(ISBNMetadata(**self.m2), ISBNMetadata(**self.m3))
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m4))
+        self.assertEqual(ISBNMetadata(**self.m2), ISBNMetadata(**self.m4))
 
-        m4 = {
-            'ISBN-10': '0136070477',
-        }
-        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**m4))
-        self.assertNotEqual(ISBNMetadata(**self.m2), ISBNMetadata(**m4))
+    def test_adding_duplicates_to_set(self):
+        metadataset = set()
+        self.assertEqual(len(metadataset), 0)
+        metadataset.add(ISBNMetadata(**self.m1))
+        self.assertEqual(len(metadataset), 1)
+        metadataset.add(ISBNMetadata(**self.m2))
+        self.assertEqual(len(metadataset), 1)
+        metadataset.add(ISBNMetadata(**self.m3))
+        self.assertEqual(len(metadataset), 1)
+        metadataset.add(ISBNMetadata(**self.m4))
+        self.assertEqual(len(metadataset), 1)
+

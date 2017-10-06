@@ -328,106 +328,90 @@ def fetch_isbn_metadata(isbn_number):
 
 
 class ISBNMetadata(object):
-    VALID_ATTRIBUTES = frozenset([
-        'authors', 'isbn-10', 'isbn-13', 'language', 'publisher', 'title',
-        'year'
-    ])
-
-    def __init__(self, *args, **kwargs):
-        valid_kwargs = {}
-
-        for arg in args:
-            for key in arg:
-                lowerkey = key.lower()
-                if lowerkey in self.VALID_ATTRIBUTES:
-                    if lowerkey == 'isbn-10':
-                        lowerkey = 'isbn10'
-                    elif lowerkey == 'isbn-13':
-                        lowerkey = 'isbn13'
-
-                    valid_kwargs[lowerkey] = arg[key]
-                else:
-                    raise KeyError(
-                        'Unexpected attribute "{!s}". Expected one of '
-                        '{!s}'.format(key, self.VALID_ATTRIBUTES))
-
-        for key, value in kwargs.items():
-            key = key.lower()
-            if key in self.VALID_ATTRIBUTES:
-                if key == 'isbn-10':
-                    key = 'isbn10'
-                elif key == 'isbn-13':
-                    key = 'isbn13'
-
-                valid_kwargs[key] = value
-            else:
-                raise KeyError('Unexpected attribute "{!s}". Expected one of '
-                               '{!s}'.format(key, self.VALID_ATTRIBUTES))
-
-        self.__dict__.update(valid_kwargs)
+    def __init__(self, authors=None, language=None, publisher=None,
+                 isbn10=None, isbn13=None, title=None, year=None):
+        self._authors = authors
+        self._language = language
+        self._publisher = publisher
+        self._isbn10 = isbn10
+        self._isbn13 = isbn13
+        self._title = title
+        self._year = year
 
     @property
     def authors(self):
-        return self.__dict__.get('authors') or []
+        return self._authors or []
 
     @authors.setter
     def authors(self, value):
         if value and isinstance(value, list):
-            self.__dict__['authors'] = value
+            self._authors = value
 
     @property
     def isbn10(self):
-        return self.__dict__.get('isbn10') or ''
+        if self._isbn10:
+            return self._isbn10
+        elif self._isbn13:
+            return isbnlib.to_isbn10(self._isbn13)
+        else:
+            return ''
 
     @isbn10.setter
     def isbn10(self, value):
         if value and isinstance(value, str):
-            self.__dict__['isbn10'] = value
+            if isbnlib.is_isbn10(value):
+                self._isbn10 = value
 
     @property
     def isbn13(self):
-        return self.__dict__.get('isbn13') or ''
+        if self._isbn13:
+            return self._isbn13
+        elif self._isbn10:
+            return isbnlib.to_isbn13(self._isbn10)
+        else:
+            return ''
 
     @isbn13.setter
     def isbn13(self, value):
         if value and isinstance(value, str):
-            self.__dict__['isbn13'] = value
+            if isbnlib.is_isbn13(value):
+                self._isbn13 = value
 
     @property
     def language(self):
-        return self.__dict__.get('language') or ''
+        return self._language or ''
 
     @language.setter
     def language(self, value):
         if value and isinstance(value, str):
-            self.__dict__['language'] = value
+            self._language = value
 
     @property
     def publisher(self):
-        return self.__dict__.get('publisher') or ''
+        return self._publisher or ''
 
     @publisher.setter
     def publisher(self, value):
         if value and isinstance(value, str):
-            self.__dict__['publisher'] = value
+            self._publisher = value
 
     @property
     def year(self):
-        return self.__dict__.get('year') or ''
+        return self._year or ''
 
     @year.setter
     def year(self, value):
         if value and isinstance(value, str):
-            self.__dict__['year'] = value
+            self._year = value
 
     @property
     def title(self):
-        return self.__dict__.get('title') or ''
+        return self._title or ''
 
     @title.setter
     def title(self, value):
         if value and isinstance(value, str):
-            self.__dict__['title'] = value
+            self._title = value
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -442,3 +426,6 @@ class ISBNMetadata(object):
                 and self.year == other.year
                 and self.language == other.language):
             return True
+
+    def __hash__(self):
+        return hash((self.isbn10, self.isbn13))
