@@ -28,6 +28,7 @@ from extractors.metadata import ExiftoolMetadataExtractor
 from extractors.metadata.exiftool import _get_exiftool_data
 
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 unmet_dependencies = not ExiftoolMetadataExtractor.check_dependencies()
@@ -71,7 +72,7 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
 
         with self.assertRaises(ExtractorError):
             f = ExiftoolMetadataExtractor()
-            f._get_metadata('not_a_file_surely')
+            f._get_metadata(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_returns_something(self):
@@ -89,7 +90,7 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
 
         with self.assertRaises(ExtractorError):
             f = ExiftoolMetadataExtractor()
-            _get_exiftool_data('not_a_file_surely')
+            _get_exiftool_data(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_something(self):

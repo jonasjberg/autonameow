@@ -32,6 +32,9 @@ AUTONAMEOW_SRCROOT_DIR = os.path.normpath(
 )
 
 
+ASSUMED_NONEXISTENT_BASENAME = b'not_a_file_surely'
+
+
 # Constants used to construct dummy/mock test fixtures.
 DUMMY_RAW_RULE_CONDITIONS = [
     # Part of Rule 1

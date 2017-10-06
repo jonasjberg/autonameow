@@ -34,6 +34,7 @@ from core.util.diskutils import (
     get_files_gen
 )
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestSplitBasename(TestCase):
@@ -788,7 +789,7 @@ class TestHasPermissions(TestCase):
         _aR('foo', 'r')
 
     def test_invalid_path(self):
-        path = b'not_a_file_surely'
+        path = uuconst.ASSUMED_NONEXISTENT_BASENAME
         self._test(path, 'r', False)
         self._test(path, 'w', False)
         self._test(path, 'x', False)
