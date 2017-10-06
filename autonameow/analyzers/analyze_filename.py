@@ -25,7 +25,7 @@ import re
 from analyzers import BaseAnalyzer
 from core import (
     types,
-    util
+    model
 )
 from core.model import (
     ExtractedData,
@@ -35,10 +35,32 @@ from core.namebuilder import fields
 from core.util import dateandtime
 
 
-RE_EDITION = re.compile(r'([0-9])+((st|nd|rd|th)\w?(E|ed)?|(E|Ed))')
+RE_EDITION = re.compile(r'([0-9])+((st|nd|rd|th)?\w?(E|ed|Ed)?)')
 EDITION_RE_LOOKUP = {
     1: r'1st('
 }
+RE_ORDINAL_REPLACEMENT = []
+for _pat, _replace in ((r'1st|first', 1),
+                       (r'2nd|second', 2),
+                       (r'3rd|third', 3),
+                       (r'4th|fourth', 4),
+                       (r'5th|fifth', 5),
+                       (r'6th|sixth', 6),
+                       (r'7th|eventh', 7),
+                       (r'8th|eighth', 8),
+                       (r'9th|ninth', 9),
+                       (r'10th|tenth', 10),
+                       (r'11th|eleventh', 11),
+                       (r'12th|twelfth', 12),
+                       (r'13th|thirteenth', 13),
+                       (r'14th|fourteenth', 14),
+                       (r'15th|fifteenth', 15),
+                       (r'16th|sixteenth', 16),
+                       (r'17th|seventeenth', 17),
+                       (r'18th|eighteenth', 18),
+                       (r'19th|nineteenth', 19),
+                       (r'20th|twentieth', 20)):
+    RE_ORDINAL_REPLACEMENT.append((re.compile(_pat, re.IGNORECASE), _replace))
 
 
 class FilenameAnalyzer(BaseAnalyzer):
@@ -77,8 +99,18 @@ class FilenameAnalyzer(BaseAnalyzer):
         )
         if not basename:
             return None
+
+        _number = find_edition(basename.as_string())
+        if _number:
+            return ExtractedData(
+                coercer=types.AW_INTEGER,
+                mapped_fields=[
+                    WeightedMapping(fields.Edition, probability=1),
+                ],
+                generic_field=model.GenericEdition
+            )(_number)
         else:
-            return basename.value
+            return None
 
     def get_extension(self):
         ed_basename_suffix = self.request_data(
@@ -281,7 +313,12 @@ class FilenameTokenizer(object):
         return _most_common
 
 
-def _find_edition(text):
+def find_edition(text):
+    for _re_pattern, _num in RE_ORDINAL_REPLACEMENT:
+        m = _re_pattern.search(text)
+        if m:
+            return _num
+
     match = RE_EDITION.search(text)
     if match:
         e = match.group(1)

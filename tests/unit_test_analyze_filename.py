@@ -27,7 +27,7 @@ from analyzers.analyze_filename import (
     FilenameAnalyzer,
     FilenameTokenizer,
     SubstringFinder,
-    _find_edition,
+    find_edition,
     likely_extension
 )
 from core.namebuilder import fields
@@ -127,20 +127,40 @@ class TestLikelyExtension(TestCase):
 
 class TestFindEdition(TestCase):
     def test_returns_expected_edition(self):
-        self.skipTest('TODO')
+        def _aE(test_input, expected):
+            self.assertEqual(find_edition(test_input), expected)
 
-        self.assertEqual(_find_edition('Foo, Bar - Baz._5th'), 5)
-        self.assertEqual(_find_edition('Foo,Bar-_Baz_-_3ed_2002'), 3)
-        self.assertEqual(_find_edition('Foo,Bar-_Baz_-_4ed_2003'), 4)
-        self.assertEqual(_find_edition('Embedded_Systems_6th_.2011'), 6)
-        self.assertEqual(_find_edition('Networking_4th'), 4)
-        self.assertEqual(_find_edition('Foo 2E - Bar B. 2001'), 2)
+        _aE('1st', 1)
+        _aE('2nd', 2)
+        _aE('3rd', 3)
+        _aE('4th', 4)
+        _aE('5th', 5)
+        _aE('6th', 6)
+        _aE('1 1st', 1)
+        _aE('1 2nd', 2)
+        _aE('1 3rd', 3)
+        _aE('1 4th', 4)
+        _aE('1 5th', 5)
+        _aE('1 6th', 6)
+        _aE('1 1st 2', 1)
+        _aE('1 2nd 2', 2)
+        _aE('1 3rd 2', 3)
+        _aE('1 4th 2', 4)
+        _aE('1 5th 2', 5)
+        _aE('1 6th 2', 6)
+        _aE('Foo, Bar - Baz._5th', 5)
+        _aE('Foo,Bar-_Baz_-_3ed_2002', 3)
+        _aE('Foo,Bar-_Baz_-_4ed_2003', 4)
+        _aE('Embedded_Systems_6th_.2011', 6)
+        _aE('Networking_4th', 4)
+        _aE('Foo 2E - Bar B. 2001', 2)
+        _aE('Third Edition', 3)
 
     def test_returns_none_for_unavailable_editions(self):
         self.skipTest('TODO')
 
-        self.assertIsNone(_find_edition('Foo, Bar - Baz._'))
-        self.assertIsNone(_find_edition('Foo, Bar 5 - Baz._'))
+        self.assertIsNone(find_edition('Foo, Bar - Baz._'))
+        self.assertIsNone(find_edition('Foo, Bar 5 - Baz._'))
 
 
 class TestIdentifyFields(TestCase):
