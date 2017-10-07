@@ -110,16 +110,17 @@ class Resolver(object):
                 )
                 continue
 
-            log.debug('Gathering data for field "{!s}" from source [{!s}]->'
-                      '[{!s}]'.format(field, self.file, meowuri))
+            log.debug('Gathering data for field "{!s}" from source [{:8.8}]->'
+                      '[{!s}]'.format(field, self.file.hash_partial, meowuri))
             _data = self._request_data(self.file, meowuri)
             if _data is not None:
                 log.debug('Got data "{!s}" ({})'.format(_data, type(_data)))
                 log.debug('Updated data for field "{!s}"'.format(field))
                 self.fields_data[field] = _data
             else:
-                log.debug('Got NONE data for [{!s}]->"{!s}"'.format(self.file,
-                                                                    meowuri))
+                log.debug('Got NONE data for [{:8.8}]->"{!s}"'.format(
+                    self.file.hash_partial, meowuri)
+                )
 
                 # Remove the source that returned None data.
                 log.debug(
@@ -162,7 +163,9 @@ class Resolver(object):
             log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
 
     def _request_data(self, file, meowuri):
-        log.debug('{} requesting [{!s}]->[{!s}]'.format(self, file, meowuri))
+        log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
+            self, file.hash_partial, meowuri)
+        )
         return repository.SessionRepository.query(file, meowuri)
 
     def __str__(self):
