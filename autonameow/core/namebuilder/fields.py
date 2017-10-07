@@ -75,6 +75,12 @@ class Title(NameTemplateField):
         data = data.replace("&#8211;", "-")
         return data
 
+    @staticmethod
+    def format(data):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        text = data.value
+        return text.replace(' - ', '').replace(':', '')
+
 
 class Edition(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
@@ -82,6 +88,7 @@ class Edition(NameTemplateField):
                         types.AW_STRING,
                         types.AW_INTEGER)
 
+    # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
     REPLACE_ORDINALS = []
     for _find, _replace in (
             ('1st', 'first'),        ('2nd', 'second'),
@@ -101,11 +108,19 @@ class Edition(NameTemplateField):
 
     @classmethod
     def normalize(cls, edition):
+        # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
+
         # Normalize numeric titles to allow for later custom replacements.
         for _find, _replace in cls.REPLACE_ORDINALS:
             edition = _find.sub(_replace, edition)
 
         return edition
+
+    @staticmethod
+    def format(data):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        text = data.value
+        return '{}E'.format(text)
 
 
 class Extension(NameTemplateField):
@@ -131,6 +146,7 @@ class Author(NameTemplateField):
 
     @staticmethod
     def format(data):
+        # TODO: [TD0036] Allow per-field replacements and customization.
         if isinstance(data, list):
             # Multiple authors
             _formatted = textutils.format_names_lastname_initials(
