@@ -322,7 +322,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         for tag_name, value in raw_metadata.items():
             if value is None:
                 continue
-            if _should_skip_binary_blob(value):
+            if is_binary_blob(value):
                 continue
 
             wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(tag_name)
@@ -343,7 +343,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         return util.is_executable('exiftool') and pyexiftool is not None
 
 
-def _should_skip_binary_blob(value):
+def is_binary_blob(value):
     return isinstance(value, str) and 'use -b option to extract' in value
 
 
