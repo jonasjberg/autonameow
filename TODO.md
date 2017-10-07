@@ -39,6 +39,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0104]` Merge duplicate candidates and re-normalize probabilities.
+
 * `[TD0092]` Add tracking history and ability to "undo" renames.
 
 * `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time

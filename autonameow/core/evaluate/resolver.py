@@ -80,6 +80,8 @@ class Resolver(object):
     def lookup_candidates(self, field):
         # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
         candidates = repository.SessionRepository.query_mapped(self.file, field)
+
+        # TODO: [TD0104] Merge candidates and re-normalize probabilities.
         return candidates if candidates else []
 
     def _has_data_for_placeholder_fields(self):
