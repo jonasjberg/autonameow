@@ -219,7 +219,7 @@ class TestFilenameTokenizer(TestCase):
     def _t(self, filename, expected):
         self.tokenizer = FilenameTokenizer(filename)
         actual = self.tokenizer.separators
-        self.assertEqual(actual, expected)
+        self.assertEqual(sorted(actual), sorted(expected))
 
     def test_find_separators_all_periods(self):
         self._t(
