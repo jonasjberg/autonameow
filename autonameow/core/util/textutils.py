@@ -133,7 +133,7 @@ def autodetect_decode(string):
     return string
 
 
-def extract_lines(text, first_line, last_line):
+def extract_lines(text, firstline, lastline):
     """
     Extracts a range of text lines from a Unicode string.
 
@@ -144,8 +144,8 @@ def extract_lines(text, first_line, last_line):
 
     Args:
         text: Text to extract lines from, as a Unicode string.
-        first_line: First line to include, as a non-negative integer.
-        last_line: Last line to include, as a non-negative integer.
+        firstline: First line to include, as a non-negative integer.
+        lastline: Last line to include, as a non-negative integer.
 
     Returns:
         If 'text' is a Unicode str; lines between 'first_line' and 'last_line'.
@@ -158,17 +158,17 @@ def extract_lines(text, first_line, last_line):
         return text
 
     sanity.check_internal_string(text)
-    sanity.check(first_line >= 0, 'Argument first_line is negative')
-    sanity.check(last_line >= 0, 'Argument last_line is negative')
+    sanity.check(firstline >= 0, 'Argument first_line is negative')
+    sanity.check(lastline >= 0, 'Argument last_line is negative')
 
     lines = text.splitlines(keepends=True)
-    if last_line > len(lines):
-        last_line = len(lines)
+    if lastline > len(lines):
+        lastline = len(lines)
 
-    if first_line > last_line:
-        first_line = last_line
+    if firstline > lastline:
+        firstline = lastline
 
-    extracted = lines[first_line:last_line]
+    extracted = lines[firstline:lastline]
     return ''.join(extracted)
 
 

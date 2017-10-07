@@ -299,11 +299,13 @@ class Repository(object):
             else:
                 if eval_meowuri_glob(uri, ['generic.contents.text',
                                            'extractor.text.*']):
-                    _text = textutils.extract_lines(data, 0, 1)
+                    _text = textutils.extract_lines(
+                        data, firstline=0, lastline=1
+                    )
                     _text = _text.rstrip('\n')
                     out.append(_fmt_text_line(_max_len_meowuri, _text, uri))
                     _lines = textutils.extract_lines(
-                        data, 1, len(data.splitlines())
+                        data, firstline=1, lastline=len(data.splitlines())
                     )
                     for _line in _lines.splitlines():
                         out.append(_fmt_text_line(_max_len_meowuri, _line))
