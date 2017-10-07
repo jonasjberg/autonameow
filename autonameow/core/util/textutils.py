@@ -204,6 +204,7 @@ def format_name_lastname_initials(full_name):
     Returns:
         The specified name written as LAST_NAME, INITIAL, INITIAL..
     """
+    # TODO: Keep one of these ..
     words = full_name.split(' ')
     words = [w for w in words if w not in IGNORED_AUTHOR_WORDS]
 
@@ -228,6 +229,7 @@ def format_name_lastname_initials2(full_name):
     Returns:
         The specified name written as LAST_NAME, INITIAL, INITIAL..
     """
+    # TODO: Keep one of these ..
     sanity.check_internal_string(full_name)
 
     full_name = full_name.strip()
@@ -259,10 +261,21 @@ def format_name_lastname_initials2(full_name):
     return '{} {}'.format(last_name, _initials)
 
 
-def format_names_lastname_initials(list_of_full_names):
-    _formatted_authors = [format_name_lastname_initials(a)
-                          for a in list_of_full_names]
+def format_names(list_of_full_names, formatter):
+    sanity.check(callable(formatter), 'Argument "formatter" must be callable')
+
+    _formatted_authors = [formatter(a) for a in list_of_full_names]
     return sorted(_formatted_authors, key=str.lower)
+
+
+def format_names_lastname_initials(list_of_full_names):
+    # TODO: Keep one of these ..
+    return format_names(list_of_full_names, format_name_lastname_initials)
+
+
+def format_names_lastname_initials2(list_of_full_names):
+    # TODO: Keep one of these ..
+    return format_names(list_of_full_names, format_name_lastname_initials2)
 
 
 RE_UNICODE_DASHES = re.compile(

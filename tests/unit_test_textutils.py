@@ -389,6 +389,7 @@ class TestExtractLines(unittest.TestCase):
 
 
 class TestFormatNameLastnameInitials(unittest.TestCase):
+    # TODO: Keep one of these ..
     def test_formats_author(self):
         def _aE(input_, expect):
             actual = textutils.format_name_lastname_initials(input_)
@@ -420,6 +421,7 @@ class TestFormatNameLastnameInitials(unittest.TestCase):
 @unittest.skipIf(_nameparser is None,
                  'Failed to import "thirdparty.nameparser"')
 class TestFormatNameLastnameInitials2(unittest.TestCase):
+    # TODO: Keep one of these ..
     def test_formats_author(self):
         def _aE(input_, expect):
             actual = textutils.format_name_lastname_initials2(input_)
@@ -469,6 +471,7 @@ class TestFormatNameLastnameInitials2(unittest.TestCase):
 
 
 class TestFormatNamesLastnameInitials(unittest.TestCase):
+    # TODO: Keep one of these ..
     def test_formats_authors(self):
         def _aE(input_, expect):
             actual = textutils.format_names_lastname_initials(input_)
