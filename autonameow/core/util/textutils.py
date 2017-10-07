@@ -297,3 +297,8 @@ def extractlines_do(callback, text, fromline, toline):
 
     lines = extract_lines(text, fromline, toline)
     return callback(lines)
+
+
+def truncate_text(text, number_chars=500):
+    msg = '  (.. TRUNCATED to {}/{} characters)'.format(number_chars, len(text))
+    return text[0:number_chars] + msg

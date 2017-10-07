@@ -266,7 +266,7 @@ class Repository(object):
                     elif eval_meowuri_glob(uri, ['generic.contents.text',
                                                  'extractor.text.*']):
                         # Often *a lot* of text, trim to arbitrary size..
-                        _truncated = truncate_text(v)
+                        _truncated = textutils.truncate_text(v)
                         temp_list.append(_truncated)
                     else:
                         temp_list.append(str(v))
@@ -285,7 +285,7 @@ class Repository(object):
                 # Often *a lot* of text, trim to arbitrary size..
                 elif eval_meowuri_glob(uri, ['generic.contents.text',
                                              'extractor.text.*']):
-                    temp[uri] = truncate_text(v)
+                    temp[uri] = textutils.truncate_text(v)
                 else:
                     temp[uri] = str(v)
 
@@ -324,11 +324,6 @@ class Repository(object):
     # def __repr__(self):
     #     # TODO: Implement this properly.
     #     pass
-
-
-def truncate_text(text, number_chars=500):
-    msg = '  (.. TRUNCATED to {}/{} characters)'.format(number_chars, len(text))
-    return text[0:number_chars] + msg
 
 
 def meowuri_class_map_dict():
