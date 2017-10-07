@@ -416,7 +416,7 @@ class ColumnFormatter(object):
 
     def max_column_width(self):
         max_width = ((self.number_columns * self.COLUMN_PADDING)
-                     + sum(self.column_widths))
+                     + sum(self.column_widths) - self.COLUMN_PADDING)
         return max_width
 
     @staticmethod
