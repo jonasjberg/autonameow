@@ -133,7 +133,7 @@ class Author(NameTemplateField):
     def format(data):
         if isinstance(data, list):
             # Multiple authors
-            _formatted = textutils.format_names_lastname_initials2(
+            _formatted = textutils.format_names_lastname_initials(
                 [d.value for d in data]
             )
             return ' '.join(_formatted)
