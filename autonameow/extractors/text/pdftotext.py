@@ -101,9 +101,12 @@ class PdftotextTextExtractor(AbstractTextExtractor):
         return util.is_executable('pdftotext')
 
 
-def extract_pdf_content_with_pdftotext(pdf_file):
+def extract_pdf_content_with_pdftotext(file_path):
     """
     Extract the plain text contents of a PDF document using "pdftotext".
+
+    Args:
+        file_path: The path to the PDF file to extract text from.
 
     Returns:
         Any textual content of the given PDF file, as Unicode strings.
@@ -112,7 +115,7 @@ def extract_pdf_content_with_pdftotext(pdf_file):
     """
     try:
         process = subprocess.Popen(
-            ['pdftotext', '-nopgbrk', '-enc', 'UTF-8', pdf_file, '-'],
+            ['pdftotext', '-nopgbrk', '-enc', 'UTF-8', file_path, '-'],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, stderr = process.communicate()
