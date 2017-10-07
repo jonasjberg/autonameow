@@ -27,8 +27,10 @@ from core import (
     util,
     repository
 )
+from core.config.configuration import Configuration
 from core.fileobject import FileObject
 from core.model import ExtractedData
+
 
 log = logging.getLogger(__name__)
 
@@ -126,7 +128,7 @@ def collect_results(fileobject, meowuri, data):
         repository.SessionRepository.store(fileobject, meowuri, data)
 
 
-def _instantiate_analyzers(fileobject, klass_list):
+def _instantiate_analyzers(fileobject, klass_list, config):
     """
     Get a list of class instances from a given list of classes.
 
@@ -138,17 +140,20 @@ def _instantiate_analyzers(fileobject, klass_list):
         One instance of each of the given classes as a list of objects.
     """
     return [analyzer(fileobject,
+                     config,
                      add_results_callback=collect_results,
                      request_data_callback=request_global_data)
             for analyzer in klass_list]
 
 
-def start(fileobject):
+def start(fileobject, config):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
     if not isinstance(fileobject, FileObject):
-        raise TypeError('Argument must be an instance of "FileObject"')
+        raise TypeError('"fileobject" must be an instance of "FileObject"')
+    if not isinstance(config, Configuration):
+        raise TypeError('"config" must be an instance of "Configuration"')
 
     klasses = analyzers.suitable_analyzers_for(fileobject)
     if not klasses:
@@ -157,7 +162,7 @@ def start(fileobject):
         )
 
     analyzer_queue = AnalysisRunQueue()
-    for a in _instantiate_analyzers(fileobject, klasses):
+    for a in _instantiate_analyzers(fileobject, klasses, config):
         analyzer_queue.enqueue(a)
     log.debug('Enqueued analyzers: {!s}'.format(analyzer_queue))
 

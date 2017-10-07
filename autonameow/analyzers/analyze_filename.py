@@ -67,10 +67,10 @@ class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     HANDLES_MIME_TYPES = ['*/*']
 
-    def __init__(self, fileobject, add_results_callback,
-                 request_data_callback):
+    def __init__(self, fileobject, config,
+                 add_results_callback, request_data_callback):
         super(FilenameAnalyzer, self).__init__(
-            fileobject, add_results_callback, request_data_callback
+            fileobject, config, add_results_callback, request_data_callback
         )
 
     def run(self):

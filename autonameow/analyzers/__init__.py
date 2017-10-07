@@ -62,8 +62,9 @@ class BaseAnalyzer(object):
     # Last part of the full MeowURI ('filetags', 'filename', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
-    def __init__(self, fileobject, add_results_callback,
-                 request_data_callback):
+    def __init__(self, fileobject, config,
+                 add_results_callback, request_data_callback):
+        self.config = config
         self.fileobject = fileobject
         self.add_results = add_results_callback
         self.request_data = request_data_callback

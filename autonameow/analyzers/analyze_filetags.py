@@ -98,10 +98,10 @@ class FiletagsAnalyzer(BaseAnalyzer):
         )
     }
 
-    def __init__(self, fileobject, add_results_callback,
-                 request_data_callback):
+    def __init__(self, fileobject, config,
+                 add_results_callback, request_data_callback):
         super(FiletagsAnalyzer, self).__init__(
-            fileobject, add_results_callback, request_data_callback
+            fileobject, config, add_results_callback, request_data_callback
         )
 
         self._timestamp = None

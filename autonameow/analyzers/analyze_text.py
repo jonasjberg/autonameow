@@ -27,10 +27,10 @@ class TextAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     HANDLES_MIME_TYPES = ['text/plain']
 
-    def __init__(self, fileobject, add_results_callback,
-                 request_data_callback):
+    def __init__(self, fileobject, config,
+                 add_results_callback, request_data_callback):
         super(TextAnalyzer, self).__init__(
-            fileobject, add_results_callback, request_data_callback
+            fileobject, config, add_results_callback, request_data_callback
         )
 
         self.text = None

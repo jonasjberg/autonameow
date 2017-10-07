@@ -35,6 +35,7 @@ from core import (
     util
 )
 from core.config import rules
+from core.config.configuration import Configuration
 from core.fileobject import FileObject
 import unit_utils_constants as uuconst
 
@@ -450,7 +451,7 @@ def get_instantiated_analyzers():
     """
     # NOTE: These are instantiated with a None FileObject, which might be a
     #       problem and is surely not very pretty.
-    return [klass(None, None, None) for klass in
+    return [klass(None, None, None, None) for klass in
             analyzers.get_analyzer_classes()]
 
 
@@ -606,3 +607,8 @@ def is_internalbytestring(thing):
     if thing is None:
         return False
     return bool(isinstance(thing, bytes))
+
+
+def get_default_config():
+    _config_path = util.normpath(abspath_testfile('default_config.yaml'))
+    return Configuration.from_file(_config_path)

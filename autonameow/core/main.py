@@ -292,7 +292,7 @@ class Autonameow(object):
         )
 
         # Begin analysing the file.
-        _run_analysis(current_file)
+        _run_analysis(current_file, self.active_config)
 
         # Run plugins.
         required_plugins = repository.get_sources_for_meowuris(
@@ -589,18 +589,19 @@ def _run_plugins(fileobject, required_plugins=None):
         raise exceptions.AutonameowException(e)
 
 
-def _run_analysis(fileobject):
+def _run_analysis(fileobject, active_config):
     """
     Sets up and executes "analysis" of the given file.
 
     Args:
         fileobject: The file object to analyze.
+        active_config: An instance of the 'Configuration' class.
 
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
     try:
-        analysis.start(fileobject)
+        analysis.start(fileobject, active_config)
     except exceptions.AutonameowException as e:
         log.critical('Analysis FAILED: {!s}'.format(e))
         raise

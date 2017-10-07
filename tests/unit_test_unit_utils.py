@@ -29,6 +29,7 @@ import analyzers
 from analyzers import BaseAnalyzer
 from core import util
 from core.config import rules
+from core.config.configuration import Configuration
 from core.fileobject import FileObject
 from core.model import ExtractedData
 
@@ -574,3 +575,9 @@ class TestIsInternalByteString(TestCase):
 
         _aT(b'')
         _aT(b'foo')
+
+
+class TestGetDefaultConfig(TestCase):
+    def test_returns_expected_type(self):
+        actual = uu.get_default_config()
+        self.assertTrue(isinstance(actual, Configuration))

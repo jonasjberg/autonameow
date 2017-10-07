@@ -41,6 +41,7 @@ except ImportError:
 def get_ebook_analyzer(fileobject):
     return analyze_ebook.EbookAnalyzer(
         fileobject,
+        uu.get_default_config(),
         add_results_callback=uu.mock_add_results_callback,
         request_data_callback=uu.mock_request_data_callback
     )

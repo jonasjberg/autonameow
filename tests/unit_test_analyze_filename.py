@@ -35,9 +35,12 @@ import unit_utils as uu
 
 
 def get_filename_analyzer(fileobject):
-    return FilenameAnalyzer(fileobject,
-                            add_results_callback=uu.mock_add_results_callback,
-                            request_data_callback=uu.mock_request_data_callback)
+    return FilenameAnalyzer(
+        fileobject,
+        uu.get_default_config(),
+        add_results_callback=uu.mock_add_results_callback,
+        request_data_callback=uu.mock_request_data_callback
+    )
 
 
 class TestFilenameAnalyzerWithImageFile(TestCase):

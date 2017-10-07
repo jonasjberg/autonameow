@@ -29,15 +29,22 @@ from core import analysis
 class TestAnalysis(TestCase):
     def setUp(self):
         self.fo = uu.get_mock_fileobject()
+        self.config = uu.get_default_config()
         uu.init_session_repository()
 
     def test_analysis_start_requires_fileobject_argument(self):
         with self.assertRaises(TypeError):
-            analysis.start(None)
+            analysis.start(None, self.config)
+
+    def test_analysis_start_requires_config_argument(self):
+        with self.assertRaises(TypeError):
+            analysis.start(self.fo, None)
 
     def test__instantiate_analyzers_returns_expected_type(self):
         analyzer_classes = analyzers.get_analyzer_classes()
-        actual = analysis._instantiate_analyzers(self.fo, analyzer_classes)
+        actual = analysis._instantiate_analyzers(
+            self.fo, analyzer_classes, self.config
+        )
 
         self.assertTrue(isinstance(actual, list))
         for ac in actual:

@@ -30,10 +30,10 @@ class ImageAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     HANDLES_MIME_TYPES = ['image/*']
 
-    def __init__(self, fileobject, add_results_callback,
-                 request_data_callback):
+    def __init__(self, fileobject, config,
+                 add_results_callback, request_data_callback):
         super(ImageAnalyzer, self).__init__(
-            fileobject, add_results_callback, request_data_callback
+            fileobject, config, add_results_callback, request_data_callback
         )
 
         self.exiftool = None

@@ -61,10 +61,10 @@ class EbookAnalyzer(BaseAnalyzer):
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
                           'image/vnd.djvu']
 
-    def __init__(self, fileobject, add_results_callback,
-                 request_data_callback):
+    def __init__(self, fileobject, config,
+                 add_results_callback, request_data_callback):
         super(EbookAnalyzer, self).__init__(
-            fileobject, add_results_callback, request_data_callback
+            fileobject, config, add_results_callback, request_data_callback
         )
 
         self.text = None
