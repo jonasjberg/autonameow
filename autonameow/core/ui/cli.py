@@ -47,38 +47,43 @@ log = logging.getLogger(__name__)
 BE_QUIET = False
 
 
-def print_ascii_banner():
+def print_ascii_banner(verbose):
     """
     Prints a "banner" with some ASCII art, program information and credits.
     """
     def divider_string(length):
         return colorize('-' * length, fore='LIGHTBLACK_EX', style='DIM')
 
-    print('')
-    print(colorize('  {}  '.format(C.STRING_PROGRAM_NAME),
-                   back='BLUE', fore='BLACK')
-          + colorize('  Automagic File Renamer by Cats for Cats', fore='BLUE'))
+    if verbose:
+        print('')
+        print(
+            colorize('  {}  '.format(C.STRING_PROGRAM_NAME),
+                     back='BLUE', fore='BLACK') +
+            colorize('  Automagic File Renamer by Cats for Cats', fore='BLUE')
+        )
 
-    _commit_info = util.git_commit_hash()
-    if _commit_info:
-        _commit = '(commit {!s})'.format(_commit_info)
+        _commit_info = util.git_commit_hash()
+        if _commit_info:
+            _commit = '(commit {!s})'.format(_commit_info)
+        else:
+            _commit = ''
+
+        cf = ColumnFormatter()
+        cf.addrow(C.STRING_PROGRAM_NAME, core.version.__copyright__)
+        cf.addrow('version {}'.format(C.STRING_PROGRAM_VERSION),
+                  core.version.__email__)
+        cf.addrow(_commit, core.version.__url__)
+        cf.addrow('', core.version.__url_repo__)
+        cf.setalignment('left', 'right')
+        columnated_text = str(cf)
+        columnated_text_width = cf.max_column_width()
+
+        print(divider_string(columnated_text_width))
+        print(columnated_text)
+        print(divider_string(columnated_text_width))
+        print('')
     else:
-        _commit = ''
-
-    cf = ColumnFormatter()
-    cf.addrow(C.STRING_PROGRAM_NAME, core.version.__copyright__)
-    cf.addrow('version {}'.format(C.STRING_PROGRAM_VERSION),
-              core.version.__email__)
-    cf.addrow(_commit, core.version.__url__)
-    cf.addrow('', core.version.__url_repo__)
-    cf.setalignment('left', 'right')
-    columnated_text = str(cf)
-    columnated_text_width = cf.max_column_width()
-
-    print(divider_string(columnated_text_width))
-    print(columnated_text)
-    print(divider_string(columnated_text_width))
-    print('')
+        print('{}'.format(C.STRING_PROGRAM_VERSION))
 
 
 def print_start_info():

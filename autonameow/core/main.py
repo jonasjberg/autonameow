@@ -95,7 +95,7 @@ class Autonameow(object):
 
         # Display startup banner with program version and exit.
         if self.opts.show_version:
-            cli.print_ascii_banner()
+            cli.print_ascii_banner(verbose=self.opts.verbose)
             self.exit_program(C.EXIT_SUCCESS)
 
         # Set up a session repository for this process.
