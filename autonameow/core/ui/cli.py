@@ -47,7 +47,7 @@ log = logging.getLogger(__name__)
 BE_QUIET = False
 
 
-def print_ascii_banner(verbose):
+def print_version_info(verbose):
     """
     Prints a "banner" with some ASCII art, program information and credits.
     """
