@@ -29,6 +29,7 @@ from core import (
     util
 )
 from core.model import ExtractedData
+from core.namebuilder.fields import NameTemplateField
 from core.ui import cli
 from core.util import (
     diskutils,
@@ -46,8 +47,10 @@ def build(config, name_template, field_data_map):
     """
     log.debug('Using name template: "{}"'.format(name_template))
 
+    formatted_fields = pre_assemble_format_2(field_data_map)
+
     # TODO: Move to use name template field classes as keys.
-    data = _with_simple_string_keys(field_data_map)
+    data = _with_simple_string_keys(formatted_fields)
 
     if not field_data_map:
         log.error('Name builder got empty data map! This should not happen ..')
@@ -111,6 +114,21 @@ def build(config, name_template, field_data_map):
     # TODO: [TD0036] Allow per-field replacements and customization.
 
     return new_name
+
+
+def pre_assemble_format_2(field_data_dict):
+    out = {}
+
+    for field, data in field_data_dict.items():
+        sanity.check(field, issubclass(field, NameTemplateField))
+
+        _formatted = field.format(data)
+        if _formatted:
+            out[field] = _formatted
+        else:
+            out[field] = data
+
+    return out
 
 
 def msg_replacement(original, replacement, regex, color):

@@ -22,6 +22,7 @@
 import re
 
 from core import types
+from core.util import textutils
 
 
 class NameTemplateField(object):
@@ -39,6 +40,11 @@ class NameTemplateField(object):
         # TODO: Implement transforming data between field types, if possible.
         # target_field_type = type(target_field)
         # result = self._transforms[target_field_type](self._content)
+        pass
+
+    @staticmethod
+    def format(data):
+        # TODO: Implement in inheriting classes ..
         pass
 
     @classmethod
@@ -123,6 +129,17 @@ class Author(NameTemplateField):
                         types.AW_INTEGER,
                         types.AW_FLOAT)
 
+    @staticmethod
+    def format(data):
+        if isinstance(data, list):
+            # Multiple authors
+            _formatted = textutils.format_names_lastname_initials2(
+                [d.value for d in data]
+            )
+            return ' '.join(_formatted)
+        else:
+            return textutils.format_name_lastname_initials2(data.value)
+
 
 class Creator(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
@@ -162,7 +179,11 @@ class Publisher(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
-    pass
+
+    @staticmethod
+    def format(data):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        pass
 
 
 class Tags(NameTemplateField):
