@@ -121,6 +121,7 @@ def pre_assemble_format_2(field_data_dict):
 
     for field, data in field_data_dict.items():
         sanity.check(field, issubclass(field, NameTemplateField))
+        sanity.check_isinstance(data, ExtractedData)
 
         _formatted = field.format(data)
         if _formatted:
@@ -142,6 +143,7 @@ def msg_replacement(original, replacement, regex, color):
     # Applying custom replacement: "2007-04-23_12-comments.png." -> "2007-04-23_12-comments.png"
     #                                                     ^   ^
     #                 Should not be colored red, but is --'   '-- Should be red, but isn't ..
+
 
 def _colorize_replacement(original, replacement, regex, color):
     _colored_replacement = cli.colorize(replacement, fore=color)

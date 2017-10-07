@@ -21,8 +21,14 @@
 
 import re
 
-from core import types
-from core.util import textutils
+from core import (
+    exceptions,
+    types,
+)
+from core.util import (
+    sanity,
+    textutils
+)
 
 
 class NameTemplateField(object):
@@ -42,8 +48,8 @@ class NameTemplateField(object):
         # result = self._transforms[target_field_type](self._content)
         pass
 
-    @staticmethod
-    def format(data):
+    @classmethod
+    def format(cls, data):
         # TODO: Implement in inheriting classes ..
         pass
 
@@ -72,14 +78,26 @@ class Title(NameTemplateField):
     def normalize(cls, data):
         data = data.strip(',.:;-_ ')
         data = data.replace('&', 'and')
-        data = data.replace("&#8211;", "-")
+        data = data.replace('&#8211;', '-')
+        data = data.replace(' - ', '')
         return data
 
-    @staticmethod
-    def format(data):
+    @classmethod
+    def format(cls, data):
         # TODO: [TD0036] Allow per-field replacements and customization.
-        text = data.value
-        return text.replace(' - ', '').replace(':', '')
+        if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+            string = types.force_string(data.value)
+            if not string:
+                raise exceptions.NameBuilderError(
+                    'Unicode string conversion failed for "{!r}"'
+                )
+        elif data.coercer == types.AW_STRING:
+            string = data.value
+        else:
+            string = data.value
+
+        sanity.check_internal_string(string)
+        return cls.normalize(string)
 
 
 class Edition(NameTemplateField):
@@ -116,11 +134,24 @@ class Edition(NameTemplateField):
 
         return edition
 
-    @staticmethod
-    def format(data):
+    @classmethod
+    def format(cls, data):
         # TODO: [TD0036] Allow per-field replacements and customization.
-        text = data.value
-        return '{}E'.format(text)
+        if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+            string = types.force_string(data.value)
+            if not string:
+                raise exceptions.NameBuilderError(
+                    'Unicode string conversion failed for "{!r}"'
+                )
+        elif data.coercer in (types.AW_STRING, types.AW_INTEGER):
+            string = data.value
+        else:
+            raise exceptions.NameBuilderError(
+                'Got incompatible data: {!r}'.format(data)
+            )
+
+        sanity.check_internal_string(string)
+        return '{}E'.format(string)
 
 
 class Extension(NameTemplateField):
@@ -140,20 +171,37 @@ class Extension(NameTemplateField):
 class Author(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER,
-                        types.AW_FLOAT)
+                        types.AW_STRING)
 
-    @staticmethod
-    def format(data):
+    @classmethod
+    def format(cls, data):
         # TODO: [TD0036] Allow per-field replacements and customization.
+
         if isinstance(data, list):
             # Multiple authors
-            _formatted = textutils.format_names_lastname_initials(
-                [d.value for d in data]
-            )
+            _formatted = []
+            for d in data:
+                if d.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+                    string = types.force_string(d.value)
+                    if not string:
+                        raise exceptions.NameBuilderError(
+                            'Unicode string conversion failed for "{!r}"'
+                        )
+                elif d.coercer == types.AW_STRING:
+                    string = d.value
+                else:
+                    raise exceptions.NameBuilderError(
+                        'Got incompatible data: {!r}'.format(d)
+                    )
+
+                sanity.check_internal_string(string)
+                _formatted.append(
+                    textutils.format_name_lastname_initials(string)
+                )
+
             return ' '.join(_formatted)
         else:
+            # One author
             return textutils.format_name_lastname_initials(data.value)
 
 
@@ -196,8 +244,8 @@ class Publisher(NameTemplateField):
                         types.AW_STRING,
                         types.AW_INTEGER)
 
-    @staticmethod
-    def format(data):
+    @classmethod
+    def format(cls, data):
         # TODO: [TD0036] Allow per-field replacements and customization.
         pass
 
