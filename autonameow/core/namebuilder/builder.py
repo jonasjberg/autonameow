@@ -47,7 +47,7 @@ def build(config, name_template, field_data_map):
     """
     log.debug('Using name template: "{}"'.format(name_template))
 
-    formatted_fields = pre_assemble_format_2(field_data_map)
+    formatted_fields = pre_assemble_format_2(field_data_map, config)
 
     # TODO: Move to use name template field classes as keys.
     data = _with_simple_string_keys(formatted_fields)
@@ -58,7 +58,7 @@ def build(config, name_template, field_data_map):
 
     # TODO: [TD0017][TD0041] Format ALL data before assembly!
     # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
-    data = pre_assemble_format(data, config)
+    # data = pre_assemble_format(data, config)
     log.debug('After pre-assembly formatting;')
     log.debug(str(data))
 
@@ -116,14 +116,18 @@ def build(config, name_template, field_data_map):
     return new_name
 
 
-def pre_assemble_format_2(field_data_dict):
+def pre_assemble_format_2(field_data_dict, config):
     out = {}
 
     for field, data in field_data_dict.items():
         sanity.check(field, issubclass(field, NameTemplateField))
-        sanity.check_isinstance(data, ExtractedData)
+        if isinstance(data, list):
+            for d in data:
+                sanity.check_isinstance(d, ExtractedData)
+        else:
+            sanity.check_isinstance(data, ExtractedData)
 
-        _formatted = field.format(data)
+        _formatted = field.format(data, config=config)
         if _formatted:
             out[field] = _formatted
         else:

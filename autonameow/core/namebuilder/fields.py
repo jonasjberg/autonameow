@@ -19,16 +19,21 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import re
 
 from core import (
     exceptions,
     types,
 )
+from core.model import ExtractedData
 from core.util import (
     sanity,
     textutils
 )
+
+
+log = logging.getLogger(__name__)
 
 
 class NameTemplateField(object):
@@ -49,9 +54,9 @@ class NameTemplateField(object):
         pass
 
     @classmethod
-    def format(cls, data):
+    def format(cls, data, *args, **kwargs):
         # TODO: Implement in inheriting classes ..
-        pass
+        log.warning('Called unimplemented "{!s}.format()"'.format(cls.__name__))
 
     @classmethod
     def as_placeholder(cls):
@@ -83,7 +88,7 @@ class Title(NameTemplateField):
         return data
 
     @classmethod
-    def format(cls, data):
+    def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
         if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
             string = types.force_string(data.value)
@@ -135,7 +140,7 @@ class Edition(NameTemplateField):
         return edition
 
     @classmethod
-    def format(cls, data):
+    def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
         if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
             string = types.force_string(data.value)
@@ -174,7 +179,7 @@ class Author(NameTemplateField):
                         types.AW_STRING)
 
     @classmethod
-    def format(cls, data):
+    def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
 
         if isinstance(data, list):
@@ -218,7 +223,13 @@ class DateTime(NameTemplateField):
                         types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE,
                         types.AW_PYPDFTIMEDATE)
-    pass
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        # datetime_format = config.options['DATETIME_FORMAT']['datetime']
+        # formatted[field] = formatted_datetime(d, datetime_format)
+        pass
 
 
 class Date(NameTemplateField):
@@ -226,7 +237,13 @@ class Date(NameTemplateField):
                         types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE,
                         types.AW_PYPDFTIMEDATE)
-    pass
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        # datetime_format = config.options['DATETIME_FORMAT']['date']
+        # formatted[field] = formatted_datetime(d, datetime_format)
+        pass
 
 
 class Description(NameTemplateField):
@@ -245,7 +262,7 @@ class Publisher(NameTemplateField):
                         types.AW_INTEGER)
 
     @classmethod
-    def format(cls, data):
+    def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
         pass
 
@@ -255,7 +272,38 @@ class Tags(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
-    pass
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+
+        sanity.check_isinstance(data, list)
+        _tags = []
+        for d in data:
+            sanity.check_isinstance(d, ExtractedData)
+            _tags.append(d.value)
+
+        c = kwargs.get('config')
+        if c:
+            sep = c.options['FILETAGS_OPTIONS']['between_tag_separator']
+            sanity.check_internal_string(sep)
+            return sep.join(_tags)
+        else:
+            raise exceptions.NameBuilderError('Unknown "between_tag_separator"')
+        pass
+
+
+class Time(NameTemplateField):
+    COMPATIBLE_TYPES = (types.AW_TIMEDATE,
+                        types.AW_EXIFTOOLTIMEDATE,
+                        types.AW_PYPDFTIMEDATE)
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        # datetime_format = config.options['DATETIME_FORMAT']['time']
+        # formatted[field] = formatted_datetime(d, datetime_format)
+        pass
 
 
 def format_string_placeholders(format_string):
