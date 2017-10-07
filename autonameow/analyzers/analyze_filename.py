@@ -79,6 +79,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._add_results('title', self.get_title())
         self._add_results('edition', self.get_edition())
         self._add_results('extension', self.get_extension())
+        self._add_results('publisher', self.get_publisher())
 
     def get_datetime(self):
         results = []
@@ -135,6 +136,27 @@ class FilenameAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Extension, probability=1),
             ]
+        )(result)
+
+    def get_publisher(self):
+        ed_basename_prefix = self.request_data(
+            self.fileobject,
+            'extractor.filesystem.xplat.basename.prefix'
+        )
+        if not ed_basename_prefix:
+            return
+
+        file_basename_prefix = ed_basename_prefix.as_string()
+        result = find_publisher(file_basename_prefix)
+        if not result:
+            return None
+
+        return ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Publisher, probability=1),
+            ],
+            generic_field=model.GenericPublisher
         )(result)
 
     def _get_datetime_from_name(self):
@@ -327,5 +349,22 @@ def find_edition(text):
             return edition
         except types.AWTypeError:
             pass
+
+    return None
+
+
+def find_publisher(text):
+    # TODO: [TD0036] Fetch these patterns from the configuration!
+    PUBLISHER_REPLACEMENTS_PATTERNS = {
+        'ProjectGutenberg': ['Project Gutenberg', 'www.gutenberg.net'],
+        'FeedBooks': ['This book is brought to you by Feedbooks',
+                      'http://www.feedbooks.com'],
+        'Springer': ['Springer']
+    }
+
+    for repl, patterns in PUBLISHER_REPLACEMENTS_PATTERNS.items():
+        for pattern in patterns:
+            if re.search(pattern, text):
+                return repl
 
     return None
