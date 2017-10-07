@@ -232,7 +232,7 @@ def format_name_lastname_initials(full_name):
     _initials = '{0}{1}'.format('.'.join(initials), '.')
 
     last_name = _human_name.last.replace(' ', '')
-    return '{} {}'.format(last_name, _initials)
+    return '{} {}'.format(last_name, _initials).strip()
 
 
 def format_names(list_of_full_names, formatter):
