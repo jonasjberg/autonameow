@@ -39,8 +39,6 @@ High Priority
 Medium Priority
 ---------------
 
-* `[TD0098]` Use checksums as keys for cached data, not paths.
-
 * `[TD0092]` Add tracking history and ability to "undo" renames.
 
 * `[TD0054]` Represent datetime as UTC within autonameow. Convert incoming time

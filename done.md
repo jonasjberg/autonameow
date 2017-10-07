@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-10-07
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0098]` Use checksums as keys for cached data, not paths.
+
 * 2017-10-06
 
     > Medium Priority

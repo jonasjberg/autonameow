@@ -44,6 +44,9 @@ from extractors.text.common import AbstractTextExtractor
 log = logging.getLogger(__name__)
 
 
+CACHE_KEY = 'text'
+
+
 class PyPDFTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
 
@@ -56,17 +59,15 @@ class PyPDFTextExtractor(AbstractTextExtractor):
         if _cache:
             self.cache = _cache
             try:
-                self._cached_text = self.cache.get('text')
+                self._cached_text = self.cache.get(CACHE_KEY)
             except (KeyError, cache.CacheError):
                 pass
         else:
             self.cache = None
 
-    def _cache_read(self, source):
-        if source in self._cached_text:
-            _dp = util.displayable_path(source)
-            self.log.info('Using cached text from source: {!s}'.format(_dp))
-            return self._cached_text.get(source)
+    def _cache_read(self, fileobject):
+        if fileobject in self._cached_text:
+            return self._cached_text.get(fileobject)
         return None
 
     def _cache_write(self):
@@ -74,21 +75,19 @@ class PyPDFTextExtractor(AbstractTextExtractor):
             return
 
         try:
-            self.cache.set('text', self._cached_text)
+            self.cache.set(CACHE_KEY, self._cached_text)
         except cache.CacheError:
             pass
 
     def _get_text(self, fileobject):
-        source = fileobject.abspath
-        _cached = self._cache_read(source)
+        _cached = self._cache_read(fileobject)
         if _cached is not None:
+            self.log.info('Using cached text for: {!r}'.format(fileobject))
             return _cached
 
-        text = extract_pdf_content_with_pypdf(source)
+        text = extract_pdf_content_with_pypdf(fileobject.abspath)
         if text and len(text) > 1:
-            # TODO: [TD0098] Use checksums as keys for cached data, not paths.
-            #       .. I.E. use a more robust identifier as "source" below.
-            self._cached_text.update({source: text})
+            self._cached_text.update({fileobject: text})
             self._cache_write()
             return text
         else:
