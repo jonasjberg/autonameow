@@ -257,9 +257,12 @@ class FilenameAnalyzer(BaseAnalyzer):
 
 MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     # Note that the inner-most values are set-literals.
+    'application/octet-stream': {
+        'chm': {'chm'}
+    },
     'text/plain': {
         'c': {'c'},
-        'cpp': {'cpp'},
+        'cpp': {'cpp', 'c++'},
         'csv': {'csv'},
         'gemspec': {'gemspec'},
         'h': {'h'},
