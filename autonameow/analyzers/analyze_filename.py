@@ -147,7 +147,13 @@ class FilenameAnalyzer(BaseAnalyzer):
             return
 
         file_basename_prefix = ed_basename_prefix.as_string()
-        result = find_publisher(file_basename_prefix)
+        _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
+        if _options:
+            _candidates = _options.get('candidates', {})
+        else:
+            _candidates = {}
+
+        result = find_publisher(file_basename_prefix, _candidates)
         if not result:
             return None
 
@@ -356,16 +362,8 @@ def find_edition(text):
     return None
 
 
-def find_publisher(text):
-    # TODO: [TD0036] Fetch these patterns from the configuration!
-    PUBLISHER_REPLACEMENTS_PATTERNS = {
-        'ProjectGutenberg': ['Project Gutenberg', 'www.gutenberg.net'],
-        'FeedBooks': ['This book is brought to you by Feedbooks',
-                      'http://www.feedbooks.com'],
-        'Springer': ['Springer']
-    }
-
-    for repl, patterns in PUBLISHER_REPLACEMENTS_PATTERNS.items():
+def find_publisher(text, candidates):
+    for repl, patterns in candidates.items():
         for pattern in patterns:
             if re.search(pattern, text):
                 return repl
