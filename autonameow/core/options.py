@@ -347,21 +347,32 @@ def prettyprint_options(opts, extra_opts):
         opts: The parsed options returned by argparse.
         extra_opts: Extra information to be included, as type dict.
     """
+    COLSEP = ':'
+
     opts_dict = vars(opts)
     if extra_opts:
         opts_dict.update(extra_opts)
 
-    out = []
-    for k, v in opts_dict.items():
-        if v == 0:
-            v = 'False'
-        elif v == 1:
-            v = 'True'
+    cf = cli.ColumnFormatter()
+    for key, value in opts_dict.items():
+        strkey = str(key)
 
-        out.append('{:<30} {:<40}'.format(str(k), str(v)))
+        if isinstance(value, list):
+            if len(value) == 0:
+                cf.addrow(strkey, COLSEP, str(value))
+            else:
+                cf.addrow(strkey, COLSEP, str(value[0]))
+                for v in value[1:]:
+                    cf.addrow(None, None, str(v))
+
+        else:
+            cf.addrow(strkey, COLSEP, str(value))
+
+    cf.addemptyrow()
+    cf.setalignment('left', 'right', 'left')
 
     cli.msg('Current Options', style='heading')
-    cli.msg('\n'.join(out) + '\n')
+    cli.msg(str(cf))
 
 
 class CapitalisedHelpFormatter(argparse.HelpFormatter):

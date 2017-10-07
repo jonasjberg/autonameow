@@ -121,11 +121,11 @@ class Autonameow(object):
 
         if self.opts.dump_options:
             include_opts = {
-                'config_file_path': util.displayable_path(
-                    config.DefaultConfigFilePath
+                'config_file_path': '"{!s}"'.format(
+                    util.displayable_path(config.DefaultConfigFilePath)
                 ),
-                'cache_directory_path': util.displayable_path(
-                    cache.CACHE_DIR_ABSPATH
+                'cache_directory_path': '"{!s}"'.format(
+                    util.displayable_path(cache.CACHE_DIR_ABSPATH)
                 )
             }
             options.prettyprint_options(self.opts, include_opts)
