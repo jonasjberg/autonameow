@@ -26,6 +26,7 @@ import time
 
 from core import (
     analysis,
+    cache,
     config,
     exceptions,
     extraction,
@@ -122,6 +123,9 @@ class Autonameow(object):
             include_opts = {
                 'config_file_path': util.displayable_path(
                     config.DefaultConfigFilePath
+                ),
+                'cache_directory_path': util.displayable_path(
+                    cache.CACHE_DIR_ABSPATH
                 )
             }
             options.prettyprint_options(self.opts, include_opts)
