@@ -23,6 +23,7 @@ import copy
 import logging
 
 from core import types
+from core.util import textutils
 
 
 log = logging.getLogger(__name__)
@@ -133,9 +134,13 @@ class ExtractedData(object):
         # return self.coercer.format(self.value)
 
     def __repr__(self):
+        _contents = str(self)
+        if _contents and isinstance(_contents, str):
+            _contents = textutils.truncate_text(_contents, 50)
+
         r = '<{!s}({!s}, mapped_fields={!s}, generic_field={!s})({})>'.format(
             self.__class__.__name__, self.coercer, self.field_map,
-            self.generic_field, str(self)
+            self.generic_field, _contents
         )
         return r
 

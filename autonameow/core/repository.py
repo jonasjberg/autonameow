@@ -130,7 +130,7 @@ class Repository(object):
                 self._store(fileobject, _gen_uri, data)
 
     def _store(self, fileobject, meowuri, data):
-        log.debug('Repository storing: [{:8.8}]->[{!s}] :: "{!s}"'.format(
+        log.debug('Repository storing: [{:8.8}]->[{!s}] :: "{!r}"'.format(
             fileobject.hash_partial, meowuri, data
         ))
         try:
