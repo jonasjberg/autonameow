@@ -36,6 +36,11 @@ from extractors import (
 from thirdparty import pyexiftool
 
 
+IGNORED_EXIFTOOL_TAGNAMES = frozenset([
+    'ExifTool:ExifToolVersion'
+])
+
+
 class ExiftoolMetadataExtractor(BaseExtractor):
     """
     Extracts various types of metadata using "exiftool".
@@ -322,6 +327,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         for tag_name, value in raw_metadata.items():
             if value is None:
                 continue
+            if is_ignored_tagname(tag_name):
+                continue
             if is_binary_blob(value):
                 continue
 
@@ -345,6 +352,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
 
 def is_binary_blob(value):
     return isinstance(value, str) and 'use -b option to extract' in value
+
+
+def is_ignored_tagname(tagname):
+    return bool(tagname in IGNORED_EXIFTOOL_TAGNAMES)
 
 
 def _get_exiftool_data(source):
