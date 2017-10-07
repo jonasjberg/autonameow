@@ -20,12 +20,12 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-from unittest.mock import (
-    MagicMock,
-    patch
-)
+from unittest.mock import patch
 
-from core import cache
+from core import (
+    cache,
+    util
+)
 import unit_utils as uu
 
 
@@ -146,10 +146,14 @@ class TestPickleCache(TestCase):
         actual = self.c.get(datakey)
         self.assertEqual(actual, datavalue)
 
-    def test_get(self):
-        self.c = cache.PickleCache(self.CACHE_KEY)
-        actual = self.c.get('key_a')
-        self.assertEqual(actual, 'mjaooajm')
+    def test_get_from_empty(self):
+        random_key = util.unique_identifier()
+        self.c = cache.PickleCache(random_key)
+
+        # The cache should not have the key in 'self._data' nor should the
+        # cache exist, which should raise KeyError.
+        with self.assertRaises(KeyError):
+            _ = self.c.get('key_a')
 
     def test_set_get(self):
         c = cache.PickleCache('bar')
