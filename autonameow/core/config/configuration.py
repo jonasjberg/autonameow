@@ -27,6 +27,7 @@ from core import constants as C
 from core import (
     config,
     exceptions,
+    namebuilder,
     util,
     types
 )
@@ -38,6 +39,7 @@ from core.config.field_parsers import (
     NameFormatConfigFieldParser,
     parse_versioning
 )
+from core.namebuilder import fields
 from core.util import sanity
 
 log = logging.getLogger(__name__)
@@ -116,6 +118,7 @@ class Configuration(object):
 
         self._data = data
         self._load_reusable_nametemplates()
+        self._load_template_fields()
         self._load_rules()
         self._load_options()
         self._load_version()
@@ -145,8 +148,9 @@ class Configuration(object):
 
         validated = {}
         for raw_name, raw_templ in raw_templates.items():
-            _error = 'Got invalid name template: "{!s}: {!s}"'.format(raw_name,
-                                                                      raw_templ)
+            _error = 'Got invalid name template: "{!s}": {!s}"'.format(
+                raw_name, raw_templ
+            )
             name = types.force_string(raw_name)
             if not name:
                 raise exceptions.ConfigurationSyntaxError(_error)
@@ -164,6 +168,49 @@ class Configuration(object):
                 raise exceptions.ConfigurationSyntaxError(_error)
 
         self._reusable_nametemplates.update(validated)
+
+    def _load_template_fields(self):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        raw_templatefields = self._data.get('NAME_TEMPLATE_FIELDS')
+        if not raw_templatefields:
+            log.debug(
+                'Configuration does not contain name template field options'
+            )
+            return
+        if not isinstance(raw_templatefields, dict):
+            log.warning('Name template field options is not of type dict')
+            return
+
+        for raw_field, raw_options in raw_templatefields.items():
+            field = types.force_string(raw_field)
+            if not field or not fields.is_valid_template_field(field):
+                raise exceptions.ConfigurationSyntaxError(
+                    'Invalid name template field: "{!s}"'.format(raw_field)
+                )
+
+            # User-defined names with lists of patterns.
+            for repl, pat_list in raw_options.get('patterns', {}).items():
+                _validated_patterns = []
+                for _pat in pat_list:
+                    try:
+                        compiled_pat = re.compile(_pat)
+                    except re.error:
+                        log.warning(
+                            'Malformed regular expression: "{!s}"'.format(_pat)
+                        )
+                    else:
+                        log.debug(
+                            'Added name template field pattern :: Match: "{!s}"'
+                            ' Replace: "{!s}"'.format(_pat, repl)
+                        )
+                        _validated_patterns.append(compiled_pat)
+
+                if _validated_patterns:
+                    util.nested_dict_set(
+                        self._options,
+                        ['NAME_TEMPLATE_FIELDS', repl, 'patterns'],
+                        _validated_patterns
+                    )
 
     def _load_rules(self):
         raw_rules = self._data.get('RULES')

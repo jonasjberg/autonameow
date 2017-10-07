@@ -24,6 +24,15 @@ NAME_TEMPLATES:
     default_book: '{publisher} {title} {edition} - {author} {date}.{extension}'
     default_document: '{title} - {author} {datetime}.{extension}'
     default_photo: '{datetime} {description} -- {tags}.{extension}'
+NAME_TEMPLATE_FIELDS:
+    publisher:
+        patterns:
+            FeedBooks:
+            - This book is brought to you by Feedbooks
+            - http://www.feedbooks.com
+            ProjectGutenberg:
+            - Project Gutenberg
+            - www.gutenberg.net
 RULES:
     Sample Entry for E-books:
         CONDITIONS:
