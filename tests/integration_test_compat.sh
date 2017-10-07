@@ -76,10 +76,10 @@ assert_true '"$AUTONAMEOW_RUNNER"' \
 assert_true '"$AUTONAMEOW_RUNNER" --version' \
             "autonameow should return zero when started with \"--version\""
 
-assert_true '"$AUTONAMEOW_RUNNER" --version 2>&1 | grep -o -- "version v[0-9]\.[0-9]\.[0-9]"' \
+assert_true '"$AUTONAMEOW_RUNNER" --version 2>&1 | grep -o -- "v[0-9]\.[0-9]\.[0-9]"' \
             "The output should contain a version string matching \"vX.X.X\" when started with \"--version\""
 
-AUTONAMEOW_VERSION="$(( "$AUTONAMEOW_RUNNER" --version 2>&1 ) | grep -o -- "version v[0-9]\.[0-9]\.[0-9]" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
+AUTONAMEOW_VERSION="$(( "$AUTONAMEOW_RUNNER" --version 2>&1 ) | grep -o -- "v[0-9]\.[0-9]\.[0-9]" | grep -o -- "[0-9]\.[0-9]\.[0-9]")"
 assert_false '[ -z "$AUTONAMEOW_VERSION" ]' \
              'This test script should be able to retrieve the program version.'
 
