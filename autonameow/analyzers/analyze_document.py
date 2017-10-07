@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
+
 from analyzers import BaseAnalyzer
 from core import (
     model,
@@ -31,7 +33,8 @@ from core.model import (
 from core.namebuilder import fields
 from core.util import (
     dateandtime,
-    sanity
+    sanity,
+    textutils
 )
 
 
@@ -60,6 +63,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         self._add_results('publisher', self.get_publisher())
 
         self._add_title_from_text_to_results()
+        self._add_publisher_from_text_to_results()
 
     def __collect_results(self, meowuri, weight):
         value = self.request_data(self.fileobject, meowuri)
@@ -154,14 +158,40 @@ class DocumentAnalyzer(BaseAnalyzer):
                     'title', self._wrap_generic_title(line, _prob)
                 )
 
-    def _wrap_generic_title(self, title_string, probability):
+    def _add_publisher_from_text_to_results(self):
+        _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
+        if not _options:
+            return
+        else:
+            _candidates = _options.get('candidates', {})
+
+        sanity.check(self.text is not None)
+        _text = textutils.extract_lines(self.text, firstline=0, lastline=100)
+        result = find_publisher(_text, _candidates)
+        if not result:
+            return
+
+        self._add_results(
+            'publisher', self._wrap_publisher(result)
+        )
+
+    def _wrap_publisher(self, data):
+        return ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Publisher, probability=1),
+            ],
+            generic_field=model.GenericPublisher
+        )(data)
+
+    def _wrap_generic_title(self, data, probability):
         return ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Title, probability=probability),
             ],
             generic_field=model.GenericTitle
-        )(title_string)
+        )(data)
 
     def _get_datetime_from_text(self):
         """
@@ -236,3 +266,12 @@ def result_list_add(value, source, weight):
     return [{'value': value,
              'source': source,
              'weight': weight}]
+
+
+def find_publisher(text, candidates):
+    text = text.lower()
+    for repl, patterns in candidates.items():
+        for pattern in patterns:
+            if re.search(pattern, text):
+                return repl
+    return None

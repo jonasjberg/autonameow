@@ -193,7 +193,7 @@ class Configuration(object):
                 _validated_candidates = []
                 for _pat in pat_list:
                     try:
-                        compiled_pat = re.compile(_pat)
+                        compiled_pat = re.compile(_pat, re.IGNORECASE)
                     except re.error:
                         log.warning(
                             'Malformed regular expression: "{!s}"'.format(_pat)
