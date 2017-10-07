@@ -131,6 +131,15 @@ class Resolver(object):
     def _verify_types(self):
         for field, data in self.fields_data.items():
             if isinstance(data, list):
+                if not field.MULTIVALUED:
+                    self.fields_data[field] = None
+                    log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
+                    log.debug(
+                        'Template field "{!s}" expects a single value. '
+                        'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
+                                                   type(data), data)
+                    )
+
                 for d in data:
                     self._verify_type(field, d)
             else:

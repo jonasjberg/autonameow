@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
 import logging
 import re
 
@@ -38,6 +39,7 @@ log = logging.getLogger(__name__)
 
 class NameTemplateField(object):
     COMPATIBLE_TYPES = (None, )
+    MULTIVALUED = None
 
     def __init__(self, content):
         self._content = content
@@ -75,6 +77,7 @@ class Title(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
+    MULTIVALUED = False
 
     def __init__(self, content):
         super(Title).__init__(content)
@@ -110,6 +113,7 @@ class Edition(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
+    MULTIVALUED = False
 
     # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
     REPLACE_ORDINALS = []
@@ -149,7 +153,7 @@ class Edition(NameTemplateField):
                     'Unicode string conversion failed for "{!r}"'
                 )
         elif data.coercer in (types.AW_STRING, types.AW_INTEGER):
-            string = data.value
+            string = data.as_string()
         else:
             raise exceptions.NameBuilderError(
                 'Got incompatible data: {!r}'.format(data)
@@ -164,6 +168,7 @@ class Extension(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_MIMETYPE)
+    MULTIVALUED = False
 
     def __init__(self, content):
         super(Extension).__init__(content)
@@ -177,6 +182,7 @@ class Author(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
                         types.AW_STRING)
+    MULTIVALUED = True
 
     @classmethod
     def format(cls, data, *args, **kwargs):
@@ -216,6 +222,7 @@ class Creator(NameTemplateField):
                         types.AW_STRING,
                         types.AW_INTEGER,
                         types.AW_FLOAT)
+    MULTIVALUED = True
 
 
 class DateTime(NameTemplateField):
@@ -223,13 +230,16 @@ class DateTime(NameTemplateField):
                         types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE,
                         types.AW_PYPDFTIMEDATE)
+    MULTIVALUED = False
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        # TODO: [TD0036] Allow per-field replacements and customization.
-        # datetime_format = config.options['DATETIME_FORMAT']['datetime']
-        # formatted[field] = formatted_datetime(d, datetime_format)
-        pass
+        c = kwargs.get('config')
+        if c:
+            _format = c.options['DATETIME_FORMAT']['datetime']
+            return formatted_datetime(data, _format)
+        else:
+            raise exceptions.NameBuilderError('Unknown "datetime" format')
 
 
 class Date(NameTemplateField):
@@ -237,13 +247,16 @@ class Date(NameTemplateField):
                         types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE,
                         types.AW_PYPDFTIMEDATE)
+    MULTIVALUED = False
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        # TODO: [TD0036] Allow per-field replacements and customization.
-        # datetime_format = config.options['DATETIME_FORMAT']['date']
-        # formatted[field] = formatted_datetime(d, datetime_format)
-        pass
+        c = kwargs.get('config')
+        if c:
+            datetime_format = c.options['DATETIME_FORMAT']['date']
+            return formatted_datetime(data, datetime_format)
+        else:
+            raise exceptions.NameBuilderError('Unknown "date" format')
 
 
 class Description(NameTemplateField):
@@ -252,6 +265,7 @@ class Description(NameTemplateField):
                         types.AW_STRING,
                         types.AW_INTEGER,
                         types.AW_FLOAT)
+    MULTIVALUED = False
     pass
 
 
@@ -260,6 +274,7 @@ class Publisher(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
+    MULTIVALUED = False
 
     @classmethod
     def format(cls, data, *args, **kwargs):
@@ -272,11 +287,10 @@ class Tags(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
+    MULTIVALUED = True
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        # TODO: [TD0036] Allow per-field replacements and customization.
-
         sanity.check_isinstance(data, list)
         _tags = []
         for d in data:
@@ -297,13 +311,16 @@ class Time(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE,
                         types.AW_PYPDFTIMEDATE)
+    MULTIVALUED = False
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        # TODO: [TD0036] Allow per-field replacements and customization.
-        # datetime_format = config.options['DATETIME_FORMAT']['time']
-        # formatted[field] = formatted_datetime(d, datetime_format)
-        pass
+        c = kwargs.get('config')
+        if c:
+            datetime_format = c.options['DATETIME_FORMAT']['time']
+            return formatted_datetime(data, datetime_format)
+        else:
+            raise exceptions.NameBuilderError('Unknown "time" format')
 
 
 def format_string_placeholders(format_string):
@@ -393,3 +410,23 @@ def nametemplatefield_classes_in_formatstring(format_string):
 
     placeholders = format_string_placeholders(format_string)
     return [nametemplatefield_class_from_string(p) for p in placeholders]
+
+
+def formatted_datetime(datetime_object, format_string):
+    """
+    Takes a date/time string, converts it to a datetime object and
+    returns a formatted version on the form specified with "format_string".
+
+    Note that the parsing of "datetime_string" might fail.
+    TODO: Handle the [raw data] -> [formatted datetime] conversion better!
+
+    Args:
+        datetime_object: Date/time information as a datetime object.
+        format_string: The format string to use for the output. Refer to:
+            https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+
+    Returns:
+        A string in the specified format with the data from the given string.
+    """
+    sanity.check_isinstance(datetime_object, datetime.datetime)
+    return datetime_object.strftime(format_string)
