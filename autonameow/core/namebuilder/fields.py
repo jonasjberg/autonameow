@@ -138,7 +138,7 @@ class Author(NameTemplateField):
             )
             return ' '.join(_formatted)
         else:
-            return textutils.format_name_lastname_initials2(data.value)
+            return textutils.format_name_lastname_initials(data.value)
 
 
 class Creator(NameTemplateField):

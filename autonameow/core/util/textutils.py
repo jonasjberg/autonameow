@@ -204,32 +204,6 @@ def format_name_lastname_initials(full_name):
     Returns:
         The specified name written as LAST_NAME, INITIAL, INITIAL..
     """
-    # TODO: Keep one of these ..
-    words = full_name.split(' ')
-    words = [w for w in words if w not in IGNORED_AUTHOR_WORDS]
-
-    lastname = words.pop()
-    if words:
-        initials = [w[0] for w in words]
-        _initials = '{0}{1}'.format('.'.join(initials), '.')
-        return lastname + ' ' + _initials
-    else:
-        return lastname
-
-
-def format_name_lastname_initials2(full_name):
-    """
-    Formats a full name to LAST_NAME, INITIALS..
-
-    Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
-
-    Args:
-        full_name: The full name to format as a Unicode string.
-
-    Returns:
-        The specified name written as LAST_NAME, INITIAL, INITIAL..
-    """
-    # TODO: Keep one of these ..
     sanity.check_internal_string(full_name)
 
     full_name = full_name.strip()
@@ -269,13 +243,7 @@ def format_names(list_of_full_names, formatter):
 
 
 def format_names_lastname_initials(list_of_full_names):
-    # TODO: Keep one of these ..
     return format_names(list_of_full_names, format_name_lastname_initials)
-
-
-def format_names_lastname_initials2(list_of_full_names):
-    # TODO: Keep one of these ..
-    return format_names(list_of_full_names, format_name_lastname_initials2)
 
 
 RE_UNICODE_DASHES = re.compile(
