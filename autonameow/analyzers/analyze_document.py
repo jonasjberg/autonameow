@@ -75,25 +75,27 @@ class DocumentAnalyzer(BaseAnalyzer):
     def get_author(self):
         results = []
 
-        possible_authors = [
-            ('generic.metadata.author', 1),
-            ('generic.metadata.creator', 0.5),
-            ('generic.metadata.producer', 0.1),
-        ]
-        for meowuri, weight, in possible_authors:
-            results += self.__collect_results(meowuri, weight)
+        # TODO: [TD0102] Do not add duplicate results.
+        # possible_authors = [
+        #     ('generic.metadata.author', 1),
+        #     ('generic.metadata.creator', 0.5),
+        #     ('generic.metadata.producer', 0.1),
+        # ]
+        # for meowuri, weight, in possible_authors:
+        #     results += self.__collect_results(meowuri, weight)
 
         return results if results else None
 
     def get_title(self):
         results = []
 
-        possible_titles = [
-            ('generic.metadata.title', 1),
-            ('generic.metadata.subject', 0.25),
-        ]
-        for meowuri, weight in possible_titles:
-            results += self.__collect_results(meowuri, weight)
+        # TODO: [TD0102] Do not add duplicate results.
+        # possible_titles = [
+        #     ('generic.metadata.title', 1),
+        #     ('generic.metadata.subject', 0.25),
+        # ]
+        # for meowuri, weight in possible_titles:
+        #     results += self.__collect_results(meowuri, weight)
 
         return results if results else None
 
@@ -113,13 +115,14 @@ class DocumentAnalyzer(BaseAnalyzer):
     def get_publisher(self):
         results = []
 
-        possible_publishers = [
-            ('extractor.metadata.exiftool.PDF:EBX_PUBLISHER', 1),
-            ('extractor.metadata.exiftool.XMP:EbxPublisher', 1),
-            ('extractor.metadata.pypdf.EBX_PUBLISHER', 1)
-        ]
-        for meowuri, weight in possible_publishers:
-            results += self.__collect_results(meowuri, weight)
+        # TODO: [TD0102] Do not add duplicate results.
+        # possible_publishers = [
+        #     ('extractor.metadata.exiftool.PDF:EBX_PUBLISHER', 1),
+        #     ('extractor.metadata.exiftool.XMP:EbxPublisher', 1),
+        #     ('extractor.metadata.pypdf.EBX_PUBLISHER', 1)
+        # ]
+        # for meowuri, weight in possible_publishers:
+        #     results += self.__collect_results(meowuri, weight)
 
         return results if results else None
 
