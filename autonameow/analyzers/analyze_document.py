@@ -149,7 +149,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                 break
 
             if line.strip() and line.replace('-', ''):
-                _prob = (max_lines - num + 1) / max_lines
+                _prob = (max_lines - num) / max_lines
                 self._add_results(
                     'title', self._wrap_generic_title(line, _prob)
                 )
