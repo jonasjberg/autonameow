@@ -264,7 +264,8 @@ class FilenameAnalyzer(BaseAnalyzer):
 MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     # Note that the inner-most values are set-literals.
     'application/octet-stream': {
-        'chm': {'chm'}
+        'chm': {'chm'},
+        'mobi': {'mobi'}
     },
     'text/plain': {
         'c': {'c'},
