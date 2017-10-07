@@ -123,21 +123,6 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         return results if results else None
 
-    def _is_gmail(self):
-        """
-        Check whether the text might be a "Gmail".
-        :return: True if the text is a Gmail, else False
-        """
-        text = self.text
-        if type(text) is list:
-            text = ' '.join(text)
-
-        if text.lower().find('gmail'):
-            self.log.debug('Text might be a Gmail (contains "gmail")')
-            return True
-        else:
-            return False
-
     def _add_title_from_text_to_results(self):
         text = self.text
         if not text:
