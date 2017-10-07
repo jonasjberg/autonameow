@@ -189,8 +189,8 @@ class Configuration(object):
                 )
 
             # User-defined names with lists of patterns.
-            for repl, pat_list in raw_options.get('patterns', {}).items():
-                _validated_patterns = []
+            for repl, pat_list in raw_options.get('candidates', {}).items():
+                _validated_candidates = []
                 for _pat in pat_list:
                     try:
                         compiled_pat = re.compile(_pat)
@@ -203,13 +203,13 @@ class Configuration(object):
                             'Added name template field pattern :: Match: "{!s}"'
                             ' Replace: "{!s}"'.format(_pat, repl)
                         )
-                        _validated_patterns.append(compiled_pat)
+                        _validated_candidates.append(compiled_pat)
 
-                if _validated_patterns:
+                if _validated_candidates:
                     util.nested_dict_set(
                         self._options,
-                        ['NAME_TEMPLATE_FIELDS', repl, 'patterns'],
-                        _validated_patterns
+                        ['NAME_TEMPLATE_FIELDS', field, 'candidates', repl],
+                        _validated_candidates
                     )
 
     def _load_rules(self):

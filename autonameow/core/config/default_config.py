@@ -166,11 +166,11 @@ DEFAULT_CONFIG = {
     #  ====================
     #  Known good candidates for fields.
     #  For instance, the publisher field lists user-defined book publisher
-    #  names along with a list of patterns that if matched, would be replaced
-    #  with the publisher name.
+    #  candidates along with a list of patterns that if matched, would be
+    #  replaced with the candidate name.
     'NAME_TEMPLATE_FIELDS': {
         'publisher': {
-            'patterns': {
+            'candidates': {
                 'ProjectGutenberg': ['Project Gutenberg', 'www.gutenberg.net'],
                 'FeedBooks': ['This book is brought to you by Feedbooks',
                               'http://www.feedbooks.com']
