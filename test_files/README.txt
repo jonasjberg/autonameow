@@ -18,13 +18,51 @@
 * 'magic_txt.txt'
 * 'ObjectCalisthenics.rtf'
 
+* '4123.epub'
+
+    "Mysticism and Logic and Other Essays"
+    Source    : http://www.feedbooks.com/book/4123/mysticism-and-logic-and-other-essays
+    Author    : Bertrand Russell
+    Title     : Mysticism and Logic and Other Essays
+    Copyright : Public Domain in the USA
+    Published : 1918
+
+* '4123.pdf'
+
+    "Mysticism and Logic and Other Essays"
+    Source    : http://www.feedbooks.com/book/4123/mysticism-and-logic-and-other-essays
+    Author    : Bertrand Russell
+    Title     : Mysticism and Logic and Other Essays
+    Copyright : Public Domain in the USA
+    Published : 1918
+
+* 'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf'
+
+    "On the Origin of Species, 6th Edition"
+    Source    : http://www.feedbooks.com/book/3015/on-the-origin-of-species-6th-edition
+    Author    : Charles Darwin
+    Edition   : 6
+    Title     : On the Origin of Species
+    Copyright : Public Domain
+    Published : 1872
+
+* 'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi'
+
+    "On the Origin of Species, 6th Edition"
+    Source    : http://www.feedbooks.com/book/3015/on-the-origin-of-species-6th-edition
+    Author    : Charles Darwin
+    Edition   : 6
+    Title     : On the Origin of Species
+    Copyright : Public Domain
+    Published : 1872
+
 * 'pg38145-images.epub'
 
     "Human, All Too Human: A Book for Free Spirits by Friedrich Wilhelm Nietzsche"
     Source    : https://www.gutenberg.org/ebooks/38145
     Author    : Nietzsche, Friedrich Wilhelm, 1844-1900
     Title     : Human, All Too Human: A Book for Free Spirits
-    Copyright : Public domain in the USA.
+    Copyright : Public Domain in the USA
 
 * 'simplest_pdf.md.pdf'
   
