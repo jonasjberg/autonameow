@@ -36,7 +36,6 @@ from core import (
     util
 )
 from core import constants as C
-from core.config import DefaultConfigFilePath
 from core.config.configuration import Configuration
 from core.evaluate.resolver import Resolver
 from core.evaluate.rulematcher import RuleMatcher
@@ -121,7 +120,9 @@ class Autonameow(object):
 
         if self.opts.dump_options:
             include_opts = {
-                'config_file_path': util.displayable_path(DefaultConfigFilePath)
+                'config_file_path': util.displayable_path(
+                    config.DefaultConfigFilePath
+                )
             }
             options.prettyprint_options(self.opts, include_opts)
 
@@ -182,13 +183,15 @@ class Autonameow(object):
         cli.msg('\n')
 
     def _load_config_from_default_path(self):
-        _displayable_config_path = util.displayable_path(DefaultConfigFilePath)
+        _displayable_config_path = util.displayable_path(
+            config.DefaultConfigFilePath
+        )
         log.info('Using configuration: "{}"'.format(_displayable_config_path))
-        self.load_config(DefaultConfigFilePath)
+        self.load_config(config.DefaultConfigFilePath)
 
     def _write_template_config_to_default_path_and_exit(self):
         log.info('No configuration file was found. Writing default ..')
-        _displayable_config_path = util.displayable_path(DefaultConfigFilePath)
+        _displayable_config_path = util.displayable_path(config.DefaultConfigFilePath)
         try:
             config.write_default_config()
         except exceptions.ConfigError:
