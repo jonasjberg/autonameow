@@ -130,8 +130,8 @@ class Repository(object):
                 self._store(fileobject, _gen_uri, data)
 
     def _store(self, fileobject, meowuri, data):
-        log.debug('Repository storing: [{!s}]->[{!s}] :: "{!s}"'.format(
-            fileobject, meowuri, data
+        log.debug('Repository storing: [{:8.8}]->[{!s}] :: "{!s}"'.format(
+            fileobject.hash_partial, meowuri, data
         ))
         try:
             any_existing = self.__get_data(fileobject, meowuri)
@@ -171,8 +171,8 @@ class Repository(object):
                 'Unable to resolve empty meowURI'
             )
 
-        log.debug('Got request [{!s}]->[{!s}] Mapped to Field: "{!s}"'.format(
-            fileobject, meowuri, mapped_to_field))
+        log.debug('Got request [{:8.8}]->[{!s}] Mapped to Field: "{!s}"'.format(
+            fileobject.hash_partial, meowuri, mapped_to_field))
 
         try:
             data = self.__get_data(fileobject, meowuri)
@@ -187,9 +187,10 @@ class Repository(object):
                         return data
                     else:
                         log.debug(
-                            'Repository request failed requirement; [{!s}]->'
+                            'Repository request failed requirement; [{:8.8}]->'
                             '[{!s}] Mapped to Field: "{!s}"'.format(
-                                fileobject, meowuri, mapped_to_field
+                                fileobject.hash_partial, meowuri,
+                                mapped_to_field
                             )
                         )
                         return None
