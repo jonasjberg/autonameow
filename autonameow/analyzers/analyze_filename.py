@@ -38,7 +38,7 @@ from core.util import (
 )
 
 
-RE_EDITION = re.compile(r'([0-9])+((st|nd|rd|th)\w?|(e|ed))', re.IGNORECASE)
+RE_EDITION = re.compile(r'([0-9])+\s?((st|nd|rd|th)\s?|(e|ed))', re.IGNORECASE)
 
 
 class FilenameAnalyzer(BaseAnalyzer):
@@ -326,7 +326,7 @@ class FilenameTokenizer(object):
 
 
 def find_edition(text):
-    for _num, _re_pattern in textutils.compiled_ordinal_regexes():
+    for _num, _re_pattern in textutils.compiled_ordinal_regexes().items():
         m = _re_pattern.search(text)
         if m:
             return _num
