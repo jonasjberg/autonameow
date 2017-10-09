@@ -264,9 +264,10 @@ class FilenameAnalyzer(BaseAnalyzer):
 MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     # Note that the inner-most values are set-literals.
     'application/octet-stream': {
+        'azw3': {'azw3'},
         'chm': {'chm'},
         'mobi': {'mobi'},
-        'azw3': {'azw3'}
+        'pdf': {'pdf'}
     },
     'text/plain': {
         'c': {'c'},

@@ -34,6 +34,9 @@ from core.namebuilder import fields
 import unit_utils as uu
 
 
+uu.init_session_repository()
+
+
 def get_filename_analyzer(fileobject):
     return FilenameAnalyzer(
         fileobject,
@@ -93,30 +96,26 @@ class TestLikelyExtension(TestCase):
         Expect = namedtuple('Expect', 'expected')
 
         self.expect_testinput = [
-            (Expect('txt'),
-             Given(suffix='txt', mime='text/plain')),
-            (Expect('sh'),
-             Given(suffix='sh', mime='text/plain')),
-            (Expect('sh'),
-             Given(suffix='sh', mime='text/x-shellscript')),
-            (Expect('sh'),
-             Given(suffix='txt', mime='text/x-shellscript')),
-            (Expect('pdf'),
-             Given(suffix='pdf', mime='application/pdf')),
-            (Expect('md'),
-             Given(suffix='md', mime='text/plain')),
-            (Expect('md'),
-             Given(suffix='mkd', mime='text/plain')),
-            (Expect('md'),
-             Given(suffix='markdown', mime='text/plain')),
-            (Expect('yaml'),
-             Given(suffix='yaml', mime='text/plain')),
-            (Expect('py'),
-             Given(suffix='py', mime='text/x-shellscript')),
-            (Expect('py'),
-             Given(suffix='py', mime='text/x-python')),
-            (Expect('py'),
-             Given(suffix='', mime='text/x-python')),
+            (Expect('txt'), Given(suffix='txt', mime='text/plain')),
+            (Expect('sh'), Given(suffix='sh', mime='text/plain')),
+            (Expect('sh'), Given(suffix='sh', mime='text/x-shellscript')),
+            (Expect('sh'), Given(suffix='txt', mime='text/x-shellscript')),
+            (Expect('pdf'), Given(suffix='pdf', mime='application/pdf')),
+            (Expect('md'), Given(suffix='md', mime='text/plain')),
+            (Expect('md'), Given(suffix='mkd', mime='text/plain')),
+            (Expect('md'), Given(suffix='markdown', mime='text/plain')),
+            (Expect('yaml'), Given(suffix='yaml', mime='text/plain')),
+            (Expect('py'), Given(suffix='py', mime='text/x-shellscript')),
+            (Expect('py'), Given(suffix='py', mime='text/x-python')),
+            (Expect('py'), Given(suffix='', mime='text/x-python')),
+            (Expect('chm'), Given(suffix='chm',
+                                  mime='application/octet-stream')),
+            (Expect('mobi'), Given(suffix='mobi',
+                                   mime='application/octet-stream')),
+            (Expect('azw3'), Given(suffix='azw3',
+                                   mime='application/octet-stream')),
+            (Expect('pdf'), Given(suffix='pdf',
+                                  mime='application/octet-stream')),
         ]
 
     def test_returns_expected(self):
