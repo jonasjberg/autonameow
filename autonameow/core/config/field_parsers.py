@@ -31,6 +31,7 @@ from core import (
     util
 )
 from core.meowuri import MeowURI
+from core.model import genericfields
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
 from core.util import sanity
 
@@ -180,14 +181,16 @@ class BooleanConfigFieldParser(ConfigFieldParser):
 
 
 class RegexConfigFieldParser(ConfigFieldParser):
+    # NOTE: Globs does not include all possible extractor globs.
     applies_to_meowuri = [
-        '*.pathname.*', '*.basename.*', '*.text.*', '*.text',
         '*.XMP-dc:Creator', '*.XMP-dc:Producer', '*.XMP-dc:Publisher',
-        '*.XMP-dc:Title',
-        '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher', '*.PDF:Title'
+        '*.XMP-dc:Title', '*.PDF:Creator', '*.PDF:Producer', '*.PDF:Publisher',
+        '*.PDF:Title' '*.pathname.*', '*.basename.*', '*.text.*', '*.text',
     ]
-    # Above globs does not include all possible extractor globs.
-    # TODO: [TD0089] Validate only "generic" metadata fields ..
+    # Add MeowURIs from "generic" fields.
+    applies_to_meowuri.extend([
+        field.uri() for field in genericfields.get_string_fields()
+    ])
 
     @staticmethod
     def is_valid_regex(expression):
@@ -258,7 +261,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
-    applies_to_meowuri = ['*.mime_type']
+    applies_to_meowuri = ['*.mime_type', genericfields.GenericMimeType.uri()]
 
     @staticmethod
     def is_valid_mime_type(expression):
@@ -313,11 +316,15 @@ class MimeTypeConfigFieldParser(ConfigFieldParser):
 
 
 class DateTimeConfigFieldParser(ConfigFieldParser):
-    applies_to_meowuri = ['datetime', 'date_accessed', 'date_created',
-                        'date_modified', '*.PDF:CreateDate', '*.PDF:ModifyDate',
-                        '*.EXIF:DateTimeOriginal', '*.EXIF:ModifyDate']
-    # Above globs does not include all possible extractor globs.
-    # TODO: [TD0089] Validate only "generic" metadata fields ..
+    # NOTE: Globs does not include all possible extractor globs.
+    applies_to_meowuri = [
+        '*.PDF:CreateDate', '*.PDF:ModifyDate', '*.EXIF:DateTimeOriginal',
+        '*.EXIF:ModifyDate'
+    ]
+    # Add MeowURIs from "generic" fields.
+    applies_to_meowuri.extend([
+        field.uri() for field in genericfields.get_datetime_fields()
+    ])
 
     @staticmethod
     def is_valid_datetime(expression):

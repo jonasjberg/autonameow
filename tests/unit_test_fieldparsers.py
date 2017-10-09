@@ -373,6 +373,12 @@ class TestSuitableFieldParserFor(TestCase):
                                  uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
         self.__expect_parser_for('RegexConfigFieldParser',
                                  uuconst.MEOWURI_GEN_CONTENTS_TEXT)
+        self.__expect_parser_for('DateTimeConfigFieldParser',
+                                 uuconst.MEOWURI_GEN_METADATA_DATECREATED)
+        self.__expect_parser_for('DateTimeConfigFieldParser',
+                                 uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED)
+        self.__expect_parser_for('MimeTypeConfigFieldParser',
+                                 uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
 
     def test_expect_mime_type_field_parser(self):
         self.__expect_parser_for('MimeTypeConfigFieldParser',
