@@ -35,29 +35,42 @@ AUTONAMEOW_SRCROOT_DIR = os.path.normpath(
 ASSUMED_NONEXISTENT_BASENAME = b'not_a_file_surely'
 
 
+# Full MeowURIs to various data resources.
+MEOWURI_FS_XPLAT_MIMETYPE = 'extractor.filesystem.xplat.contents.mime_type'
+MEOWURI_FS_XPLAT_BASENAME_EXT = 'extractor.filesystem.xplat.basename.extension'
+MEOWURI_FS_XPLAT_BASENAME_FULL = 'extractor.filesystem.xplat.basename.full'
+MEOWURI_FS_XPLAT_BASENAME_PREFIX = 'extractor.filesystem.xplat.basename.prefix'
+MEOWURI_FS_XPLAT_BASENAME_SUFFIX = 'extractor.filesystem.xplat.basename.suffix'
+MEOWURI_FS_XPLAT_PATHNAME_FULL = 'extractor.filesystem.xplat.pathname.full'
+MEOWURI_GEN_CONTENTS_MIMETYPE = 'generic.contents.mime_type'
+MEOWURI_GEN_CONTENTS_TEXT = 'generic.contents.text'
+MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE = 'extractor.metadata.exiftool.EXIF:CreateDate'
+MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL = 'extractor.metadata.exiftool.EXIF:DateTimeOriginal'
+
+
 # Constants used to construct dummy/mock test fixtures.
 DUMMY_RAW_RULE_CONDITIONS = [
     # Part of Rule 1
-    ('filesystem.contents.mime_type', 'application/pdf'),
-    ('filesystem.basename.extension', 'pdf'),
-    ('filesystem.basename.full', 'gmail.pdf'),
+    (MEOWURI_GEN_CONTENTS_MIMETYPE, 'application/pdf'),
+    (MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf'),
+    (MEOWURI_FS_XPLAT_BASENAME_FULL, 'gmail.pdf'),
 
     # Part of Rule 2
-    ('filesystem.contents.mime_type', 'image/jpeg'),
-    ('filesystem.basename.full', 'smulan.jpg'),
+    (MEOWURI_GEN_CONTENTS_MIMETYPE, 'image/jpeg'),
+    (MEOWURI_FS_XPLAT_BASENAME_FULL, 'smulan.jpg'),
 
     # Part of Rule 3
-    ('filesystem.contents.mime_type', 'image/jpeg'),
-    ('filesystem.basename.extension', 'jpg'),
-    ('filesystem.basename.full', 'DCIM*'),
-    ('filesystem.pathname.full', '~/Pictures/incoming'),
-    ('extractor.metadata.exiftool.EXIF:DateTimeOriginal', 'Defined'),
+    (MEOWURI_GEN_CONTENTS_MIMETYPE, 'image/jpeg'),
+    (MEOWURI_FS_XPLAT_BASENAME_EXT, 'jpg'),
+    (MEOWURI_FS_XPLAT_BASENAME_FULL, 'DCIM*'),
+    (MEOWURI_FS_XPLAT_PATHNAME_FULL, '~/Pictures/incoming'),
+    (MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL, 'Defined'),
 
     # Part of Rule 4
-    ('filesystem.contents.mime_type', 'application/epub+zip'),
-    ('filesystem.basename.extension', 'epub'),
-    ('filesystem.basename.full', '.*'),
-    ('filesystem.pathname.full', '.*'),
+    (MEOWURI_GEN_CONTENTS_MIMETYPE, 'application/epub+zip'),
+    (MEOWURI_FS_XPLAT_BASENAME_EXT, 'epub'),
+    (MEOWURI_FS_XPLAT_BASENAME_FULL, '.*'),
+    (MEOWURI_FS_XPLAT_PATHNAME_FULL, '.*'),
     ('extractor.metadata.exiftool.XMP-dc:Creator', 'Defined'),
 ]
 
@@ -65,23 +78,23 @@ DUMMY_RAW_RULE_CONDITIONS = [
 DUMMY_RAW_RULE_DATA_SOURCES = [
     # Part of Rule 1
     {'datetime': 'extractor.metadata.exiftool.PDF:CreateDate',
-     'extension': 'filesystem.basename.extension',
-     'title': 'filesystem.basename.prefix'},
+     'extension': MEOWURI_FS_XPLAT_BASENAME_EXT,
+     'title': MEOWURI_FS_XPLAT_BASENAME_PREFIX},
 
     # Part of Rule 2
-    {'datetime': 'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
+    {'datetime': MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
      'description': 'plugin.microsoft_vision.caption',
-     'extension': 'filesystem.basename.extension'},
+     'extension': MEOWURI_FS_XPLAT_BASENAME_EXT},
 
     # Part of Rule 3
-    {'datetime': 'extractor.metadata.exiftool.EXIF:CreateDate',
+    {'datetime': MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE,
      'description': 'plugin.microsoft_vision.caption',
-     'extension': 'filesystem.basename.extension'},
+     'extension': MEOWURI_FS_XPLAT_BASENAME_EXT},
 
     # Part of Rule 4
     {'author': 'extractor.metadata.exiftool.XMP-dc:CreatorFile-as',
      'datetime': 'extractor.metadata.exiftool.XMP-dc:Date',
-     'extension': 'filesystem.basename.extension',
+     'extension': MEOWURI_FS_XPLAT_BASENAME_EXT,
      'publisher': 'extractor.metadata.exiftool.XMP-dc:Publisher',
      'title': 'extractor.metadata.exiftool.XMP-dc:Title'},
 ]

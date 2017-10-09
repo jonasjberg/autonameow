@@ -34,7 +34,9 @@ from core.config.field_parsers import (
     eval_meowuri_glob,
     parse_versioning
 )
+from core.meowuri import MeowURI
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestFieldParserFunctions(TestCase):
@@ -332,48 +334,49 @@ class TestInstantiatedFieldParsers(TestCase):
 
 class TestSuitableFieldParserFor(TestCase):
     def __expect_parser_for(self, expected_parser, arg):
-        actual = suitable_field_parser_for(arg)
+        _meowuri = MeowURI(arg)
+        actual = suitable_field_parser_for(_meowuri)
         self.assertEqual(len(actual), 1)
         self.assertEqual(str(actual[0]), expected_parser)
 
     def test_returns_expected_type_list(self):
-        actual = suitable_field_parser_for('filesystem.contents.mime_type')
+        _meowuri = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
+        actual = suitable_field_parser_for(_meowuri)
         self.assertTrue(isinstance(actual, list))
 
     def test_returns_expected_given_invalid_mime_type_field(self):
-        actual = suitable_field_parser_for('contents.miiime_type')
+        actual = suitable_field_parser_for(MeowURI('generic.contents.miiime_type'))
         self.assertEqual(len(actual), 0)
-        actual = suitable_field_parser_for('miiime_type')
+        actual = suitable_field_parser_for(MeowURI('generic.contents.miiime_type'))
         self.assertEqual(len(actual), 0)
-
-    def test_expect_name_format_field_parser(self):
-        self.__expect_parser_for('NameFormatConfigFieldParser', 'NAME_FORMAT')
 
     def test_expect_datetime_field_parser(self):
-        self.__expect_parser_for('DateTimeConfigFieldParser', 'datetime')
-        self.__expect_parser_for('DateTimeConfigFieldParser', 'date_accessed')
-        self.__expect_parser_for('DateTimeConfigFieldParser', 'date_created')
-        self.__expect_parser_for('DateTimeConfigFieldParser', 'date_modified')
+        # TODO: [cleanup] Is this still relevant?
+        # self.__expect_parser_for('DateTimeConfigFieldParser', 'datetime')
+        # self.__expect_parser_for('DateTimeConfigFieldParser', 'date_accessed')
+        # self.__expect_parser_for('DateTimeConfigFieldParser', 'date_created')
+        # self.__expect_parser_for('DateTimeConfigFieldParser', 'date_modified')
+
         self.__expect_parser_for('DateTimeConfigFieldParser',
                                  'extractor.metadata.exiftool.PDF:CreateDate')
         self.__expect_parser_for(
             'DateTimeConfigFieldParser',
-            'extractor.metadata.exiftool.EXIF:DateTimeOriginal'
+            uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL
         )
 
     def test_expect_regex_field_parser(self):
         self.__expect_parser_for('RegexConfigFieldParser',
-                                 'filesystem.pathname.full')
+                                 uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL)
         self.__expect_parser_for('RegexConfigFieldParser',
-                                 'filesystem.basename.full')
+                                 uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
         self.__expect_parser_for('RegexConfigFieldParser',
-                                 'filesystem.basename.extension')
+                                 uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
         self.__expect_parser_for('RegexConfigFieldParser',
-                                 'contents.textual.text.full')
+                                 uuconst.MEOWURI_GEN_CONTENTS_TEXT)
 
     def test_expect_mime_type_field_parser(self):
         self.__expect_parser_for('MimeTypeConfigFieldParser',
-                                 'filesystem.contents.mime_type')
+                                 uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
 
 class TestFieldParserConstants(TestCase):

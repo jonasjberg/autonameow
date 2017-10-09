@@ -31,6 +31,7 @@ from core.meowuri import (
     MeowURINode
 )
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestMeowURIRoot(TestCase):
@@ -110,7 +111,7 @@ class TestMeowURIwithValidInput(TestCase):
 
 class TestMeowURI(TestCase):
     def test_partitions_parts(self):
-        a = MeowURI('generic.contents.mime_type')
+        a = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         self.assertTrue(isinstance(a._root, MeowURIRoot))
         self.assertTrue(isinstance(a._nodes, list))
         self.assertTrue(isinstance(a._nodes[0], MeowURINode))
@@ -124,7 +125,7 @@ class TestMeowURI(TestCase):
         self.assertTrue(isinstance(b._leaf, MeowURILeaf))
 
     def test_returns_partitioned_parts_as_strings(self):
-        a = MeowURI('generic.contents.mime_type')
+        a = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         self.assertTrue(uu.is_internalstring(a.root))
         self.assertTrue(isinstance(a.nodes, list))
         self.assertTrue(uu.is_internalstring(a.nodes[0]))
@@ -150,93 +151,93 @@ class TestMeowURI(TestCase):
 class TestMeowURIClassMethodGeneric(TestCase):
     def test_returns_expected_from_string(self):
         actual = MeowURI.generic('contents.text')
-        self.assertEqual(str(actual), 'generic.contents.text')
+        self.assertEqual(str(actual), uuconst.MEOWURI_GEN_CONTENTS_TEXT)
 
     def test_returns_expected_from_string_with_root(self):
-        actual = MeowURI.generic('generic.contents.text')
-        self.assertEqual(str(actual), 'generic.contents.text')
+        actual = MeowURI.generic(uuconst.MEOWURI_GEN_CONTENTS_TEXT)
+        self.assertEqual(str(actual), uuconst.MEOWURI_GEN_CONTENTS_TEXT)
 
     def test_returns_expected_from_multiple_strings(self):
         actual = MeowURI.generic('contents', 'text')
-        self.assertEqual(str(actual), 'generic.contents.text')
+        self.assertEqual(str(actual), uuconst.MEOWURI_GEN_CONTENTS_TEXT)
 
     def test_returns_expected_from_multiple_strings_with_root(self):
         actual = MeowURI.generic('generic', 'contents', 'text')
-        self.assertEqual(str(actual), 'generic.contents.text')
+        self.assertEqual(str(actual), uuconst.MEOWURI_GEN_CONTENTS_TEXT)
 
 
 class TestEvalMeowURIGlob(TestCase):
     def test_eval_meowuri_blob_returns_false_given_bad_arguments(self):
         m = MeowURI('generic.metadata.foo')
-        actual = m.eval_glob(None)
+        actual = m.matchglobs(None)
         self.assertIsNotNone(actual)
         self.assertFalse(actual)
 
 
 class TestMeowURIEquality(TestCase):
     def setUp(self):
-        self.m = MeowURI('generic.contents.mime_type')
+        self.m = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         self.a = MeowURI('extractor.filesystem.xplat.abspath.full')
 
     def test_compare_with_string(self):
-        self.assertEqual(self.m, 'generic.contents.mime_type')
-        self.assertNotEqual(self.m, 'generic.contents.text')
+        self.assertEqual(self.m, uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
+        self.assertNotEqual(self.m, uuconst.MEOWURI_GEN_CONTENTS_TEXT)
         self.assertNotEqual(self.m, 'extractor.filesystem.xplat.abspath.full')
 
         self.assertEqual(self.a, 'extractor.filesystem.xplat.abspath.full')
-        self.assertNotEqual(self.a, 'generic.contents.text')
-        self.assertNotEqual(self.a, 'generic.contents.mime_type')
+        self.assertNotEqual(self.a, uuconst.MEOWURI_GEN_CONTENTS_TEXT)
+        self.assertNotEqual(self.a, uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
 
 
 class TestEvalMeowURIGlobA(TestCase):
     def setUp(self):
-        self.g = MeowURI('extractor.filesystem.xplat.contents.mime_type')
+        self.g = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.eval_glob(test_input))
+            self.assertFalse(self.g.matchglobs(test_input))
 
         _f(['extractor.filesystem.xplat.pathname.*'])
-        _f(['extractor.filesystem.xplat.pathname.full'])
+        _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
         _f(['extractor.filesystem.xplat.contents.full'])
         _f(['extractor.filesystem.xplat.pathname.*', 'filesystem.pathname.full'])
         _f(['NAME_FORMAT'])
         _f(['extractor.filesystem.xplat.pathname.*'])
-        _f(['extractor.filesystem.xplat.pathname.full'])
+        _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.eval_glob(test_input))
+            self.assertTrue(self.g.matchglobs(test_input))
 
         _t(['extractor.*'])
         _t(['extractor.filesystem.*'])
         _t(['extractor.filesystem.xplat.contents.*'])
         _t(['extractor.*', 'extractor.filesystem.xplat.pathname.*',
-            'extractor.filesystem.xplat.pathname.full'])
+            uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
 
 
 class TestEvalMeowURIGlobB(TestCase):
     def setUp(self):
-        self.g = MeowURI('extractor.filesystem.xplat.basename.full')
+        self.g = MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.eval_glob(test_input))
+            self.assertFalse(self.g.matchglobs(test_input))
 
         _f(['*.pathname.*'])
-        _f(['extractor.filesystem.xplat.pathname.full'])
+        _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
         _f(['extractor.filesystem.xplat.contents.full'])
         _f(['extractor.filesystem.xplat.pathname.*',
-            'extractor.filesystem.xplat.pathname.full'])
+            uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
         _f(['NAME_FORMAT'])
         _f(['extractor.filesystem.pathname.*'])
         _f(['extractor.filesystem.pathname.full'])
         _f(['extractor.filesystem.xplat.pathname.*'])
-        _f(['extractor.filesystem.xplat.pathname.full'])
+        _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.eval_glob(test_input))
+            self.assertTrue(self.g.matchglobs(test_input))
 
         _t(['*.pathname.*', '*.basename.*', '*.full'])
 
@@ -247,7 +248,7 @@ class TestEvalMeowURIGlobC(TestCase):
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.eval_glob(test_input))
+            self.assertFalse(self.g.matchglobs(test_input))
 
         _f(['contents.text.*'])
         _f(['*.text.*'])
@@ -256,7 +257,7 @@ class TestEvalMeowURIGlobC(TestCase):
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.eval_glob(test_input))
+            self.assertTrue(self.g.matchglobs(test_input))
 
         _t(['generic.*'])
         _t(['*.contents.*'])
@@ -267,29 +268,29 @@ class TestEvalMeowURIGlobC(TestCase):
 
 class TestEvalMeowURIGlobD(TestCase):
     def setUp(self):
-        self.g = MeowURI('extractor.filesystem.xplat.basename.extension')
+        self.g = MeowURI(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.eval_glob(test_input))
+            self.assertFalse(self.g.matchglobs(test_input))
 
         _f(['generic.*'])
         _f(['generic.contents.*'])
-        _f(['generic.contents.mime_type'])
+        _f([uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE])
         _f(['*.contents.mime_type'])
         _f(['*.mime_type'])
         _f(['extractor.filesystem.xplat.pathname.extension'])
         _f(['extractor.filesystem.xplat.pathname.*'])
         _f(['*.pathname.*'])
-        _f(['extractor.filesystem.xplat.basename.full'])
+        _f([uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL])
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.eval_glob(test_input))
+            self.assertTrue(self.g.matchglobs(test_input))
 
         _t(['*'])
         _t(['*.basename.*', '*.basename.extension',
-            'extractor.filesystem.xplat.basename.extension'])
+            uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT])
         _t(['*.basename.extension'])
         _t(['*.basename.*', '*.basename.extension'])
         _t(['*', '*.basename.*', '*.basename.extension'])
@@ -299,31 +300,31 @@ class TestEvalMeowURIGlobD(TestCase):
 
 class TestEvalMeowURIGlobE(TestCase):
     def setUp(self):
-        self.g = MeowURI('extractor.filesystem.xplat.pathname.full')
+        self.g = MeowURI(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL)
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.eval_glob(test_input))
+            self.assertFalse(self.g.matchglobs(test_input))
 
         _f(['generic.*'])
         _f(['generic.contents.*'])
-        _f(['generic.contents.mime_type'])
+        _f([uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE])
         _f(['*.contents.mime_type'])
         _f(['*.mime_type'])
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.eval_glob(test_input))
+            self.assertTrue(self.g.matchglobs(test_input))
 
         _t(['*'])
         _t(['extractor.*'])
         _t(['extractor.filesystem.*'])
         _t(['extractor.filesystem.xplat.*'])
         _t(['extractor.filesystem.xplat.pathname.*'])
-        _t(['extractor.filesystem.xplat.pathname.full'])
+        _t([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
         _t(['extractor.filesystem.xplat.*',
             'extractor.filesystem.xplat.pathname.*',
-            'extractor.filesystem.xplat.pathname.full'])
+            uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
         _t(['*.pathname.*'])
 
 
@@ -333,7 +334,7 @@ class TestEvalMeowURIGlobF(TestCase):
 
     def test_evaluates_false(self):
         def _f(test_input):
-            self.assertFalse(self.g.eval_glob(test_input))
+            self.assertFalse(self.g.matchglobs(test_input))
 
         _f(['datetime', 'date_accessed', 'date_created', 'date_modified',
             '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
@@ -342,15 +343,15 @@ class TestEvalMeowURIGlobF(TestCase):
         _f(['extractor.filesystem.*'])
         _f(['extractor.filesystem.xplat.*'])
         _f(['extractor.filesystem.xplat.pathname.*'])
-        _f(['extractor.filesystem.xplat.pathname.full'])
+        _f([uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
         _f(['extractor.filesystem.xplat.*',
             'extractor.filesystem.xplat.pathname.*',
-            'extractor.filesystem.xplat.pathname.full'])
+            uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL])
         _f(['*.pathname.*'])
 
     def test_evaluates_true(self):
         def _t(test_input):
-            self.assertTrue(self.g.eval_glob(test_input))
+            self.assertTrue(self.g.matchglobs(test_input))
 
         _t(['*'])
         _t(['extractor.*'])

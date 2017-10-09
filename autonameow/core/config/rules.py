@@ -29,6 +29,7 @@ from core import (
     util
 )
 from core.config import field_parsers
+from core.meowuri import MeowURI
 from core.namebuilder import fields
 from core.util import sanity
 
@@ -40,7 +41,7 @@ class RuleCondition(object):
     """
     Represents a single condition contained in a configuration rule.
     """
-    def __init__(self, raw_meowuri, raw_expression):
+    def __init__(self, meowuri, raw_expression):
         """
         Validates the arguments and returns a 'RuleCondition' instance if
         the validation is successful. Else an exception is thrown.
@@ -55,8 +56,8 @@ class RuleCondition(object):
         In this case the evaluation would return True.
 
         Args:
-            raw_meowuri: A "meowURI" describing the target of the
-                condition. For example; "contents.mime_type".
+            meowuri: A "meowURI" describing the target of the condition,
+                     as an instance of 'MeowURI'.
             raw_expression: A expression to use when evaluating this condition.
         """
         # TODO: Clean up setting the 'parser' attribute.
@@ -69,7 +70,7 @@ class RuleCondition(object):
         self._meowuri = None
         self._expression = None
 
-        self.meowuri = raw_meowuri
+        self.meowuri = meowuri
         self.expression = raw_expression
 
     @property
@@ -77,14 +78,14 @@ class RuleCondition(object):
         return self._meowuri
 
     @meowuri.setter
-    def meowuri(self, raw_meowuri):
+    def meowuri(self, meowuri):
         # The "meowURI" is considered valid if a field parser can handle it.
-        valid_meowuri = self._validate_meowuri(raw_meowuri)
+        valid_meowuri = self._validate_meowuri(meowuri)
         if valid_meowuri:
-            self._meowuri = raw_meowuri
+            self._meowuri = meowuri
         else:
             raise TypeError(
-                'Invalid meowURI: "{!s}"'.format(raw_meowuri)
+                'No field parser can handle MeowURI: "{!s}"'.format(meowuri)
             )
 
     @property
@@ -96,16 +97,15 @@ class RuleCondition(object):
         # The "meowURI" is required in order to know how the expression
         # should be evaluated. Consider the expression invalid.
         if not self.meowuri:
-            raise ValueError(
-                'A valid "meowURI" is required for validation.'
-            )
+            raise ValueError('The condition first needs a valid "meowURI" in '
+                             'order to validate an expression')
 
-        # NOTE(jonas): No parser can currently handle these "meowURIs" ..
-        if self.meowuri.startswith('extractor.metadata.exiftool'):
-            # TODO: [TD0015] Handle expression in 'condition_value'
-            #                ('Defined', '> 2017', etc)
-            log.warning('Validation of this condition is not yet implemented!'
-                        ' (starts with "extractor.metadata.exiftool")')
+        # TODO: [TD0105] Integrate the `MeowURI` class.
+        # TODO: Check if the "MeowURI" is "generic", only validate if it is.
+        #       Skip validation of source-specific MeowURIs for now.
+
+        # TODO: [TD0015] Handle expression in 'condition_value'
+        #                ('Defined', '> 2017', etc)
 
         if not self._get_parser(self.meowuri):
             raise ValueError('Found no suitable parsers for meowURI: '
@@ -119,12 +119,9 @@ class RuleCondition(object):
                 'Invalid expression: "{!s}"'.format(raw_expression)
             )
 
-    def _validate_meowuri(self, raw_meowuri):
-        if not raw_meowuri:
-            return False
-
+    def _validate_meowuri(self, meowuri):
         # Consider the "meowURI" valid if any parser can handle it.
-        if self._get_parser(raw_meowuri):
+        if self._get_parser(meowuri):
             return True
         else:
             return False
@@ -279,6 +276,7 @@ class Rule(object):
 
     @name_template.setter
     def name_template(self, raw_name_template):
+        # Name template has already been validated in the 'Configuration' class.
         if not raw_name_template:
             raise exceptions.InvalidRuleError('Got None name template')
         self._name_template = raw_name_template
@@ -400,7 +398,7 @@ class Rule(object):
         return 'Rule({})'.format(', '.join(out))
 
 
-def get_valid_rule_condition(raw_meowuri, raw_expression):
+def get_valid_rule_condition(meowuri, raw_expression):
     """
     Tries to create and return a 'RuleCondition' instance.
 
@@ -408,7 +406,8 @@ def get_valid_rule_condition(raw_meowuri, raw_expression):
     'RuleCondition' initialization. In case of failure, False is returned.
 
     Args:
-        raw_meowuri: The "meowURI" specifying *some data* for the condition.
+        meowuri: The "meowURI" that provides access to *some data* to be
+                 evaluated in the condition, as an instance of 'MeowURI'.
         raw_expression: The expression or value that describes the condition.
 
     Returns:
@@ -417,14 +416,16 @@ def get_valid_rule_condition(raw_meowuri, raw_expression):
     Raises:
         InvalidRuleError: The 'RuleCondition' instance could not be created.
     """
+    sanity.check_isinstance(meowuri, MeowURI)
+
     try:
-        condition = RuleCondition(raw_meowuri, raw_expression)
+        condition = RuleCondition(meowuri, raw_expression)
     except (TypeError, ValueError) as e:
         # Add information and then pass the exception up the chain so that the
         # error can be displayed with additional contextual information.
         raise exceptions.InvalidRuleError(
             'Invalid rule condition ("{!s}": "{!s}"); {!s}'.format(
-                raw_meowuri, raw_expression, e
+                meowuri, raw_expression, e
             )
         )
     else:
@@ -471,16 +472,23 @@ def parse_conditions(raw_conditions):
     log.debug('Parsing {} raw conditions ..'.format(len(raw_conditions)))
 
     if not raw_conditions:
-        raise exceptions.ConfigurationSyntaxError('Got empty conditions')
+        raise exceptions.ConfigurationSyntaxError('Got no conditions')
     if not isinstance(raw_conditions, dict):
-        raise exceptions.ConfigurationSyntaxError('Expected conditions as dict')
+        raise exceptions.ConfigurationSyntaxError(
+            'Expected conditions to be of type dict'
+        )
 
     passed = []
     try:
-        for meowuri, expression in raw_conditions.items():
+        for meowuri_string, expression_string in raw_conditions.items():
+            try:
+                meowuri = MeowURI(meowuri_string)
+            except exceptions.InvalidMeowURIError as e:
+                raise exceptions.ConfigurationSyntaxError(e)
+
             try:
                 valid_condition = get_valid_rule_condition(meowuri,
-                                                           expression)
+                                                           expression_string)
             except exceptions.InvalidRuleError as e:
                 raise exceptions.ConfigurationSyntaxError(e)
             else:
@@ -503,35 +511,51 @@ def parse_data_sources(raw_sources):
 
     log.debug('Parsing {} raw sources ..'.format(len(raw_sources)))
 
-    for raw_templatefield, raw_meowuris in raw_sources.items():
-        if not raw_meowuris:
-            log.debug('Skipped source with empty meowURI '
-                      '(template field: "{!s}")'.format(raw_templatefield))
-            continue
-        elif not raw_templatefield:
-            log.debug('Skipped source with empty name template field '
-                      '(meowURI: "{!s}")'.format(raw_meowuris))
-            continue
+    if not raw_sources:
+        raise exceptions.ConfigurationSyntaxError('Got no sources')
+    if not isinstance(raw_sources, dict):
+        raise exceptions.ConfigurationSyntaxError(
+            'Expected sources to be of type dict'
+        )
 
+    for raw_templatefield, raw_meowuri_strings in raw_sources.items():
         if not fields.is_valid_template_field(raw_templatefield):
             log.warning('Skipped source with invalid name template field '
-                        '(meowURI: "{!s}")'.format(raw_meowuris))
+                        '(meowURI: "{!s}")'.format(raw_meowuri_strings))
             continue
 
         tf = fields.nametemplatefield_class_from_string(raw_templatefield)
+        if not tf:
+            log.warning('Failed to convert template field string to class '
+                        'instance. This should not happen!')
+            log.warning('Template Field: ”{!s}"'.format(raw_templatefield))
+            continue
 
-        if not isinstance(raw_meowuris, list):
-            raw_meowuris = [raw_meowuris]
-        for meowuri in raw_meowuris:
+        if not raw_meowuri_strings:
+            log.debug('Skipped source with empty meowURI(s) '
+                      '(template field: "{!s}")'.format(raw_templatefield))
+            continue
+
+        if not isinstance(raw_meowuri_strings, list):
+            raw_meowuri_strings = [raw_meowuri_strings]
+
+        for meowuri_string in raw_meowuri_strings:
+            try:
+                meowuri = MeowURI(meowuri_string)
+            except exceptions.InvalidMeowURIError as e:
+                log.warning('Skipped source with invalid MeoWURI: '
+                            '"{!s}"; {!s}'.format(meowuri_string, e))
+                continue
+
             if is_valid_source(meowuri):
-                log.debug('Validated source: [{!s}]: {}'.format(
-                    tf.as_placeholder(), meowuri)
-                )
+                log.debug('Validated source: [{!s}]: {!s}'.format(
+                    tf.as_placeholder(), meowuri
+                ))
                 passed[tf] = meowuri
             else:
-                log.debug('Invalid source: [{!s}]: {}'.format(
-                    tf.as_placeholder(), meowuri)
-                )
+                log.debug('Invalid source: [{!s}]: {!s}'.format(
+                    tf.as_placeholder(), meowuri
+                ))
 
     log.debug(
         'Returning {} (out of {}) valid sources'.format(len(passed),
@@ -557,9 +581,6 @@ def is_valid_source(source_value):
     Returns:
         The given source value if it passes the test, otherwise False.
     """
-    if not source_value or not source_value.strip():
-        return False
-
     if repository.SessionRepository.resolvable(source_value):
         return True
     return False

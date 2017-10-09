@@ -35,6 +35,7 @@ from core.model.genericfields import (
     meowuri_genericfield_map
 )
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestGenericFieldBase(TestCase):
@@ -65,7 +66,7 @@ class TestGenericFieldStr(TestCase):
             (GenericCreator, 'generic.metadata.creator'),
             (GenericDateCreated, 'generic.metadata.date_created'),
             (GenericDateModified, 'generic.metadata.date_modified'),
-            (GenericMimeType, 'generic.contents.mime_type'),
+            (GenericMimeType, uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE),
             (GenericProducer, 'generic.metadata.producer'),
             (GenericSubject, 'generic.metadata.subject'),
             (GenericTags, 'generic.metadata.tags'),

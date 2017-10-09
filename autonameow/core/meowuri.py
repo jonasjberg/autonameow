@@ -110,7 +110,7 @@ class MeowURI(object):
         else:
             return C.UNDEFINED_MEOWURI_PART
 
-    def eval_glob(self, glob_list):
+    def matchglobs(self, glob_list):
         """
         Evaluates this "meowURI" against a list of "globs".
 
@@ -185,6 +185,18 @@ class MeowURI(object):
         else:
             # TODO: Implement equality tests
             return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        if isinstance(other, self.__class__):
+            return (self.root < other.root
+                    and self.nodes < other.nodes
+                    and self.leaf < other.leaf)
+
+    def __hash__(self):
+        return hash(str(self))
 
     def __str__(self):
         return C.MEOWURI_SEPARATOR.join(str(p) for p in self._parts)

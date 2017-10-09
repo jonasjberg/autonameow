@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0105]` Integrate the `MeowURI` class.
+
 * `[TD0100]` Spec out "operating modes" and functionality requirements.
 
 * `[TD0099]` Use `python-prompt-toolkit` for the interactive cli UI.

@@ -37,6 +37,7 @@ from core import (
 from core.config import rules
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
+from core.meowuri import MeowURI
 import unit_utils_constants as uuconst
 
 
@@ -498,8 +499,10 @@ def get_dummy_rules_to_examine():
 
 
 def get_dummy_rulecondition_instances():
-    return [rules.RuleCondition(meowuri, expression)
-            for meowuri, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS]
+    return [
+        rules.RuleCondition(MeowURI(meowuri_string), expression)
+        for meowuri_string, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS
+    ]
 
 
 def get_dummy_raw_conditions():

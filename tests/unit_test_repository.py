@@ -174,9 +174,9 @@ class TestRepositoryMethodResolvable(TestCase):
 
         _aT('extractor.metadata.exiftool')
         _aT('extractor.metadata.exiftool.PDF:CreateDate')
-        _aT('extractor.filesystem.xplat.basename.full')
-        _aT('extractor.filesystem.xplat.basename.extension')
-        _aT('extractor.filesystem.xplat.contents.mime_type')
+        _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
+        _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
+        _aT(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
 
 class TestMapMeowURItoSourceClass(TestCase):
@@ -192,14 +192,14 @@ class TestMapMeowURItoSourceClass(TestCase):
              'FiletagsAnalyzer'),
         ]
         self._extractor_meowURI_sourcemap = [
-            (['extractor.filesystem.xplat.basename.extension',
-              'extractor.filesystem.xplat.basename.full',
-              'extractor.filesystem.xplat.basename.prefix',
-              'extractor.filesystem.xplat.contents.mime_type',
-              'extractor.filesystem.xplat.pathname.full'],
+            ([uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT,
+              uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
+              uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX,
+              uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+              uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL],
              'CrossPlatformFileSystemExtractor'),
-            (['extractor.metadata.exiftool.EXIF:CreateDate',
-              'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
+            ([uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE,
+              uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
               'extractor.metadata.exiftool.PDF:CreateDate',
               'extractor.metadata.exiftool.XMP-dc:Creator',
               'extractor.metadata.exiftool.XMP-dc:CreatorFile-as',
@@ -284,15 +284,15 @@ class TestGetSourcesForMeowURIs(TestCase):
             'analyzer.filetags.tags',
         ]
         self._meowuris_filesystem = [
-            'extractor.filesystem.xplat.basename.extension',
-            'extractor.filesystem.xplat.basename.full',
-            'extractor.filesystem.xplat.basename.prefix',
-            'extractor.filesystem.xplat.contents.mime_type',
-            'extractor.filesystem.xplat.pathname.full',
+            uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT,
+            uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
+            uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX,
+            uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL,
         ]
         self._meowuris_exiftool = [
-            'extractor.metadata.exiftool.EXIF:CreateDate',
-            'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
+            uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE,
+            uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
             'extractor.metadata.exiftool.PDF:CreateDate',
             'extractor.metadata.exiftool.QuickTime:CreationDate',
             'extractor.metadata.exiftool.XMP-dc:Creator',
