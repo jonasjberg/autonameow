@@ -237,7 +237,7 @@ class DateTime(NameTemplateField):
         c = kwargs.get('config')
         if c:
             _format = c.options['DATETIME_FORMAT']['datetime']
-            return formatted_datetime(data, _format)
+            return formatted_datetime(data.value, _format)
         else:
             raise exceptions.NameBuilderError('Unknown "datetime" format')
 
@@ -254,7 +254,7 @@ class Date(NameTemplateField):
         c = kwargs.get('config')
         if c:
             datetime_format = c.options['DATETIME_FORMAT']['date']
-            return formatted_datetime(data, datetime_format)
+            return formatted_datetime(data.value, datetime_format)
         else:
             raise exceptions.NameBuilderError('Unknown "date" format')
 
