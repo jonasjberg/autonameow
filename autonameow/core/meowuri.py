@@ -179,6 +179,13 @@ class MeowURI(object):
 
         return False
 
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return str(self) == other
+        else:
+            # TODO: Implement equality tests
+            return False
+
     def __str__(self):
         return C.MEOWURI_SEPARATOR.join(str(p) for p in self._parts)
 

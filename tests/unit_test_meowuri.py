@@ -173,6 +173,21 @@ class TestEvalMeowURIGlob(TestCase):
         self.assertFalse(actual)
 
 
+class TestMeowURIEquality(TestCase):
+    def setUp(self):
+        self.m = MeowURI('generic.contents.mime_type')
+        self.a = MeowURI('extractor.filesystem.xplat.abspath.full')
+
+    def test_compare_with_string(self):
+        self.assertEqual(self.m, 'generic.contents.mime_type')
+        self.assertNotEqual(self.m, 'generic.contents.text')
+        self.assertNotEqual(self.m, 'extractor.filesystem.xplat.abspath.full')
+
+        self.assertEqual(self.a, 'extractor.filesystem.xplat.abspath.full')
+        self.assertNotEqual(self.a, 'generic.contents.text')
+        self.assertNotEqual(self.a, 'generic.contents.mime_type')
+
+
 class TestEvalMeowURIGlobA(TestCase):
     def setUp(self):
         self.g = MeowURI('extractor.filesystem.xplat.contents.mime_type')
