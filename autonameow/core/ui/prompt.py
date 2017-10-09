@@ -42,6 +42,7 @@ except ImportError:
     )
 
 from core import constants as C
+from core import config
 from core import (
     cache,
     repository,
@@ -52,11 +53,31 @@ from core.meowuri import MeowURI
 from core.ui import cli
 
 
-PERSISTANT_HISTORY_BASENAME = b'prompt_history'
-PERSISTANT_HISTORY_FILE = os.path.join(
-    util.syspath(cache.CACHE_DIR_ABSPATH),
-    util.syspath(PERSISTANT_HISTORY_BASENAME)
+def get_config_history_path():
+    _active_config = config.ActiveConfig
+    if not _active_config:
+        return DEFAULT_HISTORY_FILE_ABSPATH
+
+    try:
+        _history_path = _active_config.get(['PERSISTENCE', 'history_directory'])
+    except AttributeError:
+        _history_path = None
+
+    if _history_path:
+        return _history_path
+    else:
+        return DEFAULT_HISTORY_FILE_ABSPATH
+
+
+PERSISTANT_HISTORY_BASENAME = util.encode_('prompt_history')
+DEFAULT_HISTORY_FILE_ABSPATH = util.normpath(
+    os.path.join(
+        util.syspath(cache.DEFAULT_CACHE_DIRECTORY_ROOT),
+        util.syspath(PERSISTANT_HISTORY_BASENAME)
+    )
 )
+assert DEFAULT_HISTORY_FILE_ABSPATH not in (b'', b'/', None)
+assert DEFAULT_HISTORY_FILE_ABSPATH not in (b'', None)
 
 
 class MeowURIValidator(Validator):

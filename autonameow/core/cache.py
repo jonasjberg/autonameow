@@ -32,26 +32,41 @@ except ImportError:
 from core import (
     exceptions,
     types,
-    util
+    util,
+    config
 )
-from core import constants as C
 
 
 log = logging.getLogger(__name__)
 
 
-# TODO: [TD0097] Add proper handling of cache directories.
-DEFAULT_CACHE_DIRECTORY_ROOT = '/tmp'
-DEFAULT_CACHE_DIRECTORY_LEAF = 'autonameow_cache'
-assert DEFAULT_CACHE_DIRECTORY_ROOT not in ('', '/', None)
-assert DEFAULT_CACHE_DIRECTORY_ROOT not in ('', None)
-
-CACHE_DIR_ABSPATH = util.normpath(
+DEFAULT_CACHE_DIRECTORY_ROOT = util.encode_('/tmp')
+DEFAULT_CACHE_DIRECTORY_LEAF = util.encode_('autonameow_cache')
+DEFAULT_CACHE_DIR_ABSPATH = util.normpath(
     os.path.join(
         util.syspath(DEFAULT_CACHE_DIRECTORY_ROOT),
         util.syspath(DEFAULT_CACHE_DIRECTORY_LEAF)
     )
 )
+assert DEFAULT_CACHE_DIR_ABSPATH not in (b'', b'/', None)
+assert DEFAULT_CACHE_DIR_ABSPATH not in (b'', None)
+
+
+def get_config_cache_path():
+    _active_config = config.ActiveConfig
+    if not _active_config:
+        return DEFAULT_CACHE_DIR_ABSPATH
+
+    try:
+        _cache_path = _active_config.get(['PERSISTENCE', 'cache_directory'])
+    except AttributeError:
+        _cache_path = None
+
+    if _cache_path:
+        return _cache_path
+    else:
+        # TODO: Duplicate default setting! Already set in 'configuration.py'.
+        return DEFAULT_CACHE_DIR_ABSPATH
 
 
 class BaseCache(object):
@@ -85,9 +100,14 @@ class BaseCache(object):
     #                Store timestamps with stored data and remove oldest
     #                entries when exceeding the file size limit.
 
-    def __init__(self, cachefile_prefix):
+    def __init__(self, cachefile_prefix, cache_dir_abspath=None):
         self._data = {}
-        self.cachedir_abspath = CACHE_DIR_ABSPATH
+
+        if not cache_dir_abspath:
+            self.cachedir_abspath = get_config_cache_path()
+        else:
+            self.cachedir_abspath = cache_dir_abspath
+        assert os.path.isabs(util.syspath(self.cachedir_abspath))
         self._dp = util.displayable_path(self.cachedir_abspath)
 
         _prefix = types.force_string(cachefile_prefix)
@@ -138,7 +158,7 @@ class BaseCache(object):
             key=key
         )
         _p = util.normpath(
-            os.path.join(util.syspath(CACHE_DIR_ABSPATH),
+            os.path.join(util.syspath(self.cachedir_abspath),
                          util.syspath(util.encode_(_basename)))
         )
         return _p
@@ -230,7 +250,7 @@ class BaseCache(object):
             log.debug('Deleted cache file "{!s}"'.format(_dp))
 
     def has(self, key):
-        # TODO: [TD0097] Test this ..
+        # TODO: Test this ..
         if key in self._data:
             return True
 

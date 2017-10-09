@@ -31,7 +31,7 @@ import unit_utils as uu
 
 class TestCacheConstants(TestCase):
     def test_cache_dir_abspath(self):
-        p = cache.CACHE_DIR_ABSPATH
+        p = cache.DEFAULT_CACHE_DIR_ABSPATH
         self.assertIsNotNone(p)
         self.assertTrue(uu.is_internalbytestring(p))
 
@@ -41,12 +41,12 @@ class TestCacheConstants(TestCase):
         self.assertTrue(uu.path_is_readable(d))
 
     def test_cache_dir_abspath_is_readable_directory(self):
-        d = cache.CACHE_DIR_ABSPATH
+        d = cache.DEFAULT_CACHE_DIR_ABSPATH
         self.assertTrue(uu.dir_exists(d))
         self.assertTrue(uu.path_is_readable(d))
 
     def test_cache_dir_abspath_is_directory(self):
-        d = cache.CACHE_DIR_ABSPATH
+        d = cache.DEFAULT_CACHE_DIR_ABSPATH
         self.assertTrue(uu.dir_exists(d))
         self.assertTrue(uu.path_is_readable(d))
 
@@ -59,11 +59,15 @@ def mock__dump(self, value, file_path):
     pass
 
 
+def mock_cache_path():
+    return b'/tmp/autonameow_cache'
+
+
 class TestBaseCache(TestCase):
     def test_init_raises_exception_if_missing_required_arguments(self):
         def _aR(prefix):
             with self.assertRaises(ValueError):
-                _ = cache.BaseCache(prefix)
+                _ = cache.BaseCache(prefix, cache_dir_abspath=mock_cache_path())
 
         _aR(None)
         _aR(' ')
@@ -75,7 +79,7 @@ class TestBaseCache(TestCase):
 
     def test__cache_file_abspath(self):
         def _aE(prefix, key, expect):
-            c = cache.BaseCache(prefix)
+            c = cache.BaseCache(prefix, cache_dir_abspath=mock_cache_path())
             actual = c._cache_file_abspath(key)
             self.assertEqual(actual, expect)
 
@@ -86,7 +90,7 @@ class TestBaseCache(TestCase):
     def test__cache_file_abspath_raises_exception_given_bad_key(self):
         def _aR(prefix, key, expect):
             with self.assertRaises(KeyError):
-                c = cache.BaseCache(prefix)
+                c = cache.BaseCache(prefix, cache_dir_abspath=mock_cache_path())
                 actual = c._cache_file_abspath(key)
                 self.assertEqual(actual, expect)
 
@@ -96,7 +100,7 @@ class TestBaseCache(TestCase):
 
     @patch.object(cache.BaseCache, '_load', mock__load)
     def test_get_raises_key_error(self):
-        c = cache.BaseCache('foo')
+        c = cache.BaseCache('foo', cache_dir_abspath=mock_cache_path())
 
         with self.assertRaises(KeyError):
             actual = c.get('key_a')
@@ -104,13 +108,13 @@ class TestBaseCache(TestCase):
 
     @patch.object(cache.BaseCache, '_dump', mock__dump)
     def test_set(self):
-        c = cache.BaseCache('foo')
+        c = cache.BaseCache('foo', cache_dir_abspath=mock_cache_path())
         c.set('key_a', 'mjaooajm')
 
     @patch.object(cache.BaseCache, '_load', mock__load)
     @patch.object(cache.BaseCache, '_dump', mock__dump)
     def test_set_get(self):
-        c = cache.BaseCache('foo')
+        c = cache.BaseCache('foo', cache_dir_abspath=mock_cache_path())
         c.set('key_a', 'mjaooajm')
 
         actual = c.get('key_a')

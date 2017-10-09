@@ -135,8 +135,6 @@ Low Priority
   Store timestamps with stored data and remove oldest entries when exceeding
   the file size limit.
 
-* `[TD0097]` Improve and fully implement caching to files on disk.
-
 * `[TD0096]` Fix some replacements cause incorrect color highlighting.
 
 * `[TD0091]` Take a look at old code in `util/dateandtime.py`.

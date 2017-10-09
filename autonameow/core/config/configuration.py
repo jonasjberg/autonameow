@@ -23,7 +23,10 @@ import logging
 import os
 import re
 
-from core import constants as C
+from core import (
+    constants as C,
+    cache
+)
 from core import (
     config,
     exceptions,
@@ -387,6 +390,39 @@ class Configuration(object):
                         match_replace_pairs
                     )
 
+        def _try_load_persistence_option(option, default):
+            _value = None
+            if 'PERSISTENCE' in self._data:
+                try:
+                    _value = self._data['PERSISTENCE'].get(option)
+                except AttributeError:
+                    pass
+
+            if _value is not None:
+                try:
+                    _bytes_path = types.AW_PATH.normalize(_value)
+                except types.AWTypeError as e:
+                    _dp = util.displayable_path(_value)
+                    log.error(
+                        'Invalid cache directory "{!s}"; {!s}'.format(_dp, e)
+                    )
+                else:
+                    _dp = util.displayable_path(_bytes_path)
+                    log.debug('Added persistence option :: '
+                              '{!s}: {!s}'.format(option, _dp))
+                    util.nested_dict_set(
+                        self._options, ['PERSISTENCE', option], _bytes_path
+                    )
+                    return
+
+            _bytes_path = util.normpath(default)
+            _dp = util.displayable_path(_bytes_path)
+            log.debug('Using default persistence option :: '
+                      '{!s}: {!s}'.format(option, _dp))
+            util.nested_dict_set(
+                self._options, ['PERSISTENCE', option], _bytes_path
+            )
+
         _try_load_datetime_format_option(
             'date', C.DEFAULT_DATETIME_FORMAT_DATE
         )
@@ -460,6 +496,15 @@ class Configuration(object):
                         self._options, ['FILESYSTEM_OPTIONS', 'ignore'],
                         _combined
                     )
+
+        _try_load_persistence_option(
+            'cache_directory',
+            cache.DEFAULT_CACHE_DIR_ABSPATH
+        )
+        _try_load_persistence_option(
+            'history_directory',
+            cache.DEFAULT_CACHE_DIR_ABSPATH
+        )
 
     def _load_version(self):
         if 'COMPATIBILITY' in self._data:

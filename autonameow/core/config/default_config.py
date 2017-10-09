@@ -200,6 +200,14 @@ DEFAULT_CONFIG = {
         'ignore': ['*.swp', '*/.*'],
     },
 
+    #  Persistence Options
+    #  ===================
+    #  Controls how autonameow stores persistent data to disk.
+    'PERSISTENCE': {
+        'cache_directory': None,
+        'history_directory': None,
+    },
+
     #  Custom Post-Processing Options
     #  ==============================
     #  Pairs of substrings to match and replace during the last post-processing

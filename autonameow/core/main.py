@@ -116,6 +116,9 @@ class Autonameow(object):
             log.critical('Unable to load configuration -- Aborting ..')
             self.exit_program(C.EXIT_ERROR)
 
+        # Set globally accessible configuration instance.
+        config.set_active(self.active_config)
+
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
 

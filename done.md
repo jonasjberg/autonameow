@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-10-10
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0097]` Improve and fully implement caching to files on disk.
+
 * 2017-10-07
 
     > Medium Priority
