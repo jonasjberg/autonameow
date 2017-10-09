@@ -241,13 +241,9 @@ class Rule(object):
 
     @description.setter
     def description(self, raw_description):
-        try:
-            description = types.AW_STRING(raw_description)
-        except types.AWTypeError:
-            description = None
-
-        if description:
-            self._description = description
+        valid_description = types.force_string(raw_description)
+        if valid_description:
+            self._description = valid_description
         else:
             self._description = C.DEFAULT_RULE_DESCRIPTION
 
