@@ -74,13 +74,13 @@ class TestRuleConditionFromValidInput(TestCase):
         self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf?')
 
     def test_condition_metadata_exiftool(self):
-        self._assert_valid('extractor.metadata.exiftool.PDF:CreateDate', '1996')
-        self._assert_valid('extractor.metadata.exiftool.PDF:Creator', 'foo')
-        self._assert_valid('extractor.metadata.exiftool.PDF:ModifyDate', '1996-01-20')
-        self._assert_valid('extractor.metadata.exiftool.PDF:Producer', 'foo')
-        self._assert_valid('extractor.metadata.exiftool.XMP-dc:Creator', 'foo')
-        self._assert_valid('extractor.metadata.exiftool.XMP-dc:Publisher', 'foo')
-        self._assert_valid('extractor.metadata.exiftool.XMP-dc:Title', 'foo')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE, '1996')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR, 'foo')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFMODIFYDATE, '1996-01-20')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFPRODUCER, 'foo')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR, 'foo')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER, 'foo')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE, 'foo')
 
 
 class TestRuleConditionFromInvalidInput(TestCase):
@@ -207,7 +207,7 @@ class TestIsValidSourceSpecification(TestCase):
             self.assertTrue(rules.is_valid_source(test_input))
 
         _aT('extractor.metadata.exiftool')
-        _aT('extractor.metadata.exiftool.PDF:CreateDate')
+        _aT(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE)
         _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
         _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
         _aT(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)

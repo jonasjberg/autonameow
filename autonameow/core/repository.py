@@ -375,15 +375,16 @@ def map_meowuri_to_source_class(meowuri, includes=None):
     """
     meowuri_class_map = meowuri_class_map_dict()
 
+    # TODO: Use comparion functionality provided by the 'MeowURI' class.
+    _meowuri_string = str(meowuri)
+
     def _search_source_type(key):
         for k, v in meowuri_class_map[key].items():
-            # TODO: Use comparion functionality provided by the 'MeowURI' class.
-            _meowuri_string = str(meowuri)
             if _meowuri_string.startswith(k):
                 return meowuri_class_map[key][k]
         return None
 
-    if not meowuri:
+    if not _meowuri_string:
         return []
 
     if includes is None:

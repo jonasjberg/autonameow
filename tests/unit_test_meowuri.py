@@ -177,14 +177,14 @@ class TestEvalMeowURIGlob(TestCase):
 class TestMeowURIEquality(TestCase):
     def setUp(self):
         self.m = MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
-        self.a = MeowURI('extractor.filesystem.xplat.abspath.full')
+        self.a = MeowURI(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
 
     def test_compare_with_string(self):
         self.assertEqual(self.m, uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         self.assertNotEqual(self.m, uuconst.MEOWURI_GEN_CONTENTS_TEXT)
-        self.assertNotEqual(self.m, 'extractor.filesystem.xplat.abspath.full')
+        self.assertNotEqual(self.m, uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
 
-        self.assertEqual(self.a, 'extractor.filesystem.xplat.abspath.full')
+        self.assertEqual(self.a, uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
         self.assertNotEqual(self.a, uuconst.MEOWURI_GEN_CONTENTS_TEXT)
         self.assertNotEqual(self.a, uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
 
@@ -330,7 +330,7 @@ class TestEvalMeowURIGlobE(TestCase):
 
 class TestEvalMeowURIGlobF(TestCase):
     def setUp(self):
-        self.g = MeowURI('extractor.metadata.exiftool.PDF:Creator')
+        self.g = MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR)
 
     def test_evaluates_false(self):
         def _f(test_input):
@@ -357,9 +357,9 @@ class TestEvalMeowURIGlobF(TestCase):
         _t(['extractor.*'])
         _t(['extractor.metadata.*'])
         _t(['extractor.metadata.exiftool.*'])
-        _t(['extractor.metadata.exiftool.PDF:Creator'])
+        _t([uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR])
         _t(['extractor.metadata.exiftool.*',
-            'extractor.metadata.exiftool.PDF:Creator'])
+            uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR])
         _t(['*.metadata.exiftool.PDF:Creator'])
         _t(['*.exiftool.PDF:Creator'])
         _t(['*.PDF:Creator'])
@@ -380,19 +380,19 @@ class TestEvalMeowURIGlobF(TestCase):
     #     ))
     #
     #     self.assertTrue(eval_meowuri_glob(
-    #         'extractor.metadata.exiftool.PDF:CreateDate',
-    #         ['extractor.metadata.exiftool.PDF:CreateDate']
+    #         uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
+    #         [uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE]
     #     ))
     #     self.assertTrue(eval_meowuri_glob(
-    #         'extractor.metadata.exiftool.PDF:CreateDate',
+    #         uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
     #         ['extractor.metadata.exiftool.*']
     #     ))
     #     self.assertTrue(eval_meowuri_glob(
-    #         'extractor.metadata.exiftool.PDF:CreateDate',
+    #         uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
     #         ['extractor.metadata.*']
     #     ))
     #     self.assertTrue(eval_meowuri_glob(
-    #         'extractor.metadata.exiftool.PDF:CreateDate',
+    #         uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
     #         ['datetime', 'date_accessed', 'date_created', 'date_modified',
     #          '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
     #          '*.EXIF:ModifyDate']

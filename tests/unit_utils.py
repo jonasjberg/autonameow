@@ -274,7 +274,7 @@ def mock_session_data_pool(fileobject):
                          'application/pdf')
     util.nested_dict_set(
         data,
-        [fileobject, 'extractor.metadata.exiftool.PDF:Creator'],
+        [fileobject, uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR],
         'Chromium'
     )
     util.nested_dict_set(
@@ -354,7 +354,7 @@ def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
                          'application/pdf')
     util.nested_dict_set(
         data,
-        [fileobject, 'extractor.metadata.exiftool.PDF:Creator'],
+        [fileobject, uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR],
         'Chromium'
     )
     util.nested_dict_set(

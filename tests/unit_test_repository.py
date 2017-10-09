@@ -173,7 +173,7 @@ class TestRepositoryMethodResolvable(TestCase):
             self.assertTrue(self.r.resolvable(test_input))
 
         _aT('extractor.metadata.exiftool')
-        _aT('extractor.metadata.exiftool.PDF:CreateDate')
+        _aT(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE)
         _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
         _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
         _aT(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
@@ -200,22 +200,28 @@ class TestMapMeowURItoSourceClass(TestCase):
              'CrossPlatformFileSystemExtractor'),
             ([uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE,
               uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
-              'extractor.metadata.exiftool.PDF:CreateDate',
-              'extractor.metadata.exiftool.XMP-dc:Creator',
-              'extractor.metadata.exiftool.XMP-dc:CreatorFile-as',
-              'extractor.metadata.exiftool.XMP-dc:Date',
-              'extractor.metadata.exiftool.XMP-dc:Publisher',
-              'extractor.metadata.exiftool.XMP-dc:Title'],
+              uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
+              uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR,
+              uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATORFILEAS,
+              uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE,
+              uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER,
+              uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE],
              'ExiftoolMetadataExtractor')
         ]
         self._all_meowURI_sourcemap = (self._analyzer_meowURI_sourcemap
                                        + self._extractor_meowURI_sourcemap)
 
     def test_maps_meowuris_to_expected_source(self):
+        expect_num = 1
         for meowuris, expected_source in self._all_meowURI_sourcemap:
             for uri in meowuris:
                 actual = repository.map_meowuri_to_source_class(uri)
-                self.assertEqual(len(actual), 1)
+                self.assertEqual(
+                    len(actual), expect_num,
+                    'Got {} sources but expected {} for "{!s}"'.format(
+                        len(actual), expect_num, uri
+                    )
+                )
 
                 actual = actual[0]
                 self.assertEqual(actual.__name__, expected_source)
@@ -293,12 +299,12 @@ class TestGetSourcesForMeowURIs(TestCase):
         self._meowuris_exiftool = [
             uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE,
             uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
-            'extractor.metadata.exiftool.PDF:CreateDate',
-            'extractor.metadata.exiftool.QuickTime:CreationDate',
-            'extractor.metadata.exiftool.XMP-dc:Creator',
-            'extractor.metadata.exiftool.XMP-dc:Date',
-            'extractor.metadata.exiftool.XMP-dc:Publisher',
-            'extractor.metadata.exiftool.XMP-dc:Title',
+            uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
+            uuconst.MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE,
+            uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR,
+            uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCDATE,
+            uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER,
+            uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE,
         ]
         self._meowuris_guessit = [
             'plugin.guessit.date',
