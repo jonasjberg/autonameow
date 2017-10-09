@@ -265,7 +265,8 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     # Note that the inner-most values are set-literals.
     'application/octet-stream': {
         'chm': {'chm'},
-        'mobi': {'mobi'}
+        'mobi': {'mobi'},
+        'azw3': {'azw3'}
     },
     'text/plain': {
         'c': {'c'},
