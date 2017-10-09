@@ -219,12 +219,12 @@ class BaseCache(object):
 
         _p = self._cache_file_abspath(key)
         _dp = util.displayable_path(_p)
+        log.debug('Deleting cache file "{!s}"'.format(_dp))
         try:
-            log.debug('Deleting cache file "{!s}"'.format(_dp))
             diskutils.delete(_p, ignore_missing=True)
         except exceptions.FilesystemError as e:
             raise CacheError(
-                'Error when trying to delete "{!s}"; {!s}'.format(_dp, e)
+                'Error while deleting "{!s}"; {!s}'.format(_dp, e)
             )
         else:
             log.debug('Deleted cache file "{!s}"'.format(_dp))
