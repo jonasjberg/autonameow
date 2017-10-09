@@ -217,15 +217,17 @@ class BaseCache(object):
         except KeyError:
             pass
 
-        _dp = util.displayable_path(self._cache_file_abspath(key))
+        _p = self._cache_file_abspath(key)
+        _dp = util.displayable_path(_p)
         try:
-            log.critical('would have deleted "{!s}"'.format(_dp))
-            # TODO: [TD0097] Double-check this and actually delete the file ..
-            pass
-        except OSError as e:
+            log.debug('Deleting cache file "{!s}"'.format(_dp))
+            diskutils.delete(_p, ignore_missing=True)
+        except exceptions.FilesystemError as e:
             raise CacheError(
                 'Error when trying to delete "{!s}"; {!s}'.format(_dp, e)
             )
+        else:
+            log.debug('Deleted cache file "{!s}"'.format(_dp))
 
     def has(self, key):
         # TODO: [TD0097] Test this ..
