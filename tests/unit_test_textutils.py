@@ -26,7 +26,10 @@ try:
 except ImportError:
     chardet = None
 
-from core import util
+from core import (
+    types,
+    util
+)
 from core.exceptions import (
     AWAssertionError,
     EncodingBoundaryViolation
@@ -597,3 +600,32 @@ class TestExtractlinesDo(unittest.TestCase):
 3. BAZ
 '''
         self.assertEqual(actual, expect)
+
+
+class TestCompiledOrdinalRegexes(unittest.TestCase):
+    def setUp(self):
+        self.actual = textutils.compiled_ordinal_regexes()
+
+    def test_returns_expected_type(self):
+        self.assertIsNotNone(self.actual)
+        self.assertTrue(isinstance(self.actual, dict))
+
+    def test_returns_compiled_regular_expressions(self):
+        re_one = self.actual.get(1)
+        self.assertTrue(isinstance(re_one, types.BUILTIN_REGEX_TYPE))
+
+        for _pattern in self.actual.values():
+            self.assertTrue(isinstance(_pattern, types.BUILTIN_REGEX_TYPE))
+
+    def test_returned_regexes_matches_strings(self):
+        def _aM(test_input):
+            match = self.actual.get(2).search(test_input)
+            actual = match.group(0)
+            expected = 2
+            self.assertTrue(actual, expected)
+
+        _aM('2nd')
+        _aM('second')
+        _aM('SECOND')
+        _aM('foo 2nd bar')
+        _aM('foo 2ND bar')

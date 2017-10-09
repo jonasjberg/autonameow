@@ -157,12 +157,18 @@ class TestFindEdition(TestCase):
         _aE('Networking_4th', 4)
         _aE('Foo 2E - Bar B. 2001', 2)
         _aE('Third Edition', 3)
+        _aE('Bar 5e - Baz._', 5)
+        _aE('Bar 5ed - Baz._', 5)
+        _aE('Bar 5 ed - Baz._', 5)
+        _aE('Bar 5th - Baz._', 5)
+        _aE('Bar 5th ed - Baz._', 5)
+        _aE('Bar 5th edition - Baz._', 5)
 
     def test_returns_none_for_unavailable_editions(self):
-        self.skipTest('TODO')
-
         self.assertIsNone(find_edition('Foo, Bar - Baz._'))
         self.assertIsNone(find_edition('Foo, Bar 5 - Baz._'))
+        self.assertIsNone(find_edition('Bar 5 e - Baz._'))
+        self.assertIsNone(find_edition('Foo, Bar 5s - Baz._'))
 
 
 class TestIdentifyFields(TestCase):
