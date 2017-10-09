@@ -249,7 +249,7 @@ class BaseCache(object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):
-        return self.__class__.__name__
+        return '{}("{}")'.format(self.__class__.__name__, self.cachefile_prefix)
 
 
 class PickleCache(BaseCache):
