@@ -275,9 +275,10 @@ RE_UNICODE_OVERLINES = re.compile(
 )
 
 # \u06D4 Arabic full stop
+# \u2024 One dot leader
 # \uFF0E Fullwidth full stop
 RE_UNICODE_PERIODS = re.compile(
-    '[\u06d4\uff0e]'
+    '[\u06d4\u2024\uff0e]'
 )
 
 # \u002B Plus
