@@ -35,6 +35,8 @@ High Priority
 
 * `[TD0102]` Fix inconsistencies in results passed back by analyzers.
 
+* `[TD0106]` Fix inconsistencies in results passed back by extractors.
+
 * `[TD0087]` Clean up messy and sometimes duplicated wrapping of "raw" data.
 
 

@@ -38,6 +38,12 @@ def collect_results(fileobject, meowuri, data):
         meowuri: Label that uniquely identifies the data.
         data: The data to add.
     """
+    # TODO: [TD0106] Fix inconsistencies in results passed back by extractors.
+    if not isinstance(data, dict):
+        log.debug('[TD0106] Got non-dict data "extraction.collect_results()"')
+        log.debug('[TD0106] Data type: {!s}'.format(type(data)))
+        log.debug('[TD0106] Data contents: {!s}'.format(data))
+
     if isinstance(data, dict):
         for _key, _data in data.items():
             _uri = '{}.{!s}'.format(meowuri, _key)
