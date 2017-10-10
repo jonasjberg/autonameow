@@ -22,6 +22,7 @@
 import logging
 
 from core import repository
+from core.model import ExtractedData
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
 from core.util import sanity
 
@@ -39,8 +40,8 @@ log = logging.getLogger(__name__)
 
 
 class Resolver(object):
-    def __init__(self, file_object, name_template):
-        self.file = file_object
+    def __init__(self, fileobject, name_template):
+        self.file = fileobject
         self.name_template = name_template
 
         self._fields = nametemplatefield_classes_in_formatstring(name_template)
@@ -79,6 +80,8 @@ class Resolver(object):
     def lookup_candidates(self, field):
         # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
         candidates = repository.SessionRepository.query_mapped(self.file, field)
+
+        # TODO: [TD0104] Merge candidates and re-normalize probabilities.
         return candidates if candidates else []
 
     def _has_data_for_placeholder_fields(self):
@@ -107,16 +110,17 @@ class Resolver(object):
                 )
                 continue
 
-            log.debug('Gathering data for field "{!s}" from source [{!s}]->'
-                      '[{!s}]'.format(field, self.file, meowuri))
+            log.debug('Gathering data for field "{!s}" from source [{:8.8}]->'
+                      '[{!s}]'.format(field, self.file.hash_partial, meowuri))
             _data = self._request_data(self.file, meowuri)
             if _data is not None:
                 log.debug('Got data "{!s}" ({})'.format(_data, type(_data)))
                 log.debug('Updated data for field "{!s}"'.format(field))
                 self.fields_data[field] = _data
             else:
-                log.debug('Got NONE data for [{!s}]->"{!s}"'.format(self.file,
-                                                                    meowuri))
+                log.debug('Got NONE data for [{:8.8}]->"{!s}"'.format(
+                    self.file.hash_partial, meowuri)
+                )
 
                 # Remove the source that returned None data.
                 log.debug(
@@ -127,6 +131,15 @@ class Resolver(object):
     def _verify_types(self):
         for field, data in self.fields_data.items():
             if isinstance(data, list):
+                if not field.MULTIVALUED:
+                    self.fields_data[field] = None
+                    log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
+                    log.debug(
+                        'Template field "{!s}" expects a single value. '
+                        'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
+                                                   type(data), data)
+                    )
+
                 for d in data:
                     self._verify_type(field, d)
             else:
@@ -139,8 +152,16 @@ class Resolver(object):
                 self.fields_data.pop(field)
 
     def _verify_type(self, field, data):
-        sanity.check(not isinstance(data, list),
-                     'Expected "data" not to be a list')
+        _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
+        sanity.check(
+            not isinstance(data, list),
+            'Expected "data" not to be a list. Got: {}'.format(_data_info)
+        )
+        sanity.check(
+            isinstance(data, ExtractedData),
+            'Expected "data" to be an instance of "ExtractedData".'
+            'Got: {}'.format(_data_info)
+        )
 
         log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
         _compatible = field.type_compatible(data.coercer)
@@ -151,7 +172,9 @@ class Resolver(object):
             log.debug('Verified Field-Data Compatibility  INCOMPATIBLE')
 
     def _request_data(self, file, meowuri):
-        log.debug('{} requesting [{!s}]->[{!s}]'.format(self, file, meowuri))
+        log.debug('{} requesting [{:8.8}]->[{!s}]'.format(
+            self, file.hash_partial, meowuri)
+        )
         return repository.SessionRepository.query(file, meowuri)
 
     def __str__(self):

@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from core.util.encoding import *
+from core.util.checksum import *
 from core.util.misc import *
 from core.util.queue import GenericQueue
 from core.util.textutils import (

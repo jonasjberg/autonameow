@@ -76,9 +76,7 @@ class TestTesseractOCRTextExtractorWithEmptyFile(unittest.TestCase):
 
 
 # NOTE(jonas): Use a shared instance to maintain test execution speed.
-TEST_IMAGE_FILE = util.normpath(
-    uu.abspath_testfile('2007-04-23_12-comments.png')
-)
+TEST_IMAGE_FILE = uu.fileobject_testfile('2007-04-23_12-comments.png')
 TEST_IMAGE_FILE_TEXT = 'Apr 23, 2007 - 12 Comments'
 image_ocr_extractor = TesseractOCRTextExtractor()
 

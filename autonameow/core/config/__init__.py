@@ -226,5 +226,22 @@ def write_yaml_file(dest_path, yaml_data):
         raise ConfigWriteError(dest_path, e)
 
 
+def set_active(config):
+    """
+    Sets the global configuration.
+
+    Args:
+        config:  The new global config as an instance of 'Configuration'.
+    """
+    global ActiveConfig
+    log.debug('Updated active global config ..')
+    ActiveConfig = config
+
+
+Pool = None
+SessionRepository = None
+
+
 # Variables listed here are intended for public, global use.
 DefaultConfigFilePath = config_file_path()
+ActiveConfig = None

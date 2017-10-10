@@ -445,9 +445,11 @@ class MimeType(BaseType):
     }
 
     # Override "MIME-type to extension"-mappings here.
+    MIME_TYPE_LOOKUP_INV['application/x-rar'] = 'rar'
     MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
     MIME_TYPE_LOOKUP_INV['image/jpeg'] = 'jpg'
     MIME_TYPE_LOOKUP_INV['video/quicktime'] = 'mov'
+    MIME_TYPE_LOOKUP_INV['video/mp4'] = 'mp4'
 
     KNOWN_EXTENSIONS = frozenset(MIME_TYPE_LOOKUP.keys())
     KNOWN_MIME_TYPES = frozenset(MIME_TYPE_LOOKUP.values())

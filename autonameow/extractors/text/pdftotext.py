@@ -40,37 +40,48 @@ from extractors.text.common import (
 log = logging.getLogger(__name__)
 
 
+CACHE_KEY = 'text'
+
+
 class PdftotextTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
 
     def __init__(self):
         super(PdftotextTextExtractor, self).__init__()
 
-        self.cache = cache.get_cache(str(self))
-        try:
-            self._cached_text = self.cache.get('text')
-        except (KeyError, cache.CacheError):
-            self._cached_text = {}
+        self._cached_text = {}
 
-    def _cache_read(self, source):
-        if source in self._cached_text:
-            _dp = util.displayable_path(source)
-            self.log.info('Using cached text from source: {!s}'.format(_dp))
-            return self._cached_text.get(source)
+        _cache = cache.get_cache(str(self))
+        if _cache:
+            self.cache = _cache
+            try:
+                self._cached_text = self.cache.get(CACHE_KEY)
+            except (KeyError, cache.CacheError):
+                pass
+        else:
+            self.cache = None
+
+    def _cache_read(self, fileobject):
+        if fileobject in self._cached_text:
+            return self._cached_text.get(fileobject)
         return None
 
     def _cache_write(self):
+        if not self.cache:
+            return
+
         try:
-            self.cache.set('text', self._cached_text)
+            self.cache.set(CACHE_KEY, self._cached_text)
         except cache.CacheError:
             pass
 
-    def _get_text(self, source):
-        _cached = self._cache_read(source)
+    def _get_text(self, fileobject):
+        _cached = self._cache_read(fileobject)
         if _cached is not None:
+            self.log.info('Using cached text for: {!r}'.format(fileobject))
             return _cached
 
-        result = extract_pdf_content_with_pdftotext(source)
+        result = extract_pdf_content_with_pdftotext(fileobject.abspath)
         if not result:
             return ''
 
@@ -79,9 +90,7 @@ class PdftotextTextExtractor(AbstractTextExtractor):
         text = textutils.normalize_unicode(text)
         text = textutils.remove_nonbreaking_spaces(text)
         if text:
-            # TODO: [TD0098] Use checksums as keys for cached data, not paths.
-            #       .. I.E. use a more robust identifier as "source" below.
-            self._cached_text.update({source: text})
+            self._cached_text.update({fileobject: text})
             self._cache_write()
             return text
         else:
@@ -92,9 +101,12 @@ class PdftotextTextExtractor(AbstractTextExtractor):
         return util.is_executable('pdftotext')
 
 
-def extract_pdf_content_with_pdftotext(pdf_file):
+def extract_pdf_content_with_pdftotext(file_path):
     """
     Extract the plain text contents of a PDF document using "pdftotext".
+
+    Args:
+        file_path: The path to the PDF file to extract text from.
 
     Returns:
         Any textual content of the given PDF file, as Unicode strings.
@@ -103,7 +115,7 @@ def extract_pdf_content_with_pdftotext(pdf_file):
     """
     try:
         process = subprocess.Popen(
-            ['pdftotext', '-nopgbrk', '-enc', 'UTF-8', pdf_file, '-'],
+            ['pdftotext', '-nopgbrk', '-enc', 'UTF-8', file_path, '-'],
             shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         stdout, stderr = process.communicate()

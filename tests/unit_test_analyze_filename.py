@@ -27,22 +27,28 @@ from analyzers.analyze_filename import (
     FilenameAnalyzer,
     FilenameTokenizer,
     SubstringFinder,
-    _find_edition,
+    find_edition,
     likely_extension
 )
 from core.namebuilder import fields
 import unit_utils as uu
 
 
-def get_filename_analyzer(file_object):
-    return FilenameAnalyzer(file_object,
-                            add_results_callback=uu.mock_add_results_callback,
-                            request_data_callback=uu.mock_request_data_callback)
+uu.init_session_repository()
+
+
+def get_filename_analyzer(fileobject):
+    return FilenameAnalyzer(
+        fileobject,
+        uu.get_default_config(),
+        add_results_callback=uu.mock_add_results_callback,
+        request_data_callback=uu.mock_request_data_callback
+    )
 
 
 class TestFilenameAnalyzerWithImageFile(TestCase):
     def setUp(self):
-        self.fo = uu.get_named_file_object('2010-01-31_161251.jpg')
+        self.fo = uu.get_named_fileobject('2010-01-31_161251.jpg')
         self.fna = get_filename_analyzer(self.fo)
 
     def test_setup(self):
@@ -68,7 +74,7 @@ class TestFilenameAnalyzerWithImageFile(TestCase):
 
 class TestFilenameAnalyzerWithEmptyFile(TestCase):
     def setUp(self):
-        self.fo = uu.get_named_file_object('gmail.pdf')
+        self.fo = uu.get_named_fileobject('gmail.pdf')
         self.fna = get_filename_analyzer(self.fo)
 
     def test_setup(self):
@@ -90,30 +96,26 @@ class TestLikelyExtension(TestCase):
         Expect = namedtuple('Expect', 'expected')
 
         self.expect_testinput = [
-            (Expect('txt'),
-             Given(suffix='txt', mime='text/plain')),
-            (Expect('sh'),
-             Given(suffix='sh', mime='text/plain')),
-            (Expect('sh'),
-             Given(suffix='sh', mime='text/x-shellscript')),
-            (Expect('sh'),
-             Given(suffix='txt', mime='text/x-shellscript')),
-            (Expect('pdf'),
-             Given(suffix='pdf', mime='application/pdf')),
-            (Expect('md'),
-             Given(suffix='md', mime='text/plain')),
-            (Expect('md'),
-             Given(suffix='mkd', mime='text/plain')),
-            (Expect('md'),
-             Given(suffix='markdown', mime='text/plain')),
-            (Expect('yaml'),
-             Given(suffix='yaml', mime='text/plain')),
-            (Expect('py'),
-             Given(suffix='py', mime='text/x-shellscript')),
-            (Expect('py'),
-             Given(suffix='py', mime='text/x-python')),
-            (Expect('py'),
-             Given(suffix='', mime='text/x-python')),
+            (Expect('txt'), Given(suffix='txt', mime='text/plain')),
+            (Expect('sh'), Given(suffix='sh', mime='text/plain')),
+            (Expect('sh'), Given(suffix='sh', mime='text/x-shellscript')),
+            (Expect('sh'), Given(suffix='txt', mime='text/x-shellscript')),
+            (Expect('pdf'), Given(suffix='pdf', mime='application/pdf')),
+            (Expect('md'), Given(suffix='md', mime='text/plain')),
+            (Expect('md'), Given(suffix='mkd', mime='text/plain')),
+            (Expect('md'), Given(suffix='markdown', mime='text/plain')),
+            (Expect('yaml'), Given(suffix='yaml', mime='text/plain')),
+            (Expect('py'), Given(suffix='py', mime='text/x-shellscript')),
+            (Expect('py'), Given(suffix='py', mime='text/x-python')),
+            (Expect('py'), Given(suffix='', mime='text/x-python')),
+            (Expect('chm'), Given(suffix='chm',
+                                  mime='application/octet-stream')),
+            (Expect('mobi'), Given(suffix='mobi',
+                                   mime='application/octet-stream')),
+            (Expect('azw3'), Given(suffix='azw3',
+                                   mime='application/octet-stream')),
+            (Expect('pdf'), Given(suffix='pdf',
+                                  mime='application/octet-stream')),
         ]
 
     def test_returns_expected(self):
@@ -127,20 +129,49 @@ class TestLikelyExtension(TestCase):
 
 class TestFindEdition(TestCase):
     def test_returns_expected_edition(self):
-        self.skipTest('TODO')
+        def _aE(test_input, expected):
+            self.assertEqual(find_edition(test_input), expected)
 
-        self.assertEqual(_find_edition('Foo, Bar - Baz._5th'), 5)
-        self.assertEqual(_find_edition('Foo,Bar-_Baz_-_3ed_2002'), 3)
-        self.assertEqual(_find_edition('Foo,Bar-_Baz_-_4ed_2003'), 4)
-        self.assertEqual(_find_edition('Embedded_Systems_6th_.2011'), 6)
-        self.assertEqual(_find_edition('Networking_4th'), 4)
-        self.assertEqual(_find_edition('Foo 2E - Bar B. 2001'), 2)
+        _aE('1st', 1)
+        _aE('2nd', 2)
+        _aE('3rd', 3)
+        _aE('4th', 4)
+        _aE('5th', 5)
+        _aE('6th', 6)
+        _aE('1 1st', 1)
+        _aE('1 2nd', 2)
+        _aE('1 3rd', 3)
+        _aE('1 4th', 4)
+        _aE('1 5th', 5)
+        _aE('1 6th', 6)
+        _aE('1 1st 2', 1)
+        _aE('1 2nd 2', 2)
+        _aE('1 3rd 2', 3)
+        _aE('1 4th 2', 4)
+        _aE('1 5th 2', 5)
+        _aE('1 6th 2', 6)
+        _aE('Foo, Bar - Baz._5th', 5)
+        _aE('Foo,Bar-_Baz_-_3ed_2002', 3)
+        _aE('Foo,Bar-_Baz_-_4ed_2003', 4)
+        _aE('Embedded_Systems_6th_.2011', 6)
+        _aE('Networking_4th', 4)
+        _aE('Foo 2E - Bar B. 2001', 2)
+        _aE('Third Edition', 3)
+        _aE('Bar 5e - Baz._', 5)
+        _aE('Bar 5 e - Baz._', 5)
+        _aE('Bar 5ed - Baz._', 5)
+        _aE('Bar 5 ed - Baz._', 5)
+        _aE('Bar 5th - Baz._', 5)
+        _aE('Bar 5th ed - Baz._', 5)
+        _aE('Bar 5th edition - Baz._', 5)
+        _aE('Bar fifth e - Baz._', 5)
+        _aE('Bar fifth ed - Baz._', 5)
+        _aE('Bar fifth edition - Baz._', 5)
 
     def test_returns_none_for_unavailable_editions(self):
-        self.skipTest('TODO')
-
-        self.assertIsNone(_find_edition('Foo, Bar - Baz._'))
-        self.assertIsNone(_find_edition('Foo, Bar 5 - Baz._'))
+        self.assertIsNone(find_edition('Foo, Bar - Baz._'))
+        self.assertIsNone(find_edition('Foo, Bar 5 - Baz._'))
+        self.assertIsNone(find_edition('Foo, Bar 5s - Baz._'))
 
 
 class TestIdentifyFields(TestCase):
@@ -193,21 +224,41 @@ class TestIdentifyFields(TestCase):
 
 
 class TestFilenameTokenizer(TestCase):
-    def test_guess_separators_simpler(self):
-        self.skipTest('TODO: Implement or remove ..')
-
-        _filename = 'foo.bar.1234.baz'
-        self.tokenizer = FilenameTokenizer(_filename)
+    def _t(self, filename, expected):
+        self.tokenizer = FilenameTokenizer(filename)
         actual = self.tokenizer.separators
+        self.assertEqual(sorted(actual), sorted(expected))
 
-        self.assertEqual(actual, ['.'])
+    def test_find_separators_all_periods(self):
+        self._t(
+            filename='foo.bar.1234.baz',
+            expected=[('.', 3)]
+        )
 
-    def test_guess_separators_simple(self):
-        self.skipTest('TODO: Implement or remove ..')
+    def test_find_separators_periods_and_brackets(self):
+        self._t(
+            filename='foo.bar.[1234].baz',
+            expected=[('.', 3), ('[', 1), (']', 1)]
+        )
 
-        _filename = 'foo.bar.[1234].baz'
-        self.tokenizer = FilenameTokenizer(_filename)
-        actual = self.tokenizer.separators
+    def test_find_separators_underlines(self):
+        self.skipTest('TODO: ..')
 
-        self.assertEqual(actual, ['.'])
+        self._t(
+            filename='foo_bar_1234_baz',
+            expected=[('_', 3)]
+        )
 
+    def test_find_separators_dashes(self):
+        self._t(
+            filename='foo-bar-1234-baz',
+            expected=[('-', 3)]
+        )
+
+    def test_find_separators_underlines_and_dashes(self):
+        self.skipTest('TODO: ..')
+
+        self._t(
+            filename='foo-bar_1234_baz',
+            expected=[('_', 2), ('-', 1)]
+        )

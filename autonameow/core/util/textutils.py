@@ -133,7 +133,7 @@ def autodetect_decode(string):
     return string
 
 
-def extract_lines(text, first_line, last_line):
+def extract_lines(text, firstline, lastline):
     """
     Extracts a range of text lines from a Unicode string.
 
@@ -144,8 +144,8 @@ def extract_lines(text, first_line, last_line):
 
     Args:
         text: Text to extract lines from, as a Unicode string.
-        first_line: First line to include, as a non-negative integer.
-        last_line: Last line to include, as a non-negative integer.
+        firstline: First line to include, as a non-negative integer.
+        lastline: Last line to include, as a non-negative integer.
 
     Returns:
         If 'text' is a Unicode str; lines between 'first_line' and 'last_line'.
@@ -158,17 +158,17 @@ def extract_lines(text, first_line, last_line):
         return text
 
     sanity.check_internal_string(text)
-    sanity.check(first_line >= 0, 'Argument first_line is negative')
-    sanity.check(last_line >= 0, 'Argument last_line is negative')
+    sanity.check(firstline >= 0, 'Argument first_line is negative')
+    sanity.check(lastline >= 0, 'Argument last_line is negative')
 
     lines = text.splitlines(keepends=True)
-    if last_line > len(lines):
-        last_line = len(lines)
+    if lastline > len(lines):
+        lastline = len(lines)
 
-    if first_line > last_line:
-        first_line = last_line
+    if firstline > lastline:
+        firstline = lastline
 
-    extracted = lines[first_line:last_line]
+    extracted = lines[firstline:lastline]
     return ''.join(extracted)
 
 
@@ -193,30 +193,6 @@ def parse_name(full_name):
 
 
 def format_name_lastname_initials(full_name):
-    """
-    Formats a full name to LAST_NAME, INITIALS..
-
-    Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
-
-    Args:
-        full_name: The full name to format as a Unicode string.
-
-    Returns:
-        The specified name written as LAST_NAME, INITIAL, INITIAL..
-    """
-    words = full_name.split(' ')
-    words = [w for w in words if w not in IGNORED_AUTHOR_WORDS]
-
-    lastname = words.pop()
-    if words:
-        initials = [w[0] for w in words]
-        _initials = '{0}{1}'.format('.'.join(initials), '.')
-        return lastname + ' ' + _initials
-    else:
-        return lastname
-
-
-def format_name_lastname_initials2(full_name):
     """
     Formats a full name to LAST_NAME, INITIALS..
 
@@ -256,17 +232,25 @@ def format_name_lastname_initials2(full_name):
     _initials = '{0}{1}'.format('.'.join(initials), '.')
 
     last_name = _human_name.last.replace(' ', '')
-    return '{} {}'.format(last_name, _initials)
+    return '{} {}'.format(last_name, _initials).strip()
+
+
+def format_names(list_of_full_names, formatter):
+    sanity.check(callable(formatter), 'Argument "formatter" must be callable')
+
+    _formatted_authors = [formatter(a) for a in list_of_full_names]
+    return sorted(_formatted_authors, key=str.lower)
 
 
 def format_names_lastname_initials(list_of_full_names):
-    _formatted_authors = [format_name_lastname_initials(a)
-                          for a in list_of_full_names]
-    return sorted(_formatted_authors, key=str.lower)
+    return format_names(list_of_full_names, format_name_lastname_initials)
 
 
 RE_UNICODE_DASHES = re.compile(
     '[\u2212\u2013\u2014\u05be\u2010\u2015\u30fb]'
+)
+RE_UNICODE_OVERLINES = re.compile(
+    '[\u0305\u203e]'
 )
 
 
@@ -280,6 +264,7 @@ def normalize_unicode(text):
         raise TypeError('Expected "text" to be a Unicode str')
 
     text = re.sub(RE_UNICODE_DASHES, '-', text)
+    text = re.sub(RE_UNICODE_OVERLINES, '-', text)
 
     return unicodedata.normalize(NORMALIZATION_FORM, text)
 
@@ -290,3 +275,68 @@ RE_ANSI_ESCAPE = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 def strip_ansiescape(string):
     stripped = re.sub(RE_ANSI_ESCAPE, '', string)
     return stripped
+
+
+def extractlines_do(callback, text, fromline, toline):
+    """
+    Perform an action within certain lines of some given text.
+
+    Args:
+        callback: The callable to pass the extracted lines to.
+        text: The Text to extract lines from, as a Unicode string.
+        fromline: First line number of the text to be extracted, as an integer.
+        toline: Last line number of the text to be extracted, as an integer.
+
+    Returns:
+        The result of calling "callback" with the contents in "text" between
+        lines "fromline" and "toline".
+    """
+    sanity.check(callable(callback), 'Argument "callback" must be callable')
+    sanity.check_isinstance(fromline, int)
+    sanity.check_isinstance(toline, int)
+
+    lines = extract_lines(text, fromline, toline)
+    return callback(lines)
+
+
+def truncate_text(text, number_chars=500):
+    msg = '  (.. TRUNCATED to {}/{} characters)'.format(number_chars, len(text))
+
+    if len(text) <= number_chars:
+        return text
+    return text[0:number_chars] + msg
+
+
+__ordinal_number_patterns = [
+    (1, r'1st|first'),             (2, r'2nd|second'),
+    (3, r'3rd|third'),             (4, r'4th|fourth'),
+    (5, r'5th|fifth'),             (6, r'6th|sixth'),
+    (7, r'7th|seventh'),           (8, r'8th|eighth'),
+    (9, r'9th|ninth'),             (10, r'10th|tenth'),
+    (11, r'11th|eleventh'),        (12, r'12th|twelfth'),
+    (13, r'13th|thirteenth'),      (14, r'14th|fourteenth'),
+    (15, r'15th|fifteenth'),       (16, r'16th|sixteenth'),
+    (17, r'17th|seventeenth'),     (18, r'18th|eighteenth'),
+    (19, r'19th|nineteenth'),      (20, r'20th|twentieth'),
+    (21, r'21th|twenty-?first'),   (22, r'22th|twenty-?second'),
+    (23, r'23th|twenty-?third'),   (24, r'24th|twenty-?fourth'),
+    (25, r'25th|twenty-?fifth'),   (26, r'26th|twenty-?sixth'),
+    (27, r'27th|twenty-?seventh'), (28, r'28th|twenty-?eighth'),
+    (29, r'29th|twenty-?ninth'),   (30, r'30th|thirtieth'),
+]
+
+
+RE_ORDINALS = {}
+
+
+def compiled_ordinal_regexes():
+    """
+    Returns:
+        Dictionary of compiled regular expressions keyed by positive integers,
+        each storing patterns for matching ordinal strings of that number.
+    """
+    global RE_ORDINALS
+    if not RE_ORDINALS:
+        for _number, _patterns in __ordinal_number_patterns:
+            RE_ORDINALS[_number] = re.compile(_patterns, re.IGNORECASE)
+    return RE_ORDINALS

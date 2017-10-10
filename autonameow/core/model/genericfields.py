@@ -190,5 +190,20 @@ class GenericTitle(GenericField):
 
 
 def meowuri_genericfield_map():
-    return {klass.uri(): klass
-            for klass in GenericField.__subclasses__()}
+    return {
+        klass.uri(): klass
+        for klass in GenericField.__subclasses__()
+    }
+
+
+def get_datetime_fields():
+    return [
+        GenericDateModified, GenericDateCreated
+    ]
+
+
+def get_string_fields():
+    return [
+        GenericSubject, GenericText, GenericProducer, GenericDescription,
+        GenericCreator, GenericAuthor, GenericPublisher, GenericTitle
+    ]

@@ -227,6 +227,18 @@ Yargy is a Earley parser, that uses russian morphology for facts extraction
 process, and written in pure python
 
 
+`iepy`
+-------
+Information Extraction in Python
+
+* Sources: <https://github.com/machinalis/iepy>
+* Documentation: <http://iepy.readthedocs.org/en/latest/>
+
+IEPY is an open source tool for Information Extraction focused on Relation Extraction.
+Yargy is a Earley parser, that uses russian morphology for facts extraction
+process, and written in pure python
+
+
 
 [1]: http://karl-voit.at
 [2]: http://karl-voit.at/managing-digital-photographs/

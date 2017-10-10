@@ -29,21 +29,21 @@ from extractors import ExtractorError
 log = logging.getLogger(__name__)
 
 
-def collect_results(file_object, meowuri, data):
+def collect_results(fileobject, meowuri, data):
     """
     Collects extractor data, passes it the the session repository.
 
     Args:
-        file_object: File that produced the data to add.
+        fileobject: File that produced the data to add.
         meowuri: Label that uniquely identifies the data.
         data: The data to add.
     """
     if isinstance(data, dict):
         for _key, _data in data.items():
             _uri = '{}.{!s}'.format(meowuri, _key)
-            repository.SessionRepository.store(file_object, _uri, _data)
+            repository.SessionRepository.store(fileobject, _uri, _data)
     else:
-        repository.SessionRepository.store(file_object, meowuri, data)
+        repository.SessionRepository.store(fileobject, meowuri, data)
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
@@ -79,11 +79,11 @@ def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
     return out
 
 
-def start(file_object,
+def start(fileobject,
           require_extractors=None,
           require_all_extractors=False):
     """
-    Starts extracting data for a given 'file_object'.
+    Starts extracting data for a given 'fileobject'.
     """
     log.debug('Started data extraction')
 
@@ -93,7 +93,7 @@ def start(file_object,
         required_extractors = []
     log.debug('Required extractors: {!s}'.format(required_extractors))
 
-    klasses = extractors.suitable_extractors_for(file_object)
+    klasses = extractors.suitable_extractors_for(fileobject)
     log.debug('Extractors able to handle the file: {}'.format(len(klasses)))
 
     if not require_all_extractors:
@@ -107,16 +107,10 @@ def start(file_object,
 
     log.debug('Running {} extractors'.format(len(klasses)))
     for klass in klasses:
-        if klass.__name__ == 'CrossPlatformFileSystemExtractor':
-            # Special case where the source should be a 'FileObject'.
-            _source = file_object
-        else:
-            _source = file_object.abspath
-
         _extractor_instance = klass()
         try:
             collect_results(
-                file_object, klass.meowuri(), _extractor_instance(_source)
+                fileobject, klass.meowuri(), _extractor_instance(fileobject)
             )
         except ExtractorError as e:
             log.error(

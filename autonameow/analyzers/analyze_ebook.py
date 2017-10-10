@@ -38,10 +38,8 @@ from core.model import (
     ExtractedData,
     WeightedMapping
 )
-from core.util import (
-    sanity,
-    textutils
-)
+from core.util import sanity
+from core.util.textutils import extractlines_do
 
 
 log = logging.getLogger(__name__)
@@ -53,25 +51,35 @@ BLACKLISTED_ISBN_NUMBERS = ['0000000000', '1111111111', '2222222222',
                             '6666666666', '7777777777', '8888888888',
                             '9999999999', '0123456789']
 
+IGNORED_TEXTLINES = frozenset([
+    'This page intentionally left blank'
+])
+
 
 class EbookAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
                           'image/vnd.djvu']
 
-    def __init__(self, file_object, add_results_callback,
-                 request_data_callback):
+    def __init__(self, fileobject, config,
+                 add_results_callback, request_data_callback):
         super(EbookAnalyzer, self).__init__(
-            file_object, add_results_callback, request_data_callback
+            fileobject, config, add_results_callback, request_data_callback
         )
 
         self.text = None
+        self._cached_isbn_metadata = {}
+        self._isbn_metadata = set()
 
-        self.cache = cache.get_cache(str(self))
-        try:
-            self._isbn_metadata = self.cache.get('isbnlib_meta')
-        except (KeyError, cache.CacheError):
-            self._isbn_metadata = {}
+        _cache = cache.get_cache(str(self))
+        if _cache:
+            self.cache = _cache
+            try:
+                self._cached_isbn_metadata = self.cache.get('isbnlib_meta')
+            except (KeyError, cache.CacheError):
+                pass
+        else:
+            self.cache = None
 
     def run(self):
         _maybe_text = self.request_any_textual_content()
@@ -80,32 +88,52 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
-        isbns = _search_initial_text(self.text, extract_isbns_from_text)
+        isbns = extractlines_do(extract_isbns_from_text, self.text,
+                                fromline=0, toline=100)
         if isbns:
             isbns = filter_isbns(isbns)
             for isbn in isbns:
                 self.log.debug('Extracted ISBN: {!s}'.format(isbn))
 
-                metadata = self._get_isbn_metadata(isbn)
-                if not metadata:
+                metadata_dict = self._get_isbn_metadata(isbn)
+                if not metadata_dict:
                     self.log.warning(
                         'Unable to get metadata for ISBN: "{}"'.format(isbn)
                     )
                     continue
 
-                self.log.info('Metadata for ISBN: {}'.format(isbn))
-                self.log.info('Title     : {}'.format(metadata['Title']))
-                self.log.info('Authors   : {}'.format(metadata['Authors']))
-                self.log.info('Publisher : {}'.format(metadata['Publisher']))
-                self.log.info('Year      : {}'.format(metadata['Year']))
-                self.log.info('Language  : {}'.format(metadata['Language']))
-                self.log.info('ISBN-13   : {}'.format(metadata['ISBN-13']))
+                metadata = ISBNMetadata(
+                    authors=metadata_dict.get('Authors'),
+                    language=metadata_dict.get('Language'),
+                    publisher=metadata_dict.get('Publisher'),
+                    isbn10=metadata_dict.get('ISBN-10'),
+                    isbn13=metadata_dict.get('ISBN-13'),
+                    title=metadata_dict.get('Title'),
+                    year=metadata_dict.get('Year')
+                )
+                self.log.debug('Metadata for ISBN: {}'.format(isbn))
+                self.log.debug('Title     : {}'.format(metadata.title))
+                self.log.debug('Authors   : {}'.format(metadata.authors))
+                self.log.debug('Publisher : {}'.format(metadata.publisher))
+                self.log.debug('Year      : {}'.format(metadata.year))
+                self.log.debug('Language  : {}'.format(metadata.language))
+                self.log.debug('ISBN-10   : {}'.format(metadata.isbn10))
+                self.log.debug('ISBN-13   : {}'.format(metadata.isbn13))
 
-                maybe_title = self._filter_title(metadata.get('Title'))
+                # Duplicates are removed here. When both ISBN-10 and ISBN-13
+                # text is found and two queries are made, the two metadata
+                # results are "joined" when being added to this set.
+                self._isbn_metadata.add(metadata)
+
+            self.log.info('Got {} instances of ISBN metadata'.format(
+                len(self._isbn_metadata)
+            ))
+            for _isbn_metadata in self._isbn_metadata:
+                maybe_title = self._filter_title(_isbn_metadata.title)
                 if maybe_title:
                     self._add_results('title', self._wrap_title(maybe_title))
 
-                maybe_authors = metadata.get('Authors')
+                maybe_authors = _isbn_metadata.authors
                 if maybe_authors:
                     # TODO: [TD0084] Use a "list-of-strings" coercer ..
                     if isinstance(maybe_authors, list):
@@ -119,22 +147,22 @@ class EbookAnalyzer(BaseAnalyzer):
                                           self._wrap_author(maybe_authors))
 
                 maybe_publisher = self._filter_publisher(
-                    metadata.get('Publisher')
+                    _isbn_metadata.publisher
                 )
                 if maybe_publisher:
                     self._add_results('publisher',
                                       self._wrap_publisher(maybe_publisher))
 
-                maybe_date = self._filter_date(metadata.get('Year'))
+                maybe_date = self._filter_date(_isbn_metadata.year)
                 if maybe_date:
                     self._add_results('date', self._wrap_date(maybe_date))
 
     def _get_isbn_metadata(self, isbn):
-        if isbn in self._isbn_metadata:
+        if isbn in self._cached_isbn_metadata:
             self.log.info(
                 'Using cached metadata for ISBN: {!s}'.format(isbn)
             )
-            return self._isbn_metadata.get(isbn)
+            return self._cached_isbn_metadata.get(isbn)
 
         self.log.debug('Querying external service for ISBN: {!s}'.format(isbn))
         metadata = fetch_isbn_metadata(isbn)
@@ -143,11 +171,12 @@ class EbookAnalyzer(BaseAnalyzer):
                 'Caching metadata for ISBN: {!s}'.format(isbn)
             )
             # Add new metadata to local cache.
-            self._isbn_metadata.update({isbn: metadata})
-            try:
-                self.cache.set('isbnlib_meta', self._isbn_metadata)
-            except cache.CacheError:
-                pass
+            self._cached_isbn_metadata.update({isbn: metadata})
+            if self.cache:
+                try:
+                    self.cache.set('isbnlib_meta', self._cached_isbn_metadata)
+                except cache.CacheError:
+                    pass
 
         return metadata
 
@@ -236,15 +265,15 @@ class EbookAnalyzer(BaseAnalyzer):
         )(title_string)
 
     @classmethod
-    def can_handle(cls, file_object):
+    def can_handle(cls, fileobject):
         try:
-            return util.eval_magic_glob(file_object.mime_type,
+            return util.eval_magic_glob(fileobject.mime_type,
                                         cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
             log.error('Error evaluating "{!s}" MIME handling; {!s}'.format(cls,
                                                                            e))
-        if (file_object.basename_suffix == b'mobi' and
-                file_object.mime_type == 'application/octet-stream'):
+        if (fileobject.basename_suffix == b'mobi' and
+                fileobject.mime_type == 'application/octet-stream'):
             return True
 
         return False
@@ -254,15 +283,25 @@ class EbookAnalyzer(BaseAnalyzer):
         return isbnlib is not None
 
 
-# TODO: [TD0030] Plugin for querying APIs with ISBN numbers.
+def remove_ignored_textlines(text):
+    """
+    Removes any text lines that match those in 'IGNORED_TEXTLINES'.
 
+    Args:
+        text: The text to process as a Unicode string.
 
-def _search_initial_text(text, callback):
-    initial_text_start = 0
-    initial_text_end = 100
-    lines = textutils.extract_lines(text, initial_text_start, initial_text_end)
+    Returns:
+        The given text with any lines matching those in 'IGNORED_TEXTLINES'
+        removed, as a Unicode string.
+    """
+    out = []
 
-    return callback(lines)
+    for line in text.splitlines():
+        if line in IGNORED_TEXTLINES:
+            continue
+        out.append(line)
+
+    return '\n'.join(out)
 
 
 def extract_isbns_from_text(text):
@@ -317,3 +356,107 @@ def fetch_isbn_metadata(isbn_number):
 
     logging.disable(logging.NOTSET)
     return isbn_metadata
+
+
+class ISBNMetadata(object):
+    def __init__(self, authors=None, language=None, publisher=None,
+                 isbn10=None, isbn13=None, title=None, year=None):
+        self._authors = authors
+        self._language = language
+        self._publisher = publisher
+        self._isbn10 = isbn10
+        self._isbn13 = isbn13
+        self._title = title
+        self._year = year
+
+    @property
+    def authors(self):
+        return self._authors or []
+
+    @authors.setter
+    def authors(self, value):
+        if value and isinstance(value, list):
+            self._authors = value
+
+    @property
+    def isbn10(self):
+        if self._isbn10:
+            return self._isbn10
+        elif self._isbn13:
+            return isbnlib.to_isbn10(self._isbn13)
+        else:
+            return ''
+
+    @isbn10.setter
+    def isbn10(self, value):
+        if value and isinstance(value, str):
+            if isbnlib.is_isbn10(value):
+                self._isbn10 = value
+
+    @property
+    def isbn13(self):
+        if self._isbn13:
+            return self._isbn13
+        elif self._isbn10:
+            return isbnlib.to_isbn13(self._isbn10)
+        else:
+            return ''
+
+    @isbn13.setter
+    def isbn13(self, value):
+        if value and isinstance(value, str):
+            if isbnlib.is_isbn13(value):
+                self._isbn13 = value
+
+    @property
+    def language(self):
+        return self._language or ''
+
+    @language.setter
+    def language(self, value):
+        if value and isinstance(value, str):
+            self._language = value
+
+    @property
+    def publisher(self):
+        return self._publisher or ''
+
+    @publisher.setter
+    def publisher(self, value):
+        if value and isinstance(value, str):
+            self._publisher = value
+
+    @property
+    def year(self):
+        return self._year or ''
+
+    @year.setter
+    def year(self, value):
+        if value and isinstance(value, str):
+            self._year = value
+
+    @property
+    def title(self):
+        return self._title or ''
+
+    @title.setter
+    def title(self, value):
+        if value and isinstance(value, str):
+            self._title = value
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        if self.isbn10 == other.isbn10:
+            return True
+        if self.isbn13 == other.isbn13:
+            return True
+        if (self.title == other.title
+                and self.authors == other.authors
+                and self.publisher == other.publisher
+                and self.year == other.year
+                and self.language == other.language):
+            return True
+
+    def __hash__(self):
+        return hash((self.isbn10, self.isbn13))

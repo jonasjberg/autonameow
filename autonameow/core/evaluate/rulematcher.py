@@ -19,7 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import copy
 import logging
 
 from core import repository
@@ -30,27 +29,21 @@ log = logging.getLogger(__name__)
 
 
 class RuleMatcher(object):
-    def __init__(self, file_object, active_config):
-        self.file_object = file_object
+    def __init__(self, fileobject, active_config):
+        self.fileobject = fileobject
 
         if not active_config or not active_config.rules:
             log.error('Configuration does not contain any rules to evaluate')
             self._rules = []
         else:
-            # NOTE(jonas): Check a copy of all rules.
-            # Temporary fix for mutable state in the 'Rule' instances,
-            # which are initialized *once* when the configuration is loaded.
-            # This same configuration instance is used when iterating over the
-            # files. The 'Rule' scores were not reset between files.
-            # TODO: Double-check that this isn't needed anymore, then remove.
-            self._rules = copy.deepcopy(active_config.rules)
+            self._rules = list(active_config.rules)
 
         self._scored_rules = {}
         self._candidates = []
 
-    def _request_data(self, file_object, meowuri):
-        log.debug('requesting [{!s}]->[{!s}]'.format(file_object, meowuri))
-        response = repository.SessionRepository.query(file_object, meowuri)
+    def _request_data(self, fileobject, meowuri):
+        log.debug('requesting [{!s}]->[{!s}]'.format(fileobject, meowuri))
+        response = repository.SessionRepository.query(fileobject, meowuri)
         log.debug('Got response ({}): {!s}'.format(type(response), response))
 
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
@@ -60,9 +53,9 @@ class RuleMatcher(object):
             return response
 
     def request_data(self, meowuri):
-        # Functions that use this does not have access to 'self.file_object'.
+        # Functions that use this does not have access to 'self.fileobject'.
         # This method, which calls a callback, is itself passed as a callback..
-        return self._request_data(self.file_object, meowuri)
+        return self._request_data(self.fileobject, meowuri)
 
     def start(self):
         log.debug('Examining {} rules ..'.format(len(self._rules)))

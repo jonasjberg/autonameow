@@ -49,6 +49,7 @@ from extractors.text.common import (
 )
 
 
+CACHE_KEY = 'text'
 TESSERACT_COMMAND = 'tesseract'
 
 
@@ -59,28 +60,36 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(TesseractOCRTextExtractor, self).__init__()
 
-        self.cache = cache.get_cache(str(self))
-        try:
-            self._cached_text = self.cache.get('text')
-        except (KeyError, cache.CacheError):
-            self._cached_text = {}
+        self._cached_text = {}
 
-    def _cache_read(self, source):
-        if source in self._cached_text:
-            _dp = util.displayable_path(source)
-            self.log.info('Using cached text from source: {!s}'.format(_dp))
-            return self._cached_text.get(source)
+        _cache = cache.get_cache(str(self))
+        if _cache:
+            self.cache = _cache
+            try:
+                self._cached_text = self.cache.get(CACHE_KEY)
+            except (KeyError, cache.CacheError):
+                pass
+        else:
+            self.cache = None
+
+    def _cache_read(self, fileobject):
+        if fileobject in self._cached_text:
+            return self._cached_text.get(fileobject)
         return None
 
     def _cache_write(self):
+        if not self.cache:
+            return
+
         try:
-            self.cache.set('text', self._cached_text)
+            self.cache.set(CACHE_KEY, self._cached_text)
         except cache.CacheError:
             pass
 
-    def _get_text(self, source):
-        _cached = self._cache_read(source)
+    def _get_text(self, fileobject):
+        _cached = self._cache_read(fileobject)
         if _cached is not None:
+            self.log.info('Using cached text for: {!r}'.format(fileobject))
             return _cached
 
         # NOTE: Tesseract behaviour will likely need tweaking depending
@@ -90,9 +99,10 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         tesseract_args = None
 
         self.log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
-            tesseract_args, util.displayable_path(source)
+            tesseract_args, util.displayable_path(fileobject.abspath)
         ))
-        result = get_text_from_ocr(source, tesseract_args=tesseract_args)
+        result = get_text_from_ocr(fileobject.abspath,
+                                   tesseract_args=tesseract_args)
         if not result:
             return ''
 
@@ -101,9 +111,7 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         text = textutils.normalize_unicode(text)
         text = textutils.remove_nonbreaking_spaces(text)
         if text:
-            # TODO: [TD0098] Use checksums as keys for cached data, not paths.
-            #       .. I.E. use a more robust identifier as "source" below.
-            self._cached_text.update({source: text})
+            self._cached_text.update({fileobject: text})
             self._cache_write()
             return text
         else:

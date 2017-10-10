@@ -58,20 +58,20 @@ class PluginHandler(object):
                     'Requested unavailable plugin: "{!s}"'.format(plugin)
                 )
 
-    def execute_plugins(self, file_object):
+    def execute_plugins(self, fileobject):
         self.log.debug('Executing plugins ..')
 
         for plugin_klass in self._plugins_to_use:
             plugin = plugin_klass()
 
-            if plugin.can_handle(file_object):
+            if plugin.can_handle(fileobject):
                 self.log.debug(
                     '"{!s}" plugin CAN handle file "{!s}"'.format(
-                        plugin, file_object)
+                        plugin, fileobject)
                 )
                 self.log.debug('Executing plugin: "{!s}" ..'.format(plugin))
                 try:
-                    plugin(file_object)
+                    plugin(fileobject)
                 except exceptions.AutonameowPluginError:
                     # log.critical('Plugin instance "{!s}" execution '
                     #              'FAILED'.format(plugin_instance))
@@ -79,12 +79,12 @@ class PluginHandler(object):
             else:
                 self.log.debug(
                     '"{!s}" plugin can not handle file "{!s}"'.format(
-                        plugin, file_object)
+                        plugin, fileobject)
                 )
 
 
-def request_data(file_object, meowuri):
-    response = repository.SessionRepository.query(file_object, meowuri)
+def request_data(fileobject, meowuri):
+    response = repository.SessionRepository.query(fileobject, meowuri)
     if response is None:
         return None
     else:
@@ -94,15 +94,15 @@ def request_data(file_object, meowuri):
             return response
 
 
-def collect_results(file_object, label, data):
+def collect_results(fileobject, label, data):
     """
     Collects plugin results. Passed to plugins as a callback.
 
     Plugins call this to pass collected data to the session repository.
 
     Args:
-        file_object: File that produced the data to add.
+        fileobject: File that produced the data to add.
         label: Label that uniquely identifies the data.
         data: The data to add.
     """
-    repository.SessionRepository.store(file_object, label, data)
+    repository.SessionRepository.store(fileobject, label, data)

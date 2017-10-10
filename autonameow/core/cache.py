@@ -32,26 +32,41 @@ except ImportError:
 from core import (
     exceptions,
     types,
-    util
+    util,
+    config
 )
-from core import constants as C
 
 
 log = logging.getLogger(__name__)
 
 
-# TODO: [TD0097] Add proper handling of cache directories.
-DEFAULT_CACHE_DIRECTORY_ROOT = '/tmp'
-DEFAULT_CACHE_DIRECTORY_LEAF = 'autonameow_cache'
-assert DEFAULT_CACHE_DIRECTORY_ROOT not in ('', '/', None)
-assert DEFAULT_CACHE_DIRECTORY_ROOT not in ('', None)
-
-CACHE_DIR_ABSPATH = util.normpath(
+DEFAULT_CACHE_DIRECTORY_ROOT = util.encode_('/tmp')
+DEFAULT_CACHE_DIRECTORY_LEAF = util.encode_('autonameow_cache')
+DEFAULT_CACHE_DIR_ABSPATH = util.normpath(
     os.path.join(
         util.syspath(DEFAULT_CACHE_DIRECTORY_ROOT),
         util.syspath(DEFAULT_CACHE_DIRECTORY_LEAF)
     )
 )
+assert DEFAULT_CACHE_DIR_ABSPATH not in (b'', b'/', None)
+assert DEFAULT_CACHE_DIR_ABSPATH not in (b'', None)
+
+
+def get_config_cache_path():
+    _active_config = config.ActiveConfig
+    if not _active_config:
+        return DEFAULT_CACHE_DIR_ABSPATH
+
+    try:
+        _cache_path = _active_config.get(['PERSISTENCE', 'cache_directory'])
+    except AttributeError:
+        _cache_path = None
+
+    if _cache_path:
+        return _cache_path
+    else:
+        # TODO: Duplicate default setting! Already set in 'configuration.py'.
+        return DEFAULT_CACHE_DIR_ABSPATH
 
 
 class BaseCache(object):
@@ -85,8 +100,15 @@ class BaseCache(object):
     #                Store timestamps with stored data and remove oldest
     #                entries when exceeding the file size limit.
 
-    def __init__(self, cachefile_prefix):
+    def __init__(self, cachefile_prefix, cache_dir_abspath=None):
         self._data = {}
+
+        if not cache_dir_abspath:
+            self.cachedir_abspath = get_config_cache_path()
+        else:
+            self.cachedir_abspath = cache_dir_abspath
+        assert os.path.isabs(util.syspath(self.cachedir_abspath))
+        self._dp = util.displayable_path(self.cachedir_abspath)
 
         _prefix = types.force_string(cachefile_prefix)
         if not _prefix.strip():
@@ -95,30 +117,35 @@ class BaseCache(object):
             )
         self.cachefile_prefix = _prefix
 
-        if not os.path.exists(util.syspath(CACHE_DIR_ABSPATH)):
-            raise CacheError(
-                'Cache directory does not exist: "{!s}"'.format(
-                    util.displayable_path(CACHE_DIR_ABSPATH)
-                )
-            )
+        if not self.has_cachedir():
+            log.debug('Cache directory does not exist: "{!s}"'.format(self._dp))
 
-            # TODO: [TD0097] Add proper handling of cache directories.
-            # try:
-            #     os.makedirs(util.syspath(self._cache_dir))
-            # except OSError as e:
-            #     raise CacheError(
-            #         'Error while creating cache directory "{!s}": '
-            #         '{!s}'.format(util.displayable_path(self._cache_dir), e)
-            #     )
-        else:
-            if not diskutils.has_permissions(CACHE_DIR_ABSPATH, 'rwx'):
-                raise CacheError(
-                    'Cache directory path requires RWX-permissions: '
-                    '"{!s}'.format(util.displayable_path(CACHE_DIR_ABSPATH))
-                )
-        log.debug('{!s} Using _cache_dir "{!s}'.format(
-            self, util.displayable_path(CACHE_DIR_ABSPATH))
-        )
+            try:
+                diskutils.makedirs(self.cachedir_abspath)
+            except exceptions.FilesystemError as e:
+                raise CacheError('Unable to create cache directory "{!s}": '
+                                 '{!s}'.format(self._dp, e))
+            else:
+                log.info('Created cache directory: "{!s}"'.format(self._dp))
+
+        if not self.has_cachedir_permissions():
+            raise CacheError('Cache directory requires RWX-permissions: '
+                             '"{!s}'.format(self._dp))
+
+        log.debug('{!s} using cache directory "{!s}"'.format(self, self._dp))
+
+    def has_cachedir_permissions(self):
+        try:
+            return diskutils.has_permissions(self.cachedir_abspath, 'rwx')
+        except (TypeError, ValueError):
+            return False
+
+    def has_cachedir(self):
+        _path = util.syspath(self.cachedir_abspath)
+        try:
+            return bool(os.path.exists(_path) and os.path.isdir(_path))
+        except (OSError, ValueError, TypeError):
+            return False
 
     def _cache_file_abspath(self, key):
         string_key = types.force_string(key)
@@ -131,7 +158,7 @@ class BaseCache(object):
             key=key
         )
         _p = util.normpath(
-            os.path.join(util.syspath(CACHE_DIR_ABSPATH),
+            os.path.join(util.syspath(self.cachedir_abspath),
                          util.syspath(util.encode_(_basename)))
         )
         return _p
@@ -157,17 +184,22 @@ class BaseCache(object):
 
         if key not in self._data:
             _file_path = self._cache_file_abspath(key)
-            _dp = util.displayable_path(_file_path)
+            if not os.path.exists(util.syspath(_file_path)):
+                # Avoid displaying errors on first use.
+                raise KeyError
+
             try:
                 value = self._load(_file_path)
                 self._data[key] = value
             except ValueError as e:
+                _dp = util.displayable_path(_file_path)
                 log.error(
                     'Error when reading key "{!s}" from cache file "{!s}" '
                     '(corrupt file?); {!s}'.format(key, _dp, e)
                 )
                 self.delete(key)
             except OSError as e:
+                _dp = util.displayable_path(_file_path)
                 log.warning(
                     'Error while trying to read key "{!s}" from cache file '
                     '"{!s}"; {!s}'.format(key, _dp, e)
@@ -205,18 +237,20 @@ class BaseCache(object):
         except KeyError:
             pass
 
-        _dp = util.displayable_path(self._cache_file_abspath(key))
+        _p = self._cache_file_abspath(key)
+        _dp = util.displayable_path(_p)
+        log.debug('Deleting cache file "{!s}"'.format(_dp))
         try:
-            log.critical('would have deleted "{!s}"'.format(_dp))
-            # TODO: [TD0097] Double-check this and actually delete the file ..
-            pass
-        except OSError as e:
+            diskutils.delete(_p, ignore_missing=True)
+        except exceptions.FilesystemError as e:
             raise CacheError(
-                'Error when trying to delete "{!s}"; {!s}'.format(_dp, e)
+                'Error while deleting "{!s}"; {!s}'.format(_dp, e)
             )
+        else:
+            log.debug('Deleted cache file "{!s}"'.format(_dp))
 
     def has(self, key):
-        # TODO: [TD0097] Test this ..
+        # TODO: Test this ..
         if key in self._data:
             return True
 
@@ -235,7 +269,7 @@ class BaseCache(object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):
-        return self.__class__.__name__
+        return '{}("{}")'.format(self.__class__.__name__, self.cachefile_prefix)
 
 
 class PickleCache(BaseCache):
@@ -249,7 +283,11 @@ class PickleCache(BaseCache):
 
 
 def get_cache(cachefile_prefix):
-    return PickleCache(cachefile_prefix)
+    try:
+        return PickleCache(cachefile_prefix)
+    except CacheError as e:
+        log.error('Cache unavailable :: {!s}'.format(e))
+        return None
 
 
 class CacheError(exceptions.AutonameowException):

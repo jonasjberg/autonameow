@@ -20,33 +20,35 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+from collections import Counter
 
 from analyzers import BaseAnalyzer
 from core import (
-    types
+    types,
+    model
 )
 from core.model import (
     ExtractedData,
     WeightedMapping
 )
 from core.namebuilder import fields
-from core.util import dateandtime
+from core.util import (
+    dateandtime,
+    textutils
+)
 
 
-RE_EDITION = re.compile(r'([0-9])+((st|nd|rd|th)\w?(E|ed)?|(E|Ed))')
-EDITION_RE_LOOKUP = {
-    1: r'1st('
-}
+RE_EDITION = re.compile(r'([0-9])+\s?((st|nd|rd|th)\s?|(e|ed))', re.IGNORECASE)
 
 
 class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     HANDLES_MIME_TYPES = ['*/*']
 
-    def __init__(self, file_object, add_results_callback,
-                 request_data_callback):
+    def __init__(self, fileobject, config,
+                 add_results_callback, request_data_callback):
         super(FilenameAnalyzer, self).__init__(
-            file_object, add_results_callback, request_data_callback
+            fileobject, config, add_results_callback, request_data_callback
         )
 
     def run(self):
@@ -55,6 +57,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._add_results('title', self.get_title())
         self._add_results('edition', self.get_edition())
         self._add_results('extension', self.get_extension())
+        self._add_results('publisher', self.get_publisher())
 
     def get_datetime(self):
         results = []
@@ -70,21 +73,39 @@ class FilenameAnalyzer(BaseAnalyzer):
 
     def get_edition(self):
         basename = self.request_data(
-            self.file_object,
+            self.fileobject,
             'extractor.filesystem.xplat.basename.prefix'
-        ).value
+        )
         if not basename:
-            return
+            return None
+
+        _number = find_edition(basename.as_string())
+        if _number:
+            return ExtractedData(
+                coercer=types.AW_INTEGER,
+                mapped_fields=[
+                    WeightedMapping(fields.Edition, probability=1),
+                ],
+                generic_field=model.GenericEdition
+            )(_number)
+        else:
+            return None
 
     def get_extension(self):
         ed_basename_suffix = self.request_data(
-            self.file_object,
+            self.fileobject,
             'extractor.filesystem.xplat.basename.suffix'
         )
+        if not ed_basename_suffix:
+            return
+
         ed_file_mimetype = self.request_data(
-            self.file_object,
+            self.fileobject,
             'extractor.filesystem.xplat.contents.mime_type'
         )
+        if not ed_file_mimetype:
+            return
+
         file_basename_suffix = ed_basename_suffix.as_string()
         file_mimetype = ed_file_mimetype.value
         result = likely_extension(file_basename_suffix, file_mimetype)
@@ -93,6 +114,33 @@ class FilenameAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Extension, probability=1),
             ]
+        )(result)
+
+    def get_publisher(self):
+        ed_basename_prefix = self.request_data(
+            self.fileobject,
+            'extractor.filesystem.xplat.basename.prefix'
+        )
+        if not ed_basename_prefix:
+            return
+
+        file_basename_prefix = ed_basename_prefix.as_string()
+        _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
+        if _options:
+            _candidates = _options.get('candidates', {})
+        else:
+            _candidates = {}
+
+        result = find_publisher(file_basename_prefix, _candidates)
+        if not result:
+            return None
+
+        return ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Publisher, probability=1),
+            ],
+            generic_field=model.GenericPublisher
         )(result)
 
     def _get_datetime_from_name(self):
@@ -104,7 +152,7 @@ class FilenameAnalyzer(BaseAnalyzer):
                      'weight'  : 1
                    }, .. ]
         """
-        fn = self.file_object.basename_prefix
+        fn = self.fileobject.basename_prefix
         try:
             fn = types.AW_STRING(fn)
         except types.AWTypeError:
@@ -115,6 +163,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         # 1. The Very Special Case
         # ========================
         # If this matches, it is very likely to be relevant, so test it first.
+        # TODO: [TD0102] Look at how results are stored and named.
         dt_special = dateandtime.match_special_case(fn)
         if dt_special:
             results.append({'value': dt_special,
@@ -130,7 +179,8 @@ class FilenameAnalyzer(BaseAnalyzer):
         # 2. Common patterns
         # ==================
         # Try more common patterns, starting with the most common.
-        # TODO: [TD0019][TD0044] This is not the way to do it!
+        # TODO: [TD0102] Look at how results are stored and named.
+        # TODO: [TD0019] This is not the way to do it!
         dt_android = dateandtime.match_android_messenger_filename(fn)
         if dt_android:
             results.append({'value': dt_android,
@@ -140,7 +190,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         # Match UNIX timestamp
         dt_unix = dateandtime.match_any_unix_timestamp(fn)
         if dt_unix:
-            # TODO: [TD0044] Look at how results are stored and named.
+            # TODO: [TD0102] Look at how results are stored and named.
             # TODO: [TD0019] Rework The FilenameAnalyzer class.
             results.append(
                 {'value': dt_unix,
@@ -151,7 +201,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         # Match screencapture-prefixed UNIX timestamp
         dt_screencapture_unix = dateandtime.match_screencapture_unixtime(fn)
         if dt_screencapture_unix:
-            # TODO: [TD0044] Look at how results are stored and named.
+            # TODO: [TD0102] Look at how results are stored and named.
             # TODO: [TD0019] Rework The FilenameAnalyzer class.
             results.append({'value': dt_screencapture_unix,
                             'source': 'screencapture_unixtime',
@@ -191,9 +241,15 @@ class FilenameAnalyzer(BaseAnalyzer):
 
 MIMETYPE_EXTENSION_SUFFIXES_MAP = {
     # Note that the inner-most values are set-literals.
+    'application/octet-stream': {
+        'azw3': {'azw3'},
+        'chm': {'chm'},
+        'mobi': {'mobi'},
+        'pdf': {'pdf'}
+    },
     'text/plain': {
         'c': {'c'},
-        'cpp': {'cpp'},
+        'cpp': {'cpp', 'c++'},
         'csv': {'csv'},
         'gemspec': {'gemspec'},
         'h': {'h'},
@@ -238,30 +294,43 @@ class SubstringFinder(object):
         return list(filter(None, s))
 
 
+# TODO: Implement or remove ..
 class FilenameTokenizer(object):
-    RE_NON_ALNUMS = re.compile(r'\w+')
+    RE_UNICODE_WORDS = re.compile(r'\w')
 
     def __init__(self, filename):
         self.filename = filename
 
     @property
     def separators(self):
-        return self._guess_separators(self.filename)
+        return self._find_separators(self.filename) or []
 
-    def _guess_separators(self, string):
-        # non_words = self.RE_NON_ALNUMS.split(string)
-        # for TODO: .........
-        # char_count = defaultdict(int)
-        # return s
-        pass
+    def _find_separators(self, string):
+        non_words = self.RE_UNICODE_WORDS.split(string)
+        seps = [s for s in non_words if s is not None and s.strip()]
+
+        sep_chars = []
+        for sep in seps:
+            if len(sep) > 1:
+                sep_chars.extend(list(sep))
+            else:
+                sep_chars.append(sep)
+
+        if not sep_chars:
+            return None
+
+        counts = Counter(sep_chars)
+        # TODO: Implement or remove ..
+        _most_common = counts.most_common(3)
+        return _most_common
 
 
-def _find_datetime_isodate(text_line):
-    # TODO: [TD0070] Implement arbitrary basic personal use case.
-    pass
+def find_edition(text):
+    for _num, _re_pattern in textutils.compiled_ordinal_regexes().items():
+        m = _re_pattern.search(text)
+        if m:
+            return _num
 
-
-def _find_edition(text):
     match = RE_EDITION.search(text)
     if match:
         e = match.group(1)
@@ -270,5 +339,14 @@ def _find_edition(text):
             return edition
         except types.AWTypeError:
             pass
+
+    return None
+
+
+def find_publisher(text, candidates):
+    for repl, patterns in candidates.items():
+        for pattern in patterns:
+            if re.search(pattern, text):
+                return repl
 
     return None

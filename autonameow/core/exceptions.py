@@ -61,6 +61,11 @@ class RuleMatcherError(AutonameowException):
     """An error occurred while matching rules. Unable to proceed."""
 
 
+class FilesystemError(AutonameowException):
+    """Errors occured while reading/writing files on disk. Should be used by
+    the filesystem abstraction layer as a catch-all for failed operations."""
+
+
 class InvalidMeowURIError(ConfigError):
     """An error caused by an invalid "meowURI"."""
 
@@ -82,5 +87,3 @@ class ConfigurationSyntaxError(ConfigError):
 class InvalidRuleError(ConfigError):
     """The Rule is in a bad state. The Rule state should only be set
     with known good data. This error implies data validation has failed."""
-
-

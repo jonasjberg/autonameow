@@ -36,6 +36,11 @@ from extractors import (
 from thirdparty import pyexiftool
 
 
+IGNORED_EXIFTOOL_TAGNAMES = frozenset([
+    'ExifTool:ExifToolVersion'
+])
+
+
 class ExiftoolMetadataExtractor(BaseExtractor):
     """
     Extracts various types of metadata using "exiftool".
@@ -170,6 +175,13 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             generic_field=model.GenericMimeType
         ),
+        'PDF:Author': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Author, probability=1),
+            ],
+            generic_field=model.GenericAuthor
+        ),
         'PDF:CreateDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
@@ -181,11 +193,19 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'PDF:Creator': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
+                WeightedMapping(fields.Creator, probability=1),
                 WeightedMapping(fields.Author, probability=0.025),
                 WeightedMapping(fields.Publisher, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
             generic_field=model.GenericCreator
+        ),
+        'PDF:Keywords': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Tags, probability=1),
+            ],
+            generic_field=model.GenericTags
         ),
         'PDF:Linearized': ExtractedData(types.AW_BOOLEAN),
         'PDF:ModifyDate': ExtractedData(
@@ -206,6 +226,13 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Title, probability=0.01)
             ],
             generic_field=model.GenericProducer
+        ),
+        'PDF:Title': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Title, probability=1)
+            ],
+            generic_field=model.GenericTitle
         ),
         'SourceFile': ExtractedData(types.AW_PATH),
         'QuickTime:CreateDate': ExtractedData(
@@ -272,32 +299,111 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             generic_field=model.GenericDateModified
         ),
-
-        # TODO: [TD0084] Add handling collections to type wrapper classes.
-        # 'XMP:Subject': ExtractedData(
-        #     coercer=types.AW_STRINGLIST,
-        #     mapped_fields=[
-        #         fields.WeightedMapping(fields.Tags, probability=1),
-        #         fields.WeightedMapping(fields.Title, probability=0.9)
-        #         fields.WeightedMapping(fields.Description, probability=0.8)
-        #     ]
-        # ),
-        # TODO: [TD0084] Add handling collections to type wrapper classes.
-        # 'XMP:TagsList': ExtractedData(
-        #     coercer=types.AW_STRINGLIST,
-        #     mapped_fields=[
-        #         fields.WeightedMapping(fields.Tags, probability=1),
-        #         fields.WeightedMapping(fields.Title, probability=0.9)
-        #         fields.WeightedMapping(fields.Description, probability=0.8)
-        #     ]
-        # )
+        'XMP:About': ExtractedData(types.AW_STRING),
+        'XMP:CreateDate': ExtractedData(
+            coercer=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
+            ],
+            generic_field=model.GenericDateCreated
+        ),
+        'XMP:Creator': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Author, probability=1),
+                WeightedMapping(fields.Creator, probability=0.5),
+                WeightedMapping(fields.Publisher, probability=0.02),
+                WeightedMapping(fields.Title, probability=0.01)
+            ],
+            generic_field=model.GenericAuthor
+        ),
+        'XMP:CreatorTool': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Creator, probability=1),
+                WeightedMapping(fields.Author, probability=0.025),
+                WeightedMapping(fields.Publisher, probability=0.02),
+                WeightedMapping(fields.Title, probability=0.01)
+            ],
+            generic_field=model.GenericCreator
+        ),
+        'XMP:DocumentID': ExtractedData(types.AW_STRING),
+        'XMP:Format': ExtractedData(
+            coercer=types.AW_MIMETYPE,
+            mapped_fields=[
+                WeightedMapping(fields.Extension, probability=0.75)
+            ],
+            generic_field=model.GenericMimeType
+        ),
+        'XMP:Keywords': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Tags, probability=1),
+                WeightedMapping(fields.Title, probability=0.5),
+                WeightedMapping(fields.Description, probability=0.8)
+            ],
+            generic_field=model.GenericTags
+        ),
+        'XMP:MetadataDate': ExtractedData(
+            coercer=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                WeightedMapping(fields.DateTime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25)
+            ],
+            generic_field=model.GenericDateModified
+        ),
+        'XMP:ModifyDate': ExtractedData(
+            coercer=types.AW_EXIFTOOLTIMEDATE,
+            mapped_fields=[
+                WeightedMapping(fields.DateTime, probability=0.25),
+                WeightedMapping(fields.Date, probability=0.25)
+            ],
+            generic_field=model.GenericDateModified
+        ),
+        'XMP:Producer': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Publisher, probability=0.25),
+                WeightedMapping(fields.Author, probability=0.02),
+                WeightedMapping(fields.Title, probability=0.01)
+            ],
+            generic_field=model.GenericProducer
+        ),
+        'XMP:Subject': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Description, probability=1),
+                WeightedMapping(fields.Tags, probability=0.8),
+                WeightedMapping(fields.Title, probability=0.5)
+            ],
+            generic_field=model.GenericSubject
+        ),
+        'XMP:TagsList': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Tags, probability=1),
+                WeightedMapping(fields.Title, probability=0.5),
+                WeightedMapping(fields.Description, probability=0.8)
+            ],
+            generic_field=model.GenericTags
+        ),
+        'XMP:Title': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Title, probability=1)
+            ],
+            generic_field=model.GenericTitle
+        ),
+        'XMP:XMPToolkit': ExtractedData(types.AW_STRING),
     }
 
     def __init__(self):
         super(ExiftoolMetadataExtractor, self).__init__()
 
-    def execute(self, source, **kwargs):
+    def execute(self, fileobject, **kwargs):
         self.log.debug('{!s}: Starting extraction'.format(self))
+        source = fileobject.abspath
 
         try:
             _metadata = self._get_metadata(source)
@@ -321,29 +427,55 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         for tag_name, value in raw_metadata.items():
             if value is None:
                 continue
-            if _should_skip_binary_blob(value):
+            if is_ignored_tagname(tag_name):
+                continue
+            if is_binary_blob(value):
                 continue
 
-            wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(tag_name)
-            if not wrapper:
-                wrapper = ExtractedData(coercer=None, mapped_fields=None)
+            # TODO: [TD0084] Add handling collections to type wrapper classes.
+            if isinstance(value, list):
+                for v in value:
+                    _wrapped = self._wrap_tag_value(tag_name, v)
+                    if not _wrapped:
+                        continue
 
-            wrapped = ExtractedData.from_raw(wrapper, value)
-            if wrapped:
-                out[tag_name] = wrapped
+                    _any_existing = out.get(tag_name)
+                    if _any_existing:
+                        if not isinstance(_any_existing, list):
+                            _any_existing = [_any_existing]
+                        out[tag_name] = _any_existing + [_wrapped]
+                    else:
+                        out[tag_name] = [_wrapped]
             else:
-                self.log.debug('Wrapping exiftool data returned None '
-                               'for "{!s}" ({})'.format(value, type(value)))
+                _wrapped = self._wrap_tag_value(tag_name, value)
+                if _wrapped:
+                    out[tag_name] = _wrapped
 
         return out
+
+    def _wrap_tag_value(self, tagname, value):
+        wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(tagname)
+        if not wrapper:
+            wrapper = ExtractedData(coercer=None, mapped_fields=None)
+
+        wrapped = ExtractedData.from_raw(wrapper, value)
+        if wrapped:
+            return wrapped
+        else:
+            self.log.debug('Wrapping exiftool data returned None '
+                           'for "{!s}" ({})'.format(value, type(value)))
 
     @classmethod
     def check_dependencies(cls):
         return util.is_executable('exiftool') and pyexiftool is not None
 
 
-def _should_skip_binary_blob(value):
+def is_binary_blob(value):
     return isinstance(value, str) and 'use -b option to extract' in value
+
+
+def is_ignored_tagname(tagname):
+    return bool(tagname in IGNORED_EXIFTOOL_TAGNAMES)
 
 
 def _get_exiftool_data(source):

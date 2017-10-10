@@ -43,10 +43,10 @@ class AbstractTextExtractor(BaseExtractor):
     def __init__(self):
         super(AbstractTextExtractor, self).__init__()
 
-    def execute(self, source, **kwargs):
+    def execute(self, fileobject, **kwargs):
         try:
             self.log.debug('{!s} starting initial extraction'.format(self))
-            text = self._get_text(source)
+            text = self._get_text(fileobject)
         except ExtractorError as e:
             self.log.warning('{!s}: {!s}'.format(self, e))
             raise
@@ -67,7 +67,7 @@ class AbstractTextExtractor(BaseExtractor):
         )
         return {'full': ExtractedData.from_raw(wrapper, text)}
 
-    def _get_text(self, source):
+    def _get_text(self, fileobject):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod

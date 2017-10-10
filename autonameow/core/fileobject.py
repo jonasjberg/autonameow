@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import filecmp
 import os
 import magic
 
@@ -31,6 +32,8 @@ from core.util import (
     diskutils,
     sanity
 )
+
+UNKNOWN_BYTESIZE = 0
 
 
 class FileObject(object):
@@ -66,6 +69,39 @@ class FileObject(object):
         self.__cached_str = None
         self.__cached_repr = None
 
+        # Set only when needed.
+        self._bytesize = None
+        self._hash_partial = None
+
+    @property
+    def bytesize(self):
+        if self._bytesize is None:
+            self._bytesize = self._get_bytesize()
+        return self._bytesize
+
+    @property
+    def hash_partial(self):
+        if self._hash_partial is None:
+            self._hash_partial = self._get_hash_partial()
+        return self._hash_partial
+
+    def __check_equality_fast(self, other):
+        return filecmp.cmp(self.abspath, other.abspath, shallow=True)
+
+    def _get_bytesize(self):
+        try:
+            statinfo = os.stat(util.syspath(self.abspath))
+            if statinfo:
+                return statinfo.st_size
+        except OSError:
+            pass
+
+        return UNKNOWN_BYTESIZE
+
+    def _get_hash_partial(self):
+        # Raises FilesystemError for any "real" errors.
+        return util.partial_sha256digest(self.abspath)
+
     def __str__(self):
         if self.__cached_str is None:
             self.__cached_str = util.displayable_path(self.filename)
@@ -74,23 +110,24 @@ class FileObject(object):
 
     def __repr__(self):
         if self.__cached_repr is None:
-            self.__cached_repr = '<{} {}>'.format(
+            self.__cached_repr = '<{!s}("{!s}")>'.format(
                 self.__class__.__name__, util.displayable_path(self.abspath)
             )
 
         return self.__cached_repr
 
     def __hash__(self):
-        # NOTE(jonas): Might need to use a more robust method to avoid
-        #              collisions. Use "proper" cryptographic checksum?
-        return hash((self.abspath, self.mime_type))
+        # NOTE(jonas): Theoretical risk of hash collisions due to the "partial"
+        #              hashes.. Might add conditionally hashing the entire file?
+        return hash(
+            (self.abspath, self.mime_type, self.bytesize, self.hash_partial)
+        )
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
         else:
-            return (self.abspath, self.mime_type) == (other.abspath,
-                                                      other.mime_type)
+            return self.__check_equality_fast(other)
 
     def __ne__(self, other):
         return not (self == other)

@@ -25,7 +25,9 @@ from analyzers import analyze_ebook
 from analyzers.analyze_ebook import (
     extract_isbns_from_text,
     validate_isbn,
-    filter_isbns
+    filter_isbns,
+    ISBNMetadata,
+    remove_ignored_textlines
 )
 
 import unit_utils as uu
@@ -36,9 +38,10 @@ except ImportError:
     isbnlib = None
 
 
-def get_ebook_analyzer(file_object):
+def get_ebook_analyzer(fileobject):
     return analyze_ebook.EbookAnalyzer(
-        file_object,
+        fileobject,
+        uu.get_default_config(),
         add_results_callback=uu.mock_add_results_callback,
         request_data_callback=uu.mock_request_data_callback
     )
@@ -47,11 +50,11 @@ def get_ebook_analyzer(file_object):
 @unittest.skipIf(isbnlib is None, 'Failed to import required module "isbnlib"')
 class TestEbookAnalyzer(unittest.TestCase):
     def setUp(self):
-        self.file_object = uu.get_named_file_object('2010-01-31_161251.jpg')
-        self.analyzer = get_ebook_analyzer(self.file_object)
+        self.fileobject = uu.get_named_fileobject('2010-01-31_161251.jpg')
+        self.analyzer = get_ebook_analyzer(self.fileobject)
 
     def test_setup(self):
-        self.assertIsNotNone(self.file_object)
+        self.assertIsNotNone(self.fileobject)
         self.assertIsNotNone(self.analyzer)
 
 
@@ -136,3 +139,94 @@ class TestFilterISBN(unittest.TestCase):
         ]
         for sample_isbn in sample_invalid_isbns:
             self.assertEqual(filter_isbns(sample_isbn), [])
+
+
+class TestRemoveIgnoredTextLines(unittest.TestCase):
+    def test_removes_lines_as_expected(self):
+        input_text = '''Foo Bar: A Modern Approach
+This page intentionally left blank
+Foo Bar'''
+        expect_text = '''Foo Bar: A Modern Approach
+Foo Bar'''
+
+        actual = remove_ignored_textlines(input_text)
+        self.assertEqual(actual, expect_text)
+
+
+class TestISBNMetadata(unittest.TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+        self.m1 = {
+            'title': 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java',
+            'authors': ['George F. Luger', 'William A. Stubblefield'],
+            'publisher': 'Pearson Addison-Wesley',
+            'year': '2009',
+            'language': 'eng',
+            'isbn10': '0136070477',
+            'isbn13': '9780136070474'
+        }
+
+        self.m2 = {
+            'title': 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java',
+            'authors': ['George F. Luger', 'William A. Stubblefield'],
+            'publisher': 'Pearson Addison-Wesley',
+            'year': '2009',
+            'language': 'eng',
+            'isbn13': '9780136070474'
+        }
+        self.m3 = {
+            'title': None,
+            'authors': [],
+            'publisher': None,
+            'year': None,
+            'language': None,
+            'isbn13': '9780136070474'
+        }
+
+        self.m4 = {
+            'isbn10': '0136070477',
+        }
+
+    def test_isbn_metadata_from_args(self):
+        isbn_metadata = ISBNMetadata(**self.m1)
+        self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
+        self.assertEqual(isbn_metadata.authors, ['George F. Luger', 'William A. Stubblefield'])
+        self.assertEqual(isbn_metadata.year, '2009')
+        self.assertEqual(isbn_metadata.language, 'eng')
+        self.assertEqual(isbn_metadata.isbn10, '0136070477')
+        self.assertEqual(isbn_metadata.isbn13, '9780136070474')
+
+    def test_isbn_metadata_from_kwargs(self):
+        isbn_metadata = ISBNMetadata(**self.m1)
+        self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
+        self.assertEqual(isbn_metadata.authors, ['George F. Luger', 'William A. Stubblefield'])
+        self.assertEqual(isbn_metadata.year, '2009')
+        self.assertEqual(isbn_metadata.language, 'eng')
+        self.assertEqual(isbn_metadata.isbn10, '0136070477')
+        self.assertEqual(isbn_metadata.isbn13, '9780136070474')
+
+    def test_equaliy(self):
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
+
+    def test_equality_based_on_isbn_numbers(self):
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m3))
+        self.assertEqual(ISBNMetadata(**self.m2), ISBNMetadata(**self.m3))
+        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m4))
+        self.assertEqual(ISBNMetadata(**self.m2), ISBNMetadata(**self.m4))
+
+    def test_adding_duplicates_to_set(self):
+        metadataset = set()
+        self.assertEqual(len(metadataset), 0)
+        metadataset.add(ISBNMetadata(**self.m1))
+        self.assertEqual(len(metadataset), 1)
+        metadataset.add(ISBNMetadata(**self.m2))
+        self.assertEqual(len(metadataset), 1)
+        metadataset.add(ISBNMetadata(**self.m3))
+        self.assertEqual(len(metadataset), 1)
+        metadataset.add(ISBNMetadata(**self.m4))
+        self.assertEqual(len(metadataset), 1)
+

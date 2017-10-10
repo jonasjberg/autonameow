@@ -20,13 +20,15 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import fnmatch
-import hashlib
-import os
-import re
 import itertools
 import logging
+import os
+import re
 
-from core import util
+from core import (
+    exceptions,
+    util
+)
 from core.util import sanity
 
 
@@ -458,16 +460,43 @@ def has_permissions(path, permissions):
     return True
 
 
-def hash_hexdigest(file_path):
-    # TODO:  This is INCOMPLETE! Implement and test.
-    hash_function = hashlib.sha256()
+def makedirs(path):
+    if not isinstance(path, bytes):
+        raise TypeError('Expected "path" to be a bytestring path')
+    if not path or not path.strip():
+        raise ValueError('Got empty argument "path"')
 
     try:
-        with open(file_path, 'rb') as f:
-            file_data = f.read()
-            hash_function.update(file_data)
-    except IOError as e:
-        # TODO: Implement.
-        raise e
+        os.makedirs(util.syspath(path))
+    except (OSError, ValueError, TypeError) as e:
+        raise exceptions.FilesystemError(e)
 
-    return hash_function.hexdigest().upper()
+
+def delete(path, ignore_missing=False):
+    """
+    Deletes the file at "path".
+
+    Args:
+        path: The path to delete as an "internal bytestring".
+        ignore_missing: Controls whether to ignore non-existent paths.
+                        False: Non-existent paths raises 'FilesystemError'.
+                        True: Non-existent paths are silently ignored.
+
+    Raises:
+        EncodingBoundaryViolation: Argument "path" is not of type 'bytes'.
+        FilesystemError: The path could not be removed, or the path does not
+                         exist and "ignore_missing" is False.
+        ValueError: Argument "path" is empty or only whitespace.
+    """
+    sanity.check_internal_bytestring(path)
+    if not path or not path.strip():
+        raise ValueError('Argument "path" is empty or only whitespace')
+
+    p = util.syspath(path)
+    if ignore_missing and not os.path.exists(p):
+        return
+
+    try:
+        os.remove(util.syspath(p))
+    except OSError as e:
+        raise exceptions.FilesystemError(e)

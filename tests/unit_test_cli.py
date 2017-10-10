@@ -313,7 +313,7 @@ class TestColumnFormatterOneColumn(TestCase):
         cf.addrow('baz')
 
         actual = str(cf)
-        expected = 'foo\nbaz'.format(p=self.padding)
+        expected = 'foo\n\nbaz'.format(p=self.padding)
         self.assertEqual(actual, expected)
 
     def test_formats_single_column_with_none_elements(self):
@@ -323,7 +323,7 @@ class TestColumnFormatterOneColumn(TestCase):
         cf.addrow('baz')
 
         actual = str(cf)
-        expected = 'foo\nbaz'.format(p=self.padding)
+        expected = 'foo\n\nbaz'.format(p=self.padding)
         self.assertEqual(actual, expected)
 
 

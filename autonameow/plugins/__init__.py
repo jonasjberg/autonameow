@@ -80,17 +80,17 @@ def get_usable_plugin_classes():
 
 
 # TODO: Use or remove function 'suitable_plugins_for'.
-# def suitable_plugins_for(file_object):
+# def suitable_plugins_for(fileobject):
 #     """
 #     Returns plugin classes that can handle the given file object.
 #
 #     Args:
-#         file_object: File to get plugins for as an instance of 'FileObject'.
+#         fileobject: File to get plugins for as an instance of 'FileObject'.
 #
 #     Returns:
 #         A list of plugin classes that can handle the given file.
 #     """
-#     return [p for p in UsablePlugins if p.can_handle(file_object)]
+#     return [p for p in UsablePlugins if p.can_handle(fileobject)]
 
 
 def map_meowuri_to_plugins():

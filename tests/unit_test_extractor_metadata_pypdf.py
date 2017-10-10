@@ -44,7 +44,7 @@ class TestPyPDFMetadataExtractor(unittest.TestCase):
         return datetime.strptime(value, '%Y-%m-%d %H:%M:%S%z')
 
     def setUp(self):
-        self.test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
+        self.test_fileobject = uu.fileobject_testfile('gmail.pdf')
         self.e = PyPDFMetadataExtractor()
 
         self.EXPECT_FIELD_VALUE = [
@@ -82,15 +82,15 @@ class TestPyPDFMetadataExtractor(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute(self.test_file))
+        self.assertIsNotNone(self.e.execute(self.test_fileobject))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.execute(self.test_file), dict))
+        self.assertTrue(isinstance(self.e.execute(self.test_fileobject), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_all_result_contains_expected_values(self):
-        actual = self.e.execute(self.test_file)
+        actual = self.e.execute(self.test_fileobject)
         for field, value in self.EXPECT_FIELD_VALUE:
             self.assertEqual(actual.get(field).value, value)
 

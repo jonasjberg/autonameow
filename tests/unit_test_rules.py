@@ -26,7 +26,12 @@ from core import (
 )
 from core import constants as C
 from core.config import rules
+from core.meowuri import MeowURI
 import unit_utils as uu
+import unit_utils_constants as uuconst
+
+
+uu.init_session_repository()
 
 
 class TestRuleCondition(TestCase):
@@ -35,90 +40,91 @@ class TestRuleCondition(TestCase):
 
 
 class TestRuleConditionFromValidInput(TestCase):
-    def _valid(self, query, data):
-        actual = rules.RuleCondition(query, data)
+    def _assert_valid(self, query, data):
+        _meowuri = MeowURI(query)
+        actual = rules.RuleCondition(_meowuri, data)
         self.assertIsNotNone(actual)
         self.assertTrue(isinstance(actual, rules.RuleCondition))
 
     def test_condition_contents_mime_type(self):
-        self._valid('extractor.filesystem.xplat.contents.mime_type', 'text/rtf')
-        self._valid('extractor.filesystem.xplat.contents.mime_type', 'text/*')
-        self._valid('extractor.filesystem.xplat.contents.mime_type', '*/application')
-        self._valid('extractor.filesystem.xplat.contents.mime_type', '*/*')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/rtf')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/*')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, '*/application')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, '*/*')
 
     def test_condition_filesystem_basename_full(self):
-        self._valid('extractor.filesystem.xplat.basename.full', 'foo.tar.gz')
-        self._valid('extractor.filesystem.xplat.basename.full', 'foo.*')
-        self._valid('extractor.filesystem.xplat.basename.full', '.*foo.*')
-        self._valid('extractor.filesystem.xplat.basename.full', '.*')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, 'foo.tar.gz')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, 'foo.*')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, '.*foo.*')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, '.*')
 
     def test_condition_filesystem_basename_prefix(self):
-        self._valid('extractor.filesystem.xplat.basename.prefix', 'foo')
-        self._valid('extractor.filesystem.xplat.basename.prefix', '.*')
-        self._valid('extractor.filesystem.xplat.basename.prefix', 'foo(bar)?')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX, 'foo')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX, '.*')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX, 'foo(bar)?')
 
     def test_condition_filesystem_basename_suffix(self):
-        self._valid('extractor.filesystem.xplat.basename.suffix', 'tar.gz')
-        self._valid('extractor.filesystem.xplat.basename.suffix', 'tar.*')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX, 'tar.gz')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX, 'tar.*')
 
     def test_condition_filesystem_extension(self):
-        self._valid('extractor.filesystem.xplat.basename.extension', 'pdf')
-        self._valid('extractor.filesystem.xplat.basename.extension', '.*')
-        self._valid('extractor.filesystem.xplat.basename.extension', '.?')
-        self._valid('extractor.filesystem.xplat.basename.extension', 'pdf?')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, '.*')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, '.?')
+        self._assert_valid(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf?')
 
     def test_condition_metadata_exiftool(self):
-        self._valid('extractor.metadata.exiftool.PDF:CreateDate', '1996')
-        self._valid('extractor.metadata.exiftool.PDF:Creator', 'foo')
-        self._valid('extractor.metadata.exiftool.PDF:ModifyDate', '1996-01-20')
-        self._valid('extractor.metadata.exiftool.PDF:Producer', 'foo')
-        self._valid('extractor.metadata.exiftool.XMP-dc:Creator', 'foo')
-        self._valid('extractor.metadata.exiftool.XMP-dc:Publisher', 'foo')
-        self._valid('extractor.metadata.exiftool.XMP-dc:Title', 'foo')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE, '1996')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR, 'foo')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFMODIFYDATE, '1996-01-20')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_PDFPRODUCER, 'foo')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR, 'foo')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER, 'foo')
+        self._assert_valid(uuconst.MEOWURI_EXT_EXIFTOOL_XMPDCTITLE, 'foo')
 
 
 class TestRuleConditionFromInvalidInput(TestCase):
-    def _assert_invalid(self, query, data):
+    def _assert_raises(self, query, data):
         with self.assertRaises(exceptions.InvalidRuleError):
-            _ = rules.get_valid_rule_condition(query, data)
+            _meowuri = MeowURI(query)
+            _ = rules.get_valid_rule_condition(_meowuri, data)
 
     def test_invalid_condition_contents_mime_type(self):
-        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', None)
-        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', '')
-        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', '/')
-        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', 'application/*//pdf')
-        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', 'application///pdf')
-        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type', 'text/')
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, None)
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, '')
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, '/')
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application/*//pdf')
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application///pdf')
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/')
 
     def test_invalid_condition_filesystem_basename_full(self):
-        self._assert_invalid('extractor.filesystem.xplat.basename.full', None)
-        self._assert_invalid('extractor.filesystem.xplat.basename.full', '')
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, None)
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, '')
 
     def test_invalid_condition_filesystem_basename_prefix(self):
-        self._assert_invalid('extractor.filesystem.xplat.basename.prefix', None)
-        self._assert_invalid('extractor.filesystem.xplat.basename.prefix', '')
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX, None)
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_PREFIX, '')
 
     def test_invalid_condition_filesystem_basename_suffix(self):
-        self._assert_invalid('extractor.filesystem.xplat.basename.suffix', None)
-        self._assert_invalid('extractor.filesystem.xplat.basename.suffix', '')
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX, None)
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX, '')
 
     def test_invalid_condition_filesystem_extension(self):
-        self._assert_invalid('extractor.filesystem.xplat.basename.extension', None)
-        self._assert_invalid('extractor.filesystem.xplat.basename.extension', '')
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, None)
+        self._assert_raises(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, '')
 
 
 class TestRuleConditionMethods(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.a = rules.RuleCondition(
-            'extractor.filesystem.xplat.contents.mime_type', 'application/pdf'
-        )
+        _meowuri = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        self.a = rules.RuleCondition(_meowuri, 'application/pdf')
 
     def test_rule___repr__(self):
-        self.assertEqual(
-            repr(self.a),
-            'RuleCondition("extractor.filesystem.xplat.contents.mime_type", "application/pdf")'
+        expected = 'RuleCondition("{}", "application/pdf")'.format(
+            uuconst.MEOWURI_FS_XPLAT_MIMETYPE
         )
+        self.assertEqual(repr(self.a), expected)
 
     def test_rule___repr__exhaustive(self):
         expected_reprs = []
@@ -145,60 +151,36 @@ class TestRuleMethods(TestCase):
 
 
 class TestGetValidRuleCondition(TestCase):
-    def test_get_valid_rule_condition_is_defined(self):
-        self.assertIsNotNone(rules.get_valid_rule_condition)
-
-    def _assert_valid(self, query, data):
-        actual = rules.get_valid_rule_condition(query, data)
+    def _aV(self, query, data):
+        _meowuri = MeowURI(query)
+        actual = rules.get_valid_rule_condition(_meowuri, data)
         self.assertIsNotNone(actual)
         self.assertTrue(isinstance(actual, rules.RuleCondition))
 
-    def _assert_invalid(self, query, data):
+    def _aR(self, query, data):
+        _meowuri = MeowURI(query)
         with self.assertRaises(exceptions.InvalidRuleError):
-            _ = rules.get_valid_rule_condition(query, data)
+            _ = rules.get_valid_rule_condition(_meowuri, data)
 
     def test_returns_valid_rule_condition_for_valid_query_valid_data(self):
-        self._assert_valid('extractor.filesystem.xplat.contents.mime_type',
-                           'application/pdf')
-        self._assert_valid('extractor.filesystem.xplat.contents.mime_type',
-                           'text/rtf')
-        self._assert_valid('extractor.filesystem.xplat.contents.mime_type',
-                           'image/*')
-        self._assert_valid('extractor.filesystem.xplat.basename.extension',
-                           'pdf')
-        self._assert_valid('extractor.filesystem.xplat.basename.full',
-                           'foo.pdf')
-        self._assert_valid('extractor.filesystem.xplat.pathname.full',
-                           '~/temp/foo')
-
-    def test_returns_false_for_invalid_query_valid_data(self):
-        self._assert_invalid('', 'application/pdf')
-        self._assert_invalid('c.m', 'text/rtf')
-        self._assert_invalid(None, 'pdf')
-        self._assert_invalid('None', 'pdf')
-        self._assert_invalid('filesystem..full', 'foo.pdf')
-        self._assert_invalid('foo', '~/temp/foo')
+        self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application/pdf')
+        self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/rtf')
+        self._aV(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'image/*')
+        self._aV(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, 'pdf')
+        self._aV(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, 'foo.pdf')
+        self._aV(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL, '~/temp/foo')
 
     def test_returns_false_for_valid_query_invalid_data(self):
-        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type',
-                             'application/*//pdf')
-        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type',
-                             'application///pdf')
-        self._assert_invalid('extractor.filesystem.xplat.contents.mime_type',
-                             'text/')
-        self._assert_invalid('extractor.filesystem.xplat.basename.extension',
-                             '')
-        self._assert_invalid('extractor.filesystem.xplat.basename.full',
-                             None)
-        self._assert_invalid('extractor.filesystem.xplat.pathname.full',
-                             '')
-
-    def test_returns_false_for_invalid_query_invalid_data(self):
-        self._assert_invalid('', 'application///pdf')
-        self._assert_invalid('c.m', '')
-        self._assert_invalid('foo', None)
-        self._assert_invalid(None, 'foo')
-        self._assert_invalid(None, None)
+        self._aR(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE, '')
+        self._aR(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE, 'foo')
+        self._aR(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE, None)
+        self._aR(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE, 'application///pdf')
+        self._aR(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application/*//pdf')
+        self._aR(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'application///pdf')
+        self._aR(uuconst.MEOWURI_FS_XPLAT_MIMETYPE, 'text/')
+        self._aR(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT, '')
+        self._aR(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL, None)
+        self._aR(uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL, '')
 
 
 class TestIsValidSourceSpecification(TestCase):
@@ -225,10 +207,10 @@ class TestIsValidSourceSpecification(TestCase):
             self.assertTrue(rules.is_valid_source(test_input))
 
         _aT('extractor.metadata.exiftool')
-        _aT('extractor.metadata.exiftool.PDF:CreateDate')
-        _aT('extractor.filesystem.xplat.basename.full')
-        _aT('extractor.filesystem.xplat.basename.extension')
-        _aT('extractor.filesystem.xplat.contents.mime_type')
+        _aT(uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE)
+        _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL)
+        _aT(uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT)
+        _aT(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
 
 class TestParseConditions(TestCase):
@@ -237,32 +219,30 @@ class TestParseConditions(TestCase):
 
     def test_parse_condition_filesystem_pathname_is_valid(self):
         raw_conditions = {
-            'extractor.filesystem.xplat.pathname.full': '~/.config'
+            uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL: '~/.config'
         }
         actual = rules.parse_conditions(raw_conditions)
         self.assertEqual(actual[0].meowuri,
-                         'extractor.filesystem.xplat.pathname.full')
+                         uuconst.MEOWURI_FS_XPLAT_PATHNAME_FULL)
         self.assertEqual(actual[0].expression, '~/.config')
 
     def test_parse_condition_contents_mime_type_is_valid(self):
         raw_conditions = {
-            'extractor.filesystem.xplat.contents.mime_type': 'image/jpeg'
+            uuconst.MEOWURI_FS_XPLAT_MIMETYPE: 'image/jpeg'
         }
         actual = rules.parse_conditions(raw_conditions)
-        self.assertEqual(actual[0].meowuri,
-                         'extractor.filesystem.xplat.contents.mime_type')
-        self.assertEqual(actual[0].expression,
-                         'image/jpeg')
+        self.assertEqual(actual[0].meowuri, uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        self.assertEqual(actual[0].expression, 'image/jpeg')
 
     def test_parse_condition_contents_metadata_is_valid(self):
         # TODO: [TD0015] Handle expression in 'condition_value'
         #                ('Defined', '> 2017', etc)
         raw_conditions = {
-            'extractor.metadata.exiftool.EXIF:DateTimeOriginal': 'Defined',
+            uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL: 'Defined',
         }
         actual = rules.parse_conditions(raw_conditions)
         self.assertEqual(actual[0].meowuri,
-                         'extractor.metadata.exiftool.EXIF:DateTimeOriginal')
+                         uuconst.MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL)
         self.assertEqual(actual[0].expression, 'Defined')
 
 

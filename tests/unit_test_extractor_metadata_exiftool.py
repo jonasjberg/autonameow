@@ -28,12 +28,14 @@ from extractors.metadata import ExiftoolMetadataExtractor
 from extractors.metadata.exiftool import _get_exiftool_data
 
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 unmet_dependencies = not ExiftoolMetadataExtractor.check_dependencies()
 dependency_error = 'Extractor dependencies not satisfied'
 
 
+temp_fileobject = uu.get_mock_fileobject()
 temp_file = uu.make_temporary_file()
 
 
@@ -70,7 +72,7 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
 
         with self.assertRaises(ExtractorError):
             f = ExiftoolMetadataExtractor()
-            f._get_metadata('not_a_file_surely')
+            f._get_metadata(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_returns_something(self):
@@ -88,19 +90,19 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
 
         with self.assertRaises(ExtractorError):
             f = ExiftoolMetadataExtractor()
-            _get_exiftool_data('not_a_file_surely')
+            _get_exiftool_data(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute(temp_file))
+        self.assertIsNotNone(self.e.execute(temp_fileobject))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.execute(temp_file), dict))
+        self.assertTrue(isinstance(self.e.execute(temp_fileobject), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_all_result_contains_file_size(self):
-        actual = self.e.execute(temp_file)
+        actual = self.e.execute(temp_fileobject)
         self.assertTrue('File:FileSize' in actual)
 
 
@@ -109,7 +111,7 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
         return datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
 
     def setUp(self):
-        self.test_file = util.normpath(uu.abspath_testfile('smulan.jpg'))
+        self.test_file = uu.fileobject_testfile('smulan.jpg')
         self.e = ExiftoolMetadataExtractor()
 
         self.EXPECT_FIELD_VALUE = [

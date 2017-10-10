@@ -47,38 +47,43 @@ log = logging.getLogger(__name__)
 BE_QUIET = False
 
 
-def print_ascii_banner():
+def print_version_info(verbose):
     """
     Prints a "banner" with some ASCII art, program information and credits.
     """
     def divider_string(length):
         return colorize('-' * length, fore='LIGHTBLACK_EX', style='DIM')
 
-    print('')
-    print(colorize('  {}  '.format(C.STRING_PROGRAM_NAME),
-                   back='BLUE', fore='BLACK')
-          + colorize('  Automagic File Renamer by Cats for Cats', fore='BLUE'))
+    if verbose:
+        print('')
+        print(
+            colorize('  {}  '.format(C.STRING_PROGRAM_NAME),
+                     back='BLUE', fore='BLACK') +
+            colorize('  Automagic File Renamer by Cats for Cats', fore='BLUE')
+        )
 
-    _commit_info = util.git_commit_hash()
-    if _commit_info:
-        _commit = '(commit {!s})'.format(_commit_info)
+        _commit_info = util.git_commit_hash()
+        if _commit_info:
+            _commit = '(commit {!s})'.format(_commit_info)
+        else:
+            _commit = ''
+
+        cf = ColumnFormatter()
+        cf.addrow(C.STRING_PROGRAM_NAME, core.version.__copyright__)
+        cf.addrow('version {}'.format(C.STRING_PROGRAM_VERSION),
+                  core.version.__email__)
+        cf.addrow(_commit, core.version.__url__)
+        cf.addrow('', core.version.__url_repo__)
+        cf.setalignment('left', 'right')
+        columnated_text = str(cf)
+        columnated_text_width = cf.max_column_width()
+
+        print(divider_string(columnated_text_width))
+        print(columnated_text)
+        print(divider_string(columnated_text_width))
+        print('')
     else:
-        _commit = ''
-
-    cf = ColumnFormatter()
-    cf.addrow(C.STRING_PROGRAM_NAME, core.version.__copyright__)
-    cf.addrow('version {}'.format(C.STRING_PROGRAM_VERSION),
-              core.version.__email__)
-    cf.addrow(_commit, core.version.__url__)
-    cf.addrow('', core.version.__url_repo__)
-    cf.setalignment('left', 'right')
-    columnated_text = str(cf)
-    columnated_text_width = cf.max_column_width()
-
-    print(divider_string(columnated_text_width))
-    print(columnated_text)
-    print(divider_string(columnated_text_width))
-    print('')
+        print('{}'.format(C.STRING_PROGRAM_VERSION))
 
 
 def print_start_info():
@@ -331,7 +336,7 @@ class ColumnFormatter(object):
     }
 
     def __init__(self, align='left'):
-        self._columns = 0
+        self._column_count = 0
         self._data = []
         self._column_widths = []
         self._default_align = self.ALIGNMENT_STRINGS.get(align, 'ljust')
@@ -363,12 +368,12 @@ class ColumnFormatter(object):
 
     @property
     def number_columns(self):
-        return self._columns
+        return self._column_count
 
     def _update_number_columns(self, strings):
         count = len(strings)
-        if count > self._columns:
-            self._columns = count
+        if count > self._column_count:
+            self._column_count = count
 
     def addrow(self, *args):
         maybe_strings = list(args)
@@ -378,6 +383,9 @@ class ColumnFormatter(object):
         self._update_number_columns(strings)
         self._update_column_widths(strings)
         self._data.append(strings)
+
+    def addemptyrow(self):
+        self.addrow(' ')
 
     def _update_column_widths(self, strings):
         # strings = [textutils.strip_ansiescape(s) for s in strings]
@@ -413,7 +421,7 @@ class ColumnFormatter(object):
 
     def max_column_width(self):
         max_width = ((self.number_columns * self.COLUMN_PADDING)
-                     + sum(self.column_widths))
+                     + sum(self.column_widths) - self.COLUMN_PADDING)
         return max_width
 
     @staticmethod
@@ -453,7 +461,7 @@ class ColumnFormatter(object):
                 )
             )
 
-        return '\n'.join(l.rstrip() for l in lines if l.strip())
+        return '\n'.join(l.rstrip() for l in lines)
 
 
 def silence():

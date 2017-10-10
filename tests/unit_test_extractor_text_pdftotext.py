@@ -66,6 +66,7 @@ class TestPdftotextTextExtractor(unittest.TestCase):
         self.maxDiff = None
 
         self.test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
+        self.test_fileobject = uu.fileobject_testfile('gmail.pdf')
         self.e = PdftotextTextExtractor()
 
         class DummyFileObject(object):
@@ -147,16 +148,16 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
         self.assertIsNotNone(self.e)
 
     def test__get_text_returns_something(self):
-        self.assertIsNotNone(self.e._get_text(self.test_file))
+        self.assertIsNotNone(self.e._get_text(self.test_fileobject))
 
     def test__get_text_returns_expected_type(self):
-        self.assertEqual(type(self.e._get_text(self.test_file)), str)
+        self.assertEqual(type(self.e._get_text(self.test_fileobject)), str)
 
     def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute(self.test_file))
+        self.assertIsNotNone(self.e.execute(self.test_fileobject))
 
     def test_method_execute_returns_expected_type(self):
-        actual = self.e.execute(self.test_file)
+        actual = self.e.execute(self.test_fileobject)
         self.assertTrue(isinstance(actual, dict))
 
     def test_method_execute_contains_expected(self):
@@ -164,7 +165,7 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
             'TODO: It seems that pdftotext strips trailing whitespace on'
             ' MacOS (v0.57.0) but not on Linux (v0.41.0) ..'
         )
-        actual = self.e.execute(self.test_file)
+        actual = self.e.execute(self.test_fileobject)
         self.assertEqual(actual['full'].value, self.EXPECT_TEXT)
 
     def test_class_method_can_handle_is_defined(self):

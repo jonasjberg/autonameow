@@ -26,6 +26,7 @@ import time
 
 from core import (
     analysis,
+    cache,
     config,
     exceptions,
     extraction,
@@ -36,7 +37,6 @@ from core import (
     util
 )
 from core import constants as C
-from core.config import DefaultConfigFilePath
 from core.config.configuration import Configuration
 from core.evaluate.resolver import Resolver
 from core.evaluate.rulematcher import RuleMatcher
@@ -95,7 +95,7 @@ class Autonameow(object):
 
         # Display startup banner with program version and exit.
         if self.opts.show_version:
-            cli.print_ascii_banner()
+            cli.print_version_info(verbose=self.opts.verbose)
             self.exit_program(C.EXIT_SUCCESS)
 
         # Set up a session repository for this process.
@@ -116,12 +116,20 @@ class Autonameow(object):
             log.critical('Unable to load configuration -- Aborting ..')
             self.exit_program(C.EXIT_ERROR)
 
+        # Set globally accessible configuration instance.
+        config.set_active(self.active_config)
+
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
 
         if self.opts.dump_options:
             include_opts = {
-                'config_file_path': util.displayable_path(DefaultConfigFilePath)
+                'config_file_path': '"{!s}"'.format(
+                    util.displayable_path(config.DefaultConfigFilePath)
+                ),
+                'cache_directory_path': '"{!s}"'.format(
+                    util.displayable_path(cache.get_config_cache_path())
+                )
             }
             options.prettyprint_options(self.opts, include_opts)
 
@@ -168,7 +176,9 @@ class Autonameow(object):
                 cli.msg(str(_meowuri))
         else:
             cf = cli.ColumnFormatter()
-            for _type in ['analyzers', 'extractors', 'plugins']:
+
+            for _type in C.MEOWURI_ROOTS_SOURCES:
+                cf.addemptyrow()
                 klasses = repository.SessionRepository.meowuri_class_map.get(_type, {})
                 for _meowuri, _klasses in klasses.items():
                     cf.addrow(_meowuri, str(_klasses.pop()))
@@ -180,13 +190,15 @@ class Autonameow(object):
         cli.msg('\n')
 
     def _load_config_from_default_path(self):
-        _displayable_config_path = util.displayable_path(DefaultConfigFilePath)
+        _displayable_config_path = util.displayable_path(
+            config.DefaultConfigFilePath
+        )
         log.info('Using configuration: "{}"'.format(_displayable_config_path))
-        self.load_config(DefaultConfigFilePath)
+        self.load_config(config.DefaultConfigFilePath)
 
     def _write_template_config_to_default_path_and_exit(self):
         log.info('No configuration file was found. Writing default ..')
-        _displayable_config_path = util.displayable_path(DefaultConfigFilePath)
+        _displayable_config_path = util.displayable_path(config.DefaultConfigFilePath)
         try:
             config.write_default_config()
         except exceptions.ConfigError:
@@ -241,7 +253,8 @@ class Autonameow(object):
             # Sanity checking the "file_path" is part of 'FileObject' init.
             try:
                 current_file = FileObject(file_path)
-            except exceptions.InvalidFileArgumentError as e:
+            except (exceptions.InvalidFileArgumentError,
+                    exceptions.FilesystemError) as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
                     e, util.displayable_path(file_path))
                 )
@@ -282,7 +295,7 @@ class Autonameow(object):
         )
 
         # Begin analysing the file.
-        _run_analysis(current_file)
+        _run_analysis(current_file, self.active_config)
 
         # Run plugins.
         required_plugins = repository.get_sources_for_meowuris(
@@ -533,12 +546,12 @@ class Autonameow(object):
         return hash(util.process_id()) + hash(self.start_time)
 
 
-def _run_extraction(file_object, require_extractors, run_all_extractors=False):
+def _run_extraction(fileobject, require_extractors, run_all_extractors=False):
     """
     Sets up and executes data extraction for the given file.
 
     Args:
-        file_object: The file object to extract data from.
+        fileobject: The file object to extract data from.
         require_extractors: List of extractor classes that should be included.
         run_all_extractors: Whether all data extractors should be included.
 
@@ -546,7 +559,7 @@ def _run_extraction(file_object, require_extractors, run_all_extractors=False):
         AutonameowException: An unrecoverable error occurred during extraction.
     """
     try:
-        extraction.start(file_object,
+        extraction.start(fileobject,
                          require_extractors=require_extractors,
                          require_all_extractors=run_all_extractors is True)
     except exceptions.AutonameowException as e:
@@ -554,12 +567,12 @@ def _run_extraction(file_object, require_extractors, run_all_extractors=False):
         raise
 
 
-def _run_plugins(file_object, required_plugins=None):
+def _run_plugins(fileobject, required_plugins=None):
     """
     Instantiates, executes and returns a 'PluginHandler' instance.
 
     Args:
-        file_object: The current file object to pass to plugins.
+        fileobject: The current file object to pass to plugins.
 
     Returns:
         An instance of the 'PluginHandler' class that has executed successfully.
@@ -573,30 +586,31 @@ def _run_plugins(file_object, required_plugins=None):
     plugin_handler = PluginHandler()
     plugin_handler.use_plugins(required_plugins)
     try:
-        plugin_handler.execute_plugins(file_object)
+        plugin_handler.execute_plugins(fileobject)
     except exceptions.AutonameowPluginError as e:
         log.critical('Plugins FAILED: {!s}'.format(e))
         raise exceptions.AutonameowException(e)
 
 
-def _run_analysis(file_object):
+def _run_analysis(fileobject, active_config):
     """
     Sets up and executes "analysis" of the given file.
 
     Args:
-        file_object: The file object to analyze.
+        fileobject: The file object to analyze.
+        active_config: An instance of the 'Configuration' class.
 
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
     try:
-        analysis.start(file_object)
+        analysis.start(fileobject, active_config)
     except exceptions.AutonameowException as e:
         log.critical('Analysis FAILED: {!s}'.format(e))
         raise
 
 
-def _run_rule_matcher(file_object, active_config):
+def _run_rule_matcher(fileobject, active_config):
     """
     Instantiates, executes and returns a 'RuleMatcher' instance.
 
@@ -609,7 +623,7 @@ def _run_rule_matcher(file_object, active_config):
     Raises:
         AutonameowException: An unrecoverable error occurred during execution.
     """
-    matcher = RuleMatcher(file_object, active_config)
+    matcher = RuleMatcher(fileobject, active_config)
     try:
         matcher.start()
     except exceptions.AutonameowException as e:

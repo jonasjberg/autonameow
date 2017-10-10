@@ -162,6 +162,22 @@ DEFAULT_CONFIG = {
         'default_photo': '{datetime} {description} -- {tags}.{extension}'
     },
 
+    #  Name Template Fields
+    #  ====================
+    #  Known good candidates for fields.
+    #  For instance, the publisher field lists user-defined book publisher
+    #  candidates along with a list of patterns that if matched, would be
+    #  replaced with the candidate name.
+    'NAME_TEMPLATE_FIELDS': {
+        'publisher': {
+            'candidates': {
+                'ProjectGutenberg': ['Project Gutenberg', 'www.gutenberg.net'],
+                'FeedBooks': ['This book is brought to you by Feedbooks',
+                              'http://www.feedbooks.com']
+            },
+        },
+    },
+
     #  File Name Date and Time Format
     #  ==============================
     #  Specifies the format of date and time in constructed file names.
@@ -182,6 +198,14 @@ DEFAULT_CONFIG = {
     #  These are added on to the defaults specified in 'constants.py'.
     'FILESYSTEM_OPTIONS': {
         'ignore': ['*.swp', '*/.*'],
+    },
+
+    #  Persistence Options
+    #  ===================
+    #  Controls how autonameow stores persistent data to disk.
+    'PERSISTENCE': {
+        'cache_directory': None,
+        'history_directory': None,
     },
 
     #  Custom Post-Processing Options

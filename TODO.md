@@ -14,6 +14,8 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0105]` Integrate the `MeowURI` class.
+
 * `[TD0100]` Spec out "operating modes" and functionality requirements.
 
 * `[TD0099]` Use `python-prompt-toolkit` for the interactive cli UI.
@@ -31,18 +33,7 @@ High Priority
   displayed properly due to them not being handled properly before being passed
   to `yaml.dump` which performs the formatting of the results dict.
 
-* `[TD0044]` __Rework converting "raw data" to internal representations__
-    * Converting raw data to internal representations is currently implemented
-      very poorly and must be reworked.
-    * Think about how to handle translation in the "general" sense; high-level,
-      abstract. Would it be wise to let data extractors convert raw data to
-      internal types? (For example; messy OCR text to `datetime` object)
-        * A "general solution" using some new entity tasked with translating
-          data *might be too "general"* considering the likely granularity of
-          operations needed to perform the conversion.  That is, if the
-          required operations differs greatly between data sources, abstracting
-          the process would mostly add yet another layer of indirection ..
-    * Think about how wrapped data types (`[TD0002]`) relates to this.
+* `[TD0102]` Fix inconsistencies in results passed back by analyzers.
 
 * `[TD0087]` Clean up messy and sometimes duplicated wrapping of "raw" data.
 
@@ -50,7 +41,7 @@ High Priority
 Medium Priority
 ---------------
 
-* `[TD0098]` Use checksums as keys for cached data, not paths.
+* `[TD0104]` Merge duplicate candidates and re-normalize probabilities.
 
 * `[TD0092]` Add tracking history and ability to "undo" renames.
 
@@ -98,8 +89,6 @@ Medium Priority
   `image/png`, etc can't be used as a file extension without some
   pre-processing -- converting `image/png` to `png`.
 
-* `[TD0070]` Implement arbitrary common personal use case.
-
 * `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
 
 * `[TD0019]` Rework the `FilenameAnalyzer`
@@ -146,8 +135,6 @@ Low Priority
   Store timestamps with stored data and remove oldest entries when exceeding
   the file size limit.
 
-* `[TD0097]` Improve and fully implement caching to files on disk.
-
 * `[TD0096]` Fix some replacements cause incorrect color highlighting.
 
 * `[TD0091]` Take a look at old code in `util/dateandtime.py`.
@@ -170,10 +157,6 @@ Low Priority
         * Extract plain text with `djvutxt`
 
 * `[TD0029]` Add support for extracting MacOS Spotlight metadata (`mdls`)
-
-* __Add additional plugins__
-    * `[TD0030]` Plugin for querying APIs with ISBN numbers.
-      (Already implemented in `autoname_pdf.py` and `isbn_query.py`)
 
 * `[TD0033]` Refactor unit tests.
     * Mitigate superlinear increase in unit test execution speed.

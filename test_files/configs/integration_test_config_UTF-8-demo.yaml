@@ -16,17 +16,16 @@ NAME_TEMPLATES:
     default_document: '{title} - {author} {datetime}.{extension}'
     default_photo: '{datetime} {description} -- {tags}.{extension}'
 RULES:
-    Filetags cleanup:
+    Document Analyzer with UTF-8-demo.txt:
         CONDITIONS:
-            analyzer.filetags.follows_filetags_convention: true
-            extractor.filesystem.xplat.basename.extension: '(txt|md)'
-            extractor.filesystem.xplat.contents.mime_type: 'text/*'
+            extractor.filesystem.xplat.basename.full: 'UTF-8-demo.txt'
+            extractor.filesystem.xplat.contents.mime_type: 'text/plain'
         DATA_SOURCES:
-            datetime: analyzer.filetags.datetime
+            author: analyzer.document.author
+            datetime: analyzer.document.datetime
             extension: extractor.filesystem.xplat.contents.mime_type
-            description: analyzer.filetags.description
-            tags: analyzer.filetags.tags
-        NAME_FORMAT: '{datetime} {description} -- {tags}.{extension}'
+            title: analyzer.document.datetime
+        NAME_FORMAT: '{datetime} {title} {author}.{extension}'
         exact_match: true
         ranking_bias: 1
 COMPATIBILITY:

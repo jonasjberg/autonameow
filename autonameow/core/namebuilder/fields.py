@@ -19,13 +19,27 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
+import logging
 import re
 
-from core import types
+from core import (
+    exceptions,
+    types,
+)
+from core.model import ExtractedData
+from core.util import (
+    sanity,
+    textutils
+)
+
+
+log = logging.getLogger(__name__)
 
 
 class NameTemplateField(object):
     COMPATIBLE_TYPES = (None, )
+    MULTIVALUED = None
 
     def __init__(self, content):
         self._content = content
@@ -40,6 +54,11 @@ class NameTemplateField(object):
         # target_field_type = type(target_field)
         # result = self._transforms[target_field_type](self._content)
         pass
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        # TODO: Implement in inheriting classes ..
+        log.warning('Called unimplemented "{!s}.format()"'.format(cls.__name__))
 
     @classmethod
     def as_placeholder(cls):
@@ -58,6 +77,7 @@ class Title(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
+    MULTIVALUED = False
 
     def __init__(self, content):
         super(Title).__init__(content)
@@ -66,8 +86,26 @@ class Title(NameTemplateField):
     def normalize(cls, data):
         data = data.strip(',.:;-_ ')
         data = data.replace('&', 'and')
-        data = data.replace("&#8211;", "-")
+        data = data.replace('&#8211;', '-')
+        data = data.replace(' - ', '')
         return data
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+            string = types.force_string(data.value)
+            if not string:
+                raise exceptions.NameBuilderError(
+                    'Unicode string conversion failed for "{!r}"'
+                )
+        elif data.coercer == types.AW_STRING:
+            string = data.value
+        else:
+            string = data.value
+
+        sanity.check_internal_string(string)
+        return cls.normalize(string)
 
 
 class Edition(NameTemplateField):
@@ -75,7 +113,9 @@ class Edition(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
+    MULTIVALUED = False
 
+    # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
     REPLACE_ORDINALS = []
     for _find, _replace in (
             ('1st', 'first'),        ('2nd', 'second'),
@@ -95,11 +135,32 @@ class Edition(NameTemplateField):
 
     @classmethod
     def normalize(cls, edition):
+        # TODO: Consolidate with similar in the 'FilenameAnalyzer'.
+
         # Normalize numeric titles to allow for later custom replacements.
         for _find, _replace in cls.REPLACE_ORDINALS:
             edition = _find.sub(_replace, edition)
 
         return edition
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+            string = types.force_string(data.value)
+            if not string:
+                raise exceptions.NameBuilderError(
+                    'Unicode string conversion failed for "{!r}"'
+                )
+        elif data.coercer in (types.AW_STRING, types.AW_INTEGER):
+            string = data.as_string()
+        else:
+            raise exceptions.NameBuilderError(
+                'Got incompatible data: {!r}'.format(data)
+            )
+
+        sanity.check_internal_string(string)
+        return '{}E'.format(string)
 
 
 class Extension(NameTemplateField):
@@ -107,6 +168,7 @@ class Extension(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_MIMETYPE)
+    MULTIVALUED = False
 
     def __init__(self, content):
         super(Extension).__init__(content)
@@ -119,9 +181,39 @@ class Extension(NameTemplateField):
 class Author(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
                         types.AW_PATH,
-                        types.AW_STRING,
-                        types.AW_INTEGER,
-                        types.AW_FLOAT)
+                        types.AW_STRING)
+    MULTIVALUED = True
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+
+        if isinstance(data, list):
+            # Multiple authors
+            _formatted = []
+            for d in data:
+                if d.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+                    string = types.force_string(d.value)
+                    if not string:
+                        raise exceptions.NameBuilderError(
+                            'Unicode string conversion failed for "{!r}"'
+                        )
+                elif d.coercer == types.AW_STRING:
+                    string = d.value
+                else:
+                    raise exceptions.NameBuilderError(
+                        'Got incompatible data: {!r}'.format(d)
+                    )
+
+                sanity.check_internal_string(string)
+                _formatted.append(
+                    textutils.format_name_lastname_initials(string)
+                )
+
+            return ' '.join(_formatted)
+        else:
+            # One author
+            return textutils.format_name_lastname_initials(data.value)
 
 
 class Creator(NameTemplateField):
@@ -130,6 +222,7 @@ class Creator(NameTemplateField):
                         types.AW_STRING,
                         types.AW_INTEGER,
                         types.AW_FLOAT)
+    MULTIVALUED = True
 
 
 class DateTime(NameTemplateField):
@@ -137,7 +230,16 @@ class DateTime(NameTemplateField):
                         types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE,
                         types.AW_PYPDFTIMEDATE)
-    pass
+    MULTIVALUED = False
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        c = kwargs.get('config')
+        if c:
+            _format = c.options['DATETIME_FORMAT']['datetime']
+            return formatted_datetime(data.value, _format)
+        else:
+            raise exceptions.NameBuilderError('Unknown "datetime" format')
 
 
 class Date(NameTemplateField):
@@ -145,7 +247,16 @@ class Date(NameTemplateField):
                         types.AW_TIMEDATE,
                         types.AW_EXIFTOOLTIMEDATE,
                         types.AW_PYPDFTIMEDATE)
-    pass
+    MULTIVALUED = False
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        c = kwargs.get('config')
+        if c:
+            datetime_format = c.options['DATETIME_FORMAT']['date']
+            return formatted_datetime(data.value, datetime_format)
+        else:
+            raise exceptions.NameBuilderError('Unknown "date" format')
 
 
 class Description(NameTemplateField):
@@ -154,6 +265,7 @@ class Description(NameTemplateField):
                         types.AW_STRING,
                         types.AW_INTEGER,
                         types.AW_FLOAT)
+    MULTIVALUED = False
     pass
 
 
@@ -162,7 +274,12 @@ class Publisher(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
-    pass
+    MULTIVALUED = False
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        # TODO: [TD0036] Allow per-field replacements and customization.
+        pass
 
 
 class Tags(NameTemplateField):
@@ -170,7 +287,40 @@ class Tags(NameTemplateField):
                         types.AW_PATH,
                         types.AW_STRING,
                         types.AW_INTEGER)
-    pass
+    MULTIVALUED = True
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        sanity.check_isinstance(data, list)
+        _tags = []
+        for d in data:
+            sanity.check_isinstance(d, ExtractedData)
+            _tags.append(d.value)
+
+        c = kwargs.get('config')
+        if c:
+            sep = c.options['FILETAGS_OPTIONS']['between_tag_separator']
+            sanity.check_internal_string(sep)
+            return sep.join(_tags)
+        else:
+            raise exceptions.NameBuilderError('Unknown "between_tag_separator"')
+        pass
+
+
+class Time(NameTemplateField):
+    COMPATIBLE_TYPES = (types.AW_TIMEDATE,
+                        types.AW_EXIFTOOLTIMEDATE,
+                        types.AW_PYPDFTIMEDATE)
+    MULTIVALUED = False
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        c = kwargs.get('config')
+        if c:
+            datetime_format = c.options['DATETIME_FORMAT']['time']
+            return formatted_datetime(data, datetime_format)
+        else:
+            raise exceptions.NameBuilderError('Unknown "time" format')
 
 
 def format_string_placeholders(format_string):
@@ -260,3 +410,23 @@ def nametemplatefield_classes_in_formatstring(format_string):
 
     placeholders = format_string_placeholders(format_string)
     return [nametemplatefield_class_from_string(p) for p in placeholders]
+
+
+def formatted_datetime(datetime_object, format_string):
+    """
+    Takes a date/time string, converts it to a datetime object and
+    returns a formatted version on the form specified with "format_string".
+
+    Note that the parsing of "datetime_string" might fail.
+    TODO: Handle the [raw data] -> [formatted datetime] conversion better!
+
+    Args:
+        datetime_object: Date/time information as a datetime object.
+        format_string: The format string to use for the output. Refer to:
+            https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+
+    Returns:
+        A string in the specified format with the data from the given string.
+    """
+    sanity.check_isinstance(datetime_object, datetime.datetime)
+    return datetime_object.strftime(format_string)

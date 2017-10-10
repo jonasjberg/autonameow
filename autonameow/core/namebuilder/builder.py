@@ -29,6 +29,7 @@ from core import (
     util
 )
 from core.model import ExtractedData
+from core.namebuilder.fields import NameTemplateField
 from core.ui import cli
 from core.util import (
     diskutils,
@@ -46,16 +47,16 @@ def build(config, name_template, field_data_map):
     """
     log.debug('Using name template: "{}"'.format(name_template))
 
+    # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
+    formatted_fields = pre_assemble_format(field_data_map, config)
+
     # TODO: Move to use name template field classes as keys.
-    data = _with_simple_string_keys(field_data_map)
+    data = _with_simple_string_keys(formatted_fields)
 
     if not field_data_map:
         log.error('Name builder got empty data map! This should not happen ..')
         raise exceptions.NameBuilderError('Unable to assemble basename')
 
-    # TODO: [TD0017][TD0041] Format ALL data before assembly!
-    # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
-    data = pre_assemble_format(data, config)
     log.debug('After pre-assembly formatting;')
     log.debug(str(data))
 
@@ -113,6 +114,37 @@ def build(config, name_template, field_data_map):
     return new_name
 
 
+def pre_assemble_format(field_data_dict, config):
+    out = {}
+
+    for field, data in field_data_dict.items():
+        sanity.check(field and issubclass(field, NameTemplateField))
+        if isinstance(data, list):
+            if not field.MULTIVALUED:
+                log.critical(
+                    'Template field "{!s}" expects a single value. '
+                    'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
+                                               type(data), data)
+                )
+                raise exceptions.NameBuilderError(
+                    'Template field "{!s}" expects a single value. '
+                    'Got {} values'.format(field.as_placeholder(), len(data))
+                )
+
+            for d in data:
+                sanity.check_isinstance(d, ExtractedData)
+        else:
+            sanity.check_isinstance(data, ExtractedData)
+
+        _formatted = field.format(data, config=config)
+        if _formatted:
+            out[field] = _formatted
+        else:
+            out[field] = data
+
+    return out
+
+
 def msg_replacement(original, replacement, regex, color):
     _name_old = cli.colorize_re_match(original, regex=regex, color=color)
     _name_new = _colorize_replacement(original, replacement, regex, color)
@@ -124,6 +156,7 @@ def msg_replacement(original, replacement, regex, color):
     # Applying custom replacement: "2007-04-23_12-comments.png." -> "2007-04-23_12-comments.png"
     #                                                     ^   ^
     #                 Should not be colored red, but is --'   '-- Should be red, but isn't ..
+
 
 def _colorize_replacement(original, replacement, regex, color):
     _colored_replacement = cli.colorize(replacement, fore=color)
@@ -174,103 +207,4 @@ def populate_name_template(name_template, **kwargs):
         raise exceptions.NameTemplateSyntaxError(e)
     else:
         return out
-
-
-def pre_assemble_format(data, config):
-    formatted = {}
-
-    # TODO: [TD0017][TD0041] This needs refactoring, badly.
-
-    for field, value in data.items():
-        log.debug('Pre-assembly formatting field "{!s}"'.format(field))
-
-        # TODO: [TD0082] Integrate the 'ExtractedData' class.
-        if isinstance(data[field], ExtractedData):
-            d = value.value
-        else:
-            d = value
-
-        if field == 'datetime':
-            datetime_format = config.options['DATETIME_FORMAT']['datetime']
-            formatted[field] = formatted_datetime(d, datetime_format)
-        elif field == 'date':
-            datetime_format = config.options['DATETIME_FORMAT']['date']
-            formatted[field] = formatted_datetime(d, datetime_format)
-        elif field == 'time':
-            datetime_format = config.options['DATETIME_FORMAT']['time']
-            formatted[field] = formatted_datetime(d, datetime_format)
-
-        elif field == 'tags':
-            sanity.check_isinstance(value, list)
-
-            _tags = []
-            for _tag in value:
-                if isinstance(_tag, ExtractedData):
-                    _tag = _tag.value
-                else:
-                    log.critical('TODO: Fix lists of "ExtractedData"')
-
-                _tags.append(_tag)
-
-            sep = config.options['FILETAGS_OPTIONS']['between_tag_separator']
-            formatted[field] = sep.join(_tags)
-
-        # TODO: [TD0044] Rework converting "raw data" to an internal format.
-        else:
-            _formatted = format_field(field, value)
-            if _formatted is not None:
-                formatted[field] = _formatted
-
-        # TODO: [TD0041] Other substitutions, etc ..
-
-    return formatted
-
-
-def format_field(field, data):
-    # TODO: [TD0082] Integrate the 'ExtractedData' class.
-    if isinstance(data, ExtractedData):
-        log.debug('Formatting data.value "{!s}"'.format(data.value))
-
-        if data.coercer:
-            formatted = data.coercer.format(data.value, formatter=None)
-            if formatted is not None and formatted != data.coercer.null:
-                log.debug('Formatted value: "{!s}"'.format(formatted))
-                return formatted
-            else:
-                log.debug('Unable to format field "{!s}" with value '
-                          '"{!s}"'.format(field, data.value))
-    elif data is not None:
-        log.warning('Missing formatting information, not coerced in '
-                    'ExtractedData: "{!s}": "{!s}"'.format(field, data))
-
-        # TODO: [TD0088] Handle case where 'ExtractedData' isn't provided
-        # with a 'coercer' and then also fails to autodetect a proper
-        # 'coercer' class from the raw file type ..
-
-        return data
-    else:
-        log.warning('"format_field" got None data (!)')
-
-    return None
-
-
-def formatted_datetime(datetime_object, format_string):
-    """
-    Takes a date/time string, converts it to a datetime object and
-    returns a formatted version on the form specified with "format_string".
-
-    Note that the parsing of "datetime_string" might fail.
-    TODO: Handle the [raw data] -> [formatted datetime] conversion better!
-
-    Args:
-        datetime_object: Date/time information as a datetime object.
-        format_string: The format string to use for the output. Refer to:
-            https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
-
-    Returns:
-        A string in the specified format with the data from the given string.
-    """
-    sanity.check_isinstance(datetime_object, datetime)
-    return datetime_object.strftime(format_string)
-
 

@@ -85,7 +85,7 @@ class BaseExtractor(object):
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
-    def __call__(self, source, **kwargs):
+    def __call__(self, fileobject, **kwargs):
         """
         Extracts and returns data using a specific extractor.
 
@@ -104,9 +104,8 @@ class BaseExtractor(object):
         expected type. The type coercers in 'types.py' could be useful here.
 
         Args:
-            source: Source of data from which to extract information as a
-                byte string path (internal path format). A special case is the
-                'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
+            fileobject: Source of data from which to extract information as an
+                        instance of 'FileObject'.
 
         Returns:
             All data gathered by the extractor, as a dictionary.
@@ -114,12 +113,9 @@ class BaseExtractor(object):
         Raises:
             ExtractorError: The extraction could not be completed successfully.
         """
-        # Make sure the 'source' paths are in the "internal bytestring" format.
-        # The is-None-check below is for unit tests that pass a None 'source'.
-        if source is not None and not isinstance(source, FileObject):
-            sanity.check_internal_bytestring(source)
+        sanity.check_isinstance(fileobject, FileObject)
 
-        extracted_data = self.execute(source, **kwargs)
+        extracted_data = self.execute(fileobject, **kwargs)
         return extracted_data
 
     @classmethod
@@ -127,15 +123,13 @@ class BaseExtractor(object):
         def _undefined(attribute):
             return attribute == C.UNDEFINED_MEOWURI_PART
 
-        if _undefined(cls.MEOWURI_NODE):
-            _node = cls.__module__.split('.')[-2]
-        else:
-            _node = cls.MEOWURI_NODE
+        _node = cls.MEOWURI_NODE
+        if _undefined(_node):
+            _node = cls._meowuri_node_from_module_name()
 
-        if _undefined(cls.MEOWURI_LEAF):
-            _leaf = cls.__module__.split('.')[-1]
-        else:
-            _leaf = cls.MEOWURI_LEAF
+        _leaf = cls.MEOWURI_LEAF
+        if _undefined(_leaf):
+            _leaf = cls._meowuri_leaf_from_module_name()
 
         return '{root}{sep}{node}{sep}{leaf}'.format(
             root=C.MEOWURI_ROOT_SOURCE_EXTRACTORS, sep=C.MEOWURI_SEPARATOR,
@@ -143,7 +137,28 @@ class BaseExtractor(object):
         )
 
     @classmethod
-    def can_handle(cls, file_object):
+    def _meowuri_node_from_module_name(cls):
+        try:
+            _name = cls.__module__.split('.')[-2]
+
+            # De-pluralize; 'extractors' --> 'extractor', etc.
+            if _name.endswith('s'):
+                return _name[:-1]
+            else:
+                return _name
+
+        except LookupError:
+            return C.UNDEFINED_MEOWURI_PART
+
+    @classmethod
+    def _meowuri_leaf_from_module_name(cls):
+        try:
+            return cls.__module__.split('.')[-1]
+        except LookupError:
+            return C.UNDEFINED_MEOWURI_PART
+
+    @classmethod
+    def can_handle(cls, fileobject):
         """
         Tests if a specific extractor class can handle a given file object.
 
@@ -155,7 +170,7 @@ class BaseExtractor(object):
         a given file object.
 
         Args:
-            file_object: The file to test as an instance of 'FileObject'.
+            fileobject: The file to test as an instance of 'FileObject'.
 
         Returns:
             True if the extractor class can extract data from the given file,
@@ -168,14 +183,14 @@ class BaseExtractor(object):
             )
 
         try:
-            return util.eval_magic_glob(file_object.mime_type,
+            return util.eval_magic_glob(fileobject.mime_type,
                                         cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
             raise ExtractorError(
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
             )
 
-    def execute(self, source, **kwargs):
+    def execute(self, fileobject, **kwargs):
         """
         Extracts and returns data using a specific extractor.
 
@@ -194,9 +209,8 @@ class BaseExtractor(object):
         expected type. The type coercers in 'types.py' could be useful here.
 
         Args:
-            source: Source of data from which to extract information as a
-                byte string path (internal path format). A special case is the
-                'CrossPlatformFileSystemExtractor' that expects a 'FileObject'.
+            fileobject: Source of data from which to extract information as an
+                        instance of 'FileObject'.
 
         Returns:
             All data produced gathered by the extractor as a dict keyed by

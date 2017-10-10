@@ -43,7 +43,8 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     def __init__(self):
         super(JpeginfoMetadataExtractor, self).__init__()
 
-    def execute(self, source, **kwargs):
+    def execute(self, fileobject, **kwargs):
+        source = fileobject.abspath
         _metadata = self._get_metadata(source)
         return _metadata
 

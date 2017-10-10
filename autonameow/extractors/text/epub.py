@@ -36,9 +36,9 @@ class EpubTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(EpubTextExtractor, self).__init__()
 
-    def _get_text(self, source):
+    def _get_text(self, fileobject):
         self.log.debug('Extracting raw text from EPUB file ..')
-        result = extract_text_with_epubzilla(source)
+        result = extract_text_with_epubzilla(fileobject.abspath)
         return result
 
     @classmethod

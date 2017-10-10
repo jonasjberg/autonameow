@@ -30,17 +30,17 @@ class ImageAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     HANDLES_MIME_TYPES = ['image/*']
 
-    def __init__(self, file_object, add_results_callback,
-                 request_data_callback):
+    def __init__(self, fileobject, config,
+                 add_results_callback, request_data_callback):
         super(ImageAnalyzer, self).__init__(
-            file_object, add_results_callback, request_data_callback
+            fileobject, config, add_results_callback, request_data_callback
         )
 
         self.exiftool = None
         self.text = None
 
     def run(self):
-        # self.text = self.request_data(self.file_object,
+        # self.text = self.request_data(self.fileobject,
         #                               'extractor.text.ocr.full')
 
         _maybe_text = self.request_any_textual_content()
@@ -85,7 +85,7 @@ class ImageAnalyzer(BaseAnalyzer):
         pass
 
     def _request_exiftool_metadata(self, field):
-        return self.request_data(self.file_object,
+        return self.request_data(self.fileobject,
                                  'extractor.metadata.exiftool.{}'.format(field))
 
     def _get_exif_datetime(self):

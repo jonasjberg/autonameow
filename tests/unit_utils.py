@@ -35,7 +35,9 @@ from core import (
     util
 )
 from core.config import rules
+from core.config.configuration import Configuration
 from core.fileobject import FileObject
+from core.meowuri import MeowURI
 import unit_utils_constants as uuconst
 
 
@@ -106,7 +108,10 @@ def file_exists(file_path):
     Returns:
         True if the file exists, else False.
     """
-    return os.path.isfile(util.syspath(file_path))
+    try:
+        return os.path.isfile(util.syspath(file_path))
+    except (OSError, TypeError, ValueError):
+        return False
 
 
 def dir_exists(dir_path):
@@ -122,7 +127,7 @@ def dir_exists(dir_path):
     _path = util.syspath(dir_path)
     try:
         return os.path.exists(_path) and os.path.isdir(_path)
-    except OSError:
+    except (OSError, TypeError, ValueError):
         return False
 
 
@@ -139,7 +144,7 @@ def path_is_readable(file_path):
     """
     try:
         return os.access(util.syspath(file_path), os.R_OK)
-    except OSError:
+    except (OSError, TypeError, ValueError):
         return False
 
 
@@ -148,9 +153,9 @@ def make_temp_dir():
     Creates and returns a temporary directory.
 
     Returns:
-        A new temporary directory.
+        The path to a new temporary directory, as an "internal" bytestring.
     """
-    return tempfile.mkdtemp()
+    return util.normpath(tempfile.mkdtemp())
 
 
 def make_temporary_file(prefix=None, suffix=None, basename=None):
@@ -219,6 +224,13 @@ def get_mock_fileobject(mime_type=None):
     return FileObject(util.normpath(temp_file))
 
 
+def fileobject_testfile(testfile_basename):
+    """
+    Like 'abspath_testfile' but wraps the result in a 'FileObject' instance.
+    """
+    return FileObject(util.normpath(abspath_testfile(testfile_basename)))
+
+
 def get_mock_empty_extractor_data():
     """
     Returns: Mock extracted (empty) data from an 'Extraction' instance.
@@ -226,91 +238,91 @@ def get_mock_empty_extractor_data():
     return {}
 
 
-def mock_request_data_callback(file_object, label):
-    data = mock_session_data_pool_with_extractor_and_analysis_data(file_object)
+def mock_request_data_callback(fileobject, label):
+    data = mock_session_data_pool_with_extractor_and_analysis_data(fileobject)
     try:
-        d = util.nested_dict_get(data, [file_object, label])
+        d = util.nested_dict_get(data, [fileobject, label])
     except KeyError:
         return None
     else:
         return d
 
 
-def mock_add_results_callback(file_object, label, data):
+def mock_add_results_callback(fileobject, label, data):
     pass
 
 
-def mock_session_data_pool(file_object):
+def mock_session_data_pool(fileobject):
     """
     Returns: Mock session data pool with typical extractor data.
     """
     data = {}
     util.nested_dict_set(data,
-                         [file_object, 'filesystem.basename.full'],
+                         [fileobject, 'filesystem.basename.full'],
                          b'gmail.pdf')
     util.nested_dict_set(data,
-                         [file_object, 'filesystem.basename.extension'],
+                         [fileobject, 'filesystem.basename.extension'],
                          b'pdf.pdf')
     util.nested_dict_set(data,
-                         [file_object, 'filesystem.basename.suffix'],
+                         [fileobject, 'filesystem.basename.suffix'],
                          b'pdf.pdf')
     util.nested_dict_set(data,
-                         [file_object, 'filesystem.pathname.parent'],
+                         [fileobject, 'filesystem.pathname.parent'],
                          b'test_files')
     util.nested_dict_set(data,
-                         [file_object, 'filesystem.contents.mime_type'],
+                         [fileobject, 'filesystem.contents.mime_type'],
                          'application/pdf')
     util.nested_dict_set(
         data,
-        [file_object, 'extractor.metadata.exiftool.PDF:Creator'],
+        [fileobject, uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR],
         'Chromium'
     )
     util.nested_dict_set(
         data,
-        [file_object, 'extractor.metadata.exiftool'],
+        [fileobject, 'extractor.metadata.exiftool'],
         {'File:MIMEType': 'application/bar'}
     )
 
     return data
 
 
-def mock_session_data_pool_empty_analysis_data(file_object):
+def mock_session_data_pool_empty_analysis_data(fileobject):
     data = {}
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filename_analyzer.datetime'],
+                         [fileobject, 'analysis.filename_analyzer.datetime'],
                          [])
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filename_analyzer.tags'],
+                         [fileobject, 'analysis.filename_analyzer.tags'],
                          [])
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filename_analyzer.title'],
+                         [fileobject, 'analysis.filename_analyzer.title'],
                          [])
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filesystem_analyzer.datetime'],
+                         [fileobject, 'analysis.filesystem_analyzer.datetime'],
                          [])
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filesystem_analyzer.tags'],
+                         [fileobject, 'analysis.filesystem_analyzer.tags'],
                          [])
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filesystem_analyzer.title'],
+                         [fileobject, 'analysis.filesystem_analyzer.title'],
                          [])
     return data
 
 
-def mock_session_data_pool_with_analysis_data(file_object):
+def mock_session_data_pool_with_analysis_data(fileobject):
     data = {}
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filename_analyzer.tags'],
+                         [fileobject, 'analysis.filename_analyzer.tags'],
                          [{'source': 'filenamepart_tags',
                            'value': ['tagfoo', 'tagbar'],
                            'weight': 1}])
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filename_analyzer.title'],
+                         [fileobject, 'analysis.filename_analyzer.title'],
                          [{'source': 'filenamepart_base',
                            'value': 'gmail',
                            'weight': 0.25}])
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filesystem_analyzer.datetime'],
+                         [fileobject, 'analysis.filesystem_analyzer.datetime'],
                          [{'source': 'modified',
                            'value': datetime(2017, 6, 12, 22, 38, 34),
                            'weight': 1},
@@ -323,57 +335,57 @@ def mock_session_data_pool_with_analysis_data(file_object):
     return data
 
 
-def mock_session_data_pool_with_extractor_and_analysis_data(file_object):
+def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
     data = {}
     util.nested_dict_set(data,
-                         [file_object, 'filesystem.basename.full'],
+                         [fileobject, 'filesystem.basename.full'],
                          b'gmail.pdf')
     util.nested_dict_set(data,
-                         [file_object, 'filesystem.basename.extension'],
+                         [fileobject, 'filesystem.basename.extension'],
                          b'pdf.pdf')
     util.nested_dict_set(data,
-                         [file_object, 'filesystem.basename.suffix'],
+                         [fileobject, 'filesystem.basename.suffix'],
                          b'pdf.pdf')
     util.nested_dict_set(data,
-                         [file_object, 'filesystem.pathname.parent'],
+                         [fileobject, 'filesystem.pathname.parent'],
                          b'test_files')
     util.nested_dict_set(data,
-                         [file_object, 'filesystem.contents.mime_type'],
+                         [fileobject, 'filesystem.contents.mime_type'],
                          'application/pdf')
     util.nested_dict_set(
         data,
-        [file_object, 'extractor.metadata.exiftool.PDF:Creator'],
+        [fileobject, uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR],
         'Chromium'
     )
     util.nested_dict_set(
         data,
-        [file_object, 'extractor.metadata.exiftool'],
+        [fileobject, 'extractor.metadata.exiftool'],
         {'File:MIMEType': 'application/bar'}
     )
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filename_analyzer.tags'],
+                         [fileobject, 'analysis.filename_analyzer.tags'],
                          [{'source': 'filenamepart_tags',
                            'value': ['tagfoo', 'tagbar'],
                            'weight': 1}])
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filetags.tags'],
+                         [fileobject, 'analysis.filetags.tags'],
                          [])
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filetags.description'],
+                         [fileobject, 'analysis.filetags.description'],
                          'gmail')
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filetags.extension'],
+                         [fileobject, 'analysis.filetags.extension'],
                          'pdf')
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filetags.timestamp'],
+                         [fileobject, 'analysis.filetags.timestamp'],
                          None)
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filename_analyzer.title'],
+                         [fileobject, 'analysis.filename_analyzer.title'],
                          [{'source': 'filenamepart_base',
                            'value': 'gmail',
                            'weight': 0.25}])
     util.nested_dict_set(data,
-                         [file_object, 'analysis.filesystem_analyzer.datetime'],
+                         [fileobject, 'analysis.filesystem_analyzer.datetime'],
                          [{'source': 'modified',
                            'value': datetime(2017, 6, 12, 22, 38, 34),
                            'weight': 1},
@@ -396,7 +408,7 @@ def get_mock_analyzer():
         n += 1
 
 
-def get_named_file_object(basename):
+def get_named_fileobject(basename):
     """
     Returns: A FileObject based on a temporary file with the given basename.
     """
@@ -440,7 +452,7 @@ def get_instantiated_analyzers():
     """
     # NOTE: These are instantiated with a None FileObject, which might be a
     #       problem and is surely not very pretty.
-    return [klass(None, None, None) for klass in
+    return [klass(None, None, None, None) for klass in
             analyzers.get_analyzer_classes()]
 
 
@@ -487,8 +499,10 @@ def get_dummy_rules_to_examine():
 
 
 def get_dummy_rulecondition_instances():
-    return [rules.RuleCondition(meowuri, expression)
-            for meowuri, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS]
+    return [
+        rules.RuleCondition(MeowURI(meowuri_string), expression)
+        for meowuri_string, expression in uuconst.DUMMY_RAW_RULE_CONDITIONS
+    ]
 
 
 def get_dummy_raw_conditions():
@@ -596,3 +610,8 @@ def is_internalbytestring(thing):
     if thing is None:
         return False
     return bool(isinstance(thing, bytes))
+
+
+def get_default_config():
+    _config_path = util.normpath(abspath_testfile('default_config.yaml'))
+    return Configuration.from_file(_config_path)

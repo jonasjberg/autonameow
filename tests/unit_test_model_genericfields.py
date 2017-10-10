@@ -35,6 +35,7 @@ from core.model.genericfields import (
     meowuri_genericfield_map
 )
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestGenericFieldBase(TestCase):
@@ -61,14 +62,14 @@ class TestGenericFieldBase(TestCase):
 class TestGenericFieldStr(TestCase):
     def setUp(self):
         self.klass_expected = [
-            (GenericAuthor, 'generic.metadata.author'),
-            (GenericCreator, 'generic.metadata.creator'),
-            (GenericDateCreated, 'generic.metadata.date_created'),
-            (GenericDateModified, 'generic.metadata.date_modified'),
-            (GenericMimeType, 'generic.contents.mime_type'),
-            (GenericProducer, 'generic.metadata.producer'),
-            (GenericSubject, 'generic.metadata.subject'),
-            (GenericTags, 'generic.metadata.tags'),
+            (GenericAuthor, uuconst.MEOWURI_GEN_METADATA_AUTHOR),
+            (GenericCreator, uuconst.MEOWURI_GEN_METADATA_CREATOR),
+            (GenericDateCreated, uuconst.MEOWURI_GEN_METADATA_DATECREATED),
+            (GenericDateModified, uuconst.MEOWURI_GEN_METADATA_DATEMODIFIED),
+            (GenericMimeType, uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE),
+            (GenericProducer, uuconst.MEOWURI_GEN_METADATA_PRODUCER),
+            (GenericSubject, uuconst.MEOWURI_GEN_METADATA_SUBJECT),
+            (GenericTags, uuconst.MEOWURI_GEN_METADATA_TAGS),
         ]
 
     def test_returns_expected_uri_string(self):

@@ -27,9 +27,10 @@ from analyzers import analyze_filetags
 import unit_utils as uu
 
 
-def get_filetags_analyzer(file_object):
+def get_filetags_analyzer(fileobject):
     return analyze_filetags.FiletagsAnalyzer(
-        file_object,
+        fileobject,
+        uu.get_default_config(),
         add_results_callback=uu.mock_add_results_callback,
         request_data_callback=uu.mock_request_data_callback
     )
@@ -37,11 +38,11 @@ def get_filetags_analyzer(file_object):
 
 class TestFiletagsAnalyzer(TestCase):
     def setUp(self):
-        self.file_object = uu.get_named_file_object('2010-01-31_161251.jpg')
-        self.analyzer = get_filetags_analyzer(self.file_object)
+        self.fileobject = uu.get_named_fileobject('2010-01-31_161251.jpg')
+        self.analyzer = get_filetags_analyzer(self.fileobject)
 
     def test_setup(self):
-        self.assertIsNotNone(self.file_object)
+        self.assertIsNotNone(self.fileobject)
         self.assertIsNotNone(self.analyzer)
 
 

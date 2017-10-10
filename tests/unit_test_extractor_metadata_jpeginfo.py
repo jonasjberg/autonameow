@@ -55,8 +55,9 @@ class TestJpeginfoMetadataExtractorWithImageA(unittest.TestCase):
     def setUp(self):
         self.e = JpeginfoMetadataExtractor()
         self.test_file = uu.abspath_testfile('magic_jpg.jpg')
+        self.test_fileobject = uu.fileobject_testfile('magic_jpg.jpg')
         self.actual_get_metadata = self.e._get_metadata(self.test_file)
-        self.actual_execute = self.e.execute(self.test_file)
+        self.actual_execute = self.e.execute(self.test_fileobject)
 
     def test__get_metadata_returns_expected_type(self):
         self.assertTrue(isinstance(self.actual_get_metadata, dict))
@@ -88,10 +89,10 @@ class TestJpeginfoMetadataExtractorWithImageA(unittest.TestCase):
 @unittest.skipIf(unmet_dependencies, dependency_error)
 class TestJpeginfoMetadataExtractorWithImageB(unittest.TestCase):
     def setUp(self):
-        self.test_file = util.normpath(uu.abspath_testfile('smulan.jpg'))
+        self.test_fileobject = uu.fileobject_testfile('magic_jpg.jpg')
         self.e = JpeginfoMetadataExtractor()
-        self.actual_call = self.e(self.test_file)
-        self.actual_execute = self.e.execute(self.test_file)
+        self.actual_call = self.e(self.test_fileobject)
+        self.actual_execute = self.e.execute(self.test_fileobject)
 
     def test_call_returns_expected_type(self):
         self.assertTrue(isinstance(self.actual_call, dict))
