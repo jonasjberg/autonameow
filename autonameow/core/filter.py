@@ -22,6 +22,8 @@
 import logging
 from datetime import datetime
 
+from core import types
+
 
 log = logging.getLogger(__name__)
 
@@ -43,8 +45,8 @@ class ResultFilter(object):
 
     def configure_filter(self, opts):
         # TODO: [TD0034][TD0035] Fix this and overall filter handling.
-        if opts.filter_ignore_years:
-            for year in opts.filter_ignore_years:
+        if opts.get('filter_ignore_years'):
+            for year in opts.get('filter_ignore_years', []):
                 try:
                     dt = datetime.strptime(str(year), '%Y')
                 except ValueError as e:
@@ -58,23 +60,32 @@ class ResultFilter(object):
             log.debug('Using filter: ignore date/time-information for these'
                       ' years: {}'.format(ignored_years))
 
-        if opts.filter_ignore_to_year:
-            try:
-                dt = datetime.strptime(str(opts.filter_ignore_to_year), '%Y')
-            except ValueError as e:
-                log.warning('Erroneous date format: "{!s}"'.format(e))
+        _filter_ignore_to_year = opts.get('filter_ignore_to_year')
+        if _filter_ignore_to_year:
+            _year_string = types.force_string(_filter_ignore_to_year)
+            if _year_string:
+                try:
+                    dt = datetime.strptime(_year_string, '%Y')
+                except ValueError as e:
+                    log.warning('Erroneous date format: "{!s}"'.format(e))
+                else:
+                    log.debug('Using filter: ignore date/time-information that'
+                              ' predate year {}'.format(dt.year))
+                    self.rules['ignore_before_year'] = dt
             else:
-                log.debug('Using filter: ignore date/time-information that'
-                          ' predate year {}'.format(dt.year))
-                self.rules['ignore_before_year'] = dt
+                log.warning('Expected a non-empty string')
 
-        if opts.filter_ignore_from_year:
-            try:
-                dt = datetime.strptime(str(opts.filter_ignore_from_year),
-                                       '%Y')
-            except ValueError as e:
-                log.warning('Erroneous date format: "{!s}"'.format(e))
+        _filter_ignore_from_year = opts.get('filter_ignore_from_year')
+        if _filter_ignore_from_year:
+            _year_string = types.force_string(_filter_ignore_from_year)
+            if _year_string:
+                try:
+                    dt = datetime.strptime(_year_string, '%Y')
+                except ValueError as e:
+                    log.warning('Erroneous date format: "{!s}"'.format(e))
+                else:
+                    log.debug('Using filter: ignore date/time-information that'
+                              ' follow year {}'.format(dt.year))
+                    self.rules['ignore_after_year'] = dt
             else:
-                log.debug('Using filter: ignore date/time-information that'
-                          ' follow year {}'.format(dt.year))
-                self.rules['ignore_after_year'] = dt
+                log.warning('Expected a non-empty string')

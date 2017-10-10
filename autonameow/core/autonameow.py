@@ -58,44 +58,42 @@ class Autonameow(object):
     Main class to manage a running "autonameow" instance.
     """
 
-    def __init__(self, args):
+    def __init__(self, opts):
         """
         Main program entry point.  Initializes a autonameow instance/session.
 
         Args:
-            args: Option arguments as a list of strings.
+            opts: Dict with parsed options.
         """
-        self._exit_code = C.EXIT_SUCCESS
+        self.opts = opts
 
         # For calculating the total runtime.
         self.start_time = time.time()
 
-        self.args = args        # "Raw" option arguments as list of strings.
-        self.opts = None        # Parsed options returned by argparse.
-
         self.filter = None
         self.active_config = None
+        self._exit_code = C.EXIT_SUCCESS
+
+    def __enter__(self):
+        # TODO: Initialization ..
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # TODO: Shutdown ..
+        pass
 
     def run(self):
-        # Display help/usage information if no arguments are provided.
-        if not self.args:
-            print('Add "--help" to display usage information.')
-            self.exit_program(C.EXIT_SUCCESS)
-
-        # Handle the command line arguments and setup logging.
-        self.opts = options.parse_args(self.args)
-
-        if self.opts.quiet:
+        if self.opts.get('quiet'):
             options.logs.silence()
             cli.silence()
 
         # Display various information depending on verbosity level.
-        if self.opts.verbose or self.opts.debug:
+        if self.opts.get('verbose') or self.opts.get('debug'):
             cli.print_start_info()
 
         # Display startup banner with program version and exit.
-        if self.opts.show_version:
-            cli.print_version_info(verbose=self.opts.verbose)
+        if self.opts.get('show_version'):
+            cli.print_version_info(verbose=self.opts.get('verbose'))
             self.exit_program(C.EXIT_SUCCESS)
 
         # Set up a session repository for this process.
@@ -104,7 +102,7 @@ class Autonameow(object):
         # Check configuration file. If no alternate config file path is
         # provided and no config file is found at default paths; copy the
         # template config and tell the user.
-        if self.opts.config_path:
+        if self.opts.get('config_path'):
             self._load_config_from_alternate_path()
         else:
             if not config.has_config_file():
@@ -122,7 +120,7 @@ class Autonameow(object):
         # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
         self.filter = ResultFilter().configure_filter(self.opts)
 
-        if self.opts.dump_options:
+        if self.opts.get('dump_options'):
             include_opts = {
                 'config_file_path': '"{!s}"'.format(
                     util.displayable_path(config.DefaultConfigFilePath)
@@ -133,22 +131,22 @@ class Autonameow(object):
             }
             options.prettyprint_options(self.opts, include_opts)
 
-        if self.opts.dump_config:
+        if self.opts.get('dump_config'):
             self._dump_active_config_and_exit()
 
-        if self.opts.dump_meowuris:
+        if self.opts.get('dump_meowuris'):
             self._dump_registered_meowuris()
 
         # Handle any input paths/files. Abort early if input paths are missing.
-        if not self.opts.input_paths:
+        if not self.opts.get('input_paths'):
             log.warning('No input files specified ..')
             self.exit_program(C.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
         files_to_process = diskutils.normpaths_from_opts(
-            self.opts.input_paths,
+            self.opts.get('input_paths'),
             self.active_config.options['FILESYSTEM_OPTIONS']['ignore'],
-            self.opts.recurse_paths
+            self.opts.get('recurse_paths')
         )
         log.info('Got {} files to process'.format(len(files_to_process)))
 
@@ -170,7 +168,7 @@ class Autonameow(object):
     def _dump_registered_meowuris(self):
         cli.msg('Registered MeowURIs', style='heading')
 
-        if not self.opts.debug:
+        if not self.opts.get('debug'):
             _meowuris = sorted(repository.SessionRepository.mapped_meowuris)
             for _meowuri in _meowuris:
                 cli.msg(str(_meowuri))
@@ -216,9 +214,9 @@ class Autonameow(object):
 
     def _load_config_from_alternate_path(self):
         log.info('Using configuration file: "{!s}"'.format(
-            util.displayable_path(self.opts.config_path)
+            util.displayable_path(self.opts.get('config_path'))
         ))
-        self.load_config(self.opts.config_path)
+        self.load_config(self.opts.get('config_path'))
 
     def _handle_files(self, file_paths):
         """
@@ -269,16 +267,16 @@ class Autonameow(object):
                 self.exit_code = C.EXIT_WARNING
                 continue
 
-        if self.opts.list_all:
+        if self.opts.get('list_all'):
             log.info('Listing session repository contents ..')
             cli.msg('Session Repository Data', style='heading',
                     add_info_log=True)
             cli.msg(str(repository.SessionRepository))
 
     def _handle_file(self, current_file):
-        should_list_any_results = (self.opts.list_datetime
-                                   or self.opts.list_title
-                                   or self.opts.list_all)
+        should_list_any_results = (self.opts.get('list_datetime')
+                                   or self.opts.get('list_title')
+                                   or self.opts.get('list_all'))
 
         # Extract data from the file.
         required_extractors = repository.get_sources_for_meowuris(
@@ -308,19 +306,19 @@ class Autonameow(object):
         matcher = _run_rule_matcher(current_file, self.active_config)
 
         # Perform actions.
-        if self.opts.mode_automagic:
+        if self.opts.get('mode_automagic'):
             self._perform_automagic_actions(current_file, matcher)
-        elif self.opts.mode_interactive:
+        elif self.opts.get('mode_interactive'):
             # TODO: Create a interactive interface.
             # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
     def _select_nametemplate(self, current_file):
         # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
-        if self.opts.mode_batch:
+        if self.opts.get('mode_batch'):
             # if not rule_matcher.best_match:
             pass
-        elif self.opts.mode_interactive:
+        elif self.opts.get('mode_interactive'):
             pass
 
     def _perform_automagic_actions(self, current_file, rule_matcher):
@@ -328,7 +326,7 @@ class Autonameow(object):
         best_match = None
         name_template = None
 
-        if self.opts.mode_batch:
+        if self.opts.get('mode_batch'):
             if not rule_matcher.best_match:
                 log.warning('No rule matched, name template unknown.')
                 self.exit_code = C.EXIT_WARNING
@@ -389,7 +387,7 @@ class Autonameow(object):
         resolver = Resolver(current_file, name_template)
         resolver.add_known_sources(rule_matcher.best_match.data_sources)
 
-        if self.opts.mode_batch:
+        if self.opts.get('mode_batch'):
             if not resolver.mapped_all_template_fields():
                 log.error('All name template placeholder fields must be '
                           'given a data source; Check the configuration!')
@@ -400,7 +398,7 @@ class Autonameow(object):
 
         # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
         if not resolver.collected_all():
-            if self.opts.mode_batch:
+            if self.opts.get('mode_batch'):
                 log.warning('Unable to populate name.')
                 self.exit_code = C.EXIT_WARNING
                 return
@@ -453,7 +451,7 @@ class Autonameow(object):
         self.do_rename(
             from_path=current_file.abspath,
             new_basename=new_name,
-            dry_run=self.opts.dry_run
+            dry_run=self.opts.get('dry_run')
         )
 
     def exit_program(self, exit_code_):
@@ -467,7 +465,7 @@ class Autonameow(object):
         elapsed_time = time.time() - self.start_time
         self.exit_code = exit_code_
 
-        if self.opts and self.opts.verbose:
+        if self.opts and self.opts.get('verbose'):
             cli.print_exit_info(self.exit_code, elapsed_time)
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))

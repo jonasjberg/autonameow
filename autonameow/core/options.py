@@ -349,7 +349,7 @@ def prettyprint_options(opts, extra_opts):
     """
     COLSEP = ':'
 
-    opts_dict = vars(opts)
+    opts_dict = dict(opts)
     if extra_opts:
         opts_dict.update(extra_opts)
 
