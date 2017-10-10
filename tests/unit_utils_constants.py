@@ -69,6 +69,25 @@ MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE = 'extractor.metadata.exiftool.QuickTime:Cre
 
 MEOWURI_PLU_MSVISION_CAPTION = 'plugin.microsoft_vision.caption'
 
+DUMMY_MAPPED_MEOWURIS = list({
+    'analyzer.document',
+    'analyzer.ebook',
+    'analyzer.filename',
+    'analyzer.filesystem',
+    'analyzer.filetags',
+    'analyzer.image',
+    'analyzer.text',
+    'analyzer.video'
+    'extractor.filesystem.xplat',
+    'extractor.metadata.exiftool',
+    'extractor.metadata.jpeginfo',
+    'extractor.metadata.pypdf',
+    'extractor.text.pdftotext',
+    'extractor.text.plain',
+    'extractor.text.tesseractocr',
+    'plugin.guessit',
+})
+
 
 # Constants used to construct dummy/mock test fixtures.
 DUMMY_RAW_RULE_CONDITIONS = [

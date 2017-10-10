@@ -179,6 +179,18 @@ class MeowURI(object):
 
         return False
 
+    def __contains__(self, item):
+        _self_string = str(self)
+        if isinstance(item, MeowURI):
+            _item_string = str(item)
+            return _self_string.startswith(_item_string)
+        elif isinstance(item, str):
+            if not item.strip():
+                return False
+            return _self_string.startswith(item)
+        else:
+            return False
+
     def __eq__(self, other):
         if isinstance(other, str):
             return str(self) == other

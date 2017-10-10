@@ -211,9 +211,7 @@ class Repository(object):
             return False
 
         resolvable = list(self.mapped_meowuris)
-        # TODO: Use comparion functionality provided by the 'MeowURI' class.
-        _meowuri_string = str(meowuri)
-        if any([_meowuri_string.startswith(r) for r in resolvable]):
+        if any(r in meowuri for r in resolvable):
             return True
         return False
 
@@ -375,7 +373,7 @@ def map_meowuri_to_source_class(meowuri, includes=None):
     """
     meowuri_class_map = meowuri_class_map_dict()
 
-    # TODO: Use comparion functionality provided by the 'MeowURI' class.
+    # TODO: [TD0105] Use functionality provided by the 'MeowURI' class.
     _meowuri_string = str(meowuri)
 
     def _search_source_type(key):
