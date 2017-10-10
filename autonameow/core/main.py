@@ -128,7 +128,7 @@ class Autonameow(object):
                     util.displayable_path(config.DefaultConfigFilePath)
                 ),
                 'cache_directory_path': '"{!s}"'.format(
-                    util.displayable_path(cache.CACHE_DIR_ABSPATH)
+                    util.displayable_path(cache.get_config_cache_path())
                 )
             }
             options.prettyprint_options(self.opts, include_opts)
