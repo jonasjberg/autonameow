@@ -43,6 +43,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0107]` Get platform-specific default paths for persistent storage.
+
 * `[TD0104]` Merge duplicate candidates and re-normalize probabilities.
 
 * `[TD0092]` Add tracking history and ability to "undo" renames.

@@ -29,24 +29,19 @@ from core import (
 import unit_utils as uu
 
 
-class TestCacheConstants(TestCase):
+class TestCacheDirectory(TestCase):
     def test_cache_dir_abspath(self):
-        p = cache.DEFAULT_CACHE_DIR_ABSPATH
+        p = cache.get_config_cache_path()
         self.assertIsNotNone(p)
         self.assertTrue(uu.is_internalbytestring(p))
 
-    def test_default_cache_directory_root_exists(self):
-        d = cache.DEFAULT_CACHE_DIRECTORY_ROOT
-        self.assertTrue(uu.dir_exists(d))
-        self.assertTrue(uu.path_is_readable(d))
-
     def test_cache_dir_abspath_is_readable_directory(self):
-        d = cache.DEFAULT_CACHE_DIR_ABSPATH
+        d = cache.get_config_cache_path()
         self.assertTrue(uu.dir_exists(d))
         self.assertTrue(uu.path_is_readable(d))
 
     def test_cache_dir_abspath_is_directory(self):
-        d = cache.DEFAULT_CACHE_DIR_ABSPATH
+        d = cache.get_config_cache_path()
         self.assertTrue(uu.dir_exists(d))
         self.assertTrue(uu.path_is_readable(d))
 

@@ -19,7 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import os
+
+from core.util import diskutils
+
 
 try:
     from prompt_toolkit import prompt
@@ -53,31 +57,35 @@ from core.meowuri import MeowURI
 from core.ui import cli
 
 
+log = logging.getLogger(__name__)
+
+
 def get_config_history_path():
     _active_config = config.ActiveConfig
     if not _active_config:
-        return DEFAULT_HISTORY_FILE_ABSPATH
+        return C.DEFAULT_HISTORY_FILE_ABSPATH
 
     try:
-        _history_path = _active_config.get(['PERSISTENCE', 'history_directory'])
+        _history_path = _active_config.get(['PERSISTENCE', 'history_file_path'])
     except AttributeError:
         _history_path = None
 
     if _history_path:
-        return _history_path
-    else:
-        return DEFAULT_HISTORY_FILE_ABSPATH
+        if diskutils.isfile(_history_path):
+            return _history_path
+        elif diskutils.isdir(_history_path):
+            log.warning('Expected history path to include a file ..')
+            _fixed_path = os.path.join(
+                util.syspath(_history_path),
+                util.syspath(C.DEFAULT_HISTORY_FILE_BASENAME)
+            )
+            if _fixed_path:
+                log.warning('Using fixed history path: "{!s}"'.format(
+                    util.displayable_path(_fixed_path)
+                ))
+                return _fixed_path
 
-
-PERSISTANT_HISTORY_BASENAME = util.encode_('prompt_history')
-DEFAULT_HISTORY_FILE_ABSPATH = util.normpath(
-    os.path.join(
-        util.syspath(cache.DEFAULT_CACHE_DIRECTORY_ROOT),
-        util.syspath(PERSISTANT_HISTORY_BASENAME)
-    )
-)
-assert DEFAULT_HISTORY_FILE_ABSPATH not in (b'', b'/', None)
-assert DEFAULT_HISTORY_FILE_ABSPATH not in (b'', None)
+    return C.DEFAULT_HISTORY_FILE_ABSPATH
 
 
 class MeowURIValidator(Validator):
@@ -114,7 +122,11 @@ class MeowURICompleter(Completer):
 
 
 def meowuri_prompt(message=None):
-    history = FileHistory(PERSISTANT_HISTORY_FILE)
+    _history_file_path = get_config_history_path()
+    log.debug('Using prompt history file: "{!s}"'.format(
+        util.displayable_path(_history_file_path)
+    ))
+    history = FileHistory(_history_file_path)
     meowuri_completer = MeowURICompleter()
 
     cli.msg('\n', ignore_quiet=True)

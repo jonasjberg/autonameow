@@ -35,27 +35,16 @@ from core import (
     util,
     config
 )
+from core import constants as C
 
 
 log = logging.getLogger(__name__)
 
 
-DEFAULT_CACHE_DIRECTORY_ROOT = util.encode_('/tmp')
-DEFAULT_CACHE_DIRECTORY_LEAF = util.encode_('autonameow_cache')
-DEFAULT_CACHE_DIR_ABSPATH = util.normpath(
-    os.path.join(
-        util.syspath(DEFAULT_CACHE_DIRECTORY_ROOT),
-        util.syspath(DEFAULT_CACHE_DIRECTORY_LEAF)
-    )
-)
-assert DEFAULT_CACHE_DIR_ABSPATH not in (b'', b'/', None)
-assert DEFAULT_CACHE_DIR_ABSPATH not in (b'', None)
-
-
 def get_config_cache_path():
     _active_config = config.ActiveConfig
     if not _active_config:
-        return DEFAULT_CACHE_DIR_ABSPATH
+        return C.DEFAULT_CACHE_DIR_ABSPATH
 
     try:
         _cache_path = _active_config.get(['PERSISTENCE', 'cache_directory'])
@@ -66,7 +55,7 @@ def get_config_cache_path():
         return _cache_path
     else:
         # TODO: Duplicate default setting! Already set in 'configuration.py'.
-        return DEFAULT_CACHE_DIR_ABSPATH
+        return C.DEFAULT_CACHE_DIR_ABSPATH
 
 
 class BaseCache(object):
