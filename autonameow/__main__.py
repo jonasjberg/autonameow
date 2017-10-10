@@ -32,7 +32,7 @@ import sys
 import traceback
 
 from core.exceptions import AWAssertionError
-from core.main import Autonameow
+from core.autonameow import Autonameow
 
 if __package__ is None and not hasattr(sys, 'frozen'):
     # It is a direct call to __main__.py

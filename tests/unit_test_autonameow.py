@@ -49,7 +49,7 @@ def prompt_toolkit_unavailable():
 @unittest.skipIf(*prompt_toolkit_unavailable())
 class TestAutonameowWithoutOptions(TestCase):
     def setUp(self):
-        from core.main import Autonameow
+        from core.autonameow import Autonameow
         self.autonameow = Autonameow('')
         self.autonameow.exit_program = mock.MagicMock()
 
@@ -71,7 +71,7 @@ class TestAutonameowWithoutOptions(TestCase):
 @unittest.skipIf(*prompt_toolkit_unavailable())
 class TestSetAutonameowExitCode(TestCase):
     def setUp(self):
-        from core.main import Autonameow
+        from core.autonameow import Autonameow
         self.amw = Autonameow('')
         self.expected_initial = C.EXIT_SUCCESS
 
@@ -108,7 +108,7 @@ class TestSetAutonameowExitCode(TestCase):
 @unittest.skipIf(*prompt_toolkit_unavailable())
 class TestDoRename(TestCase):
     def setUp(self):
-        from core.main import Autonameow
+        from core.autonameow import Autonameow
         self.amw = Autonameow('')
         self.assertIsNotNone(self.amw)
 
