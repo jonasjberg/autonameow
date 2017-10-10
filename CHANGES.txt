@@ -1,3 +1,193 @@
+2017-10-10  [autonameow v0.4.9]
+            Includes changes to the configuration file syntax as well
+            as refactoring and various fixes of existing functionality.
+
+            Additions:
+            - Add additional MIME-type to extension mappings.
+            - Add 'util/checksum.py' with hashing functions.
+            - Add attribute 'bytesize' to the 'FileObject' class.
+              The attribute is evaluated only at first access, storing the
+              result for future access.
+              Uses 'UNKNOWN_BYTESIZE' if the stat-call fails, which might not
+              be such a good idea ..
+            - Modify hashing 'FileObject' instances.
+
+              Adds using the "partial" cryptographic hash when hashing
+              instances of 'FileObject'.
+
+              When combined with the other attributes used in computing the
+              hash, this addition greatly reduces the risk for unwanted hash
+              collisions in practical usage.
+
+              Although, this should probably still be extended with the WAY
+              WAAY SLOWER method of hashing the entire file for critical
+              applications.
+
+            - Add 'makedirs()' to 'diskutils.py'.
+            - [TD0103] Add class 'ISBNMetadata' to do ISBN "de-duplication".
+            - Add 'remove_ignored_textlines()' to 'analyze_ebook.py'.
+            - Implement 'get_edition()' in the 'FilenameAnalyzer'.
+              Returns any found editions as integers wrapped in 'ExtractedData'
+              instances.  This should be consolidated with similar pattern
+              matching of probable editions in plain text done in the
+              'EbookAnalyzer'.
+            - Add attribute 'hash_partial' to 'FileObject'.
+              This could be used for non-critical comparisons and generating
+              practically unique identifiers. The only reason for hashing only
+              parts of the files is performance.
+            - Implement 'delete()' in the 'BaseCache' class. Adds tests.
+            - Bind configuration field parsers to "generic" fields.
+            - [TD0097] Add changing persistence options in the config.
+              Adds a new section to the configuration file.
+
+              This new section allow specifying paths for the caching system as
+              well as the interactive prompt history.
+
+                  PERSISTENCE:
+                      cache_directory: null
+                      history_directory: null
+
+              If omitted or left empty, default values will be substituted.
+
+              NOTE: Default values are always '/tmp/autonameow_cache' and
+                    should be made platform-independent at some point.
+
+            Changes:
+            - Modify format of '--dump-meowuris' output.
+            - Factor out getting MeowURI parts from modules.
+              Moves getting MeowURI parts to functions with added
+              error-checking.
+            - Pass extractors 'FileObject', not bytestrings.
+
+              Replaces bytestring extractor sources with instances of
+              'FileObject'.
+              Extractors have been passed sources as absolute bytestring paths.
+              The 'FileObject' instance has the equivalent absolute path stored
+              as an attribute, and hopefully provides additional advantages.
+
+              This is motivated by replacing identifiers used by the caching
+              system as keys into the cached data. When the extractors were
+              passed only an absolute path to the source, they would have to
+              make an extra call to get some kind of checksum from the path, to
+              use as the cache key.
+
+              By passing instances of 'FileObject', a reused method for getting
+              a file hash can be utilized. This is probably the '__hash__'
+              method or a separate hashing method in the 'FileObject' class.
+            - Refactor unit tests.
+            - [TD0098] Use 'FileObject' hash as cache keys.
+
+              Fixes cache using absolute paths as keys when storing data.
+
+              Adds using hashes provided by 'FileObject' as keys when caching
+              data.  Replaces bytestring extractor sources with instances of
+              'FileObject'.
+
+              Extractors have been passed sources as absolute bytestring paths.
+              By passing instances of 'FileObject', their hashing methods are
+              implicitly utilized.
+
+              This reduces the risk of retrieving wrong data from the cache,
+              which could happen quite frequently with the old method,
+              considering how for instance downloaded files often end up in the
+              same directory, using some default basename.
+
+            - Simplify output of '--version'.
+              Now prints the bare version if not running with '--verbose'.
+
+            - Add new section 'NAME_TEMPLATE_FIELDS' to config.
+
+              Adds a new section 'Name Template Fields' where the user can list
+              known good candidates for fields along with search patterns.
+
+              For instance, the publisher field lists user-defined book
+              publisher names along with a list of patterns that if matched,
+              would be replaced with the publisher name.
+
+              The default configuration contains the new section:
+
+                  NAME_TEMPLATE_FIELDS:
+                      publisher:
+                          patterns:
+                              FeedBooks:
+                              - This book is brought to you by Feedbooks
+                              - http://www.feedbooks.com
+                              ProjectGutenberg:
+                              - Project Gutenberg
+                              - www.gutenberg.net
+
+            - Add searching text for publisher in 'DocumentAnalyzer'.
+              Adds searching with 'NAME_TEMPLATE_FIELDS' patterns.
+              Uses the user-defined patterns in the configuration file.
+              Example;
+
+                  NAME_TEMPLATE_FIELDS:
+                      publisher:
+                          candidates:
+                              ProjectGutenberg:
+                              - Project Gutenberg
+                              - www.gutenberg.net
+
+              The publisher 'ProjectGutenberg' would be used if the document
+              text matches any of specified patterns when used as
+              case-insensitive regular expressions.
+
+            - Add passing the 'Configuration' instance to all analyzers.
+            - Modify configuration syntax and default config.
+              Replaces name template field section 'patterns' with
+              'candidates'.
+            - Add skipping exiftool tags in 'IGNORED_EXIFTOOL_TAGNAMES'.
+            - Replace paths with 'FileObject.hash_partial' in log messages.
+            - Start integrating the 'MeowURI' class.
+              Modifies configuration parsing to use 'MeowURI' instances.
+
+              Adds (WIP) integration of the 'MeowURI' class.
+              This should provide a couple of benefits:
+
+              1. All MeowURI validation is handled by the class.
+                 It is currently spread out everywhere, a lot of type-checking
+                 and tests can probably be removed if the concept of a MeowURI
+                 is well encapsulated by the class.
+              2. Remove hardcoded strings.
+                 Makes for hopefully easier future syntax changes.
+              3. Better introspection, the MeowURIs themselves provide
+                 information on what kind they are, what kind of resources they
+                 refer to, etc. Should mean less redundancy.
+
+              This commit also includes a bunch of other changes due to the fact
+              that a lot of the unit tests had to be modified after these changes.
+            - Move ordinal regular expressions to 'textutils.py'.
+              Adds utility function 'compiled_ordinal_regexes()'.
+
+              Adds utility function for getting compiled regexes for matching
+              ordinals to 'textutils.py' and removes similar patterns from
+              'analyze_filename.py'.
+
+            Fixes:
+            - Add various fixes and cleanup 'analyze_document.py'.
+            - Add sanity checking types in 'Resolver'.
+            - Fix crashing due to missing None-checks in 'FilenameAnalyzer'.
+            - Improve robustness of 'unit_utils.py' functions.
+            - Improve the caching system init and error handling.
+              Adds creating the cache directory if it does not exist.
+              Fixes uncaught 'CacheError' and  modifies the using extractors to
+              not abort the extraction if the cache is unavailable.
+            - Remove 'deepcopy' of rules in 'RuleMatcher'.
+              This was necessary when the 'Rule' class kept scores and other
+              state that would be modified between 'RuleMatcher' evaluations of
+              different files. This is no longer the case, so this should not
+              be needed and does in fact not seem to be needed after a cursory
+              glance.
+            - Fix 'ColumnFormatter' max column width.
+            - Cleanup name formatting functions in 'textutils.py'.
+            - Fix bug in calculating probability in 'DocumentAnalyzer'.
+            - Add workaround for [TD0084] in 'exiftool.py'.
+            - Disable adding redundant results in 'DocumentAnalyzer'.
+              References TODO-list item [TD0102].
+            - Add reworked (still somewhat WIP) 'pre-assemble-format'.
+            - Fix bugs in searching filenames for probable editions.
+
+
 2017-10-05  [autonameow v0.4.8]
             Adds first implementation of an "interactive" mode with a
             MeowURI-prompt. Contains major rework of the 'Resolver' and
