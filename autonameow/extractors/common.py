@@ -119,7 +119,7 @@ class BaseExtractor(object):
         return extracted_data
 
     @classmethod
-    def meowuri(cls):
+    def meowuri_prefix(cls):
         def _undefined(attribute):
             return attribute == C.UNDEFINED_MEOWURI_PART
 

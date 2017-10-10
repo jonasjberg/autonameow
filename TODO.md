@@ -35,11 +35,15 @@ High Priority
 
 * `[TD0102]` Fix inconsistencies in results passed back by analyzers.
 
+* `[TD0106]` Fix inconsistencies in results passed back by extractors.
+
 * `[TD0087]` Clean up messy and sometimes duplicated wrapping of "raw" data.
 
 
 Medium Priority
 ---------------
+
+* `[TD0107]` Get platform-specific default paths for persistent storage.
 
 * `[TD0104]` Merge duplicate candidates and re-normalize probabilities.
 

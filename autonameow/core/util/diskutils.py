@@ -24,6 +24,7 @@ import itertools
 import logging
 import os
 import re
+import tempfile
 
 from core import (
     exceptions,
@@ -498,5 +499,41 @@ def delete(path, ignore_missing=False):
 
     try:
         os.remove(util.syspath(p))
+    except OSError as e:
+        raise exceptions.FilesystemError(e)
+
+
+def exists(path):
+    try:
+        return os.path.exists(util.syspath(path))
+    except (OSError, TypeError, ValueError) as e:
+        raise exceptions.FilesystemError(e)
+
+
+def isfile(path):
+    try:
+        return os.path.isfile(util.syspath(path))
+    except (OSError, TypeError, ValueError) as e:
+        raise exceptions.FilesystemError(e)
+
+
+def isdir(path):
+    try:
+        return os.path.isdir(util.syspath(path))
+    except (OSError, TypeError, ValueError) as e:
+        raise exceptions.FilesystemError(e)
+
+
+def tempdir():
+    """
+    Creates and returns a temporary directory.
+
+    Returns:
+        The path to a new temporary directory, as an "internal" bytestring.
+    Raises:
+        FilesystemError: The directory could not be created.
+    """
+    try:
+        return util.normpath(tempfile.mkdtemp())
     except OSError as e:
         raise exceptions.FilesystemError(e)

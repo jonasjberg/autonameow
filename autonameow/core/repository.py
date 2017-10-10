@@ -76,9 +76,7 @@ class Repository(object):
         self._log_string_class_map()
 
         # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
-        self.mapped_meowuris = unique_map_meowuris(
-            self.meowuri_class_map
-        )
+        self.mapped_meowuris = unique_map_meowuris(self.meowuri_class_map)
 
     def _log_string_class_map(self):
         for key in self.meowuri_class_map.keys():
@@ -211,9 +209,7 @@ class Repository(object):
             return False
 
         resolvable = list(self.mapped_meowuris)
-        # TODO: Use comparion functionality provided by the 'MeowURI' class.
-        _meowuri_string = str(meowuri)
-        if any([_meowuri_string.startswith(r) for r in resolvable]):
+        if any(r in meowuri for r in resolvable):
             return True
         return False
 
@@ -347,10 +343,10 @@ def unique_map_meowuris(meowuri_class_map):
 
     # for key in ['extractors', 'analyzer', 'plugin'] ..
     for key in meowuri_class_map.keys():
-        for meowuri in meowuri_class_map[key].keys():
-            sanity.check(not isinstance(meowuri, list),
+        for _meowuri in meowuri_class_map[key].keys():
+            sanity.check(not isinstance(_meowuri, list),
                          'Unexpectedly got "meowuri" of type list')
-            out.add(meowuri)
+            out.add(_meowuri)
 
     return out
 
@@ -375,7 +371,7 @@ def map_meowuri_to_source_class(meowuri, includes=None):
     """
     meowuri_class_map = meowuri_class_map_dict()
 
-    # TODO: Use comparion functionality provided by the 'MeowURI' class.
+    # TODO: [TD0105] Use functionality provided by the 'MeowURI' class.
     _meowuri_string = str(meowuri)
 
     def _search_source_type(key):

@@ -146,7 +146,7 @@ def map_meowuri_to_extractors():
     out = {}
 
     for klass in ExtractorClasses:
-        _meowuri = klass.meowuri()
+        _meowuri = klass.meowuri_prefix()
         if not _meowuri:
             continue
 

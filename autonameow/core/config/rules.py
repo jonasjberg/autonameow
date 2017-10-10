@@ -316,8 +316,8 @@ class Rule(object):
         for condition in self.conditions:
             unique_meowuris.add(condition.meowuri)
 
-        for _, meowuri in self.data_sources.items():
-            unique_meowuris.add(meowuri)
+        for _, _meowuri in self.data_sources.items():
+            unique_meowuris.add(_meowuri)
 
         return unique_meowuris
 
@@ -483,12 +483,12 @@ def parse_conditions(raw_conditions):
     try:
         for meowuri_string, expression_string in raw_conditions.items():
             try:
-                meowuri = MeowURI(meowuri_string)
+                _meowuri = MeowURI(meowuri_string)
             except exceptions.InvalidMeowURIError as e:
                 raise exceptions.ConfigurationSyntaxError(e)
 
             try:
-                valid_condition = get_valid_rule_condition(meowuri,
+                valid_condition = get_valid_rule_condition(_meowuri,
                                                            expression_string)
             except exceptions.InvalidRuleError as e:
                 raise exceptions.ConfigurationSyntaxError(e)
@@ -542,20 +542,20 @@ def parse_data_sources(raw_sources):
 
         for meowuri_string in raw_meowuri_strings:
             try:
-                meowuri = MeowURI(meowuri_string)
+                _meowuri = MeowURI(meowuri_string)
             except exceptions.InvalidMeowURIError as e:
                 log.warning('Skipped source with invalid MeoWURI: '
                             '"{!s}"; {!s}'.format(meowuri_string, e))
                 continue
 
-            if is_valid_source(meowuri):
+            if is_valid_source(_meowuri):
                 log.debug('Validated source: [{!s}]: {!s}'.format(
-                    tf.as_placeholder(), meowuri
+                    tf.as_placeholder(), _meowuri
                 ))
-                passed[tf] = meowuri
+                passed[tf] = _meowuri
             else:
                 log.debug('Invalid source: [{!s}]: {!s}'.format(
-                    tf.as_placeholder(), meowuri
+                    tf.as_placeholder(), _meowuri
                 ))
 
     log.debug(

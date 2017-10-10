@@ -122,11 +122,11 @@ class BaseAnalyzer(object):
         if data is None:
             return
 
-        meowuri = '{}.{}'.format(self.meowuri(), meowuri_leaf)
+        _meowuri = '{}.{}'.format(self.meowuri_prefix(), meowuri_leaf)
         self.log.debug(
-            '{!s} passing "{}" to "add_results" callback'.format(self, meowuri)
+            '{!s} passing "{}" to "add_results" callback'.format(self, _meowuri)
         )
-        self.add_results(self.fileobject, meowuri, data)
+        self.add_results(self.fileobject, _meowuri, data)
 
     def request_any_textual_content(self):
         _response = self.request_data(self.fileobject,
@@ -154,7 +154,7 @@ class BaseAnalyzer(object):
             )
 
     @classmethod
-    def meowuri(cls):
+    def meowuri_prefix(cls):
         """
         Returns: Analyzer-specific "MeowURI" root/prefix as a Unicode string.
         """
@@ -290,7 +290,7 @@ def map_meowuri_to_analyzers():
     out = {}
 
     for klass in AnalyzerClasses:
-        _meowuri = klass.meowuri()
+        _meowuri = klass.meowuri_prefix()
         if not _meowuri:
             continue
 

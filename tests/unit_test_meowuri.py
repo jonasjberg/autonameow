@@ -399,3 +399,43 @@ class TestEvalMeowURIGlobF(TestCase):
     #     ))
 
 
+class TestMeowURIContains(TestCase):
+    def test_empty_meowuri_returns_false(self):
+        def _aF(test_input):
+            for _dummy_meowuris in uuconst.DUMMY_MAPPED_MEOWURIS:
+                m = MeowURI(_dummy_meowuris)
+                actual = test_input in m
+                self.assertFalse(actual)
+                self.assertTrue(isinstance(actual, bool))
+
+        _aF(None)
+        _aF('')
+
+    def test_invalid_meowuri_returns_false(self):
+        def _aF(test_input):
+            for _dummy_meowuris in uuconst.DUMMY_MAPPED_MEOWURIS:
+                m = MeowURI(_dummy_meowuris)
+                actual = test_input in m
+                self.assertFalse(actual)
+                self.assertTrue(isinstance(actual, bool))
+
+        _aF(1)
+        _aF(1.0)
+        _aF(object())
+        _aF(' ')
+        _aF('  ')
+        _aF('foo')
+
+    def test_subset_returns_true(self):
+        m = MeowURI('extractor.filesystem.xplat.contents.mime_type')
+
+        def _aT(test_input):
+            actual = test_input in m
+            self.assertTrue(actual)
+            self.assertTrue(isinstance(actual, bool))
+
+        _aT('extractor.filesystem.xplat.contents.mime_type')
+        _aT('extractor.filesystem.xplat.contents')
+        _aT('extractor.filesystem.xplat')
+        _aT('extractor.filesystem')
+        _aT('extractor')

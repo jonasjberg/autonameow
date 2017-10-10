@@ -499,11 +499,11 @@ class Configuration(object):
 
         _try_load_persistence_option(
             'cache_directory',
-            cache.DEFAULT_CACHE_DIR_ABSPATH
+            C.DEFAULT_CACHE_DIR_ABSPATH
         )
         _try_load_persistence_option(
-            'history_directory',
-            cache.DEFAULT_CACHE_DIR_ABSPATH
+            'history_file_path',
+            C.DEFAULT_HISTORY_FILE_ABSPATH
         )
 
     def _load_version(self):

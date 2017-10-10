@@ -131,15 +131,15 @@ class MeowURI(object):
         Returns:
             True if any of the given globs matches, else False.
         """
-        meowuri = str(self)
+        _meowuri_string = str(self)
 
-        if not meowuri or not glob_list:
+        if not _meowuri_string or not glob_list:
             return False
 
         if not isinstance(glob_list, list):
             glob_list = [glob_list]
 
-        if meowuri in glob_list:
+        if _meowuri_string in glob_list:
             return True
 
         for glob in glob_list:
@@ -162,22 +162,34 @@ class MeowURI(object):
                 for literal_glob_part in literal_glob_parts:
                     # Put back periods to match whole parts and not substrings.
                     glob_center_part = '.{}.'.format(literal_glob_part)
-                    if glob_center_part in meowuri:
+                    if glob_center_part in _meowuri_string:
                         return True
 
             # First part doesn't matter, check if trailing pieces match.
             if glob.startswith('*.'):
                 stripped_glob = re.sub(r'^\*', '', glob)
-                if meowuri.endswith(stripped_glob):
+                if _meowuri_string.endswith(stripped_glob):
                     return True
 
             # Last part doesn't matter, check if leading pieces match.
             if glob.endswith('.*'):
                 stripped_glob = re.sub(r'\*$', '', glob)
-                if meowuri.startswith(stripped_glob):
+                if _meowuri_string.startswith(stripped_glob):
                     return True
 
         return False
+
+    def __contains__(self, item):
+        _self_string = str(self)
+        if isinstance(item, MeowURI):
+            _item_string = str(item)
+            return _self_string.startswith(_item_string)
+        elif isinstance(item, str):
+            if not item.strip():
+                return False
+            return _self_string.startswith(item)
+        else:
+            return False
 
     def __eq__(self, other):
         if isinstance(other, str):

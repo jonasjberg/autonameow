@@ -205,7 +205,7 @@ DEFAULT_CONFIG = {
     #  Controls how autonameow stores persistent data to disk.
     'PERSISTENCE': {
         'cache_directory': None,
-        'history_directory': None,
+        'history_file_path': None,
     },
 
     #  Custom Post-Processing Options

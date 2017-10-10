@@ -69,3 +69,15 @@ class TestConstants(TestCase):
     def test_constants_contains_analysis_results_fields(self):
         self.assertIsNotNone(C.ANALYSIS_RESULTS_FIELDS)
         self.assertTrue(isinstance(C.ANALYSIS_RESULTS_FIELDS, list))
+
+    def test_default_cache_path(self):
+        p = C.DEFAULT_CACHE_DIR_ABSPATH
+        self.assertTrue(uu.is_internalbytestring(p))
+        self.assertTrue(uu.is_abspath(p))
+        self.assertFalse(uu.file_exists(p))
+
+    def test_default_history_path(self):
+        p = C.DEFAULT_HISTORY_FILE_ABSPATH
+        self.assertTrue(uu.is_internalbytestring(p))
+        self.assertTrue(uu.is_abspath(p))
+        self.assertFalse(uu.dir_exists(p))

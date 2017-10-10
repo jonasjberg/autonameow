@@ -97,7 +97,7 @@ class TestPluginClassMeowURIs(TestCase):
     plugin_class_names = [p.__name__ for p in plugins.UsablePlugins]
 
     def setUp(self):
-        self.actual = [k.meowuri() for k in plugins.UsablePlugins]
+        self.actual = [k.meowuri_prefix() for k in plugins.UsablePlugins]
 
     def test_returns_expected_type(self):
         for meowuri in self.actual:
