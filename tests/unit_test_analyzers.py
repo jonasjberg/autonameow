@@ -238,7 +238,7 @@ class TestAnalyzerClassMeowURIs(TestCase):
     analyzer_class_names = [a.__name__ for a in analyzers.AnalyzerClasses]
 
     def setUp(self):
-        self.actual = [a.meowuri() for a in analyzers.AnalyzerClasses]
+        self.actual = [a.meowuri_prefix() for a in analyzers.AnalyzerClasses]
 
     def test_returns_expected_type(self):
         for meowuri in self.actual:

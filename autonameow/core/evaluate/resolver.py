@@ -97,36 +97,36 @@ class Resolver(object):
     def _gather_data(self):
         # TODO: [TD0017] Rethink source specifications relation to source data.
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
-        for field, meowuri in self.data_sources.items():
-            if (field in self.fields_data
-                    and self.fields_data.get(field) is not None):
+        for _field, _meowuri in self.data_sources.items():
+            if (_field in self.fields_data
+                    and self.fields_data.get(_field) is not None):
                 log.debug('Skipping previously gathered data for field '
-                          '"{!s}"'.format(field))
+                          '"{!s}"'.format(_field))
                 continue
 
-            if not meowuri:
+            if not _meowuri:
                 log.debug(
                     'Resolver attempted to gather data with empty MeowURI!'
                 )
                 continue
 
             log.debug('Gathering data for field "{!s}" from source [{:8.8}]->'
-                      '[{!s}]'.format(field, self.file.hash_partial, meowuri))
-            _data = self._request_data(self.file, meowuri)
+                      '[{!s}]'.format(_field, self.file.hash_partial, _meowuri))
+            _data = self._request_data(self.file, _meowuri)
             if _data is not None:
                 log.debug('Got data "{!s}" ({})'.format(_data, type(_data)))
-                log.debug('Updated data for field "{!s}"'.format(field))
-                self.fields_data[field] = _data
+                log.debug('Updated data for field "{!s}"'.format(_field))
+                self.fields_data[_field] = _data
             else:
                 log.debug('Got NONE data for [{:8.8}]->"{!s}"'.format(
-                    self.file.hash_partial, meowuri)
+                    self.file.hash_partial, _meowuri)
                 )
 
                 # Remove the source that returned None data.
                 log.debug(
-                    'Removing source "{!s}"'.format(self.data_sources[field])
+                    'Removing source "{!s}"'.format(self.data_sources[_field])
                 )
-                self.data_sources[field] = None
+                self.data_sources[_field] = None
 
     def _verify_types(self):
         for field, data in self.fields_data.items():

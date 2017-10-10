@@ -103,7 +103,7 @@ def map_meowuri_to_plugins():
     out = {}
 
     for klass in UsablePlugins:
-        _meowuri = klass.meowuri()
+        _meowuri = klass.meowuri_prefix()
         if not _meowuri:
             continue
 

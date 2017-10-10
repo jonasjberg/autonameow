@@ -45,14 +45,14 @@ class BasePlugin(object):
         if data is None:
             return
 
-        meowuri = '{}.{}'.format(self.meowuri(), meowuri_leaf)
-        plugin_handler.collect_results(fileobject, meowuri, data)
+        _meowuri = '{}.{}'.format(self.meowuri_prefix(), meowuri_leaf)
+        plugin_handler.collect_results(fileobject, _meowuri, data)
 
     def __call__(self, source, *args, **kwargs):
         self.execute(source)
 
     @classmethod
-    def meowuri(cls):
+    def meowuri_prefix(cls):
         _leaf = cls.__module__.split('_')[0] or cls.MEOWURI_LEAF
 
         return '{root}{sep}{leaf}'.format(

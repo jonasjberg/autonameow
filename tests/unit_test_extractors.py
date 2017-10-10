@@ -247,7 +247,7 @@ class TestExtractorClassMeowURIs(TestCase):
     extractor_class_names = [e.__name__ for e in extractors.ExtractorClasses]
 
     def setUp(self):
-        self.actual = [k.meowuri() for k in extractors.ExtractorClasses]
+        self.actual = [k.meowuri_prefix() for k in extractors.ExtractorClasses]
 
     def test_returns_expected_type(self):
         for meowuri in self.actual:

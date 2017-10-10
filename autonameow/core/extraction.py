@@ -114,12 +114,17 @@ def start(fileobject,
     log.debug('Running {} extractors'.format(len(klasses)))
     for klass in klasses:
         _extractor_instance = klass()
-        try:
-            collect_results(
-                fileobject, klass.meowuri(), _extractor_instance(fileobject)
-            )
-        except ExtractorError as e:
-            log.error(
-                'Halted extractor "{!s}": {!s}'.format(_extractor_instance, e)
-            )
+        if not _extractor_instance:
+            log.critical('Error instantiating extractor "{!s}"!'.format(klass))
             continue
+
+        try:
+            _results = _extractor_instance(fileobject)
+        except ExtractorError as e:
+            log.error('Halted extractor "{!s}": {!s}'.format(
+                _extractor_instance, e
+            ))
+            continue
+        else:
+            _meowuri_prefix = klass.meowuri_prefix()
+            collect_results(fileobject, _meowuri_prefix, _results)
