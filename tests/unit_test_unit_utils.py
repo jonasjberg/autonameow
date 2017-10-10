@@ -233,6 +233,20 @@ class TestUnitUtilityPathIsReadable(TestCase):
             self._check_return(df)
 
 
+class TestUnitUtilityIsAbspath(TestCase):
+    def test_returns_false_for_relative_paths(self):
+        def _aF(test_input):
+            self.assertFalse(uu.is_abspath(test_input))
+
+        _aF(os.path.basename(os.path.dirname(__file__)))
+
+    def test_returns_true_for_relative_paths(self):
+        def _aT(test_input):
+            self.assertTrue(uu.is_abspath(test_input))
+
+        _aT(os.path.dirname(__file__))
+
+
 class TestUnitUtilityMakeTempDir(TestCase):
     def setUp(self):
         self.actual = uu.make_temp_dir()

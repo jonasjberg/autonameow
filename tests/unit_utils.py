@@ -148,6 +148,23 @@ def path_is_readable(file_path):
         return False
 
 
+def is_abspath(path):
+    """
+    Tests whether a given path is an absolute path.
+
+    Args:
+        path: The path to test.
+
+    Returns:
+        True if the path is an absolute path as per 'os.path.isabs(path)'.
+        False for any other case, including errors.
+    """
+    try:
+        return os.path.isabs(util.syspath(path))
+    except (OSError, TypeError, ValueError):
+        return False
+
+
 def make_temp_dir():
     """
     Creates and returns a temporary directory.
