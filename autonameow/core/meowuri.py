@@ -204,8 +204,9 @@ class MeowURI(object):
     def __eq__(self, other):
         if isinstance(other, str):
             return str(self) == other
+        elif isinstance(other, self.__class__):
+            return str(self) == str(other)
         else:
-            # TODO: Implement equality tests
             return False
 
     def __ne__(self, other):

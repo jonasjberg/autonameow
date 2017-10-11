@@ -195,6 +195,22 @@ class TestMeowURIEquality(TestCase):
         self.assertNotEqual(self.a, uuconst.MEOWURI_GEN_CONTENTS_TEXT)
         self.assertNotEqual(self.a, uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
 
+    def test_compare_with_other_class_instances(self):
+        self.assertNotEqual(self.m, self.a)
+
+        b = MeowURI(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
+        c = MeowURI(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
+        self.assertEqual(b, c)
+
+    def test_compare_with_other_types(self):
+        def _aF(test_input):
+            self.assertNotEqual(self.m, test_input)
+
+        _aF(None)
+        _aF(object())
+        _aF(1)
+        _aF({})
+
 
 class TestEvalMeowURIGlobA(TestCase):
     def setUp(self):
