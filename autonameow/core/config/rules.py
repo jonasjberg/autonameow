@@ -189,17 +189,6 @@ class Rule(object):
     Represents a single rule entry in a loaded configuration.
 
     All data validation happens at 'Rule' init or when setting any attribute.
-
-    Rules are prioritized and sorted by both "score" and "weight".
-
-    - score         Represents how well suited a rule is for a given file.
-                    This value is changed at run-time.
-    - ranking_bias  If multiple rules end up with an equal score, weights are
-                    used to further prioritize as to get a single "winning"
-                    rule. This value is specified in the active configuration.
-
-    Which gives a "normalized" decimal number between 0 and 1 that indicates
-    the ratio of satisfied to unsatisfied conditions.
     """
     def __init__(self, description, exact_match, ranking_bias, name_template,
                  conditions, data_sources):
