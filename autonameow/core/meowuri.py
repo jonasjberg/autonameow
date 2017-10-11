@@ -33,6 +33,9 @@ class MeowURI(object):
     """
     The "meowURI" consist of a lower case words, separated by periods.
     For instance; "contents.mime_type" or "filesystem.basename.extension".
+
+    NOTE: Instances of this class should be immutable, I.E. not modified after
+          instantiation.  Make copies instead of changing the instance state!
     """
     def __init__(self, *args):
         if len(args) == 1:
@@ -66,6 +69,9 @@ class MeowURI(object):
             self._nodes = [MeowURINode(p) for p in _raw_parts]
 
         self._parts = [self._root] + self._nodes + [self._leaf]
+
+        # Lazily computed.
+        self.__cached_str = None
 
     @staticmethod
     def _split(raw_string):
@@ -211,7 +217,10 @@ class MeowURI(object):
         return hash(str(self))
 
     def __str__(self):
-        return C.MEOWURI_SEPARATOR.join(str(p) for p in self._parts)
+        if not self.__cached_str:
+            self.__cached_str = C.MEOWURI_SEPARATOR.join(str(p)
+                                                         for p in self._parts)
+        return self.__cached_str
 
 
 class MeowURINode(object):
