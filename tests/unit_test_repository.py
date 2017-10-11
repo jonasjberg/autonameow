@@ -53,25 +53,25 @@ class TestRepositoryMethodStore(TestCase):
         self.assertEqual(len(self.r), 0)
 
     def test_storing_data_increments_len(self):
-        valid_label = uuconst.VALID_DATA_SOURCES[0]
+        valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
         self.r.store(self.fileobject, valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
     def test_storing_data_with_different_labels_increments_len(self):
-        first_valid_label = uuconst.VALID_DATA_SOURCES[0]
+        first_valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
         self.r.store(self.fileobject, first_valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
-        second_valid_label = uuconst.VALID_DATA_SOURCES[1]
+        second_valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[1]
         self.r.store(self.fileobject, second_valid_label, 'data')
         self.assertEqual(len(self.r), 2)
 
     def test_adding_data_with_same_label_increments_len(self):
-        first_valid_label = uuconst.VALID_DATA_SOURCES[0]
+        first_valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
         self.r.store(self.fileobject, first_valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
-        second_valid_label = uuconst.VALID_DATA_SOURCES[0]
+        second_valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
         self.r.store(self.fileobject, second_valid_label, 'data')
         self.assertEqual(len(self.r), 2)
 
@@ -120,26 +120,26 @@ class TestRepositoryMethodStore(TestCase):
             self.r.store(self.fileobject, '', 'data')
 
     def test_stores_data_with_valid_label(self):
-        valid_labels = uuconst.VALID_DATA_SOURCES[:3]
+        valid_labels = uuconst.DUMMY_MAPPED_MEOWURIS[:3]
         for valid_label in valid_labels:
             self.r.store(self.fileobject, valid_label, 'data')
 
     def test_valid_label_returns_expected_data(self):
-        valid_label = uuconst.VALID_DATA_SOURCES[0]
+        valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
         self.r.store(self.fileobject, valid_label, 'expected_data')
 
         response = self.r.query(self.fileobject, valid_label)
         self.assertEqual(response, 'expected_data')
 
     def test_none_label_raises_exception(self):
-        valid_label = uuconst.VALID_DATA_SOURCES[0]
+        valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
         self.r.store(self.fileobject, valid_label, 'expected_data')
 
         with self.assertRaises(exceptions.InvalidDataSourceError):
             self.r.query(self.fileobject, None)
 
     def test_valid_label_returns_expected_data_multiple_entries(self):
-        valid_label = uuconst.VALID_DATA_SOURCES[0]
+        valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
         self.r.store(self.fileobject, valid_label, 'expected_data_a')
         self.r.store(self.fileobject, valid_label, 'expected_data_b')
 
