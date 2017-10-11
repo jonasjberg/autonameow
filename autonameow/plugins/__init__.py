@@ -105,6 +105,9 @@ def map_meowuri_to_plugins():
     for klass in UsablePlugins:
         _meowuri = klass.meowuri_prefix()
         if not _meowuri:
+            log.error(
+                'Got None from "{!s}.meowuri_prefix()"'.format(klass.__name__)
+            )
             continue
 
         if _meowuri in out:
