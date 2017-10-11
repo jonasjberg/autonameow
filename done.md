@@ -17,6 +17,8 @@ University mail: `js224eh[a]student.lnu.se`
     >
     > * `[TD0039]` Do not include the rule attribute `score` when listing the
     >   configuration with `--dump-config`.
+    >
+    > * `[TD0038]` Add new name format placeholder field `{year}`.
 
 * 2017-10-10
 

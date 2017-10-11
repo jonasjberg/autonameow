@@ -191,8 +191,6 @@ Low Priority
     * Allow specifying allowed tags in the configuration?
     * Allow specifying mutually exclusive tags in the configuration?
 
-* `[TD0038]` Add new name format placeholder field `{year}`.
-
 * `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF
   GPS data. Look into comparing coordinates with the
   [Haversine formula](http://en.wikipedia.org/wiki/Haversine_formula).

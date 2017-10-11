@@ -318,9 +318,22 @@ class Time(NameTemplateField):
         c = kwargs.get('config')
         if c:
             datetime_format = c.options['DATETIME_FORMAT']['time']
-            return formatted_datetime(data, datetime_format)
+            return formatted_datetime(data.value, datetime_format)
         else:
             raise exceptions.NameBuilderError('Unknown "time" format')
+
+
+class Year(NameTemplateField):
+    COMPATIBLE_TYPES = (types.AW_DATE,
+                        types.AW_TIMEDATE,
+                        types.AW_EXIFTOOLTIMEDATE,
+                        types.AW_PYPDFTIMEDATE)
+    MULTIVALUED = False
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        datetime_format = '%Y'
+        return formatted_datetime(data.value, datetime_format)
 
 
 def format_string_placeholders(format_string):
