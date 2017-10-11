@@ -212,6 +212,28 @@ class TestMeowURIEquality(TestCase):
         _aF({})
 
 
+class TestMeowURIComparison(TestCase):
+    def test_less_than_based_on_length(self):
+        a = MeowURI('extractor.filesystem.xplat.basename')
+        b = MeowURI('extractor.filesystem.xplat.contents.full')
+        self.assertTrue(a < b)
+
+    def test_greater_than_based_on_length(self):
+        a = MeowURI('extractor.filesystem.xplat.contents.full')
+        b = MeowURI('extractor.filesystem.xplat.basename')
+        self.assertTrue(a > b)
+
+    def test_less_than_based_on_contents(self):
+        a = MeowURI('extractor.filesystem.xplat.basename')
+        b = MeowURI('extractor.filesystem.xplat.contents')
+        self.assertTrue(a < b)
+
+    def test_greater_than_based_on_contents(self):
+        a = MeowURI('extractor.filesystem.xplat.contents')
+        b = MeowURI('extractor.filesystem.xplat.basename')
+        self.assertTrue(a > b)
+
+
 class TestEvalMeowURIGlobA(TestCase):
     def setUp(self):
         self.g = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)

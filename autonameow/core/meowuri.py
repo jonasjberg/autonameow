@@ -191,7 +191,7 @@ class MeowURI(object):
 
     def __contains__(self, item):
         _self_string = str(self)
-        if isinstance(item, MeowURI):
+        if isinstance(item, self.__class__):
             _item_string = str(item)
             return _self_string.startswith(_item_string)
         elif isinstance(item, str):
@@ -214,9 +214,22 @@ class MeowURI(object):
 
     def __lt__(self, other):
         if isinstance(other, self.__class__):
-            return (self.root < other.root
-                    and self.nodes < other.nodes
-                    and self.leaf < other.leaf)
+            sp = len(self.parts)
+            op = len(other.parts)
+            if sp != op:
+                return sp < op
+            if self.root != other.root:
+                return self.root < other.root
+            if self.nodes != other.nodes:
+                return self.nodes < other.nodes
+            if self.leaf != other.leaf:
+                return self.leaf < other.leaf
+        else:
+            # TODO: Else what?
+            pass
+
+    def __gt__(self, other):
+        return not self < other
 
     def __hash__(self):
         return hash(str(self))
