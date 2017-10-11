@@ -210,7 +210,7 @@ class Author(NameTemplateField):
                     textutils.format_name_lastname_initials(string)
                 )
 
-            return ' '.join(_formatted)
+            return ' '.join(sorted(_formatted))
         else:
             # One author
             return textutils.format_name_lastname_initials(data.value)
