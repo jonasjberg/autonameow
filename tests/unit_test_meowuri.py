@@ -116,6 +116,16 @@ class TestMeowURIStringMatchingFunctions(TestCase):
         _aF('foo.bar.')
         _aF('.foo.bar.')
 
+    def test_full_meowuris(self):
+        def _aT(test_input):
+            actual = is_meowuri_parts(test_input)
+            self.assertTrue(isinstance(actual, bool))
+            self.assertTrue(actual,
+                            'Expected True for "{!s}"'.format(test_input))
+
+        for _valid_meowuri in uuconst.ALL_FULL_MEOWURIS:
+            _aT(_valid_meowuri)
+
 
 class TestMeowURIRoot(TestCase):
     def test_from_valid_input(self):
