@@ -427,85 +427,9 @@ def suitable_field_parser_for(meowuri):
             if meowuri.matchglobs(p.applies_to_meowuri)]
 
 
-def eval_meowuri_glob(meowuri, glob_list):
-    """
-    Evaluates a given "meowURI" against a list of "globs".
-
-    The "meowURI" matching any of the given globs evaluates true.
-
-    The "meowURI" consist of a lower case words, separated by periods.
-    For instance; "contents.mime_type" or "filesystem.basename.extension".
-
-    Globs substitute any of the lower case words with an asterisk,
-    which means that part is ignored during the comparison. Examples:
-
-        meowuri                     glob_list                   evaluates
-        'contents.mime_type'        ['contents.mime_type']      True
-        'contents.foo'              ['foo.*', 'contents.*']     True
-        'foo.bar'                   ['*.*']                     True
-        'filesystem.basename.full'  ['contents.*', '*.parent']  False
-
-    Args:
-        meowuri: The "meowURI" to match as a Unicode string.
-        glob_list: A list of globs as strings.
-
-    Returns:
-        True if the given "meowURI" matches any of the specified globs.
-    """
-    # TODO: [TD0105] Use the method in the 'MeowURI' class instead.
-
-    if not meowuri or not glob_list:
-        return False
-
-    if not isinstance(glob_list, list):
-        glob_list = [glob_list]
-
-    if meowuri in glob_list:
-        return True
-
-    # Split the "meowURI" by periods to a list of strings.
-    meowuri_parts = util.meowuri_list(meowuri)
-
-    for glob in glob_list:
-        glob_parts = glob.split('.')
-
-        # All wildcards match anything.
-        if len([gp for gp in glob_parts if gp == '*']) == len(glob_parts):
-            return True
-
-        # No wildcards, do direct comparison.
-        if '*' not in glob_parts:
-            if glob_parts == meowuri_parts:
-                return True
-            else:
-                continue
-
-        if glob.startswith('*.') and glob.endswith('.*'):
-            # Check if the center piece is a match.
-            literal_glob_parts = [g for g in glob_parts if g != '*']
-            for literal_glob_part in literal_glob_parts:
-                # Put back periods to match whole parts and not substrings.
-                glob_center_part = '.{}.'.format(literal_glob_part)
-                if glob_center_part in meowuri:
-                    return True
-
-        # First part doesn't matter, check if trailing pieces match.
-        if glob.startswith('*.'):
-            stripped_glob = re.sub(r'^\*', '', glob)
-            if meowuri.endswith(stripped_glob):
-                return True
-
-        # Last part doesn't matter, check if leading pieces match.
-        if glob.endswith('.*'):
-            stripped_glob = re.sub(r'\*$', '', glob)
-            if meowuri.startswith(stripped_glob):
-                return True
-
-    return False
-
-
 # Instantiate rule parsers inheriting from the 'Parser' class.
 FieldParserInstances = get_instantiated_field_parsers()
+
 
 RE_VERSION_NUMBER = re.compile(r'v?(\d+)\.(\d+)\.(\d+)')
 

@@ -28,7 +28,7 @@ from core import (
     exceptions,
     util,
 )
-from core.config.field_parsers import eval_meowuri_glob
+from core.meowuri import MeowURI
 from core.model import ExtractedData
 from core.util import (
     sanity,
@@ -261,8 +261,10 @@ class Repository(object):
 
                     if isinstance(v, bytes):
                         temp_list.append(util.displayable_path(v))
-                    elif eval_meowuri_glob(uri, ['generic.contents.text',
-                                                 'extractor.text.*']):
+
+                    # TODO: [TD0105] Integrate the 'MeowURI' class.
+                    elif MeowURI(uri).matchglobs(['generic.contents.text',
+                                                  'extractor.text.*']):
                         # Often *a lot* of text, trim to arbitrary size..
                         _truncated = textutils.truncate_text(v)
                         temp_list.append(_truncated)
@@ -280,9 +282,11 @@ class Repository(object):
 
                 if isinstance(v, bytes):
                     temp[uri] = util.displayable_path(v)
+
                 # Often *a lot* of text, trim to arbitrary size..
-                elif eval_meowuri_glob(uri, ['generic.contents.text',
-                                             'extractor.text.*']):
+                # TODO: [TD0105] Integrate the 'MeowURI' class.
+                elif MeowURI(uri).matchglobs(['generic.contents.text',
+                                              'extractor.text.*']):
                     temp[uri] = textutils.truncate_text(v)
                 else:
                     temp[uri] = str(v)
@@ -296,8 +300,9 @@ class Repository(object):
                         out.append(_fmt_list_entry(_max_len_meowuri, v))
 
             else:
-                if eval_meowuri_glob(uri, ['generic.contents.text',
-                                           'extractor.text.*']):
+                # TODO: [TD0105] Integrate the 'MeowURI' class.
+                if MeowURI(uri).matchglobs(['generic.contents.text',
+                                            'extractor.text.*']):
                     _text = textutils.extract_lines(
                         data, firstline=0, lastline=1
                     )
