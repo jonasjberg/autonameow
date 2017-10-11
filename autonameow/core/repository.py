@@ -324,18 +324,23 @@ class Repository(object):
     #     pass
 
 
+MEOWURI_CLASS_MAP_DICT = {}
+
+
 def meowuri_class_map_dict():
     # The 'MeowURIClassMap' attributes in non-core modules keep
     # references to the available component classes.
     # These are dicts with keys being the "meowURIs" that the respective
     # component uses when storing data and the contained values are lists of
     # classes mapped to the "meowURI".
-    _meowuri_class_map = {
-        'extractor': extractors.MeowURIClassMap,
-        'analyzer': analyzers.MeowURIClassMap,
-        'plugin': plugins.MeowURIClassMap
-    }
-    return _meowuri_class_map
+    global MEOWURI_CLASS_MAP_DICT
+    if not MEOWURI_CLASS_MAP_DICT:
+        MEOWURI_CLASS_MAP_DICT = {
+            'extractor': extractors.MeowURIClassMap,
+            'analyzer': analyzers.MeowURIClassMap,
+            'plugin': plugins.MeowURIClassMap
+        }
+    return MEOWURI_CLASS_MAP_DICT
 
 
 def unique_map_meowuris(meowuri_class_map):
