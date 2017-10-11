@@ -322,7 +322,7 @@ RE_UNICODE_APOSTROPHES = re.compile(
 # \u2019 Right single quotation mark
 # \u201A Single low-9 quotation mark
 # \u201B Single high-reversed-9 quotation mark
-RE_UNICODE_SINGLE_QUOTES = (
+RE_UNICODE_SINGLE_QUOTES = re.compile(
     '[\u0027\u2018\u2019\u201a\u201b]'
 )
 
@@ -331,7 +331,7 @@ RE_UNICODE_SINGLE_QUOTES = (
 # \u201D Right double quotation mark
 # \u201E Double low-9 quotation mark
 # \u201F Double high-reversed-9 quotation mark
-RE_UNICODE_DOUBLE_QUOTES = (
+RE_UNICODE_DOUBLE_QUOTES = re.compile(
     '[\u0022\u201c\u201d\u201e\u201f]'
 )
 
