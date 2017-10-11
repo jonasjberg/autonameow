@@ -199,6 +199,7 @@ EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.
 MEOWURI_NODE_GENERIC = 'generic'
 UNDEFINED_MEOWURI_PART = 'NULL'
 MEOWURI_SEPARATOR = '.'
+RE_ALLOWED_MEOWURI_PART_CHARS = r'[\w:]'
 
 MEOWURI_ROOT_SOURCE_ANALYZERS = 'analyzer'
 MEOWURI_ROOT_SOURCE_EXTRACTORS = 'extractor'

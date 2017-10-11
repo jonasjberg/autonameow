@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import re
 
 from core import (
@@ -29,27 +30,54 @@ from core import constants as C
 from core.exceptions import InvalidMeowURIError
 
 
+log = logging.getLogger(__name__)
+
+
 class MeowURI(object):
     """
-    The "meowURI" consist of a lower case words, separated by periods.
-    For instance; "contents.mime_type" or "filesystem.basename.extension".
+    (Meow) _U_niform _R_esource _I_dentifier
 
-    NOTE: Instances of this class should be immutable, I.E. not modified after
-          instantiation.  Make copies instead of changing the instance state!
+    Instances of this class act as references to "some data".
+    This convention is used throughout the application.
+
+    The "MeowURI" consists of (lower-case?) words, separated by periods.
+
+    Examples:   "generic.metadata.author"
+                "extractor.filesystem.xplat.basename.prefix"
+                "analyzer.filename.datetime"
+
+    NOTE: Assume that instances of this class are immutable once instantiated.
     """
     def __init__(self, *args):
-        if len(args) == 1:
-            _raw_parts = self._split(args[0])
-        else:
-            _raw_parts = list(args)
+        # This mess allows using either 'MeowURI(*args)' or 'MeowURI(args)'.
+        _args_list = []
+        for arg in args:
+            if isinstance(arg, tuple):
+                _args_list.extend([a for a in arg])
+            elif isinstance(arg, list):
+                log.debug('{!s} unexpectedly got list argument'.format(self))
+                _args_list.extend(arg)
+            else:
+                _args_list.append(arg)
+
+        # Normalize into a list of period-separated (Unicode(!)) words ..
+        _raw_parts = []
+        for arg in _args_list:
+            if is_meowuri_parts(arg):
+                _raw_parts.extend(self._split(arg))
+            elif is_meowuri_part(arg):
+                _raw_parts.append(arg)
+            else:
+                raise InvalidMeowURIError('Invalid arg: "{!s}"'.format(arg))
+
+        if not _raw_parts:
+            raise InvalidMeowURIError('Insufficient and/or invalid arguments')
 
         self._raw_parts = _raw_parts
 
-        if not _raw_parts:
-            raise InvalidMeowURIError('Insufficient input')
-
+        _first_part = _raw_parts.pop(0)
         try:
-            self._root = MeowURIRoot(_raw_parts.pop(0))
+            self._root = MeowURIRoot(_first_part)
         except InvalidMeowURIError:
             raise
 
@@ -75,6 +103,8 @@ class MeowURI(object):
 
     @staticmethod
     def _split(raw_string):
+        # TODO: Data has already passed through functions requiring Unicode str
+        #       .. this makes no sense here.  Remove or relocate.
         string = types.force_string(raw_string)
         if not string:
             return []
@@ -302,3 +332,38 @@ class MeowURIRoot(object):
 
 def _normalize_string(string):
     return string.lower().strip()
+
+
+RE_MEOWURI_PART = re.compile(
+    r'^{chars}+$'.format(chars=C.RE_ALLOWED_MEOWURI_PART_CHARS)
+)
+RE_MEOWURI_PARTS = re.compile(
+    r'^{chars}+({sep}{chars}+)+$'.format(chars=C.RE_ALLOWED_MEOWURI_PART_CHARS,
+                                         sep=re.escape(C.MEOWURI_SEPARATOR))
+)
+
+
+def is_meowuri_part(raw_string):
+    """
+    Safely check if an unknown (string) argument is a valid MeowURI part.
+
+    The MeowURI is
+
+    Args:
+        raw_string: The string to test. Types other than Unicode strings fail.
+
+    Returns:
+        True if "raw_string" is a Unicode string and a valid MeowURI part.
+        False for any other case, including errors. Exceptions are suppressed.
+    """
+    try:
+        return bool(RE_MEOWURI_PART.match(raw_string))
+    except (TypeError, ValueError):
+        return False
+
+
+def is_meowuri_parts(string):
+    try:
+        return bool(RE_MEOWURI_PARTS.match(string))
+    except (TypeError, ValueError):
+        return False
