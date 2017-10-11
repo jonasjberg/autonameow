@@ -20,10 +20,11 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
-import unit_utils as uu
 
 import analyzers
 from core import analysis
+import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class TestAnalysis(TestCase):
@@ -52,7 +53,7 @@ class TestAnalysis(TestCase):
             self.assertTrue(issubclass(ac.__class__, analyzers.BaseAnalyzer))
 
     def test_collects_valid_results(self):
-        analysis.collect_results(self.fo, 'filesystem.contents.mime_type',
+        analysis.collect_results(self.fo, uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
                                  'image/jpeg')
 
 

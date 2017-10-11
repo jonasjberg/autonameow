@@ -36,6 +36,21 @@ ASSUMED_NONEXISTENT_BASENAME = b'not_a_file_surely'
 
 
 # Full MeowURIs to various data resources.
+MEOWURI_AZR_FILENAME_DATETIME = 'analyzer.filename.datetime'
+MEOWURI_AZR_FILENAME_PUBLISHER = 'analyzer.filename.publisher'
+MEOWURI_AZR_FILENAME_TAGS = 'analyzer.filename.tags'
+MEOWURI_AZR_FILENAME_TITLE = 'analyzer.filename.title'
+
+MEOWURI_AZR_FILESYSTEM_DATETIME = 'analyzer.filesystem.datetime'
+MEOWURI_AZR_FILESYSTEM_TAGS = 'analyzer.filesystem.tags'
+MEOWURI_AZR_FILESYSTEM_TITLE = 'analyzer.filesystem.title'
+
+MEOWURI_AZR_FILETAGS_DATETIME = 'analyzer.filetags.datetime'
+MEOWURI_AZR_FILETAGS_DESCRIPTION = 'analyzer.filetags.description'
+MEOWURI_AZR_FILETAGS_EXTENSION = 'analyzer.filetags.extension'
+MEOWURI_AZR_FILETAGS_FOLLOWS = 'analyzer.filetags.follows_filetags_convention'
+MEOWURI_AZR_FILETAGS_TAGS = 'analyzer.filetags.tags'
+
 MEOWURI_FS_XPLAT_MIMETYPE = 'extractor.filesystem.xplat.contents.mime_type'
 MEOWURI_FS_XPLAT_ABSPATH_FULL = 'extractor.filesystem.xplat.abspath.full'
 MEOWURI_FS_XPLAT_BASENAME_EXT = 'extractor.filesystem.xplat.basename.extension'
@@ -43,6 +58,7 @@ MEOWURI_FS_XPLAT_BASENAME_FULL = 'extractor.filesystem.xplat.basename.full'
 MEOWURI_FS_XPLAT_BASENAME_PREFIX = 'extractor.filesystem.xplat.basename.prefix'
 MEOWURI_FS_XPLAT_BASENAME_SUFFIX = 'extractor.filesystem.xplat.basename.suffix'
 MEOWURI_FS_XPLAT_PATHNAME_FULL = 'extractor.filesystem.xplat.pathname.full'
+MEOWURI_FS_XPLAT_PATHNAME_PARENT = 'extractor.filesystem.xplat.pathname.parent'
 
 MEOWURI_GEN_CONTENTS_MIMETYPE = 'generic.contents.mime_type'
 MEOWURI_GEN_CONTENTS_TEXT = 'generic.contents.text'
@@ -68,6 +84,7 @@ MEOWURI_EXT_EXIFTOOL_XMPDCTITLE = 'extractor.metadata.exiftool.XMP-dc:Title'
 MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE = 'extractor.metadata.exiftool.QuickTime:CreationDate'
 
 MEOWURI_PLU_MSVISION_CAPTION = 'plugin.microsoft_vision.caption'
+
 
 DUMMY_MAPPED_MEOWURIS = list({
     'analyzer.document',

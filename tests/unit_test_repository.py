@@ -185,10 +185,10 @@ class TestMapMeowURItoSourceClass(TestCase):
 
     def setUp(self):
         self._analyzer_meowURI_sourcemap = [
-            (['analyzer.filetags.datetime',
-              'analyzer.filetags.description',
-              'analyzer.filetags.follows_filetags_convention',
-              'analyzer.filetags.tags'],
+            ([uuconst.MEOWURI_AZR_FILETAGS_DATETIME,
+              uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION,
+              uuconst.MEOWURI_AZR_FILETAGS_FOLLOWS,
+              uuconst.MEOWURI_AZR_FILETAGS_TAGS],
              'FiletagsAnalyzer'),
         ]
         self._extractor_meowURI_sourcemap = [
@@ -284,10 +284,10 @@ class TestMapMeowURItoSourceClass(TestCase):
 class TestGetSourcesForMeowURIs(TestCase):
     def setUp(self):
         self._meowuris_filetags = [
-            'analyzer.filetags.datetime',
-            'analyzer.filetags.description',
-            'analyzer.filetags.follows_filetags_convention',
-            'analyzer.filetags.tags',
+            uuconst.MEOWURI_AZR_FILETAGS_DATETIME,
+            uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION,
+            uuconst.MEOWURI_AZR_FILETAGS_FOLLOWS,
+            uuconst.MEOWURI_AZR_FILETAGS_TAGS,
         ]
         self._meowuris_filesystem = [
             uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT,

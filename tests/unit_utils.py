@@ -274,21 +274,31 @@ def mock_session_data_pool(fileobject):
     Returns: Mock session data pool with typical extractor data.
     """
     data = {}
-    util.nested_dict_set(data,
-                         [fileobject, 'filesystem.basename.full'],
-                         b'gmail.pdf')
-    util.nested_dict_set(data,
-                         [fileobject, 'filesystem.basename.extension'],
-                         b'pdf.pdf')
-    util.nested_dict_set(data,
-                         [fileobject, 'filesystem.basename.suffix'],
-                         b'pdf.pdf')
-    util.nested_dict_set(data,
-                         [fileobject, 'filesystem.pathname.parent'],
-                         b'test_files')
-    util.nested_dict_set(data,
-                         [fileobject, 'filesystem.contents.mime_type'],
-                         'application/pdf')
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL],
+        b'gmail.pdf'
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT],
+        b'pdf.pdf'
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX],
+        b'pdf.pdf'
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_PATHNAME_PARENT],
+        b'test_files'
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_MIMETYPE],
+        'application/pdf'
+    )
     util.nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR],
@@ -305,70 +315,98 @@ def mock_session_data_pool(fileobject):
 
 def mock_session_data_pool_empty_analysis_data(fileobject):
     data = {}
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filename_analyzer.datetime'],
-                         [])
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filename_analyzer.tags'],
-                         [])
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filename_analyzer.title'],
-                         [])
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filesystem_analyzer.datetime'],
-                         [])
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filesystem_analyzer.tags'],
-                         [])
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filesystem_analyzer.title'],
-                         [])
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILENAME_DATETIME],
+        []
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
+        []
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
+        []
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME],
+        []
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_TAGS],
+        []
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_TITLE],
+        []
+    )
     return data
 
 
 def mock_session_data_pool_with_analysis_data(fileobject):
     data = {}
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filename_analyzer.tags'],
-                         [{'source': 'filenamepart_tags',
-                           'value': ['tagfoo', 'tagbar'],
-                           'weight': 1}])
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filename_analyzer.title'],
-                         [{'source': 'filenamepart_base',
-                           'value': 'gmail',
-                           'weight': 0.25}])
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filesystem_analyzer.datetime'],
-                         [{'source': 'modified',
-                           'value': datetime(2017, 6, 12, 22, 38, 34),
-                           'weight': 1},
-                          {'source': 'created',
-                           'value': datetime(2017, 6, 12, 22, 38, 34),
-                           'weight': 1},
-                          {'source': 'accessed',
-                           'value': datetime(2017, 6, 12, 22, 38, 34),
-                           'weight': 0.25}])
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
+        [{'source': 'filenamepart_tags',
+          'value': ['tagfoo', 'tagbar'],
+          'weight': 1}]
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
+        [{'source': 'filenamepart_base',
+          'value': 'gmail',
+          'weight': 0.25}]
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME],
+        [{'source': 'modified',
+          'value': datetime(2017, 6, 12, 22, 38, 34),
+          'weight': 1},
+         {'source': 'created',
+          'value': datetime(2017, 6, 12, 22, 38, 34),
+          'weight': 1},
+         {'source': 'accessed',
+          'value': datetime(2017, 6, 12, 22, 38, 34),
+          'weight': 0.25}]
+    )
     return data
 
 
 def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
     data = {}
-    util.nested_dict_set(data,
-                         [fileobject, 'filesystem.basename.full'],
-                         b'gmail.pdf')
-    util.nested_dict_set(data,
-                         [fileobject, 'filesystem.basename.extension'],
-                         b'pdf.pdf')
-    util.nested_dict_set(data,
-                         [fileobject, 'filesystem.basename.suffix'],
-                         b'pdf.pdf')
-    util.nested_dict_set(data,
-                         [fileobject, 'filesystem.pathname.parent'],
-                         b'test_files')
-    util.nested_dict_set(data,
-                         [fileobject, 'filesystem.contents.mime_type'],
-                         'application/pdf')
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL],
+        b'gmail.pdf'
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT],
+        b'pdf.pdf'
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_BASENAME_SUFFIX],
+        b'pdf.pdf'
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_PATHNAME_PARENT],
+        b'test_files'
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_FS_XPLAT_MIMETYPE],
+        'application/pdf'
+    )
     util.nested_dict_set(
         data,
         [fileobject, uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR],
@@ -379,39 +417,53 @@ def mock_session_data_pool_with_extractor_and_analysis_data(fileobject):
         [fileobject, 'extractor.metadata.exiftool'],
         {'File:MIMEType': 'application/bar'}
     )
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filename_analyzer.tags'],
-                         [{'source': 'filenamepart_tags',
-                           'value': ['tagfoo', 'tagbar'],
-                           'weight': 1}])
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filetags.tags'],
-                         [])
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filetags.description'],
-                         'gmail')
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filetags.extension'],
-                         'pdf')
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filetags.timestamp'],
-                         None)
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filename_analyzer.title'],
-                         [{'source': 'filenamepart_base',
-                           'value': 'gmail',
-                           'weight': 0.25}])
-    util.nested_dict_set(data,
-                         [fileobject, 'analysis.filesystem_analyzer.datetime'],
-                         [{'source': 'modified',
-                           'value': datetime(2017, 6, 12, 22, 38, 34),
-                           'weight': 1},
-                          {'source': 'created',
-                           'value': datetime(2017, 6, 12, 22, 38, 34),
-                           'weight': 1},
-                          {'source': 'accessed',
-                           'value': datetime(2017, 6, 12, 22, 38, 34),
-                           'weight': 0.25}])
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TAGS],
+        [{'source': 'filenamepart_tags',
+          'value': ['tagfoo', 'tagbar'],
+          'weight': 1}]
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_TAGS],
+        []
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION],
+        'gmail'
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_EXTENSION],
+        'pdf'
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILETAGS_DATETIME],
+        None
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILENAME_TITLE],
+        [{'source': 'filenamepart_base',
+          'value': 'gmail',
+          'weight': 0.25}]
+    )
+    util.nested_dict_set(
+        data,
+        [fileobject, uuconst.MEOWURI_AZR_FILESYSTEM_DATETIME],
+        [{'source': 'modified',
+          'value': datetime(2017, 6, 12, 22, 38, 34),
+          'weight': 1},
+         {'source': 'created',
+          'value': datetime(2017, 6, 12, 22, 38, 34),
+          'weight': 1},
+         {'source': 'accessed',
+          'value': datetime(2017, 6, 12, 22, 38, 34),
+          'weight': 0.25}]
+    )
     return data
 
 
