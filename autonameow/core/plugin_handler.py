@@ -105,4 +105,5 @@ def collect_results(fileobject, label, data):
         label: Label that uniquely identifies the data.
         data: The data to add.
     """
+    # TODO: [TD0108] Fix inconsistencies in results passed back by plugins.
     repository.SessionRepository.store(fileobject, label, data)

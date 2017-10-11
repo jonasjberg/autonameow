@@ -42,6 +42,7 @@ class BasePlugin(object):
         self.request_data = plugin_handler.request_data
 
     def add_results(self, fileobject, meowuri_leaf, data):
+        # TODO: [TD0108] Fix inconsistencies in results passed back by plugins.
         if data is None:
             return
 
