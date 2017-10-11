@@ -46,6 +46,7 @@ class BasePlugin(object):
         if data is None:
             return
 
+        # TODO: [TD0105] Integrate the `MeowURI` class.
         _meowuri = '{}.{}'.format(self.meowuri_prefix(), meowuri_leaf)
         plugin_handler.collect_results(fileobject, _meowuri, data)
 

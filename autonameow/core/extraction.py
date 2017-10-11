@@ -29,14 +29,14 @@ from extractors import ExtractorError
 log = logging.getLogger(__name__)
 
 
-def collect_results(fileobject, meowuri, data):
+def collect_results(fileobject, meowuri_prefix, data):
     """
     Collects extractor data, passes it the the session repository.
 
     Args:
-        fileobject: File that produced the data to add.
-        meowuri: Label that uniquely identifies the data.
-        data: The data to add.
+        fileobject: Instance of 'FileObject' that produced the data to add.
+        meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
+        data: The data to add, as any type or container.
     """
     # TODO: [TD0106] Fix inconsistencies in results passed back by extractors.
     if not isinstance(data, dict):
@@ -45,11 +45,12 @@ def collect_results(fileobject, meowuri, data):
         log.debug('[TD0106] Data contents: {!s}'.format(data))
 
     if isinstance(data, dict):
-        for _key, _data in data.items():
-            _uri = '{}.{!s}'.format(meowuri, _key)
+        for _uri_leaf, _data in data.items():
+            # TODO: [TD0105] Integrate the `MeowURI` class.
+            _uri = '{}.{!s}'.format(meowuri_prefix, _uri_leaf)
             repository.SessionRepository.store(fileobject, _uri, _data)
     else:
-        repository.SessionRepository.store(fileobject, meowuri, data)
+        repository.SessionRepository.store(fileobject, meowuri_prefix, data)
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):

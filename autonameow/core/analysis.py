@@ -98,7 +98,7 @@ def request_global_data(fileobject, meowuri):
     return response
 
 
-def collect_results(fileobject, meowuri, data):
+def collect_results(fileobject, meowuri_prefix, data):
     """
     Collects analysis results. Passed to analyzers as a callback.
 
@@ -115,17 +115,24 @@ def collect_results(fileobject, meowuri, data):
         MeowURI: 'extractor.metadata.exiftool.c'   DATA: 'd'
 
     Args:
-        fileobject: Instance of 'fileobject' that produced the data to add.
-        meowuri: Label that uniquely identifies the data, as a Unicode str.
+        fileobject: Instance of 'FileObject' that produced the data to add.
+        meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
         data: The data to add, as any type or container.
     """
+    # TODO: [TD0102] Fix inconsistencies in results passed back by analyzers.
+    if not isinstance(data, dict):
+        log.debug('[TD0102] Got non-dict data "analysis.collect_results()"')
+        log.debug('[TD0102] Data type: {!s}'.format(type(data)))
+        log.debug('[TD0102] Data contents: {!s}'.format(data))
+
     if isinstance(data, dict):
         flat_data = util.flatten_dict(data)
-        for _key, _data in flat_data.items():
-            _uri = '{}.{!s}'.format(meowuri, _key)
+        for _uri_leaf, _data in flat_data.items():
+            # TODO: [TD0105] Integrate the `MeowURI` class.
+            _uri = '{}.{!s}'.format(meowuri_prefix, _uri_leaf)
             repository.SessionRepository.store(fileobject, _uri, _data)
     else:
-        repository.SessionRepository.store(fileobject, meowuri, data)
+        repository.SessionRepository.store(fileobject, meowuri_prefix, data)
 
 
 def _instantiate_analyzers(fileobject, klass_list, config):
