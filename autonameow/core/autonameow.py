@@ -75,12 +75,13 @@ class Autonameow(object):
         self._exit_code = C.EXIT_SUCCESS
 
     def __enter__(self):
-        # TODO: Initialization ..
+        # Set up a session repository for this process.
+        repository.initialize(self)
+
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # TODO: Shutdown ..
-        pass
+        repository.shutdown(self)
 
     def run(self):
         if self.opts.get('quiet'):
@@ -95,9 +96,6 @@ class Autonameow(object):
         if self.opts.get('show_version'):
             cli.print_version_info(verbose=self.opts.get('verbose'))
             self.exit_program(C.EXIT_SUCCESS)
-
-        # Set up a session repository for this process.
-        repository.initialize(self)
 
         # Check configuration file. If no alternate config file path is
         # provided and no config file is found at default paths; copy the

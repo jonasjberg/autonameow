@@ -80,6 +80,10 @@ class Repository(object):
         # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
         self.mapped_meowuris = unique_map_meowuris(self.meowuri_class_map)
 
+    def shutdown(self):
+        # TODO: Any shutdown tasks goes here ..
+        pass
+
     def _log_string_class_map(self):
         for key in self.meowuri_class_map.keys():
             for meowuri, klass in self.meowuri_class_map[key].items():
@@ -472,6 +476,21 @@ def initialize(id_=None):
 
     global SessionRepository
     SessionRepository = Pool.get(id_=id_)
+
+
+def shutdown(id_=None):
+    global Pool
+    if not Pool:
+        return
+
+    try:
+        r = Pool.get(id_=id_)
+    except KeyError as e:
+        log.error(
+            'Unable to retrieve repository with ID "{!s}"; {!s}'.format(id_, e)
+        )
+    else:
+        r.shutdown()
 
 
 Pool = None
