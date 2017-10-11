@@ -95,7 +95,6 @@ class Resolver(object):
         return True
 
     def _gather_data(self):
-        # TODO: [TD0017] Rethink source specifications relation to source data.
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
         for _field, _meowuri in self.data_sources.items():
             if (_field in self.fields_data

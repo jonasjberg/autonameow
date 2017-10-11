@@ -76,23 +76,6 @@ Medium Priority
         * Textual contents of the file matches a regular expression?
         * Some date/time-information lies within some specific range.
 
-* `[TD0017]` Rethink how specified sources are connected to actual sources.
-  Take for example the configuration rule:
-
-    ```yaml
-    RULES:
-    -   CONDITIONS:
-            contents:
-                mime_type: image/*
-            filesystem:
-                pathname: ~/Dropbox/Camera Uploads/.*
-        DATA_SOURCES:
-            extension: contents.mime_type
-    ```
-  This will fail, or *should fail* as MIME types on the form `image/jpeg`,
-  `image/png`, etc can't be used as a file extension without some
-  pre-processing -- converting `image/png` to `png`.
-
 * `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
 
 * `[TD0019]` Rework the `FilenameAnalyzer`

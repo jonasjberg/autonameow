@@ -12,6 +12,26 @@ University mail: `js224eh[a]student.lnu.se`
 
 * 2017-10-11
 
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0017]` Rethink how specified sources are connected to actual sources.
+    >   Take for example the configuration rule:
+    >
+    >     ```yaml
+    >     RULES:
+    >     -   CONDITIONS:
+    >             contents:
+    >                 mime_type: image/*
+    >             filesystem:
+    >                 pathname: ~/Dropbox/Camera Uploads/.*
+    >         DATA_SOURCES:
+    >             extension: contents.mime_type
+    >     ```
+    >   This will fail, or *should fail* as MIME types on the form `image/jpeg`,
+    >   `image/png`, etc can't be used as a file extension without some
+    >   pre-processing -- converting `image/png` to `png`.
+    >
     > Low Priority
     > ------------
     >

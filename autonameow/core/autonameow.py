@@ -427,7 +427,7 @@ class Autonameow(object):
 
                     resolver.collect()
 
-        # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
+        # TODO: [TD0024] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
