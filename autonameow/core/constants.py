@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+import os
 import sys
 
 import core
@@ -35,6 +36,14 @@ STRING_PROGRAM_NAME = core.version.__title__.lower()
 
 STRING_COPYRIGHT_NOTICE = str(core.version.__copyright__)
 STRING_REPO_URL = str(core.version.__url_repo__)
+
+
+_this_dir = os.path.abspath(os.path.dirname(__file__))
+_parent_dir = os.path.normpath(os.path.join(_this_dir, os.pardir))
+
+# Absolute path to the autonameow source root directory.
+# NOTE: Assumes running from source code (as per the original repository)
+AUTONAMEOW_SRCROOT_DIR = os.path.realpath(os.path.join(_parent_dir, os.pardir))
 
 
 # Color used to highlight post-processing replacements.

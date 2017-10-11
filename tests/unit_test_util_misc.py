@@ -20,6 +20,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from unittest import TestCase
 
 from core import (
@@ -660,3 +661,16 @@ class TestFilterNone(TestCase):
         self._assert_filters(['a', None, 'b', 'c'], ['a', 'b', 'c'])
         self._assert_filters(['a', None, 'b', None, 'c'], ['a', 'b', 'c'])
         self._assert_filters(['a', None, 'b', None, 'c', None], ['a', 'b', 'c'])
+
+
+class TestGitCommitHash(TestCase):
+    def test_returns_expected_type(self):
+        actual = util.git_commit_hash()
+        self.assertTrue(uu.is_internalstring(actual))
+
+    def test_resets_curdir(self):
+        curdir_before = os.path.curdir
+        _ = util.git_commit_hash()
+        curdir_after = os.path.curdir
+
+        self.assertEqual(curdir_before, curdir_after)

@@ -499,6 +499,8 @@ def git_commit_hash():
     if not is_executable('git'):
         return None
 
+    _old_pwd = os.path.curdir
+    os.chdir(C.AUTONAMEOW_SRCROOT_DIR)
     try:
         process = subprocess.Popen(
             ['git', 'rev-parse', '--short', 'HEAD'],
@@ -510,3 +512,5 @@ def git_commit_hash():
     else:
         string = types.force_string(stdout).strip()
         return string if string else None
+    finally:
+        os.chdir(_old_pwd)
