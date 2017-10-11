@@ -193,9 +193,6 @@ Low Priority
 
 * `[TD0038]` Add new name format placeholder field `{year}`.
 
-* `[TD0039]` Do not include the rule attribute `score` when listing the
-  configuration with `--dump-config`.
-
 * `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF
   GPS data. Look into comparing coordinates with the
   [Haversine formula](http://en.wikipedia.org/wiki/Haversine_formula).

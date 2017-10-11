@@ -10,6 +10,14 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-10-11
+
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0039]` Do not include the rule attribute `score` when listing the
+    >   configuration with `--dump-config`.
+
 * 2017-10-10
 
     > Low Priority
