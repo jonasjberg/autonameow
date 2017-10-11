@@ -23,17 +23,17 @@ from unittest import TestCase
 
 from core.config import field_parsers
 from core.config.field_parsers import (
-    RegexConfigFieldParser,
     ConfigFieldParser,
-    get_instantiated_field_parsers,
-    available_field_parsers,
-    MimeTypeConfigFieldParser,
     DateTimeConfigFieldParser,
+    MimeTypeConfigFieldParser,
     NameFormatConfigFieldParser,
-    suitable_field_parser_for,
-    parse_versioning
+    RegexConfigFieldParser,
+    available_field_parsers,
+    get_instantiated_field_parsers,
+    parse_versioning,
+    suitable_field_parser_for
 )
-from core.meowuri import MeowURI
+from core.model import MeowURI
 import unit_utils as uu
 import unit_utils_constants as uuconst
 

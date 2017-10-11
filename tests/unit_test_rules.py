@@ -21,12 +21,10 @@
 
 from unittest import TestCase
 
-from core import (
-    exceptions,
-)
 from core import constants as C
+from core import exceptions
 from core.config import rules
-from core.meowuri import MeowURI
+from core.model import MeowURI
 import unit_utils as uu
 import unit_utils_constants as uuconst
 

@@ -30,8 +30,10 @@ from core import (
     types,
     util
 )
-from core.meowuri import MeowURI
-from core.model import genericfields
+from core.model import (
+    genericfields,
+    MeowURI
+)
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
 from core.util import sanity
 

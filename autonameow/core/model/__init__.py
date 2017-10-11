@@ -38,3 +38,4 @@ from .genericfields import (
     GenericText,
     GenericTitle,
 )
+from .meowuri import MeowURI

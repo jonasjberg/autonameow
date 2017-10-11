@@ -22,9 +22,6 @@
 import logging
 import os
 
-from core.util import diskutils
-
-
 try:
     from prompt_toolkit import prompt
     from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -48,13 +45,13 @@ except ImportError:
 from core import constants as C
 from core import config
 from core import (
-    cache,
     repository,
     util
 )
 from core.exceptions import InvalidMeowURIError
-from core.meowuri import MeowURI
+from core.model import MeowURI
 from core.ui import cli
+from core.util import diskutils
 
 
 log = logging.getLogger(__name__)

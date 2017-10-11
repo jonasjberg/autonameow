@@ -24,11 +24,11 @@ from unittest import TestCase
 
 from core import constants as C
 from core.exceptions import InvalidMeowURIError
-from core.meowuri import (
-    MeowURI,
-    MeowURIRoot,
+from core.model import MeowURI
+from core.model.meowuri import (
     MeowURILeaf,
-    MeowURINode
+    MeowURINode,
+    MeowURIRoot
 )
 import unit_utils as uu
 import unit_utils_constants as uuconst

@@ -28,8 +28,10 @@ from core import (
     exceptions,
     util,
 )
-from core.meowuri import MeowURI
-from core.model import ExtractedData
+from core.model import (
+    ExtractedData,
+    MeowURI
+)
 from core.util import (
     sanity,
     textutils

@@ -29,7 +29,7 @@ from core import (
     util
 )
 from core.config import field_parsers
-from core.meowuri import MeowURI
+from core.model import MeowURI
 from core.namebuilder import fields
 from core.util import sanity
 

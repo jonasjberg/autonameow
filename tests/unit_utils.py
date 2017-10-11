@@ -37,7 +37,7 @@ from core import (
 from core.config import rules
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
-from core.meowuri import MeowURI
+from core.model import MeowURI
 import unit_utils_constants as uuconst
 
 
