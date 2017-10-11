@@ -140,12 +140,19 @@ class TestMeowURI(TestCase):
         self.assertEqual(b.nodes[1], 'exiftool')
         self.assertEqual(b.leaf, 'File:MIMEType')
 
-    def test___getattr__(self):
-        self.skipTest('TODO: Implement or remove ..')
 
-        a = MeowURI('filesystem.abspath.full')
-        self.assertEqual(a.filesystem, 'abspath')
-        self.assertEqual(a.filesystem.abspath, 'full')
+class TestMeowURIMutability(TestCase):
+    def setUp(self):
+        self.m = MeowURI(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
+
+    def test_attribute_parts_is_immutable(self):
+        before = self.m.parts
+
+        with self.assertRaises(AttributeError):
+            self.m.parts = ['foo']
+
+        after = self.m.parts
+        self.assertEqual(before, after)
 
 
 class TestMeowURIClassMethodGeneric(TestCase):

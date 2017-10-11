@@ -116,6 +116,10 @@ class MeowURI(object):
         else:
             return C.UNDEFINED_MEOWURI_PART
 
+    @property
+    def parts(self):
+        return self._parts
+
     def matchglobs(self, glob_list):
         """
         Evaluates this "meowURI" against a list of "globs".
