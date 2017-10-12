@@ -157,6 +157,7 @@ def start(fileobject, config):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
+    log.debug(' Analysis Starting '.center(80, '='))
 
     klasses = analyzers.suitable_analyzers_for(fileobject)
     if not klasses:
@@ -172,3 +173,4 @@ def start(fileobject, config):
     # Run all analyzers in the queue.
     _execute_run_queue(analyzer_queue)
 
+    log.debug(' Analysis Completed '.center(80, '='))

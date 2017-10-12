@@ -92,7 +92,7 @@ def start(fileobject,
     """
     Starts extracting data for a given 'fileobject'.
     """
-    log.debug('Started data extraction')
+    log.debug(' Extraction Started '.center(80, '='))
 
     if require_extractors:
         required_extractors = require_extractors
@@ -129,3 +129,5 @@ def start(fileobject,
         else:
             _meowuri_prefix = klass.meowuri_prefix()
             collect_results(fileobject, _meowuri_prefix, _results)
+
+    log.debug(' Extraction Completed '.center(80, '='))

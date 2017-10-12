@@ -69,7 +69,7 @@ class PluginHandler(object):
         self._plugins_to_use = [p for p in self.available_plugins]
 
     def execute_plugins(self, fileobject):
-        self.log.debug('Executing plugins ..')
+        self.log.debug(' Plugins Starting '.center(80, '='))
 
         self.log.debug('Running {} plugins'.format(len(self._plugins_to_use)))
         for plugin_klass in self._plugins_to_use:
@@ -92,6 +92,8 @@ class PluginHandler(object):
                     '"{!s}" plugin can not handle file "{!s}"'.format(
                         plugin, fileobject)
                 )
+
+        self.log.debug(' Plugins Completed '.center(80, '='))
 
 
 def request_data(fileobject, meowuri):
