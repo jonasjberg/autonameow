@@ -85,7 +85,6 @@ class Autonameow(object):
 
     def run(self):
         if self.opts.get('quiet'):
-            options.logs.silence()
             cli.silence()
 
         # Display various information depending on verbosity level.

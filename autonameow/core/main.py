@@ -19,13 +19,97 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import sys
 import traceback
 
-from core import constants
+from core import (
+    constants,
+    logs
+)
 from core.autonameow import Autonameow
 from core.exceptions import AWAssertionError
 from core.options import parse_args
+
+
+def real_main(options=None):
+    """
+    Actual program entry point.
+
+    This function is intended to be platform/interface-agnostic, in that it
+    should be called by an outer interface-specific layer; like the CLI entry
+    function 'cli_main'.
+
+    The passed in options is in an internal format (dict) as to not depend on
+    any means of providing program options; argument parsers, etc.
+
+    Args:
+        options: Per-instance program options, as type dict.
+    """
+    if options is None:
+        options = {}
+
+    # Default options are defined here.
+    # Passed in 'options' always take precedence and overrides the defaults.
+    opts = {
+        'debug': False,
+        'verbose': False,
+        'quiet': False,
+
+        'show_version': False,
+        'dump_config': False,
+        'dump_options': False,
+        'dump_meowuris': False,
+
+        'list_all': False,
+        'list_datetime': False,
+        'list_title': False,
+
+        'mode_batch': False,
+        'mode_automagic': False,
+        'mode_interactive': True,
+
+        'config_path': None,
+
+        'dry_run': True,
+        'recurse_paths': False,
+
+        'input_paths': [],
+    }
+    opts.update(options)
+
+    # Initialize global logging.
+    logs.init_logging(opts)
+    log = logging.getLogger(__name__)
+    if opts.get('quiet'):
+        logs.silence()
+
+    # Check legality of option combinations.
+    if opts.get('mode_automagic') and opts.get('mode_interactive'):
+        log.warning('Operating mode must be either one of "automagic" or '
+                    '"interactive", not both. Reverting to default: '
+                    '[interactive mode].')
+        opts['mode_automagic'] = False
+        opts['mode_interactive'] = True
+
+    if not opts.get('mode_automagic') and opts.get('mode_batch'):
+        log.warning('Running in "batch" mode without "automagic" mode does'
+                    'not make any sense. Nothing to do!')
+
+    if opts.get('mode_batch') and opts.get('mode_interactive'):
+        log.warning('Operating mode must be either one of "batch" or '
+                    '"interactive", not both. Reverting to default: '
+                    '[interactive mode].')
+        opts['mode_batch'] = False
+        opts['mode_interactive'] = True
+
+    if not opts.get('mode_automagic') and not opts.get('mode_interactive'):
+        log.info('Using default operating mode: [interactive mode].')
+        opts['mode_interactive'] = True
+
+    # Main program entry point.
+    with Autonameow(opts) as ameow:
+        ameow.run()
 
 
 def print_error(message):
@@ -70,17 +154,21 @@ ______________________________________________________
 
 
 def cli_main(argv=None):
-    # "Raw" option arguments as a list of strings.
+    """
+    Main program entry point when running as a command-line application.
+
+    Args:
+        argv: Raw command-line arguments as a list of strings.
+    """
     args = argv
     if not args:
         print('Add "--help" to display usage information.')
         sys.exit(constants.EXIT_SUCCESS)
 
-    # Handle the command line arguments and setup logging.
-    # Returns parsed options returned by argparse.
+    # Handle the command line arguments with argparse.
     opts = parse_args(args)
 
-    # Populate dict to pass to the Autonameow instance.
+    # Translate from 'argparse'-specific format to internal options dict.
     options = {
         'debug': opts.debug,
         'verbose': opts.verbose,
@@ -107,13 +195,11 @@ def cli_main(argv=None):
         'input_paths': opts.input_paths,
     }
 
-    with Autonameow(options) as ameow:
-        try:
-            ameow.run()
-        except KeyboardInterrupt:
-            sys.exit('\nReceived keyboard interrupt; Exiting ..')
-        except AWAssertionError as e:
-            _error_msg = format_sanitycheck_error(str(e))
-            print_error(_error_msg)
-            sys.exit(3)
-
+    try:
+        real_main(options)
+    except KeyboardInterrupt:
+        sys.exit('\nReceived keyboard interrupt; Exiting ..')
+    except AWAssertionError as e:
+        _error_msg = format_sanitycheck_error(str(e))
+        print_error(_error_msg)
+        sys.exit(3)
