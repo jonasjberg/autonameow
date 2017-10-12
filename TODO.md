@@ -140,6 +140,30 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0109]` __Allow arbitrary name template placeholder fields.__  
+    It is currently difficult to use a rule similar to this:
+    ```
+    TV-series:
+        CONDITIONS:
+            extractor.filesystem.xplat.pathname.full: '/tank/media/tvseries'
+            extractor.filesystem.xplat.contents.mime_type: video/*
+        NAME_FORMAT: '{title} S{season}E{episode}.{extension}'
+        DATA_SOURCES:
+            title: plugin.guessit.title
+            season: plugin.guessit.season
+            episode: plugin.guess.episode
+            extension: extractor.filesystem.xplat.contents.mime_type
+        exact_match: true
+    ```
+
+    This rule gives the following error:
+    ```
+    [ERROR] Bad rule "TV-series"; uses invalid name template format
+    ```
+    This could be solved by either adding `{season}` and `{episode}` as new
+    template fields or by allowing arbitrary placeholder fields with some
+    simple format like `{a}`, `{b}`, etc.
+
 * `[TD0101]` __Add ability to limit sizes of persistent storage/caches.__  
   Store timestamps with stored data and remove oldest entries when exceeding
   the file size limit.

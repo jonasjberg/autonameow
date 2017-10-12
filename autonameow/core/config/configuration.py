@@ -250,6 +250,8 @@ class Configuration(object):
         if not _format:
             return None
 
+        # TODO: [TD0109] Allow arbitrary name template placeholder fields.
+
         # First test if the field data is a valid name template entry,
         if _format in self.reusable_nametemplates:
             # If it is, use the format string defined in that entry.
