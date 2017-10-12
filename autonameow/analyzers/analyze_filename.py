@@ -60,6 +60,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._add_results('publisher', self.get_publisher())
 
     def get_datetime(self):
+        # TODO: [TD0110] Improve finding probable date/time in file names.
         results = []
 
         fn_timestamps = self._get_datetime_from_name()

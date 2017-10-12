@@ -96,6 +96,26 @@ Medium Priority
         * Look into how `guessit` does it or possibility of modifying
           `guessit` to identify custom fields.
 
+    * `[TD0110]` Improve finding probable date/time in file names.
+        * Provide a single most probable result.
+        * Rank formats: `YMD` (EU), `MDY` (US), `DMY` (parts of EU, Asia), etc.
+        * Look at any surrounding __context__ of files.
+
+            For instance, given a directory containing files:
+            ```
+            foo_08.18.17.txt
+            bar_11.04.16.txt
+            ```
+            The date components of `bar_11.04.16.txt` can not be clearly
+            determined. Many possible date formats could work.
+
+            But `foo_08.18.17.txt` can only be successfully parsed with the
+            date format `foo_MM.DD.YY`.
+            *(18 is probably not the future year 2018, but 08 might be 2008..)*
+
+            This information could be used to weight this format higher to
+            help improve the results of parsing `foo_08.18.17.txt`.
+
 * `[TD0023]` Add additional option to force non-interactive mode (`--batch`?)
 
 * `[TD0024]` Rework handling of unresolved operations
