@@ -157,10 +157,6 @@ def start(fileobject, config):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
-    if not isinstance(fileobject, FileObject):
-        raise TypeError('"fileobject" must be an instance of "FileObject"')
-    if not isinstance(config, Configuration):
-        raise TypeError('"config" must be an instance of "Configuration"')
 
     klasses = analyzers.suitable_analyzers_for(fileobject)
     if not klasses:
