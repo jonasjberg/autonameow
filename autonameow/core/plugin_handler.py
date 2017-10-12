@@ -49,6 +49,10 @@ class PluginHandler(object):
         self._plugins_to_use = []
 
     def use_plugins(self, plugin_list):
+        self.log.debug(
+            'Required {} plugins: {!s}'.format(len(plugin_list), plugin_list)
+        )
+
         for plugin in plugin_list:
             if plugin in self.available_plugins:
                 self._plugins_to_use.append(plugin)
@@ -58,9 +62,16 @@ class PluginHandler(object):
                     'Requested unavailable plugin: "{!s}"'.format(plugin)
                 )
 
+    def use_all_plugins(self):
+        self.log.debug(
+            'Using all {} plugins'.format(len(self.available_plugins))
+        )
+        self._plugins_to_use = [p for p in self.available_plugins]
+
     def execute_plugins(self, fileobject):
         self.log.debug('Executing plugins ..')
 
+        self.log.debug('Running {} plugins'.format(len(self._plugins_to_use)))
         for plugin_klass in self._plugins_to_use:
             plugin = plugin_klass()
 
