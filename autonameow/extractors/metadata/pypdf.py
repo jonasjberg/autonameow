@@ -261,6 +261,8 @@ class PyPDFMetadataExtractor(BaseExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        return PyPDF2 is not None
+        # return PyPDF2 is not None
 
-
+        # Skip for now.
+        # TODO: Remove PyPDF2?
+        return False
