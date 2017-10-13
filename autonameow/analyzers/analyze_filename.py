@@ -248,6 +248,10 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'mobi': {'mobi'},
         'pdf': {'pdf'}
     },
+    'application/zip': {
+        'zip': {'zip'},
+        'epub': {'epub'},
+    },
     'text/plain': {
         'c': {'c'},
         'cpp': {'cpp', 'c++'},
