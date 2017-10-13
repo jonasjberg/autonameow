@@ -141,9 +141,15 @@ DEFAULT_CONFIG = {
             'DATA_SOURCES': {
                 'author': 'analyzer.ebook.author',
                 'extension': 'extractor.filesystem.xplat.contents.mime_type',
-                'date': 'analyzer.ebook.date',
-                'edition': 'analyzer.ebook.edition',
-                'publisher': 'analyzer.ebook.publisher',
+                'year': 'analyzer.ebook.date',
+                'edition': [
+                    'analyzer.ebook.edition',
+                    'analyzer.filename.edition'
+                ],
+                'publisher': [
+                    'analyzer.ebook.publisher',
+                    'analyzer.filename.publisher'
+                ],
                 'title': 'analyzer.ebook.title',
             },
         },
@@ -159,7 +165,7 @@ DEFAULT_CONFIG = {
     #
     'NAME_TEMPLATES': {
         'default_document': '{title} - {author} {datetime}.{extension}',
-        'default_book': '{publisher} {title} {edition} - {author} {date}.{extension}',
+        'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}',
         'default_photo': '{datetime} {description} -- {tags}.{extension}'
     },
 

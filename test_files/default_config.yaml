@@ -21,7 +21,7 @@ FILETAGS_OPTIONS:
     between_tag_separator: ' '
     filename_tag_separator: ' -- '
 NAME_TEMPLATES:
-    default_book: '{publisher} {title} {edition} - {author} {date}.{extension}'
+    default_book: '{publisher} {title} {edition} - {author} {year}.{extension}'
     default_document: '{title} - {author} {datetime}.{extension}'
     default_photo: '{datetime} {description} -- {tags}.{extension}'
 NAME_TEMPLATE_FIELDS:
@@ -47,11 +47,15 @@ RULES:
             - application/octet-stream
         DATA_SOURCES:
             author: analyzer.ebook.author
-            date: analyzer.ebook.date
-            edition: analyzer.ebook.edition
+            edition:
+            - analyzer.ebook.edition
+            - analyzer.filename.edition
             extension: extractor.filesystem.xplat.contents.mime_type
-            publisher: analyzer.ebook.publisher
+            publisher:
+            - analyzer.ebook.publisher
+            - analyzer.filename.publisher
             title: analyzer.ebook.title
+            year: analyzer.ebook.date
         NAME_FORMAT: default_book
         exact_match: false
         ranking_bias: 0.1
