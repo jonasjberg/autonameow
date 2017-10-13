@@ -45,6 +45,8 @@ High Priority
 Medium Priority
 ---------------
 
+* `[TD0111]` Add abstraction between user interaction and CLI specifics.
+
 * `[TD0107]` Get platform-specific default paths for persistent storage.
 
 * `[TD0104]` Merge duplicate candidates and re-normalize probabilities.
