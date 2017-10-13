@@ -295,9 +295,8 @@ class SubstringFinder(object):
         return list(filter(None, s))
 
 
-# TODO: Implement or remove ..
 class FilenameTokenizer(object):
-    RE_UNICODE_WORDS = re.compile(r'\w')
+    RE_UNICODE_WORDS = re.compile(r'[^\W_]')
 
     def __init__(self, filename):
         self.filename = filename
@@ -306,8 +305,16 @@ class FilenameTokenizer(object):
     def separators(self):
         return self._find_separators(self.filename) or []
 
-    def _find_separators(self, string):
-        non_words = self.RE_UNICODE_WORDS.split(string)
+    @property
+    def main_separator(self):
+        try:
+            return self._find_separators(self.filename)[0][0]
+        except IndexError:
+            return ''
+
+    @classmethod
+    def _find_separators(cls, string):
+        non_words = cls.RE_UNICODE_WORDS.split(string)
         seps = [s for s in non_words if s is not None and s.strip()]
 
         sep_chars = []
@@ -321,7 +328,6 @@ class FilenameTokenizer(object):
             return None
 
         counts = Counter(sep_chars)
-        # TODO: Implement or remove ..
         _most_common = counts.most_common(3)
         return _most_common
 

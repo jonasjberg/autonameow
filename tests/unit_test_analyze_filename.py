@@ -245,41 +245,49 @@ class TestIdentifyFields(TestCase):
 
 
 class TestFilenameTokenizer(TestCase):
-    def _t(self, filename, expected):
-        self.tokenizer = FilenameTokenizer(filename)
-        actual = self.tokenizer.separators
-        self.assertEqual(sorted(actual), sorted(expected))
+    def _t(self, filename, separators, main_separator):
+        tokenizer = FilenameTokenizer(filename)
+        self.assertEqual(tokenizer.separators, separators)
+        self.assertEqual(tokenizer.main_separator, main_separator)
 
     def test_find_separators_all_periods(self):
         self._t(
             filename='foo.bar.1234.baz',
-            expected=[('.', 3)]
+            separators=[('.', 3)],
+            main_separator='.'
         )
 
     def test_find_separators_periods_and_brackets(self):
         self._t(
             filename='foo.bar.[1234].baz',
-            expected=[('.', 3), ('[', 1), (']', 1)]
+            separators=[('.', 3), ('[', 1), (']', 1)],
+            main_separator='.'
         )
 
     def test_find_separators_underlines(self):
-        self.skipTest('TODO: ..')
-
         self._t(
             filename='foo_bar_1234_baz',
-            expected=[('_', 3)]
+            separators=[('_', 3)],
+            main_separator='_'
         )
 
     def test_find_separators_dashes(self):
         self._t(
             filename='foo-bar-1234-baz',
-            expected=[('-', 3)]
+            separators=[('-', 3)],
+            main_separator='-'
         )
 
     def test_find_separators_underlines_and_dashes(self):
-        self.skipTest('TODO: ..')
-
         self._t(
             filename='foo-bar_1234_baz',
-            expected=[('_', 2), ('-', 1)]
+            separators=[('_', 2), ('-', 1)],
+            main_separator='_'
+        )
+
+    def test_find_separators_darwin(self):
+        self._t(
+            filename='Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi',
+            separators=[('+', 9), ('-', 1), ('%', 1)],
+            main_separator='+'
         )
