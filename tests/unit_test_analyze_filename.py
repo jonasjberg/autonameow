@@ -143,8 +143,20 @@ class TestFileNameAnalyzerWithEbook(TestCase):
         )
 
     def test_get_edition(self):
-        expected = 6
         actual = self.a.get_edition().value
+        expected = 6
+        self.assertEqual(actual, expected)
+
+    def test_get_datetime(self):
+        actual = self.a.get_datetime()
+        expected = None
+        self.assertEqual(actual, expected)
+
+    def test_get_title(self):
+        self.skipTest('TODO: Implement finding titles in file names ..')
+
+        actual = self.a.get_title().value
+        expected = 'On the Origin of Species'
         self.assertEqual(actual, expected)
 
 
