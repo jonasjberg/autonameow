@@ -126,16 +126,17 @@ DEFAULT_CONFIG = {
         },
         # ____________________________________________________________________
         'Sample Entry for E-books': {
-            'exact_match': True,
+            'exact_match': False,
             'ranking_bias': 0.1,
             'NAME_FORMAT': 'default_book',
             'CONDITIONS': {
                 'extractor.filesystem.xplat.contents.mime_type': [
-                    'application/pdf',
                     'application/epub+zip',
                     'image/vnd.djvu',
+                    'application/pdf',
+                    'application/octet-stream',
                 ],
-                'extractor.filesystem.xplat.pathname.full': '.*book.*'
+                'extractor.filesystem.xplat.basename.extension': '(pdf|mobi)',
             },
             'DATA_SOURCES': {
                 'author': 'analyzer.ebook.author',

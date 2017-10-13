@@ -35,15 +35,16 @@ NAME_TEMPLATE_FIELDS:
             - www.gutenberg.net
 PERSISTENCE:
     cache_directory: null
-    history_directory: null
+    history_file_path: null
 RULES:
     Sample Entry for E-books:
         CONDITIONS:
+            extractor.filesystem.xplat.basename.extension: (pdf|mobi)
             extractor.filesystem.xplat.contents.mime_type:
-            - application/pdf
             - application/epub+zip
             - image/vnd.djvu
-            extractor.filesystem.xplat.pathname.full: .*book.*
+            - application/pdf
+            - application/octet-stream
         DATA_SOURCES:
             author: analyzer.ebook.author
             date: analyzer.ebook.date
@@ -52,7 +53,7 @@ RULES:
             publisher: analyzer.ebook.publisher
             title: analyzer.ebook.title
         NAME_FORMAT: default_book
-        exact_match: true
+        exact_match: false
         ranking_bias: 0.1
     Sample Entry for Photos with strict rules:
         CONDITIONS:
