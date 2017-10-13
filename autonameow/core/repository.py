@@ -330,6 +330,25 @@ class Repository(object):
     def __str__(self):
         return self.human_readable_contents()
 
+    def to_filedump(self, file_path):
+        # NOTE: Debugging/testing experiment --- TO BE REMOVED!
+        if not isinstance(file_path, (str, bytes)):
+            return
+        if not file_path.strip():
+            return
+
+        from core.util import diskutils
+        if diskutils.exists(file_path):
+            return
+
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+
+        with open(util.syspath(file_path), 'wb') as fh:
+            pickle.dump(self.data, fh, pickle.HIGHEST_PROTOCOL)
+
     # def __repr__(self):
     #     # TODO: Implement this properly.
     #     pass

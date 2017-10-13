@@ -127,6 +127,27 @@ class TestLikelyExtension(TestCase):
             self.assertEqual(actual, expect.expected, _m)
 
 
+class TestFileNameAnalyzerWithEbook(TestCase):
+    def setUp(self):
+        fo = uu.fileobject_testfile(
+            'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi'
+        )
+        self.a = FilenameAnalyzer(
+            fo,
+            config=uu.get_default_config(),
+            add_results_callback=uu.mock_analyzer_collect_data,
+            request_data_callback=uu.mock_analyzer_request_global_data
+        )
+        uu.load_repository_dump(
+            uu.abspath_testfile('repository_Darwin-mobi.state')
+        )
+
+    def test_get_edition(self):
+        expected = 6
+        actual = self.a.get_edition().value
+        self.assertEqual(actual, expected)
+
+
 class TestFindEdition(TestCase):
     def test_returns_expected_edition(self):
         def _aE(test_input, expected):

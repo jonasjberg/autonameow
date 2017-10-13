@@ -265,8 +265,42 @@ def mock_request_data_callback(fileobject, label):
         return d
 
 
+def mock_analyzer_collect_data(fileobject, meowuri_prefix, data):
+    pass
+
+
+def mock_analyzer_request_global_data(fileobject, meowuri):
+    from core import repository
+    response = repository.SessionRepository.query(fileobject, meowuri)
+    return response
+
+
 def mock_add_results_callback(fileobject, label, data):
     pass
+
+
+def load_repository_dump(file_path):
+    """
+    Loads pickled repository contents from file at "file_path".
+    NOTE: Debugging/testing experiment --- TO BE REMOVED!
+    """
+    if not file_path or not file_exists(file_path):
+        return
+
+    try:
+        import cPickle as pickle
+    except ImportError:
+        import pickle
+
+    with open(util.syspath(file_path), 'rb') as fh:
+        _data = pickle.load(fh, encoding='bytes')
+
+    if not _data:
+        return
+
+    from core import repository
+    repository.initialize()
+    repository.SessionRepository.data = _data
 
 
 def mock_session_data_pool(fileobject):
