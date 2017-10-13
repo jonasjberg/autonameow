@@ -21,6 +21,8 @@
 
 import re
 import unicodedata
+import urllib
+
 
 try:
     import chardet
@@ -430,3 +432,7 @@ def compiled_ordinal_regexes():
         for _number, _patterns in __ordinal_number_patterns:
             RE_ORDINALS[_number] = re.compile(_patterns, re.IGNORECASE)
     return RE_ORDINALS
+
+
+def urldecode(string):
+    return urllib.parse.unquote(string)
