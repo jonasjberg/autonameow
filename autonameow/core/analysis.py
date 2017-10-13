@@ -30,6 +30,7 @@ from core import (
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
 from core.model import ExtractedData
+from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -158,6 +159,9 @@ def start(fileobject, config):
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
     log.debug(' Analysis Starting '.center(80, '='))
+
+    sanity.check_isinstance(fileobject, FileObject)
+    sanity.check_isinstance(config, Configuration)
 
     klasses = analyzers.suitable_analyzers_for(fileobject)
     if not klasses:
