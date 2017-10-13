@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import re
 
 try:
     import isbnlib
@@ -56,6 +57,9 @@ IGNORED_TEXTLINES = frozenset([
 ])
 
 
+RE_E_ISBN = re.compile(r'^e-ISBN.*', re.MULTILINE)
+
+
 class EbookAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
@@ -88,8 +92,11 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
-        isbns = extractlines_do(extract_isbns_from_text, self.text,
+        isbns = extractlines_do(find_ebook_isbns_in_text, self.text,
                                 fromline=0, toline=100)
+        if not isbns:
+            isbns = extractlines_do(extract_isbns_from_text, self.text,
+                                    fromline=0, toline=100)
         if isbns:
             isbns = filter_isbns(isbns)
             for isbn in isbns:
@@ -302,6 +309,21 @@ def remove_ignored_textlines(text):
         out.append(line)
 
     return '\n'.join(out)
+
+
+def find_ebook_isbns_in_text(text):
+    sanity.check_internal_string(text)
+
+    match = RE_E_ISBN.search(text)
+    if not match:
+        return []
+
+    possible_isbns = isbnlib.get_isbnlike(match.group(0))
+    if possible_isbns:
+        return [isbnlib.get_canonical_isbn(i)
+                for i in possible_isbns if validate_isbn(i)]
+    else:
+        return []
 
 
 def extract_isbns_from_text(text):

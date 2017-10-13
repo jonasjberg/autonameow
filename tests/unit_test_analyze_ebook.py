@@ -21,21 +21,21 @@
 
 import unittest
 
+try:
+    import isbnlib
+except ImportError:
+    isbnlib = None
+
 from analyzers import analyze_ebook
 from analyzers.analyze_ebook import (
     extract_isbns_from_text,
+    find_ebook_isbns_in_text,
     validate_isbn,
     filter_isbns,
     ISBNMetadata,
     remove_ignored_textlines
 )
-
 import unit_utils as uu
-
-try:
-    import isbnlib
-except ImportError:
-    isbnlib = None
 
 
 def get_ebook_analyzer(fileobject):
@@ -188,6 +188,28 @@ class TestISBNMetadata(unittest.TestCase):
             'isbn10': '0136070477',
         }
 
+        # e-ISBN
+        self.m5 = {
+            'title': 'Computational Intelligence Methods And Techniques',
+            'authors': ['Leszek Rutkowski'],
+            'publisher': 'Springer',
+            'year': '2008',
+            'language': 'eng',
+            'isbn10': '3540762884',
+            'isbn13': '9783540762881'
+        }
+
+        # ISBN
+        self.m6 = {
+            'title': 'Computational Intelligence: Methods And Techniques',
+            'authors': ['Leszek Rutkowski'],
+            'publisher': 'Springer',
+            'year': '2008',
+            'language': 'eng',
+            'isbn10': '3540762876',
+            'isbn13': '9783540762874'
+        }
+
     def test_isbn_metadata_from_args(self):
         isbn_metadata = ISBNMetadata(**self.m1)
         self.assertEqual(isbn_metadata.title, 'AI Algorithms, Data Structures, And Idioms In Prolog, Lisp, And Java')
@@ -206,11 +228,30 @@ class TestISBNMetadata(unittest.TestCase):
         self.assertEqual(isbn_metadata.isbn10, '0136070477')
         self.assertEqual(isbn_metadata.isbn13, '9780136070474')
 
-    def test_equaliy(self):
+    def test_equality(self):
         self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
-        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
-        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
-        self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m2))
+
+        # TODO: .. ?
+        # self.assertEqual(ISBNMetadata(**self.m5), ISBNMetadata(**self.m6))
+
+    def test_equality_2(self):
+        self.skipTest('TODO: .. ?')
+        m5 = ISBNMetadata(authors=['Leszek Rutkowski'],
+                          language='eng',
+                          publisher='Springer',
+                          isbn10='3540762884',
+                          isbn13='9783540762881',
+                          title='Computational Intelligence Methods And Techniques',
+                          year='2008')
+        m6 = ISBNMetadata(authors=['Leszek Rutkowski'],
+                          language='eng',
+                          publisher='Springer',
+                          isbn10='3540762876',
+                          isbn13='9783540762874',
+                          title='Computational Intelligence: Methods And Techniques',
+                          year='2008')
+
+        self.assertEqual(m5, m6)
 
     def test_equality_based_on_isbn_numbers(self):
         self.assertEqual(ISBNMetadata(**self.m1), ISBNMetadata(**self.m3))
@@ -229,4 +270,42 @@ class TestISBNMetadata(unittest.TestCase):
         self.assertEqual(len(metadataset), 1)
         metadataset.add(ISBNMetadata(**self.m4))
         self.assertEqual(len(metadataset), 1)
+        metadataset.add(ISBNMetadata(**self.m5))
+        self.assertEqual(len(metadataset), 2)
+
+        # TODO: .. ?
+        # metadataset.add(ISBNMetadata(**self.m6))
+        # self.assertEqual(len(metadataset), 2)
+
+
+class TestFindEbookISBNsInText(unittest.TestCase):
+    def test_finds_expected(self):
+        text = '''Computational Intelligence
+
+Leszek Rutkowski
+
+Computational Intelligence
+Methods and Techniques
+
+123
+
+Prof. Leszek Rutkowski
+Department of Computer Engineering
+Technical University of Czestochowa
+Armii Krajowej 36
+42-200 Czestochowa
+Poland
+Irutko@kik.pcz.czest.pl
+
+ISBN 978-3-540-76287-4
+
+e-ISBN 978-3-540-76288-1
+
+Originally published in Polish
+METODY I TECHNIKI SZTUCZNEJ INTELIGENCJI
+by Leszek Rutkowski, 2005 by Polish Scientific Publishers PWN
+c by Wydawnictwo Naukowe PWN SA, Warszawa 2005
+'''
+        actual = find_ebook_isbns_in_text(text)
+        self.assertIn('9783540762881', actual)
 

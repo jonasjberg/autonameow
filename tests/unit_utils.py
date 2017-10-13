@@ -716,5 +716,6 @@ def is_internalbytestring(thing):
 
 
 def get_default_config():
+    init_session_repository()
     _config_path = util.normpath(abspath_testfile('default_config.yaml'))
     return Configuration.from_file(_config_path)
