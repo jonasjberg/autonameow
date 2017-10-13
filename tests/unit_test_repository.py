@@ -394,3 +394,54 @@ class TestRepositoryGenericStorage(TestCase):
 
     def test_todo(self):
         self.skipTest('TODO: Add tests for storing "generic fields" ..')
+
+
+class TestRepositoryPool(TestCase):
+    DUMMY_REPOSITORY = 'IamRepository'
+    DUMMY_ID_1 = 'IDOne'
+    DUMMY_ID_2 = 'IDTwo'
+
+    def test_initially_empty(self):
+        p = repository.RepositoryPool()
+        self.assertEqual(len(p), 0)
+
+    def test_get_on_empty_pool_raises_keyerror(self):
+        p = repository.RepositoryPool()
+
+        for _id in [None, 'foo', 1, object()]:
+            with self.assertRaises(KeyError):
+                p.get(_id)
+
+    def test_add_repository(self):
+        p = repository.RepositoryPool()
+        p.add(repository=self.DUMMY_REPOSITORY, id_=self.DUMMY_ID_1)
+
+        self.assertEqual(len(p), 1)
+
+        actual = p.get(self.DUMMY_ID_1)
+        self.assertEqual(actual, self.DUMMY_REPOSITORY)
+
+    def test_uses_default_id_if_unspecified(self):
+        p = repository.RepositoryPool()
+        p.add(repository=self.DUMMY_REPOSITORY)
+
+        self.assertEqual(len(p), 1)
+
+        actual = p.get()
+        self.assertEqual(actual, self.DUMMY_REPOSITORY)
+
+        actual = p.get(id_=None)
+        self.assertEqual(actual, self.DUMMY_REPOSITORY)
+
+    def test_get_with_bad_id_raises_keyerror(self):
+        p = repository.RepositoryPool()
+        p.add(repository=self.DUMMY_REPOSITORY, id_=self.DUMMY_ID_1)
+
+        self.assertEqual(len(p), 1)
+
+        with self.assertRaises(KeyError):
+            _ = p.get(self.DUMMY_ID_2)
+
+        for _id in [None, 'foo', 1, object()]:
+            with self.assertRaises(KeyError):
+                p.get(_id)

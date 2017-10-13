@@ -467,6 +467,9 @@ class RepositoryPool(object):
 
         self._repositories[id_] = _repo
 
+    def __len__(self):
+        return len(self._repositories)
+
 
 def initialize(id_=None):
     # Keep one global 'SessionRepository' per 'Autonameow' instance.
