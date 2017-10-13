@@ -290,6 +290,13 @@ class TestFilenameTokenizer(TestCase):
             main_separator='-'
         )
 
+    def test_find_separators_spaces(self):
+        self._t(
+            filename='foo bar 1234 baz',
+            separators=[(' ', 3)],
+            main_separator=' '
+        )
+
     def test_find_separators_underlines_and_dashes(self):
         self._t(
             filename='foo-bar_1234_baz',
