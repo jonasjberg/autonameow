@@ -41,6 +41,10 @@ from core.model import (
 )
 from core.util import sanity
 from core.util.textutils import extractlines_do
+from core.util.text import (
+    find_edition,
+    RE_EDITION
+)
 
 
 log = logging.getLogger(__name__)

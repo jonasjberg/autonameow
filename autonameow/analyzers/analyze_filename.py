@@ -24,8 +24,8 @@ from collections import Counter
 
 from analyzers import BaseAnalyzer
 from core import (
-    types,
-    model
+    model,
+    types
 )
 from core.model import (
     ExtractedData,
@@ -36,9 +36,7 @@ from core.util import (
     dateandtime,
     textutils
 )
-
-
-RE_EDITION = re.compile(r'([0-9])+\s?((st|nd|rd|th)\s?|(e|ed))', re.IGNORECASE)
+from core.util.text import find_edition
 
 
 class FilenameAnalyzer(BaseAnalyzer):
@@ -334,24 +332,6 @@ class FilenameTokenizer(object):
         counts = Counter(sep_chars)
         _most_common = counts.most_common(3)
         return _most_common
-
-
-def find_edition(text):
-    for _num, _re_pattern in textutils.compiled_ordinal_regexes().items():
-        m = _re_pattern.search(text)
-        if m:
-            return _num
-
-    match = RE_EDITION.search(text)
-    if match:
-        e = match.group(1)
-        try:
-            edition = types.AW_INTEGER(e)
-            return edition
-        except types.AWTypeError:
-            pass
-
-    return None
 
 
 def find_publisher(text, candidates):
