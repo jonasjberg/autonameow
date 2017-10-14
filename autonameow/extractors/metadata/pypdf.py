@@ -37,7 +37,6 @@ except ImportError:
     PdfReadError = None
 
 from core import (
-    model,
     types,
     util
 )
@@ -45,6 +44,7 @@ from core.model import (
     ExtractedData,
     WeightedMapping
 )
+from core.model import genericfields as gf
 from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
@@ -62,7 +62,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericCreator
+            generic_field=gf.GenericCreator
         ),
         'CreationDate': ExtractedData(
             coercer=types.AW_PYPDFTIMEDATE,
@@ -70,7 +70,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'Encrypted': ExtractedData(types.AW_BOOLEAN),
         'ModDate': ExtractedData(
@@ -79,7 +79,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25),
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'NumberPages': ExtractedData(types.AW_INTEGER),
         'Paginated': ExtractedData(types.AW_BOOLEAN),
@@ -89,7 +89,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
             mapped_fields=[
                 WeightedMapping(fields.Title, probability=1)
             ],
-            # generic_field=model.GenericTitle
+            # generic_field=gf.GenericTitle
         ),
     }
 

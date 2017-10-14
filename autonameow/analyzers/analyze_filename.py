@@ -23,14 +23,12 @@ import re
 from collections import Counter
 
 from analyzers import BaseAnalyzer
-from core import (
-    model,
-    types
-)
+from core import types
 from core.model import (
     ExtractedData,
     WeightedMapping
 )
+from core.model import genericfields as gf
 from core.namebuilder import fields
 from core.util import (
     dateandtime,
@@ -85,7 +83,7 @@ class FilenameAnalyzer(BaseAnalyzer):
                 mapped_fields=[
                     WeightedMapping(fields.Edition, probability=1),
                 ],
-                generic_field=model.GenericEdition
+                generic_field=gf.GenericEdition
             )(_number)
         else:
             return None
@@ -139,7 +137,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            generic_field=model.GenericPublisher
+            generic_field=gf.GenericPublisher
         )(result)
 
     def _get_datetime_from_name(self):

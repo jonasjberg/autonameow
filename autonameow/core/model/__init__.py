@@ -22,20 +22,4 @@
 
 from .extracteddata import ExtractedData
 from .mapping import WeightedMapping
-from .genericfields import (
-    GenericAuthor,
-    GenericCreator,
-    GenericDateCreated,
-    GenericDateModified,
-    GenericDescription,
-    GenericEdition,
-    GenericHealth,
-    GenericMimeType,
-    GenericProducer,
-    GenericPublisher,
-    GenericSubject,
-    GenericTags,
-    GenericText,
-    GenericTitle,
-)
 from .meowuri import MeowURI

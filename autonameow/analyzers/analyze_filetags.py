@@ -23,7 +23,6 @@ import re
 
 from analyzers import BaseAnalyzer
 from core import (
-    model,
     types,
     util
 )
@@ -32,6 +31,7 @@ from core.model import (
     ExtractedData,
     WeightedMapping
 )
+from core.model import genericfields as gf
 from core.util import diskutils
 
 # TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
@@ -67,7 +67,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=0.75),
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'description': ExtractedData(
             coercer=types.AW_STRING,
@@ -75,21 +75,21 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Title, probability=0.5),
             ],
-            generic_field=model.GenericDescription
+            generic_field=gf.GenericDescription
         ),
         'tags': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Tags, probability=1),
             ],
-            generic_field=model.GenericTags
+            generic_field=gf.GenericTags
         ),
         'extension': ExtractedData(
             coercer=types.AW_MIMETYPE,
             mapped_fields=[
                 WeightedMapping(fields.Extension, probability=1),
             ],
-            generic_field=model.GenericMimeType
+            generic_field=gf.GenericMimeType
         ),
         'follows_filetags_convention': ExtractedData(
             coercer=types.AW_BOOLEAN,

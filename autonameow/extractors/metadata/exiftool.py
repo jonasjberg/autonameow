@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from core import (
-    model,
     types,
     util
 )
@@ -28,6 +27,7 @@ from core.model import (
     ExtractedData,
     WeightedMapping
 )
+from core.model import genericfields as gf
 from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
@@ -55,7 +55,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'ASF:ImageHeight': ExtractedData(types.AW_INTEGER),
         'ASF:ImageWidth': ExtractedData(types.AW_INTEGER),
@@ -71,7 +71,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'EXIF:DateTimeDigitized': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -79,7 +79,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'EXIF:DateTimeOriginal': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -87,7 +87,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'EXIF:ExifVersion': ExtractedData(types.AW_INTEGER),
         'EXIF:GainControl': ExtractedData(types.AW_INTEGER),
@@ -106,7 +106,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             mapped_fields=[
                 WeightedMapping(fields.Date, probability=1),
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'EXIF:ImageDescription': ExtractedData(
             coercer=types.AW_STRING,
@@ -115,7 +115,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Tags, probability=0.5),
                 WeightedMapping(fields.Title, probability=0.25)
             ],
-            generic_field=model.GenericDescription
+            generic_field=gf.GenericDescription
         ),
         'EXIF:Make': ExtractedData(types.AW_STRING),
         'EXIF:Model': ExtractedData(types.AW_STRING),
@@ -125,7 +125,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'EXIF:Software': ExtractedData(types.AW_STRING),
         'EXIF:UserComment': ExtractedData(
@@ -134,7 +134,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Description, probability=0.5),
                 WeightedMapping(fields.Tags, probability=0.5)
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'File:Directory': ExtractedData(types.AW_PATH),
         'File:FileAccessDate': ExtractedData(
@@ -143,7 +143,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.01),
                 WeightedMapping(fields.Date, probability=0.01)
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'File:FileInodeChangeDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -151,7 +151,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.01),
                 WeightedMapping(fields.Date, probability=0.01)
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'File:FileModifyDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -159,7 +159,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'File:FileName': ExtractedData(types.AW_PATH),
         'File:FilePermissions': ExtractedData(types.AW_INTEGER),
@@ -173,14 +173,14 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             mapped_fields=[
                 WeightedMapping(fields.Extension, probability=1)
             ],
-            generic_field=model.GenericMimeType
+            generic_field=gf.GenericMimeType
         ),
         'PDF:Author': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Author, probability=1),
             ],
-            generic_field=model.GenericAuthor
+            generic_field=gf.GenericAuthor
         ),
         'PDF:CreateDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -188,7 +188,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'PDF:Creator': ExtractedData(
             coercer=types.AW_STRING,
@@ -198,14 +198,14 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Publisher, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=model.GenericCreator
+            generic_field=gf.GenericCreator
         ),
         'PDF:Keywords': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Tags, probability=1),
             ],
-            generic_field=model.GenericTags
+            generic_field=gf.GenericTags
         ),
         'PDF:Linearized': ExtractedData(types.AW_BOOLEAN),
         'PDF:ModifyDate': ExtractedData(
@@ -214,7 +214,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'PDF:PDFVersion': ExtractedData(types.AW_FLOAT),
         'PDF:PageCount': ExtractedData(types.AW_INTEGER),
@@ -225,14 +225,14 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Author, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=model.GenericProducer
+            generic_field=gf.GenericProducer
         ),
         'PDF:Title': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Title, probability=1)
             ],
-            generic_field=model.GenericTitle
+            generic_field=gf.GenericTitle
         ),
         'SourceFile': ExtractedData(types.AW_PATH),
         'QuickTime:CreateDate': ExtractedData(
@@ -241,7 +241,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'QuickTime:CreationDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -249,7 +249,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'QuickTime:ModifyDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -257,7 +257,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.5),
                 WeightedMapping(fields.Date, probability=0.5)
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'QuickTime:CreationDate-und-SE': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -265,7 +265,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'QuickTime:TrackCreateDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -273,7 +273,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'QuickTime:TrackModifyDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -281,7 +281,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.5),
                 WeightedMapping(fields.Date, probability=0.5)
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'QuickTime:MediaCreateDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -289,7 +289,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'QuickTime:MediaModifyDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -297,7 +297,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.5),
                 WeightedMapping(fields.Date, probability=0.5)
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'XMP:About': ExtractedData(types.AW_STRING),
         'XMP:CreateDate': ExtractedData(
@@ -306,7 +306,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'XMP:Creator': ExtractedData(
             coercer=types.AW_STRING,
@@ -316,7 +316,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Publisher, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=model.GenericAuthor
+            generic_field=gf.GenericAuthor
         ),
         'XMP:CreatorTool': ExtractedData(
             coercer=types.AW_STRING,
@@ -326,7 +326,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Publisher, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=model.GenericCreator
+            generic_field=gf.GenericCreator
         ),
         'XMP:DocumentID': ExtractedData(types.AW_STRING),
         'XMP:Format': ExtractedData(
@@ -334,7 +334,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             mapped_fields=[
                 WeightedMapping(fields.Extension, probability=0.75)
             ],
-            generic_field=model.GenericMimeType
+            generic_field=gf.GenericMimeType
         ),
         'XMP:Keywords': ExtractedData(
             coercer=types.AW_STRING,
@@ -343,7 +343,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Title, probability=0.5),
                 WeightedMapping(fields.Description, probability=0.8)
             ],
-            generic_field=model.GenericTags
+            generic_field=gf.GenericTags
         ),
         'XMP:MetadataDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -351,7 +351,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'XMP:ModifyDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
@@ -359,7 +359,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
             ],
-            generic_field=model.GenericDateModified
+            generic_field=gf.GenericDateModified
         ),
         'XMP:Producer': ExtractedData(
             coercer=types.AW_STRING,
@@ -368,7 +368,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Author, probability=0.02),
                 WeightedMapping(fields.Title, probability=0.01)
             ],
-            generic_field=model.GenericProducer
+            generic_field=gf.GenericProducer
         ),
         'XMP:Subject': ExtractedData(
             coercer=types.AW_STRING,
@@ -377,7 +377,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Tags, probability=0.8),
                 WeightedMapping(fields.Title, probability=0.5)
             ],
-            generic_field=model.GenericSubject
+            generic_field=gf.GenericSubject
         ),
         'XMP:TagsList': ExtractedData(
             coercer=types.AW_STRING,
@@ -386,14 +386,14 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Title, probability=0.5),
                 WeightedMapping(fields.Description, probability=0.8)
             ],
-            generic_field=model.GenericTags
+            generic_field=gf.GenericTags
         ),
         'XMP:Title': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Title, probability=1)
             ],
-            generic_field=model.GenericTitle
+            generic_field=gf.GenericTitle
         ),
         'XMP:XMPToolkit': ExtractedData(types.AW_STRING),
     }

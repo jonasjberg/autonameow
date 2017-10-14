@@ -32,13 +32,13 @@ from core import (
     cache,
     types,
     util,
-    model
 )
 from core.namebuilder import fields
 from core.model import (
     ExtractedData,
     WeightedMapping
 )
+from core.model import genericfields as gf
 from core.util import sanity
 from core.util.textutils import extractlines_do
 from core.util.text import (
@@ -210,7 +210,7 @@ class EbookAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Author, probability=1),
             ],
-            generic_field=model.GenericAuthor
+            generic_field=gf.GenericAuthor
         )(author_string)
 
     def _filter_date(self, raw_string):
@@ -228,7 +228,7 @@ class EbookAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.Date, probability=1),
                 WeightedMapping(fields.DateTime, probability=1),
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         )(date_string)
 
     def _filter_publisher(self, raw_string):
@@ -250,7 +250,7 @@ class EbookAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            generic_field=model.GenericPublisher
+            generic_field=gf.GenericPublisher
         )(publisher_string)
 
     def _filter_title(self, raw_string):
@@ -272,7 +272,7 @@ class EbookAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Title, probability=1),
             ],
-            generic_field=model.GenericTitle
+            generic_field=gf.GenericTitle
         )(title_string)
 
     @classmethod
