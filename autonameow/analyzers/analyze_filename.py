@@ -105,6 +105,9 @@ class FilenameAnalyzer(BaseAnalyzer):
 
         file_basename_suffix = ed_basename_suffix.as_string()
         file_mimetype = ed_file_mimetype.value
+        self.log.debug(
+            'Attempting to get likely extension for MIME-type: "{!s}"  Basename'
+            ' suffix: "{!s}"'.format(file_mimetype, file_basename_suffix))
         result = likely_extension(file_basename_suffix, file_mimetype)
         return ExtractedData(
             coercer=types.AW_PATHCOMPONENT,
