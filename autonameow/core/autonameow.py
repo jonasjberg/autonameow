@@ -270,6 +270,9 @@ class Autonameow(object):
                     add_info_log=True)
             cli.msg(str(repository.SessionRepository))
 
+            # TODO:  TEMPORARY debugging experiment --- Remove!
+            # repository.SessionRepository.to_filedump('/tmp/repository_{:10.10}.state'.format(self.start_time))
+
     def _handle_file(self, current_file):
         should_list_any_results = (self.opts.get('list_datetime')
                                    or self.opts.get('list_title')
