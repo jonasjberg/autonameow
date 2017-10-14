@@ -277,6 +277,11 @@ class TestISBNMetadata(unittest.TestCase):
         # metadataset.add(ISBNMetadata(**self.m6))
         # self.assertEqual(len(metadataset), 2)
 
+    def test_edition_in_title(self):
+        m = ISBNMetadata(title='Microcontrollers, Second Edition')
+        self.assertEqual(m.title, 'Microcontrollers')
+        self.assertEqual(m.edition, '2')
+
 
 class TestFindEbookISBNsInText(unittest.TestCase):
     def test_finds_expected(self):

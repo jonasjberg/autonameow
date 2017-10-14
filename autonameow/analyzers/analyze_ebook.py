@@ -386,7 +386,7 @@ def fetch_isbn_metadata(isbn_number):
 
 class ISBNMetadata(object):
     def __init__(self, authors=None, language=None, publisher=None,
-                 isbn10=None, isbn13=None, title=None, year=None):
+                 isbn10=None, isbn13=None, title=None, year=None, edition=None):
         self._authors = authors
         self._language = language
         self._publisher = publisher
@@ -394,6 +394,7 @@ class ISBNMetadata(object):
         self._isbn13 = isbn13
         self._title = title
         self._year = year
+        self._edition = edition
 
     @property
     def authors(self):
@@ -403,6 +404,15 @@ class ISBNMetadata(object):
     def authors(self, value):
         if value and isinstance(value, list):
             self._authors = value
+
+    @property
+    def edition(self):
+        return self._edition or '0'
+
+    @edition.setter
+    def edition(self, value):
+        if value and isinstance(value, str):
+            self._edition = value
 
     @property
     def isbn10(self):
@@ -468,6 +478,11 @@ class ISBNMetadata(object):
     @title.setter
     def title(self, value):
         if value and isinstance(value, str):
+            match = find_edition(value)
+            if match:
+                self.edition = match
+                value = re.sub(RE_EDITION, '', value)
+
             self._title = value
 
     def __eq__(self, other):
