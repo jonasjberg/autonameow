@@ -297,11 +297,50 @@ class SubstringFinder(object):
         return list(filter(None, s))
 
 
+class FilenamePreprocessor(object):
+    def __init__(self):
+        pass
+
+    @classmethod
+    def __call__(cls, filename):
+        _processed = cls.preprocess(filename)
+        return _processed
+
+    @classmethod
+    def preprocess(cls, filename):
+        # Very simple heuristic for finding URL-encoded file names.
+        #
+        #   HTML 4.01 Specification
+        #   17.13.4 Form content types
+        #   application/x-www-form-urlencoded
+        #   https://www.w3.org/TR/html4/interact/forms.html#h-17.13.4.1
+        #
+        # Spaces are represented as either '%20' or '+'.
+        if ' ' not in filename:
+            _decoded = None
+
+            if '%20' in filename:
+                _decoded = textutils.urldecode(filename)
+            elif '+' in filename:
+                _decoded = filename.replace('+', ' ')
+
+            if _decoded and _decoded.strip():
+                filename = _decoded
+
+        return filename
+
+
 class FilenameTokenizer(object):
     RE_UNICODE_WORDS = re.compile(r'[^\W_]')
 
     def __init__(self, filename):
-        self.filename = filename
+        self.filename = FilenamePreprocessor()(filename)
+
+    @property
+    def tokens(self):
+        _sep = self.main_separator
+        if _sep:
+            return self.filename.split(_sep)
 
     @property
     def separators(self):

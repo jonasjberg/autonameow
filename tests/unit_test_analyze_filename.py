@@ -208,7 +208,7 @@ class TestIdentifyFields(TestCase):
         #                                 'flac']
 
 
-class TestFilenameTokenizer(TestCase):
+class TestFilenameTokenizerSeparators(TestCase):
     def _t(self, filename, separators, main_separator):
         tokenizer = FilenameTokenizer(filename)
         self.assertEqual(tokenizer.separators, separators)
@@ -259,6 +259,27 @@ class TestFilenameTokenizer(TestCase):
     def test_find_separators_darwin(self):
         self._t(
             filename='Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi',
-            separators=[('+', 9), ('-', 1), ('%', 1)],
-            main_separator='+'
+            separators=[(' ', 9), ('-', 1), ('%', 1)],
+            main_separator=' '
         )
+
+    def test_find_separators_html_encoded(self):
+        self._t(
+            filename='A%20Quick%20Introduction%20to%20IFF.txt',
+            separators=[(' ', 4), ('.', 1)],
+            main_separator=' '
+        )
+
+
+class TestFilenameTokenizerTokens(TestCase):
+    def _t(self, filename, tokens):
+        tokenizer = FilenameTokenizer(filename)
+        self.assertEqual(tokenizer.tokens, tokens)
+
+    def test_only_spaces(self):
+        self._t(filename='foo bar 1234 baz',
+                tokens=['foo', 'bar', '1234', 'baz'])
+
+    def test_html_encoded(self):
+        self._t(filename='A%20Quick%20Introduction%20to%20IFF.txt',
+                tokens=['A', 'Quick', 'Introduction', 'to', 'IFF.txt'])
