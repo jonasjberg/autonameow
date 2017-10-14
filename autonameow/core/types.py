@@ -438,6 +438,9 @@ class MimeType(BaseType):
                  'MIME_TYPE_LOOKUP is empty')
 
     # Any custom "extension to MIME-type"-mappings goes here.
+    MIME_TYPE_LOOKUP['gz'] = 'application/x-gzip'
+    MIME_TYPE_LOOKUP['lzma'] = 'application/x-lzma'
+    MIME_TYPE_LOOKUP['rar'] = 'application/x-rar'
     MIME_TYPE_LOOKUP['sh'] = 'text/x-shellscript'
 
     MIME_TYPE_LOOKUP_INV = {
@@ -445,7 +448,6 @@ class MimeType(BaseType):
     }
 
     # Override "MIME-type to extension"-mappings here.
-    MIME_TYPE_LOOKUP_INV['application/x-rar'] = 'rar'
     MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
     MIME_TYPE_LOOKUP_INV['image/jpeg'] = 'jpg'
     MIME_TYPE_LOOKUP_INV['video/quicktime'] = 'mov'

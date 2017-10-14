@@ -270,6 +270,12 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'txt': {'txt'},
         'yaml': {'yaml'},
     },
+    'application/x-gzip': {
+        'tar.gz': {'tar.gz'}
+    },
+    'application/x-lzma': {
+        'tar.lzma': {'tar.lzma'}
+    },
     'text/x-shellscript': {
         'sh': {'bash', 'sh', 'txt'},
         'py': {'py'},
