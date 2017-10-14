@@ -1,12 +1,21 @@
-Notes on "Operating Modes"
-==========================
-Jonas Sjöberg, 2017-10-01.
+`autonameow`
+============
+*Copyright(c) 2016-2017 Jonas Sjöberg*  
+<https://github.com/jonasjberg/autonameow>  
+<http://www.jonasjberg.com>  
 
-Unsorted notes on overall modes of program operation.
+--------------------------------------------------------------------------------
+
+Modes of Operation
+==================
+Unsorted notes on overall program operation and usability.
+
+#### Revisions
+* 2017-10-01 --- `jonasjberg` Initial
 
 
 Current Plans
--------------
+=============
 Help text from version `v0.4.7` (commit 870725bb6e17580d6dc4d0d3ded59c7d081):
 
 > Operating mode:
@@ -46,7 +55,7 @@ The plan has been the same for quite som time. High-level Goals:
 
 
 Operating Modes
----------------
+===============
 
 
 ### `--automagic`
@@ -77,5 +86,3 @@ Leave all choices to the user.
 
 * __Template Fields__ --- Ask the user which data sources (or rule containing
   data sources) to use.
-
-

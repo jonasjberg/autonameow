@@ -1,18 +1,20 @@
 `autonameow`
 ============
 *Copyright(c) 2016-2017 Jonas Sjöberg*  
-<https://github.com/jonasjberg>  
+<https://github.com/jonasjberg/autonameow>  
 <http://www.jonasjberg.com>  
 
 --------------------------------------------------------------------------------
-
 
 Ideas and Notes
 ===============
 Various ideas on possible upcoming features and changes to `autonameow`.
 
-* Revised 2017-09-25 -- Add notes on the "Resolver"
-* Revised 2017-09-28 -- Add notes on auto-completing MeowURIs.
+#### Revisions
+* 2017-07-25 --- `jonasjberg` Initial
+* 2017-09-25 --- `jonasjberg` Add notes on the "Resolver"
+* 2017-09-28 --- `jonasjberg` Add notes on auto-completing MeowURIs.
+* 2017-10-14 --- `jonasjberg` Add thoughts on a reasoning/probability system.
 
 
 Field Candidates
@@ -145,6 +147,9 @@ files.
   which of many possible datetime results to use?
 
 
+--------------------------------------------------------------------------------
+
+
 Rule Matching Calculations
 --------------------------
 
@@ -194,6 +199,8 @@ sum(len(rule.conditions) for rule in rules) # = 24
   Rule D    10     10    1       0.416      -->    1*0.416 = 0.416
 ```
 
+
+--------------------------------------------------------------------------------
 
 
 Data Transformation
@@ -378,6 +385,8 @@ SessionRepository.data = {
 | `'metadata.pypdf.Paginated'`                    | `True`                                                               | ?                                                  |
 
 
+--------------------------------------------------------------------------------
+
 
 Thoughts on the "analyzers"
 ---------------------------
@@ -422,9 +431,12 @@ The analyzers should probably take this contextual information in consideration
 when prioritizing candidates, etc.
 
 
+--------------------------------------------------------------------------------
+
+
 The "Resolver"
 --------------
-Jonas Sjöberg, 2017-09-25.
+> Jonas Sjöberg, 2017-09-25.
 
 
 Modified excerpt from `autonameow/core/main.py` with a lot of added
@@ -613,7 +625,6 @@ def _perform_automagic_actions(self, current_file, rule_matcher):
 ```
 
 
-
 Auto-Completion of MeowURIs
 ---------------------------
 When in a mode that allows querying the user, choices of data using MeowURIs
@@ -646,3 +657,71 @@ Entering `.` and then pressing `<TAB>`:
 > extractor.
   (exiftool, filesystem, pypdf, tesseract, ..)
 ```
+
+
+--------------------------------------------------------------------------------
+
+
+Thoughts on a ("reasoning") Probability System
+----------------------------------------------
+> Jonas Sjöberg, 2017-10-14.
+
+
+*It has been obvious for quite some time that `autonameow` needs to integrate
+ideas and techniques from machine learning and probabilistic programming to
+solve some of the main problems.
+
+These are fields that I have no prior experience with, whatsoever..  But, here
+are some high-level ideas of problems that have already been solved, better..*
+
+Lets say the program component `FilenameTokenizer` was given the file name
+`A%20Quick%20Introduction%20to%20IFF.txt` and has managed to detect that the
+filename is URL-encoded, etc and finally came up with this result:
+`['A', 'Quick', 'Introduction', 'to', 'IFF.txt']`
+
+Which is pretty good. But the separator-detection would like additional
+information in order to figure out how to split the last element `IFF.txt`.
+
+The main point is this:
+__Parts of the system need to "ask" other parts to verify propositions__
+
+In this case, the `FilenameTokenizer` would like to know if the `.txt` part of
+`IFF.txt` is a file extension or not.
+
+It would be nice if there was a system so that the `FilenameTokenizer` could
+pass this question to some central point, that could figure out which parts of
+the system that are able to answer the question.
+
+Given the question; __Is `.txt` likely a file extension in `IFF.txt`__, these
+sources could provide relevant evidence:
+
+- Check if the MIME-type of the related file (if any) is `text/plain`:
+    ```python
+    >>> _ext = 'IFF.txt'.split('.')[-1]
+    >>> _ext
+    'txt'
+    >>> from core import types
+    >>> types.AW_MIMETYPE(_ext)
+    'text/plain'
+    ```
+
+* Check the extension provided by the related `FileObject` (if any):
+    ```python
+	>>> f = FileObject(b'/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt')
+	>>> f
+	<FileObject("/Users/jonas/today/A%20Quick%20Introduction%20to%20IFF.txt")>
+	>>> f.basename_suffix
+	b'txt'
+    ```
+
+Then add weights to the results of the evidence and calculate a __total
+probability score__.
+
+In this case, the MIME-type test would probably be weighted by `10`, so that a
+failed evaluation decreases the total score a lot.
+
+The `FileObject` evidence, along with other potential sources of information
+related to file extension, would probably be weighted a bit lower.
+
+Everything would be combined and returned as an answer to the question
+originally posed by the `FilenameTokenizer` component.

@@ -1,15 +1,14 @@
-`autonameow` data formats
-=========================
-
-```
-Copyright(c)2016-2017 Jonas Sjoberg
-                      https://github.com/jonasjberg
-                      jomeganas@gmail.com
-
-Please see "LICENSE.txt" for licensing details.
-```
+`autonameow`
+============
+*Copyright(c) 2016-2017 Jonas Sjöberg*  
+<https://github.com/jonasjberg/autonameow>  
+<http://www.jonasjberg.com>  
 
 --------------------------------------------------------------------------------
+
+Data Formats
+============
+Notes on internal data formats and data structures.
 
 
 Configuration File
