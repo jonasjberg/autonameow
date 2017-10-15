@@ -692,8 +692,9 @@ It would be nice if there was a system so that the `FilenameTokenizer` could
 pass this question to some central point, that could figure out which parts of
 the system that are able to answer the question.
 
-Given the question; __Is `.txt` likely a file extension in `IFF.txt`__, these
-sources could provide relevant evidence:
+Given the question;
+__Given the string `IFF.txt`, is the substring `.txt` a file extension?__;
+these sources could possibly provide relevant evidence:
 
 - Check if the MIME-type of the related file (if any) is `text/plain`:
     ```python
