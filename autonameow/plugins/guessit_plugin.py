@@ -21,6 +21,11 @@
 
 import logging
 
+try:
+    import guessit as guessit
+except ImportError:
+    guessit = None
+
 from core import (
     exceptions,
     types,
@@ -33,11 +38,6 @@ from core.model import (
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from plugins import BasePlugin
-
-try:
-    import guessit as guessit
-except ImportError:
-    guessit = None
 
 
 class GuessitPlugin(BasePlugin):

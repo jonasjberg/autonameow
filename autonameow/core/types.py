@@ -34,7 +34,6 @@ types --- they are shared and should not retain any kind of state.
 import os
 import mimetypes
 import re
-
 from datetime import datetime
 
 from core import (

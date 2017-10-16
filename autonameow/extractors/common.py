@@ -21,11 +21,11 @@
 
 import logging
 
+from core import constants as C
 from core import util
 from core.exceptions import AutonameowException
 from core.fileobject import FileObject
 from core.util import sanity
-from core import constants as C
 
 
 class ExtractorError(AutonameowException):

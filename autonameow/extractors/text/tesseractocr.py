@@ -41,7 +41,6 @@ from core.util import (
     sanity,
     textutils
 )
-
 from extractors import ExtractorError
 from extractors.text.common import (
     AbstractTextExtractor,

@@ -24,16 +24,16 @@ import logging
 import analyzers
 from core import (
     exceptions,
-    util,
-    repository
+    repository,
+    util
 )
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
-from core.model import ExtractedData
 from core.util import sanity
 
 
 log = logging.getLogger(__name__)
+
 
 """
 Performs high-level handling of an analysis.

@@ -28,11 +28,9 @@ import dateutil
 import pytz
 from dateutil import parser
 
-from core import (
-    util
-)
-from core.util import textutils
 from core import constants as C
+from core import util
+from core.util import textutils
 
 
 log = logging.getLogger(__name__)

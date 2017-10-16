@@ -26,6 +26,7 @@ import sys
 
 from .common import BasePlugin
 
+
 # Plugins are assumed to be located in the same directory as this file.
 AUTONAMEOW_PLUGIN_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_PLUGIN_PATH)

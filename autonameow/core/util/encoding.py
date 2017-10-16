@@ -40,10 +40,9 @@
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
 
-
-import sys
-import os
 import locale
+import os
+import sys
 
 
 WINDOWS_MAGIC_PREFIX = u'\\\\?\\'

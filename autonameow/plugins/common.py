@@ -21,8 +21,8 @@
 
 import logging
 
-from core import plugin_handler
 from core import constants as C
+from core import plugin_handler
 
 
 class BasePlugin(object):

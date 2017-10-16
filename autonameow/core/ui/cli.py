@@ -20,11 +20,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import re
-import platform
-from datetime import datetime
 import logging
+import os
+import platform
+import re
+from datetime import datetime
 
 try:
     import colorama
@@ -35,8 +35,8 @@ except ImportError:
 import core
 from core import constants as C
 from core import (
-    util,
-    types
+    types,
+    util
 )
 from core.util import sanity
 

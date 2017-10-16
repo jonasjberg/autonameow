@@ -26,6 +26,7 @@ from core.model import ExtractedData
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
 from core.util import sanity
 
+
 log = logging.getLogger(__name__)
 
 

@@ -30,10 +30,8 @@ from core import (
     types,
     util
 )
-from core.model import (
-    genericfields,
-    MeowURI
-)
+from core.model import genericfields as gf
+from core.model import MeowURI
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
 from core.util import sanity
 
@@ -191,7 +189,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
     ]
     # Add MeowURIs from "generic" fields.
     applies_to_meowuri.extend([
-        field.uri() for field in genericfields.get_string_fields()
+        field.uri() for field in gf.get_string_fields()
     ])
 
     @staticmethod
@@ -263,7 +261,7 @@ class RegexConfigFieldParser(ConfigFieldParser):
 
 
 class MimeTypeConfigFieldParser(ConfigFieldParser):
-    applies_to_meowuri = ['*.mime_type', genericfields.GenericMimeType.uri()]
+    applies_to_meowuri = ['*.mime_type', gf.GenericMimeType.uri()]
 
     @staticmethod
     def is_valid_mime_type(expression):
@@ -325,7 +323,7 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
     ]
     # Add MeowURIs from "generic" fields.
     applies_to_meowuri.extend([
-        field.uri() for field in genericfields.get_datetime_fields()
+        field.uri() for field in gf.get_datetime_fields()
     ])
 
     @staticmethod

@@ -26,8 +26,8 @@ from core import (
     exceptions,
     repository
 )
-from core.util import sanity
 from core.model import ExtractedData
+from core.util import sanity
 
 
 # TODO: [TD0009] Implement a proper plugin interface.

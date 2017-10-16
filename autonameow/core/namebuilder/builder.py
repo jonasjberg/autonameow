@@ -21,7 +21,6 @@
 
 import logging
 import re
-from datetime import datetime
 
 from core import constants as C
 from core import (

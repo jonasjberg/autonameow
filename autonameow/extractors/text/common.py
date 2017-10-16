@@ -36,6 +36,7 @@ from extractors import (
     ExtractorError
 )
 
+
 log = logging.getLogger(__name__)
 
 

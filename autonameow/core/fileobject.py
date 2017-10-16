@@ -20,8 +20,8 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import filecmp
-import os
 import magic
+import os
 
 from core import constants as C
 from core import (
@@ -32,6 +32,7 @@ from core.util import (
     diskutils,
     sanity
 )
+
 
 UNKNOWN_BYTESIZE = 0
 

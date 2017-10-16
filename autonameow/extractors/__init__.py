@@ -29,6 +29,7 @@ from .common import (
     ExtractorError,
 )
 
+
 log = logging.getLogger(__name__)
 
 

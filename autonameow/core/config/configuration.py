@@ -23,20 +23,14 @@ import logging
 import os
 import re
 
-from core import (
-    constants as C,
-    cache
-)
+from core import constants as C
 from core import (
     config,
     exceptions,
-    namebuilder,
-    util,
-    types
+    types,
+    util
 )
-from core.config import (
-    rules
-)
+from core.config import rules
 from core.config.field_parsers import (
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser,
@@ -44,6 +38,7 @@ from core.config.field_parsers import (
 )
 from core.namebuilder import fields
 from core.util import sanity
+
 
 log = logging.getLogger(__name__)
 

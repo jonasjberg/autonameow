@@ -22,20 +22,19 @@
 import logging
 import os
 
-from core.util import diskutils
-
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
 
 from core import (
+    config,
     exceptions,
     types,
-    util,
-    config
+    util
 )
 from core import constants as C
+from core.util import diskutils
 
 
 log = logging.getLogger(__name__)

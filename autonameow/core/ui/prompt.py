@@ -29,7 +29,10 @@ try:
         Completer,
         Completion
     )
-    from prompt_toolkit.history import InMemoryHistory, FileHistory
+    from prompt_toolkit.history import (
+        FileHistory,
+        InMemoryHistory
+    )
     from prompt_toolkit.interface import AbortAction
     from prompt_toolkit.shortcuts import confirm
     from prompt_toolkit.validation import (
