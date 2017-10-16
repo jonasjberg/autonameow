@@ -252,7 +252,7 @@ class Repository(object):
         # TODO: [TD0066] Handle all encoding properly.
         temp = {}
         _max_len_meowuri = 20
-        for uri, data in data.items():
+        for uri, data in sorted(data.items()):
             _max_len_meowuri = max(_max_len_meowuri, len(uri))
 
             if isinstance(data, list):
