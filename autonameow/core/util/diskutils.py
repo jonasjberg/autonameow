@@ -305,19 +305,25 @@ def get_files_gen(search_path, recurse=False):
         sanity.check_internal_bytestring(search_path)
         yield search_path
     elif os.path.isdir(util.syspath(search_path)):
-        for entry in os.listdir(util.syspath(search_path)):
-            entry_path = os.path.join(util.syspath(search_path),
-                                      util.syspath(entry))
-            if not os.path.exists(util.syspath(entry_path)):
-                raise FileNotFoundError
+        try:
+            _dir_listing = os.listdir(util.syspath(search_path))
+        except PermissionError as e:
+            log.warning(str(e))
+            pass
+        else:
+            for entry in _dir_listing:
+                entry_path = os.path.join(util.syspath(search_path),
+                                          util.syspath(entry))
+                if not os.path.exists(util.syspath(entry_path)):
+                    raise FileNotFoundError
 
-            if os.path.isfile(entry_path):
-                sanity.check_internal_bytestring(entry_path)
-                yield entry_path
-            elif recurse and os.path.isdir(entry_path):
-                for f in get_files_gen(entry_path, recurse=recurse):
-                    sanity.check_internal_bytestring(f)
-                    yield f
+                if os.path.isfile(entry_path):
+                    sanity.check_internal_bytestring(entry_path)
+                    yield entry_path
+                elif recurse and os.path.isdir(entry_path):
+                    for f in get_files_gen(entry_path, recurse=recurse):
+                        sanity.check_internal_bytestring(f)
+                        yield f
 
 
 def compare_basenames(basename_one, basename_two):
