@@ -23,10 +23,7 @@
 import logging
 import sys
 
-from core.ui import (
-    cli,
-    prompt
-)
+from core.ui import cli
 
 
 log = logging.getLogger(__name__)
@@ -71,7 +68,7 @@ def meowuri_prompt(message):
                     'AssertionError in "prompt_toolkit". ABORTING!')
         return Choice.ABORT
 
-    response = prompt.meowuri_prompt(message)
+    response = cli.meowuri_prompt(message)
     if response:
         return response
     else:
@@ -90,6 +87,6 @@ def ask_confirm(message=None):
     else:
         msg = '\n{}  [y/n]'.format(message)
 
-    response = prompt.ask_confirm(msg)
+    response = cli.ask_confirm(msg)
     assert isinstance(response, bool)
     return response
