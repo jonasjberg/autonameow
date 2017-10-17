@@ -174,8 +174,17 @@ def extract_lines(text, firstline, lastline):
     return ''.join(extracted)
 
 
+RE_AUTHOR_ET_AL = re.compile(
+    r'[\[\(\{]?et.al\.?[\]\)\}]?', re.IGNORECASE
+)
+
+
+def strip_author_et_al(string):
+    return RE_AUTHOR_ET_AL.sub('', string)
+
+
 IGNORED_AUTHOR_WORDS = frozenset([
-    'van'
+    '...',
 ])
 
 
@@ -208,7 +217,14 @@ def format_name_lastname_initials(full_name):
     """
     sanity.check_internal_string(full_name)
 
+    for ignored_word in IGNORED_AUTHOR_WORDS:
+        full_name = full_name.replace(ignored_word, '')
+
+    full_name = strip_author_et_al(full_name)
+
     full_name = full_name.strip()
+    full_name = full_name.rstrip(',')
+    full_name = full_name.lstrip(',')
 
     # Return names already in the output format as-is.
     if re.match(r'[\w]+ (\w\.)+$', full_name):
@@ -227,7 +243,10 @@ def format_name_lastname_initials(full_name):
 
     def _to_initial(string):
         string = string.strip('.')
-        return string[0]
+        try:
+            return string[0]
+        except IndexError:
+            return ''
 
     initials = [_to_initial(f) for f in first_list]
     initials += [_to_initial(m) for m in _human_name.middle_list]

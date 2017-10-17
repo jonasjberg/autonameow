@@ -451,6 +451,14 @@ class TestFormatNameLastnameInitials(unittest.TestCase):
         _aE('Bertrand Russell', 'Russell B.')
         _aE('Russell B.', 'Russell B.')
 
+        _aE('Steve Anson ... [et al.]', 'Anson S.')
+        _aE('Steve Anson, et al.', 'Anson S.')
+        _aE('Steve Anson, ... et al.', 'Anson S.')
+        _aE('Steve Anson, ... et al', 'Anson S.')
+        _aE('Steve Anson ... et al', 'Anson S.')
+        _aE('Steve Anson ... [et al]', 'Anson S.')
+        _aE('Steve Anson ... [et al.]', 'Anson S.')
+
         # TODO: Handle these ..
         # _aE('Simchi-Levi D.', 'Simchi-Levi D.')
         # _aE('Tallon-Ballesteros A.J.', 'Tallon-Ballesteros A.J.')
