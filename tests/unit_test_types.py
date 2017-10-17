@@ -1582,38 +1582,3 @@ class TestNormalizeDatetimeWithMicroseconds(TestCase):
 
         # TODO: Add handling more difficult patterns here?
         # _assert_match('12_7_2017_20_50_15_641659')
-
-
-# TODO: [TD0084] Handle collections (lists, etc) with wrapper classes.
-class TestListofStrings(TestCase):
-    def test_call_with_coercible_data(self):
-        def _assert_returns(test_data, expected):
-            actual = types.listof(types.AW_STRING)(test_data)
-            self.assertEqual(actual, expected)
-
-        _assert_returns([''], [''])
-        _assert_returns([' '], [' '])
-        _assert_returns([b''], [''])
-        _assert_returns([b' '], [' '])
-        _assert_returns([-1], ['-1'])
-        _assert_returns([0], ['0'])
-        _assert_returns([1], ['1'])
-        _assert_returns([-1.5], ['-1.5'])
-        _assert_returns([-1.0], ['-1.0'])
-        _assert_returns([1.0], ['1.0'])
-        _assert_returns([1.5], ['1.5'])
-        _assert_returns(['-1'], ['-1'])
-        _assert_returns(['-1.0'], ['-1.0'])
-        _assert_returns(['0'], ['0'])
-        _assert_returns(['1'], ['1'])
-        _assert_returns(['foo'], ['foo'])
-        _assert_returns([None], [''])
-        _assert_returns([False], ['False'])
-        _assert_returns([True], ['True'])
-
-    def test_call_with_noncoercible_data(self):
-        with self.assertRaises(types.AWTypeError):
-            types.AW_STRING(datetime.now())
-
-        with self.assertRaises(types.AWTypeError):
-            types.AW_STRING([datetime.now()])
