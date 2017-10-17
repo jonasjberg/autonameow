@@ -459,9 +459,8 @@ class TestFormatNameLastnameInitials(unittest.TestCase):
         _aE('Steve Anson ... [et al]', 'Anson S.')
         _aE('Steve Anson ... [et al.]', 'Anson S.')
 
-        # TODO: Handle these ..
-        # _aE('Simchi-Levi D.', 'Simchi-Levi D.')
-        # _aE('Tallon-Ballesteros A.J.', 'Tallon-Ballesteros A.J.')
+        _aE('Simchi-Levi D.', 'Simchi-Levi D.')
+        _aE('Tallon-Ballesteros A.J.', 'Tallon-Ballesteros A.J.')
 
 
 class TestFormatNamesLastnameInitials(unittest.TestCase):
