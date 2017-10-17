@@ -127,6 +127,16 @@ class TestLikelyExtension(TestCase):
 
 
 class TestFileNameAnalyzerWithEbook(TestCase):
+    def _mock_request_data(self, fileobject, meowuri):
+        from core import types
+        from core.model import ExtractedData
+
+        if fileobject.filename == b'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi':
+            if meowuri == 'extractor.filesystem.xplat.basename.prefix':
+                return ExtractedData(
+                    coercer=types.AW_PATHCOMPONENT
+                )(b'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition')
+
     def setUp(self):
         fo = uu.fileobject_testfile(
             'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi'
@@ -135,14 +145,20 @@ class TestFileNameAnalyzerWithEbook(TestCase):
             fo,
             config=uu.get_default_config(),
             add_results_callback=uu.mock_analyzer_collect_data,
-            request_data_callback=uu.mock_analyzer_request_global_data
-        )
-        uu.load_repository_dump(
-            uu.abspath_testfile('repository_Darwin-mobi.state')
+            request_data_callback=self._mock_request_data
         )
 
+        # TODO: This breaks due to FileObject equality check in '__hash__'
+        #       includes the absolute path, which is different across platforms.
+        # TODO: Pickled repository state does not work well!
+
+        # uu.load_repository_dump(
+        #     uu.abspath_testfile('repository_Darwin-mobi.state')
+        # )
+
     def test_get_edition(self):
-        actual = self.a.get_edition().value
+        actual = self.a.get_edition()
+        actual = actual.value
         expected = 6
         self.assertEqual(actual, expected)
 
