@@ -1611,30 +1611,9 @@ class TestListofStrings(TestCase):
         _assert_returns([False], ['False'])
         _assert_returns([True], ['True'])
 
-        _assert_returns(['', ''], ['', ''])
-        _assert_returns([' ', ' '], [' ', ' '])
-        _assert_returns([b'', b''], ['', ''])
-        _assert_returns([b' ', b' '], [' ', ' '])
-        _assert_returns([-1, -1], ['-1', '-1'])
-        _assert_returns([0, 0], ['0', '0'])
-        _assert_returns([1, 1], ['1', '1'])
-        _assert_returns([-1.5, -1.5], ['-1.5', '-1.5'])
-        _assert_returns([-1.0, -1.0], ['-1.0', '-1.0'])
-        _assert_returns([1.0, 1.0], ['1.0', '1.0'])
-        _assert_returns([1.5, 1.5], ['1.5', '1.5'])
-        _assert_returns(['-1', '-1'], ['-1', '-1'])
-        _assert_returns(['-1.0', '-1.0'], ['-1.0', '-1.0'])
-        _assert_returns(['0', '0'], ['0', '0'])
-        _assert_returns(['1', '1'], ['1', '1'])
-        _assert_returns(['foo', 'foo'], ['foo', 'foo'])
-        _assert_returns([None, None], ['', ''])
-        _assert_returns([False, False], ['False', 'False'])
-        _assert_returns([True, True], ['True', 'True'])
-
     def test_call_with_noncoercible_data(self):
         with self.assertRaises(types.AWTypeError):
             types.AW_STRING(datetime.now())
 
         with self.assertRaises(types.AWTypeError):
             types.AW_STRING([datetime.now()])
-
