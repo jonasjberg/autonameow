@@ -180,7 +180,7 @@ class TestIdentifyFields(TestCase):
         f = SubstringFinder()
 
         def _assert_splits(test_data, expected):
-            actual = f._substrings(test_data)
+            actual = f.substrings(test_data)
             self.assertEqual(actual, expected)
 
         _assert_splits('a', ['a'])
@@ -188,6 +188,17 @@ class TestIdentifyFields(TestCase):
         _assert_splits('a b ', ['a', 'b'])
         _assert_splits(' a b ', ['a', 'b'])
         _assert_splits('a b a', ['a', 'b', 'a'])
+
+        _assert_splits('a-b', ['a', 'b'])
+        _assert_splits('a-b c', ['a-b', 'c'])
+        _assert_splits('a b-c', ['a', 'b-c'])
+        _assert_splits(' a-b ', ['a-b'])
+        _assert_splits('a_b_a', ['a', 'b', 'a'])
+
+        _assert_splits('TheBeatles - PaperbackWriter',
+                       ['TheBeatles', '-', 'PaperbackWriter'])
+        _assert_splits('TheBeatles PaperbackWriter',
+                       ['TheBeatles', 'PaperbackWriter'])
 
     def test_identifies_fields(self):
         self.skipTest('TODO: ..')
@@ -286,6 +297,55 @@ class TestFilenameTokenizerSeparators(TestCase):
             separators=[(' ', 4), ('.', 1)],
             main_separator=' '
         )
+
+    def test_find_main_separator(self):
+        def _aE(filename, main_separator):
+            tokenizer = FilenameTokenizer(filename)
+            self.assertEqual(tokenizer.main_separator, main_separator)
+            tokenizer = None
+
+        _aE('a b', ' ')
+        _aE('a-b-c_d', '-')
+        _aE('a-b', '-')
+        _aE('a_b', '_')
+        _aE('a--b', '-')
+        _aE('a__b', '_')
+
+        _aE('a b', ' ')
+        _aE('shell-scripts.github', '-')
+        _aE('Unison-OS-X-2.48.15.zip', '-')
+
+        # TODO: Are we looking for field- or word-separators..? (!?)
+        _aE('2012-02-18-14-18_Untitled-meeting.log', '-')
+
+    def test_resolve_tied_counts(self):
+        assume_preferred_separator = '_'
+
+        def _aE(filename, main_separator):
+            tokenizer = FilenameTokenizer(filename)
+            self.assertEqual(tokenizer.main_separator, main_separator)
+            tokenizer = None
+
+        _aE('a-b c', ' ')
+        _aE('a_b c', ' ')
+        _aE('-a b', ' ')
+        _aE('_a b', ' ')
+        _aE('a-b c_d', ' ')
+        _aE('a_b c-d', ' ')
+        _aE('-a b_d', ' ')
+        _aE('_a b-d', ' ')
+
+        _aE('a-b_c', assume_preferred_separator)
+        _aE('a_b-c', assume_preferred_separator)
+        _aE('a_-b', assume_preferred_separator)
+        _aE('a-_b', assume_preferred_separator)
+        _aE('a-b_c-d_e', assume_preferred_separator)
+        _aE('a_b-c_d-e', assume_preferred_separator)
+        _aE('a_-b-_c', assume_preferred_separator)
+        _aE('a-_b_-c', assume_preferred_separator)
+
+        _aE('a-_b', assume_preferred_separator)
+        _aE('a_-b', assume_preferred_separator)
 
 
 class TestFilenameTokenizerTokens(TestCase):

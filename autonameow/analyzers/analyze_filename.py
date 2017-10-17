@@ -37,6 +37,26 @@ from core.util import (
 from core.util.text import find_edition
 
 
+# Use two different types of separators;  "SPACE" and "SEPARATOR".
+#
+# Example filename:   "The-Artist_01_Great-Tune.mp4"
+#                         ^      ^  ^     ^
+#                     space   separators  space
+#
+# Splitting the filename by "SEPARATOR" gives some arbitrary "fields".
+#
+#                     "The-Artist"   "01"   "Great-Tune"
+#                       Field #1      #2      Field #3
+#
+# Splitting the filename by "SPACE" typically gives words.
+#
+#                     "The"   "Artist"   "01"   "Great"   "Tune"
+
+# TODO: Let the user specify this in the configuration file.
+PREFERRED_FILENAME_CHAR_SPACE = '-'
+PREFERRED_FILENAME_CHAR_SEPARATOR = '_'
+
+
 class FilenameAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     HANDLES_MIME_TYPES = ['*/*']
@@ -297,10 +317,11 @@ class SubstringFinder(object):
     # TODO: (?) Implement or remove ..
 
     def identify_fields(self, string, field_list):
-        substrings = self._substrings(string)
+        substrings = self.substrings(string)
 
-    def _substrings(self, string):
-        s = re.split(r'\W', string)
+    def substrings(self, string):
+        _splitchar = FilenameTokenizer(string).main_separator
+        s = string.split(_splitchar)
         return list(filter(None, s))
 
 
@@ -355,10 +376,40 @@ class FilenameTokenizer(object):
 
     @property
     def main_separator(self):
-        try:
-            return self._find_separators(self.filename)[0][0]
-        except IndexError:
-            return ''
+        _seps = self._find_separators(self.filename)
+        if not _seps:
+            return None
+
+        # Detect if first- and second-most common separators have an equal
+        # number of occurrences and resolve any tied count separately.
+        if len(_seps) >= 2:
+            _first_count = _seps[0][1]
+            _second_count = _seps[1][1]
+            if _first_count == _second_count:
+                return self.resolve_tied_count(_seps[0][0], _seps[1][0])
+
+        if _seps:
+            try:
+                return _seps[0][0]
+            except IndexError:
+                return ''
+
+        return None
+
+    @classmethod
+    def resolve_tied_count(cls, *candidates):
+        # Prefer to use the single space.
+        if ' ' in candidates:
+            return ' '
+        elif PREFERRED_FILENAME_CHAR_SEPARATOR in candidates:
+            # Use hardcoded preferred main separator character.
+            return PREFERRED_FILENAME_CHAR_SEPARATOR
+        elif PREFERRED_FILENAME_CHAR_SPACE in candidates:
+            # Use hardcoded preferred space separator character.
+            return PREFERRED_FILENAME_CHAR_SPACE
+        else:
+            # Last resort, uses arbitrary value.
+            return sorted(candidates)[0]
 
     @classmethod
     def _find_separators(cls, string):
