@@ -115,6 +115,20 @@ class Resolver(object):
             _data = self._request_data(self.file, _meowuri)
             if _data is not None:
                 log.debug('Got data "{!s}" ({})'.format(_data, type(_data)))
+
+                # TODO: [TD0112] Clean up merging data.
+                if isinstance(_data, list):
+
+                    seen_data = set()
+                    for d in _data:
+                        seen_data.add(d.value)
+
+                    if len(seen_data) == 1:
+                        log.debug(
+                            'Merged {} ExtractedData entries'.format(len(_data))
+                        )
+                        _data = _data[0]
+
                 log.debug('Updated data for field "{!s}"'.format(_field))
                 self.fields_data[_field] = _data
             else:
