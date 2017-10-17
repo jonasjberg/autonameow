@@ -84,13 +84,26 @@ class ExtractedData(object):
 
     def as_string(self):
         if self.coercer:
-            try:
-                string = self.coercer.format(self.value)
-            except types.AWTypeError:
-                pass
+            if isinstance(self.coercer, types.Multiple):
+                out = []
+                for v in self.value:
+                    try:
+                        string = self.coercer._coercer.format(v)
+                    except types.AWTypeError:
+                        pass
+                    else:
+                        if string is not None:
+                            out.append(string)
+                return out
             else:
-                if string is not None:
-                    return string
+                try:
+                    string = self.coercer.format(self.value)
+                except types.AWTypeError:
+                    pass
+                else:
+                    if string is not None:
+                        return string
+
         log.warning('Coercer unknown! "as_string()" returning empty string')
         return ''
 

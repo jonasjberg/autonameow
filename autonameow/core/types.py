@@ -820,10 +820,33 @@ class Multiple(object):
         out = []
         for v in value:
             _coerced = self._coercer(v)
-            if _coerced:
+            if _coerced is not None:
                 out.append(_coerced)
 
         return out
+
+    def normalize(self, value):
+        pass
+
+    def format(self, value, **kwargs):
+        pass
+
+        value = self.__call__(value)
+
+        format_string = kwargs.get('format_string')
+        if format_string is None:
+            format_string = C.DEFAULT_DATETIME_FORMAT_DATE
+            if not isinstance(format_string, str):
+                raise AWTypeError('Expected "format_string" to be Unicode str')
+
+            try:
+                return datetime.strftime(value, format_string)
+            except TypeError:
+                pass
+
+        raise AWTypeError(
+            'Invalid "format_string": "{!s}"'.format(format_string)
+        )
 
 
 def listof(coercer):
