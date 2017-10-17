@@ -64,6 +64,18 @@ class TestFindEdition(TestCase):
         _aE('Bar fifth e - Baz._', 5)
         _aE('Bar fifth ed - Baz._', 5)
         _aE('Bar fifth edition - Baz._', 5)
+        _aE('Foobar 1st Edition.pdf', 1)
+        _aE('Foobar 10th Edition.pdf', 10)
+        _aE('Foobar 11th Edition.pdf', 11)
+        _aE('Foobar 25th Edition.pdf', 25)
+        _aE('Foobar 30th Edition.pdf', 30)
+        _aE('Foobar 1st 10th Edition.pdf', 10)
+        _aE('Foobar 10th 1st Edition.pdf', 10)
+        _aE('Foobar 1st Edition 10th Edition.pdf', 10)
+        _aE('Foobar 10th Edition 1st Edition.pdf', 10)
+        _aE('Foobar Edition 1st 10th.pdf', 10)
+        _aE('Foobar 1st Edition 10th.pdf', 10)
+        _aE('Foobar 1st 10th Edition.pdf', 10)
 
     def test_returns_none_for_unavailable_editions(self):
         self.assertIsNone(find_edition('Foo, Bar - Baz._'))

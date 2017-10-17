@@ -29,10 +29,17 @@ RE_EDITION = re.compile(r'([0-9])+\s?((st|nd|rd|th)\s?|(e|ed))', re.IGNORECASE)
 
 
 def find_edition(text):
+    matches = []
     for _num, _re_pattern in textutils.compiled_ordinal_regexes().items():
         m = _re_pattern.search(text)
         if m:
-            return _num
+            matches.append(_num)
+
+    if matches:
+        # Handle case where "25th" matches "5th" and returns 5.
+        # Store all matches and return the highest matched number.
+        matches = sorted(matches, reverse=True)
+        return matches[0]
 
     match = RE_EDITION.search(text)
     if match:
