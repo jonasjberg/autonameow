@@ -211,8 +211,9 @@ class TestIdentifyFields(TestCase):
 class TestFilenameTokenizerSeparators(TestCase):
     def _t(self, filename, separators, main_separator):
         tokenizer = FilenameTokenizer(filename)
-        self.assertEqual(tokenizer.separators, separators)
+        self.assertEqual(sorted(tokenizer.separators), sorted(separators))
         self.assertEqual(tokenizer.main_separator, main_separator)
+        tokenizer = None
 
     def test_find_separators_all_periods(self):
         self._t(

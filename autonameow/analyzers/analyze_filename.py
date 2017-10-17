@@ -363,7 +363,7 @@ class FilenameTokenizer(object):
     @classmethod
     def _find_separators(cls, string):
         non_words = cls.RE_UNICODE_WORDS.split(string)
-        seps = [s for s in non_words if s is not None and len(s) > 0]
+        seps = [s for s in non_words if s is not None and len(s) >= 1]
 
         sep_chars = []
         for sep in seps:
