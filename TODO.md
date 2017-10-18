@@ -144,6 +144,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0113]` Fix exceptions not being handled properly (?)
+
 * `[TD0109]` __Allow arbitrary name template placeholder fields.__  
     It is currently difficult to use a rule similar to this:
     ```

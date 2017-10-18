@@ -215,6 +215,7 @@ class Repository(object):
             return False
 
         resolvable = list(self.mapped_meowuris)
+        # TODO: [TD0113] Fix exceptions not being handled properly (?)
         if any(r in meowuri for r in resolvable):
             return True
         return False
