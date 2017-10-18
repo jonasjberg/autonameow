@@ -47,12 +47,12 @@ def get_config_persistence_path():
         return C.DEFAULT_PERSISTENCE_DIR_ABSPATH
 
     try:
-        _cache_path = _active_config.get(['PERSISTENCE', 'cache_directory'])
+        _path = _active_config.get(['PERSISTENCE', 'cache_directory'])
     except AttributeError:
-        _cache_path = None
+        _path = None
 
-    if _cache_path:
-        return _cache_path
+    if _path:
+        return _path
     else:
         # TODO: Duplicate default setting! Already set in 'configuration.py'.
         return C.DEFAULT_PERSISTENCE_DIR_ABSPATH
@@ -102,47 +102,52 @@ class BasePersistence(object):
         _prefix = types.force_string(file_prefix)
         if not _prefix.strip():
             raise ValueError(
-                'Argument "cachefile_prefix" must be a valid string'
+                'Argument "file_prefix" must be a valid string'
             )
-        self.cachefile_prefix = _prefix
+        self.persistencefile_prefix = _prefix
 
-        if not self.has_cachedir():
-            log.debug('Cache directory does not exist: "{!s}"'.format(self._dp))
+        if not self.has_persistencedir():
+            log.debug('Directory for persistent storage does not exist:'
+                      ' "{!s}"'.format(self._dp))
 
             try:
                 diskutils.makedirs(self.persistence_dir_abspath)
             except exceptions.FilesystemError as e:
-                raise PersistenceError('Unable to create cache directory "{!s}": '
-                                 '{!s}'.format(self._dp, e))
+                raise PersistenceError('Unable to create persistence directory'
+                                       ' "{!s}": {!s}'.format(self._dp, e))
             else:
-                log.info('Created cache directory: "{!s}"'.format(self._dp))
+                log.info(
+                    'Created persistence directory: "{!s}"'.format(self._dp)
+                )
 
-        if not self.has_cachedir_permissions():
-            raise PersistenceError('Cache directory requires RWX-permissions: '
-                             '"{!s}'.format(self._dp))
+        if not self.has_persistencedir_permissions():
+            raise PersistenceError('Persistence directory requires '
+                                   'RWX-permissions: "{!s}'.format(self._dp))
 
-        log.debug('{!s} using cache directory "{!s}"'.format(self, self._dp))
+        log.debug(
+            '{!s} using persistence directory "{!s}"'.format(self, self._dp)
+        )
 
-    def has_cachedir_permissions(self):
+    def has_persistencedir_permissions(self):
         try:
             return diskutils.has_permissions(self.persistence_dir_abspath, 'rwx')
         except (TypeError, ValueError):
             return False
 
-    def has_cachedir(self):
+    def has_persistencedir(self):
         _path = util.syspath(self.persistence_dir_abspath)
         try:
             return bool(os.path.exists(_path) and os.path.isdir(_path))
         except (OSError, ValueError, TypeError):
             return False
 
-    def _cache_file_abspath(self, key):
+    def _persistence_file_abspath(self, key):
         string_key = types.force_string(key)
         if not string_key.strip():
             raise KeyError('Invalid key: "{!s}" ({!s})'.format(key, type(key)))
 
         _basename = '{pre}{sep}{key}'.format(
-            pre=self.cachefile_prefix,
+            pre=self.persistencefile_prefix,
             sep=self.PERSISTENCE_FILE_PREFIX_SEPARATOR,
             key=key
         )
@@ -154,25 +159,25 @@ class BasePersistence(object):
 
     def get(self, key):
         """
-        Returns data from the cache.
+        Returns data from the persistent data storage.
 
         Args:
             key (str): The key of the data to retrieve.
-                       Postfix of the cache file that is written to disk.
+                       Postfix of the persistence file that is written to disk.
 
         Returns:
-            Any cached data stored with the given key, as any serializable type.
+            Any data stored with the given key, as any serializable type.
         Raises:
             KeyError: The given 'key' is not a valid non-empty string,
-                      or the key is not found in the cached data.
-            CacheError: Failed to read cached data for some reason;
-                        data corruption, encoding errors, missing files, etc..
+                      or the key is not found in the persistent data.
+            PersistenceError: Failed to read stored data for some reason;
+                              data corruption, encoding errors, missing files..
         """
         if not key:
             raise KeyError
 
         if key not in self._data:
-            _file_path = self._cache_file_abspath(key)
+            _file_path = self._persistence_file_abspath(key)
             if not os.path.exists(util.syspath(_file_path)):
                 # Avoid displaying errors on first use.
                 raise KeyError
@@ -183,41 +188,42 @@ class BasePersistence(object):
             except ValueError as e:
                 _dp = util.displayable_path(_file_path)
                 log.error(
-                    'Error when reading key "{!s}" from cache file "{!s}" '
-                    '(corrupt file?); {!s}'.format(key, _dp, e)
+                    'Error when reading key "{!s}" from persistence file "{!s}"'
+                    ' (corrupt file?); {!s}'.format(key, _dp, e)
                 )
                 self.delete(key)
             except OSError as e:
                 _dp = util.displayable_path(_file_path)
                 log.warning(
-                    'Error while trying to read key "{!s}" from cache file '
-                    '"{!s}"; {!s}'.format(key, _dp, e)
+                    'Error while trying to read key "{!s}" from persistence'
+                    ' file "{!s}"; {!s}'.format(key, _dp, e)
                 )
                 raise KeyError
             except Exception as e:
-                raise PersistenceError('Error while reading cache; {!s}'.format(e))
+                raise PersistenceError('Error while reading persistence; '
+                                       '{!s}'.format(e))
 
         return self._data.get(key)
 
     def set(self, key, value):
         """
-        Stores data in the cache.
+        Stores data in the persistent data store.
 
         Args:
             key (str): The key to store the data under.
-                       Postfix of the cache file that is written to disk.
+                       Postfix of the file that is written to disk.
             value: The data to store, as any serializable type.
         """
         self._data[key] = value
 
-        _file_path = self._cache_file_abspath(key)
+        _file_path = self._persistence_file_abspath(key)
         try:
             self._dump(value, _file_path)
         except OSError as e:
             _dp = util.displayable_path(_file_path)
             log.error(
                 'Error while trying to write key "{!s}" with value "{!s}" to '
-                'cache file "{!s}"; {!s}'.format(key, value, _dp, e)
+                'persistence file "{!s}"; {!s}'.format(key, value, _dp, e)
             )
 
     def delete(self, key):
@@ -226,9 +232,9 @@ class BasePersistence(object):
         except KeyError:
             pass
 
-        _p = self._cache_file_abspath(key)
+        _p = self._persistence_file_abspath(key)
         _dp = util.displayable_path(_p)
-        log.debug('Deleting cache file "{!s}"'.format(_dp))
+        log.debug('Deleting persistence file "{!s}"'.format(_dp))
         try:
             diskutils.delete(_p, ignore_missing=True)
         except exceptions.FilesystemError as e:
@@ -236,14 +242,14 @@ class BasePersistence(object):
                 'Error while deleting "{!s}"; {!s}'.format(_dp, e)
             )
         else:
-            log.debug('Deleted cache file "{!s}"'.format(_dp))
+            log.debug('Deleted persistence file "{!s}"'.format(_dp))
 
     def has(self, key):
         # TODO: Test this ..
         if key in self._data:
             return True
 
-        _file_path = self._cache_file_abspath(key)
+        _file_path = self._persistence_file_abspath(key)
         try:
             os.path.exists(_file_path)
         except OSError:
@@ -258,7 +264,7 @@ class BasePersistence(object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):
-        return '{}("{}")'.format(self.__class__.__name__, self.cachefile_prefix)
+        return '{}("{}")'.format(self.__class__.__name__, self.persistencefile_prefix)
 
 
 class PicklePersistence(BasePersistence):
