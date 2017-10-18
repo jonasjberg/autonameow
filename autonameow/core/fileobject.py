@@ -34,9 +34,6 @@ from core.util import (
 )
 
 
-UNKNOWN_BYTESIZE = 0
-
-
 class FileObject(object):
     def __init__(self, path):
         """
@@ -97,7 +94,7 @@ class FileObject(object):
         except OSError:
             pass
 
-        return UNKNOWN_BYTESIZE
+        return C.UNKNOWN_BYTESIZE
 
     def _get_hash_partial(self):
         # Raises FilesystemError for any "real" errors.

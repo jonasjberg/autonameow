@@ -61,6 +61,10 @@ ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 # Default MIME type string used if the MIME type detection fails.
 MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
 
+# Default file size in bytes, if the size can not be determined.
+UNKNOWN_BYTESIZE = 0
+
+
 # Default values for required configuration fields.
 DEFAULT_RULE_RANKING_BIAS = 0.5
 DEFAULT_RULE_DESCRIPTION = 'UNDESCRIBED'
