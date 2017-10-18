@@ -23,3 +23,6 @@ from .cache import (
     CacheError,
     get_cache
 )
+from .base import (
+    get_config_persistence_path
+)

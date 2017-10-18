@@ -32,6 +32,7 @@ from core import (
     interactive,
     namebuilder,
     options,
+    persistence,
     repository,
     util
 )
@@ -41,7 +42,6 @@ from core.evaluate.resolver import Resolver
 from core.evaluate.rulematcher import RuleMatcher
 from core.fileobject import FileObject
 from core.filter import ResultFilter
-from core.persistence import base
 from core.plugin_handler import PluginHandler
 from core.ui import cli
 from core.util import (
@@ -123,7 +123,7 @@ class Autonameow(object):
                     util.displayable_path(config.DefaultConfigFilePath)
                 ),
                 'cache_directory_path': '"{!s}"'.format(
-                    util.displayable_path(base.get_config_persistence_path())
+                    util.displayable_path(persistence.get_config_persistence_path())
                 )
             }
             options.prettyprint_options(self.opts, include_opts)
