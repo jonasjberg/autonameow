@@ -70,16 +70,21 @@ class CacheError(AutonameowException):
 #         return None
 
 
-class BaseCache(object):
-    def __init__(self, owner):
-        self._persistence = self._get_persistence_backend(file_prefix=owner)
+def _get_persistence_backend(file_prefix, persistence_dir_abspath):
+    # NOTE: Passing 'persistence_dir_abspath' only to simplify unit testing.
+    try:
+        return PicklePersistence(file_prefix,
+                                 persistence_dir_abspath)
+    except PersistenceError as e:
+        raise CacheError(e)
 
-    @staticmethod
-    def _get_persistence_backend(file_prefix):
-        try:
-            return PicklePersistence(file_prefix)
-        except PersistenceError as e:
-            raise CacheError(e)
+
+class BaseCache(object):
+    def __init__(self, owner, cache_dir_abspath=None):
+        self._persistence = _get_persistence_backend(
+            file_prefix=owner,
+            persistence_dir_abspath=cache_dir_abspath
+        )
 
     def get(self, key):
         """
@@ -97,9 +102,6 @@ class BaseCache(object):
             CacheError: Failed to read cached data for some reason;
                         data corruption, encoding errors, missing files, etc..
         """
-        if not key:
-            raise KeyError
-
         try:
             return self._persistence.get(key)
         except PersistenceError as e:
@@ -114,6 +116,12 @@ class BaseCache(object):
             value: The data to store, as any serializable type.
         """
         self._persistence.set(key, value)
+
+    def delete(self, key):
+        try:
+            self._persistence.delete(key)
+        except PersistenceError as e:
+            raise CacheError(e)
 
 
 def get_cache(owner):

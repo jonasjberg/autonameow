@@ -22,26 +22,28 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-import unit_utils as uu
-from core import (
-    util
+from core import util
+from core.persistence import get_config_persistence_path
+from core.persistence.base import (
+    BasePersistence,
+    PicklePersistence
 )
-from core.persistence import base
+import unit_utils as uu
 
 
 class TestPersistenceDirectory(TestCase):
     def test_persistence_dir_abspath(self):
-        p = base.get_config_persistence_path()
+        p = get_config_persistence_path()
         self.assertIsNotNone(p)
         self.assertTrue(uu.is_internalbytestring(p))
 
     def test_persistence_dir_abspath_is_readable_directory(self):
-        d = base.get_config_persistence_path()
+        d = get_config_persistence_path()
         self.assertTrue(uu.dir_exists(d))
         self.assertTrue(uu.path_is_readable(d))
 
     def test_persistence_dir_abspath_is_directory(self):
-        d = base.get_config_persistence_path()
+        d = get_config_persistence_path()
         self.assertTrue(uu.dir_exists(d))
         self.assertTrue(uu.path_is_readable(d))
 
@@ -54,15 +56,14 @@ def mock__dump(self, value, file_path):
     pass
 
 
-def mock_persistence_path():
-    return b'/tmp/autonameow_cache'
-
-
 class TestBasePersistence(TestCase):
     def test_init_raises_exception_if_missing_required_arguments(self):
         def _aR(prefix):
             with self.assertRaises(ValueError):
-                _ = base.BasePersistence(prefix, persistence_dir_abspath=mock_persistence_path())
+                _ = BasePersistence(
+                    prefix,
+                    persistence_dir_abspath=uu.mock_persistence_path()
+                )
 
         _aR(None)
         _aR(' ')
@@ -70,11 +71,14 @@ class TestBasePersistence(TestCase):
         _aR(object())
 
         with self.assertRaises(TypeError):
-            _ = base.BasePersistence()
+            _ = BasePersistence()
 
     def test__persistence_file_abspath(self):
         def _aE(prefix, key, expect):
-            c = base.BasePersistence(prefix, persistence_dir_abspath=mock_persistence_path())
+            c = BasePersistence(
+                prefix,
+                persistence_dir_abspath=uu.mock_persistence_path()
+            )
             actual = c._persistence_file_abspath(key)
             self.assertEqual(actual, expect)
 
@@ -85,7 +89,10 @@ class TestBasePersistence(TestCase):
     def test__persistence_file_abspath_raises_exception_given_bad_key(self):
         def _aR(prefix, key, expect):
             with self.assertRaises(KeyError):
-                c = base.BasePersistence(prefix, persistence_dir_abspath=mock_persistence_path())
+                c = BasePersistence(
+                    prefix,
+                    persistence_dir_abspath=uu.mock_persistence_path()
+                )
                 actual = c._persistence_file_abspath(key)
                 self.assertEqual(actual, expect)
 
@@ -93,23 +100,29 @@ class TestBasePersistence(TestCase):
         _aR(prefix='foo', key='', expect=b'/tmp/autonameow_cache/__my_key')
         _aR(prefix='foo', key=' ', expect=b'/tmp/autonameow_cache/__my_key')
 
-    @patch.object(base.BasePersistence, '_load', mock__load)
+    @patch.object(BasePersistence, '_load', mock__load)
     def test_get_raises_key_error(self):
-        c = base.BasePersistence('foo', persistence_dir_abspath=mock_persistence_path())
+        c = BasePersistence(
+            'foo', persistence_dir_abspath=uu.mock_persistence_path()
+        )
 
         with self.assertRaises(KeyError):
             actual = c.get('key_a')
             self.assertEqual(actual, {'mjao': 'oajm'})
 
-    @patch.object(base.BasePersistence, '_dump', mock__dump)
+    @patch.object(BasePersistence, '_dump', mock__dump)
     def test_set(self):
-        c = base.BasePersistence('foo', persistence_dir_abspath=mock_persistence_path())
+        c = BasePersistence(
+            'foo', persistence_dir_abspath=uu.mock_persistence_path()
+        )
         c.set('key_a', 'mjaooajm')
 
-    @patch.object(base.BasePersistence, '_load', mock__load)
-    @patch.object(base.BasePersistence, '_dump', mock__dump)
+    @patch.object(BasePersistence, '_load', mock__load)
+    @patch.object(BasePersistence, '_dump', mock__dump)
     def test_set_get(self):
-        c = base.BasePersistence('foo', persistence_dir_abspath=mock_persistence_path())
+        c = BasePersistence(
+            'foo', persistence_dir_abspath=uu.mock_persistence_path()
+        )
         c.set('key_a', 'mjaooajm')
 
         actual = c.get('key_a')
@@ -122,7 +135,7 @@ class TestPicklePersistence(TestCase):
     def setUp(self):
         self.datakey = 'fookey'
         self.datavalue  = 'bardata'
-        self.c = base.PicklePersistence(self.PERSISTENCE_KEY)
+        self.c = PicklePersistence(self.PERSISTENCE_KEY)
 
     def tearDown(self):
         self.c.delete(self.datakey)
@@ -132,7 +145,7 @@ class TestPicklePersistence(TestCase):
         datakey = 'dummykey'
         datavalue = 'bardata'
 
-        d = base.PicklePersistence(file_prefix)
+        d = PicklePersistence(file_prefix)
         d.set(datakey, datavalue)
 
         _file_path = d._persistence_file_abspath(datakey)
@@ -161,7 +174,7 @@ class TestPicklePersistence(TestCase):
 
     def test_get_from_empty(self):
         random_key = util.unique_identifier()
-        c = base.PicklePersistence(random_key)
+        c = PicklePersistence(random_key)
 
         # The persistence should not have the key in 'self._data' nor should
         # the persistent data exist.  Expect a KeyError.

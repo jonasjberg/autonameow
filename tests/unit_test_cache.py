@@ -19,4 +19,51 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from unittest import TestCase
+
+from core.persistence.cache import BaseCache
+import unit_utils as uu
+
+
+class TestBaseCache(TestCase):
+    def test_init_raises_exception_if_missing_required_arguments(self):
+        def _aR(prefix):
+            with self.assertRaises(ValueError):
+                _ = BaseCache(
+                    prefix,
+                    cache_dir_abspath=uu.mock_cache_path()
+                )
+
+        _aR(None)
+        _aR(' ')
+        _aR('  ')
+        _aR(object())
+
+        with self.assertRaises(TypeError):
+            _ = BaseCache()
+
+
+class TestBaseCacheStorage(TestCase):
+    def setUp(self):
+        file_prefix = 'temp_unit_test_cache_to_be_deleted'
+        self.data_key = 'key_foo'
+        self.data_value = 'value_bar'
+        self.c = BaseCache(owner=file_prefix)
+
+    def tearDown(self):
+        self.c.delete(self.data_key)
+
+    def test_cache_set(self):
+        self.c.set(self.data_key, self.data_value)
+
+    def test_cache_set_get(self):
+        self.c.set(self.data_key, self.data_value)
+
+        retrieved = self.c.get(self.data_key)
+        self.assertEqual(self.data_value, retrieved)
+
+    def test_cache_get_from_empty_cache(self):
+        _cached_data = self.c.get(self.data_key)
+        self.assertEqual(self.data_value, _cached_data)
+
 
