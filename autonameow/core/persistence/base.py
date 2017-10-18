@@ -21,6 +21,7 @@
 
 import logging
 import os
+import time
 
 try:
     import cPickle as pickle
@@ -40,10 +41,10 @@ from core.util import diskutils
 log = logging.getLogger(__name__)
 
 
-def get_config_cache_path():
+def get_config_persistence_path():
     _active_config = config.ActiveConfig
     if not _active_config:
-        return C.DEFAULT_CACHE_DIR_ABSPATH
+        return C.DEFAULT_PERSISTENCE_DIR_ABSPATH
 
     try:
         _cache_path = _active_config.get(['PERSISTENCE', 'cache_directory'])
@@ -54,27 +55,27 @@ def get_config_cache_path():
         return _cache_path
     else:
         # TODO: Duplicate default setting! Already set in 'configuration.py'.
-        return C.DEFAULT_CACHE_DIR_ABSPATH
+        return C.DEFAULT_PERSISTENCE_DIR_ABSPATH
 
 
-class BaseCache(object):
+class BasePersistence(object):
     """
-    Abstract base class for all file-based cache implementations.
+    Abstract base class for all file-based data persistence implementations.
 
     Example initialization and storage:
 
-        c = AutonameowCache('mycache')
-        c.set('mydata', {'a': 1, 'b': 2})
+        p = AutonameowPersistence('meow-persistence')
+        p.set('meow-data', {'a': 1, 'b': 2})
 
     This will cache the data in memory by storing in a class instance dict,
     and also write the data to disk using the path:
 
-        "CACHE_DIR_ABSPATH/mycache_mydata"
+        "PERSISTENCE_DIR_ABSPATH/meow-persistence_meow-data"
 
     Example retrieval:
 
-        cached_data = c.get('mydata')
-        assert cached_data == {'a': 1, 'b': 2}
+        stored_data = p.get('meow-data')
+        assert stored_data == {'a': 1, 'b': 2}
 
     The idea is to keep many smaller files instead of a single shared file
     for possibly easier pruning of old date, file size limits, etc.
@@ -82,23 +83,23 @@ class BaseCache(object):
     Inheriting class must implement '_load' and '_dump' which does the actual
     serialization and reading/writing to disk.
     """
-    CACHEFILE_PREFIX_SEPARATOR = '_'
+    PERSISTENCE_FILE_PREFIX_SEPARATOR = '_'
 
     # TODO: [TD0101] Add ability to limit sizes of persistent storage/caches.
     #                Store timestamps with stored data and remove oldest
     #                entries when exceeding the file size limit.
 
-    def __init__(self, cachefile_prefix, cache_dir_abspath=None):
+    def __init__(self, file_prefix, persistence_dir_abspath=None):
         self._data = {}
 
-        if not cache_dir_abspath:
-            self.cachedir_abspath = get_config_cache_path()
+        if not persistence_dir_abspath:
+            self.persistence_dir_abspath = get_config_persistence_path()
         else:
-            self.cachedir_abspath = cache_dir_abspath
-        assert os.path.isabs(util.syspath(self.cachedir_abspath))
-        self._dp = util.displayable_path(self.cachedir_abspath)
+            self.persistence_dir_abspath = persistence_dir_abspath
+        assert os.path.isabs(util.syspath(self.persistence_dir_abspath))
+        self._dp = util.displayable_path(self.persistence_dir_abspath)
 
-        _prefix = types.force_string(cachefile_prefix)
+        _prefix = types.force_string(file_prefix)
         if not _prefix.strip():
             raise ValueError(
                 'Argument "cachefile_prefix" must be a valid string'
@@ -109,27 +110,27 @@ class BaseCache(object):
             log.debug('Cache directory does not exist: "{!s}"'.format(self._dp))
 
             try:
-                diskutils.makedirs(self.cachedir_abspath)
+                diskutils.makedirs(self.persistence_dir_abspath)
             except exceptions.FilesystemError as e:
-                raise CacheError('Unable to create cache directory "{!s}": '
+                raise PersistenceError('Unable to create cache directory "{!s}": '
                                  '{!s}'.format(self._dp, e))
             else:
                 log.info('Created cache directory: "{!s}"'.format(self._dp))
 
         if not self.has_cachedir_permissions():
-            raise CacheError('Cache directory requires RWX-permissions: '
+            raise PersistenceError('Cache directory requires RWX-permissions: '
                              '"{!s}'.format(self._dp))
 
         log.debug('{!s} using cache directory "{!s}"'.format(self, self._dp))
 
     def has_cachedir_permissions(self):
         try:
-            return diskutils.has_permissions(self.cachedir_abspath, 'rwx')
+            return diskutils.has_permissions(self.persistence_dir_abspath, 'rwx')
         except (TypeError, ValueError):
             return False
 
     def has_cachedir(self):
-        _path = util.syspath(self.cachedir_abspath)
+        _path = util.syspath(self.persistence_dir_abspath)
         try:
             return bool(os.path.exists(_path) and os.path.isdir(_path))
         except (OSError, ValueError, TypeError):
@@ -142,11 +143,11 @@ class BaseCache(object):
 
         _basename = '{pre}{sep}{key}'.format(
             pre=self.cachefile_prefix,
-            sep=self.CACHEFILE_PREFIX_SEPARATOR,
+            sep=self.PERSISTENCE_FILE_PREFIX_SEPARATOR,
             key=key
         )
         _p = util.normpath(
-            os.path.join(util.syspath(self.cachedir_abspath),
+            os.path.join(util.syspath(self.persistence_dir_abspath),
                          util.syspath(util.encode_(_basename)))
         )
         return _p
@@ -194,7 +195,7 @@ class BaseCache(object):
                 )
                 raise KeyError
             except Exception as e:
-                raise CacheError('Error while reading cache; {!s}'.format(e))
+                raise PersistenceError('Error while reading cache; {!s}'.format(e))
 
         return self._data.get(key)
 
@@ -231,7 +232,7 @@ class BaseCache(object):
         try:
             diskutils.delete(_p, ignore_missing=True)
         except exceptions.FilesystemError as e:
-            raise CacheError(
+            raise PersistenceError(
                 'Error while deleting "{!s}"; {!s}'.format(_dp, e)
             )
         else:
@@ -260,7 +261,7 @@ class BaseCache(object):
         return '{}("{}")'.format(self.__class__.__name__, self.cachefile_prefix)
 
 
-class PickleCache(BaseCache):
+class PicklePersistence(BasePersistence):
     def _load(self, file_path):
         with open(util.syspath(file_path), 'rb') as fh:
             return pickle.load(fh, encoding='bytes')
@@ -270,13 +271,6 @@ class PickleCache(BaseCache):
             pickle.dump(value, fh, pickle.HIGHEST_PROTOCOL)
 
 
-def get_cache(cachefile_prefix):
-    try:
-        return PickleCache(cachefile_prefix)
-    except CacheError as e:
-        log.error('Cache unavailable :: {!s}'.format(e))
-        return None
+class PersistenceError(exceptions.AutonameowException):
+    """Irrecoverable error while reading or writing persistent data."""
 
-
-class CacheError(exceptions.AutonameowException):
-    """Irrecoverable error while reading or writing to caches."""

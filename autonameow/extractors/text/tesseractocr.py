@@ -34,7 +34,7 @@ except ImportError:
     Image = None
 
 from core import (
-    cache,
+    persistence,
     util
 )
 from core.util import (
@@ -61,18 +61,21 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
 
         self._cached_text = {}
 
-        _cache = cache.get_cache(str(self))
+        _cache = persistence.get_cache(str(self))
         if _cache:
             self.cache = _cache
             try:
-                self._cached_text = self.cache.get(CACHE_KEY)
-            except (KeyError, cache.CacheError):
+                _cached_data = self.cache.get(CACHE_KEY)
+            except (KeyError, persistence.CacheError):
                 pass
+            else:
+                if _cached_data:
+                    self._cached_text = _cached_data
         else:
             self.cache = None
 
     def _cache_read(self, fileobject):
-        if fileobject in self._cached_text:
+        if self._cached_text and fileobject in self._cached_text:
             return self._cached_text.get(fileobject)
         return None
 
@@ -82,7 +85,7 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
 
         try:
             self.cache.set(CACHE_KEY, self._cached_text)
-        except cache.CacheError:
+        except persistence.CacheError:
             pass
 
     def _get_text(self, fileobject):

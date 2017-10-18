@@ -496,7 +496,7 @@ class Configuration(object):
 
         _try_load_persistence_option(
             'cache_directory',
-            C.DEFAULT_CACHE_DIR_ABSPATH
+            C.DEFAULT_PERSISTENCE_DIR_ABSPATH
         )
         _try_load_persistence_option(
             'history_file_path',

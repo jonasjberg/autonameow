@@ -22,26 +22,26 @@
 from unittest import TestCase
 from unittest.mock import patch
 
+import unit_utils as uu
 from core import (
-    cache,
     util
 )
-import unit_utils as uu
+from core.persistence import base
 
 
-class TestCacheDirectory(TestCase):
-    def test_cache_dir_abspath(self):
-        p = cache.get_config_cache_path()
+class TestPersistenceDirectory(TestCase):
+    def test_persistence_dir_abspath(self):
+        p = base.get_config_persistence_path()
         self.assertIsNotNone(p)
         self.assertTrue(uu.is_internalbytestring(p))
 
-    def test_cache_dir_abspath_is_readable_directory(self):
-        d = cache.get_config_cache_path()
+    def test_persistence_dir_abspath_is_readable_directory(self):
+        d = base.get_config_persistence_path()
         self.assertTrue(uu.dir_exists(d))
         self.assertTrue(uu.path_is_readable(d))
 
-    def test_cache_dir_abspath_is_directory(self):
-        d = cache.get_config_cache_path()
+    def test_persistence_dir_abspath_is_directory(self):
+        d = base.get_config_persistence_path()
         self.assertTrue(uu.dir_exists(d))
         self.assertTrue(uu.path_is_readable(d))
 
@@ -62,7 +62,7 @@ class TestBaseCache(TestCase):
     def test_init_raises_exception_if_missing_required_arguments(self):
         def _aR(prefix):
             with self.assertRaises(ValueError):
-                _ = cache.BaseCache(prefix, cache_dir_abspath=mock_cache_path())
+                _ = base.BasePersistence(prefix, persistence_dir_abspath=mock_cache_path())
 
         _aR(None)
         _aR(' ')
@@ -70,11 +70,11 @@ class TestBaseCache(TestCase):
         _aR(object())
 
         with self.assertRaises(TypeError):
-            _ = cache.BaseCache()
+            _ = base.BasePersistence()
 
     def test__cache_file_abspath(self):
         def _aE(prefix, key, expect):
-            c = cache.BaseCache(prefix, cache_dir_abspath=mock_cache_path())
+            c = base.BasePersistence(prefix, persistence_dir_abspath=mock_cache_path())
             actual = c._cache_file_abspath(key)
             self.assertEqual(actual, expect)
 
@@ -85,7 +85,7 @@ class TestBaseCache(TestCase):
     def test__cache_file_abspath_raises_exception_given_bad_key(self):
         def _aR(prefix, key, expect):
             with self.assertRaises(KeyError):
-                c = cache.BaseCache(prefix, cache_dir_abspath=mock_cache_path())
+                c = base.BasePersistence(prefix, persistence_dir_abspath=mock_cache_path())
                 actual = c._cache_file_abspath(key)
                 self.assertEqual(actual, expect)
 
@@ -93,23 +93,23 @@ class TestBaseCache(TestCase):
         _aR(prefix='foo', key='', expect=b'/tmp/autonameow_cache/__my_key')
         _aR(prefix='foo', key=' ', expect=b'/tmp/autonameow_cache/__my_key')
 
-    @patch.object(cache.BaseCache, '_load', mock__load)
+    @patch.object(base.BasePersistence, '_load', mock__load)
     def test_get_raises_key_error(self):
-        c = cache.BaseCache('foo', cache_dir_abspath=mock_cache_path())
+        c = base.BasePersistence('foo', persistence_dir_abspath=mock_cache_path())
 
         with self.assertRaises(KeyError):
             actual = c.get('key_a')
             self.assertEqual(actual, {'mjao': 'oajm'})
 
-    @patch.object(cache.BaseCache, '_dump', mock__dump)
+    @patch.object(base.BasePersistence, '_dump', mock__dump)
     def test_set(self):
-        c = cache.BaseCache('foo', cache_dir_abspath=mock_cache_path())
+        c = base.BasePersistence('foo', persistence_dir_abspath=mock_cache_path())
         c.set('key_a', 'mjaooajm')
 
-    @patch.object(cache.BaseCache, '_load', mock__load)
-    @patch.object(cache.BaseCache, '_dump', mock__dump)
+    @patch.object(base.BasePersistence, '_load', mock__load)
+    @patch.object(base.BasePersistence, '_dump', mock__dump)
     def test_set_get(self):
-        c = cache.BaseCache('foo', cache_dir_abspath=mock_cache_path())
+        c = base.BasePersistence('foo', persistence_dir_abspath=mock_cache_path())
         c.set('key_a', 'mjaooajm')
 
         actual = c.get('key_a')
@@ -122,7 +122,7 @@ class TestPickleCache(TestCase):
     def setUp(self):
         self.datakey = 'fookey'
         self.datavalue  = 'bardata'
-        self.c = cache.PickleCache(self.CACHE_KEY)
+        self.c = base.PicklePersistence(self.CACHE_KEY)
 
     def tearDown(self):
         self.c.delete(self.datakey)
@@ -132,7 +132,7 @@ class TestPickleCache(TestCase):
         datakey = 'dummykey'
         datavalue = 'bardata'
 
-        d = cache.PickleCache(cachefile_prefix)
+        d = base.PicklePersistence(cachefile_prefix)
         d.set(datakey, datavalue)
 
         _cache_file_path = d._cache_file_abspath(datakey)
@@ -161,7 +161,7 @@ class TestPickleCache(TestCase):
 
     def test_get_from_empty(self):
         random_key = util.unique_identifier()
-        c = cache.PickleCache(random_key)
+        c = base.PicklePersistence(random_key)
 
         # The cache should not have the key in 'self._data' nor should the
         # cache exist, which should raise KeyError.
