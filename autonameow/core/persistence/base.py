@@ -21,7 +21,6 @@
 
 import logging
 import os
-import time
 
 try:
     import cPickle as pickle
@@ -35,7 +34,10 @@ from core import (
     util
 )
 from core import constants as C
-from core.util import diskutils
+from core.util import (
+    diskutils,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)
@@ -51,11 +53,12 @@ def get_config_persistence_path():
     except AttributeError:
         _path = None
 
-    if _path:
-        return _path
-    else:
+    if not _path:
         # TODO: Duplicate default setting! Already set in 'configuration.py'.
-        return C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+        _path = C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+
+    sanity.check_internal_bytestring(_path)
+    return _path
 
 
 class BasePersistence(object):
