@@ -40,46 +40,24 @@ from extractors.text.common import (
 log = logging.getLogger(__name__)
 
 
-CACHE_KEY = 'text'
-
-
 class PdftotextTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
 
     def __init__(self):
         super(PdftotextTextExtractor, self).__init__()
 
-        self._cached_text = {}
-
         _cache = persistence.get_cache(str(self))
         if _cache:
             self.cache = _cache
-            try:
-                self._cached_text = self.cache.get(CACHE_KEY)
-            except (KeyError, persistence.CacheError):
-                pass
         else:
             self.cache = None
 
-    def _cache_read(self, fileobject):
-        if self._cached_text and fileobject in self._cached_text:
-            return self._cached_text.get(fileobject)
-        return None
-
-    def _cache_write(self):
-        if not self.cache:
-            return
-
-        try:
-            self.cache.set(CACHE_KEY, self._cached_text)
-        except persistence.CacheError:
-            pass
-
     def _get_text(self, fileobject):
-        _cached = self.cache.get(fileobject)
-        if _cached is not None:
-            self.log.info('Using cached text for: {!r}'.format(fileobject))
-            return _cached
+        if self.cache:
+            _cached = self.cache.get(fileobject)
+            if _cached is not None:
+                self.log.info('Using cached text for: {!r}'.format(fileobject))
+                return _cached
 
         result = extract_pdf_content_with_pdftotext(fileobject.abspath)
         if not result:
@@ -90,8 +68,8 @@ class PdftotextTextExtractor(AbstractTextExtractor):
         text = textutils.normalize_unicode(text)
         text = textutils.remove_nonbreaking_spaces(text)
         if text:
-            self._cached_text.update({fileobject: text})
-            self._cache_write()
+            if self.cache:
+                self.cache.set(fileobject, text)
             return text
         else:
             return ''

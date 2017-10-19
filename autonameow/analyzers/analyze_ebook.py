@@ -64,6 +64,9 @@ IGNORED_TEXTLINES = frozenset([
 RE_E_ISBN = re.compile(r'^e-ISBN.*', re.MULTILINE)
 
 
+CACHE_KEY_ISBNMETA = 'isbnlib_meta'
+
+
 class EbookAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
@@ -76,18 +79,14 @@ class EbookAnalyzer(BaseAnalyzer):
         )
 
         self.text = None
-        self._cached_isbn_metadata = {}
         self._isbn_metadata = set()
 
-        _cache = persistence.get_cache(str(self))
-        if _cache:
-            self.cache = _cache
-            try:
-                self._cached_isbn_metadata = self.cache.get('isbnlib_meta')
-            except (KeyError, persistence.CacheError):
-                pass
-        else:
-            self.cache = None
+        self._cached_isbn_metadata = {}
+        self.cache = persistence.get_cache(str(self))
+        if self.cache:
+            _cached_isbn_metadata = self.cache.get(CACHE_KEY_ISBNMETA)
+            if _cached_isbn_metadata:
+                self._cached_isbn_metadata = _cached_isbn_metadata
 
     def run(self):
         _maybe_text = self.request_any_textual_content()
@@ -181,13 +180,10 @@ class EbookAnalyzer(BaseAnalyzer):
             self.log.info(
                 'Caching metadata for ISBN: {!s}'.format(isbn)
             )
-            # Add new metadata to local cache.
+
             self._cached_isbn_metadata.update({isbn: metadata})
             if self.cache:
-                try:
-                    self.cache.set('isbnlib_meta', self._cached_isbn_metadata)
-                except persistence.CacheError:
-                    pass
+                self.cache.set(CACHE_KEY_ISBNMETA, self._cached_isbn_metadata)
 
         return metadata
 

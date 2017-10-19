@@ -126,9 +126,13 @@ class BaseCache(object):
                         data corruption, encoding errors, missing files, etc..
         """
         if not self._data:
-            return
+            return None
 
-        _timestamp, _data = self._data.get(key)
+        _timestamped_data = self._data.get(key)
+        if not _timestamped_data:
+            return None
+
+        _timestamp, _data = _timestamped_data
         return _data
 
     def set(self, key, value):
