@@ -117,6 +117,7 @@ def pre_assemble_format(field_data_dict, config):
     out = {}
 
     for field, data in field_data_dict.items():
+        log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))
         sanity.check(field and issubclass(field, NameTemplateField))
         sanity.check_isinstance(data, ExtractedData)
 
