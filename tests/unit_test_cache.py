@@ -63,7 +63,5 @@ class TestBaseCacheStorage(TestCase):
         self.assertEqual(self.data_value, retrieved)
 
     def test_cache_get_from_empty_cache(self):
-        _cached_data = self.c.get(self.data_key)
-        self.assertEqual(self.data_value, _cached_data)
-
-
+        with self.assertRaises(KeyError):
+            _ = self.c.get(self.data_key)

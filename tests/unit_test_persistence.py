@@ -128,6 +128,23 @@ class TestBasePersistence(TestCase):
         actual = c.get('key_a')
         self.assertEqual(actual, 'mjaooajm')
 
+    @patch.object(BasePersistence, '_load', mock__load)
+    @patch.object(BasePersistence, '_dump', mock__dump)
+    def test_delete(self):
+        c = BasePersistence(
+            'foo', persistence_dir_abspath=uu.mock_persistence_path()
+        )
+        datakey = 'dummykey'
+        datavalue = 'bardata'
+        c.set(datakey, datavalue)
+
+        actual = c.get(datakey)
+        self.assertEqual(actual, datavalue)
+
+        c.delete(datakey)
+        with self.assertRaises(KeyError):
+            c.get(datakey)
+
 
 class TestPicklePersistence(TestCase):
     PERSISTENCE_KEY = 'temp_unit_test_persistence'
@@ -182,7 +199,14 @@ class TestPicklePersistence(TestCase):
             _ = c.get('missing_key')
 
     def test_set_get(self):
-        self.c.set('key_a', {'1': 'mjaooajm', '2': 2})
+        data_key = 'key_a'
+        data_value = {'1': 'mjaooajm', '2': 2}
+        self.c.set(data_key, data_value)
+
+        actual = self.c.get(data_key)
+        self.assertEqual(actual, data_value)
+
+        self.c.delete(data_key)
 
     def test_keys(self):
         data_keys = ['key_1st', 'key_2nd', 'key_3rd']
