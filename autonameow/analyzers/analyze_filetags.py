@@ -124,8 +124,9 @@ class FiletagsAnalyzer(BaseAnalyzer):
         self.__wrap_result('datetime', self._timestamp)
         self.__wrap_result('description', self._description)
 
-        self._tags = sorted(self._tags)
-        self.__wrap_result('tags', self._tags)
+        if self._tags:
+            self._tags = sorted(self._tags)
+            self.__wrap_result('tags', self._tags)
 
         self.__wrap_result('extension', self._extension)
         self.__wrap_result('follows_filetags_convention',
