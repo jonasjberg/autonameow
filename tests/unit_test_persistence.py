@@ -138,7 +138,7 @@ class TestPicklePersistence(TestCase):
         self.c = PicklePersistence(self.PERSISTENCE_KEY)
 
     def tearDown(self):
-        self.c.delete(self.datakey)
+        self.c.flush()
 
     def test_delete(self):
         file_prefix = 'temp_unit_test_persistence_to_be_deleted'
@@ -184,7 +184,17 @@ class TestPicklePersistence(TestCase):
     def test_set_get(self):
         self.c.set('key_a', {'1': 'mjaooajm', '2': 2})
 
-        actual = self.c.get('key_a')
-        self.assertEqual(actual, {'1': 'mjaooajm', '2': 2})
+    def test_keys(self):
+        data_keys = ['key_1st', 'key_2nd', 'key_3rd']
+        data_value = 'foo'
+        self.c.set(data_keys[0], data_value)
+        self.c.set(data_keys[1], data_value)
 
-        self.c.delete('key_a')
+        actual = self.c.keys()
+        expect = [data_keys[0], data_keys[1]]
+        self.assertListEqual(actual, expect)
+
+        self.c.set(data_keys[2], data_value)
+        actual = self.c.keys()
+        expect = [data_keys[0], data_keys[1], data_keys[2]]
+        self.assertListEqual(actual, expect)

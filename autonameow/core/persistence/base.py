@@ -260,6 +260,28 @@ class BasePersistence(object):
         else:
             return True
 
+    def keys(self):
+        out = []
+        for bytestring_file in os.listdir(self.persistence_dir_abspath):
+            string_file = types.force_string(bytestring_file)
+            if not string_file:
+                continue
+            if string_file.startswith(self.persistencefile_prefix):
+                out.append(string_file.lstrip(self.persistencefile_prefix))
+        return out
+
+    def flush(self):
+        """
+        Delete all data in RAM and in the persistent storage.
+        """
+        self._data = {}
+
+        for key in self.keys():
+            try:
+                self.delete(key)
+            except PersistenceError:
+                pass
+
     def _load(self, file_path):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
