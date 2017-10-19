@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import time
 
 from core.exceptions import AutonameowException
 from core.persistence.base import (
@@ -35,41 +36,6 @@ class CacheError(AutonameowException):
     """Irrecoverable error while reading or writing to caches."""
 
 
-# TODO: Possibly implement?
-# class TextCache(PicklePersistence):
-#     CACHE_KEY = 'text'
-#
-#     def __init__(self, file_prefix):
-#         super(TextCache).__init__(file_prefix)
-#
-#         try:
-#             self._cached_text = self.get(self.CACHE_KEY)
-#         except (KeyError, PersistenceError):
-#             self._cached_text = {}
-#
-#     def get_timestamp(self):
-#         return int(time.time())
-#
-#     def save_text(self, fileobject, text):
-#         self._cached_text.update({fileobject: text})
-#         self._cache_write()
-#
-#     def load_text(self, fileobject):
-#         if fileobject in self._cached_text:
-#             _, _text = self._cached_text.get(fileobject)
-#             return _text
-#         return None
-
-
-# TODO: Possibly implement?
-# def get_text_cache(cachefile_prefix):
-#     try:
-#         return TextCache(cachefile_prefix)
-#     except PersistenceError as e:
-#         log.error('Cache unavailable :: {!s}'.format(e))
-#         return None
-
-
 def _get_persistence_backend(file_prefix, persistence_dir_abspath):
     # NOTE: Passing 'persistence_dir_abspath' only to simplify unit testing.
     try:
@@ -80,6 +46,10 @@ def _get_persistence_backend(file_prefix, persistence_dir_abspath):
 
 
 class BaseCache(object):
+    # TODO: [TD0101] Add ability to limit sizes of persistent storage/caches.
+    #                Store timestamps with stored data and remove oldest
+    #                entries when exceeding the file size limit.
+
     def __init__(self, owner, cache_dir_abspath=None):
         self._persistence = _get_persistence_backend(
             file_prefix=owner,
@@ -103,9 +73,11 @@ class BaseCache(object):
                         data corruption, encoding errors, missing files, etc..
         """
         try:
-            return self._persistence.get(key)
+            _timestamp, _data = self._persistence.get(key)
         except PersistenceError as e:
             raise CacheError(e)
+        else:
+            return _data
 
     def set(self, key, value):
         """
@@ -115,13 +87,52 @@ class BaseCache(object):
             key (str): The key to store the data under.
             value: The data to store, as any serializable type.
         """
-        self._persistence.set(key, value)
+        _timestamped_value = (self.get_timestamp(), value)
+        self._persistence.set(key, _timestamped_value)
 
     def delete(self, key):
         try:
             self._persistence.delete(key)
         except PersistenceError as e:
             raise CacheError(e)
+
+    def keys(self):
+        return self._persistence.keys()
+
+    def flush(self):
+        self._persistence.flush()
+
+    def get_timestamp(self):
+        return int(time.time())
+
+
+class FileobjectDataCache(BaseCache):
+    def __init__(self, owner, key):
+        super().__init__(owner)
+
+        self._data = self.get(key)
+
+    def store(self, key, data):
+        _data = {self._fileobject: {key: data}}
+        self._persistence.set(key)
+
+    def retrieve(self, fileobject):
+        for _timestamp, _data in self._cached_data:
+            if fileobject in _data:
+                return _data.get()
+                return _text
+        return None
+
+    def update_persistent_data(self):
+        self._persistence.set(self._cached_data)
+
+
+def get_fileobject_data_cache(owner, fileobject):
+    try:
+        return FileobjectDataCache(owner, fileobject)
+    except PersistenceError as e:
+        log.error('Cache unavailable :: {!s}'.format(e))
+        return None
 
 
 def get_cache(owner):

@@ -88,10 +88,6 @@ class BasePersistence(object):
     """
     PERSISTENCE_FILE_PREFIX_SEPARATOR = '_'
 
-    # TODO: [TD0101] Add ability to limit sizes of persistent storage/caches.
-    #                Store timestamps with stored data and remove oldest
-    #                entries when exceeding the file size limit.
-
     def __init__(self, file_prefix, persistence_dir_abspath=None):
         self._data = {}
 

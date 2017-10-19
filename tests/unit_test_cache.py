@@ -21,7 +21,7 @@
 
 from unittest import TestCase
 
-from core.persistence.cache import BaseCache
+from core.persistence import cache
 import unit_utils as uu
 
 
@@ -29,7 +29,7 @@ class TestBaseCache(TestCase):
     def test_init_raises_exception_if_missing_required_arguments(self):
         def _aR(prefix):
             with self.assertRaises(ValueError):
-                _ = BaseCache(
+                _ = cache.BaseCache(
                     prefix,
                     cache_dir_abspath=uu.mock_cache_path()
                 )
@@ -40,7 +40,7 @@ class TestBaseCache(TestCase):
         _aR(object())
 
         with self.assertRaises(TypeError):
-            _ = BaseCache()
+            _ = cache.BaseCache()
 
 
 class TestBaseCacheStorage(TestCase):
@@ -48,7 +48,7 @@ class TestBaseCacheStorage(TestCase):
         file_prefix = 'temp_unit_test_cache_to_be_deleted'
         self.data_key = 'key_foo'
         self.data_value = 'value_bar'
-        self.c = BaseCache(owner=file_prefix)
+        self.c = cache.BaseCache(owner=file_prefix)
 
     def tearDown(self):
         self.c.delete(self.data_key)
@@ -65,3 +65,32 @@ class TestBaseCacheStorage(TestCase):
     def test_cache_get_from_empty_cache(self):
         with self.assertRaises(KeyError):
             _ = self.c.get(self.data_key)
+
+
+class TestFileobjectDataCache(TestCase):
+    def setUp(self):
+        fo = uu.get_mock_fileobject()
+        owner = 'temp_unit_test_extractor_cache_to_be_deleted'
+        self.c = cache.get_fileobject_data_cache(owner, fo)
+
+    def test_setup(self):
+        self.assertTrue(uu.is_class_instance(self.c))
+        self.assertTrue(isinstance(self.c, cache.FileobjectDataCache))
+
+    def test_store(self):
+        data = 'foo bar'
+        key = 'test_key'
+        self.c.store(key, data)
+
+
+class CacheInterface(TestCase):
+    def test_get_cache(self):
+        actual = cache.get_cache('foo')
+        self.assertTrue(uu.is_class_instance(actual))
+        self.assertTrue(isinstance(actual, cache.BaseCache))
+
+    def test_get_extractor_cache(self):
+        fo = uu.get_mock_fileobject()
+        actual = cache.get_fileobject_data_cache('foo', fo)
+        self.assertTrue(uu.is_class_instance(actual))
+        self.assertTrue(isinstance(actual, cache.FileobjectDataCache))
