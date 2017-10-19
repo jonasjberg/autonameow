@@ -274,14 +274,14 @@ if __name__ == '__main__':
             dest_path = default_destpath()
 
         if os.path.exists(dest_path):
-            print('[ERROR] Destination exists: "{!s}”'.format(dest_path))
+            print('[ERROR] Destination exists: "{!s}"'.format(dest_path))
             sys.exit(1)
 
         try:
             write_yaml_file(dest_path, DEFAULT_CONFIG)
         except Exception as e:
             print('[ERROR] Unable to write DEFAULT_CONFIG to disk!')
-            print('Destination path: "{!s}”'.format(dest_path))
+            print('Destination path: "{!s}"'.format(dest_path))
             print(str(e))
         else:
             print('Wrote DEFAULT_CONFIG: "{}"'.format(dest_path))
