@@ -96,16 +96,26 @@ class RuleMatcher(object):
         prioritized_rules = prioritize_rules(self._scored_rules)
 
         _candidates = []
+        log.info('Remaining, prioritized rules:')
         for i, rule in enumerate(prioritized_rules):
             _candidates.append(rule)
 
             _exact = 'Yes' if rule.exact_match else 'No '
-            log.info('Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias: {:.2f}) {} '.format(
+            log.info('Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias:'
+                     ' {:.2f}) {} '.format(
                 i + 1, _exact,
                 self._scored_rules[rule]['score'],
                 self._scored_rules[rule]['weight'],
                 rule.ranking_bias, rule.description)
             )
+
+        _discarded_rules = [r for r in self._rules if r not in remaining_rules]
+        log.info('Discarded rules:')
+        for i, rule in enumerate(_discarded_rules, start=i+1):
+            _exact = 'Yes' if rule.exact_match else 'No '
+            log.info('Rule #{} (Exact: {}  Score: N/A   Weight: N/A   Bias:'
+                     ' {:.2f}) {} '.format(i + 1, _exact, rule.ranking_bias,
+                                          rule.description))
 
         self._candidates = _candidates
 
