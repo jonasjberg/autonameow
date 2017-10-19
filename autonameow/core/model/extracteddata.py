@@ -101,15 +101,34 @@ class ExtractedData(object):
 
     def as_string(self):
         if self.coercer:
-            try:
-                string = self.coercer.format(self.value)
-            except types.AWTypeError:
-                pass
+            if self.multivalued:
+                _values = self.value
+                _strings = []
+                for _value in _values:
+                    try:
+                        s = self.coercer.format(_value)
+                    except types.AWTypeError:
+                        pass
+                    else:
+                        if s is not None:
+                            _strings.append(s)
+
+                if _strings:
+                    return ' '.join(_strings)
             else:
-                if string is not None:
-                    return string
-        log.warning('Coercer unknown! "as_string()" returning empty string')
-        return ''
+                try:
+                    s = self.coercer.format(self.value)
+                except types.AWTypeError:
+                    log.debug('"as_string()" failed for value: "{!s}"'.format(
+                            self.value))
+                else:
+                    if s is not None:
+                        return s
+            log.warning('"as_string()" returning empty string')
+            return ''
+        else:
+            log.warning('Coercer unknown! "as_string()" returning empty string')
+            return ''
 
     @classmethod
     def from_raw(cls, instance, raw_value):
