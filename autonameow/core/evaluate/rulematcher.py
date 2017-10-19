@@ -131,7 +131,7 @@ class RuleMatcher(object):
 
 def prioritize_rules(rules):
     """
-    Prioritizes (sorts) a dict with 'Rule' instances and scores/weights.
+    Prioritizes/sorts a dict keyed by 'Rule' instances storing scores/weights.
 
     Rules are sorted by multiple attributes in the following order;
 
@@ -160,9 +160,12 @@ def prioritize_rules(rules):
     prioritized_rules = sorted(
         rules.items(),
         reverse=True,
-        key=lambda d: (d[1]['score'],
+        # key=lambda d: (d[1]['score'],
+        #                d[0].exact_match,
+        #                d[1]['weight'],
+        #                d[0].ranking_bias)
+        key=lambda d: (d[1]['score'] * d[1]['weight'],
                        d[0].exact_match,
-                       d[1]['weight'],
                        d[0].ranking_bias)
     )
     return [rule[0] for rule in prioritized_rules]
