@@ -26,13 +26,13 @@ import time
 
 from core import (
     analysis,
-    cache,
     config,
     exceptions,
     extraction,
     interactive,
     namebuilder,
     options,
+    persistence,
     repository,
     util
 )
@@ -123,7 +123,7 @@ class Autonameow(object):
                     util.displayable_path(config.DefaultConfigFilePath)
                 ),
                 'cache_directory_path': '"{!s}"'.format(
-                    util.displayable_path(cache.get_config_cache_path())
+                    util.displayable_path(persistence.get_config_persistence_path())
                 )
             }
             options.prettyprint_options(self.opts, include_opts)

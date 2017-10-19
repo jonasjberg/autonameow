@@ -33,7 +33,7 @@ except ImportError:
     PdfReadError = None
 
 from core import (
-    cache,
+    persistence,
     util
 )
 from core.util import sanity
@@ -55,18 +55,18 @@ class PyPDFTextExtractor(AbstractTextExtractor):
 
         self._cached_text = {}
 
-        _cache = cache.get_cache(str(self))
+        _cache = persistence.get_cache(str(self))
         if _cache:
             self.cache = _cache
             try:
                 self._cached_text = self.cache.get(CACHE_KEY)
-            except (KeyError, cache.CacheError):
+            except (KeyError, persistence.CacheError):
                 pass
         else:
             self.cache = None
 
     def _cache_read(self, fileobject):
-        if fileobject in self._cached_text:
+        if self._cached_text and fileobject in self._cached_text:
             return self._cached_text.get(fileobject)
         return None
 
@@ -76,7 +76,7 @@ class PyPDFTextExtractor(AbstractTextExtractor):
 
         try:
             self.cache.set(CACHE_KEY, self._cached_text)
-        except cache.CacheError:
+        except persistence.CacheError:
             pass
 
     def _get_text(self, fileobject):

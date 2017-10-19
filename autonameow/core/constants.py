@@ -220,6 +220,6 @@ MEOWURI_ROOTS = frozenset([MEOWURI_ROOT_GENERIC]).union(MEOWURI_ROOTS_SOURCES)
 
 # Persistence and paths.
 # TODO: [TD0107] FIX THIS!
-DEFAULT_CACHE_DIR_ABSPATH = b'/tmp/autonameow_cache'
+DEFAULT_PERSISTENCE_DIR_ABSPATH = b'/tmp/autonameow_cache'
 DEFAULT_HISTORY_FILE_BASENAME = b'prompt_history'
 DEFAULT_HISTORY_FILE_ABSPATH = b'/tmp/autonameow_cache/prompt_history'

@@ -29,7 +29,7 @@ except ImportError:
 
 from analyzers import BaseAnalyzer
 from core import (
-    cache,
+    persistence,
     types,
     util,
 )
@@ -79,12 +79,12 @@ class EbookAnalyzer(BaseAnalyzer):
         self._cached_isbn_metadata = {}
         self._isbn_metadata = set()
 
-        _cache = cache.get_cache(str(self))
+        _cache = persistence.get_cache(str(self))
         if _cache:
             self.cache = _cache
             try:
                 self._cached_isbn_metadata = self.cache.get('isbnlib_meta')
-            except (KeyError, cache.CacheError):
+            except (KeyError, persistence.CacheError):
                 pass
         else:
             self.cache = None
@@ -186,7 +186,7 @@ class EbookAnalyzer(BaseAnalyzer):
             if self.cache:
                 try:
                     self.cache.set('isbnlib_meta', self._cached_isbn_metadata)
-                except cache.CacheError:
+                except persistence.CacheError:
                     pass
 
         return metadata
