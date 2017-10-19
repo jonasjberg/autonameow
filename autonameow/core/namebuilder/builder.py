@@ -118,22 +118,18 @@ def pre_assemble_format(field_data_dict, config):
 
     for field, data in field_data_dict.items():
         sanity.check(field and issubclass(field, NameTemplateField))
-        if isinstance(data, list):
+        sanity.check_isinstance(data, ExtractedData)
+
+        if data.multivalued:
             if not field.MULTIVALUED:
                 log.critical(
-                    'Template field "{!s}" expects a single value. '
-                    'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
-                                               type(data), data)
+                    'Template field "{!s}" expects a single value. Got '
+                    'multivalued ExtractedData'.format(field.as_placeholder())
                 )
                 raise exceptions.NameBuilderError(
                     'Template field "{!s}" expects a single value. '
                     'Got {} values'.format(field.as_placeholder(), len(data))
                 )
-
-            for d in data:
-                sanity.check_isinstance(d, ExtractedData)
-        else:
-            sanity.check_isinstance(data, ExtractedData)
 
         _formatted = field.format(data, config=config)
         if _formatted:

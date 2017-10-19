@@ -37,7 +37,8 @@ class ExtractedData(object):
     should be associated with. For instance, date/time-information could be
     used to populate the 'datetime'/'date' name template fields.
     """
-    def __init__(self, coercer, mapped_fields=None, generic_field=None):
+    def __init__(self, coercer, mapped_fields=None, generic_field=None,
+                 multivalued=None):
         self.coercer = coercer
 
         if mapped_fields is not None:
@@ -52,6 +53,11 @@ class ExtractedData(object):
         else:
             self.generic_field = None
 
+        if multivalued is not None:
+            self.multivalued = bool(multivalued)
+        else:
+            self.multivalued = False
+
     def __call__(self, raw_value):
         if self._value is not None:
             log.critical('"{!s}"._value is *NOT* None! Called with value:'
@@ -63,7 +69,18 @@ class ExtractedData(object):
                 self.coercer = _candidate_coercer
 
         if self.coercer:
-            self._value = self.coercer(raw_value)
+            if self.multivalued:
+                _coerced_values = []
+                _raw_values = raw_value
+                for _value in _raw_values:
+                    _coerced = self.coercer(_value)
+                    if _coerced:
+                        _coerced_values.append(_coerced)
+
+                self._value = _coerced_values
+
+            else:
+                self._value = self.coercer(raw_value)
         else:
             log.warning('Unknown coercer in ExtractedData: "{!s}"'.format(self))
             # Fall back to automatic type detection.

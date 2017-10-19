@@ -291,11 +291,12 @@ class Tags(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        sanity.check_isinstance(data, list)
+        sanity.check_isinstance(data, ExtractedData)
+
         _tags = []
-        for d in data:
-            sanity.check_isinstance(d, ExtractedData)
-            _tags.append(d.value)
+        for d in data.value:
+            sanity.check_isinstance(d, str)
+            _tags.append(d)
 
         c = kwargs.get('config')
         if c:

@@ -82,7 +82,8 @@ class FiletagsAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Tags, probability=1),
             ],
-            generic_field=gf.GenericTags
+            generic_field=gf.GenericTags,
+            multivalued=True
         ),
         'extension': ExtractedData(
             coercer=types.AW_MIMETYPE,
@@ -124,8 +125,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
         self.__wrap_result('description', self._description)
 
         self._tags = sorted(self._tags)
-        for tag in self._tags:
-            self.__wrap_result('tags', tag)
+        self.__wrap_result('tags', self._tags)
 
         self.__wrap_result('extension', self._extension)
         self.__wrap_result('follows_filetags_convention',
