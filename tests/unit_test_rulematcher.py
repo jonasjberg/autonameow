@@ -157,7 +157,7 @@ class TestPrioritizeRules(TestCase):
         s_a = {'score': 1, 'weight': 0.1}
         r_b = DummyRule(exact_match=False)
         s_b = {'score': 3, 'weight': 0.0}
-        expected = [r_b, r_a]
+        expected = [r_a, r_b]
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)
 

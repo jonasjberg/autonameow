@@ -143,17 +143,17 @@ def prioritize_rules(rules):
     """
     Prioritizes/sorts a dict keyed by 'Rule' instances storing scores/weights.
 
-    Rules are sorted by multiple attributes in the following order;
+    Rules are sorted by multiple attributes;
 
-    1. By "score", a float between 0-1
-       Represents the number of satisfied rule conditions.
-    2. By Whether the rule requires an exact match or not.
-       Rules that require an exact match are ranked higher.
-    3. By "weight", a float between 0-1.
-       Represents the number of met conditions for the rule, compared to
-       the number of conditions in other rules.
-    4. By "ranking bias", a float between 0-1.
-       Optional user-specified biasing of rule prioritization.
+      * By "score", a float between 0-1.
+        Represents the number of satisfied rule conditions.
+      * By Whether the rule requires an exact match or not.
+        Rules that require an exact match are ranked higher.
+      * By "weight", a float between 0-1.
+        Represents the number of met conditions for the rule, compared to
+        the number of conditions in other rules.
+      * By "ranking bias", a float between 0-1.
+        Optional user-specified biasing of rule prioritization.
 
     This means that a rule that met all conditions will be ranked lower than
     another rule that also met all conditions but *did* require an exact match.
@@ -176,6 +176,8 @@ def prioritize_rules(rules):
         #                d[0].ranking_bias)
         key=lambda d: (d[1]['score'] * d[1]['weight'],
                        d[0].exact_match,
+                       d[1]['score'],
+                       d[1]['weight'],
                        d[0].ranking_bias)
     )
     return [rule[0] for rule in prioritized_rules]
