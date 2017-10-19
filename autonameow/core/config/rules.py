@@ -114,6 +114,7 @@ class RuleCondition(object):
 
         valid_expression = self._validate_expression(raw_expression)
         if valid_expression:
+            log.debug('Validated expression: "{!s}"'.format(raw_expression))
             self._expression = raw_expression
         else:
             raise ValueError(
@@ -129,7 +130,7 @@ class RuleCondition(object):
 
     def _validate_expression(self, raw_expression):
         if self._parser.validate(raw_expression):
-            return raw_expression
+            return True
         else:
             return False
 
