@@ -161,125 +161,131 @@ class TestMimeTypeFieldParser(TestCase):
         self.p = MimeTypeConfigFieldParser()
         self.val_func = self.p.get_validation_function()
 
+    def aF(self, test_input):
+        self.assertFalse(self.val_func(test_input))
+
+    def aT(self, test_input):
+        self.assertTrue(self.val_func(test_input))
+
     def test_expect_fail_for_invalid_mime_types(self):
-        self.assertFalse(self.val_func(''))
-        self.assertFalse(self.val_func(None))
-        self.assertFalse(self.val_func('invalid_mime_surely'))
+        self.aF('')
+        self.aF(None)
+        self.aF('invalid_mime_surely')
 
     def test_expect_fail_for_invalid_globs(self):
-        self.assertFalse(self.val_func('.*'))
-        self.assertFalse(self.val_func('*'))
-        self.assertFalse(self.val_func('image/'))
-        self.assertFalse(self.val_func('/jpeg'))
-        self.assertFalse(self.val_func('image/*/*'))
+        self.aF('.*')
+        self.aF('*')
+        self.aF('image/')
+        self.aF('/jpeg')
+        self.aF('image/*/*')
 
     def test_expect_fail_for_list_of_invalid_mime_types(self):
-        self.assertFalse(self.val_func(['']))
-        self.assertFalse(self.val_func([None]))
-        self.assertFalse(self.val_func(['invalid_mime_surely']))
-        self.assertFalse(self.val_func([None, None]))
-        self.assertFalse(self.val_func([None, '']))
-        self.assertFalse(self.val_func([None, '', 'invalid_mime_surely']))
-        self.assertFalse(self.val_func([[]]))
-        self.assertFalse(self.val_func([None, []]))
-        self.assertFalse(self.val_func([None, [None]]))
+        self.aF([''])
+        self.aF([None])
+        self.aF(['invalid_mime_surely'])
+        self.aF([None, None])
+        self.aF([None, ''])
+        self.aF([None, '', 'invalid_mime_surely'])
+        self.aF([[]])
+        self.aF([None, []])
+        self.aF([None, [None]])
 
     def test_expect_fail_for_list_of_invalid_globs(self):
-        self.assertFalse(self.val_func(['.*']))
-        self.assertFalse(self.val_func(['*']))
-        self.assertFalse(self.val_func(['image/']))
-        self.assertFalse(self.val_func(['/jpeg']))
-        self.assertFalse(self.val_func(['image/*/*']))
-        self.assertFalse(self.val_func(['.*', '.*']))
-        self.assertFalse(self.val_func(['*', '.*']))
-        self.assertFalse(self.val_func([None, '.*']))
-        self.assertFalse(self.val_func([[], '.*']))
+        self.aF(['.*'])
+        self.aF(['*'])
+        self.aF(['image/'])
+        self.aF(['/jpeg'])
+        self.aF(['image/*/*'])
+        self.aF(['.*', '.*'])
+        self.aF(['*', '.*'])
+        self.aF([None, '.*'])
+        self.aF([[], '.*'])
 
     def test_expect_pass_for_valid_mime_types_no_globs(self):
-        self.assertTrue(self.val_func('image/x-ms-bmp'))
-        self.assertTrue(self.val_func('image/gif'))
-        self.assertTrue(self.val_func('image/jpeg'))
-        self.assertTrue(self.val_func('video/quicktime'))
-        self.assertTrue(self.val_func('video/mp4'))
-        self.assertTrue(self.val_func('video/ogg'))
-        self.assertTrue(self.val_func('application/pdf'))
-        self.assertTrue(self.val_func('image/png'))
-        self.assertTrue(self.val_func('text/plain'))
-        self.assertTrue(self.val_func('inode/x-empty'))
-        self.assertTrue(self.val_func('application/epub+zip'))
-        self.assertTrue(self.val_func('image/vnd.djvu'))
+        self.aT('image/x-ms-bmp')
+        self.aT('image/gif')
+        self.aT('image/jpeg')
+        self.aT('video/quicktime')
+        self.aT('video/mp4')
+        self.aT('video/ogg')
+        self.aT('application/pdf')
+        self.aT('image/png')
+        self.aT('text/plain')
+        self.aT('inode/x-empty')
+        self.aT('application/epub+zip')
+        self.aT('image/vnd.djvu')
 
     def test_expect_pass_for_valid_globs(self):
-        self.assertTrue(self.val_func('*/*'))
-        self.assertTrue(self.val_func('image/*'))
-        self.assertTrue(self.val_func('*/jpeg'))
-        self.assertTrue(self.val_func('inode/*'))
-        self.assertTrue(self.val_func('*/x-empty'))
-        self.assertTrue(self.val_func('*/x-ms-bmp'))
-        self.assertTrue(self.val_func('image/*'))
-        self.assertTrue(self.val_func('*/epub+zip'))
-        self.assertTrue(self.val_func('application/*'))
+        self.aT('*/*')
+        self.aT('image/*')
+        self.aT('*/jpeg')
+        self.aT('inode/*')
+        self.aT('*/x-empty')
+        self.aT('*/x-ms-bmp')
+        self.aT('image/*')
+        self.aT('*/epub+zip')
+        self.aT('application/*')
 
     def test_expect_pass_for_list_of_valid_mime_types_with_globs(self):
-        self.assertTrue(self.val_func(['*/*']))
-        self.assertTrue(self.val_func(['image/*']))
-        self.assertTrue(self.val_func(['*/jpeg']))
-        self.assertTrue(self.val_func(['inode/*']))
-        self.assertTrue(self.val_func(['*/x-empty']))
-        self.assertTrue(self.val_func(['*/x-ms-bmp']))
-        self.assertTrue(self.val_func(['image/*']))
-        self.assertTrue(self.val_func(['*/epub+zip']))
-        self.assertTrue(self.val_func(['application/*']))
-        self.assertTrue(self.val_func(['*/*', '*/*']))
-        self.assertTrue(self.val_func(['*/*', '*/jpeg']))
-        self.assertTrue(self.val_func(['image/*', '*/jpeg']))
-        self.assertTrue(self.val_func(['*/jpeg', 'image/*']))
-        self.assertTrue(self.val_func(['*/jpeg', 'application/*']))
+        self.aT(self.val_func(['*/*']))
+        self.aT(self.val_func(['image/*']))
+        self.aT(self.val_func(['*/jpeg']))
+        self.aT(self.val_func(['inode/*']))
+        self.aT(self.val_func(['*/x-empty']))
+        self.aT(self.val_func(['*/x-ms-bmp']))
+        self.aT(self.val_func(['image/*']))
+        self.aT(self.val_func(['*/epub+zip']))
+        self.aT(self.val_func(['application/*']))
+        self.aT(self.val_func(['*/*', '*/*']))
+        self.aT(self.val_func(['*/*', '*/jpeg']))
+        self.aT(self.val_func(['image/*', '*/jpeg']))
+        self.aT(self.val_func(['*/jpeg', 'image/*']))
+        self.aT(self.val_func(['*/jpeg', 'application/*']))
 
     def test_expect_pass_for_list_of_valid_mime_types_no_globs(self):
-        self.assertTrue(self.val_func(['image/x-ms-bmp']))
-        self.assertTrue(self.val_func(['image/gif']))
-        self.assertTrue(self.val_func(['image/jpeg']))
-        self.assertTrue(self.val_func(['video/quicktime']))
-        self.assertTrue(self.val_func(['video/mp4']))
-        self.assertTrue(self.val_func(['video/ogg']))
-        self.assertTrue(self.val_func(['application/pdf']))
-        self.assertTrue(self.val_func(['image/png']))
-        self.assertTrue(self.val_func(['text/plain']))
-        self.assertTrue(self.val_func(['inode/x-empty']))
-        self.assertTrue(self.val_func(['application/epub+zip']))
-        self.assertTrue(self.val_func(['image/gif', 'image/jpeg']))
-        self.assertTrue(self.val_func(['image/jpeg', 'image/gif']))
-        self.assertTrue(self.val_func(['video/quicktime', 'image/jpeg']))
+        self.aT(self.val_func(['image/x-ms-bmp']))
+        self.aT(self.val_func(['image/gif']))
+        self.aT(self.val_func(['image/jpeg']))
+        self.aT(self.val_func(['video/quicktime']))
+        self.aT(self.val_func(['video/mp4']))
+        self.aT(self.val_func(['video/ogg']))
+        self.aT(self.val_func(['application/pdf']))
+        self.aT(self.val_func(['image/png']))
+        self.aT(self.val_func(['text/plain']))
+        self.aT(self.val_func(['inode/x-empty']))
+        self.aT(self.val_func(['application/epub+zip']))
+        self.aT(self.val_func(['image/gif', 'image/jpeg']))
+        self.aT(self.val_func(['image/jpeg', 'image/gif']))
+        self.aT(self.val_func(['video/quicktime', 'image/jpeg']))
 
     def test_expect_mime_type_globs_to_evaluate_true(self):
-        def _assert_eval_true(expression, data):
+        def _aT(expression, data):
             actual = self.p.evaluate_mime_type_globs(expression, data)
             self.assertTrue(isinstance(actual, bool))
             self.assertTrue(actual)
 
-        _assert_eval_true('image/jpeg', 'image/jpeg')
-        _assert_eval_true('image/*', 'image/jpeg')
-        _assert_eval_true('*/jpeg', 'image/jpeg')
-        _assert_eval_true(['*/jpeg', 'application/pdf'], 'image/jpeg')
-        _assert_eval_true(['image/*', 'application/pdf'], 'image/jpeg')
-        _assert_eval_true(['image/*', 'application/pdf'], 'application/pdf')
-        _assert_eval_true(['image/jpeg', 'application/pdf'], 'application/pdf')
-        _assert_eval_true(['image/jpeg', '*/pdf'], 'application/pdf')
+        _aT('image/jpeg', 'image/jpeg')
+        _aT('image/*', 'image/jpeg')
+        _aT('*/jpeg', 'image/jpeg')
+        _aT(['*/jpeg', 'application/pdf'], 'image/jpeg')
+        _aT(['image/*', 'application/pdf'], 'image/jpeg')
+        _aT(['image/*', 'application/pdf'], 'application/pdf')
+        _aT(['image/jpeg', 'application/pdf'], 'application/pdf')
+        _aT(['image/jpeg', '*/pdf'], 'application/pdf')
 
     def test_expect_mime_type_globs_to_evaluate_false(self):
-        def _assert_eval_false(expression, data):
+        def _aF(expression, data):
             actual = self.p.evaluate_mime_type_globs(expression, data)
             self.assertTrue(isinstance(actual, bool))
             self.assertFalse(actual)
 
-        _assert_eval_false('image/png', 'image/jpeg')
-        _assert_eval_false('application/*', 'image/jpeg')
-        _assert_eval_false('*/png', 'image/jpeg')
-        _assert_eval_false(['*/png', 'application/pdf'], 'image/jpeg')
-        _assert_eval_false(['application/*', 'video/quicktime'], 'image/png')
-        _assert_eval_false(['image/*', 'application/pdf'], 'text/p,ain')
-        _assert_eval_false(['image/jpeg', 'application/pdf'], 'image/gif')
+        _aF('image/png', 'image/jpeg')
+        _aF('application/*', 'image/jpeg')
+        _aF('*/png', 'image/jpeg')
+        _aF(['*/png', 'application/pdf'], 'image/jpeg')
+        _aF(['application/*', 'video/quicktime'], 'image/png')
+        _aF(['image/*', 'application/pdf'], 'text/p,ain')
+        _aF(['image/jpeg', 'application/pdf'], 'image/gif')
 
 
 class TestDateTimeFieldParser(TestCase):
@@ -289,13 +295,22 @@ class TestDateTimeFieldParser(TestCase):
         self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):
-        self.assertFalse(self.val_func(None))
-        self.assertFalse(self.val_func(1))
-        self.assertFalse(self.val_func(''))
+        def _aF(test_input):
+            self.assertFalse(self.val_func(test_input))
+
+        _aF(self.val_func(None))
+        _aF(self.val_func(1))
+        _aF(self.val_func(''))
 
     def test_validation_function_expect_pass(self):
-        self.assertTrue(self.val_func('%Y-%m-%d %H:%M:%S'))
-        self.assertTrue(self.val_func('_'))
+        def _aT(test_input):
+            self.assertTrue(self.val_func(test_input))
+
+        _aT('%Y-%m-%d %H:%M:%S')
+        _aT('%Y-%m-%d')
+        _aT('%Y')
+        _aT('_')
+        _aT('foo')
 
 
 class TestNameFormatFieldParser(TestCase):
@@ -305,15 +320,22 @@ class TestNameFormatFieldParser(TestCase):
         self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):
-        self.assertFalse(self.val_func(None))
-        self.assertFalse(self.val_func(''))
-        self.assertFalse(self.val_func('{bad_field}'))
-        self.assertFalse(self.val_func('{datetime} {bad_field}'))
+        def _aF(test_input):
+            self.assertFalse(self.val_func(test_input))
+
+        _aF(None)
+        _aF('')
+        _aF('{bad_field}')
+        _aF('{datetime} {bad_field}')
 
     def test_validation_function_expect_pass(self):
-        self.assertTrue(self.val_func('{datetime}'))
-        self.assertTrue(self.val_func('{publisher} "abc" {tags}'))
-        self.assertTrue(self.val_func('{datetime} {title}.{extension}'))
+        def _aT(test_input):
+            self.assertTrue(self.val_func(test_input))
+
+        _aT('{datetime}')
+        _aT('{publisher} "abc" {tags}')
+        _aT('{datetime} {title}.{extension}')
+        _aT('{datetime} {title} -- {tags}.{extension}')
 
 
 class TestInstantiatedFieldParsers(TestCase):
