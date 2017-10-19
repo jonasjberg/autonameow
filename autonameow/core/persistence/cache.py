@@ -22,6 +22,7 @@
 import logging
 import time
 
+from core import types
 from core.exceptions import AutonameowException
 from core.persistence.base import (
     PersistenceError,
@@ -46,15 +47,67 @@ def _get_persistence_backend(file_prefix, persistence_dir_abspath):
 
 
 class BaseCache(object):
+    """
+    General-purpose cache that behaves like a dict named "owner" that is
+    stored both in RAM and on disk, using some method of persistence.
+
+    Each instance of this class is passed a "owner", which could be an
+    Extractor or any type of string-like identifier.
+    The cache adds timestamps to the data for later pruning by creation time.
+
+    Example usage:
+
+        c = BaseCache(owner='gibson')
+        c.set('data-key', {'a': 1, 'b': 2})
+
+    This will cache the data in both RAM as well as to disk using some method
+    of persistent data storage.  The data is written to disk using the path:
+
+        "CACHE_DIR_ABSPATH/cache_gibson"
+         ^_______________^ ^   ^ ^____^
+          Cache directory  |___|  Stringified "owner"
+                           Prefix used by all caches
+
+    Data is retrieved by:
+
+        _cached_data = c.get('data-key')
+
+    """
+    CACHE_PERSISTENCE_FILE_PREFIX = 'cache'
+
     # TODO: [TD0101] Add ability to limit sizes of persistent storage/caches.
     #                Store timestamps with stored data and remove oldest
     #                entries when exceeding the file size limit.
 
     def __init__(self, owner, cache_dir_abspath=None):
+        self._owner = None
+
         self._persistence = _get_persistence_backend(
-            file_prefix=owner,
+            file_prefix=self.CACHE_PERSISTENCE_FILE_PREFIX,
             persistence_dir_abspath=cache_dir_abspath
         )
+
+        self.owner = owner
+
+        try:
+            self._data = self._persistence.get(self.owner)
+        except PersistenceError as e:
+            raise CacheError(e)
+        except KeyError:
+            self._data = {}
+
+    @property
+    def owner(self):
+        return self._owner
+
+    @owner.setter
+    def owner(self, value):
+        _owner = types.force_string(value)
+        if not _owner.strip():
+            raise ValueError(
+                'Argument "owner" must be a valid, non-empty/whitespace string'
+            )
+        self._owner = _owner
 
     def get(self, key):
         """
@@ -72,12 +125,11 @@ class BaseCache(object):
             CacheError: Failed to read cached data for some reason;
                         data corruption, encoding errors, missing files, etc..
         """
-        try:
-            _timestamp, _data = self._persistence.get(key)
-        except PersistenceError as e:
-            raise CacheError(e)
-        else:
-            return _data
+        if not self._data:
+            return
+
+        _timestamp, _data = self._data.get(key)
+        return _data
 
     def set(self, key, value):
         """
@@ -88,51 +140,33 @@ class BaseCache(object):
             value: The data to store, as any serializable type.
         """
         _timestamped_value = (self.get_timestamp(), value)
-        self._persistence.set(key, _timestamped_value)
+        self._data[key] = _timestamped_value
+
+        self._persistence.set(self.owner, self._data)
 
     def delete(self, key):
         try:
-            self._persistence.delete(key)
+            self._data.pop(key)
+        except KeyError:
+            pass
+        else:
+            try:
+                self._persistence.set(self.owner, self._data)
+            except PersistenceError as e:
+                raise CacheError(e)
+
+    def keys(self):
+        return list(self._data.keys())
+
+    def flush(self):
+        self._data = {}
+        try:
+            self._persistence.delete(self.owner)
         except PersistenceError as e:
             raise CacheError(e)
 
-    def keys(self):
-        return self._persistence.keys()
-
-    def flush(self):
-        self._persistence.flush()
-
     def get_timestamp(self):
         return int(time.time())
-
-
-class FileobjectDataCache(BaseCache):
-    def __init__(self, owner, key):
-        super().__init__(owner)
-
-        self._data = self.get(key)
-
-    def store(self, key, data):
-        _data = {self._fileobject: {key: data}}
-        self._persistence.set(key)
-
-    def retrieve(self, fileobject):
-        for _timestamp, _data in self._cached_data:
-            if fileobject in _data:
-                return _data.get()
-                return _text
-        return None
-
-    def update_persistent_data(self):
-        self._persistence.set(self._cached_data)
-
-
-def get_fileobject_data_cache(owner, fileobject):
-    try:
-        return FileobjectDataCache(owner, fileobject)
-    except PersistenceError as e:
-        log.error('Cache unavailable :: {!s}'.format(e))
-        return None
 
 
 def get_cache(owner):

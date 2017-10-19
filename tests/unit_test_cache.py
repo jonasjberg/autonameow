@@ -45,13 +45,13 @@ class TestBaseCache(TestCase):
 
 class TestBaseCacheStorage(TestCase):
     def setUp(self):
-        file_prefix = 'temp_unit_test_cache_to_be_deleted'
+        owner = 'test_owner'
         self.data_key = 'key_foo'
         self.data_value = 'value_bar'
-        self.c = cache.BaseCache(owner=file_prefix)
+        self.c = cache.BaseCache(owner=owner)
 
     def tearDown(self):
-        self.c.delete(self.data_key)
+        self.c.flush()
 
     def test_cache_set(self):
         self.c.set(self.data_key, self.data_value)
@@ -62,25 +62,21 @@ class TestBaseCacheStorage(TestCase):
         retrieved = self.c.get(self.data_key)
         self.assertEqual(self.data_value, retrieved)
 
-    def test_cache_get_from_empty_cache(self):
-        with self.assertRaises(KeyError):
-            _ = self.c.get(self.data_key)
+    def test_cache_get_from_empty_cache_returns_none(self):
+        actual = self.c.get(self.data_key)
+        self.assertIsNone(actual)
 
+    def test_keys_initially_empty(self):
+        expect = []
+        actual = self.c.keys()
+        self.assertEqual(actual, expect)
 
-class TestFileobjectDataCache(TestCase):
-    def setUp(self):
-        fo = uu.get_mock_fileobject()
-        owner = 'temp_unit_test_extractor_cache_to_be_deleted'
-        self.c = cache.get_fileobject_data_cache(owner, fo)
+    def test_keys_returns_expected(self):
+        self.c.set(self.data_key, self.data_value)
 
-    def test_setup(self):
-        self.assertTrue(uu.is_class_instance(self.c))
-        self.assertTrue(isinstance(self.c, cache.FileobjectDataCache))
-
-    def test_store(self):
-        data = 'foo bar'
-        key = 'test_key'
-        self.c.store(key, data)
+        expect = [self.data_key]
+        actual = self.c.keys()
+        self.assertEqual(actual, expect)
 
 
 class CacheInterface(TestCase):
@@ -88,9 +84,3 @@ class CacheInterface(TestCase):
         actual = cache.get_cache('foo')
         self.assertTrue(uu.is_class_instance(actual))
         self.assertTrue(isinstance(actual, cache.BaseCache))
-
-    def test_get_extractor_cache(self):
-        fo = uu.get_mock_fileobject()
-        actual = cache.get_fileobject_data_cache('foo', fo)
-        self.assertTrue(uu.is_class_instance(actual))
-        self.assertTrue(isinstance(actual, cache.FileobjectDataCache))

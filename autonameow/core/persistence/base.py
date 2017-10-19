@@ -95,8 +95,8 @@ class BasePersistence(object):
             self.persistence_dir_abspath = get_config_persistence_path()
         else:
             self.persistence_dir_abspath = persistence_dir_abspath
-        assert os.path.isabs(util.syspath(self.persistence_dir_abspath))
-        self._dp = util.displayable_path(self.persistence_dir_abspath)
+        sanity.check_internal_bytestring(self.persistence_dir_abspath)
+        sanity.check(os.path.isabs(util.syspath(self.persistence_dir_abspath)))
 
         _prefix = types.force_string(file_prefix)
         if not _prefix.strip():
@@ -105,6 +105,7 @@ class BasePersistence(object):
             )
         self.persistencefile_prefix = _prefix
 
+        self._dp = util.displayable_path(self.persistence_dir_abspath)
         if not self.has_persistencedir():
             log.debug('Directory for persistent storage does not exist:'
                       ' "{!s}"'.format(self._dp))
@@ -129,7 +130,8 @@ class BasePersistence(object):
 
     def has_persistencedir_permissions(self):
         try:
-            return diskutils.has_permissions(self.persistence_dir_abspath, 'rwx')
+            return diskutils.has_permissions(self.persistence_dir_abspath,
+                                             'rwx')
         except (TypeError, ValueError):
             return False
 
