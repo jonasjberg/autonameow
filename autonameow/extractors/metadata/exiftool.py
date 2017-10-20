@@ -248,6 +248,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             generic_field=gf.GenericTitle
         ),
         'SourceFile': ExtractedData(types.AW_PATH),
+        'QuickTime:CompatibleBrands': ExtractedData(
+            coercer=types.AW_STRING,
+            multivalued=True
+        ),
         'QuickTime:CreateDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
@@ -390,7 +394,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Tags, probability=0.8),
                 WeightedMapping(fields.Title, probability=0.5)
             ],
-            generic_field=gf.GenericSubject
+            generic_field=gf.GenericSubject,
+            multivalued=True
         ),
         'XMP:TagsList': ExtractedData(
             coercer=types.AW_STRING,
