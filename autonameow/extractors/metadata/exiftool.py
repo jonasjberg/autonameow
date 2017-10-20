@@ -362,6 +362,18 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             generic_field=gf.GenericTags
         ),
+        'XMP:ManifestLinkForm': ExtractedData(
+            coercer=types.AW_STRING,
+            multivalued=True
+        ),
+        'XMP:ManifestReferenceInstanceID': ExtractedData(
+            coercer=types.AW_STRING,
+            multivalued=True
+        ),
+        'XMP:ManifestReferenceDocumentID': ExtractedData(
+            coercer=types.AW_STRING,
+            multivalued=True
+        ),
         'XMP:MetadataDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
