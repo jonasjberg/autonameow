@@ -282,7 +282,21 @@ class Publisher(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
-        pass
+
+        _candidates = {}
+
+        c = kwargs.get('config')
+        if c:
+            _options = c.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
+            if _options:
+                _candidates = _options.get('candidates', {})
+
+        _formatted = data.value
+        for repl, patterns in _candidates.items():
+            for pattern in patterns:
+                _formatted = pattern.sub(repl, _formatted)
+
+        return _formatted
 
 
 class Tags(NameTemplateField):
