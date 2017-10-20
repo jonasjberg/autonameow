@@ -97,7 +97,7 @@ class Title(NameTemplateField):
             string = types.force_string(data.value)
             if not string:
                 raise exceptions.NameBuilderError(
-                    'Unicode string conversion failed for "{!r}"'
+                    'Unicode string conversion failed for "{!r}"'.format(data)
                 )
         elif data.coercer == types.AW_STRING:
             string = data.value
@@ -150,7 +150,7 @@ class Edition(NameTemplateField):
             string = types.force_string(data.value)
             if not string:
                 raise exceptions.NameBuilderError(
-                    'Unicode string conversion failed for "{!r}"'
+                    'Unicode string conversion failed for "{!r}"'.format(data)
                 )
         elif data.coercer in (types.AW_STRING, types.AW_INTEGER):
             string = data.as_string()
@@ -227,7 +227,7 @@ class Author(NameTemplateField):
                 string = data.value
             else:
                 raise exceptions.NameBuilderError(
-                    'Got incompatible data: {!r}'.format(d)
+                    'Got incompatible data: {!r}'.format(data)
                 )
 
             sanity.check_internal_string(string)
