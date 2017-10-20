@@ -634,21 +634,6 @@ class TestHasPermissions(TestCase):
         os.chmod(util.syspath(path), OWNER_R | OWNER_W)
 
 
-class TestMakedirs(TestCase):
-    def setUp(self):
-        self.parentdir = uu.make_temp_dir()
-
-        destbase = b'foobar'
-        self.destpath = util.normpath(
-            os.path.join(util.syspath(self.parentdir), util.syspath(destbase))
-        )
-
-    def test_creates_directory(self):
-        self.assertFalse(uu.dir_exists(self.destpath))
-        diskutils.makedirs(self.destpath)
-        self.assertTrue(uu.dir_exists(self.destpath))
-
-
 class TestDelete(TestCase):
     def _get_non_existent_file(self):
         tempdir = uu.make_temp_dir()

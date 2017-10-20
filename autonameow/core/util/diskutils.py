@@ -296,18 +296,6 @@ def has_permissions(path, permissions):
     return True
 
 
-def makedirs(path):
-    if not isinstance(path, bytes):
-        raise TypeError('Expected "path" to be a bytestring path')
-    if not path or not path.strip():
-        raise ValueError('Got empty argument "path"')
-
-    try:
-        os.makedirs(util.syspath(path))
-    except (OSError, ValueError, TypeError) as e:
-        raise exceptions.FilesystemError(e)
-
-
 def delete(path, ignore_missing=False):
     """
     Deletes the file at "path".

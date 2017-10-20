@@ -28,40 +28,14 @@ from core.util import sanity
 from .io import (
     isdir,
     isfile,
+    makedirs,
+    rename_file,
     tempdir
 )
 from .sanitize import sanitize_filename
 
 
 log = logging.getLogger(__name__)
-
-
-def rename_file(source_path, new_basename):
-    dest_base = util.syspath(new_basename)
-    source = util.syspath(source_path)
-
-    source = os.path.realpath(os.path.normpath(source))
-    if not os.path.exists(source):
-        raise FileNotFoundError('Source does not exist: "{!s}"'.format(
-            util.displayable_path(source)
-        ))
-
-    dest_abspath = os.path.normpath(
-        os.path.join(os.path.dirname(source), dest_base)
-    )
-    if os.path.exists(dest_abspath):
-        raise FileExistsError('Destination exists: "{!s}"'.format(
-            util.displayable_path(dest_abspath)
-        ))
-
-    log.debug('Renaming "{!s}" to "{!s}"'.format(
-        util.displayable_path(source),
-        util.displayable_path(dest_abspath))
-    )
-    try:
-        os.rename(source, dest_abspath)
-    except OSError:
-        raise
 
 
 def file_basename(file_path):

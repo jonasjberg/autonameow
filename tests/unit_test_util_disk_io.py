@@ -27,6 +27,7 @@ from core.exceptions import FilesystemError
 from core.util.disk import (
     isdir,
     isfile,
+    makedirs,
     tempdir
 )
 import unit_utils as uu
@@ -154,3 +155,18 @@ class TestTempdir(TestCase):
             s.add(uu.make_temp_dir())
 
         self.assertEqual(len(s), NUM_DIRS)
+
+
+class TestMakedirs(TestCase):
+    def setUp(self):
+        self.parentdir = uu.make_temp_dir()
+
+        destbase = b'foobar'
+        self.destpath = util.normpath(
+            os.path.join(util.syspath(self.parentdir), util.syspath(destbase))
+        )
+
+    def test_creates_directory(self):
+        self.assertFalse(uu.dir_exists(self.destpath))
+        makedirs(self.destpath)
+        self.assertTrue(uu.dir_exists(self.destpath))
