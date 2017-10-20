@@ -180,6 +180,9 @@ class EbookAnalyzer(BaseAnalyzer):
         return metadata
 
     def _wrap_authors(self, list_of_authors):
+        if not list_of_authors:
+            return
+
         return ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
@@ -198,6 +201,9 @@ class EbookAnalyzer(BaseAnalyzer):
             return None
 
     def _wrap_date(self, date_string):
+        if not date_string:
+            return
+
         return ExtractedData(
             coercer=types.AW_DATE,
             mapped_fields=[
