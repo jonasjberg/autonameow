@@ -29,6 +29,7 @@ from core.model.meowuri import (
     MeowURILeaf,
     MeowURINode,
     MeowURIRoot,
+    meowuri_list,
     is_meowuri_part,
     is_meowuri_parts
 )
@@ -657,3 +658,58 @@ class TestMeowURIContains(TestCase):
         _aT('extractor.filesystem.xplat')
         _aT('extractor.filesystem')
         _aT('extractor')
+
+
+class TestMeowURIList(TestCase):
+    def test_raises_exception_for_none_argument(self):
+        with self.assertRaises(InvalidMeowURIError):
+            self.assertIsNone(meowuri_list(None))
+
+    def test_raises_exception_for_empty_argument(self):
+        with self.assertRaises(InvalidMeowURIError):
+            self.assertIsNone(meowuri_list(''))
+
+    def test_raises_exception_for_only_periods(self):
+        with self.assertRaises(InvalidMeowURIError):
+            self.assertIsNone(meowuri_list('.'))
+            self.assertIsNone(meowuri_list('..'))
+            self.assertIsNone(meowuri_list('...'))
+
+    def test_return_value_is_type_list(self):
+        self.assertTrue(isinstance(meowuri_list('a.b'), list))
+
+    def test_valid_argument_returns_expected(self):
+        self.assertEqual(meowuri_list('a'), ['a'])
+        self.assertEqual(meowuri_list('a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a.b.c'), ['a', 'b', 'c'])
+        self.assertEqual(meowuri_list('a.b.c.a'), ['a', 'b', 'c', 'a'])
+        self.assertEqual(meowuri_list('a.b.c.a.b'),
+                         ['a', 'b', 'c', 'a', 'b'])
+        self.assertEqual(meowuri_list('a.b.c.a.b.c'),
+                         ['a', 'b', 'c', 'a', 'b', 'c'])
+
+    def test_valid_argument_returns_expected_for_unexpected_input(self):
+        self.assertEqual(meowuri_list('a.b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a.b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('...a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b...'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('...a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b...'), ['a', 'b'])
+
+    def test_returns_expected(self):
+        self.assertEqual(meowuri_list('filesystem.contents.mime_type'),
+                         ['filesystem', 'contents', 'mime_type'])
+        self.assertEqual(meowuri_list('metadata.exiftool.EXIF:Foo'),
+                         ['metadata', 'exiftool', 'EXIF:Foo'])

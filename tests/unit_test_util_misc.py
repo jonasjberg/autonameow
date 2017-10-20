@@ -23,17 +23,13 @@
 import os
 from unittest import TestCase
 
-from core import (
-    util,
-    exceptions,
-)
+from core import util
 from core import constants as C
 from core.exceptions import EncodingBoundaryViolation
 from core.util import eval_magic_glob
 from core.util.misc import (
     unique_identifier,
     multiset_count,
-    meowuri_list,
     flatten_dict,
     expand_meowuri_data_dict,
     nested_dict_get,
@@ -132,61 +128,6 @@ class TestMultisetCount(TestCase):
     def test_list_duplicate_count_returns_expected_no_duplicate_two_none(self):
         self.assertEqual(multiset_count(['a', None, 'b', None]),
                          {None: 2, 'a': 1, 'b': 1})
-
-
-class TestMeowURIList(TestCase):
-    def test_raises_exception_for_none_argument(self):
-        with self.assertRaises(exceptions.InvalidMeowURIError):
-            self.assertIsNone(meowuri_list(None))
-
-    def test_raises_exception_for_empty_argument(self):
-        with self.assertRaises(exceptions.InvalidMeowURIError):
-            self.assertIsNone(meowuri_list(''))
-
-    def test_raises_exception_for_only_periods(self):
-        with self.assertRaises(exceptions.InvalidMeowURIError):
-            self.assertIsNone(meowuri_list('.'))
-            self.assertIsNone(meowuri_list('..'))
-            self.assertIsNone(meowuri_list('...'))
-
-    def test_return_value_is_type_list(self):
-        self.assertTrue(isinstance(meowuri_list('a.b'), list))
-
-    def test_valid_argument_returns_expected(self):
-        self.assertEqual(meowuri_list('a'), ['a'])
-        self.assertEqual(meowuri_list('a.b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a.b.c'), ['a', 'b', 'c'])
-        self.assertEqual(meowuri_list('a.b.c.a'), ['a', 'b', 'c', 'a'])
-        self.assertEqual(meowuri_list('a.b.c.a.b'),
-                         ['a', 'b', 'c', 'a', 'b'])
-        self.assertEqual(meowuri_list('a.b.c.a.b.c'),
-                         ['a', 'b', 'c', 'a', 'b', 'c'])
-
-    def test_valid_argument_returns_expected_for_unexpected_input(self):
-        self.assertEqual(meowuri_list('a.b.'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a.b..'), ['a', 'b'])
-        self.assertEqual(meowuri_list('.a.b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('..a.b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a..b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('.a..b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('..a..b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('...a..b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a..b.'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a..b..'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a..b...'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a...b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('.a...b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('..a...b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('...a...b'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a...b.'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a...b..'), ['a', 'b'])
-        self.assertEqual(meowuri_list('a...b...'), ['a', 'b'])
-
-    def test_returns_expected(self):
-        self.assertEqual(meowuri_list('filesystem.contents.mime_type'),
-                         ['filesystem', 'contents', 'mime_type'])
-        self.assertEqual(meowuri_list('metadata.exiftool.EXIF:Foo'),
-                         ['metadata', 'exiftool', 'EXIF:Foo'])
 
 
 class TestFlattenDict(TestCase):

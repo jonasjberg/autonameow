@@ -40,7 +40,6 @@ except ImportError:
 
 from core import constants as C
 from core import types
-from core.exceptions import InvalidMeowURIError
 from core.util import sanity
 
 
@@ -149,46 +148,6 @@ def multiset_count(list_data):
             out[entry] = 1
 
     return out
-
-
-def meowuri_list(meowuri):
-    """
-    Converts a "meowURI" to a list suited for traversing nested dicts.
-
-    Example meowURI:    'extractor.metadata.exiftool.createdate'
-    Resulting output:   ['extractor', 'metadata', 'exiftool', 'createdate']
-
-    Args:
-        meowuri: The "meowURI" to convert.
-
-    Returns: The components of the given "meowURI" as a list.
-    """
-    # TODO: [TD0105] Consolidate this with the 'MeowURI' class.
-    if not isinstance(meowuri, str):
-        raise InvalidMeowURIError('meowURI must be of type "str"')
-    else:
-        _meowuri = meowuri.strip()
-    if not _meowuri:
-        raise InvalidMeowURIError('Got empty meowURI')
-
-    if '.' in _meowuri:
-        # Remove any leading/trailing periods.
-        if _meowuri.startswith('.'):
-            _meowuri = _meowuri.lstrip('.')
-        if _meowuri.endswith('.'):
-            _meowuri = _meowuri.rstrip('.')
-
-        # Collapse any repeating periods.
-        while '..' in _meowuri:
-            _meowuri = _meowuri.replace('..', '.')
-
-        # Check if input is all periods.
-        stripped_period = str(_meowuri).replace('.', '')
-        if not stripped_period.strip():
-            raise InvalidMeowURIError('Invalid meowURI')
-
-    parts = _meowuri.split('.')
-    return [p for p in parts if p is not None]
 
 
 def flatten_dict(d, parent_key='', sep='.'):
