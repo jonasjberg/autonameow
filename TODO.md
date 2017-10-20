@@ -144,6 +144,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0114]` Improve the `EbookAnalyzer`.
+
 * `[TD0113]` Fix exceptions not being handled properly (?)
 
 * `[TD0109]` __Allow arbitrary name template placeholder fields.__  
