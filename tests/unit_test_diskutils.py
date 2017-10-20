@@ -20,14 +20,12 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import stat
 from unittest import TestCase
 
 from core import util
 from core.util import diskutils
 from core.util.diskutils import get_files_gen
 import unit_utils as uu
-import unit_utils_constants as uuconst
 
 
 def shorten_path(abs_path):
@@ -393,85 +391,3 @@ class UnitTestIgnorePaths(TestCase):
         )
 
 
-OWNER_R = stat.S_IRUSR
-OWNER_W = stat.S_IWUSR
-OWNER_X = stat.S_IXUSR
-
-
-class TestHasPermissions(TestCase):
-    def _test(self, path, perms, expected):
-        actual = diskutils.has_permissions(path, perms)
-        self.assertEqual(actual, expected)
-        self.assertTrue(isinstance(actual, bool))
-
-    def test_invalid_arguments(self):
-        path = uu.make_temporary_file()
-
-        def _aR(path, perms):
-            with self.assertRaises(TypeError):
-                _ = diskutils.has_permissions(path, perms)
-
-        _aR(path, None)
-        _aR(path, [])
-        _aR(path, object())
-        _aR(path, b'')
-        _aR(path, b'foo')
-        _aR(None, 'r')
-        _aR([], 'r')
-        _aR(object(), 'r')
-        _aR('', 'r')
-        _aR('foo', 'r')
-
-    def test_invalid_path(self):
-        path = uuconst.ASSUMED_NONEXISTENT_BASENAME
-        self._test(path, 'r', False)
-        self._test(path, 'w', False)
-        self._test(path, 'x', False)
-        self._test(path, 'rw', False)
-        self._test(path, 'rx', False)
-        self._test(path, 'wx', False)
-        self._test(path, 'rwx', False)
-
-    def test_file_perms_rwx(self):
-        path = uu.make_temporary_file()
-        os.chmod(util.syspath(path), OWNER_R | OWNER_W | OWNER_X)
-
-        self._test(path, 'r', True)
-        self._test(path, 'w', True)
-        self._test(path, 'x', True)
-        self._test(path, 'rw', True)
-        self._test(path, 'rx', True)
-        self._test(path, 'wx', True)
-        self._test(path, 'rwx', True)
-
-        os.chmod(util.syspath(path), OWNER_R | OWNER_W)
-
-    def test_file_perms_rw(self):
-        path = uu.make_temporary_file()
-        os.chmod(util.syspath(path), OWNER_R | OWNER_W)
-
-        self._test(path, 'r', True)
-        self._test(path, 'w', True)
-        self._test(path, 'x', False)
-        self._test(path, 'rw', True)
-        self._test(path, 'wr', True)
-        self._test(path, 'rx', False)
-        self._test(path, 'xr', False)
-        self._test(path, 'xw', False)
-        self._test(path, 'rwx', False)
-
-        os.chmod(util.syspath(path), OWNER_R | OWNER_W)
-
-    def test_file_perms_r(self):
-        path = uu.make_temporary_file()
-        os.chmod(util.syspath(path), OWNER_R)
-
-        self._test(path, 'r', True)
-        self._test(path, 'w', False)
-        self._test(path, 'x', False)
-        self._test(path, 'rw', False)
-        self._test(path, 'rx', False)
-        self._test(path, 'wx', False)
-        self._test(path, 'rwx', False)
-
-        os.chmod(util.syspath(path), OWNER_R | OWNER_W)

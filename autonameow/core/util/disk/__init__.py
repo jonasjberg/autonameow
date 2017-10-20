@@ -19,12 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-
 from .io import (
     delete,
     exists,
     file_basename,
+    has_permissions,
     isdir,
     isfile,
     makedirs,
@@ -35,64 +34,10 @@ from .pathstring import (
     basename_prefix,
     basename_suffix,
     compare_basenames,
+    path_ancestry,
+    path_components,
     split_basename
 )
 from .sanitize import sanitize_filename
 
 
-def path_ancestry(path):
-    """
-    Return a list consisting of path's parent directory, its grandparent,
-    and so on. For instance:
-
-       >>> path_ancestry('/a/b/c')
-       ['/', '/a', '/a/b']
-
-    NOTE:  This function is based on code from the "beets" project.
-           Source repo: https://github.com/beetbox/beets
-           Source file: 'beets/util/__init__.py'
-           Commit hash: b38f34b2c06255f1c51e8714c8af6962e297a3c5
-    """
-    out = []
-
-    last_path = None
-    while path:
-        path = os.path.dirname(path)
-
-        if path == last_path:
-            break
-        last_path = path
-
-        if path:
-            out.insert(0, path)
-
-    return out
-
-
-def path_components(path):
-    """
-    Return a list of the path components for a given path. For instance:
-
-       >>> path_components('/a/b/c')
-       ['a', 'b', 'c']
-
-    NOTE:  This function is based on code from the "beets" project.
-           Source repo: https://github.com/beetbox/beets
-           Source file: 'beets/util/__init__.py'
-           Commit hash: b38f34b2c06255f1c51e8714c8af6962e297a3c5
-    """
-    out = []
-
-    ancestors = path_ancestry(path)
-    for anc in ancestors:
-        comp = os.path.basename(anc)
-        if comp:
-            out.append(comp)
-        else:  # root
-            out.append(anc)
-
-    last = os.path.basename(path)
-    if last:
-        out.append(last)
-
-    return out

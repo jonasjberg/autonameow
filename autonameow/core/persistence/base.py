@@ -130,7 +130,7 @@ class BasePersistence(object):
 
     def has_persistencedir_permissions(self):
         try:
-            return diskutils.has_permissions(self.persistence_dir_abspath,
+            return util.disk.has_permissions(self.persistence_dir_abspath,
                                              'rwx')
         except (TypeError, ValueError):
             return False

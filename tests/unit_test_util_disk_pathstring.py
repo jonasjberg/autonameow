@@ -26,7 +26,9 @@ from core.util.disk import (
     basename_prefix,
     split_basename,
     basename_suffix,
-    compare_basenames
+    compare_basenames,
+    path_components,
+    path_ancestry
 )
 import unit_utils as uu
 
@@ -246,3 +248,64 @@ class TestCompareBasenames(TestCase):
             '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode('utf-8'),
             '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode('utf-8')
         )
+
+
+class TestPathAncestry(TestCase):
+    def test_ancestry_returns_expected_ancestors_for_file_paths(self):
+        PATHS_ANCESTORS = [
+            ('/a/b/c', ['/', '/a', '/a/b']),
+            ('/a/b',   ['/', '/a']),
+            ('/a',     ['/']),
+            ('/',      ['/'])
+        ]
+        for p, a in PATHS_ANCESTORS:
+            self.assertEqual(path_ancestry(p), a)
+
+    def test_ancestry_returns_expected_ancestors_for_directory_paths(self):
+        PATHS_ANCESTORS = [
+            ('/a/b/c/', ['/', '/a', '/a/b', '/a/b/c']),
+            ('/a/b/',   ['/', '/a', '/a/b']),
+            ('/a/',     ['/', '/a']),
+            ('/',       ['/']),
+        ]
+        for p, a in PATHS_ANCESTORS:
+            self.assertEqual(path_ancestry(p), a)
+
+    def test_ancestry_returns_expected_ancestors_for_relative_paths(self):
+        PATHS_ANCESTORS = [
+            ('a/b/c', ['a', 'a/b']),
+            ('a/b/c/', ['a', 'a/b', 'a/b/c']),
+        ]
+        for p, a in PATHS_ANCESTORS:
+            self.assertEqual(path_ancestry(p), a)
+
+
+class TestPathComponents(TestCase):
+    def test_components_returns_expected_components_for_file_paths(self):
+        PATHS_COMPONENTS = [
+            ('/a/b/c', ['/', 'a', 'b', 'c']),
+            ('/a/b',   ['/', 'a', 'b']),
+            ('/a',     ['/', 'a']),
+            ('/',      ['/'])
+        ]
+        for p, c in PATHS_COMPONENTS:
+            self.assertEqual(path_components(p), c)
+
+    def test_components_returns_expected_components_for_directory_paths(self):
+        PATHS_COMPONENTS = [
+            ('/a/b/c/', ['/', 'a', 'b', 'c']),
+            ('/a/b/',   ['/', 'a', 'b']),
+            ('/a/',     ['/', 'a']),
+            ('/',       ['/'])
+        ]
+        for p, c in PATHS_COMPONENTS:
+            self.assertEqual(path_components(p), c)
+
+    def test_components_returns_expected_components_for_relative_paths(self):
+        PATHS_COMPONENTS = [
+            ('a/b/c', ['a', 'b', 'c']),
+            ('a/b',   ['a', 'b']),
+            ('a',     ['a']),
+        ]
+        for p, c in PATHS_COMPONENTS:
+            self.assertEqual(path_components(p), c)
