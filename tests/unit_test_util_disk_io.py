@@ -27,10 +27,11 @@ from core.exceptions import FilesystemError
 from core.util.disk import (
     delete,
     exists,
+    file_basename,
     isdir,
     isfile,
     makedirs,
-    tempdir,
+    tempdir
 )
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -271,3 +272,24 @@ class TestDelete(TestCase):
     def test_silently_ignores_non_existent_file(self):
         not_a_file = self._get_non_existent_file()
         delete(not_a_file, ignore_missing=True)
+
+
+class TestFileBasename(TestCase):
+    def test_returns_expected_given_valid_paths(self):
+        def _aE(given, expect):
+            actual = file_basename(given)
+            self.assertEqual(actual, expect)
+
+        _aE(b'unit_test_util_disk_io.py', b'unit_test_util_disk_io.py')
+        _aE('unit_test_util_disk_io.py', b'unit_test_util_disk_io.py')
+        _aE(__file__, b'unit_test_util_disk_io.py')
+        _aE(os.path.abspath(__file__), b'unit_test_util_disk_io.py')
+        _aE(os.path.realpath(__file__), b'unit_test_util_disk_io.py')
+
+    def test_returns_expected_given_invalid_paths(self):
+        def _aE(given, expect):
+            actual = file_basename(given)
+            self.assertEqual(actual, expect)
+
+        _aE('', b'')
+        _aE(' ', b' ')

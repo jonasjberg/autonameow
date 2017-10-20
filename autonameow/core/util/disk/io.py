@@ -133,3 +133,7 @@ def delete(path, ignore_missing=False):
         os.remove(util.syspath(p))
     except OSError as e:
         raise exceptions.FilesystemError(e)
+
+
+def file_basename(file_path):
+    return util.bytestring_path(os.path.basename(util.syspath(file_path)))

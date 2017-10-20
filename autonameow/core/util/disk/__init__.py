@@ -19,14 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import os
-
-from core import util
 
 from .io import (
     delete,
     exists,
+    file_basename,
     isdir,
     isfile,
     makedirs,
@@ -40,13 +38,6 @@ from .pathstring import (
     split_basename
 )
 from .sanitize import sanitize_filename
-
-
-log = logging.getLogger(__name__)
-
-
-def file_basename(file_path):
-    return util.syspath(os.path.basename(file_path))
 
 
 def path_ancestry(path):
