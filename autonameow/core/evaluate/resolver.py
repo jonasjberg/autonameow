@@ -114,20 +114,27 @@ class Resolver(object):
                       '[{!s}]'.format(_field, self.file.hash_partial, _meowuri))
             _data = self._request_data(self.file, _meowuri)
             if _data is not None:
-                log.debug('Got data "{!s}" ({})'.format(_data, type(_data)))
+                _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(_data),
+                                                                   _data)
+                log.debug('Got {}'.format(_data_info))
+                sanity.check(
+                    isinstance(_data, ExtractedData),
+                    'Expected "data" to be an instance of "ExtractedData".'
+                    ' Got {}'.format(_data_info)
+                )
 
-                # TODO: [TD0112] Clean up merging data.
-                if isinstance(_data, list):
-
-                    seen_data = set()
-                    for d in _data:
-                        seen_data.add(d.value)
-
-                    if len(seen_data) == 1:
-                        log.debug(
-                            'Merged {} ExtractedData entries'.format(len(_data))
-                        )
-                        _data = _data[0]
+                # # TODO: [TD0112] Clean up merging data.
+                # if isinstance(_data, list):
+                #
+                #     seen_data = set()
+                #     for d in _data:
+                #         seen_data.add(d.value)
+                #
+                #     if len(seen_data) == 1:
+                #         log.debug(
+                #             'Merged {} ExtractedData entries'.format(len(_data))
+                #         )
+                #         _data = _data[0]
 
                 log.debug('Updated data for field "{!s}"'.format(_field))
                 self.fields_data[_field] = _data
@@ -169,12 +176,12 @@ class Resolver(object):
         _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
         sanity.check(
             not isinstance(data, list),
-            'Expected "data" not to be a list. Got: {}'.format(_data_info)
+            'Expected "data" not to be a list. Got {}'.format(_data_info)
         )
         sanity.check(
             isinstance(data, ExtractedData),
             'Expected "data" to be an instance of "ExtractedData".'
-            'Got: {}'.format(_data_info)
+            'Got {}'.format(_data_info)
         )
 
         log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))

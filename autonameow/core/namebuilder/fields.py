@@ -216,6 +216,21 @@ class Author(NameTemplateField):
             return ' '.join(sorted(_formatted))
         else:
             # One author
+            if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+                string = types.force_string(data.value)
+                if not string:
+                    raise exceptions.NameBuilderError(
+                        'Unicode string conversion failed for '
+                        '"{!r}"'.format(data)
+                    )
+            elif data.coercer == types.AW_STRING:
+                string = data.value
+            else:
+                raise exceptions.NameBuilderError(
+                    'Got incompatible data: {!r}'.format(d)
+                )
+
+            sanity.check_internal_string(string)
             return textutils.format_name_lastname_initials(data.value)
 
 
