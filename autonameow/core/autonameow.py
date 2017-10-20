@@ -496,7 +496,7 @@ class Autonameow(object):
         )
         sanity.check_internal_bytestring(dest_basename)
 
-        from_basename = diskutils.file_basename(from_path)
+        from_basename = util.disk.file_basename(from_path)
 
         if diskutils.compare_basenames(from_basename, dest_basename):
             _msg = 'Skipped "{!s}" because the current name is the same as ' \

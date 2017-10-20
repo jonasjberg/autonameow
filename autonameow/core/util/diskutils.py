@@ -176,10 +176,6 @@ def basename_prefix(file_path):
     return base if base else None
 
 
-def file_basename(file_path):
-    return util.syspath(os.path.basename(file_path))
-
-
 def path_ancestry(path):
     """
     Return a list consisting of path's parent directory, its grandparent,

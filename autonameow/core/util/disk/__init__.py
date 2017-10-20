@@ -54,3 +54,7 @@ def rename_file(source_path, new_basename):
         os.rename(source, dest_abspath)
     except OSError:
         raise
+
+
+def file_basename(file_path):
+    return util.syspath(os.path.basename(file_path))
