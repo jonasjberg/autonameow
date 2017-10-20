@@ -507,7 +507,7 @@ class Autonameow(object):
         else:
             if dry_run is False:
                 try:
-                    diskutils.rename_file(from_path, dest_basename)
+                    util.disk.rename_file(from_path, dest_basename)
                 except (FileNotFoundError, FileExistsError, OSError) as e:
                     log.error('Rename FAILED: {!s}'.format(e))
                     raise exceptions.AutonameowException

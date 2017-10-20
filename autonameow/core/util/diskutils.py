@@ -88,34 +88,6 @@ def sanitize_filename(s, restricted=False, is_id=False):
     return result
 
 
-def rename_file(source_path, new_basename):
-    dest_base = util.syspath(new_basename)
-    source = util.syspath(source_path)
-
-    source = os.path.realpath(os.path.normpath(source))
-    if not os.path.exists(source):
-        raise FileNotFoundError('Source does not exist: "{!s}"'.format(
-            util.displayable_path(source)
-        ))
-
-    dest_abspath = os.path.normpath(
-        os.path.join(os.path.dirname(source), dest_base)
-    )
-    if os.path.exists(dest_abspath):
-        raise FileExistsError('Destination exists: "{!s}"'.format(
-            util.displayable_path(dest_abspath)
-        ))
-
-    log.debug('Renaming "{!s}" to "{!s}"'.format(
-        util.displayable_path(source),
-        util.displayable_path(dest_abspath))
-    )
-    try:
-        os.rename(source, dest_abspath)
-    except OSError:
-        raise
-
-
 def split_basename(file_path):
     """
     Splits the basename of the specified path in two parts.
