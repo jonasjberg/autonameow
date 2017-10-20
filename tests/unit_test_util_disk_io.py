@@ -25,11 +25,12 @@ from unittest import TestCase
 from core import util
 from core.exceptions import FilesystemError
 from core.util.disk import (
+    delete,
+    exists,
     isdir,
     isfile,
     makedirs,
     tempdir,
-    exists
 )
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -217,3 +218,56 @@ class TestMakedirs(TestCase):
         self.assertFalse(uu.dir_exists(self.destpath))
         makedirs(self.destpath)
         self.assertTrue(uu.dir_exists(self.destpath))
+
+
+class TestDelete(TestCase):
+    def _get_non_existent_file(self):
+        tempdir = uu.make_temp_dir()
+        self.assertTrue(uu.dir_exists(tempdir))
+        self.assertTrue(uu.is_internalbytestring(tempdir))
+
+        not_a_file = util.normpath(
+            os.path.join(util.syspath(tempdir),
+                         util.syspath(uuconst.ASSUMED_NONEXISTENT_BASENAME))
+        )
+        self.assertFalse(uu.dir_exists(not_a_file))
+        self.assertFalse(uu.file_exists(not_a_file))
+        self.assertTrue(uu.is_internalbytestring(not_a_file))
+        return not_a_file
+
+    def test_deletes_existing_file(self):
+        tempfile = uu.make_temporary_file()
+        self.assertTrue(uu.file_exists(tempfile))
+        self.assertTrue(uu.is_internalbytestring(tempfile))
+
+        delete(tempfile)
+        self.assertFalse(uu.file_exists(tempfile))
+
+    def test_deletes_existing_directory(self):
+        self.skipTest('TODO: [Errno 1] Operation not permitted')
+
+        tempdir = uu.make_temp_dir()
+
+        _dir = util.syspath(
+            os.path.join(util.syspath(tempdir),
+                         util.syspath(uuconst.ASSUMED_NONEXISTENT_BASENAME))
+        )
+        self.assertTrue(uu.is_internalbytestring(_dir))
+        os.makedirs(util.syspath(_dir))
+        self.assertTrue(uu.dir_exists(_dir))
+
+        # delete(_dir)
+        self.assertFalse(uu.dir_exists(_dir))
+
+    def test_raises_exception_given_non_existent_file(self):
+        not_a_file = self._get_non_existent_file()
+
+        with self.assertRaises(FilesystemError):
+            delete(not_a_file)
+
+        with self.assertRaises(FilesystemError):
+            delete(not_a_file, ignore_missing=False)
+
+    def test_silently_ignores_non_existent_file(self):
+        not_a_file = self._get_non_existent_file()
+        delete(not_a_file, ignore_missing=True)

@@ -237,7 +237,7 @@ class BasePersistence(object):
         _dp = util.displayable_path(_p)
         log.debug('Deleting persistence file "{!s}"'.format(_dp))
         try:
-            diskutils.delete(_p, ignore_missing=True)
+            util.disk.delete(_p, ignore_missing=True)
         except exceptions.FilesystemError as e:
             raise PersistenceError(
                 'Error while deleting "{!s}"; {!s}'.format(_dp, e)
