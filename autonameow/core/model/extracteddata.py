@@ -64,9 +64,28 @@ class ExtractedData(object):
                          ' {!s}"'.format(self, raw_value))
 
         if not self.coercer:
-            _candidate_coercer = types.coercer_for(raw_value)
+            _sample_raw_value = None
+
+            if isinstance(raw_value, (list, tuple)):
+                try:
+                    _sample_raw_value = raw_value[0]
+                except IndexError:
+                    pass
+            elif isinstance(raw_value, dict):
+                try:
+                    _sample_raw_value = raw_value.get(raw_value.keys()[0])
+                except (IndexError, KeyError):
+                    pass
+            else:
+                _sample_raw_value = raw_value
+
+            _candidate_coercer = types.coercer_for(_sample_raw_value)
             if _candidate_coercer:
                 self.coercer = _candidate_coercer
+            else:
+                log.warning('Unknown coercer for value: "{!s}" ({!s})'.format(
+                        _sample_raw_value, type(_sample_raw_value)
+                ))
 
         if self.coercer:
             if self.multivalued:
