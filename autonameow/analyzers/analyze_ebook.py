@@ -145,16 +145,8 @@ class EbookAnalyzer(BaseAnalyzer):
 
                 maybe_authors = _isbn_metadata.authors
                 if maybe_authors:
-                    # TODO: [TD0084] Use a "list-of-strings" coercer ..
-                    if isinstance(maybe_authors, list):
-                        for maybe_author in maybe_authors:
-                            _author = self._filter_author(maybe_author)
-                            if _author:
-                                self._add_results('author',
-                                                  self._wrap_author(_author))
-                    else:
-                        self._add_results('author',
-                                          self._wrap_author(maybe_authors))
+                    self._add_results('author',
+                                      self._wrap_authors(maybe_authors))
 
                 maybe_publisher = self._filter_publisher(
                     _isbn_metadata.publisher
@@ -187,27 +179,15 @@ class EbookAnalyzer(BaseAnalyzer):
 
         return metadata
 
-    def _filter_author(self, raw_string):
-        try:
-            # TODO: Calling 'ExtractedData' "wraps" the value a second time!
-            string_ = types.AW_STRING(raw_string)
-        except types.AWTypeError:
-            return
-        else:
-            if not string_.strip():
-                return
-
-            # TODO: Cleanup and filter author(s)
-            return string_
-
-    def _wrap_author(self, author_string):
+    def _wrap_authors(self, list_of_authors):
         return ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Author, probability=1),
             ],
-            generic_field=gf.GenericAuthor
-        )(author_string)
+            generic_field=gf.GenericAuthor,
+            multivalued=True
+        )(list_of_authors)
 
     def _filter_date(self, raw_string):
         # TODO: Cleanup and filter date/year

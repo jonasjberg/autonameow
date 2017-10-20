@@ -188,18 +188,21 @@ class Author(NameTemplateField):
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
 
-        if isinstance(data, list):
+        sanity.check_isinstance(data, ExtractedData)
+
+        if isinstance(data.value, list):
             # Multiple authors
             _formatted = []
-            for d in data:
-                if d.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
-                    string = types.force_string(d.value)
+            for d in data.value:
+                if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+                    string = types.force_string(d)
                     if not string:
                         raise exceptions.NameBuilderError(
-                            'Unicode string conversion failed for "{!r}"'
+                            'Unicode string conversion failed for '
+                            '"{!r}"'.format(data)
                         )
-                elif d.coercer == types.AW_STRING:
-                    string = d.value
+                elif data.coercer == types.AW_STRING:
+                    string = d
                 else:
                     raise exceptions.NameBuilderError(
                         'Got incompatible data: {!r}'.format(d)

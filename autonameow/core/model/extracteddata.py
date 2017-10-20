@@ -114,7 +114,7 @@ class ExtractedData(object):
                             _strings.append(s)
 
                 if _strings:
-                    return ' '.join(_strings)
+                    return '["{}"]'.format('", "'.join(_strings))
             else:
                 try:
                     s = self.coercer.format(self.value)
