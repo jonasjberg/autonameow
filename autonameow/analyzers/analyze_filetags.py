@@ -32,7 +32,6 @@ from core.model import (
     WeightedMapping
 )
 from core.model import genericfields as gf
-from core.util import diskutils
 
 # TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
 

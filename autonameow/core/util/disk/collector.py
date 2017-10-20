@@ -90,11 +90,6 @@ def get_files_gen(search_path, recurse=False):
                         yield f
 
 
-def normpaths_from_opts(path_list, ignore_globs, recurse):
-    pc = PathCollector(ignore_globs, recurse)
-    return pc.get_paths(path_list)
-
-
 class PathCollector(object):
     def __init__(self, ignore_globs=None, recurse=False):
         if ignore_globs:
@@ -151,3 +146,8 @@ class PathCollector(object):
             return [p for p in path_list if _no_match(p, self.ignore_globs)]
         except FileNotFoundError:
             return []
+
+
+def normpaths_from_opts(path_list, ignore_globs, recurse):
+    pc = PathCollector(ignore_globs, recurse)
+    return pc.get_paths(path_list)

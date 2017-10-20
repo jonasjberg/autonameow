@@ -44,10 +44,7 @@ from core.fileobject import FileObject
 from core.filter import ResultFilter
 from core.plugin_handler import PluginHandler
 from core.ui import cli
-from core.util import (
-    diskutils,
-    sanity
-)
+from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -140,7 +137,7 @@ class Autonameow(object):
             self.exit_program(C.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
-        files_to_process = diskutils.normpaths_from_opts(
+        files_to_process = util.disk.normpaths_from_opts(
             self.opts.get('input_paths'),
             self.active_config.options['FILESYSTEM_OPTIONS']['ignore'],
             self.opts.get('recurse_paths')

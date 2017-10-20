@@ -54,7 +54,6 @@ from core import (
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from core.ui import cli
-from core.util import diskutils
 
 
 log = logging.getLogger(__name__)

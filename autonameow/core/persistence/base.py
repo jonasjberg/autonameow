@@ -34,10 +34,7 @@ from core import (
     util
 )
 from core import constants as C
-from core.util import (
-    diskutils,
-    sanity
-)
+from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -111,7 +108,7 @@ class BasePersistence(object):
                       ' "{!s}"'.format(self._dp))
 
             try:
-                diskutils.makedirs(self.persistence_dir_abspath)
+                util.disk.makedirs(self.persistence_dir_abspath)
             except exceptions.FilesystemError as e:
                 raise PersistenceError('Unable to create persistence directory'
                                        ' "{!s}": {!s}'.format(self._dp, e))

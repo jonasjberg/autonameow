@@ -338,8 +338,7 @@ class Repository(object):
         if not file_path.strip():
             return
 
-        from core.util import diskutils
-        if diskutils.exists(file_path):
+        if util.disk.exists(file_path):
             return
 
         try:
