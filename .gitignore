@@ -273,4 +273,4 @@ notes/*.md.html
 junk
 
 # API keys
-autonameow/plugins/microsoft_vision.key
+autonameow/plugins/*.key
