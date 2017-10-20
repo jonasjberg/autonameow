@@ -41,6 +41,19 @@ IGNORED_EXIFTOOL_TAGNAMES = frozenset([
 ])
 
 
+# Metadata to ignore per field. Note that the values are set literals.
+BAD_EXIFTOOL_METADATA = {
+    'PDF:Author': {'Author'},
+    'PDF:Subject': {'Subject'},
+    'PDF:Title': {'Title'},
+    'XMP:Author': {'Author', 'Creator'},
+    'XMP:Creator': {'Author', 'Creator'},
+    'XMP:Description': {'Subject', 'Description'},
+    'XMP:Subject': {'Subject', 'Description'},
+    'XMP:Title': {'Title'}
+}
+
+
 class ExiftoolMetadataExtractor(BaseExtractor):
     """
     Extracts various types of metadata using "exiftool".
@@ -447,14 +460,10 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                     else:
                         out[tag_name] = [_wrapped]
             else:
-                # Skip invalid cases like "Author: Author"
-                if isinstance(value, str):
-                    if value in ('Author', 'Title', 'Publisher', 'Subject'):
-                        continue
-
                 _wrapped = self._wrap_tag_value(tag_name, value)
                 if _wrapped:
-                    out[tag_name] = _wrapped
+                    if not is_bad_metadata(tag_name, value):
+                        out[tag_name] = _wrapped
 
         return out
 
@@ -473,6 +482,13 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     @classmethod
     def check_dependencies(cls):
         return util.is_executable('exiftool') and pyexiftool is not None
+
+
+def is_bad_metadata(tag_name, value):
+    if tag_name in BAD_EXIFTOOL_METADATA:
+        if value in BAD_EXIFTOOL_METADATA[tag_name]:
+            return True
+    return False
 
 
 def is_binary_blob(value):
