@@ -381,7 +381,6 @@ def meowuri_list(meowuri):
 
     Returns: The components of the given "meowURI" as a list.
     """
-    # TODO: [TD0105] Consolidate this with the 'MeowURI' class.
     if not isinstance(meowuri, str):
         raise InvalidMeowURIError('meowURI must be of type "str"')
     else:
