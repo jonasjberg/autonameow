@@ -25,6 +25,12 @@ import os
 from core import util
 from core.util import sanity
 
+from .io import (
+    isdir,
+    isfile
+)
+from .sanitize import sanitize_filename
+
 
 log = logging.getLogger(__name__)
 

@@ -29,7 +29,6 @@ from core import (
 )
 from core.util import diskutils
 from core.util.diskutils import (
-    sanitize_filename,
     get_files_gen
 )
 import unit_utils as uu
@@ -186,87 +185,6 @@ class TestBasenamePrefix(TestCase):
         __check_expected_for(b'.filename.tar.lz')
         __check_expected_for(b'.filename.tar.lzma')
         __check_expected_for(b'.filename.tar.lzo')
-
-
-class TestSanitizeFilename(TestCase):
-    """
-    NOTE:  This class was lifted as-is from the "youtube-dl" project.
-
-    https://github.com/rg3/youtube-dl/blob/master/youtube_dl/test/test_utils.py
-    Commit: 5552c9eb0fece567f7dda13810939fca32d7d65a
-    """
-    def test_sanitize_filename(self):
-        self.assertEqual(sanitize_filename('abc'), 'abc')
-        self.assertEqual(sanitize_filename('abc_d-e'), 'abc_d-e')
-
-        self.assertEqual(sanitize_filename('123'), '123')
-
-        self.assertEqual('abc_de', sanitize_filename('abc/de'))
-        self.assertFalse('/' in sanitize_filename('abc/de///'))
-
-        self.assertEqual('abc_de', sanitize_filename('abc/<>\\*|de'))
-        self.assertEqual('xxx', sanitize_filename('xxx/<>\\*|'))
-        self.assertEqual('yes no', sanitize_filename('yes? no'))
-        self.assertEqual('this - that', sanitize_filename('this: that'))
-
-        self.assertEqual(sanitize_filename('AT&T'), 'AT&T')
-        aumlaut = 'ä'
-        self.assertEqual(sanitize_filename(aumlaut), aumlaut)
-        tests = '\u043a\u0438\u0440\u0438\u043b\u043b\u0438\u0446\u0430'
-        self.assertEqual(sanitize_filename(tests), tests)
-
-        self.assertEqual(
-            sanitize_filename('New World record at 0:12:34'),
-            'New World record at 0_12_34')
-
-        self.assertEqual(sanitize_filename('--gasdgf'), '_-gasdgf')
-        self.assertEqual(sanitize_filename('--gasdgf', is_id=True), '--gasdgf')
-        self.assertEqual(sanitize_filename('.gasdgf'), 'gasdgf')
-        self.assertEqual(sanitize_filename('.gasdgf', is_id=True), '.gasdgf')
-
-        forbidden = '"\0\\/'
-        for fc in forbidden:
-            for fbc in forbidden:
-                self.assertTrue(fbc not in sanitize_filename(fc))
-
-    def test_sanitize_filename_restricted(self):
-        self.assertEqual(sanitize_filename('abc', restricted=True), 'abc')
-        self.assertEqual(sanitize_filename('abc_d-e', restricted=True), 'abc_d-e')
-
-        self.assertEqual(sanitize_filename('123', restricted=True), '123')
-
-        self.assertEqual('abc_de', sanitize_filename('abc/de', restricted=True))
-        self.assertFalse('/' in sanitize_filename('abc/de///', restricted=True))
-
-        self.assertEqual('abc_de', sanitize_filename('abc/<>\\*|de', restricted=True))
-        self.assertEqual('xxx', sanitize_filename('xxx/<>\\*|', restricted=True))
-        self.assertEqual('yes_no', sanitize_filename('yes? no', restricted=True))
-        self.assertEqual('this_-_that', sanitize_filename('this: that', restricted=True))
-
-        tests = 'aäb\u4e2d\u56fd\u7684c'
-        self.assertEqual(sanitize_filename(tests, restricted=True), 'aab_c')
-        self.assertTrue(sanitize_filename('\xf6', restricted=True) != '')  # No empty filename
-
-        forbidden = '"\0\\/&!: \'\t\n()[]{}$;`^,#'
-        for fc in forbidden:
-            for fbc in forbidden:
-                self.assertTrue(fbc not in sanitize_filename(fc, restricted=True))
-
-        # Handle a common case more neatly
-        self.assertEqual(sanitize_filename('\u5927\u58f0\u5e26 - Song', restricted=True), 'Song')
-        self.assertEqual(sanitize_filename('\u603b\u7edf: Speech', restricted=True), 'Speech')
-        # .. but make sure the file name is never empty
-        self.assertTrue(sanitize_filename('-', restricted=True) != '')
-        self.assertTrue(sanitize_filename(':', restricted=True) != '')
-
-        self.assertEqual(sanitize_filename(
-            'ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ', restricted=True),
-            'AAAAAAAECEEEEIIIIDNOOOOOOOOEUUUUUYPssaaaaaaaeceeeeiiiionooooooooeuuuuuypy')
-
-    def test_sanitize_ids(self):
-        self.assertEqual(sanitize_filename('_n_cd26wFpw', is_id=True), '_n_cd26wFpw')
-        self.assertEqual(sanitize_filename('_BD_eEpuzXw', is_id=True), '_BD_eEpuzXw')
-        self.assertEqual(sanitize_filename('N0Y__7-UOdI', is_id=True), 'N0Y__7-UOdI')
 
 
 def shorten_path(abs_path):
@@ -825,105 +743,6 @@ class TestExists(TestCase):
     def test_returns_true_for_files_likely_to_exist(self):
         _files = [
             __file__,
-        ]
-        for df in _files:
-            self._check_return(df)
-
-
-class TestIsfile(TestCase):
-    def _check_return(self, file_to_test):
-        actual = diskutils.isfile(file_to_test)
-        self.assertTrue(isinstance(actual, bool))
-
-        if not file_to_test:
-            expected = False
-        else:
-            try:
-                expected = os.path.isfile(file_to_test)
-            except (OSError, TypeError, ValueError):
-                expected = False
-
-        self.assertEqual(actual, expected)
-
-    def test_returns_false_for_files_assumed_missing(self):
-        _dummy_paths = [
-            '/foo/bar/baz/mjao',
-            '/tmp/this_isnt_a_file_right_or_huh',
-            b'/tmp/this_isnt_a_file_right_or_huh'
-        ]
-        for df in _dummy_paths:
-            self._check_return(df)
-
-    def test_returns_false_for_empty_argument(self):
-        def _aF(test_input):
-            self.assertFalse(diskutils.isfile(test_input))
-
-        _aF('')
-        _aF(' ')
-
-    def test_raises_exception_given_invalid_arguments(self):
-        def _aF(test_input):
-            with self.assertRaises(exceptions.FilesystemError):
-                _ = diskutils.isfile(test_input)
-
-        _aF(None)
-
-    def test_returns_true_for_files_likely_to_exist(self):
-        _files = [
-            __file__,
-        ]
-        for df in _files:
-            self._check_return(df)
-
-
-class TestIsdir(TestCase):
-    def _check_return(self, path_to_test):
-        actual = diskutils.isdir(path_to_test)
-        self.assertTrue(isinstance(actual, bool))
-
-        if not path_to_test:
-            expected = False
-        else:
-            try:
-                expected = os.path.isdir(path_to_test)
-            except (OSError, TypeError, ValueError):
-                expected = False
-
-        self.assertEqual(actual, expected)
-
-    def test_returns_false_for_assumed_non_directory_paths(self):
-        _dummy_paths = [
-            __file__,
-            '/foo/bar/baz/mjao',
-            '/tmp/this_isnt_a_file_right_or_huh',
-            b'/foo/bar/baz/mjao',
-            b'/tmp/this_isnt_a_file_right_or_huh',
-        ]
-        for df in _dummy_paths:
-            self._check_return(df)
-
-    def test_returns_false_for_empty_argument(self):
-        def _aF(test_input):
-            self.assertFalse(diskutils.isdir(test_input))
-
-        _aF('')
-        _aF(' ')
-
-    def test_raises_exception_given_invalid_arguments(self):
-        def _aF(test_input):
-            with self.assertRaises(exceptions.FilesystemError):
-                _ = diskutils.isdir(test_input)
-
-        _aF(None)
-
-    def test_returns_true_for_likely_directory_paths(self):
-        _files = [
-            os.path.dirname(__file__),
-            uuconst.AUTONAMEOW_SRCROOT_DIR,
-            '/',
-            b'/',
-            util.bytestring_path(os.path.dirname(__file__)),
-            util.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
         ]
         for df in _files:
             self._check_return(df)

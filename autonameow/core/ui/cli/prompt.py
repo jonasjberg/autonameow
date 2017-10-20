@@ -71,9 +71,9 @@ def get_config_history_path():
         _history_path = None
 
     if _history_path:
-        if diskutils.isfile(_history_path):
+        if util.disk.isfile(_history_path):
             return _history_path
-        elif diskutils.isdir(_history_path):
+        elif util.disk.isdir(_history_path):
             log.warning('Expected history path to include a file ..')
             _fixed_path = os.path.join(
                 util.syspath(_history_path),

@@ -30,10 +30,7 @@ from core import (
 from core.model import ExtractedData
 from core.namebuilder.fields import NameTemplateField
 from core.ui import cli
-from core.util import (
-    diskutils,
-    sanity
-)
+from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -77,11 +74,11 @@ def build(config, name_template, field_data_map):
     if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_filename']):
         if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_strict']):
             log.debug('Sanitizing filename (restricted=True)')
-            new_name = diskutils.sanitize_filename(new_name,
+            new_name = util.disk.sanitize_filename(new_name,
                                                    restricted=True)
         else:
             log.debug('Sanitizing filename')
-            new_name = diskutils.sanitize_filename(new_name)
+            new_name = util.disk.sanitize_filename(new_name)
 
         log.debug('Sanitized basename (unicode): "{!s}"'.format(
             util.displayable_path(new_name))
