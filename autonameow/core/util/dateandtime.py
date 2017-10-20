@@ -130,6 +130,7 @@ def regex_search_str(text):
     :param text: the text to extract information from
     :return: list of any datetime-objects or None if nothing was found
     """
+    MAX_NUMBER_OF_RESULTS = 30
 
     if isinstance(text, list):
         text = ' '.join(text)
@@ -187,6 +188,12 @@ def regex_search_str(text):
                     results.append(dt)
                     matches += 1
 
+                if matches >= MAX_NUMBER_OF_RESULTS:
+                    log.debug(
+                        'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
+                    )
+                    return results
+
     # Expected date format:         2016:04:07
     dt_pattern_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
@@ -201,6 +208,12 @@ def regex_search_str(text):
                 results.append(dt)
                 matches += 1
 
+            if matches >= MAX_NUMBER_OF_RESULTS:
+                log.debug(
+                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
+                )
+                return results
+
     # Matches '(C) 2014' and similar.
     dt_pattern_3 = re.compile(r'\( ?[Cc] ?\) ?([12]\d{3})')
     dt_fmt_3 = '%Y'
@@ -214,6 +227,12 @@ def regex_search_str(text):
                 log.debug('Extracted datetime from text: "{}"'.format(dt))
                 results.append(dt)
                 matches += 1
+
+            if matches >= MAX_NUMBER_OF_RESULTS:
+                log.debug(
+                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
+                )
+                return results
 
     log.debug('[DATETIME] Regex matcher found {:^3} matches'.format(matches))
     return results
@@ -360,6 +379,8 @@ def bruteforce_str(text, return_first_match=False):
     :param text: the text to extract information from
     :return: list of any datetime-objects or None if nothing was found
     """
+    MAX_NUMBER_OF_RESULTS = 30
+
     if text is None:
         # log.debug('[bruteforce_str] Got empty text')
         return None
@@ -382,8 +403,6 @@ def bruteforce_str(text, return_first_match=False):
             results.append(data)
             bruteforce_str.matches += 1
             bruteforce_str.matches_total += 1
-            if return_first_match:
-                return data
 
     if len(text) < 4:
         return None
@@ -454,6 +473,12 @@ def bruteforce_str(text, return_first_match=False):
             #       weight; lower numbers more probable to be true positives.
             validate_result(dt)
 
+            if bruteforce_str.matches_total >= MAX_NUMBER_OF_RESULTS:
+                log.debug(
+                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
+                )
+                return results
+
     if results:
         log.debug('First matcher found  {:>3} matches after {:>4} '
                   'tries.'.format(bruteforce_str.matches, tries))
@@ -504,6 +529,12 @@ def bruteforce_str(text, return_first_match=False):
                 #       Lower numbers more probable to be true positives.
                 validate_result(dt)
 
+                if bruteforce_str.matches_total >= MAX_NUMBER_OF_RESULTS:
+                    log.debug('Hit max results limit {} ..'.format(
+                        MAX_NUMBER_OF_RESULTS
+                    ))
+                    return results
+
         # log.debug('Gave up after %d tries ..'.format(tries))
 
     # TODO: Examine this here below hacky conditional. Why is it there?
@@ -536,6 +567,12 @@ def bruteforce_str(text, return_first_match=False):
                     #       act as a weight; lower numbers more probable to be
                     #       true positives.
                     validate_result(dt)
+
+                    if bruteforce_str.matches_total >= MAX_NUMBER_OF_RESULTS:
+                        log.debug('Hit max results limit {} ..'.format(
+                            MAX_NUMBER_OF_RESULTS
+                        ))
+                        return results
 
             # log.debug('Gave up after {} tries ..'.format(tries))
             # log.debug('Removing leading number '
