@@ -447,6 +447,11 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                     else:
                         out[tag_name] = [_wrapped]
             else:
+                # Skip invalid cases like "Author: Author"
+                if isinstance(value, str):
+                    if value in ('Author', 'Title', 'Publisher', 'Subject'):
+                        continue
+
                 _wrapped = self._wrap_tag_value(tag_name, value)
                 if _wrapped:
                     out[tag_name] = _wrapped
