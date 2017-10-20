@@ -353,6 +353,30 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             generic_field=gf.GenericMimeType
         ),
+        'XMP:HistoryAction': ExtractedData(
+            coercer=types.AW_STRING,
+            multivalued=True
+        ),
+        'XMP:HistoryChanged': ExtractedData(
+            coercer=types.AW_STRING,
+            multivalued=True
+        ),
+        'XMP:HistoryInstanceID': ExtractedData(
+            coercer=types.AW_STRING,
+            multivalued=True
+        ),
+        'XMP:HistoryParameters': ExtractedData(
+            coercer=types.AW_STRING,
+            multivalued=True
+        ),
+        'XMP:HistorySoftwareAgent': ExtractedData(
+            coercer=types.AW_STRING,
+            multivalued=True
+        ),
+        'XMP:HistoryWhen': ExtractedData(
+            coercer=types.AW_TIMEDATE,
+            multivalued=True
+        ),
         'XMP:Keywords': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
