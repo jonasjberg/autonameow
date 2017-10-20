@@ -56,6 +56,13 @@ def rename_file(source_path, new_basename):
         raise
 
 
+def exists(path):
+    try:
+        return os.path.exists(util.syspath(path))
+    except (OSError, TypeError, ValueError) as e:
+        raise exceptions.FilesystemError(e)
+
+
 def isdir(path):
     try:
         return os.path.isdir(util.syspath(path))

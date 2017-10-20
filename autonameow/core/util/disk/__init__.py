@@ -26,6 +26,7 @@ from core import util
 from core.util import sanity
 
 from .io import (
+    exists,
     isdir,
     isfile,
     makedirs,

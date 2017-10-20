@@ -28,10 +28,57 @@ from core.util.disk import (
     isdir,
     isfile,
     makedirs,
-    tempdir
+    tempdir,
+    exists
 )
 import unit_utils as uu
 import unit_utils_constants as uuconst
+
+
+class TestExists(TestCase):
+    def _check_return(self, file_to_test):
+        actual = exists(file_to_test)
+        self.assertTrue(isinstance(actual, bool))
+
+        if not file_to_test:
+            expected = False
+        else:
+            try:
+                expected = os.path.isfile(file_to_test)
+            except (OSError, TypeError, ValueError):
+                expected = False
+
+        self.assertEqual(actual, expected)
+
+    def test_returns_false_for_files_assumed_missing(self):
+        _dummy_paths = [
+            '/foo/bar/baz/mjao',
+            '/tmp/this_isnt_a_file_right_or_huh',
+            b'/tmp/this_isnt_a_file_right_or_huh'
+        ]
+        for df in _dummy_paths:
+            self._check_return(df)
+
+    def test_returns_false_for_empty_argument(self):
+        def _aF(test_input):
+            self.assertFalse(exists(test_input))
+
+        _aF('')
+        _aF(' ')
+
+    def test_raises_exception_given_invalid_arguments(self):
+        def _aF(test_input):
+            with self.assertRaises(FilesystemError):
+                _ = exists(test_input)
+
+        _aF(None)
+
+    def test_returns_true_for_files_likely_to_exist(self):
+        _files = [
+            __file__,
+        ]
+        for df in _files:
+            self._check_return(df)
 
 
 class TestIsdir(TestCase):

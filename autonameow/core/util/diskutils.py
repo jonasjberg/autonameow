@@ -324,10 +324,3 @@ def delete(path, ignore_missing=False):
         os.remove(util.syspath(p))
     except OSError as e:
         raise exceptions.FilesystemError(e)
-
-
-def exists(path):
-    try:
-        return os.path.exists(util.syspath(path))
-    except (OSError, TypeError, ValueError) as e:
-        raise exceptions.FilesystemError(e)
