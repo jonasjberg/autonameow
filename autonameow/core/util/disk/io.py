@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import os
 import tempfile
 
@@ -27,6 +28,9 @@ from core import (
     util
 )
 from core.util import sanity
+
+
+log = logging.getLogger(__name__)
 
 
 def rename_file(source_path, new_basename):
