@@ -116,6 +116,12 @@ class Resolver(object):
             if _data is not None:
                 _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(_data),
                                                                    _data)
+
+                if isinstance(_data, list):
+                    # TODO: Fix this!
+                    log.info('Not sure which of many entries to use ..')
+                    continue
+
                 log.debug('Got {}'.format(_data_info))
                 sanity.check(
                     isinstance(_data, ExtractedData),
@@ -124,17 +130,20 @@ class Resolver(object):
                 )
 
                 # # TODO: [TD0112] Clean up merging data.
-                # if isinstance(_data, list):
-                #
-                #     seen_data = set()
-                #     for d in _data:
-                #         seen_data.add(d.value)
-                #
-                #     if len(seen_data) == 1:
-                #         log.debug(
-                #             'Merged {} ExtractedData entries'.format(len(_data))
-                #         )
-                #         _data = _data[0]
+                if isinstance(_data.value, list):
+
+                    seen_data = set()
+                    for d in _data.value:
+                        seen_data.add(d)
+
+                    if len(seen_data) == 1:
+                        log.debug(
+                            'Merged {} ExtractedData entries'.format(
+                                len(_data.value)
+                            )
+                        )
+                        # TODO: [TD0112] FIX THIS!
+                        # _data.value = _data.value[0]
 
                 log.debug('Updated data for field "{!s}"'.format(_field))
                 self.fields_data[_field] = _data
