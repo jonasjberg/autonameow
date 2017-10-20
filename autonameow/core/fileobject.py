@@ -28,10 +28,7 @@ from core import (
     exceptions,
     util
 )
-from core.util import (
-    diskutils,
-    sanity
-)
+from core.util import sanity
 
 
 class FileObject(object):
@@ -60,8 +57,8 @@ class FileObject(object):
         self.mime_type = filetype_magic(self.abspath)
 
         # Extract parts of the file name.
-        self.basename_prefix = diskutils.basename_prefix(self.abspath)
-        self.basename_suffix = diskutils.basename_suffix(self.abspath)
+        self.basename_prefix = util.disk.basename_prefix(self.abspath)
+        self.basename_suffix = util.disk.basename_suffix(self.abspath)
 
         # Avoid round-tripping to the OS to decode strings.
         self.__cached_str = None

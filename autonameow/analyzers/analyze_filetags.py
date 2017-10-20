@@ -191,7 +191,7 @@ def partition_basename(file_path):
             'timestamp', 'description', 'tags', 'extension', where 'tags' is a
             list of Unicode strings, and the others are plain Unicode strings.
     """
-    prefix, suffix = diskutils.split_basename(file_path)
+    prefix, suffix = util.disk.split_basename(file_path)
 
     timestamp = FILENAMEPART_TS_REGEX.match(prefix)
     if timestamp:

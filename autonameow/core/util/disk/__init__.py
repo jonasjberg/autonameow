@@ -34,6 +34,11 @@ from .io import (
     rename_file,
     tempdir
 )
+from .pathstring import (
+    basename_prefix,
+    basename_suffix,
+    split_basename
+)
 from .sanitize import sanitize_filename
 
 
