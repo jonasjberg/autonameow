@@ -177,6 +177,16 @@ class Extension(NameTemplateField):
     def normalize(cls, data):
         pass
 
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        string = data.as_string()
+        if string is None:
+            raise exceptions.NameBuilderError(
+                'Unicode string conversion failed for "{!r}"'.format(data)
+            )
+
+        return string
+
 
 class Author(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
