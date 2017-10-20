@@ -218,7 +218,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             mapped_fields=[
                 WeightedMapping(fields.Tags, probability=1),
             ],
-            generic_field=gf.GenericTags
+            generic_field=gf.GenericTags,
+            multivalued=True
         ),
         'PDF:Linearized': ExtractedData(types.AW_BOOLEAN),
         'PDF:ModifyDate': ExtractedData(
