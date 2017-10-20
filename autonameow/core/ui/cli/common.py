@@ -283,11 +283,11 @@ def msg_rename(from_basename, dest_basename, dry_run):
         dry_run: True if the operation was a "dry run"/simulation.
     """
     _name_old = colorize_quoted(
-        '"{!s}"'.format(util.displayable_path(from_basename)),
+        '"{!s}"'.format(util.enc.displayable_path(from_basename)),
         color='WHITE'
     )
     _name_new = colorize_quoted(
-        '"{!s}"'.format(util.displayable_path(dest_basename)),
+        '"{!s}"'.format(util.enc.displayable_path(dest_basename)),
         color='LIGHTGREEN_EX'
     )
 

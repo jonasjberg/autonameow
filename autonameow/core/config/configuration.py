@@ -104,9 +104,9 @@ class Configuration(object):
 
         _loaded_data = config.load_yaml_file(path)
         if not _loaded_data:
-            raise exceptions.ConfigError(
-                'Read empty config: "{!s}"'.format(util.displayable_path(path))
-            )
+            raise exceptions.ConfigError('Read empty config: "{!s}"'.format(
+                    util.enc.displayable_path(path)
+            ))
 
         return cls(_loaded_data)
 
@@ -399,12 +399,12 @@ class Configuration(object):
                 try:
                     _bytes_path = types.AW_PATH.normalize(_value)
                 except types.AWTypeError as e:
-                    _dp = util.displayable_path(_value)
+                    _dp = util.enc.displayable_path(_value)
                     log.error(
                         'Invalid cache directory "{!s}"; {!s}'.format(_dp, e)
                     )
                 else:
-                    _dp = util.displayable_path(_bytes_path)
+                    _dp = util.enc.displayable_path(_bytes_path)
                     log.debug('Added persistence option :: '
                               '{!s}: {!s}'.format(option, _dp))
                     util.nested_dict_set(
@@ -412,8 +412,8 @@ class Configuration(object):
                     )
                     return
 
-            _bytes_path = util.normpath(default)
-            _dp = util.displayable_path(_bytes_path)
+            _bytes_path = util.enc.normpath(default)
+            _dp = util.enc.displayable_path(_bytes_path)
             log.debug('Using default persistence option :: '
                       '{!s}: {!s}'.format(option, _dp))
             util.nested_dict_set(

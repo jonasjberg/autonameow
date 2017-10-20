@@ -81,7 +81,7 @@ def build(config, name_template, field_data_map):
             new_name = util.disk.sanitize_filename(new_name)
 
         log.debug('Sanitized basename (unicode): "{!s}"'.format(
-            util.displayable_path(new_name))
+            util.enc.displayable_path(new_name))
         )
     else:
         log.debug('Skipped sanitizing filename')

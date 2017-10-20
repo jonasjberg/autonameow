@@ -182,7 +182,7 @@ class Path(BaseType):
     def coerce(self, value):
         if value:
             try:
-                return util.bytestring_path(value)
+                return util.enc.bytestring_path(value)
             except (ValueError, TypeError):
                 pass
 
@@ -191,13 +191,13 @@ class Path(BaseType):
     def normalize(self, value):
         value = self.__call__(value)
         if value:
-            return util.normpath(value)
+            return util.enc.normpath(value)
 
         self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         parsed = self.__call__(value)
-        return util.displayable_path(parsed)
+        return util.enc.displayable_path(parsed)
 
 
 class PathComponent(BaseType):
@@ -207,7 +207,7 @@ class PathComponent(BaseType):
 
     def coerce(self, value):
         try:
-            return util.bytestring_path(value)
+            return util.enc.bytestring_path(value)
         except (ValueError, TypeError):
             self._fail_coercion(value)
 
@@ -215,13 +215,15 @@ class PathComponent(BaseType):
         value = self.__call__(value)
         if value:
             # Expand user home directory if present.
-            return os.path.normpath(os.path.expanduser(util.syspath(value)))
+            return os.path.normpath(
+                os.path.expanduser(util.enc.syspath(value))
+            )
 
         self._fail_normalization(value)
 
     def format(self, value, **kwargs):
         value = self.__call__(value)
-        return util.displayable_path(value)
+        return util.enc.displayable_path(value)
 
 
 class Boolean(BaseType):
@@ -402,7 +404,7 @@ class String(BaseType):
 
         if isinstance(value, bytes):
             try:
-                return util.decode_(value)
+                return util.enc.decode_(value)
             except Exception:
                 return self.null()
 

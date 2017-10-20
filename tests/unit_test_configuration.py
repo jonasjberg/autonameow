@@ -61,9 +61,9 @@ def load_yaml(path):
 
 
 def get_temporary_config_path():
-    return util.normpath(
-        os.path.join(util.syspath(uu.make_temp_dir()),
-                     util.syspath(b'test_config.yaml'))
+    return util.enc.normpath(
+        os.path.join(util.enc.syspath(uu.make_temp_dir()),
+                     util.enc.syspath(b'test_config.yaml'))
     )
 
 

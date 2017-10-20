@@ -33,26 +33,27 @@ from core.model import (
 )
 from core.model import genericfields as gf
 
-# TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
 
+# TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
 DATE_SEP = b'[:\-._ ]?'
 TIME_SEP = b'[:\-._ T]?'
 DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'
 TIME_REGEX = (b'[012]\d' + TIME_SEP + b'[012345]\d' + TIME_SEP
               + b'[012345]\d(.[012345]\d)?')
 FILENAMEPART_TS_REGEX = re.compile(
-    DATE_REGEX + b'([T_ -]?' + TIME_REGEX + b')?')
+    DATE_REGEX + b'([T_ -]?' + TIME_REGEX + b')?'
+)
 
 
 # TODO: [TD0043][TD0009] Fetch values from the active configuration.
-# BETWEEN_TAG_SEPARATOR = util.bytestring_path(
+# BETWEEN_TAG_SEPARATOR = util.enc.bytestring_path(
 #     opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
 # )
-BETWEEN_TAG_SEPARATOR = util.bytestring_path(' ')
-# FILENAME_TAG_SEPARATOR = util.bytestring_path(
+BETWEEN_TAG_SEPARATOR = util.enc.bytestring_path(' ')
+# FILENAME_TAG_SEPARATOR = util.enc.bytestring_path(
 #     opts.options['FILETAGS_OPTIONS'].get('filename_tag_separator')
 # )
-FILENAME_TAG_SEPARATOR = util.bytestring_path(' -- ')
+FILENAME_TAG_SEPARATOR = util.enc.bytestring_path(' -- ')
 
 
 class FiletagsAnalyzer(BaseAnalyzer):
@@ -215,7 +216,7 @@ def partition_basename(file_path):
     # Encoding boundary;  Internal filename bytestring --> internal Unicode str
     def decode_if_not_none_or_empty(bytestring_maybe):
         if bytestring_maybe:
-            return util.decode_(bytestring_maybe)
+            return util.enc.decode_(bytestring_maybe)
         else:
             return None
 

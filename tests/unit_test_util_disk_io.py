@@ -131,8 +131,8 @@ class TestIsdir(TestCase):
             uuconst.AUTONAMEOW_SRCROOT_DIR,
             '/',
             b'/',
-            util.bytestring_path(os.path.dirname(__file__)),
-            util.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
+            util.enc.bytestring_path(os.path.dirname(__file__)),
+            util.enc.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
         ]
         for df in _files:
             self._check_return(df)
@@ -213,8 +213,9 @@ class TestMakedirs(TestCase):
         self.parentdir = uu.make_temp_dir()
 
         destbase = b'foobar'
-        self.destpath = util.normpath(
-            os.path.join(util.syspath(self.parentdir), util.syspath(destbase))
+        self.destpath = util.enc.normpath(
+            os.path.join(util.enc.syspath(self.parentdir),
+                         util.enc.syspath(destbase))
         )
 
     def test_creates_directory(self):
@@ -229,9 +230,9 @@ class TestDelete(TestCase):
         self.assertTrue(uu.dir_exists(tempdir))
         self.assertTrue(uu.is_internalbytestring(tempdir))
 
-        not_a_file = util.normpath(
-            os.path.join(util.syspath(tempdir),
-                         util.syspath(uuconst.ASSUMED_NONEXISTENT_BASENAME))
+        not_a_file = util.enc.normpath(
+            os.path.join(util.enc.syspath(tempdir),
+                         util.enc.syspath(uuconst.ASSUMED_NONEXISTENT_BASENAME))
         )
         self.assertFalse(uu.dir_exists(not_a_file))
         self.assertFalse(uu.file_exists(not_a_file))
@@ -251,12 +252,12 @@ class TestDelete(TestCase):
 
         tempdir = uu.make_temp_dir()
 
-        _dir = util.syspath(
-            os.path.join(util.syspath(tempdir),
-                         util.syspath(uuconst.ASSUMED_NONEXISTENT_BASENAME))
+        _dir = util.enc.syspath(
+            os.path.join(util.enc.syspath(tempdir),
+                         util.enc.syspath(uuconst.ASSUMED_NONEXISTENT_BASENAME))
         )
         self.assertTrue(uu.is_internalbytestring(_dir))
-        os.makedirs(util.syspath(_dir))
+        os.makedirs(util.enc.syspath(_dir))
         self.assertTrue(uu.dir_exists(_dir))
 
         # delete(_dir)
@@ -338,7 +339,7 @@ class TestHasPermissions(TestCase):
 
     def test_file_perms_rwx(self):
         path = uu.make_temporary_file()
-        os.chmod(util.syspath(path), OWNER_R | OWNER_W | OWNER_X)
+        os.chmod(util.enc.syspath(path), OWNER_R | OWNER_W | OWNER_X)
 
         self._test(path, 'r', True)
         self._test(path, 'w', True)
@@ -348,11 +349,11 @@ class TestHasPermissions(TestCase):
         self._test(path, 'wx', True)
         self._test(path, 'rwx', True)
 
-        os.chmod(util.syspath(path), OWNER_R | OWNER_W)
+        os.chmod(util.enc.syspath(path), OWNER_R | OWNER_W)
 
     def test_file_perms_rw(self):
         path = uu.make_temporary_file()
-        os.chmod(util.syspath(path), OWNER_R | OWNER_W)
+        os.chmod(util.enc.syspath(path), OWNER_R | OWNER_W)
 
         self._test(path, 'r', True)
         self._test(path, 'w', True)
@@ -364,11 +365,11 @@ class TestHasPermissions(TestCase):
         self._test(path, 'xw', False)
         self._test(path, 'rwx', False)
 
-        os.chmod(util.syspath(path), OWNER_R | OWNER_W)
+        os.chmod(util.enc.syspath(path), OWNER_R | OWNER_W)
 
     def test_file_perms_r(self):
         path = uu.make_temporary_file()
-        os.chmod(util.syspath(path), OWNER_R)
+        os.chmod(util.enc.syspath(path), OWNER_R)
 
         self._test(path, 'r', True)
         self._test(path, 'w', False)
@@ -378,4 +379,4 @@ class TestHasPermissions(TestCase):
         self._test(path, 'wx', False)
         self._test(path, 'rwx', False)
 
-        os.chmod(util.syspath(path), OWNER_R | OWNER_W)
+        os.chmod(util.enc.syspath(path), OWNER_R | OWNER_W)

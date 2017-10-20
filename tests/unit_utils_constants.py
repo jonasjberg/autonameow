@@ -28,7 +28,8 @@ _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 _PARENT_DIR = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
 TEST_FILES_DIR = os.path.normpath(os.path.join(_PARENT_DIR, 'test_files'))
 AUTONAMEOW_SRCROOT_DIR = os.path.normpath(
-    os.path.join(_PARENT_DIR, util.syspath('autonameow'))
+    os.path.join(_PARENT_DIR,
+                 util.enc.syspath('autonameow'))
 )
 
 

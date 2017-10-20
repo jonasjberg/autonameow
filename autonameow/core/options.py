@@ -60,7 +60,7 @@ def arg_is_readable_file(arg):
             and os.access(arg, os.R_OK)):
         if arg.startswith('~/'):
             arg = os.path.expanduser(arg)
-        return util.normpath(arg)
+        return util.enc.normpath(arg)
 
     raise argparse.ArgumentTypeError('Invalid file: "{!s}"'.format(arg))
 

@@ -225,7 +225,7 @@ class Repository(object):
         for fileobject, data in self.data.items():
             out.append('FileObject basename: "{!s}"'.format(fileobject))
 
-            _abspath = util.displayable_path(fileobject.abspath)
+            _abspath = util.enc.displayable_path(fileobject.abspath)
             out.append('FileObject absolute path: "{!s}"'.format(_abspath))
 
             out.append('')
@@ -267,7 +267,7 @@ class Repository(object):
                         v = element
 
                     if isinstance(v, bytes):
-                        temp_list.append(util.displayable_path(v))
+                        temp_list.append(util.enc.displayable_path(v))
 
                     # TODO: [TD0105] Integrate the 'MeowURI' class.
                     elif MeowURI(uri).matchglobs(['generic.contents.text',
@@ -288,7 +288,7 @@ class Repository(object):
                     v = data
 
                 if isinstance(v, bytes):
-                    temp[uri] = util.displayable_path(v)
+                    temp[uri] = util.enc.displayable_path(v)
 
                 # Often *a lot* of text, trim to arbitrary size..
                 # TODO: [TD0105] Integrate the 'MeowURI' class.
@@ -346,7 +346,7 @@ class Repository(object):
         except ImportError:
             import pickle
 
-        with open(util.syspath(file_path), 'wb') as fh:
+        with open(util.enc.syspath(file_path), 'wb') as fh:
             pickle.dump(self.data, fh, pickle.HIGHEST_PROTOCOL)
 
     # def __repr__(self):

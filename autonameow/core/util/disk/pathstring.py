@@ -46,9 +46,9 @@ def split_basename(file_path):
     """
     sanity.check_internal_bytestring(file_path)
 
-    base, ext = os.path.splitext(os.path.basename(util.syspath(file_path)))
-    base = util.bytestring_path(base)
-    ext = util.bytestring_path(ext)
+    base, ext = os.path.splitext(os.path.basename(util.enc.syspath(file_path)))
+    base = util.enc.bytestring_path(base)
+    ext = util.enc.bytestring_path(ext)
 
     # Split "base" twice to make compound suffix out of the two extensions.
     if ext.lower() in [b'.bz2', b'.gz', b'.lz', b'.lzma', b'.lzo', b'.xz',

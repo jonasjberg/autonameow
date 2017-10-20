@@ -144,7 +144,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
 
         try:
             # NOTE(jonas): [encoding] Double-check PyPDF2 docs ..
-            file_reader = PyPDF2.PdfFileReader(util.decode_(source), 'rb')
+            file_reader = PyPDF2.PdfFileReader(util.enc.decode_(source), 'rb')
         except (OSError, PyPdfError) as e:
             raise ExtractorError(e)
 

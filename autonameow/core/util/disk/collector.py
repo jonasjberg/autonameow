@@ -61,24 +61,24 @@ def get_files_gen(search_path, recurse=False):
 
     sanity.check_internal_bytestring(search_path)
 
-    if not (os.path.isfile(util.syspath(search_path))
-            or os.path.isdir(util.syspath(search_path))):
+    if not (os.path.isfile(util.enc.syspath(search_path))
+            or os.path.isdir(util.enc.syspath(search_path))):
         raise FileNotFoundError
 
-    if os.path.isfile(util.syspath(search_path)):
+    if os.path.isfile(util.enc.syspath(search_path)):
         sanity.check_internal_bytestring(search_path)
         yield search_path
-    elif os.path.isdir(util.syspath(search_path)):
+    elif os.path.isdir(util.enc.syspath(search_path)):
         try:
-            _dir_listing = os.listdir(util.syspath(search_path))
+            _dir_listing = os.listdir(util.enc.syspath(search_path))
         except PermissionError as e:
             log.warning(str(e))
             pass
         else:
             for entry in _dir_listing:
-                entry_path = os.path.join(util.syspath(search_path),
-                                          util.syspath(entry))
-                if not os.path.exists(util.syspath(entry_path)):
+                entry_path = os.path.join(util.enc.syspath(search_path),
+                                          util.enc.syspath(entry))
+                if not os.path.exists(util.enc.syspath(entry_path)):
                     raise FileNotFoundError
 
                 if os.path.isfile(entry_path):
@@ -97,7 +97,9 @@ class PathCollector(object):
                 ignore_globs = [ignore_globs]
 
             # Convert globs to internal format.
-            self.ignore_globs = [util.bytestring_path(i) for i in ignore_globs]
+            self.ignore_globs = [
+                util.enc.bytestring_path(i) for i in ignore_globs
+            ]
         else:
             self.ignore_globs = []
 
@@ -116,12 +118,12 @@ class PathCollector(object):
                 continue
 
             # Path name encoding boundary. Convert to internal format.
-            path = util.normpath(path)
+            path = util.enc.normpath(path)
             try:
                 _files = get_files_gen(path, self.recurse)
             except FileNotFoundError:
                 log.error('File(s) not found: "{}"'.format(
-                    util.displayable_path(path))
+                    util.enc.displayable_path(path))
                 )
             else:
                 for f in self.filter_paths(_files):
@@ -137,7 +139,7 @@ class PathCollector(object):
             for pattern in globs:
                 if fnmatch.fnmatch(path, pattern):
                     log.info('Ignored path: "{!s}" (Glob: "{!s}")'.format(
-                        util.displayable_path(path), pattern)
+                        util.enc.displayable_path(path), pattern)
                     )
                     return None
             return path

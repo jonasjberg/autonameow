@@ -78,7 +78,7 @@ def _year_is_probable(year):
                 year += 1900
 
         if not isinstance(year, int):
-            year = util.decode_(year)
+            year = util.enc.decode_(year)
         try:
             year = datetime.strptime(str(year), '%Y')
         except (ValueError, TypeError):
@@ -276,7 +276,7 @@ def match_special_case_no_date(text):
     :return: datetime if found otherwise None
     """
     # TODO: [TD0043] Allow the user to tweak hardcoded settings.
-    text = util.decode_(text)
+    text = util.enc.decode_(text)
     try:
         dt = datetime.strptime(text[:10], '%Y-%m-%d')
     except (TypeError, ValueError):
@@ -390,7 +390,7 @@ def bruteforce_str(text, return_first_match=False):
             # log.debug('[bruteforce_str] Got empty text')
             return None
 
-    text = util.decode_(text)
+    text = util.enc.decode_(text)
 
     bruteforce_str.matches = bruteforce_str.matches_total = 0
 
@@ -617,7 +617,7 @@ def get_datetime_from_text(text, prefix='NULL'):
         return None
     if prefix == 'NULL':
         pass
-    # text = util.decode_(text)
+    # text = util.enc.decode_(text)
 
     # TODO: [TD0091] Improve handling of generalized "text" from any source.
     #       (currently plain text and pdf documents)
@@ -686,7 +686,7 @@ def match_screencapture_unixtime(text):
     :param text: text to search for UNIX timestamp
     :return: datetime-object if a match is found, else None
     """
-    text = util.decode_(text)
+    text = util.enc.decode_(text)
 
     pattern = re.compile(r'.*(\d{13}).*')
     for t in re.findall(pattern, text):

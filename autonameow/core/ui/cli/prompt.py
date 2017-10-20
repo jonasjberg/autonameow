@@ -75,12 +75,12 @@ def get_config_history_path():
         elif util.disk.isdir(_history_path):
             log.warning('Expected history path to include a file ..')
             _fixed_path = os.path.join(
-                util.syspath(_history_path),
-                util.syspath(C.DEFAULT_HISTORY_FILE_BASENAME)
+                util.enc.syspath(_history_path),
+                util.enc.syspath(C.DEFAULT_HISTORY_FILE_BASENAME)
             )
             if _fixed_path:
                 log.warning('Using fixed history path: "{!s}"'.format(
-                    util.displayable_path(_fixed_path)
+                    util.enc.displayable_path(_fixed_path)
                 ))
                 return _fixed_path
 
@@ -123,7 +123,7 @@ class MeowURICompleter(Completer):
 def meowuri_prompt(message=None):
     _history_file_path = get_config_history_path()
     log.debug('Using prompt history file: "{!s}"'.format(
-        util.displayable_path(_history_file_path)
+        util.enc.displayable_path(_history_file_path)
     ))
     history = FileHistory(_history_file_path)
     meowuri_completer = MeowURICompleter()

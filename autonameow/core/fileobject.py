@@ -44,14 +44,14 @@ class FileObject(object):
         validate_path_argument(path)
         self.abspath = path
 
-        self.filename = util.bytestring_path(
-            os.path.basename(util.syspath(path))
+        self.filename = util.enc.bytestring_path(
+            os.path.basename(util.enc.syspath(path))
         )
-        self.pathname = util.bytestring_path(
-            os.path.dirname(util.syspath(path))
+        self.pathname = util.enc.bytestring_path(
+            os.path.dirname(util.enc.syspath(path))
         )
-        self.pathparent = util.bytestring_path(
-            os.path.basename(os.path.dirname(util.syspath(path)))
+        self.pathparent = util.enc.bytestring_path(
+            os.path.basename(os.path.dirname(util.enc.syspath(path)))
         )
 
         self.mime_type = filetype_magic(self.abspath)
@@ -85,7 +85,7 @@ class FileObject(object):
 
     def _get_bytesize(self):
         try:
-            statinfo = os.stat(util.syspath(self.abspath))
+            statinfo = os.stat(util.enc.syspath(self.abspath))
             if statinfo:
                 return statinfo.st_size
         except OSError:
@@ -99,14 +99,14 @@ class FileObject(object):
 
     def __str__(self):
         if self.__cached_str is None:
-            self.__cached_str = util.displayable_path(self.filename)
+            self.__cached_str = util.enc.displayable_path(self.filename)
 
         return self.__cached_str
 
     def __repr__(self):
         if self.__cached_repr is None:
             self.__cached_repr = '<{!s}("{!s}")>'.format(
-                self.__class__.__name__, util.displayable_path(self.abspath)
+                self.__class__.__name__, util.enc.displayable_path(self.abspath)
             )
 
         return self.__cached_repr
@@ -210,7 +210,7 @@ def validate_path_argument(path):
     elif not path.strip():
         _raise('Path is None/empty')
 
-    _path = util.syspath(path)
+    _path = util.enc.syspath(path)
 
     if not os.path.exists(_path):
         _raise('Path does not exist')

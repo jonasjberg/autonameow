@@ -210,8 +210,8 @@ class RegexConfigFieldParser(ConfigFieldParser):
             return False
 
         # test_data = _normalize(test_data)
-        test_data = util.encode_(test_data)
-        expression = util.encode_(expression)
+        test_data = util.enc.encode_(test_data)
+        expression = util.enc.encode_(expression)
 
         # log.debug('test_data: "{!s}" ({})"'.format(test_data,
         #                                            type(test_data)))

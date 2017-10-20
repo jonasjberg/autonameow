@@ -72,7 +72,7 @@ class TestFileObject(TestCase):
     def test_abspath(self):
         actual = self.fo.abspath
         self.assertTrue(uu.file_exists(actual))
-        self.assertTrue(os.path.isabs(util.syspath(actual)))
+        self.assertTrue(os.path.isabs(util.enc.syspath(actual)))
 
     def test_basename_suffix(self):
         actual = self.fo.basename_suffix
@@ -91,13 +91,13 @@ class TestFileObject(TestCase):
 
     def test_pathname(self):
         actual = self.fo.pathname
-        expect = util.normpath(uuconst.TEST_FILES_DIR)
+        expect = util.enc.normpath(uuconst.TEST_FILES_DIR)
         self.assertEqual(actual, expect)
 
     def test_pathparent(self):
         actual = self.fo.pathparent
-        expect = util.encode_(os.path.basename(os.path.normpath(
-            util.syspath(uuconst.TEST_FILES_DIR)
+        expect = util.enc.encode_(os.path.basename(os.path.normpath(
+            util.enc.syspath(uuconst.TEST_FILES_DIR)
         )))
         self.assertEqual(actual, expect)
 
@@ -292,7 +292,8 @@ class TestValidatePathArgument(TestCase):
         _num_files = min(len(uu.all_testfiles()), 5)
         self.unicode_paths = uu.all_testfiles()[:_num_files]
         self.bytestr_paths = [
-            util.bytestring_path(p) for p in uu.all_testfiles()[:_num_files]
+            util.enc.bytestring_path(p)
+            for p in uu.all_testfiles()[:_num_files]
         ]
 
     def test_setup(self):

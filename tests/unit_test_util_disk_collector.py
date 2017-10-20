@@ -37,7 +37,7 @@ def shorten_path(abs_path):
 
 
 def to_abspath(path_list):
-    paths = [util.bytestring_path(tf)
+    paths = [util.enc.bytestring_path(tf)
              for tf in (uu.abspath_testfile(f)
                         for f in path_list)]
     if len(paths) == 1:
@@ -57,13 +57,21 @@ FILES_SUBSUBDIR_B = [
     'subdir/subsubdir_B/file_B2'
 ]
 FILES_ALL = (FILES_SUBDIR + FILES_SUBSUBDIR_A + FILES_SUBSUBDIR_B)
+
 ABSPATH_FILES_SUBDIR = to_abspath(FILES_SUBDIR)
 ABSPATH_FILES_SUBSUBDIR_A = to_abspath(FILES_SUBSUBDIR_A)
 ABSPATH_FILES_SUBSUBDIR_B = to_abspath(FILES_SUBSUBDIR_B)
 ABSPATH_FILES_ALL = to_abspath(FILES_ALL)
-EXPECT_FILES_SUBDIR = [util.bytestring_path(p) for p in FILES_SUBDIR]
-EXPECT_FILES_SUBSUBDIR_A = [util.bytestring_path(p) for p in FILES_SUBSUBDIR_A]
-EXPECT_FILES_SUBSUBDIR_B = [util.bytestring_path(p) for p in FILES_SUBSUBDIR_B]
+
+EXPECT_FILES_SUBDIR = [
+    util.enc.bytestring_path(p) for p in FILES_SUBDIR
+]
+EXPECT_FILES_SUBSUBDIR_A = [
+    util.enc.bytestring_path(p) for p in FILES_SUBSUBDIR_A
+]
+EXPECT_FILES_SUBSUBDIR_B = [
+    util.enc.bytestring_path(p) for p in FILES_SUBSUBDIR_B
+]
 
 
 class TestTestFiles(TestCase):
@@ -318,13 +326,13 @@ class UnitTestIgnorePaths(TestCase):
             '~/foo/.DS_Store'
         ]
         self.input_paths = [
-            util.normpath(p) for p in _paths
+            util.enc.normpath(p) for p in _paths
         ]
 
     def test_setup(self):
         for path in self.input_paths:
             self.assertTrue(uu.is_internalbytestring(path))
-            self.assertTrue(os.path.isabs(util.syspath(path)))
+            self.assertTrue(os.path.isabs(util.enc.syspath(path)))
 
     def test_passes_all_paths_if_no_ignore_globs_are_provided(self):
         pc = PathCollector(ignore_globs=[])
@@ -337,7 +345,7 @@ class UnitTestIgnorePaths(TestCase):
         self.assertEqual(len(self.input_paths),
                          len(remain) + len(missing))
         for path in missing + remain:
-            self.assertIn(util.normpath(path), self.input_paths)
+            self.assertIn(util.enc.normpath(path), self.input_paths)
 
         pc = PathCollector(ignore_globs=ignore_globs)
         actual = pc.filter_paths(self.input_paths)
@@ -348,9 +356,9 @@ class UnitTestIgnorePaths(TestCase):
             self.assertTrue(uu.is_internalbytestring(p))
 
         for m in missing:
-            self.assertNotIn(util.normpath(m), actual)
+            self.assertNotIn(util.enc.normpath(m), actual)
         for r in remain:
-            self.assertIn(util.normpath(r), actual)
+            self.assertIn(util.enc.normpath(r), actual)
 
     def test_ignores_txt_extensions(self):
         self._assert_filters(

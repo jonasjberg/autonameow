@@ -49,7 +49,7 @@ class TestRemoveNonBreakingSpaces(unittest.TestCase):
 
         non_breaking_space = '\xa0'
         actual = textutils.remove_nonbreaking_spaces(
-            'foo' + util.decode_(non_breaking_space) + 'bar'
+            'foo' + util.enc.decode_(non_breaking_space) + 'bar'
         )
         self.assertEqual(expected, actual)
 

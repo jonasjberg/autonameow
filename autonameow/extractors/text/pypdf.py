@@ -95,7 +95,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
         ExtractorError: The extraction failed and could not be completed.
     """
     try:
-        file_reader = PyPDF2.PdfFileReader(util.decode_(pdf_file), 'rb')
+        file_reader = PyPDF2.PdfFileReader(util.enc.decode_(pdf_file), 'rb')
     except (OSError, PyPdfError, UnicodeDecodeError) as e:
         raise ExtractorError(e)
 

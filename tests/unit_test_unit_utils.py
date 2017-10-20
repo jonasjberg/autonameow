@@ -180,8 +180,8 @@ class TestUnitUtilityDirExists(TestCase):
             uuconst.AUTONAMEOW_SRCROOT_DIR,
             '/',
             b'/',
-            util.bytestring_path(os.path.dirname(__file__)),
-            util.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
+            util.enc.bytestring_path(os.path.dirname(__file__)),
+            util.enc.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
         ]
         for df in _files:
             self._check_return(df)
@@ -226,8 +226,8 @@ class TestUnitUtilityPathIsReadable(TestCase):
         _paths = [
             __file__,
             os.path.dirname(__file__),
-            util.bytestring_path(__file__),
-            util.bytestring_path(os.path.dirname(__file__)),
+            util.enc.bytestring_path(__file__),
+            util.enc.bytestring_path(os.path.dirname(__file__)),
         ]
         for df in _paths:
             self._check_return(df)
