@@ -23,6 +23,7 @@ import logging
 import os
 
 from core import util
+from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -58,3 +59,29 @@ def rename_file(source_path, new_basename):
 
 def file_basename(file_path):
     return util.syspath(os.path.basename(file_path))
+
+
+def compare_basenames(basename_one, basename_two):
+    """
+    Compares to file basenames in the "internal byte string" format.
+
+    Args:
+        basename_one: The first basename to compare as a bytestring.
+        basename_two: The second basename to compare as a bytestring.
+
+    Returns:
+        True if the basenames are equal, otherwise False.
+    Raises:
+        ValueError: Any of the arguments is None.
+        EncodingBoundaryViolation: Any argument is not of type bytes.
+    """
+    if None in (basename_one, basename_two):
+        raise ValueError('Expected two non-None bytestrings')
+
+    sanity.check_internal_bytestring(basename_one)
+    sanity.check_internal_bytestring(basename_two)
+
+    if basename_one == basename_two:
+        return True
+    else:
+        return False

@@ -498,7 +498,7 @@ class Autonameow(object):
 
         from_basename = util.disk.file_basename(from_path)
 
-        if diskutils.compare_basenames(from_basename, dest_basename):
+        if util.disk.compare_basenames(from_basename, dest_basename):
             _msg = 'Skipped "{!s}" because the current name is the same as ' \
                    'the new name'.format(util.displayable_path(from_basename),
                                          util.displayable_path(dest_basename))
