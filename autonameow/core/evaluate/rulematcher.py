@@ -42,10 +42,12 @@ class RuleMatcher(object):
         self._candidates = []
 
     def _request_data(self, fileobject, meowuri):
-        log.debug('requesting [{:8.8}]->[{!s}]'.format(fileobject.hash_partial,
-                                                       meowuri))
+        # log.debug(
+        #     'requesting [{:8.8}]->[{!s}]'.format(fileobject.hash_partial,
+        #                                          meowuri)
+        # )
         response = repository.SessionRepository.query(fileobject, meowuri)
-        log.debug('Got response ({}): {!s}'.format(type(response), response))
+        # log.debug('Got response ({}): {!s}'.format(type(response), response))
 
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
         if response is not None and isinstance(response, ExtractedData):

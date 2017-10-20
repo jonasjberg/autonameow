@@ -330,19 +330,24 @@ class Rule(object):
             If the rule does not require an exact match:
                 True
         """
+        if self.description:
+            _desc = '{} :: '.format(self.description)
+        else:
+            _desc = ''
+
         # Pass if exact match isn't required.
         if not self.exact_match:
-            log.debug('Exact match not required')
+            log.debug('{}Exact match not required'.format(_desc))
             return True
 
         for condition in self.conditions:
             if not self._evaluate_condition(condition, data_query_function):
-                log.debug('Condition FAILED: "{!s}"'.format(condition))
-                log.debug('Exact match FAILED!')
+                log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
+                log.debug('{}Exact match FAILED!'.format(_desc))
                 return False
             else:
-                log.debug('Condition PASSED: "{!s}"'.format(condition))
-        log.debug('Exact match PASSED!')
+                log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
+        log.debug('{}Exact match PASSED!'.format(_desc))
         return True
 
     def number_conditions_met(self, data_query_function):
@@ -358,13 +363,18 @@ class Rule(object):
         sanity.check(self.conditions and len(self.conditions) > 0,
                      'Rule.conditions is missing or empty')
 
+        if self.description:
+            _desc = '{} :: '.format(self.description)
+        else:
+            _desc = ''
+
         _count_met_conditions = 0
         for condition in self.conditions:
             if self._evaluate_condition(condition, data_query_function):
-                log.debug('Condition PASSED: "{!s}"'.format(condition))
+                log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
                 _count_met_conditions += 1
             else:
-                log.debug('Condition FAILED: "{!s}"'.format(condition))
+                log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
 
         return _count_met_conditions
 
