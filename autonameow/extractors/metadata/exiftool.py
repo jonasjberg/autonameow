@@ -445,32 +445,30 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             if is_binary_blob(value):
                 continue
 
-            # TODO: [TD0084] Add handling collections to type wrapper classes.
-            if isinstance(value, list):
-                for v in value:
-                    _wrapped = self._wrap_tag_value(tag_name, v)
-                    if not _wrapped:
-                        continue
-
-                    _any_existing = out.get(tag_name)
-                    if _any_existing:
-                        if not isinstance(_any_existing, list):
-                            _any_existing = [_any_existing]
-                        out[tag_name] = _any_existing + [_wrapped]
-                    else:
-                        out[tag_name] = [_wrapped]
-            else:
+            if not is_bad_metadata(tag_name, value):
                 _wrapped = self._wrap_tag_value(tag_name, value)
                 if _wrapped:
-                    if not is_bad_metadata(tag_name, value):
-                        out[tag_name] = _wrapped
+                    out[tag_name] = _wrapped
 
         return out
 
     def _wrap_tag_value(self, tagname, value):
         wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(tagname)
         if not wrapper:
+            self.log.debug(
+                'Used default "ExtractedData" with unspecified coercer for '
+                'tag: "{!s}" with value: "{!s}"'.format(tagname, value)
+            )
             wrapper = ExtractedData(coercer=None, mapped_fields=None)
+
+        # TODO: [TD0084] Add handling collections to type wrapper classes.
+        if isinstance(value, list):
+            if not wrapper.multivalued:
+                self.log.warning(
+                    'Got list but "ExtractedData" wrapper is not multivalued.'
+                    ' Tag: "{!s}" Value: "{!s}"'.format(tagname, value)
+                )
+                return
 
         wrapped = ExtractedData.from_raw(wrapper, value)
         if wrapped:
@@ -486,8 +484,14 @@ class ExiftoolMetadataExtractor(BaseExtractor):
 
 def is_bad_metadata(tag_name, value):
     if tag_name in BAD_EXIFTOOL_METADATA:
-        if value in BAD_EXIFTOOL_METADATA[tag_name]:
-            return True
+        if isinstance(value, list):
+            for v in value:
+                if v in BAD_EXIFTOOL_METADATA[tag_name]:
+                    return True
+            return False
+        else:
+            if value in BAD_EXIFTOOL_METADATA[tag_name]:
+                return True
     return False
 
 

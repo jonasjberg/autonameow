@@ -156,6 +156,9 @@ class TestIsBadMetadata(unittest.TestCase):
         _aT('File:FileSize', 2702410)
         _aT('File:FileModifyDate', '2016:08:28 10:36:30+02:00')
         _aT('File:FileType', 'PDF')
+        _aT('XMP:Date', [1918, '2009:08:20'])
+        _aT('XMP:Subject', ['Non-Fiction', 'Human Science', 'Philosophy',
+                            'Religion', 'Science and Technics', 'Science'])
 
     def test_bad_tags_values_return_false(self):
         def _aF(tag, value):
@@ -173,3 +176,6 @@ class TestIsBadMetadata(unittest.TestCase):
         _aF('XMP:Description', 'Description')
         _aF('XMP:Subject', 'Subject')
         _aF('XMP:Title', 'Title')
+        _aF('XMP:Subject', ['Subject'])
+        _aF('XMP:Subject', ['Science', 'Subject'])
+        _aF('XMP:Subject', ['Title', 'Subject'])
