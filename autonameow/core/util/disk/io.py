@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import tempfile
 
 from core import (
     exceptions,
@@ -41,3 +42,16 @@ def isfile(path):
         raise exceptions.FilesystemError(e)
 
 
+def tempdir():
+    """
+    Creates and returns a temporary directory.
+
+    Returns:
+        The path to a new temporary directory, as an "internal" bytestring.
+    Raises:
+        FilesystemError: The directory could not be created.
+    """
+    try:
+        return util.normpath(tempfile.mkdtemp())
+    except OSError as e:
+        raise exceptions.FilesystemError(e)

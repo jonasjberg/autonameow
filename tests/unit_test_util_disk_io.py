@@ -26,8 +26,10 @@ from core import util
 from core.exceptions import FilesystemError
 from core.util.disk import (
     isdir,
-    isfile
+    isfile,
+    tempdir
 )
+import unit_utils as uu
 import unit_utils_constants as uuconst
 
 
@@ -128,3 +130,27 @@ class TestIsfile(TestCase):
         ]
         for df in _files:
             self._check_return(df)
+
+
+class TestTempdir(TestCase):
+    def setUp(self):
+        self.actual = tempdir()
+
+    def test_returns_existing_directory(self):
+        self.assertIsNotNone(self.actual)
+        self.assertTrue(uu.dir_exists(self.actual))
+
+    def test_returns_expected_type(self):
+        self.assertTrue(uu.is_internalbytestring(self.actual))
+
+    def test_returns_absolute_paths(self):
+        self.assertTrue(uu.is_abspath(self.actual))
+
+    def test_returns_unique_directories(self):
+        NUM_DIRS = 5
+
+        s = set()
+        for _ in range(0, NUM_DIRS):
+            s.add(uu.make_temp_dir())
+
+        self.assertEqual(len(s), NUM_DIRS)
