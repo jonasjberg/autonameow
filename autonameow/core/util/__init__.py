@@ -29,3 +29,4 @@ from core.util.textutils import (
 )
 from core.util import dateandtime
 from core.util import disk
+from core.util import magic

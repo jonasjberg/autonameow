@@ -27,7 +27,6 @@ from core import (
     fileobject,
     util
 )
-from core import constants as C
 from core.exceptions import InvalidFileArgumentError
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -237,7 +236,7 @@ class TestFileObjectFromSymlink(TestCase):
         self.assertIn(self.fo_link, s)
 
 
-class TestFileObjectHash(TestCase):
+class TestFileObjectHashWithEmptyTestFile(TestCase):
     def setUp(self):
         self.fo_a = uu.fileobject_testfile('empty')
         self.fo_b = uu.fileobject_testfile('empty')
@@ -253,38 +252,6 @@ class TestFileObjectDoesNotHandleSymlinks(TestCase):
     def test_raises_exception_given_symlinks(self):
         with self.assertRaises(InvalidFileArgumentError):
             testfile_symlink = uu.fileobject_testfile('empty.symlink')
-
-
-class TestFileTypeMagic(TestCase):
-    TEST_FILES = [('magic_bmp.bmp', 'image/x-ms-bmp'),
-                  ('magic_gif.gif', 'image/gif'),
-                  ('magic_jpg.jpg', 'image/jpeg'),
-                  ('magic_mp4.mp4', 'video/mp4'),
-                  ('magic_pdf.pdf', 'application/pdf'),
-                  ('magic_png.png', 'image/png'),
-                  ('magic_txt',     'text/plain'),
-                  ('magic_txt.md',  'text/plain'),
-                  ('magic_txt.txt', 'text/plain')]
-
-    def setUp(self):
-        self.test_files = [
-            (uu.abspath_testfile(basename), expect_mime)
-            for basename, expect_mime in self.TEST_FILES
-        ]
-
-    def test_test_files_exist_and_are_readable(self):
-        for test_file, _ in self.test_files:
-            self.assertTrue(uu.file_exists(test_file))
-            self.assertTrue(uu.path_is_readable(test_file))
-
-    def test_filetype_magic(self):
-        for test_file, expected_mime in self.test_files:
-            actual = fileobject.filetype_magic(test_file)
-            self.assertEqual(expected_mime, actual)
-
-    def test_filetype_magic_with_invalid_args(self):
-        self.assertEqual(fileobject.filetype_magic(None),
-                         C.MAGIC_TYPE_UNKNOWN)
 
 
 class TestValidatePathArgument(TestCase):
