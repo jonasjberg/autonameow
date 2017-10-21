@@ -22,3 +22,4 @@
 from .exiftool import ExiftoolMetadataExtractor
 from .pypdf import PyPDFMetadataExtractor
 from .jpeginfo import JpeginfoMetadataExtractor
+from .epub import EpubMetadataExtractor
