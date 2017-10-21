@@ -51,8 +51,9 @@ class ExtractedData(object):
             coercer: Type-coercion class, as a subclass of 'BaseType'.
             mapped_fields: List of "WeightedMappings" to namebuilder fields.
             generic_field: Optional subclass of 'GenericField'.
-            multivalued: Boolean value
-            source:
+            multivalued: Boolean value indicating if the contained data is or
+                         should be converted to a list.
+            source: Optional class instance that produced the value.
         """
         self._source = self.UNKNOWN_SOURCE
         self._value = None
