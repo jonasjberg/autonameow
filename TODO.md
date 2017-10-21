@@ -14,6 +14,10 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0115]` __Clear up uncertainties about data multiplicities.__  
+  I.E. list of `ExtractedData` instances vs. single `ExtractedData` instance
+  that contains a list of data (`multivalued=True`).
+
 * `[TD0100]` Spec out "operating modes" and functionality requirements.
 
 * `[TD0099]` Use `python-prompt-toolkit` for the interactive cli UI.

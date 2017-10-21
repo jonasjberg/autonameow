@@ -118,6 +118,7 @@ def pre_assemble_format(field_data_dict, config):
         sanity.check(field and issubclass(field, NameTemplateField))
         sanity.check_isinstance(data, ExtractedData)
 
+        # TODO: [TD0115] Clear up uncertainties about data multiplicities
         if data.multivalued:
             if not field.MULTIVALUED:
                 log.critical(

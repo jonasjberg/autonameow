@@ -87,6 +87,7 @@ class ExtractedData(object):
                         _sample_raw_value, type(_sample_raw_value)
                 ))
 
+        # TODO: [TD0115] Clear up uncertainties about data multiplicities
         if self.coercer:
             if self.multivalued:
                 _coerced_values = []
@@ -120,6 +121,7 @@ class ExtractedData(object):
 
     def as_string(self):
         if self.coercer:
+            # TODO: [TD0115] Clear up uncertainties about data multiplicities
             if self.multivalued:
                 _values = self.value
                 _strings = []

@@ -159,6 +159,7 @@ class Resolver(object):
                 self.data_sources[_field] = None
 
     def _verify_types(self):
+        # TODO: [TD0115] Clear up uncertainties about data multiplicities.
         for field, data in self.fields_data.items():
             if isinstance(data, list):
                 if not field.MULTIVALUED:
