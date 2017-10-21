@@ -53,38 +53,38 @@ class TestRepositoryMethodStore(TestCase):
         self.assertEqual(len(self.r), 0)
 
     def test_storing_data_increments_len(self):
-        valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
+        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         self.r.store(self.fileobject, valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
     def test_storing_data_with_different_labels_increments_len(self):
-        first_valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
+        first_valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         self.r.store(self.fileobject, first_valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
-        second_valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[1]
+        second_valid_label = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         self.r.store(self.fileobject, second_valid_label, 'data')
         self.assertEqual(len(self.r), 2)
 
     def test_adding_data_with_same_label_increments_len(self):
-        first_valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
+        first_valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         self.r.store(self.fileobject, first_valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
-        second_valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
+        second_valid_label = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         self.r.store(self.fileobject, second_valid_label, 'data')
         self.assertEqual(len(self.r), 2)
 
     def test_adding_one_result_increments_len_once(self):
-        _field = C.ANALYSIS_RESULTS_FIELDS[0]
+        _field = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         _results = ['foo']
         self.r.store(self.fileobject, _field, _results)
 
         self.assertEqual(len(self.r), 1)
 
     def test_adding_two_results_increments_len_twice(self):
-        _field_one = C.ANALYSIS_RESULTS_FIELDS[0]
-        _field_two = C.ANALYSIS_RESULTS_FIELDS[1]
+        _field_one = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        _field_two = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         _result_one = ['foo']
         _result_two = ['bar']
         self.r.store(self.fileobject, _field_one, _result_one)
@@ -93,21 +93,21 @@ class TestRepositoryMethodStore(TestCase):
         self.assertEqual(len(self.r), 2)
 
     def test_adding_list_of_two_results_increments_len_twice(self):
-        _field_one = C.ANALYSIS_RESULTS_FIELDS[0]
+        _field_one = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         _result_one = ['foo', 'bar']
         self.r.store(self.fileobject, _field_one, _result_one)
 
         self.assertEqual(len(self.r), 2)
 
     def test_adding_dict_of_two_results_increments_len_twice(self):
-        _field_one = C.ANALYSIS_RESULTS_FIELDS[0]
+        _field_one = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         _result_one = {'baz': ['foo', 'bar']}
         self.r.store(self.fileobject, _field_one, _result_one)
 
         self.assertEqual(len(self.r), 2)
 
     def test_add_empty_does_not_increment_len(self):
-        _field = C.ANALYSIS_RESULTS_FIELDS[0]
+        _field = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         _results = []
         self.r.store(self.fileobject, _field, _results)
 
@@ -120,26 +120,30 @@ class TestRepositoryMethodStore(TestCase):
             self.r.store(self.fileobject, '', 'data')
 
     def test_stores_data_with_valid_label(self):
-        valid_labels = uuconst.DUMMY_MAPPED_MEOWURIS[:3]
-        for valid_label in valid_labels:
+        labels = [
+            uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME),
+            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
+            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
+        ]
+        for valid_label in labels:
             self.r.store(self.fileobject, valid_label, 'data')
 
     def test_valid_label_returns_expected_data(self):
-        valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
+        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         self.r.store(self.fileobject, valid_label, 'expected_data')
 
         response = self.r.query(self.fileobject, valid_label)
         self.assertEqual(response, 'expected_data')
 
     def test_none_label_raises_exception(self):
-        valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
+        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         self.r.store(self.fileobject, valid_label, 'expected_data')
 
         with self.assertRaises(exceptions.InvalidDataSourceError):
             self.r.query(self.fileobject, None)
 
     def test_valid_label_returns_expected_data_multiple_entries(self):
-        valid_label = uuconst.DUMMY_MAPPED_MEOWURIS[0]
+        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         self.r.store(self.fileobject, valid_label, 'expected_data_a')
         self.r.store(self.fileobject, valid_label, 'expected_data_b')
 

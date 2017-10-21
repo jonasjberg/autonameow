@@ -730,3 +730,7 @@ def mock_persistence_path():
 
 def mock_cache_path():
     return b'/tmp/autonameow_cache'
+
+
+def as_meowuri(string):
+    return MeowURI(string)

@@ -56,8 +56,11 @@ class TestAnalysis(TestCase):
             self.assertTrue(issubclass(ac.__class__, analyzers.BaseAnalyzer))
 
     def test_collects_valid_results(self):
-        analysis.collect_results(self.fo, uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
-                                 'image/jpeg')
+        analysis.collect_results(
+            self.fo,
+            uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
+            'image/jpeg'
+        )
 
 
 class TestAnalysisRunQueue(TestCase):

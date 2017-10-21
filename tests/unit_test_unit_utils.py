@@ -31,7 +31,10 @@ from core import util
 from core.config import rules
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
-from core.model import ExtractedData
+from core.model import (
+    ExtractedData,
+    MeowURI
+)
 
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -597,3 +600,12 @@ class TestGetDefaultConfig(TestCase):
 
         actual = uu.get_default_config()
         self.assertTrue(isinstance(actual, Configuration))
+
+
+class TestAsMeowURI(TestCase):
+    def test_returns_meowuri_instance_from_unit_utils_constants_strings(self):
+        expect = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        actual = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+
+        self.assertEqual(actual, expect)
+        self.assertTrue(isinstance(actual, MeowURI))

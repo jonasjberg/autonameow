@@ -23,6 +23,7 @@ import logging
 
 from core import constants as C
 from core import plugin_handler
+from core.model import MeowURI
 
 
 class BasePlugin(object):
@@ -46,8 +47,7 @@ class BasePlugin(object):
         if data is None:
             return
 
-        # TODO: [TD0105] Integrate the `MeowURI` class.
-        _meowuri = '{}.{}'.format(self.meowuri_prefix(), meowuri_leaf)
+        _meowuri = MeowURI(self.meowuri_prefix(), meowuri_leaf)
         plugin_handler.collect_results(fileobject, _meowuri, data)
 
     def __call__(self, source, *args, **kwargs):

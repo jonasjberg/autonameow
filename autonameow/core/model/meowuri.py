@@ -22,10 +22,7 @@
 import logging
 import re
 
-from core import (
-    types,
-    util
-)
+from core import types
 from core import constants as C
 from core.exceptions import InvalidMeowURIError
 
@@ -178,6 +175,17 @@ class MeowURI(object):
 
         if not isinstance(glob_list, list):
             glob_list = [glob_list]
+
+        for glob in glob_list:
+            if not isinstance(glob, (str, MeowURI)):
+                raise TypeError(
+                    'Expected "glob_list" to be a list of Unicode strings'
+                    ' and/or instances of the "MeowURI" class'
+                )
+
+        # Convert elements (either instances of 'MeowURI' or str) to strings.
+        _string_globs = [str(g) for g in glob_list]
+        glob_list = _string_globs
 
         if _meowuri_string in glob_list:
             return True

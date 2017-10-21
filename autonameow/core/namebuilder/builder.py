@@ -130,7 +130,7 @@ def pre_assemble_format(field_data_dict, config):
                 )
 
         _formatted = field.format(data, config=config)
-        if _formatted:
+        if _formatted is not None:
             out[field] = _formatted
         else:
             out[field] = data

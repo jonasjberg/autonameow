@@ -29,6 +29,7 @@ from core import (
 )
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
+from core.model import MeowURI
 from core.util import sanity
 
 
@@ -129,11 +130,12 @@ def collect_results(fileobject, meowuri_prefix, data):
     if isinstance(data, dict):
         flat_data = util.flatten_dict(data)
         for _uri_leaf, _data in flat_data.items():
-            # TODO: [TD0105] Integrate the `MeowURI` class.
             _uri = '{}.{!s}'.format(meowuri_prefix, _uri_leaf)
-            repository.SessionRepository.store(fileobject, _uri, _data)
+            _meowuri = MeowURI(_uri)
+            repository.SessionRepository.store(fileobject, _meowuri, _data)
     else:
-        repository.SessionRepository.store(fileobject, meowuri_prefix, data)
+        _meowuri = MeowURI(meowuri_prefix)
+        repository.SessionRepository.store(fileobject, _meowuri, data)
 
 
 def _instantiate_analyzers(fileobject, klass_list, config):

@@ -107,7 +107,7 @@ def request_data(fileobject, meowuri):
             return response
 
 
-def collect_results(fileobject, label, data):
+def collect_results(fileobject, meowuri, data):
     """
     Collects plugin results. Passed to plugins as a callback.
 
@@ -115,8 +115,8 @@ def collect_results(fileobject, label, data):
 
     Args:
         fileobject: File that produced the data to add.
-        label: Label that uniquely identifies the data.
+        meowuri: Label that uniquely identifies the data.
         data: The data to add.
     """
     # TODO: [TD0108] Fix inconsistencies in results passed back by plugins.
-    repository.SessionRepository.store(fileobject, label, data)
+    repository.SessionRepository.store(fileobject, meowuri, data)

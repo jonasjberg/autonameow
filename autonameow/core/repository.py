@@ -99,16 +99,10 @@ class Repository(object):
         Adds data related to a given 'fileobject', at a storage location
         defined by the given 'meowuri'.
         """
-        def __meowuri_error(bad_meowuri):
+        if not meowuri or not isinstance(meowuri, MeowURI):
             raise exceptions.InvalidDataSourceError(
-                'Invalid MeowURI: "{!s}" ({})'.format(bad_meowuri,
-                                                      type(bad_meowuri))
+                'Invalid MeowURI: "{!s}" ({})'.format(meowuri, type(meowuri))
             )
-
-        if not meowuri or not isinstance(meowuri, str):
-            __meowuri_error(meowuri)
-        if not meowuri.strip():
-            __meowuri_error(meowuri)
 
         if data is None:
             log.warning('Attempted to add None data with meowURI'
@@ -239,22 +233,22 @@ class Repository(object):
             if _key is None:
                 return '{: <{}}  * {!s}'.format('', width, _value)
             else:
-                return '{: <{}}: * {!s}'.format(_key, width, _value)
+                return '{: <{}}: * {!s}'.format(str(_key), width, _value)
 
         def _fmt_text_line(width, _value, _key=None):
             if _key is None:
                 return '{: <{}}  > {!s}'.format('', width, _value)
             else:
-                return '{: <{}}: > {!s}'.format(_key, width, _value)
+                return '{: <{}}: > {!s}'.format(str(_key), width, _value)
 
         def _fmt_entry(_key, width, _value):
-            return '{: <{}}: {!s}'.format(_key, width, _value)
+            return '{: <{}}: {!s}'.format(str(_key), width, _value)
 
         # TODO: [TD0066] Handle all encoding properly.
         temp = {}
         _max_len_meowuri = 20
-        for uri, data in sorted(data.items()):
-            _max_len_meowuri = max(_max_len_meowuri, len(uri))
+        for meowuri, data in sorted(data.items()):
+            _max_len_meowuri = max(_max_len_meowuri, len(str(meowuri)))
 
             if isinstance(data, list):
                 log.debug('TODO: Improve robustness of handling this case')
@@ -266,19 +260,20 @@ class Repository(object):
                     else:
                         v = element
 
-                    if isinstance(v, bytes):
-                        temp_list.append(util.enc.displayable_path(v))
+                    try:
+                        if isinstance(v, bytes):
+                            temp_list.append(util.enc.displayable_path(v))
+                        elif meowuri.matchglobs(['generic.contents.text',
+                                                 'extractor.text.*']):
+                            # Often *a lot* of text, trim to arbitrary size..
+                            _truncated = textutils.truncate_text(v)
+                            temp_list.append(_truncated)
+                        else:
+                            temp_list.append(str(v))
+                    except AttributeError:
+                        pass
 
-                    # TODO: [TD0105] Integrate the 'MeowURI' class.
-                    elif MeowURI(uri).matchglobs(['generic.contents.text',
-                                                  'extractor.text.*']):
-                        # Often *a lot* of text, trim to arbitrary size..
-                        _truncated = textutils.truncate_text(v)
-                        temp_list.append(_truncated)
-                    else:
-                        temp_list.append(str(v))
-
-                temp[uri] = temp_list
+                temp[meowuri] = temp_list
 
             else:
                 # TODO: [TD0082] Integrate the 'ExtractedData' class.
@@ -288,40 +283,42 @@ class Repository(object):
                     v = data
 
                 if isinstance(v, bytes):
-                    temp[uri] = util.enc.displayable_path(v)
+                    temp[meowuri] = util.enc.displayable_path(v)
 
-                # Often *a lot* of text, trim to arbitrary size..
-                # TODO: [TD0105] Integrate the 'MeowURI' class.
-                elif MeowURI(uri).matchglobs(['generic.contents.text',
-                                              'extractor.text.*']):
-                    temp[uri] = textutils.truncate_text(v)
+                elif meowuri.matchglobs(['generic.contents.text',
+                                         'extractor.text.*']):
+                    # Often *a lot* of text, trim to arbitrary size..
+                    temp[meowuri] = textutils.truncate_text(v)
                 else:
-                    temp[uri] = str(v)
+                    temp[meowuri] = str(v)
 
         out = []
-        for uri, data in temp.items():
+        for meowuri, data in temp.items():
             if isinstance(data, list):
                 if data:
-                    out.append(_fmt_list_entry(_max_len_meowuri, data[0], uri))
+                    out.append(
+                        _fmt_list_entry(_max_len_meowuri, data[0], meowuri)
+                    )
                     for v in data[1:]:
                         out.append(_fmt_list_entry(_max_len_meowuri, v))
 
             else:
-                # TODO: [TD0105] Integrate the 'MeowURI' class.
-                if MeowURI(uri).matchglobs(['generic.contents.text',
-                                            'extractor.text.*']):
+                if meowuri.matchglobs(['generic.contents.text',
+                                       'extractor.text.*']):
                     _text = textutils.extract_lines(
                         data, firstline=0, lastline=1
                     )
                     _text = _text.rstrip('\n')
-                    out.append(_fmt_text_line(_max_len_meowuri, _text, uri))
+                    out.append(
+                        _fmt_text_line(_max_len_meowuri, _text, meowuri)
+                    )
                     _lines = textutils.extract_lines(
                         data, firstline=1, lastline=len(data.splitlines())
                     )
                     for _line in _lines.splitlines():
                         out.append(_fmt_text_line(_max_len_meowuri, _line))
                 else:
-                    out.append(_fmt_entry(uri, _max_len_meowuri, data))
+                    out.append(_fmt_entry(meowuri, _max_len_meowuri, data))
 
         return out
 

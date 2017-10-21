@@ -88,6 +88,7 @@ class TestMeowURIStringMatchingFunctions(TestCase):
         _aT('foo.123.baz')
         # TODO: Normalize exiftool tags? Translate to some "custom" format?
         _aT(':.:')
+        _aT('extractor.filesystem.xplat.contents.mime_type')
 
         def _aF(test_input):
             actual = is_meowuri_parts(test_input)

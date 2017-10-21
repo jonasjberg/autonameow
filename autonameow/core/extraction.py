@@ -23,6 +23,7 @@ import logging
 
 import extractors
 from core import repository
+from core.model import MeowURI
 from extractors import ExtractorError
 
 
@@ -48,9 +49,11 @@ def collect_results(fileobject, meowuri_prefix, data):
         for _uri_leaf, _data in data.items():
             # TODO: [TD0105] Integrate the `MeowURI` class.
             _uri = '{}.{!s}'.format(meowuri_prefix, _uri_leaf)
-            repository.SessionRepository.store(fileobject, _uri, _data)
+            _meowuri = MeowURI(_uri)
+            repository.SessionRepository.store(fileobject, _meowuri, _data)
     else:
-        repository.SessionRepository.store(fileobject, meowuri_prefix, data)
+        _meowuri = MeowURI(meowuri_prefix)
+        repository.SessionRepository.store(fileobject, _meowuri, data)
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
