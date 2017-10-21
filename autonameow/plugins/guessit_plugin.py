@@ -117,7 +117,7 @@ class GuessitPlugin(BasePlugin):
         _mime_type = self.request_data(
             fileobject, 'extractor.filesystem.xplat.contents.mime_type'
         )
-        return util.eval_magic_glob(_mime_type, 'video/*')
+        return util.magic.eval_glob(_mime_type, 'video/*')
 
     def execute(self, fileobject):
         _file_basename = self.request_data(

@@ -27,10 +27,7 @@ from core import (
     exceptions,
     util
 )
-from core.util import (
-    magic,
-    sanity
-)
+from core.util import sanity
 
 
 class FileObject(object):
@@ -56,7 +53,7 @@ class FileObject(object):
             os.path.basename(os.path.dirname(util.enc.syspath(path)))
         )
 
-        self.mime_type = magic.filetype(self.abspath)
+        self.mime_type = util.magic.filetype(self.abspath)
 
         # Extract parts of the file name.
         self.basename_prefix = util.disk.basename_prefix(self.abspath)
