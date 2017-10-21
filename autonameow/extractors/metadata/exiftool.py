@@ -37,7 +37,8 @@ from thirdparty import pyexiftool
 
 
 IGNORED_EXIFTOOL_TAGNAMES = frozenset([
-    'ExifTool:ExifToolVersion'
+    'ExifTool:ExifToolVersion',
+    'XMP:PageImage'
 ])
 
 
