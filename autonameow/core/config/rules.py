@@ -100,7 +100,6 @@ class RuleCondition(object):
             raise ValueError('The condition first needs a valid "meowURI" in '
                              'order to validate an expression')
 
-        # TODO: [TD0105] Integrate the `MeowURI` class.
         # TODO: [TD0089] Validate only "generic" metadata fields ..
         # TODO: Check if the "MeowURI" is "generic", only validate if it is.
         #       Skip validation of source-specific MeowURIs for now.

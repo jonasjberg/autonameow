@@ -23,6 +23,7 @@ import logging
 
 import extractors
 from core import repository
+from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 from extractors import ExtractorError
 
@@ -47,12 +48,22 @@ def collect_results(fileobject, meowuri_prefix, data):
 
     if isinstance(data, dict):
         for _uri_leaf, _data in data.items():
-            # TODO: [TD0105] Integrate the `MeowURI` class.
-            _uri = '{}.{!s}'.format(meowuri_prefix, _uri_leaf)
-            _meowuri = MeowURI(_uri)
+            try:
+                _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
+            except InvalidMeowURIError as e:
+                log.critical(
+                    'Got invalid MeowURI from extractor -- !{!s}"'.format(e)
+                )
+                continue
             repository.SessionRepository.store(fileobject, _meowuri, _data)
     else:
-        _meowuri = MeowURI(meowuri_prefix)
+        try:
+            _meowuri = MeowURI(meowuri_prefix)
+        except InvalidMeowURIError as e:
+            log.critical(
+                'Got invalid MeowURI from extractor -- !{!s}"'.format(e)
+            )
+            return
         repository.SessionRepository.store(fileobject, _meowuri, data)
 
 
