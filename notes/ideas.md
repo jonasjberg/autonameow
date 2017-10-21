@@ -662,16 +662,16 @@ Entering `.` and then pressing `<TAB>`:
 --------------------------------------------------------------------------------
 
 
-Thoughts on a ("reasoning") Probability System
-----------------------------------------------
+Thoughts on Implementing a ("reasoning") Probability System
+-----------------------------------------------------------
 > Jonas Sjöberg, 2017-10-14.
 
 
 *It has been obvious for quite some time that `autonameow` needs to integrate
 ideas and techniques from machine learning and probabilistic programming to
-solve some of the main problems.
+solve some of the main problems.*
 
-These are fields that I have no prior experience with, whatsoever..  But, here
+*These are fields that I have no prior experience with, whatsoever..  But, here
 are some high-level ideas of problems that have already been solved, better..*
 
 Lets say the program component `FilenameTokenizer` was given the file name
