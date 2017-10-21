@@ -20,7 +20,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import filecmp
-import magic
 import os
 
 from core import constants as C
@@ -54,7 +53,7 @@ class FileObject(object):
             os.path.basename(os.path.dirname(util.enc.syspath(path)))
         )
 
-        self.mime_type = filetype_magic(self.abspath)
+        self.mime_type = util.magic.filetype(self.abspath)
 
         # Extract parts of the file name.
         self.basename_prefix = util.disk.basename_prefix(self.abspath)
@@ -126,65 +125,6 @@ class FileObject(object):
 
     def __ne__(self, other):
         return not (self == other)
-
-
-MY_MAGIC = None
-
-
-def _build_magic():
-    """
-    Workaround ambiguity about which magic library is actually used.
-
-    https://github.com/ahupp/python-magic
-      "There are, sadly, two libraries which use the module name magic.
-       Both have been around for quite a while.If you are using this
-       module and get an error using a method like open, your code is
-       expecting the other one."
-
-    http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
-      "The following code allows the rest of the script to work the same
-       way with either version of 'magic'"
-
-    Returns:
-        An instance of 'magic' as type 'Magic'.
-    """
-    try:
-        _magic = magic.open(magic.MAGIC_MIME_TYPE)
-        _magic.load()
-    except AttributeError:
-        _magic = magic.Magic(mime=True)
-        _magic.file = _magic.from_file
-
-    return _magic
-
-
-def filetype_magic(file_path):
-    """
-    Determine file type by reading "magic" header bytes.
-
-    Should be equivalent to the 'file --mime-type' command in *NIX environments.
-    This functions sets the global 'MY_MAGIC' the first time it is called.
-
-    Args:
-        file_path: The path to the file to get the MIME type of as a string.
-
-    Returns:
-        The MIME type of the file at the given path ('application/pdf') or
-        'C.MAGIC_TYPE_UNKNOWN' if the MIME type can not be determined.
-    """
-    if not file_path:
-        return C.MAGIC_TYPE_UNKNOWN
-
-    global MY_MAGIC
-    if MY_MAGIC is None:
-        MY_MAGIC = _build_magic()
-
-    try:
-        found_type = MY_MAGIC.file(file_path)
-    except (magic.MagicException, TypeError):
-        found_type = C.MAGIC_TYPE_UNKNOWN
-
-    return found_type
 
 
 def validate_path_argument(path):

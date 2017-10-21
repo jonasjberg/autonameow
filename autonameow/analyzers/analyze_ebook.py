@@ -262,7 +262,7 @@ class EbookAnalyzer(BaseAnalyzer):
     @classmethod
     def can_handle(cls, fileobject):
         try:
-            return util.eval_magic_glob(fileobject.mime_type,
+            return util.magic.eval_glob(fileobject.mime_type,
                                         cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
             log.error('Error evaluating "{!s}" MIME handling; {!s}'.format(cls,
