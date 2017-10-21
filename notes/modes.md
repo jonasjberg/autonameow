@@ -19,6 +19,7 @@ Current Plans
 Help text from version `v0.4.7` (commit 870725bb6e17580d6dc4d0d3ded59c7d081):
 
 > Operating mode:
+>
 >   --automagic           Enable AUTOMAGIC MODE. Try to perform renames without
 >                         user interaction by matching the given paths against
 >                         available rules. The information provided by the
@@ -27,9 +28,11 @@ Help text from version `v0.4.7` (commit 870725bb6e17580d6dc4d0d3ded59c7d081):
 >                         resolve any uncertainties. Use the "--batch" option to
 >                         force non-interactive mode and skip paths with
 >                         unresolved queries.
+>
 >   --interactive         (DEFAULT) Enable INTERACTIVE MODE. User selects which
 >                         of the analysis results is to make up the new
 >                         filename.
+>
 >   --batch               Enable BATCH MODE. Ignores any and all queries, does
 >                         not require any user interaction. Suitable for
 >                         scripting, etc.
