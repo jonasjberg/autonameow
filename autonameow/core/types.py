@@ -442,6 +442,7 @@ class MimeType(BaseType):
     MIME_TYPE_LOOKUP['gz'] = 'application/x-gzip'
     MIME_TYPE_LOOKUP['lzma'] = 'application/x-lzma'
     MIME_TYPE_LOOKUP['rar'] = 'application/x-rar'
+    MIME_TYPE_LOOKUP['rtf'] = 'text/rtf'
     MIME_TYPE_LOOKUP['sh'] = 'text/x-shellscript'
 
     MIME_TYPE_LOOKUP_INV = {
