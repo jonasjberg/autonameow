@@ -55,7 +55,7 @@ class ExtractedData(object):
                          should be converted to a list.
             source: Optional class instance that produced the value.
         """
-        self._source = self.UNKNOWN_SOURCE
+        self._source = UNKNOWN_SOURCE
         self._value = None
 
         self.coercer = coercer
@@ -196,14 +196,14 @@ class ExtractedData(object):
 
     @property
     def source(self):
-        return self._source or self.UNKNOWN_SOURCE
+        return self._source or UNKNOWN_SOURCE
 
     @source.setter
     def source(self, new_source):
         if new_source is not None:
             self._source = new_source
         else:
-            self._source = self.UNKNOWN_SOURCE
+            self._source = UNKNOWN_SOURCE
 
     def maps_field(self, field):
         for mapping in self.field_map:
