@@ -1,6 +1,3 @@
-[submodule "autonameow/thirdparty/epubzilla"]
-	path = autonameow/thirdparty/epubzilla
-	url = https://bitbucket.org/odeegan/epubzilla.git
 [submodule "autonameow/thirdparty/pyexiftool"]
 	path = autonameow/thirdparty/pyexiftool
 	url = git://github.com/smarnach/pyexiftool.git
