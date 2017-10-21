@@ -90,8 +90,13 @@ class ExtractedData(object):
         # TODO: [TD0115] Clear up uncertainties about data multiplicities
         if self.coercer:
             if self.multivalued:
+                # Is multivalued, so make sure it is a list.
+                if not isinstance(raw_value, list):
+                    _raw_values = [raw_value]
+                else:
+                    _raw_values = raw_value
+
                 _coerced_values = []
-                _raw_values = raw_value
                 for _value in _raw_values:
                     _coerced = self.coercer(_value)
                     if _coerced:
@@ -111,8 +116,10 @@ class ExtractedData(object):
             # TODO: [TD0088] The "resolver" needs 'coerce.format' ..
             coerced = types.try_coerce(raw_value)
             if coerced is None:
-                log.critical('Unhandled coercion of raw value "{!s}" '
-                             '({!s})'.format(raw_value, type(raw_value)))
+                log.critical(
+                    'Unhandled coercion of raw value, using raw: '
+                    '({!s}) "{!s}"'.format(type(raw_value), raw_value)
+                )
                 self._value = raw_value
             else:
                 self._value = coerced
