@@ -490,6 +490,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             if not is_bad_metadata(tag_name, value):
                 _wrapped = self._wrap_tag_value(tag_name, value)
                 if _wrapped:
+                    _wrapped.source = self
                     out[tag_name] = _wrapped
 
         return out

@@ -29,6 +29,11 @@ from core.util import textutils
 log = logging.getLogger(__name__)
 
 
+# Undefined or invalid "source" --- extractor/analyzer/plugin class that
+# produced the data.
+UNKNOWN_SOURCE = '(unknown source)'
+
+
 class ExtractedData(object):
     """
     Instances of this class wrap some extracted data with extra information.
@@ -38,15 +43,26 @@ class ExtractedData(object):
     used to populate the 'datetime'/'date' name template fields.
     """
     def __init__(self, coercer, mapped_fields=None, generic_field=None,
-                 multivalued=None):
+                 multivalued=None, source=None):
+        """
+        Intantiates a "template" instance to be populated with some data.
+
+        Args:
+            coercer: Type-coercion class, as a subclass of 'BaseType'.
+            mapped_fields: List of "WeightedMappings" to namebuilder fields.
+            generic_field: Optional subclass of 'GenericField'.
+            multivalued: Boolean value
+            source:
+        """
+        self._source = self.UNKNOWN_SOURCE
+        self._value = None
+
         self.coercer = coercer
 
         if mapped_fields is not None:
             self.field_map = mapped_fields
         else:
             self.field_map = []
-
-        self._value = None
 
         if generic_field is not None:
             self.generic_field = generic_field
@@ -57,6 +73,8 @@ class ExtractedData(object):
             self.multivalued = bool(multivalued)
         else:
             self.multivalued = False
+
+        self.source = source
 
     def __call__(self, raw_value):
         if self._value is not None:
@@ -167,6 +185,17 @@ class ExtractedData(object):
     @property
     def value(self):
         return self._value
+
+    @property
+    def source(self):
+        return self._source or self.UNKNOWN_SOURCE
+
+    @source.setter
+    def source(self, new_source):
+        if new_source is not None:
+            self._source = new_source
+        else:
+            self._source = self.UNKNOWN_SOURCE
 
     def maps_field(self, field):
         for mapping in self.field_map:
