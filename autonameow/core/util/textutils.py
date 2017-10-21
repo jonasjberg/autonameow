@@ -39,11 +39,7 @@ def extract_digits(string):
     """
     sanity.check_internal_string(string)
 
-    digits = ''
-    for char in string:
-        if char.isdigit():
-            digits += char
-
+    digits = ''.join(c for c in string if c.isdigit())
     return digits if digits.strip() else ''
 
 
