@@ -53,38 +53,38 @@ class TestRepositoryMethodStore(TestCase):
         self.assertEqual(len(self.r), 0)
 
     def test_storing_data_increments_len(self):
-        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.fileobject, valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
     def test_storing_data_with_different_labels_increments_len(self):
-        first_valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        first_valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.fileobject, first_valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
-        second_valid_label = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        second_valid_label = uuconst.VALID_DATA_SOURCES[1]
         self.r.store(self.fileobject, second_valid_label, 'data')
         self.assertEqual(len(self.r), 2)
 
     def test_adding_data_with_same_label_increments_len(self):
-        first_valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        first_valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.fileobject, first_valid_label, 'data')
         self.assertEqual(len(self.r), 1)
 
-        second_valid_label = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        second_valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.fileobject, second_valid_label, 'data')
         self.assertEqual(len(self.r), 2)
 
     def test_adding_one_result_increments_len_once(self):
-        _field = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        _field = C.ANALYSIS_RESULTS_FIELDS[0]
         _results = ['foo']
         self.r.store(self.fileobject, _field, _results)
 
         self.assertEqual(len(self.r), 1)
 
     def test_adding_two_results_increments_len_twice(self):
-        _field_one = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
-        _field_two = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
+        _field_one = C.ANALYSIS_RESULTS_FIELDS[0]
+        _field_two = C.ANALYSIS_RESULTS_FIELDS[1]
         _result_one = ['foo']
         _result_two = ['bar']
         self.r.store(self.fileobject, _field_one, _result_one)
@@ -93,21 +93,21 @@ class TestRepositoryMethodStore(TestCase):
         self.assertEqual(len(self.r), 2)
 
     def test_adding_list_of_two_results_increments_len_twice(self):
-        _field_one = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        _field_one = C.ANALYSIS_RESULTS_FIELDS[0]
         _result_one = ['foo', 'bar']
         self.r.store(self.fileobject, _field_one, _result_one)
 
         self.assertEqual(len(self.r), 2)
 
     def test_adding_dict_of_two_results_increments_len_twice(self):
-        _field_one = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        _field_one = C.ANALYSIS_RESULTS_FIELDS[0]
         _result_one = {'baz': ['foo', 'bar']}
         self.r.store(self.fileobject, _field_one, _result_one)
 
         self.assertEqual(len(self.r), 2)
 
     def test_add_empty_does_not_increment_len(self):
-        _field = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        _field = C.ANALYSIS_RESULTS_FIELDS[0]
         _results = []
         self.r.store(self.fileobject, _field, _results)
 
@@ -120,30 +120,26 @@ class TestRepositoryMethodStore(TestCase):
             self.r.store(self.fileobject, '', 'data')
 
     def test_stores_data_with_valid_label(self):
-        labels = [
-            uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME),
-            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
-            uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL)
-        ]
-        for valid_label in labels:
+        valid_labels = uuconst.VALID_DATA_SOURCES[:3]
+        for valid_label in valid_labels:
             self.r.store(self.fileobject, valid_label, 'data')
 
     def test_valid_label_returns_expected_data(self):
-        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.fileobject, valid_label, 'expected_data')
 
         response = self.r.query(self.fileobject, valid_label)
         self.assertEqual(response, 'expected_data')
 
     def test_none_label_raises_exception(self):
-        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.fileobject, valid_label, 'expected_data')
 
         with self.assertRaises(exceptions.InvalidDataSourceError):
             self.r.query(self.fileobject, None)
 
     def test_valid_label_returns_expected_data_multiple_entries(self):
-        valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
+        valid_label = uuconst.VALID_DATA_SOURCES[0]
         self.r.store(self.fileobject, valid_label, 'expected_data_a')
         self.r.store(self.fileobject, valid_label, 'expected_data_b')
 
@@ -189,10 +185,10 @@ class TestMapMeowURItoSourceClass(TestCase):
 
     def setUp(self):
         self._analyzer_meowURI_sourcemap = [
-            ([uuconst.MEOWURI_AZR_FILETAGS_DATETIME,
-              uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION,
-              uuconst.MEOWURI_AZR_FILETAGS_FOLLOWS,
-              uuconst.MEOWURI_AZR_FILETAGS_TAGS],
+            (['analyzer.filetags.datetime',
+              'analyzer.filetags.description',
+              'analyzer.filetags.follows_filetags_convention',
+              'analyzer.filetags.tags'],
              'FiletagsAnalyzer'),
         ]
         self._extractor_meowURI_sourcemap = [
@@ -288,10 +284,10 @@ class TestMapMeowURItoSourceClass(TestCase):
 class TestGetSourcesForMeowURIs(TestCase):
     def setUp(self):
         self._meowuris_filetags = [
-            uuconst.MEOWURI_AZR_FILETAGS_DATETIME,
-            uuconst.MEOWURI_AZR_FILETAGS_DESCRIPTION,
-            uuconst.MEOWURI_AZR_FILETAGS_FOLLOWS,
-            uuconst.MEOWURI_AZR_FILETAGS_TAGS,
+            'analyzer.filetags.datetime',
+            'analyzer.filetags.description',
+            'analyzer.filetags.follows_filetags_convention',
+            'analyzer.filetags.tags',
         ]
         self._meowuris_filesystem = [
             uuconst.MEOWURI_FS_XPLAT_BASENAME_EXT,
@@ -398,54 +394,3 @@ class TestRepositoryGenericStorage(TestCase):
 
     def test_todo(self):
         self.skipTest('TODO: Add tests for storing "generic fields" ..')
-
-
-class TestRepositoryPool(TestCase):
-    DUMMY_REPOSITORY = 'IamRepository'
-    DUMMY_ID_1 = 'IDOne'
-    DUMMY_ID_2 = 'IDTwo'
-
-    def test_initially_empty(self):
-        p = repository.RepositoryPool()
-        self.assertEqual(len(p), 0)
-
-    def test_get_on_empty_pool_raises_keyerror(self):
-        p = repository.RepositoryPool()
-
-        for _id in [None, 'foo', 1, object()]:
-            with self.assertRaises(KeyError):
-                p.get(_id)
-
-    def test_add_repository(self):
-        p = repository.RepositoryPool()
-        p.add(repository=self.DUMMY_REPOSITORY, id_=self.DUMMY_ID_1)
-
-        self.assertEqual(len(p), 1)
-
-        actual = p.get(self.DUMMY_ID_1)
-        self.assertEqual(actual, self.DUMMY_REPOSITORY)
-
-    def test_uses_default_id_if_unspecified(self):
-        p = repository.RepositoryPool()
-        p.add(repository=self.DUMMY_REPOSITORY)
-
-        self.assertEqual(len(p), 1)
-
-        actual = p.get()
-        self.assertEqual(actual, self.DUMMY_REPOSITORY)
-
-        actual = p.get(id_=None)
-        self.assertEqual(actual, self.DUMMY_REPOSITORY)
-
-    def test_get_with_bad_id_raises_keyerror(self):
-        p = repository.RepositoryPool()
-        p.add(repository=self.DUMMY_REPOSITORY, id_=self.DUMMY_ID_1)
-
-        self.assertEqual(len(p), 1)
-
-        with self.assertRaises(KeyError):
-            _ = p.get(self.DUMMY_ID_2)
-
-        for _id in [None, 'foo', 1, object()]:
-            with self.assertRaises(KeyError):
-                p.get(_id)

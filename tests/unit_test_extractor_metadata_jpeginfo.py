@@ -21,6 +21,7 @@
 
 import unittest
 
+from core import util
 from extractors import ExtractorError
 from extractors.metadata import JpeginfoMetadataExtractor
 from extractors.metadata.jpeginfo import _run_jpeginfo

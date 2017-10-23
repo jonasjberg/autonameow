@@ -40,6 +40,8 @@ except ImportError:
 
 from core import constants as C
 from core import types
+from core.exceptions import InvalidMeowURIError
+from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -147,6 +149,45 @@ def multiset_count(list_data):
             out[entry] = 1
 
     return out
+
+
+def meowuri_list(meowuri):
+    """
+    Converts a "meowURI" to a list suited for traversing nested dicts.
+
+    Example meowURI:    'extractor.metadata.exiftool.createdate'
+    Resulting output:   ['extractor', 'metadata', 'exiftool', 'createdate']
+
+    Args:
+        meowuri: The "meowURI" to convert.
+
+    Returns: The components of the given "meowURI" as a list.
+    """
+    if not isinstance(meowuri, str):
+        raise InvalidMeowURIError('meowURI must be of type "str"')
+    else:
+        _meowuri = meowuri.strip()
+    if not _meowuri:
+        raise InvalidMeowURIError('Got empty meowURI')
+
+    if '.' in _meowuri:
+        # Remove any leading/trailing periods.
+        if _meowuri.startswith('.'):
+            _meowuri = _meowuri.lstrip('.')
+        if _meowuri.endswith('.'):
+            _meowuri = _meowuri.rstrip('.')
+
+        # Collapse any repeating periods.
+        while '..' in _meowuri:
+            _meowuri = _meowuri.replace('..', '.')
+
+        # Check if input is all periods.
+        stripped_period = str(_meowuri).replace('.', '')
+        if not stripped_period.strip():
+            raise InvalidMeowURIError('Invalid meowURI')
+
+    parts = _meowuri.split('.')
+    return [p for p in parts if p is not None]
 
 
 def flatten_dict(d, parent_key='', sep='.'):
@@ -342,6 +383,87 @@ def nested_dict_set(dictionary, list_of_keys, value):
         raise KeyError('Caught TypeError (would have clobbered existing value)')
 
 
+def eval_magic_glob(mime_to_match, glob_list):
+    """
+    Tests if a given MIME type string matches any of the specified globs.
+
+    The MIME types consist of a "type" and a "subtype", separated by '/'.
+    For instance; "image/jpg" or "application/pdf".
+
+    Globs can substitute either one or both of "type" and "subtype" with an
+    asterisk to ignore that part. Examples:
+
+        mime_to_match         glob_list                 evaluates
+        'image/jpg'           ['image/jpg']             True
+        'image/png'           ['image/*']               True
+        'application/pdf'     ['*/*']                   True
+        'application/pdf'     ['image/*', '*/jpg']      False
+
+    This function performs extra argument validation due to the fact that it is
+    likely to be used by third party developers. It is also exposed to possibly
+    malformed configuration entries.
+
+    Unknown MIME-types evaluate to True only for '*/*', otherwise always False.
+
+    Args:
+        mime_to_match: The MIME to match against the globs as a Unicode string.
+        glob_list: A list of globs as Unicode strings.
+
+    Returns:
+        True if the MIME to match is valid and matches any of the globs.
+        False if the MIME to match is valid but does not match any of the globs.
+    Raises:
+        TypeError: Got non-Unicode string arguments.
+        ValueError: Argument "mime_to_match" is not on the form "foo/bar".
+    """
+    if not mime_to_match or not glob_list:
+        return False
+
+    if not (isinstance(mime_to_match, str)):
+        raise TypeError('Expected "mime_to_match" to be of type str')
+
+    # Unknown MIME-type evaluates True if a glob matches anything, else False.
+    if mime_to_match == C.MAGIC_TYPE_UNKNOWN:
+        if '*/*' in glob_list:
+            return True
+        else:
+            return False
+
+    if '/' not in mime_to_match:
+        raise ValueError('Expected "mime_to_match" to be on the form "foo/bar"')
+
+    if not isinstance(glob_list, list):
+        glob_list = [glob_list]
+
+    log.debug(
+        'Evaluating MIME. MimeToMatch: "{!s}" Globs: {!s}'.format(mime_to_match,
+                                                                  glob_list)
+    )
+    mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
+    for glob in glob_list:
+        sanity.check_internal_string(glob)
+
+        if glob == mime_to_match:
+            return True
+        elif '*' in glob:
+            try:
+                glob_type, glob_subtype = glob.split('/')
+            except ValueError:
+                raise ValueError(
+                    'Expected globs to be on the form "*/a", "a/*"'
+                )
+            if glob_type == '*' and glob_subtype == '*':
+                # Matches everything.
+                return True
+            elif glob_type == '*' and glob_subtype == mime_to_match_subtype:
+                # Matches any type. Tests subtype equality.
+                return True
+            elif glob_type == mime_to_match_type and glob_subtype == '*':
+                # Checks type equality. Matches any subtype.
+                return True
+    return False
+
+
 def is_executable(command):
     """
     Checks if the given command would be executable.
@@ -377,8 +499,6 @@ def git_commit_hash():
     if not is_executable('git'):
         return None
 
-    _old_pwd = os.path.curdir
-    os.chdir(C.AUTONAMEOW_SRCROOT_DIR)
     try:
         process = subprocess.Popen(
             ['git', 'rev-parse', '--short', 'HEAD'],
@@ -390,5 +510,3 @@ def git_commit_hash():
     else:
         string = types.force_string(stdout).strip()
         return string if string else None
-    finally:
-        os.chdir(_old_pwd)

@@ -23,14 +23,20 @@ import logging
 import os
 import re
 
-from core import constants as C
+from core import (
+    constants as C,
+    cache
+)
 from core import (
     config,
     exceptions,
-    types,
-    util
+    namebuilder,
+    util,
+    types
 )
-from core.config import rules
+from core.config import (
+    rules
+)
 from core.config.field_parsers import (
     DateTimeConfigFieldParser,
     NameFormatConfigFieldParser,
@@ -38,7 +44,6 @@ from core.config.field_parsers import (
 )
 from core.namebuilder import fields
 from core.util import sanity
-
 
 log = logging.getLogger(__name__)
 
@@ -104,9 +109,9 @@ class Configuration(object):
 
         _loaded_data = config.load_yaml_file(path)
         if not _loaded_data:
-            raise exceptions.ConfigError('Read empty config: "{!s}"'.format(
-                    util.enc.displayable_path(path)
-            ))
+            raise exceptions.ConfigError(
+                'Read empty config: "{!s}"'.format(util.displayable_path(path))
+            )
 
         return cls(_loaded_data)
 
@@ -244,8 +249,6 @@ class Configuration(object):
         _format = types.force_string(_raw_name_format)
         if not _format:
             return None
-
-        # TODO: [TD0109] Allow arbitrary name template placeholder fields.
 
         # First test if the field data is a valid name template entry,
         if _format in self.reusable_nametemplates:
@@ -399,12 +402,12 @@ class Configuration(object):
                 try:
                     _bytes_path = types.AW_PATH.normalize(_value)
                 except types.AWTypeError as e:
-                    _dp = util.enc.displayable_path(_value)
+                    _dp = util.displayable_path(_value)
                     log.error(
                         'Invalid cache directory "{!s}"; {!s}'.format(_dp, e)
                     )
                 else:
-                    _dp = util.enc.displayable_path(_bytes_path)
+                    _dp = util.displayable_path(_bytes_path)
                     log.debug('Added persistence option :: '
                               '{!s}: {!s}'.format(option, _dp))
                     util.nested_dict_set(
@@ -412,8 +415,8 @@ class Configuration(object):
                     )
                     return
 
-            _bytes_path = util.enc.normpath(default)
-            _dp = util.enc.displayable_path(_bytes_path)
+            _bytes_path = util.normpath(default)
+            _dp = util.displayable_path(_bytes_path)
             log.debug('Using default persistence option :: '
                       '{!s}: {!s}'.format(option, _dp))
             util.nested_dict_set(
@@ -496,7 +499,7 @@ class Configuration(object):
 
         _try_load_persistence_option(
             'cache_directory',
-            C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+            C.DEFAULT_CACHE_DIR_ABSPATH
         )
         _try_load_persistence_option(
             'history_file_path',

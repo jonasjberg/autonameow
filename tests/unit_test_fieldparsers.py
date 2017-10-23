@@ -23,17 +23,18 @@ from unittest import TestCase
 
 from core.config import field_parsers
 from core.config.field_parsers import (
-    ConfigFieldParser,
-    DateTimeConfigFieldParser,
-    MimeTypeConfigFieldParser,
-    NameFormatConfigFieldParser,
     RegexConfigFieldParser,
-    available_field_parsers,
+    ConfigFieldParser,
     get_instantiated_field_parsers,
-    parse_versioning,
-    suitable_field_parser_for
+    available_field_parsers,
+    MimeTypeConfigFieldParser,
+    DateTimeConfigFieldParser,
+    NameFormatConfigFieldParser,
+    suitable_field_parser_for,
+    eval_meowuri_glob,
+    parse_versioning
 )
-from core.model import MeowURI
+from core.meowuri import MeowURI
 import unit_utils as uu
 import unit_utils_constants as uuconst
 
@@ -161,131 +162,125 @@ class TestMimeTypeFieldParser(TestCase):
         self.p = MimeTypeConfigFieldParser()
         self.val_func = self.p.get_validation_function()
 
-    def aF(self, test_input):
-        self.assertFalse(self.val_func(test_input))
-
-    def aT(self, test_input):
-        self.assertTrue(self.val_func(test_input))
-
     def test_expect_fail_for_invalid_mime_types(self):
-        self.aF('')
-        self.aF(None)
-        self.aF('invalid_mime_surely')
+        self.assertFalse(self.val_func(''))
+        self.assertFalse(self.val_func(None))
+        self.assertFalse(self.val_func('invalid_mime_surely'))
 
     def test_expect_fail_for_invalid_globs(self):
-        self.aF('.*')
-        self.aF('*')
-        self.aF('image/')
-        self.aF('/jpeg')
-        self.aF('image/*/*')
+        self.assertFalse(self.val_func('.*'))
+        self.assertFalse(self.val_func('*'))
+        self.assertFalse(self.val_func('image/'))
+        self.assertFalse(self.val_func('/jpeg'))
+        self.assertFalse(self.val_func('image/*/*'))
 
     def test_expect_fail_for_list_of_invalid_mime_types(self):
-        self.aF([''])
-        self.aF([None])
-        self.aF(['invalid_mime_surely'])
-        self.aF([None, None])
-        self.aF([None, ''])
-        self.aF([None, '', 'invalid_mime_surely'])
-        self.aF([[]])
-        self.aF([None, []])
-        self.aF([None, [None]])
+        self.assertFalse(self.val_func(['']))
+        self.assertFalse(self.val_func([None]))
+        self.assertFalse(self.val_func(['invalid_mime_surely']))
+        self.assertFalse(self.val_func([None, None]))
+        self.assertFalse(self.val_func([None, '']))
+        self.assertFalse(self.val_func([None, '', 'invalid_mime_surely']))
+        self.assertFalse(self.val_func([[]]))
+        self.assertFalse(self.val_func([None, []]))
+        self.assertFalse(self.val_func([None, [None]]))
 
     def test_expect_fail_for_list_of_invalid_globs(self):
-        self.aF(['.*'])
-        self.aF(['*'])
-        self.aF(['image/'])
-        self.aF(['/jpeg'])
-        self.aF(['image/*/*'])
-        self.aF(['.*', '.*'])
-        self.aF(['*', '.*'])
-        self.aF([None, '.*'])
-        self.aF([[], '.*'])
+        self.assertFalse(self.val_func(['.*']))
+        self.assertFalse(self.val_func(['*']))
+        self.assertFalse(self.val_func(['image/']))
+        self.assertFalse(self.val_func(['/jpeg']))
+        self.assertFalse(self.val_func(['image/*/*']))
+        self.assertFalse(self.val_func(['.*', '.*']))
+        self.assertFalse(self.val_func(['*', '.*']))
+        self.assertFalse(self.val_func([None, '.*']))
+        self.assertFalse(self.val_func([[], '.*']))
 
     def test_expect_pass_for_valid_mime_types_no_globs(self):
-        self.aT('image/x-ms-bmp')
-        self.aT('image/gif')
-        self.aT('image/jpeg')
-        self.aT('video/quicktime')
-        self.aT('video/mp4')
-        self.aT('video/ogg')
-        self.aT('application/pdf')
-        self.aT('image/png')
-        self.aT('text/plain')
-        self.aT('inode/x-empty')
-        self.aT('application/epub+zip')
-        self.aT('image/vnd.djvu')
+        self.assertTrue(self.val_func('image/x-ms-bmp'))
+        self.assertTrue(self.val_func('image/gif'))
+        self.assertTrue(self.val_func('image/jpeg'))
+        self.assertTrue(self.val_func('video/quicktime'))
+        self.assertTrue(self.val_func('video/mp4'))
+        self.assertTrue(self.val_func('video/ogg'))
+        self.assertTrue(self.val_func('application/pdf'))
+        self.assertTrue(self.val_func('image/png'))
+        self.assertTrue(self.val_func('text/plain'))
+        self.assertTrue(self.val_func('inode/x-empty'))
+        self.assertTrue(self.val_func('application/epub+zip'))
+        self.assertTrue(self.val_func('image/vnd.djvu'))
 
     def test_expect_pass_for_valid_globs(self):
-        self.aT('*/*')
-        self.aT('image/*')
-        self.aT('*/jpeg')
-        self.aT('inode/*')
-        self.aT('*/x-empty')
-        self.aT('*/x-ms-bmp')
-        self.aT('image/*')
-        self.aT('*/epub+zip')
-        self.aT('application/*')
+        self.assertTrue(self.val_func('*/*'))
+        self.assertTrue(self.val_func('image/*'))
+        self.assertTrue(self.val_func('*/jpeg'))
+        self.assertTrue(self.val_func('inode/*'))
+        self.assertTrue(self.val_func('*/x-empty'))
+        self.assertTrue(self.val_func('*/x-ms-bmp'))
+        self.assertTrue(self.val_func('image/*'))
+        self.assertTrue(self.val_func('*/epub+zip'))
+        self.assertTrue(self.val_func('application/*'))
 
     def test_expect_pass_for_list_of_valid_mime_types_with_globs(self):
-        self.aT(['*/*'])
-        self.aT(['image/*'])
-        self.aT(['*/jpeg'])
-        self.aT(['inode/*'])
-        self.aT(['*/x-empty'])
-        self.aT(['*/x-ms-bmp'])
-        self.aT(['image/*'])
-        self.aT(['*/epub+zip'])
-        self.aT(['application/*'])
-        self.aT(['*/*', '*/*'])
-        self.aT(['*/*', '*/jpeg'])
-        self.aT(['image/*', '*/jpeg'])
-        self.aT(['*/jpeg', 'image/*'])
-        self.aT(['*/jpeg', 'application/*'])
+        self.assertTrue(self.val_func(['*/*']))
+        self.assertTrue(self.val_func(['image/*']))
+        self.assertTrue(self.val_func(['*/jpeg']))
+        self.assertTrue(self.val_func(['inode/*']))
+        self.assertTrue(self.val_func(['*/x-empty']))
+        self.assertTrue(self.val_func(['*/x-ms-bmp']))
+        self.assertTrue(self.val_func(['image/*']))
+        self.assertTrue(self.val_func(['*/epub+zip']))
+        self.assertTrue(self.val_func(['application/*']))
+        self.assertTrue(self.val_func(['*/*', '*/*']))
+        self.assertTrue(self.val_func(['*/*', '*/jpeg']))
+        self.assertTrue(self.val_func(['image/*', '*/jpeg']))
+        self.assertTrue(self.val_func(['*/jpeg', 'image/*']))
+        self.assertTrue(self.val_func(['*/jpeg', 'application/*']))
 
     def test_expect_pass_for_list_of_valid_mime_types_no_globs(self):
-        self.aT(['image/x-ms-bmp'])
-        self.aT(['image/gif'])
-        self.aT(['image/jpeg'])
-        self.aT(['video/quicktime'])
-        self.aT(['video/mp4'])
-        self.aT(['video/ogg'])
-        self.aT(['application/pdf'])
-        self.aT(['image/png'])
-        self.aT(['text/plain'])
-        self.aT(['inode/x-empty'])
-        self.aT(['application/epub+zip'])
-        self.aT(['image/gif', 'image/jpeg'])
-        self.aT(['image/jpeg', 'image/gif'])
-        self.aT(['video/quicktime', 'image/jpeg'])
+        self.assertTrue(self.val_func(['image/x-ms-bmp']))
+        self.assertTrue(self.val_func(['image/gif']))
+        self.assertTrue(self.val_func(['image/jpeg']))
+        self.assertTrue(self.val_func(['video/quicktime']))
+        self.assertTrue(self.val_func(['video/mp4']))
+        self.assertTrue(self.val_func(['video/ogg']))
+        self.assertTrue(self.val_func(['application/pdf']))
+        self.assertTrue(self.val_func(['image/png']))
+        self.assertTrue(self.val_func(['text/plain']))
+        self.assertTrue(self.val_func(['inode/x-empty']))
+        self.assertTrue(self.val_func(['application/epub+zip']))
+        self.assertTrue(self.val_func(['image/gif', 'image/jpeg']))
+        self.assertTrue(self.val_func(['image/jpeg', 'image/gif']))
+        self.assertTrue(self.val_func(['video/quicktime', 'image/jpeg']))
 
     def test_expect_mime_type_globs_to_evaluate_true(self):
-        def _aT(expression, data):
+        def _assert_eval_true(expression, data):
             actual = self.p.evaluate_mime_type_globs(expression, data)
             self.assertTrue(isinstance(actual, bool))
             self.assertTrue(actual)
 
-        _aT('image/jpeg', 'image/jpeg')
-        _aT('image/*', 'image/jpeg')
-        _aT('*/jpeg', 'image/jpeg')
-        _aT(['*/jpeg', 'application/pdf'], 'image/jpeg')
-        _aT(['image/*', 'application/pdf'], 'image/jpeg')
-        _aT(['image/*', 'application/pdf'], 'application/pdf')
-        _aT(['image/jpeg', 'application/pdf'], 'application/pdf')
-        _aT(['image/jpeg', '*/pdf'], 'application/pdf')
+        _assert_eval_true('image/jpeg', 'image/jpeg')
+        _assert_eval_true('image/*', 'image/jpeg')
+        _assert_eval_true('*/jpeg', 'image/jpeg')
+        _assert_eval_true(['*/jpeg', 'application/pdf'], 'image/jpeg')
+        _assert_eval_true(['image/*', 'application/pdf'], 'image/jpeg')
+        _assert_eval_true(['image/*', 'application/pdf'], 'application/pdf')
+        _assert_eval_true(['image/jpeg', 'application/pdf'], 'application/pdf')
+        _assert_eval_true(['image/jpeg', '*/pdf'], 'application/pdf')
 
     def test_expect_mime_type_globs_to_evaluate_false(self):
-        def _aF(expression, data):
+        def _assert_eval_false(expression, data):
             actual = self.p.evaluate_mime_type_globs(expression, data)
             self.assertTrue(isinstance(actual, bool))
             self.assertFalse(actual)
 
-        _aF('image/png', 'image/jpeg')
-        _aF('application/*', 'image/jpeg')
-        _aF('*/png', 'image/jpeg')
-        _aF(['*/png', 'application/pdf'], 'image/jpeg')
-        _aF(['application/*', 'video/quicktime'], 'image/png')
-        _aF(['image/*', 'application/pdf'], 'text/p,ain')
-        _aF(['image/jpeg', 'application/pdf'], 'image/gif')
+        _assert_eval_false('image/png', 'image/jpeg')
+        _assert_eval_false('application/*', 'image/jpeg')
+        _assert_eval_false('*/png', 'image/jpeg')
+        _assert_eval_false(['*/png', 'application/pdf'], 'image/jpeg')
+        _assert_eval_false(['application/*', 'video/quicktime'], 'image/png')
+        _assert_eval_false(['image/*', 'application/pdf'], 'text/p,ain')
+        _assert_eval_false(['image/jpeg', 'application/pdf'], 'image/gif')
 
 
 class TestDateTimeFieldParser(TestCase):
@@ -295,22 +290,13 @@ class TestDateTimeFieldParser(TestCase):
         self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):
-        def _aF(test_input):
-            self.assertFalse(self.val_func(test_input))
-
-        _aF(self.val_func(None))
-        _aF(self.val_func(1))
-        _aF(self.val_func(''))
+        self.assertFalse(self.val_func(None))
+        self.assertFalse(self.val_func(1))
+        self.assertFalse(self.val_func(''))
 
     def test_validation_function_expect_pass(self):
-        def _aT(test_input):
-            self.assertTrue(self.val_func(test_input))
-
-        _aT('%Y-%m-%d %H:%M:%S')
-        _aT('%Y-%m-%d')
-        _aT('%Y')
-        _aT('_')
-        _aT('foo')
+        self.assertTrue(self.val_func('%Y-%m-%d %H:%M:%S'))
+        self.assertTrue(self.val_func('_'))
 
 
 class TestNameFormatFieldParser(TestCase):
@@ -320,22 +306,15 @@ class TestNameFormatFieldParser(TestCase):
         self.val_func = self.p.get_validation_function()
 
     def test_validation_function_expect_fail(self):
-        def _aF(test_input):
-            self.assertFalse(self.val_func(test_input))
-
-        _aF(None)
-        _aF('')
-        _aF('{bad_field}')
-        _aF('{datetime} {bad_field}')
+        self.assertFalse(self.val_func(None))
+        self.assertFalse(self.val_func(''))
+        self.assertFalse(self.val_func('{bad_field}'))
+        self.assertFalse(self.val_func('{datetime} {bad_field}'))
 
     def test_validation_function_expect_pass(self):
-        def _aT(test_input):
-            self.assertTrue(self.val_func(test_input))
-
-        _aT('{datetime}')
-        _aT('{publisher} "abc" {tags}')
-        _aT('{datetime} {title}.{extension}')
-        _aT('{datetime} {title} -- {tags}.{extension}')
+        self.assertTrue(self.val_func('{datetime}'))
+        self.assertTrue(self.val_func('{publisher} "abc" {tags}'))
+        self.assertTrue(self.val_func('{datetime} {title}.{extension}'))
 
 
 class TestInstantiatedFieldParsers(TestCase):
@@ -410,6 +389,179 @@ class TestFieldParserConstants(TestCase):
     def test_has_dummy_data_fields_constant(self):
         self.assertIsNotNone(field_parsers.DATA_FIELDS)
         self.assertTrue(isinstance(field_parsers.DATA_FIELDS, dict))
+
+
+class TestEvalMeowURIGlob(TestCase):
+    def test_eval_meowuri_blob_is_defined(self):
+        self.assertIsNotNone(eval_meowuri_glob)
+
+    def test_eval_meowuri_blob_returns_false_given_bad_arguments(self):
+        self.assertIsNotNone(eval_meowuri_glob(None, None))
+        self.assertFalse(eval_meowuri_glob(None, None))
+
+    def test_eval_meowuri_blob_returns_false_as_expected(self):
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.contents.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.*',
+                                              'filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.basename.full', ['*.pathname.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.pathname.extension', ['*.basename.*',
+                                              '*.basename.extension',
+                                              'filesystem.basename.extension']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.pathname.parent', ['*.pathname.full',
+                                           'filesystem.*.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATOR,
+            ['datetime', 'date_accessed', 'date_created', 'date_modified',
+             '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
+             '*.EXIF:ModifyDate']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['NAME_FORMAT']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.text.full', ['filesystem.*',
+                                           'filesystem.pathname.*',
+                                           'filesystem.pathname.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['contents.text.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['*.text.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['*.text', '*.text', '*.text.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'contents.textual.raw_text', ['*.raw_*', '*.raw.*', '*.raw*.*'
+                                          '*.*raw*.*']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            'filesystem.abspath.full', ['*.text.full']
+        ))
+        self.assertFalse(eval_meowuri_glob(
+            uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE, ['metadata.*']
+        ))
+
+    def test_eval_meowuri_blob_returns_true_as_expected(self):
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.pathname.full', ['*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.pathname.full', ['filesystem.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.pathname.full', ['filesystem.pathname.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.pathname.full', ['filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.pathname.full', ['filesystem.*',
+                                         'filesystem.pathname.*',
+                                         'filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.pathname.full', ['*',
+                                         'filesystem.*',
+                                         'filesystem.pathname.*',
+                                         'filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.pathname.full', ['*.pathname.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.contents.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.contents.mime_type', ['filesystem.*',
+                                              'filesystem.pathname.*',
+                                              'filesystem.pathname.full']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.basename.extension', ['*.basename.*',
+                                              '*.basename.extension',
+                                              'filesystem.basename.extension']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.basename.extension', ['*',
+                                              '*.basename.*',
+                                              '*.basename.extension',
+                                              'filesystem.basename.extension']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.basename.extension', ['*.extension']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.basename.extension', ['*',
+                                              '*.extension']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
+            [uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE]
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
+            ['extractor.metadata.exiftool.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
+            ['extractor.metadata.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
+            ['datetime', 'date_accessed', 'date_created', 'date_modified',
+             '*.PDF:CreateDate', '*.PDF:ModifyDate' '*.EXIF:DateTimeOriginal',
+             '*.EXIF:ModifyDate']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['contents.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['*.textual.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['*.text.*']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['*.full']
+        ))
+        self.assertTrue(eval_meowuri_glob(
+            'contents.textual.text.full', ['contents.*', '*.textual.*',
+                                           '*.text.*', '*.full']
+        ))
+
+    def test_eval_meowuri_blob_returns_as_expected(self):
+        self.assertTrue(eval_meowuri_glob(
+            'filesystem.basename.full', ['*.pathname.*',
+                                         '*.basename.*',
+                                         '*.full']
+        ))
 
 
 class TestValidateVersionNumber(TestCase):

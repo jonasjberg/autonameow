@@ -1,17 +1,6 @@
-`autonameow`
-============
-*Copyright(c) 2016-2017 Jonas Sjöberg*  
-<https://github.com/jonasjberg/autonameow>  
-<http://www.jonasjberg.com>  
-
---------------------------------------------------------------------------------
-
-Analyzing Filenames
-===================
-Notes on extracting metadata from filenames.
-
-#### Revisions
-* 2017-09-17 --- `jonasjberg` Initial.
+Notes on extracting metadata from filenames
+===========================================
+Jonas Sjöberg 2017-09-17
 
 
 Identify Fields in Strings

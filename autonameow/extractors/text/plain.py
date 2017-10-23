@@ -26,6 +26,7 @@ try:
 except ImportError:
     chardet = None
 
+from core import util
 from core.util import (
     sanity,
     textutils

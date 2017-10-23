@@ -21,6 +21,7 @@
 
 import logging
 import re
+from datetime import datetime
 
 from core import constants as C
 from core import (
@@ -30,7 +31,10 @@ from core import (
 from core.model import ExtractedData
 from core.namebuilder.fields import NameTemplateField
 from core.ui import cli
-from core.util import sanity
+from core.util import (
+    diskutils,
+    sanity
+)
 
 
 log = logging.getLogger(__name__)
@@ -74,14 +78,14 @@ def build(config, name_template, field_data_map):
     if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_filename']):
         if config.get(['CUSTOM_POST_PROCESSING', 'sanitize_strict']):
             log.debug('Sanitizing filename (restricted=True)')
-            new_name = util.disk.sanitize_filename(new_name,
+            new_name = diskutils.sanitize_filename(new_name,
                                                    restricted=True)
         else:
             log.debug('Sanitizing filename')
-            new_name = util.disk.sanitize_filename(new_name)
+            new_name = diskutils.sanitize_filename(new_name)
 
         log.debug('Sanitized basename (unicode): "{!s}"'.format(
-            util.enc.displayable_path(new_name))
+            util.displayable_path(new_name))
         )
     else:
         log.debug('Skipped sanitizing filename')
@@ -114,24 +118,26 @@ def pre_assemble_format(field_data_dict, config):
     out = {}
 
     for field, data in field_data_dict.items():
-        log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))
         sanity.check(field and issubclass(field, NameTemplateField))
-        sanity.check_isinstance(data, ExtractedData)
-
-        # TODO: [TD0115] Clear up uncertainties about data multiplicities
-        if data.multivalued:
+        if isinstance(data, list):
             if not field.MULTIVALUED:
                 log.critical(
-                    'Template field "{!s}" expects a single value. Got '
-                    'multivalued ExtractedData'.format(field.as_placeholder())
+                    'Template field "{!s}" expects a single value. '
+                    'Got ({!s}) "{!s}"'.format(field.as_placeholder(),
+                                               type(data), data)
                 )
                 raise exceptions.NameBuilderError(
                     'Template field "{!s}" expects a single value. '
                     'Got {} values'.format(field.as_placeholder(), len(data))
                 )
 
+            for d in data:
+                sanity.check_isinstance(d, ExtractedData)
+        else:
+            sanity.check_isinstance(data, ExtractedData)
+
         _formatted = field.format(data, config=config)
-        if _formatted is not None:
+        if _formatted:
             out[field] = _formatted
         else:
             out[field] = data

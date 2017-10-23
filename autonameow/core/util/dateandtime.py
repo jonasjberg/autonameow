@@ -28,9 +28,11 @@ import dateutil
 import pytz
 from dateutil import parser
 
-from core import constants as C
-from core import util
+from core import (
+    util
+)
 from core.util import textutils
+from core import constants as C
 
 
 log = logging.getLogger(__name__)
@@ -78,7 +80,7 @@ def _year_is_probable(year):
                 year += 1900
 
         if not isinstance(year, int):
-            year = util.enc.decode_(year)
+            year = util.decode_(year)
         try:
             year = datetime.strptime(str(year), '%Y')
         except (ValueError, TypeError):
@@ -130,7 +132,6 @@ def regex_search_str(text):
     :param text: the text to extract information from
     :return: list of any datetime-objects or None if nothing was found
     """
-    MAX_NUMBER_OF_RESULTS = 30
 
     if isinstance(text, list):
         text = ' '.join(text)
@@ -188,12 +189,6 @@ def regex_search_str(text):
                     results.append(dt)
                     matches += 1
 
-                if matches >= MAX_NUMBER_OF_RESULTS:
-                    log.debug(
-                        'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
-                    )
-                    return results
-
     # Expected date format:         2016:04:07
     dt_pattern_2 = re.compile(r'(\d{4}-[01]\d-[0123]\d)')
     dt_fmt_2 = '%Y-%m-%d'
@@ -208,12 +203,6 @@ def regex_search_str(text):
                 results.append(dt)
                 matches += 1
 
-            if matches >= MAX_NUMBER_OF_RESULTS:
-                log.debug(
-                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
-                )
-                return results
-
     # Matches '(C) 2014' and similar.
     dt_pattern_3 = re.compile(r'\( ?[Cc] ?\) ?([12]\d{3})')
     dt_fmt_3 = '%Y'
@@ -227,12 +216,6 @@ def regex_search_str(text):
                 log.debug('Extracted datetime from text: "{}"'.format(dt))
                 results.append(dt)
                 matches += 1
-
-            if matches >= MAX_NUMBER_OF_RESULTS:
-                log.debug(
-                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
-                )
-                return results
 
     log.debug('[DATETIME] Regex matcher found {:^3} matches'.format(matches))
     return results
@@ -276,7 +259,7 @@ def match_special_case_no_date(text):
     :return: datetime if found otherwise None
     """
     # TODO: [TD0043] Allow the user to tweak hardcoded settings.
-    text = util.enc.decode_(text)
+    text = util.decode_(text)
     try:
         dt = datetime.strptime(text[:10], '%Y-%m-%d')
     except (TypeError, ValueError):
@@ -379,8 +362,6 @@ def bruteforce_str(text, return_first_match=False):
     :param text: the text to extract information from
     :return: list of any datetime-objects or None if nothing was found
     """
-    MAX_NUMBER_OF_RESULTS = 30
-
     if text is None:
         # log.debug('[bruteforce_str] Got empty text')
         return None
@@ -390,7 +371,7 @@ def bruteforce_str(text, return_first_match=False):
             # log.debug('[bruteforce_str] Got empty text')
             return None
 
-    text = util.enc.decode_(text)
+    text = util.decode_(text)
 
     bruteforce_str.matches = bruteforce_str.matches_total = 0
 
@@ -403,6 +384,8 @@ def bruteforce_str(text, return_first_match=False):
             results.append(data)
             bruteforce_str.matches += 1
             bruteforce_str.matches_total += 1
+            if return_first_match:
+                return data
 
     if len(text) < 4:
         return None
@@ -473,12 +456,6 @@ def bruteforce_str(text, return_first_match=False):
             #       weight; lower numbers more probable to be true positives.
             validate_result(dt)
 
-            if bruteforce_str.matches_total >= MAX_NUMBER_OF_RESULTS:
-                log.debug(
-                    'Hit max results limit {} ..'.format(MAX_NUMBER_OF_RESULTS)
-                )
-                return results
-
     if results:
         log.debug('First matcher found  {:>3} matches after {:>4} '
                   'tries.'.format(bruteforce_str.matches, tries))
@@ -529,12 +506,6 @@ def bruteforce_str(text, return_first_match=False):
                 #       Lower numbers more probable to be true positives.
                 validate_result(dt)
 
-                if bruteforce_str.matches_total >= MAX_NUMBER_OF_RESULTS:
-                    log.debug('Hit max results limit {} ..'.format(
-                        MAX_NUMBER_OF_RESULTS
-                    ))
-                    return results
-
         # log.debug('Gave up after %d tries ..'.format(tries))
 
     # TODO: Examine this here below hacky conditional. Why is it there?
@@ -568,12 +539,6 @@ def bruteforce_str(text, return_first_match=False):
                     #       true positives.
                     validate_result(dt)
 
-                    if bruteforce_str.matches_total >= MAX_NUMBER_OF_RESULTS:
-                        log.debug('Hit max results limit {} ..'.format(
-                            MAX_NUMBER_OF_RESULTS
-                        ))
-                        return results
-
             # log.debug('Gave up after {} tries ..'.format(tries))
             # log.debug('Removing leading number '
             #               '({} --> {})'.format(digits, digits[1:]))
@@ -600,6 +565,34 @@ def fuzzy_datetime(text, prefix):
     return dt
 
 
+def search_gmail(text, prefix):
+    """
+    Searches gmail content for date/time-information.
+    :param text: the text to extract information from
+    :param prefix: prefix this to the resulting dictionary keys
+    :return: a list of dictionaries containing datetime-objects.
+    """
+    text = util.decode_(text)
+    # TODO: [cleanup] Currently not used at all! Implement or remove.
+    if type(text) is list:
+        # log.debug('Converting list to string ..')
+        text = ' '.join(text)
+
+    if not text.lower().find('gmail'):
+        # log.debug('Text does not contains "gmail", might not be a Gmail?')
+        return
+
+    results = {}
+
+    # Expected date formats:         Fri, Jan 8, 2016 at 3:50 PM
+    #                                1/11/2016
+    SEP = r'[, ]'
+    REGEX_GMAIL_LONG = re.compile(r'(\w{3,8})' + SEP + r'(\w{3,10}) (\d{1,2})'
+                                  + SEP + r'([12]\d{3})' + r'( at )?' +
+                                  r'(\d{1,2}:\d{1,2} [AP]M)')
+    REGEX_GMAIL_SHORT = re.compile(r'\d{1,2}/\d{2}/[12]\d{3}')
+
+
 def get_datetime_from_text(text, prefix='NULL'):
     """
     Extracts date/time-information from text.
@@ -617,7 +610,7 @@ def get_datetime_from_text(text, prefix='NULL'):
         return None
     if prefix == 'NULL':
         pass
-    # text = util.enc.decode_(text)
+    # text = util.decode_(text)
 
     # TODO: [TD0091] Improve handling of generalized "text" from any source.
     #       (currently plain text and pdf documents)
@@ -686,7 +679,7 @@ def match_screencapture_unixtime(text):
     :param text: text to search for UNIX timestamp
     :return: datetime-object if a match is found, else None
     """
-    text = util.enc.decode_(text)
+    text = util.decode_(text)
 
     pattern = re.compile(r'.*(\d{13}).*')
     for t in re.findall(pattern, text):

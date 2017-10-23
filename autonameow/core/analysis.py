@@ -24,18 +24,15 @@ import logging
 import analyzers
 from core import (
     exceptions,
-    repository,
-    util
+    util,
+    repository
 )
 from core.config.configuration import Configuration
-from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
-from core.model import MeowURI
-from core.util import sanity
+from core.model import ExtractedData
 
 
 log = logging.getLogger(__name__)
-
 
 """
 Performs high-level handling of an analysis.
@@ -101,7 +98,7 @@ def request_global_data(fileobject, meowuri):
     return response
 
 
-def collect_results(fileobject, meowuri_prefix, data):
+def collect_results(fileobject, meowuri, data):
     """
     Collects analysis results. Passed to analyzers as a callback.
 
@@ -118,36 +115,17 @@ def collect_results(fileobject, meowuri_prefix, data):
         MeowURI: 'extractor.metadata.exiftool.c'   DATA: 'd'
 
     Args:
-        fileobject: Instance of 'FileObject' that produced the data to add.
-        meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
+        fileobject: Instance of 'fileobject' that produced the data to add.
+        meowuri: Label that uniquely identifies the data, as a Unicode str.
         data: The data to add, as any type or container.
     """
-    # TODO: [TD0102] Fix inconsistencies in results passed back by analyzers.
-    if not isinstance(data, dict):
-        log.debug('[TD0102] Got non-dict data "analysis.collect_results()"')
-        log.debug('[TD0102] Data type: {!s}'.format(type(data)))
-        log.debug('[TD0102] Data contents: {!s}'.format(data))
-
     if isinstance(data, dict):
         flat_data = util.flatten_dict(data)
-        for _uri_leaf, _data in flat_data.items():
-            try:
-                _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
-            except InvalidMeowURIError as e:
-                log.critical(
-                    'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-                )
-                continue
-            repository.SessionRepository.store(fileobject, _meowuri, _data)
+        for _key, _data in flat_data.items():
+            _uri = '{}.{!s}'.format(meowuri, _key)
+            repository.SessionRepository.store(fileobject, _uri, _data)
     else:
-        try:
-            _meowuri = MeowURI(meowuri_prefix)
-        except InvalidMeowURIError as e:
-            log.critical(
-                'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-            )
-            return
-        repository.SessionRepository.store(fileobject, _meowuri, data)
+        repository.SessionRepository.store(fileobject, meowuri, data)
 
 
 def _instantiate_analyzers(fileobject, klass_list, config):
@@ -172,10 +150,10 @@ def start(fileobject, config):
     """
     Starts analyzing 'fileobject' using all analyzers deemed "suitable".
     """
-    log.debug(' Analysis Starting '.center(80, '='))
-
-    sanity.check_isinstance(fileobject, FileObject)
-    sanity.check_isinstance(config, Configuration)
+    if not isinstance(fileobject, FileObject):
+        raise TypeError('"fileobject" must be an instance of "FileObject"')
+    if not isinstance(config, Configuration):
+        raise TypeError('"config" must be an instance of "Configuration"')
 
     klasses = analyzers.suitable_analyzers_for(fileobject)
     if not klasses:
@@ -191,4 +169,3 @@ def start(fileobject, config):
     # Run all analyzers in the queue.
     _execute_run_queue(analyzer_queue)
 
-    log.debug(' Analysis Completed '.center(80, '='))

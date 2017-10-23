@@ -22,6 +22,9 @@
 import logging
 import os
 
+from core.util import diskutils
+
+
 try:
     from prompt_toolkit import prompt
     from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -29,10 +32,7 @@ try:
         Completer,
         Completion
     )
-    from prompt_toolkit.history import (
-        FileHistory,
-        InMemoryHistory
-    )
+    from prompt_toolkit.history import InMemoryHistory, FileHistory
     from prompt_toolkit.interface import AbortAction
     from prompt_toolkit.shortcuts import confirm
     from prompt_toolkit.validation import (
@@ -48,11 +48,12 @@ except ImportError:
 from core import constants as C
 from core import config
 from core import (
+    cache,
     repository,
     util
 )
 from core.exceptions import InvalidMeowURIError
-from core.model import MeowURI
+from core.meowuri import MeowURI
 from core.ui import cli
 
 
@@ -70,17 +71,17 @@ def get_config_history_path():
         _history_path = None
 
     if _history_path:
-        if util.disk.isfile(_history_path):
+        if diskutils.isfile(_history_path):
             return _history_path
-        elif util.disk.isdir(_history_path):
+        elif diskutils.isdir(_history_path):
             log.warning('Expected history path to include a file ..')
             _fixed_path = os.path.join(
-                util.enc.syspath(_history_path),
-                util.enc.syspath(C.DEFAULT_HISTORY_FILE_BASENAME)
+                util.syspath(_history_path),
+                util.syspath(C.DEFAULT_HISTORY_FILE_BASENAME)
             )
             if _fixed_path:
                 log.warning('Using fixed history path: "{!s}"'.format(
-                    util.enc.displayable_path(_fixed_path)
+                    util.displayable_path(_fixed_path)
                 ))
                 return _fixed_path
 
@@ -123,7 +124,7 @@ class MeowURICompleter(Completer):
 def meowuri_prompt(message=None):
     _history_file_path = get_config_history_path()
     log.debug('Using prompt history file: "{!s}"'.format(
-        util.enc.displayable_path(_history_file_path)
+        util.displayable_path(_history_file_path)
     ))
     history = FileHistory(_history_file_path)
     meowuri_completer = MeowURICompleter()

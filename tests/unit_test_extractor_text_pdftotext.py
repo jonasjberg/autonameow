@@ -65,7 +65,7 @@ class TestPdftotextTextExtractor(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-        self.test_file = util.enc.normpath(uu.abspath_testfile('gmail.pdf'))
+        self.test_file = util.normpath(uu.abspath_testfile('gmail.pdf'))
         self.test_fileobject = uu.fileobject_testfile('gmail.pdf')
         self.e = PdftotextTextExtractor()
 

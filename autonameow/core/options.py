@@ -20,11 +20,17 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import logging
 import os
 
 from core import constants as C
-from core import util
+from core import (
+    logs,
+    util
+)
 from core.ui import cli
+
+log = logging.getLogger(__name__)
 
 
 def arg_is_year(value):
@@ -60,7 +66,7 @@ def arg_is_readable_file(arg):
             and os.access(arg, os.R_OK)):
         if arg.startswith('~/'):
             arg = os.path.expanduser(arg)
-        return util.enc.normpath(arg)
+        return util.normpath(arg)
 
     raise argparse.ArgumentTypeError('Invalid file: "{!s}"'.format(arg))
 
@@ -282,10 +288,47 @@ def parse_args(raw_args):
     """
     Parses raw positional arguments.
 
-    Parses the given option arguments with 'argparse'.
+    Parses the given option arguments with argparse and verifies legality of
+    any combinations.
 
     Args:
         raw_args: The option arguments as a list of strings.
+
+    Returns:
+        Parsed option arguments as type 'argparse.NameSpace'.
+    """
+    args = _parse_args(raw_args)
+
+    logs.init_logging(args)
+
+    if args.mode_automagic and args.mode_interactive:
+        log.warning('Operating mode must be either one of "automagic" or '
+                    '"interactive", not both. Reverting to default: '
+                    '[interactive mode].')
+        args.mode_automagic = False
+        args.mode_interactive = True
+    if not args.mode_automagic and args.mode_batch:
+        log.warning('Running in "batch" mode without "automagic" mode does'
+                    'not make any sense. Nothing to do!')
+    if args.mode_batch and args.mode_interactive:
+        log.warning('Operating mode must be either one of "batch" or '
+                    '"interactive", not both. Reverting to default: '
+                    '[interactive mode].')
+        args.mode_batch = False
+        args.mode_interactive = True
+    if not args.mode_automagic and not args.mode_interactive:
+        log.info('Using default operating mode: [interactive mode].')
+        args.mode_interactive = True
+
+    return args
+
+
+def _parse_args(raw_args):
+    """
+    Parses the given option arguments with argparse.
+
+    Args:
+        raw_args: The option arguments to parse as a list of strings.
 
     Returns:
         Parsed option arguments as type 'argparse.NameSpace'.

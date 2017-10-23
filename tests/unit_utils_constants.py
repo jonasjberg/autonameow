@@ -28,8 +28,7 @@ _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 _PARENT_DIR = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
 TEST_FILES_DIR = os.path.normpath(os.path.join(_PARENT_DIR, 'test_files'))
 AUTONAMEOW_SRCROOT_DIR = os.path.normpath(
-    os.path.join(_PARENT_DIR,
-                 util.enc.syspath('autonameow'))
+    os.path.join(_PARENT_DIR, util.syspath('autonameow'))
 )
 
 
@@ -37,21 +36,6 @@ ASSUMED_NONEXISTENT_BASENAME = b'not_a_file_surely'
 
 
 # Full MeowURIs to various data resources.
-MEOWURI_AZR_FILENAME_DATETIME = 'analyzer.filename.datetime'
-MEOWURI_AZR_FILENAME_PUBLISHER = 'analyzer.filename.publisher'
-MEOWURI_AZR_FILENAME_TAGS = 'analyzer.filename.tags'
-MEOWURI_AZR_FILENAME_TITLE = 'analyzer.filename.title'
-
-MEOWURI_AZR_FILESYSTEM_DATETIME = 'analyzer.filesystem.datetime'
-MEOWURI_AZR_FILESYSTEM_TAGS = 'analyzer.filesystem.tags'
-MEOWURI_AZR_FILESYSTEM_TITLE = 'analyzer.filesystem.title'
-
-MEOWURI_AZR_FILETAGS_DATETIME = 'analyzer.filetags.datetime'
-MEOWURI_AZR_FILETAGS_DESCRIPTION = 'analyzer.filetags.description'
-MEOWURI_AZR_FILETAGS_EXTENSION = 'analyzer.filetags.extension'
-MEOWURI_AZR_FILETAGS_FOLLOWS = 'analyzer.filetags.follows_filetags_convention'
-MEOWURI_AZR_FILETAGS_TAGS = 'analyzer.filetags.tags'
-
 MEOWURI_FS_XPLAT_MIMETYPE = 'extractor.filesystem.xplat.contents.mime_type'
 MEOWURI_FS_XPLAT_ABSPATH_FULL = 'extractor.filesystem.xplat.abspath.full'
 MEOWURI_FS_XPLAT_BASENAME_EXT = 'extractor.filesystem.xplat.basename.extension'
@@ -59,7 +43,6 @@ MEOWURI_FS_XPLAT_BASENAME_FULL = 'extractor.filesystem.xplat.basename.full'
 MEOWURI_FS_XPLAT_BASENAME_PREFIX = 'extractor.filesystem.xplat.basename.prefix'
 MEOWURI_FS_XPLAT_BASENAME_SUFFIX = 'extractor.filesystem.xplat.basename.suffix'
 MEOWURI_FS_XPLAT_PATHNAME_FULL = 'extractor.filesystem.xplat.pathname.full'
-MEOWURI_FS_XPLAT_PATHNAME_PARENT = 'extractor.filesystem.xplat.pathname.parent'
 
 MEOWURI_GEN_CONTENTS_MIMETYPE = 'generic.contents.mime_type'
 MEOWURI_GEN_CONTENTS_TEXT = 'generic.contents.text'
@@ -85,53 +68,6 @@ MEOWURI_EXT_EXIFTOOL_XMPDCTITLE = 'extractor.metadata.exiftool.XMP-dc:Title'
 MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE = 'extractor.metadata.exiftool.QuickTime:CreationDate'
 
 MEOWURI_PLU_MSVISION_CAPTION = 'plugin.microsoft_vision.caption'
-
-
-ALL_FULL_MEOWURIS = frozenset([
-    MEOWURI_AZR_FILENAME_DATETIME,
-    MEOWURI_AZR_FILENAME_PUBLISHER,
-    MEOWURI_AZR_FILENAME_TAGS,
-    MEOWURI_AZR_FILENAME_TITLE,
-    MEOWURI_AZR_FILESYSTEM_DATETIME,
-    MEOWURI_AZR_FILESYSTEM_TAGS,
-    MEOWURI_AZR_FILESYSTEM_TITLE,
-    MEOWURI_AZR_FILETAGS_DATETIME,
-    MEOWURI_AZR_FILETAGS_DESCRIPTION,
-    MEOWURI_AZR_FILETAGS_EXTENSION,
-    MEOWURI_AZR_FILETAGS_FOLLOWS,
-    MEOWURI_AZR_FILETAGS_TAGS,
-    MEOWURI_FS_XPLAT_MIMETYPE,
-    MEOWURI_FS_XPLAT_ABSPATH_FULL,
-    MEOWURI_FS_XPLAT_BASENAME_EXT,
-    MEOWURI_FS_XPLAT_BASENAME_FULL,
-    MEOWURI_FS_XPLAT_BASENAME_PREFIX,
-    MEOWURI_FS_XPLAT_BASENAME_SUFFIX,
-    MEOWURI_FS_XPLAT_PATHNAME_FULL,
-    MEOWURI_FS_XPLAT_PATHNAME_PARENT,
-    MEOWURI_GEN_CONTENTS_MIMETYPE,
-    MEOWURI_GEN_CONTENTS_TEXT,
-    MEOWURI_GEN_METADATA_AUTHOR,
-    MEOWURI_GEN_METADATA_CREATOR,
-    MEOWURI_GEN_METADATA_PRODUCER,
-    MEOWURI_GEN_METADATA_SUBJECT,
-    MEOWURI_GEN_METADATA_TAGS,
-    MEOWURI_GEN_METADATA_DATECREATED,
-    MEOWURI_GEN_METADATA_DATEMODIFIED,
-    MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE,
-    MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL,
-    MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
-    MEOWURI_EXT_EXIFTOOL_PDFCREATOR,
-    MEOWURI_EXT_EXIFTOOL_PDFMODIFYDATE,
-    MEOWURI_EXT_EXIFTOOL_PDFPRODUCER,
-    MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR,
-    MEOWURI_EXT_EXIFTOOL_XMPDCCREATORFILEAS,
-    MEOWURI_EXT_EXIFTOOL_XMPDCDATE,
-    MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER,
-    MEOWURI_EXT_EXIFTOOL_XMPDCTITLE,
-    MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE,
-    MEOWURI_PLU_MSVISION_CAPTION,
-])
-
 
 DUMMY_MAPPED_MEOWURIS = list({
     'analyzer.document',
@@ -203,6 +139,83 @@ DUMMY_RAW_RULE_DATA_SOURCES = [
      'publisher': MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER,
      'title': MEOWURI_EXT_EXIFTOOL_XMPDCTITLE},
 ]
+
+
+# Dummy internal data structure with (supposedly) valid fields and sources.
+RESULTS_DATA_STRUCTURE = {
+    'filesystem': {
+        'basename': {
+            'full': None,
+            'prefix': None,
+            'suffix': None,
+            'extension': None,
+            'derived_data': {
+                'datetime': None,
+            }
+        },
+        'pathname': {
+            'full': None,
+            'parent': None
+        },
+        'date_accessed': None,
+        'date_created': None,
+        'date_modified': None,
+    },
+    'contents': {
+        'mime_type': None,
+        'textual': {
+            'raw_text': None,
+            'paginated': False,
+            'number_pages': None,
+        },
+        'visual': {
+            'ocr_text': None,
+            'ocr_description': None,
+            'ocr_tags': None
+        },
+        'binary': {
+            'placeholder_field': None,
+        }
+    },
+    'extractor': {
+        'metadata': {
+            'exiftool': {
+                'EXIF:DateTimeOriginal': None,
+                'PDF:Author': None,
+                'PDF:CreateDate': None,
+                'PDF:Creator': None,
+                'PDF:EBX_PUBLISHER': None,
+                'PDF:Producer': None,
+                'PDF:Subject': None,
+                'PDF:Title': None,
+                'XMP:Creator': None,
+                'XMP:EbxPublisher': None,
+                'XMP:Title': None,
+                'XMP-dc:Creator': None,
+                'XMP-dc:EbxPublisher': None,
+                'XMP-dc:Title': None,
+            },
+        }
+    },
+    'metadata': {
+        'pypdf': {
+            'Author': None,
+            'Creator': None,
+            'Producer': None,
+            'Subject': None,
+            'Title': None,
+            'EBX_PUBLISHER': None,
+        }
+    },
+    'plugin': {
+        'microsoft_vision': None,
+        'guessit': None,
+    }
+}
+
+# Static dummy data sources used in the 'Repository' unit tests.
+__flat_results_data_structure = util.flatten_dict(RESULTS_DATA_STRUCTURE)
+VALID_DATA_SOURCES = list(__flat_results_data_structure.keys())
 
 
 # Sources to search for extractor classes.

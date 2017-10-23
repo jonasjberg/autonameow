@@ -42,12 +42,9 @@ class RuleMatcher(object):
         self._candidates = []
 
     def _request_data(self, fileobject, meowuri):
-        # log.debug(
-        #     'requesting [{:8.8}]->[{!s}]'.format(fileobject.hash_partial,
-        #                                          meowuri)
-        # )
+        log.debug('requesting [{!s}]->[{!s}]'.format(fileobject, meowuri))
         response = repository.SessionRepository.query(fileobject, meowuri)
-        # log.debug('Got response ({}): {!s}'.format(type(response), response))
+        log.debug('Got response ({}): {!s}'.format(type(response), response))
 
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
         if response is not None and isinstance(response, ExtractedData):
@@ -98,26 +95,16 @@ class RuleMatcher(object):
         prioritized_rules = prioritize_rules(self._scored_rules)
 
         _candidates = []
-        log.info('Remaining, prioritized rules:')
         for i, rule in enumerate(prioritized_rules):
             _candidates.append(rule)
 
             _exact = 'Yes' if rule.exact_match else 'No '
-            log.info('Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias:'
-                     ' {:.2f}) {} '.format(
+            log.info('Rule #{} (Exact: {}  Score: {:.2f}  Weight: {:.2f}  Bias: {:.2f}) {} '.format(
                 i + 1, _exact,
                 self._scored_rules[rule]['score'],
                 self._scored_rules[rule]['weight'],
                 rule.ranking_bias, rule.description)
             )
-
-        _discarded_rules = [r for r in self._rules if r not in remaining_rules]
-        log.info('Discarded rules:')
-        for i, rule in enumerate(_discarded_rules, start=i+1):
-            _exact = 'Yes' if rule.exact_match else 'No '
-            log.info('Rule #{} (Exact: {}  Score: N/A   Weight: N/A   Bias:'
-                     ' {:.2f}) {} '.format(i + 1, _exact, rule.ranking_bias,
-                                          rule.description))
 
         self._candidates = _candidates
 
@@ -143,19 +130,19 @@ class RuleMatcher(object):
 
 def prioritize_rules(rules):
     """
-    Prioritizes/sorts a dict keyed by 'Rule' instances storing scores/weights.
+    Prioritizes (sorts) a dict with 'Rule' instances and scores/weights.
 
-    Rules are sorted by multiple attributes;
+    Rules are sorted by multiple attributes in the following order;
 
-      * By "score", a float between 0-1.
-        Represents the number of satisfied rule conditions.
-      * By Whether the rule requires an exact match or not.
-        Rules that require an exact match are ranked higher.
-      * By "weight", a float between 0-1.
-        Represents the number of met conditions for the rule, compared to
-        the number of conditions in other rules.
-      * By "ranking bias", a float between 0-1.
-        Optional user-specified biasing of rule prioritization.
+    1. By "score", a float between 0-1
+       Represents the number of satisfied rule conditions.
+    2. By Whether the rule requires an exact match or not.
+       Rules that require an exact match are ranked higher.
+    3. By "weight", a float between 0-1.
+       Represents the number of met conditions for the rule, compared to
+       the number of conditions in other rules.
+    4. By "ranking bias", a float between 0-1.
+       Optional user-specified biasing of rule prioritization.
 
     This means that a rule that met all conditions will be ranked lower than
     another rule that also met all conditions but *did* require an exact match.
@@ -172,13 +159,8 @@ def prioritize_rules(rules):
     prioritized_rules = sorted(
         rules.items(),
         reverse=True,
-        # key=lambda d: (d[1]['score'],
-        #                d[0].exact_match,
-        #                d[1]['weight'],
-        #                d[0].ranking_bias)
-        key=lambda d: (d[1]['score'] * d[1]['weight'],
+        key=lambda d: (d[1]['score'],
                        d[0].exact_match,
-                       d[1]['score'],
                        d[1]['weight'],
                        d[0].ranking_bias)
     )

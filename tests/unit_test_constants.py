@@ -71,7 +71,7 @@ class TestConstants(TestCase):
         self.assertTrue(isinstance(C.ANALYSIS_RESULTS_FIELDS, list))
 
     def test_default_cache_path(self):
-        p = C.DEFAULT_PERSISTENCE_DIR_ABSPATH
+        p = C.DEFAULT_CACHE_DIR_ABSPATH
         self.assertTrue(uu.is_internalbytestring(p))
         self.assertTrue(uu.is_abspath(p))
         self.assertFalse(uu.file_exists(p))

@@ -10,43 +10,6 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
-* 2017-10-21
-
-    > High Priority
-    > -------------
-    >
-    > * `[TD0105]` Integrate the `MeowURI` class.
-
-* 2017-10-11
-
-    > Medium Priority
-    > ---------------
-    >
-    > * `[TD0017]` Rethink how specified sources are connected to actual sources.
-    >   Take for example the configuration rule:
-    >
-    >     ```yaml
-    >     RULES:
-    >     -   CONDITIONS:
-    >             contents:
-    >                 mime_type: image/*
-    >             filesystem:
-    >                 pathname: ~/Dropbox/Camera Uploads/.*
-    >         DATA_SOURCES:
-    >             extension: contents.mime_type
-    >     ```
-    >   This will fail, or *should fail* as MIME types on the form `image/jpeg`,
-    >   `image/png`, etc can't be used as a file extension without some
-    >   pre-processing -- converting `image/png` to `png`.
-    >
-    > Low Priority
-    > ------------
-    >
-    > * `[TD0039]` Do not include the rule attribute `score` when listing the
-    >   configuration with `--dump-config`.
-    >
-    > * `[TD0038]` Add new name format placeholder field `{year}`.
-
 * 2017-10-10
 
     > Low Priority

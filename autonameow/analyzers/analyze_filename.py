@@ -23,38 +23,22 @@ import re
 from collections import Counter
 
 from analyzers import BaseAnalyzer
-from core import types
+from core import (
+    types,
+    model
+)
 from core.model import (
     ExtractedData,
     WeightedMapping
 )
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from core.util import (
     dateandtime,
     textutils
 )
-from core.util.text import find_edition
 
 
-# Use two different types of separators;  "SPACE" and "SEPARATOR".
-#
-# Example filename:   "The-Artist_01_Great-Tune.mp4"
-#                         ^      ^  ^     ^
-#                     space   separators  space
-#
-# Splitting the filename by "SEPARATOR" gives some arbitrary "fields".
-#
-#                     "The-Artist"   "01"   "Great-Tune"
-#                       Field #1      #2      Field #3
-#
-# Splitting the filename by "SPACE" typically gives words.
-#
-#                     "The"   "Artist"   "01"   "Great"   "Tune"
-
-# TODO: Let the user specify this in the configuration file.
-PREFERRED_FILENAME_CHAR_SPACE = '-'
-PREFERRED_FILENAME_CHAR_SEPARATOR = '_'
+RE_EDITION = re.compile(r'([0-9])+\s?((st|nd|rd|th)\s?|(e|ed))', re.IGNORECASE)
 
 
 class FilenameAnalyzer(BaseAnalyzer):
@@ -76,7 +60,6 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._add_results('publisher', self.get_publisher())
 
     def get_datetime(self):
-        # TODO: [TD0110] Improve finding probable date/time in file names.
         results = []
 
         fn_timestamps = self._get_datetime_from_name()
@@ -103,7 +86,7 @@ class FilenameAnalyzer(BaseAnalyzer):
                 mapped_fields=[
                     WeightedMapping(fields.Edition, probability=1),
                 ],
-                generic_field=gf.GenericEdition
+                generic_field=model.GenericEdition
             )(_number)
         else:
             return None
@@ -125,9 +108,6 @@ class FilenameAnalyzer(BaseAnalyzer):
 
         file_basename_suffix = ed_basename_suffix.as_string()
         file_mimetype = ed_file_mimetype.value
-        self.log.debug(
-            'Attempting to get likely extension for MIME-type: "{!s}"  Basename'
-            ' suffix: "{!s}"'.format(file_mimetype, file_basename_suffix))
         result = likely_extension(file_basename_suffix, file_mimetype)
         return ExtractedData(
             coercer=types.AW_PATHCOMPONENT,
@@ -160,7 +140,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            generic_field=gf.GenericPublisher
+            generic_field=model.GenericPublisher
         )(result)
 
     def _get_datetime_from_name(self):
@@ -267,10 +247,6 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'mobi': {'mobi'},
         'pdf': {'pdf'}
     },
-    'application/zip': {
-        'zip': {'zip'},
-        'epub': {'epub'},
-    },
     'text/plain': {
         'c': {'c'},
         'cpp': {'cpp', 'c++'},
@@ -289,12 +265,6 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'sh': {'bash', 'sh'},
         'txt': {'txt'},
         'yaml': {'yaml'},
-    },
-    'application/x-gzip': {
-        'tar.gz': {'tar.gz'}
-    },
-    'application/x-lzma': {
-        'tar.lzma': {'tar.lzma'}
     },
     'text/x-shellscript': {
         'sh': {'bash', 'sh', 'txt'},
@@ -317,104 +287,27 @@ class SubstringFinder(object):
     # TODO: (?) Implement or remove ..
 
     def identify_fields(self, string, field_list):
-        substrings = self.substrings(string)
+        substrings = self._substrings(string)
 
-    def substrings(self, string):
-        _splitchar = FilenameTokenizer(string).main_separator
-        s = string.split(_splitchar)
+    def _substrings(self, string):
+        s = re.split(r'\W', string)
         return list(filter(None, s))
 
 
-class FilenamePreprocessor(object):
-    def __init__(self):
-        pass
-
-    @classmethod
-    def __call__(cls, filename):
-        _processed = cls.preprocess(filename)
-        return _processed
-
-    @classmethod
-    def preprocess(cls, filename):
-        # Very simple heuristic for finding URL-encoded file names.
-        #
-        #   HTML 4.01 Specification
-        #   17.13.4 Form content types
-        #   application/x-www-form-urlencoded
-        #   https://www.w3.org/TR/html4/interact/forms.html#h-17.13.4.1
-        #
-        # Spaces are represented as either '%20' or '+'.
-        if ' ' not in filename:
-            _decoded = None
-
-            if '%20' in filename:
-                _decoded = textutils.urldecode(filename)
-            elif '+' in filename:
-                _decoded = filename.replace('+', ' ')
-
-            if _decoded and _decoded.strip():
-                filename = _decoded
-
-        return filename
-
-
+# TODO: Implement or remove ..
 class FilenameTokenizer(object):
-    RE_UNICODE_WORDS = re.compile(r'[^\W_]')
+    RE_UNICODE_WORDS = re.compile(r'\w')
 
     def __init__(self, filename):
-        self.filename = FilenamePreprocessor()(filename)
-
-    @property
-    def tokens(self):
-        _sep = self.main_separator
-        if _sep:
-            return self.filename.split(_sep)
+        self.filename = filename
 
     @property
     def separators(self):
         return self._find_separators(self.filename) or []
 
-    @property
-    def main_separator(self):
-        _seps = self._find_separators(self.filename)
-        if not _seps:
-            return None
-
-        # Detect if first- and second-most common separators have an equal
-        # number of occurrences and resolve any tied count separately.
-        if len(_seps) >= 2:
-            _first_count = _seps[0][1]
-            _second_count = _seps[1][1]
-            if _first_count == _second_count:
-                return self.resolve_tied_count(_seps[0][0], _seps[1][0])
-
-        if _seps:
-            try:
-                return _seps[0][0]
-            except IndexError:
-                return ''
-
-        return None
-
-    @classmethod
-    def resolve_tied_count(cls, *candidates):
-        # Prefer to use the single space.
-        if ' ' in candidates:
-            return ' '
-        elif PREFERRED_FILENAME_CHAR_SEPARATOR in candidates:
-            # Use hardcoded preferred main separator character.
-            return PREFERRED_FILENAME_CHAR_SEPARATOR
-        elif PREFERRED_FILENAME_CHAR_SPACE in candidates:
-            # Use hardcoded preferred space separator character.
-            return PREFERRED_FILENAME_CHAR_SPACE
-        else:
-            # Last resort, uses arbitrary value.
-            return sorted(candidates)[0]
-
-    @classmethod
-    def _find_separators(cls, string):
-        non_words = cls.RE_UNICODE_WORDS.split(string)
-        seps = [s for s in non_words if s is not None and len(s) >= 1]
+    def _find_separators(self, string):
+        non_words = self.RE_UNICODE_WORDS.split(string)
+        seps = [s for s in non_words if s is not None and s.strip()]
 
         sep_chars = []
         for sep in seps:
@@ -427,8 +320,27 @@ class FilenameTokenizer(object):
             return None
 
         counts = Counter(sep_chars)
+        # TODO: Implement or remove ..
         _most_common = counts.most_common(3)
         return _most_common
+
+
+def find_edition(text):
+    for _num, _re_pattern in textutils.compiled_ordinal_regexes().items():
+        m = _re_pattern.search(text)
+        if m:
+            return _num
+
+    match = RE_EDITION.search(text)
+    if match:
+        e = match.group(1)
+        try:
+            edition = types.AW_INTEGER(e)
+            return edition
+        except types.AWTypeError:
+            pass
+
+    return None
 
 
 def find_publisher(text, candidates):

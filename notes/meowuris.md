@@ -1,20 +1,10 @@
-`autonameow`
-============
-*Copyright(c) 2016-2017 Jonas Sjöberg*  
-<https://github.com/jonasjberg/autonameow>  
-<http://www.jonasjberg.com>  
+Notes on Data Identifiers ("meowURIs")
+======================================
+Jonas Sjöberg, 2017-09-09.
 
---------------------------------------------------------------------------------
-
-Data Identifiers ("MeowURIs")
-=============================
-Notes on the internal data identifier system and "MeowURI" naming convention.
-
-#### Revisions
-* 2017-09-09 --- `jonasjberg` Initial.
-* 2017-09-23 --- `jonasjberg` Added notes from `ideas.md`
-* 2017-09-27 --- `jonasjberg` Added "Breaking up MeowURIs into Parts"
-* 2017-09-28 --- `jonasjberg` Added "Alternative approach 3"
+* Revised 2017-09-23 -- Added notes from `ideas.md`
+* Revised 2017-09-27 -- Added "Breaking up MeowURIs into Parts"
+* Revised 2017-09-28 -- Added "Alternative approach 3"
 
 
 Data Storage

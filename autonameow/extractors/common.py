@@ -21,11 +21,11 @@
 
 import logging
 
-from core import constants as C
 from core import util
 from core.exceptions import AutonameowException
 from core.fileobject import FileObject
 from core.util import sanity
+from core import constants as C
 
 
 class ExtractorError(AutonameowException):
@@ -183,7 +183,7 @@ class BaseExtractor(object):
             )
 
         try:
-            return util.magic.eval_glob(fileobject.mime_type,
+            return util.eval_magic_glob(fileobject.mime_type,
                                         cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
             raise ExtractorError(

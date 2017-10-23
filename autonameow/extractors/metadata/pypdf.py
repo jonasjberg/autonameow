@@ -37,6 +37,7 @@ except ImportError:
     PdfReadError = None
 
 from core import (
+    model,
     types,
     util
 )
@@ -44,7 +45,6 @@ from core.model import (
     ExtractedData,
     WeightedMapping
 )
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from extractors import (
     BaseExtractor,
@@ -62,7 +62,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericCreator
+            generic_field=model.GenericCreator
         ),
         'CreationDate': ExtractedData(
             coercer=types.AW_PYPDFTIMEDATE,
@@ -70,7 +70,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'Encrypted': ExtractedData(types.AW_BOOLEAN),
         'ModDate': ExtractedData(
@@ -79,7 +79,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25),
             ],
-            generic_field=gf.GenericDateModified
+            generic_field=model.GenericDateModified
         ),
         'NumberPages': ExtractedData(types.AW_INTEGER),
         'Paginated': ExtractedData(types.AW_BOOLEAN),
@@ -89,7 +89,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
             mapped_fields=[
                 WeightedMapping(fields.Title, probability=1)
             ],
-            # generic_field=gf.GenericTitle
+            # generic_field=model.GenericTitle
         ),
     }
 
@@ -144,7 +144,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
 
         try:
             # NOTE(jonas): [encoding] Double-check PyPDF2 docs ..
-            file_reader = PyPDF2.PdfFileReader(util.enc.decode_(source), 'rb')
+            file_reader = PyPDF2.PdfFileReader(util.decode_(source), 'rb')
         except (OSError, PyPdfError) as e:
             raise ExtractorError(e)
 
@@ -261,8 +261,6 @@ class PyPDFMetadataExtractor(BaseExtractor):
 
     @classmethod
     def check_dependencies(cls):
-        # return PyPDF2 is not None
+        return PyPDF2 is not None
 
-        # Skip for now.
-        # TODO: Remove PyPDF2?
-        return False
+

@@ -20,9 +20,3 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# This package is intended to be the interface to multiple containing
-# subpackages that each implement different UIs.
-#
-# There is currently only a command-line interface, so this interface
-# does not exist. BUT it might be good to implement the interface only once
-# another UI is added and the real use and requirements are clearer anyway.

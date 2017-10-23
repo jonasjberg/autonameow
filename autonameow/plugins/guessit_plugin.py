@@ -21,13 +21,9 @@
 
 import logging
 
-try:
-    import guessit as guessit
-except ImportError:
-    guessit = None
-
 from core import (
     exceptions,
+    model,
     types,
     util,
 )
@@ -35,9 +31,13 @@ from core.model import (
     ExtractedData,
     WeightedMapping
 )
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from plugins import BasePlugin
+
+try:
+    import guessit as guessit
+except ImportError:
+    guessit = None
 
 
 class GuessitPlugin(BasePlugin):
@@ -56,7 +56,7 @@ class GuessitPlugin(BasePlugin):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
+            generic_field=model.GenericDateCreated
         ),
         'episode': ExtractedData(
             coercer=types.AW_INTEGER,
@@ -117,7 +117,7 @@ class GuessitPlugin(BasePlugin):
         _mime_type = self.request_data(
             fileobject, 'extractor.filesystem.xplat.contents.mime_type'
         )
-        return util.magic.eval_glob(_mime_type, 'video/*')
+        return util.eval_magic_glob(_mime_type, 'video/*')
 
     def execute(self, fileobject):
         _file_basename = self.request_data(

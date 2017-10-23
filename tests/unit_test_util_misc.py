@@ -20,13 +20,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 from unittest import TestCase
 
-from core import util
+from core import (
+    util,
+    exceptions,
+)
+from core import constants as C
+from core.exceptions import EncodingBoundaryViolation
+from core.util import eval_magic_glob
 from core.util.misc import (
     unique_identifier,
     multiset_count,
+    meowuri_list,
     flatten_dict,
     expand_meowuri_data_dict,
     nested_dict_get,
@@ -125,6 +131,61 @@ class TestMultisetCount(TestCase):
     def test_list_duplicate_count_returns_expected_no_duplicate_two_none(self):
         self.assertEqual(multiset_count(['a', None, 'b', None]),
                          {None: 2, 'a': 1, 'b': 1})
+
+
+class TestMeowURIList(TestCase):
+    def test_raises_exception_for_none_argument(self):
+        with self.assertRaises(exceptions.InvalidMeowURIError):
+            self.assertIsNone(meowuri_list(None))
+
+    def test_raises_exception_for_empty_argument(self):
+        with self.assertRaises(exceptions.InvalidMeowURIError):
+            self.assertIsNone(meowuri_list(''))
+
+    def test_raises_exception_for_only_periods(self):
+        with self.assertRaises(exceptions.InvalidMeowURIError):
+            self.assertIsNone(meowuri_list('.'))
+            self.assertIsNone(meowuri_list('..'))
+            self.assertIsNone(meowuri_list('...'))
+
+    def test_return_value_is_type_list(self):
+        self.assertTrue(isinstance(meowuri_list('a.b'), list))
+
+    def test_valid_argument_returns_expected(self):
+        self.assertEqual(meowuri_list('a'), ['a'])
+        self.assertEqual(meowuri_list('a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a.b.c'), ['a', 'b', 'c'])
+        self.assertEqual(meowuri_list('a.b.c.a'), ['a', 'b', 'c', 'a'])
+        self.assertEqual(meowuri_list('a.b.c.a.b'),
+                         ['a', 'b', 'c', 'a', 'b'])
+        self.assertEqual(meowuri_list('a.b.c.a.b.c'),
+                         ['a', 'b', 'c', 'a', 'b', 'c'])
+
+    def test_valid_argument_returns_expected_for_unexpected_input(self):
+        self.assertEqual(meowuri_list('a.b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a.b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a.b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('...a..b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a..b...'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('.a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('..a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('...a...b'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b.'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b..'), ['a', 'b'])
+        self.assertEqual(meowuri_list('a...b...'), ['a', 'b'])
+
+    def test_returns_expected(self):
+        self.assertEqual(meowuri_list('filesystem.contents.mime_type'),
+                         ['filesystem', 'contents', 'mime_type'])
+        self.assertEqual(meowuri_list('metadata.exiftool.EXIF:Foo'),
+                         ['metadata', 'exiftool', 'EXIF:Foo'])
 
 
 class TestFlattenDict(TestCase):
@@ -448,6 +509,96 @@ class TestNestedDictSetRetrieveLists(TestCase):
         self.assertEqual(actual, [1, 2])
 
 
+class TestEvalMagicGlob(TestCase):
+    def _aF(self, mime_to_match, glob_list):
+        actual = eval_magic_glob(mime_to_match, glob_list)
+        self.assertTrue(isinstance(actual, bool))
+        self.assertFalse(actual)
+
+    def _aT(self, mime_to_match, glob_list):
+        actual = eval_magic_glob(mime_to_match, glob_list)
+        self.assertTrue(isinstance(actual, bool))
+        self.assertTrue(actual)
+
+    def test_eval_magic_blob_is_defined(self):
+        self.assertIsNotNone(eval_magic_glob)
+
+    def test_eval_magic_blob_returns_false_given_bad_arguments(self):
+        self.assertIsNotNone(eval_magic_glob(None, None))
+        self.assertFalse(eval_magic_glob(None, None))
+
+    def test_eval_magic_blob_raises_exception_given_bad_arguments(self):
+        def _assert_raises(error, mime_to_match, glob_list):
+            with self.assertRaises(error):
+                eval_magic_glob(mime_to_match, glob_list)
+
+        _assert_raises(ValueError, 'image/jpeg', ['*/*/jpeg'])
+        _assert_raises(ValueError, 'application', ['*/*'])
+        _assert_raises(TypeError, b'application', ['*/*'])
+        _assert_raises(ValueError, '1', ['*/*'])
+        _assert_raises(TypeError, b'1', ['*/*'])
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [b'*/jpeg'])
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [b'*/jpeg', 'image/*'])
+
+        # TODO: Raising the encoding boundary exception here isn't right!
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [1])
+        _assert_raises(EncodingBoundaryViolation,
+                       'image/jpeg', [1, 'image/jpeg'])
+
+        _assert_raises(ValueError, 'application', ['*a'])
+        _assert_raises(ValueError, 'application', ['a*'])
+
+    def test_eval_magic_blob_returns_false_as_expected(self):
+        self._aF('image/jpeg', [])
+        self._aF('image/jpeg', [''])
+        self._aF('image/jpeg', ['application/pdf'])
+        self._aF('image/jpeg', ['*/pdf'])
+        self._aF('image/jpeg', ['application/*'])
+        self._aF('image/jpeg', ['image/pdf'])
+        self._aF('image/jpeg', ['image/pdf', 'application/jpeg'])
+        self._aF('image/jpeg', ['image/'])
+        self._aF('image/jpeg', ['/jpeg'])
+        self._aF('image/jpeg', ['*/pdf', '*/png'])
+        self._aF('image/jpeg', ['*/pdf', '*/png', 'application/*'])
+        self._aF('image/png', ['*/pdf', '*/jpg', 'application/*'])
+        self._aF('image/png', ['*/pdf', '*/jpg', 'image/jpg'])
+        self._aF('application/epub+zip', ['*/jpg'])
+        self._aF('application/epub+zip', ['image/*'])
+        self._aF('application/epub+zip', ['image/jpeg'])
+        self._aF('application/epub+zip', 'video/*')
+        self._aF('application/epub+zip', ['video/*'])
+        self._aF('application/epub+zip', C.MAGIC_TYPE_UNKNOWN)
+
+    def test_eval_magic_blob_returns_true_as_expected(self):
+        self._aT('image/jpeg', '*/*')
+        self._aT('image/jpeg', ['*/*'])
+        self._aT('image/jpeg', '*/jpeg')
+        self._aT('image/jpeg', ['*/jpeg'])
+        self._aT('image/jpeg', ['image/*'])
+        self._aT('image/png', ['image/*'])
+        self._aT('image/jpeg', ['image/jpeg'])
+        self._aT('image/jpeg', ['*/*', '*/jpeg'])
+        self._aT('image/jpeg', ['image/*', '*/jpeg'])
+        self._aT('image/png', ['*/pdf', '*/png', 'application/*'])
+        self._aT('application/epub+zip', 'application/epub+zip')
+        self._aT('application/epub+zip', ['application/epub+zip'])
+        self._aT('application/epub+zip', ['application/*'])
+        self._aT('application/epub+zip', ['*/epub+zip'])
+
+    def test_unknown_mime_type_evaluates_true_for_any_glob(self):
+        self._aT(C.MAGIC_TYPE_UNKNOWN, '*/*')
+        self._aT(C.MAGIC_TYPE_UNKNOWN, ['*/*'])
+        self._aT(C.MAGIC_TYPE_UNKNOWN, ['*/*', '*/jpeg'])
+
+    def test_unknown_mime_type_evaluates_false(self):
+        self._aF(C.MAGIC_TYPE_UNKNOWN, 'image/jpeg')
+        self._aF(C.MAGIC_TYPE_UNKNOWN, ['image/jpeg'])
+        self._aF(C.MAGIC_TYPE_UNKNOWN, ['application/*', '*/jpeg'])
+
+
 class TestWhichExecutable(TestCase):
     def test_returns_true_for_executable_commands(self):
         self.assertTrue(util.is_executable('python'))
@@ -509,16 +660,3 @@ class TestFilterNone(TestCase):
         self._assert_filters(['a', None, 'b', 'c'], ['a', 'b', 'c'])
         self._assert_filters(['a', None, 'b', None, 'c'], ['a', 'b', 'c'])
         self._assert_filters(['a', None, 'b', None, 'c', None], ['a', 'b', 'c'])
-
-
-class TestGitCommitHash(TestCase):
-    def test_returns_expected_type(self):
-        actual = util.git_commit_hash()
-        self.assertTrue(uu.is_internalstring(actual))
-
-    def test_resets_curdir(self):
-        curdir_before = os.path.curdir
-        _ = util.git_commit_hash()
-        curdir_after = os.path.curdir
-
-        self.assertEqual(curdir_before, curdir_after)

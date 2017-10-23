@@ -29,7 +29,7 @@ from core import (
     util
 )
 from core.config import field_parsers
-from core.model import MeowURI
+from core.meowuri import MeowURI
 from core.namebuilder import fields
 from core.util import sanity
 
@@ -100,6 +100,7 @@ class RuleCondition(object):
             raise ValueError('The condition first needs a valid "meowURI" in '
                              'order to validate an expression')
 
+        # TODO: [TD0105] Integrate the `MeowURI` class.
         # TODO: [TD0089] Validate only "generic" metadata fields ..
         # TODO: Check if the "MeowURI" is "generic", only validate if it is.
         #       Skip validation of source-specific MeowURIs for now.
@@ -113,7 +114,6 @@ class RuleCondition(object):
 
         valid_expression = self._validate_expression(raw_expression)
         if valid_expression:
-            log.debug('Validated expression: "{!s}"'.format(raw_expression))
             self._expression = raw_expression
         else:
             raise ValueError(
@@ -129,7 +129,7 @@ class RuleCondition(object):
 
     def _validate_expression(self, raw_expression):
         if self._parser.validate(raw_expression):
-            return True
+            return raw_expression
         else:
             return False
 
@@ -189,6 +189,17 @@ class Rule(object):
     Represents a single rule entry in a loaded configuration.
 
     All data validation happens at 'Rule' init or when setting any attribute.
+
+    Rules are prioritized and sorted by both "score" and "weight".
+
+    - score         Represents how well suited a rule is for a given file.
+                    This value is changed at run-time.
+    - ranking_bias  If multiple rules end up with an equal score, weights are
+                    used to further prioritize as to get a single "winning"
+                    rule. This value is specified in the active configuration.
+
+    Which gives a "normalized" decimal number between 0 and 1 that indicates
+    the ratio of satisfied to unsatisfied conditions.
     """
     def __init__(self, description, exact_match, ranking_bias, name_template,
                  conditions, data_sources):
@@ -329,24 +340,19 @@ class Rule(object):
             If the rule does not require an exact match:
                 True
         """
-        if self.description:
-            _desc = '{} :: '.format(self.description)
-        else:
-            _desc = ''
-
         # Pass if exact match isn't required.
         if not self.exact_match:
-            log.debug('{}Exact match not required'.format(_desc))
+            log.debug('Exact match not required')
             return True
 
         for condition in self.conditions:
             if not self._evaluate_condition(condition, data_query_function):
-                log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
-                log.debug('{}Exact match FAILED!'.format(_desc))
+                log.debug('Condition FAILED: "{!s}"'.format(condition))
+                log.debug('Exact match FAILED!')
                 return False
             else:
-                log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
-        log.debug('{}Exact match PASSED!'.format(_desc))
+                log.debug('Condition PASSED: "{!s}"'.format(condition))
+        log.debug('Exact match PASSED!')
         return True
 
     def number_conditions_met(self, data_query_function):
@@ -362,18 +368,13 @@ class Rule(object):
         sanity.check(self.conditions and len(self.conditions) > 0,
                      'Rule.conditions is missing or empty')
 
-        if self.description:
-            _desc = '{} :: '.format(self.description)
-        else:
-            _desc = ''
-
         _count_met_conditions = 0
         for condition in self.conditions:
             if self._evaluate_condition(condition, data_query_function):
-                log.debug('{}Condition PASSED: "{!s}"'.format(_desc, condition))
+                log.debug('Condition PASSED: "{!s}"'.format(condition))
                 _count_met_conditions += 1
             else:
-                log.debug('{}Condition FAILED: "{!s}"'.format(_desc, condition))
+                log.debug('Condition FAILED: "{!s}"'.format(condition))
 
         return _count_met_conditions
 
@@ -387,6 +388,8 @@ class Rule(object):
         return condition.evaluate(data)
 
     def __str__(self):
+        # TODO: [TD0039] Do not include the rule attribute `score` when
+        #       listing the configuration with `--dump-config`.
         return util.dump(self.__dict__)
 
     def __repr__(self):

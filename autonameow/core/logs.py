@@ -24,12 +24,12 @@ import logging
 from core.ui import cli
 
 
-def init_logging(opts):
+def init_logging(args):
     """
     Configures the log format and logging settings.
 
     Args:
-        opts: Dictionary of program options.
+        args: Parsed option arguments as type 'argparse.NameSpace'.
     """
     # NOTE(jonas): This is probably a bad idea, but seems to work good enough.
     # TODO: [hardcoded] Remove spaces after labels, used for alignment.
@@ -56,19 +56,19 @@ def init_logging(opts):
     #       enabled with '-v' and '-vvv', respectively.
 
     _colored_timestamp = cli.colorize('%(asctime)s', style='DIM')
-    if opts.get('debug'):
+    if args.debug:
         fmt = (
             _colored_timestamp
             + ' %(levelname)s %(name)-25.25s %(funcName)-20.20s  %(message)s'
         )
         logging.basicConfig(level=logging.DEBUG, format=fmt,
                             datefmt='%Y-%m-%d %H:%M:%S')
-    elif opts.get('verbose'):
+    elif args.verbose:
         fmt = (_colored_timestamp
                + ' %(levelname)s %(message)s')
         logging.basicConfig(level=logging.INFO, format=fmt,
                             datefmt='%Y-%m-%d %H:%M:%S')
-    elif opts.get('quiet'):
+    elif args.quiet:
         fmt = '%(levelname)s %(message)s'
         logging.basicConfig(level=logging.CRITICAL, format=fmt)
     else:

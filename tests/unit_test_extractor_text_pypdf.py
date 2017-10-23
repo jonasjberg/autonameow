@@ -30,12 +30,8 @@ import unit_utils as uu
 unmet_dependencies = PyPDFTextExtractor.check_dependencies() is False
 dependency_error = 'Extractor dependencies not satisfied'
 
-TESTFILE_GMAIL_PATH = util.enc.normpath(
-    uu.abspath_testfile('gmail.pdf')
-)
-TESTFILE_SIMPLEST_PATH = util.enc.normpath(
-    uu.abspath_testfile('simplest_pdf.md.pdf')
-)
+TESTFILE_GMAIL_PATH = util.normpath(uu.abspath_testfile('gmail.pdf'))
+TESTFILE_SIMPLEST_PATH = util.normpath(uu.abspath_testfile('simplest_pdf.md.pdf'))
 TESTFILE_GMAIL_TEXT = '''1/11/2016
 
 Gmail - Välkommen till kursen Introduktion till Linux och små nätverk!

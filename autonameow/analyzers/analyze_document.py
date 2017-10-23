@@ -22,12 +22,14 @@
 import re
 
 from analyzers import BaseAnalyzer
-from core import types
+from core import (
+    model,
+    types
+)
 from core.model import (
     ExtractedData,
     WeightedMapping
 )
-from core.model import genericfields as gf
 from core.namebuilder import fields
 from core.util import (
     dateandtime,
@@ -167,7 +169,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            generic_field=gf.GenericPublisher
+            generic_field=model.GenericPublisher
         )(data)
 
     def _wrap_generic_title(self, data, probability):
@@ -176,7 +178,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Title, probability=probability),
             ],
-            generic_field=gf.GenericTitle
+            generic_field=model.GenericTitle
         )(data)
 
     def _get_datetime_from_text(self):
@@ -201,7 +203,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                     WeightedMapping(fields.DateTime, probability=0.25),
                     WeightedMapping(fields.Date, probability=0.25)
                 ],
-                generic_field=gf.GenericDateCreated
+                generic_field=model.GenericDateCreated
             )
 
             sanity.check_isinstance(dt_regex, list)
@@ -217,7 +219,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.DateTime, probability=0.1),
                 WeightedMapping(fields.Date, probability=0.1)
             ],
-            generic_field=gf.GenericDateCreated
+            generic_field=model.GenericDateCreated
         )
         matches = 0
         text_split = text.split('\n')

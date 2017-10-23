@@ -23,22 +23,20 @@ import logging
 
 import extractors
 from core import repository
-from core.exceptions import InvalidMeowURIError
-from core.model import MeowURI
 from extractors import ExtractorError
 
 
 log = logging.getLogger(__name__)
 
 
-def collect_results(fileobject, meowuri_prefix, data):
+def collect_results(fileobject, meowuri, data):
     """
     Collects extractor data, passes it the the session repository.
 
     Args:
-        fileobject: Instance of 'FileObject' that produced the data to add.
-        meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
-        data: The data to add, as any type or container.
+        fileobject: File that produced the data to add.
+        meowuri: Label that uniquely identifies the data.
+        data: The data to add.
     """
     # TODO: [TD0106] Fix inconsistencies in results passed back by extractors.
     if not isinstance(data, dict):
@@ -47,24 +45,11 @@ def collect_results(fileobject, meowuri_prefix, data):
         log.debug('[TD0106] Data contents: {!s}'.format(data))
 
     if isinstance(data, dict):
-        for _uri_leaf, _data in data.items():
-            try:
-                _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
-            except InvalidMeowURIError as e:
-                log.critical(
-                    'Got invalid MeowURI from extractor -- !{!s}"'.format(e)
-                )
-                continue
-            repository.SessionRepository.store(fileobject, _meowuri, _data)
+        for _key, _data in data.items():
+            _uri = '{}.{!s}'.format(meowuri, _key)
+            repository.SessionRepository.store(fileobject, _uri, _data)
     else:
-        try:
-            _meowuri = MeowURI(meowuri_prefix)
-        except InvalidMeowURIError as e:
-            log.critical(
-                'Got invalid MeowURI from extractor -- !{!s}"'.format(e)
-            )
-            return
-        repository.SessionRepository.store(fileobject, _meowuri, data)
+        repository.SessionRepository.store(fileobject, meowuri, data)
 
 
 def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
@@ -106,7 +91,7 @@ def start(fileobject,
     """
     Starts extracting data for a given 'fileobject'.
     """
-    log.debug(' Extraction Started '.center(80, '='))
+    log.debug('Started data extraction')
 
     if require_extractors:
         required_extractors = require_extractors
@@ -143,5 +128,3 @@ def start(fileobject,
         else:
             _meowuri_prefix = klass.meowuri_prefix()
             collect_results(fileobject, _meowuri_prefix, _results)
-
-    log.debug(' Extraction Completed '.center(80, '='))

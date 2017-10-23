@@ -20,12 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
+import unit_utils as uu
 
 import analyzers
 from core import analysis
-import unit_utils as uu
-import unit_utils_constants as uuconst
-from core.exceptions import AWAssertionError
 
 
 class TestAnalysis(TestCase):
@@ -35,14 +33,12 @@ class TestAnalysis(TestCase):
         uu.init_session_repository()
 
     def test_analysis_start_requires_fileobject_argument(self):
-        for _bad_arg in [None, 'foo', object()]:
-            with self.assertRaises(AWAssertionError):
-                analysis.start(_bad_arg, self.config)
+        with self.assertRaises(TypeError):
+            analysis.start(None, self.config)
 
     def test_analysis_start_requires_config_argument(self):
-        for _bad_arg in [None, 'foo', object()]:
-            with self.assertRaises(AWAssertionError):
-                analysis.start(self.fo, _bad_arg)
+        with self.assertRaises(TypeError):
+            analysis.start(self.fo, None)
 
     def test__instantiate_analyzers_returns_expected_type(self):
         analyzer_classes = analyzers.get_analyzer_classes()
@@ -56,11 +52,8 @@ class TestAnalysis(TestCase):
             self.assertTrue(issubclass(ac.__class__, analyzers.BaseAnalyzer))
 
     def test_collects_valid_results(self):
-        analysis.collect_results(
-            self.fo,
-            uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
-            'image/jpeg'
-        )
+        analysis.collect_results(self.fo, 'filesystem.contents.mime_type',
+                                 'image/jpeg')
 
 
 class TestAnalysisRunQueue(TestCase):

@@ -1,20 +1,10 @@
-`autonameow`
-============
-*Copyright(c) 2016-2017 Jonas Sjöberg*  
-<https://github.com/jonasjberg/autonameow>  
-<http://www.jonasjberg.com>  
+Notes on Configuration File Rule Conditions
+===========================================
+Jonas Sjöberg, 2017-06-27.  
 
---------------------------------------------------------------------------------
-
-Rule Conditions
-===============
-Notes on Conditions in the Rules defined in the Configuration.
-
-#### Revisions
-* 2017-06-27 --- `jonasjberg` Initial
-* 2017-06-28 --- `jonasjberg` Added alternative "flat" config syntax
-* 2017-06-30 --- `jonasjberg` The "flattened" config syntax is now default.
-* 2017-09-23 --- `jonasjberg` Merged with `2017-07-07_raw-conditions.md`
+* Revised 2017-06-28 -- Added alternative "flat" configuration syntax.
+* Revised 2017-06-30 -- The "flattened" configuration syntax is now default.
+* Revised 2017-09-23 -- Merged with `2017-07-07_raw-conditions.md`
 
 
 Current format for a file rule in the configuration file:

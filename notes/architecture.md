@@ -1,19 +1,9 @@
-`autonameow`
-============
-*Copyright(c) 2016-2017 Jonas Sjöberg*  
-<https://github.com/jonasjberg/autonameow>  
-<http://www.jonasjberg.com>  
+Notes on High-Level Architecture
+================================
+Written 2017-08-17 by Jonas Sjöberg
 
---------------------------------------------------------------------------------
-
-Software Architecture
-=====================
-Notes on the High-Level Architecture of `autonameow`
-
-#### Revisions
-* 2017-08-17 --- `jonasjberg` Initial
-* 2017-09-22 --- `jonasjberg` Added notes from `ideas.md`
-* 2017-09-23 --- `jonasjberg` Merged with `2017-06-15_architecture.md`
+* Revised 2017-09-22 -- Added notes from `ideas.md`
+* Revised 2017-09-23 -- Merged with `2017-06-15_architecture.md`
 
 
 Modular Design

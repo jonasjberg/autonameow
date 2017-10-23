@@ -34,13 +34,14 @@ except ImportError:
     Image = None
 
 from core import (
-    persistence,
+    cache,
     util
 )
 from core.util import (
     sanity,
     textutils
 )
+
 from extractors import ExtractorError
 from extractors.text.common import (
     AbstractTextExtractor,
@@ -48,6 +49,7 @@ from extractors.text.common import (
 )
 
 
+CACHE_KEY = 'text'
 TESSERACT_COMMAND = 'tesseract'
 
 
@@ -58,18 +60,37 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(TesseractOCRTextExtractor, self).__init__()
 
-        _cache = persistence.get_cache(str(self))
+        self._cached_text = {}
+
+        _cache = cache.get_cache(str(self))
         if _cache:
             self.cache = _cache
+            try:
+                self._cached_text = self.cache.get(CACHE_KEY)
+            except (KeyError, cache.CacheError):
+                pass
         else:
             self.cache = None
 
+    def _cache_read(self, fileobject):
+        if fileobject in self._cached_text:
+            return self._cached_text.get(fileobject)
+        return None
+
+    def _cache_write(self):
+        if not self.cache:
+            return
+
+        try:
+            self.cache.set(CACHE_KEY, self._cached_text)
+        except cache.CacheError:
+            pass
+
     def _get_text(self, fileobject):
-        if self.cache:
-            _cached = self.cache.get(fileobject)
-            if _cached is not None:
-                self.log.info('Using cached text for: {!r}'.format(fileobject))
-                return _cached
+        _cached = self._cache_read(fileobject)
+        if _cached is not None:
+            self.log.info('Using cached text for: {!r}'.format(fileobject))
+            return _cached
 
         # NOTE: Tesseract behaviour will likely need tweaking depending
         #       on the image contents. Will need to pass "tesseract_args"
@@ -78,7 +99,7 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         tesseract_args = None
 
         self.log.debug('Calling tesseract; ARGS: "{!s}" FILE: "{!s}"'.format(
-            tesseract_args, util.enc.displayable_path(fileobject.abspath)
+            tesseract_args, util.displayable_path(fileobject.abspath)
         ))
         result = get_text_from_ocr(fileobject.abspath,
                                    tesseract_args=tesseract_args)
@@ -90,8 +111,8 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         text = textutils.normalize_unicode(text)
         text = textutils.remove_nonbreaking_spaces(text)
         if text:
-            if self.cache:
-                self.cache.set(fileobject, text)
+            self._cached_text.update({fileobject: text})
+            self._cache_write()
             return text
         else:
             return ''
@@ -143,7 +164,7 @@ def get_text_from_ocr(image_path, tesseract_args=None):
     #
     # def get_errors(error_string):
     #     lines = error_string.splitlines()
-    #     lines = [util.enc.decode_(line) for line in lines]
+    #     lines = [util.decode_(line) for line in lines]
     #     error_lines = tuple(line for line in lines if line.find('Error') >= 0)
 
     try:
@@ -200,7 +221,7 @@ def get_errors(error_string):
     Returns all lines in the error_string that start with the string "error".
     """
     lines = error_string.splitlines()
-    lines = [util.enc.decode_(line) for line in lines]
+    lines = [util.decode_(line) for line in lines]
     error_lines = tuple(line for line in lines if line.find('Error') >= 0)
     if len(error_lines) > 0:
         return '\n'.join(error_lines)

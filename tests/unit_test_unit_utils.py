@@ -31,10 +31,7 @@ from core import util
 from core.config import rules
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
-from core.model import (
-    ExtractedData,
-    MeowURI
-)
+from core.model import ExtractedData
 
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -183,8 +180,8 @@ class TestUnitUtilityDirExists(TestCase):
             uuconst.AUTONAMEOW_SRCROOT_DIR,
             '/',
             b'/',
-            util.enc.bytestring_path(os.path.dirname(__file__)),
-            util.enc.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
+            util.bytestring_path(os.path.dirname(__file__)),
+            util.bytestring_path(uuconst.AUTONAMEOW_SRCROOT_DIR)
         ]
         for df in _files:
             self._check_return(df)
@@ -229,8 +226,8 @@ class TestUnitUtilityPathIsReadable(TestCase):
         _paths = [
             __file__,
             os.path.dirname(__file__),
-            util.enc.bytestring_path(__file__),
-            util.enc.bytestring_path(os.path.dirname(__file__)),
+            util.bytestring_path(__file__),
+            util.bytestring_path(os.path.dirname(__file__)),
         ]
         for df in _paths:
             self._check_return(df)
@@ -600,12 +597,3 @@ class TestGetDefaultConfig(TestCase):
 
         actual = uu.get_default_config()
         self.assertTrue(isinstance(actual, Configuration))
-
-
-class TestAsMeowURI(TestCase):
-    def test_returns_meowuri_instance_from_unit_utils_constants_strings(self):
-        expect = MeowURI(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-        actual = uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
-
-        self.assertEqual(actual, expect)
-        self.assertTrue(isinstance(actual, MeowURI))

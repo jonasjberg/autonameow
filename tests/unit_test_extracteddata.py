@@ -64,33 +64,3 @@ class TestExtractedData(TestCase):
             ])
 
         self.assertIsNotNone(m)
-
-    def test_from_raw(self):
-        e = ExtractedData(
-            coercer=types.AW_STRING,
-        )
-
-        expect = 'foo'
-        d = ExtractedData.from_raw(e, expect)
-        self.assertEqual(d.value, expect)
-
-    def test_from_raw_multivalued(self):
-        e = ExtractedData(
-            coercer=types.AW_STRING,
-            multivalued=True
-        )
-
-        expect = ['foo', 'bar']
-        d = ExtractedData.from_raw(e, expect)
-        self.assertEqual(d.value, expect)
-
-    def test_from_raw_multivalued_coercion(self):
-        e = ExtractedData(
-            coercer=types.AW_STRING,
-            multivalued=True
-        )
-
-        given = [1, 1.337]
-        expect = ['1', '1.337']
-        d = ExtractedData.from_raw(e, given)
-        self.assertEqual(d.value, expect)

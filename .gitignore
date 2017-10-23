@@ -262,7 +262,6 @@ docs/test_results/.unittestlog.toreport
 # Documentation
 # *.pdf
 docs/test_results/*.raw
-notes/*.md.html
 
 # Backup-files created by '2to3'
 *.bak
@@ -273,4 +272,4 @@ notes/*.md.html
 junk
 
 # API keys
-autonameow/plugins/*.key
+autonameow/plugins/microsoft_vision.key

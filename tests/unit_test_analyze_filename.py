@@ -27,6 +27,7 @@ from analyzers.analyze_filename import (
     FilenameAnalyzer,
     FilenameTokenizer,
     SubstringFinder,
+    find_edition,
     likely_extension
 )
 from core.namebuilder import fields
@@ -126,53 +127,51 @@ class TestLikelyExtension(TestCase):
             self.assertEqual(actual, expect.expected, _m)
 
 
-class TestFileNameAnalyzerWithEbook(TestCase):
-    def _mock_request_data(self, fileobject, meowuri):
-        from core import types
-        from core.model import ExtractedData
+class TestFindEdition(TestCase):
+    def test_returns_expected_edition(self):
+        def _aE(test_input, expected):
+            self.assertEqual(find_edition(test_input), expected)
 
-        if fileobject.filename == b'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi':
-            if meowuri == 'extractor.filesystem.xplat.basename.prefix':
-                return ExtractedData(
-                    coercer=types.AW_PATHCOMPONENT
-                )(b'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition')
+        _aE('1st', 1)
+        _aE('2nd', 2)
+        _aE('3rd', 3)
+        _aE('4th', 4)
+        _aE('5th', 5)
+        _aE('6th', 6)
+        _aE('1 1st', 1)
+        _aE('1 2nd', 2)
+        _aE('1 3rd', 3)
+        _aE('1 4th', 4)
+        _aE('1 5th', 5)
+        _aE('1 6th', 6)
+        _aE('1 1st 2', 1)
+        _aE('1 2nd 2', 2)
+        _aE('1 3rd 2', 3)
+        _aE('1 4th 2', 4)
+        _aE('1 5th 2', 5)
+        _aE('1 6th 2', 6)
+        _aE('Foo, Bar - Baz._5th', 5)
+        _aE('Foo,Bar-_Baz_-_3ed_2002', 3)
+        _aE('Foo,Bar-_Baz_-_4ed_2003', 4)
+        _aE('Embedded_Systems_6th_.2011', 6)
+        _aE('Networking_4th', 4)
+        _aE('Foo 2E - Bar B. 2001', 2)
+        _aE('Third Edition', 3)
+        _aE('Bar 5e - Baz._', 5)
+        _aE('Bar 5 e - Baz._', 5)
+        _aE('Bar 5ed - Baz._', 5)
+        _aE('Bar 5 ed - Baz._', 5)
+        _aE('Bar 5th - Baz._', 5)
+        _aE('Bar 5th ed - Baz._', 5)
+        _aE('Bar 5th edition - Baz._', 5)
+        _aE('Bar fifth e - Baz._', 5)
+        _aE('Bar fifth ed - Baz._', 5)
+        _aE('Bar fifth edition - Baz._', 5)
 
-    def setUp(self):
-        fo = uu.fileobject_testfile(
-            'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi'
-        )
-        self.a = FilenameAnalyzer(
-            fo,
-            config=uu.get_default_config(),
-            add_results_callback=uu.mock_analyzer_collect_data,
-            request_data_callback=self._mock_request_data
-        )
-
-        # TODO: This breaks due to FileObject equality check in '__hash__'
-        #       includes the absolute path, which is different across platforms.
-        # TODO: Pickled repository state does not work well!
-
-        # uu.load_repository_dump(
-        #     uu.abspath_testfile('repository_Darwin-mobi.state')
-        # )
-
-    def test_get_edition(self):
-        actual = self.a.get_edition()
-        actual = actual.value
-        expected = 6
-        self.assertEqual(actual, expected)
-
-    def test_get_datetime(self):
-        actual = self.a.get_datetime()
-        expected = None
-        self.assertEqual(actual, expected)
-
-    def test_get_title(self):
-        self.skipTest('TODO: Implement finding titles in file names ..')
-
-        actual = self.a.get_title().value
-        expected = 'On the Origin of Species'
-        self.assertEqual(actual, expected)
+    def test_returns_none_for_unavailable_editions(self):
+        self.assertIsNone(find_edition('Foo, Bar - Baz._'))
+        self.assertIsNone(find_edition('Foo, Bar 5 - Baz._'))
+        self.assertIsNone(find_edition('Foo, Bar 5s - Baz._'))
 
 
 class TestIdentifyFields(TestCase):
@@ -180,7 +179,7 @@ class TestIdentifyFields(TestCase):
         f = SubstringFinder()
 
         def _assert_splits(test_data, expected):
-            actual = f.substrings(test_data)
+            actual = f._substrings(test_data)
             self.assertEqual(actual, expected)
 
         _assert_splits('a', ['a'])
@@ -188,17 +187,6 @@ class TestIdentifyFields(TestCase):
         _assert_splits('a b ', ['a', 'b'])
         _assert_splits(' a b ', ['a', 'b'])
         _assert_splits('a b a', ['a', 'b', 'a'])
-
-        _assert_splits('a-b', ['a', 'b'])
-        _assert_splits('a-b c', ['a-b', 'c'])
-        _assert_splits('a b-c', ['a', 'b-c'])
-        _assert_splits(' a-b ', ['a-b'])
-        _assert_splits('a_b_a', ['a', 'b', 'a'])
-
-        _assert_splits('TheBeatles - PaperbackWriter',
-                       ['TheBeatles', '-', 'PaperbackWriter'])
-        _assert_splits('TheBeatles PaperbackWriter',
-                       ['TheBeatles', 'PaperbackWriter'])
 
     def test_identifies_fields(self):
         self.skipTest('TODO: ..')
@@ -235,128 +223,42 @@ class TestIdentifyFields(TestCase):
         #                                 'flac']
 
 
-class TestFilenameTokenizerSeparators(TestCase):
-    def _t(self, filename, separators, main_separator):
-        tokenizer = FilenameTokenizer(filename)
-        self.assertEqual(sorted(tokenizer.separators), sorted(separators))
-        self.assertEqual(tokenizer.main_separator, main_separator)
-        tokenizer = None
+class TestFilenameTokenizer(TestCase):
+    def _t(self, filename, expected):
+        self.tokenizer = FilenameTokenizer(filename)
+        actual = self.tokenizer.separators
+        self.assertEqual(sorted(actual), sorted(expected))
 
     def test_find_separators_all_periods(self):
         self._t(
             filename='foo.bar.1234.baz',
-            separators=[('.', 3)],
-            main_separator='.'
+            expected=[('.', 3)]
         )
 
     def test_find_separators_periods_and_brackets(self):
         self._t(
             filename='foo.bar.[1234].baz',
-            separators=[('.', 3), ('[', 1), (']', 1)],
-            main_separator='.'
+            expected=[('.', 3), ('[', 1), (']', 1)]
         )
 
     def test_find_separators_underlines(self):
+        self.skipTest('TODO: ..')
+
         self._t(
             filename='foo_bar_1234_baz',
-            separators=[('_', 3)],
-            main_separator='_'
+            expected=[('_', 3)]
         )
 
     def test_find_separators_dashes(self):
         self._t(
             filename='foo-bar-1234-baz',
-            separators=[('-', 3)],
-            main_separator='-'
-        )
-
-    def test_find_separators_spaces(self):
-        self._t(
-            filename='foo bar 1234 baz',
-            separators=[(' ', 3)],
-            main_separator=' '
+            expected=[('-', 3)]
         )
 
     def test_find_separators_underlines_and_dashes(self):
+        self.skipTest('TODO: ..')
+
         self._t(
             filename='foo-bar_1234_baz',
-            separators=[('_', 2), ('-', 1)],
-            main_separator='_'
+            expected=[('_', 2), ('-', 1)]
         )
-
-    def test_find_separators_darwin(self):
-        self._t(
-            filename='Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi',
-            separators=[(' ', 9), ('-', 1), ('%', 1)],
-            main_separator=' '
-        )
-
-    def test_find_separators_html_encoded(self):
-        self._t(
-            filename='A%20Quick%20Introduction%20to%20IFF.txt',
-            separators=[(' ', 4), ('.', 1)],
-            main_separator=' '
-        )
-
-    def test_find_main_separator(self):
-        def _aE(filename, main_separator):
-            tokenizer = FilenameTokenizer(filename)
-            self.assertEqual(tokenizer.main_separator, main_separator)
-            tokenizer = None
-
-        _aE('a b', ' ')
-        _aE('a-b-c_d', '-')
-        _aE('a-b', '-')
-        _aE('a_b', '_')
-        _aE('a--b', '-')
-        _aE('a__b', '_')
-
-        _aE('a b', ' ')
-        _aE('shell-scripts.github', '-')
-        _aE('Unison-OS-X-2.48.15.zip', '-')
-
-        # TODO: Are we looking for field- or word-separators..? (!?)
-        _aE('2012-02-18-14-18_Untitled-meeting.log', '-')
-
-    def test_resolve_tied_counts(self):
-        assume_preferred_separator = '_'
-
-        def _aE(filename, main_separator):
-            tokenizer = FilenameTokenizer(filename)
-            self.assertEqual(tokenizer.main_separator, main_separator)
-            tokenizer = None
-
-        _aE('a-b c', ' ')
-        _aE('a_b c', ' ')
-        _aE('-a b', ' ')
-        _aE('_a b', ' ')
-        _aE('a-b c_d', ' ')
-        _aE('a_b c-d', ' ')
-        _aE('-a b_d', ' ')
-        _aE('_a b-d', ' ')
-
-        _aE('a-b_c', assume_preferred_separator)
-        _aE('a_b-c', assume_preferred_separator)
-        _aE('a_-b', assume_preferred_separator)
-        _aE('a-_b', assume_preferred_separator)
-        _aE('a-b_c-d_e', assume_preferred_separator)
-        _aE('a_b-c_d-e', assume_preferred_separator)
-        _aE('a_-b-_c', assume_preferred_separator)
-        _aE('a-_b_-c', assume_preferred_separator)
-
-        _aE('a-_b', assume_preferred_separator)
-        _aE('a_-b', assume_preferred_separator)
-
-
-class TestFilenameTokenizerTokens(TestCase):
-    def _t(self, filename, tokens):
-        tokenizer = FilenameTokenizer(filename)
-        self.assertEqual(tokenizer.tokens, tokens)
-
-    def test_only_spaces(self):
-        self._t(filename='foo bar 1234 baz',
-                tokens=['foo', 'bar', '1234', 'baz'])
-
-    def test_html_encoded(self):
-        self._t(filename='A%20Quick%20Introduction%20to%20IFF.txt',
-                tokens=['A', 'Quick', 'Introduction', 'to', 'IFF.txt'])
