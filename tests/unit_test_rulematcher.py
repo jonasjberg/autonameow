@@ -21,7 +21,6 @@
 
 from unittest import TestCase
 
-import unit_utils as uu
 from core.config.configuration import Configuration
 from core.config import DEFAULT_CONFIG
 from core.evaluate.rulematcher import (
@@ -29,6 +28,8 @@ from core.evaluate.rulematcher import (
     prioritize_rules,
 )
 from core import constants as C
+import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 uu.init_session_repository()
@@ -60,32 +61,34 @@ class TestRuleMatcherDataQueryWithAllDataAvailable(TestCase):
     def test_query_data_returns_something(self):
         self.skipTest('TODO: Fix broken unit tests')
         self.assertIsNotNone(
-            self.rm.request_data('analysis.filename_analyzer.tags')
+            self.rm.request_data(uuconst.MEOWURI_AZR_FILENAME_TAGS)
         )
         self.assertIsNotNone(
-            self.rm.request_data('filesystem.contents.mime_type')
+            self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         )
 
     def test_querying_available_data_returns_expected_type(self):
         self.skipTest('TODO: Fix broken unit tests')
         self.assertTrue(
-            isinstance(self.rm.request_data('analysis.filename_analyzer.tags'),
+            isinstance(self.rm.request_data(uuconst.MEOWURI_AZR_FILENAME_TAGS),
                        list)
         )
         self.assertTrue(
-            isinstance(self.rm.request_data('filesystem.contents.mime_type'),
+            isinstance(self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
                        str)
         )
 
     def test_querying_available_data_returns_expected(self):
         self.skipTest('TODO: Fix broken unit tests')
-        actual_result = self.rm.request_data('analysis.filename_analyzer.tags')
+        actual_result = self.rm.request_data(uuconst.MEOWURI_AZR_FILENAME_TAGS)
         actual_tags = actual_result[0].get('value', [])
         expected_tags = ['tagfoo', 'tagbar']
         self.assertEqual(expected_tags, actual_tags)
 
-        self.assertEqual(self.rm.request_data('filesystem.contents.mime_type'),
-                         'application/pdf')
+        self.assertEqual(
+            self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
+            'application/pdf'
+        )
 
 
 class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
@@ -95,19 +98,19 @@ class TestRuleMatcherDataQueryWithSomeDataUnavailable(TestCase):
 
     def test_querying_unavailable_data_returns_false(self):
         self.assertFalse(
-            self.rm.request_data('analysis.filename_analyzer.publisher')
+            self.rm.request_data(uuconst.MEOWURI_AZR_FILENAME_PUBLISHER)
         )
 
     def test_querying_available_data_returns_expected_type(self):
         self.skipTest('TODO: Fix broken unit tests')
         self.assertTrue(
-            isinstance(self.rm.request_data('filesystem.contents.mime_type'),
+            isinstance(self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE),
                        str)
         )
 
     def test_querying_available_data_returns_expected(self):
         self.skipTest('TODO: Fix broken unit tests')
-        actual = self.rm.request_data('filesystem.contents.mime_type')
+        actual = self.rm.request_data(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
         self.assertEqual(actual, 'application/pdf')
 
 
@@ -154,7 +157,7 @@ class TestPrioritizeRules(TestCase):
         s_a = {'score': 1, 'weight': 0.1}
         r_b = DummyRule(exact_match=False)
         s_b = {'score': 3, 'weight': 0.0}
-        expected = [r_b, r_a]
+        expected = [r_a, r_b]
         actual = prioritize_rules({r_a: s_a, r_b: s_b})
         self.assertListEqual(actual, expected)
 

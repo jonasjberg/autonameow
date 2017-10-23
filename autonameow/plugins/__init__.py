@@ -26,6 +26,7 @@ import sys
 
 from .common import BasePlugin
 
+
 # Plugins are assumed to be located in the same directory as this file.
 AUTONAMEOW_PLUGIN_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_PLUGIN_PATH)
@@ -105,6 +106,9 @@ def map_meowuri_to_plugins():
     for klass in UsablePlugins:
         _meowuri = klass.meowuri_prefix()
         if not _meowuri:
+            log.error(
+                'Got None from "{!s}.meowuri_prefix()"'.format(klass.__name__)
+            )
             continue
 
         if _meowuri in out:

@@ -19,8 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from core import constants as C
+from core.model import MeowURI
 
 
 # Original Dublin Core Metadata Element Set Version 1.1
@@ -50,9 +50,10 @@ class GenericField(object):
 
     @classmethod
     def uri(cls):
-        return '{}.{}.{}'.format(cls.meowuri_root.lower(),
+        _uri = '{}.{}.{}'.format(cls.meowuri_root.lower(),
                                  cls.meowuri_node.lower(),
                                  cls.meowuri_leaf.lower())
+        return MeowURI(_uri)
 
     @classmethod
     def evaluation_function(cls):

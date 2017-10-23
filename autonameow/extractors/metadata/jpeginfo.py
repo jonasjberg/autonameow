@@ -22,9 +22,16 @@
 import re
 import subprocess
 
-from core import types, util, model
+from core import (
+    types,
+    util
+)
 from core.model import ExtractedData
-from extractors import BaseExtractor, ExtractorError
+from core.model import genericfields as gf
+from extractors import (
+    BaseExtractor,
+    ExtractorError
+)
 
 
 class JpeginfoMetadataExtractor(BaseExtractor):
@@ -69,7 +76,7 @@ class JpeginfoMetadataExtractor(BaseExtractor):
             'health': ExtractedData(
                 coercer=types.AW_FLOAT,
                 mapped_fields=None,
-                generic_field=model.GenericHealth
+                generic_field=gf.GenericHealth
             )(health),
             'is_jpeg': ExtractedData(
                 coercer=types.AW_BOOLEAN,

@@ -1,15 +1,25 @@
-Notes on "Operating Modes"
-==========================
-Jonas Sjöberg, 2017-10-01.
+`autonameow`
+============
+*Copyright(c) 2016-2017 Jonas Sjöberg*  
+<https://github.com/jonasjberg/autonameow>  
+<http://www.jonasjberg.com>  
 
-Unsorted notes on overall modes of program operation.
+--------------------------------------------------------------------------------
+
+Modes of Operation
+==================
+Unsorted notes on overall program operation and usability.
+
+#### Revisions
+* 2017-10-01 --- `jonasjberg` Initial
 
 
 Current Plans
--------------
+=============
 Help text from version `v0.4.7` (commit 870725bb6e17580d6dc4d0d3ded59c7d081):
 
 > Operating mode:
+>
 >   --automagic           Enable AUTOMAGIC MODE. Try to perform renames without
 >                         user interaction by matching the given paths against
 >                         available rules. The information provided by the
@@ -18,9 +28,11 @@ Help text from version `v0.4.7` (commit 870725bb6e17580d6dc4d0d3ded59c7d081):
 >                         resolve any uncertainties. Use the "--batch" option to
 >                         force non-interactive mode and skip paths with
 >                         unresolved queries.
+>
 >   --interactive         (DEFAULT) Enable INTERACTIVE MODE. User selects which
 >                         of the analysis results is to make up the new
 >                         filename.
+>
 >   --batch               Enable BATCH MODE. Ignores any and all queries, does
 >                         not require any user interaction. Suitable for
 >                         scripting, etc.
@@ -46,7 +58,7 @@ The plan has been the same for quite som time. High-level Goals:
 
 
 Operating Modes
----------------
+===============
 
 
 ### `--automagic`
@@ -77,5 +89,3 @@ Leave all choices to the user.
 
 * __Template Fields__ --- Ask the user which data sources (or rule containing
   data sources) to use.
-
-

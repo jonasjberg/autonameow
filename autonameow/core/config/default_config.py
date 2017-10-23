@@ -126,23 +126,30 @@ DEFAULT_CONFIG = {
         },
         # ____________________________________________________________________
         'Sample Entry for E-books': {
-            'exact_match': True,
+            'exact_match': False,
             'ranking_bias': 0.1,
             'NAME_FORMAT': 'default_book',
             'CONDITIONS': {
                 'extractor.filesystem.xplat.contents.mime_type': [
-                    'application/pdf',
                     'application/epub+zip',
                     'image/vnd.djvu',
+                    'application/pdf',
+                    'application/octet-stream',
                 ],
-                'extractor.filesystem.xplat.pathname.full': '.*book.*'
+                'extractor.filesystem.xplat.basename.extension': '(pdf|mobi)',
             },
             'DATA_SOURCES': {
                 'author': 'analyzer.ebook.author',
                 'extension': 'extractor.filesystem.xplat.contents.mime_type',
-                'date': 'analyzer.ebook.date',
-                'edition': 'analyzer.ebook.edition',
-                'publisher': 'analyzer.ebook.publisher',
+                'year': 'analyzer.ebook.date',
+                'edition': [
+                    'analyzer.ebook.edition',
+                    'analyzer.filename.edition'
+                ],
+                'publisher': [
+                    'analyzer.ebook.publisher',
+                    'analyzer.filename.publisher'
+                ],
                 'title': 'analyzer.ebook.title',
             },
         },
@@ -158,7 +165,7 @@ DEFAULT_CONFIG = {
     #
     'NAME_TEMPLATES': {
         'default_document': '{title} - {author} {datetime}.{extension}',
-        'default_book': '{publisher} {title} {edition} - {author} {date}.{extension}',
+        'default_book': '{publisher} {title} {edition} - {author} {year}.{extension}',
         'default_photo': '{datetime} {description} -- {tags}.{extension}'
     },
 
@@ -267,14 +274,14 @@ if __name__ == '__main__':
             dest_path = default_destpath()
 
         if os.path.exists(dest_path):
-            print('[ERROR] Destination exists: "{!s}”'.format(dest_path))
+            print('[ERROR] Destination exists: "{!s}"'.format(dest_path))
             sys.exit(1)
 
         try:
             write_yaml_file(dest_path, DEFAULT_CONFIG)
         except Exception as e:
             print('[ERROR] Unable to write DEFAULT_CONFIG to disk!')
-            print('Destination path: "{!s}”'.format(dest_path))
+            print('Destination path: "{!s}"'.format(dest_path))
             print(str(e))
         else:
             print('Wrote DEFAULT_CONFIG: "{}"'.format(dest_path))

@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+import os
 import sys
 
 import core
@@ -37,6 +38,14 @@ STRING_COPYRIGHT_NOTICE = str(core.version.__copyright__)
 STRING_REPO_URL = str(core.version.__url_repo__)
 
 
+_this_dir = os.path.abspath(os.path.dirname(__file__))
+_parent_dir = os.path.normpath(os.path.join(_this_dir, os.pardir))
+
+# Absolute path to the autonameow source root directory.
+# NOTE: Assumes running from source code (as per the original repository)
+AUTONAMEOW_SRCROOT_DIR = os.path.realpath(os.path.join(_parent_dir, os.pardir))
+
+
 # Color used to highlight post-processing replacements.
 REPLACEMENT_HIGHLIGHT_COLOR = 'RED'
 
@@ -51,6 +60,10 @@ ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 
 # Default MIME type string used if the MIME type detection fails.
 MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
+
+# Default file size in bytes, if the size can not be determined.
+UNKNOWN_BYTESIZE = 0
+
 
 # Default values for required configuration fields.
 DEFAULT_RULE_RANKING_BIAS = 0.5
@@ -190,6 +203,7 @@ EXIT_ERROR = 2      # Program execution halted due to irrecoverable errors.
 MEOWURI_NODE_GENERIC = 'generic'
 UNDEFINED_MEOWURI_PART = 'NULL'
 MEOWURI_SEPARATOR = '.'
+RE_ALLOWED_MEOWURI_PART_CHARS = r'[\w:-]'
 
 MEOWURI_ROOT_SOURCE_ANALYZERS = 'analyzer'
 MEOWURI_ROOT_SOURCE_EXTRACTORS = 'extractor'
@@ -206,6 +220,6 @@ MEOWURI_ROOTS = frozenset([MEOWURI_ROOT_GENERIC]).union(MEOWURI_ROOTS_SOURCES)
 
 # Persistence and paths.
 # TODO: [TD0107] FIX THIS!
-DEFAULT_CACHE_DIR_ABSPATH = b'/tmp/autonameow_cache'
+DEFAULT_PERSISTENCE_DIR_ABSPATH = b'/tmp/autonameow_cache'
 DEFAULT_HISTORY_FILE_BASENAME = b'prompt_history'
 DEFAULT_HISTORY_FILE_ABSPATH = b'/tmp/autonameow_cache/prompt_history'

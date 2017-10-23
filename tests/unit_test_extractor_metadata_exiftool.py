@@ -22,10 +22,12 @@
 import unittest
 from datetime import datetime
 
-from core import util
 from extractors import ExtractorError
 from extractors.metadata import ExiftoolMetadataExtractor
-from extractors.metadata.exiftool import _get_exiftool_data
+from extractors.metadata.exiftool import (
+    _get_exiftool_data,
+    is_bad_metadata
+)
 
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -141,3 +143,39 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
         for field, value in self.EXPECT_FIELD_VALUE:
             actual = actual_result.get(field)
             self.assertEqual(actual.value, value)
+
+
+class TestIsBadMetadata(unittest.TestCase):
+    def test_good_tags_values_return_true(self):
+        def _aT(tag, value):
+            actual = is_bad_metadata(tag, value)
+            self.assertFalse(actual)
+            self.assertTrue(isinstance(actual, bool))
+
+        _aT('File:FileName', 'gmail.pdf')
+        _aT('File:FileSize', 2702410)
+        _aT('File:FileModifyDate', '2016:08:28 10:36:30+02:00')
+        _aT('File:FileType', 'PDF')
+        _aT('XMP:Date', [1918, '2009:08:20'])
+        _aT('XMP:Subject', ['Non-Fiction', 'Human Science', 'Philosophy',
+                            'Religion', 'Science and Technics', 'Science'])
+
+    def test_bad_tags_values_return_false(self):
+        def _aF(tag, value):
+            actual = is_bad_metadata(tag, value)
+            self.assertTrue(actual)
+            self.assertTrue(isinstance(actual, bool))
+
+        _aF('PDF:Subject', 'Subject')
+        _aF('PDF:Author', 'Author')
+        _aF('PDF:Title', 'Title')
+        _aF('XMP:Author', 'Author')
+        _aF('XMP:Creator', 'Author')
+        _aF('XMP:Creator', 'Creator')
+        _aF('XMP:Description', 'Subject')
+        _aF('XMP:Description', 'Description')
+        _aF('XMP:Subject', 'Subject')
+        _aF('XMP:Title', 'Title')
+        _aF('XMP:Subject', ['Subject'])
+        _aF('XMP:Subject', ['Science', 'Subject'])
+        _aF('XMP:Subject', ['Title', 'Subject'])

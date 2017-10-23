@@ -14,7 +14,9 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
-* `[TD0105]` Integrate the `MeowURI` class.
+* `[TD0115]` __Clear up uncertainties about data multiplicities.__  
+  I.E. list of `ExtractedData` instances vs. single `ExtractedData` instance
+  that contains a list of data (`multivalued=True`).
 
 * `[TD0100]` Spec out "operating modes" and functionality requirements.
 
@@ -37,11 +39,17 @@ High Priority
 
 * `[TD0106]` Fix inconsistencies in results passed back by extractors.
 
+* `[TD0108]` Fix inconsistencies in results passed back by plugins.
+
 * `[TD0087]` Clean up messy and sometimes duplicated wrapping of "raw" data.
 
 
 Medium Priority
 ---------------
+
+* `[TD0112]` Handle merging "equivalent" data in the `Resolver`.
+
+* `[TD0111]` Add abstraction between user interaction and CLI specifics.
 
 * `[TD0107]` Get platform-specific default paths for persistent storage.
 
@@ -76,23 +84,6 @@ Medium Priority
         * Textual contents of the file matches a regular expression?
         * Some date/time-information lies within some specific range.
 
-* `[TD0017]` Rethink how specified sources are connected to actual sources.
-  Take for example the configuration rule:
-
-    ```yaml
-    RULES:
-    -   CONDITIONS:
-            contents:
-                mime_type: image/*
-            filesystem:
-                pathname: ~/Dropbox/Camera Uploads/.*
-        DATA_SOURCES:
-            extension: contents.mime_type
-    ```
-  This will fail, or *should fail* as MIME types on the form `image/jpeg`,
-  `image/png`, etc can't be used as a file extension without some
-  pre-processing -- converting `image/png` to `png`.
-
 * `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
 
 * `[TD0019]` Rework the `FilenameAnalyzer`
@@ -110,6 +101,26 @@ Medium Priority
           existing solutions poorly.
         * Look into how `guessit` does it or possibility of modifying
           `guessit` to identify custom fields.
+
+    * `[TD0110]` Improve finding probable date/time in file names.
+        * Provide a single most probable result.
+        * Rank formats: `YMD` (EU), `MDY` (US), `DMY` (parts of EU, Asia), etc.
+        * Look at any surrounding __context__ of files.
+
+            For instance, given a directory containing files:
+            ```
+            foo_08.18.17.txt
+            bar_11.04.16.txt
+            ```
+            The date components of `bar_11.04.16.txt` can not be clearly
+            determined. Many possible date formats could work.
+
+            But `foo_08.18.17.txt` can only be successfully parsed with the
+            date format `foo_MM.DD.YY`.
+            *(18 is probably not the future year 2018, but 08 might be 2008..)*
+
+            This information could be used to weight this format higher to
+            help improve the results of parsing `foo_08.18.17.txt`.
 
 * `[TD0023]` Add additional option to force non-interactive mode (`--batch`?)
 
@@ -134,6 +145,34 @@ Medium Priority
 
 Low Priority
 ------------
+
+* `[TD0114]` Improve the `EbookAnalyzer`.
+
+* `[TD0113]` Fix exceptions not being handled properly (?)
+
+* `[TD0109]` __Allow arbitrary name template placeholder fields.__  
+    It is currently difficult to use a rule similar to this:
+    ```
+    TV-series:
+        CONDITIONS:
+            extractor.filesystem.xplat.pathname.full: '/tank/media/tvseries'
+            extractor.filesystem.xplat.contents.mime_type: video/*
+        NAME_FORMAT: '{title} S{season}E{episode}.{extension}'
+        DATA_SOURCES:
+            title: plugin.guessit.title
+            season: plugin.guessit.season
+            episode: plugin.guess.episode
+            extension: extractor.filesystem.xplat.contents.mime_type
+        exact_match: true
+    ```
+
+    This rule gives the following error:
+    ```
+    [ERROR] Bad rule "TV-series"; uses invalid name template format
+    ```
+    This could be solved by either adding `{season}` and `{episode}` as new
+    template fields or by allowing arbitrary placeholder fields with some
+    simple format like `{a}`, `{b}`, etc.
 
 * `[TD0101]` __Add ability to limit sizes of persistent storage/caches.__  
   Store timestamps with stored data and remove oldest entries when exceeding
@@ -190,11 +229,6 @@ Low Priority
       intersection of the unfiltered tags and a whitelist.
     * Allow specifying allowed tags in the configuration?
     * Allow specifying mutually exclusive tags in the configuration?
-
-* `[TD0038]` Add new name format placeholder field `{year}`.
-
-* `[TD0039]` Do not include the rule attribute `score` when listing the
-  configuration with `--dump-config`.
 
 * `[TD0040]` Add assigning tags to GPS coordinates for tagging images with EXIF
   GPS data. Look into comparing coordinates with the

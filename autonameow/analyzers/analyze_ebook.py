@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import re
 
 try:
     import isbnlib
@@ -28,18 +29,22 @@ except ImportError:
 
 from analyzers import BaseAnalyzer
 from core import (
-    cache,
+    persistence,
     types,
     util,
-    model
 )
 from core.namebuilder import fields
 from core.model import (
     ExtractedData,
     WeightedMapping
 )
+from core.model import genericfields as gf
 from core.util import sanity
 from core.util.textutils import extractlines_do
+from core.util.text import (
+    find_edition,
+    RE_EDITION
+)
 
 
 log = logging.getLogger(__name__)
@@ -56,6 +61,12 @@ IGNORED_TEXTLINES = frozenset([
 ])
 
 
+RE_E_ISBN = re.compile(r'^e-ISBN.*', re.MULTILINE)
+
+
+CACHE_KEY_ISBNMETA = 'isbnlib_meta'
+
+
 class EbookAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
@@ -68,18 +79,14 @@ class EbookAnalyzer(BaseAnalyzer):
         )
 
         self.text = None
-        self._cached_isbn_metadata = {}
         self._isbn_metadata = set()
 
-        _cache = cache.get_cache(str(self))
-        if _cache:
-            self.cache = _cache
-            try:
-                self._cached_isbn_metadata = self.cache.get('isbnlib_meta')
-            except (KeyError, cache.CacheError):
-                pass
-        else:
-            self.cache = None
+        self._cached_isbn_metadata = {}
+        self.cache = persistence.get_cache(str(self))
+        if self.cache:
+            _cached_isbn_metadata = self.cache.get(CACHE_KEY_ISBNMETA)
+            if _cached_isbn_metadata:
+                self._cached_isbn_metadata = _cached_isbn_metadata
 
     def run(self):
         _maybe_text = self.request_any_textual_content()
@@ -88,8 +95,13 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self.text = _maybe_text
 
-        isbns = extractlines_do(extract_isbns_from_text, self.text,
+        # TODO: [TD0114] Check metadata for ISBNs: 'PDF:Keywords', ..
+
+        isbns = extractlines_do(find_ebook_isbns_in_text, self.text,
                                 fromline=0, toline=100)
+        if not isbns:
+            isbns = extractlines_do(extract_isbns_from_text, self.text,
+                                    fromline=0, toline=100)
         if isbns:
             isbns = filter_isbns(isbns)
             for isbn in isbns:
@@ -135,16 +147,8 @@ class EbookAnalyzer(BaseAnalyzer):
 
                 maybe_authors = _isbn_metadata.authors
                 if maybe_authors:
-                    # TODO: [TD0084] Use a "list-of-strings" coercer ..
-                    if isinstance(maybe_authors, list):
-                        for maybe_author in maybe_authors:
-                            _author = self._filter_author(maybe_author)
-                            if _author:
-                                self._add_results('author',
-                                                  self._wrap_author(_author))
-                    else:
-                        self._add_results('author',
-                                          self._wrap_author(maybe_authors))
+                    self._add_results('author',
+                                      self._wrap_authors(maybe_authors))
 
                 maybe_publisher = self._filter_publisher(
                     _isbn_metadata.publisher
@@ -170,37 +174,25 @@ class EbookAnalyzer(BaseAnalyzer):
             self.log.info(
                 'Caching metadata for ISBN: {!s}'.format(isbn)
             )
-            # Add new metadata to local cache.
+
             self._cached_isbn_metadata.update({isbn: metadata})
             if self.cache:
-                try:
-                    self.cache.set('isbnlib_meta', self._cached_isbn_metadata)
-                except cache.CacheError:
-                    pass
+                self.cache.set(CACHE_KEY_ISBNMETA, self._cached_isbn_metadata)
 
         return metadata
 
-    def _filter_author(self, raw_string):
-        try:
-            # TODO: Calling 'ExtractedData' "wraps" the value a second time!
-            string_ = types.AW_STRING(raw_string)
-        except types.AWTypeError:
+    def _wrap_authors(self, list_of_authors):
+        if not list_of_authors:
             return
-        else:
-            if not string_.strip():
-                return
 
-            # TODO: Cleanup and filter author(s)
-            return string_
-
-    def _wrap_author(self, author_string):
         return ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Author, probability=1),
             ],
-            generic_field=model.GenericAuthor
-        )(author_string)
+            generic_field=gf.GenericAuthor,
+            multivalued=True
+        )(list_of_authors)
 
     def _filter_date(self, raw_string):
         # TODO: Cleanup and filter date/year
@@ -211,13 +203,16 @@ class EbookAnalyzer(BaseAnalyzer):
             return None
 
     def _wrap_date(self, date_string):
+        if not date_string:
+            return
+
         return ExtractedData(
             coercer=types.AW_DATE,
             mapped_fields=[
                 WeightedMapping(fields.Date, probability=1),
                 WeightedMapping(fields.DateTime, probability=1),
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         )(date_string)
 
     def _filter_publisher(self, raw_string):
@@ -239,7 +234,7 @@ class EbookAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            generic_field=model.GenericPublisher
+            generic_field=gf.GenericPublisher
         )(publisher_string)
 
     def _filter_title(self, raw_string):
@@ -261,13 +256,13 @@ class EbookAnalyzer(BaseAnalyzer):
             mapped_fields=[
                 WeightedMapping(fields.Title, probability=1),
             ],
-            generic_field=model.GenericTitle
+            generic_field=gf.GenericTitle
         )(title_string)
 
     @classmethod
     def can_handle(cls, fileobject):
         try:
-            return util.eval_magic_glob(fileobject.mime_type,
+            return util.magic.eval_glob(fileobject.mime_type,
                                         cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
             log.error('Error evaluating "{!s}" MIME handling; {!s}'.format(cls,
@@ -302,6 +297,21 @@ def remove_ignored_textlines(text):
         out.append(line)
 
     return '\n'.join(out)
+
+
+def find_ebook_isbns_in_text(text):
+    sanity.check_internal_string(text)
+
+    match = RE_E_ISBN.search(text)
+    if not match:
+        return []
+
+    possible_isbns = isbnlib.get_isbnlike(match.group(0))
+    if possible_isbns:
+        return [isbnlib.get_canonical_isbn(i)
+                for i in possible_isbns if validate_isbn(i)]
+    else:
+        return []
 
 
 def extract_isbns_from_text(text):
@@ -360,7 +370,7 @@ def fetch_isbn_metadata(isbn_number):
 
 class ISBNMetadata(object):
     def __init__(self, authors=None, language=None, publisher=None,
-                 isbn10=None, isbn13=None, title=None, year=None):
+                 isbn10=None, isbn13=None, title=None, year=None, edition=None):
         self._authors = authors
         self._language = language
         self._publisher = publisher
@@ -368,6 +378,7 @@ class ISBNMetadata(object):
         self._isbn13 = isbn13
         self._title = title
         self._year = year
+        self._edition = edition
 
     @property
     def authors(self):
@@ -377,6 +388,15 @@ class ISBNMetadata(object):
     def authors(self, value):
         if value and isinstance(value, list):
             self._authors = value
+
+    @property
+    def edition(self):
+        return self._edition or '0'
+
+    @edition.setter
+    def edition(self, value):
+        if value and isinstance(value, str):
+            self._edition = value
 
     @property
     def isbn10(self):
@@ -442,6 +462,11 @@ class ISBNMetadata(object):
     @title.setter
     def title(self, value):
         if value and isinstance(value, str):
+            match = find_edition(value)
+            if match:
+                self.edition = match
+                value = re.sub(RE_EDITION, '', value)
+
             self._title = value
 
     def __eq__(self, other):

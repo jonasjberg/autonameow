@@ -74,21 +74,21 @@ class TestArgParse(TestCase):
                                    argparse.ArgumentParser))
 
     def test_parse_args_returns_expected_type(self):
-        self.assertEqual(type(options._parse_args('')), argparse.Namespace)
-        self.assertEqual(type(options._parse_args('--help')), argparse.Namespace)
+        self.assertEqual(type(options.parse_args('')), argparse.Namespace)
+        self.assertEqual(type(options.parse_args('--help')), argparse.Namespace)
 
     def test_parse_args_raises_typeerror_if_argument_missing(self):
         with self.assertRaises(TypeError):
-            options._parse_args()
+            options.parse_args()
 
     def test_parse_args_accepts_argument_help(self):
-        self.assertIsNotNone(options._parse_args('--help'))
+        self.assertIsNotNone(options.parse_args('--help'))
 
     def test_parse_args_accepts_argument_dry_run(self):
-        self.assertIsNotNone(options._parse_args('--dry-run'))
+        self.assertIsNotNone(options.parse_args('--dry-run'))
 
     def test_parse_args_accepts_argument_verbose(self):
-        self.assertIsNotNone(options._parse_args('--verbose'))
+        self.assertIsNotNone(options.parse_args('--verbose'))
 
     def test_parse_args_accepts_argument_debug(self):
-        self.assertIsNotNone(options._parse_args('--debug'))
+        self.assertIsNotNone(options.parse_args('--debug'))
