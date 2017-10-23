@@ -1,3 +1,127 @@
+2017-10-23  [autonameow v0.5.0]
+            Various bug fixes and refactoring.
+
+            NOTE: This version changes the configuration syntax ---
+                  config files written by previous version will *NOT* work!
+
+            Additions:
+            - Add datetime field '{year}'.
+              Completes TODO-list item [TD0038].
+            - Extend and improve the 'MeowURI' class.
+            - Add skipping invlaid exiftool metadata entries.
+            - Add arbitrary max limits to bruteforce searches.
+              Limit set by 'MAX_NUMBER_OF_RESULTS' in 'dateandtime.py'.
+            - Add new extractor 'EpubMetadataExtractor'.
+
+            Changes:
+            - Add sorting authors when formatting the template field.
+            - Use 'MeowURI' class functionality as per [TD0105].
+            - Add caching '__str__' in the 'MeowURI' class.
+            - Refactor unit tests.
+            - Restructure source files, module/package hierarcy.
+            - Improve parsing robustness in the 'MeowURI' class.
+              Add a lot of improvements and fixes to the 'MeowURI' class.
+              Add new stand-alone verification functions and a lot of unit
+              tests.
+
+            - Refactor main program entry point.
+              Separates the CLI-specific main entry from the "real" main entry.
+
+              Adds a new function 'real_main' that will be the _actual_ program
+              entry point.
+
+              This function is intended to be platform/interface-agnostic, in
+              that it should be called by an outer interface-specific layer;
+              like the CLI entry function 'cli_main'.
+              The passed in options are also in an internal format (dict) as to
+              not depend on any means of providing program options; argument
+              parsers, etc.
+              Default options are now defined in 'real_main' and checking
+              option combinations is also handled here.
+
+              This change also separates the 'argparse' CLI argument parsing
+              from initializing the logging system.
+
+            - Disable the 'PyPDFMetadataExtractor'.
+              PyPDF somehow overrides default warning systems. Disable for now.
+
+              It seems very difficult to disable warning messages emitted by
+              PyPDF2 due to the way the library is designed. This, combined
+              with the overall poor performance and the fact that the project
+              is currently "unmaintained in the short term", this extractor is
+              now disabled.
+
+            - Add running all plugins if using '--list-all'.
+              This works like the inclusion of "slow" extractors.
+              Plugins that are referenced in the configuration are included.
+              If any results should be displayed, as when running with the
+              '--list-all' option, all available plugins are included.
+
+            - Modify conventions for importing utility modules.
+                - Use 'import genericfields as gf'.
+
+            - Add new package 'cli'
+              Move contents out of 'core/ui/cli/__init__.py'.
+              Adds new file 'core/ui/cli/common.py'.
+
+              Moves contents of 'core/ui/cli/__init__.py' to
+              'core/ui/cli/common.py'.
+
+              This package is intended to be the interface to multiple
+              containing sub-packages that each implement different UIs.
+
+              There is currently only a command-line interface, so this
+              interface does not exist. BUT it might be good to implement the
+              interface only once another UI is added and the real use and
+              requirements are better known anyway.
+
+            - Add new package 'disk' and split up utility functions.
+            - Add sorting by MeowURIs when listing repository contents.
+            - Add partial implementation of handling coercing lists.
+            - Rework persistence and caching system.
+            - Modify rule prioritization algorithm.
+            - Wrap URIs from non-core with the 'MeowURI' class.
+              Completes [TD0105] on integrating the MeowURI class.
+
+            Fixes:
+            - Fix 'git_commit_hash()' returning errors when PWD not in source
+              root.  Adds temporarily changing the current working directory
+              before running the Git subprocess that fetches the currently
+              checked out commit.
+            - Abort when stdin/stdout is not a TTY. Fix broken tests.
+            - Fix crash due to uncaught 'PermissionError' in 'get_files_gen()'.
+            - Handle crash in 'format_name_lastname_initials()'.
+              Handles crashing because of unhandled 'IndexError'.
+              This was caused by the author name "Steve Anson ... [et al.]".
+              The periods would be stripped, leaving the empty string that
+              would cause the 'IndexError' when accessing to get the first
+              character.
+            - Fix detecting compound last names in target format.
+
+            - Fix crash. Add 'multivalued' to 'ExtractedData'.
+              Fixes crashing (sanity check failure) when formatting tags.
+
+              The name template field 'tags' is assumed to be a list, enforced
+              by a sanity check assertion. This failed when the filename
+              analyzer passed a single tag to the results.
+
+              This is fixed by modifying the 'ExtractedData' class to allow
+              coercing "multivalued" data. The relevant methods in the name
+              builder and template field classes are also modified to handle
+              multiple values differently; instead of passing a list of
+              'ExtractedData' instances, a single instance of 'ExtractedData'
+              now can contain a list of data.
+
+            - Fix expression validation bug.
+              Fixes bug where a valid boolean False would fail validation.
+
+            - Fix uncaught exception when reading bad epub zip-files.
+            - Fix auto-detecting coercer-class from a list of data.
+              Assumes that all list entries are of the same type, which is very
+              obviously incorrect a lot of times, but works good enough in
+              practice.
+
+
 2017-10-10  [autonameow v0.4.9]
             Includes changes to the configuration file syntax as well
             as refactoring and various fixes of existing functionality.
