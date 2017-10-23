@@ -97,7 +97,7 @@ class Title(NameTemplateField):
             string = types.force_string(data.value)
             if not string:
                 raise exceptions.NameBuilderError(
-                    'Unicode string conversion failed for "{!r}"'
+                    'Unicode string conversion failed for "{!r}"'.format(data)
                 )
         elif data.coercer == types.AW_STRING:
             string = data.value
@@ -150,7 +150,7 @@ class Edition(NameTemplateField):
             string = types.force_string(data.value)
             if not string:
                 raise exceptions.NameBuilderError(
-                    'Unicode string conversion failed for "{!r}"'
+                    'Unicode string conversion failed for "{!r}"'.format(data)
                 )
         elif data.coercer in (types.AW_STRING, types.AW_INTEGER):
             string = data.as_string()
@@ -177,6 +177,16 @@ class Extension(NameTemplateField):
     def normalize(cls, data):
         pass
 
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        string = data.as_string()
+        if string is None:
+            raise exceptions.NameBuilderError(
+                'Unicode string conversion failed for "{!r}"'.format(data)
+            )
+
+        return string
+
 
 class Author(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_PATHCOMPONENT,
@@ -188,18 +198,21 @@ class Author(NameTemplateField):
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
 
-        if isinstance(data, list):
+        sanity.check_isinstance(data, ExtractedData)
+
+        if isinstance(data.value, list):
             # Multiple authors
             _formatted = []
-            for d in data:
-                if d.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
-                    string = types.force_string(d.value)
+            for d in data.value:
+                if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+                    string = types.force_string(d)
                     if not string:
                         raise exceptions.NameBuilderError(
-                            'Unicode string conversion failed for "{!r}"'
+                            'Unicode string conversion failed for '
+                            '"{!r}"'.format(data)
                         )
-                elif d.coercer == types.AW_STRING:
-                    string = d.value
+                elif data.coercer == types.AW_STRING:
+                    string = d
                 else:
                     raise exceptions.NameBuilderError(
                         'Got incompatible data: {!r}'.format(d)
@@ -210,9 +223,24 @@ class Author(NameTemplateField):
                     textutils.format_name_lastname_initials(string)
                 )
 
-            return ' '.join(_formatted)
+            return ' '.join(sorted(_formatted))
         else:
             # One author
+            if data.coercer in (types.AW_PATHCOMPONENT, types.AW_PATH):
+                string = types.force_string(data.value)
+                if not string:
+                    raise exceptions.NameBuilderError(
+                        'Unicode string conversion failed for '
+                        '"{!r}"'.format(data)
+                    )
+            elif data.coercer == types.AW_STRING:
+                string = data.value
+            else:
+                raise exceptions.NameBuilderError(
+                    'Got incompatible data: {!r}'.format(data)
+                )
+
+            sanity.check_internal_string(string)
             return textutils.format_name_lastname_initials(data.value)
 
 
@@ -279,7 +307,21 @@ class Publisher(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
-        pass
+
+        _candidates = {}
+
+        c = kwargs.get('config')
+        if c:
+            _options = c.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
+            if _options:
+                _candidates = _options.get('candidates', {})
+
+        _formatted = data.value
+        for repl, patterns in _candidates.items():
+            for pattern in patterns:
+                _formatted = pattern.sub(repl, _formatted)
+
+        return _formatted
 
 
 class Tags(NameTemplateField):
@@ -291,11 +333,12 @@ class Tags(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        sanity.check_isinstance(data, list)
+        sanity.check_isinstance(data, ExtractedData)
+
         _tags = []
-        for d in data:
-            sanity.check_isinstance(d, ExtractedData)
-            _tags.append(d.value)
+        for d in data.value:
+            sanity.check_isinstance(d, str)
+            _tags.append(d)
 
         c = kwargs.get('config')
         if c:
@@ -318,9 +361,22 @@ class Time(NameTemplateField):
         c = kwargs.get('config')
         if c:
             datetime_format = c.options['DATETIME_FORMAT']['time']
-            return formatted_datetime(data, datetime_format)
+            return formatted_datetime(data.value, datetime_format)
         else:
             raise exceptions.NameBuilderError('Unknown "time" format')
+
+
+class Year(NameTemplateField):
+    COMPATIBLE_TYPES = (types.AW_DATE,
+                        types.AW_TIMEDATE,
+                        types.AW_EXIFTOOLTIMEDATE,
+                        types.AW_PYPDFTIMEDATE)
+    MULTIVALUED = False
+
+    @classmethod
+    def format(cls, data, *args, **kwargs):
+        datetime_format = '%Y'
+        return formatted_datetime(data.value, datetime_format)
 
 
 def format_string_placeholders(format_string):

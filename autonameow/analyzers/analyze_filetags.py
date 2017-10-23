@@ -23,7 +23,6 @@ import re
 
 from analyzers import BaseAnalyzer
 from core import (
-    model,
     types,
     util
 )
@@ -32,28 +31,29 @@ from core.model import (
     ExtractedData,
     WeightedMapping
 )
-from core.util import diskutils
+from core.model import genericfields as gf
+
 
 # TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
-
 DATE_SEP = b'[:\-._ ]?'
 TIME_SEP = b'[:\-._ T]?'
 DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'
 TIME_REGEX = (b'[012]\d' + TIME_SEP + b'[012345]\d' + TIME_SEP
               + b'[012345]\d(.[012345]\d)?')
 FILENAMEPART_TS_REGEX = re.compile(
-    DATE_REGEX + b'([T_ -]?' + TIME_REGEX + b')?')
+    DATE_REGEX + b'([T_ -]?' + TIME_REGEX + b')?'
+)
 
 
 # TODO: [TD0043][TD0009] Fetch values from the active configuration.
-# BETWEEN_TAG_SEPARATOR = util.bytestring_path(
+# BETWEEN_TAG_SEPARATOR = util.enc.bytestring_path(
 #     opts.options['FILETAGS_OPTIONS'].get('between_tag_separator')
 # )
-BETWEEN_TAG_SEPARATOR = util.bytestring_path(' ')
-# FILENAME_TAG_SEPARATOR = util.bytestring_path(
+BETWEEN_TAG_SEPARATOR = util.enc.bytestring_path(' ')
+# FILENAME_TAG_SEPARATOR = util.enc.bytestring_path(
 #     opts.options['FILETAGS_OPTIONS'].get('filename_tag_separator')
 # )
-FILENAME_TAG_SEPARATOR = util.bytestring_path(' -- ')
+FILENAME_TAG_SEPARATOR = util.enc.bytestring_path(' -- ')
 
 
 class FiletagsAnalyzer(BaseAnalyzer):
@@ -67,7 +67,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=0.75),
             ],
-            generic_field=model.GenericDateCreated
+            generic_field=gf.GenericDateCreated
         ),
         'description': ExtractedData(
             coercer=types.AW_STRING,
@@ -75,21 +75,22 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Title, probability=0.5),
             ],
-            generic_field=model.GenericDescription
+            generic_field=gf.GenericDescription
         ),
         'tags': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Tags, probability=1),
             ],
-            generic_field=model.GenericTags
+            generic_field=gf.GenericTags,
+            multivalued=True
         ),
         'extension': ExtractedData(
             coercer=types.AW_MIMETYPE,
             mapped_fields=[
                 WeightedMapping(fields.Extension, probability=1),
             ],
-            generic_field=model.GenericMimeType
+            generic_field=gf.GenericMimeType
         ),
         'follows_filetags_convention': ExtractedData(
             coercer=types.AW_BOOLEAN,
@@ -123,9 +124,9 @@ class FiletagsAnalyzer(BaseAnalyzer):
         self.__wrap_result('datetime', self._timestamp)
         self.__wrap_result('description', self._description)
 
-        self._tags = sorted(self._tags)
-        for tag in self._tags:
-            self.__wrap_result('tags', tag)
+        if self._tags:
+            self._tags = sorted(self._tags)
+            self.__wrap_result('tags', self._tags)
 
         self.__wrap_result('extension', self._extension)
         self.__wrap_result('follows_filetags_convention',
@@ -190,7 +191,7 @@ def partition_basename(file_path):
             'timestamp', 'description', 'tags', 'extension', where 'tags' is a
             list of Unicode strings, and the others are plain Unicode strings.
     """
-    prefix, suffix = diskutils.split_basename(file_path)
+    prefix, suffix = util.disk.split_basename(file_path)
 
     timestamp = FILENAMEPART_TS_REGEX.match(prefix)
     if timestamp:
@@ -215,7 +216,7 @@ def partition_basename(file_path):
     # Encoding boundary;  Internal filename bytestring --> internal Unicode str
     def decode_if_not_none_or_empty(bytestring_maybe):
         if bytestring_maybe:
-            return util.decode_(bytestring_maybe)
+            return util.enc.decode_(bytestring_maybe)
         else:
             return None
 

@@ -22,11 +22,11 @@
 import logging
 
 from core import (
-    model,
     types,
     util
 )
 from core.model import ExtractedData
+from core.model import genericfields as gf
 from core.util import (
     sanity,
     textutils
@@ -35,6 +35,7 @@ from extractors import (
     BaseExtractor,
     ExtractorError
 )
+
 
 log = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class AbstractTextExtractor(BaseExtractor):
         wrapper = ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=None,
-            generic_field=model.GenericText,
+            generic_field=gf.GenericText,
         )
         return {'full': ExtractedData.from_raw(wrapper, text)}
 

@@ -33,7 +33,7 @@ except ImportError:
     PdfReadError = None
 
 from core import (
-    cache,
+    persistence,
     util
 )
 from core.util import sanity
@@ -44,9 +44,6 @@ from extractors.text.common import AbstractTextExtractor
 log = logging.getLogger(__name__)
 
 
-CACHE_KEY = 'text'
-
-
 class PyPDFTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
 
@@ -55,40 +52,23 @@ class PyPDFTextExtractor(AbstractTextExtractor):
 
         self._cached_text = {}
 
-        _cache = cache.get_cache(str(self))
+        _cache = persistence.get_cache(str(self))
         if _cache:
             self.cache = _cache
-            try:
-                self._cached_text = self.cache.get(CACHE_KEY)
-            except (KeyError, cache.CacheError):
-                pass
         else:
             self.cache = None
 
-    def _cache_read(self, fileobject):
-        if fileobject in self._cached_text:
-            return self._cached_text.get(fileobject)
-        return None
-
-    def _cache_write(self):
-        if not self.cache:
-            return
-
-        try:
-            self.cache.set(CACHE_KEY, self._cached_text)
-        except cache.CacheError:
-            pass
-
     def _get_text(self, fileobject):
-        _cached = self._cache_read(fileobject)
-        if _cached is not None:
-            self.log.info('Using cached text for: {!r}'.format(fileobject))
-            return _cached
+        if self.cache:
+            _cached = self.cache.get(fileobject)
+            if _cached is not None:
+                self.log.info('Using cached text for: {!r}'.format(fileobject))
+                return _cached
 
         text = extract_pdf_content_with_pypdf(fileobject.abspath)
         if text and len(text) > 1:
-            self._cached_text.update({fileobject: text})
-            self._cache_write()
+            if self.cache:
+                self.cache.set(fileobject, text)
             return text
         else:
             self.log.debug('Unable to extract textual content from PDF')
@@ -115,7 +95,7 @@ def extract_pdf_content_with_pypdf(pdf_file):
         ExtractorError: The extraction failed and could not be completed.
     """
     try:
-        file_reader = PyPDF2.PdfFileReader(util.decode_(pdf_file), 'rb')
+        file_reader = PyPDF2.PdfFileReader(util.enc.decode_(pdf_file), 'rb')
     except (OSError, PyPdfError, UnicodeDecodeError) as e:
         raise ExtractorError(e)
 

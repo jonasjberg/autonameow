@@ -26,6 +26,7 @@ from core.model import ExtractedData
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
 from core.util import sanity
 
+
 log = logging.getLogger(__name__)
 
 
@@ -95,7 +96,6 @@ class Resolver(object):
         return True
 
     def _gather_data(self):
-        # TODO: [TD0017] Rethink source specifications relation to source data.
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
         for _field, _meowuri in self.data_sources.items():
             if (_field in self.fields_data
@@ -114,7 +114,37 @@ class Resolver(object):
                       '[{!s}]'.format(_field, self.file.hash_partial, _meowuri))
             _data = self._request_data(self.file, _meowuri)
             if _data is not None:
-                log.debug('Got data "{!s}" ({})'.format(_data, type(_data)))
+                _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(_data),
+                                                                   _data)
+
+                if isinstance(_data, list):
+                    # TODO: Fix this!
+                    log.info('Not sure which of many entries to use ..')
+                    continue
+
+                log.debug('Got {}'.format(_data_info))
+                sanity.check(
+                    isinstance(_data, ExtractedData),
+                    'Expected "data" to be an instance of "ExtractedData".'
+                    ' Got {}'.format(_data_info)
+                )
+
+                # # TODO: [TD0112] Clean up merging data.
+                if isinstance(_data.value, list):
+
+                    seen_data = set()
+                    for d in _data.value:
+                        seen_data.add(d)
+
+                    if len(seen_data) == 1:
+                        log.debug(
+                            'Merged {} ExtractedData entries'.format(
+                                len(_data.value)
+                            )
+                        )
+                        # TODO: [TD0112] FIX THIS!
+                        # _data.value = _data.value[0]
+
                 log.debug('Updated data for field "{!s}"'.format(_field))
                 self.fields_data[_field] = _data
             else:
@@ -129,6 +159,7 @@ class Resolver(object):
                 self.data_sources[_field] = None
 
     def _verify_types(self):
+        # TODO: [TD0115] Clear up uncertainties about data multiplicities.
         for field, data in self.fields_data.items():
             if isinstance(data, list):
                 if not field.MULTIVALUED:
@@ -155,12 +186,12 @@ class Resolver(object):
         _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
         sanity.check(
             not isinstance(data, list),
-            'Expected "data" not to be a list. Got: {}'.format(_data_info)
+            'Expected "data" not to be a list. Got {}'.format(_data_info)
         )
         sanity.check(
             isinstance(data, ExtractedData),
             'Expected "data" to be an instance of "ExtractedData".'
-            'Got: {}'.format(_data_info)
+            'Got {}'.format(_data_info)
         )
 
         log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))

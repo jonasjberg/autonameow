@@ -818,13 +818,13 @@ class TestTypePath(TestCase):
     def test_normalize(self):
         user_home = os.path.expanduser('~')
         self.assertEqual(types.AW_PATH.normalize('~'),
-                         util.encode_(user_home))
+                         util.enc.encode_(user_home))
         self.assertEqual(types.AW_PATH.normalize('~/'),
-                         util.encode_(user_home))
+                         util.enc.encode_(user_home))
 
         expected = os.path.normpath(os.path.join(user_home, 'foo'))
         self.assertEqual(types.AW_PATH.normalize('~/foo'),
-                         util.encode_(expected))
+                         util.enc.encode_(expected))
 
     def test_normalize_invalid_value(self):
         with self.assertRaises(types.AWTypeError):
@@ -877,13 +877,13 @@ class TestTypePathComponent(TestCase):
     def test_normalize_path_with_user_home(self):
         user_home = os.path.expanduser('~')
         self.assertEqual(types.AW_PATHCOMPONENT.normalize('~'),
-                         util.encode_(user_home))
+                         util.enc.encode_(user_home))
         self.assertEqual(types.AW_PATHCOMPONENT.normalize('~/'),
-                         util.encode_(user_home))
+                         util.enc.encode_(user_home))
 
         expected = os.path.normpath(os.path.join(user_home, 'foo'))
         self.assertEqual(types.AW_PATHCOMPONENT.normalize('~/foo'),
-                         util.encode_(expected))
+                         util.enc.encode_(expected))
 
     def test_normalize_path_components(self):
         def _assert_normalizes(test_data, expected):

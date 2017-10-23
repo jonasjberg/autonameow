@@ -29,6 +29,7 @@ from .common import (
     ExtractorError,
 )
 
+
 log = logging.getLogger(__name__)
 
 
@@ -148,6 +149,9 @@ def map_meowuri_to_extractors():
     for klass in ExtractorClasses:
         _meowuri = klass.meowuri_prefix()
         if not _meowuri:
+            log.error(
+                'Got None from "{!s}.meowuri_prefix()"'.format(klass.__name__)
+            )
             continue
 
         if _meowuri in out:

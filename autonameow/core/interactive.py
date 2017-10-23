@@ -21,11 +21,9 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import sys
 
-from core.ui import (
-    cli,
-    prompt
-)
+from core.ui import cli
 
 
 log = logging.getLogger(__name__)
@@ -64,7 +62,13 @@ def select_template(candidates):
 
 def meowuri_prompt(message):
     # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
-    response = prompt.meowuri_prompt(message)
+    if not sys.__stdout__.isatty():
+        # TODO: [TD0111] Separate abstract user interaction from CLI specifics.
+        log.warning('Standard input is not a TTY --- would have triggered an '
+                    'AssertionError in "prompt_toolkit". ABORTING!')
+        return Choice.ABORT
+
+    response = cli.meowuri_prompt(message)
     if response:
         return response
     else:
@@ -72,11 +76,17 @@ def meowuri_prompt(message):
 
 
 def ask_confirm(message=None):
+    if not sys.__stdout__.isatty():
+        # TODO: [TD0111] Separate abstract user interaction from CLI specifics.
+        log.warning('Standard input is not a TTY --- would have triggered an '
+                    'AssertionError in "prompt_toolkit". ABORTING!')
+        return False
+
     if message is None:
         msg = 'Please Confirm (unspecified action)? [y/n]'
     else:
         msg = '\n{}  [y/n]'.format(message)
 
-    response = prompt.ask_confirm(msg)
+    response = cli.ask_confirm(msg)
     assert isinstance(response, bool)
     return response

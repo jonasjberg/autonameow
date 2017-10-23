@@ -26,8 +26,8 @@ from core import (
     exceptions,
     repository
 )
-from core.util import sanity
 from core.model import ExtractedData
+from core.util import sanity
 
 
 # TODO: [TD0009] Implement a proper plugin interface.
@@ -49,6 +49,10 @@ class PluginHandler(object):
         self._plugins_to_use = []
 
     def use_plugins(self, plugin_list):
+        self.log.debug(
+            'Required {} plugins: {!s}'.format(len(plugin_list), plugin_list)
+        )
+
         for plugin in plugin_list:
             if plugin in self.available_plugins:
                 self._plugins_to_use.append(plugin)
@@ -58,9 +62,16 @@ class PluginHandler(object):
                     'Requested unavailable plugin: "{!s}"'.format(plugin)
                 )
 
-    def execute_plugins(self, fileobject):
-        self.log.debug('Executing plugins ..')
+    def use_all_plugins(self):
+        self.log.debug(
+            'Using all {} plugins'.format(len(self.available_plugins))
+        )
+        self._plugins_to_use = [p for p in self.available_plugins]
 
+    def execute_plugins(self, fileobject):
+        self.log.debug(' Plugins Starting '.center(80, '='))
+
+        self.log.debug('Running {} plugins'.format(len(self._plugins_to_use)))
         for plugin_klass in self._plugins_to_use:
             plugin = plugin_klass()
 
@@ -82,6 +93,8 @@ class PluginHandler(object):
                         plugin, fileobject)
                 )
 
+        self.log.debug(' Plugins Completed '.center(80, '='))
+
 
 def request_data(fileobject, meowuri):
     response = repository.SessionRepository.query(fileobject, meowuri)
@@ -94,7 +107,7 @@ def request_data(fileobject, meowuri):
             return response
 
 
-def collect_results(fileobject, label, data):
+def collect_results(fileobject, meowuri, data):
     """
     Collects plugin results. Passed to plugins as a callback.
 
@@ -102,7 +115,8 @@ def collect_results(fileobject, label, data):
 
     Args:
         fileobject: File that produced the data to add.
-        label: Label that uniquely identifies the data.
+        meowuri: Label that uniquely identifies the data.
         data: The data to add.
     """
-    repository.SessionRepository.store(fileobject, label, data)
+    # TODO: [TD0108] Fix inconsistencies in results passed back by plugins.
+    repository.SessionRepository.store(fileobject, meowuri, data)

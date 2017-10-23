@@ -28,8 +28,10 @@ from core import (
     exceptions,
     util,
 )
-from core.config.field_parsers import eval_meowuri_glob
-from core.model import ExtractedData
+from core.model import (
+    ExtractedData,
+    MeowURI
+)
 from core.util import (
     sanity,
     textutils
@@ -78,6 +80,10 @@ class Repository(object):
         # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
         self.mapped_meowuris = unique_map_meowuris(self.meowuri_class_map)
 
+    def shutdown(self):
+        # TODO: Any shutdown tasks goes here ..
+        pass
+
     def _log_string_class_map(self):
         for key in self.meowuri_class_map.keys():
             for meowuri, klass in self.meowuri_class_map[key].items():
@@ -93,16 +99,10 @@ class Repository(object):
         Adds data related to a given 'fileobject', at a storage location
         defined by the given 'meowuri'.
         """
-        def __meowuri_error(bad_meowuri):
+        if not meowuri or not isinstance(meowuri, MeowURI):
             raise exceptions.InvalidDataSourceError(
-                'Invalid MeowURI: "{!s}" ({})'.format(bad_meowuri,
-                                                      type(bad_meowuri))
+                'Invalid MeowURI: "{!s}" ({})'.format(meowuri, type(meowuri))
             )
-
-        if not meowuri or not isinstance(meowuri, str):
-            __meowuri_error(meowuri)
-        if not meowuri.strip():
-            __meowuri_error(meowuri)
 
         if data is None:
             log.warning('Attempted to add None data with meowURI'
@@ -209,6 +209,7 @@ class Repository(object):
             return False
 
         resolvable = list(self.mapped_meowuris)
+        # TODO: [TD0113] Fix exceptions not being handled properly (?)
         if any(r in meowuri for r in resolvable):
             return True
         return False
@@ -218,7 +219,7 @@ class Repository(object):
         for fileobject, data in self.data.items():
             out.append('FileObject basename: "{!s}"'.format(fileobject))
 
-            _abspath = util.displayable_path(fileobject.abspath)
+            _abspath = util.enc.displayable_path(fileobject.abspath)
             out.append('FileObject absolute path: "{!s}"'.format(_abspath))
 
             out.append('')
@@ -232,22 +233,22 @@ class Repository(object):
             if _key is None:
                 return '{: <{}}  * {!s}'.format('', width, _value)
             else:
-                return '{: <{}}: * {!s}'.format(_key, width, _value)
+                return '{: <{}}: * {!s}'.format(str(_key), width, _value)
 
         def _fmt_text_line(width, _value, _key=None):
             if _key is None:
                 return '{: <{}}  > {!s}'.format('', width, _value)
             else:
-                return '{: <{}}: > {!s}'.format(_key, width, _value)
+                return '{: <{}}: > {!s}'.format(str(_key), width, _value)
 
         def _fmt_entry(_key, width, _value):
-            return '{: <{}}: {!s}'.format(_key, width, _value)
+            return '{: <{}}: {!s}'.format(str(_key), width, _value)
 
         # TODO: [TD0066] Handle all encoding properly.
         temp = {}
         _max_len_meowuri = 20
-        for uri, data in data.items():
-            _max_len_meowuri = max(_max_len_meowuri, len(uri))
+        for meowuri, data in sorted(data.items()):
+            _max_len_meowuri = max(_max_len_meowuri, len(str(meowuri)))
 
             if isinstance(data, list):
                 log.debug('TODO: Improve robustness of handling this case')
@@ -259,17 +260,20 @@ class Repository(object):
                     else:
                         v = element
 
-                    if isinstance(v, bytes):
-                        temp_list.append(util.displayable_path(v))
-                    elif eval_meowuri_glob(uri, ['generic.contents.text',
+                    try:
+                        if isinstance(v, bytes):
+                            temp_list.append(util.enc.displayable_path(v))
+                        elif meowuri.matchglobs(['generic.contents.text',
                                                  'extractor.text.*']):
-                        # Often *a lot* of text, trim to arbitrary size..
-                        _truncated = textutils.truncate_text(v)
-                        temp_list.append(_truncated)
-                    else:
-                        temp_list.append(str(v))
+                            # Often *a lot* of text, trim to arbitrary size..
+                            _truncated = textutils.truncate_text(v)
+                            temp_list.append(_truncated)
+                        else:
+                            temp_list.append(str(v))
+                    except AttributeError:
+                        pass
 
-                temp[uri] = temp_list
+                temp[meowuri] = temp_list
 
             else:
                 # TODO: [TD0082] Integrate the 'ExtractedData' class.
@@ -279,37 +283,42 @@ class Repository(object):
                     v = data
 
                 if isinstance(v, bytes):
-                    temp[uri] = util.displayable_path(v)
-                # Often *a lot* of text, trim to arbitrary size..
-                elif eval_meowuri_glob(uri, ['generic.contents.text',
-                                             'extractor.text.*']):
-                    temp[uri] = textutils.truncate_text(v)
+                    temp[meowuri] = util.enc.displayable_path(v)
+
+                elif meowuri.matchglobs(['generic.contents.text',
+                                         'extractor.text.*']):
+                    # Often *a lot* of text, trim to arbitrary size..
+                    temp[meowuri] = textutils.truncate_text(v)
                 else:
-                    temp[uri] = str(v)
+                    temp[meowuri] = str(v)
 
         out = []
-        for uri, data in temp.items():
+        for meowuri, data in temp.items():
             if isinstance(data, list):
                 if data:
-                    out.append(_fmt_list_entry(_max_len_meowuri, data[0], uri))
+                    out.append(
+                        _fmt_list_entry(_max_len_meowuri, data[0], meowuri)
+                    )
                     for v in data[1:]:
                         out.append(_fmt_list_entry(_max_len_meowuri, v))
 
             else:
-                if eval_meowuri_glob(uri, ['generic.contents.text',
-                                           'extractor.text.*']):
+                if meowuri.matchglobs(['generic.contents.text',
+                                       'extractor.text.*']):
                     _text = textutils.extract_lines(
                         data, firstline=0, lastline=1
                     )
                     _text = _text.rstrip('\n')
-                    out.append(_fmt_text_line(_max_len_meowuri, _text, uri))
+                    out.append(
+                        _fmt_text_line(_max_len_meowuri, _text, meowuri)
+                    )
                     _lines = textutils.extract_lines(
                         data, firstline=1, lastline=len(data.splitlines())
                     )
                     for _line in _lines.splitlines():
                         out.append(_fmt_text_line(_max_len_meowuri, _line))
                 else:
-                    out.append(_fmt_entry(uri, _max_len_meowuri, data))
+                    out.append(_fmt_entry(meowuri, _max_len_meowuri, data))
 
         return out
 
@@ -319,9 +328,30 @@ class Repository(object):
     def __str__(self):
         return self.human_readable_contents()
 
+    def to_filedump(self, file_path):
+        # NOTE: Debugging/testing experiment --- TO BE REMOVED!
+        if not isinstance(file_path, (str, bytes)):
+            return
+        if not file_path.strip():
+            return
+
+        if util.disk.exists(file_path):
+            return
+
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+
+        with open(util.enc.syspath(file_path), 'wb') as fh:
+            pickle.dump(self.data, fh, pickle.HIGHEST_PROTOCOL)
+
     # def __repr__(self):
     #     # TODO: Implement this properly.
     #     pass
+
+
+MEOWURI_CLASS_MAP_DICT = {}
 
 
 def meowuri_class_map_dict():
@@ -330,12 +360,14 @@ def meowuri_class_map_dict():
     # These are dicts with keys being the "meowURIs" that the respective
     # component uses when storing data and the contained values are lists of
     # classes mapped to the "meowURI".
-    _meowuri_class_map = {
-        'extractor': extractors.MeowURIClassMap,
-        'analyzer': analyzers.MeowURIClassMap,
-        'plugin': plugins.MeowURIClassMap
-    }
-    return _meowuri_class_map
+    global MEOWURI_CLASS_MAP_DICT
+    if not MEOWURI_CLASS_MAP_DICT:
+        MEOWURI_CLASS_MAP_DICT = {
+            'extractor': extractors.MeowURIClassMap,
+            'analyzer': analyzers.MeowURIClassMap,
+            'plugin': plugins.MeowURIClassMap
+        }
+    return MEOWURI_CLASS_MAP_DICT
 
 
 def unique_map_meowuris(meowuri_class_map):
@@ -371,16 +403,14 @@ def map_meowuri_to_source_class(meowuri, includes=None):
     """
     meowuri_class_map = meowuri_class_map_dict()
 
-    # TODO: [TD0105] Use functionality provided by the 'MeowURI' class.
-    _meowuri_string = str(meowuri)
-
     def _search_source_type(key):
         for k, v in meowuri_class_map[key].items():
-            if _meowuri_string.startswith(k):
+            if k in meowuri:
                 return meowuri_class_map[key][k]
         return None
 
-    if not _meowuri_string:
+    if not meowuri:
+        log.error('Got empty meowuri in "map_meowuri_to_source_class"')
         return []
 
     if includes is None:
@@ -453,6 +483,9 @@ class RepositoryPool(object):
 
         self._repositories[id_] = _repo
 
+    def __len__(self):
+        return len(self._repositories)
+
 
 def initialize(id_=None):
     # Keep one global 'SessionRepository' per 'Autonameow' instance.
@@ -462,6 +495,21 @@ def initialize(id_=None):
 
     global SessionRepository
     SessionRepository = Pool.get(id_=id_)
+
+
+def shutdown(id_=None):
+    global Pool
+    if not Pool:
+        return
+
+    try:
+        r = Pool.get(id_=id_)
+    except KeyError as e:
+        log.error(
+            'Unable to retrieve repository with ID "{!s}"; {!s}'.format(id_, e)
+        )
+    else:
+        r.shutdown()
 
 
 Pool = None

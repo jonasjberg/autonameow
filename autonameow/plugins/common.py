@@ -21,8 +21,10 @@
 
 import logging
 
-from core import plugin_handler
 from core import constants as C
+from core import plugin_handler
+from core.exceptions import InvalidMeowURIError
+from core.model import MeowURI
 
 
 class BasePlugin(object):
@@ -42,10 +44,18 @@ class BasePlugin(object):
         self.request_data = plugin_handler.request_data
 
     def add_results(self, fileobject, meowuri_leaf, data):
+        # TODO: [TD0108] Fix inconsistencies in results passed back by plugins.
         if data is None:
             return
 
-        _meowuri = '{}.{}'.format(self.meowuri_prefix(), meowuri_leaf)
+        try:
+            _meowuri = MeowURI(self.meowuri_prefix(), meowuri_leaf)
+        except InvalidMeowURIError as e:
+            self.log.critical(
+                'Got invalid MeowURI from plugin -- !{!s}"'.format(e)
+            )
+            return
+
         plugin_handler.collect_results(fileobject, _meowuri, data)
 
     def __call__(self, source, *args, **kwargs):

@@ -21,6 +21,8 @@
 
 import re
 import unicodedata
+import urllib
+
 
 try:
     import chardet
@@ -37,11 +39,7 @@ def extract_digits(string):
     """
     sanity.check_internal_string(string)
 
-    digits = ''
-    for char in string:
-        if char.isdigit():
-            digits += char
-
+    digits = ''.join(c for c in string if c.isdigit())
     return digits if digits.strip() else ''
 
 
@@ -172,8 +170,17 @@ def extract_lines(text, firstline, lastline):
     return ''.join(extracted)
 
 
+RE_AUTHOR_ET_AL = re.compile(
+    r'[\[\(\{]?et.al\.?[\]\)\}]?', re.IGNORECASE
+)
+
+
+def strip_author_et_al(string):
+    return RE_AUTHOR_ET_AL.sub('', string)
+
+
 IGNORED_AUTHOR_WORDS = frozenset([
-    'van'
+    '...',
 ])
 
 
@@ -206,10 +213,17 @@ def format_name_lastname_initials(full_name):
     """
     sanity.check_internal_string(full_name)
 
+    for ignored_word in IGNORED_AUTHOR_WORDS:
+        full_name = full_name.replace(ignored_word, '')
+
+    full_name = strip_author_et_al(full_name)
+
     full_name = full_name.strip()
+    full_name = full_name.rstrip(',')
+    full_name = full_name.lstrip(',')
 
     # Return names already in the output format as-is.
-    if re.match(r'[\w]+ (\w\.)+$', full_name):
+    if re.match(r'[\w-]+ (\w\.)+$', full_name):
         return full_name
 
     # Using the third-party 'nameparser' module.
@@ -225,7 +239,10 @@ def format_name_lastname_initials(full_name):
 
     def _to_initial(string):
         string = string.strip('.')
-        return string[0]
+        try:
+            return string[0]
+        except IndexError:
+            return ''
 
     initials = [_to_initial(f) for f in first_list]
     initials += [_to_initial(m) for m in _human_name.middle_list]
@@ -322,7 +339,7 @@ RE_UNICODE_APOSTROPHES = re.compile(
 # \u2019 Right single quotation mark
 # \u201A Single low-9 quotation mark
 # \u201B Single high-reversed-9 quotation mark
-RE_UNICODE_SINGLE_QUOTES = (
+RE_UNICODE_SINGLE_QUOTES = re.compile(
     '[\u0027\u2018\u2019\u201a\u201b]'
 )
 
@@ -331,7 +348,7 @@ RE_UNICODE_SINGLE_QUOTES = (
 # \u201D Right double quotation mark
 # \u201E Double low-9 quotation mark
 # \u201F Double high-reversed-9 quotation mark
-RE_UNICODE_DOUBLE_QUOTES = (
+RE_UNICODE_DOUBLE_QUOTES = re.compile(
     '[\u0022\u201c\u201d\u201e\u201f]'
 )
 
@@ -430,3 +447,7 @@ def compiled_ordinal_regexes():
         for _number, _patterns in __ordinal_number_patterns:
             RE_ORDINALS[_number] = re.compile(_patterns, re.IGNORECASE)
     return RE_ORDINALS
+
+
+def urldecode(string):
+    return urllib.parse.unquote(string)

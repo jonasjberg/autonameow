@@ -29,6 +29,11 @@ from core.util import textutils
 log = logging.getLogger(__name__)
 
 
+# Undefined or invalid "source" --- extractor/analyzer/plugin class that
+# produced the data.
+UNKNOWN_SOURCE = '(unknown source)'
+
+
 class ExtractedData(object):
     """
     Instances of this class wrap some extracted data with extra information.
@@ -37,7 +42,22 @@ class ExtractedData(object):
     should be associated with. For instance, date/time-information could be
     used to populate the 'datetime'/'date' name template fields.
     """
-    def __init__(self, coercer, mapped_fields=None, generic_field=None):
+    def __init__(self, coercer, mapped_fields=None, generic_field=None,
+                 multivalued=None, source=None):
+        """
+        Intantiates a "template" instance to be populated with some data.
+
+        Args:
+            coercer: Type-coercion class, as a subclass of 'BaseType'.
+            mapped_fields: List of "WeightedMappings" to namebuilder fields.
+            generic_field: Optional subclass of 'GenericField'.
+            multivalued: Boolean value indicating if the contained data is or
+                         should be converted to a list.
+            source: Optional class instance that produced the value.
+        """
+        self._source = UNKNOWN_SOURCE
+        self._value = None
+
         self.coercer = coercer
 
         if mapped_fields is not None:
@@ -45,12 +65,17 @@ class ExtractedData(object):
         else:
             self.field_map = []
 
-        self._value = None
-
         if generic_field is not None:
             self.generic_field = generic_field
         else:
             self.generic_field = None
+
+        if multivalued is not None:
+            self.multivalued = bool(multivalued)
+        else:
+            self.multivalued = False
+
+        self.source = source
 
     def __call__(self, raw_value):
         if self._value is not None:
@@ -58,12 +83,48 @@ class ExtractedData(object):
                          ' {!s}"'.format(self, raw_value))
 
         if not self.coercer:
-            _candidate_coercer = types.coercer_for(raw_value)
+            _sample_raw_value = None
+
+            if isinstance(raw_value, (list, tuple)):
+                try:
+                    _sample_raw_value = raw_value[0]
+                except IndexError:
+                    pass
+            elif isinstance(raw_value, dict):
+                try:
+                    _sample_raw_value = raw_value.get(raw_value.keys()[0])
+                except (IndexError, KeyError):
+                    pass
+            else:
+                _sample_raw_value = raw_value
+
+            _candidate_coercer = types.coercer_for(_sample_raw_value)
             if _candidate_coercer:
                 self.coercer = _candidate_coercer
+            else:
+                log.warning('Unknown coercer for value: "{!s}" ({!s})'.format(
+                        _sample_raw_value, type(_sample_raw_value)
+                ))
 
+        # TODO: [TD0115] Clear up uncertainties about data multiplicities
         if self.coercer:
-            self._value = self.coercer(raw_value)
+            if self.multivalued:
+                # Is multivalued, so make sure it is a list.
+                if not isinstance(raw_value, list):
+                    _raw_values = [raw_value]
+                else:
+                    _raw_values = raw_value
+
+                _coerced_values = []
+                for _value in _raw_values:
+                    _coerced = self.coercer(_value)
+                    if _coerced:
+                        _coerced_values.append(_coerced)
+
+                self._value = _coerced_values
+
+            else:
+                self._value = self.coercer(raw_value)
         else:
             log.warning('Unknown coercer in ExtractedData: "{!s}"'.format(self))
             # Fall back to automatic type detection.
@@ -74,8 +135,10 @@ class ExtractedData(object):
             # TODO: [TD0088] The "resolver" needs 'coerce.format' ..
             coerced = types.try_coerce(raw_value)
             if coerced is None:
-                log.critical('Unhandled coercion of raw value "{!s}" '
-                             '({!s})'.format(raw_value, type(raw_value)))
+                log.critical(
+                    'Unhandled coercion of raw value, using raw: '
+                    '({!s}) "{!s}"'.format(type(raw_value), raw_value)
+                )
                 self._value = raw_value
             else:
                 self._value = coerced
@@ -84,15 +147,35 @@ class ExtractedData(object):
 
     def as_string(self):
         if self.coercer:
-            try:
-                string = self.coercer.format(self.value)
-            except types.AWTypeError:
-                pass
+            # TODO: [TD0115] Clear up uncertainties about data multiplicities
+            if self.multivalued:
+                _values = self.value
+                _strings = []
+                for _value in _values:
+                    try:
+                        s = self.coercer.format(_value)
+                    except types.AWTypeError:
+                        pass
+                    else:
+                        if s is not None:
+                            _strings.append(s)
+
+                if _strings:
+                    return '["{}"]'.format('", "'.join(_strings))
             else:
-                if string is not None:
-                    return string
-        log.warning('Coercer unknown! "as_string()" returning empty string')
-        return ''
+                try:
+                    s = self.coercer.format(self.value)
+                except types.AWTypeError:
+                    log.debug('"as_string()" failed for value: "{!s}"'.format(
+                            self.value))
+                else:
+                    if s is not None:
+                        return s
+            log.warning('"as_string()" returning empty string')
+            return ''
+        else:
+            log.warning('Coercer unknown! "as_string()" returning empty string')
+            return ''
 
     @classmethod
     def from_raw(cls, instance, raw_value):
@@ -110,6 +193,17 @@ class ExtractedData(object):
     @property
     def value(self):
         return self._value
+
+    @property
+    def source(self):
+        return self._source or UNKNOWN_SOURCE
+
+    @source.setter
+    def source(self, new_source):
+        if new_source is not None:
+            self._source = new_source
+        else:
+            self._source = UNKNOWN_SOURCE
 
     def maps_field(self, field):
         for mapping in self.field_map:

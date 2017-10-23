@@ -26,13 +26,13 @@ import time
 
 from core import (
     analysis,
-    cache,
     config,
     exceptions,
     extraction,
     interactive,
     namebuilder,
     options,
+    persistence,
     repository,
     util
 )
@@ -44,10 +44,7 @@ from core.fileobject import FileObject
 from core.filter import ResultFilter
 from core.plugin_handler import PluginHandler
 from core.ui import cli
-from core.util import (
-    diskutils,
-    sanity
-)
+from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -75,16 +72,16 @@ class Autonameow(object):
         self._exit_code = C.EXIT_SUCCESS
 
     def __enter__(self):
-        # TODO: Initialization ..
+        # Set up a session repository for this process.
+        repository.initialize(self)
+
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # TODO: Shutdown ..
-        pass
+        repository.shutdown(self)
 
     def run(self):
         if self.opts.get('quiet'):
-            options.logs.silence()
             cli.silence()
 
         # Display various information depending on verbosity level.
@@ -95,9 +92,6 @@ class Autonameow(object):
         if self.opts.get('show_version'):
             cli.print_version_info(verbose=self.opts.get('verbose'))
             self.exit_program(C.EXIT_SUCCESS)
-
-        # Set up a session repository for this process.
-        repository.initialize(self)
 
         # Check configuration file. If no alternate config file path is
         # provided and no config file is found at default paths; copy the
@@ -121,12 +115,14 @@ class Autonameow(object):
         self.filter = ResultFilter().configure_filter(self.opts)
 
         if self.opts.get('dump_options'):
+            _config_path = persistence.get_config_persistence_path()
+            _default_config_path = config.DefaultConfigFilePath
             include_opts = {
                 'config_file_path': '"{!s}"'.format(
-                    util.displayable_path(config.DefaultConfigFilePath)
+                    util.enc.displayable_path(_default_config_path)
                 ),
                 'cache_directory_path': '"{!s}"'.format(
-                    util.displayable_path(cache.get_config_cache_path())
+                    util.enc.displayable_path(_config_path)
                 )
             }
             options.prettyprint_options(self.opts, include_opts)
@@ -143,7 +139,7 @@ class Autonameow(object):
             self.exit_program(C.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
-        files_to_process = diskutils.normpaths_from_opts(
+        files_to_process = util.disk.normpaths_from_opts(
             self.opts.get('input_paths'),
             self.active_config.options['FILESYSTEM_OPTIONS']['ignore'],
             self.opts.get('recurse_paths')
@@ -188,24 +184,22 @@ class Autonameow(object):
         cli.msg('\n')
 
     def _load_config_from_default_path(self):
-        _displayable_config_path = util.displayable_path(
-            config.DefaultConfigFilePath
-        )
-        log.info('Using configuration: "{}"'.format(_displayable_config_path))
+        _dp = util.enc.displayable_path(config.DefaultConfigFilePath)
+        log.info('Using configuration: "{}"'.format(_dp))
         self.load_config(config.DefaultConfigFilePath)
 
     def _write_template_config_to_default_path_and_exit(self):
         log.info('No configuration file was found. Writing default ..')
-        _displayable_config_path = util.displayable_path(config.DefaultConfigFilePath)
+        _dp = util.enc.displayable_path(config.DefaultConfigFilePath)
         try:
             config.write_default_config()
         except exceptions.ConfigError:
             log.critical('Unable to write template configuration file to path: '
-                         '"{!s}"'.format(_displayable_config_path))
+                         '"{!s}"'.format(_dp))
             self.exit_program(C.EXIT_ERROR)
         else:
             cli.msg('A template configuration file was written to '
-                    '"{!s}"'.format(_displayable_config_path), style='info')
+                    '"{!s}"'.format(_dp), style='info')
             cli.msg('Use this file to configure {}. '
                     'Refer to the documentation for additional '
                     'information.'.format(C.STRING_PROGRAM_NAME),
@@ -214,7 +208,7 @@ class Autonameow(object):
 
     def _load_config_from_alternate_path(self):
         log.info('Using configuration file: "{!s}"'.format(
-            util.displayable_path(self.opts.get('config_path'))
+            util.enc.displayable_path(self.opts.get('config_path'))
         ))
         self.load_config(self.opts.get('config_path'))
 
@@ -245,7 +239,7 @@ class Autonameow(object):
         """
         for file_path in file_paths:
             log.info('Processing: "{!s}"'.format(
-                util.displayable_path(file_path))
+                util.enc.displayable_path(file_path))
             )
 
             # Sanity checking the "file_path" is part of 'FileObject' init.
@@ -254,7 +248,7 @@ class Autonameow(object):
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
                 log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                    e, util.displayable_path(file_path))
+                    e, util.enc.displayable_path(file_path))
                 )
                 continue
 
@@ -262,7 +256,7 @@ class Autonameow(object):
                 self._handle_file(current_file)
             except exceptions.AutonameowException:
                 log.critical('Skipping file "{}" ..'.format(
-                    util.displayable_path(file_path))
+                    util.enc.displayable_path(file_path))
                 )
                 self.exit_code = C.EXIT_WARNING
                 continue
@@ -272,6 +266,9 @@ class Autonameow(object):
             cli.msg('Session Repository Data', style='heading',
                     add_info_log=True)
             cli.msg(str(repository.SessionRepository))
+
+            # TODO:  TEMPORARY debugging experiment --- Remove!
+            # repository.SessionRepository.to_filedump('/tmp/repository_{:10.10}.state'.format(self.start_time))
 
     def _handle_file(self, current_file):
         should_list_any_results = (self.opts.get('list_datetime')
@@ -300,7 +297,14 @@ class Autonameow(object):
             self.active_config.referenced_meowuris,
             include_roots=['plugin']
         )
-        _run_plugins(current_file, required_plugins)
+        _run_plugins(
+            current_file,
+            require_plugins=required_plugins,
+
+            # Run all plugins so that all possible data is included
+            # when listing any (all) results later on.
+            run_all_plugins=should_list_any_results
+        )
 
         # Determine matching rule.
         matcher = _run_rule_matcher(current_file, self.active_config)
@@ -312,14 +316,6 @@ class Autonameow(object):
             # TODO: Create a interactive interface.
             # TODO: [TD0023][TD0024][TD0025] Implement interactive mode.
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
-
-    def _select_nametemplate(self, current_file):
-        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
-        if self.opts.get('mode_batch'):
-            # if not rule_matcher.best_match:
-            pass
-        elif self.opts.get('mode_interactive'):
-            pass
 
     def _perform_automagic_actions(self, current_file, rule_matcher):
         # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
@@ -427,7 +423,7 @@ class Autonameow(object):
 
                     resolver.collect()
 
-        # TODO: [TD0024][TD0017] Should be able to handle fields not in sources.
+        # TODO: [TD0024] Should be able to handle fields not in sources.
         # Add automatically resolving missing sources from possible candidates.
         if not resolver.collected_all():
             # TODO: Abort if running in "batch mode". Otherwise, ask the user.
@@ -446,7 +442,7 @@ class Autonameow(object):
             raise exceptions.AutonameowException
 
         log.info('New name: "{}"'.format(
-            util.displayable_path(new_name))
+            util.enc.displayable_path(new_name))
         )
         self.do_rename(
             from_path=current_file.abspath,
@@ -491,24 +487,26 @@ class Autonameow(object):
         sanity.check_internal_string(new_basename)
 
         # Encoding boundary.  Internal str --> internal filename bytestring
-        dest_basename = util.bytestring_path(new_basename)
+        dest_basename = util.enc.bytestring_path(new_basename)
         log.debug('Destination basename (bytestring): "{!s}"'.format(
-            util.displayable_path(dest_basename))
+            util.enc.displayable_path(dest_basename))
         )
         sanity.check_internal_bytestring(dest_basename)
 
-        from_basename = diskutils.file_basename(from_path)
+        from_basename = util.disk.file_basename(from_path)
 
-        if diskutils.compare_basenames(from_basename, dest_basename):
-            _msg = 'Skipped "{!s}" because the current name is the same as ' \
-                   'the new name'.format(util.displayable_path(from_basename),
-                                         util.displayable_path(dest_basename))
+        if util.disk.compare_basenames(from_basename, dest_basename):
+            _msg = (
+                'Skipped "{!s}" because the current name is the same as '
+                'the new name'.format(util.enc.displayable_path(from_basename),
+                                      util.enc.displayable_path(dest_basename))
+            )
             log.debug(_msg)
             cli.msg(_msg)
         else:
             if dry_run is False:
                 try:
-                    diskutils.rename_file(from_path, dest_basename)
+                    util.disk.rename_file(from_path, dest_basename)
                 except (FileNotFoundError, FileExistsError, OSError) as e:
                     log.error('Rename FAILED: {!s}'.format(e))
                     raise exceptions.AutonameowException
@@ -565,12 +563,14 @@ def _run_extraction(fileobject, require_extractors, run_all_extractors=False):
         raise
 
 
-def _run_plugins(fileobject, required_plugins=None):
+def _run_plugins(fileobject, require_plugins=None, run_all_plugins=False):
     """
     Instantiates, executes and returns a 'PluginHandler' instance.
 
     Args:
         fileobject: The current file object to pass to plugins.
+        require_plugins: List of plugin classes that should be included.
+        run_all_plugins: Whether all plugins should be included.
 
     Returns:
         An instance of the 'PluginHandler' class that has executed successfully.
@@ -578,11 +578,12 @@ def _run_plugins(fileobject, required_plugins=None):
     Raises:
         AutonameowException: An unrecoverable error occurred during analysis.
     """
-    if not required_plugins:
-        return
-
     plugin_handler = PluginHandler()
-    plugin_handler.use_plugins(required_plugins)
+    if run_all_plugins:
+        plugin_handler.use_all_plugins()
+    elif require_plugins:
+        plugin_handler.use_plugins(require_plugins)
+
     try:
         plugin_handler.execute_plugins(fileobject)
     except exceptions.AutonameowPluginError as e:

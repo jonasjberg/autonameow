@@ -20,6 +20,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import zipfile
 
 from thirdparty import epubzilla
 from extractors.text.common import AbstractTextExtractor
@@ -47,7 +48,11 @@ class EpubTextExtractor(AbstractTextExtractor):
 
 
 def extract_text_with_epubzilla(file_path):
-    epub_file = epubzilla.Epub.from_file(file_path)
+    try:
+        epub_file = epubzilla.Epub.from_file(file_path)
+    except zipfile.BadZipFile:
+        pass
+
     # TODO: [TD0028] FIX THIS!
     log.critical('The epub text extractor is still UNIMPLEMENTED! See [TD0028]')
     return ''

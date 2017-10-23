@@ -21,19 +21,13 @@
 
 import filecmp
 import os
-import magic
 
 from core import constants as C
 from core import (
     exceptions,
     util
 )
-from core.util import (
-    diskutils,
-    sanity
-)
-
-UNKNOWN_BYTESIZE = 0
+from core.util import sanity
 
 
 class FileObject(object):
@@ -49,21 +43,21 @@ class FileObject(object):
         validate_path_argument(path)
         self.abspath = path
 
-        self.filename = util.bytestring_path(
-            os.path.basename(util.syspath(path))
+        self.filename = util.enc.bytestring_path(
+            os.path.basename(util.enc.syspath(path))
         )
-        self.pathname = util.bytestring_path(
-            os.path.dirname(util.syspath(path))
+        self.pathname = util.enc.bytestring_path(
+            os.path.dirname(util.enc.syspath(path))
         )
-        self.pathparent = util.bytestring_path(
-            os.path.basename(os.path.dirname(util.syspath(path)))
+        self.pathparent = util.enc.bytestring_path(
+            os.path.basename(os.path.dirname(util.enc.syspath(path)))
         )
 
-        self.mime_type = filetype_magic(self.abspath)
+        self.mime_type = util.magic.filetype(self.abspath)
 
         # Extract parts of the file name.
-        self.basename_prefix = diskutils.basename_prefix(self.abspath)
-        self.basename_suffix = diskutils.basename_suffix(self.abspath)
+        self.basename_prefix = util.disk.basename_prefix(self.abspath)
+        self.basename_suffix = util.disk.basename_suffix(self.abspath)
 
         # Avoid round-tripping to the OS to decode strings.
         self.__cached_str = None
@@ -90,13 +84,13 @@ class FileObject(object):
 
     def _get_bytesize(self):
         try:
-            statinfo = os.stat(util.syspath(self.abspath))
+            statinfo = os.stat(util.enc.syspath(self.abspath))
             if statinfo:
                 return statinfo.st_size
         except OSError:
             pass
 
-        return UNKNOWN_BYTESIZE
+        return C.UNKNOWN_BYTESIZE
 
     def _get_hash_partial(self):
         # Raises FilesystemError for any "real" errors.
@@ -104,14 +98,14 @@ class FileObject(object):
 
     def __str__(self):
         if self.__cached_str is None:
-            self.__cached_str = util.displayable_path(self.filename)
+            self.__cached_str = util.enc.displayable_path(self.filename)
 
         return self.__cached_str
 
     def __repr__(self):
         if self.__cached_repr is None:
             self.__cached_repr = '<{!s}("{!s}")>'.format(
-                self.__class__.__name__, util.displayable_path(self.abspath)
+                self.__class__.__name__, util.enc.displayable_path(self.abspath)
             )
 
         return self.__cached_repr
@@ -131,65 +125,6 @@ class FileObject(object):
 
     def __ne__(self, other):
         return not (self == other)
-
-
-MY_MAGIC = None
-
-
-def _build_magic():
-    """
-    Workaround ambiguity about which magic library is actually used.
-
-    https://github.com/ahupp/python-magic
-      "There are, sadly, two libraries which use the module name magic.
-       Both have been around for quite a while.If you are using this
-       module and get an error using a method like open, your code is
-       expecting the other one."
-
-    http://www.zak.co.il/tddpirate/2013/03/03/the-python-module-for-file-type-identification-called-magic-is-not-standardized/
-      "The following code allows the rest of the script to work the same
-       way with either version of 'magic'"
-
-    Returns:
-        An instance of 'magic' as type 'Magic'.
-    """
-    try:
-        _magic = magic.open(magic.MAGIC_MIME_TYPE)
-        _magic.load()
-    except AttributeError:
-        _magic = magic.Magic(mime=True)
-        _magic.file = _magic.from_file
-
-    return _magic
-
-
-def filetype_magic(file_path):
-    """
-    Determine file type by reading "magic" header bytes.
-
-    Should be equivalent to the 'file --mime-type' command in *NIX environments.
-    This functions sets the global 'MY_MAGIC' the first time it is called.
-
-    Args:
-        file_path: The path to the file to get the MIME type of as a string.
-
-    Returns:
-        The MIME type of the file at the given path ('application/pdf') or
-        'C.MAGIC_TYPE_UNKNOWN' if the MIME type can not be determined.
-    """
-    if not file_path:
-        return C.MAGIC_TYPE_UNKNOWN
-
-    global MY_MAGIC
-    if MY_MAGIC is None:
-        MY_MAGIC = _build_magic()
-
-    try:
-        found_type = MY_MAGIC.file(file_path)
-    except (magic.MagicException, TypeError):
-        found_type = C.MAGIC_TYPE_UNKNOWN
-
-    return found_type
 
 
 def validate_path_argument(path):
@@ -215,7 +150,7 @@ def validate_path_argument(path):
     elif not path.strip():
         _raise('Path is None/empty')
 
-    _path = util.syspath(path)
+    _path = util.enc.syspath(path)
 
     if not os.path.exists(_path):
         _raise('Path does not exist')
