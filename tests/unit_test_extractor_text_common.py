@@ -79,7 +79,7 @@ class TestAbstractTextExtractor(TestCase):
 
     def test__get_raw_text_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e._get_text(self.test_file)
+            self.e.extract_text(self.test_file)
 
     def test_check_dependencies_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

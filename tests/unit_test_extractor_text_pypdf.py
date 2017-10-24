@@ -160,11 +160,11 @@ class TestPyPdfTextExtractor(unittest.TestCase):
         self.assertIsNotNone(self.e)
 
     def test__get_text_returns_something(self):
-        self.assertIsNotNone(self.e._get_text(TESTFILE_GMAIL_PATH))
+        self.assertIsNotNone(self.e.extract_text(TESTFILE_GMAIL_PATH))
 
     def test__get_text_returns_expected_type(self):
         self.assertTrue(
-            uu.is_internalstring(self.e._get_text(TESTFILE_GMAIL_PATH))
+            uu.is_internalstring(self.e.extract_text(TESTFILE_GMAIL_PATH))
         )
 
     def test_method_execute_returns_something(self):
@@ -201,11 +201,11 @@ class TestPyPdfTextExtractorSimplePdf(unittest.TestCase):
         self.e = PyPDFTextExtractor()
 
     def test__get_text_returns_something(self):
-        self.assertIsNotNone(self.e._get_text(TESTFILE_SIMPLEST_PATH))
+        self.assertIsNotNone(self.e.extract_text(TESTFILE_SIMPLEST_PATH))
 
     def test__get_text_returns_expected_type(self):
         self.assertTrue(
-            uu.is_internalstring(self.e._get_text(TESTFILE_SIMPLEST_PATH))
+            uu.is_internalstring(self.e.extract_text(TESTFILE_SIMPLEST_PATH))
         )
 
     def test_method_execute_returns_something(self):

@@ -148,10 +148,10 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
         self.assertIsNotNone(self.e)
 
     def test__get_text_returns_something(self):
-        self.assertIsNotNone(self.e._get_text(self.test_fileobject))
+        self.assertIsNotNone(self.e.extract_text(self.test_fileobject))
 
     def test__get_text_returns_expected_type(self):
-        self.assertEqual(type(self.e._get_text(self.test_fileobject)), str)
+        self.assertEqual(type(self.e.extract_text(self.test_fileobject)), str)
 
     def test_method_execute_returns_something(self):
         self.assertIsNotNone(self.e.execute(self.test_fileobject))

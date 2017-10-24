@@ -94,7 +94,7 @@ class TestTesseractOCRTextExtractorWithImageFile(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test__get_raw_text_returns_expected_type(self):
-        self.assertTrue(uu.is_internalstring(self.e._get_text(TEST_IMAGE_FILE)))
+        self.assertTrue(uu.is_internalstring(self.e.extract_text(TEST_IMAGE_FILE)))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_execute_returns_expected_type(self):

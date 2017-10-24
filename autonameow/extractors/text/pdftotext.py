@@ -52,7 +52,7 @@ class PdftotextTextExtractor(AbstractTextExtractor):
         else:
             self.cache = None
 
-    def _get_text(self, fileobject):
+    def extract_text(self, fileobject):
         if self.cache:
             _cached = self.cache.get(fileobject)
             if _cached is not None:
