@@ -199,4 +199,4 @@ def cli_main(argv=None):
     except AWAssertionError as e:
         _error_msg = format_sanitycheck_error(str(e))
         print_error(_error_msg)
-        sys.exit(3)
+        sys.exit(C.EXIT_SANITYFAIL)
