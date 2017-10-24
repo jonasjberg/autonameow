@@ -22,6 +22,7 @@
 import logging
 
 from core import (
+    persistence,
     types,
     util
 )
@@ -44,18 +45,11 @@ class AbstractTextExtractor(BaseExtractor):
     def __init__(self):
         super(AbstractTextExtractor, self).__init__()
 
-    def execute(self, fileobject, **kwargs):
-        try:
-            self.log.debug('{!s} starting initial extraction'.format(self))
-            text = self.extract_text(fileobject)
-        except ExtractorError as e:
-            self.log.warning('{!s}: {!s}'.format(self, e))
-            raise
-        except NotImplementedError as e:
-            self.log.debug('[WARNING] Called unimplemented code in {!s}: '
-                           '{!s}'.format(self, e))
-            raise ExtractorError
+        self.cache = None
+        self.init_cache()
 
+    def execute(self, fileobject, **kwargs):
+        text = self._get_text(fileobject)
         sanity.check_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
@@ -68,12 +62,44 @@ class AbstractTextExtractor(BaseExtractor):
         )
         return {'full': ExtractedData.from_raw(wrapper, text)}
 
+    def _get_text(self, fileobject):
+        # Read cached text
+        if self.cache:
+            _cached = self.cache.get(fileobject)
+            if _cached is not None:
+                self.log.info('Using cached text for: {!r}'.format(fileobject))
+                return _cached
+
+        try:
+            self.log.debug('{!s} starting initial extraction'.format(self))
+            text = self.extract_text(fileobject)
+        except ExtractorError as e:
+            self.log.warning('{!s}: {!s}'.format(self, e))
+            raise
+        except NotImplementedError as e:
+            self.log.debug('[WARNING] Called unimplemented code in {!s}: '
+                           '{!s}'.format(self, e))
+            raise ExtractorError
+
+        # Store text to cache
+        if text and self.cache:
+            self.cache.set(fileobject, text)
+
+        return text
+
     def extract_text(self, fileobject):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
     def check_dependencies(cls):
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def init_cache(self):
+        _cache = persistence.get_cache(str(self))
+        if _cache:
+            self.cache = _cache
+        else:
+            self.cache = None
 
 
 def decode_raw(raw_text):

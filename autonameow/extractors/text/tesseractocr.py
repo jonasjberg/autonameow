@@ -33,10 +33,7 @@ try:
 except ImportError:
     Image = None
 
-from core import (
-    persistence,
-    util
-)
+from core import util
 from core.util import (
     sanity,
     textutils
@@ -58,19 +55,7 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(TesseractOCRTextExtractor, self).__init__()
 
-        _cache = persistence.get_cache(str(self))
-        if _cache:
-            self.cache = _cache
-        else:
-            self.cache = None
-
     def extract_text(self, fileobject):
-        if self.cache:
-            _cached = self.cache.get(fileobject)
-            if _cached is not None:
-                self.log.info('Using cached text for: {!r}'.format(fileobject))
-                return _cached
-
         # NOTE: Tesseract behaviour will likely need tweaking depending
         #       on the image contents. Will need to pass "tesseract_args"
         #       somehow. I'm starting to think image OCR does not belong
@@ -90,8 +75,6 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
         text = textutils.normalize_unicode(text)
         text = textutils.remove_nonbreaking_spaces(text)
         if text:
-            if self.cache:
-                self.cache.set(fileobject, text)
             return text
         else:
             return ''

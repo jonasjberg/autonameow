@@ -32,10 +32,7 @@ except ImportError:
     PyPdfError = None
     PdfReadError = None
 
-from core import (
-    persistence,
-    util
-)
+from core import util
 from core.util import sanity
 from extractors import ExtractorError
 from extractors.text.common import AbstractTextExtractor
@@ -50,25 +47,9 @@ class PyPDFTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(PyPDFTextExtractor, self).__init__()
 
-        self._cached_text = {}
-
-        _cache = persistence.get_cache(str(self))
-        if _cache:
-            self.cache = _cache
-        else:
-            self.cache = None
-
     def extract_text(self, fileobject):
-        if self.cache:
-            _cached = self.cache.get(fileobject)
-            if _cached is not None:
-                self.log.info('Using cached text for: {!r}'.format(fileobject))
-                return _cached
-
         text = extract_pdf_content_with_pypdf(fileobject.abspath)
         if text and len(text) > 1:
-            if self.cache:
-                self.cache.set(fileobject, text)
             return text
         else:
             self.log.debug('Unable to extract textual content from PDF')

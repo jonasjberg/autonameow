@@ -22,10 +22,7 @@
 import logging
 import subprocess
 
-from core import (
-    persistence,
-    util
-)
+from core import util
 from core.util import (
     sanity,
     textutils
@@ -46,19 +43,7 @@ class PdftotextTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(PdftotextTextExtractor, self).__init__()
 
-        _cache = persistence.get_cache(str(self))
-        if _cache:
-            self.cache = _cache
-        else:
-            self.cache = None
-
     def extract_text(self, fileobject):
-        if self.cache:
-            _cached = self.cache.get(fileobject)
-            if _cached is not None:
-                self.log.info('Using cached text for: {!r}'.format(fileobject))
-                return _cached
-
         result = extract_pdf_content_with_pdftotext(fileobject.abspath)
         if not result:
             return ''
@@ -68,8 +53,6 @@ class PdftotextTextExtractor(AbstractTextExtractor):
         text = textutils.normalize_unicode(text)
         text = textutils.remove_nonbreaking_spaces(text)
         if text:
-            if self.cache:
-                self.cache.set(fileobject, text)
             return text
         else:
             return ''
