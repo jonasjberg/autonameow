@@ -61,6 +61,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     """
     HANDLES_MIME_TYPES = ['video/*', 'application/pdf', 'image/*',
                           'application/epub+zip', 'text/*']
+    is_slow = False
 
     EXTRACTEDDATA_WRAPPER_LOOKUP = {
         'ASF:CreationDate': ExtractedData(

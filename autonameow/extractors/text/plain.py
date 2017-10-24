@@ -42,6 +42,7 @@ DEFAULT_ENCODING = 'utf8'
 
 class PlainTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['text/plain']
+    is_slow = False
 
     def __init__(self):
         super(PlainTextExtractor, self).__init__()

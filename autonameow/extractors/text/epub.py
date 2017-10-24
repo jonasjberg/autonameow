@@ -31,6 +31,7 @@ log = logging.getLogger(__name__)
 
 class EpubTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
+    is_slow = False
 
     # TODO: [TD0028] Implement extractor for E-books (pdf/epub/mobi/..)
 

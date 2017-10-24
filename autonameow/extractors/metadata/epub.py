@@ -38,6 +38,7 @@ from thirdparty import epubzilla
 
 class EpubMetadataExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
+    is_slow = False
 
     def __init__(self):
         super(EpubMetadataExtractor, self).__init__()
