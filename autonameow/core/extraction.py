@@ -84,18 +84,15 @@ def keep_slow_extractors_if_required(extractor_klasses, required_extractors):
     out = []
 
     for klass in extractor_klasses:
-        if klass.is_slow is True:
-            if klass in required_extractors:
-                out.append(klass)
-                log.debug(
-                    'Included required slow extractor "{!s}"'.format(klass)
-                )
-            else:
-                log.debug(
-                    'Excluded slow extractor "{!s}"'.format(klass)
-                )
-        else:
+        if not klass.is_slow:
             out.append(klass)
+        elif klass.is_slow:
+            if klass in required_extractors:
+                log.debug('Extractor "{!s}" is required ..'.format(klass))
+                out.append(klass)
+                log.debug('Included slow extractor "{!s}"'.format(klass))
+            else:
+                log.debug('Excluded slow extractor "{!s}"'.format(klass))
 
     return out
 
