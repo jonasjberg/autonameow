@@ -23,10 +23,8 @@ import logging
 import sys
 import traceback
 
-from core import (
-    constants,
-    logs
-)
+from core import logs
+from core import constants as C
 from core.autonameow import Autonameow
 from core.exceptions import AWAssertionError
 from core.options import parse_args
@@ -138,7 +136,6 @@ ______________________________________________________
 '''
     # TODO: [TD0095] Clean this up. Try to minimize imports.
     import platform
-    from core import constants as C
 
     typ, val, tb = sys.exc_info()
     msg = ERROR_MSG_TEMPLATE.format(
@@ -163,7 +160,7 @@ def cli_main(argv=None):
     args = argv
     if not args:
         print('Add "--help" to display usage information.')
-        sys.exit(constants.EXIT_SUCCESS)
+        sys.exit(C.EXIT_SUCCESS)
 
     # Handle the command line arguments with argparse.
     opts = parse_args(args)
