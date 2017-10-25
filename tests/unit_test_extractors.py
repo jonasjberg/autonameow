@@ -47,10 +47,7 @@ class TestBaseExtractor(TestCase):
         self.test_file = uu.make_temporary_file()
         self.e = extractors.BaseExtractor()
 
-        class DummyFileObject(object):
-            def __init__(self):
-                self.mime_type = 'image/jpeg'
-        self.fo = DummyFileObject()
+        self.fo = uu.fileobject_testfile('magic_jpg.jpg')
 
     def test_base_extractor_class_is_available(self):
         self.assertIsNotNone(extractors.BaseExtractor)
@@ -58,27 +55,24 @@ class TestBaseExtractor(TestCase):
     def test_base_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
-    def test_method_query_raises_not_implemented_error(self):
+    def test_query_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.e.execute(self.test_file)
 
-    def test_method_str_is_defined_and_reachable(self):
+    def test_check_dependencies_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            _ = self.e.check_dependencies()
+
+    def test_str_is_defined_and_reachable(self):
         self.assertIsNotNone(str(self.e))
         self.assertIsNotNone(self.e.__str__)
 
-    def test_method_str_returns_type_string(self):
+    def test_str_returns_type_string(self):
         self.assertTrue(uu.is_internalstring(str(self.e)))
         self.assertTrue(uu.is_internalstring(str(self.e.__str__)))
 
-    def test_method_str_returns_expected(self):
+    def test_str_returns_expected(self):
         self.assertEqual(str(self.e), 'BaseExtractor')
-
-    def test_class_method_can_handle_is_defined(self):
-        self.assertIsNotNone(self.e.can_handle)
-
-    def test_class_method_can_handle_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
-            self.e.can_handle(self.fo)
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.HANDLES_MIME_TYPES)
@@ -97,6 +91,19 @@ class TestBaseExtractor(TestCase):
         actual = self.e._meowuri_leaf_from_module_name()
         expect = 'common'
         self.assertEqual(actual, expect)
+
+
+class TestBaseExtractorClassMethods(TestCase):
+    def setUp(self):
+        self.c = extractors.BaseExtractor
+
+    def test_unimplemented_check_dependencies(self):
+        with self.assertRaises(NotImplementedError):
+            _ = self.c.check_dependencies()
+
+    def test_unimplemented_can_handle(self):
+        with self.assertRaises(NotImplementedError):
+            self.c.can_handle('foo')
 
 
 class TestFindExtractorModuleSourceFiles(TestCase):
