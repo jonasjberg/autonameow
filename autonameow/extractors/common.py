@@ -147,6 +147,9 @@ class BaseExtractor(object):
             else:
                 return _name
 
+        # "The base class for the exceptions that are raised when a key or
+        # index used on a mapping or sequence is invalid: IndexError, KeyError.
+        # This can be raised directly by codecs.lookup()." -- Python 3.6.1 docs
         except LookupError:
             return C.UNDEFINED_MEOWURI_PART
 
