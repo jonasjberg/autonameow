@@ -88,6 +88,22 @@ class AbstractTextExtractor(BaseExtractor):
         return text
 
     def extract_text(self, fileobject):
+        """
+        Extracts any unstructured textual contents from the given file.
+
+        NOTE: Should return an Unicode str or raise an exception.
+              DO NOT return None! Instead, return an empty string.
+
+        Args:
+            fileobject: The instance of 'FileObject' to extract text from.
+
+        Returns:
+            Any textual contents of the file as an "internal" Unicode str.
+            An empty string is returned if no text is found.
+
+        Raises:
+            ExtractorError: An error occurred during extraction.
+        """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
