@@ -41,6 +41,8 @@ class PdftotextTextExtractor(AbstractTextExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
     is_slow = False
 
+    # TODO: [TD0116] Remove persistent caching in the text extractors.
+
     def __init__(self):
         super(PdftotextTextExtractor, self).__init__()
 

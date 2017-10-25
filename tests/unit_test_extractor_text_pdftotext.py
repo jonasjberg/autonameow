@@ -27,19 +27,6 @@ from extractors.text.pdftotext import extract_pdf_content_with_pdftotext
 import unit_utils as uu
 
 
-class TestExtractPdfContentWithPdftotext(unittest.TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
-    def test_returns_expected_type(self):
-        self.assertEqual(type(extract_pdf_content_with_pdftotext(pdf_file)),
-                         str)
-
-    def test_returns_expected_text(self):
-        self.assertEqual(extract_pdf_content_with_pdftotext(pdf_file),
-                         expected_text)
-
-
 pdf_file = uu.abspath_testfile('simplest_pdf.md.pdf')
 expected_text = '''Probably a title
 Text following the title, probably.
@@ -54,6 +41,18 @@ Test test. This file contains no digits whatsoever.
 1
 
 '''
+
+
+class TestExtractPdfContentWithPdftotext(unittest.TestCase):
+    def setUp(self):
+        self.maxDiff = None
+        self.actual = extract_pdf_content_with_pdftotext(pdf_file)
+
+    def test_returns_expected_type(self):
+        self.assertTrue(uu.is_internalstring(self.actual))
+
+    def test_returns_expected_text(self):
+        self.assertEqual(self.actual, expected_text)
 
 
 class TestSetup(unittest.TestCase):
@@ -148,10 +147,12 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
         self.assertIsNotNone(self.e)
 
     def test__get_text_returns_something(self):
-        self.assertIsNotNone(self.e.extract_text(self.test_fileobject))
+        actual = self.e.extract_text(self.test_fileobject)
+        self.assertIsNotNone(actual)
 
     def test__get_text_returns_expected_type(self):
-        self.assertEqual(type(self.e.extract_text(self.test_fileobject)), str)
+        actual = self.e.extract_text(self.test_fileobject)
+        self.assertEqual(type(actual), str)
 
     def test_method_execute_returns_something(self):
         self.assertIsNotNone(self.e.execute(self.test_fileobject))
