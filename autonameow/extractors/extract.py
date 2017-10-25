@@ -32,61 +32,57 @@ from core import (
     util
 )
 from core.fileobject import FileObject
+from core.model import ExtractedData
 
 
 log = logging.getLogger(__name__)
 
 
-def do_extract_text(paths):
-    for path in paths:
-        # Sanity checking the "file_path" is part of 'FileObject' init.
-        try:
-            current_file = FileObject(path)
-        except (exceptions.InvalidFileArgumentError,
-                exceptions.FilesystemError) as e:
-            log.warning('{!s} - SKIPPING: "{!s}"'.format(
-                e, util.enc.displayable_path(path))
-            )
-            continue
+def do_extract_text(fileobject):
+    klasses = extractors.suitable_extractors_for(fileobject)
+    if klasses:
+        log.debug('Got {} extractors for "{!s}"'.format(len(klasses),
+                                                        fileobject))
+        for k in klasses:
+            log.debug(str(k))
 
-        klasses = extractors.suitable_extractors_for(current_file)
-        if klasses:
-            log.debug('Got {} extractors for "{!s}"'.format(len(klasses),
-                                                            current_file))
-            for k in klasses:
-                log.debug(str(k))
+        text_extractors = [
+            k for k in klasses
+            if k.meowuri_prefix().startswith('extractor.text')
+        ]
+        log.debug('Got {} text extractors for "{!s}"'.format(
+            len(text_extractors), fileobject
+        ))
+        for te in text_extractors:
+            log.debug(str(te))
 
-            text_extractors = [
-                k for k in klasses
-                if k.meowuri_prefix().startswith('extractor.text')
-            ]
-            log.debug('Got {} text extractors for "{!s}"'.format(
-                len(text_extractors), current_file
-            ))
+        if text_extractors:
             for te in text_extractors:
-                log.debug(str(te))
+                _extractor_instance = te()
+                try:
+                    _text = _extractor_instance(fileobject)
+                except extractors.ExtractorError as e:
+                    log.error('Halted extractor "{!s}": {!s}'.format(
+                        _extractor_instance, e
+                    ))
+                    continue
 
-            if text_extractors:
-                for te in text_extractors:
-                    _extractor_instance = te()
-                    try:
-                        _text = _extractor_instance(current_file)
-                    except extractors.ExtractorError as e:
-                        log.error('Halted extractor "{!s}": {!s}'.format(
-                            _extractor_instance, e
-                        ))
-                        continue
+                assert isinstance(_text, dict)
+                _extracted_data = _text.get('full')
+                assert isinstance(_extracted_data, ExtractedData)
 
-                    log.info('Extracted Text:')
-                    print(str(_text))
-
-    try:
-        pass
-    except extractors.ExtractorError as e:
-        # log.error('Halted extractor "{!s}": {!s}'.format(
-        #     _extractor_instance, e
-        # ))
-        pass
+                if _extracted_data.value:
+                    # TODO: Factor out method of presenting the extracted text.
+                    log.info('{!s} Extracted Text:'.format(_extractor_instance))
+                    print(_extracted_data.value)
+                else:
+                    log.error('Unable to extract text from "{!s}"'.format(
+                        fileobject
+                    ))
+        else:
+            log.warning(
+                'No text extractors are suited for "{!s}"'.format(fileobject)
+            )
 
 
 def do_extract_metadata(paths):
@@ -122,15 +118,15 @@ def main(options=None):
     logs.init_logging(options)
 
     if not opts.get('input_paths'):
-        log.info(
-            'No input path(s) specified. Use "--help" for usage information.'
+        log.warning(
+            'No input path(s) specified.  Use "--help" for usage information.'
         )
         sys.exit(C.EXIT_SUCCESS)
 
     _extract_any = opts.get('extract_text') or opts.get('extract_metadata')
     if not _extract_any:
-        log.info(
-            'Nothing to do! Use "--help" for usage information.'
+        log.warning(
+            'Not sure what to extract.  Use "--help" for usage information.'
         )
         sys.exit(C.EXIT_SUCCESS)
 
@@ -140,13 +136,30 @@ def main(options=None):
         C.DEFAULT_FILESYSTEM_IGNORE,
         recurse=False
     )
-    log.info('Got {} files to process'.format(len(files_to_process)))
 
-    if opts.get('extract_text'):
-        do_extract_text(files_to_process)
+    _num_files = len(files_to_process)
+    log.info('Got {} files to process'.format(_num_files))
 
-    if opts.get('extract_metadata'):
-        do_extract_metadata(files_to_process)
+    for _num, _file in enumerate(files_to_process, start=1):
+        # Sanity checking the "file_path" is part of 'FileObject' init.
+        try:
+            current_file = FileObject(_file)
+        except (exceptions.InvalidFileArgumentError,
+                exceptions.FilesystemError) as e:
+            log.warning('{!s} - SKIPPING: "{!s}"'.format(
+                e, util.enc.displayable_path(_file))
+            )
+            continue
+
+        log.info('Processing ({}/{}) "{!s}" ..'.format(
+            _num, _num_files, current_file
+        ))
+
+        if opts.get('extract_text'):
+            do_extract_text(current_file)
+
+        if opts.get('extract_metadata'):
+            do_extract_metadata(current_file)
 
 
 def parse_args(raw_args):
