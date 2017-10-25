@@ -132,7 +132,7 @@ def start(fileobject,
 
         try:
             _results = _extractor_instance(fileobject)
-        except ExtractorError as e:
+        except (ExtractorError, NotImplementedError) as e:
             log.error('Halted extractor "{!s}": {!s}'.format(
                 _extractor_instance, e
             ))
