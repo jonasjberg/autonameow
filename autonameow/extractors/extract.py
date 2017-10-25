@@ -24,11 +24,79 @@ import argparse
 import logging
 import sys
 
-
+import extractors
 from core import constants as C
+from core import logs
+from core import (
+    exceptions,
+    util
+)
+from core.fileobject import FileObject
 
 
 log = logging.getLogger(__name__)
+
+
+def do_extract_text(paths):
+    for path in paths:
+        # Sanity checking the "file_path" is part of 'FileObject' init.
+        try:
+            current_file = FileObject(path)
+        except (exceptions.InvalidFileArgumentError,
+                exceptions.FilesystemError) as e:
+            log.warning('{!s} - SKIPPING: "{!s}"'.format(
+                e, util.enc.displayable_path(path))
+            )
+            continue
+
+        klasses = extractors.suitable_extractors_for(current_file)
+        if klasses:
+            log.debug('Got {} extractors for "{!s}"'.format(len(klasses),
+                                                            current_file))
+            for k in klasses:
+                log.debug(str(k))
+
+            text_extractors = [
+                k for k in klasses
+                if k.meowuri_prefix().startswith('extractor.text')
+            ]
+            log.debug('Got {} text extractors for "{!s}"'.format(
+                len(text_extractors), current_file
+            ))
+            for te in text_extractors:
+                log.debug(str(te))
+
+            if text_extractors:
+                for te in text_extractors:
+                    _extractor_instance = te()
+                    try:
+                        _text = _extractor_instance(current_file)
+                    except extractors.ExtractorError as e:
+                        log.error('Halted extractor "{!s}": {!s}'.format(
+                            _extractor_instance, e
+                        ))
+                        continue
+
+                    log.info('Extracted Text:')
+                    print(str(_text))
+
+    try:
+        pass
+    except extractors.ExtractorError as e:
+        # log.error('Halted extractor "{!s}": {!s}'.format(
+        #     _extractor_instance, e
+        # ))
+        pass
+
+
+def do_extract_metadata(paths):
+    try:
+        pass
+    except extractors.ExtractorError as e:
+        # log.error('Halted extractor "{!s}": {!s}'.format(
+        #     _extractor_instance, e
+        # ))
+        pass
 
 
 def main(options=None):
@@ -51,20 +119,34 @@ def main(options=None):
     }
     opts.update(options)
 
+    logs.init_logging(options)
+
     if not opts.get('input_paths'):
         log.info(
             'No input path(s) specified. Use "--help" for usage information.'
         )
-        sys.exit(0)
+        sys.exit(C.EXIT_SUCCESS)
 
     _extract_any = opts.get('extract_text') or opts.get('extract_metadata')
     if not _extract_any:
         log.info(
             'Nothing to do! Use "--help" for usage information.'
         )
-        sys.exit(0)
+        sys.exit(C.EXIT_SUCCESS)
 
-    pass
+    # Path name encoding boundary. Returns list of paths in internal format.
+    files_to_process = util.disk.normpaths_from_opts(
+        opts.get('input_paths'),
+        C.DEFAULT_FILESYSTEM_IGNORE,
+        recurse=False
+    )
+    log.info('Got {} files to process'.format(len(files_to_process)))
+
+    if opts.get('extract_text'):
+        do_extract_text(files_to_process)
+
+    if opts.get('extract_metadata'):
+        do_extract_metadata(files_to_process)
 
 
 def parse_args(raw_args):
@@ -98,6 +180,29 @@ def parse_args(raw_args):
         help='Extract metadata from the given file(s).'
     )
 
+    optgrp_output = parser.add_mutually_exclusive_group()
+    optgrp_output.add_argument(
+        '--debug',
+        dest='debug',
+        action='store_true',
+        default=False,
+        help='Enables debug mode, prints detailed debug information.'
+    )
+    optgrp_output.add_argument(
+        '-v', '--verbose',
+        dest='verbose',
+        action='store_true',
+        default=False,
+        help='Enables verbose mode, prints additional information.'
+    )
+    optgrp_output.add_argument(
+        '-q', '--quiet',
+        dest='quiet',
+        action='store_true',
+        default=False,
+        help='Enables quiet mode, suppress all but renames.'
+    )
+
     return parser.parse_args(raw_args)
 
 
@@ -121,8 +226,6 @@ def cli_main(argv=None):
         'debug': opts.debug,
         'verbose': opts.verbose,
         'quiet': opts.quiet,
-
-        'show_version': opts.show_version,
 
         'extract_text': opts.extract_text,
         'extract_metadata': opts.extract_metadata,
