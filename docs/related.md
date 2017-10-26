@@ -258,6 +258,16 @@ Information Extraction in Python
 > visualization tools like Tableau or analytics tools like Excel.
 
 
+`Wandora`
+---------
+* Website: <http://wandora.org/www/>
+* Sources: <https://github.com/wandora-team/wandora>
+* Documentation: <http://wandora.org/wiki/Main_Page>
+
+> Wandora is a desktop application to collect, store, manipulate and publish
+> information, especially associative data and data about WWW resources.
+
+
 
 [1]: http://karl-voit.at
 [2]: http://karl-voit.at/managing-digital-photographs/
