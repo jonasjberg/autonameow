@@ -151,3 +151,13 @@ current_unix_time()
               *) { echo 'ERROR: Unsupported Operating System!' 1>&2 ; exit 1 ; } ;;
     esac
 }
+
+# Calculates the execution time by taking the difference of two unix
+# timestamps.  The expected arguments are start and end times.
+# Returns the time delta in milliseconds.
+calculate_execution_time()
+{
+    local _time_start="$1"
+    local _time_end="$2"
+    echo "$(((${_time_end} - ${_time_start}) / 1000000))"
+}
