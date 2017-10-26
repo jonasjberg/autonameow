@@ -26,6 +26,7 @@ from core.exceptions import (
     EncodingBoundaryViolation
 )
 from core.util import sanity
+from core import constants as C
 
 
 class TestSanityCheckInternalBytestring(TestCase):
@@ -53,7 +54,7 @@ class TestSanityCheckInternalString(TestCase):
 
         _assert_valid('')
         _assert_valid('foo')
-        _assert_valid(b'foo'.decode('utf8'))
+        _assert_valid(b'foo'.decode(C.DEFAULT_ENCODING))
 
     def test_raises_exception_for_non_bytes_values(self):
         def _assert_raises(test_input):

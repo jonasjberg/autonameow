@@ -196,7 +196,8 @@ def load_yaml_file(file_path):
         ConfigReadError: The configuration file could not be read and/or loaded.
     """
     try:
-        with open(util.enc.syspath(file_path), 'r', encoding='utf-8') as fh:
+        with open(util.enc.syspath(file_path), 'r',
+                  encoding=C.DEFAULT_ENCODING) as fh:
             return yaml.safe_load(fh)
     except (OSError, yaml.YAMLError, UnicodeDecodeError) as e:
         raise ConfigReadError(file_path, e)
@@ -219,8 +220,10 @@ def write_yaml_file(dest_path, yaml_data):
         raise ConfigWriteError(dest_path, 'Insufficient permissions')
 
     try:
-        with open(util.enc.syspath(dest_path), 'w', encoding='utf-8') as fh:
-            yaml.dump(yaml_data, fh, default_flow_style=False, encoding='utf-8',
+        with open(util.enc.syspath(dest_path), 'w',
+                  encoding=C.DEFAULT_ENCODING) as fh:
+            yaml.dump(yaml_data, fh, default_flow_style=False,
+                      encoding=C.DEFAULT_ENCODING,
                       width=160, indent=4)
     except (OSError, yaml.YAMLError) as e:
         raise ConfigWriteError(dest_path, e)

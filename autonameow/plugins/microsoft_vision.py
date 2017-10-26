@@ -38,6 +38,7 @@ from core.model import (
     ExtractedData,
     WeightedMapping
 )
+from core import constants as C
 from core.namebuilder import fields
 from plugins import BasePlugin
 
@@ -68,7 +69,7 @@ def query_api(image_file, api_key):
         conn.request("POST", "/vision/v1.0/describe?%s" % params, content,
                      headers)
         response = conn.getresponse()
-        response_data = response.read().decode('utf-8')
+        response_data = response.read().decode(C.DEFAULT_ENCODING)
         json_data = json.loads(response_data)
         conn.close()
         return json_data
@@ -131,7 +132,7 @@ def get_tags(json_data, count=None):
 
 def _read_api_key_from_file(file_path):
     try:
-        with open(file_path, mode='r', encoding='utf8') as f:
+        with open(file_path, mode='r', encoding=C.DEFAULT_ENCODING) as f:
             api_key = f.read()
             return api_key.strip()
     except OSError:

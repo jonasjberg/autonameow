@@ -33,6 +33,7 @@ from core.config.field_parsers import (
     parse_versioning,
     suitable_field_parser_for
 )
+from core import constants as C
 from core.model import MeowURI
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -366,9 +367,14 @@ class TestSuitableFieldParserFor(TestCase):
         self.assertTrue(isinstance(actual, list))
 
     def test_returns_expected_given_invalid_mime_type_field(self):
-        actual = suitable_field_parser_for(MeowURI('generic.contents.miiime_type'))
+        actual = suitable_field_parser_for(
+            MeowURI('generic.contents.miiime_type')
+        )
         self.assertEqual(len(actual), 0)
-        actual = suitable_field_parser_for(MeowURI('generic.contents.miiime_type'))
+
+        actual = suitable_field_parser_for(
+            MeowURI('generic.contents.miiime_type')
+        )
         self.assertEqual(len(actual), 0)
 
     def test_expect_datetime_field_parser(self):
@@ -461,9 +467,9 @@ class TestValidateVersionNumber(TestCase):
         _assert_none(b'1.2 3')
         _assert_none(b'1 2.3')
         _assert_none(b'1 2 3')
-        _assert_none('€.2.3'.encode('utf-8'))
-        _assert_none('€.%.3'.encode('utf-8'))
-        _assert_none('€.%.&'.encode('utf-8'))
+        _assert_none('€.2.3'.encode(C.DEFAULT_ENCODING))
+        _assert_none('€.%.3'.encode(C.DEFAULT_ENCODING))
+        _assert_none('€.%.&'.encode(C.DEFAULT_ENCODING))
         _assert_none('v0.0')
         _assert_none('v1.2')
         _assert_none('v1.2.x')
@@ -481,6 +487,6 @@ class TestValidateVersionNumber(TestCase):
         _assert_none(b'v1.2 3')
         _assert_none(b'v1 2.3')
         _assert_none(b'v1 2 3')
-        _assert_none('v€.2.3'.encode('utf-8'))
-        _assert_none('v€.%.3'.encode('utf-8'))
-        _assert_none('v€.%.&'.encode('utf-8'))
+        _assert_none('v€.2.3'.encode(C.DEFAULT_ENCODING))
+        _assert_none('v€.%.3'.encode(C.DEFAULT_ENCODING))
+        _assert_none('v€.%.&'.encode(C.DEFAULT_ENCODING))

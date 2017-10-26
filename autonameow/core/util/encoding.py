@@ -44,6 +44,8 @@ import locale
 import os
 import sys
 
+from core import constants as C
+
 __all__ = [
     'arg_encoding', 'bytestring_path', 'convert_command_args',
     'decode_', 'displayable_path', 'encode_', 'normpath', 'syspath'
@@ -95,11 +97,11 @@ def arg_encoding():
     locale-sensitive strings).
     """
     try:
-        return locale.getdefaultlocale()[1] or 'utf-8'
+        return locale.getdefaultlocale()[1] or C.DEFAULT_ENCODING
     except ValueError:
         # Invalid locale environment variable setting. To avoid
-        # failing entirely for no good reason, assume UTF-8.
-        return 'utf-8'
+        # failing entirely, use default fallback encoding.
+        return C.DEFAULT_ENCODING
 
 
 def _fsencoding():
@@ -113,8 +115,8 @@ def _fsencoding():
         # used for the filesystem. However, we only use the Unicode API
         # for Windows paths, so the encoding is actually immaterial so
         # we can avoid dealing with this nastiness. We arbitrarily
-        # choose UTF-8.
-        encoding = 'utf-8'
+        # choose the default fallback encoding (UTF-8).
+        encoding = C.DEFAULT_ENCODING
     return encoding
 
 
@@ -143,11 +145,11 @@ def bytestring_path(path):
     if os.path.__name__ == 'ntpath' and path.startswith(WINDOWS_MAGIC_PREFIX):
         path = path[len(WINDOWS_MAGIC_PREFIX):]
 
-    # Try to encode with default encodings, but fall back to utf-8.
+    # Try to encode with default encodings, fall back to default (utf-8).
     try:
         return path.encode(_fsencoding())
     except (UnicodeError, LookupError):
-        return path.encode('utf-8')
+        return path.encode(C.DEFAULT_ENCODING)
 
 
 def displayable_path(bpath):
@@ -177,7 +179,7 @@ def displayable_path(bpath):
     try:
         return bpath.decode(_fsencoding(), 'ignore')
     except (UnicodeError, LookupError):
-        return bpath.decode('utf-8', 'ignore')
+        return bpath.decode(C.DEFAULT_ENCODING, 'ignore')
 
 
 def syspath(path, prefix=True):
@@ -237,22 +239,22 @@ def encode_(string):
     if isinstance(string, bytes):
         return string
 
-    # Try to encode with default encodings, but fall back to utf-8.
+    # Try to encode with default encodings, fall back to default (utf-8).
     try:
         return string.encode(_fsencoding())
     except (UnicodeError, LookupError):
-        return string.encode('utf-8')
+        return string.encode(C.DEFAULT_ENCODING)
 
 
 def decode_(string):
     if isinstance(string, str):
         return string
 
-    # Try to encode with default encodings, but fall back to utf-8.
+    # Try to encode with default encodings, fall back to default (utf-8)
     try:
         return string.decode(_fsencoding())
     except (UnicodeError, LookupError):
         try:
-            return string.decode('utf-8')
+            return string.decode(C.DEFAULT_ENCODING)
         except (UnicodeError, LookupError):
-            return string.decode('utf-8', errors='replace')
+            return string.decode(C.DEFAULT_ENCODING, errors='replace')

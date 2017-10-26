@@ -30,6 +30,7 @@ from core.util.disk import (
     path_components,
     path_ancestry
 )
+from core import constants as C
 import unit_utils as uu
 
 
@@ -223,9 +224,12 @@ class TestCompareBasenames(TestCase):
         _assert_true(b'a', b'a')
         _assert_true(b'foo', b'foo')
         _assert_true(b'_', b'_')
-        _assert_true('å'.encode('utf-8'), 'å'.encode('utf-8'))
-        _assert_true('ö'.encode('utf-8'), 'ö'.encode('utf-8'))
-        _assert_true('A_ö'.encode('utf-8'), 'A_ö'.encode('utf-8'))
+        _assert_true('å'.encode(C.DEFAULT_ENCODING),
+                     'å'.encode(C.DEFAULT_ENCODING))
+        _assert_true('ö'.encode(C.DEFAULT_ENCODING),
+                     'ö'.encode(C.DEFAULT_ENCODING))
+        _assert_true('A_ö'.encode(C.DEFAULT_ENCODING),
+                     'A_ö'.encode(C.DEFAULT_ENCODING))
         _assert_true(b'__', b'__')
 
     def test_comparing_unequal_basenames_returns_false(self):
@@ -238,15 +242,16 @@ class TestCompareBasenames(TestCase):
         _assert_false(b' ', b'y')
         _assert_false(b'x', b'y')
         _assert_false(b'foo_', b'foo')
-        _assert_false('ä'.encode('utf-8'), b'a')
-        _assert_false('Ä'.encode('utf-8'), b'A')
-        _assert_false('Ä'.encode('utf-8'), 'A'.encode('utf-8'))
+        _assert_false('ä'.encode(C.DEFAULT_ENCODING), b'a')
+        _assert_false('Ä'.encode(C.DEFAULT_ENCODING), b'A')
+        _assert_false('Ä'.encode(C.DEFAULT_ENCODING),
+                      'A'.encode(C.DEFAULT_ENCODING))
 
         # Looks identical but the second string contains character '\xc2\xa0'
         # between the last timestamp digit and 'W' instead of a simple space.
         _assert_false(
-            '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode('utf-8'),
-            '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode('utf-8')
+            '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode(C.DEFAULT_ENCODING),
+            '2017-08-14T015051 Working on autonameow -- dev projects.png'.encode(C.DEFAULT_ENCODING)
         )
 
 

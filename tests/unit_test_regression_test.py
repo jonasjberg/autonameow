@@ -61,26 +61,26 @@ class TestRegressionTestUtilityFunctions(TestCase):
         _f(b'1337_this_directory_should_not_exist')
 
 
-class TestRegressionTestInfo(TestCase):
-    def test_frompath(self):
-        _regressiontest_dir = regtest_abspath(
-            uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
-        )
-        actual = RegressionTestInfo.frompath(_regressiontest_dir)
-
-        self.assertEqual(
-            actual.args,
-            ['--automagic', '--batch']
-        )
-        self.assertEqual(
-            actual.desc,
-            'Good old "test_files/gmail.pdf" integration test ..'
-        )
-        self.assertEqual(
-            actual.expect,
-            '2016-01-11T124132 gmail.pdf'
-        )
-        self.assertEqual(
-            actual.testfiles,
-            [uu.abspath_testfile('gmail.pdf')]
-        )
+# class TestRegressionTestInfo(TestCase):
+#     def test_frompath(self):
+#         _regressiontest_dir = regtest_abspath(
+#             uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
+#         )
+#         actual = RegressionTestInfo.frompath(_regressiontest_dir)
+#
+#         self.assertEqual(
+#             actual.args,
+#             ['--automagic', '--batch']
+#         )
+#         self.assertEqual(
+#             actual.desc,
+#             'Good old "test_files/gmail.pdf" integration test ..'
+#         )
+#         self.assertEqual(
+#             actual.expect,
+#             '2016-01-11T124132 gmail.pdf'
+#         )
+#         self.assertEqual(
+#             actual.testfiles,
+#             [uu.abspath_testfile('gmail.pdf')]
+#         )

@@ -38,6 +38,7 @@ from core import (
     exceptions,
     util
 )
+from core import constants as C
 from core.config.default_config import DEFAULT_CONFIG
 from core.config.configuration import Configuration
 import unit_utils as uu
@@ -55,7 +56,7 @@ def load_yaml(path):
     if yaml is None:
         raise AssertionError('Missing required module "yaml". Install "pyyaml"')
 
-    with open(path, 'r', encoding='utf-8') as fh:
+    with open(path, 'r', encoding=C.DEFAULT_ENCODING) as fh:
         data = yaml.safe_load(fh)
     return data
 

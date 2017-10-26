@@ -65,6 +65,10 @@ MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
 UNKNOWN_BYTESIZE = 0
 
 
+# Fallback encoding.
+DEFAULT_ENCODING = 'utf8'
+
+
 # Default values for required configuration fields.
 DEFAULT_RULE_RANKING_BIAS = 0.5
 DEFAULT_RULE_DESCRIPTION = 'UNDESCRIBED'
