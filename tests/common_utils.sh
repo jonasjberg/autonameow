@@ -74,6 +74,13 @@ else
     export AUTONAMEOW_WIKI_ROOT_DIR
 fi
 
+# Get the absolute path to a file in the "$SRCROOT/test_files" directory.
+# Expects the first and only argument to be the basename of the desired file.
+abspath_testfile()
+{
+    ( cd "$SELF_DIR" && realpath -e "../test_files/${1}" )
+}
+
 # Takes the basename of a logfile as the first and only argument.
 # Any dates matching 'YYYY-MM-DDTHHMMSS' are returned as 'YYYY-MM-DD HH:MM:SS'.
 get_timestamp_from_basename()
