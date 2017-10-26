@@ -71,6 +71,21 @@ class TestUnitUtilityConstants(TestCase):
     def test_autonameow_srcroot_dir_is_executable(self):
         self.assertTrue(os.access(uuconst.AUTONAMEOW_SRCROOT_DIR, os.X_OK))
 
+    def test_regressiontest_dir_is_defined(self):
+        self.assertIsNotNone(uuconst.REGRESSIONTEST_DIR)
+
+    def test_regressiontest_dir_exists(self):
+        self.assertTrue(os.path.exists(uuconst.REGRESSIONTEST_DIR))
+
+    def test_regressiontest_dir_is_a_directory(self):
+        self.assertTrue(os.path.isdir(uuconst.REGRESSIONTEST_DIR))
+
+    def test_regressiontest_dir_is_readable(self):
+        self.assertTrue(os.access(uuconst.REGRESSIONTEST_DIR, os.R_OK))
+
+    def test_regressiontest_dir_is_executable(self):
+        self.assertTrue(os.access(uuconst.REGRESSIONTEST_DIR, os.X_OK))
+
 
 class TestUnitUtilityAbsPathTestFile(TestCase):
     def test_returns_expected_encoding(self):
