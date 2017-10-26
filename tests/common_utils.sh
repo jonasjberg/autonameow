@@ -133,3 +133,21 @@ run_task()
         printf " ${C_RED}[FAILED]${C_RESET}\n"
     fi
 }
+
+# Returns the current time as a UNIX timestamp.
+current_unix_time()
+{
+    # The 'date' command differs between versions; the GNU coreutils version
+    # uses '+%N' to print nanoseconds, which is missing in the BSD version
+    # shipped with MacOS.  Circumvent hackily by inlining Python call ..
+    #
+    # NOTE: This should probably only be done once for performance.
+    #       Lets just assume we're mostly interested in relative measurements.
+
+    case "$OSTYPE" in
+        darwin*) python -c 'import time ; t="%.9f"%time.time() ; print t.replace(".","")';;
+         linux*) date "+%s%N" ;;
+           msys) date "+%s%N" ;; # NOTE: Not a target OS!
+              *) { echo 'ERROR: Unsupported Operating System!' 1>&2 ; exit 1 ; } ;;
+    esac
+}
