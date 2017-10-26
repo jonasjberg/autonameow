@@ -120,11 +120,11 @@ Media library management system for obsessive-compulsive music geeks.
 * Website: <http://beets.io/>
 * Sources: <https://github.com/beetbox/beets>
 
-Beets is the media library management system for obsessive-compulsive music
-geeks.  The purpose of beets is to get your music collection right once and for
-all. It catalogs your collection, automatically improving its metadata as it
-goes. It then provides a bouquet of tools for manipulating and accessing your
-music.
+> Beets is the media library management system for obsessive-compulsive music
+> geeks.  The purpose of beets is to get your music collection right once and for
+> all. It catalogs your collection, automatically improving its metadata as it
+> goes. It then provides a bouquet of tools for manipulating and accessing your
+> music.
 
 ~~I use this myself and it does work well for automatically restructuring a
 music collection.~~
@@ -145,8 +145,8 @@ just works.
 * Website: <http://movie-renamer.fr>
 * Sources: <https://code.google.com/archive/p/movie-renamer>
 
-Movie Renamer is an Open Source application Windows/Linux/OSX, totally free
-written in java, for easily renaming movie files.
+> Movie Renamer is an Open Source application Windows/Linux/OSX, totally free
+> written in java, for easily renaming movie files.
 
 
 `grobid`
@@ -155,9 +155,9 @@ A machine learning software for extracting information from scholarly documents.
 
 * Sources: <https://github.com/kermitt2/grobid>
 
-GROBID is a machine learning library for extracting, parsing and re-structuring
-raw documents such as PDF into structured TEI-encoded documents with a
-particular focus on technical and scientific publications.
+> GROBID is a machine learning library for extracting, parsing and re-structuring
+> raw documents such as PDF into structured TEI-encoded documents with a
+> particular focus on technical and scientific publications.
 
 
 `CERMINE`
@@ -166,10 +166,10 @@ Content ExtRactor and MINEr.
 
 * Sources: <https://github.com/CeON/CERMINE>
 
-CERMINE is a Java library and a web service (cermine.ceon.pl) for extracting
-metadata and content from PDF files containing academic publications.  CERMINE
-is written in Java at Centre for Open Science at Interdisciplinary Centre for
-Mathematical and Computational Modelling, University of Warsaw.
+> CERMINE is a Java library and a web service (cermine.ceon.pl) for extracting
+> metadata and content from PDF files containing academic publications.  CERMINE
+> is written in Java at Centre for Open Science at Interdisciplinary Centre for
+> Mathematical and Computational Modelling, University of Warsaw.
 
 
 `Rexa metatagger`
@@ -178,11 +178,11 @@ Scientific paper header and reference extraction.
 
 * Sources: <https://github.com/iesl/rexa1-metatagger>
 
-Metatagger is a system which consumes the output of the Rexa's pstotext tool
-and produces an annotated version of the text, finishing by writing the results
-to an XML file. The system is a structured series of pipelined components, each
-performing some task, such as layout analysis (e.g., header block, abstract,
-body text), or finer-grained labelling, such as identifying reference fields.
+> Metatagger is a system which consumes the output of the Rexa's pstotext tool
+> and produces an annotated version of the text, finishing by writing the results
+> to an XML file. The system is a structured series of pipelined components, each
+> performing some task, such as layout analysis (e.g., header block, abstract,
+> body text), or finer-grained labelling, such as identifying reference fields.
 
 
 `movemetafs`
@@ -191,14 +191,14 @@ A searchable filesystem metadata store for Linux.
 
 * Website: <https://pts.50.hu>
 
-movemetafs is a searchable filesystem metadata store for Linux (with MySQL,
-Perl and FUSE), which lets users tag local files (including image, video,
-audio and text files) by simply moving the files to a special folder using
-any file manager, and it also lets users find files by tags, using a boolean
-search query. The original files (and their names) are kept intact.
-movemetafs doesn't have its own user interface, but it is usable with any
-file manager. movemetafs also lets users attach (unsearchable) textual
-description to files.
+> movemetafs is a searchable filesystem metadata store for Linux (with MySQL,
+> Perl and FUSE), which lets users tag local files (including image, video,
+> audio and text files) by simply moving the files to a special folder using
+> any file manager, and it also lets users find files by tags, using a boolean
+> search query. The original files (and their names) are kept intact.
+> movemetafs doesn't have its own user interface, but it is usable with any
+> file manager. movemetafs also lets users attach (unsearchable) textual
+> description to files.
 
 
 `Apache Tika`
@@ -210,10 +210,10 @@ structured text content from various documents using existing parser libraries.
 * Sources: <https://gitbox.apache.org/repos/asf/tika.git>
 * Sources: <https://github.com/apache/tika/>
 
-The Apache Tika(TM) toolkit detects and extracts metadata and text from over a
-thousand different file types (such as PPT, XLS, and PDF). All of these file
-types can be parsed through a single interface, making Tika useful for search
-engine indexing, content analysis, translation, and much more.
+> The Apache Tika(TM) toolkit detects and extracts metadata and text from over a
+> thousand different file types (such as PPT, XLS, and PDF). All of these file
+> types can be parsed through a single interface, making Tika useful for search
+> engine indexing, content analysis, translation, and much more.
 
 
 `yargy`
@@ -223,8 +223,8 @@ Tiny package for information extraction
 * Sources: <https://github.com/natasha/yargy>
 * Documentation: <http://yargy.readthedocs.io/en/latest/>
 
-Yargy is a Earley parser, that uses russian morphology for facts extraction
-process, and written in pure python
+> Yargy is a Earley parser, that uses russian morphology for facts extraction
+> process, and written in pure python
 
 
 `iepy`
@@ -234,9 +234,9 @@ Information Extraction in Python
 * Sources: <https://github.com/machinalis/iepy>
 * Documentation: <http://iepy.readthedocs.org/en/latest/>
 
-IEPY is an open source tool for Information Extraction focused on Relation Extraction.
-Yargy is a Earley parser, that uses russian morphology for facts extraction
-process, and written in pure python
+> IEPY is an open source tool for Information Extraction focused on Relation Extraction.
+> Yargy is a Earley parser, that uses russian morphology for facts extraction
+> process, and written in pure python
 
 
 `DeepDive`
