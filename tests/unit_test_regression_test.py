@@ -32,6 +32,7 @@ import unit_utils_constants as uuconst
 
 class TestRegressionTestUtilityFunctions(TestCase):
     def test_get_regressiontests_rootdir(self):
+        self.skipTest('TODO: [TD0117] Implement automated regression tests')
         actual = get_regressiontests_rootdir()
         self.assertTrue(uu.dir_exists(actual))
         self.assertTrue(uu.is_abspath(actual))
