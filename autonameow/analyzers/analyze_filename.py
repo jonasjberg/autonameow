@@ -77,13 +77,23 @@ class FilenameAnalyzer(BaseAnalyzer):
 
     def get_datetime(self):
         # TODO: [TD0110] Improve finding probable date/time in file names.
-        results = []
-
         fn_timestamps = self._get_datetime_from_name()
         if fn_timestamps:
-            results += fn_timestamps
+            if len(fn_timestamps) == 1:
+                _timestamp = fn_timestamps[0]
+                _value = _timestamp.get('value')
+                if _value:
+                    _prob = _timestamp.get('weight', 0.001)
+                    return ExtractedData(
+                        coercer=types.AW_TIMEDATE,
+                        mapped_fields=[
+                            WeightedMapping(fields.DateTime, probability=_prob),
+                            WeightedMapping(fields.Date, probability=_prob),
+                        ],
+                        generic_field=gf.GenericDateCreated
+                    )(_value)
 
-        return results if results else None
+        return fn_timestamps or None
 
     def get_title(self):
         return None
@@ -177,6 +187,18 @@ class FilenameAnalyzer(BaseAnalyzer):
             fn = types.AW_STRING(fn)
         except types.AWTypeError:
             return []
+
+        # Strip non-digits from the left.
+        fn = re.sub(r'^[^\d]+', '', fn)
+
+        try:
+            dt = types.AW_TIMEDATE(fn)
+        except types.AWTypeError:
+            pass
+        else:
+            return [{'value': dt,
+                     'source': 'timedate_coercion',
+                     'weight': 1}]
 
         results = []
 

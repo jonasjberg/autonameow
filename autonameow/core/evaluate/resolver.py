@@ -118,8 +118,18 @@ class Resolver(object):
                                                                    _data)
 
                 if isinstance(_data, list):
-                    # TODO: Fix this!
-                    log.info('Not sure which of many entries to use ..')
+                    if len(_data) == 1:
+                        _data = _data[0]
+                    else:
+                        # TODO: Fix this!
+                        log.info('Not sure which of many entries to use ..')
+                        continue
+
+                if isinstance(_data, dict):
+                    # TODO: [TD0108] Fix inconsistent plugin results.
+                    # TODO: [TD0102] Fix inconsistent analyzer results.
+                    # TODO: [TD0106] Fix inconsistent extractor results.
+                    log.warning('[TD0108][TD0102][TD0106] Fix inconsistencies!')
                     continue
 
                 log.debug('Got {}'.format(_data_info))
