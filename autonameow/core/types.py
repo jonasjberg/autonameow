@@ -564,7 +564,12 @@ class TimeDate(BaseType):
 
     def coerce(self, value):
         try:
-            return try_parse_datetime(value)
+            string_value = AW_STRING(value)
+        except AWTypeError as e:
+            self._fail_coercion(value, msg=e)
+
+        try:
+            return try_parse_datetime(string_value)
         except (TypeError, ValueError) as e:
             self._fail_coercion(value, msg=e)
 
