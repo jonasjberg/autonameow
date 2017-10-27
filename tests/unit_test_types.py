@@ -521,9 +521,25 @@ class TestTypeTimeDate(TestCase):
 
     def test_call_with_coercible_data(self):
         expected = datetime.strptime('2017-07-12T20:50:15', '%Y-%m-%dT%H:%M:%S')
-        self.assertEqual(types.AW_TIMEDATE(expected), expected)
-        self.assertEqual(types.AW_TIMEDATE('2017-07-12T20:50:15'), expected)
-        self.assertEqual(types.AW_TIMEDATE('2017-07-12T205015'), expected)
+
+        def _ok(test_input):
+            actual = types.AW_TIMEDATE(test_input)
+            self.assertEqual(actual, expected)
+
+        _ok(expected)
+        _ok('2017-07-12T20:50:15')
+        _ok('2017-07-12T20-50-15')
+        _ok('2017-07-12T20_50_15')
+        _ok('2017-07-12T205015')
+        _ok('2017-07-12_20:50:15')
+        _ok('2017-07-12_20-50-15')
+        _ok('2017-07-12_20_50_15')
+        _ok('2017-07-12_205015')
+        _ok('2017-07-12-20:50:15')
+        _ok('2017-07-12-20-50-15')
+        _ok('2017-07-12-20_50_15')
+        _ok('2017-07-12-205015')
+
         # TODO: Handle things like 'Thu Aug 31 11:51:57 2017 +0200'
         # TODO: Add testing additional input data.
 
