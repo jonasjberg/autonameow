@@ -43,6 +43,8 @@ High Priority
 
 * `[TD0087]` Clean up messy and sometimes duplicated wrapping of "raw" data.
 
+* `[TD0117]` Implement automated regression testing.
+
 
 Medium Priority
 ---------------

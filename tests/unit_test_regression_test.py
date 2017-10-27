@@ -61,6 +61,7 @@ class TestRegressionTestUtilityFunctions(TestCase):
         _f(b'1337_this_directory_should_not_exist')
 
 
+# TODO: [TD0117] Implement automated regression tests
 # class TestRegressionTestInfo(TestCase):
 #     def test_frompath(self):
 #         _regressiontest_dir = regtest_abspath(

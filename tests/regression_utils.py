@@ -43,6 +43,7 @@ class RegressionTestInfo(object):
 
     @classmethod
     def frompath(cls, abspath):
+        # TODO: [TD0117] Implement automated regression tests
         pass
 
 
