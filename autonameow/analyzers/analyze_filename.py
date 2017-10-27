@@ -293,12 +293,18 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'zip': {'zip'},
         'epub': {'epub'},
     },
+    'text/html': {
+        'html': {'html', 'htm'},
+        'txt': {'txt'},
+    },
     'text/plain': {
         'c': {'c'},
         'cpp': {'cpp', 'c++'},
+        'css': {'css'},
         'csv': {'csv'},
         'gemspec': {'gemspec'},
         'h': {'h'},
+        'html': {'html', 'htm'},
         'java': {'java'},
         'js': {'js'},
         'json': {'json'},
@@ -311,6 +317,12 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'sh': {'bash', 'sh'},
         'txt': {'txt'},
         'yaml': {'yaml'},
+    },
+    'text/x-makefile': {
+        'asm': {'asm'}
+    },
+    'application/vnd.ms-powerpoint': {
+        'ppt': {'ppt'},
     },
     'application/x-gzip': {
         'tar.gz': {'tar.gz'}

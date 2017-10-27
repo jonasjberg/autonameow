@@ -439,6 +439,7 @@ class MimeType(BaseType):
                  'MIME_TYPE_LOOKUP is empty')
 
     # Any custom "extension to MIME-type"-mappings goes here.
+    MIME_TYPE_LOOKUP['asm'] = 'text/x-asm'
     MIME_TYPE_LOOKUP['gz'] = 'application/x-gzip'
     MIME_TYPE_LOOKUP['lzma'] = 'application/x-lzma'
     MIME_TYPE_LOOKUP['rar'] = 'application/x-rar'
