@@ -464,7 +464,7 @@ class MimeType(BaseType):
         # after the the value coercion. A valid MIME-type can not be determined
         # by looking at the primitive type alone.
         if value is not None and self.acquiescent(value):
-            if value.strip() is not None:
+            if value.strip():
                 value = self.coerce(value)
                 return value
         return self.null()

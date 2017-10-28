@@ -139,6 +139,7 @@ class FilenameAnalyzer(BaseAnalyzer):
             'Attempting to get likely extension for MIME-type: "{!s}"  Basename'
             ' suffix: "{!s}"'.format(file_mimetype, file_basename_suffix))
         result = likely_extension(file_basename_suffix, file_mimetype)
+        self.log.debug('Likely extension: "{!s}"'.format(result))
         return ExtractedData(
             coercer=types.AW_PATHCOMPONENT,
             mapped_fields=[
@@ -338,13 +339,21 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
 
 
 def likely_extension(basename_suffix, mime_type):
-    ext_suffixes_map = MIMETYPE_EXTENSION_SUFFIXES_MAP.get(mime_type)
-    if ext_suffixes_map:
+    if mime_type and basename_suffix:
+        ext_suffixes_map = MIMETYPE_EXTENSION_SUFFIXES_MAP.get(mime_type, {})
         for ext, suffixes in ext_suffixes_map.items():
             if basename_suffix in suffixes:
                 return ext
 
-    return types.AW_MIMETYPE.format(mime_type)
+    _coerced_mime = types.AW_MIMETYPE(mime_type)
+    if _coerced_mime:
+        return types.AW_MIMETYPE.format(_coerced_mime)
+
+    _coerced_suffix = types.AW_MIMETYPE(basename_suffix)
+    if _coerced_suffix:
+        return types.AW_MIMETYPE.format(_coerced_suffix)
+
+    return None
 
 
 class SubstringFinder(object):
