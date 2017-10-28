@@ -292,6 +292,9 @@ class BasePersistence(object):
 
 
 class PicklePersistence(BasePersistence):
+    """
+    Persistence implementation using 'pickle' to read/write data to disk.
+    """
     def _load(self, file_path):
         with open(util.enc.syspath(file_path), 'rb') as fh:
             return pickle.load(fh, encoding='bytes')
