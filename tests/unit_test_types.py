@@ -1213,6 +1213,12 @@ class TestTypeMimeType(TestCase):
         _assert_coerces(b'.JPG', 'image/jpeg')
         _assert_coerces(b'image/jpeg', 'image/jpeg')
         _assert_coerces('application/epub+zip', 'application/epub+zip')
+        _assert_coerces('application/x-lzma', 'application/x-lzma')
+        _assert_coerces('tar.lzma', 'application/x-lzma')
+        _assert_coerces('lzma', 'application/x-lzma')
+        _assert_coerces('application/gzip', 'application/gzip')
+        _assert_coerces('tar.gz', 'application/gzip')
+        _assert_coerces('gz', 'application/gzip')
 
     def test_call_with_noncoercible_data(self):
         def _assert_uncoercible(test_data):

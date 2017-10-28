@@ -290,6 +290,10 @@ MIMETYPE_EXTENSION_SUFFIXES_MAP = {
         'mobi': {'mobi'},
         'pdf': {'pdf'}
     },
+    'application/gzip': {
+        'gz': {'gz'},
+        'tar.gz': {'tar.gz'},
+    },
     'application/zip': {
         'zip': {'zip'},
         'epub': {'epub'},

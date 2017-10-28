@@ -469,10 +469,15 @@ class MimeType(BaseType):
 
     # Any custom "extension to MIME-type"-mappings goes here.
     MIME_TYPE_LOOKUP['asm'] = 'text/x-asm'
-    MIME_TYPE_LOOKUP['gz'] = 'application/x-gzip'
+
+    # TODO: Inconsistent results 'application/gzip' and 'application/x-gzip'..?
+    MIME_TYPE_LOOKUP['gz'] = 'application/gzip'
+    # MIME_TYPE_LOOKUP['gz'] = 'application/x-gzip'
     MIME_TYPE_LOOKUP['lzma'] = 'application/x-lzma'
     MIME_TYPE_LOOKUP['rar'] = 'application/x-rar'
     MIME_TYPE_LOOKUP['rtf'] = 'text/rtf'
+    MIME_TYPE_LOOKUP['tar.gz'] = 'application/gzip'
+    MIME_TYPE_LOOKUP['tar.lzma'] = 'application/x-lzma'
     MIME_TYPE_LOOKUP['sh'] = 'text/x-shellscript'
 
     MIME_TYPE_LOOKUP_INV = {
