@@ -34,10 +34,6 @@ class TestConstants(TestCase):
         self.assertIsNotNone(C.EXIT_SUCCESS)
         self.assertTrue(isinstance(C.EXIT_SUCCESS, int))
 
-    def test_constants_contains_default_file_mime_type(self):
-        self.assertIsNotNone(C.MAGIC_TYPE_UNKNOWN)
-        self.assertTrue(uu.is_internalstring(C.MAGIC_TYPE_UNKNOWN))
-
     def test_constants_contains_default_rule_ranking_bias(self):
         self.assertIsNotNone(C.DEFAULT_RULE_RANKING_BIAS)
         self.assertTrue(isinstance(C.DEFAULT_RULE_RANKING_BIAS, float))

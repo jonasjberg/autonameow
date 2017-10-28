@@ -55,6 +55,34 @@ class AWTypeError(exceptions.AutonameowException):
     """Failure to coerce a value with one of the type coercers."""
 
 
+class BaseNullValue(object):
+    AS_STRING = 'NULL'
+
+    def __bool__(self):
+        return False
+
+    def __str__(self):
+        return self.AS_STRING
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        if type(other) == type(self):
+            return True
+        if self.__class__ == other:
+            return True
+        if isinstance(other, bool) and other is False:
+            return True
+        if isinstance(other, str) and other == str(self):
+            return True
+        return False
+
+
+class NullMIMEType(BaseNullValue):
+    # Default MIME type string used if the MIME type detection fails.
+    AS_STRING = 'MIME_UNKNOWN'
+
+
 class BaseType(object):
     """
     Base class for all custom types. Provides type coercion and known defaults.
@@ -425,7 +453,8 @@ class String(BaseType):
 class MimeType(BaseType):
     COERCIBLE_TYPES = (str, bytes)
     EQUIVALENT_TYPES = ()
-    NULL = C.MAGIC_TYPE_UNKNOWN
+    # NULL = C.MAGIC_TYPE_UNKNOWN
+    NULL = NullMIMEType()
 
     try:
         MIME_TYPE_LOOKUP = {
@@ -485,10 +514,11 @@ class MimeType(BaseType):
         return self.__call__(value)
 
     def format(self, value, **kwargs):
-        if value == C.MAGIC_TYPE_UNKNOWN:
-            return ''
-
         value = self.__call__(value)
+
+        if value == self.null():
+            return str(self.null())
+
         formatted = self.MIME_TYPE_LOOKUP_INV.get(value)
         return formatted if formatted is not None else self.null()
 
@@ -828,6 +858,8 @@ AW_MIMETYPE = MimeType()
 AW_TIMEDATE = TimeDate()
 AW_EXIFTOOLTIMEDATE = ExifToolTimeDate()
 AW_PYPDFTIMEDATE = PyPDFTimeDate()
+
+NULL_AW_MIMETYPE = NullMIMEType()
 
 
 # This is not clearly defined otherwise.

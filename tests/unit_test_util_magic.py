@@ -21,7 +21,10 @@
 
 from unittest import TestCase
 
-from core import constants as C
+from core import (
+    constants as C,
+    types
+)
 from core import util
 from core.exceptions import EncodingBoundaryViolation
 import unit_utils as uu
@@ -55,8 +58,9 @@ class TestFileTypeMagic(TestCase):
             self.assertEqual(expected_mime, actual)
 
     def test_filetype_magic_with_invalid_args(self):
-        self.assertEqual(util.magic.filetype(None),
-                         C.MAGIC_TYPE_UNKNOWN)
+        actual = util.magic.filetype(None)
+        self.assertEqual(actual, types.NULL_AW_MIMETYPE)
+        self.assertFalse(actual)
 
 
 class TestEvalMagicGlob(TestCase):
@@ -120,7 +124,8 @@ class TestEvalMagicGlob(TestCase):
         self._aF('application/epub+zip', ['image/jpeg'])
         self._aF('application/epub+zip', 'video/*')
         self._aF('application/epub+zip', ['video/*'])
-        self._aF('application/epub+zip', C.MAGIC_TYPE_UNKNOWN)
+        self._aF('application/epub+zip', str(types.NULL_AW_MIMETYPE))
+        self._aF('application/epub+zip', types.NULL_AW_MIMETYPE)
 
     def test_eval_magic_blob_returns_true_as_expected(self):
         self._aT('image/jpeg', '*/*')
@@ -137,13 +142,17 @@ class TestEvalMagicGlob(TestCase):
         self._aT('application/epub+zip', ['application/epub+zip'])
         self._aT('application/epub+zip', ['application/*'])
         self._aT('application/epub+zip', ['*/epub+zip'])
+        self._aT(types.NULL_AW_MIMETYPE, '*/*')
 
     def test_unknown_mime_type_evaluates_true_for_any_glob(self):
-        self._aT(C.MAGIC_TYPE_UNKNOWN, '*/*')
-        self._aT(C.MAGIC_TYPE_UNKNOWN, ['*/*'])
-        self._aT(C.MAGIC_TYPE_UNKNOWN, ['*/*', '*/jpeg'])
+        self._aT(types.NULL_AW_MIMETYPE, '*/*')
+        self._aT(types.NULL_AW_MIMETYPE, ['*/*'])
+        self._aT(types.NULL_AW_MIMETYPE, ['*/*', '*/jpeg'])
 
     def test_unknown_mime_type_evaluates_false(self):
-        self._aF(C.MAGIC_TYPE_UNKNOWN, 'image/jpeg')
-        self._aF(C.MAGIC_TYPE_UNKNOWN, ['image/jpeg'])
-        self._aF(C.MAGIC_TYPE_UNKNOWN, ['application/*', '*/jpeg'])
+        self._aF(types.NULL_AW_MIMETYPE, 'image/jpeg')
+        self._aF(types.NULL_AW_MIMETYPE, ['image/jpeg'])
+        self._aF(types.NULL_AW_MIMETYPE, ['application/*', '*/jpeg'])
+        self._aF(str(types.NULL_AW_MIMETYPE), 'image/jpeg')
+        self._aF(str(types.NULL_AW_MIMETYPE), ['image/jpeg'])
+        self._aF(str(types.NULL_AW_MIMETYPE), ['application/*', '*/jpeg'])

@@ -58,6 +58,86 @@ class TestBaseType(TestCase):
         self.assertFalse(self.base_type.equivalent(1))
 
 
+class TestBaseNullValue(TestCase):
+    def setUp(self):
+        self.bn = types.BaseNullValue()
+
+    def test_boolean_evaluation_returns_false(self):
+        self.assertFalse(self.bn)
+        self.assertEqual(self.bn, False)
+        self.assertFalse(bool(self.bn))
+        self.assertEqual(bool(self.bn), False)
+        self.assertTrue(not self.bn)
+        self.assertTrue(not bool(self.bn))
+        self.assertEqual(not self.bn, True)
+        self.assertEqual(not bool(self.bn), True)
+
+    def test_comparison(self):
+        def _is_equal(expected, value):
+            actual = self.bn == value
+            self.assertEqual(expected, actual)
+            self.assertTrue(bool(expected) == bool(actual))
+            self.assertTrue(isinstance(actual, bool))
+
+        _is_equal(True, value=False)
+        _is_equal(True, value=self.bn)
+        _is_equal(True, value=types.BaseNullValue())
+        _is_equal(True, value=types.BaseNullValue)
+        _is_equal(False, value=None)
+        _is_equal(False, value=True)
+        _is_equal(False, value=1)
+        _is_equal(False, value=[])
+        _is_equal(False, value={})
+        _is_equal(False, value=object)
+        _is_equal(False, value=object())
+        _is_equal(False, value='foo')
+
+    def test_str(self):
+        expected = 'NULL'
+        self.assertEqual(str(self.bn), expected)
+
+
+class TestNullMIMEType(TestCase):
+    def setUp(self):
+        self.nm = types.NullMIMEType()
+
+    def test_boolean_evaluation_returns_false(self):
+        self.assertFalse(self.nm)
+        self.assertEqual(self.nm, False)
+        self.assertFalse(bool(self.nm))
+        self.assertEqual(bool(self.nm), False)
+        self.assertTrue(not self.nm)
+        self.assertTrue(not bool(self.nm))
+        self.assertEqual(not self.nm, True)
+        self.assertEqual(not bool(self.nm), True)
+
+    def test_comparison(self):
+        def _is_equal(expected, value):
+            actual = self.nm == value
+            self.assertEqual(expected, actual)
+            self.assertTrue(bool(expected) == bool(actual))
+            self.assertTrue(isinstance(actual, bool))
+
+        _is_equal(True, value=False)
+        _is_equal(True, value=self.nm)
+        _is_equal(True, value=types.NullMIMEType())
+        _is_equal(True, value=types.NullMIMEType)
+        _is_equal(False, value=types.BaseNullValue())
+        _is_equal(False, value=types.BaseNullValue())
+        _is_equal(False, value=None)
+        _is_equal(False, value=True)
+        _is_equal(False, value=1)
+        _is_equal(False, value=[])
+        _is_equal(False, value={})
+        _is_equal(False, value=object)
+        _is_equal(False, value=object())
+        _is_equal(False, value='foo')
+
+    def test_str(self):
+        expected = types.NullMIMEType.AS_STRING
+        self.assertEqual(str(self.nm), expected)
+
+
 class TestTypeBoolean(TestCase):
     def test_coerces_expected_primitive(self):
         self.assertEqual(type(types.AW_BOOLEAN(None)), bool)
@@ -1053,13 +1133,13 @@ class TestTypeString(TestCase):
 
 
 class TestTypeMimeType(TestCase):
-    def test_coerces_expected_primitive(self):
-        self.assertEqual(type(types.AW_MIMETYPE(None)), str)
-
     def test_null(self):
-        self.assertEqual(types.AW_MIMETYPE.NULL, C.MAGIC_TYPE_UNKNOWN)
+        self.assertEqual(types.AW_MIMETYPE.NULL, types.NullMIMEType())
         self.assertNotEqual(types.AW_MIMETYPE(None), 'NULL',
                             'BaseType default "null" must be overridden')
+
+        self.assertFalse(types.AW_MIMETYPE.NULL)
+        self.assertFalse(types.AW_MIMETYPE.null())
 
     def test_normalize(self):
         def _assert_normalizes(test_data, expected):
@@ -1154,6 +1234,8 @@ class TestTypeMimeType(TestCase):
         def _assert_formats(test_data, expected):
             self.assertEqual(types.AW_MIMETYPE.format(test_data), expected)
 
+        _unknown = types.NULL_AW_MIMETYPE.AS_STRING
+
         _assert_formats('JPG', 'jpg')
         _assert_formats('image/jpeg', 'jpg')
         _assert_formats('pdf', 'pdf')
@@ -1193,6 +1275,18 @@ class TestTypeMimeType(TestCase):
         _assert_formats(b'EPUB', 'epub')
         _assert_formats(b'.EPUB', 'epub')
         _assert_formats(b'application/epub+zip', 'epub')
+        _assert_formats(None, _unknown)
+        _assert_formats('', _unknown)
+        _assert_formats('this is not a MIME-type', _unknown)
+        _assert_formats(1, _unknown)
+        _assert_formats(False, _unknown)
+        _assert_formats(True, _unknown)
+        _assert_formats([], _unknown)
+        _assert_formats({}, _unknown)
+
+    def test_boolean_evaluation(self):
+        actual = types.AW_MIMETYPE('this is an unknown MIME-type ..')
+        self.assertFalse(actual)
 
 
 class TestTryCoerce(TestCase):

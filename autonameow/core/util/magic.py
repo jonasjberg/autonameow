@@ -23,6 +23,7 @@ import logging
 import magic
 
 from core import constants as C
+from core import types
 from core.util import sanity
 
 
@@ -73,8 +74,9 @@ def filetype(file_path):
         The MIME type of the file at the given path ('application/pdf') or
         'C.MAGIC_TYPE_UNKNOWN' if the MIME type can not be determined.
     """
+    _unknown_mime_type = types.NullMIMEType()
     if not file_path:
-        return C.MAGIC_TYPE_UNKNOWN
+        return _unknown_mime_type
 
     global MY_MAGIC
     if MY_MAGIC is None:
@@ -83,7 +85,7 @@ def filetype(file_path):
     try:
         found_type = MY_MAGIC.file(file_path)
     except (AttributeError, magic.MagicException, TypeError):
-        found_type = C.MAGIC_TYPE_UNKNOWN
+        found_type = _unknown_mime_type
 
     return found_type
 
@@ -121,18 +123,22 @@ def eval_glob(mime_to_match, glob_list):
         TypeError: Got non-Unicode string arguments.
         ValueError: Argument "mime_to_match" is not on the form "foo/bar".
     """
-    if not mime_to_match or not glob_list:
+    if not glob_list:
         return False
 
-    if not (isinstance(mime_to_match, str)):
-        raise TypeError('Expected "mime_to_match" to be of type str')
-
     # Unknown MIME-type evaluates True if a glob matches anything, else False.
-    if mime_to_match == C.MAGIC_TYPE_UNKNOWN:
+    if mime_to_match == types.NULL_AW_MIMETYPE:
         if '*/*' in glob_list:
             return True
         else:
             return False
+
+    if not mime_to_match:
+        # Test again after the case above because NullMIMEType evaluates False.
+        return False
+
+    if not (isinstance(mime_to_match, str)):
+        raise TypeError('Expected "mime_to_match" to be of type str')
 
     if '/' not in mime_to_match:
         raise ValueError('Expected "mime_to_match" to be on the form "foo/bar"')
