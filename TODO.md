@@ -150,6 +150,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0118]` Improve robustness and refactor searching text for editions.
+
 * `[TD0114]` Improve the `EbookAnalyzer`.
 
 * `[TD0113]` Fix exceptions not being handled properly (?)

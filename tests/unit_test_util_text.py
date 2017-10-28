@@ -25,6 +25,7 @@ from core.util.text import find_edition
 
 
 class TestFindEdition(TestCase):
+    # TODO: [TD0118] Improve robustness and refactor finding editions in text.
     def test_returns_expected_edition(self):
         def _aE(test_input, expected):
             self.assertEqual(find_edition(test_input), expected)
@@ -78,8 +79,13 @@ class TestFindEdition(TestCase):
         _aE('Foobar 1st 10th Edition.pdf', 10)
 
     def test_returns_none_for_unavailable_editions(self):
-        self.assertIsNone(find_edition('Foo, Bar - Baz._'))
-        self.assertIsNone(find_edition('Foo, Bar 5 - Baz._'))
-        self.assertIsNone(find_edition('Foo, Bar 5s - Baz._'))
+        def _aN(test_input):
+            actual = find_edition(test_input)
+            self.assertIsNone(actual)
 
-
+        _aN('Foo, Bar - Baz._')
+        _aN('Foo, Bar 5 - Baz._')
+        _aN('Foo, Bar 5s - Baz._')
+        _aN('Foo 7 Entities')
+        _aN('7 Entities')
+        _aN('7')

@@ -25,10 +25,17 @@ from core import types
 from core.util import textutils
 
 
-RE_EDITION = re.compile(r'([0-9])+\s?((st|nd|rd|th)\s?|(e|ed))', re.IGNORECASE)
+RE_EDITION = re.compile(
+    r'([0-9])+\s?((st|nd|rd|th)\s?|(e|ed.?|edition))\b',
+    re.IGNORECASE
+)
 
 
 def find_edition(text):
+    # TODO: [TD0118] Refactor and improve robustness.
+    text = text.replace('_', ' ')
+    text = text.replace('-', ' ')
+
     matches = []
     for _num, _re_pattern in textutils.compiled_ordinal_regexes().items():
         m = _re_pattern.search(text)
