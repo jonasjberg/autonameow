@@ -29,6 +29,7 @@ except ImportError:
 
 from core import (
     config,
+    disk,
     exceptions,
     types,
     util
@@ -110,7 +111,7 @@ class BasePersistence(object):
                       ' "{!s}"'.format(self._dp))
 
             try:
-                util.disk.makedirs(self.persistence_dir_abspath)
+                disk.makedirs(self.persistence_dir_abspath)
             except exceptions.FilesystemError as e:
                 raise PersistenceError('Unable to create persistence directory'
                                        ' "{!s}": {!s}'.format(self._dp, e))
@@ -129,7 +130,7 @@ class BasePersistence(object):
 
     def has_persistencedir_permissions(self):
         try:
-            return util.disk.has_permissions(self.persistence_dir_abspath,
+            return disk.has_permissions(self.persistence_dir_abspath,
                                              'rwx')
         except (TypeError, ValueError):
             return False
@@ -236,7 +237,7 @@ class BasePersistence(object):
         _dp = util.enc.displayable_path(_p)
         log.debug('Deleting persistence file "{!s}"'.format(_dp))
         try:
-            util.disk.delete(_p, ignore_missing=True)
+            disk.delete(_p, ignore_missing=True)
         except exceptions.FilesystemError as e:
             raise PersistenceError(
                 'Error while deleting "{!s}"; {!s}'.format(_dp, e)

@@ -27,6 +27,7 @@ import time
 from core import (
     analysis,
     config,
+    disk,
     exceptions,
     extraction,
     interactive,
@@ -139,7 +140,7 @@ class Autonameow(object):
             self.exit_program(C.EXIT_SUCCESS)
 
         # Path name encoding boundary. Returns list of paths in internal format.
-        files_to_process = util.disk.normpaths_from_opts(
+        files_to_process = disk.normpaths_from_opts(
             self.opts.get('input_paths'),
             self.active_config.options['FILESYSTEM_OPTIONS']['ignore'],
             self.opts.get('recurse_paths')
@@ -493,9 +494,9 @@ class Autonameow(object):
         )
         sanity.check_internal_bytestring(dest_basename)
 
-        from_basename = util.disk.file_basename(from_path)
+        from_basename = disk.file_basename(from_path)
 
-        if util.disk.compare_basenames(from_basename, dest_basename):
+        if disk.compare_basenames(from_basename, dest_basename):
             _msg = (
                 'Skipped "{!s}" because the current name is the same as '
                 'the new name'.format(util.enc.displayable_path(from_basename),
@@ -506,7 +507,7 @@ class Autonameow(object):
         else:
             if dry_run is False:
                 try:
-                    util.disk.rename_file(from_path, dest_basename)
+                    disk.rename_file(from_path, dest_basename)
                 except (FileNotFoundError, FileExistsError, OSError) as e:
                     log.error('Rename FAILED: {!s}'.format(e))
                     raise exceptions.AutonameowException

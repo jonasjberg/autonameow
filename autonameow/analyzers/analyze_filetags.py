@@ -23,15 +23,16 @@ import re
 
 from analyzers import BaseAnalyzer
 from core import (
+    disk,
     types,
     util
 )
-from core.namebuilder import fields
+from core.model import genericfields as gf
 from core.model import (
     ExtractedData,
     WeightedMapping
 )
-from core.model import genericfields as gf
+from core.namebuilder import fields
 
 
 # TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
@@ -191,7 +192,7 @@ def partition_basename(file_path):
             'timestamp', 'description', 'tags', 'extension', where 'tags' is a
             list of Unicode strings, and the others are plain Unicode strings.
     """
-    prefix, suffix = util.disk.split_basename(file_path)
+    prefix, suffix = disk.split_basename(file_path)
 
     timestamp = FILENAMEPART_TS_REGEX.match(prefix)
     if timestamp:

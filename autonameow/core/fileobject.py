@@ -24,6 +24,7 @@ import os
 
 from core import constants as C
 from core import (
+    disk,
     exceptions,
     util
 )
@@ -56,8 +57,8 @@ class FileObject(object):
         self.mime_type = util.magic.filetype(self.abspath)
 
         # Extract parts of the file name.
-        self.basename_prefix = util.disk.basename_prefix(self.abspath)
-        self.basename_suffix = util.disk.basename_suffix(self.abspath)
+        self.basename_prefix = disk.basename_prefix(self.abspath)
+        self.basename_suffix = disk.basename_suffix(self.abspath)
 
         # Avoid round-tripping to the OS to decode strings.
         self.__cached_str = None

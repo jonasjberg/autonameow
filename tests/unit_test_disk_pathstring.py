@@ -21,16 +21,16 @@
 
 from unittest import TestCase
 
-from core.exceptions import EncodingBoundaryViolation
-from core.util.disk import (
+from core import constants as C
+from core.disk import (
     basename_prefix,
-    split_basename,
     basename_suffix,
     compare_basenames,
+    path_ancestry,
     path_components,
-    path_ancestry
+    split_basename
 )
-from core import constants as C
+from core.exceptions import EncodingBoundaryViolation
 import unit_utils as uu
 
 

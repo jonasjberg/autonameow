@@ -24,15 +24,16 @@ import argparse
 import logging
 import sys
 
-import extractors
 from core import constants as C
-from core import logs
 from core import (
+    disk,
     exceptions,
+    logs,
     util
 )
 from core.fileobject import FileObject
 from core.model import ExtractedData
+import extractors
 
 
 log = logging.getLogger(__name__)
@@ -131,7 +132,7 @@ def main(options=None):
         sys.exit(C.EXIT_SUCCESS)
 
     # Path name encoding boundary. Returns list of paths in internal format.
-    files_to_process = util.disk.normpaths_from_opts(
+    files_to_process = disk.normpaths_from_opts(
         opts.get('input_paths'),
         C.DEFAULT_FILESYSTEM_IGNORE,
         recurse=False

@@ -20,6 +20,10 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from core.util import encoding as enc
+from core.util import (
+    dateandtime,
+    magic
+)
 from core.util.checksum import *
 from core.util.misc import *
 from core.util.queue import GenericQueue
@@ -27,6 +31,3 @@ from core.util.textutils import (
     indent,
     remove_nonbreaking_spaces
 )
-from core.util import dateandtime
-from core.util import disk
-from core.util import magic

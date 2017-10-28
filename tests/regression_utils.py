@@ -21,8 +21,11 @@
 
 import os
 
-from core import util
 from core import constants as C
+from core import (
+    disk,
+    util
+)
 
 
 REGRESSIONTESTS_ROOT_ABSPATH = None
@@ -58,7 +61,7 @@ def regtest_abspath(basename):
     except Exception:
         raise AssertionError
 
-    assert util.disk.isdir(_normalized_abspath)
+    assert disk.isdir(_normalized_abspath)
     return _normalized_abspath
 
 
@@ -70,5 +73,5 @@ def get_regressiontests_rootdir():
         )
         REGRESSIONTESTS_ROOT_ABSPATH = util.enc.normpath(_rootdir)
 
-    assert util.disk.isdir(REGRESSIONTESTS_ROOT_ABSPATH)
+    assert disk.isdir(REGRESSIONTESTS_ROOT_ABSPATH)
     return REGRESSIONTESTS_ROOT_ABSPATH

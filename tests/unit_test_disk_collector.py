@@ -23,7 +23,7 @@ import os
 from unittest import TestCase
 
 from core import util
-from core.util.disk.collector import (
+from core.disk.collector import (
     get_files_gen,
     PathCollector
 )

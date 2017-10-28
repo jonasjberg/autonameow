@@ -22,9 +22,8 @@
 import logging
 
 import analyzers
-import extractors
-import plugins
 from core import (
+    disk,
     exceptions,
     util,
 )
@@ -36,6 +35,8 @@ from core.util import (
     sanity,
     textutils
 )
+import extractors
+import plugins
 
 
 log = logging.getLogger(__name__)
@@ -335,7 +336,7 @@ class Repository(object):
         if not file_path.strip():
             return
 
-        if util.disk.exists(file_path):
+        if disk.exists(file_path):
             return
 
         try:
