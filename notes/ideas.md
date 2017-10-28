@@ -750,6 +750,9 @@ These contain values keyed by `MeowURI` (level 2).
 >
 > <https://en.wikipedia.org/wiki/Metadata_repository>
 
+Blog post on nomenclature: [Metadata Repositories vs. Metadata
+Registries](http://datadictionary.blogspot.se/2008/03/metadata-repositories-vs-metadata.html)
+
 ### Retrieval
 The current system is far from being able to arrange and retrieve data
 "dynamically", using relational queries. This would sometimes be very useful..
