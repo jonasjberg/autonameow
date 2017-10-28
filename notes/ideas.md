@@ -15,6 +15,7 @@ Various ideas on possible upcoming features and changes to `autonameow`.
 * 2017-09-25 --- `jonasjberg` Add notes on the "Resolver"
 * 2017-09-28 --- `jonasjberg` Add notes on auto-completing MeowURIs.
 * 2017-10-14 --- `jonasjberg` Add thoughts on a reasoning/probability system.
+* 2017-10-28 --- `jonasjberg` Using a proper Metadata Repository.
 
 
 Field Candidates
@@ -726,3 +727,33 @@ related to file extension, would probably be weighted a bit lower.
 
 Everything would be combined and returned as an answer to the question
 originally posed by the `FilenameTokenizer` component.
+
+
+--------------------------------------------------------------------------------
+
+
+Using a proper Metadata Repository
+----------------------------------
+> Jonas Sjöberg, 2017-10-28.
+
+
+The current means of central storage uses the `Repository` class to store all
+data in a simple two level key-value store.
+The first primary key (level 1) is the `FileObject` that produced the data.
+These contain values keyed by `MeowURI` (level 2).
+
+
+### "Proper" Metadata Repositories
+
+> Metadata repository not only stores metadata like Metadata registry but also
+> adds relationships with related metadata types.
+>
+> <https://en.wikipedia.org/wiki/Metadata_repository>
+
+### Retrieval
+The current system is far from being able to arrange and retrieve data
+"dynamically", using relational queries. This would sometimes be very useful..
+
+### Primary Keys
+One specific general case is metadata that share a single unique identifier,
+like ISBN-numbers. This is currently not easy to implement.
