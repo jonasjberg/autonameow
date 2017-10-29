@@ -57,21 +57,14 @@ esac
 
 
 # Get the absolute path of the main module.
-#
-# NOTE: The version of readlink shipped with MacOS does not have the '-f'
-#       option. Description from the "readlink (GNU coreutils) 8.25" manpage:
-#
-#       -f, --canonicalize
-#       canonicalize by following every symlink in every component of
-#       the given name recursively; all but the last component must exist
-#
-if readlink --version 2>/dev/null | grep -q 'GNU coreutils'
+if realpath --version 2>/dev/null | grep -q 'GNU coreutils'
 then
     # Using GNU coreutils version of readlink.
-    AUTONAMEOW_PATH="$(dirname -- "$(readlink -fn -- "$0")")"
+    self_dir="$(realpath -e "$(dirname "$0")")"
+    AUTONAMEOW_PATH="$( ( cd "$self_dir" && realpath -e -- ".." ) )"
 else
     # Not using GNU coreutils readlink or readlink is not available.
-    _abs_self_path="$(python -c "import os; print(os.path.realpath(\"$0\"))")"
+    _abs_self_path="$(python -c "import os; print(os.path.realpath(os.path.join(\"$0\", os.pardir)))")"
     AUTONAMEOW_PATH="$(dirname -- "${_abs_self_path}")"
 fi
 
