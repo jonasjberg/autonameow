@@ -1145,6 +1145,8 @@ class TestTypeMimeType(TestCase):
         def _assert_normalizes(test_data, expected):
             self.assertEqual(types.AW_MIMETYPE.normalize(test_data), expected)
 
+        _assert_normalizes('asm', 'text/x-asm')
+        _assert_normalizes('gz', 'application/gzip')
         _assert_normalizes('pdf', 'application/pdf')
         _assert_normalizes('.pdf', 'application/pdf')
         _assert_normalizes('PDF', 'application/pdf')
@@ -1214,11 +1216,19 @@ class TestTypeMimeType(TestCase):
         _assert_coerces(b'image/jpeg', 'image/jpeg')
         _assert_coerces('application/epub+zip', 'application/epub+zip')
         _assert_coerces('application/x-lzma', 'application/x-lzma')
-        _assert_coerces('tar.lzma', 'application/x-lzma')
-        _assert_coerces('lzma', 'application/x-lzma')
         _assert_coerces('application/gzip', 'application/gzip')
-        _assert_coerces('tar.gz', 'application/gzip')
+        _assert_coerces('asm', 'text/x-asm')
         _assert_coerces('gz', 'application/gzip')
+        _assert_coerces('lzma', 'application/x-lzma')
+        _assert_coerces('mov', 'video/quicktime')
+        _assert_coerces('mp4', 'video/mp4')
+        _assert_coerces('rar', 'application/x-rar')
+        _assert_coerces('rtf', 'text/rtf')
+        _assert_coerces('sh', 'text/x-shellscript')
+        _assert_coerces('tar.gz', 'application/gzip')
+        _assert_coerces('tar.lzma', 'application/x-lzma')
+        _assert_coerces('txt', 'text/plain')
+        _assert_coerces('inode/x-empty', 'inode/x-empty')
 
     def test_call_with_noncoercible_data(self):
         def _assert_uncoercible(test_data):
@@ -1242,6 +1252,14 @@ class TestTypeMimeType(TestCase):
 
         _unknown = types.NULL_AW_MIMETYPE.AS_STRING
 
+        _assert_formats(None, _unknown)
+        _assert_formats('', _unknown)
+        _assert_formats('this is not a MIME-type', _unknown)
+        _assert_formats(1, _unknown)
+        _assert_formats(False, _unknown)
+        _assert_formats(True, _unknown)
+        _assert_formats([], _unknown)
+        _assert_formats({}, _unknown)
         _assert_formats('JPG', 'jpg')
         _assert_formats('image/jpeg', 'jpg')
         _assert_formats('pdf', 'pdf')
@@ -1281,14 +1299,8 @@ class TestTypeMimeType(TestCase):
         _assert_formats(b'EPUB', 'epub')
         _assert_formats(b'.EPUB', 'epub')
         _assert_formats(b'application/epub+zip', 'epub')
-        _assert_formats(None, _unknown)
-        _assert_formats('', _unknown)
-        _assert_formats('this is not a MIME-type', _unknown)
-        _assert_formats(1, _unknown)
-        _assert_formats(False, _unknown)
-        _assert_formats(True, _unknown)
-        _assert_formats([], _unknown)
-        _assert_formats({}, _unknown)
+        _assert_formats('text/plain', 'txt')
+        _assert_formats('inode/x-empty', '')
 
     def test_boolean_evaluation(self):
         actual = types.AW_MIMETYPE('this is an unknown MIME-type ..')

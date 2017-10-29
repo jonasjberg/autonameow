@@ -48,7 +48,16 @@ from core import constants as C
 
 # TODO: [TD0084] Add handling collections to type coercion classes.
 
+# Any custom "extension to MIME-type"-mappings goes here.
 mimetypes.add_type('application/epub+zip', '.epub')
+mimetypes.add_type('application/gzip', 'gz')
+mimetypes.add_type('application/x-lzma', 'lzma')
+mimetypes.add_type('application/x-rar', 'rar')
+mimetypes.add_type('text/rtf', 'rtf')
+mimetypes.add_type('application/gzip', 'tar.gz')
+mimetypes.add_type('application/x-lzma', 'tar.lzma')
+mimetypes.add_type('text/x-shellscript', 'sh')
+mimetypes.add_type('text/x-asm', 'asm')
 
 
 class AWTypeError(exceptions.AutonameowException):
@@ -467,31 +476,23 @@ class MimeType(BaseType):
     sanity.check(len(MIME_TYPE_LOOKUP) > 0,
                  'MIME_TYPE_LOOKUP is empty')
 
-    # Any custom "extension to MIME-type"-mappings goes here.
-    MIME_TYPE_LOOKUP['asm'] = 'text/x-asm'
-
     # TODO: Inconsistent results 'application/gzip' and 'application/x-gzip'..?
-    MIME_TYPE_LOOKUP['gz'] = 'application/gzip'
-    # MIME_TYPE_LOOKUP['gz'] = 'application/x-gzip'
-    MIME_TYPE_LOOKUP['lzma'] = 'application/x-lzma'
-    MIME_TYPE_LOOKUP['rar'] = 'application/x-rar'
-    MIME_TYPE_LOOKUP['rtf'] = 'text/rtf'
-    MIME_TYPE_LOOKUP['tar.gz'] = 'application/gzip'
-    MIME_TYPE_LOOKUP['tar.lzma'] = 'application/x-lzma'
-    MIME_TYPE_LOOKUP['sh'] = 'text/x-shellscript'
 
     MIME_TYPE_LOOKUP_INV = {
         mime: ext for ext, mime in MIME_TYPE_LOOKUP.items()
     }
 
     # Override "MIME-type to extension"-mappings here.
-    MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
     MIME_TYPE_LOOKUP_INV['image/jpeg'] = 'jpg'
     MIME_TYPE_LOOKUP_INV['video/quicktime'] = 'mov'
     MIME_TYPE_LOOKUP_INV['video/mp4'] = 'mp4'
+    MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
+    MIME_TYPE_LOOKUP_INV['inode/x-empty'] = ''
 
     KNOWN_EXTENSIONS = frozenset(MIME_TYPE_LOOKUP.keys())
-    KNOWN_MIME_TYPES = frozenset(MIME_TYPE_LOOKUP.values())
+    KNOWN_MIME_TYPES = frozenset(
+        list(MIME_TYPE_LOOKUP.values()) + ['inode/x-empty']
+    )
 
     def __call__(self, value=None):
         # Overrides the 'BaseType' __call__ method as to not perform the test
