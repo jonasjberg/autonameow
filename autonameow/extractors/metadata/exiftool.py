@@ -243,12 +243,25 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             generic_field=gf.GenericProducer
         ),
+        'PDF:Subject': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Description, probability=1),
+                WeightedMapping(fields.Tags, probability=0.8),
+                WeightedMapping(fields.Title, probability=0.5)
+            ],
+            generic_field=gf.GenericSubject,
+            # multivalued=True
+        ),
         'PDF:Title': ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
                 WeightedMapping(fields.Title, probability=1)
             ],
             generic_field=gf.GenericTitle
+        ),
+        'PDF:Trapped': ExtractedData(
+            coercer=types.AW_BOOLEAN
         ),
         'SourceFile': ExtractedData(types.AW_PATH),
         'QuickTime:CompatibleBrands': ExtractedData(
