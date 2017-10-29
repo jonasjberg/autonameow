@@ -21,22 +21,16 @@
 
 import logging
 
-import analyzers
 from core import (
     disk,
     exceptions,
-    util,
+    util
 )
 from core.model import (
     ExtractedData,
     MeowURI
 )
-from core.util import (
-    sanity,
-    textutils
-)
-import extractors
-import plugins
+from core.util import textutils
 
 
 log = logging.getLogger(__name__)
@@ -67,31 +61,14 @@ class Repository(object):
     """
     def __init__(self):
         self.data = {}
-        self.meowuri_class_map = {}
-        self.mapped_meowuris = set()
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
         # self.log.setLevel(logging.DEBUG)
 
-    def initialize(self):
-        self.meowuri_class_map = meowuri_class_map_dict()
-        self._log_string_class_map()
-
-        # Set of all MeowURIs "registered" by extractors, analyzers or plugins.
-        self.mapped_meowuris = unique_map_meowuris(self.meowuri_class_map)
-
     def shutdown(self):
         # TODO: Any shutdown tasks goes here ..
         pass
-
-    def _log_string_class_map(self):
-        for key in self.meowuri_class_map.keys():
-            for meowuri, klass in self.meowuri_class_map[key].items():
-                self.log.debug(
-                    'Mapped meowURI "{!s}" to "{!s}" ({!s})'.format(meowuri,
-                                                                    klass, key)
-                )
 
     def store(self, fileobject, meowuri, data):
         """
@@ -204,16 +181,6 @@ class Repository(object):
 
     def __store_data(self, file, meowuri, data):
         util.nested_dict_set(self.data, [file, meowuri], data)
-
-    def resolvable(self, meowuri):
-        if not meowuri:
-            return False
-
-        resolvable = list(self.mapped_meowuris)
-        # TODO: [TD0113] Fix exceptions not being handled properly (?)
-        if any(r in meowuri for r in resolvable):
-            return True
-        return False
 
     def human_readable_contents(self):
         out = []
@@ -352,106 +319,8 @@ class Repository(object):
     #     pass
 
 
-MEOWURI_CLASS_MAP_DICT = {}
-
-
-def meowuri_class_map_dict():
-    # The 'MeowURIClassMap' attributes in non-core modules keep
-    # references to the available component classes.
-    # These are dicts with keys being the "meowURIs" that the respective
-    # component uses when storing data and the contained values are lists of
-    # classes mapped to the "meowURI".
-    global MEOWURI_CLASS_MAP_DICT
-    if not MEOWURI_CLASS_MAP_DICT:
-        MEOWURI_CLASS_MAP_DICT = {
-            'extractor': extractors.MeowURIClassMap,
-            'analyzer': analyzers.MeowURIClassMap,
-            'plugin': plugins.MeowURIClassMap
-        }
-    return MEOWURI_CLASS_MAP_DICT
-
-
-def unique_map_meowuris(meowuri_class_map):
-    out = set()
-
-    # for key in ['extractors', 'analyzer', 'plugin'] ..
-    for key in meowuri_class_map.keys():
-        for _meowuri in meowuri_class_map[key].keys():
-            sanity.check(not isinstance(_meowuri, list),
-                         'Unexpectedly got "meowuri" of type list')
-            out.add(_meowuri)
-
-    return out
-
-
-def all_meowuris():
-    # TODO: [TD0099] FIX THIS! Temporary hack for 'prompt_toolkit' experiments.
-    meowuri_class_map = meowuri_class_map_dict()
-    return unique_map_meowuris(meowuri_class_map)
-
-
-def map_meowuri_to_source_class(meowuri, includes=None):
-    """
-    Returns a list of classes that could store data using the given "MeowURI".
-
-    Args:
-        meowuri: The "MeowURI" of interest.
-        includes: Optional list of sources to include. Default: include all
-
-    Returns:
-        A list of classes that "could" produce and store data with a MeowURI
-        that matches the given MeowURI.
-    """
-    meowuri_class_map = meowuri_class_map_dict()
-
-    def _search_source_type(key):
-        for k, v in meowuri_class_map[key].items():
-            if k in meowuri:
-                return meowuri_class_map[key][k]
-        return None
-
-    if not meowuri:
-        log.error('Got empty meowuri in "map_meowuri_to_source_class"')
-        return []
-
-    if includes is None:
-        return (_search_source_type('extractor')
-                or _search_source_type('analyzer')
-                or _search_source_type('plugin')
-                or [])
-    else:
-        if not isinstance(includes, list):
-            includes = [includes]
-        for include in includes:
-            if include not in ('analyzer', 'extractor', 'plugin'):
-                continue
-
-            result = _search_source_type(include)
-            if result is not None:
-                return result
-
-        return []
-
-
-def get_sources_for_meowuris(meowuri_list, include_roots=None):
-    if not meowuri_list:
-        return []
-
-    out = set()
-    for uri in meowuri_list:
-        source_classes = map_meowuri_to_source_class(uri, include_roots)
-
-        # TODO: Improve robustness of linking "MeowURIs" to data source classes.
-        if source_classes:
-            for source_class in source_classes:
-                out.add(source_class)
-
-    return list(out)
-
-
 def _create_repository():
     repository = Repository()
-    repository.initialize()
     return repository
 
 

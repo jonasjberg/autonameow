@@ -702,6 +702,11 @@ def init_session_repository():
     repository.initialize()
 
 
+def init_provider_registry():
+    from core import providers
+    providers.initialize()
+
+
 def is_extracteddata(thing):
     return bool(thing and isinstance(thing, model.ExtractedData))
 

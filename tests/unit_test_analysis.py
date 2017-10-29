@@ -30,9 +30,10 @@ from core.exceptions import AWAssertionError
 
 class TestAnalysis(TestCase):
     def setUp(self):
+        uu.init_provider_registry()
+        uu.init_session_repository()
         self.fo = uu.get_mock_fileobject()
         self.config = uu.get_default_config()
-        uu.init_session_repository()
 
     def test_analysis_start_requires_fileobject_argument(self):
         for _bad_arg in [None, 'foo', object()]:

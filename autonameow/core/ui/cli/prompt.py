@@ -49,7 +49,7 @@ from core import constants as C
 from core import config
 from core import (
     disk,
-    repository,
+    providers,
     util
 )
 from core.exceptions import InvalidMeowURIError
@@ -102,7 +102,7 @@ class MeowURIValidator(Validator):
 
 class MeowURICompleter(Completer):
     def __init__(self):
-        self.all_meowuris = repository.all_meowuris()
+        self.all_meowuris = providers.all_meowuris()
 
     # TODO: [TD0099] Split by MeowURI separators.
     def get_completions(self, document, complete_event):

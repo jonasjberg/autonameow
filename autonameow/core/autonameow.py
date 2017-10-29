@@ -34,6 +34,7 @@ from core import (
     namebuilder,
     options,
     persistence,
+    providers,
     repository,
     util
 )
@@ -73,8 +74,9 @@ class Autonameow(object):
         self._exit_code = C.EXIT_SUCCESS
 
     def __enter__(self):
-        # Set up a session repository for this process.
+        # Set up singletons for this process.
         repository.initialize(self)
+        providers.initialize()
 
         return self
 
@@ -166,7 +168,7 @@ class Autonameow(object):
         cli.msg('Registered MeowURIs', style='heading')
 
         if not self.opts.get('debug'):
-            _meowuris = sorted(repository.SessionRepository.mapped_meowuris)
+            _meowuris = sorted(providers.Registry.mapped_meowuris)
             for _meowuri in _meowuris:
                 cli.msg(str(_meowuri))
         else:
@@ -174,8 +176,8 @@ class Autonameow(object):
 
             for _type in C.MEOWURI_ROOTS_SOURCES:
                 cf.addemptyrow()
-                klasses = repository.SessionRepository.meowuri_class_map.get(_type, {})
-                for _meowuri, _klasses in klasses.items():
+                sourcemap = providers.Registry.meowuri_sources.get(_type, {})
+                for _meowuri, _klasses in sourcemap.items():
                     cf.addrow(_meowuri, str(_klasses.pop()))
                     if _klasses:
                         for k in _klasses:
@@ -277,7 +279,7 @@ class Autonameow(object):
                                    or self.opts.get('list_all'))
 
         # Extract data from the file.
-        required_extractors = repository.get_sources_for_meowuris(
+        required_extractors = providers.get_sources_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['extractor']
         )
@@ -294,7 +296,7 @@ class Autonameow(object):
         _run_analysis(current_file, self.active_config)
 
         # Run plugins.
-        required_plugins = repository.get_sources_for_meowuris(
+        required_plugins = providers.get_sources_for_meowuris(
             self.active_config.referenced_meowuris,
             include_roots=['plugin']
         )

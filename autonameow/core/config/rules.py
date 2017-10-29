@@ -24,7 +24,7 @@ import logging
 from core import constants as C
 from core import (
     exceptions,
-    repository,
+    providers,
     types,
     util
 )
@@ -579,6 +579,6 @@ def is_valid_source(source_value):
     Returns:
         The given source value if it passes the test, otherwise False.
     """
-    if repository.SessionRepository.resolvable(source_value):
+    if providers.Registry.resolvable(source_value):
         return True
     return False

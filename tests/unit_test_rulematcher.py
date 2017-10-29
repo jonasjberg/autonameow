@@ -33,6 +33,7 @@ import unit_utils_constants as uuconst
 
 
 uu.init_session_repository()
+uu.init_provider_registry()
 dummy_config = Configuration(DEFAULT_CONFIG)
 
 
