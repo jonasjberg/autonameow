@@ -27,7 +27,7 @@ guide to installing under Linux and MacOS.
 
 Running
 -------
-Use the wrapper script `bin/run.sh` to start `autonameow`.
+Use the wrapper script `bin/autonameow.sh` to start `autonameow`.
 
 
 Documentation

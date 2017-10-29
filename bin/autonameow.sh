@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# 'run.sh' -- autonameow launcher script
-# ======================================
+# 'autonameow.sh' -- autonameow launcher script
+# =============================================
 # Copyright(c) 2016-2017 Jonas Sjöberg
 # https://github.com/jonasjberg
 # http://www.jonasjberg.com

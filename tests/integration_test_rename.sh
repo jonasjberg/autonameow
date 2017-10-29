@@ -126,7 +126,7 @@ logmsg "Running the "$TESTSUITE_NAME" test suite .."
 assert_true 'command -v python3' \
             "Python v3.x is available on the system"
 
-AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../bin/run.sh" ) )"
+AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../bin/autonameow.sh" ) )"
 assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
              'Variable "AUTONAMEOW_RUNNER" should not be unset'
 

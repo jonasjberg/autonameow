@@ -60,7 +60,7 @@ assert_true 'command -v exiftool' \
 assert_true 'command -v tesseract' \
             "tesseract is available on the system"
 
-AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../bin/run.sh" ) )"
+AUTONAMEOW_RUNNER="$( ( cd "$SELF_DIR" && realpath -e "../bin/autonameow.sh" ) )"
 assert_false '[ -z "$AUTONAMEOW_RUNNER" ]' \
              'Environment variable "AUTONAMEOW_RUNNER" should not be unset'
 
