@@ -60,7 +60,7 @@ esac
 if realpath --version 2>/dev/null | grep -q 'GNU coreutils'
 then
     # Using GNU coreutils version of readlink.
-    self_dir="$(realpath -e "$(dirname "$0")")"
+    self_dir="$(dirname "$(realpath -e -- "$0")")"
     AUTONAMEOW_PATH="$( ( cd "$self_dir" && realpath -e -- ".." ) )"
 else
     # Not using GNU coreutils readlink or readlink is not available.
