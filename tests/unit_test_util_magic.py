@@ -54,37 +54,37 @@ class TestFileTypeMagic(TestCase):
 
     def test_filetype_magic(self):
         for test_file, expected_mime in self.test_files:
-            actual = util.magic.filetype(test_file)
+            actual = util.mimemagic.filetype(test_file)
             self.assertEqual(expected_mime, actual)
 
     def test_filetype_magic_with_invalid_args(self):
-        actual = util.magic.filetype(None)
+        actual = util.mimemagic.filetype(None)
         self.assertEqual(actual, types.NULL_AW_MIMETYPE)
         self.assertFalse(actual)
 
 
 class TestEvalMagicGlob(TestCase):
     def _aF(self, mime_to_match, glob_list):
-        actual = util.magic.eval_glob(mime_to_match, glob_list)
+        actual = util.mimemagic.eval_glob(mime_to_match, glob_list)
         self.assertTrue(isinstance(actual, bool))
         self.assertFalse(actual)
 
     def _aT(self, mime_to_match, glob_list):
-        actual = util.magic.eval_glob(mime_to_match, glob_list)
+        actual = util.mimemagic.eval_glob(mime_to_match, glob_list)
         self.assertTrue(isinstance(actual, bool))
         self.assertTrue(actual)
 
     def test_eval_magic_blob_is_defined(self):
-        self.assertIsNotNone(util.magic.eval_glob)
+        self.assertIsNotNone(util.mimemagic.eval_glob)
 
     def test_eval_magic_blob_returns_false_given_bad_arguments(self):
-        self.assertIsNotNone(util.magic.eval_glob(None, None))
-        self.assertFalse(util.magic.eval_glob(None, None))
+        self.assertIsNotNone(util.mimemagic.eval_glob(None, None))
+        self.assertFalse(util.mimemagic.eval_glob(None, None))
 
     def test_eval_magic_blob_raises_exception_given_bad_arguments(self):
         def _assert_raises(error, mime_to_match, glob_list):
             with self.assertRaises(error):
-                util.magic.eval_glob(mime_to_match, glob_list)
+                util.mimemagic.eval_glob(mime_to_match, glob_list)
 
         _assert_raises(ValueError, 'image/jpeg', ['*/*/jpeg'])
         _assert_raises(ValueError, 'application', ['*/*'])

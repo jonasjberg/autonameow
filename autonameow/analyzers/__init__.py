@@ -183,7 +183,8 @@ class BaseAnalyzer(object):
         Returns:
             True if the analyzer class can handle the given file, else False.
         """
-        if util.magic.eval_glob(fileobject.mime_type, cls.HANDLES_MIME_TYPES):
+        if util.mimemagic.eval_glob(fileobject.mime_type,
+                                    cls.HANDLES_MIME_TYPES):
             return True
         else:
             return False

@@ -40,7 +40,7 @@ from core import (
     util
 )
 from core.util import (
-    magic,
+    mimemagic,
     sanity,
     textutils
 )
@@ -470,10 +470,10 @@ class MimeType(BaseType):
         string_value = string_value.lstrip('.').strip().lower()
 
         if string_value:
-            if string_value in magic.KNOWN_MIME_TYPES:
+            if string_value in mimemagic.KNOWN_MIME_TYPES:
                 return string_value
-            elif string_value in magic.KNOWN_EXTENSIONS:
-                return magic.MIME_TYPE_LOOKUP[string_value]
+            elif string_value in mimemagic.KNOWN_EXTENSIONS:
+                return mimemagic.MIME_TYPE_LOOKUP[string_value]
 
         return self.null()
 
@@ -486,7 +486,7 @@ class MimeType(BaseType):
         if value == self.null():
             return str(self.null())
 
-        formatted = magic.MIME_TYPE_LOOKUP_INV.get(value)
+        formatted = mimemagic.MIME_TYPE_LOOKUP_INV.get(value)
         return formatted if formatted is not None else self.null()
 
 

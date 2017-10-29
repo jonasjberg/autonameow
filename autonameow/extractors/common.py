@@ -186,8 +186,8 @@ class BaseExtractor(object):
             )
 
         try:
-            return util.magic.eval_glob(fileobject.mime_type,
-                                        cls.HANDLES_MIME_TYPES)
+            return util.mimemagic.eval_glob(fileobject.mime_type,
+                                            cls.HANDLES_MIME_TYPES)
         except (TypeError, ValueError) as e:
             raise ExtractorError(
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)

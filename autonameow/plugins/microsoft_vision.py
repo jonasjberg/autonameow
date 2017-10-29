@@ -172,7 +172,8 @@ class MicrosoftVisionPlugin(BasePlugin):
     def can_handle(self, fileobject):
         _mime_type = self.request_data(fileobject,
                                        'filesystem.contents.mime_type')
-        return util.magic.eval_glob(_mime_type, ['image/png', 'image/jpeg'])
+        return util.mimemagic.eval_glob(_mime_type,
+                                        ['image/png', 'image/jpeg'])
 
     def execute(self, fileobject):
         _source_path = self.request_data(fileobject, 'filesystem.abspath.full')

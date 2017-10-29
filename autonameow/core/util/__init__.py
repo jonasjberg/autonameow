@@ -22,7 +22,7 @@
 from core.util import encoding as enc
 from core.util import (
     dateandtime,
-    magic
+    mimemagic
 )
 from core.util.checksum import *
 from core.util.misc import *
