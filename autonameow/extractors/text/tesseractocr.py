@@ -55,6 +55,8 @@ class TesseractOCRTextExtractor(AbstractTextExtractor):
     def __init__(self):
         super(TesseractOCRTextExtractor, self).__init__()
 
+        self.init_cache()
+
     def extract_text(self, fileobject):
         # NOTE: Tesseract behaviour will likely need tweaking depending
         #       on the image contents. Will need to pass "tesseract_args"

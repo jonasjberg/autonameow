@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-10-29
+
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0116]` Remove persistent caching in the text extractors.
+
 * 2017-10-21
 
     > High Priority

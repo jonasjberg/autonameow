@@ -45,9 +45,8 @@ class AbstractTextExtractor(BaseExtractor):
     def __init__(self):
         super(AbstractTextExtractor, self).__init__()
 
-        # TODO: [TD0116] Remove persistent caching in the text extractors.
         self.cache = None
-        self.init_cache()
+        # NOTE(jonas): Call 'self.init_cache()' in subclass init to use caching.
 
     def execute(self, fileobject, **kwargs):
         text = self._get_text(fileobject)
@@ -64,7 +63,6 @@ class AbstractTextExtractor(BaseExtractor):
         return {'full': ExtractedData.from_raw(wrapper, text)}
 
     def _get_text(self, fileobject):
-        # TODO: [TD0116] Remove persistent caching in the text extractors.
         # Read cached text
         if self.cache:
             _cached = self.cache.get(fileobject)
@@ -83,7 +81,6 @@ class AbstractTextExtractor(BaseExtractor):
                            '{!s}'.format(self, e))
             raise ExtractorError
 
-        # TODO: [TD0116] Remove persistent caching in the text extractors.
         # Store text to cache
         if text and self.cache:
             self.cache.set(fileobject, text)
@@ -114,7 +111,6 @@ class AbstractTextExtractor(BaseExtractor):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def init_cache(self):
-        # TODO: [TD0116] Remove persistent caching in the text extractors.
         _cache = persistence.get_cache(str(self))
         if _cache:
             self.cache = _cache

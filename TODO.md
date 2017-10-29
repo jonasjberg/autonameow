@@ -49,8 +49,6 @@ High Priority
 Medium Priority
 ---------------
 
-* `[TD0116]` Remove persistent caching in the text extractors.
-
 * `[TD0112]` Handle merging "equivalent" data in the `Resolver`.
 
 * `[TD0111]` Add abstraction between user interaction and CLI specifics.
