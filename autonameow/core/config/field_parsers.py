@@ -353,8 +353,12 @@ class DateTimeConfigFieldParser(ConfigFieldParser):
 
 
 # Used for validating name templates. Populated like so;
-#   DATA_FIELDS = {'author': 'DUMMY', ... , 'year': 'DUMMY'}
-DATA_FIELDS = dict.fromkeys(
+#   NAMETEMPLATEFIELDS_DUMMYDATA = {
+#       'author': 'DUMMY',
+#        .. additional placeholders, dynamically generated in 'fields.py' ..
+#       'year': 'DUMMY'
+#   }
+NAMETEMPLATEFIELDS_DUMMYDATA = dict.fromkeys(
     NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS, 'DUMMY'
 )
 
@@ -368,7 +372,8 @@ class NameFormatConfigFieldParser(ConfigFieldParser):
             return False
 
         try:
-            namebuilder.populate_name_template(expression, **DATA_FIELDS)
+            namebuilder.populate_name_template(expression,
+                                               **NAMETEMPLATEFIELDS_DUMMYDATA)
         except (exceptions.NameTemplateSyntaxError, TypeError):
             return False
         else:
