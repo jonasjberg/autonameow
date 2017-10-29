@@ -44,15 +44,15 @@ def build(config, name_template, field_data_map):
     """
     log.debug('Using name template: "{}"'.format(name_template))
 
+    if not field_data_map:
+        log.error('Name builder got empty data map! This should not happen ..')
+        raise exceptions.NameBuilderError('Unable to assemble basename')
+
     # NOTE(jonas): This step is part of a ad-hoc encoding boundary.
     formatted_fields = pre_assemble_format(field_data_map, config)
 
     # TODO: Move to use name template field classes as keys.
     data = _with_simple_string_keys(formatted_fields)
-
-    if not field_data_map:
-        log.error('Name builder got empty data map! This should not happen ..')
-        raise exceptions.NameBuilderError('Unable to assemble basename')
 
     log.debug('After pre-assembly formatting;')
     log.debug(str(data))
