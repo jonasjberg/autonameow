@@ -423,7 +423,8 @@ example of updating the old analyzers.
 ### Contextual information
 The analyzers should be provided with *contextual information*.
 
-The "weighted field" that is currently part of the `ExtractedData` class is one possible method of providing context.
+The "weighted field" that is currently part of the `ExtractedData` class is one
+possible method of providing context.
 Extractors are probably best suited to give initial "value judgements" on the
 data they extract. For any piece of extracted data; how likely is it correct?
 Is it really what it says it is?
