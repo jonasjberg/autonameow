@@ -23,7 +23,10 @@ import copy
 import logging
 
 from core import types
-from core.util import textutils
+from core.util import (
+    sanity,
+    textutils
+)
 
 
 log = logging.getLogger(__name__)
@@ -83,6 +86,12 @@ class ExtractedData(object):
                          ' {!s}"'.format(self, raw_value))
 
         if not self.coercer:
+            log.warning('Unknown coercer in ExtractedData: "{!r}"'.format(self))
+            # Fall back to automatic type detection.
+            # Note that this will coerce some types in unintended ways.
+            # Bytestring paths (bytes) is coerced to "str" --- NOT GOOD!
+            # Paths/filenames should be coerced with 'AW_PATH*' ..
+
             _sample_raw_value = None
 
             if isinstance(raw_value, (list, tuple)):
@@ -107,7 +116,12 @@ class ExtractedData(object):
                 ))
 
         # TODO: [TD0115] Clear up uncertainties about data multiplicities
-        if self.coercer:
+        if not self.coercer:
+            log.critical('Failed to auto-detect coercer: "{!s}"'.format(self))
+
+            # TODO: [TD0088] The "resolver" needs 'coerce.format' ..
+            sanity.check(False)
+        else:
             if self.multivalued:
                 # Is multivalued, so make sure it is a list.
                 if not isinstance(raw_value, list):
@@ -125,57 +139,40 @@ class ExtractedData(object):
 
             else:
                 self._value = self.coercer(raw_value)
-        else:
-            log.warning('Unknown coercer in ExtractedData: "{!s}"'.format(self))
-            # Fall back to automatic type detection.
-            # Note that this will coerce some types in unintended ways.
-            # Bytestring paths (bytes) is coerced to "str" --- NOT GOOD!
-            # Paths/filenames should be coerced with 'AW_PATH*' ..
-
-            # TODO: [TD0088] The "resolver" needs 'coerce.format' ..
-            coerced = types.try_coerce(raw_value)
-            if coerced is None:
-                log.critical(
-                    'Unhandled coercion of raw value, using raw: '
-                    '({!s}) "{!s}"'.format(type(raw_value), raw_value)
-                )
-                self._value = raw_value
-            else:
-                self._value = coerced
 
         return self
 
     def as_string(self):
-        if self.coercer:
-            # TODO: [TD0115] Clear up uncertainties about data multiplicities
-            if self.multivalued:
-                _values = self.value
-                _strings = []
-                for _value in _values:
-                    try:
-                        s = self.coercer.format(_value)
-                    except types.AWTypeError:
-                        pass
-                    else:
-                        if s is not None:
-                            _strings.append(s)
-
-                if _strings:
-                    return '["{}"]'.format('", "'.join(_strings))
-            else:
-                try:
-                    s = self.coercer.format(self.value)
-                except types.AWTypeError:
-                    log.debug('"as_string()" failed for value: "{!s}"'.format(
-                            self.value))
-                else:
-                    if s is not None:
-                        return s
-            log.warning('"as_string()" returning empty string')
-            return ''
-        else:
+        if not self.coercer:
             log.warning('Coercer unknown! "as_string()" returning empty string')
             return ''
+
+        # TODO: [TD0115] Clear up uncertainties about data multiplicities
+        if self.multivalued:
+            _values = self.value
+            _strings = []
+            for _value in _values:
+                try:
+                    s = self.coercer.format(_value)
+                except types.AWTypeError:
+                    pass
+                else:
+                    if s is not None:
+                        _strings.append(s)
+
+            if _strings:
+                return '["{}"]'.format('", "'.join(_strings))
+        else:
+            try:
+                s = self.coercer.format(self.value)
+            except types.AWTypeError:
+                log.debug('"as_string()" failed for value: "{!s}"'.format(
+                        self.value))
+            else:
+                if s is not None:
+                    return s
+        log.warning('"as_string()" returning empty string')
+        return ''
 
     @classmethod
     def from_raw(cls, instance, raw_value):
