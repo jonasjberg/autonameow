@@ -62,10 +62,11 @@ esac
 if readlink --version 2>/dev/null | grep -q 'GNU coreutils'
 then
     # Using GNU coreutils version of readlink.
-    AUTONAMEOW_PATH="$(dirname -- "$(readlink -fn -- "$0")")"
+    self_dir="$(dirname "$(realpath -e -- "$0")")"
+    AUTONAMEOW_PATH="$( ( cd "$self_dir" && realpath -e -- ".." ) )"
 else
     # Not using GNU coreutils readlink or readlink is not available.
-    _abs_self_path="$(python -c "import os; print(os.path.realpath(\"$0\"))")"
+    _abs_self_path="$(python -c "import os; print(os.path.realpath(os.path.join(\"$0\", os.pardir)))")"
     AUTONAMEOW_PATH="$(dirname -- "${_abs_self_path}")"
 fi
 
