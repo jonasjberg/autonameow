@@ -107,9 +107,9 @@ class TestRepositoryMethodStore(TestCase):
         self.assertEqual(len(self.r), 0)
 
     def test_store_data_with_invalid_label_raises_error(self):
-        with self.assertRaises(exceptions.InvalidDataSourceError):
+        with self.assertRaises(exceptions.InvalidMeowURIError):
             self.r.store(self.fileobject, None, 'data')
-        with self.assertRaises(exceptions.InvalidDataSourceError):
+        with self.assertRaises(exceptions.InvalidMeowURIError):
             self.r.store(self.fileobject, '', 'data')
 
     def test_stores_data_with_valid_label(self):
@@ -132,7 +132,7 @@ class TestRepositoryMethodStore(TestCase):
         valid_label = uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME)
         self.r.store(self.fileobject, valid_label, 'expected_data')
 
-        with self.assertRaises(exceptions.InvalidDataSourceError):
+        with self.assertRaises(exceptions.InvalidMeowURIError):
             self.r.query(self.fileobject, None)
 
     def test_valid_label_returns_expected_data_multiple_entries(self):

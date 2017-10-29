@@ -78,9 +78,7 @@ class Repository(object):
         defined by the given 'meowuri'.
         """
         if not meowuri or not isinstance(meowuri, MeowURI):
-            raise exceptions.InvalidDataSourceError(
-                'Invalid MeowURI: "{!s}" ({})'.format(meowuri, type(meowuri))
-            )
+            raise exceptions.InvalidMeowURIError
 
         if data is None:
             log.warning('Attempted to add None data with meowURI'
@@ -143,7 +141,7 @@ class Repository(object):
 
     def query(self, fileobject, meowuri, mapped_to_field=None):
         if not meowuri:
-            raise exceptions.InvalidDataSourceError(
+            raise exceptions.InvalidMeowURIError(
                 'Unable to resolve empty meowURI'
             )
 
