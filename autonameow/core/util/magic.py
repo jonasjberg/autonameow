@@ -21,6 +21,7 @@
 
 import logging
 import magic
+import mimetypes
 
 from core import constants as C
 from core import types
@@ -28,6 +29,18 @@ from core.util import sanity
 
 
 log = logging.getLogger(__name__)
+
+
+# Any custom "extension to MIME-type"-mappings goes here.
+mimetypes.add_type('application/epub+zip', '.epub')
+mimetypes.add_type('application/gzip', 'gz')
+mimetypes.add_type('application/x-lzma', 'lzma')
+mimetypes.add_type('application/x-rar', 'rar')
+mimetypes.add_type('text/rtf', 'rtf')
+mimetypes.add_type('application/gzip', 'tar.gz')
+mimetypes.add_type('application/x-lzma', 'tar.lzma')
+mimetypes.add_type('text/x-shellscript', 'sh')
+mimetypes.add_type('text/x-asm', 'asm')
 
 
 def _build_magic():
@@ -173,3 +186,34 @@ def eval_glob(mime_to_match, glob_list):
                 # Checks type equality. Matches any subtype.
                 return True
     return False
+
+
+try:
+    MIME_TYPE_LOOKUP = {
+        ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
+    }
+except AttributeError:
+    MIME_TYPE_LOOKUP = {}
+
+# TODO: Improve robustness of interfacing with 'mimetypes'.
+sanity.check(len(MIME_TYPE_LOOKUP) > 0,
+             'MIME_TYPE_LOOKUP is empty')
+
+# TODO: Inconsistent results 'application/gzip' and 'application/x-gzip'..?
+
+MIME_TYPE_LOOKUP_INV = {
+    mime: ext for ext, mime in MIME_TYPE_LOOKUP.items()
+}
+
+# Override "MIME-type to extension"-mappings here.
+MIME_TYPE_LOOKUP_INV['image/jpeg'] = 'jpg'
+MIME_TYPE_LOOKUP_INV['video/quicktime'] = 'mov'
+MIME_TYPE_LOOKUP_INV['video/mp4'] = 'mp4'
+MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
+MIME_TYPE_LOOKUP_INV['text/rtf'] = 'rtf'
+MIME_TYPE_LOOKUP_INV['inode/x-empty'] = ''
+
+KNOWN_EXTENSIONS = frozenset(MIME_TYPE_LOOKUP.keys())
+KNOWN_MIME_TYPES = frozenset(
+    list(MIME_TYPE_LOOKUP.values()) + ['inode/x-empty']
+)

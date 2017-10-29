@@ -32,7 +32,6 @@ types --- they are shared and should not retain any kind of state.
 """
 
 import os
-import mimetypes
 import re
 from datetime import datetime
 
@@ -41,23 +40,14 @@ from core import (
     util
 )
 from core.util import (
+    magic,
     sanity,
     textutils
 )
 from core import constants as C
 
-# TODO: [TD0084] Add handling collections to type coercion classes.
 
-# Any custom "extension to MIME-type"-mappings goes here.
-mimetypes.add_type('application/epub+zip', '.epub')
-mimetypes.add_type('application/gzip', 'gz')
-mimetypes.add_type('application/x-lzma', 'lzma')
-mimetypes.add_type('application/x-rar', 'rar')
-mimetypes.add_type('text/rtf', 'rtf')
-mimetypes.add_type('application/gzip', 'tar.gz')
-mimetypes.add_type('application/x-lzma', 'tar.lzma')
-mimetypes.add_type('text/x-shellscript', 'sh')
-mimetypes.add_type('text/x-asm', 'asm')
+# TODO: [TD0084] Add handling collections to type coercion classes.
 
 
 class AWTypeError(exceptions.AutonameowException):
@@ -465,35 +455,6 @@ class MimeType(BaseType):
     # NULL = C.MAGIC_TYPE_UNKNOWN
     NULL = NullMIMEType()
 
-    try:
-        MIME_TYPE_LOOKUP = {
-            ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
-        }
-    except AttributeError:
-        MIME_TYPE_LOOKUP = {}
-
-    # TODO: Improve robustness of interfacing with 'mimetypes'.
-    sanity.check(len(MIME_TYPE_LOOKUP) > 0,
-                 'MIME_TYPE_LOOKUP is empty')
-
-    # TODO: Inconsistent results 'application/gzip' and 'application/x-gzip'..?
-
-    MIME_TYPE_LOOKUP_INV = {
-        mime: ext for ext, mime in MIME_TYPE_LOOKUP.items()
-    }
-
-    # Override "MIME-type to extension"-mappings here.
-    MIME_TYPE_LOOKUP_INV['image/jpeg'] = 'jpg'
-    MIME_TYPE_LOOKUP_INV['video/quicktime'] = 'mov'
-    MIME_TYPE_LOOKUP_INV['video/mp4'] = 'mp4'
-    MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
-    MIME_TYPE_LOOKUP_INV['inode/x-empty'] = ''
-
-    KNOWN_EXTENSIONS = frozenset(MIME_TYPE_LOOKUP.keys())
-    KNOWN_MIME_TYPES = frozenset(
-        list(MIME_TYPE_LOOKUP.values()) + ['inode/x-empty']
-    )
-
     def __call__(self, value=None):
         # Overrides the 'BaseType' __call__ method as to not perform the test
         # after the the value coercion. A valid MIME-type can not be determined
@@ -509,10 +470,10 @@ class MimeType(BaseType):
         string_value = string_value.lstrip('.').strip().lower()
 
         if string_value:
-            if string_value in self.KNOWN_MIME_TYPES:
+            if string_value in magic.KNOWN_MIME_TYPES:
                 return string_value
-            elif string_value in self.KNOWN_EXTENSIONS:
-                return self.MIME_TYPE_LOOKUP[string_value]
+            elif string_value in magic.KNOWN_EXTENSIONS:
+                return magic.MIME_TYPE_LOOKUP[string_value]
 
         return self.null()
 
@@ -525,7 +486,7 @@ class MimeType(BaseType):
         if value == self.null():
             return str(self.null())
 
-        formatted = self.MIME_TYPE_LOOKUP_INV.get(value)
+        formatted = magic.MIME_TYPE_LOOKUP_INV.get(value)
         return formatted if formatted is not None else self.null()
 
 
