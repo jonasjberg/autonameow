@@ -22,7 +22,10 @@
 import logging
 
 from core import repository
-from core.model import ExtractedData
+from core.model import (
+    ExtractedData,
+    MeowURI
+)
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
 from core.util import sanity
 
@@ -54,6 +57,9 @@ class Resolver(object):
         return all(field in self.data_sources for field in self._fields)
 
     def add_known_source(self, field, meowuri):
+        sanity.check(isinstance(meowuri, MeowURI),
+                     'TODO: Fix collecting/verifying data from sources.')
+
         if field in self._fields:
             self.data_sources[field] = meowuri
         else:
