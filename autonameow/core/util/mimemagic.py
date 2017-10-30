@@ -23,25 +23,11 @@ import logging
 import magic
 import mimetypes
 
-from core import constants as C
 from core import types
 from core.util import sanity
 
 
 log = logging.getLogger(__name__)
-
-
-# Any custom "extension to MIME-type"-mappings goes here.
-mimetypes.add_type('application/epub+zip', '.epub')
-mimetypes.add_type('application/gzip', 'gz')
-mimetypes.add_type('application/x-lzma', 'lzma')
-mimetypes.add_type('application/rar', 'rar')
-mimetypes.add_type('text/rtf', 'rtf')
-mimetypes.add_type('application/rtf', 'rtf')
-mimetypes.add_type('application/gzip', 'tar.gz', strict=False)
-mimetypes.add_type('application/x-lzma', 'tar.lzma', strict=False)
-mimetypes.add_type('text/x-shellscript', 'sh')
-mimetypes.add_type('text/x-asm', 'asm')
 
 
 def _build_magic():
@@ -189,33 +175,144 @@ def eval_glob(mime_to_match, glob_list):
     return False
 
 
+class MimeExtensionMapper(object):
+    def __init__(self):
+        # Stores sets.
+        self._mime_to_ext = {}
+        self._ext_to_mime = {}
+
+        # Stores single strings.
+        self._mime_to_preferred_ext = {}
+
+    def add_mapping(self, mimetype, extension):
+        if extension not in self._ext_to_mime:
+            self._ext_to_mime[extension] = {mimetype}
+        else:
+            if mimetype not in self._ext_to_mime.get(extension, set()):
+                self._ext_to_mime[extension].add(mimetype)
+
+        if mimetype not in self._mime_to_ext:
+            self._mime_to_ext[mimetype] = {extension}
+        else:
+            if extension not in self._mime_to_ext.get(mimetype, set()):
+                self._mime_to_ext[mimetype].add(extension)
+
+    def add_preferred_extension(self, mimetype, extension):
+        """
+        Adds a overriding mapping from a MIME-type to an extension.
+        """
+        self._mime_to_preferred_ext[mimetype] = extension
+        self.add_mapping(mimetype, extension)
+
+    def get_candidate_mimetypes(self, extension):
+        """
+        Returns a list of all MIME-types mapped to a given extension.
+
+        MIME-types containing 'x-', as in "experimental" (?) are placed at
+        the end of the list.
+
+        Args:
+            extension: Extension to get MIME-types for, as a Unicode string.
+
+        Returns:
+            All MIME-types mapped to the given extension, as a list of strings.
+        """
+        _mimes = self._ext_to_mime.get(extension)
+        if not _mimes:
+            return []
+
+        _sorted_mimes = sorted(
+            list(_mimes),
+            key=lambda x: ('x-' in x, 'text' not in x)
+        )
+        return _sorted_mimes
+
+    def get_mimetype(self, extension):
+        """
+        Returns a single MIME-type from the types mapped to a given extension.
+
+        Args:
+            extension: Extension to get a MIME-type for, as a Unicode string.
+
+        Returns:
+            A single MIME-type mapped to the given extension, as a Unicode
+            string. See the "get_candidates"-method for info on prioritization.
+        """
+        _candidates = self.get_candidate_mimetypes(extension)
+        if _candidates:
+            return _candidates[0]
+
+        return types.NullMIMEType()
+
+    def get_candidate_extensions(self, mimetype):
+        """
+        Returns a list of all extensions mapped to a given MIME-type.
+        """
+        return list(self._mime_to_ext.get(mimetype, []))
+
+    def get_extension(self, mimetype):
+        """
+        Returns a single extension for a given MIME-type.
+        """
+        _preferred = self._mime_to_preferred_ext.get(mimetype)
+        if _preferred:
+            return _preferred
+
+        _candidates = self.get_candidate_extensions(mimetype)
+        if _candidates:
+            # De-prioritize any composite extensions like "tar.gz".
+            _sorted_candidates = sorted(list(_candidates),
+                                        key=lambda x: '.' not in x,
+                                        reverse=True)
+            return _sorted_candidates[0]
+
+        return types.NullMIMEType()
+
+
+# Shared global singleton.
+MAPPER = MimeExtensionMapper()
+
+# Add MIME to extension mappings from the 'mimetypes' library.
 try:
-    MIME_TYPE_LOOKUP = {
+    _mimetypes_map = {
         ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
     }
 except AttributeError:
-    MIME_TYPE_LOOKUP = {}
+    pass
+else:
+    for _ext, _mime in _mimetypes_map.items():
+        MAPPER.add_mapping(_mime, _ext)
 
-# TODO: Improve robustness of interfacing with 'mimetypes'.
-sanity.check(len(MIME_TYPE_LOOKUP) > 0,
-             'MIME_TYPE_LOOKUP is empty')
 
-# TODO: Inconsistent results 'application/gzip' and 'application/x-gzip'..?
-MIME_TYPE_LOOKUP['rar'] = 'application/rar'
+# Any custom "extension to MIME-type"-mappings goes here.
+MAPPER.add_mapping('application/epub+zip', 'epub')
+MAPPER.add_mapping('application/gzip', 'gz')
+MAPPER.add_mapping('application/gzip', 'tar.gz')
+MAPPER.add_mapping('application/rar', 'rar')
+MAPPER.add_mapping('application/rtf', 'rtf')
+MAPPER.add_mapping('application/x-gzip', 'gz')
+MAPPER.add_mapping('application/x-gzip', 'tar.gz')
+MAPPER.add_mapping('application/x-lzma', 'lzma')
+MAPPER.add_mapping('application/x-lzma', 'tar.lzma')
+MAPPER.add_mapping('application/x-rar', 'rar')
+MAPPER.add_mapping('inode/x-empty', '')
+MAPPER.add_mapping('text/rtf', 'rtf')
+MAPPER.add_mapping('text/x-asm', 'asm')
+MAPPER.add_mapping('text/x-shellscript', 'sh')
 
-MIME_TYPE_LOOKUP_INV = {
-    mime: ext for ext, mime in MIME_TYPE_LOOKUP.items()
-}
+# Any custom overrides of the "extension to MIME-type"-mapping goes here.
+MAPPER.add_preferred_extension('image/jpeg', 'jpg')
+MAPPER.add_preferred_extension('application/gzip', 'gz')
+MAPPER.add_preferred_extension('video/quicktime', 'mov')
+MAPPER.add_preferred_extension('video/mp4', 'mp4')
+MAPPER.add_preferred_extension('text/plain', 'txt')
+MAPPER.add_preferred_extension('text/rtf', 'rtf')
+MAPPER.add_preferred_extension('inode/x-empty', '')
 
-# Override "MIME-type to extension"-mappings here.
-MIME_TYPE_LOOKUP_INV['image/jpeg'] = 'jpg'
-MIME_TYPE_LOOKUP_INV['video/quicktime'] = 'mov'
-MIME_TYPE_LOOKUP_INV['video/mp4'] = 'mp4'
-MIME_TYPE_LOOKUP_INV['text/plain'] = 'txt'
-MIME_TYPE_LOOKUP_INV['text/rtf'] = 'rtf'
-MIME_TYPE_LOOKUP_INV['inode/x-empty'] = ''
 
-KNOWN_EXTENSIONS = frozenset(MIME_TYPE_LOOKUP.keys())
-KNOWN_MIME_TYPES = frozenset(
-    list(MIME_TYPE_LOOKUP.values()) + ['inode/x-empty']
-)
+def get_mimetype(extension):
+    return MAPPER.get_mimetype(extension)
+
+
+def get_extension(mimetype):
+    return MAPPER.get_extension(mimetype)

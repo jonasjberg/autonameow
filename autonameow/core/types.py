@@ -467,10 +467,16 @@ class MimeType(BaseType):
         string_value = string_value.lstrip('.').strip().lower()
 
         if string_value:
-            if string_value in mimemagic.KNOWN_MIME_TYPES:
+            _ext = mimemagic.get_extension(string_value)
+            if _ext != self.null():
+                # The value is a MIME-type.
+                # Note that an empty string is considered a valid extension.
                 return string_value
-            elif string_value in mimemagic.KNOWN_EXTENSIONS:
-                return mimemagic.MIME_TYPE_LOOKUP[string_value]
+
+            _mime = mimemagic.get_mimetype(string_value)
+            if _mime:
+                # The value is an extension. Return mapped MIME-type.
+                return _mime
 
         return self.null()
 
@@ -483,7 +489,7 @@ class MimeType(BaseType):
         if value == self.null():
             return str(self.null())
 
-        formatted = mimemagic.MIME_TYPE_LOOKUP_INV.get(value)
+        formatted = mimemagic.get_extension(value)
         return formatted if formatted is not None else self.null()
 
 
