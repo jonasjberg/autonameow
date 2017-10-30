@@ -34,6 +34,7 @@ import unit_utils as uu
 
 
 uu.init_session_repository()
+uu.init_provider_registry()
 
 
 def get_filename_analyzer(fileobject):
@@ -348,6 +349,22 @@ class TestFilenameTokenizerSeparators(TestCase):
 
         _aE('a-_b', assume_preferred_separator)
         _aE('a_-b', assume_preferred_separator)
+
+    def test_get_seps_with_tied_counts(self):
+        def _aE(test_input, expect):
+            actual = FilenameTokenizer.get_seps_with_tied_counts(test_input)
+            self.assertEqual(actual, expect)
+
+        _aE([('a', 2), ('b', 1)],
+            expect=[])
+        _aE([('a', 2), ('b', 2)],
+            expect=['a', 'b'])
+        _aE([('a', 2), ('b', 1), ('c', 1)],
+            expect=['b', 'c'])
+        _aE([('a', 2), ('b', 1), ('c', 1), ('d', 2)],
+            expect=['a', 'b', 'c', 'd'])
+        _aE([('a', 2), ('b', 1), ('c', 1), ('d', 1)],
+            expect=['b', 'c', 'd'])
 
 
 class TestFilenameTokenizerTokens(TestCase):

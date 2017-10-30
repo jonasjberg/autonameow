@@ -444,6 +444,17 @@ class FilenameTokenizer(object):
         return None
 
     @classmethod
+    def get_seps_with_tied_counts(cls, separator_counts):
+        seen = set()
+        dupes = set()
+        for _sep, _count in separator_counts:
+            if _count in seen:
+                dupes.add(_count)
+            seen.add(_count)
+
+        return [s[0] for s in separator_counts if s[1] in dupes]
+
+    @classmethod
     def resolve_tied_count(cls, *candidates):
         # Prefer to use the single space.
         if ' ' in candidates:
