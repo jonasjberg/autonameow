@@ -55,7 +55,7 @@ class AWTypeError(exceptions.AutonameowException):
 
 
 class BaseNullValue(object):
-    AS_STRING = 'NULL'
+    AS_STRING = '(BaseType NULL)'
 
     def __bool__(self):
         return False
@@ -86,7 +86,7 @@ class BaseType(object):
     Does not store values -- intended to act as filters.
     """
     # Default "None" value to fall back to.
-    NULL = 'NULL'
+    NULL = BaseNullValue()
 
     # Types that can be coerced with the 'coerce' method.
     COERCIBLE_TYPES = (str,)

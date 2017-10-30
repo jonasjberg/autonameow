@@ -37,6 +37,9 @@ class TestBaseType(TestCase):
 
     def test_null(self):
         self.assertEqual(self.base_type(None), self.base_type.NULL)
+        self.assertEqual(self.base_type.NULL, types.BaseNullValue())
+        self.assertFalse(self.base_type.NULL)
+        self.assertFalse(self.base_type.null())
 
     def test_normalize(self):
         with self.assertRaises(NotImplementedError):
@@ -44,7 +47,7 @@ class TestBaseType(TestCase):
 
     def test_base_type_call(self):
         self.assertEqual(self.base_type('foo'), 'foo')
-        self.assertEqual(self.base_type(None), 'NULL')
+        self.assertEqual(self.base_type(None), types.BaseNullValue())
 
     def test_inheriting_classes_must_implement_format(self):
         with self.assertRaises(NotImplementedError):
@@ -92,7 +95,7 @@ class TestBaseNullValue(TestCase):
         _is_equal(False, value='foo')
 
     def test_str(self):
-        expected = 'NULL'
+        expected = '(BaseType NULL)'
         self.assertEqual(str(self.bn), expected)
 
 
@@ -143,7 +146,7 @@ class TestTypeBoolean(TestCase):
 
     def test_null(self):
         self.assertEqual(types.AW_BOOLEAN(None), types.AW_BOOLEAN.NULL)
-        self.assertNotEqual(types.AW_BOOLEAN(None), 'NULL',
+        self.assertNotEqual(types.AW_BOOLEAN(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -284,7 +287,7 @@ class TestTypeInteger(TestCase):
 
     def test_null(self):
         self.assertEqual(types.AW_INTEGER(None), types.AW_INTEGER.NULL)
-        self.assertNotEqual(types.AW_INTEGER(None), 'NULL',
+        self.assertNotEqual(types.AW_INTEGER(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -372,7 +375,7 @@ class TestTypeFloat(TestCase):
 
     def test_null(self):
         self.assertEqual(types.AW_FLOAT(None), types.AW_FLOAT.NULL)
-        self.assertNotEqual(types.AW_FLOAT(None), 'NULL',
+        self.assertNotEqual(types.AW_FLOAT(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -572,11 +575,9 @@ class TestTypeTimeDate(TestCase):
             self.assertEqual(type(types.AW_TIMEDATE(None)), str)
 
     def test_null(self):
-        self.assertEqual(types.AW_TIMEDATE.NULL, 'INVALID DATE')
-
-        with self.assertRaises(types.AWTypeError):
-            self.assertNotEqual(types.AW_TIMEDATE(None), 'NULL',
-                                'BaseType default "null" must be overridden')
+        self.assertEqual(types.AW_TIMEDATE.NULL, types.NullTimeDateType())
+        self.assertFalse(types.AW_TIMEDATE.NULL)
+        self.assertFalse(types.AW_TIMEDATE.null())
 
     def test_normalize(self):
         expected = datetime.strptime('2017-07-12T20:50:15',
@@ -665,7 +666,7 @@ class TestTypeDate(TestCase):
         self.assertEqual(types.AW_DATE.NULL, 'INVALID DATE')
 
         with self.assertRaises(types.AWTypeError):
-            self.assertNotEqual(types.AW_DATE(None), 'NULL',
+            self.assertNotEqual(types.AW_DATE(None), types.BaseNullValue,
                                 'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -760,8 +761,10 @@ class TestTypeExiftoolTimeDate(TestCase):
         self.assertEqual(types.AW_EXIFTOOLTIMEDATE.NULL, 'INVALID DATE')
 
         with self.assertRaises(types.AWTypeError):
-            self.assertNotEqual(types.AW_EXIFTOOLTIMEDATE(None), 'NULL',
-                                'BaseType default "null" must be overridden')
+            self.assertNotEqual(
+                types.AW_EXIFTOOLTIMEDATE(None), types.BaseNullValue,
+                'BaseType default "null" must be overridden'
+            )
 
     def test_call_with_none(self):
         with self.assertRaises(types.AWTypeError):
@@ -845,8 +848,10 @@ class TestTypePyPDFTimeDate(TestCase):
         self.assertEqual(types.AW_PYPDFTIMEDATE.NULL, 'INVALID DATE')
 
         with self.assertRaises(types.AWTypeError):
-            self.assertNotEqual(types.AW_PYPDFTIMEDATE(None), 'NULL',
-                                'BaseType default "null" must be overridden')
+            self.assertNotEqual(
+                types.AW_PYPDFTIMEDATE(None), types.BaseNullValue,
+                'BaseType default "null" must be overridden'
+            )
 
     def test_call_with_none(self):
         with self.assertRaises(types.AWTypeError):
@@ -907,7 +912,7 @@ class TestTypePath(TestCase):
             self.assertEqual(types.AW_PATH(None), types.AW_PATH.NULL)
 
         with self.assertRaises(types.AWTypeError):
-            self.assertNotEqual(types.AW_PATH(None), 'NULL',
+            self.assertNotEqual(types.AW_PATH(None), types.BaseNullValue,
                                 'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -966,7 +971,7 @@ class TestTypePathComponent(TestCase):
         self.assertEqual(types.AW_PATHCOMPONENT(None),
                          types.AW_PATHCOMPONENT.NULL)
 
-        self.assertNotEqual(types.AW_PATHCOMPONENT(None), 'NULL',
+        self.assertNotEqual(types.AW_PATHCOMPONENT(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize_path_with_user_home(self):
@@ -1040,7 +1045,7 @@ class TestTypeString(TestCase):
     def test_null(self):
         self.assertEqual(types.AW_STRING.NULL, '')
 
-        self.assertNotEqual(types.AW_STRING(None), 'NULL',
+        self.assertNotEqual(types.AW_STRING(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
     def test_normalize(self):
@@ -1134,7 +1139,7 @@ class TestTypeString(TestCase):
 class TestTypeMimeType(TestCase):
     def test_null(self):
         self.assertEqual(types.AW_MIMETYPE.NULL, types.NullMIMEType())
-        self.assertNotEqual(types.AW_MIMETYPE(None), 'NULL',
+        self.assertNotEqual(types.AW_MIMETYPE(None), types.BaseNullValue,
                             'BaseType default "null" must be overridden')
 
         self.assertFalse(types.AW_MIMETYPE.NULL)
