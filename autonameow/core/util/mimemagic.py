@@ -35,10 +35,11 @@ log = logging.getLogger(__name__)
 mimetypes.add_type('application/epub+zip', '.epub')
 mimetypes.add_type('application/gzip', 'gz')
 mimetypes.add_type('application/x-lzma', 'lzma')
-mimetypes.add_type('application/x-rar', 'rar')
+mimetypes.add_type('application/rar', 'rar')
 mimetypes.add_type('text/rtf', 'rtf')
-mimetypes.add_type('application/gzip', 'tar.gz')
-mimetypes.add_type('application/x-lzma', 'tar.lzma')
+mimetypes.add_type('application/rtf', 'rtf')
+mimetypes.add_type('application/gzip', 'tar.gz', strict=False)
+mimetypes.add_type('application/x-lzma', 'tar.lzma', strict=False)
 mimetypes.add_type('text/x-shellscript', 'sh')
 mimetypes.add_type('text/x-asm', 'asm')
 
@@ -200,6 +201,7 @@ sanity.check(len(MIME_TYPE_LOOKUP) > 0,
              'MIME_TYPE_LOOKUP is empty')
 
 # TODO: Inconsistent results 'application/gzip' and 'application/x-gzip'..?
+MIME_TYPE_LOOKUP['rar'] = 'application/rar'
 
 MIME_TYPE_LOOKUP_INV = {
     mime: ext for ext, mime in MIME_TYPE_LOOKUP.items()
