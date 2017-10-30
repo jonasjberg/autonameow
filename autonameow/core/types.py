@@ -55,7 +55,7 @@ class AWTypeError(exceptions.AutonameowException):
 
 
 class BaseNullValue(object):
-    AS_STRING = '(BaseType NULL)'
+    AS_STRING = '(NULL BaseType value)'
 
     def __bool__(self):
         return False
@@ -77,7 +77,7 @@ class BaseNullValue(object):
 
 class NullMIMEType(BaseNullValue):
     # Default MIME type string used if the MIME type detection fails.
-    AS_STRING = 'MIME_UNKNOWN'
+    AS_STRING = '(UNKNOWN MIME-TYPE)'
 
 
 class BaseType(object):

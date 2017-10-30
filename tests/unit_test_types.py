@@ -95,7 +95,7 @@ class TestBaseNullValue(TestCase):
         _is_equal(False, value='foo')
 
     def test_str(self):
-        expected = '(BaseType NULL)'
+        expected = '(NULL BaseType value)'
         self.assertEqual(str(self.bn), expected)
 
 
@@ -575,9 +575,10 @@ class TestTypeTimeDate(TestCase):
             self.assertEqual(type(types.AW_TIMEDATE(None)), str)
 
     def test_null(self):
-        self.assertEqual(types.AW_TIMEDATE.NULL, types.NullTimeDateType())
-        self.assertFalse(types.AW_TIMEDATE.NULL)
-        self.assertFalse(types.AW_TIMEDATE.null())
+        self.assertEqual(types.AW_TIMEDATE.NULL, 'INVALID DATE')
+        with self.assertRaises(types.AWTypeError):
+            self.assertNotEqual(types.AW_TIMEDATE(None), 'NULL',
+                                'BaseType default "null" must be overridden')
 
     def test_normalize(self):
         expected = datetime.strptime('2017-07-12T20:50:15',
