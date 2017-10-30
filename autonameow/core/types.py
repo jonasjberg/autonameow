@@ -452,7 +452,6 @@ class String(BaseType):
 class MimeType(BaseType):
     COERCIBLE_TYPES = (str, bytes)
     EQUIVALENT_TYPES = ()
-    # NULL = C.MAGIC_TYPE_UNKNOWN
     NULL = NullMIMEType()
 
     def __call__(self, value=None):

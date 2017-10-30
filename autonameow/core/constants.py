@@ -58,9 +58,6 @@ CLI_MSG_HEADING_CHAR = '='
 ANALYSIS_RESULTS_FIELDS = ['datetime', 'publisher', 'title', 'tags', 'author']
 
 
-# Default MIME type string used if the MIME type detection fails.
-MAGIC_TYPE_UNKNOWN = 'MIME_UNKNOWN'
-
 # Default file size in bytes, if the size can not be determined.
 UNKNOWN_BYTESIZE = 0
 

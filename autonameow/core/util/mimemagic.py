@@ -85,7 +85,7 @@ def filetype(file_path):
 
     Returns:
         The MIME type of the file at the given path ('application/pdf') or
-        'C.MAGIC_TYPE_UNKNOWN' if the MIME type can not be determined.
+        an instance of 'NullMIMEType' if the MIME type can not be determined.
     """
     _unknown_mime_type = types.NullMIMEType()
     if not file_path:

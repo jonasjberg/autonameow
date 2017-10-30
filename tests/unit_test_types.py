@@ -27,7 +27,6 @@ from core import (
     types,
     util,
 )
-from core import constants as C
 
 import unit_utils as uu
 
