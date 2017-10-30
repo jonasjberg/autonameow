@@ -290,7 +290,7 @@ class TestFilenameTokenizerSeparators(TestCase):
     def test_find_separators_darwin(self):
         self._t(
             filename='Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi',
-            separators=[(' ', 9), ('-', 1)],
+            separators=[(' ', 9), ('-', 1), ('%', 1)],
             main_separator=' '
         )
 
@@ -304,7 +304,7 @@ class TestFilenameTokenizerSeparators(TestCase):
     def test_find_separators_underlines_dashes(self):
         self._t(
             filename='a-b c_d',
-            separators=[(' ', 1), ('_', 1), ('-', 1)],
+            separators=[(' ', 1), ('-', 1), ('_', 1)],
             main_separator=' '
         )
 

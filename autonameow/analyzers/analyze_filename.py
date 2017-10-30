@@ -440,6 +440,10 @@ class FilenameTokenizer(object):
                 # Add back (sep, count)-tuple from preferred single char.
                 _not_tied_seps.extend([s for s in _seps if s[0] == _preferred])
 
+                # Add back the rest.
+                _not_tied_seps.extend([s for s in _seps if s[0] != _preferred
+                                       and s not in _not_tied_seps])
+
             _seps = _not_tied_seps
 
         return _seps[:maxcount]
