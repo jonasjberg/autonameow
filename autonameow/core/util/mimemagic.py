@@ -237,6 +237,7 @@ class MimeExtensionMapper(object):
         Returns:
             A single MIME-type mapped to the given extension, as a Unicode
             string. See the "get_candidates"-method for info on prioritization.
+            An instance of 'NullMIMEType' is returned if no MIME-type is found.
         """
         _candidates = self.get_candidate_mimetypes(extension)
         if _candidates:
@@ -266,18 +267,19 @@ class MimeExtensionMapper(object):
                                         reverse=True)
             return _sorted_candidates[0]
 
-        return types.NullMIMEType()
+        return None
 
 
 # Shared global singleton.
 MAPPER = MimeExtensionMapper()
 
-# Add MIME to extension mappings from the 'mimetypes' library.
+# Add MIME to extension mappings from the 'mimetypes' module.
 try:
     _mimetypes_map = {
         ext.lstrip('.'): mime for ext, mime in mimetypes.types_map.items()
     }
 except AttributeError:
+    log.error('Unable to get MIME-type map from the "mimetypes" module.')
     pass
 else:
     for _ext, _mime in _mimetypes_map.items():

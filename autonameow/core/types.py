@@ -468,7 +468,7 @@ class MimeType(BaseType):
 
         if string_value:
             _ext = mimemagic.get_extension(string_value)
-            if _ext != self.null():
+            if _ext is not None:
                 # The value is a MIME-type.
                 # Note that an empty string is considered a valid extension.
                 return string_value
