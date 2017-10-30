@@ -418,8 +418,31 @@ class FilenameTokenizer(object):
             return self.filename.split(_sep)
 
     @property
-    def separators(self):
-        return self._find_separators(self.filename) or []
+    def separators(self, maxcount=None):
+        if not maxcount:
+            maxcount = 3
+
+        _seps = self._find_separators(self.filename)
+        if not _seps:
+            return []
+
+        if len(_seps) == 1:
+            return _seps
+
+        _tied_seps = self.get_seps_with_tied_counts(_seps)
+        if _tied_seps:
+            # Remove tied separators.
+            _not_tied_seps = [s for s in _seps if s[0] not in _tied_seps]
+
+            # Get preferred separator as a single character.
+            _preferred = self.resolve_tied_count(_tied_seps)
+            if _preferred:
+                # Add back (sep, count)-tuple from preferred single char.
+                _not_tied_seps.extend([s for s in _seps if s[0] == _preferred])
+
+            _seps = _not_tied_seps
+
+        return _seps[:maxcount]
 
     @property
     def main_separator(self):
@@ -433,7 +456,7 @@ class FilenameTokenizer(object):
             _first_count = _seps[0][1]
             _second_count = _seps[1][1]
             if _first_count == _second_count:
-                return self.resolve_tied_count(_seps[0][0], _seps[1][0])
+                return self.resolve_tied_count([_seps[0][0], _seps[1][0]])
 
         if _seps:
             try:
@@ -455,7 +478,10 @@ class FilenameTokenizer(object):
         return [s[0] for s in separator_counts if s[1] in dupes]
 
     @classmethod
-    def resolve_tied_count(cls, *candidates):
+    def resolve_tied_count(cls, candidates):
+        if not candidates:
+            return []
+
         # Prefer to use the single space.
         if ' ' in candidates:
             return ' '
@@ -466,8 +492,8 @@ class FilenameTokenizer(object):
             # Use hardcoded preferred space separator character.
             return PREFERRED_FILENAME_CHAR_SPACE
         else:
-            # Last resort, uses arbitrary value.
-            return sorted(candidates)[0]
+            # Last resort uses arbitrary value, sorted for consistency.
+            return sorted(candidates, key=lambda x: x[0])[0]
 
     @classmethod
     def _find_separators(cls, string):
@@ -485,7 +511,7 @@ class FilenameTokenizer(object):
             return None
 
         counts = Counter(sep_chars)
-        _most_common = counts.most_common(3)
+        _most_common = counts.most_common(5)
         return _most_common
 
 
