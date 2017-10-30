@@ -153,6 +153,4 @@ class TestEvalMagicGlob(TestCase):
         self._aF(types.NULL_AW_MIMETYPE, 'image/jpeg')
         self._aF(types.NULL_AW_MIMETYPE, ['image/jpeg'])
         self._aF(types.NULL_AW_MIMETYPE, ['application/*', '*/jpeg'])
-        self._aF(str(types.NULL_AW_MIMETYPE), 'image/jpeg')
-        self._aF(str(types.NULL_AW_MIMETYPE), ['image/jpeg'])
-        self._aF(str(types.NULL_AW_MIMETYPE), ['application/*', '*/jpeg'])
+        self._aF(None, 'image/jpeg')

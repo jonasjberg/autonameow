@@ -72,8 +72,6 @@ class BaseNullValue(object):
             return True
         if isinstance(other, bool) and other is False:
             return True
-        if isinstance(other, str) and other == str(self):
-            return True
         return False
 
 
