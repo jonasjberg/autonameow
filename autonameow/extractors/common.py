@@ -150,6 +150,16 @@ class BaseExtractor(object):
         # .. maybe?
 
         sanity.check_isinstance(extracted_data, dict)
+        sanity.check(
+            'coerced' in extracted_data,
+            '[TD0119] Separate contextual information from type coercion.'
+            ' Missing "coerced" in "extracted_data".'
+        )
+        sanity.check(
+            'metainfo' in extracted_data,
+            '[TD0119] Separate contextual information from type coercion.'
+            ' Missing "metainfo" in "extracted_data".'
+        )
         return extracted_data
 
     @classmethod
