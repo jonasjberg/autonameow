@@ -153,7 +153,7 @@ DUMMY_MAPPED_MEOWURIS = list({
     'analyzer.filetags',
     'analyzer.image',
     'analyzer.text',
-    'analyzer.video'
+    'analyzer.video',
     'extractor.filesystem.xplat',
     'extractor.metadata.exiftool',
     'extractor.metadata.jpeginfo',
