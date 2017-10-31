@@ -25,7 +25,8 @@ from core import (
 )
 from core.model import (
     ExtractedData,
-    WeightedMapping
+    WeightedMapping,
+    MetaInfo
 )
 from core.model import genericfields as gf
 from core.namebuilder import fields
@@ -63,134 +64,59 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                           'application/epub+zip', 'text/*']
     is_slow = False
 
-    COERCER_LOOKUP = {
-        'ASF:CreationDate': types.AW_EXIFTOOLTIMEDATE,
-        'ASF:ImageHeight': types.AW_INTEGER,
-        'ASF:ImageWidth': types.AW_INTEGER,
-        'ASF:VideoCodecName': types.AW_STRING,
-        'Composite:Aperture': types.AW_FLOAT,
-        'Composite:ImageSize': types.AW_STRING,
-        'Composite:Megapixels': types.AW_FLOAT,
-        'Composite:HyperfocalDistance': types.AW_FLOAT,
-        'EXIF:CreateDate': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:DateTimeDigitized': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:DateTimeOriginal': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:ExifVersion': types.AW_INTEGER,
-        'EXIF:GainControl': types.AW_INTEGER,
-        # TODO: Handle GPS date/time-information.
-        #       EXIF:GPSTimeStamp: '12:07:59'
-        #       EXIF:GPSDateStamp: '2016:03:26'
-
-        # 'EXIF:GPSTimeStamp': coercer=types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:GPSDateStamp': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:ImageDescription': types.AW_STRING,
-        'EXIF:Make': types.AW_STRING,
-        'EXIF:Model': types.AW_STRING,
-        'EXIF:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'EXIF:Software': types.AW_STRING,
-        'EXIF:UserComment': types.AW_STRING,
-        'File:Directory': types.AW_PATH,
-        'File:FileAccessDate': types.AW_EXIFTOOLTIMEDATE,
-        'File:FileInodeChangeDate': types.AW_EXIFTOOLTIMEDATE,
-        'File:FileModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'File:FileName': types.AW_PATH,
-        'File:FilePermissions': types.AW_INTEGER,
-        'File:FileSize': types.AW_INTEGER,
-        'File:FileType': types.AW_STRING,
-        'File:FileTypeExtension': types.AW_PATHCOMPONENT,
-        'File:ImageHeight': types.AW_INTEGER,
-        'File:ImageWidth': types.AW_INTEGER,
-        'File:MIMEType': types.AW_MIMETYPE,
-        'PDF:Author': types.AW_STRING,
-        'PDF:CreateDate': types.AW_EXIFTOOLTIMEDATE,
-        'PDF:Creator': types.AW_STRING,
-        'PDF:Keywords': types.AW_STRING,
-        'PDF:Linearized': types.AW_BOOLEAN,
-        'PDF:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'PDF:PDFVersion': types.AW_FLOAT,
-        'PDF:PageCount': types.AW_INTEGER,
-        'PDF:Producer': types.AW_STRING,
-        'PDF:Subject': types.AW_STRING,
-        'PDF:Title': types.AW_STRING,
-        'PDF:Trapped': types.AW_BOOLEAN,
-        'SourceFile': types.AW_PATH,
-        'QuickTime:CompatibleBrands': types.AW_STRING,
-        'QuickTime:CreateDate': types.AW_EXIFTOOLTIMEDATE,
-        'QuickTime:CreationDate': types.AW_EXIFTOOLTIMEDATE,
-        'QuickTime:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'QuickTime:CreationDate-und-SE': types.AW_EXIFTOOLTIMEDATE,
-        'QuickTime:TrackCreateDate': types.AW_EXIFTOOLTIMEDATE,
-        'QuickTime:TrackModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'QuickTime:MediaCreateDate': types.AW_EXIFTOOLTIMEDATE,
-        'QuickTime:MediaModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'XMP:About': types.AW_STRING,
-        'XMP:CreateDate': types.AW_EXIFTOOLTIMEDATE,
-        'XMP:Creator': types.AW_STRING,
-        'XMP:CreatorTool': types.AW_STRING,
-        'XMP:DocumentID': types.AW_STRING,
-        'XMP:Format': types.AW_MIMETYPE,
-        'XMP:HistoryAction': types.AW_STRING,
-        'XMP:HistoryChanged': types.AW_STRING,
-        'XMP:HistoryInstanceID': types.AW_STRING,
-        'XMP:HistoryParameters': types.AW_STRING,
-        'XMP:HistorySoftwareAgent': types.AW_STRING,
-        'XMP:HistoryWhen': types.AW_TIMEDATE,
-        'XMP:Keywords': types.AW_STRING,
-        'XMP:ManifestLinkForm': types.AW_STRING,
-        'XMP:ManifestReferenceInstanceID': types.AW_STRING,
-        'XMP:ManifestReferenceDocumentID': types.AW_STRING,
-        'XMP:MetadataDate': types.AW_EXIFTOOLTIMEDATE,
-        'XMP:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
-        'XMP:Producer': types.AW_STRING,
-        'XMP:Subject': types.AW_STRING,
-        'XMP:TagsList': types.AW_STRING,
-        'XMP:Title': types.AW_STRING,
-        'XMP:XMPToolkit': types.AW_STRING,
-    }
-
-    METAINFO_LOOKUP = {
-        'ASF:CreationDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
-            ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'ASF:ImageHeight': ExtractedData(types.AW_INTEGER),
-        'ASF:ImageWidth': ExtractedData(types.AW_INTEGER),
-        'ASF:VideoCodecName': ExtractedData(types.AW_STRING),
-        'Composite:Aperture': ExtractedData(types.AW_FLOAT),
-        'Composite:ImageSize': ExtractedData(types.AW_STRING),
-        'Composite:Megapixels': ExtractedData(types.AW_FLOAT),
-        'Composite:HyperfocalDistance': ExtractedData(types.AW_FLOAT),
+    FIELD_LOOKUP = {
+        'ASF:CreationDate': {
+            'coercer': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+            'metainfo': MetaInfo(
+                mapped_fields=[
+                    WeightedMapping(fields.DateTime, probability=1),
+                    WeightedMapping(fields.Date, probability=1)
+                ],
+                generic_field=gf.GenericDateCreated
+            ),
+        },
+        'ASF:ImageHeight': {'coercer': ExtractedData(types.AW_INTEGER)},
+        'ASF:ImageWidth': {'coercer': ExtractedData(types.AW_INTEGER)},
+        'ASF:VideoCodecName': {'coercer': ExtractedData(types.AW_STRING)},
+        'Composite:Aperture': {'coercer': ExtractedData(types.AW_FLOAT)},
+        'Composite:ImageSize': {'coercer': ExtractedData(types.AW_STRING)},
+        'Composite:Megapixels': {'coercer': ExtractedData(types.AW_FLOAT)},
+        'Composite:HyperfocalDistance': {
+            'coercer': ExtractedData(types.AW_FLOAT)
+        },
         # 'ExifTool:ExifToolVersion': ExtractedData(types.AW_FLOAT),
-        'EXIF:CreateDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
-            ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'EXIF:DateTimeDigitized': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
-            ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'EXIF:DateTimeOriginal': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
-                WeightedMapping(fields.DateTime, probability=1),
-                WeightedMapping(fields.Date, probability=1)
-            ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'EXIF:ExifVersion': ExtractedData(types.AW_INTEGER),
-        'EXIF:GainControl': ExtractedData(types.AW_INTEGER),
+        'EXIF:CreateDate': {
+            'coercer': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+            'metainfo': MetaInfo(
+                mapped_fields=[
+                    WeightedMapping(fields.DateTime, probability=1),
+                    WeightedMapping(fields.Date, probability=1)
+                ],
+                generic_field=gf.GenericDateCreated
+            )
+        },
+        'EXIF:DateTimeDigitized': {
+            'coercer': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+            'metainfo': MetaInfo(
+                mapped_fields=[
+                    WeightedMapping(fields.DateTime, probability=1),
+                    WeightedMapping(fields.Date, probability=1)
+                ],
+                generic_field=gf.GenericDateCreated
+            ),
+        },
+        'EXIF:DateTimeOriginal': {
+            'coercer': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+            'metainfo': MetaInfo(
+                mapped_fields=[
+                   WeightedMapping(fields.DateTime, probability=1),
+                   WeightedMapping(fields.Date, probability=1)
+                ],
+                generic_field=gf.GenericDateCreated
+            ),
+        },
+        'EXIF:ExifVersion': {'coercer': ExtractedData(types.AW_INTEGER)},
+        'EXIF:GainControl': {'coercer': ExtractedData(types.AW_INTEGER)},
         # TODO: Handle GPS date/time-information.
         #       EXIF:GPSTimeStamp: '12:07:59'
         #       EXIF:GPSDateStamp: '2016:03:26'
@@ -201,41 +127,49 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         #         fields.WeightedMapping(fields.Time, probability=1),
         #     ]
         # ),
-        'EXIF:GPSDateStamp': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
-                WeightedMapping(fields.Date, probability=1),
-            ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'EXIF:ImageDescription': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
-                WeightedMapping(fields.Description, probability=1),
-                WeightedMapping(fields.Tags, probability=0.5),
-                WeightedMapping(fields.Title, probability=0.25)
-            ],
-            generic_field=gf.GenericDescription
-        ),
-        'EXIF:Make': ExtractedData(types.AW_STRING),
-        'EXIF:Model': ExtractedData(types.AW_STRING),
-        'EXIF:ModifyDate': ExtractedData(
-            coercer=types.AW_EXIFTOOLTIMEDATE,
-            mapped_fields=[
-                WeightedMapping(fields.DateTime, probability=0.25),
-                WeightedMapping(fields.Date, probability=0.25)
-            ],
-            generic_field=gf.GenericDateModified
-        ),
+        'EXIF:GPSDateStamp': {
+            'coercer': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+            'metainfo': MetaInfo(
+                mapped_fields=[
+                    WeightedMapping(fields.Date, probability=1),
+                ],
+                generic_field=gf.GenericDateCreated
+            )
+        },
+        'EXIF:ImageDescription': {
+            'coercer': ExtractedData(types.AW_STRING),
+            'metainfo': MetaInfo(
+                mapped_fields=[
+                    WeightedMapping(fields.Description, probability=1),
+                    WeightedMapping(fields.Tags, probability=0.5),
+                    WeightedMapping(fields.Title, probability=0.25)
+                ],
+                generic_field=gf.GenericDescription
+            )
+        },
+        'EXIF:Make': {'coercer': ExtractedData(types.AW_STRING)},
+        'EXIF:Model': {'coercer': ExtractedData(types.AW_STRING)},
+        'EXIF:ModifyDate': {
+            'coercer': ExtractedData(types.AW_EXIFTOOLTIMEDATE),
+            'metainfo': MetaInfo(
+                mapped_fields=[
+                    WeightedMapping(fields.DateTime, probability=0.25),
+                    WeightedMapping(fields.Date, probability=0.25)
+                ],
+                generic_field=gf.GenericDateModified
+            )
+        },
         'EXIF:Software': ExtractedData(types.AW_STRING),
-        'EXIF:UserComment': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
-                WeightedMapping(fields.Description, probability=0.5),
-                WeightedMapping(fields.Tags, probability=0.5)
-            ],
-            generic_field=gf.GenericDateModified
-        ),
+        'EXIF:UserComment': {
+            'coercer': ExtractedData(types.AW_STRING),
+            'metainfo': MetaInfo(
+                mapped_fields=[
+                    WeightedMapping(fields.Description, probability=0.5),
+                    WeightedMapping(fields.Tags, probability=0.5)
+                ],
+                generic_field=gf.GenericDateModified
+            )
+        },
         'File:Directory': ExtractedData(types.AW_PATH),
         'File:FileAccessDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
