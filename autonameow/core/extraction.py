@@ -133,25 +133,22 @@ def start(fileobject,
         try:
             _metainfo = _extractor_instance.metainfo()
         except (ExtractorError, NotImplementedError) as e:
-            log.error('Halted extractor "{!s}": {!s}'.format(
-                _extractor_instance, e
-            ))
+            log.error('Failed to get meta info! Halted extractor "{!s}":'
+                      ' {!s}'.format(_extractor_instance, e))
             continue
 
         try:
             _extracted_data = _extractor_instance.extract(fileobject)
         except (ExtractorError, NotImplementedError) as e:
-            log.error('Halted extractor "{!s}": {!s}'.format(
-                _extractor_instance, e
-            ))
+            log.error('Failed to extract data! Halted extractor "{!s}":'
+                      ' {!s}'.format(_extractor_instance, e))
             continue
-        else:
-            for k, v in _extracted_data.items():
-                _wrapper = _metainfo.get(k)
-                if _wrapper:
 
-            # TODO: !!!
-            # _meowuri_prefix = klass.meowuri_prefix()
-            # collect_results(fileobject, _meowuri_prefix, _results)
+        _meowuri_prefix = klass.meowuri_prefix()
+        _results = {
+            'data': _extracted_data,
+            'info': _metainfo
+        }
+        collect_results(fileobject, _meowuri_prefix, _results)
 
     log.debug(' Extraction Completed '.center(80, '='))
