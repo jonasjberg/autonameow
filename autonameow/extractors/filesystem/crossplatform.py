@@ -89,8 +89,10 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
     EXTRACTEDDATA_LOOKUP = {
         'abspath.full': ExtractedData(types.AW_PATH),
         'basename.full': ExtractedData(types.AW_PATHCOMPONENT),
-        'basename.extension': ExtractedData(coercer=types.AW_PATHCOMPONENT),
-        'basename.suffix': ExtractedData(coercer=types.AW_PATHCOMPONENT),
+        'basename.extension': ExtractedData(coercer=types.AW_PATHCOMPONENT,
+                                            multivalued=False),
+        'basename.suffix': ExtractedData(coercer=types.AW_PATHCOMPONENT,
+                                         multivalued=False),
         'basename.prefix': ExtractedData(coercer=types.AW_PATHCOMPONENT),
         'pathname.full': ExtractedData(types.AW_PATH),
         'pathname.parent': ExtractedData(types.AW_PATH),
