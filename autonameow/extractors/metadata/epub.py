@@ -43,47 +43,62 @@ class EpubMetadataExtractor(BaseExtractor):
     def __init__(self):
         super(EpubMetadataExtractor, self).__init__()
 
-    def execute(self, fileobject, **kwargs):
-        _raw_metadata = _get_epub_metadata(fileobject.abspath)
-        if _raw_metadata:
-            return self._to_internal_format(_raw_metadata)
-
-    def _to_internal_format(self, raw_metadata):
-        out = {}
-
-        # TODO: [TD0119] Separate adding contextual information from coercion.
-        _author_maybe = raw_metadata.get('author')
-        if _author_maybe:
-            out['author'] = ExtractedData(
+    def metainfo(self, fileobject, **kwargs):
+        _metainfo = {
+            'author': ExtractedData(
                 coercer=types.AW_STRING,
                 mapped_fields=[
                     WeightedMapping(fields.Author, probability=1),
                 ],
                 generic_field=gf.GenericAuthor
-            )(_author_maybe)
-
-        _title_maybe = raw_metadata.get('title')
-        if _title_maybe:
-            out['title'] = ExtractedData(
+            ),
+            'title': ExtractedData(
                 coercer=types.AW_STRING,
                 mapped_fields=[
                     WeightedMapping(fields.Title, probability=1),
                 ],
                 generic_field=gf.GenericTitle
-            )(_title_maybe)
-
-        _producer_maybe = raw_metadata.get('producer')
-        if _producer_maybe:
-            out['producer'] = ExtractedData(
+            ),
+            'producer': ExtractedData(
                 coercer=types.AW_STRING,
                 mapped_fields=[
                     WeightedMapping(fields.Author, probability=0.1),
                 ],
                 generic_field=gf.GenericProducer
-            )(_producer_maybe)
+            )
+        }
+        return _metainfo
+
+    def extract(self, fileobject, **kwargs):
+        _raw_metadata = _get_epub_metadata(fileobject.abspath)
+        if _raw_metadata:
+            return self._coerce(_raw_metadata)
+
+    def _coerce(self, raw_metadata):
+        out = {}
+
+        _author_maybe = raw_metadata.get('author')
+        if _author_maybe:
+            try:
+                out['author'] = types.AW_STRING(_author_maybe)
+            except types.AWTypeError:
+                pass
+
+        _title_maybe = raw_metadata.get('title')
+        if _title_maybe:
+            try:
+                out['title'] = types.AW_STRING(_title_maybe)
+            except types.AWTypeError:
+                pass
+
+        _producer_maybe = raw_metadata.get('producer')
+        if _producer_maybe:
+            try:
+                out['producer'] = types.AW_STRING(_producer_maybe)
+            except types.AWTypeError:
+                pass
 
         return out
-
 
     @classmethod
     def check_dependencies(cls):

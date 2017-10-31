@@ -32,11 +32,6 @@ from core.util import (
 log = logging.getLogger(__name__)
 
 
-# Undefined or invalid "source" --- extractor/analyzer/plugin class that
-# produced the data.
-UNKNOWN_SOURCE = '(unknown source)'
-
-
 class ExtractedData(object):
     """
     Instances of this class wrap some extracted data with extra information.
@@ -45,40 +40,23 @@ class ExtractedData(object):
     should be associated with. For instance, date/time-information could be
     used to populate the 'datetime'/'date' name template fields.
     """
-    def __init__(self, coercer, mapped_fields=None, generic_field=None,
-                 multivalued=None, source=None):
+    def __init__(self, coercer, multivalued=None):
         """
-        Intantiates a "template" instance to be populated with some data.
+        Instantiates a "template" instance to be populated with some data.
 
         Args:
             coercer: Type-coercion class, as a subclass of 'BaseType'.
-            mapped_fields: List of "WeightedMappings" to namebuilder fields.
-            generic_field: Optional subclass of 'GenericField'.
             multivalued: Boolean value indicating if the contained data is or
                          should be converted to a list.
-            source: Optional class instance that produced the value.
         """
-        self._source = UNKNOWN_SOURCE
         self._value = None
 
         self.coercer = coercer
-
-        if mapped_fields is not None:
-            self.field_map = mapped_fields
-        else:
-            self.field_map = []
-
-        if generic_field is not None:
-            self.generic_field = generic_field
-        else:
-            self.generic_field = None
 
         if multivalued is not None:
             self.multivalued = bool(multivalued)
         else:
             self.multivalued = False
-
-        self.source = source
 
     def __call__(self, raw_value):
         if self._value is not None:
@@ -101,7 +79,7 @@ class ExtractedData(object):
                     pass
             elif isinstance(raw_value, dict):
                 try:
-                    _sample_raw_value = raw_value.get(raw_value.keys()[0])
+                    _sample_raw_value = raw_value.get(list(raw_value.keys())[0])
                 except (IndexError, KeyError):
                     pass
             else:
@@ -191,23 +169,6 @@ class ExtractedData(object):
     def value(self):
         return self._value
 
-    @property
-    def source(self):
-        return self._source or UNKNOWN_SOURCE
-
-    @source.setter
-    def source(self, new_source):
-        if new_source is not None:
-            self._source = new_source
-        else:
-            self._source = UNKNOWN_SOURCE
-
-    def maps_field(self, field):
-        for mapping in self.field_map:
-            if field == mapping.field:
-                return True
-        return False
-
     def __str__(self):
         # 1) Detailed information, not suitable when listing to user ..
         # return '{!s}("{!s}")  FieldMap: {!s}"'.format(
@@ -229,17 +190,17 @@ class ExtractedData(object):
         if _contents and isinstance(_contents, str):
             _contents = textutils.truncate_text(_contents, 50)
 
-        r = '<{!s}({!s}, mapped_fields={!s}, generic_field={!s})({})>'.format(
-            self.__class__.__name__, self.coercer, self.field_map,
-            self.generic_field, _contents
+        s = '<{!s}({!s})({})>'.format(
+            self.__class__.__name__, self.coercer, _contents
         )
-        return r
+        return s
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
-        if (self.coercer == other.coercer
-                and self.field_map == other.field_map
-                and self.value == other.value):
-            return True
-        return False
+
+        return bool(
+            self.coercer == other.coercer
+            and self.value == other.value
+            and self.multivalued == other.multivalued
+        )

@@ -63,7 +63,92 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                           'application/epub+zip', 'text/*']
     is_slow = False
 
-    EXTRACTEDDATA_WRAPPER_LOOKUP = {
+    COERCER_LOOKUP = {
+        'ASF:CreationDate': types.AW_EXIFTOOLTIMEDATE,
+        'ASF:ImageHeight': types.AW_INTEGER,
+        'ASF:ImageWidth': types.AW_INTEGER,
+        'ASF:VideoCodecName': types.AW_STRING,
+        'Composite:Aperture': types.AW_FLOAT,
+        'Composite:ImageSize': types.AW_STRING,
+        'Composite:Megapixels': types.AW_FLOAT,
+        'Composite:HyperfocalDistance': types.AW_FLOAT,
+        'EXIF:CreateDate': types.AW_EXIFTOOLTIMEDATE,
+        'EXIF:DateTimeDigitized': types.AW_EXIFTOOLTIMEDATE,
+        'EXIF:DateTimeOriginal': types.AW_EXIFTOOLTIMEDATE,
+        'EXIF:ExifVersion': types.AW_INTEGER,
+        'EXIF:GainControl': types.AW_INTEGER,
+        # TODO: Handle GPS date/time-information.
+        #       EXIF:GPSTimeStamp: '12:07:59'
+        #       EXIF:GPSDateStamp: '2016:03:26'
+
+        # 'EXIF:GPSTimeStamp': coercer=types.AW_EXIFTOOLTIMEDATE,
+        'EXIF:GPSDateStamp': types.AW_EXIFTOOLTIMEDATE,
+        'EXIF:ImageDescription': types.AW_STRING,
+        'EXIF:Make': types.AW_STRING,
+        'EXIF:Model': types.AW_STRING,
+        'EXIF:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
+        'EXIF:Software': types.AW_STRING,
+        'EXIF:UserComment': types.AW_STRING,
+        'File:Directory': types.AW_PATH,
+        'File:FileAccessDate': types.AW_EXIFTOOLTIMEDATE,
+        'File:FileInodeChangeDate': types.AW_EXIFTOOLTIMEDATE,
+        'File:FileModifyDate': types.AW_EXIFTOOLTIMEDATE,
+        'File:FileName': types.AW_PATH,
+        'File:FilePermissions': types.AW_INTEGER,
+        'File:FileSize': types.AW_INTEGER,
+        'File:FileType': types.AW_STRING,
+        'File:FileTypeExtension': types.AW_PATHCOMPONENT,
+        'File:ImageHeight': types.AW_INTEGER,
+        'File:ImageWidth': types.AW_INTEGER,
+        'File:MIMEType': types.AW_MIMETYPE,
+        'PDF:Author': types.AW_STRING,
+        'PDF:CreateDate': types.AW_EXIFTOOLTIMEDATE,
+        'PDF:Creator': types.AW_STRING,
+        'PDF:Keywords': types.AW_STRING,
+        'PDF:Linearized': types.AW_BOOLEAN,
+        'PDF:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
+        'PDF:PDFVersion': types.AW_FLOAT,
+        'PDF:PageCount': types.AW_INTEGER,
+        'PDF:Producer': types.AW_STRING,
+        'PDF:Subject': types.AW_STRING,
+        'PDF:Title': types.AW_STRING,
+        'PDF:Trapped': types.AW_BOOLEAN,
+        'SourceFile': types.AW_PATH,
+        'QuickTime:CompatibleBrands': types.AW_STRING,
+        'QuickTime:CreateDate': types.AW_EXIFTOOLTIMEDATE,
+        'QuickTime:CreationDate': types.AW_EXIFTOOLTIMEDATE,
+        'QuickTime:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
+        'QuickTime:CreationDate-und-SE': types.AW_EXIFTOOLTIMEDATE,
+        'QuickTime:TrackCreateDate': types.AW_EXIFTOOLTIMEDATE,
+        'QuickTime:TrackModifyDate': types.AW_EXIFTOOLTIMEDATE,
+        'QuickTime:MediaCreateDate': types.AW_EXIFTOOLTIMEDATE,
+        'QuickTime:MediaModifyDate': types.AW_EXIFTOOLTIMEDATE,
+        'XMP:About': types.AW_STRING,
+        'XMP:CreateDate': types.AW_EXIFTOOLTIMEDATE,
+        'XMP:Creator': types.AW_STRING,
+        'XMP:CreatorTool': types.AW_STRING,
+        'XMP:DocumentID': types.AW_STRING,
+        'XMP:Format': types.AW_MIMETYPE,
+        'XMP:HistoryAction': types.AW_STRING,
+        'XMP:HistoryChanged': types.AW_STRING,
+        'XMP:HistoryInstanceID': types.AW_STRING,
+        'XMP:HistoryParameters': types.AW_STRING,
+        'XMP:HistorySoftwareAgent': types.AW_STRING,
+        'XMP:HistoryWhen': types.AW_TIMEDATE,
+        'XMP:Keywords': types.AW_STRING,
+        'XMP:ManifestLinkForm': types.AW_STRING,
+        'XMP:ManifestReferenceInstanceID': types.AW_STRING,
+        'XMP:ManifestReferenceDocumentID': types.AW_STRING,
+        'XMP:MetadataDate': types.AW_EXIFTOOLTIMEDATE,
+        'XMP:ModifyDate': types.AW_EXIFTOOLTIMEDATE,
+        'XMP:Producer': types.AW_STRING,
+        'XMP:Subject': types.AW_STRING,
+        'XMP:TagsList': types.AW_STRING,
+        'XMP:Title': types.AW_STRING,
+        'XMP:XMPToolkit': types.AW_STRING,
+    }
+
+    METAINFO_LOOKUP = {
         'ASF:CreationDate': ExtractedData(
             coercer=types.AW_EXIFTOOLTIMEDATE,
             mapped_fields=[
@@ -484,6 +569,12 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         self.log.debug('{!s}: Completed extraction'.format(self))
         return _metadata
 
+    def metainfo(self, fileobject, **kwargs):
+        pass
+
+    def extract(self, fileobject, **kwargs):
+        pass
+
     def _get_metadata(self, source):
         _raw_metadata = _get_exiftool_data(source)
         if _raw_metadata:
@@ -512,11 +603,11 @@ class ExiftoolMetadataExtractor(BaseExtractor):
 
     def _wrap_tag_value(self, tagname, value):
         # TODO: [TD0119] Separate adding contextual information from coercion.
-        wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(tagname)
+        wrapper = self.COERCER_LOOKUP.get(tagname)
         if not wrapper:
             self.log.debug(
-                'Used default "ExtractedData" with unspecified coercer for '
-                'tag: "{!s}" with value: "{!s}"'.format(tagname, value)
+                'Coercer unspecified for tag: "{!s}" with'
+                ' value: "{!s}"'.format(tagname, value)
             )
             wrapper = ExtractedData(coercer=None, mapped_fields=None)
 

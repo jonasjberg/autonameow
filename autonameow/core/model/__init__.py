@@ -22,4 +22,5 @@
 
 from .extracteddata import ExtractedData
 from .mapping import WeightedMapping
+from .metainfo import MetaInfo
 from .meowuri import MeowURI

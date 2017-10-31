@@ -55,9 +55,13 @@ class TestBaseExtractor(TestCase):
     def test_base_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
-    def test_query_raises_not_implemented_error(self):
+    def test_calling_extract_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e.execute(self.test_file)
+            self.e.extract(self.test_file)
+
+    def test_calling_metainfo_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            self.e.metainfo(self.test_file)
 
     def test_check_dependencies_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):

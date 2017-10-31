@@ -115,7 +115,13 @@ class BaseExtractor(object):
         """
         sanity.check_isinstance(fileobject, FileObject)
 
-        extracted_data = self.execute(fileobject, **kwargs)
+        _extracted_data = self.extract(fileobject, **kwargs)
+        _metainfo = self.metainfo(fileobject, **kwargs)
+
+        extracted_data = {
+            'data': _extracted_data,
+            'info': _metainfo
+        }
 
         # TODO: [TD0119] Separate adding contextual information from coercion.
 
@@ -123,11 +129,11 @@ class BaseExtractor(object):
         # in instances fo the 'ExtractedData' class. Maybe something like this:
         #
         #   extracted_data = {
-        #       'coerced' = {
+        #       'data' = {
         #           'EXIF:DateTimeOriginal': datetime(2017, 02, 12, ...),
         #           'EXIF:UserComment': 'foo bar'
         #       }
-        #       'metainfo' = {
+        #       'info' = {
         #           'EXIF:DateTimeOriginal': ExtractedData(
         #               coercer=types.AW_EXIFTOOLTIMEDATE,
         #               mapped_fields=[
@@ -151,14 +157,14 @@ class BaseExtractor(object):
 
         sanity.check_isinstance(extracted_data, dict)
         sanity.check(
-            'coerced' in extracted_data,
+            'data' in extracted_data,
             '[TD0119] Separate contextual information from type coercion.'
-            ' Missing "coerced" in "extracted_data".'
+            ' Missing "data" in "extracted_data".'
         )
         sanity.check(
-            'metainfo' in extracted_data,
+            'info' in extracted_data,
             '[TD0119] Separate contextual information from type coercion.'
-            ' Missing "metainfo" in "extracted_data".'
+            ' Missing "info" in "extracted_data".'
         )
         return extracted_data
 
@@ -237,7 +243,7 @@ class BaseExtractor(object):
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
             )
 
-    def execute(self, fileobject, **kwargs):
+    def extract(self, fileobject, **kwargs):
         """
         Extracts and returns data using a specific extractor.
 
@@ -267,6 +273,9 @@ class BaseExtractor(object):
             ExtractorError: The extraction could not be completed successfully.
         """
         # TODO: [TD0119] Separate adding contextual information from coercion.
+        raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def metainfo(self, fileobject, **kwargs):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
