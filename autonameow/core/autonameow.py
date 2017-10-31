@@ -268,7 +268,11 @@ class Autonameow(object):
             log.info('Listing session repository contents ..')
             cli.msg('Session Repository Data', style='heading',
                     add_info_log=True)
-            cli.msg(str(repository.SessionRepository))
+
+            if len(repository.SessionRepository) == 0:
+                cli.msg('The session repository does not contain any data ..\n')
+            else:
+                cli.msg(str(repository.SessionRepository))
 
             # TODO:  TEMPORARY debugging experiment --- Remove!
             # repository.SessionRepository.to_filedump('/tmp/repository_{:10.10}.state'.format(self.start_time))
