@@ -73,6 +73,7 @@ class JpeginfoMetadataExtractor(BaseExtractor):
             health = self.STATUS_LOOKUP.get(status,
                                             self.STATUS_LOOKUP.get('UNKNOWN'))
 
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         out = {
             'health': ExtractedData(
                 coercer=types.AW_FLOAT,

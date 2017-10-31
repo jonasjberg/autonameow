@@ -55,6 +55,7 @@ class AbstractTextExtractor(BaseExtractor):
         self.log.debug('{!s} returning all extracted data'.format(self))
 
         # TODO: [TD0087] Clean up messy (and duplicated) coercion of "raw" data.
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         wrapper = ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=None,

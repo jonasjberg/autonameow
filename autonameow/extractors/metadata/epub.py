@@ -51,6 +51,7 @@ class EpubMetadataExtractor(BaseExtractor):
     def _to_internal_format(self, raw_metadata):
         out = {}
 
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         _author_maybe = raw_metadata.get('author')
         if _author_maybe:
             out['author'] = ExtractedData(

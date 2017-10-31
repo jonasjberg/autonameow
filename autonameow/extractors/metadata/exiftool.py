@@ -511,6 +511,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         return out
 
     def _wrap_tag_value(self, tagname, value):
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP.get(tagname)
         if not wrapper:
             self.log.debug(

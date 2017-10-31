@@ -116,6 +116,40 @@ class BaseExtractor(object):
         sanity.check_isinstance(fileobject, FileObject)
 
         extracted_data = self.execute(fileobject, **kwargs)
+
+        # TODO: [TD0119] Separate adding contextual information from coercion.
+
+        # Return coerced data separate from extra added data, currently stored
+        # in instances fo the 'ExtractedData' class. Maybe something like this:
+        #
+        #   extracted_data = {
+        #       'coerced' = {
+        #           'EXIF:DateTimeOriginal': datetime(2017, 02, 12, ...),
+        #           'EXIF:UserComment': 'foo bar'
+        #       }
+        #       'metainfo' = {
+        #           'EXIF:DateTimeOriginal': ExtractedData(
+        #               coercer=types.AW_EXIFTOOLTIMEDATE,
+        #               mapped_fields=[
+        #                   WeightedMapping(fields.DateTime, probability=1),
+        #                   WeightedMapping(fields.Date, probability=1)
+        #               ],
+        #               generic_field=gf.GenericDateCreated
+        #           ),
+        #           'EXIF:UserComment': ExtractedData(
+        #               coercer=types.AW_STRING,
+        #               mapped_fields=[
+        #                   WeightedMapping(fields.Description, probability=0.5),
+        #                   WeightedMapping(fields.Tags, probability=0.5)
+        #               ],
+        #               generic_field=gf.GenericDateModified
+        #           )
+        #       }
+        #   }
+        #
+        # .. maybe?
+
+        sanity.check_isinstance(extracted_data, dict)
         return extracted_data
 
     @classmethod
@@ -222,6 +256,7 @@ class BaseExtractor(object):
         Raises:
             ExtractorError: The extraction could not be completed successfully.
         """
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod

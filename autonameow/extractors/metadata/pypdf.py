@@ -124,6 +124,7 @@ class PyPDFMetadataExtractor(BaseExtractor):
     def _to_internal_format(self, raw_metadata):
         out = {}
 
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         for tag_name, value in raw_metadata.items():
             if tag_name in self.EXTRACTEDDATA_WRAPPER_LOOKUP:
                 wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP[tag_name]
