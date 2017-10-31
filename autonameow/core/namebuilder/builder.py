@@ -25,12 +25,12 @@ import re
 from core import (
     disk,
     exceptions,
+    ui,
     util
 )
 from core import constants as C
 from core.model import ExtractedData
 from core.namebuilder.fields import NameTemplateField
-from core.ui import cli
 from core.util import sanity
 
 
@@ -140,7 +140,7 @@ def pre_assemble_format(field_data_dict, config):
 
 
 def msg_replacement(original, replacement, regex, color):
-    _name_old = cli.colorize_re_match(original, regex=regex, color=color)
+    _name_old = ui.colorize_re_match(original, regex=regex, color=color)
     _name_new = _colorize_replacement(original, replacement, regex, color)
     log.info('Applying custom replacement: "{!s}" -> "{!s}"'.format(_name_old,
                                                                     _name_new))
@@ -153,7 +153,7 @@ def msg_replacement(original, replacement, regex, color):
 
 
 def _colorize_replacement(original, replacement, regex, color):
-    _colored_replacement = cli.colorize(replacement, fore=color)
+    _colored_replacement = ui.colorize(replacement, fore=color)
     return re.sub(regex, _colored_replacement, original)
 
 

@@ -34,8 +34,8 @@ except ImportError:
 import core
 from core import constants as C
 from core import (
-    util,
-    types
+    types,
+    util
 )
 from core.util import sanity
 

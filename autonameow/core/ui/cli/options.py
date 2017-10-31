@@ -278,7 +278,7 @@ def init_argparser():
     return parser
 
 
-def parse_args(raw_args):
+def cli_parse_args(raw_args):
     """
     Parses raw positional arguments.
 

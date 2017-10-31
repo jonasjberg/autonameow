@@ -24,8 +24,13 @@ from unittest import (
     util
 )
 
+from core.ui.cli.common import (
+    colorize,
+    ColumnFormatter,
+    msg,
+    msg_rename
+)
 import unit_utils as uu
-from core.ui import cli
 
 
 class TestMsg(TestCase):
@@ -34,25 +39,25 @@ class TestMsg(TestCase):
         util._MAX_LENGTH = 2000
 
     def test_msg_is_defined_and_available(self):
-        self.assertIsNotNone(cli.msg)
+        self.assertIsNotNone(msg)
 
     def test_msg_no_keyword_arguments(self):
         with uu.capture_stdout() as out:
-            cli.msg('text printed by msg()')
+            msg('text printed by msg()')
 
         self.assertIn('text printed by msg()', out.getvalue().strip())
 
     def test_msg_type_info(self):
         with uu.capture_stdout() as out:
-            cli.msg('text printed by msg() with type="info"', style='info')
+            msg('text printed by msg() with type="info"', style='info')
 
         self.assertIn('text printed by msg() with type="info"',
                       out.getvalue().strip())
 
     def test_msg_type_info_log_true(self):
         with uu.capture_stdout() as out:
-            cli.msg('text printed by msg() with type="info", add_info_log=True',
-                    style='info', add_info_log=True)
+            msg('text printed by msg() with type="info", add_info_log=True',
+                style='info', add_info_log=True)
 
         self.assertIn(
             'text printed by msg() with type="info", add_info_log=True',
@@ -61,8 +66,8 @@ class TestMsg(TestCase):
 
     def test_msg_type_color_quoted(self):
         with uu.capture_stdout() as out:
-            cli.msg('msg() text with type="color_quoted" no "yes" no',
-                    style='color_quoted')
+            msg('msg() text with type="color_quoted" no "yes" no',
+                style='color_quoted')
 
         self.assertIn('msg() text with type=', out.getvalue().strip())
         self.assertIn('color_quoted', out.getvalue().strip())
@@ -73,117 +78,125 @@ class TestMsg(TestCase):
         # NOTE:  This will likely fail on some platforms!
 
         with uu.capture_stdout() as out:
-            cli.msg('msg() text with type="color_quoted" no "yes" no',
-                    style='color_quoted')
-
-            self.assertEqual('msg() text with type="\x1b[92mcolor_quoted\x1b[39m" no "\x1b[92myes\x1b[39m" no',
-                             out.getvalue().strip())
-
-        with uu.capture_stdout() as out:
-            cli.msg('no "yes" no', style='color_quoted')
-
-            self.assertEqual('no "\x1b[92myes\x1b[39m" no',
-                             out.getvalue().strip())
+            msg('msg() text with type="color_quoted" no "yes" no',
+                style='color_quoted')
+            self.assertEqual(
+                'msg() text with type="\x1b[92mcolor_quoted\x1b[39m" no "\x1b[92myes\x1b[39m" no',
+                out.getvalue().strip()
+            )
 
         with uu.capture_stdout() as out:
-            cli.msg('no "yes yes" no', style='color_quoted')
-            self.assertEqual('no "\x1b[92myes yes\x1b[39m" no',
-                             out.getvalue().strip())
+            msg('no "yes" no', style='color_quoted')
+            self.assertEqual(
+                'no "\x1b[92myes\x1b[39m" no',
+                out.getvalue().strip()
+            )
 
         with uu.capture_stdout() as out:
-            cli.msg('Word "1234-56 word" -> "1234-56 word"',
-                    style='color_quoted')
-            self.assertEqual('Word "\x1b[92m1234-56 word\x1b[39m" -> "\x1b[92m1234-56 word\x1b[39m"',
-                             out.getvalue().strip())
+            msg('no "yes yes" no', style='color_quoted')
+            self.assertEqual(
+                'no "\x1b[92myes yes\x1b[39m" no',
+                out.getvalue().strip()
+            )
 
         with uu.capture_stdout() as out:
-            cli.msg('Word "word 1234-56" -> "1234-56 word"',
-                    style='color_quoted')
-            self.assertEqual('Word "\x1b[92mword 1234-56\x1b[39m" -> "\x1b[92m1234-56 word\x1b[39m"',
-                             out.getvalue().strip())
+            msg('Word "1234-56 word" -> "1234-56 word"', style='color_quoted')
+            self.assertEqual(
+                'Word "\x1b[92m1234-56 word\x1b[39m" -> "\x1b[92m1234-56 word\x1b[39m"',
+                out.getvalue().strip()
+            )
 
         with uu.capture_stdout() as out:
-            cli.msg('A "b 123" -> A "b 123"', style='color_quoted')
-            self.assertEqual('A "\x1b[92mb 123\x1b[39m" -> A "\x1b[92mb 123\x1b[39m"',
-                             out.getvalue().strip())
+            msg('Word "word 1234-56" -> "1234-56 word"', style='color_quoted')
+            self.assertEqual(
+                'Word "\x1b[92mword 1234-56\x1b[39m" -> "\x1b[92m1234-56 word\x1b[39m"',
+                out.getvalue().strip()
+            )
+
+        with uu.capture_stdout() as out:
+            msg('A "b 123" -> A "b 123"', style='color_quoted')
+            self.assertEqual(
+                'A "\x1b[92mb 123\x1b[39m" -> A "\x1b[92mb 123\x1b[39m"',
+                out.getvalue().strip()
+            )
 
 
 class TestColorize(TestCase):
     # NOTE:  This will likely fail on some platforms!
 
     def test_colorize_returns_expected(self):
-        self.assertEqual(cli.colorize('foo'), 'foo')
+        self.assertEqual(colorize('foo'), 'foo')
 
     def test_colorize_returns_expected_with_fore_red(self):
-        self.assertEqual(cli.colorize('foo', fore='RED'),
+        self.assertEqual(colorize('foo', fore='RED'),
                          '\x1b[31mfoo\x1b[39m')
 
     def test_colorize_returns_expected_with_fore_green(self):
-        self.assertEqual(cli.colorize('foo', fore='GREEN'),
+        self.assertEqual(colorize('foo', fore='GREEN'),
                          '\x1b[32mfoo\x1b[39m')
 
     def test_colorize_returns_expected_with_fore_blue(self):
-        self.assertEqual(cli.colorize('foo', fore='BLUE'),
+        self.assertEqual(colorize('foo', fore='BLUE'),
                          '\x1b[34mfoo\x1b[39m')
 
     def test_colorize_returns_expected_with_back_red(self):
-        self.assertEqual(cli.colorize('foo', back='RED'),
+        self.assertEqual(colorize('foo', back='RED'),
                          '\x1b[41mfoo\x1b[49m')
 
     def test_colorize_returns_expected_with_back_green(self):
-        self.assertEqual(cli.colorize('foo', back='GREEN'),
+        self.assertEqual(colorize('foo', back='GREEN'),
                          '\x1b[42mfoo\x1b[49m')
 
     def test_colorize_returns_expected_with_back_blue(self):
-        self.assertEqual(cli.colorize('foo', back='BLUE'),
+        self.assertEqual(colorize('foo', back='BLUE'),
                          '\x1b[44mfoo\x1b[49m')
 
     def test_colorize_returns_expected_with_style_normal(self):
-        self.assertEqual(cli.colorize('foo', style='NORMAL'),
+        self.assertEqual(colorize('foo', style='NORMAL'),
                          '\x1b[22mfoo\x1b[0m')
 
     def test_colorize_returns_expected_with_style_dim(self):
-        self.assertEqual(cli.colorize('foo', style='DIM'),
+        self.assertEqual(colorize('foo', style='DIM'),
                          '\x1b[2mfoo\x1b[0m')
 
     def test_colorize_returns_expected_with_style_bright(self):
-        self.assertEqual(cli.colorize('foo', style='BRIGHT'),
+        self.assertEqual(colorize('foo', style='BRIGHT'),
                          '\x1b[1mfoo\x1b[0m')
 
     def test_colorize_returns_expected_with_fore_red_back_red(self):
-        self.assertEqual(cli.colorize('foo', fore='RED', back='RED'),
+        self.assertEqual(colorize('foo', fore='RED', back='RED'),
                          '\x1b[31m\x1b[41mfoo\x1b[49m\x1b[39m')
 
     def test_colorize_returns_expected_with_fore_green_back_red(self):
-        self.assertEqual(cli.colorize('foo', fore='GREEN', back='RED'),
+        self.assertEqual(colorize('foo', fore='GREEN', back='RED'),
                          '\x1b[32m\x1b[41mfoo\x1b[49m\x1b[39m')
 
     def test_colorize_returns_expected_with_fore_blue_back_red(self):
-        self.assertEqual(cli.colorize('foo', fore='BLUE', back='RED'),
+        self.assertEqual(colorize('foo', fore='BLUE', back='RED'),
                          '\x1b[34m\x1b[41mfoo\x1b[49m\x1b[39m')
 
     def test_colorize_returns_expected_with_fore_red_back_green(self):
-        self.assertEqual(cli.colorize('foo', fore='RED', back='GREEN'),
+        self.assertEqual(colorize('foo', fore='RED', back='GREEN'),
                          '\x1b[31m\x1b[42mfoo\x1b[49m\x1b[39m')
 
     def test_colorize_returns_expected_with_fore_green_back_green(self):
-        self.assertEqual(cli.colorize('foo', fore='GREEN', back='GREEN'),
+        self.assertEqual(colorize('foo', fore='GREEN', back='GREEN'),
                          '\x1b[32m\x1b[42mfoo\x1b[49m\x1b[39m')
 
     def test_colorize_returns_expected_with_fore_blue_back_green(self):
-        self.assertEqual(cli.colorize('foo', fore='BLUE', back='GREEN'),
+        self.assertEqual(colorize('foo', fore='BLUE', back='GREEN'),
                          '\x1b[34m\x1b[42mfoo\x1b[49m\x1b[39m')
 
     def test_colorize_returns_expected_with_fore_red_back_blue(self):
-        self.assertEqual(cli.colorize('foo', fore='RED', back='BLUE'),
+        self.assertEqual(colorize('foo', fore='RED', back='BLUE'),
                          '\x1b[31m\x1b[44mfoo\x1b[49m\x1b[39m')
 
     def test_colorize_returns_expected_with_fore_green_back_blue(self):
-        self.assertEqual(cli.colorize('foo', fore='GREEN', back='BLUE'),
+        self.assertEqual(colorize('foo', fore='GREEN', back='BLUE'),
                          '\x1b[32m\x1b[44mfoo\x1b[49m\x1b[39m')
 
     def test_colorize_returns_expected_with_fore_blue_back_blue(self):
-        self.assertEqual(cli.colorize('foo', fore='BLUE', back='BLUE'),
+        self.assertEqual(colorize('foo', fore='BLUE', back='BLUE'),
                          '\x1b[34m\x1b[44mfoo\x1b[49m\x1b[39m')
 
 
@@ -192,42 +205,43 @@ class TestMsgRename(TestCase):
         self.maxDiff = None
 
     def test_msg_rename_is_defined(self):
-        self.assertIsNotNone(cli.msg_rename)
+        self.assertIsNotNone(msg_rename)
 
     def test_can_be_called_with_valid_args_dry_run_true(self):
-        cli.msg_rename('smulan.jpg',
-                       '2010-0131T161251 a cat lying on a rug.jpg',
-                       dry_run=True)
+        msg_rename('smulan.jpg',
+                   '2010-0131T161251 a cat lying on a rug.jpg',
+                   dry_run=True)
 
     def test_can_be_called_with_valid_args_dry_run_false(self):
-        cli.msg_rename('smulan.jpg',
-                       '2010-0131T161251 a cat lying on a rug.jpg',
-                       dry_run=False)
+        msg_rename('smulan.jpg',
+                   '2010-0131T161251 a cat lying on a rug.jpg',
+                   dry_run=False)
 
     def test_can_be_called_with_valid_bytestring_args_dry_run_true(self):
-        cli.msg_rename(b'smulan.jpg',
-                       b'2010-0131T161251 a cat lying on a rug.jpg',
-                       dry_run=True)
+        msg_rename(b'smulan.jpg',
+                   b'2010-0131T161251 a cat lying on a rug.jpg',
+                   dry_run=True)
 
     def test_can_be_called_with_valid_bytestring_args_dry_run_false(self):
-        cli.msg_rename(b'smulan.jpg',
-                       b'2010-0131T161251 a cat lying on a rug.jpg',
-                       dry_run=False)
+        msg_rename(b'smulan.jpg',
+                   b'2010-0131T161251 a cat lying on a rug.jpg',
+                   dry_run=False)
 
     def test_valid_args_dry_run_true_gives_expected_output(self):
         with uu.capture_stdout() as out:
-            cli.msg_rename('smulan.jpg',
-                           '2010-0131T161251 a cat lying on a rug.jpg',
-                           dry_run=True)
-
-            self.assertEqual('Would have renamed  "\x1b[37msmulan.jpg\x1b[39m"\n                ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
-                             out.getvalue().strip())
+            msg_rename('smulan.jpg',
+                       '2010-0131T161251 a cat lying on a rug.jpg',
+                       dry_run=True)
+            self.assertEqual(
+                'Would have renamed  "\x1b[37msmulan.jpg\x1b[39m"\n                ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+                out.getvalue().strip()
+            )
 
     def test_valid_args_dry_run_false_gives_expected_output(self):
         with uu.capture_stdout() as out:
-            cli.msg_rename('smulan.jpg',
-                           '2010-0131T161251 a cat lying on a rug.jpg',
-                           dry_run=False)
+            msg_rename('smulan.jpg',
+                       '2010-0131T161251 a cat lying on a rug.jpg',
+                       dry_run=False)
             self.assertEqual(
                 'Renamed  "\x1b[37msmulan.jpg\x1b[39m"\n     ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
                  out.getvalue().strip()
@@ -235,18 +249,19 @@ class TestMsgRename(TestCase):
 
     def test_valid_bytestring_args_dry_run_true_gives_expected_output(self):
         with uu.capture_stdout() as out:
-            cli.msg_rename(b'smulan.jpg',
-                           b'2010-0131T161251 a cat lying on a rug.jpg',
-                           dry_run=True)
-
-            self.assertEqual('Would have renamed  "\x1b[37msmulan.jpg\x1b[39m"\n                ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
-                             out.getvalue().strip())
+            msg_rename(b'smulan.jpg',
+                       b'2010-0131T161251 a cat lying on a rug.jpg',
+                       dry_run=True)
+            self.assertEqual(
+                'Would have renamed  "\x1b[37msmulan.jpg\x1b[39m"\n                ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
+                out.getvalue().strip()
+            )
 
     def test_valid_bytestring_args_dry_run_false_gives_expected_output(self):
         with uu.capture_stdout() as out:
-            cli.msg_rename(b'smulan.jpg',
-                           b'2010-0131T161251 a cat lying on a rug.jpg',
-                           dry_run=False)
+            msg_rename(b'smulan.jpg',
+                       b'2010-0131T161251 a cat lying on a rug.jpg',
+                       dry_run=False)
             self.assertEqual(
                 'Renamed  "\x1b[37msmulan.jpg\x1b[39m"\n     ->  "\x1b[92m2010-0131T161251 a cat lying on a rug.jpg\x1b[39m"',
                 out.getvalue().strip()
@@ -255,11 +270,11 @@ class TestMsgRename(TestCase):
 
 class TestColumnFormatter(TestCase):
     def setUp(self):
-        self.padding = (cli.ColumnFormatter.PADDING_CHAR
-                        * cli.ColumnFormatter.COLUMN_PADDING)
+        self.padding = (ColumnFormatter.PADDING_CHAR
+                        * ColumnFormatter.COLUMN_PADDING)
 
     def test_column_counter(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         self.assertEqual(cf.number_columns, 0)
 
         cf.addrow('foo')
@@ -274,7 +289,7 @@ class TestColumnFormatter(TestCase):
         self.assertEqual(cf.number_columns, 3)
 
     def test_column_widths(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         self.assertEqual(cf.column_widths, [])
 
         cf.addrow('foo')
@@ -293,11 +308,11 @@ class TestColumnFormatter(TestCase):
 
 class TestColumnFormatterOneColumn(TestCase):
     def setUp(self):
-        self.padding = (cli.ColumnFormatter.PADDING_CHAR
-                        * cli.ColumnFormatter.COLUMN_PADDING)
+        self.padding = (ColumnFormatter.PADDING_CHAR
+                        * ColumnFormatter.COLUMN_PADDING)
 
     def test_formats_single_column(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('foo')
         cf.addrow('bar')
         cf.addrow('baz')
@@ -307,7 +322,7 @@ class TestColumnFormatterOneColumn(TestCase):
         self.assertEqual(actual, expected)
 
     def test_formats_single_column_with_empty_strings(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('foo')
         cf.addrow(' ')
         cf.addrow('baz')
@@ -317,7 +332,7 @@ class TestColumnFormatterOneColumn(TestCase):
         self.assertEqual(actual, expected)
 
     def test_formats_single_column_with_none_elements(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('foo')
         cf.addrow(None)
         cf.addrow('baz')
@@ -329,11 +344,11 @@ class TestColumnFormatterOneColumn(TestCase):
 
 class TestColumnFormatterTwoColumns(TestCase):
     def setUp(self):
-        self.padding = (cli.ColumnFormatter.PADDING_CHAR
-                        * cli.ColumnFormatter.COLUMN_PADDING)
+        self.padding = (ColumnFormatter.PADDING_CHAR
+                        * ColumnFormatter.COLUMN_PADDING)
 
     def test_formats_two_columns(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('foo_A', 'foo_B')
         cf.addrow('bar_A', 'bar_B')
         cf.addrow('baz_A', 'baz_B')
@@ -345,7 +360,7 @@ class TestColumnFormatterTwoColumns(TestCase):
         self.assertEqual(actual, expect)
 
     def test_format_two_columns_expands_width(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('A')
         cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
         cf.addrow('OOOOOOOOOOAAAAJM', 'B')
@@ -355,22 +370,20 @@ class TestColumnFormatterTwoColumns(TestCase):
 A
 tuna            {p}MJAAAAOOOOOOOOOO
 OOOOOOOOOOAAAAJM{p}B'''.format(p=self.padding).lstrip('\n')
-
         self.assertEqual(actual, expected)
 
     def test_format_two_columns_align_all_left(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('a',    'bbb')
         cf.addrow('cccc', 'd')
         cf.setalignment('left', 'left', 'left')
         actual = str(cf)
 
         expected = 'a   {p}bbb\ncccc{p}d'.format(p=self.padding)
-
         self.assertEqual(actual, expected)
 
     def test_format_two_columns_align_all_right(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('A',    'B')
         cf.addrow('a',    'bbb')
         cf.addrow('cccc', 'd')
@@ -381,17 +394,16 @@ OOOOOOOOOOAAAAJM{p}B'''.format(p=self.padding).lstrip('\n')
    A{p}  B
    a{p}bbb
 cccc{p}  d'''.format(p=self.padding).lstrip('\n')
-
         self.assertEqual(actual, expected)
 
 
 class TestColumnFormatterThreeColumns(TestCase):
     def setUp(self):
-        self.padding = (cli.ColumnFormatter.PADDING_CHAR
-                        * cli.ColumnFormatter.COLUMN_PADDING)
+        self.padding = (ColumnFormatter.PADDING_CHAR
+                        * ColumnFormatter.COLUMN_PADDING)
 
     def test_format_three_columns(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('A1', 'BB1', 'CC11')
         cf.addrow('A2', 'BB2', 'CC22')
         cf.addrow('A3', 'BB3', 'CC33')
@@ -400,11 +412,10 @@ class TestColumnFormatterThreeColumns(TestCase):
         expected = 'A1{p}BB1{p}CC11\nA2{p}BB2{p}CC22\nA3{p}BB3{p}CC33'.format(
             p=self.padding
         )
-
         self.assertEqual(actual, expected)
 
     def test_format_three_columns_expands_width(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('A')
         cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
         cf.addrow('OOOOOOOOOOAAAAJM', 'B')
@@ -418,11 +429,10 @@ tuna            {p}MJAAAAOOOOOOOOOO
 OOOOOOOOOOAAAAJM{p}B
 42              {p}0x4E4F4F42
 C               {p}D               {p}E'''.format(p=self.padding).lstrip('\n')
-
         self.assertEqual(actual, expected)
 
     def test_format_three_columns_align_all_left(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('A')
         cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
         cf.addrow('OOOOOOOOOOAAAAJM', 'B')
@@ -437,11 +447,10 @@ tuna            {p}MJAAAAOOOOOOOOOO
 OOOOOOOOOOAAAAJM{p}B
 42              {p}0x4E4F4F42
 C               {p}D               {p}E'''.format(p=self.padding).lstrip('\n')
-
         self.assertEqual(actual, expected)
 
     def test_format_three_columns_align_all_right(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('A')
         cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
         cf.addrow('OOOOOOOOOOAAAAJM', 'B')
@@ -456,11 +465,10 @@ C               {p}D               {p}E'''.format(p=self.padding).lstrip('\n')
 OOOOOOOOOOAAAAJM{p}               B
               42{p}      0x4E4F4F42
                C{p}               D{p}E'''.format(p=self.padding).lstrip('\n')
-
         self.assertEqual(actual, expected)
 
     def test_format_three_columns_align_mixed(self):
-        cf = cli.ColumnFormatter()
+        cf = ColumnFormatter()
         cf.addrow('A')
         cf.addrow('tuna', 'MJAAAAOOOOOOOOOO')
         cf.addrow('OOOOOOOOOOAAAAJM', 'B')
@@ -475,5 +483,4 @@ OOOOOOOOOOAAAAJM{p}               B
 OOOOOOOOOOAAAAJM{p}B
               42{p}0x4E4F4F42
                C{p}D               {p}E'''.format(p=self.padding).lstrip('\n')
-
         self.assertEqual(actual, expected)

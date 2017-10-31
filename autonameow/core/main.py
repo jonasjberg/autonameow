@@ -23,11 +23,13 @@ import logging
 import sys
 import traceback
 
-from core import logs
 from core import constants as C
+from core import (
+    logs,
+    ui
+)
 from core.autonameow import Autonameow
 from core.exceptions import AWAssertionError
-from core.options import parse_args
 
 
 def real_main(options=None):
@@ -163,7 +165,7 @@ def cli_main(argv=None):
         sys.exit(C.EXIT_SUCCESS)
 
     # Handle the command line arguments with argparse.
-    opts = parse_args(args)
+    opts = ui.options.cli_parse_args(args)
 
     # Translate from 'argparse'-specific format to internal options dict.
     options = {

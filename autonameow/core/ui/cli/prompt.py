@@ -46,8 +46,8 @@ except ImportError:
     )
 
 from core import constants as C
-from core import config
 from core import (
+    config,
     disk,
     providers,
     util

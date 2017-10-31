@@ -32,10 +32,10 @@ from core import (
     extraction,
     interactive,
     namebuilder,
-    options,
     persistence,
     providers,
     repository,
+    ui,
     util
 )
 from core import constants as C
@@ -45,7 +45,6 @@ from core.evaluate.rulematcher import RuleMatcher
 from core.fileobject import FileObject
 from core.filter import ResultFilter
 from core.plugin_handler import PluginHandler
-from core.ui import cli
 from core.util import sanity
 
 
@@ -85,15 +84,15 @@ class Autonameow(object):
 
     def run(self):
         if self.opts.get('quiet'):
-            cli.silence()
+            ui.silence()
 
         # Display various information depending on verbosity level.
         if self.opts.get('verbose') or self.opts.get('debug'):
-            cli.print_start_info()
+            ui.print_start_info()
 
         # Display startup banner with program version and exit.
         if self.opts.get('show_version'):
-            cli.print_version_info(verbose=self.opts.get('verbose'))
+            ui.print_version_info(verbose=self.opts.get('verbose'))
             self.exit_program(C.EXIT_SUCCESS)
 
         # Check configuration file. If no alternate config file path is
@@ -128,7 +127,7 @@ class Autonameow(object):
                     util.enc.displayable_path(_config_path)
                 )
             }
-            options.prettyprint_options(self.opts, include_opts)
+            ui.options.prettyprint_options(self.opts, include_opts)
 
         if self.opts.get('dump_config'):
             self._dump_active_config_and_exit()
@@ -160,19 +159,19 @@ class Autonameow(object):
 
     def _dump_active_config_and_exit(self):
         log.info('Dumping active configuration ..')
-        cli.msg('Active Configuration:', style='heading')
-        cli.msg(str(self.active_config))
+        ui.msg('Active Configuration:', style='heading')
+        ui.msg(str(self.active_config))
         self.exit_program(C.EXIT_SUCCESS)
 
     def _dump_registered_meowuris(self):
-        cli.msg('Registered MeowURIs', style='heading')
+        ui.msg('Registered MeowURIs', style='heading')
 
         if not self.opts.get('debug'):
             _meowuris = sorted(providers.Registry.mapped_meowuris)
             for _meowuri in _meowuris:
-                cli.msg(str(_meowuri))
+                ui.msg(str(_meowuri))
         else:
-            cf = cli.ColumnFormatter()
+            cf = ui.ColumnFormatter()
 
             for _type in C.MEOWURI_ROOTS_SOURCES:
                 cf.addemptyrow()
@@ -182,9 +181,9 @@ class Autonameow(object):
                     if _klasses:
                         for k in _klasses:
                             cf.addrow(None, str(k))
-            cli.msg(str(cf))
+            ui.msg(str(cf))
 
-        cli.msg('\n')
+        ui.msg('\n')
 
     def _load_config_from_default_path(self):
         _dp = util.enc.displayable_path(config.DefaultConfigFilePath)
@@ -201,12 +200,12 @@ class Autonameow(object):
                          '"{!s}"'.format(_dp))
             self.exit_program(C.EXIT_ERROR)
         else:
-            cli.msg('A template configuration file was written to '
-                    '"{!s}"'.format(_dp), style='info')
-            cli.msg('Use this file to configure {}. '
-                    'Refer to the documentation for additional '
-                    'information.'.format(C.STRING_PROGRAM_NAME),
-                    style='info')
+            ui.msg('A template configuration file was written to '
+                   '"{!s}"'.format(_dp), style='info')
+            ui.msg('Use this file to configure {}. '
+                   'Refer to the documentation for additional '
+                   'information.'.format(C.STRING_PROGRAM_NAME),
+                   style='info')
             self.exit_program(C.EXIT_SUCCESS)
 
     def _load_config_from_alternate_path(self):
@@ -266,13 +265,13 @@ class Autonameow(object):
 
         if self.opts.get('list_all'):
             log.info('Listing session repository contents ..')
-            cli.msg('Session Repository Data', style='heading',
-                    add_info_log=True)
+            ui.msg('Session Repository Data', style='heading',
+                   add_info_log=True)
 
             if len(repository.SessionRepository) == 0:
-                cli.msg('The session repository does not contain any data ..\n')
+                ui.msg('The session repository does not contain any data ..\n')
             else:
-                cli.msg(str(repository.SessionRepository))
+                ui.msg(str(repository.SessionRepository))
 
             # TODO:  TEMPORARY debugging experiment --- Remove!
             # repository.SessionRepository.to_filedump('/tmp/repository_{:10.10}.state'.format(self.start_time))
@@ -368,7 +367,7 @@ class Autonameow(object):
                 # TODO: [TD0023][TD0024][TD0025] Implement Interactive mode.
                 candidates = None
                 choice = interactive.select_template(candidates)
-                #if choice != cli.action.ABORT:
+                #if choice != ui.action.ABORT:
                 #    name_template = choice
                 #else:
                 #    name_template = None
@@ -469,7 +468,8 @@ class Autonameow(object):
         self.exit_code = exit_code_
 
         if self.opts and self.opts.get('verbose'):
-            cli.print_exit_info(self.exit_code, elapsed_time)
+            ui.print_exit_info(self.exit_code, elapsed_time)
+
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
         log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
 
@@ -509,7 +509,7 @@ class Autonameow(object):
                                       util.enc.displayable_path(dest_basename))
             )
             log.debug(_msg)
-            cli.msg(_msg)
+            ui.msg(_msg)
         else:
             if dry_run is False:
                 try:
@@ -518,7 +518,7 @@ class Autonameow(object):
                     log.error('Rename FAILED: {!s}'.format(e))
                     raise exceptions.AutonameowException
 
-            cli.msg_rename(from_basename, dest_basename, dry_run=dry_run)
+            ui.msg_rename(from_basename, dest_basename, dry_run=dry_run)
 
     @property
     def exit_code(self):

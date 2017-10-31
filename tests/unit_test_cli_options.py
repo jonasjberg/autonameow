@@ -22,7 +22,12 @@
 import argparse
 from unittest import TestCase
 
-from core import options
+from core.ui.cli.options import (
+    arg_is_year,
+    arg_is_readable_file,
+    init_argparser,
+    cli_parse_args
+)
 import unit_utils as uu
 
 
@@ -31,64 +36,64 @@ class TestArgumentValidators(TestCase):
         invalid_years = ['abc', '00', '', '19 00', ' ', None, '¡@$!']
         for y in invalid_years:
             with self.assertRaises(argparse.ArgumentTypeError) as e:
-                options.arg_is_year(y)
+                arg_is_year(y)
             self.assertIsNotNone(e)
 
     def test_arg_is_year_passes_valid_years(self):
         valid_years = ['1000', '1970', '2017', '9999']
         for y in valid_years:
-            self.assertTrue(options.arg_is_year(y))
+            self.assertTrue(arg_is_year(y))
 
     def test_arg_is_readable_file_raises_exception_missing_file(self):
         _file_missing = '/tmp/nopenopenopenope_no-file-here_nono'
         self.assertFalse(uu.file_exists(_file_missing))
 
         with self.assertRaises(argparse.ArgumentTypeError) as e:
-            options.arg_is_readable_file(_file_missing)
+            arg_is_readable_file(_file_missing)
         self.assertIsNotNone(e)
 
     def test_arg_is_readable_file_raises_exception_arg_is_dev_null(self):
         with self.assertRaises(argparse.ArgumentTypeError) as e:
-            options.arg_is_readable_file('/dev/null')
+            arg_is_readable_file('/dev/null')
         self.assertIsNotNone(e)
 
     def test_arg_is_readable_file_raises_exception_none_argument(self):
         with self.assertRaises(argparse.ArgumentTypeError) as e:
-            options.arg_is_readable_file(None)
+            arg_is_readable_file(None)
         self.assertIsNotNone(e)
 
     def test_arg_is_readable_file_raises_exception_empty_string_arg(self):
         with self.assertRaises(argparse.ArgumentTypeError) as e:
-            options.arg_is_readable_file('')
+            arg_is_readable_file('')
         self.assertIsNotNone(e)
 
     def test_arg_is_readable_file_raises_exception_arg_is_directory(self):
         with self.assertRaises(argparse.ArgumentTypeError) as e:
-            options.arg_is_readable_file('/tmp')
+            arg_is_readable_file('/tmp')
         self.assertIsNotNone(e)
 
 
 class TestArgParse(TestCase):
     def test_init_argparser(self):
-        self.assertTrue(isinstance(options.init_argparser(),
+        self.assertTrue(isinstance(init_argparser(),
                                    argparse.ArgumentParser))
 
     def test_parse_args_returns_expected_type(self):
-        self.assertEqual(type(options.parse_args('')), argparse.Namespace)
-        self.assertEqual(type(options.parse_args('--help')), argparse.Namespace)
+        self.assertEqual(type(cli_parse_args('')), argparse.Namespace)
+        self.assertEqual(type(cli_parse_args('--help')), argparse.Namespace)
 
     def test_parse_args_raises_typeerror_if_argument_missing(self):
         with self.assertRaises(TypeError):
-            options.parse_args()
+            cli_parse_args()
 
     def test_parse_args_accepts_argument_help(self):
-        self.assertIsNotNone(options.parse_args('--help'))
+        self.assertIsNotNone(cli_parse_args('--help'))
 
     def test_parse_args_accepts_argument_dry_run(self):
-        self.assertIsNotNone(options.parse_args('--dry-run'))
+        self.assertIsNotNone(cli_parse_args('--dry-run'))
 
     def test_parse_args_accepts_argument_verbose(self):
-        self.assertIsNotNone(options.parse_args('--verbose'))
+        self.assertIsNotNone(cli_parse_args('--verbose'))
 
     def test_parse_args_accepts_argument_debug(self):
-        self.assertIsNotNone(options.parse_args('--debug'))
+        self.assertIsNotNone(cli_parse_args('--debug'))
