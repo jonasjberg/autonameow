@@ -36,6 +36,7 @@ from core.namebuilder import fields
 
 
 # TODO: [TD0037][TD0043] Allow further customizing of "filetags" options.
+
 DATE_SEP = b'[:\-._ ]?'
 TIME_SEP = b'[:\-._ T]?'
 DATE_REGEX = b'[12]\d{3}' + DATE_SEP + b'[01]\d' + DATE_SEP + b'[0123]\d'

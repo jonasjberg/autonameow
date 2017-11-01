@@ -816,6 +816,45 @@ def force_string(raw_value):
         return str_value
 
 
+def force_stringlist(raw_values):
+    try:
+        str_list = listof(AW_STRING)(raw_values)
+    except AWTypeError:
+        return [AW_STRING.null()]
+    else:
+        return str_list
+
+
+class MultipleTypes(object):
+    def __init__(self, coercer):
+        self._coercer = coercer
+
+    def __call__(self, value=None):
+        if value is None:
+            return ['']
+
+        if not isinstance(value, list):
+            value = [value]
+
+        if not value:
+            return ['']
+
+        out = []
+        for v in value:
+            _coerced = self._coercer(v)
+            if _coerced is None:
+                continue
+
+            out.append(_coerced)
+
+        return out
+
+
+def listof(coercer):
+    # TODO: [TD0084] Handle collections (lists, etc) with wrapper classes.
+    return MultipleTypes(coercer)
+
+
 # Singletons for actual use.
 AW_BOOLEAN = Boolean()
 AW_DATE = Date()

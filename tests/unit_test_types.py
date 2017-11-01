@@ -1376,6 +1376,58 @@ class TestForceString(TestCase):
         _aS(None)
 
 
+class TestForceStringList(TestCase):
+    def test_returns_list_of_strings(self):
+        def _aS(test_input):
+            actual = types.force_stringlist(test_input)
+            self.assertTrue(isinstance(actual, list))
+            for a in actual:
+                self.assertTrue(isinstance(a, str))
+
+        _aS(1)
+        _aS(1.0)
+        _aS('')
+        _aS(b'')
+        _aS('foo')
+        _aS(b'foo')
+        _aS([])
+        _aS({})
+        _aS(None)
+        _aS([1])
+        _aS([1.0])
+        _aS([''])
+        _aS([b''])
+        _aS(['foo'])
+        _aS([b'foo'])
+        _aS([[]])
+        _aS([{}])
+        _aS([None])
+
+    def test_returns_expected_values(self):
+        def _aE(test_input, expected):
+            actual = types.force_stringlist(test_input)
+            self.assertEqual(actual, expected)
+
+        _aE(1, ['1'])
+        _aE(1.0, ['1.0'])
+        _aE('', [''])
+        _aE(b'', [''])
+        _aE('foo', ['foo'])
+        _aE(b'foo', ['foo'])
+        _aE([], [''])
+        _aE({}, [''])
+        _aE(None, [''])
+        _aE([1], ['1'])
+        _aE([1.0], ['1.0'])
+        _aE([''], [''])
+        _aE([b''], [''])
+        _aE(['foo'], ['foo'])
+        _aE([b'foo'], ['foo'])
+        _aE([[]], [''])
+        _aE([{}], [''])
+        _aE([None], [''])
+
+
 class TestTryParseDate(TestCase):
     def test_parses_valid_date(self):
         expected = datetime.strptime('2017-09-14', '%Y-%m-%d')
@@ -1715,3 +1767,64 @@ class TestNormalizeDatetimeWithMicroseconds(TestCase):
 
         # TODO: Add handling more difficult patterns here?
         # _assert_match('12_7_2017_20_50_15_641659')
+
+
+# TODO: [TD0084] Handle collections (lists, etc) with wrapper classes.
+class TestListofStrings(TestCase):
+    def test_call_with_coercible_data(self):
+        def _assert_returns(test_data, expected):
+            actual = types.listof(types.AW_STRING)(test_data)
+            self.assertEqual(actual, expected)
+
+        _assert_returns([''], [''])
+        _assert_returns([' '], [' '])
+        _assert_returns([b''], [''])
+        _assert_returns([b' '], [' '])
+        _assert_returns([-1], ['-1'])
+        _assert_returns([0], ['0'])
+        _assert_returns([1], ['1'])
+        _assert_returns([-1.5], ['-1.5'])
+        _assert_returns([-1.0], ['-1.0'])
+        _assert_returns([1.0], ['1.0'])
+        _assert_returns([1.5], ['1.5'])
+        _assert_returns(['-1'], ['-1'])
+        _assert_returns(['-1.0'], ['-1.0'])
+        _assert_returns(['0'], ['0'])
+        _assert_returns(['1'], ['1'])
+        _assert_returns(['foo'], ['foo'])
+        _assert_returns([None], [''])
+        _assert_returns([False], ['False'])
+        _assert_returns([True], ['True'])
+
+    def test_call_with_noncoercible_data(self):
+        with self.assertRaises(types.AWTypeError):
+            types.AW_STRING(datetime.now())
+
+        with self.assertRaises(types.AWTypeError):
+            types.AW_STRING([datetime.now()])
+
+    def test_listof_string_passthrough(self):
+        _coercer = types.listof(types.AW_STRING)
+        self.assertTrue(callable(_coercer))
+
+        actual = _coercer(['a', 'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
+
+    def test_listof_string_passthrough_direct_call(self):
+        actual = types.listof(types.AW_STRING)(['a', 'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
+
+    def test_listof_string_bytes(self):
+        _coercer = types.listof(types.AW_STRING)
+        self.assertTrue(callable(_coercer))
+
+        actual = _coercer([b'a', b'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
+
+    def test_listof_string_bytes_direct_call(self):
+        actual = types.listof(types.AW_STRING)([b'a', b'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
