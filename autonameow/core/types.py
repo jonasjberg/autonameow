@@ -794,20 +794,36 @@ def try_parse_date(string):
 def try_coerce(value):
     coercer = coercer_for(value)
     if coercer:
-        try:
-            return coercer(value)
-        except AWTypeError:
-            pass
+        if isinstance(value, list):
+            try:
+                return listof(coercer)(value)
+            except AWTypeError:
+                pass
+        else:
+            try:
+                return coercer(value)
+            except AWTypeError:
+                pass
+
     return None
 
 
 def coercer_for(value):
     if value is None:
         return None
-    return PRIMITIVE_AW_TYPE_MAP.get(type(value), None)
+
+    _sample = value
+    if value and isinstance(value, list):
+        _sample = value[0]
+
+    return PRIMITIVE_AW_TYPE_MAP.get(type(_sample), None)
 
 
 def force_string(raw_value):
+    # Silently fetch single value from list.
+    if isinstance(raw_value, list) and len(raw_value) == 1:
+        raw_value = raw_value[0]
+
     try:
         str_value = AW_STRING(raw_value)
     except AWTypeError:
@@ -831,13 +847,13 @@ class MultipleTypes(object):
 
     def __call__(self, value=None):
         if value is None:
-            return ['']
+            return [self._coercer.null()]
 
         if not isinstance(value, list):
             value = [value]
 
         if not value:
-            return ['']
+            return [self._coercer.null()]
 
         out = []
         for v in value:
