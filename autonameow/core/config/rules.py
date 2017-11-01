@@ -276,11 +276,21 @@ class Rule(object):
         return self._conditions
 
     @conditions.setter
-    def conditions(self, raw_conditions):
-        try:
-            self._conditions = parse_conditions(raw_conditions)
-        except exceptions.ConfigurationSyntaxError as e:
-            raise exceptions.InvalidRuleError(e)
+    def conditions(self, valid_conditions):
+        def _raise_exception():
+            raise exceptions.InvalidRuleError(
+                'Invalid condition: ({!s}) "{!s}"'.format(type(c), c)
+            )
+
+        if not valid_conditions:
+            _raise_exception()
+        if not isinstance(valid_conditions, list):
+            _raise_exception()
+        for c in valid_conditions:
+            if not isinstance(c, RuleCondition):
+                _raise_exception()
+
+        self._conditions = valid_conditions
 
     @property
     def data_sources(self):
@@ -394,6 +404,32 @@ class Rule(object):
         for key in self.__dict__:
             out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
         return 'Rule({})'.format(', '.join(out))
+
+
+def get_valid_rule(description, exact_match, ranking_bias, name_template,
+                   conditions, data_sources):
+    """
+    Main retrieval mechanism for 'Rule' class instances.
+
+    Does validation of all data, suited to handle input from untrusted sources.
+
+    Returns:
+        An instance of 'Rule' if the given arguments are valid.
+    Raises:
+        InvalidRuleError: Validation failed or the 'Rule' could not be created.
+    """
+    try:
+        valid_conditions = parse_conditions(conditions)
+    except exceptions.ConfigurationSyntaxError as e:
+        raise exceptions.InvalidRuleError(e)
+
+    try:
+        _rule = Rule(description, exact_match, ranking_bias, name_template,
+                     valid_conditions, data_sources)
+    except exceptions.InvalidRuleError as e:
+        raise e
+    else:
+        return _rule
 
 
 def get_valid_rule_condition(meowuri, raw_expression):

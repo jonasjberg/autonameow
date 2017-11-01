@@ -621,12 +621,13 @@ def get_dummy_raw_data_sources():
 
 
 def get_dummy_rule():
+    _valid_conditions = rules.parse_conditions(get_dummy_raw_conditions()[0])
     return rules.Rule(
         description='dummy',
         exact_match=False,
         ranking_bias=0.5,
         name_template='dummy',
-        conditions=get_dummy_raw_conditions()[0],
+        conditions=_valid_conditions,
         data_sources=get_dummy_raw_data_sources()[0]
     )
 

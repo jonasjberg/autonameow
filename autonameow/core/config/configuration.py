@@ -287,12 +287,14 @@ class Configuration(object):
         name_template = util.remove_nonbreaking_spaces(valid_format)
 
         try:
-            _rule = rules.Rule(description=raw_rule.get('description'),
-                               exact_match=raw_rule.get('exact_match'),
-                               ranking_bias=raw_rule.get('ranking_bias'),
-                               name_template=name_template,
-                               conditions=raw_rule.get('CONDITIONS'),
-                               data_sources=raw_rule.get('DATA_SOURCES'))
+            _rule = rules.get_valid_rule(
+                description=raw_rule.get('description'),
+                exact_match=raw_rule.get('exact_match'),
+                ranking_bias=raw_rule.get('ranking_bias'),
+                name_template=name_template,
+                conditions=raw_rule.get('CONDITIONS'),
+                data_sources=raw_rule.get('DATA_SOURCES')
+            )
         except exceptions.InvalidRuleError as e:
             raise exceptions.ConfigurationSyntaxError(e)
         else:
