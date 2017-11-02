@@ -265,6 +265,7 @@ class Boolean(BaseType):
             return True
         if value in self.STR_FALSE:
             return False
+        return None
 
     @staticmethod
     def bool_to_string(bool_value):
