@@ -1350,6 +1350,17 @@ class TestTryCoerce(TestCase):
         dt = datetime.now()
         self._test(given=dt, expect=dt, type_=datetime)
 
+    def test_try_coerce_list_primitive_bool(self):
+        self._test(given=[False], expect=[False], type_=bool)
+        self._test(given=[True, False], expect=[True, False], type_=bool)
+
+    def test_try_coerce_list_mixed_primitives_to_bool(self):
+        self._test(given=[True, 'False'], expect=[True, False], type_=bool)
+        self._test(given=[True, 1.5, b'c'], expect=[True, True, False],
+                   type_=bool)
+        self._test(given=[True, 'False', b'True', 'true'],
+                   expect=[True, False, True, True], type_=bool)
+
     def test_try_coerce_list_primitive_str(self):
         self._test(given=['foo'], expect=['foo'], type_=str)
         self._test(given=['foo', 'bar'], expect=['foo', 'bar'], type_=str)
