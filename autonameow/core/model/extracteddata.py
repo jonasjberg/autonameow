@@ -32,6 +32,7 @@ from core.util import (
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0119] Separate adding contextual information from coercion.
 class ExtractedData(object):
     """
     Instances of this class wrap some extracted data with extra information.

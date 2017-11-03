@@ -30,6 +30,7 @@ UNKNOWN_SOURCE = '(unknown source)'
 log = logging.getLogger(__name__)
 
 
+# TODO: [TD0119] Separate adding contextual information from coercion.
 class MetaInfo(object):
     """
     Instances of this class provides extra information to fields produced
