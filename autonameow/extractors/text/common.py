@@ -47,20 +47,22 @@ class AbstractTextExtractor(BaseExtractor):
         self.cache = None
         # NOTE(jonas): Call 'self.init_cache()' in subclass init to use caching.
 
-    def execute(self, fileobject, **kwargs):
+    def extract(self, fileobject, **kwargs):
         text = self._get_text(fileobject)
         sanity.check_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
+        return {'full': text}
 
-        # TODO: [TD0087] Clean up messy (and duplicated) coercion of "raw" data.
-        # TODO: [TD0119] Separate adding contextual information from coercion.
-        wrapper = ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=None,
-            generic_field=gf.GenericText,
-        )
-        return {'full': ExtractedData.from_raw(wrapper, text)}
+    def metainfo(self, *args, **kwargs):
+        return {
+            'full': {
+                'typewrap': types.AW_STRING,
+                'multiple': False,
+                'mapped_fields': None,
+                'generic_field': gf.GenericText
+             }
+        }
 
     def _get_text(self, fileobject):
         # Read cached text
