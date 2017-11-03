@@ -99,8 +99,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'typewrap': types.AW_EXIFTOOLTIMEDATE,
             'multiple': False,
             'mapped_fields': [
-               WeightedMapping(fields.DateTime, probability=1),
-               WeightedMapping(fields.Date, probability=1)
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1)
             ],
             'generic_field': gf.GenericDateCreated
         },
