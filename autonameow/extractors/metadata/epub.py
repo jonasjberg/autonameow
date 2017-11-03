@@ -22,10 +22,7 @@
 import zipfile
 
 from core import types
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from extractors import (
@@ -40,60 +37,52 @@ class EpubMetadataExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
     is_slow = False
     FIELD_LOOKUP = {
-        'author': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        'author': {
+            'typewrap': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
             ],
-            generic_field=gf.GenericAuthor
-        ),
-        'title': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericAuthor
+        },
+        'title': {
+            'typewrap': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
             ],
-            generic_field=gf.GenericTitle
-        ),
-        'producer': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericTitle
+        },
+        'producer': {
+            'typewrap': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Author, probability=0.1),
             ],
-            generic_field=gf.GenericProducer
-        )
+            'generic_field': gf.GenericProducer
+        }
     }
 
     def __init__(self):
         super(EpubMetadataExtractor, self).__init__()
 
     def extract(self, fileobject, **kwargs):
+        # NOTE: epubzilla returns a class instance.
         _raw_metadata = _get_epub_metadata(fileobject.abspath)
         if _raw_metadata:
-            return self._coerce(_raw_metadata)
+            # Internal data format boundary.  Wrap "raw" data with type classes.
+            metadata = self._to_internal_format(_raw_metadata)
+            return metadata
 
-    def _coerce(self, raw_metadata):
+    def _to_internal_format(self, raw_metadata):
         out = {}
 
-        _author_maybe = raw_metadata.get('author')
-        if _author_maybe:
+        for tag_name in self.FIELD_LOOKUP.keys():
             try:
-                out['author'] = types.AW_STRING(_author_maybe)
-            except types.AWTypeError:
-                pass
-
-        _title_maybe = raw_metadata.get('title')
-        if _title_maybe:
-            try:
-                out['title'] = types.AW_STRING(_title_maybe)
-            except types.AWTypeError:
-                pass
-
-        _producer_maybe = raw_metadata.get('producer')
-        if _producer_maybe:
-            try:
-                out['producer'] = types.AW_STRING(_producer_maybe)
-            except types.AWTypeError:
-                pass
+                _data = raw_metadata.get(tag_name)
+            except AttributeError:
+                continue
+            else:
+                _coerced = self.coerce_field_value(tag_name, _data)
+                if _coerced:
+                    out[tag_name] = _coerced
 
         return out
 
