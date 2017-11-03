@@ -492,9 +492,6 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         self.log.debug('{!s}: Completed extraction'.format(self))
         return _metadata
 
-    def metainfo(self, *args, **kwargs):
-        return self.FIELD_LOOKUP
-
     def _get_metadata(self, source):
         _raw_metadata = _get_exiftool_data(source)
         if _raw_metadata:

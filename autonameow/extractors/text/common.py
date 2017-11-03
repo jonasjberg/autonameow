@@ -41,6 +41,15 @@ log = logging.getLogger(__name__)
 
 
 class AbstractTextExtractor(BaseExtractor):
+    FIELD_LOOKUP = {
+        'full': {
+            'typewrap': types.AW_STRING,
+            'multiple': False,
+            'mapped_fields': None,
+            'generic_field': gf.GenericText
+        }
+    }
+
     def __init__(self):
         super(AbstractTextExtractor, self).__init__()
 
@@ -53,16 +62,6 @@ class AbstractTextExtractor(BaseExtractor):
 
         self.log.debug('{!s} returning all extracted data'.format(self))
         return {'full': text}
-
-    def metainfo(self, *args, **kwargs):
-        return {
-            'full': {
-                'typewrap': types.AW_STRING,
-                'multiple': False,
-                'mapped_fields': None,
-                'generic_field': gf.GenericText
-             }
-        }
 
     def _get_text(self, fileobject):
         # Read cached text

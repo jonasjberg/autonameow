@@ -241,7 +241,7 @@ class BaseExtractor(object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def metainfo(self, *args, **kwargs):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
+        return self.FIELD_LOOKUP.update({'source': self})
 
     @classmethod
     def check_dependencies(cls):

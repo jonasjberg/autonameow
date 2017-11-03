@@ -39,35 +39,32 @@ from thirdparty import epubzilla
 class EpubMetadataExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['application/epub+zip']
     is_slow = False
+    FIELD_LOOKUP = {
+        'author': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Author, probability=1),
+            ],
+            generic_field=gf.GenericAuthor
+        ),
+        'title': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Title, probability=1),
+            ],
+            generic_field=gf.GenericTitle
+        ),
+        'producer': ExtractedData(
+            coercer=types.AW_STRING,
+            mapped_fields=[
+                WeightedMapping(fields.Author, probability=0.1),
+            ],
+            generic_field=gf.GenericProducer
+        )
+    }
 
     def __init__(self):
         super(EpubMetadataExtractor, self).__init__()
-
-    def metainfo(self, *args, **kwargs):
-        _metainfo = {
-            'author': ExtractedData(
-                coercer=types.AW_STRING,
-                mapped_fields=[
-                    WeightedMapping(fields.Author, probability=1),
-                ],
-                generic_field=gf.GenericAuthor
-            ),
-            'title': ExtractedData(
-                coercer=types.AW_STRING,
-                mapped_fields=[
-                    WeightedMapping(fields.Title, probability=1),
-                ],
-                generic_field=gf.GenericTitle
-            ),
-            'producer': ExtractedData(
-                coercer=types.AW_STRING,
-                mapped_fields=[
-                    WeightedMapping(fields.Author, probability=0.1),
-                ],
-                generic_field=gf.GenericProducer
-            )
-        }
-        return _metainfo
 
     def extract(self, fileobject, **kwargs):
         _raw_metadata = _get_epub_metadata(fileobject.abspath)

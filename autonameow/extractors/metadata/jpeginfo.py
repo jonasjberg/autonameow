@@ -70,9 +70,6 @@ class JpeginfoMetadataExtractor(BaseExtractor):
         _metadata = self._get_metadata(source)
         return _metadata
 
-    def metainfo(self, *args, **kwargs):
-        return self.FIELD_LOOKUP
-
     def _get_metadata(self, source):
         jpeginfo_output = _run_jpeginfo(source)
         if not jpeginfo_output:

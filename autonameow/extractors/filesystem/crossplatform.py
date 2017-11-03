@@ -102,9 +102,6 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
     def __init__(self):
         super(CrossPlatformFileSystemExtractor, self).__init__()
 
-    def metainfo(self, *args, **kwargs):
-        return self.FIELD_LOOKUP
-
     def extract(self, fileobject, **kwargs):
         _datasources = [
             ('abspath.full', fileobject.abspath),
