@@ -27,6 +27,7 @@ import sys
 from core import constants as C
 from core import (
     exceptions,
+    types,
     util
 )
 from core.exceptions import AutonameowException
@@ -61,6 +62,10 @@ class BaseAnalyzer(object):
 
     # Last part of the full MeowURI ('filetags', 'filename', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
+
+    # Dictionary with analyzer-specific information, keyed by the fields that
+    # the analyzer produces. Stores information on types, etc..
+    FIELD_LOOKUP = {}
 
     def __init__(self, fileobject, config,
                  add_results_callback, request_data_callback):
@@ -152,6 +157,41 @@ class BaseAnalyzer(object):
             self.log.info(
                 'Required data unavailable ("generic.contents.text")'
             )
+
+    def coerce_field_value(self, field, value):
+        _field_lookup_entry = self.FIELD_LOOKUP.get(field)
+        if not _field_lookup_entry:
+            self.log.debug('Field not in "FIELD_LOOKUP"; "{!s}" with value:'
+                           ' "{!s}" ({!s})'.format(field, value, type(value)))
+            return None
+
+        _coercer = _field_lookup_entry.get('typewrap')
+        if not _coercer:
+            self.log.debug('Coercer unspecified for field; "{!s}" with value:'
+                           ' "{!s}" ({!s})'.format(field, value, type(value)))
+            return None
+
+        sanity.check(isinstance(_coercer, types.BaseType),
+                     msg='Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
+        wrapper = _coercer
+
+        # TODO: [TD0084] Add handling collections to type wrapper classes.
+        if isinstance(value, list):
+            if not _field_lookup_entry.get('multiple', False):
+                self.log.warning(
+                    'Got list but "ExtractedData" wrapper is not multivalued.'
+                    ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
+                )
+                return None
+
+        try:
+            coerced = wrapper(value)
+        except types.AWTypeError as e:
+            self.log.debug('Wrapping "{!s}" with value "{!s}" raised '
+                           'AWTypeError: {!s}'.format(field, value, e))
+            return None
+        else:
+            return coerced
 
     @classmethod
     def meowuri_prefix(cls):
