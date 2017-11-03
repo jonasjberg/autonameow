@@ -121,9 +121,26 @@ def do_extract_metadata(fileobject):
                 ))
                 continue
 
+            try:
+                _metainfo = _extractor_instance.metainfo(fileobject)
+            except extractors.ExtractorError as e:
+                log.error('Halted extractor "{!s}": {!s}'.format(
+                    _extractor_instance, e
+                ))
+                continue
+
             assert isinstance(_metadata, dict)
-            print('_metadata ({!s}) contents:'.format(type(_metadata)))
+            assert isinstance(_metainfo, dict)
+
+            print('\n\nResults for {!s}'.format(_extractor_instance))
+            print('_metadata contents:')
             for k, v in _metadata.items():
+                print('{!s}: {!s}'.format(k, v))
+
+            print('\n_metainfo filtered for keys also in _metadata ({!s} entries unfiltered):'.format(len(_metainfo)))
+            for k, v in _metainfo.items():
+                if k not in _metadata:
+                    continue
                 print('{!s}: {!s}'.format(k, v))
 
 
