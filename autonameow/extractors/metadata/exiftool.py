@@ -216,7 +216,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             generic_field=gf.GenericCreator
         ),
         'PDF:Keywords': ExtractedData(
-            coercer=types.AW_STRING,
+            coercer=types.listof(types.AW_STRING),
             mapped_fields=[
                 WeightedMapping(fields.Tags, probability=1),
             ],
@@ -265,7 +265,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         ),
         'SourceFile': ExtractedData(types.AW_PATH),
         'QuickTime:CompatibleBrands': ExtractedData(
-            coercer=types.AW_STRING,
+            coercer=types.listof(types.AW_STRING),
             multivalued=True
         ),
         'QuickTime:CreateDate': ExtractedData(
