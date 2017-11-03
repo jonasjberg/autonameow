@@ -23,10 +23,7 @@ from core import (
     types,
     util
 )
-from core.model import (
-    ExtractedData,
-    WeightedMapping,
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from extractors import (
@@ -135,6 +132,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': gf.GenericDescription
         },
+        'EXIF:ExifImageHeight': {'typewrap': types.AW_INTEGER},
+        'EXIF:ExifImageWidth': {'typewrap': types.AW_INTEGER},
         'EXIF:Make': {'typewrap': types.AW_STRING},
         'EXIF:Model': {'typewrap': types.AW_STRING},
         'EXIF:ModifyDate': {
@@ -145,7 +144,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             ],
             'generic_field': gf.GenericDateModified
         },
-        'EXIF:Software': types.AW_STRING,
+        'EXIF:Software': {'typewrap': types.AW_STRING},
         'EXIF:UserComment': {
             'typewrap': types.AW_STRING,
             'mapped_fields': [
