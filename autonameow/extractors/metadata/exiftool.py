@@ -81,7 +81,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'Composite:Megapixels': {'typewrap': types.AW_FLOAT},
         'Composite:HyperfocalDistance': {'typewrap': types.AW_FLOAT},
         'EXIF:CreateDate': {
-            'typewrap': 'AW_EXIFTOOLTIMEDATE',
+            'typewrap': types.AW_EXIFTOOLTIMEDATE,
             'multiple': False,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
@@ -90,7 +90,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'generic_field': gf.GenericDateCreated
         },
         'EXIF:DateTimeDigitized': {
-            'typewrap': 'AW_EXIFTOOLTIMEDATE',
+            'typewrap': types.AW_EXIFTOOLTIMEDATE,
             'multiple': False,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
@@ -99,7 +99,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             'generic_field': gf.GenericDateCreated
         },
         'EXIF:DateTimeOriginal': {
-            'typewrap': 'AW_EXIFTOOLTIMEDATE',
+            'typewrap': types.AW_EXIFTOOLTIMEDATE,
             'multiple': False,
             'mapped_fields': [
                WeightedMapping(fields.DateTime, probability=1),
@@ -138,7 +138,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'EXIF:Make': {'typewrap': types.AW_STRING},
         'EXIF:Model': {'typewrap': types.AW_STRING},
         'EXIF:ModifyDate': {
-            'typewrap': 'AW_EXIFTOOLTIMEDATE',
+            'typewrap': types.AW_EXIFTOOLTIMEDATE,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25)
@@ -187,7 +187,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'File:ImageHeight': {'typewrap': types.AW_INTEGER},
         'File:ImageWidth': {'typewrap': types.AW_INTEGER},
         'File:MIMEType': {
-            'typewrap': 'AW_MIMETYPE',
+            'typewrap': types.AW_MIMETYPE,
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1)
             ],
