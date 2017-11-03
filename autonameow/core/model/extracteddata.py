@@ -81,6 +81,7 @@ class ExtractedData(object):
         self.source = source
 
     def __call__(self, raw_value):
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         if self._value is not None:
             log.critical('"{!s}"._value is *NOT* None! Called with value:'
                          ' {!s}"'.format(self, raw_value))
@@ -179,6 +180,7 @@ class ExtractedData(object):
         """
         Use this when the same 'ExtractedData' instance is re-used ..
         """
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         # TODO: [hack] This is needed because the design is flawed. FIX!
         _instance_copy = copy.deepcopy(instance)
         try:
