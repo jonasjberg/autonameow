@@ -22,7 +22,10 @@
 import logging
 
 from core import constants as C
-from core import util
+from core import (
+    types,
+    util
+)
 from core.exceptions import AutonameowException
 from core.fileobject import FileObject
 from core.util import sanity
@@ -79,6 +82,10 @@ class BaseExtractor(object):
     # If the extractor is not enabled by the default, it must be explicitly
     # specified in order to be enqueued in the extractor run queue.
     is_slow = False
+
+    # Dictionary with extractor-specific information, keyed by the fields that
+    # the raw source produces. Stores information on types, etc..
+    FIELD_LOOKUP = {}
 
     def __init__(self):
         self.log = logging.getLogger(
@@ -163,6 +170,41 @@ class BaseExtractor(object):
             raise ExtractorError(
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
             )
+
+    def coerce_field_value(self, field, value):
+        _field_lookup_entry = self.FIELD_LOOKUP.get(field)
+        if not _field_lookup_entry:
+            self.log.debug('Field not in "FIELD_LOOKUP"; "{!s}" with value:'
+                           ' "{!s}" ({!s})'.format(field, value, type(value)))
+            return None
+
+        _coercer = _field_lookup_entry.get('typewrap')
+        if not _coercer:
+            self.log.debug('Coercer unspecified for field; "{!s}" with value:'
+                           ' "{!s}" ({!s})'.format(field, value, type(value)))
+            return None
+
+        sanity.check(isinstance(_coercer, types.BaseType),
+                     msg='Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
+        wrapper = _coercer
+
+        # TODO: [TD0084] Add handling collections to type wrapper classes.
+        if isinstance(value, list):
+            if not _field_lookup_entry.get('multiple', False):
+                self.log.warning(
+                    'Got list but "ExtractedData" wrapper is not multivalued.'
+                    ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
+                )
+                return None
+
+        try:
+            coerced = wrapper(value)
+        except types.AWTypeError as e:
+            self.log.debug('Wrapping "{!s}" with value "{!s}" raised '
+                           'AWTypeError: {!s}'.format(field, value, e))
+            return None
+        else:
+            return coerced
 
     def extract(self, fileobject, **kwargs):
         """

@@ -126,50 +126,11 @@ class PyPDFMetadataExtractor(BaseExtractor):
         out = {}
 
         for tag_name, value in raw_metadata.items():
-            _wrapped = self._wrap_tag_value(tag_name, value)
-            if _wrapped:
-                out[tag_name] = _wrapped
+            _coerced = self.coerce_field_value(tag_name, value)
+            if _coerced:
+                out[tag_name] = _coerced
 
         return out
-
-    def _wrap_tag_value(self, tagname, value):
-        # TODO: [TD0119] Separate adding contextual information from coercion.
-        _tagname_entry = self.FIELD_LOOKUP.get(tagname)
-        if not _tagname_entry:
-            self.log.debug(
-                'Tag not included in "FIELD_LOOKUP_MAPPED": "{!s}" with'
-                ' value: "{!s}"'.format(tagname, value)
-            )
-            return None
-
-        _coercer = _tagname_entry.get('typewrap')
-        if not _coercer:
-            self.log.debug(
-                'Coercer unspecified for tag: "{!s}" with'
-                ' value: "{!s}"'.format(tagname, value)
-            )
-            return None
-
-        assert isinstance(_coercer, types.BaseType)
-        wrapper = _coercer
-
-        # TODO: [TD0084] Add handling collections to type wrapper classes.
-        if isinstance(value, list):
-            if not _tagname_entry.get('multiple', False):
-                self.log.warning(
-                    'Got list but "ExtractedData" wrapper is not multivalued.'
-                    ' Tag: "{!s}" Value: "{!s}"'.format(tagname, value)
-                )
-                return None
-
-        try:
-            coerced = wrapper(value)
-        except types.AWTypeError as e:
-            self.log.debug('Wrapping "{!s}" with value "{!s}" raised '
-                           'AWTypeError: {!s}'.format(tagname, value, e))
-            return None
-        else:
-            return coerced
 
     def _get_pypdf_data(self, source):
         out = {}
