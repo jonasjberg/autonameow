@@ -21,9 +21,6 @@
 
 import logging
 
-import analyzers
-import extractors
-import plugins
 from core.util import sanity
 
 
@@ -78,6 +75,10 @@ def get_meowuri_source_map():
 
     Returns: Dictionary keyed by "MeowURIs", storing lists of "source" classes.
     """
+    import analyzers
+    import extractors
+    import plugins
+
     global MEOWURI_SOURCE_MAP_DICT
     if not MEOWURI_SOURCE_MAP_DICT:
         MEOWURI_SOURCE_MAP_DICT = {
