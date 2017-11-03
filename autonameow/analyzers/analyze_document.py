@@ -161,6 +161,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         )
 
     def _wrap_publisher(self, data):
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         return ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
@@ -170,6 +171,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         )(data)
 
     def _wrap_generic_title(self, data, probability):
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         return ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
@@ -194,6 +196,7 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         dt_regex = dateandtime.regex_search_str(text)
         if dt_regex:
+            # TODO: [TD0119] Separate adding contextual information from coercion.
             dt_regex_wrapper = ExtractedData(
                 coercer=types.AW_TIMEDATE,
                 mapped_fields=[
@@ -210,6 +213,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         # TODO: Temporary premature return skips brute force search ..
         return results
 
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         dt_brute_wrapper = ExtractedData(
             coercer=types.AW_TIMEDATE,
             mapped_fields=[

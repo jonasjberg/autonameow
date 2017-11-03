@@ -133,7 +133,6 @@ def start(fileobject,
             log.critical('Error instantiating extractor "{!s}"!'.format(klass))
             continue
 
-        # TODO: [TD0119] Separate adding contextual information from coercion.
         try:
             _metainfo = _extractor_instance.metainfo()
         except (ExtractorError, NotImplementedError) as e:
@@ -141,7 +140,6 @@ def start(fileobject,
                       ' {!s}'.format(_extractor_instance, e))
             continue
 
-        # TODO: [TD0119] Separate adding contextual information from coercion.
         try:
             _extracted_data = _extractor_instance.extract(fileobject)
         except (ExtractorError, NotImplementedError) as e:
@@ -158,6 +156,7 @@ def start(fileobject,
 
 
 def _to_extracteddata(extracteddata, metainfo, source_klass):
+    # TODO: [TD0119] Separate adding contextual information from coercion.
     out = {}
     for field, value in extracteddata.items():
         _field_info = metainfo.get(field)
