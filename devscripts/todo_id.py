@@ -25,7 +25,8 @@ import re
 import sys
 
 '''
-Utility script for getting the next free (unused) TODO-list entry identifier.
+Helper utility for listing and verifying TODO-list item identifiers
+used in the autonameow project.
 '''
 
 TODO_BASENAME = 'TODO.md'
@@ -37,13 +38,12 @@ SOURCEFILE_EXTENSIONS = ['.py', '.sh']
 EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
 
+SELFNAME = str(os.path.basename(__file__))
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 AUTONAMEOW_SRC_ROOT = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
 
 todo_path = os.path.join(AUTONAMEOW_SRC_ROOT, TODO_BASENAME)
 done_path = os.path.join(AUTONAMEOW_SRC_ROOT, DONE_BASENAME)
-
-SELF = str(os.path.basename(__file__))
 
 
 def is_readable_file(file_path):
@@ -183,9 +183,9 @@ Found {} IDs used in both the sources and the DONE-list:
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(
-        prog=SELF,
-        epilog='"{}" -- Helper utility for listing and verifying TODO-list'
-               ' item identifiers used in the autonameow project.'.format(SELF)
+        prog=SELFNAME,
+        epilog='"{}" -- Utility for listing and verifying TODO-list item '
+               'identifiers used in the autonameow project.'.format(SELFNAME)
     )
     parser.add_argument(
         '-n', '--next',
