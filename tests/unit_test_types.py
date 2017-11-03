@@ -1313,50 +1313,109 @@ class TestTypeMimeType(TestCase):
 
 
 class TestTryCoerce(TestCase):
+    def _test(self, given, expect, type_):
+        actual = types.try_coerce(given)
+        self.assertEqual(actual, expect)
+
+        if isinstance(actual, list):
+            for a in actual:
+                self.assertTrue(isinstance(a, type_))
+        else:
+            self.assertTrue(isinstance(actual, type_))
+
     def test_try_coerce_none(self):
         self.assertIsNone(types.try_coerce(None))
 
-    def test_try_coerce_list(self):
-        # TODO: [TD0084] Add handling collections to type coercion classes.
-        self.assertIsNone(types.try_coerce([]))
-        self.assertIsNone(types.try_coerce(['foo', 'bar']))
-        self.assertIsNone(types.try_coerce([1, 2]))
-
     def test_try_coerce_primitive_bool(self):
-        self.assertEqual(types.try_coerce(False), False)
-        self.assertEqual(types.try_coerce(True), True)
-        self.assertTrue(isinstance(types.try_coerce(False), bool))
-        self.assertTrue(isinstance(types.try_coerce(True), bool))
+        self._test(given=False, expect=False, type_=bool)
+        self._test(given=True, expect=True, type_=bool)
 
     def test_try_coerce_primitive_int(self):
-        self.assertEqual(types.try_coerce(1), 1)
-        self.assertEqual(types.try_coerce(0), 0)
-        self.assertTrue(isinstance(types.try_coerce(1), int))
-        self.assertTrue(isinstance(types.try_coerce(0), int))
+        self._test(given=1, expect=1, type_=int)
+        self._test(given=0, expect=0, type_=int)
 
     def test_try_coerce_primitive_float(self):
-        self.assertEqual(types.try_coerce(1.0), 1.0)
-        self.assertEqual(types.try_coerce(0.0), 0.0)
-        self.assertTrue(isinstance(types.try_coerce(1.0), float))
-        self.assertTrue(isinstance(types.try_coerce(0.0), float))
+        self._test(given=1.0, expect=1.0, type_=float)
+        self._test(given=0.0, expect=0.0, type_=float)
 
     def test_try_coerce_primitive_str(self):
-        self.assertEqual(types.try_coerce('foo'), 'foo')
-        self.assertEqual(types.try_coerce(''), '')
-        self.assertTrue(isinstance(types.try_coerce('foo'), str))
-        self.assertTrue(isinstance(types.try_coerce(''), str))
+        self._test(given='foo', expect='foo', type_=str)
+        self._test(given='', expect='', type_=str)
 
     def test_try_coerce_primitive_bytes(self):
-        self.assertEqual(types.try_coerce(b'foo'), 'foo')
-        self.assertEqual(types.try_coerce(b''), '')
-        self.assertTrue(isinstance(types.try_coerce(b'foo'), str))
-        self.assertTrue(isinstance(types.try_coerce(b''), str))
+        self._test(given=b'foo', expect='foo', type_=str)
+        self._test(given=b'', expect='', type_=str)
 
     def test_try_coerce_datetime(self):
         dt = datetime.now()
-        self.assertEqual(types.try_coerce(dt), dt)
-        self.assertTrue(isinstance(types.try_coerce(dt), datetime))
-        self.assertTrue(isinstance(types.try_coerce(datetime.now()), datetime))
+        self._test(given=dt, expect=dt, type_=datetime)
+
+    def test_try_coerce_list_primitive_bool(self):
+        self._test(given=[False], expect=[False], type_=bool)
+        self._test(given=[True, False], expect=[True, False], type_=bool)
+
+    def test_try_coerce_list_mixed_primitives_to_bool(self):
+        self._test(given=[True, 'False'], expect=[True, False], type_=bool)
+        self._test(given=[True, 1.5, b'c'], expect=[True, True, False],
+                   type_=bool)
+        self._test(given=[True, 'False', b'True', 'true'],
+                   expect=[True, False, True, True], type_=bool)
+
+    def test_try_coerce_list_primitive_str(self):
+        self._test(given=['foo'], expect=['foo'], type_=str)
+        self._test(given=['foo', 'bar'], expect=['foo', 'bar'], type_=str)
+
+    def test_try_coerce_list_mixed_primitives_to_str(self):
+        self._test(given=['foo', 1], expect=['foo', '1'], type_=str)
+        self._test(given=['a', 1.5, b'c'], expect=['a', '1.5', 'c'], type_=str)
+
+    def test_try_coerce_list_primitive_int(self):
+        self._test(given=[1], expect=[1], type_=int)
+        self._test(given=[1, 2], expect=[1, 2], type_=int)
+
+    def test_try_coerce_list_mixed_primitives_to_int(self):
+        self._test(given=[1, 2.5], expect=[1, 2], type_=int)
+        self._test(given=[1, 2.5, b'3'], expect=[1, 2, 3], type_=int)
+        self._test(given=[1, '2', b'3'], expect=[1, 2, 3], type_=int)
+
+    def test_try_coerce_list_primitive_float(self):
+        self._test(given=[1.0], expect=[1.0], type_=float)
+        self._test(given=[1.0, 2.0], expect=[1.0, 2.0], type_=float)
+
+    def test_try_coerce_list_mixed_primitives_to_float(self):
+        self._test(given=[1.0, 2], expect=[1.0, 2.0], type_=float)
+        self._test(given=[1.0, 2.5, b'3'], expect=[1.0, 2.5, 3.0], type_=float)
+        self._test(given=[1.0, '2', b'3'], expect=[1.0, 2.0, 3.0], type_=float)
+
+
+class TestCoercerFor(TestCase):
+    def _check(self, test_input, expected):
+        assert isinstance(expected, types.BaseType)
+        actual = types.coercer_for(test_input)
+        self.assertEqual(actual, expected)
+
+    def test_string(self):
+        self._check('foo', types.AW_STRING)
+        self._check('', types.AW_STRING)
+        self._check([''], types.AW_STRING)
+        self._check(['', 1], types.AW_STRING)
+
+    def test_integer(self):
+        self._check(1, types.AW_INTEGER)
+        self._check(-1, types.AW_INTEGER)
+        self._check([1], types.AW_INTEGER)
+        self._check([1, 'foo'], types.AW_INTEGER)
+
+    def test_boolean(self):
+        self._check(False, types.AW_BOOLEAN)
+        self._check(True, types.AW_BOOLEAN)
+        self._check([True], types.AW_BOOLEAN)
+        self._check([True, 'foo'], types.AW_BOOLEAN)
+
+    def test_float(self):
+        self._check(1.0, types.AW_FLOAT)
+        self._check(-1.0, types.AW_FLOAT)
+        self._check([-1.0, 'foo'], types.AW_FLOAT)
 
 
 class TestForceString(TestCase):
@@ -1368,12 +1427,91 @@ class TestForceString(TestCase):
         _aS(1)
         _aS(1.0)
         _aS('')
+        _aS(' ')
+        _aS(b'')
+        _aS(b' ')
+        _aS('foo')
+        _aS(b'foo')
+        _aS([])
+        _aS([''])
+        _aS(['foo'])
+        _aS({})
+        _aS(None)
+
+    def test_returns_expected_value(self):
+        def _aE(test_input, expected):
+            actual = types.force_string(test_input)
+            self.assertEqual(actual, expected)
+
+        _aE(1, '1')
+        _aE(1.0, '1.0')
+        _aE('', '')
+        _aE(' ', ' ')
+        _aE(b'', '')
+        _aE(b' ', ' ')
+        _aE('foo', 'foo')
+        _aE(b'foo', 'foo')
+        _aE([], '')
+        _aE([''], '')
+        _aE(['foo'], 'foo')
+        _aE({}, '')
+        _aE(None, '')
+
+
+class TestForceStringList(TestCase):
+    def test_returns_list_of_strings(self):
+        def _aS(test_input):
+            actual = types.force_stringlist(test_input)
+            self.assertTrue(isinstance(actual, list))
+            for a in actual:
+                self.assertTrue(isinstance(a, str))
+
+        _aS(1)
+        _aS(1.0)
+        _aS('')
         _aS(b'')
         _aS('foo')
         _aS(b'foo')
         _aS([])
         _aS({})
         _aS(None)
+        _aS([1])
+        _aS([1.0])
+        _aS([''])
+        _aS([b''])
+        _aS(['foo'])
+        _aS([b'foo'])
+        _aS([[]])
+        _aS([{}])
+        _aS([None])
+
+    def test_returns_expected_values(self):
+        def _aE(test_input, expected):
+            actual = types.force_stringlist(test_input)
+            self.assertEqual(actual, expected)
+
+        _aE(1, ['1'])
+        _aE(1.0, ['1.0'])
+        _aE('', [''])
+        _aE(b'', [''])
+        _aE('foo', ['foo'])
+        _aE(b'foo', ['foo'])
+        _aE([], [''])
+        _aE({}, [''])
+        _aE(None, [''])
+        _aE([1], ['1'])
+        _aE([1.0], ['1.0'])
+        _aE([''], [''])
+        _aE([b''], [''])
+        _aE(['foo'], ['foo'])
+        _aE([b'foo'], ['foo'])
+        _aE([[]], [''])
+        _aE([{}], [''])
+        _aE([None], [''])
+        _aE([None, ''], ['', ''])
+        _aE([None, 'foo'], ['', 'foo'])
+        _aE([None, None], ['', ''])
+        _aE([None, None, 'foo'], ['', '', 'foo'])
 
 
 class TestTryParseDate(TestCase):
@@ -1715,3 +1853,122 @@ class TestNormalizeDatetimeWithMicroseconds(TestCase):
 
         # TODO: Add handling more difficult patterns here?
         # _assert_match('12_7_2017_20_50_15_641659')
+
+
+# TODO: [TD0084] Handle collections (lists, etc) with wrapper classes.
+class TestListofStrings(TestCase):
+    def test_call_with_coercible_data(self):
+        def _assert_returns(test_data, expected):
+            actual = types.listof(types.AW_STRING)(test_data)
+            self.assertEqual(actual, expected)
+
+        _assert_returns([''], [''])
+        _assert_returns([' '], [' '])
+        _assert_returns([b''], [''])
+        _assert_returns([b' '], [' '])
+        _assert_returns([-1], ['-1'])
+        _assert_returns([0], ['0'])
+        _assert_returns([1], ['1'])
+        _assert_returns([-1.5], ['-1.5'])
+        _assert_returns([-1.0], ['-1.0'])
+        _assert_returns([1.0], ['1.0'])
+        _assert_returns([1.5], ['1.5'])
+        _assert_returns(['-1'], ['-1'])
+        _assert_returns(['-1.0'], ['-1.0'])
+        _assert_returns(['0'], ['0'])
+        _assert_returns(['1'], ['1'])
+        _assert_returns(['foo'], ['foo'])
+        _assert_returns([None], [''])
+        _assert_returns([False], ['False'])
+        _assert_returns([True], ['True'])
+
+    def test_call_with_noncoercible_data(self):
+        with self.assertRaises(types.AWTypeError):
+            types.AW_STRING(datetime.now())
+
+        with self.assertRaises(types.AWTypeError):
+            types.AW_STRING([datetime.now()])
+
+    def test_listof_string_passthrough(self):
+        _coercer = types.listof(types.AW_STRING)
+        self.assertTrue(callable(_coercer))
+
+        actual = _coercer(['a', 'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
+
+    def test_listof_string_passthrough_direct_call(self):
+        actual = types.listof(types.AW_STRING)(['a', 'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
+
+    def test_listof_string_bytes(self):
+        _coercer = types.listof(types.AW_STRING)
+        self.assertTrue(callable(_coercer))
+
+        actual = _coercer([b'a', b'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
+
+    def test_listof_string_bytes_direct_call(self):
+        actual = types.listof(types.AW_STRING)([b'a', b'b'])
+        expect = ['a', 'b']
+        self.assertEqual(actual, expect)
+
+
+class TestListofIntegers(TestCase):
+    def test_call_with_coercible_data(self):
+        def _assert_returns(test_data, expected):
+            actual = types.listof(types.AW_INTEGER)(test_data)
+            self.assertEqual(actual, expected)
+
+        _assert_returns([None], [0])
+        _assert_returns([-1], [-1])
+        _assert_returns([0], [0])
+        _assert_returns([1], [1])
+        _assert_returns([-1.5], [-1])
+        _assert_returns([-1.0], [-1])
+        _assert_returns([1.0], [1])
+        _assert_returns([1.5], [1])
+        _assert_returns(['-1'], [-1])
+        _assert_returns(['-1.0'], [-1])
+        _assert_returns(['0'], [0])
+        _assert_returns(['1'], [1])
+
+        _assert_returns(None, [0])
+        _assert_returns(-1, [-1])
+        _assert_returns(0, [0])
+        _assert_returns(1, [1])
+        _assert_returns(-1, [-1])
+        _assert_returns('0', [0])
+        _assert_returns('1', [1])
+        _assert_returns('-1', [-1])
+        _assert_returns('-1.5', [-1])
+        _assert_returns('-1.0', [-1])
+        _assert_returns('1.0', [1])
+        _assert_returns('1.5', [1])
+
+    def test_call_with_noncoercible_data(self):
+        with self.assertRaises(types.AWTypeError):
+            types.AW_INTEGER('')
+
+        with self.assertRaises(types.AWTypeError):
+            types.AW_INTEGER('foo')
+
+    def test_listof_integer_passthrough(self):
+        _coercer = types.listof(types.AW_INTEGER)
+        self.assertTrue(callable(_coercer))
+
+        actual = _coercer([1, 2])
+        expect = [1, 2]
+        self.assertEqual(actual, expect)
+
+    def test_listof_integer_passthrough_direct_call(self):
+        actual = types.listof(types.AW_INTEGER)([1, 2])
+        expect = [1, 2]
+        self.assertEqual(actual, expect)
+
+    def test_listof_string_floats_direct_call(self):
+        actual = types.listof(types.AW_INTEGER)([1.0, 2.0])
+        expect = [1, 2]
+        self.assertEqual(actual, expect)
