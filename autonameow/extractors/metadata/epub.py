@@ -43,7 +43,7 @@ class EpubMetadataExtractor(BaseExtractor):
     def __init__(self):
         super(EpubMetadataExtractor, self).__init__()
 
-    def metainfo(self, fileobject, **kwargs):
+    def metainfo(self, *args, **kwargs):
         _metainfo = {
             'author': ExtractedData(
                 coercer=types.AW_STRING,

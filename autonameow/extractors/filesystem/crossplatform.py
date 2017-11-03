@@ -113,7 +113,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
                 return _coerced
         return None
 
-    def metainfo(self, fileobject, **kwargs):
+    def metainfo(self, *args, **kwargs):
         return self.METAINFO_LOOKUP
 
     def extract(self, fileobject, **kwargs):

@@ -237,7 +237,7 @@ class BaseExtractor(object):
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def metainfo(self, fileobject, **kwargs):
+    def metainfo(self, *args, **kwargs):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
