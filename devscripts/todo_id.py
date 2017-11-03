@@ -43,6 +43,8 @@ AUTONAMEOW_SRC_ROOT = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
 todo_path = os.path.join(AUTONAMEOW_SRC_ROOT, TODO_BASENAME)
 done_path = os.path.join(AUTONAMEOW_SRC_ROOT, DONE_BASENAME)
 
+SELF = str(os.path.basename(__file__))
+
 
 def is_readable_file(file_path):
     return os.path.isfile(file_path) and os.access(file_path, os.R_OK)
@@ -181,17 +183,17 @@ Found {} IDs used in both the sources and the DONE-list:
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(
-        prog='autonameow TODO-tool',
-        epilog='Utility for managing TODO-list item identifiers '
-               'used in the autonameow sources.'
+        prog=SELF,
+        epilog='"{}" -- Helper utility for listing and verifying TODO-list'
+               ' item identifiers used in the autonameow project.'.format(SELF)
     )
     parser.add_argument(
         '-n', '--next',
         dest='do_get_next_todo_id',
         action='store_true',
         default=True,
-        help='[DEFAULT] Print the next free (unused) TODO-list entry '
-             'identifier.'
+        help='Print the next free (unused) TODO-list entry '
+             'identifier. (DEFAULT)'
     )
     parser.add_argument(
         '-c', '--check',
@@ -199,8 +201,8 @@ if __name__ == '__main__':
         action='store_true',
         default=False,
         help='Checks that the sources does not contain completed TODO-list '
-             'entries or entries that are not in the TODO-list. And also that '
-             'entry IDs in the TODO- and DONE-list are mutually exclusive. '
+             'entries or entries that are not in the TODO-list. And that '
+             'IDs used in the TODO- and DONE-list are mutually exclusive. '
              'Exits silently with status code 0 if all checks pass.'
     )
 
@@ -214,7 +216,7 @@ if __name__ == '__main__':
 
     elif opts.do_get_next_todo_id:
         _next_id = get_next_todo_id()
-        if not _next_id:
+        if _next_id:
             print(_next_id)
         else:
             exit_status &= EXIT_FAILURE
