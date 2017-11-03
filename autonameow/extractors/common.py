@@ -235,11 +235,9 @@ class BaseExtractor(object):
         Raises:
             ExtractorError: The extraction could not be completed successfully.
         """
-        # TODO: [TD0119] Separate adding contextual information from coercion.
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def metainfo(self, fileobject, **kwargs):
-        # TODO: [TD0119] Separate adding contextual information from coercion.
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
