@@ -35,8 +35,11 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
     is_slow = False
 
     FIELD_LOOKUP = {
-        'abspath.full': {'typewrap': types.AW_PATH},
-        'basename.full': {'typewrap': types.AW_PATHCOMPONENT},
+        'abspath.full': {'typewrap': types.AW_PATH, 'multiple': False},
+        'basename.full': {
+            'typewrap': types.AW_PATHCOMPONENT,
+            'multiple': False
+        },
         'basename.extension': {
             'typewrap': types.AW_PATHCOMPONENT,
             'multiple': False,
@@ -58,10 +61,11 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
                 # fields.WeightedMapping(fields.)
             ],
         },
-        'pathname.full': {'typewrap': types.AW_PATH},
-        'pathname.parent': {'typewrap': types.AW_PATH},
+        'pathname.full': {'typewrap': types.AW_PATH, 'multiple': False},
+        'pathname.parent': {'typewrap': types.AW_PATH, 'multiple': False},
         'contents.mime_type': {
             'typewrap': types.AW_MIMETYPE,
+            'multiple': False,
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ],
@@ -69,6 +73,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         },
         'date_accessed': {
             'typewrap': types.AW_TIMEDATE,
+            'multiple': False,
             'mapped_fields': [
                 WeightedMapping(fields.Date, probability=0.1),
                 WeightedMapping(fields.DateTime, probability=0.1),
@@ -76,6 +81,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         },
         'date_created': {
             'typewrap': types.AW_TIMEDATE,
+            'multiple': False,
             'mapped_fields': [
                 WeightedMapping(fields.Date, probability=1),
                 WeightedMapping(fields.DateTime, probability=1),
@@ -84,6 +90,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         },
         'date_modified': {
             'typewrap': types.AW_TIMEDATE,
+            'multiple': False,
             'mapped_fields': [
                 WeightedMapping(fields.Date, probability=0.25),
                 WeightedMapping(fields.DateTime, probability=0.25),
@@ -113,7 +120,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
         out = {}
         for _uri, _source in _datasources:
             _coerced_data = self.coerce_field_value(_uri, _source)
-            if _coerced_data:
+            if _coerced_data is not None:
                 out[_uri] = _coerced_data
 
         try:
