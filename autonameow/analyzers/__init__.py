@@ -210,6 +210,9 @@ class BaseAnalyzer(object):
                                'AWTypeError: {!s}'.format(field, value, e))
                 return None
 
+    def metainfo(self, *args, **kwargs):
+        return self.FIELD_LOOKUP
+
     @classmethod
     def meowuri_prefix(cls):
         """
