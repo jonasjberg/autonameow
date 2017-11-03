@@ -63,12 +63,12 @@ class ExtractedData(object):
 
         self.coercer = coercer
 
-        if mapped_fields is not None:
+        if mapped_fields:
             self.field_map = mapped_fields
         else:
             self.field_map = []
 
-        if generic_field is not None:
+        if generic_field:
             self.generic_field = generic_field
         else:
             self.generic_field = None
