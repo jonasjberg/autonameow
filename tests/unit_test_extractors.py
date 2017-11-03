@@ -59,9 +59,13 @@ class TestBaseExtractor(TestCase):
         with self.assertRaises(NotImplementedError):
             self.e.extract(self.test_file)
 
-    def test_calling_metainfo_raises_not_implemented_error(self):
-        with self.assertRaises(NotImplementedError):
-            self.e.metainfo(self.test_file)
+    def test_metainfo_returns_expected_type(self):
+        actual = self.e.metainfo(self.test_file)
+        self.assertTrue(isinstance(actual, dict))
+
+    def test_abstract_class_does_not_specify_metainfo(self):
+        actual = self.e.metainfo(self.test_file)
+        self.assertEqual(len(actual), 0)
 
     def test_check_dependencies_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
