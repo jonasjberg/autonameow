@@ -472,7 +472,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     def __init__(self):
         super(ExiftoolMetadataExtractor, self).__init__()
 
-    def execute(self, fileobject, **kwargs):
+    def extract(self, fileobject, **kwargs):
         self.log.debug('{!s}: Starting extraction'.format(self))
         source = fileobject.abspath
 
@@ -486,10 +486,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         return _metadata
 
     def metainfo(self, fileobject, **kwargs):
-        pass
-
-    def extract(self, fileobject, **kwargs):
-        pass
+        return self.FIELD_LOOKUP
 
     def _get_metadata(self, source):
         _raw_metadata = _get_exiftool_data(source)
