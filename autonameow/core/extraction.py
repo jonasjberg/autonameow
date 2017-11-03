@@ -24,7 +24,10 @@ import logging
 import extractors
 from core import repository
 from core.exceptions import InvalidMeowURIError
-from core.model import MeowURI
+from core.model import (
+    ExtractedData,
+    MeowURI
+)
 from extractors import ExtractorError
 
 
@@ -146,11 +149,26 @@ def start(fileobject,
                       ' {!s}'.format(_extractor_instance, e))
             continue
 
+        _results = _to_extracteddata(_extracted_data, _metainfo,
+                                     _extractor_instance)
         _meowuri_prefix = klass.meowuri_prefix()
-        _results = {
-            'data': _extracted_data,
-            'info': _metainfo
-        }
         collect_results(fileobject, _meowuri_prefix, _results)
 
     log.debug(' Extraction Completed '.center(80, '='))
+
+
+def _to_extracteddata(extracteddata, metainfo, source_klass):
+    out = {}
+    for field, value in extracteddata.items():
+        _field_info = metainfo.get(field)
+        if not _field_info:
+            continue
+
+        out[field] = ExtractedData(
+            coercer=_field_info.get('typewrap'),
+            mapped_fields=_field_info.get('mapped_fields', []),
+            generic_field=_field_info.get('generic_field'),
+            multivalued=_field_info.get('multiple'),
+            source=source_klass
+        )
+    return out
