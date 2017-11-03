@@ -29,7 +29,6 @@ import unittest
 from contextlib import contextmanager
 from datetime import datetime
 
-import analyzers
 from core import (
     model,
     util
@@ -558,6 +557,7 @@ def get_instantiated_analyzers():
     """
     # NOTE: These are instantiated with a None FileObject, which might be a
     #       problem and is surely not very pretty.
+    import analyzers
     return [klass(None, None, None, None) for klass in
             analyzers.get_analyzer_classes()]
 
