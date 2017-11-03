@@ -163,11 +163,21 @@ def _to_extracteddata(extracteddata, metainfo, source_klass):
         if not _field_info:
             continue
 
-        out[field] = ExtractedData(
-            coercer=_field_info.get('typewrap'),
-            mapped_fields=_field_info.get('mapped_fields', []),
-            generic_field=_field_info.get('generic_field'),
-            multivalued=_field_info.get('multiple'),
-            source=source_klass
-        )(value)
+        try:
+            coercer = _field_info.get('typewrap')
+            mapped_fields = _field_info.get('mapped_fields', [])
+            generic_fields = _field_info.get('generic_field')
+            multivalued = _field_info.get('multiple')
+        except AttributeError as e:
+            log.critical(
+                'TODO: Fix hack "_to_extracteddata()"! :: {!s}'.format(e)
+            )
+        else:
+            out[field] = ExtractedData(
+                coercer=coercer,
+                mapped_fields=mapped_fields,
+                generic_field=generic_fields,
+                multivalued=multivalued,
+                source=source_klass
+            )(value)
     return out
