@@ -157,7 +157,6 @@ DUMMY_MAPPED_MEOWURIS = list({
     'extractor.filesystem.xplat',
     'extractor.metadata.exiftool',
     'extractor.metadata.jpeginfo',
-    'extractor.metadata.pypdf',
     'extractor.text.pdftotext',
     'extractor.text.plain',
     'extractor.text.tesseractocr',

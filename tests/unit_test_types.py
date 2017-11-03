@@ -840,66 +840,6 @@ class TestTypeExiftoolTimeDate(TestCase):
         _assert_raises('1234:56:78 90:00:00')
 
 
-class TestTypePyPDFTimeDate(TestCase):
-    def test_coerces_expected_primitive(self):
-        with self.assertRaises(types.AWTypeError):
-            self.assertEqual(type(types.AW_PYPDFTIMEDATE(None)), str)
-
-    def test_null(self):
-        self.assertEqual(types.AW_PYPDFTIMEDATE.NULL, 'INVALID DATE')
-
-        with self.assertRaises(types.AWTypeError):
-            self.assertNotEqual(
-                types.AW_PYPDFTIMEDATE(None), types.BaseNullValue,
-                'BaseType default "null" must be overridden'
-            )
-
-    def test_call_with_none(self):
-        with self.assertRaises(types.AWTypeError):
-            self.assertEqual(types.AW_PYPDFTIMEDATE(None),
-                             types.AW_PYPDFTIMEDATE.null)
-
-    def test_call_with_coercible_data(self):
-        expected = datetime.strptime('2012-12-25T23:52:37+0530',
-                                     '%Y-%m-%dT%H:%M:%S%z')
-        self.assertEqual(types.AW_PYPDFTIMEDATE(expected), expected,
-                         'datetime objects should be passed through as-is')
-        self.assertEqual(types.AW_PYPDFTIMEDATE("D:20121225235237 +05'30'"),
-                         expected)
-
-    def test_call_with_coercible_data_2(self):
-        expected = datetime.strptime('2016-01-11T12:41:32+0000',
-                                     '%Y-%m-%dT%H:%M:%S%z')
-        self.assertEqual(types.AW_PYPDFTIMEDATE(expected), expected,
-                         'datetime objects should be passed through as-is')
-        self.assertEqual(types.AW_PYPDFTIMEDATE("D:20160111124132+00'00'"),
-                         expected)
-
-    def test_call_with_coercible_data_no_time(self):
-        expected = uu.str_to_datetime('2005-10-23 000000')
-        self.assertEqual(types.AW_PYPDFTIMEDATE('D:20051023'), expected)
-
-    def test_call_with_noncoercible_data(self):
-        def _assert_raises(test_data):
-            with self.assertRaises(types.AWTypeError):
-                types.AW_PYPDFTIMEDATE(test_data)
-
-        _assert_raises(None)
-        _assert_raises('')
-        _assert_raises('foo')
-        _assert_raises([])
-        _assert_raises([''])
-        _assert_raises([None])
-
-    def test_call_with_valid_pypdf_string_returns_expected_type(self):
-        actual = types.AW_PYPDFTIMEDATE("D:20160111124132+00'00'")
-        self.assertTrue(isinstance(actual, datetime))
-
-    def test_format(self):
-        # TODO: Add additional tests.
-        self.skipTest('TODO: Add additional tests ..')
-
-
 class TestTypePath(TestCase):
     def test_coerces_expected_primitive(self):
         with self.assertRaises(types.AWTypeError):

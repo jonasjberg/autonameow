@@ -26,7 +26,6 @@ from core import (
     types,
     util
 )
-from core.model import ExtractedData
 from core.model import genericfields as gf
 from core.util import (
     sanity,

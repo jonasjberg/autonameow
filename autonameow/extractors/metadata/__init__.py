@@ -20,6 +20,5 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from .exiftool import ExiftoolMetadataExtractor
-from .pypdf import PyPDFMetadataExtractor
 from .jpeginfo import JpeginfoMetadataExtractor
 from .epub import EpubMetadataExtractor

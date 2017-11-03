@@ -293,14 +293,6 @@ class TestMeowURIBasedOnDebuggerFindings(TestCase):
             e = '{}.{}'.format(_prefix, _key)
             self.assertEqual(str(a), e)
 
-    def test_extraction_collect_extractor_metadata_pypdf(self):
-        _prefix = 'extractor.metadata.pypdf'
-        for _key in ['Creator', 'Producer', 'CreationDate', 'ModDate',
-                     'creator', 'producer', 'creator_raw']:
-            a = MeowURI(_prefix, _key)
-            e = '{}.{}'.format(_prefix, _key)
-            self.assertEqual(str(a), e)
-
     def test_extraction_collect_extractor_text_pdftotext(self):
         _prefix = 'extractor.text.pdftotext'
         _key = 'full'

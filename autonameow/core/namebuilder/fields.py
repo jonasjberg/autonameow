@@ -256,8 +256,7 @@ class Creator(NameTemplateField):
 class DateTime(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_DATE,
                         types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE,
-                        types.AW_PYPDFTIMEDATE)
+                        types.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod
@@ -273,8 +272,7 @@ class DateTime(NameTemplateField):
 class Date(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_DATE,
                         types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE,
-                        types.AW_PYPDFTIMEDATE)
+                        types.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod
@@ -352,8 +350,7 @@ class Tags(NameTemplateField):
 
 class Time(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE,
-                        types.AW_PYPDFTIMEDATE)
+                        types.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod
@@ -369,8 +366,7 @@ class Time(NameTemplateField):
 class Year(NameTemplateField):
     COMPATIBLE_TYPES = (types.AW_DATE,
                         types.AW_TIMEDATE,
-                        types.AW_EXIFTOOLTIMEDATE,
-                        types.AW_PYPDFTIMEDATE)
+                        types.AW_EXIFTOOLTIMEDATE)
     MULTIVALUED = False
 
     @classmethod

@@ -227,8 +227,6 @@ class TestSuitableExtractorsForFile(TestCase):
                   extractors.suitable_extractors_for(self.fo)]
         self.assertIn('CrossPlatformFileSystemExtractor', actual)
         self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
-        self.assert_in_if_available('PyPDFMetadataExtractor', actual)
-        self.assert_in_if_available('PyPDFTextExtractor', actual)
         self.assert_in_if_available('PdftotextTextExtractor', actual)
 
 
@@ -283,9 +281,5 @@ class TestExtractorClassMeowURIs(TestCase):
                                'extractor.metadata.exiftool')
         _conditional_assert_in('PdftotextTextExtractor',
                                'extractor.text.pdftotext')
-        _conditional_assert_in('PyPDFMetadataExtractor',
-                               'extractor.metadata.pypdf')
-        _conditional_assert_in('PyPDFTextExtractor',
-                               'extractor.text.pypdf')
         _conditional_assert_in('TesseractOCRTextExtractor',
                                'extractor.text.tesseractocr')

@@ -60,7 +60,6 @@ class BaseExtractor(object):
                     |  '--* PdfTextExtractor
                     |
                     +--* ExiftoolMetadataExtractor
-                    '--* PyPDFMetadataExtractor
 
     The abstract extractors defines additional interfaces, extending the base.
     It is pretty messy and should be redesigned and simplified at some point ..
@@ -74,7 +73,7 @@ class BaseExtractor(object):
     # Middle part of the full MeowURI ('metadata', 'contents', 'filesystem', ..)
     MEOWURI_NODE = C.UNDEFINED_MEOWURI_PART
 
-    # Last part of the full MeowURI ('exiftool', 'pypdf', 'xplat', ..)
+    # Last part of the full MeowURI ('exiftool', 'xplat', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
 
     # Controls whether the extractor is enabled and used by default.

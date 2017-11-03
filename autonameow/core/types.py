@@ -415,12 +415,6 @@ class Float(BaseType):
 
 class String(BaseType):
     COERCIBLE_TYPES = (str, bytes, int, float, bool)
-    try:
-        from PyPDF2.generic import TextStringObject
-        COERCIBLE_TYPES = COERCIBLE_TYPES + (TextStringObject,)
-    except ImportError:
-        pass
-
     EQUIVALENT_TYPES = (str, )
     NULL = ''
 
@@ -613,54 +607,6 @@ class ExifToolTimeDate(TimeDate):
             return try_parse_date(value)
         except ValueError:
             pass
-
-        self._fail_coercion(value)
-
-
-class PyPDFTimeDate(TimeDate):
-    # Expected date/time format:      D:20121225235237 +05'30'
-    #                                   ^____________^ ^_____^
-    # Regex search matches two groups:        #1         #2
-    RE_DATETIME_TZ = re.compile(r'D:(\d{14}) ?(\+\d{2}\'?\d{2}\'?)')
-
-    # Date/time without timezone, alternate pattern:
-    RE_DATETIME = re.compile(r'D:(\d{14})')
-
-    # Only date, without timezone:
-    RE_DATE = re.compile(r'D:(\d{8})')
-
-    def coerce(self, value):
-        value = value.replace("'", '')
-
-        re_match_tz = self.RE_DATETIME_TZ.search(value)
-        if re_match_tz:
-            datetime_str = re_match_tz.group(1)
-            timezone_str = re_match_tz.group(2)
-
-            try:
-                return datetime.strptime(str(datetime_str + timezone_str),
-                                         '%Y%m%d%H%M%S%z')
-            except ValueError:
-                pass
-            try:
-                # Without timezone
-                return datetime.strptime(datetime_str, '%Y%m%d%H%M%S')
-            except ValueError:
-                pass
-
-        re_match = self.RE_DATETIME.search(value)
-        if re_match:
-            try:
-                return datetime.strptime(re_match.group(1), '%Y%m%d%H%M%S')
-            except ValueError:
-                pass
-
-        re_match = self.RE_DATE.search(value)
-        if re_match:
-            try:
-                return datetime.strptime(re_match.group(1), '%Y%m%d')
-            except ValueError:
-                pass
 
         self._fail_coercion(value)
 
@@ -883,7 +829,6 @@ AW_STRING = String()
 AW_MIMETYPE = MimeType()
 AW_TIMEDATE = TimeDate()
 AW_EXIFTOOLTIMEDATE = ExifToolTimeDate()
-AW_PYPDFTIMEDATE = PyPDFTimeDate()
 
 NULL_AW_MIMETYPE = NullMIMEType()
 
