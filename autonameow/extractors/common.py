@@ -91,6 +91,7 @@ class BaseExtractor(object):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
+        # TODO: Set 'FIELD_LOOKUP' default values? Maybe 'multiple' = False?
 
     def __call__(self, fileobject, **kwargs):
         # TODO: [TD0119] Separate adding contextual information from coercion.

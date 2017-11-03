@@ -23,11 +23,7 @@ import os
 from datetime import datetime
 
 from core import types
-from core.model import (
-    ExtractedData,
-    WeightedMapping,
-    MetaInfo
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from extractors import BaseExtractor
@@ -38,83 +34,69 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
     MEOWURI_LEAF = 'xplat'
     is_slow = False
 
-    METAINFO_LOOKUP = {
-        'abspath.full': None,
-        'basename.full': None,
-        'basename.extension': MetaInfo(
-            mapped_fields=[
-                WeightedMapping(fields.Extension, probability=1),
-            ]
-        ),
-        'basename.suffix': MetaInfo(
-            mapped_fields=[
-                WeightedMapping(fields.Extension, probability=1),
-            ]
-        ),
-        'basename.prefix': MetaInfo(
-            mapped_fields=[
-                # fields.WeightedMapping(fields.)
-            ]
-        ),
-        'pathname.full': None,
-        'pathname.parent': None,
-        'contents.mime_type': MetaInfo(
-            mapped_fields=[
+    FIELD_LOOKUP = {
+        'abspath.full': {'typewrap': types.AW_PATH},
+        'basename.full': {'typewrap': types.AW_PATHCOMPONENT},
+        'basename.extension': {
+            'typewrap': types.AW_PATHCOMPONENT,
+            'multiple': False,
+            'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ],
-            generic_field=gf.GenericMimeType
-        ),
-        'date_accessed': MetaInfo(
-            mapped_fields=[
+        },
+        'basename.suffix': {
+            'typewrap': types.AW_PATHCOMPONENT,
+            'multiple': False,
+            'mapped_fields': [
+                WeightedMapping(fields.Extension, probability=1),
+            ]
+        },
+        'basename.prefix': {
+            'typewrap': types.AW_PATHCOMPONENT,
+            'multiple': False,
+            'mapped_fields': [
+                # fields.WeightedMapping(fields.)
+            ],
+        },
+        'pathname.full': {'typewrap': types.AW_PATH},
+        'pathname.parent': {'typewrap': types.AW_PATH},
+        'contents.mime_type': {
+            'typewrap': types.AW_MIMETYPE,
+            'mapped_fields': [
+                WeightedMapping(fields.Extension, probability=1),
+            ],
+            'generic_field': gf.GenericMimeType
+        },
+        'date_accessed': {
+            'typewrap': types.AW_TIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.Date, probability=0.1),
                 WeightedMapping(fields.DateTime, probability=0.1),
             ]
-        ),
-        'date_created': MetaInfo(
-            mapped_fields=[
+        },
+        'date_created': {
+            'typewrap': types.AW_TIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.Date, probability=1),
                 WeightedMapping(fields.DateTime, probability=1),
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'date_modified': MetaInfo(
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'date_modified': {
+            'typewrap': types.AW_TIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.Date, probability=0.25),
                 WeightedMapping(fields.DateTime, probability=0.25),
             ],
-            generic_field=gf.GenericDateModified
-        )
-    }
-
-    EXTRACTEDDATA_LOOKUP = {
-        'abspath.full': ExtractedData(types.AW_PATH),
-        'basename.full': ExtractedData(types.AW_PATHCOMPONENT),
-        'basename.extension': ExtractedData(coercer=types.AW_PATHCOMPONENT,
-                                            multivalued=False),
-        'basename.suffix': ExtractedData(coercer=types.AW_PATHCOMPONENT,
-                                         multivalued=False),
-        'basename.prefix': ExtractedData(coercer=types.AW_PATHCOMPONENT),
-        'pathname.full': ExtractedData(types.AW_PATH),
-        'pathname.parent': ExtractedData(types.AW_PATH),
-        'contents.mime_type': ExtractedData(coercer=types.AW_MIMETYPE),
-        'date_accessed': ExtractedData(coercer=types.AW_TIMEDATE),
-        'date_created': ExtractedData(coercer=types.AW_TIMEDATE),
-        'date_modified': ExtractedData(coercer=types.AW_TIMEDATE)
+            'generic_field': gf.GenericDateModified
+        }
     }
 
     def __init__(self):
         super(CrossPlatformFileSystemExtractor, self).__init__()
 
-    def _coerce(self, uri, raw_value):
-        _wrapper = self.EXTRACTEDDATA_LOOKUP.get(uri)
-        if _wrapper:
-            _coerced = _wrapper(raw_value)
-            if _coerced:
-                return _coerced
-        return None
-
     def metainfo(self, *args, **kwargs):
-        return self.METAINFO_LOOKUP
+        return self.FIELD_LOOKUP
 
     def extract(self, fileobject, **kwargs):
         _datasources = [
@@ -130,7 +112,7 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
 
         out = {}
         for _uri, _source in _datasources:
-            _coerced_data = self._coerce(_uri, _source)
+            _coerced_data = self.coerce_field_value(_uri, _source)
             if _coerced_data:
                 out[_uri] = _coerced_data
 
@@ -142,15 +124,18 @@ class CrossPlatformFileSystemExtractor(BaseExtractor):
             self.log.error('Unable to get timestamps from filesystem:'
                            ' {!s}'.format(e))
         else:
-            _coerced_access_time = self._coerce('date_accessed', access_time)
+            _coerced_access_time = self.coerce_field_value('date_accessed',
+                                                           access_time)
             if _coerced_access_time:
                 out['date_accessed'] = _coerced_access_time
 
-            _coerced_create_time = self._coerce('date_created', create_time)
+            _coerced_create_time = self.coerce_field_value('date_created',
+                                                           create_time)
             if _coerced_create_time:
                 out['date_created'] = _coerced_create_time
 
-            _coerced_modify_time = self._coerce('date_modified', modify_time)
+            _coerced_modify_time = self.coerce_field_value('date_modified',
+                                                           modify_time)
             if _coerced_modify_time:
                 out['date_modified'] = _coerced_modify_time
 
