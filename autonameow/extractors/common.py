@@ -86,87 +86,8 @@ class BaseExtractor(object):
         )
 
     def __call__(self, fileobject, **kwargs):
-        """
-        Extracts and returns data using a specific extractor.
-
-          NOTE: This method __MUST__ be implemented by inheriting classes!
-
-        The return value should be a dictionary keyed by "MeowURIs", storing
-        data. The stored data can be either single elements or lists.
-        The data should be "safe", I.E. validated and converted to a suitable
-        "internal format" --- text should be returned as Unicode strings.
-
-        Implementing classes should make sure to catch all exceptions and
-        re-raise an "ExtractorError", passing any valuable information along.
-
-        Only raise the "ExtractorError" exception for irrecoverable errors.
-        Otherwise, implementers should strive to return empty values of the
-        expected type. The type coercers in 'types.py' could be useful here.
-
-        Args:
-            fileobject: Source of data from which to extract information as an
-                        instance of 'FileObject'.
-
-        Returns:
-            All data gathered by the extractor, as a dictionary.
-
-        Raises:
-            ExtractorError: The extraction could not be completed successfully.
-        """
-        sanity.check_isinstance(fileobject, FileObject)
-
-        _extracted_data = self.extract(fileobject, **kwargs)
-        _metainfo = self.metainfo(fileobject, **kwargs)
-
-        extracted_data = {
-            'data': _extracted_data,
-            'info': _metainfo
-        }
-
         # TODO: [TD0119] Separate adding contextual information from coercion.
-
-        # Return coerced data separate from extra added data, currently stored
-        # in instances fo the 'ExtractedData' class. Maybe something like this:
-        #
-        #   extracted_data = {
-        #       'data' = {
-        #           'EXIF:DateTimeOriginal': datetime(2017, 02, 12, ...),
-        #           'EXIF:UserComment': 'foo bar'
-        #       }
-        #       'info' = {
-        #           'EXIF:DateTimeOriginal': ExtractedData(
-        #               coercer=types.AW_EXIFTOOLTIMEDATE,
-        #               mapped_fields=[
-        #                   WeightedMapping(fields.DateTime, probability=1),
-        #                   WeightedMapping(fields.Date, probability=1)
-        #               ],
-        #               generic_field=gf.GenericDateCreated
-        #           ),
-        #           'EXIF:UserComment': ExtractedData(
-        #               coercer=types.AW_STRING,
-        #               mapped_fields=[
-        #                   WeightedMapping(fields.Description, probability=0.5),
-        #                   WeightedMapping(fields.Tags, probability=0.5)
-        #               ],
-        #               generic_field=gf.GenericDateModified
-        #           )
-        #       }
-        #   }
-        #
-        # .. maybe?
-
-        sanity.check_isinstance(extracted_data, dict)
-        sanity.check(
-            'data' in extracted_data,
-            '[TD0119] Separate contextual information from type coercion.'
-            ' Missing "data" in "extracted_data".'
-        )
-        sanity.check(
-            'info' in extracted_data,
-            '[TD0119] Separate contextual information from type coercion.'
-            ' Missing "info" in "extracted_data".'
-        )
-        return extracted_data
+        raise AutonameowException('[TD0119] Deprecate "__call__()"')
 
     @classmethod
     def meowuri_prefix(cls):
@@ -252,7 +173,7 @@ class BaseExtractor(object):
         The return value should be a dictionary keyed by "MeowURIs", storing
         data. The stored data can be either single elements or lists.
         The data should be "safe", I.E. validated and converted to a suitable
-        "internal format" --- text should be returned as Unicode strings.
+        "internal format" --- text should be returned as Unicode strings, etc.
 
         Implementing classes should make sure to catch all exceptions and
         re-raise an "ExtractorError", passing any valuable information along.
@@ -276,6 +197,7 @@ class BaseExtractor(object):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def metainfo(self, fileobject, **kwargs):
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     @classmethod
