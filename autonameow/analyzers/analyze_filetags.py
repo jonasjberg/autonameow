@@ -113,16 +113,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
         self._extension = None
         self._follows_filetags_convention = None
 
-    def __wrap_result(self, meowuri_leaf, data):
-        wrapper = self.WRAPPER_LOOKUP.get(meowuri_leaf)
-        if wrapper:
-            wrapped = ExtractedData.from_raw(wrapper, data)
-            if wrapped:
-                self._add_results(meowuri_leaf, wrapped)
-
     def run(self):
-        # (self._timestamp, self._description, self._tags,
-        #  self._extension) = partition_basename(self.fileobject.abspath)
         (_raw_timestamp, _raw_description, _raw_tags,
          _raw_extension) = partition_basename(self.fileobject.abspath)
         _raw_follows_convention = self.follows_filetags_convention()
@@ -139,15 +130,12 @@ class FiletagsAnalyzer(BaseAnalyzer):
             'follows_filetags_convention', _raw_follows_convention
         )
 
-        # self.__wrap_result('description', self._description)
-
-        # if self._tags:
-        #     self._tags = sorted(self._tags)
-        #     self.__wrap_result('tags', self._tags)
-
-        # self.__wrap_result('extension', self._extension)
-        # self.__wrap_result('follows_filetags_convention',
-        #                    self.follows_filetags_convention())
+        self._add_results('datetime', self._timestamp)
+        self._add_results('description', self._description)
+        self._add_results('tags', self._tags)
+        self._add_results('extension', self._extension)
+        self._add_results('follows_filetags_convention',
+                          self._follows_filetags_convention)
 
     def follows_filetags_convention(self):
         """
