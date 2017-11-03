@@ -161,11 +161,13 @@ def _instantiate_analyzers(fileobject, klass_list, config):
     Returns:
         One instance of each of the given classes as a list of objects.
     """
-    return [analyzer(fileobject,
-                     config,
-                     add_results_callback=collect_results,
-                     request_data_callback=request_global_data)
-            for analyzer in klass_list]
+    return [
+        analyzer(
+            fileobject, config,
+            add_results_callback=collect_results,
+            request_data_callback=request_global_data
+        ) for analyzer in klass_list
+    ]
 
 
 def start(fileobject, config):
