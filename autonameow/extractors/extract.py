@@ -32,7 +32,6 @@ from core import (
     util
 )
 from core.fileobject import FileObject
-from core.model import ExtractedData
 import extractors
 
 
