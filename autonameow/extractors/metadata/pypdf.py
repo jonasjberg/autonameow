@@ -56,42 +56,43 @@ class PyPDFMetadataExtractor(BaseExtractor):
     HANDLES_MIME_TYPES = ['application/pdf']
     is_slow = False
 
-    EXTRACTEDDATA_WRAPPER_LOOKUP = {
-        'Creator': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+    FIELD_LOOKUP = {
+        'Creator': {
+            'typewrap': types.AW_STRING,
+            'multiple': False,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericCreator
-        ),
-        'CreationDate': ExtractedData(
-            coercer=types.AW_PYPDFTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericCreator
+        },
+        'CreationDate': {
+            'typewrap': types.AW_PYPDFTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'Encrypted': ExtractedData(types.AW_BOOLEAN),
-        'ModDate': ExtractedData(
-            coercer=types.AW_PYPDFTIMEDATE,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'Encrypted': {'typewrap': types.AW_BOOLEAN},
+        'ModDate': {
+            'typewrap': types.AW_PYPDFTIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=0.25),
                 WeightedMapping(fields.Date, probability=0.25),
             ],
-            generic_field=gf.GenericDateModified
-        ),
-        'NumberPages': ExtractedData(types.AW_INTEGER),
-        'Paginated': ExtractedData(types.AW_BOOLEAN),
-        'Producer': ExtractedData(types.AW_STRING),
-        'Title': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericDateModified
+        },
+        'NumberPages': {'typewrap': types.AW_INTEGER},
+        'Paginated': {'typewrap': types.AW_BOOLEAN},
+        'Producer': {'typewrap': types.AW_STRING},
+        'Title': {
+            'typewrap': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1)
             ],
-            # generic_field=gf.GenericTitle
-        ),
+            'generic_field': gf.GenericTitle
+        },
     }
 
     def __init__(self):
@@ -124,22 +125,51 @@ class PyPDFMetadataExtractor(BaseExtractor):
     def _to_internal_format(self, raw_metadata):
         out = {}
 
-        # TODO: [TD0119] Separate adding contextual information from coercion.
         for tag_name, value in raw_metadata.items():
-            if tag_name in self.EXTRACTEDDATA_WRAPPER_LOOKUP:
-                wrapper = self.EXTRACTEDDATA_WRAPPER_LOOKUP[tag_name]
-            else:
-                # Use a default 'ExtractedData' class.
-                wrapper = ExtractedData(coercer=None, mapped_fields=None)
-
-            wrapped = ExtractedData.from_raw(wrapper, value)
-            if wrapped:
-                out[tag_name] = wrapped
-            else:
-                self.log.warning('Wrapping PyPDF data returned None for '
-                                 '"{!s}" ({})'.format(value, type(value)))
+            _wrapped = self._wrap_tag_value(tag_name, value)
+            if _wrapped:
+                out[tag_name] = _wrapped
 
         return out
+
+    def _wrap_tag_value(self, tagname, value):
+        # TODO: [TD0119] Separate adding contextual information from coercion.
+        _tagname_entry = self.FIELD_LOOKUP.get(tagname)
+        if not _tagname_entry:
+            self.log.debug(
+                'Tag not included in "FIELD_LOOKUP_MAPPED": "{!s}" with'
+                ' value: "{!s}"'.format(tagname, value)
+            )
+            return None
+
+        _coercer = _tagname_entry.get('typewrap')
+        if not _coercer:
+            self.log.debug(
+                'Coercer unspecified for tag: "{!s}" with'
+                ' value: "{!s}"'.format(tagname, value)
+            )
+            return None
+
+        assert isinstance(_coercer, types.BaseType)
+        wrapper = _coercer
+
+        # TODO: [TD0084] Add handling collections to type wrapper classes.
+        if isinstance(value, list):
+            if not _tagname_entry.get('multiple', False):
+                self.log.warning(
+                    'Got list but "ExtractedData" wrapper is not multivalued.'
+                    ' Tag: "{!s}" Value: "{!s}"'.format(tagname, value)
+                )
+                return None
+
+        try:
+            coerced = wrapper(value)
+        except types.AWTypeError as e:
+            self.log.debug('Wrapping "{!s}" with value "{!s}" raised '
+                           'AWTypeError: {!s}'.format(tagname, value, e))
+            return None
+        else:
+            return coerced
 
     def _get_pypdf_data(self, source):
         out = {}
