@@ -151,7 +151,15 @@ class ExiftoolMetadataExtractor(BaseExtractor):
                 WeightedMapping(fields.Description, probability=0.5),
                 WeightedMapping(fields.Tags, probability=0.5)
             ],
-            'generic_field': gf.GenericDateModified
+            'generic_field': gf.GenericDescription
+        },
+        'File:Comment': {
+            'typewrap': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Description, probability=0.5),
+                WeightedMapping(fields.Tags, probability=0.5)
+            ],
+            'generic_field': gf.GenericDescription
         },
         'File:Directory': {'typewrap': types.AW_PATH},
         'File:FileAccessDate': {
