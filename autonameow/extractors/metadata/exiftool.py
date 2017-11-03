@@ -510,7 +510,6 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         for tag_name, value in raw_metadata.items():
             _wrapped = self._wrap_tag_value(tag_name, value)
             if _wrapped:
-                _wrapped.source = self
                 out[tag_name] = _wrapped
 
         return out
@@ -533,7 +532,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
             )
             return None
 
-        assert isinstance(_coercer, types.BaseType)
+        assert(isinstance(_coercer, types.BaseType),
+               'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
         wrapper = _coercer
 
         # TODO: [TD0084] Add handling collections to type wrapper classes.
