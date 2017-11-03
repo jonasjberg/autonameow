@@ -170,5 +170,5 @@ def _to_extracteddata(extracteddata, metainfo, source_klass):
             generic_field=_field_info.get('generic_field'),
             multivalued=_field_info.get('multiple'),
             source=source_klass
-        )
+        )(value)
     return out
