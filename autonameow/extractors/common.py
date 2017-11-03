@@ -178,7 +178,10 @@ class BaseExtractor(object):
                            ' "{!s}" ({!s})'.format(field, value, type(value)))
             return None
 
-        _coercer = _field_lookup_entry.get('typewrap')
+        try:
+            _coercer = _field_lookup_entry.get('typewrap')
+        except AttributeError:
+            _coercer = None
         if not _coercer:
             self.log.debug('Coercer unspecified for field; "{!s}" with value:'
                            ' "{!s}" ({!s})'.format(field, value, type(value)))
