@@ -27,6 +27,11 @@ from extractors.metadata.jpeginfo import _run_jpeginfo
 import unit_utils as uu
 
 
+ALL_EXTRACTOR_FIELDS_TYPES = [
+    ('health', float),
+    ('is_jpeg', bool),
+]
+
 unmet_dependencies = not JpeginfoMetadataExtractor.check_dependencies()
 dependency_error = 'Extractor dependencies not satisfied'
 
@@ -56,7 +61,7 @@ class TestJpeginfoMetadataExtractorWithImageA(unittest.TestCase):
         self.test_file = uu.abspath_testfile('magic_jpg.jpg')
         self.test_fileobject = uu.fileobject_testfile('magic_jpg.jpg')
         self.actual_get_metadata = self.e._get_metadata(self.test_file)
-        self.actual_execute = self.e.execute(self.test_fileobject)
+        self.actual_extract = self.e.extract(self.test_fileobject)
 
     def test__get_metadata_returns_expected_type(self):
         self.assertTrue(isinstance(self.actual_get_metadata, dict))
@@ -81,8 +86,8 @@ class TestJpeginfoMetadataExtractorWithImageA(unittest.TestCase):
         # with self.assertRaises(ExtractorError):
         #     _run_jpeginfo('not_a_file_surely')
 
-    def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual_execute, dict))
+    def test_method_extract_returns_expected_type(self):
+        self.assertTrue(isinstance(self.actual_extract, dict))
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
@@ -90,17 +95,72 @@ class TestJpeginfoMetadataExtractorWithImageB(unittest.TestCase):
     def setUp(self):
         self.test_fileobject = uu.fileobject_testfile('magic_jpg.jpg')
         self.e = JpeginfoMetadataExtractor()
-        self.actual_call = self.e(self.test_fileobject)
-        self.actual_execute = self.e.execute(self.test_fileobject)
+        self.actual = self.e.extract(self.test_fileobject)
 
-    def test_call_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual_call, dict))
+    def test_returns_expected_values(self):
+        _actual_health = self.actual['health']
+        self.assertEqual(_actual_health, 1.0)
+        self.assertTrue(isinstance(_actual_health, float))
 
-    def test_call_returns_expected_contents(self):
-        actual_health = self.actual_execute['health'].value
-        self.assertEqual(actual_health, 1.0)
-        self.assertTrue(isinstance(actual_health, float))
+        _actual_is_jpeg = self.actual['is_jpeg']
+        self.assertEqual(_actual_is_jpeg, True)
+        self.assertTrue(isinstance(_actual_is_jpeg, bool))
 
-        actual_is_jpeg = self.actual_execute['is_jpeg'].value
-        self.assertEqual(actual_is_jpeg, True)
-        self.assertTrue(isinstance(actual_is_jpeg, bool))
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestJpeginfoMetadataExtractorExtractTestFileJpeg(unittest.TestCase):
+    def setUp(self):
+        _fo = uu.fileobject_testfile('magic_jpg.jpg')
+        _extractor_instance = JpeginfoMetadataExtractor()
+        self.actual = _extractor_instance.extract(_fo)
+
+    def test_extract_returns_expected_type(self):
+        self.assertTrue(isinstance(self.actual, dict))
+
+    def test_extract_returns_expected_keys(self):
+        for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
+            self.assertIn(_field, self.actual)
+
+    def test_extract_returns_expected_values(self):
+        def _aE(field, expected):
+            actual = self.actual.get(field)
+            self.assertEqual(actual, expected)
+
+        _aE('health', 1.0)
+        _aE('is_jpeg', True)
+
+    def test_extract_returns_expected_types(self):
+        for _field, _type in ALL_EXTRACTOR_FIELDS_TYPES:
+            actual = self.actual.get(_field)
+            self.assertTrue(
+                isinstance(actual, _type),
+                'Expected "{!s}" ({!s}) to be of type "{!s}"'.format(
+                    actual, type(actual), _type
+                )
+            )
+
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestJpeginfoMetadataExtractorMetainfo(unittest.TestCase):
+    def setUp(self):
+        _extractor_instance = JpeginfoMetadataExtractor()
+        self.actual = _extractor_instance.metainfo()
+
+    def test_metainfo_returns_expected_type(self):
+        self.assertTrue(isinstance(self.actual, dict))
+
+    def test_metainfo_returns_expected_fields(self):
+        for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
+            self.assertIn(_field, self.actual)
+
+    def test_metainfo_specifies_types_for_all_fields(self):
+        for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
+            self.assertIn('typewrap', self.actual.get(_field, {}))
+
+    def test_metainfo_multiple_is_bool_or_none(self):
+        for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
+            _field_lookup_entry = self.actual.get(_field, {})
+            self.assertIn('multiple', _field_lookup_entry)
+
+            actual = _field_lookup_entry.get('multiple')
+            self.assertTrue(isinstance(actual, (bool, type(None))))
