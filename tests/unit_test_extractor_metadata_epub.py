@@ -54,12 +54,12 @@ class TestEpubMetadataExtractorWithTestFile(unittest.TestCase):
         self.test_file = uu.abspath_testfile('pg38145-images.epub')
         self.test_fileobject = uu.fileobject_testfile('pg38145-images.epub')
 
-    def test_method_execute_returns_expected_type(self):
-        actual = self.e.execute(self.test_fileobject)
+    def test_method_extract_returns_expected_type(self):
+        actual = self.e.extract(self.test_fileobject)
         self.assertTrue(isinstance(actual, dict))
 
-    def test_method_execute_returns_expected_title(self):
-        actual = self.e.execute(self.test_fileobject)
-        _actual_title = actual['title'].value
+    def test_method_extract_returns_expected_title(self):
+        actual = self.e.extract(self.test_fileobject)
+        _actual_title = actual['title']
         expected = 'Human, All Too Human: A Book for Free Spirits'
         self.assertEqual(_actual_title, expected)
