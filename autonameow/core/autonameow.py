@@ -546,7 +546,7 @@ class Autonameow(object):
             self._exit_code = value
 
     def __hash__(self):
-        return hash(util.process_id()) + hash(self.start_time)
+        return hash((util.process_id(), self.start_time))
 
 
 def _run_extraction(fileobject, require_extractors, run_all_extractors=False):
