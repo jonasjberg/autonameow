@@ -94,9 +94,7 @@ class BasePersistence(object):
         else:
             self.persistence_dir_abspath = persistence_dir_abspath
         sanity.check_internal_bytestring(self.persistence_dir_abspath)
-        sanity.check(
-            os.path.isabs(util.enc.syspath(self.persistence_dir_abspath))
-        )
+        assert os.path.isabs(util.enc.syspath(self.persistence_dir_abspath))
 
         _prefix = types.force_string(file_prefix)
         if not _prefix.strip():

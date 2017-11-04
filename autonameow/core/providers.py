@@ -178,8 +178,8 @@ def unique_map_meowuris(meowuri_class_map):
     # for key in ['extractors', 'analyzer', 'plugin'] ..
     for key in meowuri_class_map.keys():
         for _meowuri in meowuri_class_map[key].keys():
-            sanity.check(not isinstance(_meowuri, list),
-                         'Unexpectedly got "meowuri" of type list')
+            assert(not isinstance(_meowuri, list),
+                   'Unexpectedly got "meowuri" of type list')
             out.add(_meowuri)
 
     return out

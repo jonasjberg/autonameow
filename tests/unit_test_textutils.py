@@ -386,10 +386,10 @@ class TestExtractLines(unittest.TestCase):
         with self.assertRaises(EncodingBoundaryViolation):
             textutils.extract_lines(1, 0, 0)
 
-        with self.assertRaises(AWAssertionError):
+        with self.assertRaises(AssertionError):
             textutils.extract_lines('foo', -1, 0)
 
-        with self.assertRaises(AWAssertionError):
+        with self.assertRaises(AssertionError):
             textutils.extract_lines('foo', 0, -1)
 
 

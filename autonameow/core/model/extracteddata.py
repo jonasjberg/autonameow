@@ -23,10 +23,7 @@ import copy
 import logging
 
 from core import types
-from core.util import (
-    sanity,
-    textutils
-)
+from core.util import textutils
 
 
 log = logging.getLogger(__name__)
@@ -121,7 +118,7 @@ class ExtractedData(object):
             log.critical('Failed to auto-detect coercer: "{!s}"'.format(self))
 
             # TODO: [TD0088] The "resolver" needs 'coerce.format' ..
-            sanity.check(False)
+            assert False, 'TODO: [TD0088] The "resolver" needs "coerce.format"'
         else:
             if self.multivalued:
                 # Is multivalued, so make sure it is a list.

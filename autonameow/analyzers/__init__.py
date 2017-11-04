@@ -175,8 +175,8 @@ class BaseAnalyzer(object):
                            ' "{!s}" ({!s})'.format(field, value, type(value)))
             return None
 
-        sanity.check(isinstance(_coercer, types.BaseType),
-                     msg='Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
+        assert(isinstance(_coercer, types.BaseType),
+               'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
         wrapper = _coercer
 
         if isinstance(value, list):

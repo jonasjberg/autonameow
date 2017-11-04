@@ -29,7 +29,6 @@ from core import (
 
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
-from core.util import sanity
 
 
 class BasePlugin(object):
@@ -83,8 +82,8 @@ class BasePlugin(object):
                            ' "{!s}" ({!s})'.format(field, value, type(value)))
             return None
 
-        sanity.check(isinstance(_coercer, types.BaseType),
-                     msg='Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
+        assert(isinstance(_coercer, types.BaseType),
+               'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
         wrapper = _coercer
 
         # TODO: [TD0084] Add handling collections to type wrapper classes.

@@ -107,34 +107,3 @@ class TestSanityCheckIsinstance(TestCase):
         _assert_raises(str, None)
         _assert_raises(b'', None)
         _assert_raises(bytes, None)
-
-
-class TestSanityCheck(TestCase):
-    def test_check_passes(self):
-        def _assert_ok(test_input, msg=None):
-            if msg:
-                sanity.check(test_input, msg)
-            else:
-                sanity.check(test_input, msg)
-
-        _assert_ok(1 == 1)
-        _assert_ok(1 == 1, 'Expr: 1 == 1')
-        _assert_ok(True)
-        _assert_ok(True, 'Expr: True')
-        _assert_ok('a' == 'a' and 'a' != 'b')
-        _assert_ok('a' == 'a' and 'a' != 'b', 'Expr: foo')
-
-    def test_assertion_failure_raises_exception(self):
-        def _assert_raises(test_input, msg=None):
-            with self.assertRaises(AWAssertionError):
-                if msg:
-                    sanity.check(test_input, msg)
-                else:
-                    sanity.check(test_input, msg)
-
-        _assert_raises(1 == 2)
-        _assert_raises(1 == 2, 'Expr: 1 == 2')
-        _assert_raises(False)
-        _assert_raises(False, 'Expr: False')
-        _assert_raises('a' == 'X' and 'a' != 'Z')
-        _assert_raises('a' == 'X' and 'a' != 'Z', 'Expr: foo')

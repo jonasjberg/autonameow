@@ -139,13 +139,10 @@ class RuleCondition(object):
 
         parsers = field_parsers.suitable_field_parser_for(meowuri)
         if parsers:
-            # Assume only one parser can handle a "meowURI" for now.
-            sanity.check(
-                len(parsers) == 1,
-                'Unexpectedly got {} parsers for meowURI "{!s}"'.format(
-                    len(parsers), meowuri
-                )
-            )
+            # NOTE(jonas): Assume only one parser per "meowURI" for now ..
+            assert(len(parsers) == 1,
+                   'Unexpectedly got {} parsers for meowURI '
+                   '"{!s}"'.format(len(parsers), meowuri))
 
             self._parser = parsers[0]
             return self._parser
@@ -369,8 +366,8 @@ class Rule(object):
         Returns:
             The number of met conditions as an integer.
         """
-        sanity.check(self.conditions and len(self.conditions) > 0,
-                     'Rule.conditions is missing or empty')
+        assert(self.conditions and len(self.conditions) > 0,
+               'Rule.conditions is missing or empty')
 
         if self.description:
             _desc = '{} :: '.format(self.description)

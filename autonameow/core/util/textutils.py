@@ -23,7 +23,6 @@ import re
 import unicodedata
 import urllib
 
-
 try:
     import chardet
 except ImportError:
@@ -156,8 +155,8 @@ def extract_lines(text, firstline, lastline):
         return text
 
     sanity.check_internal_string(text)
-    sanity.check(firstline >= 0, 'Argument first_line is negative')
-    sanity.check(lastline >= 0, 'Argument last_line is negative')
+    assert firstline >= 0, 'Argument first_line is negative'
+    assert lastline >= 0, 'Argument last_line is negative'
 
     lines = text.splitlines(keepends=True)
     if lastline > len(lines):
@@ -253,7 +252,7 @@ def format_name_lastname_initials(full_name):
 
 
 def format_names(list_of_full_names, formatter):
-    sanity.check(callable(formatter), 'Argument "formatter" must be callable')
+    assert callable(formatter), 'Argument "formatter" must be callable'
 
     _formatted_authors = [formatter(a) for a in list_of_full_names]
     return sorted(_formatted_authors, key=str.lower)
@@ -398,9 +397,9 @@ def extractlines_do(callback, text, fromline, toline):
         The result of calling "callback" with the contents in "text" between
         lines "fromline" and "toline".
     """
-    sanity.check(callable(callback), 'Argument "callback" must be callable')
-    sanity.check_isinstance(fromline, int)
-    sanity.check_isinstance(toline, int)
+    assert callable(callback), 'Argument "callback" must be callable'
+    assert isinstance(fromline, int), 'Expected "fromline" of type int'
+    assert isinstance(toline, int), 'Expected "toline" of type int'
 
     lines = extract_lines(text, fromline, toline)
     return callback(lines)

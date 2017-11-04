@@ -150,7 +150,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         else:
             _candidates = _options.get('candidates', {})
 
-        sanity.check(self.text is not None)
+        assert self.text is not None
         _text = textutils.extract_lines(self.text, firstline=0, lastline=100)
         result = find_publisher(_text, _candidates)
         if not result:
