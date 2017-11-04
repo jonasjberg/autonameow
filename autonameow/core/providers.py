@@ -165,8 +165,9 @@ def get_sources_for_meowuris(meowuri_list, include_roots=None):
 
         # TODO: Improve robustness of linking "MeowURIs" to data source classes.
         if source_classes:
-            for source_class in source_classes:
-                out.add(source_class)
+            assert isinstance(source_classes, list)
+            for source in source_classes:
+                out.add(source)
 
     return list(out)
 
