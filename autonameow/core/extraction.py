@@ -109,10 +109,10 @@ def start(fileobject,
     log.debug(' Extraction Started '.center(80, '='))
 
     if require_extractors:
-        required_extractors = require_extractors
+        _required_extractors = require_extractors
     else:
-        required_extractors = []
-    log.debug('Required extractors: {!s}'.format(required_extractors))
+        _required_extractors = []
+    log.debug('Required extractors: {!s}'.format(_required_extractors))
 
     klasses = extractors.suitable_extractors_for(fileobject)
     log.debug('Extractors able to handle the file: {}'.format(len(klasses)))
@@ -120,7 +120,7 @@ def start(fileobject,
     if not require_all_extractors:
         # Exclude "slow" extractors if they are not explicitly required.
         klasses = keep_slow_extractors_if_required(klasses,
-                                                   required_extractors)
+                                                   _required_extractors)
 
     # TODO: Use sets for required/actual klasses to easily display differences.
     # Which required extractors were not "suitable" for the file and therefore
