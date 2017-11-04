@@ -317,8 +317,9 @@ class Configuration(object):
                           '{!s}: "{!s}"'.format(option, default))
                 self._options['DATETIME_FORMAT'][option] = default
             else:
-                assert(False, 'Invalid internal default value "{!s}: '
-                              '{!s}"'.format(option, default))
+                assert False, (
+                       'Invalid internal default value "{!s}: '
+                       '{!s}"'.format(option, default))
 
         def _try_load_filetags_option(option, default):
             if 'FILETAGS_OPTIONS' in self._data:

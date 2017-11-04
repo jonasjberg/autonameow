@@ -56,7 +56,7 @@ class Resolver(object):
         return all(field in self.data_sources for field in self._fields)
 
     def add_known_source(self, field, meowuri):
-        assert(isinstance(meowuri, MeowURI),
+        assert meowuri and isinstance(meowuri, MeowURI), (
                'TODO: Fix collecting/verifying data from sources.')
 
         if field in self._fields:
@@ -138,7 +138,7 @@ class Resolver(object):
                     continue
 
                 log.debug('Got {}'.format(_data_info))
-                assert(isinstance(_data, ExtractedData),
+                assert isinstance(_data, ExtractedData), (
                        'Expected "data" to be an instance of "ExtractedData".'
                        ' Got {}'.format(_data_info))
 
@@ -197,9 +197,9 @@ class Resolver(object):
 
     def _verify_type(self, field, data):
         _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
-        assert(not isinstance(data, list),
+        assert not isinstance(data, list), (
                'Expected "data" not to be a list. Got {}'.format(_data_info))
-        assert(isinstance(data, ExtractedData),
+        assert isinstance(data, ExtractedData), (
                'Expected "data" to be an instance of "ExtractedData". '
                'Got {}'.format(_data_info))
 

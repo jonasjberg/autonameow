@@ -21,7 +21,7 @@
 
 import logging
 
-from core.util import sanity
+from core import types
 
 
 log = logging.getLogger(__name__)
@@ -178,7 +178,7 @@ def unique_map_meowuris(meowuri_class_map):
     # for key in ['extractors', 'analyzer', 'plugin'] ..
     for key in meowuri_class_map.keys():
         for _meowuri in meowuri_class_map[key].keys():
-            assert(not isinstance(_meowuri, list),
+            assert not isinstance(_meowuri, list), (
                    'Unexpectedly got "meowuri" of type list')
             out.add(_meowuri)
 

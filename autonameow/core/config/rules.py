@@ -31,7 +31,6 @@ from core import (
 from core.config import field_parsers
 from core.model import MeowURI
 from core.namebuilder import fields
-from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -140,7 +139,7 @@ class RuleCondition(object):
         parsers = field_parsers.suitable_field_parser_for(meowuri)
         if parsers:
             # NOTE(jonas): Assume only one parser per "meowURI" for now ..
-            assert(len(parsers) == 1,
+            assert len(parsers) == 1, (
                    'Unexpectedly got {} parsers for meowURI '
                    '"{!s}"'.format(len(parsers), meowuri))
 
@@ -366,7 +365,7 @@ class Rule(object):
         Returns:
             The number of met conditions as an integer.
         """
-        assert(self.conditions and len(self.conditions) > 0,
+        assert self.conditions and len(self.conditions) > 0, (
                'Rule.conditions is missing or empty')
 
         if self.description:
@@ -447,7 +446,7 @@ def get_valid_rule_condition(meowuri, raw_expression):
     Raises:
         InvalidRuleError: The 'RuleCondition' instance could not be created.
     """
-    sanity.check_isinstance(meowuri, MeowURI)
+    assert isinstance(meowuri, MeowURI), 'Expected instance of "MeowURI"'
 
     try:
         condition = RuleCondition(meowuri, raw_expression)

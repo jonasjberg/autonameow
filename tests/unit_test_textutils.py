@@ -30,10 +30,7 @@ from core import (
     types,
     util
 )
-from core.exceptions import (
-    AWAssertionError,
-    EncodingBoundaryViolation
-)
+from core.exceptions import EncodingBoundaryViolation
 from core.util import textutils
 import unit_utils as uu
 

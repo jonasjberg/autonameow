@@ -25,7 +25,6 @@ import analyzers
 from core import analysis
 import unit_utils as uu
 import unit_utils_constants as uuconst
-from core.exceptions import AWAssertionError
 
 
 class TestAnalysis(TestCase):
@@ -37,12 +36,12 @@ class TestAnalysis(TestCase):
 
     def test_analysis_start_requires_fileobject_argument(self):
         for _bad_arg in [None, 'foo', object()]:
-            with self.assertRaises(AWAssertionError):
+            with self.assertRaises(AssertionError):
                 analysis.start(_bad_arg, self.config)
 
     def test_analysis_start_requires_config_argument(self):
         for _bad_arg in [None, 'foo', object()]:
-            with self.assertRaises(AWAssertionError):
+            with self.assertRaises(AssertionError):
                 analysis.start(self.fo, _bad_arg)
 
     def test__instantiate_analyzers_returns_expected_type(self):

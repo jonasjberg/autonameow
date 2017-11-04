@@ -32,7 +32,6 @@ from core import (
 )
 from core.exceptions import AutonameowException
 from core.model import ExtractedData
-from core.util import sanity
 
 
 # Analyzers are assumed to be located in the same directory as this file.
@@ -142,12 +141,12 @@ class BaseAnalyzer(object):
         text = None
         if isinstance(_response, list):
             for _r in _response:
-                sanity.check_isinstance(_r, ExtractedData)
+                assert isinstance(_r, ExtractedData)
                 if _r.value and len(_r.value) > 0:
                     text = _r.value
                     break
         else:
-            sanity.check_isinstance(_response, ExtractedData)
+            assert isinstance(_response, ExtractedData)
             if _response.value and len(_response.value) > 0:
                 text = _response.value
 
@@ -175,7 +174,7 @@ class BaseAnalyzer(object):
                            ' "{!s}" ({!s})'.format(field, value, type(value)))
             return None
 
-        assert(isinstance(_coercer, types.BaseType),
+        assert isinstance(_coercer, types.BaseType), (
                'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
         wrapper = _coercer
 

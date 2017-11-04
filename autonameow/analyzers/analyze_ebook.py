@@ -342,7 +342,7 @@ def filter_isbns(isbn_list):
     if not isbn_list:
         return []
 
-    sanity.check_isinstance(isbn_list, list)
+    assert isinstance(isbn_list, list)
 
     # Remove any duplicates.
     isbn_list = list(set(isbn_list))

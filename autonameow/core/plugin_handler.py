@@ -27,7 +27,6 @@ from core import (
     repository
 )
 from core.model import ExtractedData
-from core.util import sanity
 
 
 # TODO: [TD0009] Implement a proper plugin interface.
@@ -41,7 +40,7 @@ class PluginHandler(object):
 
         # Get instantiated and validated plugins.
         self.available_plugins = plugins.UsablePlugins
-        sanity.check_isinstance(self.available_plugins, list)
+        assert isinstance(self.available_plugins, list)
 
         _p = ' '.join(map(lambda x: '"' + str(x) + '"', self.available_plugins))
         self.log.debug('Available plugins: {!s}'.format(_p))

@@ -31,7 +31,6 @@ from core.model import genericfields as gf
 from core.namebuilder import fields
 from core.util import (
     dateandtime,
-    sanity,
     textutils
 )
 
@@ -206,7 +205,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                 generic_field=gf.GenericDateCreated
             )
 
-            sanity.check_isinstance(dt_regex, list)
+            assert isinstance(dt_regex, list)
             for v in dt_regex:
                 results.append(ExtractedData.from_raw(dt_regex_wrapper, v))
 
@@ -229,7 +228,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             dt_brute = dateandtime.bruteforce_str(t)
             if dt_brute:
                 matches += 1
-                sanity.check_isinstance(dt_brute, list)
+                assert isinstance(dt_brute, list)
                 for v in dt_brute:
                     results.append(ExtractedData.from_raw(dt_brute_wrapper, v))
 
@@ -240,7 +239,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                 dt_brute = dateandtime.bruteforce_str(t)
                 if dt_brute:
                     matches += 1
-                    sanity.check_isinstance(dt_brute, list)
+                    assert isinstance(dt_brute, list)
                     for v in dt_brute:
                         results.append(ExtractedData.from_raw(dt_brute_wrapper, v))
 

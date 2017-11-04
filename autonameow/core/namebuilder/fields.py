@@ -197,8 +197,7 @@ class Author(NameTemplateField):
     @classmethod
     def format(cls, data, *args, **kwargs):
         # TODO: [TD0036] Allow per-field replacements and customization.
-
-        sanity.check_isinstance(data, ExtractedData)
+        assert isinstance(data, ExtractedData)
 
         if isinstance(data.value, list):
             # Multiple authors
@@ -331,11 +330,11 @@ class Tags(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
-        sanity.check_isinstance(data, ExtractedData)
+        assert isinstance(data, ExtractedData)
 
         _tags = []
         for d in data.value:
-            sanity.check_isinstance(d, str)
+            assert isinstance(d, str)
             _tags.append(d)
 
         c = kwargs.get('config')
@@ -480,5 +479,5 @@ def formatted_datetime(datetime_object, format_string):
     Returns:
         A string in the specified format with the data from the given string.
     """
-    sanity.check_isinstance(datetime_object, datetime.datetime)
+    assert isinstance(datetime_object, datetime.datetime)
     return datetime_object.strftime(format_string)

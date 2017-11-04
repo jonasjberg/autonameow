@@ -82,7 +82,7 @@ class BasePlugin(object):
                            ' "{!s}" ({!s})'.format(field, value, type(value)))
             return None
 
-        assert(isinstance(_coercer, types.BaseType),
+        assert isinstance(_coercer, types.BaseType), (
                'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
         wrapper = _coercer
 
