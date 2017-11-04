@@ -133,17 +133,19 @@ def get_meowuri_source_map():
 
     Returns: Dictionary keyed by "MeowURIs", storing lists of "source" classes.
     """
-    import analyzers
-    import extractors
-    import plugins
-
-    global MEOWURI_SOURCE_MAP_DICT
-    if not MEOWURI_SOURCE_MAP_DICT:
-        MEOWURI_SOURCE_MAP_DICT = {
+    def _get_meowuri_class_maps():
+        import analyzers
+        import extractors
+        import plugins
+        return {
             'extractor': extractors.MeowURIClassMap,
             'analyzer': analyzers.MeowURIClassMap,
             'plugin': plugins.MeowURIClassMap
         }
+
+    global MEOWURI_SOURCE_MAP_DICT
+    if not MEOWURI_SOURCE_MAP_DICT:
+        MEOWURI_SOURCE_MAP_DICT = _get_meowuri_class_maps()
     return MEOWURI_SOURCE_MAP_DICT
 
 
