@@ -40,8 +40,10 @@ from core import (
 )
 from core import constants as C
 from core.config.configuration import Configuration
-from core.evaluate.resolver import Resolver
-from core.evaluate.rulematcher import RuleMatcher
+from core.evaluate import (
+    Resolver,
+    RuleMatcher
+)
 from core.fileobject import FileObject
 from core.filter import ResultFilter
 from core.plugin_handler import PluginHandler
