@@ -219,25 +219,6 @@ class Autonameow(object):
     def _handle_files(self, file_paths):
         """
         Main loop. Iterate over input paths/files.
-
-        For each file:
-        1. Create a 'FileObject' representing the current file.
-        2. Extract data from the file with suitable and/or required extractors.
-        3. Perform analysis of the file with suitable analyzers.
-        4. Run any available plugins.
-        5A -- "AUTOMAGIC MODE"
-            1. Determine which rules match the given file.
-            2. Use the "name template" and "data sources" specified in the
-               highest ranked rule, if any.
-            3. Use a 'Resolver' to collect data from "data sources" to be used
-               to populate "name template".
-            4. Construct a file name with the "name builder" if all required
-               data is available.
-            5. If not --dry-run; rename the file to the new file name.
-        5B -- "INTERACTIVE MODE"
-          1. Not implemented yet!
-        6. Do any reporting of results to the user.
-
         Assume all state is setup and completely reset for each loop iteration.
         It is not currently possible to share "information" between runs.
         """
