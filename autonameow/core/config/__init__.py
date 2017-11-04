@@ -241,10 +241,6 @@ def set_active(config):
     ActiveConfig = config
 
 
-Pool = None
-SessionRepository = None
-
-
 # Variables listed here are intended for public, global use.
 DefaultConfigFilePath = config_file_path()
 ActiveConfig = None
