@@ -24,6 +24,7 @@ import logging
 from core import constants as C
 from core import (
     plugin_handler,
+    providers,
     types
 )
 
@@ -38,6 +39,9 @@ class BasePlugin(object):
     # Dictionary with plugin-specific information, keyed by the fields that
     # the raw source produces. Stores information on types, etc..
     FIELD_LOOKUP = {}
+
+    # TODO: Hack ..
+    coerce_field_value = providers.ProviderMixin.coerce_field_value
 
     def __init__(self, display_name=None):
         if display_name:
@@ -68,41 +72,6 @@ class BasePlugin(object):
 
     def __call__(self, source, *args, **kwargs):
         self.execute(source)
-
-    def coerce_field_value(self, field, value):
-        _field_lookup_entry = self.FIELD_LOOKUP.get(field)
-        if not _field_lookup_entry:
-            self.log.debug('Field not in "FIELD_LOOKUP"; "{!s}" with value:'
-                           ' "{!s}" ({!s})'.format(field, value, type(value)))
-            return None
-
-        _coercer = _field_lookup_entry.get('typewrap')
-        if not _coercer:
-            self.log.debug('Coercer unspecified for field; "{!s}" with value:'
-                           ' "{!s}" ({!s})'.format(field, value, type(value)))
-            return None
-
-        assert isinstance(_coercer, types.BaseType), (
-               'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
-        wrapper = _coercer
-
-        # TODO: [TD0084] Add handling collections to type wrapper classes.
-        if isinstance(value, list):
-            if not _field_lookup_entry.get('multiple', False):
-                self.log.warning(
-                    'Got list but but "FIELD_LOOKUP["multiple"]" is False for '
-                    'field; "{!s}" with value: "{!s}"'.format(field, value)
-                )
-                return None
-
-        try:
-            coerced = wrapper(value)
-        except types.AWTypeError as e:
-            self.log.debug('Wrapping "{!s}" with value "{!s}" raised '
-                           'AWTypeError: {!s}'.format(field, value, e))
-            return None
-        else:
-            return coerced
 
     @classmethod
     def meowuri_prefix(cls):
