@@ -23,6 +23,7 @@ import logging
 
 from core import constants as C
 from core import (
+    providers,
     types,
     util
 )
@@ -170,57 +171,58 @@ class BaseExtractor(object):
                 'Error evaluating "{!s}" MIME handling; {!s}'.format(cls, e)
             )
 
-    def coerce_field_value(self, field, value):
-        _field_lookup_entry = self.FIELD_LOOKUP.get(field)
-        if not _field_lookup_entry:
-            self.log.debug('Field not in "FIELD_LOOKUP"; "{!s}" with value:'
-                           ' "{!s}" ({!s})'.format(field, value, type(value)))
-            return None
-
-        try:
-            _coercer = _field_lookup_entry.get('typewrap')
-        except AttributeError:
-            # Might be case of malformed 'FIELD_LOOKUP'.
-            _coercer = None
-        if not _coercer:
-            self.log.debug('Coercer unspecified for field; "{!s}" with value:'
-                           ' "{!s}" ({!s})'.format(field, value, type(value)))
-            return None
-
-        sanity.check(isinstance(_coercer, types.BaseType),
-                     msg='Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
-        wrapper = _coercer
-
-        if isinstance(value, list):
-            # Check "FIELD_LOOKUP" assumptions.
-            if not _field_lookup_entry.get('multiple'):
-                self.log.warning(
-                    'Got list but "FIELD_LOOKUP" specifies a single value.'
-                    ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
-                )
-                return None
-
-            try:
-                return types.listof(wrapper)(value)
-            except types.AWTypeError as e:
-                self.log.debug('Coercing "{!s}" with value "{!s}" raised '
-                               'AWTypeError: {!s}'.format(field, value, e))
-                return None
-        else:
-            # Check "FIELD_LOOKUP" assumptions.
-            if _field_lookup_entry.get('multiple'):
-                self.log.warning(
-                    'Got single value but "FIELD_LOOKUP" specifies multiple.'
-                    ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
-                )
-                return None
-
-            try:
-                return wrapper(value)
-            except types.AWTypeError as e:
-                self.log.debug('Coercing "{!s}" with value "{!s}" raised '
-                               'AWTypeError: {!s}'.format(field, value, e))
-                return None
+    coerce_field_value = providers.ProviderMixin.coerce_field_value
+    # def coerce_field_value(self, field, value):
+    #     _field_lookup_entry = self.FIELD_LOOKUP.get(field)
+    #     if not _field_lookup_entry:
+    #         self.log.debug('Field not in "FIELD_LOOKUP"; "{!s}" with value:'
+    #                        ' "{!s}" ({!s})'.format(field, value, type(value)))
+    #         return None
+    #
+    #     try:
+    #         _coercer = _field_lookup_entry.get('typewrap')
+    #     except AttributeError:
+    #         # Might be case of malformed 'FIELD_LOOKUP'.
+    #         _coercer = None
+    #     if not _coercer:
+    #         self.log.debug('Coercer unspecified for field; "{!s}" with value:'
+    #                        ' "{!s}" ({!s})'.format(field, value, type(value)))
+    #         return None
+    #
+    #     sanity.check(isinstance(_coercer, types.BaseType),
+    #                  msg='Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
+    #     wrapper = _coercer
+    #
+    #     if isinstance(value, list):
+    #         # Check "FIELD_LOOKUP" assumptions.
+    #         if not _field_lookup_entry.get('multiple'):
+    #             self.log.warning(
+    #                 'Got list but "FIELD_LOOKUP" specifies a single value.'
+    #                 ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
+    #             )
+    #             return None
+    #
+    #         try:
+    #             return types.listof(wrapper)(value)
+    #         except types.AWTypeError as e:
+    #             self.log.debug('Coercing "{!s}" with value "{!s}" raised '
+    #                            'AWTypeError: {!s}'.format(field, value, e))
+    #             return None
+    #     else:
+    #         # Check "FIELD_LOOKUP" assumptions.
+    #         if _field_lookup_entry.get('multiple'):
+    #             self.log.warning(
+    #                 'Got single value but "FIELD_LOOKUP" specifies multiple.'
+    #                 ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
+    #             )
+    #             return None
+    #
+    #         try:
+    #             return wrapper(value)
+    #         except types.AWTypeError as e:
+    #             self.log.debug('Coercing "{!s}" with value "{!s}" raised '
+    #                            'AWTypeError: {!s}'.format(field, value, e))
+    #             return None
 
     def extract(self, fileobject, **kwargs):
         """
