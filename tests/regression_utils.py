@@ -28,9 +28,6 @@ from core import (
 )
 
 
-REGRESSIONTESTS_ROOT_ABSPATH = None
-
-
 class RegressionTestInfo(object):
     BASENAME_ARGS = b'args'
     BASENAME_CONFIG = b'config.yaml'
@@ -63,6 +60,9 @@ def regtest_abspath(basename):
 
     assert disk.isdir(_normalized_abspath)
     return _normalized_abspath
+
+
+REGRESSIONTESTS_ROOT_ABSPATH = None
 
 
 def get_regressiontests_rootdir():

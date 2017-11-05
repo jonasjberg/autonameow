@@ -30,36 +30,37 @@ import unit_utils as uu
 import unit_utils_constants as uuconst
 
 
-class TestRegressionTestUtilityFunctions(TestCase):
-    def test_get_regressiontests_rootdir(self):
-        self.skipTest('TODO: [TD0117] Implement automated regression tests')
+class TestGetRegressiontestsRootdir(TestCase):
+    def test_returns_absolute_bytestring_path(self):
         actual = get_regressiontests_rootdir()
         self.assertTrue(uu.dir_exists(actual))
         self.assertTrue(uu.is_abspath(actual))
         self.assertTrue(uu.is_internalbytestring(actual))
 
-    def test_regtest_abspath_given_valid_argument(self):
-        def _ok(test_input):
+
+class TestRegtestAbspath(TestCase):
+    def test_valid_argument_returns_absolute_bytestring_path(self):
+        def _pass(test_input):
             _actual = regtest_abspath(test_input)
             self.assertTrue(uu.dir_exists(_actual))
             self.assertTrue(uu.is_abspath(_actual))
             self.assertTrue(uu.is_internalbytestring(_actual))
 
-        _ok(b'0001')
-        _ok(b'0002_test')
-        _ok(uuconst.REGRESSIONTEST_DIR_BASENAMES[0])
-        _ok(uuconst.REGRESSIONTEST_DIR_BASENAMES[1])
+        _pass(b'0001')
+        _pass(b'0002_test')
+        _pass(uuconst.REGRESSIONTEST_DIR_BASENAMES[0])
+        _pass(uuconst.REGRESSIONTEST_DIR_BASENAMES[1])
 
-    def test_regtest_abspath_given_valid_argument(self):
-        def _f(test_input):
+    def test_bad_argument_raises_exception(self):
+        def _fail(test_input):
             with self.assertRaises(AssertionError):
                 _ = regtest_abspath(test_input)
 
-        _f(None)
-        _f('0001')
-        _f('0002_test')
-        _f('1337_this_directory_should_not_exist')
-        _f(b'1337_this_directory_should_not_exist')
+        _fail(None)
+        _fail('0001')
+        _fail('0002_test')
+        _fail('1337_this_directory_should_not_exist')
+        _fail(b'1337_this_directory_should_not_exist')
 
 
 # TODO: [TD0117] Implement automated regression tests
