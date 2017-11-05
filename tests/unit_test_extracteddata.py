@@ -22,10 +22,7 @@
 from unittest import TestCase
 
 from core import types
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import ExtractedData
 
 
 class TestExtractedData(TestCase):
@@ -58,20 +55,17 @@ class TestExtractedData(TestCase):
     def test_call(self):
         m = ExtractedData(
             coercer=types.AW_STRING,
-            mapped_fields=[
-                WeightedMapping('foo_field_a', probability=1.0),
-                WeightedMapping('foo_field_b', probability=0.8)
-            ])
-
+            multivalued=False
+        )
         self.assertIsNotNone(m)
 
     def test_from_raw(self):
         e = ExtractedData(
             coercer=types.AW_STRING,
         )
-
+        given = 'foo'
         expect = 'foo'
-        d = ExtractedData.from_raw(e, expect)
+        d = ExtractedData.from_raw(e, given)
         self.assertEqual(d.value, expect)
 
     def test_from_raw_multivalued(self):
@@ -79,9 +73,9 @@ class TestExtractedData(TestCase):
             coercer=types.AW_STRING,
             multivalued=True
         )
-
+        given = ['foo', 'bar']
         expect = ['foo', 'bar']
-        d = ExtractedData.from_raw(e, expect)
+        d = ExtractedData.from_raw(e, given)
         self.assertEqual(d.value, expect)
 
     def test_from_raw_multivalued_coercion(self):
@@ -89,8 +83,39 @@ class TestExtractedData(TestCase):
             coercer=types.AW_STRING,
             multivalued=True
         )
-
         given = [1, 1.337]
         expect = ['1', '1.337']
         d = ExtractedData.from_raw(e, given)
         self.assertEqual(d.value, expect)
+
+    def test_call_not_multivalued(self):
+        with self.assertRaises(types.AWTypeError):
+            _ = ExtractedData(
+                coercer=types.AW_STRING,
+                multivalued=False
+            )(['foo', 'bar'])
+
+    def test_call_not_multivalued_coercion(self):
+        with self.assertRaises(types.AWTypeError):
+            _ = ExtractedData(
+                coercer=types.AW_STRING,
+                multivalued=False
+            )([1, 1.337])
+
+    def test_from_raw_not_multivalued(self):
+        e = ExtractedData(
+            coercer=types.AW_STRING,
+            multivalued=False
+        )
+        given = ['foo', 'bar']
+        d = ExtractedData.from_raw(e, given)
+        self.assertIsNone(d)
+
+    def test_from_raw_not_multivalued_coercion(self):
+        e = ExtractedData(
+            coercer=types.AW_STRING,
+            multivalued=False
+        )
+        given = [1, 1.337]
+        d = ExtractedData.from_raw(e, given)
+        self.assertIsNone(d)

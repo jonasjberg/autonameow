@@ -27,11 +27,11 @@ import sys
 from core import constants as C
 from core import (
     exceptions,
+    providers,
     util
 )
 from core.exceptions import AutonameowException
 from core.model import ExtractedData
-from core.util import sanity
 
 
 # Analyzers are assumed to be located in the same directory as this file.
@@ -61,6 +61,13 @@ class BaseAnalyzer(object):
 
     # Last part of the full MeowURI ('filetags', 'filename', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
+
+    # Dictionary with analyzer-specific information, keyed by the fields that
+    # the analyzer produces. Stores information on types, etc..
+    FIELD_LOOKUP = {}
+
+    # TODO: Hack ..
+    coerce_field_value = providers.ProviderMixin.coerce_field_value
 
     def __init__(self, fileobject, config,
                  add_results_callback, request_data_callback):
@@ -137,12 +144,12 @@ class BaseAnalyzer(object):
         text = None
         if isinstance(_response, list):
             for _r in _response:
-                sanity.check_isinstance(_r, ExtractedData)
+                assert isinstance(_r, ExtractedData)
                 if _r.value and len(_r.value) > 0:
                     text = _r.value
                     break
         else:
-            sanity.check_isinstance(_response, ExtractedData)
+            assert isinstance(_response, ExtractedData)
             if _response.value and len(_response.value) > 0:
                 text = _response.value
 
@@ -152,6 +159,9 @@ class BaseAnalyzer(object):
             self.log.info(
                 'Required data unavailable ("generic.contents.text")'
             )
+
+    def metainfo(self, *args, **kwargs):
+        return self.FIELD_LOOKUP
 
     @classmethod
     def meowuri_prefix(cls):

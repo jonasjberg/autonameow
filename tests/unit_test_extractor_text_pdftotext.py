@@ -154,19 +154,19 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
         actual = self.e.extract_text(self.test_fileobject)
         self.assertEqual(type(actual), str)
 
-    def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute(self.test_fileobject))
+    def test_method_extract_returns_something(self):
+        self.assertIsNotNone(self.e.extract(self.test_fileobject))
 
-    def test_method_execute_returns_expected_type(self):
-        actual = self.e.execute(self.test_fileobject)
+    def test_method_extract_returns_expected_type(self):
+        actual = self.e.extract(self.test_fileobject)
         self.assertTrue(isinstance(actual, dict))
 
-    def test_method_execute_contains_expected(self):
+    def test_method_extract_contains_expected(self):
         self.skipTest(
             'TODO: It seems that pdftotext strips trailing whitespace on'
             ' MacOS (v0.57.0) but not on Linux (v0.41.0) ..'
         )
-        actual = self.e.execute(self.test_fileobject)
+        actual = self.e.extract(self.test_fileobject)
         self.assertEqual(actual['full'].value, self.EXPECT_TEXT)
 
     def test_class_method_can_handle_is_defined(self):

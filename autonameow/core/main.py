@@ -198,7 +198,7 @@ def cli_main(argv=None):
         real_main(options)
     except KeyboardInterrupt:
         sys.exit('\nReceived keyboard interrupt; Exiting ..')
-    except AWAssertionError as e:
+    except (AssertionError, AWAssertionError) as e:
         _error_msg = format_sanitycheck_error(str(e))
         print_error(_error_msg)
         sys.exit(C.EXIT_SANITYFAIL)

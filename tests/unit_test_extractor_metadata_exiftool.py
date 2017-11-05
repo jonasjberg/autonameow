@@ -95,23 +95,24 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
             _get_exiftool_data(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute(temp_fileobject))
+    def test_method_extract_returns_something(self):
+        self.assertIsNotNone(self.e.extract(temp_fileobject))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.execute(temp_fileobject), dict))
+    def test_method_extract_returns_expected_type(self):
+        self.assertTrue(isinstance(self.e.extract(temp_fileobject), dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_all_result_contains_file_size(self):
-        actual = self.e.execute(temp_fileobject)
-        self.assertTrue('File:FileSize' in actual)
+    def test_method_extract_all_result_contains_filename(self):
+        actual = self.e.extract(temp_fileobject)
+        self.assertIn('File:FileName', actual)
 
 
 class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
     def _to_datetime(self, value):
         return datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
 
+    @unittest.skipIf(unmet_dependencies, dependency_error)
     def setUp(self):
         self.test_file = uu.fileobject_testfile('smulan.jpg')
         self.e = ExiftoolMetadataExtractor()
@@ -123,26 +124,26 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
             ('EXIF:ExifImageWidth', 2592)
         ]
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_returns_something(self):
-        self.assertIsNotNone(self.e.execute(self.test_file))
+        self.actual = self.e.extract(self.test_file)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.execute(self.test_file), dict))
+    def test_method_extract_returns_something(self):
+        self.assertIsNotNone(self.actual)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_all_result_contains_expected_fields(self):
-        actual = self.e.execute(self.test_file)
+    def test_method_extract_returns_expected_type(self):
+        self.assertTrue(isinstance(self.actual, dict))
+
+    @unittest.skipIf(unmet_dependencies, dependency_error)
+    def test_method_extract_all_result_contains_expected_fields(self):
         for field, _ in self.EXPECT_FIELD_VALUE:
-            self.assertTrue(field in actual)
+            self.assertIn(field, self.actual)
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_all_result_contains_expected_values(self):
-        actual_result = self.e.execute(self.test_file)
+    def test_method_extract_all_result_contains_expected_values(self):
         for field, value in self.EXPECT_FIELD_VALUE:
-            actual = actual_result.get(field)
-            self.assertEqual(actual.value, value)
+            _actual = self.actual.get(field)
+            self.assertEqual(_actual, value)
 
 
 class TestIsBadMetadata(unittest.TestCase):

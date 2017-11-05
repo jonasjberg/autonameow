@@ -45,6 +45,8 @@ High Priority
 
 * `[TD0117]` Implement automated regression testing.
 
+* `[TD0119]` Separate adding contextual information from type coercion.
+
 
 Medium Priority
 ---------------

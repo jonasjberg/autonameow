@@ -55,9 +55,17 @@ class TestBaseExtractor(TestCase):
     def test_base_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
 
-    def test_query_raises_not_implemented_error(self):
+    def test_calling_extract_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.e.execute(self.test_file)
+            self.e.extract(self.test_file)
+
+    def test_metainfo_returns_expected_type(self):
+        actual = self.e.metainfo(self.test_file)
+        self.assertTrue(isinstance(actual, dict))
+
+    def test_abstract_class_does_not_specify_metainfo(self):
+        actual = self.e.metainfo(self.test_file)
+        self.assertEqual(len(actual), 0)
 
     def test_check_dependencies_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
@@ -223,8 +231,6 @@ class TestSuitableExtractorsForFile(TestCase):
                   extractors.suitable_extractors_for(self.fo)]
         self.assertIn('CrossPlatformFileSystemExtractor', actual)
         self.assert_in_if_available('ExiftoolMetadataExtractor', actual)
-        self.assert_in_if_available('PyPDFMetadataExtractor', actual)
-        self.assert_in_if_available('PyPDFTextExtractor', actual)
         self.assert_in_if_available('PdftotextTextExtractor', actual)
 
 
@@ -279,9 +285,5 @@ class TestExtractorClassMeowURIs(TestCase):
                                'extractor.metadata.exiftool')
         _conditional_assert_in('PdftotextTextExtractor',
                                'extractor.text.pdftotext')
-        _conditional_assert_in('PyPDFMetadataExtractor',
-                               'extractor.metadata.pypdf')
-        _conditional_assert_in('PyPDFTextExtractor',
-                               'extractor.text.pypdf')
         _conditional_assert_in('TesseractOCRTextExtractor',
                                'extractor.text.tesseractocr')

@@ -21,13 +21,68 @@
 
 import logging
 
-import analyzers
-import extractors
-import plugins
-from core.util import sanity
+from core import types
 
 
 log = logging.getLogger(__name__)
+
+
+class ProviderMixin(object):
+    # TODO: [TD0119] Consolidate duplicated (3x) 'coerce_field_value()'.
+    def __init__(self):
+        pass
+
+    def coerce_field_value(self, field, value):
+        _field_lookup_entry = self.FIELD_LOOKUP.get(field)
+        if not _field_lookup_entry:
+            self.log.debug('Field not in "FIELD_LOOKUP"; "{!s}" with value:'
+                           ' "{!s}" ({!s})'.format(field, value, type(value)))
+            return None
+
+        try:
+            _coercer = _field_lookup_entry.get('typewrap')
+        except AttributeError:
+            # Might be case of malformed 'FIELD_LOOKUP'.
+            _coercer = None
+        if not _coercer:
+            self.log.debug('Coercer unspecified for field; "{!s}" with value:'
+                           ' "{!s}" ({!s})'.format(field, value, type(value)))
+            return None
+
+        assert _coercer and isinstance(_coercer, types.BaseType), (
+               'Got ({!s}) "{!s}"'.format(type(_coercer), _coercer))
+        wrapper = _coercer
+
+        if isinstance(value, list):
+            # Check "FIELD_LOOKUP" assumptions.
+            if not _field_lookup_entry.get('multiple'):
+                self.log.warning(
+                    'Got list but "FIELD_LOOKUP" specifies a single value.'
+                    ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
+                )
+                return None
+
+            try:
+                return types.listof(wrapper)(value)
+            except types.AWTypeError as e:
+                self.log.debug('Coercing "{!s}" with value "{!s}" raised '
+                               'AWTypeError: {!s}'.format(field, value, e))
+                return None
+        else:
+            # Check "FIELD_LOOKUP" assumptions.
+            if _field_lookup_entry.get('multiple'):
+                self.log.warning(
+                    'Got single value but "FIELD_LOOKUP" specifies multiple.'
+                    ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
+                )
+                return None
+
+            try:
+                return wrapper(value)
+            except types.AWTypeError as e:
+                self.log.debug('Coercing "{!s}" with value "{!s}" raised '
+                               'AWTypeError: {!s}'.format(field, value, e))
+                return None
 
 
 class ProviderRegistry(object):
@@ -78,13 +133,19 @@ def get_meowuri_source_map():
 
     Returns: Dictionary keyed by "MeowURIs", storing lists of "source" classes.
     """
-    global MEOWURI_SOURCE_MAP_DICT
-    if not MEOWURI_SOURCE_MAP_DICT:
-        MEOWURI_SOURCE_MAP_DICT = {
+    def _get_meowuri_class_maps():
+        import analyzers
+        import extractors
+        import plugins
+        return {
             'extractor': extractors.MeowURIClassMap,
             'analyzer': analyzers.MeowURIClassMap,
             'plugin': plugins.MeowURIClassMap
         }
+
+    global MEOWURI_SOURCE_MAP_DICT
+    if not MEOWURI_SOURCE_MAP_DICT:
+        MEOWURI_SOURCE_MAP_DICT = _get_meowuri_class_maps()
     return MEOWURI_SOURCE_MAP_DICT
 
 
@@ -104,8 +165,9 @@ def get_sources_for_meowuris(meowuri_list, include_roots=None):
 
         # TODO: Improve robustness of linking "MeowURIs" to data source classes.
         if source_classes:
-            for source_class in source_classes:
-                out.add(source_class)
+            assert isinstance(source_classes, list)
+            for source in source_classes:
+                out.add(source)
 
     return list(out)
 
@@ -116,8 +178,8 @@ def unique_map_meowuris(meowuri_class_map):
     # for key in ['extractors', 'analyzer', 'plugin'] ..
     for key in meowuri_class_map.keys():
         for _meowuri in meowuri_class_map[key].keys():
-            sanity.check(not isinstance(_meowuri, list),
-                         'Unexpectedly got "meowuri" of type list')
+            assert not isinstance(_meowuri, list), (
+                   'Unexpectedly got "meowuri" of type list')
             out.add(_meowuri)
 
     return out

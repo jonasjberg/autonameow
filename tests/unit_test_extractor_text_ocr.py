@@ -97,17 +97,17 @@ class TestTesseractOCRTextExtractorWithImageFile(unittest.TestCase):
         self.assertTrue(uu.is_internalstring(self.e.extract_text(TEST_IMAGE_FILE)))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_returns_expected_type(self):
-        actual = self.e.execute(TEST_IMAGE_FILE)
+    def test_method_extract_returns_expected_type(self):
+        actual = self.e.extract(TEST_IMAGE_FILE)
         self.assertTrue(isinstance(actual, dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_execute_all_result_contains_expected(self):
+    def test_method_extract_all_result_contains_expected(self):
         self.skipTest(
             "AssertionError: 'Apr 23, 2007 - 12 Comments' != 'Aprﬁm-IZCommams'"
         )
-        actual = self.e.execute(TEST_IMAGE_FILE)
-        self.assertEqual(actual['raw_text'].value, TEST_IMAGE_FILE_TEXT)
+        actual = self.e.extract(TEST_IMAGE_FILE)
+        self.assertEqual(actual['full'], TEST_IMAGE_FILE_TEXT)
 
 
 class TestTesseractWrapper(unittest.TestCase):
@@ -131,13 +131,15 @@ class TestTesseractWrapper(unittest.TestCase):
             uu.abspath_testfile('empty'),
             uu.abspath_testfile('magic_txt.txt')
         ]
+        # TODO: Fix ResourceWarning: unclosed file <_io.BufferedReader
+        #           name='<SNIP>/test_files/empty'>
+        #           actual = tesseractocr.pil_read_image(_test_file)
         for _test_file in _test_files:
             with self.assertRaises(ExtractorError):
                 actual = tesseractocr.pil_read_image(_test_file)
 
-
-            #def test_pil_read_image_raises_exception_for_invalid_images(self):
-        #_test_inputs = [
-        #    image_file = util.enc.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
-        #]
-        #actual = ocr.pil_read_image(image_file)
+        # def test_pil_read_image_raises_exception_for_invalid_images(self):
+        # _test_inputs = [
+        #     image_file = util.enc.normpath(uu.abspath_testfile('2007-04-23_12-comments.png'))
+        # ]
+        # actual = ocr.pil_read_image(image_file)

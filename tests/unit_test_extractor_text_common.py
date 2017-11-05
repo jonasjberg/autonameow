@@ -27,6 +27,11 @@ from extractors.text.common import AbstractTextExtractor
 import unit_utils as uu
 
 
+ALL_EXTRACTOR_FIELDS_TYPES = [
+    ('full', str),
+]
+
+
 class TestAbstractTextExtractor(TestCase):
     def setUp(self):
         self.test_file = uu.make_temporary_file()
@@ -42,10 +47,6 @@ class TestAbstractTextExtractor(TestCase):
 
     def test_abstract_text_extractor_class_can_be_instantiated(self):
         self.assertIsNotNone(self.e)
-
-    def test_query_raises_exception_with__get_raw_text_unimplemented(self):
-        with self.assertRaises(ExtractorError):
-            self.e.execute(self.test_file)
 
     def test_method_str_is_defined_and_reachable(self):
         self.assertIsNotNone(str(self.e))
@@ -63,10 +64,15 @@ class TestAbstractTextExtractor(TestCase):
 
     def test_class_method_can_handle_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.assertIsNotNone(self.e.can_handle(self.fo))
+            _ = self.e.can_handle(self.fo)
 
+    def test_extract_text_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.e.can_handle(self.fo))
+            self.e.extract_text(self.test_file)
+
+    def test_extract_raises_exception_with_extract_text_unimplemented(self):
+        with self.assertRaises(ExtractorError):
+            _ = self.e.extract(self.test_file)
 
     def test_abstract_class_does_not_specify_which_mime_types_are_handled(self):
         self.assertIsNone(self.e.HANDLES_MIME_TYPES)
@@ -84,3 +90,28 @@ class TestAbstractTextExtractor(TestCase):
     def test_check_dependencies_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.e.check_dependencies()
+
+
+class TestAbstractTextExtractorMetainfo(TestCase):
+    def setUp(self):
+        _extractor_instance = AbstractTextExtractor()
+        self.actual = _extractor_instance.metainfo()
+
+    def test_metainfo_returns_expected_type(self):
+        self.assertTrue(isinstance(self.actual, dict))
+
+    def test_metainfo_returns_expected_fields(self):
+        for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
+            self.assertIn(_field, self.actual)
+
+    def test_metainfo_specifies_types_for_all_fields(self):
+        for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
+            self.assertIn('typewrap', self.actual.get(_field, {}))
+
+    def test_metainfo_multiple_is_bool_or_none(self):
+        for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
+            _field_lookup_entry = self.actual.get(_field, {})
+            self.assertIn('multiple', _field_lookup_entry)
+
+            actual = _field_lookup_entry.get('multiple')
+            self.assertTrue(isinstance(actual, (bool, type(None))))

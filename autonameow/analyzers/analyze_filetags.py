@@ -62,43 +62,43 @@ class FiletagsAnalyzer(BaseAnalyzer):
     run_queue_priority = 1
     HANDLES_MIME_TYPES = ['*/*']
 
-    WRAPPER_LOOKUP = {
-        'datetime': ExtractedData(
-            coercer=types.AW_TIMEDATE,
-            mapped_fields=[
+    FIELD_LOOKUP = {
+        'datetime': {
+            'typewrap': types.AW_TIMEDATE,
+            'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=0.75),
             ],
-            generic_field=gf.GenericDateCreated
-        ),
-        'description': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericDateCreated
+        },
+        'description': {
+            'typewrap': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Title, probability=0.5),
             ],
-            generic_field=gf.GenericDescription
-        ),
-        'tags': ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+            'generic_field': gf.GenericDescription
+        },
+        'tags': {
+            'typewrap': types.AW_STRING,
+            'multiple': True,
+            'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
             ],
-            generic_field=gf.GenericTags,
-            multivalued=True
-        ),
-        'extension': ExtractedData(
-            coercer=types.AW_MIMETYPE,
-            mapped_fields=[
+            'generic_field': gf.GenericTags
+        },
+        'extension': {
+            'typewrap': types.AW_MIMETYPE,
+            'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ],
-            generic_field=gf.GenericMimeType
-        ),
-        'follows_filetags_convention': ExtractedData(
-            coercer=types.AW_BOOLEAN,
-            mapped_fields=None,
-            generic_field=None
-        )
+            'generic_field': gf.GenericMimeType
+        },
+        'follows_filetags_convention': {
+            'typewrap': types.AW_BOOLEAN,
+            'mapped_fields': None,
+            'generic_field': None
+        }
     }
 
     def __init__(self, fileobject, config,
@@ -111,28 +111,31 @@ class FiletagsAnalyzer(BaseAnalyzer):
         self._description = None
         self._tags = None
         self._extension = None
-
-    def __wrap_result(self, meowuri_leaf, data):
-        wrapper = self.WRAPPER_LOOKUP.get(meowuri_leaf)
-        if wrapper:
-            wrapped = ExtractedData.from_raw(wrapper, data)
-            if wrapped:
-                self._add_results(meowuri_leaf, wrapped)
+        self._follows_filetags_convention = None
 
     def run(self):
-        (self._timestamp, self._description, self._tags,
-         self._extension) = partition_basename(self.fileobject.abspath)
+        (_raw_timestamp, _raw_description, _raw_tags,
+         _raw_extension) = partition_basename(self.fileobject.abspath)
+        _raw_follows_convention = self.follows_filetags_convention()
 
-        self.__wrap_result('datetime', self._timestamp)
-        self.__wrap_result('description', self._description)
+        self._timestamp = self.coerce_field_value('datetime', _raw_timestamp)
+        self._description = self.coerce_field_value('description', _raw_description)
 
-        if self._tags:
-            self._tags = sorted(self._tags)
-            self.__wrap_result('tags', self._tags)
+        if _raw_tags:
+            _coerced_tags = self.coerce_field_value('tags', _raw_tags)
+            self._tags = sorted(_coerced_tags)
 
-        self.__wrap_result('extension', self._extension)
-        self.__wrap_result('follows_filetags_convention',
-                           self.follows_filetags_convention())
+        self._extension = self.coerce_field_value('extension', _raw_extension)
+        self._follows_filetags_convention = self.coerce_field_value(
+            'follows_filetags_convention', _raw_follows_convention
+        )
+
+        self._add_results('datetime', self._timestamp)
+        self._add_results('description', self._description)
+        self._add_results('tags', self._tags)
+        self._add_results('extension', self._extension)
+        self._add_results('follows_filetags_convention',
+                          self._follows_filetags_convention)
 
     def follows_filetags_convention(self):
         """

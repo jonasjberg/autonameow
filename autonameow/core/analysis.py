@@ -31,7 +31,6 @@ from core.config.configuration import Configuration
 from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
 from core.model import MeowURI
-from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -161,11 +160,13 @@ def _instantiate_analyzers(fileobject, klass_list, config):
     Returns:
         One instance of each of the given classes as a list of objects.
     """
-    return [analyzer(fileobject,
-                     config,
-                     add_results_callback=collect_results,
-                     request_data_callback=request_global_data)
-            for analyzer in klass_list]
+    return [
+        analyzer(
+            fileobject, config,
+            add_results_callback=collect_results,
+            request_data_callback=request_global_data
+        ) for analyzer in klass_list
+    ]
 
 
 def start(fileobject, config):
@@ -174,8 +175,10 @@ def start(fileobject, config):
     """
     log.debug(' Analysis Starting '.center(80, '='))
 
-    sanity.check_isinstance(fileobject, FileObject)
-    sanity.check_isinstance(config, Configuration)
+    assert isinstance(fileobject, FileObject), (
+           'Expected type "FileObject". Got {!s}')
+    assert isinstance(config, Configuration), (
+           'Expected type "Configuration". Got {!s}'.format(type(config)))
 
     klasses = analyzers.suitable_analyzers_for(fileobject)
     if not klasses:

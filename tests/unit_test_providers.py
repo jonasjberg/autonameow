@@ -69,17 +69,11 @@ class TestGetSourcesForMeowURIs(TestCase):
                               + self._meowuris_exiftool
                               + self._meowuris_guessit)
 
-    def _assert_maps(self, actual, expected_source):
-        if isinstance(expected_source, list):
-            self.assertEqual(len(actual), len(expected_source))
-            for a in actual:
-                self.assertTrue(uu.is_class(a))
-                self.assertIn(a.__name__, expected_source)
-        else:
-            self.assertEqual(len(actual), 1)
-            a = actual[0]
-            self.assertTrue(uu.is_class(a))
-            self.assertEqual(a.__name__, expected_source)
+    def _assert_maps(self, actual_sources, expected_source):
+        self.assertEqual(len(actual_sources), len(expected_source))
+        for s in actual_sources:
+            self.assertTrue(uu.is_class(s))
+            self.assertIn(s.__name__, expected_source)
 
     def test_returns_no_sources_for_invalid_meowuris(self):
         def _assert_empty_mapping(meowuri_list):
@@ -95,19 +89,19 @@ class TestGetSourcesForMeowURIs(TestCase):
 
     def test_returns_expected_source_filetags(self):
         actual = get_sources_for_meowuris(self._meowuris_filetags)
-        self._assert_maps(actual, 'FiletagsAnalyzer')
+        self._assert_maps(actual, ['FiletagsAnalyzer'])
 
     def test_returns_expected_source_filesystem(self):
         actual = get_sources_for_meowuris(self._meowuris_filesystem)
-        self._assert_maps(actual, 'CrossPlatformFileSystemExtractor')
+        self._assert_maps(actual, ['CrossPlatformFileSystemExtractor'])
 
     def test_returns_expected_source_exiftool(self):
         actual = get_sources_for_meowuris(self._meowuris_exiftool)
-        self._assert_maps(actual, 'ExiftoolMetadataExtractor')
+        self._assert_maps(actual, ['ExiftoolMetadataExtractor'])
 
     def test_returns_expected_source_guessit(self):
         actual = get_sources_for_meowuris(self._meowuris_guessit)
-        self._assert_maps(actual, 'GuessitPlugin')
+        self._assert_maps(actual, ['GuessitPlugin'])
 
     def test_returns_expected_sources(self):
         actual = get_sources_for_meowuris(self._all_meowuris)
@@ -121,7 +115,7 @@ class TestGetSourcesForMeowURIs(TestCase):
         actual = get_sources_for_meowuris(
             self._all_meowuris, include_roots=['analyzer']
         )
-        self._assert_maps(actual, 'FiletagsAnalyzer')
+        self._assert_maps(actual, ['FiletagsAnalyzer'])
 
     def test_returns_included_sources_extractorss(self):
         actual = get_sources_for_meowuris(
@@ -134,7 +128,7 @@ class TestGetSourcesForMeowURIs(TestCase):
         actual = get_sources_for_meowuris(
             self._all_meowuris, include_roots=['plugin']
         )
-        self._assert_maps(actual, 'GuessitPlugin')
+        self._assert_maps(actual, ['GuessitPlugin'])
 
 
 class TestMapMeowURItoSourceClass(TestCase):

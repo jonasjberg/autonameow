@@ -22,7 +22,12 @@
 import logging
 
 from core import constants as C
-from core import plugin_handler
+from core import (
+    plugin_handler,
+    providers,
+    types
+)
+
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
 
@@ -30,6 +35,13 @@ from core.model import MeowURI
 class BasePlugin(object):
     # Last part of the full MeowURI ('guessit', 'microsoft_vision', ..)
     MEOWURI_LEAF = C.UNDEFINED_MEOWURI_PART
+
+    # Dictionary with plugin-specific information, keyed by the fields that
+    # the raw source produces. Stores information on types, etc..
+    FIELD_LOOKUP = {}
+
+    # TODO: Hack ..
+    coerce_field_value = providers.ProviderMixin.coerce_field_value
 
     def __init__(self, display_name=None):
         if display_name:

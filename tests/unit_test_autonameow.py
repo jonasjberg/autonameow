@@ -84,6 +84,28 @@ class TestAutonameowContextManagementProtocol(TestCase):
             ameow.run()
 
 
+class TestAutonameowHash(TestCase):
+    def setUp(self):
+        from core.autonameow import Autonameow
+        self.a = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
+        self.b = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
+
+    def test_hash(self):
+        actual = hash(self.a)
+        self.assertIsNotNone(actual)
+        self.assertTrue(isinstance(actual, int))
+
+    def test_instances_return_different_hashes(self):
+        hash_a = hash(self.a)
+        hash_b = hash(self.b)
+        self.assertNotEqual(hash_a, hash_b)
+
+    def test_instance_comparison(self):
+        self.assertNotEqual(self.a, self.b)
+        self.assertTrue(self.a != self.b)
+        self.assertTrue(self.a is not self.b)
+
+
 @unittest.skipIf(*prompt_toolkit_unavailable())
 class TestSetAutonameowExitCode(TestCase):
     def setUp(self):

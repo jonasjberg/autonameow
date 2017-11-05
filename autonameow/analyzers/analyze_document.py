@@ -31,7 +31,6 @@ from core.model import genericfields as gf
 from core.namebuilder import fields
 from core.util import (
     dateandtime,
-    sanity,
     textutils
 )
 
@@ -117,7 +116,6 @@ class DocumentAnalyzer(BaseAnalyzer):
         # possible_publishers = [
         #     ('extractor.metadata.exiftool.PDF:EBX_PUBLISHER', 1),
         #     ('extractor.metadata.exiftool.XMP:EbxPublisher', 1),
-        #     ('extractor.metadata.pypdf.EBX_PUBLISHER', 1)
         # ]
         # for meowuri, weight in possible_publishers:
         #     results += self.__collect_results(meowuri, weight)
@@ -151,7 +149,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         else:
             _candidates = _options.get('candidates', {})
 
-        sanity.check(self.text is not None)
+        assert self.text is not None
         _text = textutils.extract_lines(self.text, firstline=0, lastline=100)
         result = find_publisher(_text, _candidates)
         if not result:
@@ -162,6 +160,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         )
 
     def _wrap_publisher(self, data):
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         return ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
@@ -171,6 +170,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         )(data)
 
     def _wrap_generic_title(self, data, probability):
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         return ExtractedData(
             coercer=types.AW_STRING,
             mapped_fields=[
@@ -195,6 +195,7 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         dt_regex = dateandtime.regex_search_str(text)
         if dt_regex:
+            # TODO: [TD0119] Separate adding contextual information from coercion.
             dt_regex_wrapper = ExtractedData(
                 coercer=types.AW_TIMEDATE,
                 mapped_fields=[
@@ -204,13 +205,14 @@ class DocumentAnalyzer(BaseAnalyzer):
                 generic_field=gf.GenericDateCreated
             )
 
-            sanity.check_isinstance(dt_regex, list)
+            assert isinstance(dt_regex, list)
             for v in dt_regex:
                 results.append(ExtractedData.from_raw(dt_regex_wrapper, v))
 
         # TODO: Temporary premature return skips brute force search ..
         return results
 
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         dt_brute_wrapper = ExtractedData(
             coercer=types.AW_TIMEDATE,
             mapped_fields=[
@@ -226,7 +228,7 @@ class DocumentAnalyzer(BaseAnalyzer):
             dt_brute = dateandtime.bruteforce_str(t)
             if dt_brute:
                 matches += 1
-                sanity.check_isinstance(dt_brute, list)
+                assert isinstance(dt_brute, list)
                 for v in dt_brute:
                     results.append(ExtractedData.from_raw(dt_brute_wrapper, v))
 
@@ -237,7 +239,7 @@ class DocumentAnalyzer(BaseAnalyzer):
                 dt_brute = dateandtime.bruteforce_str(t)
                 if dt_brute:
                     matches += 1
-                    sanity.check_isinstance(dt_brute, list)
+                    assert isinstance(dt_brute, list)
                     for v in dt_brute:
                         results.append(ExtractedData.from_raw(dt_brute_wrapper, v))
 

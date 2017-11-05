@@ -37,7 +37,6 @@ from core import (
     types,
     util
 )
-from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -174,7 +173,9 @@ def colorize(text, fore=None, back=None, style=None):
 
 
 def colorize_re_match(text, regex, color=None):
-    sanity.check_isinstance(regex, types.BUILTIN_REGEX_TYPE)
+    _re_type = types.BUILTIN_REGEX_TYPE
+    assert regex and isinstance(regex, _re_type), (
+           'Expected type {!s}. Got {!s}'.format(type(_re_type), type(regex)))
 
     if color is not None:
         _color = color

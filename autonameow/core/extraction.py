@@ -24,7 +24,10 @@ import logging
 import extractors
 from core import repository
 from core.exceptions import InvalidMeowURIError
-from core.model import MeowURI
+from core.model import (
+    ExtractedData,
+    MeowURI
+)
 from extractors import ExtractorError
 
 
@@ -106,10 +109,10 @@ def start(fileobject,
     log.debug(' Extraction Started '.center(80, '='))
 
     if require_extractors:
-        required_extractors = require_extractors
+        _required_extractors = require_extractors
     else:
-        required_extractors = []
-    log.debug('Required extractors: {!s}'.format(required_extractors))
+        _required_extractors = []
+    log.debug('Required extractors: {!s}'.format(_required_extractors))
 
     klasses = extractors.suitable_extractors_for(fileobject)
     log.debug('Extractors able to handle the file: {}'.format(len(klasses)))
@@ -117,7 +120,7 @@ def start(fileobject,
     if not require_all_extractors:
         # Exclude "slow" extractors if they are not explicitly required.
         klasses = keep_slow_extractors_if_required(klasses,
-                                                   required_extractors)
+                                                   _required_extractors)
 
     # TODO: Use sets for required/actual klasses to easily display differences.
     # Which required extractors were not "suitable" for the file and therefore
@@ -131,14 +134,50 @@ def start(fileobject,
             continue
 
         try:
-            _results = _extractor_instance(fileobject)
+            _metainfo = _extractor_instance.metainfo()
         except (ExtractorError, NotImplementedError) as e:
-            log.error('Halted extractor "{!s}": {!s}'.format(
-                _extractor_instance, e
-            ))
+            log.error('Failed to get meta info! Halted extractor "{!s}":'
+                      ' {!s}'.format(_extractor_instance, e))
             continue
-        else:
-            _meowuri_prefix = klass.meowuri_prefix()
-            collect_results(fileobject, _meowuri_prefix, _results)
+
+        try:
+            _extracted_data = _extractor_instance.extract(fileobject)
+        except (ExtractorError, NotImplementedError) as e:
+            log.error('Failed to extract data! Halted extractor "{!s}":'
+                      ' {!s}'.format(_extractor_instance, e))
+            continue
+
+        _results = _to_extracteddata(_extracted_data, _metainfo,
+                                     _extractor_instance)
+        _meowuri_prefix = klass.meowuri_prefix()
+        collect_results(fileobject, _meowuri_prefix, _results)
 
     log.debug(' Extraction Completed '.center(80, '='))
+
+
+def _to_extracteddata(extracteddata, metainfo, source_klass):
+    # TODO: [TD0119] Separate adding contextual information from coercion.
+    out = {}
+    for field, value in extracteddata.items():
+        _field_info = metainfo.get(field)
+        if not _field_info:
+            continue
+
+        try:
+            coercer = _field_info.get('typewrap')
+            mapped_fields = _field_info.get('mapped_fields', [])
+            generic_fields = _field_info.get('generic_field')
+            multivalued = _field_info.get('multiple')
+        except AttributeError as e:
+            log.critical(
+                'TODO: Fix hack "_to_extracteddata()"! :: {!s}'.format(e)
+            )
+        else:
+            out[field] = ExtractedData(
+                coercer=coercer,
+                mapped_fields=mapped_fields,
+                generic_field=generic_fields,
+                multivalued=multivalued,
+                source=source_klass
+            )(value)
+    return out

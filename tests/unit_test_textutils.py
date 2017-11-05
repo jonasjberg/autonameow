@@ -30,10 +30,7 @@ from core import (
     types,
     util
 )
-from core.exceptions import (
-    AWAssertionError,
-    EncodingBoundaryViolation
-)
+from core.exceptions import EncodingBoundaryViolation
 from core.util import textutils
 import unit_utils as uu
 
@@ -386,10 +383,10 @@ class TestExtractLines(unittest.TestCase):
         with self.assertRaises(EncodingBoundaryViolation):
             textutils.extract_lines(1, 0, 0)
 
-        with self.assertRaises(AWAssertionError):
+        with self.assertRaises(AssertionError):
             textutils.extract_lines('foo', -1, 0)
 
-        with self.assertRaises(AWAssertionError):
+        with self.assertRaises(AssertionError):
             textutils.extract_lines('foo', 0, -1)
 
 

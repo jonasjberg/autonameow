@@ -57,8 +57,8 @@ class FileObject(object):
         self.mime_type = util.mimemagic.filetype(self.abspath)
 
         # Extract parts of the file name.
-        self.basename_prefix = disk.basename_prefix(self.abspath)
-        self.basename_suffix = disk.basename_suffix(self.abspath)
+        self.basename_prefix = disk.basename_prefix(self.abspath) or b''
+        self.basename_suffix = disk.basename_suffix(self.abspath) or b''
 
         # Avoid round-tripping to the OS to decode strings.
         self.__cached_str = None

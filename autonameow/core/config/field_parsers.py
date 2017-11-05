@@ -33,7 +33,6 @@ from core import (
 from core.model import genericfields as gf
 from core.model import MeowURI
 from core.namebuilder.fields import NAMETEMPLATEFIELD_PLACEHOLDER_STRINGS
-from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -426,7 +425,7 @@ def suitable_field_parser_for(meowuri):
         A list of instantiated field parsers suited for the given "meowURI".
     """
     log.debug('suitable_field_parser_for("{!s}")'.format(meowuri))
-    sanity.check_isinstance(meowuri, MeowURI)
+    assert isinstance(meowuri, MeowURI)
 
     return [p for p in FieldParserInstances
             if meowuri.matchglobs(p.applies_to_meowuri)]

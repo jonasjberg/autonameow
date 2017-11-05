@@ -115,8 +115,8 @@ def pre_assemble_format(field_data_dict, config):
 
     for field, data in field_data_dict.items():
         log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))
-        sanity.check(field and issubclass(field, NameTemplateField))
-        sanity.check_isinstance(data, ExtractedData)
+        assert field and issubclass(field, NameTemplateField)
+        assert data and isinstance(data, ExtractedData)
 
         # TODO: [TD0115] Clear up uncertainties about data multiplicities
         if data.multivalued:

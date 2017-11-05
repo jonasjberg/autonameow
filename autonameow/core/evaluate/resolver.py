@@ -27,7 +27,6 @@ from core.model import (
     MeowURI
 )
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
-from core.util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -57,8 +56,8 @@ class Resolver(object):
         return all(field in self.data_sources for field in self._fields)
 
     def add_known_source(self, field, meowuri):
-        sanity.check(isinstance(meowuri, MeowURI),
-                     'TODO: Fix collecting/verifying data from sources.')
+        assert meowuri and isinstance(meowuri, MeowURI), (
+               'TODO: Fix collecting/verifying data from sources.')
 
         if field in self._fields:
             self.data_sources[field] = meowuri
@@ -139,11 +138,9 @@ class Resolver(object):
                     continue
 
                 log.debug('Got {}'.format(_data_info))
-                sanity.check(
-                    isinstance(_data, ExtractedData),
-                    'Expected "data" to be an instance of "ExtractedData".'
-                    ' Got {}'.format(_data_info)
-                )
+                assert isinstance(_data, ExtractedData), (
+                       'Expected "data" to be an instance of "ExtractedData".'
+                       ' Got {}'.format(_data_info))
 
                 # # TODO: [TD0112] Clean up merging data.
                 if isinstance(_data.value, list):
@@ -200,15 +197,11 @@ class Resolver(object):
 
     def _verify_type(self, field, data):
         _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
-        sanity.check(
-            not isinstance(data, list),
-            'Expected "data" not to be a list. Got {}'.format(_data_info)
-        )
-        sanity.check(
-            isinstance(data, ExtractedData),
-            'Expected "data" to be an instance of "ExtractedData".'
-            'Got {}'.format(_data_info)
-        )
+        assert not isinstance(data, list), (
+               'Expected "data" not to be a list. Got {}'.format(_data_info))
+        assert isinstance(data, ExtractedData), (
+               'Expected "data" to be an instance of "ExtractedData". '
+               'Got {}'.format(_data_info))
 
         log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
         _compatible = field.type_compatible(data.coercer)

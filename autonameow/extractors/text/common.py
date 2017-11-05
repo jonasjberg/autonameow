@@ -26,7 +26,6 @@ from core import (
     types,
     util
 )
-from core.model import ExtractedData
 from core.model import genericfields as gf
 from core.util import (
     sanity,
@@ -42,25 +41,27 @@ log = logging.getLogger(__name__)
 
 
 class AbstractTextExtractor(BaseExtractor):
+    FIELD_LOOKUP = {
+        'full': {
+            'typewrap': types.AW_STRING,
+            'multiple': False,
+            'mapped_fields': None,
+            'generic_field': gf.GenericText
+        }
+    }
+
     def __init__(self):
         super(AbstractTextExtractor, self).__init__()
 
         self.cache = None
         # NOTE(jonas): Call 'self.init_cache()' in subclass init to use caching.
 
-    def execute(self, fileobject, **kwargs):
+    def extract(self, fileobject, **kwargs):
         text = self._get_text(fileobject)
         sanity.check_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
-
-        # TODO: [TD0087] Clean up messy (and duplicated) coercion of "raw" data.
-        wrapper = ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=None,
-            generic_field=gf.GenericText,
-        )
-        return {'full': ExtractedData.from_raw(wrapper, text)}
+        return {'full': text}
 
     def _get_text(self, fileobject):
         # Read cached text

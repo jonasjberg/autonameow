@@ -23,10 +23,7 @@ import copy
 import logging
 
 from core import types
-from core.util import (
-    sanity,
-    textutils
-)
+from core.util import textutils
 
 
 log = logging.getLogger(__name__)
@@ -48,7 +45,7 @@ class ExtractedData(object):
     def __init__(self, coercer, mapped_fields=None, generic_field=None,
                  multivalued=None, source=None):
         """
-        Intantiates a "template" instance to be populated with some data.
+        Instantiates a "template" instance to be populated with some data.
 
         Args:
             coercer: Type-coercion class, as a subclass of 'BaseType'.
@@ -63,12 +60,12 @@ class ExtractedData(object):
 
         self.coercer = coercer
 
-        if mapped_fields is not None:
+        if mapped_fields:
             self.field_map = mapped_fields
         else:
             self.field_map = []
 
-        if generic_field is not None:
+        if generic_field:
             self.generic_field = generic_field
         else:
             self.generic_field = None
@@ -81,6 +78,7 @@ class ExtractedData(object):
         self.source = source
 
     def __call__(self, raw_value):
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         if self._value is not None:
             log.critical('"{!s}"._value is *NOT* None! Called with value:'
                          ' {!s}"'.format(self, raw_value))
@@ -120,7 +118,7 @@ class ExtractedData(object):
             log.critical('Failed to auto-detect coercer: "{!s}"'.format(self))
 
             # TODO: [TD0088] The "resolver" needs 'coerce.format' ..
-            sanity.check(False)
+            assert False, 'TODO: [TD0088] The "resolver" needs "coerce.format"'
         else:
             if self.multivalued:
                 # Is multivalued, so make sure it is a list.
@@ -179,6 +177,7 @@ class ExtractedData(object):
         """
         Use this when the same 'ExtractedData' instance is re-used ..
         """
+        # TODO: [TD0119] Separate adding contextual information from coercion.
         # TODO: [hack] This is needed because the design is flawed. FIX!
         _instance_copy = copy.deepcopy(instance)
         try:
