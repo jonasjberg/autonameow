@@ -19,6 +19,31 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import unit_utils as uu
 
-def get_regressiontests():
-    return None
+
+class AutonameowWrapper(object):
+    def __init__(self, opts=None):
+        if opts:
+            assert isinstance(opts, dict)
+            self.opts = opts
+        else:
+            self.opts = {}
+
+        self.exit_code = None
+        self.captured_stderr = None
+        self.captured_stdout = None
+
+    def mock_exit_program(self, exit_code):
+        self.exit_code = exit_code
+
+    def __call__(self):
+        from core.autonameow import Autonameow
+        Autonameow.exit_program = self.mock_exit_program
+
+        with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
+            with Autonameow(self.opts) as ameow:
+                ameow.run()
+
+        self.captured_stdout = stdout.getvalue()
+        self.captured_stderr = stderr.getvalue()
