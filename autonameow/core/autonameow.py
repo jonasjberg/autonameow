@@ -63,8 +63,9 @@ class Autonameow(object):
         Main program entry point.  Initializes a autonameow instance/session.
 
         Args:
-            opts: Dict with parsed options.
+            opts: Dict with parsed and validated options.
         """
+        assert isinstance(opts, dict)
         self.opts = opts
 
         # For calculating the total runtime.
