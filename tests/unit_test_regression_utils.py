@@ -24,8 +24,9 @@ from unittest import TestCase
 from regression_utils import (
     get_regressiontest_dirs,
     get_regressiontests_rootdir,
+    load_regressiontests,
     RegressionTestLoader,
-    regtest_abspath,
+    regtest_abspath
 )
 import unit_utils as uu
 import unit_utils_constants as uuconst
@@ -178,3 +179,18 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
             self.assertIn(_option, actual)
 
         self.assertEqual(actual, expected_asserts)
+
+
+class TestLoadRegressiontests(TestCase):
+    def setUp(self):
+        self.actual = load_regressiontests()
+
+    def test_returns_list(self):
+        self.assertTrue(isinstance(self.actual, list))
+
+    def test_returns_list_of_dicts(self):
+        for a in self.actual:
+            self.assertEqual(type(a), dict)
+
+    def test_returns_at_least_one_test(self):
+        self.assertGreaterEqual(len(self.actual), 1)

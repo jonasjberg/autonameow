@@ -21,10 +21,9 @@
 
 import sys
 
+from core import constants as C
 from regression_utils import (
-    get_regressiontest_dirs,
-    RegressionTestError,
-    RegressionTestLoader
+    load_regressiontests,
 )
 import unit_utils as uu
 
@@ -37,12 +36,12 @@ class AutonameowWrapper(object):
         else:
             self.opts = {}
 
-        self.exit_code = None
+        self.captured_exitcode = None
         self.captured_stderr = None
         self.captured_stdout = None
 
-    def mock_exit_program(self, exit_code):
-        self.exit_code = exit_code
+    def mock_exit_program(self, exitcode):
+        self.captured_exitcode = exitcode
 
     def __call__(self):
         from core.autonameow import Autonameow
@@ -56,24 +55,11 @@ class AutonameowWrapper(object):
         self.captured_stderr = stderr.getvalue()
 
 
-def get_regressiontests():
-    out = []
-
-    _paths = get_regressiontest_dirs()
-    for p in _paths:
-        try:
-            loaded_test = RegressionTestLoader(p).load()
-        except RegressionTestError as e:
-            print('Unable to load test case :: ' + str(e))
-        else:
-            out.append(loaded_test)
-
-    return out
-
-
 def run_test(testcase):
     opts = testcase.get('options')
-    expect_exitstatus = testcase.get('exit_status')
+    expect_exitcode = testcase['asserts'].get('exit_status', C.EXIT_SUCCESS)
+    expect_renames = testcase['asserts'].get('renames', {})
+
     aw = AutonameowWrapper(opts)
     try:
         aw()
@@ -81,10 +67,16 @@ def run_test(testcase):
         print('!TESTCASE FAILED!')
         print(str(e))
 
+    _actual_exitcode = aw.captured_exitcode
+    if _actual_exitcode != expect_exitcode:
+        print('TEST FAILED :: Expected exit code {!s} but got {!s}'.format(
+            expect_exitcode, _actual_exitcode
+        ))
+
 
 def main(args):
     # TODO: [TD0117] Implement automated regression tests
-    testcases = get_regressiontests()
+    testcases = load_regressiontests()
 
     print('Found {} regression test(s) ..'.format(len(testcases)))
     for testcase in testcases:

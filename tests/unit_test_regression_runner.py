@@ -53,9 +53,9 @@ class TestAutonameowWrapper(TestCase):
     def test_call(self):
         self.aw()
 
-    def test_captured_exit_code_type(self):
+    def test_captured_exitcode_type(self):
         self.aw()
-        actual = self.aw.exit_code
+        actual = self.aw.captured_exitcode
         self.assertIsNotNone(actual)
         self.assertTrue(type(actual), int)
 
@@ -77,8 +77,8 @@ class TestAutonameowWrapperWithDefaultOptions(TestCase):
         self.aw = AutonameowWrapper()
         self.aw()
 
-    def test_exit_code_is_exit_success(self):
-        actual = self.aw.exit_code
+    def test_exitcode_is_exit_success(self):
+        actual = self.aw.captured_exitcode
         self.assertEqual(actual, C.EXIT_SUCCESS)
 
     def test_stderr_contains_no_input_files_specified(self):

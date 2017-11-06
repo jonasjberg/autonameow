@@ -156,3 +156,17 @@ def get_regressiontest_dirs():
 
     return _dirs
 
+
+def load_regressiontests():
+    out = []
+
+    _paths = get_regressiontest_dirs()
+    for p in _paths:
+        try:
+            loaded_test = RegressionTestLoader(p).load()
+        except RegressionTestError as e:
+            print('Unable to load test case :: ' + str(e))
+        else:
+            out.append(loaded_test)
+
+    return out
