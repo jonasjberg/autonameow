@@ -65,19 +65,22 @@ class RegressionTestLoader(object):
 
         _abspath_opts = self._joinpath(self.BASENAME_YAML_OPTIONS)
         try:
-            _options = disk.yaml.load_yaml_file(_abspath_opts)
+            _options = disk.load_yaml_file(_abspath_opts)
         except exceptions.FilesystemError as e:
             raise RegressionTestError(e)
 
+        _options = self._set_testfile_path(_options)
+        _options = self._set_config_path(_options)
+
         _abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
         try:
-            _asserts = disk.yaml.load_yaml_file(_abspath_asserts)
+            _asserts = disk.load_yaml_file(_abspath_asserts)
         except exceptions.FilesystemError as e:
             raise RegressionTestError(e)
 
         return {
             'description': _description.strip(),
-            'options': self._set_testfile_path(_options),
+            'options': _options,
             'asserts': _asserts
         }
 
@@ -103,6 +106,22 @@ class RegressionTestLoader(object):
             _fixed_paths.append(_testfile_abspath)
 
         options['input_paths'] = _fixed_paths
+        return options
+
+    @staticmethod
+    def _set_config_path(options):
+        _config_path = options.get('config_path')
+        if not _config_path or not _config_path.startswith('$TESTFILES/'):
+            return options
+
+        _config_basename = _config_path.replace('$TESTFILES/', '')
+        _config_abspath = uu.abspath_testfile(_config_basename)
+        if not os.path.isfile(_config_abspath):
+            raise RegressionTestError(
+                'Invalid "config_path": "{!s}"'.format(_config_path)
+            )
+
+        options['config_path'] = enc.normpath(_config_abspath)
         return options
 
     def _joinpath(self, leaf):

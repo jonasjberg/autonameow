@@ -125,6 +125,42 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
         self.assertEqual(actual, expected)
 
 
+class TestRegressionTestLoaderSetConfigPath(TestCase):
+    # def test_options_without_input_paths_is_passed_through_as_is(self):
+    #     input_options = {
+    #         'verbose': True,
+    #         'mode_batch': True,
+    #         'mode_interactive': False,
+    #         'dry_run': True,
+    #         'recurse_paths': False,
+    #     }
+    #
+    #     actual = RegressionTestLoader._set_testfile_path(input_options)
+    #     self.assertEqual(actual, input_options)
+
+    def test_replaces_config_path(self):
+        input_options = {
+            'verbose': True,
+            'config_path': '$TESTFILES/default_config.yaml',
+            'mode_batch': True,
+            'mode_interactive': False,
+            'dry_run': True,
+            'recurse_paths': False,
+        }
+        expected = {
+            'verbose': True,
+            'config_path': uu.normpath(
+                uu.abspath_testfile('default_config.yaml')
+            ),
+            'mode_batch': True,
+            'mode_interactive': False,
+            'dry_run': True,
+            'recurse_paths': False,
+        }
+        actual = RegressionTestLoader._set_config_path(input_options)
+        self.assertEqual(actual, expected)
+
+
 class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
     def setUp(self):
         _regressiontest_dir = regtest_abspath(
@@ -155,7 +191,6 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
             'mode_batch': True,
             'mode_automagic': True,
             'mode_interactive': False,
-            'config_path': None,
             'dry_run': True,
             'recurse_paths': False,
         }
