@@ -628,6 +628,7 @@ class TestIsInternalByteString(TestCase):
 class TestGetDefaultConfig(TestCase):
     def test_returns_expected_type(self):
         uu.init_session_repository()
+        uu.init_provider_registry()
 
         actual = uu.get_default_config()
         self.assertTrue(isinstance(actual, Configuration))
