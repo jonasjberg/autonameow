@@ -179,30 +179,6 @@ def write_default_config():
     write_yaml_file(config_path, _default_config)
 
 
-def load_yaml_file(file_path):
-    """
-    Loads a YAML file from the specified path and returns its contents.
-
-    Callers should handle exceptions and logging.
-
-    Args:
-        file_path: (Absolute) path of the file to read.
-
-    Returns:
-        The contents of the yaml file at the given file as a "Python object"
-        (dict).  Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
-
-    Raises:
-        ConfigReadError: The configuration file could not be read and/or loaded.
-    """
-    try:
-        with open(util.enc.syspath(file_path), 'r',
-                  encoding=C.DEFAULT_ENCODING) as fh:
-            return yaml.safe_load(fh)
-    except (OSError, yaml.YAMLError, UnicodeDecodeError) as e:
-        raise ConfigReadError(file_path, e)
-
-
 def write_yaml_file(dest_path, yaml_data):
     """
     Writes the given data ("Python object"/dict) to the specified path.

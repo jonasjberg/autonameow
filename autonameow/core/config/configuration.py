@@ -26,6 +26,7 @@ import re
 from core import constants as C
 from core import (
     config,
+    disk,
     exceptions,
     types,
     util
@@ -102,10 +103,14 @@ class Configuration(object):
         """
         sanity.check_internal_bytestring(path)
 
-        _loaded_data = config.load_yaml_file(path)
+        try:
+            _loaded_data = disk.load_yaml_file(path)
+        except exceptions.FilesystemError as e:
+            raise exceptions.ConfigError(e)
+
         if not _loaded_data:
             raise exceptions.ConfigError('Read empty config: "{!s}"'.format(
-                    util.enc.displayable_path(path)
+                util.enc.displayable_path(path)
             ))
 
         return cls(_loaded_data)

@@ -19,29 +19,27 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from .collector import (
-    normpaths_from_opts
-)
-from .io import (
-    delete,
-    exists,
-    file_basename,
-    has_permissions,
-    isdir,
-    isfile,
-    makedirs,
-    rename_file,
-    tempdir
-)
-from .pathstring import (
-    basename_prefix,
-    basename_suffix,
-    compare_basenames,
-    path_ancestry,
-    path_components,
-    split_basename
-)
-from .sanitize import sanitize_filename
-from .yaml import (
-    load_yaml_file
-)
+from unittest import TestCase
+
+from core.exceptions import FilesystemError
+from core.disk import load_yaml_file
+import unit_utils as uu
+
+
+class TestLoadYAML(TestCase):
+    def test_loads_valid_file(self):
+        _yaml_path = uu.abspath_testfile('default_config.yaml')
+        actual = load_yaml_file(_yaml_path)
+        self.assertEqual(type(actual), dict)
+
+    def test_raises_exception_given_invalid_argument(self):
+        def _fail(yaml_path):
+            with self.assertRaises(FilesystemError):
+                _ = load_yaml_file(yaml_path)
+
+        _fail(None)
+        _fail('')
+        _fail(b'')
+        _fail('foo')
+        _fail(b'foo')
+        _fail(uu.abspath_testfile('magic_png.png'))
