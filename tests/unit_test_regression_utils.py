@@ -24,7 +24,7 @@ from unittest import TestCase
 from regression_utils import (
     get_regressiontest_dirs,
     get_regressiontests_rootdir,
-    RegressionTestInfo,
+    RegressionTestLoader,
     regtest_abspath,
 )
 import unit_utils as uu
@@ -90,13 +90,40 @@ class TestGetRegressiontestDirs(TestCase):
             self.assertTrue(uu.is_internalbytestring(d))
 
 
-class TestRegressionTestInfoFromPath(TestCase):
-    def test_description(self):
+class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
+    def setUp(self):
         _regressiontest_dir = regtest_abspath(
             uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
         )
-        actual = RegressionTestInfo.frompath(_regressiontest_dir)
+        b = RegressionTestLoader(_regressiontest_dir)
+        self.actual = b.load()
+
+    def test_description(self):
         self.assertEqual(
-            actual.description,
+            self.actual.get('description'),
             'Good old "test_files/gmail.pdf" integration test ..'
         )
+
+    def test_options(self):
+        # NOTE(jonas): Omitted environment-dependant option "input_paths".
+        expected_options = {
+            'debug': False,
+            'verbose': True,
+            'quiet': False,
+            'show_version': False,
+            'dump_config': False,
+            'dump_options': False,
+            'dump_meowuris': False,
+            'list_all': True,
+            'list_datetime': False,
+            'list_title': False,
+            'mode_batch': True,
+            'mode_automagic': True,
+            'mode_interactive': False,
+            'config_path': None,
+            'dry_run': True,
+            'recurse_paths': False,
+        }
+        actual = self.actual.get('options')
+        for _option in expected_options:
+            self.assertIn(_option, actual)

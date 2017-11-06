@@ -24,6 +24,7 @@ import re
 
 from core import constants as C
 from core import (
+    config,
     disk,
     exceptions,
     util
@@ -48,24 +49,32 @@ def read_plaintext_file(file_path):
         return contents
 
 
-class RegressionTestInfo(object):
-    BASENAME_ARGS = b'args'
+class RegressionTestLoader(object):
     BASENAME_DESCRIPTION = b'description'
+    BASENAME_YAML_CONFIG = b'config.yaml'
+    BASENAME_YAML_OPTIONS = b'options.yaml'
     BASENAME_YAML_RENAMES = b'params.yaml'
-    BASENAME_YAML_CONFIGFILE = b'config.yaml'
 
-    def __init__(self, description):
-        self.args = []
+    def __init__(self, abspath):
+        self.abspath = abspath
 
-        assert isinstance(description, str)
-        self.description = description.rstrip()
+    def _get_test_setup_dict_from_file(self):
+        _abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
+        _description = read_plaintext_file(_abspath_desc)
 
-    @classmethod
-    def frompath(cls, abspath):
-        _desc_abspath = os.path.join(enc.syspath(abspath),
-                                     enc.syspath(cls.BASENAME_DESCRIPTION))
-        _description = read_plaintext_file(_desc_abspath)
-        return cls(description=_description)
+        _abspath_opts = self._joinpath(self.BASENAME_YAML_OPTIONS)
+        _options = config.load_yaml_file(_abspath_opts)
+
+        return {
+            'description': _description.strip(),
+            'options': _options
+        }
+
+    def _joinpath(self, leaf):
+        return os.path.join(enc.syspath(self.abspath), enc.syspath(leaf))
+
+    def load(self):
+        return self._get_test_setup_dict_from_file()
 
 
 REGRESSIONTESTS_ROOT_ABSPATH = None
