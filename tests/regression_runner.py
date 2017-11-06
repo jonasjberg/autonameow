@@ -23,6 +23,7 @@ import sys
 
 from regression_utils import (
     get_regressiontest_dirs,
+    RegressionTestError,
     RegressionTestLoader
 )
 import unit_utils as uu
@@ -56,15 +57,37 @@ class AutonameowWrapper(object):
 
 
 def get_regressiontests():
+    out = []
+
     _paths = get_regressiontest_dirs()
-    return [RegressionTestLoader(p).load() for p in _paths]
+    for p in _paths:
+        try:
+            loaded_test = RegressionTestLoader(p).load()
+        except RegressionTestError as e:
+            print('Unable to load test case :: ' + str(e))
+        else:
+            out.append(loaded_test)
+
+    return out
 
 
 def main(args):
+    # TODO: [TD0117] Implement automated regression tests
     testcases = get_regressiontests()
+
+    print('Found {} regression test case(s) ..'.format(len(testcases)))
     for testcase in testcases:
         print('-' * 40)
-        print(testcase)
+        print('Running "{!s}"'.format(testcase.get('description', '?')))
+
+        aw = AutonameowWrapper(testcase.get('options'))
+
+        try:
+            aw()
+        except Exception as e:
+            print('!TESTCASE FAILED!')
+            print(str(e))
+
         print('-' * 40)
 
 

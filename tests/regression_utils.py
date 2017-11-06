@@ -63,7 +63,10 @@ class RegressionTestLoader(object):
         _description = read_plaintext_file(_abspath_desc)
 
         _abspath_opts = self._joinpath(self.BASENAME_YAML_OPTIONS)
-        _options = config.load_yaml_file(_abspath_opts)
+        try:
+            _options = disk.yaml.load_yaml_file(_abspath_opts)
+        except exceptions.FilesystemError as e:
+            raise RegressionTestError(e)
 
         return {
             'description': _description.strip(),
