@@ -90,6 +90,40 @@ class TestGetRegressiontestDirs(TestCase):
             self.assertTrue(uu.is_internalbytestring(d))
 
 
+class TestRegressionTestLoaderSetTestfilePath(TestCase):
+    def test_options_without_input_paths_is_passed_through_as_is(self):
+        input_options = {
+            'verbose': True,
+            'mode_batch': True,
+            'mode_interactive': False,
+            'dry_run': True,
+            'recurse_paths': False,
+        }
+
+        actual = RegressionTestLoader._set_testfile_path(input_options)
+        self.assertEqual(actual, input_options)
+
+    def test_input_paths_are_replaced(self):
+        input_options = {
+            'verbose': True,
+            'input_paths': ['$TESTFILES/gmail.pdf'],
+            'mode_batch': True,
+            'mode_interactive': False,
+            'dry_run': True,
+            'recurse_paths': False,
+        }
+        expected = {
+            'verbose': True,
+            'input_paths': [uu.abspath_testfile('gmail.pdf')],
+            'mode_batch': True,
+            'mode_interactive': False,
+            'dry_run': True,
+            'recurse_paths': False,
+        }
+        actual = RegressionTestLoader._set_testfile_path(input_options)
+        self.assertEqual(actual, expected)
+
+
 class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
     def setUp(self):
         _regressiontest_dir = regtest_abspath(
@@ -127,3 +161,20 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
         actual = self.actual.get('options')
         for _option in expected_options:
             self.assertIn(_option, actual)
+
+        # Direct comparison won't work because "input_paths" should differ.
+        for _option, _value in expected_options.items():
+            self.assertEqual(_value, actual.get(_option))
+
+    def test_asserts(self):
+        expected_asserts = {
+            'exit_code': 0,
+            'renames': {
+                'gmail.pdf': '2016-01-11T124132 gmail.pdf',
+            }
+        }
+        actual = self.actual.get('asserts')
+        for _option in expected_asserts:
+            self.assertIn(_option, actual)
+
+        self.assertEqual(actual, expected_asserts)

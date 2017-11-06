@@ -30,6 +30,7 @@ from core import (
     util
 )
 from core.util import enc
+import unit_utils as uu
 
 
 class RegressionTestError(exceptions.AutonameowException):
@@ -53,7 +54,7 @@ class RegressionTestLoader(object):
     BASENAME_DESCRIPTION = b'description'
     BASENAME_YAML_CONFIG = b'config.yaml'
     BASENAME_YAML_OPTIONS = b'options.yaml'
-    BASENAME_YAML_RENAMES = b'params.yaml'
+    BASENAME_YAML_ASSERTS = b'asserts.yaml'
 
     def __init__(self, abspath):
         self.abspath = abspath
@@ -68,16 +69,48 @@ class RegressionTestLoader(object):
         except exceptions.FilesystemError as e:
             raise RegressionTestError(e)
 
+        _abspath_asserts = self._joinpath(self.BASENAME_YAML_ASSERTS)
+        try:
+            _asserts = disk.yaml.load_yaml_file(_abspath_asserts)
+        except exceptions.FilesystemError as e:
+            raise RegressionTestError(e)
+
         return {
             'description': _description.strip(),
-            'options': _options
+            'options': self._set_testfile_path(_options),
+            'asserts': _asserts
         }
+
+    @staticmethod
+    def _set_testfile_path(options):
+        """
+        Replaces '$TESTFILES' with the full absolute path to the 'test_files'
+        directory.
+        For instance; '$TESTFILES/foo.txt' --> '$SRCROOT/test_files/foo.txt',
+        where '$SRCROOT' is the full absolute path to the autonameow sources.
+        """
+        if 'input_paths' not in options:
+            return options
+
+        _fixed_paths = []
+        for path in options['input_paths']:
+            _testfile_basename = path.replace('$TESTFILES/', '')
+            _testfile_abspath = uu.abspath_testfile(_testfile_basename)
+            if not os.path.isfile(_testfile_abspath):
+                raise RegressionTestError(
+                    'Invalid path in "input_paths": "{!s}"'.format(path)
+                )
+            _fixed_paths.append(_testfile_abspath)
+
+        options['input_paths'] = _fixed_paths
+        return options
 
     def _joinpath(self, leaf):
         return os.path.join(enc.syspath(self.abspath), enc.syspath(leaf))
 
     def load(self):
-        return self._get_test_setup_dict_from_file()
+        _setup_dict = self._get_test_setup_dict_from_file()
+        return _setup_dict
 
 
 REGRESSIONTESTS_ROOT_ABSPATH = None

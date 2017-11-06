@@ -71,22 +71,27 @@ def get_regressiontests():
     return out
 
 
+def run_test(testcase):
+    opts = testcase.get('options')
+    expect_exitstatus = testcase.get('exit_status')
+    aw = AutonameowWrapper(opts)
+    try:
+        aw()
+    except Exception as e:
+        print('!TESTCASE FAILED!')
+        print(str(e))
+
+
 def main(args):
     # TODO: [TD0117] Implement automated regression tests
     testcases = get_regressiontests()
 
-    print('Found {} regression test case(s) ..'.format(len(testcases)))
+    print('Found {} regression test(s) ..'.format(len(testcases)))
     for testcase in testcases:
         print('-' * 40)
         print('Running "{!s}"'.format(testcase.get('description', '?')))
 
-        aw = AutonameowWrapper(testcase.get('options'))
-
-        try:
-            aw()
-        except Exception as e:
-            print('!TESTCASE FAILED!')
-            print(str(e))
+        run_test(testcase)
 
         print('-' * 40)
 
