@@ -19,6 +19,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+
+from regression_utils import (
+    get_regressiontest_dirs,
+    RegressionTestLoader
+)
 import unit_utils as uu
 
 
@@ -47,3 +53,20 @@ class AutonameowWrapper(object):
 
         self.captured_stdout = stdout.getvalue()
         self.captured_stderr = stderr.getvalue()
+
+
+def get_regressiontests():
+    _paths = get_regressiontest_dirs()
+    return [RegressionTestLoader(p).load() for p in _paths]
+
+
+def main(args):
+    testcases = get_regressiontests()
+    for testcase in testcases:
+        print('-' * 40)
+        print(testcase)
+        print('-' * 40)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
