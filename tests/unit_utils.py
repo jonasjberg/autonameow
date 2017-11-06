@@ -547,6 +547,33 @@ def capture_stdout(finally_print=False):
             print(capture.getvalue())
 
 
+@contextmanager
+def capture_stderr(finally_print=False):
+    """Save stderr in a StringIO.
+
+    >>> with capture_stdout() as output:
+    ...     print('spam')
+    ...
+    >>> output.getvalue()
+    'spam'
+
+    NOTE:  This method was lifted and modified from the "beets" project.
+
+           Source repo: https://github.com/beetbox/beets
+           Source file: 'beets/test/helper.py'
+           Commit hash: 7a2bdf502f88a278da6be55f93770dad738a14e6
+    """
+    initial_state = sys.stderr
+    sys.stderr = capture = io.StringIO()
+    try:
+        yield sys.stderr
+    finally:
+        sys.stderr = initial_state
+        if finally_print:
+            print(capture.getvalue())
+
+
+
 def get_instantiated_analyzers():
     """
     Get a list of all available analyzers as instantiated class objects.

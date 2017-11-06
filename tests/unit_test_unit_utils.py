@@ -21,6 +21,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import types
 from datetime import datetime
 from unittest import TestCase
@@ -368,10 +369,21 @@ class TestUnitUtilityGetMockFileObject(TestCase):
 class TestCaptureStdout(TestCase):
     def test_capture_stdout(self):
         with uu.capture_stdout() as out:
-            print('should_be_captured')
+            print('stdOUT should be captured')
+            print('stdERR should NOT be captured', file=sys.stderr)
 
-        self.assertEqual(out.getvalue().strip(), 'should_be_captured')
-        self.assertEqual(out.getvalue(), 'should_be_captured\n')
+        self.assertEqual(out.getvalue().strip(), 'stdOUT should be captured')
+        self.assertEqual(out.getvalue(), 'stdOUT should be captured\n')
+
+
+class TestCaptureStderr(TestCase):
+    def test_capture_stderr(self):
+        with uu.capture_stderr() as out:
+            print('stdERR should be captured', file=sys.stderr)
+            print('stdOUT should NOT be captured')
+
+        self.assertEqual(out.getvalue().strip(), 'stdERR should be captured')
+        self.assertEqual(out.getvalue(), 'stdERR should be captured\n')
 
 
 class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
