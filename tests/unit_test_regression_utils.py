@@ -22,12 +22,16 @@
 from unittest import TestCase
 
 from regression_utils import (
+    get_regressiontest_dirs,
     get_regressiontests_rootdir,
     RegressionTestInfo,
-    regtest_abspath
+    regtest_abspath,
 )
 import unit_utils as uu
 import unit_utils_constants as uuconst
+
+
+# TODO: [TD0117] Implement automated regression tests
 
 
 class TestGetRegressiontestsRootdir(TestCase):
@@ -63,27 +67,36 @@ class TestRegtestAbspath(TestCase):
         _fail(b'1337_this_directory_should_not_exist')
 
 
-# TODO: [TD0117] Implement automated regression tests
-# class TestRegressionTestInfo(TestCase):
-#     def test_frompath(self):
-#         _regressiontest_dir = regtest_abspath(
-#             uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
-#         )
-#         actual = RegressionTestInfo.frompath(_regressiontest_dir)
-#
-#         self.assertEqual(
-#             actual.args,
-#             ['--automagic', '--batch']
-#         )
-#         self.assertEqual(
-#             actual.desc,
-#             'Good old "test_files/gmail.pdf" integration test ..'
-#         )
-#         self.assertEqual(
-#             actual.expect,
-#             '2016-01-11T124132 gmail.pdf'
-#         )
-#         self.assertEqual(
-#             actual.testfiles,
-#             [uu.abspath_testfile('gmail.pdf')]
-#         )
+class TestGetRegressiontestDirs(TestCase):
+    def setUp(self):
+        self.actual = get_regressiontest_dirs()
+
+    def test_returns_list(self):
+        self.assertTrue(isinstance(self.actual, list))
+
+    def test_returns_at_least_one_test(self):
+        self.assertGreaterEqual(len(self.actual), 1)
+
+    def test_returns_existing_directories(self):
+        for d in self.actual:
+            self.assertTrue(uu.dir_exists(d))
+
+    def test_returns_absolute_paths(self):
+        for d in self.actual:
+            self.assertTrue(uu.is_abspath(d))
+
+    def test_returns_bytestring_paths(self):
+        for d in self.actual:
+            self.assertTrue(uu.is_internalbytestring(d))
+
+
+class TestRegressionTestInfoFromPath(TestCase):
+    def test_description(self):
+        _regressiontest_dir = regtest_abspath(
+            uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
+        )
+        actual = RegressionTestInfo.frompath(_regressiontest_dir)
+        self.assertEqual(
+            actual.description,
+            'Good old "test_files/gmail.pdf" integration test ..'
+        )

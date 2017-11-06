@@ -20,31 +20,67 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
 
 from core import constants as C
 from core import (
     disk,
+    exceptions,
     util
 )
+from core.util import enc
+
+
+class RegressionTestError(exceptions.AutonameowException):
+    """Error caused by an invalid regression test."""
+
+
+# TODO: [TD0117] Implement automated regression tests
+
+
+def read_plaintext_file(file_path):
+    try:
+        with open(file_path, 'r', encoding=C.DEFAULT_ENCODING) as fh:
+            contents = fh.read()
+    except (FileNotFoundError, UnicodeDecodeError) as e:
+        raise RegressionTestError(e)
+    else:
+        return contents
 
 
 class RegressionTestInfo(object):
     BASENAME_ARGS = b'args'
-    BASENAME_CONFIG = b'config.yaml'
-    BASENAME_DESC = b'description'
-    BASENAME_EXPECT = b'expect'
-    BASENAME_TESTFILES = b'testfiles'
+    BASENAME_DESCRIPTION = b'description'
+    BASENAME_YAML_RENAMES = b'params.yaml'
+    BASENAME_YAML_CONFIGFILE = b'config.yaml'
 
-    def __init__(self):
+    def __init__(self, description):
         self.args = []
-        self.description = ''
-        self.expect = []
-        self.testfiles = []
+
+        assert isinstance(description, str)
+        self.description = description.rstrip()
 
     @classmethod
     def frompath(cls, abspath):
-        # TODO: [TD0117] Implement automated regression tests
-        pass
+        _desc_abspath = os.path.join(enc.syspath(abspath),
+                                     enc.syspath(cls.BASENAME_DESCRIPTION))
+        _description = read_plaintext_file(_desc_abspath)
+        return cls(description=_description)
+
+
+REGRESSIONTESTS_ROOT_ABSPATH = None
+
+
+def get_regressiontests_rootdir():
+    global REGRESSIONTESTS_ROOT_ABSPATH
+    if not REGRESSIONTESTS_ROOT_ABSPATH:
+        _rootdir = os.path.join(
+            C.AUTONAMEOW_SRCROOT_DIR, 'test_files', 'regression'
+        )
+        REGRESSIONTESTS_ROOT_ABSPATH = util.enc.normpath(_rootdir)
+
+    assert disk.isdir(REGRESSIONTESTS_ROOT_ABSPATH)
+    return REGRESSIONTESTS_ROOT_ABSPATH
 
 
 def regtest_abspath(basename):
@@ -62,16 +98,16 @@ def regtest_abspath(basename):
     return _normalized_abspath
 
 
-REGRESSIONTESTS_ROOT_ABSPATH = None
+RE_REGRESSIONTEST_DIRNAME = re.compile(rb'\d{4}(_[\w]+)?')
 
 
-def get_regressiontests_rootdir():
-    global REGRESSIONTESTS_ROOT_ABSPATH
-    if not REGRESSIONTESTS_ROOT_ABSPATH:
-        _rootdir = os.path.join(
-            C.AUTONAMEOW_SRCROOT_DIR, 'test_files', 'regression'
-        )
-        REGRESSIONTESTS_ROOT_ABSPATH = util.enc.normpath(_rootdir)
+def get_regressiontest_dirs():
+    _tests_root_dir = get_regressiontests_rootdir()
+    _dirs = [
+        regtest_abspath(d)
+        for d in os.listdir(_tests_root_dir)
+        if RE_REGRESSIONTEST_DIRNAME.match(d)
+    ]
 
-    assert disk.isdir(REGRESSIONTESTS_ROOT_ABSPATH)
-    return REGRESSIONTESTS_ROOT_ABSPATH
+    return _dirs
+
