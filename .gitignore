@@ -274,3 +274,6 @@ junk
 
 # API keys
 autonameow/plugins/*.key
+
+# Non-versioned
+local
