@@ -34,6 +34,7 @@ except ImportError:
 from core import constants as C
 from core.config.default_config import DEFAULT_CONFIG
 from core import (
+    disk,
     exceptions,
     util,
 )
@@ -176,33 +177,10 @@ def write_default_config():
     _default_config = DEFAULT_CONFIG.copy()
     _default_config['autonameow_version'] = C.STRING_PROGRAM_VERSION
 
-    write_yaml_file(config_path, _default_config)
-
-
-def write_yaml_file(dest_path, yaml_data):
-    """
-    Writes the given data ("Python object"/dict) to the specified path.
-
-    Args:
-        dest_path: The (absolute) path to the output file as a bytestring.
-                   NOTE: The path will be *OVERWRITTEN* if it already exists!
-        yaml_data: Data to write as a "Python object" (dict).
-                   Refer to: http://pyyaml.org/wiki/PyYAMLDocumentation
-
-    Raises:
-        ConfigWriteError: The yaml file could not be written.
-    """
-    if not os.access(os.path.dirname(dest_path), os.W_OK):
-        raise ConfigWriteError(dest_path, 'Insufficient permissions')
-
     try:
-        with open(util.enc.syspath(dest_path), 'w',
-                  encoding=C.DEFAULT_ENCODING) as fh:
-            yaml.dump(yaml_data, fh, default_flow_style=False,
-                      encoding=C.DEFAULT_ENCODING,
-                      width=160, indent=4)
-    except (OSError, yaml.YAMLError) as e:
-        raise ConfigWriteError(dest_path, e)
+        disk.write_yaml_file(config_path, _default_config)
+    except exceptions.FilesystemError as e:
+        raise ConfigWriteError(e)
 
 
 def set_active(config):

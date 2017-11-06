@@ -25,7 +25,6 @@ import re
 
 from core import constants as C
 from core import (
-    config,
     disk,
     exceptions,
     types,
@@ -137,7 +136,7 @@ class Configuration(object):
         if os.path.exists(dest_path):
             raise FileExistsError
         else:
-            config.write_yaml_file(dest_path, self._data)
+            disk.write_yaml_file(dest_path, self._data)
 
     def _load_reusable_nametemplates(self):
         raw_templates = self._data.get('NAME_TEMPLATES')

@@ -22,7 +22,10 @@
 from unittest import TestCase
 
 from core.exceptions import FilesystemError
-from core.disk import load_yaml_file
+from core.disk import (
+    load_yaml_file,
+    write_yaml_file
+)
 import unit_utils as uu
 
 
@@ -32,7 +35,7 @@ class TestLoadYAML(TestCase):
         actual = load_yaml_file(_yaml_path)
         self.assertEqual(type(actual), dict)
 
-    def test_raises_exception_given_invalid_argument(self):
+    def test_raises_exception_given_invalid_arguments(self):
         def _fail(yaml_path):
             with self.assertRaises(FilesystemError):
                 _ = load_yaml_file(yaml_path)
@@ -43,3 +46,26 @@ class TestLoadYAML(TestCase):
         _fail('foo')
         _fail(b'foo')
         _fail(uu.abspath_testfile('magic_png.png'))
+
+
+class TestWriteYAML(TestCase):
+    def test_writes_valid_data_to_valid_path(self):
+        _dest_path = uu.make_temporary_file()
+        self.assertTrue(uu.file_exists(_dest_path))
+
+        _data = {'foo': 'bar', 'baz': 1337}
+        write_yaml_file(_dest_path, _data)
+        self.assertTrue(uu.file_exists(_dest_path))
+
+        _loaded = load_yaml_file(_dest_path)
+        self.assertEqual(_data, _loaded,
+                         'Loaded data differs from the written data.')
+
+    def test_raises_exception_given_invalid_arguments(self):
+        def _fail(dest_path, data):
+            with self.assertRaises(FilesystemError):
+                _ = write_yaml_file(dest_path, data)
+
+        _fail(None, None)
+        _fail('', None)
+        _fail(b'', None)

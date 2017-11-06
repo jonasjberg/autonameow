@@ -258,7 +258,8 @@ if __name__ == '__main__':
     from datetime import datetime
     import os
     import sys
-    from core.config import write_yaml_file
+    from core import disk
+
 
     def default_destpath():
         basename = 'default_config_{}.yaml'.format(
@@ -278,7 +279,7 @@ if __name__ == '__main__':
             sys.exit(1)
 
         try:
-            write_yaml_file(dest_path, DEFAULT_CONFIG)
+            disk.write_yaml_file(dest_path, DEFAULT_CONFIG)
         except Exception as e:
             print('[ERROR] Unable to write DEFAULT_CONFIG to disk!')
             print('Destination path: "{!s}"'.format(dest_path))
