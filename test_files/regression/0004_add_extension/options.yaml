@@ -1,0 +1,22 @@
+config_path: $TESTFILES/configs/integration_test_config_add-ext_1.yaml
+debug: false
+dry_run: true
+dump_config: false
+dump_meowuris: false
+dump_options: false
+input_paths:
+- $TESTFILES/empty
+- $TESTFILES/simple-lexical-analysis
+- $TESTFILES/magic_mp4.mp4
+- $TESTFILES/magic_png.png
+- $TESTFILES/magic_txt.md
+list_all: true
+list_datetime: false
+list_title: false
+mode_automagic: true
+mode_batch: true
+mode_interactive: false
+quiet: false
+recurse_paths: false
+show_version: false
+verbose: true
