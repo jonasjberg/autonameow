@@ -19,12 +19,18 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from unittest import TestCase
 
+from core import constants as C
+from core.util import enc
 from regression_utils import (
+    AutonameowWrapper,
+    check_renames,
     get_regressiontest_dirs,
     get_regressiontests_rootdir,
     load_regressiontests,
+    RegressionTestError,
     RegressionTestLoader,
     regtest_abspath
 )
@@ -51,13 +57,11 @@ class TestRegtestAbspath(TestCase):
             self.assertTrue(uu.is_abspath(_actual))
             self.assertTrue(uu.is_internalbytestring(_actual))
 
-        _pass(b'0001')
-        _pass(b'0001_duplicate_inputpath')
-        _pass(b'0002')
-        _pass(b'0003_filetags')
-        _pass(b'0004_add_extension')
         _pass(uuconst.REGRESSIONTEST_DIR_BASENAMES[0])
         _pass(uuconst.REGRESSIONTEST_DIR_BASENAMES[1])
+        _pass(uuconst.REGRESSIONTEST_DIR_BASENAMES[2])
+        _pass(uuconst.REGRESSIONTEST_DIR_BASENAMES[3])
+        _pass(uuconst.REGRESSIONTEST_DIR_BASENAMES[4])
 
     def test_bad_argument_raises_exception(self):
         def _fail(test_input):
@@ -112,17 +116,11 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
             'verbose': True,
             'input_paths': ['$TESTFILES/gmail.pdf'],
             'mode_batch': True,
-            'mode_interactive': False,
-            'dry_run': True,
-            'recurse_paths': False,
         }
         expected = {
             'verbose': True,
             'input_paths': [uu.abspath_testfile('gmail.pdf')],
             'mode_batch': True,
-            'mode_interactive': False,
-            'dry_run': True,
-            'recurse_paths': False,
         }
         actual = RegressionTestLoader._set_testfile_path(input_options)
         self.assertEqual(actual, expected)
@@ -151,26 +149,20 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
 
 
 class TestRegressionTestLoaderSetConfigPath(TestCase):
-    # def test_options_without_input_paths_is_passed_through_as_is(self):
-    #     input_options = {
-    #         'verbose': True,
-    #         'mode_batch': True,
-    #         'mode_interactive': False,
-    #         'dry_run': True,
-    #         'recurse_paths': False,
-    #     }
-    #
-    #     actual = RegressionTestLoader._set_testfile_path(input_options)
-    #     self.assertEqual(actual, input_options)
+    def setUp(self):
+        self._regressiontest_dir = regtest_abspath(
+            uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
+        )
+        self.rtl = RegressionTestLoader(self._regressiontest_dir)
 
-    def test_replaces_config_path(self):
+    def _check(self, input_options, expected):
+        actual = self.rtl._set_config_path(input_options)
+        self.assertEqual(actual, expected)
+
+    def test_uses_default_config_if_config_path_unspecified(self):
         input_options = {
             'verbose': True,
-            'config_path': '$TESTFILES/default_config.yaml',
             'mode_batch': True,
-            'mode_interactive': False,
-            'dry_run': True,
-            'recurse_paths': False,
         }
         expected = {
             'verbose': True,
@@ -178,18 +170,64 @@ class TestRegressionTestLoaderSetConfigPath(TestCase):
                 uu.abspath_testfile('default_config.yaml')
             ),
             'mode_batch': True,
-            'mode_interactive': False,
-            'dry_run': True,
-            'recurse_paths': False,
         }
-        actual = RegressionTestLoader._set_config_path(input_options)
-        self.assertEqual(actual, expected)
+        self._check(input_options, expected)
+
+    def test_uses_default_config_if_config_path_is_none(self):
+        input_options = {
+            'verbose': True,
+            'config_path': None,
+            'mode_batch': True,
+        }
+        expected = {
+            'verbose': True,
+            'config_path': uu.normpath(
+                uu.abspath_testfile('default_config.yaml')
+            ),
+            'mode_batch': True,
+        }
+        self._check(input_options, expected)
+
+    def test_replaces_config_path_variable_testfiles(self):
+        input_options = {
+            'verbose': True,
+            'config_path': '$TESTFILES/default_config.yaml',
+            'mode_batch': True,
+        }
+        expected = {
+            'verbose': True,
+            'config_path': uu.normpath(
+                uu.abspath_testfile('default_config.yaml')
+            ),
+            'mode_batch': True,
+        }
+        self._check(input_options, expected)
+
+    def test_replaces_config_path_variable_thistest(self):
+        input_options = {
+            'verbose': True,
+            'config_path': '$THISTEST/config.yaml',
+            'mode_batch': True,
+        }
+
+        _expect_path = os.path.join(
+            enc.syspath(self._regressiontest_dir),
+            enc.syspath(enc.encode_('config.yaml'))
+        )
+        self.assertTrue(isinstance(_expect_path, bytes))
+
+        expected = {
+            'verbose': True,
+            'config_path': _expect_path,
+            'mode_batch': True,
+        }
+        self._check(input_options, expected)
 
 
 class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
     def setUp(self):
         _regressiontest_dir = regtest_abspath(
-            uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
+            uuconst.REGRESSIONTEST_DIR_BASENAMES[1]
         )
         b = RegressionTestLoader(_regressiontest_dir)
         self.actual = b.load()
@@ -254,3 +292,121 @@ class TestLoadRegressiontests(TestCase):
 
     def test_returns_at_least_one_test(self):
         self.assertGreaterEqual(len(self.actual), 1)
+
+
+class TestAutonameowWrapper(TestCase):
+    def setUp(self):
+        self.aw = AutonameowWrapper()
+
+    def test_call(self):
+        self.aw()
+
+    def test_captured_exitcode_type(self):
+        self.aw()
+        actual = self.aw.captured_exitcode
+        self.assertIsNotNone(actual)
+        self.assertTrue(type(actual), int)
+
+    def test_captured_stdout_type(self):
+        self.aw()
+        actual = self.aw.captured_stdout
+        self.assertIsNotNone(actual)
+        self.assertTrue(type(actual), str)
+
+    def test_captured_stderr_type(self):
+        self.aw()
+        actual = self.aw.captured_stderr
+        self.assertIsNotNone(actual)
+        self.assertTrue(type(actual), str)
+
+
+class TestAutonameowWrapperWithDefaultOptions(TestCase):
+    def setUp(self):
+        self.aw = AutonameowWrapper()
+        self.aw()
+
+    def test_exitcode_is_exit_success(self):
+        actual = self.aw.captured_exitcode
+        self.assertEqual(actual, C.EXIT_SUCCESS)
+
+    def test_stderr_contains_no_input_files_specified(self):
+        actual = self.aw.captured_stderr
+        self.assertIn('No input files specified', actual)
+
+    def test_stdout_is_empty(self):
+        actual = self.aw.captured_stdout
+        self.assertIn('', actual)
+
+
+class TestRenames(TestCase):
+    def _fail(self, actual_renames, expect_renames):
+        actual = check_renames(actual_renames, expect_renames)
+        self.assertFalse(actual)
+
+    def _ok(self, actual_renames, expect_renames):
+        actual = check_renames(actual_renames, expect_renames)
+        self.assertTrue(actual)
+
+    def test_raises_exception_given_bad_arguments(self):
+        def _fail(actual_renames, expect_renames):
+            with self.assertRaises(RegressionTestError):
+                _ = check_renames(actual_renames, expect_renames)
+
+        _fail(None, None)
+        _fail('', None)
+        _fail(None, '')
+        _fail({}, '')
+        _fail('', {})
+
+    def test_returns_true_given_one_matching_rename(self):
+        self._ok(actual_renames={}, expect_renames={})
+        self._ok(actual_renames={'A': 'A'}, expect_renames={'A': 'A'})
+        self._ok(actual_renames={'A': 'foo'}, expect_renames={'A': 'foo'})
+        self._ok(actual_renames={'A': 'bar'}, expect_renames={'A': 'bar'})
+
+    def test_returns_true_given_matching_renames(self):
+        self._ok(actual_renames={'A': 'foo', 'B': 'B'},
+                 expect_renames={'A': 'foo', 'B': 'B'})
+        self._ok(actual_renames={'A': 'foo', 'B': 'bar'},
+                 expect_renames={'A': 'foo', 'B': 'bar'})
+
+    def test_returns_false_given_one_non_matching_rename(self):
+        self._fail(actual_renames={}, expect_renames={'A': 'A'})
+        self._fail(actual_renames={}, expect_renames={'A': 'B'})
+        self._fail(actual_renames={}, expect_renames={'B': 'A'})
+        self._fail(actual_renames={'A': 'A'}, expect_renames={})
+        self._fail(actual_renames={'A': 'B'}, expect_renames={})
+        self._fail(actual_renames={'B': 'A'}, expect_renames={})
+        self._fail(actual_renames={'A': 'A'}, expect_renames={'A': 'B'})
+        self._fail(actual_renames={'A': 'A'}, expect_renames={'B': 'A'})
+        self._fail(actual_renames={'A': 'A'}, expect_renames={'B': 'B'})
+        self._fail(actual_renames={'A': 'B'}, expect_renames={'A': 'A'})
+        self._fail(actual_renames={'A': 'B'}, expect_renames={'B': 'A'})
+        self._fail(actual_renames={'A': 'B'}, expect_renames={'B': 'B'})
+        self._fail(actual_renames={'B': 'A'}, expect_renames={'A': 'A'})
+        self._fail(actual_renames={'B': 'A'}, expect_renames={'A': 'B'})
+        self._fail(actual_renames={'B': 'A'}, expect_renames={'B': 'B'})
+        self._fail(actual_renames={'B': 'B'}, expect_renames={'A': 'A'})
+        self._fail(actual_renames={'B': 'B'}, expect_renames={'A': 'B'})
+        self._fail(actual_renames={'B': 'B'}, expect_renames={'B': 'A'})
+
+    def test_returns_false_given_non_matching_renames(self):
+        self._fail(actual_renames={}, expect_renames={'A': 'A', 'B': 'A'})
+        self._fail(actual_renames={}, expect_renames={'A': 'A', 'B': 'B'})
+        self._fail(actual_renames={}, expect_renames={'A': 'B', 'B': 'A'})
+        self._fail(actual_renames={}, expect_renames={'A': 'B', 'B': 'B'})
+        self._fail(actual_renames={'A': 'A', 'B': 'A'}, expect_renames={})
+        self._fail(actual_renames={'A': 'A', 'B': 'B'}, expect_renames={})
+        self._fail(actual_renames={'A': 'B', 'B': 'A'}, expect_renames={})
+        self._fail(actual_renames={'A': 'B', 'B': 'B'}, expect_renames={})
+
+        self._fail(actual_renames={'A': 'A', 'B': 'A'},
+                   expect_renames={'A': 'A', 'B': 'B'})
+        self._fail(actual_renames={'A': 'A', 'B': 'B'},
+                   expect_renames={'A': 'A', 'B': 'A'})
+        self._fail(actual_renames={'A': 'B', 'B': 'B'},
+                   expect_renames={'A': 'A', 'B': 'B'})
+        self._fail(actual_renames={'A': 'A', 'C': 'C'},
+                   expect_renames={'B': 'A', 'C': 'C'})
+        self._fail(actual_renames={'A': 'A', 'C': 'D'},
+                   expect_renames={'B': 'A', 'C': 'C'})

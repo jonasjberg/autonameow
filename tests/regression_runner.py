@@ -22,45 +22,10 @@
 import sys
 
 from core import constants as C
-from core import (
-    disk,
-    types
+from regression_utils import (
+    AutonameowWrapper,
+    load_regressiontests
 )
-from regression_utils import load_regressiontests
-import unit_utils as uu
-
-
-class AutonameowWrapper(object):
-    def __init__(self, opts=None):
-        if opts:
-            assert isinstance(opts, dict)
-            self.opts = opts
-        else:
-            self.opts = {}
-
-        self.captured_exitcode = None
-        self.captured_stderr = None
-        self.captured_stdout = None
-        self.captured_renames = dict()
-
-    def mock_exit_program(self, exitcode):
-        self.captured_exitcode = exitcode
-
-    def mock_do_rename(self, from_path, new_basename, dry_run=True):
-        _from_basename = types.force_string(disk.file_basename(from_path))
-        self.captured_renames[_from_basename] = new_basename
-
-    def __call__(self):
-        from core.autonameow import Autonameow
-        Autonameow.exit_program = self.mock_exit_program
-        Autonameow.do_rename = self.mock_do_rename
-
-        with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
-            with Autonameow(self.opts) as ameow:
-                ameow.run()
-
-        self.captured_stdout = stdout.getvalue()
-        self.captured_stderr = stderr.getvalue()
 
 
 def run_test(testcase):
@@ -108,11 +73,6 @@ def run_test(testcase):
 
     # print('\nCAPTURED STDERR:')
     # print(str(aw.captured_stderr))
-
-
-def check_renames(actual, expected):
-    # TODO: ..
-    return None
 
 
 def main(args):

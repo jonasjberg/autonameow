@@ -21,9 +21,6 @@
 
 from unittest import TestCase
 
-from core import constants as C
-from regression_runner import AutonameowWrapper
-
 
 class TestTemporaryStuff(TestCase):
     # def test_temporary_write_testdata(self):
@@ -46,45 +43,3 @@ class TestTemporaryStuff(TestCase):
         self.assertTrue(True)
 
 
-class TestAutonameowWrapper(TestCase):
-    def setUp(self):
-        self.aw = AutonameowWrapper()
-
-    def test_call(self):
-        self.aw()
-
-    def test_captured_exitcode_type(self):
-        self.aw()
-        actual = self.aw.captured_exitcode
-        self.assertIsNotNone(actual)
-        self.assertTrue(type(actual), int)
-
-    def test_captured_stdout_type(self):
-        self.aw()
-        actual = self.aw.captured_stdout
-        self.assertIsNotNone(actual)
-        self.assertTrue(type(actual), str)
-
-    def test_captured_stderr_type(self):
-        self.aw()
-        actual = self.aw.captured_stderr
-        self.assertIsNotNone(actual)
-        self.assertTrue(type(actual), str)
-
-
-class TestAutonameowWrapperWithDefaultOptions(TestCase):
-    def setUp(self):
-        self.aw = AutonameowWrapper()
-        self.aw()
-
-    def test_exitcode_is_exit_success(self):
-        actual = self.aw.captured_exitcode
-        self.assertEqual(actual, C.EXIT_SUCCESS)
-
-    def test_stderr_contains_no_input_files_specified(self):
-        actual = self.aw.captured_stderr
-        self.assertIn('No input files specified', actual)
-
-    def test_stdout_is_empty(self):
-        actual = self.aw.captured_stdout
-        self.assertIn('', actual)

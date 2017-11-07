@@ -40,6 +40,7 @@ AUTONAMEOW_SRCROOT_DIR = os.path.normpath(os.path.join(
 
 
 REGRESSIONTEST_DIR_BASENAMES = [
+    b'0000_unittest_dummy',
     b'0001',
     b'0001_duplicate_inputpath',
     b'0002',

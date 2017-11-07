@@ -19,19 +19,22 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import os
 import re
 
 from core import constants as C
 from core import (
-    config,
     disk,
     exceptions,
+    types,
     util
 )
-from core.util import enc
 import unit_utils as uu
 import unit_utils_constants as uuconst
+
+
+log = logging.getLogger(__name__)
 
 
 class RegressionTestError(exceptions.AutonameowException):
@@ -58,6 +61,7 @@ class RegressionTestLoader(object):
     BASENAME_YAML_ASSERTS = b'asserts.yaml'
 
     def __init__(self, abspath):
+        assert type(abspath) == bytes
         self.abspath = abspath
 
     def _get_test_setup_dict_from_file(self):
@@ -113,28 +117,119 @@ class RegressionTestLoader(object):
         options['input_paths'] = _fixed_paths
         return options
 
-    @staticmethod
-    def _set_config_path(options):
-        _config_path = options.get('config_path')
-        if not _config_path or not _config_path.startswith('$TESTFILES/'):
-            return options
+    def _set_config_path(self, options):
+        """
+        Modifies the 'config_path' entry in the options dict.
 
-        _config_basename = _config_path.replace('$TESTFILES/', '')
-        _config_abspath = uu.abspath_testfile(_config_basename)
-        if not os.path.isfile(_config_abspath):
+        If the 'config_path' entry..
+
+          * .. is missing, the default test config is inserted.
+
+               --> 'config_path': (Path to the default (unit test) config)
+
+          * .. starts with '$TESTFILES/', the full absolute path to the
+               'test_files' directory is inserted in place of '$TESTFILES/'.
+
+                   'config_path': '$TESTFILES/config.yaml'
+               --> 'config_path': '$SRCROOT/test_files/config.yaml'
+
+          * .. starts with '$THISTEST/', the full absolute path to the current
+               regression test directory is inserted in place of '$THISTEST/'.
+
+                   'config_path': '$THISTEST/config.yaml'
+               --> 'config_path': 'self.abspath/config.yaml'
+        """
+        _options = dict(options)
+
+        _path = types.force_string(_options.get('config_path'))
+        if not _path:
+            # Use default config.
+            _abspath = uu.abspath_testfile(
+                uuconst.DEFAULT_YAML_CONFIG_BASENAME
+            )
+        elif _path.startswith('$TESTFILES/'):
+            # Substitute "variable".
+            _basename = _path.replace('$TESTFILES/', '').strip()
+            _abspath = uu.abspath_testfile(_basename)
+        elif _path.startswith('$THISTEST/'):
+            # Substitute "variable".
+            _basename = _path.replace('$THISTEST/', '').strip()
+            try:
+                _bytes_basename = types.AW_PATHCOMPONENT(_basename)
+            except types.AWTypeError as e:
+                raise RegressionTestError(e)
+            _abspath = self._joinpath(_bytes_basename)
+        else:
+            # Assume absolute path.
+            _abspath = _path
+
+        if not uu.file_exists(_abspath):
             raise RegressionTestError(
-                'Invalid "config_path": "{!s}"'.format(_config_path)
+                'Invalid "config_path": "{!s}"'.format(_path)
             )
 
-        options['config_path'] = enc.normpath(_config_abspath)
-        return options
+        log.debug('Set config_path "{!s}" to "{!s}"'.format(_path, _abspath))
+        _options['config_path'] = util.enc.normpath(_abspath)
+        return _options
 
     def _joinpath(self, leaf):
-        return os.path.join(enc.syspath(self.abspath), enc.syspath(leaf))
+        assert type(leaf) == bytes
+        return os.path.join(
+            util.enc.syspath(self.abspath), util.enc.syspath(leaf)
+        )
 
     def load(self):
         _setup_dict = self._get_test_setup_dict_from_file()
         return _setup_dict
+
+
+class AutonameowWrapper(object):
+    """
+    Autonameow class wrapper used by the regression tests.
+
+    Wraps an instance of the 'Autonameow' class and overrides ("monkey-patches")
+    some of its methods in order to capture data needed to evaluate the tests.
+    """
+    def __init__(self, opts=None):
+        if opts:
+            assert isinstance(opts, dict)
+            self.opts = opts
+        else:
+            self.opts = {}
+
+        self.captured_exitcode = None
+        self.captured_stderr = None
+        self.captured_stdout = None
+        self.captured_renames = dict()
+
+    def mock_exit_program(self, exitcode):
+        self.captured_exitcode = exitcode
+
+    def mock_do_rename(self, from_path, new_basename, dry_run=True):
+        # NOTE(jonas): Iffy ad-hoc string coercion..
+        _from_basename = types.force_string(disk.file_basename(from_path))
+
+        # Check for collisions that might cause erroneous test results.
+        if _from_basename in self.captured_renames:
+            _existing_new_basename = self.captured_renames[_from_basename]
+            raise RegressionTestError(
+                'Already captured rename: "{!s}" -> "{!s}" (Now "{!s}")'.format(
+                    _from_basename, _existing_new_basename, new_basename
+                )
+            )
+        self.captured_renames[_from_basename] = new_basename
+
+    def __call__(self):
+        from core.autonameow import Autonameow
+        Autonameow.exit_program = self.mock_exit_program
+        Autonameow.do_rename = self.mock_do_rename
+
+        with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
+            with Autonameow(self.opts) as ameow:
+                ameow.run()
+
+        self.captured_stdout = stdout.getvalue()
+        self.captured_stderr = stderr.getvalue()
 
 
 REGRESSIONTESTS_ROOT_ABSPATH = None
@@ -194,3 +289,22 @@ def load_regressiontests():
             out.append(loaded_test)
 
     return out
+
+
+def check_renames(actual, expected):
+    if not isinstance(actual, dict):
+        raise RegressionTestError('Expected argument "actual" of type dict')
+    if not isinstance(expected, dict):
+        raise RegressionTestError('Expected argument "expected" of type dict')
+
+    if not actual and not expected:
+        # Did not expect anything and nothing happened.
+        return True
+    elif actual and not expected:
+        # Something unexpected happened.
+        return False
+    elif expected and not actual:
+        # Expected something to happened but it didn't.
+        return False
+
+    return bool(expected == actual)
