@@ -56,6 +56,7 @@ def read_plaintext_file(file_path):
 
 class RegressionTestLoader(object):
     BASENAME_DESCRIPTION = b'description'
+    BASENAME_SKIP = b'skip'
     BASENAME_YAML_CONFIG = b'config.yaml'
     BASENAME_YAML_OPTIONS = b'options.yaml'
     BASENAME_YAML_ASSERTS = b'asserts.yaml'
@@ -63,8 +64,9 @@ class RegressionTestLoader(object):
     def __init__(self, abspath):
         assert type(abspath) == bytes
         self.abspath = abspath
+        self.skiptest = False
 
-    def _get_test_setup_dict_from_file(self):
+    def _get_test_setup_dict_from_files(self):
         _abspath_desc = self._joinpath(self.BASENAME_DESCRIPTION)
         _description = read_plaintext_file(_abspath_desc)
 
@@ -83,10 +85,17 @@ class RegressionTestLoader(object):
         except exceptions.FilesystemError as e:
             raise RegressionTestError(e)
 
+        _abspath_skip = self._joinpath(self.BASENAME_SKIP)
+        if uu.file_exists(_abspath_skip):
+            _skiptest = True
+        else:
+            _skiptest = False
+
         return {
+            'asserts': _asserts,
             'description': _description.strip(),
             'options': _options,
-            'asserts': _asserts
+            'skiptest': _skiptest
         }
 
     @staticmethod
@@ -179,7 +188,7 @@ class RegressionTestLoader(object):
         )
 
     def load(self):
-        _setup_dict = self._get_test_setup_dict_from_file()
+        _setup_dict = self._get_test_setup_dict_from_files()
         return _setup_dict
 
 

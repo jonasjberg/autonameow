@@ -37,36 +37,26 @@ def run_test(testcase):
     try:
         aw()
     except Exception as e:
-        print('!TESTCASE FAILED!')
+        print('!!! CAUGHT TOP-LEVEL EXCEPTION !!!')
         print(str(e))
+
+    failures = 0
 
     actual_exitcode = aw.captured_exitcode
     if actual_exitcode != expect_exitcode:
-        print('TEST FAILED :: Expected exit code {!s} but got {!s}'.format(
+        print('FAILED :: Expected exit code {!s} but got {!s}'.format(
             expect_exitcode, actual_exitcode
         ))
+        failures += 1
 
     actual_renames = aw.captured_renames
-    if actual_renames:
-        for _in, _out in actual_renames.items():
-            print('  Actual:  "{!s}" -> "{!s}"'.format(_in, _out))
-
-    if expect_renames:
-        for _in, _out in expect_renames.items():
-            print('Expected:  "{!s}" -> "{!s}"'.format(_in, _out))
-
-    if expect_renames:
-        if not actual_renames:
-            print('TEST FAILED :: No files were renamed!')
-            return False
-        else:
-            if expect_renames != actual_renames:
-                print('TEST FAILED :: Renames differ')
-                return False
-    else:
-        if actual_renames:
-            print('TEST FAILED :: Files were unexpectedly renamed!')
-            return False
+    # if actual_renames:
+    #     for _in, _out in actual_renames.items():
+    #         print('  Actual:  "{!s}" -> "{!s}"'.format(_in, _out))
+    #
+    # if expect_renames:
+    #     for _in, _out in expect_renames.items():
+    #         print('Expected:  "{!s}" -> "{!s}"'.format(_in, _out))
 
     # print('\nCAPTURED STDOUT:')
     # print(str(aw.captured_stdout))
@@ -74,19 +64,60 @@ def run_test(testcase):
     # print('\nCAPTURED STDERR:')
     # print(str(aw.captured_stderr))
 
+    if expect_renames:
+        if not actual_renames:
+            print('FAILED :: No files were renamed!')
+            failures += 1
+        else:
+            if expect_renames != actual_renames:
+                print('FAILED :: Renames differ')
+                failures += 1
+    else:
+        if actual_renames:
+            print('FAILED :: Files were unexpectedly renamed!')
+            failures += 1
+
+    return bool(failures == 0)
+
 
 def main(args):
     # TODO: [TD0117] Implement automated regression tests
     testcases = load_regressiontests()
 
+    count_success = 0
+    count_failure = 0
+    count_skipped = 0
+    count_total = len(testcases)
+
     print('Found {} regression test(s) ..'.format(len(testcases)))
     for testcase in testcases:
-        print('=' * 60)
-        print('Running "{!s}"'.format(testcase.get('description', '?')))
+        print('_' * 70)
+        _description = testcase.get('description', '?')
 
-        run_test(testcase)
+        if testcase.get('skiptest'):
+            print('Skipped "{!s}"'.format(_description))
+            count_skipped += 1
+            continue
 
-        print('=' * 60)
+        print('Running "{!s}"'.format(_description))
+
+        succeeded = run_test(testcase)
+        if succeeded:
+            count_success += 1
+        else:
+            count_failure += 1
+
+    print('\n')
+    print('~' * 70)
+    if count_failure == 0:
+        print('[ ALL TESTS PASSED ]')
+    else:
+        print('[ SOME TESTS FAILED ]')
+
+    print('Regression Test Summary:  {} total, {} skipped, {} passed, {} '
+          'failed'.format(count_total, count_skipped, count_success,
+                          count_failure))
+    print('=' * 70)
 
 
 if __name__ == '__main__':
