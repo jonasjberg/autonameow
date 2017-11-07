@@ -1,0 +1,19 @@
+config_path: $TESTFILES/configs/integration_test_config_1.yaml
+debug: false
+dry_run: true
+dump_config: false
+dump_meowuris: false
+dump_options: false
+input_paths:
+- $TESTFILES/gmail.pdf
+- $TESTFILES/simplest_pdf.md.pdf
+list_all: true
+list_datetime: false
+list_title: false
+mode_automagic: true
+mode_batch: true
+mode_interactive: false
+quiet: false
+recurse_paths: false
+show_version: false
+verbose: true
