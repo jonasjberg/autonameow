@@ -107,7 +107,7 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
         actual = RegressionTestLoader._set_testfile_path(input_options)
         self.assertEqual(actual, input_options)
 
-    def test_input_paths_are_replaced(self):
+    def test_input_path_is_replaced(self):
         input_options = {
             'verbose': True,
             'input_paths': ['$TESTFILES/gmail.pdf'],
@@ -123,6 +123,28 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
             'mode_interactive': False,
             'dry_run': True,
             'recurse_paths': False,
+        }
+        actual = RegressionTestLoader._set_testfile_path(input_options)
+        self.assertEqual(actual, expected)
+
+    def test_input_paths_are_replaced(self):
+        input_options = {
+            'input_paths': ['$TESTFILES/gmail.pdf',
+                            '$TESTFILES/magic_txt.txt'],
+        }
+        expected = {
+            'input_paths': [uu.abspath_testfile('gmail.pdf'),
+                            uu.abspath_testfile('magic_txt.txt')],
+        }
+        actual = RegressionTestLoader._set_testfile_path(input_options)
+        self.assertEqual(actual, expected)
+
+    def test_testfiles_directory_only_is_replaced(self):
+        input_options = {
+            'input_paths': ['$TESTFILES'],
+        }
+        expected = {
+            'input_paths': [uuconst.TEST_FILES_DIR],
         }
         actual = RegressionTestLoader._set_testfile_path(input_options)
         self.assertEqual(actual, expected)

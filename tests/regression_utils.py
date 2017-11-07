@@ -31,6 +31,7 @@ from core import (
 )
 from core.util import enc
 import unit_utils as uu
+import unit_utils_constants as uuconst
 
 
 class RegressionTestError(exceptions.AutonameowException):
@@ -97,6 +98,10 @@ class RegressionTestLoader(object):
 
         _fixed_paths = []
         for path in options['input_paths']:
+            if path == '$TESTFILES':
+                _fixed_paths.append(uuconst.TEST_FILES_DIR)
+                continue
+
             _testfile_basename = path.replace('$TESTFILES/', '')
             _testfile_abspath = uu.abspath_testfile(_testfile_basename)
             if not os.path.isfile(_testfile_abspath):
