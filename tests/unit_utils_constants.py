@@ -32,7 +32,7 @@ TEST_FILES_DIR = os.path.normpath(os.path.join(
     _PARENT_DIR, 'test_files'
 ))
 REGRESSIONTEST_DIR = os.path.normpath(os.path.join(
-    _PARENT_DIR, 'test_files', 'regression'
+    _PARENT_DIR, 'tests', 'regression'
 ))
 AUTONAMEOW_SRCROOT_DIR = os.path.normpath(os.path.join(
     _PARENT_DIR, util.enc.syspath('autonameow')
@@ -41,7 +41,11 @@ AUTONAMEOW_SRCROOT_DIR = os.path.normpath(os.path.join(
 
 REGRESSIONTEST_DIR_BASENAMES = [
     b'0001',
-    b'0002_test'
+    b'0001_duplicate_inputpath',
+    b'0002',
+    b'0003_filetags',
+    b'0004_add_extension',
+    b'0005_add_extension'
 ]
 
 

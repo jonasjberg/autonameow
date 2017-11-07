@@ -52,7 +52,10 @@ class TestRegtestAbspath(TestCase):
             self.assertTrue(uu.is_internalbytestring(_actual))
 
         _pass(b'0001')
-        _pass(b'0002_test')
+        _pass(b'0001_duplicate_inputpath')
+        _pass(b'0002')
+        _pass(b'0003_filetags')
+        _pass(b'0004_add_extension')
         _pass(uuconst.REGRESSIONTEST_DIR_BASENAMES[0])
         _pass(uuconst.REGRESSIONTEST_DIR_BASENAMES[1])
 

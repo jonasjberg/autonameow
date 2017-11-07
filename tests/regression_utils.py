@@ -139,7 +139,7 @@ def get_regressiontests_rootdir():
     global REGRESSIONTESTS_ROOT_ABSPATH
     if not REGRESSIONTESTS_ROOT_ABSPATH:
         _rootdir = os.path.join(
-            C.AUTONAMEOW_SRCROOT_DIR, 'test_files', 'regression'
+            C.AUTONAMEOW_SRCROOT_DIR, 'tests', 'regression'
         )
         REGRESSIONTESTS_ROOT_ABSPATH = util.enc.normpath(_rootdir)
 
