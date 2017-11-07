@@ -173,42 +173,6 @@ def init_argparser():
              'require any user interaction. Suitable for scripting, etc.'
     )
 
-    optgrp_filter = parser.add_argument_group('Processing options')
-
-    ignore_to_year_default = C.YEAR_LOWER_LIMIT.strftime('%Y')
-    optgrp_filter.add_argument(
-        '--ignore-to-year',
-        metavar='YYYY',
-        type=arg_is_year,
-        default=ignore_to_year_default,
-        dest='filter_ignore_to_year',
-        action='store',
-        help='Ignore all date/time-information for the specified year and '
-             'years prior. Default: {}'.format(ignore_to_year_default)
-    )
-
-    ignore_from_year_default = C.YEAR_UPPER_LIMIT.strftime('%Y')
-    optgrp_filter.add_argument(
-        '--ignore-from-year',
-        metavar='YYYY',
-        type=arg_is_year,
-        default=ignore_from_year_default,
-        dest='filter_ignore_from_year',
-        action='store',
-        help='Ignore all date/time-information following the specified year '
-             '(inclusive). Default: {}'.format(ignore_from_year_default)
-    )
-    optgrp_filter.add_argument(
-        '--ignore-years',
-        metavar='YYYY',
-        type=arg_is_year,
-        default=[],
-        nargs='+',
-        dest='filter_ignore_years',
-        action='store',
-        help='Ignore date/time-information from the year(s) specified.'
-    )
-
     parser.add_argument(
         dest='input_paths',
         metavar='INPUT_PATH',

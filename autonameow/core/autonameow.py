@@ -45,7 +45,6 @@ from core.evaluate import (
     RuleMatcher
 )
 from core.fileobject import FileObject
-from core.filter import ResultFilter
 from core.plugin_handler import PluginHandler
 from core.util import sanity
 
@@ -71,7 +70,6 @@ class Autonameow(object):
         # For calculating the total runtime.
         self.start_time = time.time()
 
-        self.filter = None
         self.active_config = None
         self._exit_code = C.EXIT_SUCCESS
 
@@ -115,9 +113,6 @@ class Autonameow(object):
 
         # Set globally accessible configuration instance.
         config.set_active(self.active_config)
-
-        # TODO: [TD0034][TD0035][TD0043] Store filter settings in configuration.
-        self.filter = ResultFilter().configure_filter(self.opts)
 
         if self.opts.get('dump_options'):
             _config_path = persistence.get_config_persistence_path()
