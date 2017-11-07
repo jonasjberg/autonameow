@@ -271,7 +271,7 @@ Wishlist
 
     ```
        Given the file:  "cats-tale.pdf"
-     Desired Template:  {datetime} {title} -- {tags}.{extension}
+     Desired Template:  {datetime} {title} -- {tags}.{extension}
     Expected Filename:  "2017-06-10T224655 A Cats Taile -- gibson biography.pdf"
     ```
 
