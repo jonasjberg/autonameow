@@ -132,7 +132,6 @@ def msg_overall_stats(count_total, count_skipped, count_success, count_failure):
 
 
 def main(args):
-    # TODO: [TD0117] Implement automated regression tests
     testcases = load_regressiontests()
 
     count_success = 0

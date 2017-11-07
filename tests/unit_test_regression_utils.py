@@ -38,9 +38,6 @@ import unit_utils as uu
 import unit_utils_constants as uuconst
 
 
-# TODO: [TD0117] Implement automated regression tests
-
-
 class TestGetRegressiontestsRootdir(TestCase):
     def test_returns_absolute_bytestring_path(self):
         actual = get_regressiontests_rootdir()

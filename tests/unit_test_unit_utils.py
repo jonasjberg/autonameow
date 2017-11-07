@@ -76,19 +76,15 @@ class TestUnitUtilityConstants(TestCase):
         self.assertIsNotNone(uuconst.REGRESSIONTEST_DIR)
 
     def test_regressiontest_dir_exists(self):
-        self.skipTest('TODO: [TD0117] Implement automated regression tests')
         self.assertTrue(os.path.exists(uuconst.REGRESSIONTEST_DIR))
 
     def test_regressiontest_dir_is_a_directory(self):
-        self.skipTest('TODO: [TD0117] Implement automated regression tests')
         self.assertTrue(os.path.isdir(uuconst.REGRESSIONTEST_DIR))
 
     def test_regressiontest_dir_is_readable(self):
-        self.skipTest('TODO: [TD0117] Implement automated regression tests')
         self.assertTrue(os.access(uuconst.REGRESSIONTEST_DIR, os.R_OK))
 
     def test_regressiontest_dir_is_executable(self):
-        self.skipTest('TODO: [TD0117] Implement automated regression tests')
         self.assertTrue(os.access(uuconst.REGRESSIONTEST_DIR, os.X_OK))
 
 

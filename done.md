@@ -10,6 +10,13 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-11-07
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0117]` Implement automated regression testing.
+
 * 2017-10-29
 
     > Medium Priority

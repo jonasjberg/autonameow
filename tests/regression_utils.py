@@ -41,9 +41,6 @@ class RegressionTestError(exceptions.AutonameowException):
     """Error caused by an invalid regression test."""
 
 
-# TODO: [TD0117] Implement automated regression tests
-
-
 def read_plaintext_file(file_path):
     try:
         with open(file_path, 'r', encoding=C.DEFAULT_ENCODING) as fh:
