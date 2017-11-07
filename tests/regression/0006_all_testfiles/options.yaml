@@ -5,7 +5,8 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $TESTFILES
+- $TESTFILES/smulan.jpg
+- $TESTFILES/magic_jpg.jpg
 list_all: false
 list_datetime: false
 list_title: false

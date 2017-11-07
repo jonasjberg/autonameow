@@ -189,6 +189,10 @@ class RegressionTestLoader(object):
 
     def load(self):
         _setup_dict = self._get_test_setup_dict_from_files()
+        _setup_dict['test_abspath'] = self.abspath
+        _setup_dict['test_dirname'] = os.path.basename(
+            util.enc.syspath(self.abspath)
+        )
         return _setup_dict
 
 

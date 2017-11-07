@@ -278,6 +278,21 @@ class TestRegressionTestLoaderWithFirstRegressionTest(TestCase):
 
         self.assertEqual(actual, expected_asserts)
 
+    def test_test_abspath(self):
+        actual = self.actual.get('test_abspath')
+        self.assertTrue(isinstance(actual, bytes))
+        self.assertTrue(uu.is_abspath(actual))
+
+        expect = uuconst.REGRESSIONTEST_DIR_BASENAMES[1]
+        self.assertTrue(actual.endswith(expect))
+
+    def test_test_dirname(self):
+        actual = self.actual.get('test_dirname')
+        self.assertTrue(isinstance(actual, bytes))
+
+        expect = uuconst.REGRESSIONTEST_DIR_BASENAMES[1]
+        self.assertEqual(actual, expect)
+
 
 class TestLoadRegressiontests(TestCase):
     def setUp(self):

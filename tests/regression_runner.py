@@ -20,12 +20,20 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import time
 
 from core import constants as C
+from core import (
+    types,
+    ui
+)
 from regression_utils import (
     AutonameowWrapper,
     load_regressiontests
 )
+
+
+TERMINAL_WIDTH = 80
 
 
 def run_test(testcase):
@@ -42,11 +50,17 @@ def run_test(testcase):
 
     failures = 0
 
+    def _msg_run_test_failure(msg):
+        _color_msg = ui.colorize(msg, fore='RED')
+        print('{!s:20.20}    {!s}'.format('', _color_msg))
+
     actual_exitcode = aw.captured_exitcode
     if actual_exitcode != expect_exitcode:
-        print('FAILED :: Expected exit code {!s} but got {!s}'.format(
-            expect_exitcode, actual_exitcode
-        ))
+        _msg_run_test_failure(
+            'Expected exit code {!s} but got {!s}'.format(
+                expect_exitcode, actual_exitcode
+            )
+        )
         failures += 1
 
     actual_renames = aw.captured_renames
@@ -66,18 +80,57 @@ def run_test(testcase):
 
     if expect_renames:
         if not actual_renames:
-            print('FAILED :: No files were renamed!')
+            _msg_run_test_failure('No files were renamed!')
             failures += 1
         else:
             if expect_renames != actual_renames:
-                print('FAILED :: Renames differ')
+                _msg_run_test_failure('Renames differ')
                 failures += 1
     else:
         if actual_renames:
-            print('FAILED :: Files were unexpectedly renamed!')
+            _msg_run_test_failure('Files were unexpectedly renamed!')
             failures += 1
 
     return bool(failures == 0)
+
+
+def msg_overall_success():
+    print(ui.colorize('[ ALL TESTS PASSED ]', fore='GREEN'))
+
+
+def msg_overall_failure():
+    print(ui.colorize('[ SOME TESTS FAILED ]', fore='RED'))
+
+
+def msg_test_success(elapsed_time):
+    _label = ui.colorize('[ SUCCESS ]', fore='GREEN')
+    print('{} All assertions passed after {:.6f} seconds'.format(_label,
+                                                                 elapsed_time))
+
+
+def msg_test_failure(elapsed_time):
+    _label = ui.colorize('[ FAILURE ]', fore='RED')
+    print('{} One or more assertions failed after {:.6f} seconds'.format(
+        _label, elapsed_time
+    ))
+
+
+def msg_overall_stats(count_total, count_skipped, count_success, count_failure):
+    print('\n')
+
+    if count_failure == 0:
+        msg_overall_success()
+        _failure = '{} failed'.format(count_failure)
+    else:
+        msg_overall_failure()
+        _failure = ui.colorize('{} failed'.format(count_failure), fore='RED')
+
+    _stats = 'Regression Test Summary:  {} total, {} skipped, {} passed, ' \
+             '{}'.format(count_total, count_skipped, count_success, _failure)
+
+    print('~' * TERMINAL_WIDTH)
+    print(_stats)
+    print('=' * TERMINAL_WIDTH)
 
 
 def main(args):
@@ -88,10 +141,14 @@ def main(args):
     count_failure = 0
     count_skipped = 0
     count_total = len(testcases)
+    should_abort = False
 
     print('Found {} regression test(s) ..'.format(len(testcases)))
     for testcase in testcases:
-        print('_' * 70)
+        _delimiter = ui.colorize('=' * TERMINAL_WIDTH, fore='LIGHTBLACK_EX')
+        print(_delimiter)
+
+        _dirname = types.force_string(testcase.get('test_dirname', '?'))
         _description = testcase.get('description', '?')
 
         if testcase.get('skiptest'):
@@ -99,26 +156,34 @@ def main(args):
             count_skipped += 1
             continue
 
-        print('Running "{!s}"'.format(_description))
+        print('{!s:20.20} :: {!s}'.format(_dirname, _description))
 
-        succeeded = run_test(testcase)
+        succeeded = False
+        start_time = time.time()
+        try:
+            succeeded = run_test(testcase)
+        except KeyboardInterrupt:
+            print('\nReceived keyboard interrupt. Skipping remaining tests ..')
+            should_abort = True
+        elapsed_time = time.time() - start_time
+
         if succeeded:
+            msg_test_success(elapsed_time)
             count_success += 1
         else:
+            msg_test_failure(elapsed_time)
             count_failure += 1
 
-    print('\n')
-    print('~' * 70)
-    if count_failure == 0:
-        print('[ ALL TESTS PASSED ]')
-    else:
-        print('[ SOME TESTS FAILED ]')
+        if should_abort:
+            count_skipped += count_total - count_success - count_failure
+            break
 
-    print('Regression Test Summary:  {} total, {} skipped, {} passed, {} '
-          'failed'.format(count_total, count_skipped, count_success,
-                          count_failure))
-    print('=' * 70)
+    msg_overall_stats(count_total, count_skipped, count_success, count_failure)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    try:
+        main(sys.argv[1:])
+    except KeyboardInterrupt:
+        print('\nReceived keyboard interrupt. Exiting ..')
+        sys.exit(0)
