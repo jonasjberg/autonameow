@@ -75,22 +75,33 @@ def run_test(testcase):
         print('!TESTCASE FAILED!')
         print(str(e))
 
-    _actual_exitcode = aw.captured_exitcode
-    if _actual_exitcode != expect_exitcode:
+    actual_exitcode = aw.captured_exitcode
+    if actual_exitcode != expect_exitcode:
         print('TEST FAILED :: Expected exit code {!s} but got {!s}'.format(
-            expect_exitcode, _actual_exitcode
+            expect_exitcode, actual_exitcode
         ))
 
-    if expect_renames:
-        print('EXPECTED RENAMES:')
-        for _in_name, _out_name in expect_renames.items():
-            print('"{!s}" -> "{!s}"'.format(_in_name, _out_name))
+    actual_renames = aw.captured_renames
+    if actual_renames:
+        for _in, _out in actual_renames.items():
+            print('  Actual:  "{!s}" -> "{!s}"'.format(_in, _out))
 
-    _actual_renames = aw.captured_renames
-    if _actual_renames:
-        print('ACTUAL RENAMES:')
-        for _in_name, _out_name in _actual_renames.items():
-            print('"{!s}" -> "{!s}"'.format(_in_name, _out_name))
+    if expect_renames:
+        for _in, _out in expect_renames.items():
+            print('Expected:  "{!s}" -> "{!s}"'.format(_in, _out))
+
+    if expect_renames:
+        if not actual_renames:
+            print('TEST FAILED :: No files were renamed!')
+            return False
+        else:
+            if expect_renames != actual_renames:
+                print('TEST FAILED :: Renames differ')
+                return False
+    else:
+        if actual_renames:
+            print('TEST FAILED :: Files were unexpectedly renamed!')
+            return False
 
     # print('\nCAPTURED STDOUT:')
     # print(str(aw.captured_stdout))
@@ -99,18 +110,23 @@ def run_test(testcase):
     # print(str(aw.captured_stderr))
 
 
+def check_renames(actual, expected):
+    # TODO: ..
+    return None
+
+
 def main(args):
     # TODO: [TD0117] Implement automated regression tests
     testcases = load_regressiontests()
 
     print('Found {} regression test(s) ..'.format(len(testcases)))
     for testcase in testcases:
-        print('-' * 40)
+        print('=' * 60)
         print('Running "{!s}"'.format(testcase.get('description', '?')))
 
         run_test(testcase)
 
-        print('-' * 40)
+        print('=' * 60)
 
 
 if __name__ == '__main__':
