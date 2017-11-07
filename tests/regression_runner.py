@@ -35,6 +35,8 @@ from regression_utils import (
 
 
 TERMINAL_WIDTH = 80
+msg_label_pass = ui.colorize('[PASS]', fore='GREEN')
+msg_label_fail = ui.colorize('[FAIL]', fore='RED')
 
 
 def run_test(testcase):
@@ -52,11 +54,15 @@ def run_test(testcase):
     failures = 0
 
     def _msg_run_test_failure(msg):
-        _color_msg = ui.colorize(msg, fore='RED')
-        print('{!s:20.20}    {!s}'.format('', _color_msg))
+        print('{} {!s}'.format(msg_label_fail, msg))
+
+    def _msg_run_test_success(msg):
+        print('{} {!s}'.format(msg_label_pass, msg))
 
     actual_exitcode = aw.captured_exitcode
-    if actual_exitcode != expect_exitcode:
+    if actual_exitcode == expect_exitcode:
+        _msg_run_test_success('Exit code is {} as expected'.format(actual_exitcode))
+    else:
         _msg_run_test_failure(
             'Expected exit code {!s} but got {!s}'.format(
                 expect_exitcode, actual_exitcode
@@ -65,7 +71,9 @@ def run_test(testcase):
         failures += 1
 
     actual_renames = aw.captured_renames
-    if not check_renames(actual_renames, expect_renames):
+    if check_renames(actual_renames, expect_renames):
+        _msg_run_test_success('Renamed {} files as expected'.format(len(actual_renames)))
+    else:
         _msg_run_test_failure('Renames differ')
         if actual_renames:
             for _in, _out in actual_renames.items():
