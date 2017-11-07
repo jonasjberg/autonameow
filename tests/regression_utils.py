@@ -112,16 +112,29 @@ class RegressionTestLoader(object):
         _fixed_paths = []
         for path in options['input_paths']:
             if path == '$TESTFILES':
-                _fixed_paths.append(uuconst.TEST_FILES_DIR)
-                continue
+                # Substitute "variable".
+                _abspath = uuconst.TEST_FILES_DIR
+            elif path.startswith('$TESTFILES/'):
+                # Substitute "variable".
+                _basename = path.replace('$TESTFILES/', '')
+                _abspath = uu.abspath_testfile(_basename)
+            else:
+                # Normalize path.
+                try:
+                    _abspath_bytes = types.AW_PATH.normalize(path)
+                except types.AWTypeError as e:
+                    raise RegressionTestError('Invalid path in "input_paths":'
+                                              '"{!s}" :: {!s}'.format(path, e))
+                else:
+                    # NOTE(jonas): Iffy ad-hoc string coercion..
+                    _abspath = types.force_string(_abspath_bytes)
 
-            _testfile_basename = path.replace('$TESTFILES/', '')
-            _testfile_abspath = uu.abspath_testfile(_testfile_basename)
-            if not os.path.isfile(_testfile_abspath):
+            # Allow non-existent but not empty paths.
+            if not _abspath.strip():
                 raise RegressionTestError(
-                    'Invalid path in "input_paths": "{!s}"'.format(path)
+                    'Path is empty after processing: "{!s}"'.format(path)
                 )
-            _fixed_paths.append(_testfile_abspath)
+            _fixed_paths.append(_abspath)
 
         options['input_paths'] = _fixed_paths
         return options
@@ -132,9 +145,9 @@ class RegressionTestLoader(object):
 
         If the 'config_path' entry..
 
-          * .. is missing, the default test config is inserted.
+          * .. is missing, the path of the default (unit test) config is used.
 
-               --> 'config_path': (Path to the default (unit test) config)
+               --> 'config_path': (Path to the default config)
 
           * .. starts with '$TESTFILES/', the full absolute path to the
                'test_files' directory is inserted in place of '$TESTFILES/'.

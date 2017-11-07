@@ -147,6 +147,20 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
         actual = RegressionTestLoader._set_testfile_path(input_options)
         self.assertEqual(actual, expected)
 
+    def test_paths_are_normalized(self):
+        input_options = {
+            'input_paths': ['~/foo/temp'],
+        }
+
+        user_home = os.path.expanduser('~')
+        _expected = os.path.join(user_home, 'foo', 'temp')
+        expected = {
+            'input_paths': [_expected],
+        }
+        actual = RegressionTestLoader._set_testfile_path(input_options)
+        self.assertEqual(actual, expected)
+
+
 
 class TestRegressionTestLoaderSetConfigPath(TestCase):
     def setUp(self):

@@ -29,6 +29,7 @@ from core import (
 )
 from regression_utils import (
     AutonameowWrapper,
+    check_renames,
     load_regressiontests
 )
 
@@ -64,32 +65,21 @@ def run_test(testcase):
         failures += 1
 
     actual_renames = aw.captured_renames
-    # if actual_renames:
-    #     for _in, _out in actual_renames.items():
-    #         print('  Actual:  "{!s}" -> "{!s}"'.format(_in, _out))
-    #
-    # if expect_renames:
-    #     for _in, _out in expect_renames.items():
-    #         print('Expected:  "{!s}" -> "{!s}"'.format(_in, _out))
-
-    # print('\nCAPTURED STDOUT:')
-    # print(str(aw.captured_stdout))
-
-    # print('\nCAPTURED STDERR:')
-    # print(str(aw.captured_stderr))
-
-    if expect_renames:
-        if not actual_renames:
-            _msg_run_test_failure('No files were renamed!')
-            failures += 1
-        else:
-            if expect_renames != actual_renames:
-                _msg_run_test_failure('Renames differ')
-                failures += 1
-    else:
+    if not check_renames(actual_renames, expect_renames):
+        _msg_run_test_failure('Renames differ')
         if actual_renames:
-            _msg_run_test_failure('Files were unexpectedly renamed!')
-            failures += 1
+            for _in, _out in actual_renames.items():
+                print('  Actual:  "{!s}" -> "{!s}"'.format(_in, _out))
+        else:
+            print('  Actual:  No files were renamed')
+
+        if expect_renames:
+            for _in, _out in expect_renames.items():
+                print('Expected:  "{!s}" -> "{!s}"'.format(_in, _out))
+        else:
+            print('Expected:  Expected no files to be renamed')
+
+        failures += 1
 
     return bool(failures == 0)
 
@@ -145,8 +135,7 @@ def main(args):
 
     print('Found {} regression test(s) ..'.format(len(testcases)))
     for testcase in testcases:
-        _delimiter = ui.colorize('=' * TERMINAL_WIDTH, fore='LIGHTBLACK_EX')
-        print(_delimiter)
+        print()
 
         _dirname = types.force_string(testcase.get('test_dirname', '?'))
         _description = testcase.get('description', '?')
