@@ -139,8 +139,9 @@ class Resolver(object):
 
                 log.debug('Got {}'.format(_data_info))
                 assert isinstance(_data, ExtractedData), (
-                       'Expected "data" to be an instance of "ExtractedData".'
-                       ' Got {}'.format(_data_info))
+                       'Expected "data" to be an instance of "ExtractedData",'
+                       ' got {}. Source MeowURI: "{!s}"'.format(_data_info,
+                                                                _meowuri))
 
                 # # TODO: [TD0112] Clean up merging data.
                 if isinstance(_data.value, list):
