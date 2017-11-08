@@ -313,7 +313,7 @@ def load_regressiontests():
         else:
             out.append(loaded_test)
 
-    return out
+    return sorted(out, key=lambda x: x.get('test_dirname'))
 
 
 def check_renames(actual, expected):
