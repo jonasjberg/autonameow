@@ -41,7 +41,7 @@ msg_label_fail = ui.colorize('F', fore='RED')
 
 def run_test(testcase):
     opts = testcase.get('options')
-    expect_exitcode = testcase['asserts'].get('exit_status', C.EXIT_SUCCESS)
+    expect_exitcode = testcase['asserts'].get('exit_code', C.EXIT_SUCCESS)
     expect_renames = testcase['asserts'].get('renames', {})
 
     aw = AutonameowWrapper(opts)
