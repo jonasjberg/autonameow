@@ -42,6 +42,15 @@ class CapitalisedHelpFormatter(argparse.HelpFormatter):
         return super(CapitalisedHelpFormatter, self).add_usage(
             usage, actions, groups, prefix)
 
+    def _split_lines(self, text, width):
+        """
+        Keep newlines, etc. if the text starts with 'R|'.
+        Based on:  https://bitbucket.org/ruamel/std.argparse
+        """
+        if text.startswith('R|'):
+            return text[2:].splitlines()
+        return argparse.HelpFormatter._split_lines(self, text, width)
+
 
 def get_argparser(**kwargs):
     """
