@@ -435,6 +435,10 @@ class Autonameow(object):
             dry_run=self.opts.get('dry_run')
         )
 
+    @property
+    def runtime_seconds(self):
+        return time.time() - self.start_time
+
     def exit_program(self, exit_code_):
         """
         Main program exit point.  Shuts down this autonameow instance/session.
@@ -443,14 +447,14 @@ class Autonameow(object):
             exit_code_: Integer exit code to pass to the parent process.
                 Indicate success with 0, failure non-zero.
         """
-        elapsed_time = time.time() - self.start_time
         self.exit_code = exit_code_
 
+        _elapsed_time = self.runtime_seconds
         if self.opts and self.opts.get('verbose'):
-            ui.print_exit_info(self.exit_code, elapsed_time)
+            ui.print_exit_info(self.exit_code, _elapsed_time)
 
         log.debug('Exiting with exit code: {}'.format(self.exit_code))
-        log.debug('Total execution time: {:.6f} seconds'.format(elapsed_time))
+        log.debug('Total execution time: {:.6f} seconds'.format(_elapsed_time))
 
         sys.exit(self.exit_code)
 
