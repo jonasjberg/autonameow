@@ -148,6 +148,8 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0120]` Use less verbose default output in the regression test runner.
+
 * `[TD0118]` Improve robustness and refactor searching text for editions.
 
 * `[TD0114]` Improve the `EbookAnalyzer`.

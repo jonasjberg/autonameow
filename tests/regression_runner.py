@@ -39,10 +39,10 @@ msg_label_pass = ui.colorize('P', fore='GREEN')
 msg_label_fail = ui.colorize('F', fore='RED')
 
 
-def run_test(testcase):
-    opts = testcase.get('options')
-    expect_exitcode = testcase['asserts'].get('exit_code', C.EXIT_SUCCESS)
-    expect_renames = testcase['asserts'].get('renames', {})
+def run_test(test):
+    opts = test.get('options')
+    expect_exitcode = test['asserts'].get('exit_code', C.EXIT_SUCCESS)
+    expect_renames = test['asserts'].get('renames', {})
 
     aw = AutonameowWrapper(opts)
     try:
@@ -147,26 +147,23 @@ def msg_overall_stats(count_total, count_skipped, count_success, count_failure):
     print('=' * TERMINAL_WIDTH)
 
 
-def main(args):
-    testcases = load_regressiontests()
-
+def run_regressiontests(tests):
     count_success = 0
     count_failure = 0
     count_skipped = 0
-    count_total = len(testcases)
+    count_total = len(tests)
     should_abort = False
 
-    print('Found {} regression test(s) ..'.format(len(testcases)))
-    for testcase in testcases:
+    for test in tests:
         if should_abort:
             count_skipped += count_total - count_success - count_failure
             break
 
-        _dirname = types.force_string(testcase.get('test_dirname', '(?)'))
-        _description = testcase.get('description', '(UNDESCRIBED)')
+        _dirname = types.force_string(test.get('test_dirname', '(?)'))
+        _description = test.get('description', '(UNDESCRIBED)')
 
         print()
-        if testcase.get('skiptest'):
+        if test.get('skiptest'):
             print('Skipped "{!s}"'.format(_dirname))
             count_skipped += 1
             continue
@@ -178,7 +175,7 @@ def main(args):
         captured_time = None
         start_time = time.time()
         try:
-            failures, captured_time = run_test(testcase)
+            failures, captured_time = run_test(test)
         except KeyboardInterrupt:
             print('\nReceived keyboard interrupt. Skipping remaining tests ..')
             should_abort = True
@@ -194,6 +191,35 @@ def main(args):
         msg_test_runtime(elapsed_time, captured_time)
 
     msg_overall_stats(count_total, count_skipped, count_success, count_failure)
+
+
+def main(args):
+    _description = '{} {} -- regression test suite runner'.format(
+        C.STRING_PROGRAM_NAME, C.STRING_PROGRAM_VERSION)
+    _epilog = 'Project website:  {}'.format(C.STRING_REPO_URL)
+
+    parser = ui.cli.get_argparser(description=_description, epilog=_epilog)
+    parser.add_argument(
+        '-v', '--verbose',
+        dest='verbose',
+        action='store_true',
+        default=False,
+        help='Enables verbose mode, prints additional information.'
+    )
+
+    opts = parser.parse_args(args)
+
+    if opts.verbose:
+        # TODO: [TD0120] Make the default output less verbose.
+        pass
+    else:
+        # TODO: [TD0120] Make the default output less verbose.
+        pass
+
+    tests = load_regressiontests()
+    print('Loaded {} regression test(s) ..'.format(len(tests)))
+
+    run_regressiontests(tests)
 
 
 if __name__ == '__main__':
