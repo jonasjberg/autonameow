@@ -158,8 +158,6 @@ def main(args):
 
     print('Found {} regression test(s) ..'.format(len(testcases)))
     for testcase in testcases:
-        print()
-
         if should_abort:
             count_skipped += count_total - count_success - count_failure
             break
@@ -167,6 +165,7 @@ def main(args):
         _dirname = types.force_string(testcase.get('test_dirname', '(?)'))
         _description = testcase.get('description', '(UNDESCRIBED)')
 
+        print()
         if testcase.get('skiptest'):
             print('Skipped "{!s}"'.format(_dirname))
             count_skipped += 1
