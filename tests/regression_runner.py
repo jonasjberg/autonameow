@@ -74,6 +74,9 @@ def run_test(testcase):
     actual_renames = aw.captured_renames
     if check_renames(actual_renames, expect_renames):
         _msg_run_test_success('Renamed {} files as expected'.format(len(actual_renames)))
+
+        for _in, _out in actual_renames.items():
+            _msg_run_test_success('Renamed "{!s}" -> "{!s}"'.format(_in, _out))
     else:
         _msg_run_test_failure('Renames differ')
         if actual_renames:
@@ -94,7 +97,7 @@ def run_test(testcase):
 
 
 def msg_overall_success():
-    print(ui.colorize('[ ALL TESTS PASSED ]', fore='GREEN'))
+    print(ui.colorize('[ ALL TESTS PASSED! ]', fore='GREEN'))
 
 
 def msg_overall_failure():
@@ -102,12 +105,12 @@ def msg_overall_failure():
 
 
 def msg_test_success():
-    _label = ui.colorize('[ SUCCESS ]', fore='GREEN')
+    _label = ui.colorize('[SUCCESS]', fore='GREEN')
     print('{} All assertions passed!'.format(_label))
 
 
 def msg_test_failure():
-    _label = ui.colorize('[ FAILURE ]', fore='RED')
+    _label = ui.colorize('[FAILURE]', fore='RED')
     print('{} One or more assertions FAILED!'.format(_label))
 
 
@@ -117,23 +120,27 @@ def msg_test_runtime(elapsed_time, captured_time):
     else:
         _captured = 'N/A'
 
-    _test_time = '{:.6f}s'.format(elapsed_time)
-    print('Runtime captured: {}'.format(_captured))
-    print('Runtime with test: {}'.format(_test_time))
+    _test_time = '{:.6f} seconds'.format(elapsed_time)
+    print(' '*10 + 'Runtime: {}  (captured {})'.format(_test_time, _captured))
 
 
 def msg_overall_stats(count_total, count_skipped, count_success, count_failure):
     print('\n')
 
+    _skipped = '{} skipped'.format(count_skipped)
+    if count_skipped > 0:
+        _skipped = ui.colorize(_skipped, fore='YELLOW')
+
+    _failure = '{} failed'.format(count_failure)
     if count_failure == 0:
         msg_overall_success()
-        _failure = '{} failed'.format(count_failure)
     else:
         msg_overall_failure()
-        _failure = ui.colorize('{} failed'.format(count_failure), fore='RED')
+        _failure = ui.colorize(_failure, fore='RED')
 
-    _stats = 'Regression Test Summary:  {} total, {} skipped, {} passed, ' \
-             '{}'.format(count_total, count_skipped, count_success, _failure)
+    _stats = 'Regression Test Summary:  {} total, {}, {} passed, {}'.format(
+        count_total, _skipped, count_success, _failure
+    )
 
     print('~' * TERMINAL_WIDTH)
     print(_stats)
@@ -153,15 +160,20 @@ def main(args):
     for testcase in testcases:
         print()
 
-        _dirname = types.force_string(testcase.get('test_dirname', '?'))
-        _description = testcase.get('description', '?')
+        if should_abort:
+            count_skipped += count_total - count_success - count_failure
+            break
+
+        _dirname = types.force_string(testcase.get('test_dirname', '(?)'))
+        _description = testcase.get('description', '(UNDESCRIBED)')
 
         if testcase.get('skiptest'):
-            print('Skipped "{!s}"'.format(_description))
+            print('Skipped "{!s}"'.format(_dirname))
             count_skipped += 1
             continue
 
-        print('{!s:22.22} ---  {!s}'.format(_dirname, _description))
+        print('Running "{}"'.format(_dirname))
+        print(ui.colorize(_description, style='DIM'))
 
         failures = 0
         captured_time = None
@@ -173,8 +185,6 @@ def main(args):
             should_abort = True
         elapsed_time = time.time() - start_time
 
-        print('')
-        msg_test_runtime(elapsed_time, captured_time)
         if failures == 0:
             msg_test_success()
             count_success += 1
@@ -182,9 +192,7 @@ def main(args):
             msg_test_failure()
             count_failure += 1
 
-        if should_abort:
-            count_skipped += count_total - count_success - count_failure
-            break
+        msg_test_runtime(elapsed_time, captured_time)
 
     msg_overall_stats(count_total, count_skipped, count_success, count_failure)
 
