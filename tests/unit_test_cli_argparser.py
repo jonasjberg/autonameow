@@ -19,22 +19,26 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from . import options
-from .argparser import get_argparser
-from .common import (
-    colorize,
-    ColumnFormatter,
-    colorize_re_match,
-    colorize_quoted,
-    msg,
-    msg_rename,
-    print_exit_info,
-    print_start_info,
-    print_version_info,
-    silence,
-    unsilence
-)
-from .prompt import (
-    ask_confirm,
-    meowuri_prompt
-)
+from unittest import TestCase
+
+from core.ui.cli import get_argparser
+
+
+class TestGetArgparser(TestCase):
+    def test_returns_something_given_no_arguments(self):
+        actual = get_argparser()
+        self.assertIsNotNone(actual)
+
+    def test_returns_expected_type_given_no_arguments(self):
+        import argparse
+        actual = get_argparser()
+        self.assertTrue(isinstance(actual, argparse.ArgumentParser))
+
+    def test_returns_something_given_valid_arguments(self):
+        actual = get_argparser(description='foo', epilog='bar')
+        self.assertIsNotNone(actual)
+
+    def test_returns_expected_type_given_valid_arguments(self):
+        import argparse
+        actual = get_argparser(description='foo', epilog='bar')
+        self.assertTrue(isinstance(actual, argparse.ArgumentParser))
