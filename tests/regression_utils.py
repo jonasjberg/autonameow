@@ -224,6 +224,7 @@ class AutonameowWrapper(object):
         self.captured_stderr = None
         self.captured_stdout = None
         self.captured_renames = dict()
+        self.captured_runtime_secs = None
 
     def mock_exit_program(self, exitcode):
         self.captured_exitcode = exitcode
@@ -250,6 +251,7 @@ class AutonameowWrapper(object):
         with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
             with Autonameow(self.opts) as ameow:
                 ameow.run()
+                self.captured_runtime_secs = ameow.runtime_seconds
 
         self.captured_stdout = stdout.getvalue()
         self.captured_stderr = stderr.getvalue()

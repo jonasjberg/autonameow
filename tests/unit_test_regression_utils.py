@@ -158,7 +158,6 @@ class TestRegressionTestLoaderSetTestfilePath(TestCase):
         self.assertEqual(actual, expected)
 
 
-
 class TestRegressionTestLoaderSetConfigPath(TestCase):
     def setUp(self):
         self._regressiontest_dir = regtest_abspath(

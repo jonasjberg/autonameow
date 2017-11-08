@@ -35,8 +35,8 @@ from regression_utils import (
 
 
 TERMINAL_WIDTH = 80
-msg_label_pass = ui.colorize('[PASS]', fore='GREEN')
-msg_label_fail = ui.colorize('[FAIL]', fore='RED')
+msg_label_pass = ui.colorize('P', fore='GREEN')
+msg_label_fail = ui.colorize('F', fore='RED')
 
 
 def run_test(testcase):
@@ -48,9 +48,10 @@ def run_test(testcase):
     try:
         aw()
     except Exception as e:
-        print('!!! CAUGHT TOP-LEVEL EXCEPTION !!!')
+        print(ui.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ', back='RED'))
         print(str(e))
 
+    captured_runtime = aw.captured_runtime_secs
     failures = 0
 
     def _msg_run_test_failure(msg):
@@ -89,7 +90,7 @@ def run_test(testcase):
 
         failures += 1
 
-    return bool(failures == 0)
+    return failures, captured_runtime
 
 
 def msg_overall_success():
@@ -100,17 +101,25 @@ def msg_overall_failure():
     print(ui.colorize('[ SOME TESTS FAILED ]', fore='RED'))
 
 
-def msg_test_success(elapsed_time):
+def msg_test_success():
     _label = ui.colorize('[ SUCCESS ]', fore='GREEN')
-    print('{} All assertions passed after {:.6f} seconds'.format(_label,
-                                                                 elapsed_time))
+    print('{} All assertions passed!'.format(_label))
 
 
-def msg_test_failure(elapsed_time):
+def msg_test_failure():
     _label = ui.colorize('[ FAILURE ]', fore='RED')
-    print('{} One or more assertions failed after {:.6f} seconds'.format(
-        _label, elapsed_time
-    ))
+    print('{} One or more assertions FAILED!'.format(_label))
+
+
+def msg_test_runtime(elapsed_time, captured_time):
+    if captured_time:
+        _captured = '{:.6f} seconds'.format(captured_time)
+    else:
+        _captured = 'N/A'
+
+    _test_time = '{:.6f}s'.format(elapsed_time)
+    print('Runtime captured: {}'.format(_captured))
+    print('Runtime with test: {}'.format(_test_time))
 
 
 def msg_overall_stats(count_total, count_skipped, count_success, count_failure):
@@ -152,22 +161,25 @@ def main(args):
             count_skipped += 1
             continue
 
-        print('{!s:20.20} :: {!s}'.format(_dirname, _description))
+        print('{!s:22.22} ---  {!s}'.format(_dirname, _description))
 
-        succeeded = False
+        failures = 0
+        captured_time = None
         start_time = time.time()
         try:
-            succeeded = run_test(testcase)
+            failures, captured_time = run_test(testcase)
         except KeyboardInterrupt:
             print('\nReceived keyboard interrupt. Skipping remaining tests ..')
             should_abort = True
         elapsed_time = time.time() - start_time
 
-        if succeeded:
-            msg_test_success(elapsed_time)
+        print('')
+        msg_test_runtime(elapsed_time, captured_time)
+        if failures == 0:
+            msg_test_success()
             count_success += 1
         else:
-            msg_test_failure(elapsed_time)
+            msg_test_failure()
             count_failure += 1
 
         if should_abort:
