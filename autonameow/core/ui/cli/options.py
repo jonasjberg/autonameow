@@ -72,25 +72,13 @@ def init_argparser():
     Returns:
         The initialized argument parser as a instance of 'ArgumentParser'.
     """
-    parser = argparse.ArgumentParser(
+    parser = cli.get_argparser(
         prog='autonameow',
         description='{} {}'.format(C.STRING_PROGRAM_NAME,
                                          C.STRING_PROGRAM_VERSION),
         epilog='Automatic renaming of files from analysis of '
                'several sources of information.' +
                '\n Project website:  {}'.format(C.STRING_REPO_URL),
-        formatter_class=CapitalisedHelpFormatter,
-        add_help=False
-    )
-    # Iffy, ill-advised manipulation of internals. Likely to break!
-    parser._positionals.title = 'Positional arguments'
-    parser._optionals.title = 'Optional arguments'
-
-    # Add back the default '-h'/'--help' but with proper capitalization.
-    parser.add_argument(
-        '-h', '--help', action='help',
-        default=argparse.SUPPRESS,
-        help='Show this help message and exit.'
     )
 
     optgrp_output = parser.add_mutually_exclusive_group()
@@ -294,18 +282,3 @@ def prettyprint_options(opts, extra_opts):
 
     cli.msg('Current Options', style='heading')
     cli.msg(str(cf))
-
-
-class CapitalisedHelpFormatter(argparse.HelpFormatter):
-    """
-    Fix for capitalization of the usage help text.
-
-    Based on the following post:
-    https://stackoverflow.com/a/35848313
-    https://stackoverflow.com/questions/35847084/customize-argparse-help-message
-    """
-    def add_usage(self, usage, actions, groups, prefix=None):
-        if prefix is None:
-            prefix = 'Usage: '
-        return super(CapitalisedHelpFormatter, self).add_usage(
-            usage, actions, groups, prefix)
