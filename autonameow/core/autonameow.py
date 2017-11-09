@@ -569,13 +569,10 @@ def _run_plugins(fileobject, require_plugins=None, run_all_plugins=False):
         AutonameowException: An unrecoverable error occurred during analysis.
     """
     plugin_handler = PluginHandler()
-    if run_all_plugins:
-        plugin_handler.use_all_plugins()
-    elif require_plugins:
-        plugin_handler.use_plugins(require_plugins)
-
     try:
-        plugin_handler.execute_plugins(fileobject)
+        plugin_handler.start(fileobject,
+                             require_plugins=require_plugins,
+                             run_all_plugins=run_all_plugins is True)
     except exceptions.AutonameowPluginError as e:
         log.critical('Plugins FAILED: {!s}'.format(e))
         raise exceptions.AutonameowException(e)

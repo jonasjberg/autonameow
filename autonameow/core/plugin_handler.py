@@ -37,15 +37,32 @@ class PluginHandler(object):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
+        self._plugins_to_use = []
+        self.available_plugins = []
+
+    def start(self, fileobject, require_plugins=None, run_all_plugins=False):
+        self.log.debug(' Plugins Starting '.center(80, '='))
 
         # Get instantiated and validated plugins.
         self.available_plugins = plugins.UsablePlugins
         assert isinstance(self.available_plugins, list)
 
-        _p = ' '.join(map(lambda x: '"' + str(x) + '"', self.available_plugins))
-        self.log.debug('Available plugins: {!s}'.format(_p))
+        if self.available_plugins:
+            _p = ' '.join(
+                map(lambda x: '"' + str(x) + '"', self.available_plugins)
+            )
+            self.log.debug('Available plugins: {!s}'.format(_p))
+        else:
+            self.log.debug('No plugins are available')
 
-        self._plugins_to_use = []
+        if run_all_plugins:
+            self.use_all_plugins()
+        elif require_plugins:
+            self.use_plugins(require_plugins)
+
+        self.execute_plugins(fileobject)
+
+        self.log.debug(' Plugins Completed '.center(80, '='))
 
     def use_plugins(self, plugin_list):
         self.log.debug(
@@ -68,8 +85,6 @@ class PluginHandler(object):
         self._plugins_to_use = [p for p in self.available_plugins]
 
     def execute_plugins(self, fileobject):
-        self.log.debug(' Plugins Starting '.center(80, '='))
-
         self.log.debug('Running {} plugins'.format(len(self._plugins_to_use)))
         for plugin_klass in self._plugins_to_use:
             plugin = plugin_klass()
@@ -91,8 +106,6 @@ class PluginHandler(object):
                     '"{!s}" plugin can not handle file "{!s}"'.format(
                         plugin, fileobject)
                 )
-
-        self.log.debug(' Plugins Completed '.center(80, '='))
 
 
 def request_data(fileobject, meowuri):
