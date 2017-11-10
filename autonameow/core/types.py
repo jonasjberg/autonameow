@@ -100,7 +100,7 @@ class BaseType(object):
         elif self.equivalent(value):
             # Pass through if type is "equivalent" without coercion.
             return value
-        elif self.acquiescent(value):
+        elif self.coercible(value):
             # Type can be coerced, check after coercion to make sure.
             value = self.coerce(value)
             if self.equivalent(value):
@@ -114,7 +114,7 @@ class BaseType(object):
     def equivalent(self, value):
         return isinstance(value, self.EQUIVALENT_TYPES)
 
-    def acquiescent(self, value):
+    def coercible(self, value):
         return isinstance(value, self.COERCIBLE_TYPES)
 
     def coerce(self, value):
@@ -197,7 +197,7 @@ class Path(BaseType):
         # Overrides the 'BaseType' __call__ method as to not perform the test
         # after the the value coercion. This is because the path could be a
         # byte string and still not be properly normalized.
-        if value is not None and self.acquiescent(value):
+        if value is not None and self.coercible(value):
             if value.strip() is not None:
                 value = self.coerce(value)
                 return value
@@ -430,7 +430,7 @@ class String(BaseType):
             except Exception:
                 return self.null()
 
-        if self.acquiescent(value):
+        if self.coercible(value):
             try:
                 return str(value)
             except (ValueError, TypeError):
@@ -453,7 +453,7 @@ class MimeType(BaseType):
         # Overrides the 'BaseType' __call__ method as to not perform the test
         # after the the value coercion. A valid MIME-type can not be determined
         # by looking at the primitive type alone.
-        if value is not None and self.acquiescent(value):
+        if value is not None and self.coercible(value):
             if value.strip():
                 value = self.coerce(value)
                 return value
