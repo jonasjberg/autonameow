@@ -14,6 +14,11 @@ University mail: `js224eh[a]student.lnu.se`
 High Priority
 -------------
 
+* `[TD0122]` __Move away from using callbacks to return analyzer results.__  
+  Using callbacks to pass data back from the analyzers do not currently
+  provide any benefits but is a lot more difficult to read and test than
+  just simply returning the data directly, as the extractors do.
+
 * `[TD0115]` __Clear up uncertainties about data multiplicities.__  
   I.E. list of `ExtractedData` instances vs. single `ExtractedData` instance
   that contains a list of data (`multivalued=True`).

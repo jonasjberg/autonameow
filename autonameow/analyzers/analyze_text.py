@@ -27,6 +27,7 @@ class TextAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.5
     HANDLES_MIME_TYPES = ['text/plain']
 
+    # TODO: [TD0122] Move away from using callbacks to store results.
     def __init__(self, fileobject, config,
                  add_results_callback, request_data_callback):
         super(TextAnalyzer, self).__init__(

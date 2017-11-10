@@ -25,6 +25,7 @@ from analyzers.analyze_filesystem import FilesystemAnalyzer
 import unit_utils as uu
 
 
+# TODO: [TD0122] Move away from using callbacks to store results.
 def get_filesystem_analyzer(fileobject):
     return FilesystemAnalyzer(
         fileobject,

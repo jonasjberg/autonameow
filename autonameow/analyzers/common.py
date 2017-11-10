@@ -115,6 +115,7 @@ class BaseAnalyzer(object):
                 as a Unicode str.
             data: A list of dicts, each containing some data, source and weight.
         """
+        # TODO: [TD0122] Move away from using callbacks to store results.
         if data is None:
             return
 

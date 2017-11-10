@@ -27,6 +27,7 @@ class VideoAnalyzer(BaseAnalyzer):
     run_queue_priority = 0.1
     HANDLES_MIME_TYPES = ['video/*']
 
+    # TODO: [TD0122] Move away from using callbacks to store results.
     def __init__(self, fileobject, config,
                  add_results_callback, request_data_callback):
         super(VideoAnalyzer, self).__init__(

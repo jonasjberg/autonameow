@@ -72,6 +72,7 @@ class EbookAnalyzer(BaseAnalyzer):
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
                           'image/vnd.djvu']
 
+    # TODO: [TD0122] Move away from using callbacks to store results.
     def __init__(self, fileobject, config,
                  add_results_callback, request_data_callback):
         super(EbookAnalyzer, self).__init__(
