@@ -60,14 +60,21 @@ class Resolver(object):
                'TODO: Fix collecting/verifying data from sources.')
 
         if field in self._fields:
-            self.data_sources[field] = meowuri
+            if not self.data_sources.get(field):
+                self.data_sources[field] = [meowuri]
+            else:
+                self.data_sources[field] += [meowuri]
         else:
             log.debug('Attempted to add source for unused name template field '
                       '"{!s}": {!s}'.format(field, meowuri))
 
     def add_known_sources(self, source_dict):
         for _field, _meowuri in source_dict.items():
-            self.add_known_source(_field, _meowuri)
+            if isinstance(_meowuri, list):
+                for m in _meowuri:
+                    self.add_known_source(_field, m)
+            else:
+                self.add_known_source(_field, _meowuri)
 
     @property
     def unresolved(self):
@@ -102,26 +109,34 @@ class Resolver(object):
 
     def _gather_data(self):
         # TODO: [TD0082] Integrate the 'ExtractedData' class.
-        for _field, _meowuri in self.data_sources.items():
+        for _field, _meowuris in self.data_sources.items():
             if (_field in self.fields_data
                     and self.fields_data.get(_field) is not None):
                 log.debug('Skipping previously gathered data for field '
                           '"{!s}"'.format(_field))
                 continue
 
-            if not _meowuri:
+            if not _meowuris:
                 log.debug(
                     'Resolver attempted to gather data with empty MeowURI!'
                 )
                 continue
 
-            log.debug('Gathering data for field "{!s}" from source [{:8.8}]->'
-                      '[{!s}]'.format(_field, self.file.hash_partial, _meowuri))
-            _data = self._request_data(self.file, _meowuri)
-            if _data is not None:
+            for _meowuri in _meowuris:
+                log.debug(
+                    'Gathering data for field "{!s}" from source [{:8.8}]->'
+                    '[{!s}]'.format(_field, self.file.hash_partial, _meowuri)
+                )
+
+                _data = self._request_data(self.file, _meowuri)
+                if _data is None:
+                    log.debug('Got NONE data for [{:8.8}]->"{!s}"'.format(
+                        self.file.hash_partial, _meowuri)
+                    )
+                    continue
+
                 _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(_data),
                                                                    _data)
-
                 if isinstance(_data, list):
                     if len(_data) == 1:
                         _data = _data[0]
@@ -161,16 +176,7 @@ class Resolver(object):
 
                 log.debug('Updated data for field "{!s}"'.format(_field))
                 self.fields_data[_field] = _data
-            else:
-                log.debug('Got NONE data for [{:8.8}]->"{!s}"'.format(
-                    self.file.hash_partial, _meowuri)
-                )
-
-                # Remove the source that returned None data.
-                log.debug(
-                    'Removing source "{!s}"'.format(self.data_sources[_field])
-                )
-                self.data_sources[_field] = None
+                break
 
     def _verify_types(self):
         # TODO: [TD0115] Clear up uncertainties about data multiplicities.

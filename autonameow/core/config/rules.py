@@ -311,8 +311,9 @@ class Rule(object):
         for condition in self.conditions:
             unique_meowuris.add(condition.meowuri)
 
-        for _, _meowuri in self.data_sources.items():
-            unique_meowuris.add(_meowuri)
+        for _, _meowuris in self.data_sources.items():
+            for m in _meowuris:
+                unique_meowuris.add(m)
 
         return unique_meowuris
 
@@ -581,7 +582,10 @@ def parse_data_sources(raw_sources):
                 log.debug('Validated source: [{!s}]: {!s}'.format(
                     tf.as_placeholder(), _meowuri
                 ))
-                passed[tf] = _meowuri
+                if not passed.get(tf):
+                    passed[tf] = [_meowuri]
+                else:
+                    passed[tf] += [_meowuri]
             else:
                 log.debug('Invalid source: [{!s}]: {!s}'.format(
                     tf.as_placeholder(), _meowuri
