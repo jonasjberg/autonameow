@@ -150,6 +150,7 @@ class TestRegexFieldParser(TestCase):
     def test_validation_function_expect_pass(self):
         self.assertTrue(self.val_func('[A-Za-z]+'))
         self.assertTrue(self.val_func('.*'))
+        self.assertTrue(self.val_func('4123'))
 
     def test__normalize_returns_expected(self):
         self.assertEqual(self.p._normalize('foo'), 'foo')
