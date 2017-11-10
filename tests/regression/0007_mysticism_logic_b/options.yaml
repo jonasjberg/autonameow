@@ -13,13 +13,13 @@ input_paths:
 - $TESTFILES/gmail€åäö.pdf
 - $TESTFILES/magic_pdf.pdf
 - $TESTFILES/simplest_pdf.md.pdf
-list_all: true
+list_all: false
 list_datetime: false
 list_title: false
 mode_automagic: true
 mode_batch: true
 mode_interactive: false
-quiet: false
+quiet: true
 recurse_paths: false
 show_version: false
-verbose: true
+verbose: false
