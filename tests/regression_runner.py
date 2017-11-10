@@ -129,8 +129,7 @@ def msg_test_start(shortname, description):
             _desc = description + ' '*(2 + MAXLEN - _desc_len)
 
         _colordesc = ui.colorize(_desc, style='DIM')
-        _name = '"{}"'.format(shortname)
-        print('{:30.30s} {!s} '.format(_name, _colordesc), end='')
+        print('{:30.30s} {!s} '.format(shortname, _colordesc), end='')
 
 
 def msg_test_skipped(shortname, description):
@@ -149,9 +148,8 @@ def msg_test_skipped(shortname, description):
             _desc = description + ' '*(2 + MAXLEN - _desc_len)
 
         _colordesc = ui.colorize(_desc, style='DIM')
-        _name = '"{}"'.format(shortname)
         _label = ui.colorize('[SKIPPED]', fore='YELLOW')
-        print('{:30.30s} {!s}  {} '.format(_name, _colordesc, _label), end='')
+        print('{:30.30s} {!s}  {} '.format(shortname, _colordesc, _label), end='')
 
 
 def msg_test_success():
