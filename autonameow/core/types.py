@@ -29,6 +29,23 @@ The values are "passed through" the type classes and returned as primitive or
 standard library types (E.G. "datetime").
 These classes are meant to be used as "filters" for coercing values to known
 types --- they are shared and should not retain any kind of state.
+
+The coercion is more "generous" than the default Python casting. The coercion
+was originally intended to be used primarily by data extractors to tame
+incoming "raw" data. Making the coercion very flexible at the risk of
+unintended type casting and very unpredictable behaviour due to having to
+learn this arbitrary type-coercion system, MADE SENSE for this use-case.
+
+However, functionality provided by these classes have expanded and multiple
+parts of autonameow now use these types in various ways. The exact workings
+of the coercion _IS_ relevant for some of the usages..
+The best way to get a grip on what these classes are doing is to look at the
+tests in 'unit_test_types.py'.
+
+Note that the behaviours of for instance 'format()' and 'normalize()' vary
+a lot between classes.
+
+# TODO: [cleanup] This should probably be cleaned up at some point ..
 """
 
 import os
