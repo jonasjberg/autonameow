@@ -41,7 +41,7 @@ msg_label_fail = ui.colorize('F', fore='RED')
 
 def run_test(test):
     opts = test.get('options')
-    expect_exitcode = test['asserts'].get('exit_code', C.EXIT_SUCCESS)
+    expect_exitcode = test['asserts'].get('exit_code', None)
     expect_renames = test['asserts'].get('renames', {})
 
     aw = AutonameowWrapper(opts)
@@ -60,16 +60,17 @@ def run_test(test):
     def _msg_run_test_success(msg):
         print('{} {!s}'.format(msg_label_pass, msg))
 
-    actual_exitcode = aw.captured_exitcode
-    if actual_exitcode == expect_exitcode:
-        _msg_run_test_success('Exit code is {} as expected'.format(actual_exitcode))
-    else:
-        _msg_run_test_failure(
-            'Expected exit code {!s} but got {!s}'.format(
-                expect_exitcode, actual_exitcode
+    if expect_exitcode is not None:
+        actual_exitcode = aw.captured_exitcode
+        if actual_exitcode == expect_exitcode:
+            _msg_run_test_success('Exit code is {} as expected'.format(actual_exitcode))
+        else:
+            _msg_run_test_failure(
+                'Expected exit code {!s} but got {!s}'.format(
+                    expect_exitcode, actual_exitcode
+                )
             )
-        )
-        failures += 1
+            failures += 1
 
     actual_renames = aw.captured_renames
     if check_renames(actual_renames, expect_renames):
