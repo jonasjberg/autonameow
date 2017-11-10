@@ -58,7 +58,11 @@ class PluginHandler(object):
         if run_all_plugins:
             self.use_all_plugins()
         elif require_plugins:
-            self.use_plugins(require_plugins)
+            assert isinstance(require_plugins, list), (
+                'Expected "require_plugins" to be a list. Got {!s}'.format(
+                    type(require_plugins))
+            )
+            self.use_plugins(list(require_plugins))
 
         self.execute_plugins(fileobject)
 

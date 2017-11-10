@@ -110,10 +110,14 @@ def start(fileobject,
     log.debug(' Extraction Started '.center(80, '='))
 
     assert isinstance(fileobject, FileObject), (
-        'Expected type "FileObject". Got {!s}')
+        'Expected type "FileObject". Got {!s}'.format(type(fileobject)))
 
     if require_extractors:
-        _required_extractors = require_extractors
+        assert isinstance(require_extractors, list), (
+            'Expected "require_extractors" to be a list. Got {!s}'.format(
+                type(require_extractors))
+        )
+        _required_extractors = list(require_extractors)
     else:
         _required_extractors = []
     log.debug('Required extractors: {!s}'.format(_required_extractors))
