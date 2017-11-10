@@ -272,6 +272,10 @@ def main(args):
 
     opts = parser.parse_args(args)
 
+    # TODO: [TD0123] Add option to re-run failed regression tests.
+
+    # TODO: [TD0124] Add option (script?) to get command-line of failed tests.
+
     global VERBOSE
     if opts.verbose:
         VERBOSE = True

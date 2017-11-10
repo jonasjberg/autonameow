@@ -148,6 +148,10 @@ Medium Priority
 Low Priority
 ------------
 
+* `[TD0124]` Add option (script?) to run failed regression tests manually.
+
+* `[TD0123]` Add option (script?) to re-run failed regression tests.
+
 * `[TD0121]` Create a script for generating regression tests.
 
 * `[TD0118]` Improve robustness and refactor searching text for editions.
