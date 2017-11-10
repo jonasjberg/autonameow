@@ -111,7 +111,7 @@ def _center_with_fill(text):
 
 
 def msg_overall_success():
-    print(ui.colorize(_center_with_fill('  ALL TESTS PASSED!  '),fore='GREEN'))
+    print(ui.colorize(_center_with_fill('  ALL TESTS PASSED!  '), fore='GREEN'))
 
 
 def msg_overall_failure():
@@ -211,9 +211,10 @@ def msg_overall_stats(count_total, count_skipped, count_success, count_failure):
         count_total, _skipped, count_success, _failure
     )
 
-    print('~' * TERMINAL_WIDTH)
+    # print('~' * TERMINAL_WIDTH)
+    print()
     print(_stats)
-    print('=' * TERMINAL_WIDTH)
+    print('_' * TERMINAL_WIDTH)
 
 
 def run_regressiontests(tests):
