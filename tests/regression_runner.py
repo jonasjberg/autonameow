@@ -34,9 +34,12 @@ from regression_utils import (
 )
 
 
-TERMINAL_WIDTH = 80
+TERMINAL_WIDTH = 120
 msg_label_pass = ui.colorize('P', fore='GREEN')
 msg_label_fail = ui.colorize('F', fore='RED')
+
+
+VERBOSE = False
 
 
 def run_test(test):
@@ -55,10 +58,16 @@ def run_test(test):
     failures = 0
 
     def _msg_run_test_failure(msg):
-        print('{} {!s}'.format(msg_label_fail, msg))
+        if VERBOSE:
+            print('{} {!s}'.format(msg_label_fail, msg))
 
     def _msg_run_test_success(msg):
-        print('{} {!s}'.format(msg_label_pass, msg))
+        if VERBOSE:
+            print('{} {!s}'.format(msg_label_pass, msg))
+
+    def _msg(msg):
+        if VERBOSE:
+            print(msg)
 
     if expect_exitcode is not None:
         actual_exitcode = aw.captured_exitcode
@@ -82,15 +91,15 @@ def run_test(test):
         _msg_run_test_failure('Renames differ')
         if actual_renames:
             for _in, _out in actual_renames.items():
-                print('  Actual:  "{!s}" -> "{!s}"'.format(_in, _out))
+                _msg('  Actual:  "{!s}" -> "{!s}"'.format(_in, _out))
         else:
-            print('  Actual:  No files were renamed')
+            _msg('  Actual:  No files were renamed')
 
         if expect_renames:
             for _in, _out in expect_renames.items():
-                print('Expected:  "{!s}" -> "{!s}"'.format(_in, _out))
+                _msg('Expected:  "{!s}" -> "{!s}"'.format(_in, _out))
         else:
-            print('Expected:  Expected no files to be renamed')
+            _msg('Expected:  Expected no files to be renamed')
 
         failures += 1
 
@@ -105,24 +114,81 @@ def msg_overall_failure():
     print(ui.colorize('[ SOME TESTS FAILED ]', fore='RED'))
 
 
+def msg_test_start(shortname, description):
+    if VERBOSE:
+        _desc = ui.colorize(description, style='DIM')
+        print()
+        print('Running "{}"'.format(shortname))
+        print(_desc)
+    else:
+        MAXLEN = 51
+        _desc_len = len(description)
+        if _desc_len > MAXLEN:
+            _desc = description[0:MAXLEN] + '..'
+        else:
+            _desc = description + ' '*(2 + MAXLEN - _desc_len)
+
+        _colordesc = ui.colorize(_desc, style='DIM')
+        _name = '"{}"'.format(shortname)
+        print('{:30.30s} {!s} '.format(_name, _colordesc), end='')
+
+
+def msg_test_skipped(shortname, description):
+    if VERBOSE:
+        print()
+        _label = ui.colorize('[SKIPPED]', fore='YELLOW')
+        _desc = ui.colorize(description, style='DIM')
+        print('{} "{!s}"'.format(_label, shortname))
+        print(_desc)
+    else:
+        MAXLEN = 51
+        _desc_len = len(description)
+        if _desc_len > MAXLEN:
+            _desc = description[0:MAXLEN] + '..'
+        else:
+            _desc = description + ' '*(2 + MAXLEN - _desc_len)
+
+        _colordesc = ui.colorize(_desc, style='DIM')
+        _name = '"{}"'.format(shortname)
+        _label = ui.colorize('[SKIPPED]', fore='YELLOW')
+        print('{:30.30s} {!s}  {} '.format(_name, _colordesc, _label), end='')
+
+
 def msg_test_success():
-    _label = ui.colorize('[SUCCESS]', fore='GREEN')
-    print('{} All assertions passed!'.format(_label))
+    if VERBOSE:
+        _label = ui.colorize('[SUCCESS]', fore='GREEN')
+        print('{} All assertions passed!'.format(_label))
+    else:
+        _label = ui.colorize('[SUCCESS]', fore='GREEN')
+        print(' ' + _label + ' ', end='')
 
 
 def msg_test_failure():
-    _label = ui.colorize('[FAILURE]', fore='RED')
-    print('{} One or more assertions FAILED!'.format(_label))
+    if VERBOSE:
+        _label = ui.colorize('[FAILURE]', fore='RED')
+        print('{} One or more assertions FAILED!'.format(_label))
+    else:
+        _label = ui.colorize('[FAILURE]', fore='RED')
+        print(' ' + _label + ' ', end='')
 
 
 def msg_test_runtime(elapsed_time, captured_time):
     if captured_time:
-        _captured = '{:.6f} seconds'.format(captured_time)
+        _captured = '{:.6f}s)'.format(captured_time)
     else:
-        _captured = 'N/A'
+        _captured = 'N/A)'
 
-    _test_time = '{:.6f} seconds'.format(elapsed_time)
-    print(' '*10 + 'Runtime: {}  (captured {})'.format(_test_time, _captured))
+    if elapsed_time:
+        _elapsed = '{:.6f}s'.format(elapsed_time)
+    else:
+        _elapsed = 'N/A'
+
+    _time_1 = '{:10.10s}'.format(_elapsed)
+    _time_2 = '{:10.10s}'.format(_captured)
+    if VERBOSE:
+        print(' '*10 + 'Runtime: {} (captured {}'.format(_time_1, _time_2))
+    else:
+        print('  {} ({}'.format(_time_1, _time_2))
 
 
 def msg_overall_stats(count_total, count_skipped, count_success, count_failure):
@@ -162,15 +228,13 @@ def run_regressiontests(tests):
 
         _dirname = types.force_string(test.get('test_dirname', '(?)'))
         _description = test.get('description', '(UNDESCRIBED)')
-
-        print()
         if test.get('skiptest'):
-            print('Skipped "{!s}"'.format(_dirname))
+            msg_test_skipped(_dirname, _description)
+            msg_test_runtime(None, None)
             count_skipped += 1
             continue
 
-        print('Running "{}"'.format(_dirname))
-        print(ui.colorize(_description, style='DIM'))
+        msg_test_start(_dirname, _description)
 
         failures = 0
         captured_time = None
@@ -210,12 +274,11 @@ def main(args):
 
     opts = parser.parse_args(args)
 
+    global VERBOSE
     if opts.verbose:
-        # TODO: [TD0120] Make the default output less verbose.
-        pass
+        VERBOSE = True
     else:
-        # TODO: [TD0120] Make the default output less verbose.
-        pass
+        VERBOSE = False
 
     tests = load_regressiontests()
     print('Loaded {} regression test(s) ..'.format(len(tests)))

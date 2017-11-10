@@ -19,6 +19,11 @@ University mail: `js224eh[a]student.lnu.se`
     >   Using callbacks to pass data back from the analyzers do not currently
     >   provide any benefits but is a lot more difficult to read and test than
     >   just simply returning the data directly, as the extractors do.
+    >
+    > Low Priority
+    > ------------
+    >
+    > * `[TD0120]` Use less verbose default output in the regression test runner.
 
 * 2017-11-07
 
