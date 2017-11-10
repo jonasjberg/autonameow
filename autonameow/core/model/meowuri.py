@@ -227,6 +227,10 @@ class MeowURI(object):
 
         return False
 
+    @property
+    def is_generic(self):
+        return self.root == C.MEOWURI_ROOT_GENERIC
+
     def __contains__(self, item):
         _self_string = str(self)
         if isinstance(item, self.__class__):

@@ -598,7 +598,7 @@ def parse_data_sources(raw_sources):
     return passed
 
 
-def is_valid_source(source_value):
+def is_valid_source(meowuri):
     """
     Check if the source is valid.
 
@@ -610,11 +610,18 @@ def is_valid_source(source_value):
     by a source.
 
     Args:
-        source_value: The source to test as a text string.
+        meowuri: The source to test as an instance of 'MeowURI'.
 
     Returns:
         The given source value if it passes the test, otherwise False.
     """
-    if providers.Registry.resolvable(source_value):
+    if not meowuri or not isinstance(meowuri, MeowURI):
+        print('Not meowuri or not instance of "MeowURI"')
+        return False
+
+    if meowuri.is_generic:
         return True
+    if providers.Registry.resolvable(meowuri):
+        return True
+
     return False
