@@ -12,6 +12,7 @@ Unsorted notes on overall program operation and usability.
 
 #### Revisions
 * 2017-10-01 --- `jonasjberg` Initial
+* 2017-11-10 --- `jonasjberg` Redefine `automagic` vs. "default"
 
 
 Current Plans
@@ -59,11 +60,13 @@ The plan has been the same for quite som time. High-level Goals:
 
 Operating Modes
 ===============
+Initial draft on options and intended interactions.
 
 
-### `--automagic`
-Try to rename without user interaction by using the highest ranked
-configuration rule.
+### `(default)`
+Try to rename by using the highest ranked configuration rule.
+
+Ask the user about any uncertainties, warnings, unresolved data, etc.
 
 * __Name Template__ --- If the rule matching does not result in a valid name
   template: __ask the user__.
@@ -71,9 +74,10 @@ configuration rule.
 * __Template Fields__ --- If any name templates fields are not mapped to data
   sources, or the mapped sources are missing or incompatible: __ask the user__.
 
-### `--automagic` and `--batch`
-Try to rename without user interaction by using the highest ranked
-configuration rule.
+### `--batch`
+Try to rename by using the highest ranked configuration rule.
+
+Do not interact with the user at all.
 
 * __Name Template__ --- If the rule matching does not result in a valid name
   template: __skip the file__.
@@ -82,6 +86,8 @@ configuration rule.
   sources, or the mapped sources are missing or incompatible: __skip the file__.
 
 ### `--interactive`
+Try to rename by using the highest ranked configuration rule.
+
 Leave all choices to the user.
 
 * __Name Template__ --- Ask the user which rule (containing a name template) or
@@ -89,3 +95,64 @@ Leave all choices to the user.
 
 * __Template Fields__ --- Ask the user which data sources (or rule containing
   data sources) to use.
+
+### `--automagic`
+Try to rename by using the highest ranked configuration rule or any other
+available means; "heuristics", etc.
+
+Ask the user about any uncertainties, warnings, unresolved data, etc.
+
+* __Name Template__ --- If the rule matching does not result in a valid name
+  template: __ask the user__.
+
+* __Template Fields__ --- If any name templates fields are not mapped to data
+  sources, or the mapped sources are missing or incompatible: __ask the user__.
+
+### `--automagic` and `--batch`
+Try to rename by using the highest ranked configuration rule or any other
+available means; "heuristics", etc.
+
+Do not interact with the user at all.
+
+* __Name Template__ --- If the rule matching does not result in a valid name
+  template: __skip the file__.
+
+* __Template Fields__ --- If any name templates fields are not mapped to data
+  sources, or the mapped sources are missing or incompatible: __skip the file__.
+
+### `--automagic` and `--interactive`
+Try to rename by using the highest ranked configuration rule or any other
+available means; "heuristics", etc.
+
+Have the user confirm everything and make all choices.
+
+* __Name Template__ --- Like `--automagic` but have the user confirm everything.
+* __Template Fields__ --- Like `--automagic` but have the user confirm everything.
+
+
+Breakdown of the Operating Modes
+================================
+Going with the above operating modes, the program modes control two aspects of
+program operation; `method` and `user interaction`.
+
+
+"Method"
+--------
+The "method" is either based on matching rules or the "automagic" mode which
+uses all available means to come up with *something*.
+
+* `(default)` --- Use rule-matching only.
+* `--automagic` --- Try everything to come up with *something*.  
+  First do rule-matching, then do whatever else.
+  Given at least one piece of candidate data per name template field,
+  this should not fail.
+
+
+User Interaction
+----------------
+The amount of (required) user interaction can be one of three levels;
+
+0. `--batch` --- No user interaction. For scripting, etc.
+1. `(default)` --- Ask the user if something cannot be resolved,
+   to confirm uncertainties, warnings, etc.
+2. `--interactive` --- Ask the user about just about everything.
