@@ -49,7 +49,7 @@ class AnalysisRunQueue(util.GenericQueue):
     """
     Execution queue for analyzers.
 
-    The queue order is determined by the class variable "run_queue_priority".
+    The queue order is determined by the class variable "RUN_QUEUE_PRIORITY".
     """
     def __init__(self):
         super().__init__()
@@ -67,7 +67,8 @@ class AnalysisRunQueue(util.GenericQueue):
             self._items.insert(0, analyzer)
 
     def __iter__(self):
-        for item in sorted(self._items, key=lambda x: x.run_queue_priority):
+        for item in sorted(self._items,
+                           key=lambda x: x.RUN_QUEUE_PRIORITY or 0.1):
             yield item
 
     def __str__(self):

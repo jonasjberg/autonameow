@@ -36,7 +36,7 @@ from core.util import (
 
 
 class DocumentAnalyzer(BaseAnalyzer):
-    run_queue_priority = 1
+    RUN_QUEUE_PRIORITY = 1
     HANDLES_MIME_TYPES = ['application/pdf', 'text/*']
 
     # TODO: [TD0122] Move away from using callbacks to store results.

@@ -42,7 +42,7 @@ class BaseAnalyzer(object):
     Includes common functionality and interfaces that must be implemented
     by inheriting analyzer classes.
     """
-    run_queue_priority = None
+    RUN_QUEUE_PRIORITY = None
 
     # List of MIME types that this analyzer can handle.
     # Supports simple "globbing". Examples: ['image/*', 'application/pdf']

@@ -58,7 +58,7 @@ PREFERRED_FILENAME_CHAR_SEPARATOR = '_'
 
 
 class FilenameAnalyzer(BaseAnalyzer):
-    run_queue_priority = 1
+    RUN_QUEUE_PRIORITY = 1
     HANDLES_MIME_TYPES = ['*/*']
 
     # TODO: [TD0122] Move away from using callbacks to store results.

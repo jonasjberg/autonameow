@@ -24,7 +24,7 @@ from analyzers import BaseAnalyzer
 
 
 class VideoAnalyzer(BaseAnalyzer):
-    run_queue_priority = 0.1
+    RUN_QUEUE_PRIORITY = 0.1
     HANDLES_MIME_TYPES = ['video/*']
 
     # TODO: [TD0122] Move away from using callbacks to store results.

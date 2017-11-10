@@ -24,7 +24,7 @@ from core.util import dateandtime
 
 
 class TextAnalyzer(BaseAnalyzer):
-    run_queue_priority = 0.5
+    RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['text/plain']
 
     # TODO: [TD0122] Move away from using callbacks to store results.

@@ -59,7 +59,7 @@ FILENAME_TAG_SEPARATOR = util.enc.bytestring_path(' -- ')
 
 
 class FiletagsAnalyzer(BaseAnalyzer):
-    run_queue_priority = 1
+    RUN_QUEUE_PRIORITY = 1
     HANDLES_MIME_TYPES = ['*/*']
 
     FIELD_LOOKUP = {
