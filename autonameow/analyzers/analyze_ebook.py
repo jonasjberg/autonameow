@@ -385,7 +385,9 @@ class ISBNMetadata(object):
 
     @authors.setter
     def authors(self, value):
-        if value and isinstance(value, list):
+        if value:
+            if not isinstance(value, list):
+                value = [value]
             self._authors = value
 
     @property
