@@ -24,9 +24,21 @@ import re
 import string
 from datetime import datetime
 
-import dateutil
-import pytz
-from dateutil import parser
+try:
+    import dateutil
+    from dateutil import parser
+except ImportError:
+    raise SystemExit(
+        'Missing required module "dateutil". '
+        'Make sure "dateutil" is available before running this program.'
+    )
+try:
+    import pytz
+except ImportError:
+    raise SystemExit(
+        'Missing required module "pytz". '
+        'Make sure "pytz" is available before running this program.'
+    )
 
 from core import constants as C
 from core import util
