@@ -24,6 +24,7 @@ import logging
 import extractors
 from core import repository
 from core.exceptions import InvalidMeowURIError
+from core.fileobject import FileObject
 from core.model import (
     ExtractedData,
     MeowURI
@@ -107,6 +108,9 @@ def start(fileobject,
     Starts extracting data for a given 'fileobject'.
     """
     log.debug(' Extraction Started '.center(80, '='))
+
+    assert isinstance(fileobject, FileObject), (
+        'Expected type "FileObject". Got {!s}')
 
     if require_extractors:
         _required_extractors = require_extractors
