@@ -303,7 +303,7 @@ class Autonameow(object):
             log.warning('[UNIMPLEMENTED FEATURE] interactive mode')
 
     def _perform_automagic_actions(self, current_file, rule_matcher):
-        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         best_match = None
         name_template = None
 
@@ -323,7 +323,7 @@ class Autonameow(object):
                 else:
                     best_match = rule_matcher.best_match
 
-        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         else:
             if rule_matcher.best_match:
                 _best_match_score = rule_matcher.best_match_score()
@@ -354,7 +354,7 @@ class Autonameow(object):
 
                 best_match = rule_matcher.best_match
 
-        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         if best_match and not name_template:
             name_template = best_match.name_template
             log.info(
@@ -377,7 +377,7 @@ class Autonameow(object):
 
         resolver.collect()
 
-        # TODO: [TD0100] Rewrite once the desired behaviour is spec'ed out.
+        # TODO: [TD0100] Rewrite as per 'notes/modes.md'.
         if not resolver.collected_all():
             if self.opts.get('mode_batch'):
                 log.warning('Unable to populate name.')
