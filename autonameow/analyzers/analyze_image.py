@@ -27,7 +27,7 @@ from core.util import dateandtime
 
 
 class ImageAnalyzer(BaseAnalyzer):
-    RUN_QUEUE_PRIORITY = 0.5
+    RUN_QUEUE_PRIORITY = 0.1
     HANDLES_MIME_TYPES = ['image/*']
 
     # TODO: [TD0122] Move away from using callbacks to store results.

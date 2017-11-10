@@ -68,7 +68,7 @@ CACHE_KEY_ISBNMETA = 'isbnlib_meta'
 
 
 class EbookAnalyzer(BaseAnalyzer):
-    RUN_QUEUE_PRIORITY = 1
+    RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
                           'image/vnd.djvu']
 
