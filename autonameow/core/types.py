@@ -256,8 +256,10 @@ class Boolean(BaseType):
     EQUIVALENT_TYPES = (bool, )
     NULL = False
 
-    STR_TRUE = frozenset('positive true yes'.split())
-    STR_FALSE = frozenset('negative false no'.split())
+    STR_TRUE = frozenset('positive true yes on enable enabled active'.split())
+    STR_FALSE = frozenset(
+        'negative false no off disable disabled inactive passive'.split()
+    )
 
     def string_to_bool(self, string_value):
         value = string_value.lower().strip()
