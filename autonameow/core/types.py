@@ -264,8 +264,8 @@ class PathComponent(BaseType):
         self._fail_normalization(value)
 
     def format(self, value, **kwargs):
-        value = self.__call__(value)
-        return util.enc.displayable_path(value)
+        _coerced = self.__call__(value)
+        return util.enc.displayable_path(_coerced)
 
 
 class Boolean(BaseType):

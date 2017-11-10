@@ -993,8 +993,24 @@ class TestTypePathComponent(TestCase):
         _assert_raises(datetime.now())
 
     def test_format(self):
-        # TODO: Add additional tests.
-        self.skipTest('TODO: Add additional tests ..')
+        def _assert_formats(test_data, expected):
+            actual = types.AW_PATHCOMPONENT.format(test_data)
+            self.assertEqual(actual, expected)
+
+        _assert_formats('', '')
+        _assert_formats(None, '')
+        _assert_formats(b'/tmp', '/tmp')
+        _assert_formats(b'/tmp/foo', '/tmp/foo')
+        _assert_formats(b'/tmp/foo.bar', '/tmp/foo.bar')
+        _assert_formats('/tmp', '/tmp')
+        _assert_formats('/tmp/foo', '/tmp/foo')
+        _assert_formats('/tmp/foo.bar', '/tmp/foo.bar')
+        _assert_formats(b'~', '~')
+        _assert_formats(b'~/foo', '~/foo')
+        _assert_formats(b'~/foo.bar', '~/foo.bar')
+        _assert_formats('~', '~')
+        _assert_formats('~/foo', '~/foo')
+        _assert_formats('~/foo.bar', '~/foo.bar')
 
 
 class TestTypeString(TestCase):
