@@ -45,8 +45,7 @@ def find_analyzer_files():
     Returns: List of basenames of any found analyzer source files.
     """
     analyzer_files = [x for x in os.listdir(AUTONAMEOW_ANALYZER_PATH)
-                      if x.endswith('.py') and x.startswith('analyze_')
-                      and x != '__init__.py']
+                      if x.endswith('.py') and x.startswith('analyze_')]
     return analyzer_files
 
 
