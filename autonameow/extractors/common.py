@@ -93,10 +93,6 @@ class BaseExtractor(object):
         )
         # TODO: Set 'FIELD_LOOKUP' default values? Maybe 'multiple' = False?
 
-    def __call__(self, fileobject, **kwargs):
-        # TODO: [TD0119] Separate adding contextual information from coercion.
-        raise AutonameowException('[TD0119] Deprecate "__call__()"')
-
     @classmethod
     def meowuri_prefix(cls):
         def _undefined(attribute):
