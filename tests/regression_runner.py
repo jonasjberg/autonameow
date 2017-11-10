@@ -106,12 +106,16 @@ def run_test(test):
     return failures, captured_runtime
 
 
+def _center_with_fill(text):
+    return text.center(TERMINAL_WIDTH, '=')
+
+
 def msg_overall_success():
-    print(ui.colorize('[ ALL TESTS PASSED! ]', fore='GREEN'))
+    print(ui.colorize(_center_with_fill('  ALL TESTS PASSED!  '),fore='GREEN'))
 
 
 def msg_overall_failure():
-    print(ui.colorize('[ SOME TESTS FAILED ]', fore='RED'))
+    print(ui.colorize(_center_with_fill('  SOME TESTS FAILED  '), fore='RED'))
 
 
 def msg_test_start(shortname, description):
