@@ -24,11 +24,9 @@ import logging
 from core import constants as C
 from core import (
     providers,
-    types,
     util
 )
 from core.exceptions import AutonameowException
-from core.util import sanity
 
 
 class ExtractorError(AutonameowException):
