@@ -31,6 +31,9 @@ from core import (
 import unit_utils as uu
 
 
+USER_HOME = os.path.expanduser('~')
+
+
 class TestBaseType(TestCase):
     def setUp(self):
         self.base_type = types.BaseType()
@@ -867,13 +870,12 @@ class TestTypePath(TestCase):
                                 'BaseType default "null" must be overridden')
 
     def test_normalize(self):
-        user_home = os.path.expanduser('~')
         self.assertEqual(types.AW_PATH.normalize('~'),
-                         util.enc.encode_(user_home))
+                         util.enc.encode_(USER_HOME))
         self.assertEqual(types.AW_PATH.normalize('~/'),
-                         util.enc.encode_(user_home))
+                         util.enc.encode_(USER_HOME))
 
-        expected = os.path.normpath(os.path.join(user_home, 'foo'))
+        expected = os.path.normpath(os.path.join(USER_HOME, 'foo'))
         self.assertEqual(types.AW_PATH.normalize('~/foo'),
                          util.enc.encode_(expected))
 
@@ -909,8 +911,15 @@ class TestTypePath(TestCase):
         _assert_raises('')
 
     def test_format(self):
-        # TODO: Add additional tests.
-        self.skipTest('TODO: Add additional tests ..')
+        def _assert_formats(test_data, expected):
+            self.assertEqual(types.AW_PATH.format(test_data), expected)
+
+        _assert_formats(b'/tmp', '/tmp')
+        _assert_formats(b'/tmp/foo', '/tmp/foo')
+        _assert_formats(b'/tmp/foo.bar', '/tmp/foo.bar')
+        _assert_formats(b'~', USER_HOME)
+        _assert_formats(b'~/foo', os.path.join(USER_HOME, 'foo'))
+        _assert_formats(b'~/foo.bar', os.path.join(USER_HOME, 'foo.bar'))
 
 
 class TestTypePathComponent(TestCase):
@@ -926,13 +935,12 @@ class TestTypePathComponent(TestCase):
                             'BaseType default "null" must be overridden')
 
     def test_normalize_path_with_user_home(self):
-        user_home = os.path.expanduser('~')
         self.assertEqual(types.AW_PATHCOMPONENT.normalize('~'),
-                         util.enc.encode_(user_home))
+                         util.enc.encode_(USER_HOME))
         self.assertEqual(types.AW_PATHCOMPONENT.normalize('~/'),
-                         util.enc.encode_(user_home))
+                         util.enc.encode_(USER_HOME))
 
-        expected = os.path.normpath(os.path.join(user_home, 'foo'))
+        expected = os.path.normpath(os.path.join(USER_HOME, 'foo'))
         self.assertEqual(types.AW_PATHCOMPONENT.normalize('~/foo'),
                          util.enc.encode_(expected))
 

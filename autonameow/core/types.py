@@ -238,8 +238,8 @@ class Path(BaseType):
         self._fail_normalization(value)
 
     def format(self, value, **kwargs):
-        parsed = self.__call__(value)
-        return util.enc.displayable_path(parsed)
+        _normalized = self.normalize(value)
+        return util.enc.displayable_path(_normalized)
 
 
 class PathComponent(BaseType):
