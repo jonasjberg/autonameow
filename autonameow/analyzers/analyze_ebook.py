@@ -72,11 +72,9 @@ class EbookAnalyzer(BaseAnalyzer):
     HANDLES_MIME_TYPES = ['application/pdf', 'application/epub+zip',
                           'image/vnd.djvu']
 
-    # TODO: [TD0122] Move away from using callbacks to store results.
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         super(EbookAnalyzer, self).__init__(
-            fileobject, config, add_results_callback, request_data_callback
+            fileobject, config, request_data_callback
         )
 
         self.text = None
@@ -89,7 +87,7 @@ class EbookAnalyzer(BaseAnalyzer):
             if _cached_isbn_metadata:
                 self._cached_isbn_metadata = _cached_isbn_metadata
 
-    def run(self):
+    def analyze(self):
         _maybe_text = self.request_any_textual_content()
         if not _maybe_text:
             return

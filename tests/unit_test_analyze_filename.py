@@ -41,7 +41,6 @@ def get_filename_analyzer(fileobject):
     return FilenameAnalyzer(
         fileobject,
         uu.get_default_config(),
-        add_results_callback=uu.mock_add_results_callback,
         request_data_callback=uu.mock_request_data_callback
     )
 
@@ -147,7 +146,6 @@ class TestFileNameAnalyzerWithEbook(TestCase):
         self.a = FilenameAnalyzer(
             fo,
             config=uu.get_default_config(),
-            add_results_callback=uu.mock_analyzer_collect_data,
             request_data_callback=self._mock_request_data
         )
 

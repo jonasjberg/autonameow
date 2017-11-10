@@ -51,7 +51,7 @@ class TestBaseAnalyzer(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.a = analyzers.BaseAnalyzer(
-            uu.get_mock_fileobject(), uu.get_default_config(), None, None
+            uu.get_mock_fileobject(), uu.get_default_config(), None
         )
 
         class DummyFileObject(object):

@@ -10,6 +10,16 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-11-10
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0122]` __Move away from using callbacks to return analyzer results.__  
+    >   Using callbacks to pass data back from the analyzers do not currently
+    >   provide any benefits but is a lot more difficult to read and test than
+    >   just simply returning the data directly, as the extractors do.
+
 * 2017-11-07
 
     > High Priority

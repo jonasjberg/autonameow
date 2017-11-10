@@ -41,7 +41,12 @@ class BaseAnalyzer(object):
 
     Includes common functionality and interfaces that must be implemented
     by inheriting analyzer classes.
+
+    The analyzer classes must be re-created for every 'FileObject' that should
+    be analyzed.  Compare this to the extractors that are instantiated once and
+    take the 'FileObject' as an argument to the 'extract() method'.
     """
+    # Optional priority as a float between 0-1. Used when sorting the run queue.
     RUN_QUEUE_PRIORITY = None
 
     # List of MIME types that this analyzer can handle.
@@ -58,20 +63,50 @@ class BaseAnalyzer(object):
     # TODO: Hack ..
     coerce_field_value = providers.ProviderMixin.coerce_field_value
 
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         self.config = config
         self.fileobject = fileobject
-        self.add_results = add_results_callback
         self.request_data = request_data_callback
 
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
 
+        self.results = {}
+
     def run(self):
         """
-        Starts the analysis performed by this analyzer.
+        Starts an analysis and returns results from a specific analyzer.
+
+        The return value is a dictionary keyed by "MeowURIs", storing (?) data.
+        The data should be "safe", I.E. validated and converted to a suitable
+        "internal format" --- text should be returned as Unicode strings, etc.
+
+        Returns:
+            All data produced gathered by the analyzer as a dict keyed by
+            "MeowURIs", storing arbitrary data or lists of arbitrary data.
+
+        Raises:
+            AnalyzerError: The extraction could not be completed successfully.
+        """
+        self.analyze()
+        return self.results
+
+    def analyze(self):
+        """
+        Performs the analysis and stores data in instance attribute 'results'.
+
+          NOTE: This method __MUST__ be implemented by inheriting classes!
+
+        Implementing classes should make sure to catch all exceptions and
+        re-raise an "AnalyzerError", passing any valuable information along.
+
+        Only raise the "AnalyzerError" exception for irrecoverable errors.
+        Otherwise, implementers should strive to return empty values of the
+        expected type. The type coercers in 'types.py' could be useful here.
+
+        Raises:
+            AnalyzerError: The extraction could not be completed successfully.
         """
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
@@ -105,7 +140,7 @@ class BaseAnalyzer(object):
 
     def _add_results(self, meowuri_leaf, data):
         """
-        Used by analyzer classes to store results data in the repository.
+        Stores results in an instance variable dict under a full MeowURI.
 
         Constructs a full "MeowURI" from the given 'meowuri_leaf' and the
         analyzer-specific MeowURI.
@@ -113,17 +148,19 @@ class BaseAnalyzer(object):
         Args:
             meowuri_leaf: Last part of the "MeowURI"; for example 'author',
                 as a Unicode str.
-            data: A list of dicts, each containing some data, source and weight.
+            data: ?
         """
-        # TODO: [TD0122] Move away from using callbacks to store results.
         if data is None:
             return
 
         _meowuri = '{}.{}'.format(self.meowuri_prefix(), meowuri_leaf)
-        self.log.debug(
-            '{!s} passing "{}" to "add_results" callback'.format(self, _meowuri)
-        )
-        self.add_results(self.fileobject, _meowuri, data)
+        _existing_data = self.results.get(_meowuri)
+        if _existing_data:
+            self.results[_meowuri] = [_existing_data] + [data]
+        else:
+            self.results[_meowuri] = data
+
+        self.log.debug('{!s} stored [{!s}] "{!s}"'.format(self, _meowuri, data))
 
     def request_any_textual_content(self):
         _response = self.request_data(self.fileobject,

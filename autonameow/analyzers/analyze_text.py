@@ -27,23 +27,20 @@ class TextAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['text/plain']
 
-    # TODO: [TD0122] Move away from using callbacks to store results.
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         super(TextAnalyzer, self).__init__(
-            fileobject, config, add_results_callback, request_data_callback
+            fileobject, config, request_data_callback
         )
 
         self.text = None
 
-    def run(self):
+    def analyze(self):
         _maybe_text = self.request_any_textual_content()
         if not _maybe_text:
             return
 
         self.text = _maybe_text
 
-        # Pass results through callback function provided by the 'Analysis'.
         self._add_results('author', self.get_author())
         self._add_results('title', self.get_title())
         self._add_results('datetime', self.get_datetime())

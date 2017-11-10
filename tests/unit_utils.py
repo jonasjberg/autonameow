@@ -276,10 +276,6 @@ def mock_analyzer_request_global_data(fileobject, meowuri):
     return response
 
 
-def mock_add_results_callback(fileobject, label, data):
-    pass
-
-
 def load_repository_dump(file_path):
     """
     Loads pickled repository contents from file at "file_path".
@@ -585,7 +581,7 @@ def get_instantiated_analyzers():
     # NOTE: These are instantiated with a None FileObject, which might be a
     #       problem and is surely not very pretty.
     import analyzers
-    return [klass(None, None, None, None) for klass in
+    return [klass(None, None, None) for klass in
             analyzers.get_analyzer_classes()]
 
 

@@ -25,12 +25,10 @@ from analyzers.analyze_filesystem import FilesystemAnalyzer
 import unit_utils as uu
 
 
-# TODO: [TD0122] Move away from using callbacks to store results.
 def get_filesystem_analyzer(fileobject):
     return FilesystemAnalyzer(
         fileobject,
         uu.get_default_config(),
-        add_results_callback=uu.mock_add_results_callback,
         request_data_callback=uu.mock_request_data_callback
     )
 

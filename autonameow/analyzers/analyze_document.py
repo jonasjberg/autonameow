@@ -39,16 +39,14 @@ class DocumentAnalyzer(BaseAnalyzer):
     RUN_QUEUE_PRIORITY = 0.5
     HANDLES_MIME_TYPES = ['application/pdf', 'text/*']
 
-    # TODO: [TD0122] Move away from using callbacks to store results.
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         super(DocumentAnalyzer, self).__init__(
-            fileobject, config, add_results_callback, request_data_callback
+            fileobject, config, request_data_callback
         )
 
         self.text = None
 
-    def run(self):
+    def analyze(self):
         _maybe_text = self.request_any_textual_content()
         if not _maybe_text:
             return

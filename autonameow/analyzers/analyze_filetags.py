@@ -101,11 +101,9 @@ class FiletagsAnalyzer(BaseAnalyzer):
         }
     }
 
-    # TODO: [TD0122] Move away from using callbacks to store results.
-    def __init__(self, fileobject, config,
-                 add_results_callback, request_data_callback):
+    def __init__(self, fileobject, config, request_data_callback):
         super(FiletagsAnalyzer, self).__init__(
-            fileobject, config, add_results_callback, request_data_callback
+            fileobject, config, request_data_callback
         )
 
         self._timestamp = None
@@ -114,7 +112,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
         self._extension = None
         self._follows_filetags_convention = None
 
-    def run(self):
+    def analyze(self):
         (_raw_timestamp, _raw_description, _raw_tags,
          _raw_extension) = partition_basename(self.fileobject.abspath)
         _raw_follows_convention = self.follows_filetags_convention()

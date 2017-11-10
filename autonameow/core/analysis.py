@@ -40,8 +40,7 @@ log = logging.getLogger(__name__)
 Performs high-level handling of an analysis.
 
 A run queue is populated based on which analyzers are suited for the
-current file.  The enqueued analyzers are executed and any results are
-passed back through a callback function.
+current file.
 """
 
 
@@ -88,10 +87,14 @@ def _execute_run_queue(analyzer_queue):
 
         log.debug('Running Analyzer "{!s}"'.format(a))
         try:
-            a.run()
+            results = a.run()
         except analyzers.AnalyzerError as e:
             log.error('Halted analyzer "{!s}": {!s}'.format(a, e))
             continue
+
+        fileobject = a.fileobject
+        for _uri, _data in results.items():
+            collect_results(fileobject, _uri, _data)
 
         log.debug('Finished running "{!s}"'.format(a))
 
@@ -103,9 +106,7 @@ def request_global_data(fileobject, meowuri):
 
 def collect_results(fileobject, meowuri_prefix, data):
     """
-    Collects analysis results. Passed to analyzers as a callback.
-
-    Analyzers call this to store results data in the session repository.
+    Collects analyzer results to store in the session repository.
 
     If argument "data" is a dictionary, it is "flattened" here.
     Example:
@@ -164,7 +165,6 @@ def _instantiate_analyzers(fileobject, klass_list, config):
     return [
         analyzer(
             fileobject, config,
-            add_results_callback=collect_results,
             request_data_callback=request_global_data
         ) for analyzer in klass_list
     ]
