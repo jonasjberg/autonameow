@@ -141,9 +141,17 @@ class Resolver(object):
                     if len(_data) == 1:
                         _data = _data[0]
                     else:
-                        # TODO: Fix this!
-                        log.info('Not sure which of many entries to use ..')
-                        continue
+                        seen_data = set()
+                        for d in _data:
+                            seen_data.add(d.value)
+
+                        if len(seen_data) == 1:
+                            log.debug('Using first of {} ExtractedData entries '
+                                      'with the same data'.format(len(_data))
+                            )
+                            _data = _data[0]
+                            # TODO: [TD0112] FIX THIS!
+                            # _data.value = _data.value[0]
 
                 if isinstance(_data, dict):
                     # TODO: [TD0108] Fix inconsistent plugin results.
