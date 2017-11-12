@@ -41,7 +41,7 @@ from core import (
 from core import constants as C
 from core.config.configuration import Configuration
 from core.evaluate import (
-    Resolver,
+    TemplateFieldDataResolver,
     RuleMatcher
 )
 from core.fileobject import FileObject
@@ -365,7 +365,7 @@ class Autonameow(object):
             log.warning('No valid name template chosen. Aborting.')
             return
 
-        resolver = Resolver(current_file, name_template)
+        resolver = TemplateFieldDataResolver(current_file, name_template)
         resolver.add_known_sources(rule_matcher.best_match.data_sources)
 
         if self.opts.get('mode_batch'):

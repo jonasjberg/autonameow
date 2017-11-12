@@ -19,6 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from core.evaluate.resolver import Resolver
+from core.evaluate.resolver import TemplateFieldDataResolver
 from core.evaluate.rulematcher import RuleMatcher
 

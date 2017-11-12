@@ -42,7 +42,7 @@ log = logging.getLogger(__name__)
 # "pipeline" --- from "raw" data to the final new file name.
 
 
-class Resolver(object):
+class TemplateFieldDataResolver(object):
     def __init__(self, fileobject, name_template):
         self.file = fileobject
         self.name_template = name_template
