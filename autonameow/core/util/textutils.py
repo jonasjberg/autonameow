@@ -29,7 +29,6 @@ except ImportError:
     chardet = None
 
 from core.util import sanity
-from thirdparty import nameparser
 
 
 def extract_digits(string):
@@ -167,101 +166,6 @@ def extract_lines(text, firstline, lastline):
 
     extracted = lines[firstline:lastline]
     return ''.join(extracted)
-
-
-RE_AUTHOR_ET_AL = re.compile(
-    r'[\[\(\{]?et.al\.?[\]\)\}]?', re.IGNORECASE
-)
-
-
-def strip_author_et_al(string):
-    return RE_AUTHOR_ET_AL.sub('', string)
-
-
-IGNORED_AUTHOR_WORDS = frozenset([
-    '...',
-])
-
-
-def parse_name(full_name):
-    """
-    Thin wrapper around 'nameparser'.
-
-    Args:
-        full_name: The name to parse as a Unicode string.
-
-    Returns:
-        The parsed name as an instance of the 'HumanName' class.
-    """
-    if nameparser:
-        return nameparser.HumanName(full_name)
-    return None
-
-
-def format_name_lastname_initials(full_name):
-    """
-    Formats a full name to LAST_NAME, INITIALS..
-
-    Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
-
-    Args:
-        full_name: The full name to format as a Unicode string.
-
-    Returns:
-        The specified name written as LAST_NAME, INITIAL, INITIAL..
-    """
-    sanity.check_internal_string(full_name)
-
-    for ignored_word in IGNORED_AUTHOR_WORDS:
-        full_name = full_name.replace(ignored_word, '')
-
-    full_name = strip_author_et_al(full_name)
-
-    full_name = full_name.strip()
-    full_name = full_name.rstrip(',')
-    full_name = full_name.lstrip(',')
-
-    # Return names already in the output format as-is.
-    if re.match(r'[\w-]+ (\w\.)+$', full_name):
-        return full_name
-
-    # Using the third-party 'nameparser' module.
-    _human_name = parse_name(full_name)
-    if not _human_name:
-        return ''
-
-    # Some first names are misinterpreted as titles.
-    if _human_name.first == '':
-        first_list = _human_name.title_list
-    else:
-        first_list = _human_name.first_list
-
-    def _to_initial(string):
-        string = string.strip('.')
-        try:
-            return string[0]
-        except IndexError:
-            return ''
-
-    initials = [_to_initial(f) for f in first_list]
-    initials += [_to_initial(m) for m in _human_name.middle_list]
-    _initials = '{0}{1}'.format('.'.join(initials), '.')
-
-    last_name = _human_name.last.replace(' ', '')
-    return '{} {}'.format(last_name, _initials).strip()
-
-
-def format_names(list_of_full_names, formatter):
-    assert callable(formatter), 'Argument "formatter" must be callable'
-
-    _formatted_authors = [formatter(a) for a in list_of_full_names]
-    return sorted(_formatted_authors, key=str.lower)
-
-
-def format_names_lastname_initials(list_of_full_names):
-    return format_names(list_of_full_names, format_name_lastname_initials)
-
-
 # \u002D Hyphen-minus
 # \u05BE Hebrew punctuation MAQAF
 # \u2010 Hyphen

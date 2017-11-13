@@ -28,10 +28,8 @@ from core import (
     types,
 )
 from core.model import ExtractedData
-from core.util import (
-    sanity,
-    textutils
-)
+from core.util import sanity
+from core.util.text import humannames
 
 
 log = logging.getLogger(__name__)
@@ -219,7 +217,7 @@ class Author(NameTemplateField):
 
                 sanity.check_internal_string(string)
                 _formatted.append(
-                    textutils.format_name_lastname_initials(string)
+                    humannames.format_name_lastname_initials(string)
                 )
 
             return ' '.join(sorted(_formatted))
@@ -240,7 +238,7 @@ class Author(NameTemplateField):
                 )
 
             sanity.check_internal_string(string)
-            return textutils.format_name_lastname_initials(data.value)
+            return humannames.format_name_lastname_initials(data.value)
 
 
 class Creator(NameTemplateField):
