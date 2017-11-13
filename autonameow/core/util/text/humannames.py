@@ -74,7 +74,7 @@ def format_name_lastname_initials(full_name):
 
     full_name = full_name.strip()
     full_name = full_name.rstrip(',')
-    full_name = full_name.lstrip(',')
+    full_name = full_name.lstrip('.')
 
     # Return names already in the output format as-is.
     if re.match(r'[\w-]+ (\w\.)+$', full_name):
