@@ -286,3 +286,10 @@ Wishlist
     and added to the user configuration.
 
 * Add API for developing GUI wrappers and web frontends.
+
+
+Windows-compatibility *(Very Low Priority)*
+-------------------------------------------
+
+* Bundle `python-magic` dependencies?
+  https://github.com/ahupp/python-magic#dependencies
