@@ -20,8 +20,15 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import magic
 import mimetypes
+
+try:
+    import magic
+except ImportError:
+    raise SystemExit(
+        'Missing required module "magic".  Make sure "magic" (python-magic) '
+        'is available before running this program.'
+    )
 
 from core import types
 from core.util import sanity
