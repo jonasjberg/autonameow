@@ -217,7 +217,7 @@ class Author(NameTemplateField):
 
                 sanity.check_internal_string(string)
                 _formatted.append(
-                    humannames.format_name_lastname_initials(string)
+                    humannames.format_name(string)
                 )
 
             return ' '.join(sorted(_formatted))
@@ -238,7 +238,7 @@ class Author(NameTemplateField):
                 )
 
             sanity.check_internal_string(string)
-            return humannames.format_name_lastname_initials(data.value)
+            return humannames.format_name(data.value)
 
 
 class Creator(NameTemplateField):

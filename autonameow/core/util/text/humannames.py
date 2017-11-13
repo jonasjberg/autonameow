@@ -30,12 +30,16 @@ RE_AUTHOR_ET_AL = re.compile(
 )
 
 IGNORED_AUTHOR_WORDS = frozenset([
-    '...',
+    '',
 ])
 
 
 def strip_author_et_al(string):
-    return RE_AUTHOR_ET_AL.sub('', string)
+    """
+    Attempts to remove variations of "et al." from a Unicode string.
+    """
+    _subbed = RE_AUTHOR_ET_AL.sub('', string).replace('...', '')
+    return _subbed.strip().rstrip(',').lstrip('.')
 
 
 def parse_name(full_name):
@@ -46,14 +50,15 @@ def parse_name(full_name):
         full_name: The name to parse as a Unicode string.
 
     Returns:
-        The parsed name as an instance of the 'HumanName' class.
+        The parsed name as an instance of the 'HumanName' class or None if
+        "nameparser" is unavailable.
     """
     if nameparser:
         return nameparser.HumanName(full_name)
     return None
 
 
-def format_name_lastname_initials(full_name):
+def _format_name_lastname_initials(full_name):
     """
     Formats a full name to LAST_NAME, INITIALS..
 
@@ -106,12 +111,44 @@ def format_name_lastname_initials(full_name):
     return '{} {}'.format(last_name, _initials).strip()
 
 
-def format_names(list_of_full_names, formatter):
+DEFAULT_NAME_FORMATTER = _format_name_lastname_initials
+
+
+def format_name_list(list_of_human_names, formatter=None):
+    """
+    Formats a list of human names using a specific formatter.
+
+    Args:
+        list_of_human_names: List of human names as Unicode strings.
+        formatter: Callable that accepts an returns a Unicode string.
+                   Argument is optional and uses a default in unspecified.
+
+    Returns:
+        A lexicographically sorted list of the given names as Unicode strings,
+        after having been processed by "formatter".
+    """
+    if not formatter:
+        formatter = DEFAULT_NAME_FORMATTER
     assert callable(formatter), 'Argument "formatter" must be callable'
 
-    _formatted_authors = [formatter(a) for a in list_of_full_names]
-    return sorted(_formatted_authors, key=str.lower)
+    _formatted_names = [formatter(n) for n in list_of_human_names]
+    return sorted(_formatted_names, key=str.lower)
 
 
-def format_names_lastname_initials(list_of_full_names):
-    return format_names(list_of_full_names, format_name_lastname_initials)
+def format_name(human_name, formatter=None):
+    """
+    Formats a human name using a specific formatter.
+
+    Args:
+        human_name: Human name as a Unicode string.
+        formatter: Callable that accepts an returns a Unicode string.
+                   Argument is optional and uses a default in unspecified.
+
+    Returns:
+        The given name as a Unicode string, after processing by "formatter".
+    """
+    if not formatter:
+        formatter = DEFAULT_NAME_FORMATTER
+    assert callable(formatter), 'Argument "formatter" must be callable'
+
+    return formatter(human_name)

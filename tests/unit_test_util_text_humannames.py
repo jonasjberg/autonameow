@@ -21,7 +21,13 @@
 
 import unittest
 
-from core.util import textutils
+from core.util.text.humannames import (
+    _format_name_lastname_initials,
+    format_name,
+    format_name_list,
+    parse_name,
+    strip_author_et_al
+)
 
 
 def nameparser_unavailable():
@@ -29,13 +35,39 @@ def nameparser_unavailable():
     return _nameparser is None, 'Failed to import "thirdparty.nameparser"'
 
 
-@unittest.skipIf(*nameparser_unavailable())
-class TestFormatNameLastnameInitials(unittest.TestCase):
-    def test_formats_author(self):
-        def _aE(input_, expect):
-            actual = textutils.format_name_lastname_initials(input_)
+class TeststripAuthorEtAl(unittest.TestCase):
+    def test_strips_et_al_variations(self):
+        def _t(test_input):
+            actual = strip_author_et_al(test_input)
+            expect = 'Gibson Catberg'
             self.assertEqual(actual, expect)
 
+        _t('Gibson Catberg, et al.')
+        _t('Gibson Catberg, et al')
+        _t('Gibson Catberg et al')
+        _t('Gibson Catberg [et al]')
+        _t('Gibson Catberg [et al.]')
+        _t('Gibson Catberg {et al}')
+        _t('Gibson Catberg {et al.}')
+        _t('Gibson Catberg, ... et al.')
+        _t('Gibson Catberg, ... et al')
+        _t('Gibson Catberg ... et al')
+        _t('Gibson Catberg ... [et al]')
+        _t('Gibson Catberg ... [et al.]')
+        _t('Gibson Catberg ... {et al}')
+        _t('Gibson Catberg ... {et al.}')
+
+
+@unittest.skipIf(*nameparser_unavailable())
+class TestFormatNameLastnameInitials(unittest.TestCase):
+    def test_formats_full_human_names(self):
+        def _aE(input_, expect):
+            actual = format_name(input_, _format_name_lastname_initials)
+            self.assertEqual(actual, expect)
+
+        _aE('', '')
+        _aE(' ', '')
+        _aE('G', 'G.')
         _aE('Gibson', 'G.')
         _aE('Gibson Sjöberg', 'Sjöberg G.')
         _aE('Gibson Mjau Sjöberg', 'Sjöberg G.M.')
@@ -100,9 +132,9 @@ class TestFormatNameLastnameInitials(unittest.TestCase):
 
 
 class TestFormatNamesLastnameInitials(unittest.TestCase):
-    def test_formats_authors(self):
+    def test_formats_lists_of_full_human_names(self):
         def _aE(input_, expect):
-            actual = textutils.format_names_lastname_initials(input_)
+            actual = format_name_list(input_, _format_name_lastname_initials)
             self.assertEqual(actual, expect)
 
         _aE(input_=['David B. Makofske', 'Michael J. Donahoo',
@@ -145,12 +177,12 @@ class TestFormatNamesLastnameInitials(unittest.TestCase):
 @unittest.skipIf(*nameparser_unavailable())
 class TestParseName(unittest.TestCase):
     def test_parses_strings(self):
-        actual = textutils.parse_name('foo')
+        actual = parse_name('foo')
         self.assertIsNotNone(actual)
         self.assertEqual(actual.original, 'foo')
 
     def test_parses_name(self):
-        actual = textutils.parse_name('Gibson Catson, Ph.D.')
+        actual = parse_name('Gibson Catson, Ph.D.')
         self.assertIsNotNone(actual)
         self.assertEqual(actual.first, 'Gibson')
         self.assertEqual(actual.last, 'Catson')
