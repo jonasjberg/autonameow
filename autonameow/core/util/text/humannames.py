@@ -42,63 +42,81 @@ def strip_author_et_al(string):
     return _subbed.strip().rstrip(',').lstrip('.')
 
 
-def parse_name(full_name):
+def parse_name(human_name):
     """
     Thin wrapper around 'nameparser'.
 
     Args:
-        full_name: The name to parse as a Unicode string.
+        human_name: The name to parse as a Unicode string.
 
     Returns:
         The parsed name as an instance of the 'HumanName' class or None if
         "nameparser" is unavailable.
     """
     if nameparser:
-        return nameparser.HumanName(full_name)
+        return nameparser.HumanName(human_name)
     return None
 
 
 class HumanNameFormatter(object):
-    def __call__(self, full_name):
-        raise NotImplementedError('Must be implemented by inheriting classes.')
+    """
+    Base class for all human name formatters with shared utility functionality.
 
-    def preprocess(self, full_name):
-        pass
+    Instances of this class and its inheriting classes should *NOT* retain any
+    kind of state. Inheriting classes should implement the 'format()' method.
+
+    Example usage:  formatted = HumanNameFormatterSubclass()('Lord Gibson')
+    """
+    def __call__(self, name):
+        sanity.check_internal_string(name)
+        preprocessed_name = self._preprocess(name)
+        return self.format(preprocessed_name)
+
+    def _preprocess(self, name):
+        if not name or not name.strip():
+            return ''
+
+        for ignored_word in IGNORED_AUTHOR_WORDS:
+            name = name.replace(ignored_word, '')
+
+        name = strip_author_et_al(name)
+        name = name.strip().rstrip(',').lstrip('.')
+        return name
+
+    def format(self, name):
+        """
+        Formats a human name to a class-specific format.
+
+          NOTE: This method __MUST__ be implemented by inheriting classes!
+
+        Args:
+            name: The human name to format as a Unicode string.
+
+        Returns:
+            A formatted version of the given name as a Unicode string.
+        """
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
 
 class LastNameInitialsFormatter(HumanNameFormatter):
-    def __call__(self, full_name):
+    def format(self, name):
         """
         Formats a full name to LAST_NAME, INITIALS..
 
         Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
 
         Args:
-            full_name: The full name to format as a Unicode string.
+            name: The full name to format as a Unicode string.
 
         Returns:
             The specified name written as LAST_NAME, INITIAL, INITIAL..
         """
-        sanity.check_internal_string(full_name)
-
-        if not full_name.strip():
-            return ''
-
-        for ignored_word in IGNORED_AUTHOR_WORDS:
-            full_name = full_name.replace(ignored_word, '')
-
-        full_name = strip_author_et_al(full_name)
-
-        full_name = full_name.strip()
-        full_name = full_name.rstrip(',')
-        full_name = full_name.lstrip('.')
-
         # Return names already in the output format as-is.
-        if re.match(r'[\w-]+ (\w\.)+$', full_name):
-            return full_name
+        if re.match(r'[\w-]+ (\w\.)+$', name):
+            return name
 
         # Using the third-party 'nameparser' module.
-        _human_name = parse_name(full_name)
+        _human_name = parse_name(name)
         if not _human_name:
             return ''
 

@@ -25,6 +25,7 @@ import unittest
 from core.util.text.humannames import (
     format_name,
     format_name_list,
+    HumanNameFormatter,
     LastNameInitialsFormatter,
     parse_name,
     strip_author_et_al
@@ -200,6 +201,55 @@ class TestParseName(unittest.TestCase):
         self.assertEqual(actual.first, 'Gibson')
         self.assertEqual(actual.last, 'Catson')
         self.assertEqual(actual.suffix, 'Ph.D.')
+
+
+class TestHumanNameFormatter(unittest.TestCase):
+    def setUp(self):
+        self.name_formatter = HumanNameFormatter()
+
+    def test_call_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            _ = self.name_formatter('foo')
+
+    def test_format_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            _ = self.name_formatter.format('foo')
+
+    def test_call_raises_exception_given_none(self):
+        with self.assertRaises(AssertionError):
+            _ = self.name_formatter(None)
+
+    def test_preprocess_returns_empty_string_for_empty_input(self):
+        def _assert_empty_string(given):
+            actual = self.name_formatter._preprocess(given)
+            self.assertEqual(actual, '')
+
+        _assert_empty_string('')
+        _assert_empty_string(' ')
+        _assert_empty_string('\t')
+        _assert_empty_string('\t ')
+
+    def _check_preprocess(self, given, expect):
+        actual = self.name_formatter._preprocess(given)
+        self.assertEqual(actual, expect)
+
+    def test_preprocess_pass_through_valid_input_as_is(self):
+        self._check_preprocess('foo', 'foo')
+
+    def test_preprocess_strips_whitespace(self):
+        self._check_preprocess('foo ', 'foo')
+        self._check_preprocess(' foo', 'foo')
+        self._check_preprocess('\tfoo', 'foo')
+        self._check_preprocess(' \tfoo', 'foo')
+        self._check_preprocess('foo \t', 'foo')
+
+    def test_preprocess_strips_trailing_characters(self):
+        self._check_preprocess('foo,', 'foo')
+        self._check_preprocess('foo,,', 'foo')
+
+    def test_preprocess_strips_et_al(self):
+        self._check_preprocess('foo et al.', 'foo')
+        self._check_preprocess('foo, et al.', 'foo')
 
 
 @unittest.skipIf(*nameparser_unavailable())
