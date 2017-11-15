@@ -13,6 +13,7 @@ Unsorted notes on overall program operation and usability.
 #### Revisions
 * 2017-10-01 --- `jonasjberg` Initial
 * 2017-11-10 --- `jonasjberg` Redefine `automagic` vs. "default"
+* 2017-11-15 --- `jonasjberg` Add additional options
 
 
 Current Plans
@@ -138,21 +139,80 @@ program operation; `method` and `user interaction`.
 
 "Method"
 --------
-The "method" is either based on matching rules or the "automagic" mode which
-uses all available means to come up with *something*.
+Rule-matching is is currently always enabled.
+The "automagic" mode essentially means "try harder" --- enables using all
+available means to come up with *something*.
 
-* `(default)` --- Use rule-matching only.
+* `--rule-matching` --- (Default: ENABLED) Use rule-matching.
 * `--automagic` --- Try everything to come up with *something*.  
   First do rule-matching, then do whatever else.
   Given at least one piece of candidate data per name template field,
   this should not fail.
 
+### Examples
 
-User Interaction
-----------------
+| Started with command-line                | Rule-matching | Automagic Mode |
+|:-----------------------------------------|---------------|----------------|
+| `autonameow`                             | ENABLED       | Disabled       |
+| `autonameow --rule-matching`             | ENABLED       | Disabled       |
+| `autonameow --automagic`                 | ENABLED       | ENABLED        |
+| `autonameow --rule-matching --automagic` | ENABLED       | ENABLED        |
+
+
+"User Interaction"
+------------------
 The amount of (required) user interaction can be one of three levels;
 
 0. `--batch` --- No user interaction. For scripting, etc.
-1. `(default)` --- Ask the user if something cannot be resolved,
-   to confirm uncertainties, warnings, etc.
+1. `--timid` --- (Default: ENABLED) Ask the user if something cannot be
+   resolved, to confirm uncertainties, warnings, etc.
 2. `--interactive` --- Ask the user about just about everything.
+
+### Examples
+The following table uses `P=N%` to indicate how probable it is that an
+automatic choice would be correct or that sufficient data is available to make
+a choice. For instance; choosing from a single possible option would be
+`P=100%`, while a choice without any possible options would be `P=0%`.
+The point here is about user interaction, NOT to describe workings of
+probabilities, heuristics, analysis, etc..
+
+Choice could be any judgement call related to how files are renamed.
+
+
+| Started with command-line  | Warnings       | Choice (`P=0%`) | Choice (`P=100%`) |
+|:---------------------------|----------------|-------------------------------------|
+| `autonameow`               | Ask the user   | Ask the user    | Use most likely   |
+| `autonameow --timid`       | Ask the user   | Ask the user    | Use most likely   |
+| `autonameow --batch`       | ABORT          | ABORT           | Use most likely   |
+| `autonameow --interactive` | Ask the user   | Ask the user    | Ask the user      |
+
+
+Interaction of "Method" and "User Interaction"
+----------------------------------------------
+The following table uses "Rule-matching" with percentages where `P=0%` refers
+cases where none of the rules apply or the highest ranked rule scored below the
+threshold (0?) and `P=100%` cases where a "best matched" rule is found.
+
+<!--Automagic with `P=0%` are cases where the automagic routines failed to come up
+with required information and `P=100%` cases where the automagic mode came up
+with unambiguous candidate data.-->
+
+
+### Examples
+
+| Started with command-line                              | Rule-matching (`P=0%`) | Rule-matching (`P=100%`) | Automagic (`P=0%`) | Automagic (`P=100%`) |
+|:-------------------------------------------------------|------------------------|--------------------------|--------------------|----------------------|
+| `autonameow`                                           | Ask the user           | Use best matched rule    | *N/A*              | *N/A*                |
+| `autonameow --rule-matching`                           | Ask the user           | Use best matched rule    | *N/A*              | *N/A*                |
+| `autonameow --automagic`                               | Try to resolve missing | Use best matched rule    | Ask the user       | Use most likely      |
+| `autonameow --rule-matching --automagic`               | Try to resolve missing | Use best matched rule    | Ask the user       | Use most likely      |
+| `autonameow --timid --rule-matching`                   | Ask the user           | Use best matched rule    | *N/A*              | *N/A*                |
+| `autonameow --timid --automagic`                       | Try to resolve missing | Use best matched rule    | Ask the user       | Use most likely      |
+| `autonameow --timid --rule-matching --automagic`       | Try to resolve missing | Use best matched rule    | Ask the user       | Use most likely      |
+| `autonameow --batch --rule-matching`                   | ABORT                  | Use best matched rule    | *N/A*              | *N/A*                |
+| `autonameow --batch --automagic`                       | Try to resolve missing | Use best matched rule    | ABORT              | Use most likely      |
+| `autonameow --batch --rule-matching --automagic`       | Try to resolve missing | Use best matched rule    | ABORT              | Use most likely      |
+| `autonameow --interactive --rule-matching`             | Ask the user           | Ask the user             | *N/A*              | *N/A*                |
+| `autonameow --interactive --automagic`                 | Ask the user           | Ask the user             | Ask the user       | Ask the user         |
+| `autonameow --interactive --rule-matching --automagic` | Ask the user           | Ask the user             | Ask the user       | Ask the user         |
+
