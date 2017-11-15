@@ -75,6 +75,112 @@ class TestAutonameowWithoutOptions(TestCase):
         a.exit_program.assert_called_with(C.EXIT_SUCCESS)
 
 
+# class TestAutonameowDefaultOptions(TestCase):
+#     def setUp(self):
+#         from core.autonameow import Autonameow
+#         Autonameow.exit_program = mock.MagicMock()
+#         self.A = Autonameow(AUTONAMEOW_OPTIONS_EMPTY)
+#
+#     def test_default_verbose(self):
+#         expect = False
+#         actual = self.A.opts.get('verbose')
+#         self.assertEqual(actual, expect)
+
+
+class TestAutonameowOptionCombinations(TestCase):
+    def setUp(self):
+        from core.autonameow import Autonameow
+        self.a = Autonameow
+
+    def _check_options(self, given, expect):
+        actual = self.a.check_option_combinations(given)
+        for k, v in expect.items():
+            self.assertEqual(actual.get(k), v)
+
+    def test_valid_user_interaction_combination(self):
+        self._check_options(
+            given={'mode_batch': False, 'mode_interactive': False},
+            expect={'mode_batch': False, 'mode_interactive': False}
+        )
+        self._check_options(
+            given={'mode_batch': True, 'mode_interactive': False},
+            expect={'mode_batch': True, 'mode_interactive': False}
+        )
+        self._check_options(
+            given={'mode_batch': False, 'mode_interactive': True},
+            expect={'mode_batch': False, 'mode_interactive': True}
+        )
+
+    def test_illegal_user_interaction_combination(self):
+        # Expect the "safer" option to take precedence.
+        self._check_options(
+            given={'mode_batch': True, 'mode_interactive': True,
+                   'mode_timid': False},
+            expect={'mode_batch': False, 'mode_interactive': True,
+                    'mode_timid': False}
+        )
+
+        # Interactive is basically a superset of timid.
+        self._check_options(
+            given={'mode_batch': False, 'mode_interactive': True,
+                   'mode_timid': True},
+            expect={'mode_batch': False, 'mode_interactive': True,
+                    'mode_timid': False}
+        )
+
+    def test_valid_operating_mode_combination(self):
+        self._check_options(
+            given={'mode_automagic': False, 'mode_rulematch': True},
+            expect={'mode_automagic': False, 'mode_rulematch': True}
+        )
+        self._check_options(
+            given={'mode_automagic': True, 'mode_rulematch': False},
+            expect={'mode_automagic': True, 'mode_rulematch': True}
+        )
+        self._check_options(
+            given={'mode_automagic': True, 'mode_rulematch': True},
+            expect={'mode_automagic': True, 'mode_rulematch': True}
+        )
+
+    def test_default_operating_mode_combination(self):
+        # Always enable rule-matching for now.
+        # TODO: Really enable options like this? Better to error out and exit?
+        self._check_options(
+            given={'mode_automagic': False, 'mode_rulematch': False},
+            expect={'mode_automagic': False, 'mode_rulematch': True}
+        )
+
+    def test_user_interaction_and_operating_mode_combination(self):
+        self._check_options(
+            given={'mode_automagic': False, 'mode_rulematch': False,
+                   'mode_batch': False},
+            expect={'mode_automagic': False, 'mode_rulematch': True,
+                    'mode_batch': False}
+        )
+        self._check_options(
+            given={'mode_automagic': False, 'mode_rulematch': True,
+                   'mode_batch': False},
+            expect={'mode_automagic': False, 'mode_rulematch': True,
+                    'mode_batch': False}
+        )
+        self._check_options(
+            given={'mode_automagic': True, 'mode_rulematch': False,
+                   'mode_batch': False},
+            expect={'mode_automagic': True, 'mode_rulematch': True,
+                    'mode_batch': False}
+        )
+
+    def test_illegal_user_interaction_and_operating_mode_combination(self):
+        # Always enable rule-matching for now.
+        # TODO: Really enable options like this? Better to error out and exit?
+        self._check_options(
+            given={'mode_automagic': False, 'mode_rulematch': False,
+                   'mode_batch': True},
+            expect={'mode_automagic': False, 'mode_rulematch': True,
+                    'mode_batch': True}
+        )
+
+
 class TestAutonameowContextManagementProtocol(TestCase):
     def test_with_statement(self):
         from core.autonameow import Autonameow

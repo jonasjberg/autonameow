@@ -65,13 +65,57 @@ class Autonameow(object):
             opts: Dict with parsed and validated options.
         """
         assert isinstance(opts, dict)
-        self.opts = opts
+        self.opts = self.check_option_combinations(opts)
 
         # For calculating the total runtime.
         self.start_time = time.time()
 
         self.active_config = None
         self._exit_code = C.EXIT_SUCCESS
+
+    @staticmethod
+    def check_option_combinations(options):
+        opts = dict(options)
+
+        # Check legality of option combinations.
+        if opts.get('mode_automagic') and opts.get('mode_interactive'):
+            log.warning('Operating mode must be either one of "automagic" or '
+                        '"interactive", not both. Reverting to default: '
+                        '[interactive mode].')
+            opts['mode_automagic'] = False
+            opts['mode_interactive'] = True
+
+        if (not opts.get('mode_automagic') and not opts.get('mode_rulematch')
+                and opts.get('mode_batch')):
+            log.warning('Running in "batch" mode without specifying an '
+                        'operating mode ("automagic" or rule-matching) does '
+                        'not make any sense.  Nothing to do!')
+
+        if opts.get('mode_batch'):
+            if opts.get('mode_interactive'):
+                log.warning('Operating mode must be either one of "batch" or '
+                            '"interactive", not both.  Disabling "batch"..')
+                opts['mode_batch'] = False
+
+            if opts.get('mode_timid'):
+                log.warning('Operating mode must be either one of "batch" or '
+                            '"timid", not both. Disabling "batch"..')
+                opts['mode_batch'] = False
+
+        if opts.get('mode_interactive'):
+            if opts.get('mode_timid'):
+                log.warning('Operating mode "interactive" implies "timid". '
+                            'Disabling "timid"..')
+                opts['mode_timid'] = False
+
+        if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
+            log.warning('No operating-mode selected!')
+
+        if not opts.get('mode_rulematch'):
+            log.info('Enabled rule-matching..')
+            opts['mode_rulematch'] = True
+
+        return opts
 
     def __enter__(self):
         # Set up singletons for this process.
@@ -296,6 +340,7 @@ class Autonameow(object):
 
         # Perform actions.
         if self.opts.get('mode_automagic'):
+            # TODO: [TD0100] Run rule-matching by default.
             self._perform_automagic_actions(current_file, matcher)
         elif self.opts.get('mode_interactive'):
             # TODO: Create a interactive interface.

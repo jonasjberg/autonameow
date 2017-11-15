@@ -129,36 +129,64 @@ def init_argparser():
         help='List all information found.'
     )
 
-    optgrp_mode = parser.add_argument_group(
+    optgrp_mode_method = parser.add_argument_group(
         'Operating mode',
-        # description='Select program operating mode. Manual or fully automatic.'
+        description='Methods for resolving new file names.'
     )
-    optgrp_mode.add_argument(
-        '--automagic',
-        dest='mode_automagic',
+    optgrp_mode_method.add_argument(
+        '--rulematch',
+        default=True,
+        dest='mode_rulematch',
         action='store_true',
-        help='Enable AUTOMAGIC MODE. Try to perform renames without user '
-             'interaction by matching the given paths against available rules.'
-             ' The information provided by the highest ranked rule is used '
-             ' when performing any actions on that path. '
+        help='Enable RULE-MATCHING. (Default: ENABLED) '
+             'Try to perform renames without user interaction by matching the '
+             'given paths against available rules. '
              'The user might still be asked to resolve any uncertainties. '
              'Use the "--batch" option to force non-interactive mode and '
              'skip paths with unresolved queries.'
     )
-    optgrp_mode.add_argument(
+    optgrp_mode_method.add_argument(
+        '--automagic',
+        default=False,
+        dest='mode_automagic',
+        action='store_true',
+        help='Enable AUTOMAGIC MODE. Try to perform renames without user '
+             'interaction, first by matching the given paths against available'
+             ' rules. Information provided by the highest ranked rule is used '
+             ' when performing any actions on that path. If none of the rules '
+             'apply, the highest ranked rule scored low, or the data '
+             'specified in the rule is unavailable, additional means are used '
+             'to come up with suitable alternatives. '
+             'The user might still be asked to resolve any uncertainties. '
+             'Use the "--batch" option to force non-interactive mode and '
+             'skip paths with unresolved queries.'
+    )
+
+    optgrp_mode_interaction = parser.add_argument_group(
+        'User interaction',
+        description='Controls how the user will interact with the program.'
+    )
+    optgrp_mode_interaction.add_argument(
+        '--timid',
+        default=False,
+        dest='mode_timid',
+        action='store_true',
+        help='Enable TIMID MODE. Ask user to confirm renames. '
+    )
+    optgrp_mode_interaction.add_argument(
         '--interactive',
+        default=False,
         dest='mode_interactive',
         action='store_true',
-        help='(DEFAULT) Enable INTERACTIVE MODE. User selects which of the '
-             'analysis results is to make up the new filename.'
+        help='Enable INTERACTIVE MODE. Have the user weigh in on all decisions.'
     )
-    optgrp_mode.add_argument(
+    optgrp_mode_interaction.add_argument(
         '--batch',
         default=False,
         dest='mode_batch',
         action='store_true',
-        help='Enable BATCH MODE. Ignores any and all queries, does not '
-             'require any user interaction. Suitable for scripting, etc.'
+        help='Enable BATCH MODE. Abort instead of querying the user. Does not '
+             'require any user interaction and is suitable for scripting, etc.'
     )
 
     parser.add_argument(

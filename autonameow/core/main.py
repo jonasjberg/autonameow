@@ -87,29 +87,6 @@ def real_main(options=None):
     if opts.get('quiet'):
         logs.silence()
 
-    # Check legality of option combinations.
-    if opts.get('mode_automagic') and opts.get('mode_interactive'):
-        log.warning('Operating mode must be either one of "automagic" or '
-                    '"interactive", not both. Reverting to default: '
-                    '[interactive mode].')
-        opts['mode_automagic'] = False
-        opts['mode_interactive'] = True
-
-    if not opts.get('mode_automagic') and opts.get('mode_batch'):
-        log.warning('Running in "batch" mode without "automagic" mode does'
-                    'not make any sense. Nothing to do!')
-
-    if opts.get('mode_batch') and opts.get('mode_interactive'):
-        log.warning('Operating mode must be either one of "batch" or '
-                    '"interactive", not both. Reverting to default: '
-                    '[interactive mode].')
-        opts['mode_batch'] = False
-        opts['mode_interactive'] = True
-
-    if not opts.get('mode_automagic') and not opts.get('mode_interactive'):
-        log.info('Using default operating mode: [interactive mode].')
-        opts['mode_interactive'] = True
-
     # Main program entry point.
     with Autonameow(opts) as ameow:
         ameow.run()
