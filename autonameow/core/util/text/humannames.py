@@ -58,60 +58,72 @@ def parse_name(full_name):
     return None
 
 
-def _format_name_lastname_initials(full_name):
-    """
-    Formats a full name to LAST_NAME, INITIALS..
+class HumanNameFormatter(object):
+    def __call__(self, full_name):
+        raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
+    def preprocess(self, full_name):
+        pass
 
-    Args:
-        full_name: The full name to format as a Unicode string.
 
-    Returns:
-        The specified name written as LAST_NAME, INITIAL, INITIAL..
-    """
-    sanity.check_internal_string(full_name)
+class LastNameInitialsFormatter(HumanNameFormatter):
+    def __call__(self, full_name):
+        """
+        Formats a full name to LAST_NAME, INITIALS..
 
-    for ignored_word in IGNORED_AUTHOR_WORDS:
-        full_name = full_name.replace(ignored_word, '')
+        Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
 
-    full_name = strip_author_et_al(full_name)
+        Args:
+            full_name: The full name to format as a Unicode string.
 
-    full_name = full_name.strip()
-    full_name = full_name.rstrip(',')
-    full_name = full_name.lstrip('.')
+        Returns:
+            The specified name written as LAST_NAME, INITIAL, INITIAL..
+        """
+        sanity.check_internal_string(full_name)
 
-    # Return names already in the output format as-is.
-    if re.match(r'[\w-]+ (\w\.)+$', full_name):
-        return full_name
-
-    # Using the third-party 'nameparser' module.
-    _human_name = parse_name(full_name)
-    if not _human_name:
-        return ''
-
-    # Some first names are misinterpreted as titles.
-    if _human_name.first == '':
-        first_list = _human_name.title_list
-    else:
-        first_list = _human_name.first_list
-
-    def _to_initial(string):
-        string = string.strip('.')
-        try:
-            return string[0]
-        except IndexError:
+        if not full_name.strip():
             return ''
 
-    initials = [_to_initial(f) for f in first_list]
-    initials += [_to_initial(m) for m in _human_name.middle_list]
-    _initials = '{0}{1}'.format('.'.join(initials), '.')
+        for ignored_word in IGNORED_AUTHOR_WORDS:
+            full_name = full_name.replace(ignored_word, '')
 
-    last_name = _human_name.last.replace(' ', '')
-    return '{} {}'.format(last_name, _initials).strip()
+        full_name = strip_author_et_al(full_name)
+
+        full_name = full_name.strip()
+        full_name = full_name.rstrip(',')
+        full_name = full_name.lstrip('.')
+
+        # Return names already in the output format as-is.
+        if re.match(r'[\w-]+ (\w\.)+$', full_name):
+            return full_name
+
+        # Using the third-party 'nameparser' module.
+        _human_name = parse_name(full_name)
+        if not _human_name:
+            return ''
+
+        # Some first names are misinterpreted as titles.
+        if _human_name.first == '':
+            first_list = _human_name.title_list
+        else:
+            first_list = _human_name.first_list
+
+        def _to_initial(string):
+            string = string.strip('.')
+            try:
+                return string[0]
+            except IndexError:
+                return ''
+
+        initials = [_to_initial(f) for f in first_list]
+        initials += [_to_initial(m) for m in _human_name.middle_list]
+        _initials = '{0}{1}'.format('.'.join(initials), '.')
+
+        last_name = _human_name.last.replace(' ', '')
+        return '{} {}'.format(last_name, _initials).strip()
 
 
-DEFAULT_NAME_FORMATTER = _format_name_lastname_initials
+DEFAULT_NAME_FORMATTER = LastNameInitialsFormatter
 
 
 def format_name_list(list_of_human_names, formatter=None):
@@ -129,7 +141,11 @@ def format_name_list(list_of_human_names, formatter=None):
     """
     if not formatter:
         formatter = DEFAULT_NAME_FORMATTER
+
     assert callable(formatter), 'Argument "formatter" must be callable'
+    if issubclass(formatter, HumanNameFormatter):
+        # Cannot call the class directly, requires instantiating first.
+        formatter = formatter()
 
     _formatted_names = [formatter(n) for n in list_of_human_names]
     return sorted(_formatted_names, key=str.lower)
@@ -149,6 +165,10 @@ def format_name(human_name, formatter=None):
     """
     if not formatter:
         formatter = DEFAULT_NAME_FORMATTER
+
     assert callable(formatter), 'Argument "formatter" must be callable'
+    if issubclass(formatter, HumanNameFormatter):
+        # Cannot call the class directly, requires instantiating first.
+        formatter = formatter()
 
     return formatter(human_name)

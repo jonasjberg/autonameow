@@ -19,15 +19,144 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections import namedtuple
 import unittest
 
 from core.util.text.humannames import (
-    _format_name_lastname_initials,
     format_name,
     format_name_list,
+    LastNameInitialsFormatter,
     parse_name,
     strip_author_et_al
 )
+
+
+TD = namedtuple('TD', 'Given Expect')
+
+
+TESTDATA_NAME_LASTNAME_INITIALS = [
+    # Special cases
+    TD(Given='', Expect=''),
+    TD(Given=' ', Expect=''),
+    TD(Given='G', Expect='G.'),
+
+    # First name only
+    TD(Given='Gibson', Expect='G.'),
+    TD(Given='Jonas', Expect='J.'),
+
+    # First, last
+    TD(Given='Gibson Sjöberg', Expect='Sjöberg G.'),
+    TD(Given='Zhiguo Gong', Expect='Gong Z.'),
+    TD(Given='Di Zou', Expect='Zou D.'),
+    TD(Given='Muhammad Younas', Expect='Younas M.'),
+    TD(Given='Katt Smulan', Expect='Smulan K.'),
+    TD(Given='Irfan Awan', Expect='Awan I.'),
+    TD(Given='Natalia Kryvinska', Expect='Kryvinska N.'),
+    TD(Given='Christine Strauss', Expect='Strauss C.'),
+    TD(Given='Yimin Wei', Expect='Wei Y.'),
+    TD(Given='Weiyang Ding', Expect='Ding W.'),
+    TD(Given='Russell, Bertrand', Expect='Russell B.'),
+    TD(Given='Bertrand Russell', Expect='Russell B.'),
+
+    # First, compound last
+    TD(Given='Do van Thanh', Expect='vanThanh D.'),
+    TD(Given='David Simchi-Levi', Expect='Simchi-Levi D.'),
+
+    # First, middle, last
+    TD(Given='Gibson Mjau Sjöberg', Expect='Sjöberg G.M.'),
+    TD(Given='Hatt Katt Smulan', Expect='Smulan H.K.'),
+
+    # First, middle, middle, last
+    TD(Given='Gibson Mjau Mjao Sjöberg', Expect='Sjöberg G.M.M.'),
+
+    # Various Titles
+    TD(Given='Sir Gibson Mjau Mjao Sjöberg', Expect='Sjöberg G.M.M.'),
+    TD(Given='Lord Gibson Mjau Mjao Sjöberg', Expect='Sjöberg G.M.M.'),
+    TD(Given='Catness Gibson Mjau Mjao Sjöberg', Expect='Sjöberg C.G.M.M.'),
+    TD(Given='Sir Catness Gibson Mjau Mjao Sjöberg', Expect='Sjöberg C.G.M.M.'),
+
+    # First. middle initial and last
+    TD(Given='David B. Makofske', Expect='Makofske D.B.'),
+    TD(Given='Michael J. Donahoo', Expect='Donahoo M.J.'),
+    TD(Given='Kenneth L. Calvert', Expect='Calvert K.L.'),
+    TD(Given='William T. Ziemba', Expect='Ziemba W.T.'),
+    TD(Given='Raymond G. Vickson', Expect='Vickson R.G.'),
+
+    # First. middle initial, middle initial, last
+    TD(Given='Dickson K. W. Chiu', Expect='Chiu D.K.W.'),
+
+    # First. middle initial, compound last
+    TD(Given='Antonio J. Tallon-Ballesteros', Expect='Tallon-Ballesteros A.J.'),
+    TD(Given='Tallon-Ballesteros A.J.', Expect='Tallon-Ballesteros A.J.'),
+
+    # Input in output format
+    TD(Given='Makofske D.B.', Expect='Makofske D.B.'),
+    TD(Given='Donahoo M.J.', Expect='Donahoo M.J.'),
+    TD(Given='Calvert K.L.', Expect='Calvert K.L.'),
+    TD(Given='Gong Z.', Expect='Gong Z.'),
+    TD(Given='Chiu D.K.W.', Expect='Chiu D.K.W.'),
+    TD(Given='Zou D.', Expect='Zou D.'),
+    TD(Given='Younas M.', Expect='Younas M.'),
+    TD(Given='Smulan K.', Expect='Smulan K.'),
+    TD(Given='Smulan H.K.', Expect='Smulan H.K.'),
+    TD(Given='Awan I.', Expect='Awan I.'),
+    TD(Given='Kryvinska N.', Expect='Kryvinska N.'),
+    TD(Given='Strauss C.', Expect='Strauss C.'),
+    TD(Given='vanThanh D.', Expect='vanThanh D.'),
+    TD(Given='Ziemba W.T.', Expect='Ziemba W.T.'),
+    TD(Given='Vickson R.G.', Expect='Vickson R.G.'),
+    TD(Given='Wei Y.', Expect='Wei Y.'),
+    TD(Given='Ding W.', Expect='Ding W.'),
+    TD(Given='Russell B.', Expect='Russell B.'),
+    TD(Given='Simchi-Levi D.', Expect='Simchi-Levi D.'),
+
+    # Multiple authors; et al.
+    TD(Given='Steve Anson ... [et al.]', Expect='Anson S.'),
+    TD(Given='Steve Anson, et al.', Expect='Anson S.'),
+    TD(Given='Steve Anson, ... et al.', Expect='Anson S.'),
+    TD(Given='Steve Anson, ... et al', Expect='Anson S.'),
+    TD(Given='Steve Anson ... et al', Expect='Anson S.'),
+    TD(Given='Steve Anson ... [et al]', Expect='Anson S.'),
+    TD(Given='Steve Anson ... [et al.]', Expect='Anson S.'),
+]
+
+TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
+    TD(Given=['David B. Makofske', 'Michael J. Donahoo',
+              'Kenneth L. Calvert'],
+       Expect=['Calvert K.L.', 'Donahoo M.J.', 'Makofske D.B.']),
+
+    TD(Given=['Zhiguo Gong', 'Dickson K. W. Chiu', 'Di Zou'],
+       Expect=['Chiu D.K.W.', 'Gong Z.', 'Zou D.']),
+
+    TD(Given=['Muhammad Younas', 'Irfan Awan', 'Natalia Kryvinska',
+              'Christine Strauss', 'Do van Thanh'],
+       Expect=['Awan I.', 'Kryvinska N.', 'Strauss C.', 'vanThanh D.',
+               'Younas M.']),
+
+    TD(Given=['William T. Ziemba', 'Raymond G. Vickson'],
+       Expect=['Vickson R.G.', 'Ziemba W.T.']),
+
+    TD(Given=['Yimin Wei', 'Weiyang Ding'],
+       Expect=['Ding W.', 'Wei Y.']),
+
+    TD(Given=['Charles Miller', 'Dino Dai Zovi'],
+       Expect=['Miller C.', 'Zovi D.D.']),
+
+    TD(Given=['Chrisina Jayne', 'Lazaros Iliadis'],
+       Expect=['Iliadis L.', 'Jayne C.']),
+
+    TD(Given=['Nihad Ahmad Hassan', 'Rami Hijazi'],
+       Expect=['Hassan N.A.', 'Hijazi R.']),
+
+    TD(Given=['David Simchi-Levi', 'Xin Chen', 'Julien Bramel'],
+       Expect=['Bramel J.', 'Chen X.', 'Simchi-Levi D.']),
+
+    TD(Given=['Hujun Yin', 'Yang Gao', 'Bin Li', 'Daoqiang Zhang',
+              'Ming Yang', 'Yun Li', 'Frank Klawonn',
+              'Antonio J. Tallon-Ballesteros'],
+       Expect=['Gao Y.', 'Klawonn F.', 'Li B.', 'Li Y.',
+               'Tallon-Ballesteros A.J.', 'Yang M.', 'Yin H.', 'Zhang D.'])
+]
 
 
 def nameparser_unavailable():
@@ -59,122 +188,6 @@ class TeststripAuthorEtAl(unittest.TestCase):
 
 
 @unittest.skipIf(*nameparser_unavailable())
-class TestFormatNameLastnameInitials(unittest.TestCase):
-    def test_formats_full_human_names(self):
-        def _aE(input_, expect):
-            actual = format_name(input_, _format_name_lastname_initials)
-            self.assertEqual(actual, expect)
-
-        _aE('', '')
-        _aE(' ', '')
-        _aE('G', 'G.')
-        _aE('Gibson', 'G.')
-        _aE('Gibson Sjöberg', 'Sjöberg G.')
-        _aE('Gibson Mjau Sjöberg', 'Sjöberg G.M.')
-        _aE('Gibson Mjau Mjao Sjöberg', 'Sjöberg G.M.M.')
-        _aE('Sir Gibson Mjau Mjao Sjöberg', 'Sjöberg G.M.M.')
-        _aE('Lord Gibson Mjau Mjao Sjöberg', 'Sjöberg G.M.M.')
-        _aE('Catness Gibson Mjau Mjao Sjöberg', 'Sjöberg C.G.M.M.')
-        _aE('Sir Catness Gibson Mjau Mjao Sjöberg', 'Sjöberg C.G.M.M.')
-
-        _aE('David B. Makofske', 'Makofske D.B.')
-        _aE('Michael J. Donahoo', 'Donahoo M.J.')
-        _aE('Kenneth L. Calvert', 'Calvert K.L.')
-        _aE('Zhiguo Gong', 'Gong Z.')
-        _aE('Dickson K. W. Chiu', 'Chiu D.K.W.')
-        _aE('Di Zou', 'Zou D.')
-        _aE('Muhammad Younas', 'Younas M.')
-        _aE('Katt Smulan', 'Smulan K.')
-        _aE('Hatt Katt Smulan', 'Smulan H.K.')
-        _aE('Irfan Awan', 'Awan I.')
-        _aE('Natalia Kryvinska', 'Kryvinska N.')
-        _aE('Christine Strauss', 'Strauss C.')
-        _aE('Do van Thanh', 'vanThanh D.')
-        _aE('William T. Ziemba', 'Ziemba W.T.')
-        _aE('Raymond G. Vickson', 'Vickson R.G.')
-        _aE('Yimin Wei', 'Wei Y.')
-        _aE('Weiyang Ding', 'Ding W.')
-
-        _aE('David Simchi-Levi', 'Simchi-Levi D.')
-        _aE('Antonio J. Tallon-Ballesteros', 'Tallon-Ballesteros A.J.')
-        _aE('Makofske D.B.', 'Makofske D.B.')
-        _aE('Donahoo M.J.', 'Donahoo M.J.')
-        _aE('Calvert K.L.', 'Calvert K.L.')
-        _aE('Gong Z.', 'Gong Z.')
-        _aE('Chiu D.K.W.', 'Chiu D.K.W.')
-        _aE('Zou D.', 'Zou D.')
-        _aE('Younas M.', 'Younas M.')
-        _aE('Smulan K.', 'Smulan K.')
-        _aE('Smulan H.K.', 'Smulan H.K.')
-        _aE('Awan I.', 'Awan I.')
-        _aE('Kryvinska N.', 'Kryvinska N.')
-        _aE('Strauss C.', 'Strauss C.')
-        _aE('vanThanh D.', 'vanThanh D.')
-        _aE('Ziemba W.T.', 'Ziemba W.T.')
-        _aE('Vickson R.G.', 'Vickson R.G.')
-        _aE('Wei Y.', 'Wei Y.')
-        _aE('Ding W.', 'Ding W.')
-
-        _aE('Russell, Bertrand', 'Russell B.')
-        _aE('Bertrand Russell', 'Russell B.')
-        _aE('Russell B.', 'Russell B.')
-
-        _aE('Steve Anson ... [et al.]', 'Anson S.')
-        _aE('Steve Anson, et al.', 'Anson S.')
-        _aE('Steve Anson, ... et al.', 'Anson S.')
-        _aE('Steve Anson, ... et al', 'Anson S.')
-        _aE('Steve Anson ... et al', 'Anson S.')
-        _aE('Steve Anson ... [et al]', 'Anson S.')
-        _aE('Steve Anson ... [et al.]', 'Anson S.')
-
-        _aE('Simchi-Levi D.', 'Simchi-Levi D.')
-        _aE('Tallon-Ballesteros A.J.', 'Tallon-Ballesteros A.J.')
-
-
-class TestFormatNamesLastnameInitials(unittest.TestCase):
-    def test_formats_lists_of_full_human_names(self):
-        def _aE(input_, expect):
-            actual = format_name_list(input_, _format_name_lastname_initials)
-            self.assertEqual(actual, expect)
-
-        _aE(input_=['David B. Makofske', 'Michael J. Donahoo',
-                    'Kenneth L. Calvert'],
-            expect=['Calvert K.L.', 'Donahoo M.J.', 'Makofske D.B.'])
-
-        _aE(input_=['Zhiguo Gong', 'Dickson K. W. Chiu', 'Di Zou'],
-            expect=['Chiu D.K.W.', 'Gong Z.', 'Zou D.'])
-
-        _aE(input_=['Muhammad Younas', 'Irfan Awan', 'Natalia Kryvinska',
-                    'Christine Strauss', 'Do van Thanh'],
-            expect=['Awan I.', 'Kryvinska N.', 'Strauss C.', 'vanThanh D.',
-                    'Younas M.'])
-
-        _aE(input_=['William T. Ziemba', 'Raymond G. Vickson'],
-            expect=['Vickson R.G.', 'Ziemba W.T.'])
-
-        _aE(input_=['Yimin Wei', 'Weiyang Ding'],
-            expect=['Ding W.', 'Wei Y.'])
-
-        _aE(input_=['Charles Miller', 'Dino Dai Zovi'],
-            expect=['Miller C.', 'Zovi D.D.'])
-
-        _aE(input_=['Chrisina Jayne', 'Lazaros Iliadis'],
-            expect=['Iliadis L.', 'Jayne C.'])
-
-        _aE(input_=['Nihad Ahmad Hassan', 'Rami Hijazi'],
-            expect=['Hassan N.A.', 'Hijazi R.'])
-
-        _aE(input_=['David Simchi-Levi', 'Xin Chen', 'Julien Bramel'],
-            expect=['Bramel J.', 'Chen X.', 'Simchi-Levi D.'])
-
-        _aE(input_=['Hujun Yin', 'Yang Gao', 'Bin Li', 'Daoqiang Zhang',
-                    'Ming Yang', 'Yun Li', 'Frank Klawonn',
-                    'Antonio J. Tallon-Ballesteros'],
-            expect=['Gao Y.', 'Klawonn F.', 'Li B.', 'Li Y.',
-                    'Tallon-Ballesteros A.J.', 'Yang M.', 'Yin H.', 'Zhang D.'])
-
-
-@unittest.skipIf(*nameparser_unavailable())
 class TestParseName(unittest.TestCase):
     def test_parses_strings(self):
         actual = parse_name('foo')
@@ -187,3 +200,72 @@ class TestParseName(unittest.TestCase):
         self.assertEqual(actual.first, 'Gibson')
         self.assertEqual(actual.last, 'Catson')
         self.assertEqual(actual.suffix, 'Ph.D.')
+
+
+@unittest.skipIf(*nameparser_unavailable())
+class TestLastNameInitialsFormatter(unittest.TestCase):
+    def setUp(self):
+        self.name_formatter = LastNameInitialsFormatter()
+
+    def test_formats_full_human_names(self):
+        for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
+            actual = self.name_formatter(given)
+            self.assertEqual(actual, expect)
+
+    def test_raises_exception_given_byte_strings(self):
+        with self.assertRaises(AssertionError):
+            _ = self.name_formatter(b'foo')
+
+    def test_raises_exception_given_none(self):
+        with self.assertRaises(AssertionError):
+            _ = self.name_formatter(None)
+
+    def test_returns_empty_string_for_none_or_empty_input(self):
+        def _aE(test_input):
+            actual = self.name_formatter(test_input)
+            self.assertEqual(actual, '')
+
+        _aE('')
+        _aE(' ')
+        _aE('\t')
+        _aE('\t ')
+
+
+@unittest.skipIf(*nameparser_unavailable())
+class TestFormatName(unittest.TestCase):
+    def test_formats_full_name_with_default_formatter(self):
+        for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
+            actual = format_name(given)
+            self.assertEqual(actual, expect)
+
+    def test_raises_exception_given_invalid_formatter(self):
+        invalid_formatter = True
+        with self.assertRaises(AssertionError):
+            _ = format_name('', invalid_formatter)
+
+    def test_formats_full_name_given_valid_formatter(self):
+        valid_formatter = LastNameInitialsFormatter
+
+        for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
+            actual = format_name(given, valid_formatter)
+            self.assertEqual(actual, expect)
+
+
+@unittest.skipIf(*nameparser_unavailable())
+class TestFormatNameList(unittest.TestCase):
+    def test_formats_list_of_full_human_names_with_default_formatter(self):
+        for given, expect in TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS:
+            actual = format_name_list(given)
+            self.assertEqual(actual, expect)
+
+    def test_raises_exception_given_invalid_formatter(self):
+        invalid_formatter = True
+        with self.assertRaises(AssertionError):
+            _ = format_name_list('', invalid_formatter)
+
+    def test_formats_list_of_full_human_names_given_valid_formatter(self):
+        valid_formatter = LastNameInitialsFormatter
+
+        for given, expect in TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS:
+            actual = format_name_list(given, valid_formatter)
+            self.assertEqual(actual, expect)
