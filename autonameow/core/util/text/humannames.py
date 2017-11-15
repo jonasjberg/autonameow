@@ -180,6 +180,8 @@ def format_name_list(list_of_human_names, formatter=None):
     """
     Formats a list of human names using a specific formatter.
 
+    This is intended to be the primary public interface for formatting names.
+
     Args:
         list_of_human_names: List of human names as Unicode strings.
         formatter: Callable that accepts an returns a Unicode string.
@@ -204,6 +206,8 @@ def format_name_list(list_of_human_names, formatter=None):
 def format_name(human_name, formatter=None):
     """
     Formats a human name using a specific formatter.
+
+    This is intended to be the primary public interface for formatting a name.
 
     Args:
         human_name: Human name as a Unicode string.

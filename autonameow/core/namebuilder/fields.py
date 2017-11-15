@@ -29,7 +29,7 @@ from core import (
 )
 from core.model import ExtractedData
 from core.util import sanity
-from core.util.text import humannames
+from core.util.text import format_name
 
 
 log = logging.getLogger(__name__)
@@ -216,9 +216,7 @@ class Author(NameTemplateField):
                     )
 
                 sanity.check_internal_string(string)
-                _formatted.append(
-                    humannames.format_name(string)
-                )
+                _formatted.append(format_name(string))
 
             return ' '.join(sorted(_formatted))
         else:
@@ -238,7 +236,7 @@ class Author(NameTemplateField):
                 )
 
             sanity.check_internal_string(string)
-            return humannames.format_name(data.value)
+            return format_name(data.value)
 
 
 class Creator(NameTemplateField):
