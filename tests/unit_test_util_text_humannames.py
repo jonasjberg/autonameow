@@ -19,8 +19,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import namedtuple
 import unittest
+from collections import namedtuple
+from unittest import TestCase
 
 from core.util.text.humannames import (
     format_name,
@@ -165,7 +166,7 @@ def nameparser_unavailable():
     return _nameparser is None, 'Failed to import "thirdparty.nameparser"'
 
 
-class TeststripAuthorEtAl(unittest.TestCase):
+class TeststripAuthorEtAl(TestCase):
     def test_strips_et_al_variations(self):
         def _t(test_input):
             actual = strip_author_et_al(test_input)
@@ -188,22 +189,46 @@ class TeststripAuthorEtAl(unittest.TestCase):
         _t('Gibson Catberg ... {et al.}')
 
 
+class TestParseNameReturnType(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_return_type_with_nameparser(self):
+        # Make sure that 'nameparser' is indeed available.
+        from thirdparty import nameparser
+        self.assertIsNotNone(nameparser)
+
+        actual = parse_name('foo')
+        self.assertTrue(isinstance(actual, dict))
+
+    def test_return_type_when_nameparser_is_unavailable(self):
+        # TODO: Use 'mock.patch' instead ..
+        from core.util.text import humannames
+        humannames.nameparser = None
+
+        actual = parse_name('foo')
+        self.assertTrue(isinstance(actual, dict))
+
+        # Check that nameparser was made unavailable by monkey-path above.
+        self.assertEqual(actual, {})
+
+
 @unittest.skipIf(*nameparser_unavailable())
-class TestParseName(unittest.TestCase):
+class TestParseName(TestCase):
     def test_parses_strings(self):
         actual = parse_name('foo')
         self.assertIsNotNone(actual)
-        self.assertEqual(actual.original, 'foo')
+        self.assertEqual(actual['original'], 'foo')
 
     def test_parses_name(self):
         actual = parse_name('Gibson Catson, Ph.D.')
         self.assertIsNotNone(actual)
-        self.assertEqual(actual.first, 'Gibson')
-        self.assertEqual(actual.last, 'Catson')
-        self.assertEqual(actual.suffix, 'Ph.D.')
+        self.assertEqual(actual['first'], 'Gibson')
+        self.assertEqual(actual['last'], 'Catson')
+        self.assertEqual(actual['suffix'], 'Ph.D.')
 
 
-class TestHumanNameFormatter(unittest.TestCase):
+class TestHumanNameFormatter(TestCase):
     def setUp(self):
         self.name_formatter = HumanNameFormatter()
 
@@ -253,7 +278,7 @@ class TestHumanNameFormatter(unittest.TestCase):
 
 
 @unittest.skipIf(*nameparser_unavailable())
-class TestLastNameInitialsFormatter(unittest.TestCase):
+class TestLastNameInitialsFormatter(TestCase):
     def setUp(self):
         self.name_formatter = LastNameInitialsFormatter()
 
@@ -282,7 +307,7 @@ class TestLastNameInitialsFormatter(unittest.TestCase):
 
 
 @unittest.skipIf(*nameparser_unavailable())
-class TestFormatName(unittest.TestCase):
+class TestFormatName(TestCase):
     def test_formats_full_name_with_default_formatter(self):
         for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
             actual = format_name(given)
@@ -302,7 +327,7 @@ class TestFormatName(unittest.TestCase):
 
 
 @unittest.skipIf(*nameparser_unavailable())
-class TestFormatNameList(unittest.TestCase):
+class TestFormatNameList(TestCase):
     def test_formats_list_of_full_human_names_with_default_formatter(self):
         for given, expect in TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS:
             actual = format_name_list(given)

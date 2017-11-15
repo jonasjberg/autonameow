@@ -42,16 +42,31 @@ def parse_name(human_name):
     """
     Thin wrapper around 'nameparser'.
 
+    Translates the instance of 'HumanName' returned by 'nameparser' to a dict.
+
     Args:
         human_name: The name to parse as a Unicode string.
 
     Returns:
-        The parsed name as an instance of the 'HumanName' class or None if
-        "nameparser" is unavailable.
+        A dict of data returned by the 'HumanName' class or an empty dict if
+        "nameparser" is unavailable or the parsing returns non-True.
     """
     if nameparser:
-        return nameparser.HumanName(human_name)
-    return None
+        _parsed = nameparser.HumanName(human_name)
+        if _parsed:
+            return {
+                'first': _parsed.first or '',
+                'first_list': _parsed.first_list or [],
+                'last': _parsed.last or '',
+                'last_list': _parsed.last_list or [],
+                'middle': _parsed.middle or '',
+                'middle_list': _parsed.middle_list or [],
+                'original': _parsed.original or '',
+                'suffix': _parsed.suffix or '',
+                'title': _parsed.title or '',
+                'title_list': _parsed.title_list or [],
+            }
+    return {}
 
 
 class HumanNameFormatter(object):
@@ -73,7 +88,8 @@ class HumanNameFormatter(object):
         preprocessed_name = self._preprocess(name)
         return self.format(preprocessed_name)
 
-    def _preprocess(self, name):
+    @classmethod
+    def _preprocess(cls, name):
         if not name or not name.strip():
             return ''
 
@@ -112,20 +128,23 @@ class LastNameInitialsFormatter(HumanNameFormatter):
         Returns:
             The specified name written as LAST_NAME, INITIAL, INITIAL..
         """
-        # Return names already in the output format as-is.
+        # Return names that are already in the output format as-is.
         if re.match(r'[\w-]+ (\w\.)+$', name):
             return name
 
         # Using the third-party 'nameparser' module.
-        _human_name = parse_name(name)
-        if not _human_name:
+        parsed_name = parse_name(name)
+        if not parsed_name:
             return ''
 
         # Some first names are misinterpreted as titles.
-        if _human_name.first == '':
-            first_list = _human_name.title_list
+        if not parsed_name['first']:
+            first_list = parsed_name['title_list']
         else:
-            first_list = _human_name.first_list
+            first_list = parsed_name['first_list']
+
+        middle_list = parsed_name['middle_list']
+        last = parsed_name['last'].replace(' ', '')
 
         def _to_initial(string):
             string = string.strip('.')
@@ -134,12 +153,11 @@ class LastNameInitialsFormatter(HumanNameFormatter):
             except IndexError:
                 return ''
 
-        initials = [_to_initial(f) for f in first_list]
-        initials += [_to_initial(m) for m in _human_name.middle_list]
-        _initials = '{0}{1}'.format('.'.join(initials), '.')
+        _initials = [_to_initial(f) for f in first_list]
+        _initials += [_to_initial(m) for m in middle_list]
+        initials = '{0}{1}'.format('.'.join(_initials), '.')
 
-        last_name = _human_name.last.replace(' ', '')
-        return '{} {}'.format(last_name, _initials).strip()
+        return '{} {}'.format(last, initials).strip()
 
 
 DEFAULT_NAME_FORMATTER = LastNameInitialsFormatter
