@@ -52,19 +52,25 @@ def parse_name(human_name):
         "nameparser" is unavailable or the parsing returns non-True.
     """
     if nameparser:
-        _parsed = nameparser.HumanName(human_name)
-        if _parsed:
+        parsed = nameparser.HumanName(human_name)
+        if parsed:
+            # Some first names are misinterpreted as titles.
+            if not parsed.first:
+                _first_list = parsed.title_list
+            else:
+                _first_list = parsed.first_list
+
             return {
-                'first': _parsed.first or '',
-                'first_list': _parsed.first_list or [],
-                'last': _parsed.last or '',
-                'last_list': _parsed.last_list or [],
-                'middle': _parsed.middle or '',
-                'middle_list': _parsed.middle_list or [],
-                'original': _parsed.original or '',
-                'suffix': _parsed.suffix or '',
-                'title': _parsed.title or '',
-                'title_list': _parsed.title_list or [],
+                'first': parsed.first or '',
+                'first_list': _first_list or [],
+                'last': parsed.last.replace(' ', '') or '',
+                'last_list': parsed.last_list or [],
+                'middle': parsed.middle or '',
+                'middle_list': parsed.middle_list or [],
+                'original': parsed.original or '',
+                'suffix': parsed.suffix or '',
+                'title': parsed.title or '',
+                'title_list': parsed.title_list or [],
             }
     return {}
 
@@ -74,19 +80,36 @@ class HumanNameFormatter(object):
     Base class for all human name formatters with shared utility functionality.
 
     Instances of this class and its inheriting classes should *NOT* retain any
-    kind of state. Inheriting classes should implement the 'format()' method.
+    kind of state. Inheriting classes should implement the 'format()' method
+    and regular expression 'RE_FORMATTED_NAME' that matches the output format.
 
-    Example usage:  formatted = HumanNameFormatterSubclass()('Lord Gibson')
+    Example usage:  formatted = HumanNameFormatterSubclass()('Lord Gibson III')
     """
     # List of words to exclude from the output.
     IGNORED_AUTHOR_WORDS = frozenset([
         '',
     ])
 
+    # Regex matching names in the class-specific format.
+    # NOTE: This __MUST__ be defined by inheriting classes!
+    RE_FORMATTED_NAME = None
+
     def __call__(self, name):
         sanity.check_internal_string(name)
+        if not self.RE_FORMATTED_NAME:
+            raise NotImplementedError(
+                'Inheriting classes must define "RE_FORMATTED_NAME"'
+            )
+
         preprocessed_name = self._preprocess(name)
-        return self.format(preprocessed_name)
+        if self._is_formatted(preprocessed_name):
+            return preprocessed_name
+
+        parsed_name = parse_name(preprocessed_name)
+        if not parsed_name:
+            return ''
+
+        return self.format(parsed_name)
 
     @classmethod
     def _preprocess(cls, name):
@@ -99,6 +122,15 @@ class HumanNameFormatter(object):
         name = strip_author_et_al(name)
         name = name.strip().rstrip(',').lstrip('.')
         return name
+
+    @classmethod
+    def _is_formatted(cls, name):
+        """
+        Return names that are already in the output format as-is.
+        """
+        if cls.RE_FORMATTED_NAME.match(name):
+            return True
+        return False
 
     def format(self, name):
         """
@@ -116,35 +148,16 @@ class HumanNameFormatter(object):
 
 
 class LastNameInitialsFormatter(HumanNameFormatter):
-    def format(self, name):
-        """
-        Formats a full name to LAST_NAME, INITIALS..
+    """
+    Formats a full name to LAST_NAME, INITIALS..
+    Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
+    """
+    RE_FORMATTED_NAME = re.compile(r'[\w-]+ (\w\.)+$')
 
-        Example:  "Gibson Cat Sjöberg" is returned as "Sjöberg G.C."
-
-        Args:
-            name: The full name to format as a Unicode string.
-
-        Returns:
-            The specified name written as LAST_NAME, INITIAL, INITIAL..
-        """
-        # Return names that are already in the output format as-is.
-        if re.match(r'[\w-]+ (\w\.)+$', name):
-            return name
-
-        # Using the third-party 'nameparser' module.
-        parsed_name = parse_name(name)
-        if not parsed_name:
-            return ''
-
-        # Some first names are misinterpreted as titles.
-        if not parsed_name['first']:
-            first_list = parsed_name['title_list']
-        else:
-            first_list = parsed_name['first_list']
-
+    def format(self, parsed_name):
+        first_list = parsed_name['first_list']
         middle_list = parsed_name['middle_list']
-        last = parsed_name['last'].replace(' ', '')
+        last = parsed_name['last']
 
         def _to_initial(string):
             string = string.strip('.')
