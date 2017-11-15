@@ -19,42 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
-
-from core import types
-from core.util import textutils
-
-
-RE_EDITION = re.compile(
-    r'([0-9])+\s?((st|nd|rd|th)\s?|(e|ed.?|edition))\b',
-    re.IGNORECASE
+from .patternmatching import (
+    find_edition,
+    RE_EDITION
 )
-
-
-def find_edition(text):
-    # TODO: [TD0118] Refactor and improve robustness.
-    text = text.replace('_', ' ')
-    text = text.replace('-', ' ')
-
-    matches = []
-    for _num, _re_pattern in textutils.compiled_ordinal_regexes().items():
-        m = _re_pattern.search(text)
-        if m:
-            matches.append(_num)
-
-    if matches:
-        # Handle case where "25th" matches "5th" and returns 5.
-        # Store all matches and return the highest matched number.
-        matches = sorted(matches, reverse=True)
-        return matches[0]
-
-    match = RE_EDITION.search(text)
-    if match:
-        e = match.group(1)
-        try:
-            edition = types.AW_INTEGER(e)
-            return edition
-        except types.AWTypeError:
-            pass
-
-    return None
