@@ -32,6 +32,34 @@ from core.autonameow import Autonameow
 from core.exceptions import AWAssertionError
 
 
+# Default options passed to the main 'Autonameow' class instance.
+DEFAULT_OPTIONS = {
+    'debug': False,
+    'verbose': False,
+    'quiet': False,
+
+    'show_version': False,
+    'dump_config': False,
+    'dump_options': False,
+    'dump_meowuris': False,
+
+    'list_all': False,
+    'list_datetime': False,
+    'list_title': False,
+
+    'mode_batch': False,
+    'mode_automagic': False,
+    'mode_interactive': True,
+
+    'config_path': None,
+
+    'dry_run': True,
+    'recurse_paths': False,
+
+    'input_paths': [],
+}
+
+
 def real_main(options=None):
     """
     Actual program entry point.
@@ -49,33 +77,8 @@ def real_main(options=None):
     if options is None:
         options = {}
 
-    # Default options are defined here.
     # Passed in 'options' always take precedence and overrides the defaults.
-    opts = {
-        'debug': False,
-        'verbose': False,
-        'quiet': False,
-
-        'show_version': False,
-        'dump_config': False,
-        'dump_options': False,
-        'dump_meowuris': False,
-
-        'list_all': False,
-        'list_datetime': False,
-        'list_title': False,
-
-        'mode_batch': False,
-        'mode_automagic': False,
-        'mode_interactive': True,
-
-        'config_path': None,
-
-        'dry_run': True,
-        'recurse_paths': False,
-
-        'input_paths': [],
-    }
+    opts = dict(DEFAULT_OPTIONS)
     opts.update(options)
 
     # Initialize global logging.
