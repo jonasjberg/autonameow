@@ -29,10 +29,6 @@ RE_AUTHOR_ET_AL = re.compile(
     r'[\[\(\{]?et.al\.?[\]\)\}]?', re.IGNORECASE
 )
 
-IGNORED_AUTHOR_WORDS = frozenset([
-    '',
-])
-
 
 def strip_author_et_al(string):
     """
@@ -67,6 +63,11 @@ class HumanNameFormatter(object):
 
     Example usage:  formatted = HumanNameFormatterSubclass()('Lord Gibson')
     """
+    # List of words to exclude from the output.
+    IGNORED_AUTHOR_WORDS = frozenset([
+        '',
+    ])
+
     def __call__(self, name):
         sanity.check_internal_string(name)
         preprocessed_name = self._preprocess(name)
@@ -76,7 +77,7 @@ class HumanNameFormatter(object):
         if not name or not name.strip():
             return ''
 
-        for ignored_word in IGNORED_AUTHOR_WORDS:
+        for ignored_word in cls.IGNORED_AUTHOR_WORDS:
             name = name.replace(ignored_word, '')
 
         name = strip_author_et_al(name)
