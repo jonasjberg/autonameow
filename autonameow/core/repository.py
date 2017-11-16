@@ -270,7 +270,9 @@ class Repository(object):
         return out
 
     def __len__(self):
-        return util.count_dict_recursive(self.data)
+        # TODO:  FIX THIS! Unverified after removing the 'ExtractedData' class.
+        # return util.count_dict_recursive(self.data)
+        return sum(len(v) for k, v in self.data.items())
 
     def __str__(self):
         return self.human_readable_contents()
