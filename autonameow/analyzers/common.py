@@ -28,7 +28,6 @@ from core import (
     util
 )
 from core.exceptions import AutonameowException
-from core.model import ExtractedData
 
 
 class AnalyzerError(AutonameowException):
@@ -171,14 +170,12 @@ class BaseAnalyzer(object):
         text = None
         if isinstance(_response, list):
             for _r in _response:
-                assert isinstance(_r, ExtractedData)
-                if _r.value and len(_r.value) > 0:
-                    text = _r.value
+                if isinstance(_r, str) and len(_r.value) > 0:
+                    text = _r
                     break
         else:
-            assert isinstance(_response, ExtractedData)
-            if _response.value and len(_response.value) > 0:
-                text = _response.value
+            if isinstance(_response, str) and len(_response.value) > 0:
+                text = _response
 
         if text is not None:
             return text

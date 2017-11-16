@@ -23,10 +23,7 @@ import re
 
 from analyzers import BaseAnalyzer
 from core import types
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from core.util import (
@@ -160,23 +157,25 @@ class DocumentAnalyzer(BaseAnalyzer):
 
     def _wrap_publisher(self, data):
         # TODO: [TD0119] Separate adding contextual information from coercion.
-        return ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        return {
+            'value': data,
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            generic_field=gf.GenericPublisher
-        )(data)
+            'generic_field': gf.GenericPublisher
+        }
 
     def _wrap_generic_title(self, data, probability):
         # TODO: [TD0119] Separate adding contextual information from coercion.
-        return ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        return {
+            'value': data,
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Title, probability=probability),
             ],
-            generic_field=gf.GenericTitle
-        )(data)
+            'generic_field': gf.GenericTitle
+        }
 
     def _get_datetime_from_text(self):
         """
@@ -194,32 +193,21 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         dt_regex = dateandtime.regex_search_str(text)
         if dt_regex:
-            # TODO: [TD0119] Separate adding contextual information from coercion.
-            dt_regex_wrapper = ExtractedData(
-                coercer=types.AW_TIMEDATE,
-                mapped_fields=[
-                    WeightedMapping(fields.DateTime, probability=0.25),
-                    WeightedMapping(fields.Date, probability=0.25)
-                ],
-                generic_field=gf.GenericDateCreated
-            )
-
             assert isinstance(dt_regex, list)
-            for v in dt_regex:
-                results.append(ExtractedData.from_raw(dt_regex_wrapper, v))
+            for data in dt_regex:
+                results.append({
+                    'value': data,
+                    'coercer': types.AW_TIMEDATE,
+                    'mapped_fields': [
+                        WeightedMapping(fields.DateTime, probability=0.25),
+                        WeightedMapping(fields.Date, probability=0.25)
+                    ],
+                    'generic_field': gf.GenericDateCreated
+            })
 
         # TODO: Temporary premature return skips brute force search ..
         return results
 
-        # TODO: [TD0119] Separate adding contextual information from coercion.
-        dt_brute_wrapper = ExtractedData(
-            coercer=types.AW_TIMEDATE,
-            mapped_fields=[
-                WeightedMapping(fields.DateTime, probability=0.1),
-                WeightedMapping(fields.Date, probability=0.1)
-            ],
-            generic_field=gf.GenericDateCreated
-        )
         matches = 0
         text_split = text.split('\n')
         self.log.debug('Try getting datetime from text split by newlines')
@@ -229,7 +217,15 @@ class DocumentAnalyzer(BaseAnalyzer):
                 matches += 1
                 assert isinstance(dt_brute, list)
                 for v in dt_brute:
-                    results.append(ExtractedData.from_raw(dt_brute_wrapper, v))
+                    results.append({
+                        'value': data,
+                        'coercer': types.AW_TIMEDATE,
+                        'mapped_fields': [
+                            WeightedMapping(fields.DateTime, probability=0.1),
+                            WeightedMapping(fields.Date, probability=0.1)
+                        ],
+                        'generic_field': gf.GenericDateCreated
+                    })
 
         if matches == 0:
             self.log.debug('No matches. Trying with text split by whitespace')
@@ -240,7 +236,15 @@ class DocumentAnalyzer(BaseAnalyzer):
                     matches += 1
                     assert isinstance(dt_brute, list)
                     for v in dt_brute:
-                        results.append(ExtractedData.from_raw(dt_brute_wrapper, v))
+                        results.append({
+                            'value': data,
+                            'coercer': types.AW_TIMEDATE,
+                            'mapped_fields': [
+                                WeightedMapping(fields.DateTime, probability=0.1),
+                                WeightedMapping(fields.Date, probability=0.1)
+                            ],
+                            'generic_field': gf.GenericDateCreated
+                        })
 
         return results
 

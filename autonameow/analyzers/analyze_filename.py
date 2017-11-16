@@ -24,10 +24,7 @@ from collections import Counter
 
 from analyzers import BaseAnalyzer
 from core import types
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from core.util import (
@@ -82,14 +79,15 @@ class FilenameAnalyzer(BaseAnalyzer):
                 _value = _timestamp.get('value')
                 if _value:
                     _prob = _timestamp.get('weight', 0.001)
-                    return ExtractedData(
-                        coercer=types.AW_TIMEDATE,
-                        mapped_fields=[
+                    return {
+                        'value': _value,
+                        'coercer': types.AW_TIMEDATE,
+                        'mapped_fields': [
                             WeightedMapping(fields.DateTime, probability=_prob),
                             WeightedMapping(fields.Date, probability=_prob),
                         ],
-                        generic_field=gf.GenericDateCreated
-                    )(_value)
+                        'generic_field': gf.GenericDateCreated
+                    }
 
         return fn_timestamps or None
 
@@ -106,13 +104,14 @@ class FilenameAnalyzer(BaseAnalyzer):
 
         _number = find_edition(basename.as_string())
         if _number:
-            return ExtractedData(
-                coercer=types.AW_INTEGER,
-                mapped_fields=[
+            return {
+                'value': _number,
+                'coercer': types.AW_INTEGER,
+                'mapped_fields': [
                     WeightedMapping(fields.Edition, probability=1),
                 ],
-                generic_field=gf.GenericEdition
-            )(_number)
+                'generic_field': gf.GenericEdition
+            }
         else:
             return None
 
@@ -138,12 +137,13 @@ class FilenameAnalyzer(BaseAnalyzer):
             ' suffix: "{!s}"'.format(file_mimetype, file_basename_suffix))
         result = likely_extension(file_basename_suffix, file_mimetype)
         self.log.debug('Likely extension: "{!s}"'.format(result))
-        return ExtractedData(
-            coercer=types.AW_PATHCOMPONENT,
-            mapped_fields=[
+        return {
+            'value': result,
+            'coercer': types.AW_PATHCOMPONENT,
+            'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ]
-        )(result)
+        }
 
     def get_publisher(self):
         ed_basename_prefix = self.request_data(
@@ -164,13 +164,14 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not result:
             return None
 
-        return ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        return {
+            'value': result,
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            generic_field=gf.GenericPublisher
-        )(result)
+            'generic_field': gf.GenericPublisher
+        }
 
     def _get_datetime_from_name(self):
         """

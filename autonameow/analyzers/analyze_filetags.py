@@ -28,10 +28,7 @@ from core import (
     util
 )
 from core.model import genericfields as gf
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.namebuilder import fields
 
 
