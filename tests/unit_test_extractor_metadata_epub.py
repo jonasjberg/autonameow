@@ -24,9 +24,17 @@ from unittest import TestCase
 
 from extractors.metadata import EpubMetadataExtractor
 import unit_utils as uu
+from unit_utils_extractors import TestCaseExtractorOutputTypes
+
 
 unmet_dependencies = not EpubMetadataExtractor.check_dependencies()
 dependency_error = 'Extractor dependencies not satisfied'
+
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestEpubMetadataExtractorOutputTypes(TestCaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = EpubMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
 
 
 class TestEpubMetadataExtractor(TestCase):

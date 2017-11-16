@@ -31,6 +31,7 @@ from extractors.metadata.exiftool import (
 
 import unit_utils as uu
 import unit_utils_constants as uuconst
+from unit_utils_extractors import TestCaseExtractorOutputTypes
 
 
 unmet_dependencies = not ExiftoolMetadataExtractor.check_dependencies()
@@ -39,6 +40,12 @@ dependency_error = 'Extractor dependencies not satisfied'
 
 temp_fileobject = uu.get_mock_fileobject()
 temp_file = uu.make_temporary_file()
+
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestExiftoolMetadataExtractorOutputTypes(TestCaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = ExiftoolMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
 class TestExiftoolMetadataExtractor(unittest.TestCase):

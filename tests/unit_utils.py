@@ -49,55 +49,6 @@ class TestCase(unittest.TestCase):
         pass
 
 
-class BaseTestCaseExtractorOutput(unittest.TestCase):
-    EXTRACTOR_CLASS = None
-    SOURCE_FILEOBJECT = None
-
-    def setUp(self):
-        self.extractor = self.EXTRACTOR_CLASS()
-        self.actual_extracted = self.extractor.extract(self.SOURCE_FILEOBJECT)
-
-    def test_setup_instantiates_extractor(self):
-        actual = self.extractor
-        self.assertIsNotNone(
-            actual,
-            'Got None when instantiating extractor: "{!s}" ({!s})'.format(
-                self.EXTRACTOR_CLASS, type(self.EXTRACTOR_CLASS)
-            )
-        )
-        self.assertTrue(
-            is_class_instance(actual),
-            'Instantiated extractor is not a class instance: '
-            '"{!s}" ({!s})'.format(actual, type(actual))
-        )
-
-    def test_setup_extracts_data_from_fileobject_source(self):
-        actual = self.actual_extracted
-        self.assertIsNotNone(
-            actual,
-            'None extracted by "{!s}" from source "{!s}"'.format(
-                self.extractor, self.SOURCE_FILEOBJECT
-            )
-        )
-
-    def test_extract_returns_expected_outer_type(self):
-        _actual_extracted = self.actual_extracted
-        self.assertTrue(
-            isinstance(_actual_extracted, dict),
-            'Expected "dict". Got "{!s}"'.format(type(_actual_extracted))
-        )
-
-    def test_extract_returns_expected_contained_types(self):
-        _actual_extracted = self.actual_extracted
-        for meowuri, datadict in _actual_extracted.items():
-            self.assertTrue(
-                isinstance(datadict, dict),
-                'Expected "dict". Got "{!s}" for MeowURI "{!s}"'.format(
-                    type(datadict), meowuri
-                )
-            )
-
-
 def ok_(expr, msg=None):
     """
     Shorthand for assert

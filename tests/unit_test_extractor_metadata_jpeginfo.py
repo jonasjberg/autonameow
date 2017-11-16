@@ -24,6 +24,7 @@ import unittest
 from extractors import ExtractorError
 from extractors.metadata import JpeginfoMetadataExtractor
 from extractors.metadata.jpeginfo import _run_jpeginfo
+from unit_utils_extractors import TestCaseExtractorOutputTypes
 import unit_utils as uu
 
 
@@ -34,6 +35,12 @@ ALL_EXTRACTOR_FIELDS_TYPES = [
 
 unmet_dependencies = not JpeginfoMetadataExtractor.check_dependencies()
 dependency_error = 'Extractor dependencies not satisfied'
+
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestJpeginfoMetadataExtractorOutputTypes(TestCaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = JpeginfoMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
 class TestJpeginfoMetadataExtractor(unittest.TestCase):
