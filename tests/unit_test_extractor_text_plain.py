@@ -21,13 +21,30 @@
 
 import os
 
+import unittest
 from unittest import TestCase
 
 import unit_utils as uu
 from extractors.text.plain import (
+    PlainTextExtractor,
     read_entire_text_file,
     autodetect_encoding
 )
+from unit_utils_extractors import TestCaseExtractorBasics
+
+
+UNMET_DEPENDENCIES = PlainTextExtractor.check_dependencies() is False
+DEPENDENCY_ERROR = 'Extractor dependencies not satisfied (!)'
+
+
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestPlainTextExtractor(TestCaseExtractorBasics):
+    EXTRACTOR_CLASS = PlainTextExtractor
+
+    def test_method_str_returns_expected(self):
+        actual = str(self.extractor)
+        expect = 'PlainTextExtractor'
+        self.assertEqual(actual, expect)
 
 
 class TestReadEntireTextFileA(TestCase):
