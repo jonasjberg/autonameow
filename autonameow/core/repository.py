@@ -139,14 +139,14 @@ class Repository(object):
 
         return out
 
-    def query(self, fileobject, meowuri, mapped_to_field=None):
+    def query(self, fileobject, meowuri):
         if not meowuri:
             raise exceptions.InvalidMeowURIError(
                 'Unable to resolve empty meowURI'
             )
 
-        log.debug('Got request [{:8.8}]->[{!s}] Mapped to Field: "{!s}"'.format(
-            fileobject.hash_partial, meowuri, mapped_to_field))
+        log.debug('Got request [{:8.8}]->[{!s}]'.format(
+            fileobject.hash_partial, meowuri))
 
         try:
             data = self.__get_data(fileobject, meowuri)
@@ -155,24 +155,7 @@ class Repository(object):
             return None
         else:
             # TODO: [TD0082] Integrate the 'ExtractedData' class.
-            if isinstance(data, ExtractedData):
-                if mapped_to_field is not None:
-                    if data.maps_field(mapped_to_field):
-                        return data
-                    else:
-                        log.debug(
-                            'Repository request failed requirement; [{:8.8}]->'
-                            '[{!s}] Mapped to Field: "{!s}"'.format(
-                                fileobject.hash_partial, meowuri,
-                                mapped_to_field
-                            )
-                        )
-                        return None
-                else:
-                    return data
-
-            else:
-                return data
+            return data
 
     def __get_data(self, file, meowuri):
         return util.nested_dict_get(self.data, [file, meowuri])
