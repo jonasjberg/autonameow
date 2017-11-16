@@ -77,8 +77,8 @@ class Repository(object):
         if not meowuri or not isinstance(meowuri, MeowURI):
             raise exceptions.InvalidMeowURIError
 
-        if data is None:
-            log.warning('Attempted to add None data with meowURI'
+        if not data:
+            log.warning('Attempted to add empty data with meowURI'
                         ' "{!s}"'.format(meowuri))
             return
 
