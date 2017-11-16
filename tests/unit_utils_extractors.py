@@ -100,3 +100,60 @@ class TestCaseExtractorOutputTypes(unittest.TestCase):
                     type(datadict), meowuri
                 )
             )
+
+
+class TestCaseExtractorBasics(unittest.TestCase):
+    __test__ = False
+
+    EXTRACTOR_CLASS = None
+
+    def setUp(self):
+        if self.EXTRACTOR_CLASS is None:
+            self.skipTest('Base class attribute "EXTRACTOR_CLASS" is None')
+
+        self.extractor = self.EXTRACTOR_CLASS()
+
+    def test_instantiated_extractor_is_not_none(self):
+        actual = self.extractor
+        self.assertIsNotNone(
+            actual,
+            'Got None when instantiating extractor: "{!s}" ({!s})'.format(
+                self.EXTRACTOR_CLASS, type(self.EXTRACTOR_CLASS)
+            )
+        )
+
+    def test_instantiated_extractor_is_class_instance(self):
+        actual = self.extractor
+        self.assertTrue(
+            uu.is_class_instance(actual),
+            'Instantiated extractor is not a class instance: '
+            '"{!s}" ({!s})'.format(actual, type(actual))
+        )
+
+    def test_instantiated_extractor_is_subclass_of_base_extractor(self):
+        actual = self.extractor
+        self.assertTrue(
+            issubclass(actual.__class__, BaseExtractor),
+            'Instantiated extractor is not a subclass of "BaseExtractor": '
+            '"{!s}" ({!s})'.format(actual, type(actual))
+        )
+
+    def test_class_attribute_handles_mime_type_is_not_none(self):
+        actual = self.extractor.HANDLES_MIME_TYPES
+        self.assertIsNotNone(actual)
+
+    def test_class_attribute_handles_mime_type_is_a_list(self):
+        actual = self.extractor.HANDLES_MIME_TYPES
+        self.assertTrue(isinstance(actual, list))
+
+    def test_class_attribute_handles_mime_type_is_a_list_of_strings(self):
+        actual = self.extractor.HANDLES_MIME_TYPES
+        for a in actual:
+            self.assertTrue(isinstance(a, str))
+
+    def test_method_str_returns_type_unicode_string(self):
+        actual = str(self.extractor)
+        self.assertTrue(
+            isinstance(actual, str),
+            'Expected "str". Got "{!s}"'.format(type(actual))
+        )
