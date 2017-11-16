@@ -31,7 +31,10 @@ from extractors.metadata.exiftool import (
 
 import unit_utils as uu
 import unit_utils_constants as uuconst
-from unit_utils_extractors import TestCaseExtractorOutputTypes
+from unit_utils_extractors import (
+    TestCaseExtractorBasics,
+    TestCaseExtractorOutputTypes
+)
 
 
 unmet_dependencies = not ExiftoolMetadataExtractor.check_dependencies()
@@ -48,32 +51,28 @@ class TestExiftoolMetadataExtractorOutputTypes(TestCaseExtractorOutputTypes):
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
 
-class TestExiftoolMetadataExtractor(unittest.TestCase):
-    def setUp(self):
-        self.e = ExiftoolMetadataExtractor()
-
-    def test_exiftool_metadata_extractor_class_is_available(self):
-        self.assertIsNotNone(ExiftoolMetadataExtractor)
-
-    def test_exiftool_metadata_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test_specifies_handles_mime_types(self):
-        self.assertIsNotNone(self.e.HANDLES_MIME_TYPES)
-        self.assertTrue(isinstance(self.e.HANDLES_MIME_TYPES, list))
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestExiftoolMetadataExtractor(TestCaseExtractorBasics):
+    EXTRACTOR_CLASS = ExiftoolMetadataExtractor
 
     def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'ExiftoolMetadataExtractor')
+        actual = str(self.extractor)
+        expect = 'ExiftoolMetadataExtractor'
+        self.assertEqual(actual, expect)
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestExiftoolMetadataExtractorInternals(unittest.TestCase):
+    def setUp(self):
+        self.test_file = uu.fileobject_testfile('smulan.jpg')
+        self.e = ExiftoolMetadataExtractor()
+
     def test__get_metadata_returns_something(self):
         self.assertIsNotNone(self.e._get_metadata(temp_file))
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test__get_metadata_returns_expected_type(self):
         self.assertTrue(isinstance(self.e._get_metadata(temp_file), dict))
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test__get_metadata_raises_expected_exceptions(self):
         with self.assertRaises(ExtractorError):
             e = ExiftoolMetadataExtractor()
@@ -83,33 +82,24 @@ class TestExiftoolMetadataExtractor(unittest.TestCase):
             f = ExiftoolMetadataExtractor()
             f._get_metadata(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_returns_something(self):
         self.assertIsNotNone(_get_exiftool_data(temp_file))
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_returns_expected_type(self):
         self.assertTrue(isinstance(_get_exiftool_data(temp_file), dict))
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_get_exiftool_data_raises_expected_exception(self):
         with self.assertRaises(ExtractorError):
-            e = ExiftoolMetadataExtractor()
+            _ = ExiftoolMetadataExtractor()
             _get_exiftool_data(None)
 
         with self.assertRaises(ExtractorError):
-            f = ExiftoolMetadataExtractor()
+            _ = ExiftoolMetadataExtractor()
             _get_exiftool_data(uuconst.ASSUMED_NONEXISTENT_BASENAME)
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_extract_returns_something(self):
         self.assertIsNotNone(self.e.extract(temp_fileobject))
 
-    @unittest.skipIf(unmet_dependencies, dependency_error)
-    def test_method_extract_returns_expected_type(self):
-        self.assertTrue(isinstance(self.e.extract(temp_fileobject), dict))
-
-    @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_extract_all_result_contains_filename(self):
         actual = self.e.extract(temp_fileobject)
         self.assertIn('File:FileName', actual)
@@ -139,7 +129,10 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_extract_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual, dict))
+        _actual_extracted = self.actual
+        self.assertTrue(isinstance(_actual_extracted, dict))
+        for meowuri, datadict in _actual_extracted.items():
+            self.assertTrue(isinstance(datadict, dict))
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_extract_all_result_contains_expected_fields(self):
@@ -148,9 +141,10 @@ class TestExiftoolMetadataExtractorWithImage(unittest.TestCase):
 
     @unittest.skipIf(unmet_dependencies, dependency_error)
     def test_method_extract_all_result_contains_expected_values(self):
-        for field, value in self.EXPECT_FIELD_VALUE:
-            _actual = self.actual.get(field)
-            self.assertEqual(_actual, value)
+        for field, expected in self.EXPECT_FIELD_VALUE:
+            _actual_datadict = self.actual.get(field)
+            _actual_value = _actual_datadict.get('value')
+            self.assertEqual(_actual_value, expected)
 
 
 class TestIsBadMetadata(unittest.TestCase):

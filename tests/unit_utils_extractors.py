@@ -84,6 +84,13 @@ class TestCaseExtractorOutputTypes(unittest.TestCase):
             )
         )
 
+    def test_extract_does_not_return_none(self):
+        _actual_extracted = self.actual_extracted
+        self.assertIsNotNone(
+            _actual_extracted,
+            'Got None extracted data from "{!s}"'.format(self.extractor)
+        )
+
     def test_extract_returns_expected_outer_type(self):
         _actual_extracted = self.actual_extracted
         self.assertTrue(
