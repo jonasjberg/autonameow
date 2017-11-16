@@ -91,11 +91,15 @@ class JpeginfoMetadataExtractor(BaseExtractor):
 
         _coerced_health = self.coerce_field_value('health', health)
         if _coerced_health:
-            out['health'] = _coerced_health
+            metainfo_health = dict(self.FIELD_LOOKUP.get('health', {}))
+            metainfo_health.update({'value': _coerced_health})
+            out['health'] = metainfo_health
 
         _coerced_is_jpeg = self.coerce_field_value('is_jpeg', is_jpeg)
         if _coerced_is_jpeg:
-            out['is_jpeg'] = _coerced_is_jpeg
+            metainfo_is_jpeg = dict(self.FIELD_LOOKUP.get('is_jpeg', {}))
+            metainfo_is_jpeg.update({'value': _coerced_is_jpeg})
+            out['is_jpeg'] = metainfo_is_jpeg
 
         return out
 
