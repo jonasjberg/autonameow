@@ -91,7 +91,9 @@ def all_testfiles():
         os.path.abspath(os.path.join(uuconst.TEST_FILES_DIR, f))
         for f in os.listdir(uuconst.TEST_FILES_DIR)
     ]
-    return [f for f in _abs_paths if os.path.isfile(f)]
+    return [
+        f for f in _abs_paths if os.path.isfile(f) and not os.path.islink(f)
+    ]
 
 
 def file_exists(file_path):

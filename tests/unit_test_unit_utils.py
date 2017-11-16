@@ -115,6 +115,11 @@ class TestUnitUtilityAllTestFiles(TestCase):
             self.assertTrue(os.path.isfile(f) | os.path.islink(f))
             self.assertTrue(os.path.isabs(f))
 
+    def test_does_not_return_symbolic_links(self):
+        actual = uu.all_testfiles()
+        for f in actual:
+            self.assertFalse(os.path.islink(f))
+
 
 class TestUnitUtilityFileExists(TestCase):
     def _check_return(self, file_to_test):
