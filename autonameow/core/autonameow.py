@@ -109,7 +109,7 @@ class Autonameow(object):
                 opts['mode_timid'] = False
 
         if not opts.get('mode_automagic') and not opts.get('mode_rulematch'):
-            log.warning('No operating-mode selected!')
+            log.info('No operating-mode selected!')
 
         if not opts.get('mode_rulematch'):
             log.info('Enabled rule-matching..')
