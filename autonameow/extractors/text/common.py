@@ -43,7 +43,7 @@ log = logging.getLogger(__name__)
 class AbstractTextExtractor(BaseExtractor):
     FIELD_LOOKUP = {
         'full': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'multiple': False,
             'mapped_fields': None,
             'generic_field': gf.GenericText

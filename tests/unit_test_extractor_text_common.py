@@ -106,7 +106,7 @@ class TestAbstractTextExtractorMetainfo(TestCase):
 
     def test_metainfo_specifies_types_for_all_fields(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
-            self.assertIn('typewrap', self.actual.get(_field, {}))
+            self.assertIn('coercer', self.actual.get(_field, {}))
 
     def test_metainfo_multiple_is_bool_or_none(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
