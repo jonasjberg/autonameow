@@ -82,6 +82,14 @@ class Repository(object):
                         ' "{!s}"'.format(meowuri))
             return
 
+        if isinstance(data, list):
+            data_sample = data[0]
+        else:
+            data_sample = data
+        assert isinstance(data_sample, dict), (
+            'Expected "data" to be of type dict. Got "{!s}"'.format(type(data))
+        )
+
         self._store(fileobject, meowuri, data)
         self._store_generic(fileobject, data)
 
