@@ -42,12 +42,7 @@ class TestCaseExtractorOutputTypes(unittest.TestCase):
         if self.SOURCE_FILEOBJECT is None:
             self.skipTest('Base class attribute "SOURCE_FILEOBJECT" is None')
 
-        # if self.EXTRACTOR_CLASS is not None:
-        #     self.extractor = self.EXTRACTOR_CLASS()
-        # else:
-        #     self.extractor = None
         self.extractor = self.EXTRACTOR_CLASS()
-
         self.actual_extracted = self.extractor.extract(self.SOURCE_FILEOBJECT)
 
     def test_instantiated_extractor_is_not_none(self):
