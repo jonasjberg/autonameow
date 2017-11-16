@@ -24,8 +24,7 @@ import logging
 from core import constants as C
 from core import (
     plugin_handler,
-    providers,
-    types
+    providers
 )
 
 from core.exceptions import InvalidMeowURIError

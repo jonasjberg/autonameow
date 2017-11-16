@@ -24,10 +24,7 @@ from collections import Counter
 
 from analyzers import BaseAnalyzer
 from core import types
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from core.util import (
@@ -82,14 +79,15 @@ class FilenameAnalyzer(BaseAnalyzer):
                 _value = _timestamp.get('value')
                 if _value:
                     _prob = _timestamp.get('weight', 0.001)
-                    return ExtractedData(
-                        coercer=types.AW_TIMEDATE,
-                        mapped_fields=[
+                    return {
+                        'value': _value,
+                        'coercer': types.AW_TIMEDATE,
+                        'mapped_fields': [
                             WeightedMapping(fields.DateTime, probability=_prob),
                             WeightedMapping(fields.Date, probability=_prob),
                         ],
-                        generic_field=gf.GenericDateCreated
-                    )(_value)
+                        'generic_field': gf.GenericDateCreated
+                    }
 
         return fn_timestamps or None
 
@@ -104,15 +102,16 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not basename:
             return None
 
-        _number = find_edition(basename.as_string())
+        _number = find_edition(types.force_string(basename.get('value')))
         if _number:
-            return ExtractedData(
-                coercer=types.AW_INTEGER,
-                mapped_fields=[
+            return {
+                'value': _number,
+                'coercer': types.AW_INTEGER,
+                'mapped_fields': [
                     WeightedMapping(fields.Edition, probability=1),
                 ],
-                generic_field=gf.GenericEdition
-            )(_number)
+                'generic_field': gf.GenericEdition
+            }
         else:
             return None
 
@@ -131,19 +130,20 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not ed_file_mimetype:
             return
 
-        file_basename_suffix = ed_basename_suffix.as_string()
-        file_mimetype = ed_file_mimetype.value
+        file_basename_suffix = types.force_string(ed_basename_suffix.get('value'))
+        file_mimetype = ed_file_mimetype.get('value')
         self.log.debug(
             'Attempting to get likely extension for MIME-type: "{!s}"  Basename'
             ' suffix: "{!s}"'.format(file_mimetype, file_basename_suffix))
         result = likely_extension(file_basename_suffix, file_mimetype)
         self.log.debug('Likely extension: "{!s}"'.format(result))
-        return ExtractedData(
-            coercer=types.AW_PATHCOMPONENT,
-            mapped_fields=[
+        return {
+            'value': result,
+            'coercer': types.AW_PATHCOMPONENT,
+            'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ]
-        )(result)
+        }
 
     def get_publisher(self):
         ed_basename_prefix = self.request_data(
@@ -153,7 +153,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not ed_basename_prefix:
             return
 
-        file_basename_prefix = ed_basename_prefix.as_string()
+        file_basename_prefix = types.force_string(ed_basename_prefix.get('value'))
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
         if _options:
             _candidates = _options.get('candidates', {})
@@ -164,13 +164,14 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not result:
             return None
 
-        return ExtractedData(
-            coercer=types.AW_STRING,
-            mapped_fields=[
+        return {
+            'value': result,
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=1),
             ],
-            generic_field=gf.GenericPublisher
-        )(result)
+            'generic_field': gf.GenericPublisher
+        }
 
     def _get_datetime_from_name(self):
         """

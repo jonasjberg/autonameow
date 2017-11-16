@@ -28,10 +28,7 @@ from core import (
     util
 )
 from core.model import genericfields as gf
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.namebuilder import fields
 
 
@@ -64,7 +61,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
 
     FIELD_LOOKUP = {
         'datetime': {
-            'typewrap': types.AW_TIMEDATE,
+            'coercer': types.AW_TIMEDATE,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=0.75),
@@ -72,7 +69,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
             'generic_field': gf.GenericDateCreated
         },
         'description': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Title, probability=0.5),
@@ -80,7 +77,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
             'generic_field': gf.GenericDescription
         },
         'tags': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'multiple': True,
             'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
@@ -88,14 +85,14 @@ class FiletagsAnalyzer(BaseAnalyzer):
             'generic_field': gf.GenericTags
         },
         'extension': {
-            'typewrap': types.AW_MIMETYPE,
+            'coercer': types.AW_MIMETYPE,
             'mapped_fields': [
                 WeightedMapping(fields.Extension, probability=1),
             ],
             'generic_field': gf.GenericMimeType
         },
         'follows_filetags_convention': {
-            'typewrap': types.AW_BOOLEAN,
+            'coercer': types.AW_BOOLEAN,
             'mapped_fields': None,
             'generic_field': None
         }
@@ -120,21 +117,55 @@ class FiletagsAnalyzer(BaseAnalyzer):
         self._timestamp = self.coerce_field_value('datetime', _raw_timestamp)
         self._description = self.coerce_field_value('description', _raw_description)
 
+        self._tags = []
         if _raw_tags:
             _coerced_tags = self.coerce_field_value('tags', _raw_tags)
-            self._tags = sorted(_coerced_tags)
+            if _coerced_tags:
+                self._tags = sorted(_coerced_tags)
 
         self._extension = self.coerce_field_value('extension', _raw_extension)
         self._follows_filetags_convention = self.coerce_field_value(
             'follows_filetags_convention', _raw_follows_convention
         )
 
-        self._add_results('datetime', self._timestamp)
-        self._add_results('description', self._description)
-        self._add_results('tags', self._tags)
-        self._add_results('extension', self._extension)
-        self._add_results('follows_filetags_convention',
-                          self._follows_filetags_convention)
+        self._add_results('datetime', {
+            'value': self._timestamp,
+            'coercer': types.AW_TIMEDATE,
+            'mapped_fields': [
+                WeightedMapping(fields.DateTime, probability=1),
+                WeightedMapping(fields.Date, probability=1),
+            ],
+            'generic_field': gf.GenericDateCreated
+        })
+        self._add_results('description', {
+            'value': self._description,
+            'coercer': types.AW_STRING,
+            'mapped_fields': [
+                WeightedMapping(fields.Description, probability=1),
+            ],
+            'generic_field': gf.GenericDescription
+        })
+        self._add_results('tags', {
+            'value': self._tags,
+            'coercer': types.listof(types.AW_STRING),
+            'mapped_fields': [
+                WeightedMapping(fields.Tags, probability=1),
+            ],
+            'generic_field': gf.GenericTags
+
+        })
+        self._add_results('extension', {
+            'value': self._extension,
+            'coercer': types.AW_MIMETYPE,
+            'mapped_fields': [
+                WeightedMapping(fields.Extension, probability=1),
+            ],
+            'generic_field': gf.GenericMimeType
+        })
+        self._add_results('follows_filetags_convention', {
+            'value': self._follows_filetags_convention,
+            'coercer': types.AW_BOOLEAN
+        })
 
     def follows_filetags_convention(self):
         """

@@ -29,10 +29,7 @@ import unittest
 from contextlib import contextmanager
 from datetime import datetime
 
-from core import (
-    model,
-    util
-)
+from core import util
 from core.config import rules
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
@@ -729,10 +726,6 @@ def init_session_repository():
 def init_provider_registry():
     from core import providers
     providers.initialize()
-
-
-def is_extracteddata(thing):
-    return bool(thing and isinstance(thing, model.ExtractedData))
 
 
 def is_internalstring(thing):

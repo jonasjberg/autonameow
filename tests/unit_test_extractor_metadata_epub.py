@@ -24,9 +24,17 @@ from unittest import TestCase
 
 from extractors.metadata import EpubMetadataExtractor
 import unit_utils as uu
+from unit_utils_extractors import TestCaseExtractorOutputTypes
+
 
 unmet_dependencies = not EpubMetadataExtractor.check_dependencies()
 dependency_error = 'Extractor dependencies not satisfied'
+
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestEpubMetadataExtractorOutputTypes(TestCaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = EpubMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
 
 
 class TestEpubMetadataExtractor(TestCase):
@@ -51,15 +59,11 @@ class TestEpubMetadataExtractor(TestCase):
 class TestEpubMetadataExtractorWithTestFile(unittest.TestCase):
     def setUp(self):
         self.e = EpubMetadataExtractor()
-        self.test_file = uu.abspath_testfile('pg38145-images.epub')
         self.test_fileobject = uu.fileobject_testfile('pg38145-images.epub')
 
-    def test_method_extract_returns_expected_type(self):
-        actual = self.e.extract(self.test_fileobject)
-        self.assertTrue(isinstance(actual, dict))
+        self.actual = self.e.extract(self.test_fileobject)
 
     def test_method_extract_returns_expected_title(self):
-        actual = self.e.extract(self.test_fileobject)
-        _actual_title = actual['title']
-        expected = 'Human, All Too Human: A Book for Free Spirits'
-        self.assertEqual(_actual_title, expected)
+        actual = self.actual['title']['value']
+        expect = 'Human, All Too Human: A Book for Free Spirits'
+        self.assertEqual(actual, expect)

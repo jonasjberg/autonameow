@@ -24,6 +24,10 @@ import unittest
 from extractors import ExtractorError
 from extractors.metadata import JpeginfoMetadataExtractor
 from extractors.metadata.jpeginfo import _run_jpeginfo
+from unit_utils_extractors import (
+    TestCaseExtractorBasics,
+    TestCaseExtractorOutputTypes
+)
 import unit_utils as uu
 
 
@@ -36,22 +40,20 @@ unmet_dependencies = not JpeginfoMetadataExtractor.check_dependencies()
 dependency_error = 'Extractor dependencies not satisfied'
 
 
-class TestJpeginfoMetadataExtractor(unittest.TestCase):
-    def setUp(self):
-        self.e = JpeginfoMetadataExtractor()
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestJpeginfoMetadataExtractorOutputTypes(TestCaseExtractorOutputTypes):
+    EXTRACTOR_CLASS = JpeginfoMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
 
-    def test_extractor_class_is_available(self):
-        self.assertIsNotNone(JpeginfoMetadataExtractor)
 
-    def test_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestJpeginfoMetadataExtractor(TestCaseExtractorBasics):
+    EXTRACTOR_CLASS = JpeginfoMetadataExtractor
 
-    def test_specifies_handles_mime_types(self):
-        self.assertIsNotNone(self.e.HANDLES_MIME_TYPES)
-        self.assertTrue(isinstance(self.e.HANDLES_MIME_TYPES, list))
-
-    def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'JpeginfoMetadataExtractor')
+    def test_method_str_returns_expected_value(self):
+        actual = str(self.extractor)
+        expect = 'JpeginfoMetadataExtractor'
+        self.assertEqual(actual, expect)
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
@@ -114,9 +116,6 @@ class TestJpeginfoMetadataExtractorExtractTestFileJpeg(unittest.TestCase):
         _extractor_instance = JpeginfoMetadataExtractor()
         self.actual = _extractor_instance.extract(_fo)
 
-    def test_extract_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual, dict))
-
     def test_extract_returns_expected_keys(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
             self.assertIn(_field, self.actual)
@@ -146,16 +145,13 @@ class TestJpeginfoMetadataExtractorMetainfo(unittest.TestCase):
         _extractor_instance = JpeginfoMetadataExtractor()
         self.actual = _extractor_instance.metainfo()
 
-    def test_metainfo_returns_expected_type(self):
-        self.assertTrue(isinstance(self.actual, dict))
-
     def test_metainfo_returns_expected_fields(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
             self.assertIn(_field, self.actual)
 
     def test_metainfo_specifies_types_for_all_fields(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
-            self.assertIn('typewrap', self.actual.get(_field, {}))
+            self.assertIn('coercer', self.actual.get(_field, {}))
 
     def test_metainfo_multiple_is_bool_or_none(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:

@@ -128,54 +128,6 @@ class TestLikelyExtension(TestCase):
             self.assertEqual(actual, expect.expected, _m)
 
 
-class TestFileNameAnalyzerWithEbook(TestCase):
-    def _mock_request_data(self, fileobject, meowuri):
-        from core import types
-        from core.model import ExtractedData
-
-        if fileobject.filename == b'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi':
-            if meowuri == 'extractor.filesystem.xplat.basename.prefix':
-                return ExtractedData(
-                    coercer=types.AW_PATHCOMPONENT
-                )(b'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition')
-
-    def setUp(self):
-        fo = uu.fileobject_testfile(
-            'Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.mobi'
-        )
-        self.a = FilenameAnalyzer(
-            fo,
-            config=uu.get_default_config(),
-            request_data_callback=self._mock_request_data
-        )
-
-        # TODO: This breaks due to FileObject equality check in '__hash__'
-        #       includes the absolute path, which is different across platforms.
-        # TODO: Pickled repository state does not work well!
-
-        # uu.load_repository_dump(
-        #     uu.abspath_testfile('repository_Darwin-mobi.state')
-        # )
-
-    def test_get_edition(self):
-        actual = self.a.get_edition()
-        actual = actual.value
-        expected = 6
-        self.assertEqual(actual, expected)
-
-    def test_get_datetime(self):
-        actual = self.a.get_datetime()
-        expected = None
-        self.assertEqual(actual, expected)
-
-    def test_get_title(self):
-        self.skipTest('TODO: Implement finding titles in file names ..')
-
-        actual = self.a.get_title().value
-        expected = 'On the Origin of Species'
-        self.assertEqual(actual, expected)
-
-
 class TestIdentifyFields(TestCase):
     def test__substrings(self):
         f = SubstringFinder()

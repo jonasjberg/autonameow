@@ -31,10 +31,7 @@ from core import (
     types,
     util,
 )
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from plugins import BasePlugin
@@ -46,12 +43,12 @@ class GuessitPlugin(BasePlugin):
 
     FIELD_LOOKUP = {
         'audio_codec': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'mapped_fields': [],
             'generic_field': None
         },
         'date': {
-            'typewrap': types.AW_TIMEDATE,
+            'coercer': types.AW_TIMEDATE,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
@@ -59,50 +56,50 @@ class GuessitPlugin(BasePlugin):
             'generic_field': gf.GenericDateCreated
         },
         'episode': {
-            'typewrap': types.AW_INTEGER,
+            'coercer': types.AW_INTEGER,
             'mapped_fields': [],
             'generic_field': None
         },
         'format': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'mapped_fields': [],
             'generic_field': None
         },
         'release_group': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'mapped_fields': [
                 WeightedMapping(fields.Publisher, probability=0.1),
                 WeightedMapping(fields.Description, probability=0.001),
             ]
         },
         'screen_size': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'mapped_fields': [],
             'generic_field': None
         },
         'season': {
-            'typewrap': types.AW_INTEGER,
+            'coercer': types.AW_INTEGER,
             'mapped_fields': [],
             'generic_field': None
         },
         'title': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
             ]
         },
         'type': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'mapped_fields': [],
             'generic_field': None
         },
         'video_codec': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'mapped_fields': [],
             'generic_field': None
         },
         'year': {
-            'typewrap': types.AW_DATE,
+            'coercer': types.AW_DATE,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
@@ -131,7 +128,10 @@ class GuessitPlugin(BasePlugin):
         for field, value in data.items():
             _coerced = self.coerce_field_value(field, value)
             if _coerced is not None:
-                self.add_results(fileobject, field, _coerced)
+                wrapped = self.FIELD_LOOKUP.get(field, {}).update(
+                    {'value': _coerced}
+                )
+                self.add_results(fileobject, field, wrapped)
 
     @classmethod
     def test_init(cls):

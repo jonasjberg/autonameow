@@ -43,7 +43,7 @@ log = logging.getLogger(__name__)
 class AbstractTextExtractor(BaseExtractor):
     FIELD_LOOKUP = {
         'full': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'multiple': False,
             'mapped_fields': None,
             'generic_field': gf.GenericText
@@ -61,7 +61,9 @@ class AbstractTextExtractor(BaseExtractor):
         sanity.check_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
-        return {'full': text}
+        metainfo = dict(self.FIELD_LOOKUP.get('full', {}))
+        metainfo.update({'value': text})
+        return metainfo
 
     def _get_text(self, fileobject):
         # Read cached text

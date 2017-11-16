@@ -29,7 +29,6 @@ from core import (
     util
 )
 from core import constants as C
-from core.model import ExtractedData
 from core.namebuilder.fields import NameTemplateField
 from core.util import sanity
 
@@ -116,14 +115,13 @@ def pre_assemble_format(field_data_dict, config):
     for field, data in field_data_dict.items():
         log.debug('pre_assemble_format("{!s}", "{!s}")'.format(field, data))
         assert field and issubclass(field, NameTemplateField)
-        assert data and isinstance(data, ExtractedData)
 
         # TODO: [TD0115] Clear up uncertainties about data multiplicities
-        if data.multivalued:
+        if data.get('multivalued'):
             if not field.MULTIVALUED:
                 log.critical(
                     'Template field "{!s}" expects a single value. Got '
-                    'multivalued ExtractedData'.format(field.as_placeholder())
+                    'multivalued data'.format(field.as_placeholder())
                 )
                 raise exceptions.NameBuilderError(
                     'Template field "{!s}" expects a single value. '

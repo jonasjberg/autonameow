@@ -28,7 +28,6 @@ log = logging.getLogger(__name__)
 
 
 class ProviderMixin(object):
-    # TODO: [TD0119] Consolidate duplicated (3x) 'coerce_field_value()'.
     def __init__(self):
         pass
 
@@ -40,7 +39,7 @@ class ProviderMixin(object):
             return None
 
         try:
-            _coercer = _field_lookup_entry.get('typewrap')
+            _coercer = _field_lookup_entry.get('coercer')
         except AttributeError:
             # Might be case of malformed 'FIELD_LOOKUP'.
             _coercer = None

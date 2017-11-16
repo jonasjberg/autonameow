@@ -22,7 +22,7 @@
 from unittest import TestCase
 
 import analyzers
-from core import analysis
+from core import analysis, types
 import unit_utils as uu
 import unit_utils_constants as uuconst
 
@@ -55,12 +55,22 @@ class TestAnalysis(TestCase):
             self.assertTrue(uu.is_class_instance(ac))
             self.assertTrue(issubclass(ac.__class__, analyzers.BaseAnalyzer))
 
-    def test_collects_valid_results(self):
-        analysis.collect_results(
-            self.fo,
-            uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
-            'image/jpeg'
-        )
+    # def test_collects_valid_results(self):
+    #     _dummy_results = {
+    #         'title': {
+    #             'value': 'foo',
+    #             'coercer': types.AW_STRING,
+    #             'mapped_fields': None,
+    #             'generic_field': None,
+    #             'multivalued': False,
+    #             'source': object
+    #         }
+    #     }
+    #     analysis.collect_results(
+    #         self.fo,
+    #         'analyzer.filename',
+    #         _dummy_results
+    #     )
 
 
 class TestAnalysisRunQueue(TestCase):

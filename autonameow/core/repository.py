@@ -26,10 +26,7 @@ from core import (
     exceptions,
     util
 )
-from core.model import (
-    ExtractedData,
-    MeowURI
-)
+from core.model import MeowURI
 from core.util import textutils
 
 
@@ -48,7 +45,7 @@ class Repository(object):
                 'fileobject_A': {
                     'meowuri_a': 1
                     'meowuri_b': 'foo'
-                    'meowuri_c': ExtractedData(...)
+                    'meowuri_c': (...)
                 }
                 'fileobject_B': {
                     'meowuri_a': ['bar']
@@ -80,28 +77,38 @@ class Repository(object):
         if not meowuri or not isinstance(meowuri, MeowURI):
             raise exceptions.InvalidMeowURIError
 
-        if data is None:
-            log.warning('Attempted to add None data with meowURI'
+        if not data:
+            log.warning('Attempted to add empty data with meowURI'
                         ' "{!s}"'.format(meowuri))
             return
+
+        if isinstance(data, list):
+            data_sample = data[0]
+        else:
+            data_sample = data
+        assert isinstance(data_sample, dict), (
+            'Expected "data" to be of type dict. Got "{!s}"'.format(type(data))
+        )
 
         self._store(fileobject, meowuri, data)
         self._store_generic(fileobject, data)
 
     def _store_generic(self, fileobject, data):
-        # TODO: [TD0082] Integrate the 'ExtractedData' class.
-        if not isinstance(data, ExtractedData):
-            return
+        def __store(data):
+            if data.get('generic_field') is not None:
+                try:
+                    _gen_uri = data['generic_field'].uri()
+                except AttributeError:
+                    self.log.critical('TODO: Fix missing "field.uri()" for some'
+                                      ' GenericField classes!')
+                else:
+                    self._store(fileobject, _gen_uri, data)
 
-        if data.generic_field is not None:
-            try:
-                _gen_uri = data.generic_field.uri()
-            except AttributeError:
-                # TODO: [TD0082] Integrate the 'ExtractedData' class.
-                self.log.critical('TODO: Fix missing "field.uri()" for some'
-                                  ' GenericField classes!')
-            else:
-                self._store(fileobject, _gen_uri, data)
+        if isinstance(data, list):
+            for d in data:
+                __store(d)
+        else:
+            __store(data)
 
     def _store(self, fileobject, meowuri, data):
         log.debug('Repository storing: [{:8.8}]->[{!s}] :: "{!r}"'.format(
@@ -129,13 +136,11 @@ class Repository(object):
         for meowuri, data in _data.items():
             if isinstance(data, list):
                 for d in data:
-                    if isinstance(d, ExtractedData):
-                        if d.maps_field(field):
-                            out.append(d)
+                    if maps_field(d, field):
+                        out.append(d)
             else:
-                if isinstance(data, ExtractedData):
-                    if data.maps_field(field):
-                        out.append(data)
+                if maps_field(data, field):
+                    out.append(data)
 
         return out
 
@@ -154,7 +159,6 @@ class Repository(object):
             log.debug('Repository request raised KeyError: {!s}'.format(e))
             return None
         else:
-            # TODO: [TD0082] Integrate the 'ExtractedData' class.
             return data
 
     def __get_data(self, file, meowuri):
@@ -202,13 +206,8 @@ class Repository(object):
             if isinstance(data, list):
                 log.debug('TODO: Improve robustness of handling this case')
                 temp_list = []
-                for element in data:
-                    # TODO: [TD0082] Integrate the 'ExtractedData' class.
-                    if isinstance(element, ExtractedData):
-                        v = element.value
-                    else:
-                        v = element
-
+                for d in data:
+                    v = d.get('value')
                     try:
                         if isinstance(v, bytes):
                             temp_list.append(util.enc.displayable_path(v))
@@ -225,12 +224,7 @@ class Repository(object):
                 temp[meowuri] = temp_list
 
             else:
-                # TODO: [TD0082] Integrate the 'ExtractedData' class.
-                if isinstance(data, ExtractedData):
-                    v = data.value
-                else:
-                    v = data
-
+                v = data.get('value')
                 if isinstance(v, bytes):
                     temp[meowuri] = util.enc.displayable_path(v)
 
@@ -253,27 +247,32 @@ class Repository(object):
                 for v in data[1:]:
                     out.append(_fmt_list_entry(_max_len_meowuri, v))
             else:
+                # datavalue = data.get('value')
+                datavalue = data
                 if meowuri.matchglobs(['generic.contents.text',
                                        'extractor.text.*']):
                     _text = textutils.extract_lines(
-                        data, firstline=0, lastline=1
+                        datavalue, firstline=0, lastline=1
                     )
                     _text = _text.rstrip('\n')
                     out.append(
                         _fmt_text_line(_max_len_meowuri, _text, meowuri)
                     )
                     _lines = textutils.extract_lines(
-                        data, firstline=1, lastline=len(data.splitlines())
+                        datavalue, firstline=1,
+                        lastline=len(datavalue.splitlines())
                     )
                     for _line in _lines.splitlines():
                         out.append(_fmt_text_line(_max_len_meowuri, _line))
                 else:
-                    out.append(_fmt_entry(meowuri, _max_len_meowuri, data))
+                    out.append(_fmt_entry(meowuri, _max_len_meowuri, datavalue))
 
         return out
 
     def __len__(self):
-        return util.count_dict_recursive(self.data)
+        # TODO:  FIX THIS! Unverified after removing the 'ExtractedData' class.
+        # return util.count_dict_recursive(self.data)
+        return sum(len(v) for k, v in self.data.items())
 
     def __str__(self):
         return self.human_readable_contents()
@@ -362,6 +361,13 @@ def shutdown(id_=None):
         )
     else:
         r.shutdown()
+
+
+def maps_field(datadict, field):
+    for mapping in datadict.get('field_map', {}):
+        if field == mapping.field:
+            return True
+    return False
 
 
 Pool = None
