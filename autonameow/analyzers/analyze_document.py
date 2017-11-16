@@ -156,7 +156,6 @@ class DocumentAnalyzer(BaseAnalyzer):
         )
 
     def _wrap_publisher(self, data):
-        # TODO: [TD0119] Separate adding contextual information from coercion.
         return {
             'value': data,
             'coercer': types.AW_STRING,
@@ -167,7 +166,6 @@ class DocumentAnalyzer(BaseAnalyzer):
         }
 
     def _wrap_generic_title(self, data, probability):
-        # TODO: [TD0119] Separate adding contextual information from coercion.
         return {
             'value': data,
             'coercer': types.AW_STRING,

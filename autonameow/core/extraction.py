@@ -25,10 +25,7 @@ import extractors
 from core import repository
 from core.exceptions import InvalidMeowURIError
 from core.fileobject import FileObject
-from core.model import (
-    ExtractedData,
-    MeowURI
-)
+from core.model import MeowURI
 from extractors import ExtractorError
 
 
@@ -164,7 +161,6 @@ def start(fileobject,
 
 
 def _to_extracteddata(extracteddata, metainfo, source_klass):
-    # TODO: [TD0119] Separate adding contextual information from coercion.
     out = {}
     for field, value in extracteddata.items():
         _field_info = metainfo.get(field)
@@ -172,7 +168,7 @@ def _to_extracteddata(extracteddata, metainfo, source_klass):
             continue
 
         try:
-            coercer = _field_info.get('typewrap')
+            coercer = _field_info.get('coercer')
             mapped_fields = _field_info.get('mapped_fields', [])
             generic_fields = _field_info.get('generic_field')
             multivalued = _field_info.get('multiple')
@@ -181,11 +177,12 @@ def _to_extracteddata(extracteddata, metainfo, source_klass):
                 'TODO: Fix hack "_to_extracteddata()"! :: {!s}'.format(e)
             )
         else:
-            out[field] = ExtractedData(
-                coercer=coercer,
-                mapped_fields=mapped_fields,
-                generic_field=generic_fields,
-                multivalued=multivalued,
-                source=source_klass
-            )(value)
+            out[field] = {
+                'value': value,
+                'coercer': coercer,
+                'mapped_fields': mapped_fields,
+                'generic_field': generic_fields,
+                'multivalued': multivalued,
+                'source': source_klass
+            }
     return out

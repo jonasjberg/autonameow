@@ -38,21 +38,21 @@ class EpubMetadataExtractor(BaseExtractor):
     is_slow = False
     FIELD_LOOKUP = {
         'author': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=1),
             ],
             'generic_field': gf.GenericAuthor
         },
         'title': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
             ],
             'generic_field': gf.GenericTitle
         },
         'producer': {
-            'typewrap': types.AW_STRING,
+            'coercer': types.AW_STRING,
             'mapped_fields': [
                 WeightedMapping(fields.Author, probability=0.1),
             ],

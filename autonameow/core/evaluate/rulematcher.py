@@ -22,7 +22,6 @@
 import logging
 
 from core import repository
-from core.model import ExtractedData
 
 
 log = logging.getLogger(__name__)
@@ -48,12 +47,10 @@ class RuleMatcher(object):
         # )
         response = repository.SessionRepository.query(fileobject, meowuri)
         # log.debug('Got response ({}): {!s}'.format(type(response), response))
-
-        # TODO: [TD0082] Integrate the 'ExtractedData' class.
-        if response is not None and isinstance(response, ExtractedData):
-            return response.value
+        if response:
+            return response.get('value')
         else:
-            return response
+            return None
 
     def request_data(self, meowuri):
         # Functions that use this does not have access to 'self.fileobject'.

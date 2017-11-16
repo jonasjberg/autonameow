@@ -22,10 +22,7 @@
 import logging
 
 from core import repository
-from core.model import (
-    ExtractedData,
-    MeowURI
-)
+from core.model import MeowURI
 from core.namebuilder.fields import nametemplatefield_classes_in_formatstring
 
 
@@ -108,7 +105,6 @@ class TemplateFieldDataResolver(object):
         return True
 
     def _gather_data(self):
-        # TODO: [TD0082] Integrate the 'ExtractedData' class.
         for _field, _meowuris in self.data_sources.items():
             if (_field in self.fields_data
                     and self.fields_data.get(_field) is not None):
@@ -135,52 +131,37 @@ class TemplateFieldDataResolver(object):
                     )
                     continue
 
-                _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(_data),
-                                                                   _data)
+                _data_info = 'Type "{!s}" Contents: "{!s}"'.format(
+                    type(_data.get('value')), _data
+                )
                 if isinstance(_data, list):
                     if len(_data) == 1:
                         _data = _data[0]
                     else:
                         seen_data = set()
                         for d in _data:
-                            seen_data.add(d.value)
+                            seen_data.add(d.get('value'))
 
                         if len(seen_data) == 1:
-                            log.debug('Using first of {} ExtractedData entries '
-                                      'with the same data'.format(len(_data))
+                            log.debug('Using first of {} equivalent '
+                                      'entries'.format(len(_data))
                             )
                             _data = _data[0]
                             # TODO: [TD0112] FIX THIS!
-                            # _data.value = _data.value[0]
-
-                if isinstance(_data, dict):
-                    # TODO: [TD0108] Fix inconsistent plugin results.
-                    # TODO: [TD0102] Fix inconsistent analyzer results.
-                    # TODO: [TD0106] Fix inconsistent extractor results.
-                    log.warning('[TD0108][TD0102][TD0106] Fix inconsistencies!')
-                    continue
 
                 log.debug('Got {}'.format(_data_info))
-                assert isinstance(_data, ExtractedData), (
-                       'Expected "data" to be an instance of "ExtractedData",'
-                       ' got {}. Source MeowURI: "{!s}"'.format(_data_info,
-                                                                _meowuri))
-
                 # # TODO: [TD0112] Clean up merging data.
-                if isinstance(_data.value, list):
+                if isinstance(_data.get('value'), list):
 
                     seen_data = set()
-                    for d in _data.value:
+                    for d in _data.get('value'):
                         seen_data.add(d)
 
                     if len(seen_data) == 1:
-                        log.debug(
-                            'Merged {} ExtractedData entries'.format(
-                                len(_data.value)
-                            )
-                        )
                         # TODO: [TD0112] FIX THIS!
-                        # _data.value = _data.value[0]
+                        log.debug('Merged {} equivalent entries'.format(
+                            len(_data.get('value')))
+                        )
 
                 log.debug('Updated data for field "{!s}"'.format(_field))
                 self.fields_data[_field] = _data
@@ -214,12 +195,9 @@ class TemplateFieldDataResolver(object):
         _data_info = 'Type "{!s}" Contents: "{!s}"'.format(type(data), data)
         assert not isinstance(data, list), (
                'Expected "data" not to be a list. Got {}'.format(_data_info))
-        assert isinstance(data, ExtractedData), (
-               'Expected "data" to be an instance of "ExtractedData". '
-               'Got {}'.format(_data_info))
 
         log.debug('Verifying Field: {!s}  Data:  {!s}'.format(field, data))
-        _compatible = field.type_compatible(data.coercer)
+        _compatible = field.type_compatible(data.get('coercer'))
         if _compatible:
             log.debug('Verified Field-Data Compatibility  OK!')
         else:

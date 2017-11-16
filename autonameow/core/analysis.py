@@ -89,6 +89,7 @@ def _execute_run_queue(analyzer_queue):
         try:
             results = a.run()
         except analyzers.AnalyzerError as e:
+
             log.error('Halted analyzer "{!s}": {!s}'.format(a, e))
             continue
 
@@ -125,30 +126,39 @@ def collect_results(fileobject, meowuri_prefix, data):
     """
     # TODO: [TD0102] Fix inconsistencies in results passed back by analyzers.
     if not isinstance(data, dict):
-        log.debug('[TD0102] Got non-dict data "analysis.collect_results()"')
+        log.debug('[TD0102] Got non-dict data in "analysis.collect_results()"')
         log.debug('[TD0102] Data type: {!s}'.format(type(data)))
         log.debug('[TD0102] Data contents: {!s}'.format(data))
 
-    if isinstance(data, dict):
-        flat_data = util.flatten_dict(data)
-        for _uri_leaf, _data in flat_data.items():
-            try:
-                _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
-            except InvalidMeowURIError as e:
-                log.critical(
-                    'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-                )
-                continue
-            repository.SessionRepository.store(fileobject, _meowuri, _data)
-    else:
-        try:
-            _meowuri = MeowURI(meowuri_prefix)
-        except InvalidMeowURIError as e:
-            log.critical(
-                'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
-            )
-            return
-        repository.SessionRepository.store(fileobject, _meowuri, data)
+    try:
+        _meowuri = MeowURI(meowuri_prefix)
+    except InvalidMeowURIError as e:
+        log.critical(
+            'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
+        )
+        return
+    repository.SessionRepository.store(fileobject, _meowuri, data)
+
+    # if isinstance(data, dict):
+    #     flat_data = util.flatten_dict(data)
+    #     for _uri_leaf, _data in flat_data.items():
+    #         try:
+    #             _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
+    #         except InvalidMeowURIError as e:
+    #             log.critical(
+    #                 'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
+    #             )
+    #             continue
+    #         repository.SessionRepository.store(fileobject, _meowuri, _data)
+    # else:
+    #     try:
+    #         _meowuri = MeowURI(meowuri_prefix)
+    #     except InvalidMeowURIError as e:
+    #         log.critical(
+    #             'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
+    #         )
+    #         return
+    #     repository.SessionRepository.store(fileobject, _meowuri, data)
 
 
 def _instantiate_analyzers(fileobject, klass_list, config):

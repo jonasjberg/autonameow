@@ -102,7 +102,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not basename:
             return None
 
-        _number = find_edition(basename.as_string())
+        _number = find_edition(types.force_string(basename.get('value')))
         if _number:
             return {
                 'value': _number,
@@ -130,8 +130,8 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not ed_file_mimetype:
             return
 
-        file_basename_suffix = ed_basename_suffix.as_string()
-        file_mimetype = ed_file_mimetype.value
+        file_basename_suffix = types.force_string(ed_basename_suffix.get('value'))
+        file_mimetype = ed_file_mimetype.get('value')
         self.log.debug(
             'Attempting to get likely extension for MIME-type: "{!s}"  Basename'
             ' suffix: "{!s}"'.format(file_mimetype, file_basename_suffix))
@@ -153,7 +153,7 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not ed_basename_prefix:
             return
 
-        file_basename_prefix = ed_basename_prefix.as_string()
+        file_basename_prefix = types.force_string(ed_basename_prefix.get('value'))
         _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
         if _options:
             _candidates = _options.get('candidates', {})

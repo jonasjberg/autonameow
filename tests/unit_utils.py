@@ -731,10 +731,6 @@ def init_provider_registry():
     providers.initialize()
 
 
-def is_extracteddata(thing):
-    return bool(thing and isinstance(thing, model.ExtractedData))
-
-
 def is_internalstring(thing):
     if thing is None:
         return False
