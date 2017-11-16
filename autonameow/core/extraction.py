@@ -152,15 +152,18 @@ def start(fileobject,
                       ' {!s}'.format(_extractor_instance, e))
             continue
 
-        _results = _to_extracteddata(_extracted_data, _metainfo,
-                                     _extractor_instance)
+        if not _extracted_data:
+            continue
+
+        _results = _wrap_extracted_data(_extracted_data, _metainfo,
+                                        _extractor_instance)
         _meowuri_prefix = klass.meowuri_prefix()
         collect_results(fileobject, _meowuri_prefix, _results)
 
     log.debug(' Extraction Completed '.center(80, '='))
 
 
-def _to_extracteddata(extracteddata, metainfo, source_klass):
+def _wrap_extracted_data(extracteddata, metainfo, source_klass):
     out = {}
     for field, value in extracteddata.items():
         _field_info = metainfo.get(field)
