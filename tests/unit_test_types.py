@@ -1372,6 +1372,10 @@ class TestCoercerFor(TestCase):
         actual = types.coercer_for(None)
         self.assertIsNone(actual)
 
+    def test_empty_empty(self):
+        actual = types.coercer_for([])
+        self.assertIsNone(actual)
+
     def test_bytes(self):
         self._check(b'foo', types.AW_STRING)
         self._check(b'', types.AW_STRING)
