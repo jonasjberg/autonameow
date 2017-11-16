@@ -51,8 +51,13 @@ def run_test(test):
     try:
         aw()
     except Exception as e:
-        print(ui.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ', back='RED'))
-        print(str(e))
+        print(' '
+              + ui.colorize('    CAUGHT TOP-LEVEL EXCEPTION    ', back='RED'))
+        if VERBOSE:
+            print(str(e))
+
+        # TODO: Fix magic number return for exceptions for use when formatting.
+        return -10, None
 
     captured_runtime = aw.captured_runtime_secs
     failures = 0
@@ -249,10 +254,15 @@ def run_regressiontests(tests):
             should_abort = True
         elapsed_time = time.time() - start_time
 
+        if failures == -10:
+            # TODO: Fix formatting of failure due to top-level exception error.
+            count_failure += 1
+            continue
+
         if failures == 0:
             msg_test_success()
             count_success += 1
-        else:
+        elif failures > 0:
             msg_test_failure()
             count_failure += 1
 
