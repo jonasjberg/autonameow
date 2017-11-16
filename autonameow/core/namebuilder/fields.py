@@ -254,6 +254,19 @@ class DateTime(NameTemplateField):
 
     @classmethod
     def format(cls, data, *args, **kwargs):
+        _datetime_data = data.get('value')
+        if not _datetime_data:
+            raise exceptions.NameBuilderError(
+                '{!s}.format() got empty data'.format(cls)
+            )
+
+        if not isinstance(_datetime_data, datetime.datetime):
+            raise exceptions.NameBuilderError(
+                '{!s}.format() expected data of type "datetime". '
+                'Got "{!s}" with value "{!s}"'.format(cls, type(_datetime_data),
+                                                      _datetime_data)
+            )
+
         c = kwargs.get('config')
         if c:
             _format = c.options['DATETIME_FORMAT']['datetime']
