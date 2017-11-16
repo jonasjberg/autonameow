@@ -260,14 +260,15 @@ class Repository(object):
 
         out = []
         for meowuri, data in temp.items():
-            if isinstance(data, list):
-                if data:
-                    out.append(
-                        _fmt_list_entry(_max_len_meowuri, data[0], meowuri)
-                    )
-                    for v in data[1:]:
-                        out.append(_fmt_list_entry(_max_len_meowuri, v))
+            if not data:
+                continue
 
+            if isinstance(data, list):
+                out.append(
+                    _fmt_list_entry(_max_len_meowuri, data[0], meowuri)
+                )
+                for v in data[1:]:
+                    out.append(_fmt_list_entry(_max_len_meowuri, v))
             else:
                 if meowuri.matchglobs(['generic.contents.text',
                                        'extractor.text.*']):
