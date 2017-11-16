@@ -21,9 +21,30 @@
 
 from datetime import datetime
 from unittest import TestCase
+import unittest
 
-from extractors.filesystem import crossplatform
 import unit_utils as uu
+from extractors.filesystem.crossplatform import (
+    CrossPlatformFileSystemExtractor,
+    datetime_from_timestamp
+)
+from unit_utils_extractors import TestCaseExtractorBasics
+
+
+# This really shouldn't happen. Probably caused by an error if it does.
+DEPENDENCY_ERROR = 'Extractor dependencies not satisfied (!)'
+UNMET_DEPENDENCIES = CrossPlatformFileSystemExtractor.check_dependencies() is False
+assert not UNMET_DEPENDENCIES
+
+
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestPlainTextExtractor(TestCaseExtractorBasics):
+    EXTRACTOR_CLASS = CrossPlatformFileSystemExtractor
+
+    def test_method_str_returns_expected(self):
+        actual = str(self.extractor)
+        expect = 'CrossPlatformFileSystemExtractor'
+        self.assertEqual(actual, expect)
 
 
 ALL_EXTRACTOR_FIELDS_TYPES = [
@@ -43,11 +64,11 @@ ALL_EXTRACTOR_FIELDS_TYPES = [
 
 class TestDatetimeFromTimestamp(TestCase):
     def test_returns_expected_type(self):
-        actual = crossplatform.datetime_from_timestamp(1505579505.0)
+        actual = datetime_from_timestamp(1505579505.0)
         self.assertTrue(isinstance(actual, datetime))
 
     def test_returns_expected_datetime(self):
-        actual = crossplatform.datetime_from_timestamp(1505579505.0)
+        actual = datetime_from_timestamp(1505579505.0)
         expected = uu.str_to_datetime('2017-09-16 183145')
         self.assertEqual(actual, expected)
 
@@ -55,7 +76,7 @@ class TestDatetimeFromTimestamp(TestCase):
 class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
     def setUp(self):
         _fo = uu.fileobject_testfile('magic_txt.txt')
-        _extractor_instance = crossplatform.CrossPlatformFileSystemExtractor()
+        _extractor_instance = CrossPlatformFileSystemExtractor()
         self.actual = _extractor_instance.extract(_fo)
 
     def test_extract_returns_expected_type(self):
@@ -93,7 +114,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
 class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
     def setUp(self):
         _fo = uu.fileobject_testfile('empty')
-        _extractor_instance = crossplatform.CrossPlatformFileSystemExtractor()
+        _extractor_instance = CrossPlatformFileSystemExtractor()
         self.actual = _extractor_instance.extract(_fo)
 
     def test_extract_returns_expected_type(self):
@@ -130,7 +151,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
 
 class TestCrossPlatformFileSystemExtractorMetainfo(TestCase):
     def setUp(self):
-        _extractor_instance = crossplatform.CrossPlatformFileSystemExtractor()
+        _extractor_instance = CrossPlatformFileSystemExtractor()
         self.actual = _extractor_instance.metainfo()
 
     def test_metainfo_returns_expected_type(self):
