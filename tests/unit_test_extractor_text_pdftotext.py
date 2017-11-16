@@ -25,6 +25,22 @@ from core import util
 from extractors.text import PdftotextTextExtractor
 from extractors.text.pdftotext import extract_pdf_content_with_pdftotext
 import unit_utils as uu
+from unit_utils_extractors import TestCaseExtractorBasics
+
+
+UNMET_DEPENDENCIES = PdftotextTextExtractor.check_dependencies() is False
+DEPENDENCY_ERROR = 'Extractor dependencies not satisfied'
+
+
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestPdftotextTextExtractor(TestCaseExtractorBasics):
+    EXTRACTOR_CLASS = PdftotextTextExtractor
+
+    def test_method_str_returns_expected(self):
+        actual = str(self.extractor)
+        expect = 'PdftotextTextExtractor'
+        self.assertEqual(actual, expect)
+
 
 
 pdf_file = uu.abspath_testfile('simplest_pdf.md.pdf')
@@ -43,6 +59,7 @@ Test test. This file contains no digits whatsoever.
 '''
 
 
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
 class TestExtractPdfContentWithPdftotext(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
@@ -60,7 +77,8 @@ class TestSetup(unittest.TestCase):
         self.assertTrue(uu.file_exists(pdf_file))
 
 
-class TestPdftotextTextExtractor(unittest.TestCase):
+@unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
+class TestPdftotextTextExtractorWithTestFile(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -140,12 +158,6 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
 
 '''
 
-    def test_class_is_available(self):
-        self.assertIsNotNone(PdftotextTextExtractor)
-
-    def test_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
     def test__get_text_returns_something(self):
         actual = self.e.extract_text(self.test_fileobject)
         self.assertIsNotNone(actual)
@@ -169,8 +181,18 @@ https://mail.google.com/mail/u/0/?ui=2&ik=dbcc4dc2ed&view=pt&q=ny%20student&qs=t
         actual = self.e.extract(self.test_fileobject)
         self.assertEqual(actual['full'].value, self.EXPECT_TEXT)
 
-    def test_class_method_can_handle_is_defined(self):
-        self.assertIsNotNone(self.e.can_handle)
+
+class TestPdftotextTextExtractorCanHandle(unittest.TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+        self.e = PdftotextTextExtractor()
+
+        class DummyFileObject(object):
+            def __init__(self, mime):
+                self.mime_type = mime
+        self.fo_image = DummyFileObject(mime='image/jpeg')
+        self.fo_pdf = DummyFileObject(mime='application/pdf')
 
     def test_class_method_can_handle_returns_expected(self):
         self.assertFalse(self.e.can_handle(self.fo_image))
