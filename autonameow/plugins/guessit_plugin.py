@@ -128,7 +128,10 @@ class GuessitPlugin(BasePlugin):
         for field, value in data.items():
             _coerced = self.coerce_field_value(field, value)
             if _coerced is not None:
-                self.add_results(fileobject, field, _coerced)
+                wrapped = self.FIELD_LOOKUP.get(field, {}).update(
+                    {'value': _coerced}
+                )
+                self.add_results(fileobject, field, wrapped)
 
     @classmethod
     def test_init(cls):
