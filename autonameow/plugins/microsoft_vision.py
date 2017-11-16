@@ -34,10 +34,7 @@ from core import (
     util
 )
 from core.exceptions import AutonameowPluginError
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core import constants as C
 from core.namebuilder import fields
 from plugins import BasePlugin
@@ -194,28 +191,28 @@ class MicrosoftVisionPlugin(BasePlugin):
 
         _caption = get_caption_text(response)
         if _caption:
-            wrapper = ExtractedData(
-                coercer=types.AW_STRING,
-                mapped_fields=[
+            wrapped = {
+                'value': _caption,
+                'coercer': types.AW_STRING,
+                'mapped_fields': [
                     WeightedMapping(fields.Title, probability=1),
                     WeightedMapping(fields.Description, probability=1)
                 ]
-            )
+            }
             self.log.debug('Returning caption: "{!s}"'.format(_caption))
-            self.add_results(fileobject, 'caption',
-                             ExtractedData.from_raw(wrapper, _caption))
+            self.add_results(fileobject, 'caption', wrapped)
 
         _tags = get_tags(response)
         if _tags:
-            wrapper = ExtractedData(
-                coercer=types.AW_STRING,
-                mapped_fields=[
+            wrapped = {
+                'value': _tags,
+                'coercer': types.AW_STRING,
+                'mapped_fields': [
                     WeightedMapping(fields.Tags, probability=1),
                 ]
-            )
+            }
             _tags_pretty = ' '.join(map(lambda x: '"' + x + '"', _tags))
             self.log.debug('Returning tags: {}'.format(_tags_pretty))
-            self.add_results(fileobject, 'tags',
-                             ExtractedData.from_raw(wrapper, _tags))
+            self.add_results(fileobject, 'tags', wrapped)
 
 

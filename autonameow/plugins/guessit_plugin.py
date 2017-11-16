@@ -31,10 +31,7 @@ from core import (
     types,
     util,
 )
-from core.model import (
-    ExtractedData,
-    WeightedMapping
-)
+from core.model import WeightedMapping
 from core.model import genericfields as gf
 from core.namebuilder import fields
 from plugins import BasePlugin

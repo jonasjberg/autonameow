@@ -26,7 +26,6 @@ from core import (
     exceptions,
     repository
 )
-from core.model import ExtractedData
 
 
 # TODO: [TD0009] Implement a proper plugin interface.
@@ -114,13 +113,7 @@ class PluginHandler(object):
 
 def request_data(fileobject, meowuri):
     response = repository.SessionRepository.query(fileobject, meowuri)
-    if response is None:
-        return None
-    else:
-        if isinstance(response, ExtractedData):
-            return response.value
-        else:
-            return response
+    return response
 
 
 def collect_results(fileobject, meowuri, data):
