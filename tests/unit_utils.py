@@ -29,10 +29,7 @@ import unittest
 from contextlib import contextmanager
 from datetime import datetime
 
-from core import (
-    model,
-    util
-)
+from core import util
 from core.config import rules
 from core.config.configuration import Configuration
 from core.fileobject import FileObject
