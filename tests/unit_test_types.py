@@ -1368,28 +1368,59 @@ class TestCoercerFor(TestCase):
         actual = types.coercer_for(test_input)
         self.assertEqual(actual, expected)
 
+    def test_none(self):
+        actual = types.coercer_for(None)
+        self.assertIsNone(actual)
+
+    def test_bytes(self):
+        self._check(b'foo', types.AW_STRING)
+        self._check(b'', types.AW_STRING)
+        self._check([b''], types.AW_STRING)
+        self._check([b'', 1], types.AW_STRING)
+        self._check((b'', ), types.AW_STRING)
+        self._check((b'', 1), types.AW_STRING)
+        self._check({b'a': b''}, types.AW_STRING)
+        self._check({b'a': b'', b'b': 1}, types.AW_STRING)
+
     def test_string(self):
         self._check('foo', types.AW_STRING)
         self._check('', types.AW_STRING)
         self._check([''], types.AW_STRING)
         self._check(['', 1], types.AW_STRING)
+        self._check(('', ), types.AW_STRING)
+        self._check(('', 1), types.AW_STRING)
+        self._check({'a': ''}, types.AW_STRING)
+        self._check({'a': '', 'b': 1}, types.AW_STRING)
 
     def test_integer(self):
         self._check(1, types.AW_INTEGER)
         self._check(-1, types.AW_INTEGER)
         self._check([1], types.AW_INTEGER)
         self._check([1, 'foo'], types.AW_INTEGER)
+        self._check((1, ), types.AW_INTEGER)
+        self._check((1, 'foo'), types.AW_INTEGER)
+        self._check({'a': 1}, types.AW_INTEGER)
+        self._check({'a': 1, 'b': 'foo'}, types.AW_INTEGER)
 
     def test_boolean(self):
         self._check(False, types.AW_BOOLEAN)
         self._check(True, types.AW_BOOLEAN)
         self._check([True], types.AW_BOOLEAN)
         self._check([True, 'foo'], types.AW_BOOLEAN)
+        self._check((True, ), types.AW_BOOLEAN)
+        self._check((True, 'foo'), types.AW_BOOLEAN)
+        self._check({'a': True}, types.AW_BOOLEAN)
+        self._check({'a': True, 'b': 'foo'}, types.AW_BOOLEAN)
 
     def test_float(self):
         self._check(1.0, types.AW_FLOAT)
         self._check(-1.0, types.AW_FLOAT)
+        self._check([-1.0], types.AW_FLOAT)
         self._check([-1.0, 'foo'], types.AW_FLOAT)
+        self._check((-1.0, ), types.AW_FLOAT)
+        self._check((-1.0, 'foo'), types.AW_FLOAT)
+        self._check({'a': -1.0}, types.AW_FLOAT)
+        self._check({'a': -1.0, 'b': 'foo'}, types.AW_FLOAT)
 
 
 class TestForceString(TestCase):

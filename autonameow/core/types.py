@@ -775,12 +775,35 @@ def try_coerce(value):
 
 
 def coercer_for(value):
+    """
+    Returns a coercer class suitable for the type of the given value.
+
+    Note that this does not properly handle cases where the primitive types
+    alone does not indicate the proper coercion class, for instance MIME-types
+    are strings but should really be handled by the 'MimeType' class.
+    Text of type bytes should be coerced with the 'String' class, but paths of
+    the same type should not. Paths/filenames should be coerced with 'AW_PATH*'.
+
+    This function should be used as a last resort to prevent bad coercion.
+
+    Args:
+        value: The value of unknown type to get a suitable coercer class for.
+
+    Returns:
+        A shared "singleton" instance of a suitable 'BaseType' subclass or None.
+    """
     if value is None:
         return None
 
     _sample = value
-    if value and isinstance(value, list):
+    if value and isinstance(value, (list, tuple)):
         _sample = value[0]
+    elif isinstance(value, dict):
+        try:
+            _first_element = list(value.keys())[0]
+            _sample = value.get(_first_element)
+        except (IndexError, KeyError, TypeError, ValueError):
+            pass
 
     return PRIMITIVE_AW_TYPE_MAP.get(type(_sample), None)
 
