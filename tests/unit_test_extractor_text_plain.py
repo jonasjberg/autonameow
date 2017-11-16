@@ -33,8 +33,10 @@ from extractors.text.plain import (
 from unit_utils_extractors import TestCaseExtractorBasics
 
 
-UNMET_DEPENDENCIES = PlainTextExtractor.check_dependencies() is False
+# This really shouldn't happen. Probably caused by an error if it does.
 DEPENDENCY_ERROR = 'Extractor dependencies not satisfied (!)'
+UNMET_DEPENDENCIES = PlainTextExtractor.check_dependencies() is False
+assert not UNMET_DEPENDENCIES
 
 
 @unittest.skipIf(UNMET_DEPENDENCIES, DEPENDENCY_ERROR)
