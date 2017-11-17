@@ -110,12 +110,6 @@ class GuessitPlugin(BasePlugin):
     def __init__(self):
         super(GuessitPlugin, self).__init__(self.DISPLAY_NAME)
 
-    def can_handle(self, fileobject):
-        _mime_type = self.request_data(
-            fileobject, 'extractor.filesystem.xplat.contents.mime_type'
-        )
-        return util.mimemagic.eval_glob(_mime_type, 'video/*')
-
     def execute(self, fileobject):
         _file_basename = fileobject.filename
         if _file_basename is None:
@@ -125,13 +119,19 @@ class GuessitPlugin(BasePlugin):
         if not data:
             raise exceptions.AutonameowPluginError('Got no data from "guessit"')
 
+        _results = {}
         for field, value in data.items():
             _coerced = self.coerce_field_value(field, value)
             if _coerced is not None:
-                wrapped = self.FIELD_LOOKUP.get(field, {}).update(
-                    {'value': _coerced}
-                )
-                self.add_results(fileobject, field, wrapped)
+                _results[field] = _coerced
+
+        return _results
+
+    def can_handle(self, fileobject):
+        _mime_type = self.request_data(
+            fileobject, 'extractor.filesystem.xplat.contents.mime_type'
+        )
+        return util.mimemagic.eval_glob(_mime_type, 'video/*')
 
     @classmethod
     def test_init(cls):

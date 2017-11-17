@@ -27,8 +27,8 @@ from core import (
     providers
 )
 
-from core.exceptions import InvalidMeowURIError
-from core.model import MeowURI
+
+log = logging.getLogger(__name__)
 
 
 class BasePlugin(object):
@@ -54,23 +54,8 @@ class BasePlugin(object):
 
         self.request_data = plugin_handler.request_data
 
-    def add_results(self, fileobject, meowuri_leaf, data):
-        # TODO: [TD0108] Fix inconsistencies in results passed back by plugins.
-        if data is None:
-            return
-
-        try:
-            _meowuri = MeowURI(self.meowuri_prefix(), meowuri_leaf)
-        except InvalidMeowURIError as e:
-            self.log.critical(
-                'Got invalid MeowURI from plugin -- !{!s}"'.format(e)
-            )
-            return
-
-        plugin_handler.collect_results(fileobject, _meowuri, data)
-
     def __call__(self, source, *args, **kwargs):
-        self.execute(source)
+        return self.execute(source)
 
     @classmethod
     def meowuri_prefix(cls):
@@ -96,9 +81,12 @@ class BasePlugin(object):
     def execute(self, fileobject):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def __str__(self):
-        return self.display_name
-
     @classmethod
     def test_init(cls):
         raise NotImplementedError('Must be implemented by inheriting classes.')
+
+    def metainfo(self, *args, **kwargs):
+        return dict(self.FIELD_LOOKUP)
+
+    def __str__(self):
+        return self.display_name

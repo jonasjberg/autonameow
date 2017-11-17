@@ -26,11 +26,14 @@ from core import (
     exceptions,
     repository
 )
+from core.exceptions import InvalidMeowURIError
+from core.model import MeowURI
+
+
+log = logging.getLogger(__name__)
 
 
 # TODO: [TD0009] Implement a proper plugin interface.
-
-
 class PluginHandler(object):
     def __init__(self):
         self.log = logging.getLogger(
@@ -92,23 +95,40 @@ class PluginHandler(object):
         for plugin_klass in self._plugins_to_use:
             plugin = plugin_klass()
 
-            if plugin.can_handle(fileobject):
-                self.log.debug(
-                    '"{!s}" plugin CAN handle file "{!s}"'.format(
-                        plugin, fileobject)
-                )
-                self.log.debug('Executing plugin: "{!s}" ..'.format(plugin))
-                try:
-                    plugin(fileobject)
-                except exceptions.AutonameowPluginError:
-                    # log.critical('Plugin instance "{!s}" execution '
-                    #              'FAILED'.format(plugin_instance))
-                    raise
-            else:
+            if not plugin.can_handle(fileobject):
                 self.log.debug(
                     '"{!s}" plugin can not handle file "{!s}"'.format(
                         plugin, fileobject)
                 )
+                continue
+
+            self.log.debug(
+                '"{!s}" plugin CAN handle file "{!s}"'.format(
+                    plugin, fileobject)
+            )
+            self.log.debug('Executing plugin: "{!s}" ..'.format(plugin))
+
+            try:
+                _metainfo = plugin.metainfo()
+            except (AttributeError, NotImplementedError) as e:
+                log.error('Failed to get meta info! Halted plugin "{!s}":'
+                          ' {!s}'.format(plugin, e))
+                continue
+            try:
+                data = plugin(fileobject)
+            except exceptions.AutonameowPluginError:
+                log.critical('Plugin instance "{!s}" execution '
+                             'FAILED'.format(plugin))
+                continue
+
+            # TODO: [TD0108] Fix inconsistencies in results passed back by plugins.
+            if not data:
+                continue
+
+            _results = _wrap_extracted_data(data, _metainfo, plugin)
+            _meowuri_prefix = plugin.meowuri_prefix()
+            collect_results(fileobject, _meowuri_prefix, _results)
+
 
 
 def request_data(fileobject, meowuri):
@@ -116,7 +136,7 @@ def request_data(fileobject, meowuri):
     return response.get('value')
 
 
-def collect_results(fileobject, meowuri, data):
+def collect_results(fileobject, meowuri_prefix, data):
     """
     Collects plugin results. Passed to plugins as a callback.
 
@@ -124,8 +144,31 @@ def collect_results(fileobject, meowuri, data):
 
     Args:
         fileobject: File that produced the data to add.
-        meowuri: Label that uniquely identifies the data.
+        meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
         data: The data to add.
     """
     # TODO: [TD0108] Fix inconsistencies in results passed back by plugins.
-    repository.SessionRepository.store(fileobject, meowuri, data)
+    for _uri_leaf, _data in data.items():
+        try:
+            _meowuri = MeowURI(meowuri_prefix, _uri_leaf)
+        except InvalidMeowURIError as e:
+            log.critical(
+                'Got invalid MeowURI from plugin -- !{!s}"'.format(e)
+            )
+            continue
+        repository.SessionRepository.store(fileobject, _meowuri, _data)
+
+
+def _wrap_extracted_data(extracteddata, metainfo, source_klass):
+    out = {}
+
+    for field, value in extracteddata.items():
+        field_metainfo = dict(metainfo.get(field, {}))
+        if not field_metainfo:
+            log.warning('Missing metainfo for field "{!s}"'.format(field))
+
+        field_metainfo['value'] = value
+        field_metainfo['source'] = source_klass
+        out[field] = field_metainfo
+
+    return out
