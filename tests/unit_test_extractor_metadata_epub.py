@@ -20,15 +20,28 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from unittest import TestCase
 
 from extractors.metadata import EpubMetadataExtractor
 import unit_utils as uu
-from unit_utils_extractors import TestCaseExtractorOutputTypes
+from unit_utils_extractors import (
+    TestCaseExtractorBasics,
+    TestCaseExtractorOutput,
+    TestCaseExtractorOutputTypes
+)
 
 
 unmet_dependencies = not EpubMetadataExtractor.check_dependencies()
 dependency_error = 'Extractor dependencies not satisfied'
+
+
+@unittest.skipIf(unmet_dependencies, dependency_error)
+class TestEpubMetadataExtractor(TestCaseExtractorBasics):
+    EXTRACTOR_CLASS = EpubMetadataExtractor
+
+    def test_method_str_returns_expected(self):
+        actual = str(self.extractor)
+        expect = 'EpubMetadataExtractor'
+        self.assertEqual(actual, expect)
 
 
 @unittest.skipIf(unmet_dependencies, dependency_error)
@@ -37,33 +50,11 @@ class TestEpubMetadataExtractorOutputTypes(TestCaseExtractorOutputTypes):
     SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
 
 
-class TestEpubMetadataExtractor(TestCase):
-    def setUp(self):
-        self.e = EpubMetadataExtractor()
-
-    def test_extractor_class_is_available(self):
-        self.assertIsNotNone(EpubMetadataExtractor)
-
-    def test_extractor_class_can_be_instantiated(self):
-        self.assertIsNotNone(self.e)
-
-    def test_specifies_handles_mime_types(self):
-        self.assertIsNotNone(self.e.HANDLES_MIME_TYPES)
-        self.assertTrue(isinstance(self.e.HANDLES_MIME_TYPES, list))
-
-    def test_method_str_returns_expected(self):
-        self.assertEqual(str(self.e), 'EpubMetadataExtractor')
-
-
 @unittest.skipIf(unmet_dependencies, dependency_error)
-class TestEpubMetadataExtractorWithTestFile(unittest.TestCase):
-    def setUp(self):
-        self.e = EpubMetadataExtractor()
-        self.test_fileobject = uu.fileobject_testfile('pg38145-images.epub')
-
-        self.actual = self.e.extract(self.test_fileobject)
-
-    def test_method_extract_returns_expected_title(self):
-        actual = self.actual['title']['value']
-        expect = 'Human, All Too Human: A Book for Free Spirits'
-        self.assertEqual(actual, expect)
+class TestEpubMetadataExtractorOutputTestFileA(TestCaseExtractorOutput):
+    EXTRACTOR_CLASS = EpubMetadataExtractor
+    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
+    _dt = uu.str_to_datetime
+    EXPECTED_FIELD_TYPE_VALUE = [
+        ('title', str, 'Human, All Too Human: A Book for Free Spirits'),
+    ]
