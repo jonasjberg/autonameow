@@ -144,13 +144,13 @@ assert_true '[ -e "$ACTIVE_CONFIG" ]' \
             "The config file \""$(basename -- "$ACTIVE_CONFIG")"\" exists"
 
 
-SAMPLE_JPG_FILE="$(abspath_testfile "smulan.jpg")"
-SAMPLE_JPG_FILE_EXPECTED='2010-01-31T161251 a cat lying on a rug.jpg'
-assert_true '[ -e "$SAMPLE_JPG_FILE" ]' \
-            "Sample file \"${SAMPLE_JPG_FILE}\" exists. Substitute a suitable sample file if this test fails!"
-
-test_automagic_rename 'test_files smulan.jpg' "$SAMPLE_JPG_FILE" "$SAMPLE_JPG_FILE_EXPECTED"
-test_automagic_dryrun 'test_files smulan.jpg' "$SAMPLE_JPG_FILE" "$SAMPLE_JPG_FILE_EXPECTED"
+# SAMPLE_JPG_FILE="$(abspath_testfile "smulan.jpg")"
+# SAMPLE_JPG_FILE_EXPECTED='2010-01-31T161251 a cat lying on a rug.jpg'
+# assert_true '[ -e "$SAMPLE_JPG_FILE" ]' \
+#             "Sample file \"${SAMPLE_JPG_FILE}\" exists. Substitute a suitable sample file if this test fails!"
+#
+# test_automagic_rename 'test_files smulan.jpg' "$SAMPLE_JPG_FILE" "$SAMPLE_JPG_FILE_EXPECTED"
+# test_automagic_dryrun 'test_files smulan.jpg' "$SAMPLE_JPG_FILE" "$SAMPLE_JPG_FILE_EXPECTED"
 
 
 SAMPLE_PDF_FILE="$(abspath_testfile "gmail.pdf")"
