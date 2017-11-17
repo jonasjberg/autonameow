@@ -800,8 +800,8 @@ def coercer_for(value):
         _sample = value[0]
     elif isinstance(value, dict):
         try:
-            _first_element = list(value.keys())[0]
-            _sample = value.get(_first_element)
+            _any_element = list(value.keys())[0]
+            _sample = value.get(_any_element)
         except (IndexError, KeyError, TypeError, ValueError):
             pass
 
