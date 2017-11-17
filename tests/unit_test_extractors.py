@@ -67,6 +67,13 @@ class TestBaseExtractor(TestCase):
         actual = self.e.metainfo(self.test_file)
         self.assertEqual(len(actual), 0)
 
+    def test_metainfo_is_not_mutable(self):
+        first = self.e.metainfo(self.test_file)
+        first['foo'] = 'bar'
+        second = self.e.metainfo(self.test_file)
+        self.assertNotEqual(first, second)
+        self.assertNotIn('foo', second)
+
     def test_check_dependencies_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             _ = self.e.check_dependencies()
