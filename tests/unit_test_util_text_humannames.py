@@ -68,6 +68,9 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     TD(Given='Gibson Mjau Sjöberg', Expect='Sjöberg G.M.'),
     TD(Given='Hatt Katt Smulan', Expect='Smulan H.K.'),
 
+    TD(Given='Friedrich Wilhelm Nietzsche', Expect='Nietzsche F.W.'),
+    TD(Given='Nietzsche, Friedrich Wilhelm', Expect='Nietzsche F.W.'),
+
     # First, middle, middle, last
     TD(Given='Gibson Mjau Mjao Sjöberg', Expect='Sjöberg G.M.M.'),
 
