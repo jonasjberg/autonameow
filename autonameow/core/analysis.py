@@ -125,10 +125,10 @@ def collect_results(fileobject, meowuri_prefix, data):
         data: The data to add, as any type or container.
     """
     # TODO: [TD0102] Fix inconsistencies in results passed back by analyzers.
-    if not isinstance(data, dict):
-        log.debug('[TD0102] Got non-dict data in "analysis.collect_results()"')
-        log.debug('[TD0102] Data type: {!s}'.format(type(data)))
-        log.debug('[TD0102] Data contents: {!s}'.format(data))
+    assert isinstance(data, dict), (
+        '[TD0102] Got non-dict data in "analysis.collect_results()" :: '
+        '({!s}) "{!s}"'.format(type(data), data)
+    )
 
     try:
         _meowuri = MeowURI(meowuri_prefix)
