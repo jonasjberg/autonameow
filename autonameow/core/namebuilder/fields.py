@@ -59,7 +59,10 @@ class NameTemplateField(object):
 
     @classmethod
     def type_compatible(cls, type_class):
-        return type_class in cls.COMPATIBLE_TYPES
+        if isinstance(type_class, types.MultipleTypes):
+            return type_class.coercer in cls.COMPATIBLE_TYPES
+        else:
+            return type_class in cls.COMPATIBLE_TYPES
 
     def __str__(self):
         return self.__class__.__name__.lower()
