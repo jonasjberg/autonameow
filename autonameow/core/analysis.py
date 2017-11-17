@@ -125,19 +125,34 @@ def collect_results(fileobject, meowuri_prefix, data):
         data: The data to add, as any type or container.
     """
     # TODO: [TD0102] Fix inconsistencies in results passed back by analyzers.
-    assert isinstance(data, dict), (
-        '[TD0102] Got non-dict data in "analysis.collect_results()" :: '
-        '({!s}) "{!s}"'.format(type(data), data)
-    )
-
-    try:
-        _meowuri = MeowURI(meowuri_prefix)
-    except InvalidMeowURIError as e:
-        log.critical(
-            'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
+    if isinstance(data, list):
+        for d in data:
+            assert isinstance(d, dict), (
+                '[TD0102] Expected list elements passed to "collect_results()"'
+                ' to be type dict. Got: ({!s}) "{!s}"'.format(type(d), d)
+            )
+            try:
+                _meowuri = MeowURI(meowuri_prefix)
+            except InvalidMeowURIError as e:
+                log.critical(
+                    'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
+                )
+                return
+            repository.SessionRepository.store(fileobject, _meowuri, d)
+    else:
+        assert isinstance(data, dict), (
+            '[TD0102] Got non-dict data in "analysis.collect_results()" :: '
+            '({!s}) "{!s}"'.format(type(data), data)
         )
-        return
-    repository.SessionRepository.store(fileobject, _meowuri, data)
+
+        try:
+            _meowuri = MeowURI(meowuri_prefix)
+        except InvalidMeowURIError as e:
+            log.critical(
+                'Got invalid MeowURI from analyzer -- !{!s}"'.format(e)
+            )
+            return
+        repository.SessionRepository.store(fileobject, _meowuri, data)
 
     # if isinstance(data, dict):
     #     flat_data = util.flatten_dict(data)

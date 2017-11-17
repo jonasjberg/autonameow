@@ -164,18 +164,28 @@ class BaseAnalyzer(object):
     def request_any_textual_content(self):
         _response = self.request_data(self.fileobject,
                                       'generic.contents.text')
-        if _response is None:
+        if not _response:
             return None
 
         text = None
         if isinstance(_response, list):
             for _r in _response:
-                if isinstance(_r, str) and len(_r.value) > 0:
-                    text = _r
+                assert isinstance(_r, dict), (
+                    'Expected MeowURI "generic.contents.text" list entries to'
+                    ' be type dict. Got "{!s}"'.format(type(_r))
+                )
+                v = _r.get('value')
+                if isinstance(v, str) and len(v) > 0:
+                    text = v
                     break
         else:
-            if isinstance(_response, str) and len(_response.value) > 0:
-                text = _response
+            assert isinstance(_response, dict), (
+                'Expected MeowURI "generic.contents.text" to return '
+                'type dict. Got "{!s}"'.format(type(_response))
+            )
+            v = _response.get('value')
+            if isinstance(v, str) and len(v) > 0:
+                text = v
 
         if text is not None:
             return text
