@@ -127,7 +127,7 @@ class DocumentAnalyzer(BaseAnalyzer):
         # first to line number "max_lines".
         # The first line is assigned probability 1, probabilities decrease
         # for each line until line number "max_lines" with probability 0.
-        max_lines = 10
+        max_lines = 1
         for num, line in enumerate(text.splitlines()):
             if num > max_lines:
                 break
