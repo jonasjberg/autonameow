@@ -78,8 +78,6 @@ Medium Priority
         * Textual contents of the file matches a regular expression?
         * Some date/time-information lies within some specific range.
 
-* `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
-
 * `[TD0019]` Rework the `FilenameAnalyzer`
     * `[TD0020]` Identify data fields in file names.
         ```

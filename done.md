@@ -22,6 +22,11 @@ University mail: `js224eh[a]student.lnu.se`
     > * `[TD0087]` Clean up messy and sometimes duplicated wrapping of "raw" data.
     >
     > * `[TD0119]` Separate adding contextual information from type coercion.
+    >
+    > Medium Priority
+    > ---------------
+    >
+    > * `[TD0041]` Improve data filtering prior to name assembly in `NameBuilder`
 
 * 2017-11-10
 
