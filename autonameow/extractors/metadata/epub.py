@@ -75,16 +75,11 @@ class EpubMetadataExtractor(BaseExtractor):
         out = {}
 
         for tag_name in self.FIELD_LOOKUP.keys():
-            try:
-                _data = raw_metadata.get(tag_name)
-            except AttributeError:
-                continue
-            else:
+            _data = raw_metadata.get(tag_name)
+            if _data is not None:
                 coerced = self.coerce_field_value(tag_name, _data)
-                if coerced:
-                    metainfo = dict(self.FIELD_LOOKUP.get(tag_name, {}))
-                    metainfo.update({'value': coerced})
-                    out[tag_name] = metainfo
+                if coerced is not None:
+                    out[tag_name] = coerced
 
         return out
 

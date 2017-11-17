@@ -61,9 +61,7 @@ class AbstractTextExtractor(BaseExtractor):
         sanity.check_internal_string(text)
 
         self.log.debug('{!s} returning all extracted data'.format(self))
-        metainfo = dict(self.FIELD_LOOKUP.get('full', {}))
-        metainfo.update({'value': text})
-        return metainfo
+        return {'value': text}
 
     def _get_text(self, fileobject):
         # Read cached text

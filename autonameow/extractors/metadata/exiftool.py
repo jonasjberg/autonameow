@@ -513,10 +513,8 @@ class ExiftoolMetadataExtractor(BaseExtractor):
 
         for tag_name, value in raw_metadata.items():
             coerced = self.coerce_field_value(tag_name, value)
-            if coerced:
-                metainfo = dict(self.FIELD_LOOKUP.get(tag_name, {}))
-                metainfo.update({'value': coerced})
-                out[tag_name] = metainfo
+            if coerced is not None:
+                out[tag_name] = coerced
 
         return out
 

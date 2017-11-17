@@ -165,27 +165,14 @@ def start(fileobject,
 
 def _wrap_extracted_data(extracteddata, metainfo, source_klass):
     out = {}
-    for field, value in extracteddata.items():
-        _field_info = metainfo.get(field)
-        if not _field_info:
-            continue
 
-        try:
-            coercer = _field_info.get('coercer')
-            mapped_fields = _field_info.get('mapped_fields', [])
-            generic_fields = _field_info.get('generic_field')
-            multivalued = _field_info.get('multiple')
-        except AttributeError as e:
-            log.critical(
-                'TODO: Fix hack "_to_extracteddata()"! :: {!s}'.format(e)
-            )
-        else:
-            out[field] = {
-                'value': value,
-                'coercer': coercer,
-                'mapped_fields': mapped_fields,
-                'generic_field': generic_fields,
-                'multivalued': multivalued,
-                'source': source_klass
-            }
+    for field, value in extracteddata.items():
+        field_metainfo = dict(metainfo.get(field, {}))
+        if not field_metainfo:
+            log.warning('Missing metainfo for field "{!s}"'.format(field))
+
+        field_metainfo['value'] = value
+        field_metainfo['source'] = source_klass
+        out[field] = field_metainfo
+
     return out

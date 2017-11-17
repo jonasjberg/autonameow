@@ -70,38 +70,17 @@ class TestCaseExtractorOutputTypes(unittest.TestCase):
             '"{!s}" ({!s})'.format(actual, type(actual))
         )
 
-    def test_setup_extracts_data_from_fileobject_source(self):
-        actual = self.actual_extracted
-        self.assertIsNotNone(
-            actual,
-            'None extracted by "{!s}" from source "{!s}"'.format(
-                self.extractor, self.SOURCE_FILEOBJECT
-            )
-        )
-
     def test_extract_does_not_return_none(self):
-        _actual_extracted = self.actual_extracted
         self.assertIsNotNone(
-            _actual_extracted,
+            self.actual_extracted,
             'Got None extracted data from "{!s}"'.format(self.extractor)
         )
 
-    def test_extract_returns_expected_outer_type(self):
-        _actual_extracted = self.actual_extracted
+    def test_extract_returns_expected_container_type(self):
         self.assertTrue(
-            isinstance(_actual_extracted, dict),
-            'Expected "dict". Got "{!s}"'.format(type(_actual_extracted))
+            isinstance(self.actual_extracted, dict),
+            'Expected "dict". Got "{!s}"'.format(type(self.actual_extracted))
         )
-
-    def test_extract_returns_expected_contained_types(self):
-        _actual_extracted = self.actual_extracted
-        for meowuri, datadict in _actual_extracted.items():
-            self.assertTrue(
-                isinstance(datadict, dict),
-                'Expected "dict". Got "{!s}" for MeowURI "{!s}"'.format(
-                    type(datadict), meowuri
-                )
-            )
 
 
 ALL_TESTFILES = [
@@ -225,8 +204,7 @@ class TestCaseExtractorOutput(unittest.TestCase):
             if expect_value is None:
                 continue
 
-            actual_datadict = self.actual_extracted.get(expect_field)
-            actual_value = actual_datadict.get('value')
+            actual_value = self.actual_extracted.get(expect_field)
             self.assertIsNotNone(
                 actual_value,
                 'Field value is unexpectedly None: "{!s}"'.format(expect_field)
@@ -234,8 +212,7 @@ class TestCaseExtractorOutput(unittest.TestCase):
 
     def test_extracted_data_has_expected_values(self):
         for expect_field, expect_type, expect_value in self.EXPECTED_FIELD_TYPE_VALUE:
-            actual_datadict = self.actual_extracted.get(expect_field)
-            actual_value = actual_datadict.get('value')
+            actual_value = self.actual_extracted.get(expect_field)
             self.assertEqual(
                 actual_value, expect_value,
                 '[{!s}] :: Expected "{!s}" ({!s}) NOT "{!s}" ({!s})'.format(
@@ -246,11 +223,15 @@ class TestCaseExtractorOutput(unittest.TestCase):
 
     def test_extracted_data_has_expected_types(self):
         for expect_field, expect_type, _ in self.EXPECTED_FIELD_TYPE_VALUE:
-            actual_datadict = self.actual_extracted.get(expect_field)
-            actual_value = actual_datadict.get('value')
+            actual_results = self.actual_extracted.get(expect_field, None)
+            if actual_results is None:
+                # Fail only if types differ and not if data is missing, even
+                # if it is expected to be there.
+                continue
+
             self.assertTrue(
-                isinstance(actual_value, expect_type),
-                'Expected "{!s}" ({!s}) to be of type "{!s}"'.format(
-                    actual_value, type(actual_value), expect_type
+                isinstance(actual_results, expect_type),
+                'Expected type "{!s}" but got {!s} for "{!s}"'.format(
+                    expect_type, type(actual_results), actual_results
                 )
             )
