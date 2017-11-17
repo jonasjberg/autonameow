@@ -131,6 +131,7 @@ class TemplateFieldDataResolver(object):
                     )
                     continue
 
+                # TODO: [TD0112] FIX THIS HORRIBLE MESS!
                 if isinstance(_data, list):
                     if len(_data) == 1:
                         _data = _data[0]
@@ -144,13 +145,16 @@ class TemplateFieldDataResolver(object):
                                       'entries'.format(len(_data)))
                             _data = _data[0]
                             # TODO: [TD0112] FIX THIS!
+                        else:
+                            log.warning('Not sure what data to use for field '
+                                        '"{!s}"..'.format(_field))
+                            for i, d in enumerate(_data):
+                                log.warning('Field candidate {:03d} :: '
+                                            '"{!s}"'.format(i, d.get('value')))
+                            continue
 
-                _data_info = 'Type "{!s}" Contents: "{!s}"'.format(
-                    type(_data.get('value')), _data
-                )
-                log.debug('Got {}'.format(_data_info))
                 # # TODO: [TD0112] Clean up merging data.
-                if isinstance(_data.get('value'), list):
+                elif isinstance(_data.get('value'), list):
 
                     seen_data = set()
                     for d in _data.get('value'):
@@ -161,10 +165,10 @@ class TemplateFieldDataResolver(object):
                         log.debug('Merged {} equivalent entries'.format(
                             len(_data.get('value')))
                         )
+                        _data['value'] = list(seen_data)[0]
 
                 log.debug('Updated data for field "{!s}"'.format(_field))
                 self.fields_data[_field] = _data
-                break
 
     def _verify_types(self):
         # TODO: [TD0115] Clear up uncertainties about data multiplicities.
