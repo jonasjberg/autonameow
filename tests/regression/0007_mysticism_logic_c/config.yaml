@@ -14,6 +14,7 @@ RULES:
             title:
             - extractor.metadata.epub.title
             - extractor.metadata.exiftool.PDF:Title
+            - generic.metadata.title
         NAME_FORMAT: '{title}.{extension}'
         exact_match: true
         ranking_bias: null
