@@ -93,6 +93,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
         },
         'follows_filetags_convention': {
             'coercer': types.AW_BOOLEAN,
+            'multivalued': False,
             'mapped_fields': None,
             'generic_field': None
         }
@@ -112,7 +113,6 @@ class FiletagsAnalyzer(BaseAnalyzer):
     def analyze(self):
         (_raw_timestamp, _raw_description, _raw_tags,
          _raw_extension) = partition_basename(self.fileobject.abspath)
-        _raw_follows_convention = self.follows_filetags_convention()
 
         self._timestamp = self.coerce_field_value('datetime', _raw_timestamp)
         self._description = self.coerce_field_value('description', _raw_description)
@@ -124,6 +124,8 @@ class FiletagsAnalyzer(BaseAnalyzer):
                 self._tags = sorted(_coerced_tags)
 
         self._extension = self.coerce_field_value('extension', _raw_extension)
+
+        _raw_follows_convention = self.follows_filetags_convention()
         self._follows_filetags_convention = self.coerce_field_value(
             'follows_filetags_convention', _raw_follows_convention
         )
@@ -164,6 +166,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
         })
         self._add_results('follows_filetags_convention', {
             'value': self._follows_filetags_convention,
+            'multivalued': False,
             'coercer': types.AW_BOOLEAN
         })
 
