@@ -44,7 +44,7 @@ class AbstractTextExtractor(BaseExtractor):
     FIELD_LOOKUP = {
         'full': {
             'coercer': types.AW_STRING,
-            'multiple': False,
+            'multivalued': False,
             'mapped_fields': None,
             'generic_field': gf.GenericText
         }

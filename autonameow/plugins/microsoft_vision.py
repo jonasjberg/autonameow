@@ -155,7 +155,7 @@ class MicrosoftVisionPlugin(BasePlugin):
     FIELD_LOOKUP = {
         'caption': {
             'coercer': types.AW_STRING,
-            'multiple': False,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.Title, probability=1),
                 WeightedMapping(fields.Description, probability=1)
@@ -164,7 +164,7 @@ class MicrosoftVisionPlugin(BasePlugin):
         },
         'tags': {
             'coercer': types.listof(types.AW_STRING),
-            'multiple': True,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
                 WeightedMapping(fields.Title, probability=0.5),

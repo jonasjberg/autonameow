@@ -78,7 +78,7 @@ class FiletagsAnalyzer(BaseAnalyzer):
         },
         'tags': {
             'coercer': types.AW_STRING,
-            'multiple': True,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
             ],

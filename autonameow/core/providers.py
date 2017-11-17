@@ -54,7 +54,7 @@ class ProviderMixin(object):
 
         if isinstance(value, list):
             # Check "FIELD_LOOKUP" assumptions.
-            if not _field_lookup_entry.get('multiple'):
+            if not _field_lookup_entry.get('multivalued'):
                 self.log.warning(
                     'Got list but "FIELD_LOOKUP" specifies a single value.'
                     ' Tag: "{!s}" Value: "{!s}"'.format(field, value)
@@ -69,7 +69,7 @@ class ProviderMixin(object):
                 return None
         else:
             # Check "FIELD_LOOKUP" assumptions.
-            if _field_lookup_entry.get('multiple'):
+            if _field_lookup_entry.get('multivalued'):
                 self.log.warning(
                     'Got single value but "FIELD_LOOKUP" specifies multiple.'
                     ' Tag: "{!s}" Value: "{!s}"'.format(field, value)

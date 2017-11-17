@@ -63,7 +63,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
     FIELD_LOOKUP = {
         'ASF:CreationDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
-            'multiple': False,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
@@ -79,7 +79,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'Composite:HyperfocalDistance': {'coercer': types.AW_FLOAT},
         'EXIF:CreateDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
-            'multiple': False,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
@@ -88,7 +88,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'EXIF:DateTimeDigitized': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
-            'multiple': False,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
@@ -97,7 +97,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'EXIF:DateTimeOriginal': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
-            'multiple': False,
+            'multivalued': False,
             'mapped_fields': [
                 WeightedMapping(fields.DateTime, probability=1),
                 WeightedMapping(fields.Date, probability=1)
@@ -227,7 +227,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'PDF:Keywords': {
             'coercer': types.AW_STRING,
-            'multiple': True,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Tags, probability=1),
             ],
@@ -255,7 +255,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'PDF:Subject': {
             'coercer': types.AW_STRING,
-            'multiple': True,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Tags, probability=0.8),
@@ -274,7 +274,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         'SourceFile': {'coercer': types.AW_PATH},
         'QuickTime:CompatibleBrands': {
             'coercer': types.AW_STRING,
-            'multiple': True
+            'multivalued': True
         },
         'QuickTime:CreateDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
@@ -379,27 +379,27 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'XMP:HistoryAction': {
             'coercer': types.AW_STRING,
-            'multiple': True
+            'multivalued': True
         },
         'XMP:HistoryChanged': {
             'coercer': types.AW_STRING,
-            'multiple': True
+            'multivalued': True
         },
         'XMP:HistoryInstanceID': {
             'coercer': types.AW_STRING,
-            'multiple': True
+            'multivalued': True
         },
         'XMP:HistoryParameters': {
             'coercer': types.AW_STRING,
-            'multiple': True
+            'multivalued': True
         },
         'XMP:HistorySoftwareAgent': {
             'coercer': types.AW_STRING,
-            'multiple': True
+            'multivalued': True
         },
         'XMP:HistoryWhen': {
             'coercer': types.AW_TIMEDATE,
-            'multiple': True
+            'multivalued': True
         },
         'XMP:Keywords': {
             'coercer': types.AW_STRING,
@@ -412,15 +412,15 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'XMP:ManifestLinkForm': {
             'coercer': types.AW_STRING,
-            'multiple': True
+            'multivalued': True
         },
         'XMP:ManifestReferenceInstanceID': {
             'coercer': types.AW_STRING,
-            'multiple': True
+            'multivalued': True
         },
         'XMP:ManifestReferenceDocumentID': {
             'coercer': types.AW_STRING,
-            'multiple': True
+            'multivalued': True
         },
         'XMP:MetadataDate': {
             'coercer': types.AW_EXIFTOOLTIMEDATE,
@@ -449,7 +449,7 @@ class ExiftoolMetadataExtractor(BaseExtractor):
         },
         'XMP:Subject': {
             'coercer': types.AW_STRING,
-            'multiple': True,
+            'multivalued': True,
             'mapped_fields': [
                 WeightedMapping(fields.Description, probability=1),
                 WeightedMapping(fields.Tags, probability=0.8),

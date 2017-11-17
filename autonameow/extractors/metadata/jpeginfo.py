@@ -50,13 +50,13 @@ class JpeginfoMetadataExtractor(BaseExtractor):
     FIELD_LOOKUP = {
         'health': {
             'coercer': types.AW_FLOAT,
-            'multiple': False,
+            'multivalued': False,
             'mapped_fields': None,
             'generic_field': gf.GenericHealth
         },
         'is_jpeg': {
             'coercer': types.AW_BOOLEAN,
-            'multiple': False,
+            'multivalued': False,
             'mapped_fields': None,
             'generic_field': None
         }

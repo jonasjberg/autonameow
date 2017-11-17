@@ -91,7 +91,7 @@ class BaseExtractor(object):
         self.log = logging.getLogger(
             '{!s}.{!s}'.format(__name__, self.__module__)
         )
-        # TODO: Set 'FIELD_LOOKUP' default values? Maybe 'multiple' = False?
+        # TODO: Set 'FIELD_LOOKUP' default values? Maybe 'multivalued' = False?
 
     @classmethod
     def meowuri_prefix(cls):

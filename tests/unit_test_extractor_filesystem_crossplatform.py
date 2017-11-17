@@ -168,7 +168,7 @@ class TestCrossPlatformFileSystemExtractorMetainfo(TestCase):
     def test_metainfo_multiple_is_bool_or_none(self):
         for _field, _ in ALL_EXTRACTOR_FIELDS_TYPES:
             _field_lookup_entry = self.actual.get(_field, {})
-            self.assertIn('multiple', _field_lookup_entry)
+            self.assertIn('multivalued', _field_lookup_entry)
 
-            actual = _field_lookup_entry.get('multiple')
+            actual = _field_lookup_entry.get('multivalued')
             self.assertTrue(isinstance(actual, (bool, type(None))))
