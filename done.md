@@ -10,6 +10,19 @@ University mail: `js224eh[a]student.lnu.se`
 `autonameow` Completed TODO-list entries
 ========================================
 
+* 2017-11-17
+
+    > High Priority
+    > -------------
+    >
+    > * `[TD0088]` Handle case where `ExtractedData.wrapper` is `None`.
+    >
+    > * `[TD0082]` Integrate the `ExtractedData` class.
+    >
+    > * `[TD0087]` Clean up messy and sometimes duplicated wrapping of "raw" data.
+    >
+    > * `[TD0119]` Separate adding contextual information from type coercion.
+
 * 2017-11-10
 
     > High Priority

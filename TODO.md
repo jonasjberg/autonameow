@@ -15,18 +15,14 @@ High Priority
 -------------
 
 * `[TD0115]` __Clear up uncertainties about data multiplicities.__  
-  I.E. list of `ExtractedData` instances vs. single `ExtractedData` instance
-  that contains a list of data (`multivalued=True`).
+  I.E. list of data dicts vs. single data dict that contains a list
+  of data (`multivalued: True`).
 
 * `[TD0100]` Spec out "operating modes" and functionality requirements.
 
 * `[TD0099]` Use `python-prompt-toolkit` for the interactive cli UI.
 
 * `[TD0089]` Validate only "generic" data fields when reading config.
-
-* `[TD0088]` Handle case where `ExtractedData.wrapper` is `None`.
-
-* `[TD0082]` Integrate the `ExtractedData` class.
 
 * `[TD0084]` Add handling collections (lists, etc) to the type wrapper classes.
 
@@ -40,10 +36,6 @@ High Priority
 * `[TD0106]` Fix inconsistencies in results passed back by extractors.
 
 * `[TD0108]` Fix inconsistencies in results passed back by plugins.
-
-* `[TD0087]` Clean up messy and sometimes duplicated wrapping of "raw" data.
-
-* `[TD0119]` Separate adding contextual information from type coercion.
 
 
 Medium Priority
